@@ -8,8 +8,8 @@
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "chore: add electron react toolchain",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "feat: seed core session snapshot",
   "debt": null
 }
 ```
@@ -62,14 +62,14 @@
 
 ### Stream: Runtime Dependencies
 
-9. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Install the minimal Electron/React/Vite/TypeScript toolchain and update root config/scripts for dev and build commands (scope: `package.json, package-lock.json, tsconfig.json, vite.config.ts, index.html`; expected commit: `chore: add electron react toolchain`).
-10. [TODO] Git Commit: `chore: add electron react toolchain` (hash: TBD)
+9. [DONE] `harness-ai.phase4.stream1.task1` Install the minimal Electron/React/Vite/TypeScript toolchain and update root config/scripts for dev and build commands (scope: `package.json, package-lock.json, tsconfig.json, vite.config.ts, index.html, scripts/check-architecture.mjs, scripts/typecheck.mjs`; expected commit: `chore: add electron react toolchain`). Result: Completed in commit `chore: add electron react toolchain`.
+10. [DONE] Git Commit: `chore: add electron react toolchain` (hash: self)
 
 ## Phase 5 - Core Session Seed (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Local Session Snapshot
 
-11. [TODO] `harness-ai.phase5.stream1.task1` Implement the minimal Core-owned workspace/session snapshot seed for the first UI slice (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/**`; expected commit: `feat: seed core session snapshot`).
+11. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Implement the minimal Core-owned workspace/session snapshot seed for the first UI slice (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/**`; expected commit: `feat: seed core session snapshot`).
 12. [TODO] Git Commit: `feat: seed core session snapshot` (hash: TBD)
 
 ## Phase 6 - Electron Session UI (owner: Codex, updated: 2026-06-26)

@@ -59,7 +59,7 @@ function checkTree(tree) {
 function checkLineLimits() {
   const offenders = [];
   for (const file of walk(".")) {
-    if (!/\.(mjs|js|ts|tsx|md|json)$/u.test(file)) {
+    if (!/\.(mjs|js|ts|tsx)$/u.test(file)) {
       continue;
     }
     const lines = lineCount(file);

@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview --host 127.0.0.1",
     "prepare": "git config core.hooksPath .husky",
     "plan:status": "node scripts/plan.mjs status",
     "plan:validate": "node scripts/plan.mjs validate",
@@ -18,5 +21,19 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "lucide-react": "^1.21.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "electron": "^42.5.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.0"
   }
 }

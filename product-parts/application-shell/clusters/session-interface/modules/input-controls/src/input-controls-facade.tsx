@@ -3,7 +3,7 @@ import { useState } from "react";
 
 interface InputControlsProps {
   disabled?: boolean;
-  onSubmit: (text: string) => void;
+  onSubmit: (text: string) => void | Promise<void>;
 }
 
 export function InputControlsFacade({ disabled = false, onSubmit }: InputControlsProps) {

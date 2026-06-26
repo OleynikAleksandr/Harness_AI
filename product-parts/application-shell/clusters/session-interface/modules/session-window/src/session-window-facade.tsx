@@ -15,6 +15,12 @@ import {
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import "./session-window.css";
 
+interface SessionProviderSelection {
+  model: string;
+  providerId: ProviderDescriptor["id"];
+  providerName: string;
+}
+
 export function SessionWindowFacade() {
   const initialSnapshot = useMemo(
     () => sessionSnapshotProjectorFacade.getSnapshot(),
@@ -39,6 +45,10 @@ export function SessionWindowFacade() {
   >({
     [initialSnapshot.activeSessionId]: initialSnapshot.telemetry
   });
+  const [providerBySession, setProviderBySession] = useState<
+    Record<string, SessionProviderSelection>
+  >({});
+  const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
 
   const activeSession =
     sessions.find((session) => session.id === activeSessionId) ?? sessions[0];
@@ -46,7 +56,9 @@ export function SessionWindowFacade() {
   const telemetry =
     telemetryBySession[activeSessionId] ?? initialSnapshot.telemetry;
 
-  function appendUserMessage(text: string) {
+  async function appendUserMessage(text: string) {
+    const sessionId = activeSessionId;
+    const provider = providerBySession[sessionId];
     const timestamp = new Date().toISOString();
     const userMessage: SessionMessage = {
       id: `local-${timestamp}`,
@@ -57,17 +69,46 @@ export function SessionWindowFacade() {
     const assistantMessage: SessionMessage = {
       id: `local-reply-${timestamp}`,
       role: "assistant",
-      text: `${telemetry.provider} / ${telemetry.model} is selected. Provider execution is the next runtime wiring step.`,
+      text: "Provider is thinking...",
       timestamp
     };
     setMessagesBySession((current) => ({
       ...current,
-      [activeSessionId]: [
-        ...(current[activeSessionId] ?? []),
+      [sessionId]: [
+        ...(current[sessionId] ?? []),
         userMessage,
         assistantMessage
       ]
     }));
+    setRunningSessionId(sessionId);
+    setTelemetryBySession((current) => ({
+      ...current,
+      [sessionId]: {
+        ...telemetry,
+        status: "running",
+        contextWindow: "Provider turn in progress"
+      }
+    }));
+
+    const result = await runProviderTurn(provider, text);
+    setMessagesBySession((current) => ({
+      ...current,
+      [sessionId]: (current[sessionId] ?? []).map((message) =>
+        message.id === assistantMessage.id
+          ? { ...message, text: result.text }
+          : message
+      )
+    }));
+    setTelemetryBySession((current) => ({
+      ...current,
+      [sessionId]: {
+        ...(current[sessionId] ?? telemetry),
+        status: "idle",
+        contextWindow: result.ok ? "Latest turn completed" : "Provider setup needed",
+        limitState: result.ok ? "Ready" : "Needs settings"
+      }
+    }));
+    setRunningSessionId((current) => (current === sessionId ? null : current));
   }
 
   function createSession(provider: ProviderDescriptor) {
@@ -98,6 +139,14 @@ export function SessionWindowFacade() {
         status: "idle",
         contextWindow: "Pending first provider turn",
         limitState: provider.status === "available" ? "Ready" : "Needs settings"
+      }
+    }));
+    setProviderBySession((current) => ({
+      ...current,
+      [session.id]: {
+        model,
+        providerId: provider.id,
+        providerName: provider.name
       }
     }));
     setActiveSessionId(session.id);
@@ -143,7 +192,10 @@ export function SessionWindowFacade() {
           ))}
         </section>
 
-        <InputControlsFacade onSubmit={appendUserMessage} />
+        <InputControlsFacade
+          disabled={runningSessionId === activeSessionId}
+          onSubmit={appendUserMessage}
+        />
       </main>
 
       {isProviderPickerOpen ? (
@@ -155,6 +207,37 @@ export function SessionWindowFacade() {
       ) : null}
     </div>
   );
+}
+
+async function runProviderTurn(
+  provider: SessionProviderSelection | undefined,
+  prompt: string
+): Promise<HarnessProviderTurnResponse> {
+  if (!provider) {
+    return {
+      ok: false,
+      text: "Provider setup needed: create a provider session first."
+    };
+  }
+  if (!window.harnessProviders) {
+    return {
+      ok: false,
+      text: "Provider setup needed: Electron provider bridge is unavailable."
+    };
+  }
+  try {
+    return await window.harnessProviders.runTurn({
+      model: provider.model,
+      prompt,
+      providerId: provider.providerId
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      ok: false,
+      text: `Provider setup needed: ${provider.providerName} call failed: ${message}`
+    };
+  }
 }
 
 function ProviderPicker({

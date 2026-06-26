@@ -8,8 +8,8 @@
   "planId": "harness-ai-provider-turn-execution-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase19.stream1.task1",
-  "expectedCommitMessage": "feat: send turns to selected provider",
+  "currentTaskId": "harness-ai.phase20.stream1.task1",
+  "expectedCommitMessage": "chore: verify provider turn execution",
   "debt": null
 }
 ```
@@ -166,12 +166,12 @@
 
 ### Stream: Send Message
 
-38. [IN_PROGRESS] `harness-ai.phase19.stream1.task1` Send chat input through the selected provider runner and render real responses or setup errors in the active session (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: send turns to selected provider`).
-39. [TODO] Git Commit: `feat: send turns to selected provider` (hash: TBD)
+38. [DONE] `harness-ai.phase19.stream1.task1` Send chat input through the selected provider runner and render real responses or setup errors in the active session (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: send turns to selected provider`). Result: Completed in commit `feat: send turns to selected provider`.
+39. [DONE] Git Commit: `feat: send turns to selected provider` (hash: self)
 
 ## Phase 20 - Provider Execution Verification (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Build And Evidence
 
-40. [TODO] `harness-ai.phase20.stream1.task1` Verify build/package and provider execution error/success path, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider turn execution`).
+40. [IN_PROGRESS] `harness-ai.phase20.stream1.task1` Verify build/package and provider execution error/success path, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider turn execution`).
 41. [TODO] Git Commit: `chore: verify provider turn execution` (hash: TBD)

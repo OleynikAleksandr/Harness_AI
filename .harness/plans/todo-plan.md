@@ -8,8 +8,8 @@
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase10.stream1.task1",
+  "expectedCommitMessage": "chore: verify local app packaging",
   "debt": null
 }
 ```
@@ -93,8 +93,22 @@
 17. [DONE] `harness-ai.phase8.stream1.task1` Run the app checks/build, verify the Electron session UI can launch, and record evidence (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify first electron session slice`). Result: Completed in commit `chore: verify first electron session slice`.
 18. [DONE] Git Commit: `chore: verify first electron session slice` (hash: self)
 
-## Phase 9 - First Release Gate (owner: User, updated: 2026-06-26)
+## Phase 9 - Local Packaging Setup (owner: Codex, updated: 2026-06-26)
+
+### Stream: Clickable App
+
+19. [DONE] `harness-ai.phase9.stream1.task1` Add unsigned local Electron packaging for a clickable macOS app without Apple Developer Account distribution (scope: `package.json, package-lock.json, .gitignore, .harness/plans/todo-plan.md`; expected commit: `chore: add local electron packaging`). Result: Completed in commit `chore: add local electron packaging`.
+20. [DONE] Git Commit: `chore: add local electron packaging` (hash: self)
+
+## Phase 10 - Local Package Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: First Packaged App
+
+21. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` Build the unsigned local macOS app, record artifact path/evidence, and verify gates stay clean (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify local app packaging`).
+22. [TODO] Git Commit: `chore: verify local app packaging` (hash: TBD)
+
+## Phase 11 - First Release Gate (owner: User, updated: 2026-06-26)
 
 ### Stream: Release Decision
 
-19. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation (scope: user workflow; expected commit: none).
+23. [TODO] `harness-ai.phase11.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation or acceptance direction (scope: user workflow; expected commit: none).

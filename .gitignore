@@ -4,6 +4,7 @@ dist/
 build/
 out/
 coverage/
+release/
 
 # Local environment
 .env

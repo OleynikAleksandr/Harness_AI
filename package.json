@@ -9,6 +9,7 @@
     "dev:renderer": "vite --host 127.0.0.1",
     "electron:start": "npm run build && electron product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
     "build": "npm run typecheck && vite build",
+    "package:mac": "npm run build && electron-builder --mac dir --publish never",
     "preview": "vite preview --host 127.0.0.1",
     "prepare": "git config core.hooksPath .husky",
     "plan:status": "node scripts/plan.mjs status",
@@ -36,7 +37,27 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "electron": "^42.5.0",
+    "electron-builder": "^26.15.3",
     "typescript": "^6.0.3",
     "vite": "^8.1.0"
+  },
+  "build": {
+    "appId": "ai.harness.desktop",
+    "productName": "Harness AI",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/renderer/**",
+      "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**",
+      "product-parts/application-shell/clusters/electron-host/modules/vscode-link-opener/src/**",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "identity": null,
+      "target": ["dir"]
+    }
   }
 }

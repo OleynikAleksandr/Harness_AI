@@ -5,7 +5,7 @@
 {
   "schema": "harness-ai-plan-v1",
   "executionScopeStatus": "NONE",
-  "planId": "harness-ai-provider-turn-execution-2026-06-26",
+  "planId": "harness-ai-packaged-renderer-hotfix-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
   "currentTaskId": null,
@@ -175,3 +175,10 @@
 
 40. [DONE] `harness-ai.phase20.stream1.task1` Verify build/package and provider execution error/success path, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider turn execution`). Result: Completed in commit `chore: verify provider turn execution`.
 41. [DONE] Git Commit: `chore: verify provider turn execution` (hash: self)
+
+## Phase 21 - Packaged Renderer Hotfix (owner: Codex, updated: 2026-06-26)
+
+### Stream: Asset Base
+
+42. [DONE] `harness-ai.phase21.stream1.task1` Fix the packaged Electron renderer asset paths, rebuild the unsigned app, and record evidence (scope: `vite.config.ts, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: load packaged renderer assets`). Result: Completed in commit `fix: load packaged renderer assets`.
+43. [DONE] Git Commit: `fix: load packaged renderer assets` (hash: self)

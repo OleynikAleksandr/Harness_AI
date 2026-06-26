@@ -6,12 +6,16 @@ interface SessionSidebarProps {
   workspace: HarnessWorkspace;
   sessions: HarnessSession[];
   activeSessionId: string;
+  onCreateSession: () => void;
+  onSelectSession: (sessionId: string) => void;
 }
 
 export function SessionSidebarFacade({
   workspace,
   sessions,
-  activeSessionId
+  activeSessionId,
+  onCreateSession,
+  onSelectSession
 }: SessionSidebarProps) {
   return (
     <aside className="session-sidebar" aria-label="Workspace sessions">
@@ -26,7 +30,12 @@ export function SessionSidebarFacade({
       <div className="sidebar-section">
         <div className="sidebar-section-header">
           <span>Sessions</span>
-          <button className="icon-button" type="button" title="New session">
+          <button
+            className="icon-button"
+            onClick={onCreateSession}
+            type="button"
+            title="New session"
+          >
             <FolderPlus size={16} aria-hidden="true" />
           </button>
         </div>
@@ -40,6 +49,7 @@ export function SessionSidebarFacade({
                   : "session-list-item"
               }
               key={session.id}
+              onClick={() => onSelectSession(session.id)}
               type="button"
               title={session.title}
             >

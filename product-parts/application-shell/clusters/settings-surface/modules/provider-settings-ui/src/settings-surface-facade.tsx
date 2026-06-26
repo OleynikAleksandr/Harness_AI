@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import type { ProviderVersionsSnapshot } from "./provider-version-controls.js";
 import { SETTINGS_TABS, type SettingsTabId } from "./settings-model-options.js";
 import { SettingsTabContent } from "./settings-tab-content.js";
 import "./settings-surface.css";
@@ -24,6 +25,14 @@ export function ProviderSettingsUiFacade({
   );
   const [settings, setSettings] = useState<HarnessSettings | null>(null);
   const [status, setStatus] = useState("Settings are ready.");
+  const [versionError, setVersionError] = useState<null | string>(null);
+  const [versionLoading, setVersionLoading] = useState(false);
+  const [versions, setVersions] = useState<null | ProviderVersionsSnapshot>(
+    null
+  );
+  const [versionUpdatingTargets, setVersionUpdatingTargets] = useState<
+    string[]
+  >([]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -50,6 +59,46 @@ export function ProviderSettingsUiFacade({
       .finally(() => {
         if (!cancelled) {
           setBusy(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    if (!window.harnessCore) {
+      setVersionError("Version bridge is unavailable.");
+      return;
+    }
+    let cancelled = false;
+    setVersionLoading(true);
+    setVersionError(null);
+    window.harnessCore
+      .getProviderVersions()
+      .then((result) => {
+        if (cancelled) {
+          return;
+        }
+        if (result.ok) {
+          setVersions(result.versions);
+        } else {
+          setVersionError(result.error);
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setVersionError(
+            error instanceof Error ? error.message : "Version scan failed."
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setVersionLoading(false);
         }
       });
     return () => {
@@ -136,6 +185,31 @@ export function ProviderSettingsUiFacade({
     window.open(`vscode://file/${glossaryPath}:1:1`, "_blank", "noreferrer");
   };
 
+  const updateProvider = async (
+    provider: "claude" | "codex",
+    target: "cli" | "sdk"
+  ) => {
+    if (!window.harnessCore) {
+      return;
+    }
+    const key = `${provider}:${target}`;
+    setVersionUpdatingTargets((current) => [...current, key]);
+    setVersionError(null);
+    const result = await window.harnessCore.updateProviderVersion({
+      provider,
+      target,
+    });
+    if (result.ok) {
+      setVersions(result.versions);
+      setStatus("Provider version updated.");
+    } else {
+      setVersionError(result.error);
+    }
+    setVersionUpdatingTargets((current) =>
+      current.filter((targetKey) => targetKey !== key)
+    );
+  };
+
   return (
     <div className="settings-backdrop" role="presentation">
       <div aria-modal="true" className="settings-dialog" role="dialog">
@@ -174,8 +248,13 @@ export function ProviderSettingsUiFacade({
                 coreRestartStatus={coreRestartStatus}
                 onOpenGlossary={openGlossary}
                 onRestartCore={restartCore}
+                onUpdateProvider={updateProvider}
                 settings={settings}
                 update={update}
+                versionError={versionError}
+                versionLoading={versionLoading}
+                versions={versions}
+                versionUpdatingTargets={versionUpdatingTargets}
               />
             ) : (
               <div className="settings-card">Loading settings...</div>

@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase63.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase65.stream1.task1",
+  "expectedCommitMessage": "chore: verify codeai settings provider tabs",
   "debt": null
 }
 ```
@@ -482,4 +482,18 @@
 
 ### Stream: Settings Retest
 
-134. [IN_PROGRESS] `harness-ai.phase63.stream1.task1` User retests the exact CodeAI Hub-style Settings surface in the rebuilt app (scope: user workflow; expected commit: none).
+134. [DONE] `harness-ai.phase63.stream1.task1` User retests the exact CodeAI Hub-style Settings surface in the rebuilt app (scope: user workflow; expected commit: none). Result: User rejected the approximate provider-tab implementation; Harness AI must match CodeAI Hub Settings one-for-one, including provider tab layout, model lists, version scanning/update controls, and tab styling.
+
+## Phase 64 - Exact CodeAI Settings Provider Tabs Port (owner: Codex, updated: 2026-06-26)
+
+### Stream: Provider Settings Surface
+
+135. [DONE] `harness-ai.phase64.stream1.task1` Port CodeAI Hub Settings provider tabs into Harness AI with exact tab styling, Claude model/version/thinking/session controls, provider CLI/SDK version scan/update IPC, and matching provider tab content without inventing new UI patterns (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, product-parts/provider-runtime/**`; expected commit: `feat: port codeai settings provider tabs`). Result: Completed in commit `feat: port codeai settings provider tabs`.
+136. [DONE] Git Commit: `feat: port codeai settings provider tabs` (hash: self)
+
+## Phase 65 - Exact Provider Settings Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+137. [IN_PROGRESS] `harness-ai.phase65.stream1.task1` Verify and package the exact CodeAI Hub provider Settings tab port for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai settings provider tabs`).
+138. [TODO] Git Commit: `chore: verify codeai settings provider tabs` (hash: TBD)

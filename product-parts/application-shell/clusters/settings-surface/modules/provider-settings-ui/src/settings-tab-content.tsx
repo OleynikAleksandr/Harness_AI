@@ -1,11 +1,17 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import {
+  ProviderVersionsCard,
+  type ProviderVersionsSnapshot,
+  type UpdatableProviderId,
+  type VersionTarget,
+} from "./provider-version-controls.js";
+import { SessionContinuityCard } from "./session-continuity-card.js";
+import {
   PROVIDER_MODEL_OPTIONS,
   REASONING_EFFORT_OPTIONS,
   type SettingsTabId,
 } from "./settings-model-options.js";
 import {
-  ManualIntegerField,
   ModelRows,
   SettingsCard,
   SettingsSelect,
@@ -20,8 +26,16 @@ interface SettingsTabContentProps {
   coreRestartStatus: string;
   onOpenGlossary: () => void;
   onRestartCore: () => void;
+  onUpdateProvider: (
+    provider: UpdatableProviderId,
+    target: VersionTarget
+  ) => void;
   settings: HarnessSettings;
   update: (mutator: (next: HarnessSettings) => void) => void;
+  versionError: null | string;
+  versionLoading: boolean;
+  versions: null | ProviderVersionsSnapshot;
+  versionUpdatingTargets: readonly string[];
 }
 
 export function SettingsTabContent({
@@ -30,8 +44,13 @@ export function SettingsTabContent({
   coreRestartStatus,
   onOpenGlossary,
   onRestartCore,
+  onUpdateProvider,
   settings,
   update,
+  versionError,
+  versionLoading,
+  versions,
+  versionUpdatingTargets,
 }: SettingsTabContentProps) {
   if (activeTab === "general") {
     return (
@@ -51,7 +70,8 @@ export function SettingsTabContent({
     return (
       <div className="settings-reference-stack">
         <DefaultModelCard
-          description="Choose the Claude alias that will be applied when new sessions start."
+          description="Выберите псевдоним Claude, который будет применяться при запуске новых сессий. Подробнее: doc/SolidWorks-WorkFlow/Modules/Claude.md"
+          note="Применяется только к вновь созданным сессиям Claude."
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.claude.defaultModel = defaultModel;
@@ -61,6 +81,51 @@ export function SettingsTabContent({
           title="Claude Default model"
           value={provider.defaultModel}
         />
+        <ProviderVersionsCard
+          autoUpdate={provider.autoUpdate.enabled}
+          error={versionError}
+          loading={versionLoading}
+          onAutoUpdateChange={(enabled) =>
+            update((next) => {
+              next.providers.claude.autoUpdate.enabled = enabled;
+            })
+          }
+          onUpdate={onUpdateProvider}
+          provider="claude"
+          snapshot={versions}
+          updatingTargets={versionUpdatingTargets}
+        />
+        <SettingsCard title="Claude Thinking Settings">
+          <SettingsToggle
+            checked={provider.thinking.enabled}
+            description="При включении Claude будет использовать свой адаптивный путь мышления для сложных запросов. Выберите уровень усилий ниже, чтобы контролировать интенсивность рассуждений."
+            label="Enable thinking mode"
+            onChange={(enabled) =>
+              update((next) => {
+                next.providers.claude.thinking.enabled = enabled;
+              })
+            }
+          />
+          <SettingsToggle
+            checked={provider.thinkingDisplaySyncEnabled}
+            description="Show Claude reasoning as a normal assistant bubble with a Thinking label."
+            label="Thinking in dialog"
+            onChange={(enabled) =>
+              update((next) => {
+                next.providers.claude.thinkingDisplaySyncEnabled = enabled;
+              })
+            }
+          />
+          <ReasoningEffortRows
+            enabled={provider.thinking.enabled}
+            onChange={(effort) =>
+              update((next) => {
+                next.providers.claude.thinking.effort = effort;
+              })
+            }
+            value={provider.thinking.effort}
+          />
+        </SettingsCard>
         <SessionContinuityCard
           onChange={(value) =>
             update((next) => {
@@ -70,36 +135,6 @@ export function SettingsTabContent({
           }
           title="Claude Session Continuity"
           value={provider.sessionContinuity.remainingPercentThreshold}
-        />
-        <SettingsCard title="Thinking">
-          <SettingsSelect
-            label="Thinking Effort"
-            onChange={(effort) =>
-              update((next) => {
-                next.providers.claude.thinking.effort =
-                  effort as HarnessSettings["providers"]["claude"]["thinking"]["effort"];
-              })
-            }
-            options={REASONING_EFFORT_OPTIONS}
-            value={provider.thinking.effort}
-          />
-          <SettingsToggle
-            checked={provider.thinkingDisplaySyncEnabled}
-            label="Thinking Display Sync"
-            onChange={(enabled) =>
-              update((next) => {
-                next.providers.claude.thinkingDisplaySyncEnabled = enabled;
-              })
-            }
-          />
-        </SettingsCard>
-        <ProviderUpdatesCard
-          autoUpdate={provider.autoUpdate.enabled}
-          onChange={(enabled) =>
-            update((next) => {
-              next.providers.claude.autoUpdate.enabled = enabled;
-            })
-          }
         />
       </div>
     );
@@ -112,7 +147,8 @@ export function SettingsTabContent({
     return (
       <div className="settings-reference-stack">
         <DefaultModelCard
-          description="Choose the Codex model used when new sessions start."
+          description="Select which Codex model to use when starting new sessions. Each model can store its own reasoning effort level."
+          note="Changes apply when creating a new Codex session."
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.codex.defaultModel = defaultModel;
@@ -121,6 +157,20 @@ export function SettingsTabContent({
           options={PROVIDER_MODEL_OPTIONS.codex}
           title="Codex Default model"
           value={provider.defaultModel}
+        />
+        <ProviderVersionsCard
+          autoUpdate={provider.autoUpdate.enabled}
+          error={versionError}
+          loading={versionLoading}
+          onAutoUpdateChange={(enabled) =>
+            update((next) => {
+              next.providers.codex.autoUpdate.enabled = enabled;
+            })
+          }
+          onUpdate={onUpdateProvider}
+          provider="codex"
+          snapshot={versions}
+          updatingTargets={versionUpdatingTargets}
         />
         <SessionContinuityCard
           onChange={(value) =>
@@ -164,6 +214,7 @@ export function SettingsTabContent({
       <div className="settings-reference-stack">
         <DefaultModelCard
           description="Choose the Kimi model used when new sessions start."
+          note="Uses the installed Kimi Code CLI through ACP."
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.kimi.defaultModel = defaultModel;
@@ -193,14 +244,6 @@ export function SettingsTabContent({
             }
           />
         </SettingsCard>
-        <ProviderUpdatesCard
-          autoUpdate={provider.autoUpdate.enabled}
-          onChange={(enabled) =>
-            update((next) => {
-              next.providers.kimi.autoUpdate.enabled = enabled;
-            })
-          }
-        />
       </div>
     );
   }
@@ -250,6 +293,16 @@ export function SettingsTabContent({
             value={provider.configPath}
           />
         </SettingsCard>
+        <ProviderVersionsCard
+          autoUpdate={false}
+          error={versionError}
+          loading={versionLoading}
+          onAutoUpdateChange={() => undefined}
+          onUpdate={onUpdateProvider}
+          provider="glmOpenCode"
+          snapshot={versions}
+          updatingTargets={versionUpdatingTargets}
+        />
       </div>
     );
   }
@@ -321,14 +374,16 @@ export function SettingsTabContent({
 
 function DefaultModelCard({
   description,
+  note,
   onChange,
   options,
   title,
   value,
 }: {
   description: string;
+  note?: string;
   onChange: (value: string) => void;
-  options: readonly string[];
+  options: Parameters<typeof ModelRows>[0]["options"];
   title: string;
   value: string;
 }) {
@@ -336,6 +391,7 @@ function DefaultModelCard({
     <SettingsCard title={title}>
       <ModelRows
         description={description}
+        note={note}
         onChange={onChange}
         options={options}
         value={value}
@@ -344,49 +400,46 @@ function DefaultModelCard({
   );
 }
 
-function SessionContinuityCard({
+function ReasoningEffortRows({
+  enabled,
   onChange,
-  title,
   value,
 }: {
-  onChange: (value: number) => void;
-  title: string;
-  value: number;
+  enabled: boolean;
+  onChange: (
+    effort: HarnessSettings["providers"]["claude"]["thinking"]["effort"]
+  ) => void;
+  value: HarnessSettings["providers"]["claude"]["thinking"]["effort"];
 }) {
   return (
-    <SettingsCard title={title}>
+    <div
+      style={{
+        opacity: enabled ? 1 : 0.6,
+        pointerEvents: enabled ? "auto" : "none",
+      }}
+    >
       <p className="settings-description">
-        When the remaining context window drops to or below this percentage,
-        CodeAI Hub can automatically wrap up the current session and start a new
-        one. Default: 30%.
+        Choose how much reasoning effort Claude should apply for new sessions.
       </p>
-      <ManualIntegerField
-        label="Remaining context threshold (%)"
-        max={80}
-        min={5}
-        onChange={onChange}
-        value={value}
-      />
-    </SettingsCard>
-  );
-}
-
-function ProviderUpdatesCard({
-  autoUpdate,
-  onChange,
-}: {
-  autoUpdate: boolean;
-  onChange: (enabled: boolean) => void;
-}) {
-  return (
-    <SettingsCard title="Provider Updates">
-      <SettingsToggle
-        checked={autoUpdate}
-        description="Automatically keep the provider integration current when update metadata is available."
-        label="Auto Update"
-        onChange={onChange}
-      />
-    </SettingsCard>
+      <div className="settings-list">
+        {REASONING_EFFORT_OPTIONS.map((option) => (
+          <button
+            aria-pressed={option.value === value}
+            className={
+              option.value === value
+                ? "active settings-model-row"
+                : "settings-model-row"
+            }
+            key={option.value}
+            onClick={() => onChange(option.value)}
+            type="button"
+          >
+            <span className="settings-model-title">{option.label}</span>
+            <span className="settings-model-id">{option.value}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -401,7 +454,7 @@ function ConnectionProviderSettings({
   apiKey: string;
   baseUrl: string;
   model: string;
-  modelOptions?: readonly string[];
+  modelOptions?: Parameters<typeof ModelRows>[0]["options"];
   onChange: (patch: {
     apiKey?: string;
     baseUrl?: string;

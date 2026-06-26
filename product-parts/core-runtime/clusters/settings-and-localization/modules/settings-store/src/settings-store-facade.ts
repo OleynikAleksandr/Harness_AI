@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import { normalizeSettings } from "./settings-normalization.js";
 
 export interface ProviderModelSetting {
   providerId: ProviderId;
@@ -10,7 +11,7 @@ export interface ProviderModelSetting {
 }
 
 export type LocalizationWorkflowTermsPolicy = "keep_english" | "translate";
-export type ReasoningEffort = "off" | "medium" | "high" | "max";
+export type ReasoningEffort = "low" | "medium" | "high" | "xhigh" | "max";
 export type GeneralResponseMode = "strict" | "hybrid" | "debug_raw";
 
 export interface LocalizationCategorySettings {
@@ -169,16 +170,16 @@ const DEFAULT_SETTINGS: HarnessSettings = {
   },
   providers: {
     claude: {
-      ...commonProvider("cli-default"),
+      ...commonProvider("sonnet"),
       thinking: { enabled: true, effort: "medium" },
     },
     codex: {
-      ...commonProvider("cli-default"),
-      reasoningByModel: { "cli-default": "medium" },
+      ...commonProvider("gpt-5.4-mini"),
+      reasoningByModel: { "gpt-5.4-mini": "medium" },
       reasoningSummaryEnabled: true,
     },
     kimi: {
-      ...commonProvider("cli-default"),
+      ...commonProvider("kimi-k2.7-code"),
       thinkingEnabled: true,
     },
     glmNative: {
@@ -227,11 +228,13 @@ const PROVIDER_KEY_BY_ID: Record<
 
 export class SettingsStoreFacade {
   getSettings(workspacePath?: string): HarnessSettings {
-    return mergeSettings(
-      DEFAULT_SETTINGS,
-      readJson(systemSettingsPath()),
-      providerAuthOverlay(),
-      workspacePath ? readJson(workspaceSettingsPath(workspacePath)) : null
+    return normalizeSettings(
+      mergeSettings(
+        DEFAULT_SETTINGS,
+        readJson(systemSettingsPath()),
+        providerAuthOverlay(),
+        workspacePath ? readJson(workspaceSettingsPath(workspacePath)) : null
+      )
     );
   }
 
@@ -243,8 +246,7 @@ export class SettingsStoreFacade {
     const provider = settings.providers[PROVIDER_KEY_BY_ID[providerId]];
     return {
       providerId,
-      selectedModel:
-        firstText(readRecord(provider)?.defaultModel) ?? "cli-default",
+      selectedModel: firstText(readRecord(provider)?.defaultModel) ?? "sonnet",
     };
   }
 
@@ -259,7 +261,7 @@ export class SettingsStoreFacade {
     settings: HarnessSettings,
     workspacePath?: string
   ): HarnessSettings {
-    const next = mergeSettings(DEFAULT_SETTINGS, settings);
+    const next = normalizeSettings(mergeSettings(DEFAULT_SETTINGS, settings));
     writeJson(systemSettingsPath(), systemSettingsFrom(next));
     if (workspacePath) {
       writeJson(

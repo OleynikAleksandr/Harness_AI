@@ -12,6 +12,19 @@ interface ProviderSystemSettings {
 type HarnessSettings =
   import("../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js").HarnessSettings;
 
+interface ProviderVersionEntry {
+  currentVersion: null | string;
+  latestVersion: null | string;
+  packageName: string;
+}
+
+interface ProviderVersionsSnapshot {
+  checkedAt: string;
+  claude: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
+  codex: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
+  glmOpenCode?: { cli: ProviderVersionEntry };
+}
+
 interface Window {
   harnessCore?: {
     createSession(request: unknown): Promise<
@@ -25,6 +38,10 @@ interface Window {
     getProviderSystemSettings(
       providerId: string
     ): Promise<ProviderSystemSettings>;
+    getProviderVersions(): Promise<
+      | { ok: true; versions: ProviderVersionsSnapshot }
+      | { error: string; ok: false }
+    >;
     listProviders(): Promise<
       import("../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js").ProviderDescriptor[]
     >;
@@ -61,6 +78,13 @@ interface Window {
           ok: true;
           session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
         }
+      | { error: string; ok: false }
+    >;
+    updateProviderVersion(request: {
+      provider: "claude" | "codex";
+      target: "cli" | "sdk";
+    }): Promise<
+      | { ok: true; versions: ProviderVersionsSnapshot }
       | { error: string; ok: false }
     >;
   };

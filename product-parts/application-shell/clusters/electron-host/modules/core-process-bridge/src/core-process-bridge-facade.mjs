@@ -1,8 +1,11 @@
+import { exec } from "node:child_process";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
 import { ipcMain } from "electron";
 
 let bridge = null;
+const execAsync = promisify(exec);
 
 export async function initializeCoreProcessBridge(repositoryRoot) {
   if (bridge) {
@@ -26,6 +29,13 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:get-settings", () =>
     runtime.settingsStoreFacade.getSettings(activeWorkspacePath(runtime))
   );
+  ipcMain.handle("harness-ai:core:get-provider-versions", async () => {
+    try {
+      return { ok: true, versions: await loadProviderVersions() };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
+  });
   ipcMain.handle(
     "harness-ai:core:get-provider-system-settings",
     (_event, providerId) =>
@@ -62,6 +72,23 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     registerProviderAdapters(runtime);
     return { ok: true, settings };
   });
+  ipcMain.handle(
+    "harness-ai:core:update-provider-version",
+    async (_event, request) => {
+      try {
+        const packageName = resolveProviderPackage(
+          request?.provider,
+          request?.target
+        );
+        await installLatestGlobalPackage(packageName);
+        runtime.providerRegistryFacade.clearAdapters();
+        registerProviderAdapters(runtime);
+        return { ok: true, versions: await loadProviderVersions() };
+      } catch (error) {
+        return { error: describeError(error), ok: false };
+      }
+    }
+  );
   ipcMain.handle("harness-ai:core:restart", () => {
     runtime.providerRegistryFacade.clearAdapters();
     registerProviderAdapters(runtime);
@@ -234,4 +261,111 @@ function isProviderId(value) {
 
 function activeWorkspacePath(runtime) {
   return runtime.workspaceRegistryFacade.getActiveWorkspace().path;
+}
+
+const NPM_COMMAND = process.platform === "win32" ? "npm.cmd" : "npm";
+const EXEC_MAX_BUFFER_BYTES = 10 * 1_048_576;
+const PROVIDER_PACKAGE_MAP = {
+  claude: {
+    cli: "@anthropic-ai/claude-code",
+    sdk: "@anthropic-ai/claude-agent-sdk",
+  },
+  codex: {
+    cli: "@openai/codex",
+    sdk: "@openai/codex-sdk",
+  },
+};
+
+async function loadProviderVersions() {
+  const [claudeCli, claudeSdk, codexCli, codexSdk] = await Promise.all([
+    readPackageVersion(PROVIDER_PACKAGE_MAP.claude.cli),
+    readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+    readPackageVersion(PROVIDER_PACKAGE_MAP.codex.cli),
+    readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
+  ]);
+  return {
+    checkedAt: new Date().toISOString(),
+    claude: { cli: claudeCli, sdk: claudeSdk },
+    codex: { cli: codexCli, sdk: codexSdk },
+  };
+}
+
+async function readPackageVersion(packageName) {
+  const [currentVersion, latestVersion] = await Promise.all([
+    readInstalledVersion(packageName),
+    readLatestVersion(packageName),
+  ]);
+  return {
+    currentVersion,
+    latestVersion,
+    packageName,
+  };
+}
+
+async function readInstalledVersion(packageName) {
+  try {
+    const { stdout } = await execAsync(
+      `${NPM_COMMAND} list -g ${packageName} --depth=0 --json`,
+      { maxBuffer: EXEC_MAX_BUFFER_BYTES }
+    );
+    return extractInstalledVersion(packageName, stdout);
+  } catch (error) {
+    return extractInstalledVersion(packageName, error?.stdout ?? "");
+  }
+}
+
+async function readLatestVersion(packageName) {
+  try {
+    const { stdout } = await execAsync(
+      `${NPM_COMMAND} view ${packageName} version --json`,
+      {
+        maxBuffer: EXEC_MAX_BUFFER_BYTES,
+      }
+    );
+    const trimmed = stdout.trim();
+    if (!trimmed) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (typeof parsed === "string") {
+        return parsed.trim();
+      }
+      if (Array.isArray(parsed)) {
+        return parsed.at(-1) ?? null;
+      }
+    } catch {
+      return trimmed;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function extractInstalledVersion(packageName, output) {
+  try {
+    const parsed = JSON.parse(output);
+    return parsed.dependencies?.[packageName]?.version ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function installLatestGlobalPackage(packageName) {
+  await execAsync(`${NPM_COMMAND} install -g ${packageName}@latest`, {
+    maxBuffer: EXEC_MAX_BUFFER_BYTES,
+  });
+}
+
+function resolveProviderPackage(provider, target) {
+  const packageName = PROVIDER_PACKAGE_MAP[provider]?.[target];
+  if (!packageName) {
+    throw new Error("Unknown provider update target.");
+  }
+  return packageName;
+}
+
+function describeError(error) {
+  return error instanceof Error ? error.message : String(error);
 }

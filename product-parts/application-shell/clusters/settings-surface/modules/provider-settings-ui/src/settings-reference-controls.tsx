@@ -1,9 +1,19 @@
 import { type ReactNode, useEffect, useState } from "react";
 
+export interface ModelRowOption {
+  description?: string;
+  id: string;
+  label: string;
+}
+
+type ModelRowsOption = ModelRowOption | string;
+
 export function SettingsCard({
   children,
+  action,
   title,
 }: {
+  action?: ReactNode;
   children: ReactNode;
   title: string;
 }) {
@@ -11,6 +21,7 @@ export function SettingsCard({
     <section className="settings-card">
       <div className="settings-card-header">
         <h3>{title}</h3>
+        {action}
       </div>
       {children}
     </section>
@@ -138,39 +149,43 @@ export function SettingsToggle({
 
 export function ModelRows({
   description,
+  note,
   onChange,
   options,
   value,
 }: {
   description: string;
+  note?: string;
   onChange: (value: string) => void;
-  options: readonly string[];
+  options: readonly ModelRowsOption[];
   value: string;
 }) {
-  const resolvedOptions = options.includes(value)
-    ? options
-    : [value, ...options];
+  const resolvedOptions = options.map(normalizeModelOption);
   return (
     <>
       <p className="settings-description">{description}</p>
       <div className="settings-list">
         {resolvedOptions.map((option) => (
           <button
-            aria-pressed={option === value}
+            aria-pressed={option.id === value}
             className={
-              option === value
+              option.id === value
                 ? "active settings-model-row"
                 : "settings-model-row"
             }
-            key={option}
-            onClick={() => onChange(option)}
+            key={option.id}
+            onClick={() => onChange(option.id)}
             type="button"
           >
-            <span className="settings-model-title">{option}</span>
-            <span className="settings-model-id">{option}</span>
+            <span className="settings-model-title">{option.label}</span>
+            <span className="settings-model-id">{option.id}</span>
+            {option.description ? (
+              <p className="settings-model-description">{option.description}</p>
+            ) : null}
           </button>
         ))}
       </div>
+      {note ? <p className="settings-note">{note}</p> : null}
     </>
   );
 }
@@ -227,4 +242,8 @@ export function ManualIntegerField({
       />
     </label>
   );
+}
+
+function normalizeModelOption(option: ModelRowsOption): ModelRowOption {
+  return typeof option === "string" ? { id: option, label: option } : option;
 }

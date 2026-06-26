@@ -25,20 +25,88 @@ export const SETTINGS_TABS: ReadonlyArray<{
 ];
 
 export const PROVIDER_MODEL_OPTIONS = {
-  claude: ["cli-default", "sonnet", "opus"],
-  codex: ["cli-default", "gpt-5.4", "gpt-5.4-mini"],
-  kimi: ["cli-default", "kimi-k2.7-code", "kimi-k2.7-code-highspeed"],
+  claude: [
+    {
+      description:
+        "Лучше всего подходит для повседневных задач (claude-sonnet-4-5-20250929).",
+      id: "sonnet",
+      label: "Sonnet",
+    },
+    {
+      description: "Наиболее мощный для сложных, агентных рабочих нагрузок.",
+      id: "opus",
+      label: "Opus",
+    },
+    {
+      description:
+        "Самый быстрый псевдоним для быстрых ответов и прототипирования.",
+      id: "haiku",
+      label: "Haiku",
+    },
+  ],
+  codex: [
+    {
+      description: "Optimized for professional work and long-running agents",
+      id: "gpt-5.2",
+      label: "GPT-5.2",
+    },
+    {
+      description:
+        "Ultra-fast coding model for lower-latency engineering tasks",
+      id: "gpt-5.3-codex-spark",
+      label: "GPT-5.3-Codex-Spark",
+    },
+    {
+      description: "Smaller GPT-5.4 variant for faster everyday coding tasks",
+      id: "gpt-5.4-mini",
+      label: "GPT-5.4 Mini",
+    },
+    {
+      description: "Best general agentic model for tasks across industries",
+      id: "gpt-5.4",
+      label: "GPT-5.4",
+    },
+    {
+      description: "Best general agentic model for tasks across industries",
+      id: "gpt-5.5",
+      label: "GPT-5.5",
+    },
+  ],
+  kimi: [
+    {
+      description: "Kimi K2.7 Code model exposed through Kimi Code ACP.",
+      id: "kimi-k2.7-code",
+      label: "Kimi K2.7 Code",
+    },
+    {
+      description: "Lower-latency Kimi K2.7 coding model exposed through ACP.",
+      id: "kimi-k2.7-code-highspeed",
+      label: "Kimi K2.7 Code High Speed",
+    },
+  ],
   glmNative: ["glm-5.2"],
-  glmOpenCode: ["zai-coding-plan/glm-5.2", "kimi-for-coding/k2p7"],
+  glmOpenCode: [
+    {
+      description: "Z.AI Coding Plan selector",
+      id: "zai-coding-plan/glm-5.2",
+      label: "GLM 5.2",
+    },
+    {
+      description: "Kimi for Coding selector",
+      id: "kimi-for-coding/k2p7",
+      label: "Kimi K2.7",
+    },
+  ],
 } as const;
 
 export const REASONING_EFFORT_OPTIONS: ReadonlyArray<{
   label: string;
   value: ReasoningEffort;
 }> = [
-  { label: "Off", value: "off" },
+  { label: "Low", value: "low" },
   { label: "Medium", value: "medium" },
   { label: "High", value: "high" },
+  { label: "x-High", value: "xhigh" },
   { label: "Max", value: "max" },
 ];
 

@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
       "harness-ai:core:get-provider-system-settings",
       providerId
     ),
+  getProviderVersions: () =>
+    ipcRenderer.invoke("harness-ai:core:get-provider-versions"),
   listProviders: () => ipcRenderer.invoke("harness-ai:core:list-providers"),
   onEvent: (listener) => {
     const handler = (_event, payload) => listener(payload);
@@ -34,4 +36,6 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:save-settings", request),
   sendMessage: (request) =>
     ipcRenderer.invoke("harness-ai:core:send-message", request),
+  updateProviderVersion: (request) =>
+    ipcRenderer.invoke("harness-ai:core:update-provider-version", request),
 });

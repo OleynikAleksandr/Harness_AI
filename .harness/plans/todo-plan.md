@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase37.stream1.task1",
-  "expectedCommitMessage": "chore: verify packaged provider home",
+  "currentTaskId": "harness-ai.phase38.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -300,11 +300,11 @@
 
 ### Stream: Build And Smoke
 
-82. [IN_PROGRESS] `harness-ai.phase37.stream1.task1` Rebuild runtime/macOS app, verify packaged startup no longer resolves provider home inside `app.asar`, and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify packaged provider home`).
-83. [TODO] Git Commit: `chore: verify packaged provider home` (hash: TBD)
+82. [DONE] `harness-ai.phase37.stream1.task1` Rebuild runtime/macOS app, verify packaged startup no longer resolves provider home inside `app.asar`, and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify packaged provider home`). Result: Completed in commit `chore: verify packaged provider home`.
+83. [DONE] Git Commit: `chore: verify packaged provider home` (hash: self)
 
 ## Phase 38 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Provider Dialog Retest
 
-84. [TODO] `harness-ai.phase38.stream1.task1` User retests creating a session and sending a first message through each configured provider after packaged provider home fix (scope: user workflow; expected commit: none).
+84. [IN_PROGRESS] `harness-ai.phase38.stream1.task1` User retests creating a session and sending a first message through each configured provider after packaged provider home fix (scope: user workflow; expected commit: none).

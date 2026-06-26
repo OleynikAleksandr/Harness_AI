@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase41.stream1.task1",
-  "expectedCommitMessage": "feat: add glm native settings ui",
+  "currentTaskId": "harness-ai.phase42.stream1.task1",
+  "expectedCommitMessage": "chore: verify glm native settings",
   "debt": null
 }
 ```
@@ -327,14 +327,14 @@
 
 ### Stream: Minimal Settings Panel
 
-89. [IN_PROGRESS] `harness-ai.phase41.stream1.task1` Add a minimal in-app Settings panel for GLM Native API key, base URL, and default model so the provider can be tested before full settings architecture (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add glm native settings ui`).
-90. [TODO] Git Commit: `feat: add glm native settings ui` (hash: TBD)
+89. [DONE] `harness-ai.phase41.stream1.task1` Add a minimal in-app Settings panel for GLM Native API key, base URL, and default model so the provider can be tested before full settings architecture (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add glm native settings ui`). Result: Completed in commit `feat: add glm native settings ui`.
+90. [DONE] Git Commit: `feat: add glm native settings ui` (hash: self)
 
 ## Phase 42 - GLM Native Settings Verification (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Build And Package
 
-91. [TODO] `harness-ai.phase42.stream1.task1` Verify system provider settings, rebuild the unsigned macOS app, and record evidence for GLM Native configuration (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify glm native settings`).
+91. [IN_PROGRESS] `harness-ai.phase42.stream1.task1` Verify system provider settings, rebuild the unsigned macOS app, and record evidence for GLM Native configuration (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify glm native settings`).
 92. [TODO] Git Commit: `chore: verify glm native settings` (hash: TBD)
 
 ## Phase 43 - User Workflow Acceptance (owner: User, updated: 2026-06-26)

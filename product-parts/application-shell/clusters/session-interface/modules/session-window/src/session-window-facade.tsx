@@ -13,6 +13,12 @@ import { settingsStoreFacade } from "../../../../../../core-runtime/clusters/set
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import "./session-window.css";
 
+const GLM_NATIVE_DEFAULT_SETTINGS = {
+  apiKey: "",
+  baseUrl: "https://api.z.ai/api/coding/paas/v4",
+  defaultModel: "glm-5.2"
+};
+
 export function SessionWindowFacade() {
   const initialSnapshot = useMemo(
     () => sessionSnapshotProjectorFacade.getSnapshot(),
@@ -22,6 +28,11 @@ export function SessionWindowFacade() {
   const [sessions, setSessions] = useState(initialSnapshot.sessions.slice(0, 0));
   const [activeSessionId, setActiveSessionId] = useState("");
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [glmNativeSettings, setGlmNativeSettings] = useState<ProviderSystemSettings>(
+    GLM_NATIVE_DEFAULT_SETTINGS
+  );
+  const [settingsStatus, setSettingsStatus] = useState("");
   const [messagesBySession, setMessagesBySession] = useState<
     Record<string, SessionMessage[]>
   >({
@@ -107,11 +118,38 @@ export function SessionWindowFacade() {
     setIsProviderPickerOpen(false);
   }
 
+  async function openSettings() {
+    setIsSettingsOpen(true);
+    setSettingsStatus("");
+    const settings = await window.harnessCore?.getProviderSystemSettings(
+      "glm-native"
+    );
+    setGlmNativeSettings(normalizeGlmSettings(settings));
+  }
+
+  async function saveGlmNativeSettings(settings: ProviderSystemSettings) {
+    const result = await window.harnessCore?.saveProviderSystemSettings({
+      providerId: "glm-native",
+      settings
+    });
+    if (!result) {
+      setSettingsStatus("Core bridge unavailable");
+      return;
+    }
+    if (!result.ok) {
+      setSettingsStatus(result.error);
+      return;
+    }
+    setGlmNativeSettings(normalizeGlmSettings(result.settings));
+    setSettingsStatus("Saved");
+  }
+
   return (
     <div className="harness-app-shell">
       <SessionSidebarFacade
         activeSessionId={activeSessionId}
         onCreateSession={() => setIsProviderPickerOpen(true)}
+        onOpenSettings={openSettings}
         onSelectSession={setActiveSessionId}
         sessions={sessions}
         workspace={initialSnapshot.workspace}
@@ -161,6 +199,16 @@ export function SessionWindowFacade() {
           onClose={() => setIsProviderPickerOpen(false)}
           onSelect={createSession}
           providers={providerOptions}
+        />
+      ) : null}
+
+      {isSettingsOpen ? (
+        <SettingsPanel
+          onChange={setGlmNativeSettings}
+          onClose={() => setIsSettingsOpen(false)}
+          onSave={saveGlmNativeSettings}
+          settings={glmNativeSettings}
+          status={settingsStatus}
         />
       ) : null}
     </div>
@@ -320,4 +368,91 @@ function ProviderPicker({
       </section>
     </div>
   );
+}
+
+function SettingsPanel({
+  onChange,
+  onClose,
+  onSave,
+  settings,
+  status
+}: {
+  onChange: (settings: ProviderSystemSettings) => void;
+  onClose: () => void;
+  onSave: (settings: ProviderSystemSettings) => void;
+  settings: ProviderSystemSettings;
+  status: string;
+}) {
+  return (
+    <div className="provider-picker-backdrop">
+      <section className="provider-picker-card settings-panel" aria-label="Settings">
+        <header className="provider-picker-header">
+          <div>
+            <p className="session-kicker">Settings</p>
+            <h2>GLM Native</h2>
+          </div>
+          <button className="icon-button" onClick={onClose} type="button" title="Close">
+            <X size={16} aria-hidden="true" />
+          </button>
+        </header>
+
+        <div className="settings-form">
+          <label className="settings-field">
+            <span>API key</span>
+            <input
+              autoComplete="off"
+              onChange={(event) =>
+                onChange({ ...settings, apiKey: event.currentTarget.value })
+              }
+              type="password"
+              value={settings.apiKey ?? ""}
+            />
+          </label>
+          <label className="settings-field">
+            <span>Base URL</span>
+            <input
+              onChange={(event) =>
+                onChange({ ...settings, baseUrl: event.currentTarget.value })
+              }
+              type="url"
+              value={settings.baseUrl ?? ""}
+            />
+          </label>
+          <label className="settings-field">
+            <span>Model</span>
+            <input
+              onChange={(event) =>
+                onChange({ ...settings, defaultModel: event.currentTarget.value })
+              }
+              value={settings.defaultModel ?? settings.model ?? ""}
+            />
+          </label>
+        </div>
+
+        <footer className="settings-actions">
+          {status ? <span>{status}</span> : <span />}
+          <button
+            className="start-session-button"
+            onClick={() => onSave(settings)}
+            type="button"
+          >
+            Save
+          </button>
+        </footer>
+      </section>
+    </div>
+  );
+}
+
+function normalizeGlmSettings(
+  settings?: ProviderSystemSettings
+): ProviderSystemSettings {
+  return {
+    apiKey: settings?.apiKey ?? "",
+    baseUrl: settings?.baseUrl ?? GLM_NATIVE_DEFAULT_SETTINGS.baseUrl,
+    defaultModel:
+      settings?.defaultModel ??
+      settings?.model ??
+      GLM_NATIVE_DEFAULT_SETTINGS.defaultModel
+  };
 }

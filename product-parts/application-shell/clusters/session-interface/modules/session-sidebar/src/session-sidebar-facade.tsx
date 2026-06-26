@@ -7,6 +7,7 @@ interface SessionSidebarProps {
   sessions: HarnessSession[];
   activeSessionId: string;
   onCreateSession: () => void;
+  onOpenSettings: () => void;
   onSelectSession: (sessionId: string) => void;
 }
 
@@ -15,6 +16,7 @@ export function SessionSidebarFacade({
   sessions,
   activeSessionId,
   onCreateSession,
+  onOpenSettings,
   onSelectSession
 }: SessionSidebarProps) {
   return (
@@ -60,7 +62,12 @@ export function SessionSidebarFacade({
         </nav>
       </div>
 
-      <button className="settings-entry" type="button" title="Settings">
+      <button
+        className="settings-entry"
+        onClick={onOpenSettings}
+        type="button"
+        title="Settings"
+      >
         <Settings size={16} aria-hidden="true" />
         <span>Settings</span>
       </button>

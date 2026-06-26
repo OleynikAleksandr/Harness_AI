@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-cli-path-hotfix-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase25.stream1.task1",
-  "expectedCommitMessage": "chore: verify packaged provider cli path",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -208,5 +208,5 @@
 
 ### Stream: Package Check
 
-50. [IN_PROGRESS] `harness-ai.phase25.stream1.task1` Rebuild the macOS app and record evidence that provider CLI PATH handling is packaged (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify packaged provider cli path`).
-51. [TODO] Git Commit: `chore: verify packaged provider cli path` (hash: TBD)
+50. [DONE] `harness-ai.phase25.stream1.task1` Rebuild the macOS app and record evidence that provider CLI PATH handling is packaged (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify packaged provider cli path`). Result: Completed in commit `chore: verify packaged provider cli path`.
+51. [DONE] Git Commit: `chore: verify packaged provider cli path` (hash: self)

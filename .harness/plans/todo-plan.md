@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase73.stream1.task1",
-  "expectedCommitMessage": "chore: verify selected tab class fix",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -551,5 +551,5 @@
 
 ### Stream: Build And Package
 
-153. [IN_PROGRESS] `harness-ai.phase73.stream1.task1` Verify and package the selected tab class fix for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected tab class fix`).
-154. [TODO] Git Commit: `chore: verify selected tab class fix` (hash: TBD)
+153. [DONE] `harness-ai.phase73.stream1.task1` Verify and package the selected tab class fix for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected tab class fix`). Result: Completed in commit `chore: verify selected tab class fix`.
+154. [DONE] Git Commit: `chore: verify selected tab class fix` (hash: self)

@@ -247,7 +247,9 @@ export function ProviderSettingsUiFacade({
         <nav aria-label="Settings sections" className="settings-tabs">
           {SETTINGS_TABS.map((tab) => (
             <button
-              className={`settings-tab${activeTab === tab.id ? "active" : ""}`}
+              className={
+                activeTab === tab.id ? "active settings-tab" : "settings-tab"
+              }
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               type="button"

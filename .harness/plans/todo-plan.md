@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase73.stream1.task1",
+  "expectedCommitMessage": "chore: verify selected tab class fix",
   "debt": null
 }
 ```
@@ -539,3 +539,17 @@
 
 149. [DONE] `harness-ai.phase71.stream1.task1` Verify and package the selected-tab styling refinement for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected settings tab styling`). Result: Completed in commit `chore: verify selected settings tab styling`.
 150. [DONE] Git Commit: `chore: verify selected settings tab styling` (hash: self)
+
+## Phase 72 - Settings Selected Tab Class Fix (owner: Codex, updated: 2026-06-26)
+
+### Stream: Settings Surface
+
+151. [DONE] `harness-ai.phase72.stream1.task1` Fix the Settings selected tab class composition so active tabs keep the base tab CSS, fixed width, and selected-model blue fill (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, .harness/plans/todo-plan.md`; expected commit: `fix: apply selected settings tab class`). Result: Completed in commit `fix: apply selected settings tab class`.
+152. [DONE] Git Commit: `fix: apply selected settings tab class` (hash: self)
+
+## Phase 73 - Settings Selected Tab Class Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+153. [IN_PROGRESS] `harness-ai.phase73.stream1.task1` Verify and package the selected tab class fix for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected tab class fix`).
+154. [TODO] Git Commit: `chore: verify selected tab class fix` (hash: TBD)

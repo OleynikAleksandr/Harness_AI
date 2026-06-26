@@ -4,11 +4,11 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream1.task1",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -111,4 +111,11 @@
 
 ### Stream: Release Decision
 
-23. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation or acceptance direction (scope: user workflow; expected commit: none).
+23. [DONE] `harness-ai.phase11.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation or acceptance direction (scope: user workflow; expected commit: none). Result: User confirmed acceptance of the first local release and migration to the Harness AI workspace.
+
+## Phase 12 - Scope Closeout (owner: Codex, updated: 2026-06-26)
+
+### Stream: Bootstrap Acceptance
+
+24. [DONE] `harness-ai.phase12.stream1.task1` Close the bootstrap scope after first local release acceptance and leave the workspace ready for the next Harness AI implementation cycle (scope: `.harness/plans/todo-plan.md`; expected commit: `chore: accept first local release`). Result: Completed in commit `chore: accept first local release`.
+25. [DONE] Git Commit: `chore: accept first local release` (hash: self)

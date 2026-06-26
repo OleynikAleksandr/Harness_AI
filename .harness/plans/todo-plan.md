@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase49.stream1.task2",
-  "expectedCommitMessage": "chore: verify completed settings controls",
+  "currentTaskId": "harness-ai.phase50.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -387,11 +387,11 @@
 
 107. [DONE] `harness-ai.phase49.stream1.task1` Make visible General Core controls functional and remove disabled settings placeholders by wiring Core restart/refresh through IPC and Settings UI status (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/settings-surface/modules/recovery-controls-ui/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: complete settings core controls`). Result: Completed in commit `feat: complete settings core controls`.
 108. [DONE] Git Commit: `feat: complete settings core controls` (hash: self)
-109. [IN_PROGRESS] `harness-ai.phase49.stream1.task2` Rebuild, package, and record evidence that Settings has no disabled temporary controls in the shipped unsigned app (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify completed settings controls`).
-110. [TODO] Git Commit: `chore: verify completed settings controls` (hash: TBD)
+109. [DONE] `harness-ai.phase49.stream1.task2` Rebuild, package, and record evidence that Settings has no disabled temporary controls in the shipped unsigned app (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify completed settings controls`). Result: Completed in commit `chore: verify completed settings controls`.
+110. [DONE] Git Commit: `chore: verify completed settings controls` (hash: self)
 
 ## Phase 50 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Completed Settings Retest
 
-111. [TODO] `harness-ai.phase50.stream1.task1` User retests completed settings controls and provider session startup through saved settings (scope: user workflow; expected commit: none).
+111. [IN_PROGRESS] `harness-ai.phase50.stream1.task1` User retests completed settings controls and provider session startup through saved settings (scope: user workflow; expected commit: none).

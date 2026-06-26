@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase42.stream1.task1",
-  "expectedCommitMessage": "chore: verify glm native settings",
+  "currentTaskId": "harness-ai.phase43.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -334,11 +334,11 @@
 
 ### Stream: Build And Package
 
-91. [IN_PROGRESS] `harness-ai.phase42.stream1.task1` Verify system provider settings, rebuild the unsigned macOS app, and record evidence for GLM Native configuration (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify glm native settings`).
-92. [TODO] Git Commit: `chore: verify glm native settings` (hash: TBD)
+91. [DONE] `harness-ai.phase42.stream1.task1` Verify system provider settings, rebuild the unsigned macOS app, and record evidence for GLM Native configuration (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify glm native settings`). Result: Completed in commit `chore: verify glm native settings`.
+92. [DONE] Git Commit: `chore: verify glm native settings` (hash: self)
 
 ## Phase 43 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Provider Dialog Retest
 
-93. [TODO] `harness-ai.phase43.stream1.task1` User retests creating sessions and sending a first message through each configured provider after GLM Native settings are available (scope: user workflow; expected commit: none).
+93. [IN_PROGRESS] `harness-ai.phase43.stream1.task1` User retests creating sessions and sending a first message through each configured provider after GLM Native settings are available (scope: user workflow; expected commit: none).

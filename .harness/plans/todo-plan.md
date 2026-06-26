@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase65.stream1.task1",
-  "expectedCommitMessage": "chore: verify codeai settings provider tabs",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -495,5 +495,5 @@
 
 ### Stream: Build And Package
 
-137. [IN_PROGRESS] `harness-ai.phase65.stream1.task1` Verify and package the exact CodeAI Hub provider Settings tab port for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai settings provider tabs`).
-138. [TODO] Git Commit: `chore: verify codeai settings provider tabs` (hash: TBD)
+137. [DONE] `harness-ai.phase65.stream1.task1` Verify and package the exact CodeAI Hub provider Settings tab port for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai settings provider tabs`). Result: Completed in commit `chore: verify codeai settings provider tabs`.
+138. [DONE] Git Commit: `chore: verify codeai settings provider tabs` (hash: self)

@@ -104,26 +104,6 @@ export function SettingsTextField({
   );
 }
 
-export function SettingsTextarea({
-  label,
-  onChange,
-  value,
-}: {
-  label: string;
-  onChange: (value: string) => void;
-  value: string;
-}) {
-  return (
-    <label className="settings-field">
-      <span>{label}</span>
-      <textarea
-        onChange={(event) => onChange(event.target.value)}
-        value={value}
-      />
-    </label>
-  );
-}
-
 export function SettingsToggle({
   checked,
   description,

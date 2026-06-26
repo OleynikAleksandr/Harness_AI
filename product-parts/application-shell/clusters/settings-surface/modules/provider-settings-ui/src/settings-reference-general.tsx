@@ -1,43 +1,14 @@
-import type {
-  GeneralResponseMode,
-  HarnessSettings,
-} from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import {
   SettingsButton,
   SettingsCard,
   SettingsSelect,
-  SettingsTextarea,
   SettingsToggle,
 } from "./settings-reference-controls.js";
 
 type GeneralSettings = HarnessSettings["general"];
 type LocalizationSettings = GeneralSettings["localization"];
 type LocalizationCategoryKey = keyof LocalizationSettings["categories"];
-
-const RESPONSE_MODE_OPTIONS: readonly {
-  description: string;
-  label: string;
-  value: GeneralResponseMode;
-}[] = [
-  {
-    description:
-      "Force a JSON-shaped final answer using the editable strict schema.",
-    label: "Strict",
-    value: "strict",
-  },
-  {
-    description:
-      "Allow free commentary during the turn and keep structure only for terminal output.",
-    label: "Hybrid",
-    value: "hybrid",
-  },
-  {
-    description:
-      "Diagnostic mode for new models: avoid hard schema pressure on live turns.",
-    label: "Debug/Raw",
-    value: "debug_raw",
-  },
-];
 
 const LANGUAGE_OPTIONS = [
   { label: "Default Language (English)", value: "en" },
@@ -118,59 +89,6 @@ export function ReferenceGeneralSettings({
 
   return (
     <div className="settings-reference-stack">
-      <SettingsCard title="Response Mode">
-        <p className="settings-description">
-          Control how Codex turns are shaped before they reach the provider. Use
-          `Hybrid` as the safe default for workflow sessions and switch to
-          `Debug/Raw` when investigating new model behavior.
-        </p>
-        <div className="settings-list">
-          {RESPONSE_MODE_OPTIONS.map((option) => (
-            <button
-              className={
-                general.responsePolicy.mode === option.value
-                  ? "active settings-option-row"
-                  : "settings-option-row"
-              }
-              key={option.value}
-              onClick={() =>
-                update((next) => {
-                  next.general.responsePolicy.mode = option.value;
-                })
-              }
-              type="button"
-            >
-              <span>{option.label}</span>
-              <small>{option.description}</small>
-            </button>
-          ))}
-        </div>
-        {general.responsePolicy.mode === "strict" ? (
-          <div className="settings-reference-stack tight">
-            <SettingsTextarea
-              label="Strict Schema JSON"
-              onChange={(schemaText) =>
-                update((next) => {
-                  next.general.responsePolicy.strictOutput.schemaText =
-                    schemaText;
-                })
-              }
-              value={general.responsePolicy.strictOutput.schemaText}
-            />
-            <SettingsTextarea
-              label="Strict Instruction Text"
-              onChange={(instructionText) =>
-                update((next) => {
-                  next.general.responsePolicy.strictOutput.instructionText =
-                    instructionText;
-                })
-              }
-              value={general.responsePolicy.strictOutput.instructionText}
-            />
-          </div>
-        ) : null}
-      </SettingsCard>
-
       <SettingsCard title="Localization">
         <p className="settings-description">
           Configure which user-facing text should stay in English and which

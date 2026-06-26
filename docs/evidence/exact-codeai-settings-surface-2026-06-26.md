@@ -12,7 +12,6 @@ The packaged `app.asar` was extracted to `/tmp/harness-ai-exact-settings-asar`.
 The renderer bundle contains the CodeAI Hub Settings General labels:
 
 ```text
-Response Mode
 Glossary protection
 Do-not-translate terms
 Open glossary file

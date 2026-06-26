@@ -20,7 +20,6 @@ CodeAI Hub remains reference material only. Harness AI owns a new implementation
 ## Excluded From MVP
 
 - Voice interface and text-to-speech controls.
-- Response Mode controls.
 - Provider Native Request Capture controls.
 
 ## Module Ownership

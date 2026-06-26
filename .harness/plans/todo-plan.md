@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase75.stream1.task1",
+  "expectedCommitMessage": "chore: verify response mode removal",
   "debt": null
 }
 ```
@@ -553,3 +553,17 @@
 
 153. [DONE] `harness-ai.phase73.stream1.task1` Verify and package the selected tab class fix for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected tab class fix`). Result: Completed in commit `chore: verify selected tab class fix`.
 154. [DONE] Git Commit: `chore: verify selected tab class fix` (hash: self)
+
+## Phase 74 - Remove Dead Response Mode Settings (owner: Codex, updated: 2026-06-26)
+
+### Stream: Settings Surface
+
+155. [DONE] `harness-ai.phase74.stream1.task1` Remove the unused General Response Mode UI and settings model/persistence fields from Harness AI (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-controls.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, docs/**, .harness/plans/todo-plan.md`; expected commit: `fix: remove dead response mode settings`). Result: Completed in commit `fix: remove dead response mode settings`.
+156. [DONE] Git Commit: `fix: remove dead response mode settings` (hash: self)
+
+## Phase 75 - Response Mode Removal Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+157. [IN_PROGRESS] `harness-ai.phase75.stream1.task1` Verify and package the Settings surface after Response Mode removal (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify response mode removal`).
+158. [TODO] Git Commit: `chore: verify response mode removal` (hash: TBD)

@@ -33,4 +33,4 @@ Verified the Project Manager-style Settings surface for Harness AI:
 - The old GLM-only settings panel was removed from `session-window`.
 - The renderer no longer imports the Core settings store runtime implementation directly.
 - Provider session creation now reads the displayed model from the IPC-loaded settings snapshot.
-- General excludes voice/text-to-speech, Response Mode, and Provider Native Request Capture.
+- General excludes voice/text-to-speech and Provider Native Request Capture.

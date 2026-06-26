@@ -8,8 +8,8 @@
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
-  "expectedCommitMessage": "chore: verify first electron session slice",
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -90,11 +90,11 @@
 
 ### Stream: First Runnable App
 
-17. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Run the app checks/build, verify the Electron session UI can launch, and record evidence (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify first electron session slice`).
-18. [TODO] Git Commit: `chore: verify first electron session slice` (hash: TBD)
+17. [DONE] `harness-ai.phase8.stream1.task1` Run the app checks/build, verify the Electron session UI can launch, and record evidence (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify first electron session slice`). Result: Completed in commit `chore: verify first electron session slice`.
+18. [DONE] Git Commit: `chore: verify first electron session slice` (hash: self)
 
 ## Phase 9 - First Release Gate (owner: User, updated: 2026-06-26)
 
 ### Stream: Release Decision
 
-19. [TODO] `harness-ai.phase9.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation (scope: user workflow; expected commit: none).
+19. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation (scope: user workflow; expected commit: none).

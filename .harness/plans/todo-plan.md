@@ -8,8 +8,8 @@
   "planId": "harness-ai-provider-turn-execution-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase17.stream1.task1",
-  "expectedCommitMessage": "feat: run selected provider turns",
+  "currentTaskId": "harness-ai.phase18.stream1.task1",
+  "expectedCommitMessage": "feat: expose provider turn ipc",
   "debt": null
 }
 ```
@@ -152,14 +152,14 @@
 
 ### Stream: CLI And HTTP Dispatch
 
-34. [IN_PROGRESS] `harness-ai.phase17.stream1.task1` Implement the provider turn runner for CLI-backed providers and HTTP-backed providers using runtime credentials only (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-turn-runner/src/**, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: run selected provider turns`).
-35. [TODO] Git Commit: `feat: run selected provider turns` (hash: TBD)
+34. [DONE] `harness-ai.phase17.stream1.task1` Implement the provider turn runner for CLI-backed providers and HTTP-backed providers using runtime credentials only (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-turn-runner/src/**, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: run selected provider turns`). Result: Completed in commit `feat: run selected provider turns`.
+35. [DONE] Git Commit: `feat: run selected provider turns` (hash: self)
 
 ## Phase 18 - Electron Provider IPC (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Main Process Bridge
 
-36. [TODO] `harness-ai.phase18.stream1.task1` Expose provider turn execution from Electron main to the renderer through preload IPC (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider turn ipc`).
+36. [IN_PROGRESS] `harness-ai.phase18.stream1.task1` Expose provider turn execution from Electron main to the renderer through preload IPC (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider turn ipc`).
 37. [TODO] Git Commit: `feat: expose provider turn ipc` (hash: TBD)
 
 ## Phase 19 - Session UI Provider Execution (owner: Codex, updated: 2026-06-26)

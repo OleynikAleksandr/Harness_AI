@@ -6,11 +6,11 @@ export interface ProviderModelSetting {
 }
 
 const PROVIDER_MODELS: Record<ProviderId, string> = {
-  claude: "claude-default",
-  codex: "codex-default",
-  kimi: "kimi-default",
-  "glm-native": "glm-native-default",
-  "glm-opencode": "glm-opencode-default",
+  claude: "cli-default",
+  codex: "cli-default",
+  kimi: "cli-default",
+  "glm-native": "glm-5.2",
+  "glm-opencode": "zai-coding-plan/glm-5.2",
   openrouter: "openrouter-default",
   "local-models": "local-model-default"
 };

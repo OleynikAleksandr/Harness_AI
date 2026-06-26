@@ -1,4 +1,4 @@
-import { FileText, X } from "lucide-react";
+import { FileText, FolderPlus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { InputControlsFacade } from "../../input-controls/src/input-controls-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
@@ -30,10 +30,8 @@ export function SessionWindowFacade() {
     () => providerRegistryFacade.listProviders(),
     []
   );
-  const [sessions, setSessions] = useState(initialSnapshot.sessions);
-  const [activeSessionId, setActiveSessionId] = useState(
-    initialSnapshot.activeSessionId
-  );
+  const [sessions, setSessions] = useState(initialSnapshot.sessions.slice(0, 0));
+  const [activeSessionId, setActiveSessionId] = useState("");
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
   const [messagesBySession, setMessagesBySession] = useState<
     Record<string, SessionMessage[]>
@@ -52,7 +50,7 @@ export function SessionWindowFacade() {
 
   const activeSession =
     sessions.find((session) => session.id === activeSessionId) ?? sessions[0];
-  const messages = messagesBySession[activeSessionId] ?? [];
+  const messages = activeSession ? messagesBySession[activeSessionId] ?? [] : [];
   const telemetry =
     telemetryBySession[activeSessionId] ?? initialSnapshot.telemetry;
 
@@ -123,7 +121,7 @@ export function SessionWindowFacade() {
     const startupMessage: SessionMessage = {
       id: `provider-${provider.id}-${Date.now()}`,
       role: "assistant",
-      text: `${provider.name} session started with settings model ${model}. Provider execution is not connected yet.`,
+      text: `${provider.name} session started with settings model ${model}.`,
       timestamp
     };
     setSessions((current) => [session, ...current]);
@@ -167,7 +165,7 @@ export function SessionWindowFacade() {
         <header className="session-header">
           <div>
             <p className="session-kicker">Harness AI</p>
-            <h1>{activeSession?.title ?? "Session"}</h1>
+            <h1>{activeSession?.title ?? "Start a session"}</h1>
           </div>
           <a
             className="file-link-button"
@@ -184,16 +182,23 @@ export function SessionWindowFacade() {
         <SessionTelemetryFacade telemetry={telemetry} />
 
         <section className="message-stream" aria-label="Transcript">
-          {messages.map((message) => (
-            <article className={`message-row ${message.role}`} key={message.id}>
-              <div className="message-meta">{message.role}</div>
-              <p>{message.text}</p>
-            </article>
-          ))}
+          {activeSession ? (
+            messages.map((message) => (
+              <article className={`message-row ${message.role}`} key={message.id}>
+                <div className="message-meta">{message.role}</div>
+                <p>{message.text}</p>
+              </article>
+            ))
+          ) : (
+            <EmptySessionStart onStart={() => setIsProviderPickerOpen(true)} />
+          )}
         </section>
 
         <InputControlsFacade
-          disabled={runningSessionId === activeSessionId}
+          disabled={
+            !providerBySession[activeSessionId] ||
+            runningSessionId === activeSessionId
+          }
           onSubmit={appendUserMessage}
         />
       </main>
@@ -238,6 +243,19 @@ async function runProviderTurn(
       text: `Provider setup needed: ${provider.providerName} call failed: ${message}`
     };
   }
+}
+
+function EmptySessionStart({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="empty-session">
+      <p className="session-kicker">No active session</p>
+      <h2>Choose a provider to start</h2>
+      <button className="start-session-button" onClick={onStart} type="button">
+        <FolderPlus size={16} aria-hidden="true" />
+        <span>Start session</span>
+      </button>
+    </div>
+  );
 }
 
 function ProviderPicker({

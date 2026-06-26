@@ -1,9 +1,22 @@
 :root {
-  color: #191b1f;
-  background: #f4f2ed;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  --pm-font-family:
+    "Space Grotesk", "Sora", "IBM Plex Sans", "Segoe UI", sans-serif;
+  --pm-bg-primary: #0f1216;
+  --pm-bg-secondary: #151a20;
+  --pm-bg-surface: #0f141b;
+  --pm-bg-panel: #101823;
+  --pm-border-color: #26303b;
+  --pm-border-strong: #354152;
+  --pm-text-primary: #e7eaee;
+  --pm-text-muted: #a8b0ba;
+  --pm-accent: #42c9a2;
+  --pm-accent-strong: #5fe3ba;
+  --pm-help-text-color: rgba(115, 130, 140, 1);
+  --pm-shadow-soft: 0 18px 40px rgba(7, 10, 15, 0.45);
+  --pm-shadow-inset: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  color: var(--pm-text-primary);
+  background: #0b0d12;
+  font-family: var(--pm-font-family);
 }
 
 * {
@@ -13,6 +26,9 @@
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  color: var(--pm-text-primary);
+  background: #0b0d12;
 }
 
 button,
@@ -23,26 +39,30 @@ textarea {
 .harness-app-shell {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(248px, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
   min-height: 100vh;
-  background: #f4f2ed;
+  background: var(--pm-bg-primary);
 }
 
 .session-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   min-height: 100vh;
-  padding: 14px;
-  color: #eef5ef;
-  background: #18211d;
+  padding: 12px;
+  color: var(--pm-text-primary);
+  background: var(--pm-bg-secondary);
+  border-right: 1px solid var(--pm-border-color);
+  box-shadow: var(--pm-shadow-inset);
 }
 
 .workspace-switcher,
 .settings-entry,
 .session-list-item,
 .icon-button,
-.file-link-button {
+.file-link-button,
+.provider-card,
+.start-session-button {
   border: 0;
   cursor: pointer;
 }
@@ -53,10 +73,12 @@ textarea {
   justify-content: space-between;
   gap: 10px;
   width: 100%;
-  padding: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
   color: inherit;
   text-align: left;
-  background: #233229;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
   border-radius: 8px;
 }
 
@@ -74,7 +96,7 @@ textarea {
 
 .workspace-switcher small {
   overflow: hidden;
-  color: #a7b9ad;
+  color: var(--pm-text-muted);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -89,7 +111,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #a7b9ad;
+  color: var(--pm-text-muted);
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -107,20 +129,24 @@ textarea {
   gap: 8px;
   min-height: 38px;
   padding: 9px 10px;
-  color: #dbe8df;
+  color: var(--pm-text-primary);
   background: transparent;
+  border: 1px solid transparent;
   border-radius: 8px;
 }
 
 .session-list-item.is-active,
 .session-list-item:hover,
 .settings-entry:hover {
-  background: #2e4437;
+  color: var(--pm-accent-strong);
+  background: rgba(66, 201, 162, 0.12);
+  border-color: rgba(66, 201, 162, 0.45);
 }
 
 .settings-entry {
   justify-content: flex-start;
   margin-top: auto;
+  color: var(--pm-text-muted);
 }
 
 .icon-button,
@@ -130,9 +156,16 @@ textarea {
   justify-content: center;
   width: 36px;
   height: 36px;
-  color: #1d2a23;
-  background: #e6e3db;
+  color: var(--pm-text-muted);
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
   border-radius: 8px;
+}
+
+.icon-button:hover,
+.file-link-button:hover {
+  color: var(--pm-text-primary);
+  border-color: var(--pm-border-strong);
 }
 
 .icon-button:disabled {
@@ -141,8 +174,9 @@ textarea {
 }
 
 .icon-button.primary {
-  color: #ffffff;
-  background: #2f6f5e;
+  color: #0b0d12;
+  background: var(--pm-accent);
+  border-color: var(--pm-accent);
 }
 
 .session-main {
@@ -150,6 +184,7 @@ textarea {
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   min-width: 0;
   min-height: 100vh;
+  background: var(--pm-bg-primary);
 }
 
 .session-header {
@@ -157,27 +192,30 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 22px 28px 14px;
-  border-bottom: 1px solid #ddd8cf;
+  min-height: 72px;
+  padding: 16px 22px;
+  background: var(--pm-bg-panel);
+  border-bottom: 1px solid var(--pm-border-color);
 }
 
 .session-kicker {
   margin: 0 0 4px;
-  color: #5a6c61;
-  font-size: 13px;
+  color: var(--pm-text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
 .session-header h1 {
   margin: 0;
   font-size: 22px;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .file-link-button {
   width: auto;
   padding: 0 12px;
   gap: 8px;
-  color: #20483d;
+  color: var(--pm-accent-strong);
   text-decoration: none;
 }
 
@@ -185,9 +223,9 @@ textarea {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1px;
-  padding: 0 28px;
-  background: #ddd8cf;
-  border-bottom: 1px solid #ddd8cf;
+  padding: 0 22px;
+  background: var(--pm-border-color);
+  border-bottom: 1px solid var(--pm-border-color);
 }
 
 .telemetry-item {
@@ -195,20 +233,28 @@ textarea {
   gap: 3px;
   min-width: 0;
   padding: 10px 12px;
-  background: #f8f7f3;
+  background: var(--pm-bg-surface);
 }
 
-.telemetry-item span {
-  color: #6f756f;
+.telemetry-item span,
+.message-meta,
+.provider-card span,
+.provider-card small {
+  color: var(--pm-text-muted);
   font-size: 12px;
 }
 
-.telemetry-item strong {
+.telemetry-item strong,
+.provider-card span,
+.provider-card small {
   overflow: hidden;
-  font-size: 13px;
-  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.telemetry-item strong {
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .provider-picker-backdrop {
@@ -217,7 +263,7 @@ textarea {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgb(24 33 29 / 55%);
+  background: rgba(7, 10, 15, 0.7);
 }
 
 .provider-picker-card {
@@ -227,10 +273,10 @@ textarea {
   max-height: min(720px, 92vh);
   padding: 18px;
   overflow: auto;
-  background: #f8f7f3;
-  border: 1px solid #d8d2c7;
+  background: var(--pm-bg-panel);
+  border: 1px solid var(--pm-border-strong);
   border-radius: 8px;
-  box-shadow: 0 18px 50px rgb(0 0 0 / 22%);
+  box-shadow: var(--pm-shadow-soft);
 }
 
 .provider-picker-header {
@@ -240,9 +286,11 @@ textarea {
   gap: 14px;
 }
 
-.provider-picker-header h2 {
+.provider-picker-header h2,
+.empty-session h2 {
   margin: 0;
   font-size: 22px;
+  font-weight: 600;
 }
 
 .provider-grid {
@@ -256,24 +304,16 @@ textarea {
   gap: 6px;
   min-height: 104px;
   padding: 13px;
-  color: #18211d;
+  color: var(--pm-text-primary);
   text-align: left;
-  background: #ffffff;
-  border: 1px solid #d9d4ca;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
 }
 
 .provider-card:hover {
-  border-color: #2f6f5e;
-  box-shadow: 0 0 0 3px rgb(47 111 94 / 12%);
-}
-
-.provider-card span,
-.provider-card small {
-  overflow: hidden;
-  color: #5f6a63;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  background: rgba(66, 201, 162, 0.08);
+  border-color: rgba(66, 201, 162, 0.6);
 }
 
 .message-stream {
@@ -281,7 +321,7 @@ textarea {
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  padding: 24px 28px;
+  padding: 22px;
   overflow: auto;
 }
 
@@ -290,15 +330,16 @@ textarea {
   gap: 7px;
   max-width: min(760px, 100%);
   padding: 12px 14px;
-  background: #ffffff;
-  border: 1px solid #e0dcd3;
+  background: var(--pm-bg-panel);
+  border: 1px solid var(--pm-border-color);
   border-radius: 8px;
+  box-shadow: var(--pm-shadow-inset);
 }
 
 .message-row.user {
   align-self: flex-end;
-  background: #eef6f2;
-  border-color: #cfe2d8;
+  background: rgba(66, 201, 162, 0.1);
+  border-color: rgba(66, 201, 162, 0.35);
 }
 
 .message-row.assistant {
@@ -306,8 +347,6 @@ textarea {
 }
 
 .message-meta {
-  color: #69756e;
-  font-size: 12px;
   text-transform: capitalize;
 }
 
@@ -316,13 +355,44 @@ textarea {
   line-height: 1.5;
 }
 
+.empty-session {
+  display: grid;
+  place-items: start;
+  gap: 12px;
+  width: min(520px, 100%);
+  padding: 18px;
+  margin: auto;
+  background: var(--pm-bg-panel);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 8px;
+  box-shadow: var(--pm-shadow-soft);
+}
+
+.start-session-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  color: #0b0d12;
+  background: var(--pm-accent);
+  border: 1px solid var(--pm-accent);
+  border-radius: 8px;
+}
+
+.start-session-button:hover,
+.icon-button.primary:hover {
+  background: var(--pm-accent-strong);
+  border-color: var(--pm-accent-strong);
+}
+
 .input-controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
-  padding: 14px 28px 22px;
-  background: #f8f7f3;
-  border-top: 1px solid #ddd8cf;
+  padding: 14px 22px 18px;
+  background: var(--pm-bg-panel);
+  border-top: 1px solid var(--pm-border-color);
 }
 
 .input-controls textarea {
@@ -330,16 +400,21 @@ textarea {
   min-height: 76px;
   resize: vertical;
   padding: 12px;
-  color: #191b1f;
-  background: #ffffff;
-  border: 1px solid #cbc6bb;
+  color: var(--pm-text-primary);
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
   border-radius: 8px;
   outline: none;
 }
 
 .input-controls textarea:focus {
-  border-color: #2f6f5e;
-  box-shadow: 0 0 0 3px rgb(47 111 94 / 16%);
+  border-color: var(--pm-accent);
+  box-shadow: 0 0 0 3px rgba(66, 201, 162, 0.16);
+}
+
+.input-controls textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .input-actions {

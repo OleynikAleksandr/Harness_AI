@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-packaged-renderer-hotfix-2026-06-26",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-pm-theme-session-start-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase23.stream1.task1",
+  "expectedCommitMessage": "chore: verify project manager themed shell",
   "debt": null
 }
 ```
@@ -182,3 +182,17 @@
 
 42. [DONE] `harness-ai.phase21.stream1.task1` Fix the packaged Electron renderer asset paths, rebuild the unsigned app, and record evidence (scope: `vite.config.ts, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: load packaged renderer assets`). Result: Completed in commit `fix: load packaged renderer assets`.
 43. [DONE] Git Commit: `fix: load packaged renderer assets` (hash: self)
+
+## Phase 22 - Project Manager Theme And Session Start (owner: Codex, updated: 2026-06-26)
+
+### Stream: Dark Shell
+
+44. [DONE] `harness-ai.phase22.stream1.task1` Apply the CodeAI Hub Project Manager dark tokens to the Harness AI shell and make the first screen start a provider session instead of showing a disconnected bootstrap session (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, .harness/plans/todo-plan.md`; expected commit: `feat: apply project manager theme and session start`). Result: Completed in commit `feat: apply project manager theme and session start`.
+45. [DONE] Git Commit: `feat: apply project manager theme and session start` (hash: self)
+
+## Phase 23 - Theme Build Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Package Check
+
+46. [IN_PROGRESS] `harness-ai.phase23.stream1.task1` Rebuild the renderer/macOS app and record verification evidence for the themed session-start shell (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify project manager themed shell`).
+47. [TODO] Git Commit: `chore: verify project manager themed shell` (hash: TBD)

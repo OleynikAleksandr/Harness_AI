@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import type { ReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { REASONING_EFFORT_OPTIONS } from "./settings-model-options.js";
 
@@ -10,14 +10,12 @@ export function ProviderCard({
   title: string;
 }) {
   return (
-    <div className="settings-stack">
-      <section className="settings-card">
-        <div className="settings-card-header">
-          <h3>{title}</h3>
-        </div>
-        <div className="settings-grid two">{children}</div>
-      </section>
-    </div>
+    <section className="settings-card">
+      <div className="settings-card-header">
+        <h3>{title}</h3>
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -34,12 +32,47 @@ export function ModelSelect({
     ? options
     : [value, ...options];
   return (
+    <div className="settings-list">
+      <p className="settings-description">
+        Choose the default model used for new sessions.
+      </p>
+      {resolvedOptions.map((option) => (
+        <button
+          aria-pressed={option === value}
+          className={
+            option === value
+              ? "active settings-model-row"
+              : "settings-model-row"
+          }
+          key={option}
+          onClick={() => onChange(option)}
+          type="button"
+        >
+          <span className="settings-model-title">{option}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: readonly { label: string; value: string }[];
+  value: string;
+}) {
+  return (
     <label className="settings-field">
-      <span>Default Model</span>
+      <span>{label}</span>
       <select onChange={(event) => onChange(event.target.value)} value={value}>
-        {resolvedOptions.map((option) => (
-          <option key={option} value={option}>
-            {option}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
           </option>
         ))}
       </select>
@@ -127,19 +160,12 @@ export function EffortSelect({
   value: ReasoningEffort;
 }) {
   return (
-    <label className="settings-field">
-      <span>{label}</span>
-      <select
-        onChange={(event) => onChange(event.target.value as ReasoningEffort)}
-        value={value}
-      >
-        {REASONING_EFFORT_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <SelectField
+      label={label}
+      onChange={(nextValue) => onChange(nextValue as ReasoningEffort)}
+      options={REASONING_EFFORT_OPTIONS}
+      value={value}
+    />
   );
 }
 
@@ -151,16 +177,22 @@ export function ContinuityRange({
   value: number;
 }) {
   return (
-    <label className="settings-field">
-      <span>Session Continuity: {value}%</span>
-      <input
+    <section className="settings-card">
+      <div className="settings-card-header">
+        <h3>Session Continuity</h3>
+      </div>
+      <p className="settings-description">
+        When the remaining context window drops to or below this percentage,
+        Harness AI can start a fresh session. Default: 30%.
+      </p>
+      <ManualIntegerField
+        label="Remaining context threshold (%)"
         max={80}
         min={5}
-        onChange={(event) => onChange(Number(event.target.value))}
-        type="range"
+        onChange={onChange}
         value={value}
       />
-    </label>
+    </section>
   );
 }
 
@@ -223,6 +255,60 @@ function CheckField({
         type="checkbox"
       />
       <span>{label}</span>
+    </label>
+  );
+}
+
+function ManualIntegerField({
+  label,
+  max,
+  min,
+  onChange,
+  value,
+}: {
+  label: string;
+  max: number;
+  min: number;
+  onChange: (value: number) => void;
+  value: number;
+}) {
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const parsed = Number(draft.trim());
+    if (!Number.isInteger(parsed)) {
+      setDraft(String(value));
+      return;
+    }
+    const clamped = Math.min(max, Math.max(min, parsed));
+    onChange(clamped);
+    setDraft(String(clamped));
+  };
+
+  return (
+    <label className="settings-field">
+      <span>{label}</span>
+      <input
+        inputMode="numeric"
+        onBlur={commit}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.currentTarget.blur();
+          }
+          if (event.key === "Escape") {
+            setDraft(String(value));
+            event.currentTarget.blur();
+          }
+        }}
+        pattern="[0-9]*"
+        type="text"
+        value={draft}
+      />
     </label>
   );
 }

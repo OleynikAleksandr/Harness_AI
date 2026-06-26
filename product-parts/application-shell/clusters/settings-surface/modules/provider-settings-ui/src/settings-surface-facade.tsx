@@ -1,4 +1,3 @@
-import { RotateCcw, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { SETTINGS_TABS, type SettingsTabId } from "./settings-model-options.js";
@@ -136,30 +135,30 @@ export function ProviderSettingsUiFacade({
         <header className="settings-header">
           <div className="settings-title">
             <h2>Settings</h2>
-            <span>Harness AI</span>
           </div>
           <button
             aria-label="Close Settings"
             className="settings-icon-button"
             onClick={onClose}
+            title="Close Settings"
             type="button"
           >
-            <X size={16} />
+            ×
           </button>
         </header>
+        <nav aria-label="Settings sections" className="settings-tabs">
+          {SETTINGS_TABS.map((tab) => (
+            <button
+              className={`settings-tab${activeTab === tab.id ? "active" : ""}`}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              type="button"
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
         <main className="settings-body">
-          <nav aria-label="Settings sections" className="settings-tabs">
-            {SETTINGS_TABS.map((tab) => (
-              <button
-                className={`settings-tab${activeTab === tab.id ? "active" : ""}`}
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                type="button"
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
           <div className="settings-content">
             {settings ? (
               <SettingsTabContent
@@ -176,16 +175,22 @@ export function ProviderSettingsUiFacade({
           </div>
         </main>
         <footer className="settings-footer">
-          <span className="settings-status">{status}</span>
+          <button
+            className="settings-secondary"
+            disabled={busy}
+            onClick={reset}
+            title={status}
+            type="button"
+          >
+            {busy ? "Resetting..." : "Reset to Defaults"}
+          </button>
           <div className="settings-actions">
             <button
               className="settings-secondary"
-              disabled={busy}
-              onClick={reset}
+              onClick={onClose}
               type="button"
             >
-              <RotateCcw size={14} />
-              Reset Workspace
+              Close
             </button>
             <button
               className="settings-primary"
@@ -193,8 +198,7 @@ export function ProviderSettingsUiFacade({
               onClick={save}
               type="button"
             >
-              <Save size={14} />
-              Save
+              {busy ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </footer>

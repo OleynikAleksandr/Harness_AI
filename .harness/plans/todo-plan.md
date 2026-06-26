@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase32.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase33.stream1.task2",
+  "expectedCommitMessage": "feat: add working provider adapter facades",
   "debt": null
 }
 ```
@@ -263,4 +263,28 @@
 
 ### Stream: Provider Session Retest
 
-70. [IN_PROGRESS] `harness-ai.phase32.stream1.task1` User retests session creation and first provider turn through the Core-owned runtime path (scope: user workflow; expected commit: none).
+70. [TODO] `harness-ai.phase32.stream1.task1` User retests session creation and first provider turn through the Core-owned runtime path (scope: user workflow; expected commit: none). Continuation note: user requested implementation continue until provider sessions are usable.
+
+## Phase 33 - Working Provider Sessions (owner: Codex, updated: 2026-06-26)
+
+### Stream: Core Adapter Wiring
+
+71. [DONE] `harness-ai.phase33.stream1.task1` Connect Core session dispatch to registered provider adapters and publish adapter events into the session event stream (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/provider-session-binding/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/**`; expected commit: `feat: connect core dispatch to provider adapters`). Result: Completed in commit `feat: connect core dispatch to provider adapters`.
+72. [DONE] Git Commit: `feat: connect core dispatch to provider adapters` (hash: self)
+73. [IN_PROGRESS] `harness-ai.phase33.stream1.task2` Add working provider adapter facades for MVP provider choices behind the shared adapter contract (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/**, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**`; expected commit: `feat: add working provider adapter facades`).
+74. [TODO] Git Commit: `feat: add working provider adapter facades` (hash: TBD)
+75. [TODO] `harness-ai.phase33.stream1.task3` Register provider adapters from the Electron app bootstrap so Create Session can start a dialog through the selected provider (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**, package.json`; expected commit: `feat: register providers for desktop sessions`).
+76. [TODO] Git Commit: `feat: register providers for desktop sessions` (hash: TBD)
+
+## Phase 34 - Provider Session Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+77. [TODO] `harness-ai.phase34.stream1.task1` Verify architecture, typecheck, tests, renderer build, and unsigned macOS packaging for working provider sessions; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify working provider sessions`).
+78. [TODO] Git Commit: `chore: verify working provider sessions` (hash: TBD)
+
+## Phase 35 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: Provider Dialog Retest
+
+79. [TODO] `harness-ai.phase35.stream1.task1` User retests creating a session and sending a first message through each configured provider (scope: user workflow; expected commit: none).

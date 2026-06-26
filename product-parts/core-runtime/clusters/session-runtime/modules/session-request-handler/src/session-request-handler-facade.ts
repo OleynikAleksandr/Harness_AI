@@ -1,4 +1,8 @@
-import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import {
+  type ProviderId,
+  providerRegistryFacade
+} from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import {
   type ProviderSessionBinding,
   providerSessionBindingFacade
@@ -42,11 +46,17 @@ export type CoreSessionActionResult =
 export interface SessionRequestHandlerDependencies {
   bindingFacade?: ProviderSessionBindingFacadeLike;
   eventStream?: SessionEventStreamLike;
+  providerRegistry?: ProviderRegistryLike;
 }
 
 interface ProviderSessionBindingFacadeLike {
   createPending(sessionId: string, providerId: ProviderId): ProviderSessionBinding;
   getBinding(sessionId: string): ProviderSessionBinding | null;
+  markReady(
+    sessionId: string,
+    providerId: ProviderId,
+    providerSessionId: string
+  ): ProviderSessionBinding;
   markFailed(
     sessionId: string,
     providerId: ProviderId,
@@ -58,17 +68,31 @@ interface SessionEventStreamLike {
   publish(event: SessionCoreEvent): void;
 }
 
-const ADAPTER_NOT_ATTACHED =
-  "Provider adapter contract is not attached yet. Core accepted the user intent, but no provider turn was dispatched.";
+interface ProviderRegistryLike {
+  getAdapter(providerId: ProviderId): ProviderAdapter | null;
+}
+
+interface ProviderRuntimeBinding {
+  adapter: ProviderAdapter;
+  providerSessionId: string;
+  unsubscribe: () => void;
+}
+
+const ADAPTER_NOT_REGISTERED =
+  "Provider adapter is not registered in Core runtime.";
+const PROVIDER_STARTING = "Provider session is still starting.";
 
 export class SessionRequestHandlerFacade {
   private readonly bindingFacade: ProviderSessionBindingFacadeLike;
   private readonly eventStream: SessionEventStreamLike;
+  private readonly providerRegistry: ProviderRegistryLike;
+  private readonly runtimeBindings = new Map<string, ProviderRuntimeBinding>();
   private readonly sessions = new Map<string, CoreSession>();
 
   constructor(deps: SessionRequestHandlerDependencies = {}) {
     this.bindingFacade = deps.bindingFacade ?? providerSessionBindingFacade;
     this.eventStream = deps.eventStream ?? sessionEventStreamFacade;
+    this.providerRegistry = deps.providerRegistry ?? providerRegistryFacade;
   }
 
   createSession(request: CreateCoreSessionRequest): CoreSessionActionResult {
@@ -91,6 +115,7 @@ export class SessionRequestHandlerFacade {
       type: "session:created"
     });
     this.publishBinding(this.bindingFacade.createPending(session.id, session.providerId));
+    void this.bindProviderSession(session);
     return { ok: true, session };
   }
 
@@ -114,12 +139,13 @@ export class SessionRequestHandlerFacade {
       text,
       timestamp: now
     });
+    const runtimeBinding = this.runtimeBindings.get(session.id);
+    if (!runtimeBinding) {
+      this.publishError(session.id, this.bindingUnavailableMessage(session.id));
+      return { ok: true, session: updatedSession };
+    }
     this.publishTurnState(session.id, "running");
-    this.publishBinding(
-      this.bindingFacade.markFailed(session.id, session.providerId, ADAPTER_NOT_ATTACHED)
-    );
-    this.publishError(session.id, ADAPTER_NOT_ATTACHED);
-    this.publishTurnState(session.id, "idle");
+    void this.dispatchProviderMessage(session, runtimeBinding, text);
     return { ok: true, session: updatedSession };
   }
 
@@ -172,10 +198,116 @@ export class SessionRequestHandlerFacade {
   private publish(event: SessionCoreEvent): void {
     this.eventStream.publish(event);
   }
+
+  private async bindProviderSession(session: CoreSession): Promise<void> {
+    const adapter = this.providerRegistry.getAdapter(session.providerId);
+    if (!adapter) {
+      this.publishBinding(
+        this.bindingFacade.markFailed(session.id, session.providerId, ADAPTER_NOT_REGISTERED)
+      );
+      this.publishError(session.id, ADAPTER_NOT_REGISTERED);
+      return;
+    }
+    try {
+      await adapter.initialize?.();
+      const providerSessionId = await adapter.createSession(session.workspacePath);
+      const unsubscribe = adapter.subscribe(providerSessionId, (event) =>
+        this.handleProviderEvent(session.id, event)
+      );
+      this.runtimeBindings.set(session.id, {
+        adapter,
+        providerSessionId,
+        unsubscribe
+      });
+      this.publishBinding(
+        this.bindingFacade.markReady(
+          session.id,
+          session.providerId,
+          providerSessionId
+        )
+      );
+    } catch (error) {
+      this.publishBinding(
+        this.bindingFacade.markFailed(
+          session.id,
+          session.providerId,
+          stringifyError(error)
+        )
+      );
+      this.publishError(session.id, stringifyError(error));
+    }
+  }
+
+  private async dispatchProviderMessage(
+    session: CoreSession,
+    runtimeBinding: ProviderRuntimeBinding,
+    text: string
+  ): Promise<void> {
+    try {
+      await runtimeBinding.adapter.sendMessage(
+        runtimeBinding.providerSessionId,
+        text,
+        { model: session.model }
+      );
+    } catch (error) {
+      this.publishTurnState(session.id, "idle");
+      this.publishError(session.id, stringifyError(error));
+    }
+  }
+
+  private handleProviderEvent(sessionId: string, event: unknown): void {
+    if (!isRecord(event) || typeof event.type !== "string") {
+      return;
+    }
+    if (event.type === "dialog_message") {
+      this.publishMessage({
+        id: readString(event.uuid) ?? createId("message-provider"),
+        role: event.tag === "thinking" ? "thinking" : "assistant",
+        sessionId,
+        text: readString(event.content) ?? "",
+        timestamp: readString(event.timestamp) ?? new Date().toISOString()
+      });
+      return;
+    }
+    if (event.type === "turn_started") {
+      this.publishTurnState(sessionId, "running");
+      return;
+    }
+    if (event.type === "turn_completed") {
+      this.publishTurnState(sessionId, "idle");
+      return;
+    }
+    if (event.type === "turn_failed" || event.type === "stream_error") {
+      this.publishTurnState(sessionId, "idle");
+      this.publishError(sessionId, readString(event.message) ?? "Provider turn failed");
+    }
+  }
+
+  private bindingUnavailableMessage(sessionId: string): string {
+    const binding = this.bindingFacade.getBinding(sessionId);
+    if (binding?.status === "pending") {
+      return PROVIDER_STARTING;
+    }
+    return binding?.error ?? ADAPTER_NOT_REGISTERED;
+  }
 }
 
 function createId(prefix: string): string {
   return `${prefix}-${globalThis.crypto.randomUUID()}`;
+}
+
+function stringifyError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
 }
 
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

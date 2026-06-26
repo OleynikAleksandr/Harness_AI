@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { delimiter, join } from "node:path";
@@ -17,6 +18,11 @@ const CLI_PATH_ENTRIES = [
   "/usr/sbin",
   "/sbin"
 ];
+const NODE_CANDIDATES = [
+  process.env.HARNESS_AI_NODE_PATH,
+  "/usr/local/bin/node",
+  "/opt/homebrew/bin/node"
+].filter(Boolean);
 
 const CLI_PROVIDERS = {
   claude: {
@@ -27,6 +33,7 @@ const CLI_PROVIDERS = {
   },
   codex: {
     commands: ["codex", join(homedir(), ".npm-global/bin/codex")],
+    nodeScript: join(homedir(), ".npm-global/bin/codex"),
     args: (request) =>
       ["exec", "--ask-for-approval", "never", "--sandbox", "read-only"]
         .concat(withOptionalModel([], request.model))
@@ -78,7 +85,7 @@ async function runCliProvider(request, deps) {
   const provider = CLI_PROVIDERS[request.providerId];
   try {
     const result = await callCli(
-      provider.commands,
+      provider,
       provider.args(request),
       deps
     );
@@ -305,15 +312,15 @@ async function postJson(url, body, headers, deps) {
   }
 }
 
-async function callCli(commands, args, deps) {
+async function callCli(provider, args, deps) {
   if (deps.runCli) {
-    return deps.runCli(commands, args);
+    return deps.runCli(provider.commands, args);
   }
 
   let lastError;
-  for (const command of commands) {
+  for (const attempt of createCliAttempts(provider, args)) {
     try {
-      return await runCliCommand(command, args);
+      return await runCliCommand(attempt.command, attempt.args);
     } catch (error) {
       lastError = error;
       if (!isMissingCommand(error)) {
@@ -322,6 +329,27 @@ async function callCli(commands, args, deps) {
     }
   }
   throw lastError ?? new Error("command not found");
+}
+
+export function createCliAttempts(provider, args) {
+  const attempts = [];
+  const nodeExecutable = provider.nodeScript ? findNodeExecutable() : null;
+  if (nodeExecutable) {
+    attempts.push({
+      args: [provider.nodeScript, ...args],
+      command: nodeExecutable
+    });
+  }
+  return attempts.concat(
+    provider.commands.map((command) => ({
+      args,
+      command
+    }))
+  );
+}
+
+function findNodeExecutable() {
+  return NODE_CANDIDATES.find((candidate) => existsSync(candidate)) ?? null;
 }
 
 function runCliCommand(command, args) {

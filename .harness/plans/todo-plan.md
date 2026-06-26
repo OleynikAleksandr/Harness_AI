@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-cli-path-hotfix-2026-06-26",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-codex-node-launch-hotfix-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase27.stream1.task1",
+  "expectedCommitMessage": "chore: verify codex node launch",
   "debt": null
 }
 ```
@@ -210,3 +210,17 @@
 
 50. [DONE] `harness-ai.phase25.stream1.task1` Rebuild the macOS app and record evidence that provider CLI PATH handling is packaged (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify packaged provider cli path`). Result: Completed in commit `chore: verify packaged provider cli path`.
 51. [DONE] Git Commit: `chore: verify packaged provider cli path` (hash: self)
+
+## Phase 26 - Codex Node Launch Hotfix (owner: Codex, updated: 2026-06-26)
+
+### Stream: Direct Node Runner
+
+52. [DONE] `harness-ai.phase26.stream1.task1` Launch the Codex CLI through an explicit Node executable instead of relying on `/usr/bin/env node` from the packaged app environment (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-turn-runner/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: launch codex cli through node`). Result: Completed in commit `fix: launch codex cli through node`.
+53. [DONE] Git Commit: `fix: launch codex cli through node` (hash: self)
+
+## Phase 27 - Codex Node Launch Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Package Check
+
+54. [IN_PROGRESS] `harness-ai.phase27.stream1.task1` Rebuild the macOS app and record evidence that the packaged provider runner contains the direct Codex Node launch path (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex node launch`).
+55. [TODO] Git Commit: `chore: verify codex node launch` (hash: TBD)

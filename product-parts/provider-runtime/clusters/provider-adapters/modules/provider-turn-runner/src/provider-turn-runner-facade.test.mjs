@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {
+  createCliAttempts,
   createCliEnv,
   runProviderTurn
 } from "./provider-turn-runner-facade.mjs";
@@ -53,3 +54,17 @@ const cliPath = createCliEnv({ PATH: "/tmp/custom-bin" }).PATH.split(":");
 assert.ok(cliPath.includes("/tmp/custom-bin"));
 assert.ok(cliPath.includes("/usr/local/bin"));
 assert.ok(cliPath.includes(`${process.env.HOME}/.npm-global/bin`));
+
+const codexAttempts = createCliAttempts(
+  {
+    commands: ["codex", `${process.env.HOME}/.npm-global/bin/codex`],
+    nodeScript: `${process.env.HOME}/.npm-global/bin/codex`
+  },
+  ["exec", "Hello"]
+);
+assert.equal(codexAttempts[0].command, "/usr/local/bin/node");
+assert.deepEqual(codexAttempts[0].args, [
+  `${process.env.HOME}/.npm-global/bin/codex`,
+  "exec",
+  "Hello"
+]);

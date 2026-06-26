@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-provider-selection-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase15.stream1.task1",
-  "expectedCommitMessage": "chore: verify provider session picker",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -138,5 +138,5 @@
 
 ### Stream: Build And UI Evidence
 
-30. [IN_PROGRESS] `harness-ai.phase15.stream1.task1` Verify provider picker build/UI behavior and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider session picker`).
-31. [TODO] Git Commit: `chore: verify provider session picker` (hash: TBD)
+30. [DONE] `harness-ai.phase15.stream1.task1` Verify provider picker build/UI behavior and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider session picker`). Result: Completed in commit `chore: verify provider session picker`.
+31. [DONE] Git Commit: `chore: verify provider session picker` (hash: self)

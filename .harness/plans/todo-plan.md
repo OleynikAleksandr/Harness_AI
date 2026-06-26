@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-bootstrap-2026-06-26",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-provider-selection-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase14.stream1.task1",
+  "expectedCommitMessage": "feat: choose provider when creating session",
   "debt": null
 }
 ```
@@ -119,3 +119,24 @@
 
 24. [DONE] `harness-ai.phase12.stream1.task1` Close the bootstrap scope after first local release acceptance and leave the workspace ready for the next Harness AI implementation cycle (scope: `.harness/plans/todo-plan.md`; expected commit: `chore: accept first local release`). Result: Completed in commit `chore: accept first local release`.
 25. [DONE] Git Commit: `chore: accept first local release` (hash: self)
+
+## Phase 13 - Provider Selection Catalog (owner: Codex, updated: 2026-06-26)
+
+### Stream: Provider Defaults
+
+26. [DONE] `harness-ai.phase13.stream1.task1` Add a Provider Runtime catalog for all MVP providers and Core settings defaults for the selected model per provider (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/**, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: add provider selection catalog`). Result: Completed in commit `feat: add provider selection catalog`.
+27. [DONE] Git Commit: `feat: add provider selection catalog` (hash: self)
+
+## Phase 14 - Create Session Provider Picker (owner: Codex, updated: 2026-06-26)
+
+### Stream: Sidebar Flow
+
+28. [IN_PROGRESS] `harness-ai.phase14.stream1.task1` Show a provider choice card from the Create Session button and start a local session using the provider default model from settings (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/**, product-parts/application-shell/clusters/session-interface/modules/session-telemetry/src/**`; expected commit: `feat: choose provider when creating session`).
+29. [TODO] Git Commit: `feat: choose provider when creating session` (hash: TBD)
+
+## Phase 15 - Provider Picker Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And UI Evidence
+
+30. [TODO] `harness-ai.phase15.stream1.task1` Verify provider picker build/UI behavior and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider session picker`).
+31. [TODO] Git Commit: `chore: verify provider session picker` (hash: TBD)

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-pm-theme-session-start-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase23.stream1.task1",
-  "expectedCommitMessage": "chore: verify project manager themed shell",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -194,5 +194,5 @@
 
 ### Stream: Package Check
 
-46. [IN_PROGRESS] `harness-ai.phase23.stream1.task1` Rebuild the renderer/macOS app and record verification evidence for the themed session-start shell (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify project manager themed shell`).
-47. [TODO] Git Commit: `chore: verify project manager themed shell` (hash: TBD)
+46. [DONE] `harness-ai.phase23.stream1.task1` Rebuild the renderer/macOS app and record verification evidence for the themed session-start shell (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify project manager themed shell`). Result: Completed in commit `chore: verify project manager themed shell`.
+47. [DONE] Git Commit: `chore: verify project manager themed shell` (hash: self)

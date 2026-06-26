@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase30.stream1.task2",
-  "expectedCommitMessage": "feat: add codex app server adapter shell",
+  "currentTaskId": "harness-ai.phase31.stream1.task1",
+  "expectedCommitMessage": "chore: verify codeai provider runtime alignment",
   "debt": null
 }
 ```
@@ -249,14 +249,14 @@
 
 64. [DONE] `harness-ai.phase30.stream1.task1` Add the shared provider adapter contract and registry-owned adapter lookup modeled on CodeAI Hub `createSession/resumeSession/sendMessage/subscribe/closeSession` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/**`; expected commit: `feat: add provider adapter contract`). Result: Completed in commit `feat: add provider adapter contract`.
 65. [DONE] Git Commit: `feat: add provider adapter contract` (hash: self)
-66. [IN_PROGRESS] `harness-ai.phase30.stream1.task2` Replace the Codex direct CLI path with a CodeAI Hub-style Codex adapter shell that owns app-server process startup, provider home/auth preparation, and normalized event subscription (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/**`; expected commit: `feat: add codex app server adapter shell`).
-67. [TODO] Git Commit: `feat: add codex app server adapter shell` (hash: TBD)
+66. [DONE] `harness-ai.phase30.stream1.task2` Replace the Codex direct CLI path with a CodeAI Hub-style Codex adapter shell that owns app-server process startup, provider home/auth preparation, and normalized event subscription (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/**`; expected commit: `feat: add codex app server adapter shell`). Result: Completed in commit `feat: add codex app server adapter shell`.
+67. [DONE] Git Commit: `feat: add codex app server adapter shell` (hash: self)
 
 ## Phase 31 - Tooling Verification (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Runtime Alignment Checks
 
-68. [TODO] `harness-ai.phase31.stream1.task1` Run architecture, typecheck, tests, renderer build, and package verification for the Core-owned provider runtime path; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai provider runtime alignment`).
+68. [IN_PROGRESS] `harness-ai.phase31.stream1.task1` Run architecture, typecheck, tests, renderer build, and package verification for the Core-owned provider runtime path; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai provider runtime alignment`).
 69. [TODO] Git Commit: `chore: verify codeai provider runtime alignment` (hash: TBD)
 
 ## Phase 32 - User Workflow Acceptance (owner: User, updated: 2026-06-26)

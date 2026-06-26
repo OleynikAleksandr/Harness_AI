@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase71.stream1.task1",
-  "expectedCommitMessage": "chore: verify selected settings tab styling",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -537,5 +537,5 @@
 
 ### Stream: Build And Package
 
-149. [IN_PROGRESS] `harness-ai.phase71.stream1.task1` Verify and package the selected-tab styling refinement for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected settings tab styling`).
-150. [TODO] Git Commit: `chore: verify selected settings tab styling` (hash: TBD)
+149. [DONE] `harness-ai.phase71.stream1.task1` Verify and package the selected-tab styling refinement for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected settings tab styling`). Result: Completed in commit `chore: verify selected settings tab styling`.
+150. [DONE] Git Commit: `chore: verify selected settings tab styling` (hash: self)

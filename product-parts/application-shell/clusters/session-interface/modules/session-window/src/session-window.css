@@ -177,6 +177,7 @@ textarea {
   padding: 0 12px;
   gap: 8px;
   color: #20483d;
+  text-decoration: none;
 }
 
 .telemetry-strip {

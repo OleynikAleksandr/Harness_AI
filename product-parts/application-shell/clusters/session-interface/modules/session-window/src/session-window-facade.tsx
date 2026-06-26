@@ -46,10 +46,16 @@ export function SessionWindowFacade() {
             <p className="session-kicker">Harness AI</p>
             <h1>{initialSnapshot.sessions[0]?.title ?? "Session"}</h1>
           </div>
-          <button className="file-link-button" type="button" title="Open workspace">
+          <a
+            className="file-link-button"
+            href="vscode://file//Users/oleksandroliinyk/VSCODE/harness-ai/README.md:1:1"
+            rel="noreferrer"
+            target="_blank"
+            title="Open workspace"
+          >
             <FileText size={16} aria-hidden="true" />
             <span>Workspace</span>
-          </button>
+          </a>
         </header>
 
         <section className="telemetry-strip" aria-label="Session telemetry">

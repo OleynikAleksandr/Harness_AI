@@ -6,7 +6,7 @@ interface SessionTelemetryProps {
 
 export function SessionTelemetryFacade({ telemetry }: SessionTelemetryProps) {
   return (
-    <section className="telemetry-strip" aria-label="Session telemetry">
+    <section aria-label="Session telemetry" className="telemetry-strip">
       <TelemetryItem label="Provider" value={telemetry.provider} />
       <TelemetryItem label="Model" value={telemetry.model} />
       <TelemetryItem label="Context" value={telemetry.contextWindow} />

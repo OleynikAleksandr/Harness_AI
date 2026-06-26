@@ -5,14 +5,17 @@ import { CliSessionProviderAdapter } from "../../provider-adapter-contract/src/s
 export class GlmOpenCodeProviderFacade extends CliSessionProviderAdapter {
   constructor(model?: string) {
     super({
-      commands: ["opencode", path.join(homedir(), ".opencode", "bin", "opencode")],
+      commands: [
+        "opencode",
+        path.join(homedir(), ".opencode", "bin", "opencode"),
+      ],
       model,
       args: (prompt, selectedModel) => [
         "run",
         "--prompt",
         prompt,
-        ...(selectedModel ? ["--model", selectedModel] : [])
-      ]
+        ...(selectedModel ? ["--model", selectedModel] : []),
+      ],
     });
   }
 }

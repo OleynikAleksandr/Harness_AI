@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const EXTENSIONS = new Set([".json", ".md", ".mjs", ".js", ".ts", ".tsx"]);
+const TRAILING_WHITESPACE_REGEX = /[ \t]+$/u;
 
 function walk(dir, result = []) {
   for (const entry of readdirSync(dir)) {
@@ -36,7 +37,7 @@ for (const file of walk(".")) {
   }
   const lines = text.split("\n");
   lines.forEach((line, index) => {
-    if (/[ \t]+$/u.test(line)) {
+    if (TRAILING_WHITESPACE_REGEX.test(line)) {
       issues.push(`${file}:${index + 1}: trailing whitespace`);
     }
   });

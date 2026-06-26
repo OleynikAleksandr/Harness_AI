@@ -6,5 +6,8 @@
     "outDir": "dist/runtime",
     "rootDir": "."
   },
-  "include": ["product-parts/core-runtime/**/*.ts", "product-parts/provider-runtime/**/*.ts"]
+  "include": [
+    "product-parts/core-runtime/**/*.ts",
+    "product-parts/provider-runtime/**/*.ts"
+  ]
 }

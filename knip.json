@@ -1,0 +1,20 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "vite.config.ts",
+    "scripts/*.mjs",
+    "product-parts/**/src/*-facade.{ts,tsx,mjs,cjs}",
+    "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
+    "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs",
+    "product-parts/application-shell/clusters/session-interface/modules/session-window/src/renderer-entry.tsx",
+    "product-parts/**/*.test.mjs"
+  ],
+  "project": [
+    "product-parts/**/*.{ts,tsx,mjs,cjs}",
+    "scripts/**/*.mjs",
+    "vite.config.ts"
+  ],
+  "ignore": ["dist/**", "release/**", ".harness/runtime/**", ".codeai-hub/**"],
+  "ignoreDependencies": ["electron"],
+  "exclude": ["unlisted", "binaries", "devDependencies", "types"]
+}

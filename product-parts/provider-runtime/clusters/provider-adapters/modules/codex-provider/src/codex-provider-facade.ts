@@ -1,14 +1,14 @@
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import { homedir } from "node:os";
 import path from "node:path";
 import readline from "node:readline";
+import { providerEventNormalizerFacade } from "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js";
+import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import type {
   ProviderAdapter,
   ProviderEventListener,
-  ProviderTurnOptions
+  ProviderTurnOptions,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
-import { providerEventNormalizerFacade } from "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js";
-import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 
 interface CodexProviderOptions {
   approvalPolicy?: string;
@@ -34,7 +34,7 @@ const CODEX_PATH_ENTRIES = [
   path.join(homedir(), ".npm-global", "bin"),
   "/opt/homebrew/bin",
   "/usr/local/bin",
-  "/usr/bin"
+  "/usr/bin",
 ];
 const CODEX_APP_SERVER_ARGS = [
   "app-server",
@@ -47,13 +47,15 @@ const CODEX_APP_SERVER_ARGS = [
   "--disable",
   "plugins",
   "--disable",
-  "apps"
+  "apps",
 ];
 
 export class CodexProviderFacade implements ProviderAdapter {
   private child: ChildProcessWithoutNullStreams | null = null;
   private readonly command: string;
-  private readonly options: Required<Omit<CodexProviderOptions, "workspacePath">> &
+  private readonly options: Required<
+    Omit<CodexProviderOptions, "workspacePath">
+  > &
     Pick<CodexProviderOptions, "workspacePath">;
   private readonly pendingRequests = new Map<
     string,
@@ -75,7 +77,7 @@ export class CodexProviderFacade implements ProviderAdapter {
       codexCommand: this.command,
       defaultModel,
       sandbox: options.sandbox ?? "danger-full-access",
-      workspacePath: options.workspacePath
+      workspacePath: options.workspacePath,
     };
   }
 
@@ -85,34 +87,43 @@ export class CodexProviderFacade implements ProviderAdapter {
 
   async createSession(workspacePath?: string): Promise<string> {
     const cwd = workspacePath ?? this.options.workspacePath ?? process.cwd();
-    const response = await this.request<Record<string, unknown>>("thread/start", {
-      approvalPolicy: this.options.approvalPolicy,
-      cwd,
-      model: this.options.defaultModel,
-      persistExtendedHistory: true,
-      sandbox: this.options.sandbox
-    });
+    const response = await this.request<Record<string, unknown>>(
+      "thread/start",
+      {
+        approvalPolicy: this.options.approvalPolicy,
+        cwd,
+        model: this.options.defaultModel,
+        persistExtendedHistory: true,
+        sandbox: this.options.sandbox,
+      }
+    );
     const threadId = readThreadId(response);
     this.ensureSession(threadId, cwd);
     this.emit(threadId, {
       data: { model: this.options.defaultModel },
       timestamp: new Date().toISOString(),
       type: "system",
-      uuid: `${threadId}::model`
+      uuid: `${threadId}::model`,
     });
     return threadId;
   }
 
-  async resumeSession(sessionId: string, workspacePath?: string): Promise<string> {
+  async resumeSession(
+    sessionId: string,
+    workspacePath?: string
+  ): Promise<string> {
     const cwd = workspacePath ?? this.options.workspacePath ?? process.cwd();
-    const response = await this.request<Record<string, unknown>>("thread/resume", {
-      approvalPolicy: this.options.approvalPolicy,
-      cwd,
-      model: this.options.defaultModel,
-      persistExtendedHistory: true,
-      sandbox: this.options.sandbox,
-      threadId: sessionId
-    });
+    const response = await this.request<Record<string, unknown>>(
+      "thread/resume",
+      {
+        approvalPolicy: this.options.approvalPolicy,
+        cwd,
+        model: this.options.defaultModel,
+        persistExtendedHistory: true,
+        sandbox: this.options.sandbox,
+        threadId: sessionId,
+      }
+    );
     const threadId = readThreadId(response) ?? sessionId;
     this.ensureSession(threadId, cwd);
     return threadId;
@@ -128,7 +139,7 @@ export class CodexProviderFacade implements ProviderAdapter {
       cwd: state.workspacePath,
       input: [{ text: content, text_elements: [], type: "text" }],
       model: this.options.defaultModel,
-      threadId: sessionId
+      threadId: sessionId,
     });
     const turn = isRecord(response.turn) ? response.turn : null;
     const turnId = readString(turn?.id);
@@ -150,12 +161,12 @@ export class CodexProviderFacade implements ProviderAdapter {
     if (state?.activeTurnId) {
       await this.request("turn/interrupt", {
         threadId: sessionId,
-        turnId: state.activeTurnId
+        turnId: state.activeTurnId,
       }).catch(() => undefined);
     }
     this.sessions.delete(sessionId);
     if (this.sessions.size === 0) {
-      await this.stop();
+      this.stop();
     }
   }
 
@@ -174,21 +185,21 @@ export class CodexProviderFacade implements ProviderAdapter {
   private async startInternal(): Promise<void> {
     const home = await providerHomeManagerFacade.prepareCodexHome({
       providerId: "codex",
-      workspacePath: this.options.workspacePath
+      workspacePath: this.options.workspacePath,
     });
     const child = spawn(this.command, CODEX_APP_SERVER_ARGS, {
       env: {
         ...process.env,
         CODEX_HOME: home.homePath,
-        PATH: buildPath(process.env.PATH)
+        PATH: buildPath(process.env.PATH),
       },
-      stdio: ["pipe", "pipe", "pipe"]
+      stdio: ["pipe", "pipe", "pipe"],
     });
     this.child = child;
     this.attachProcessHandlers(child);
     await this.request("initialize", {
       capabilities: { experimentalApi: true },
-      clientInfo: { name: "Harness AI", version: "0.0.0" }
+      clientInfo: { name: "Harness AI", version: "0.0.0" },
     });
   }
 
@@ -221,11 +232,12 @@ export class CodexProviderFacade implements ProviderAdapter {
       throw new Error("codex app-server is not running");
     }
     const id = `harness-codex-${++this.requestCounter}`;
-    const payload = params === undefined ? { id, method } : { id, method, params };
+    const payload =
+      params === undefined ? { id, method } : { id, method, params };
     return await new Promise<TResult>((resolve, reject) => {
       this.pendingRequests.set(id, {
         reject,
-        resolve: (value) => resolve(value as TResult)
+        resolve: (value) => resolve(value as TResult),
       });
       child.stdin.write(`${JSON.stringify(payload)}\n`, (error) => {
         if (!error) {
@@ -252,7 +264,9 @@ export class CodexProviderFacade implements ProviderAdapter {
       }
       this.pendingRequests.delete(parsed.id);
       if (parsed.error) {
-        pending.reject(new Error(parsed.error.message ?? "Codex request failed"));
+        pending.reject(
+          new Error(parsed.error.message ?? "Codex request failed")
+        );
         return;
       }
       pending.resolve(parsed.result);
@@ -294,7 +308,7 @@ export class CodexProviderFacade implements ProviderAdapter {
     const state = {
       activeTurnId: null,
       listeners: new Set<ProviderEventListener>(),
-      workspacePath
+      workspacePath,
     };
     this.sessions.set(sessionId, state);
     return state;
@@ -307,7 +321,7 @@ export class CodexProviderFacade implements ProviderAdapter {
     }
   }
 
-  private async stop(): Promise<void> {
+  private stop(): void {
     const child = this.child;
     if (!child) {
       return;

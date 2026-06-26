@@ -1,6 +1,6 @@
 import type {
   HarnessSettings,
-  LocalizationWorkflowTermsPolicy
+  LocalizationWorkflowTermsPolicy,
 } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { LANGUAGE_OPTIONS } from "../../provider-settings-ui/src/settings-model-options.js";
 
@@ -23,12 +23,12 @@ const CATEGORY_LABELS: ReadonlyArray<{
   { key: "userGuidance", label: "User Guidance" },
   { key: "reasoning", label: "Reasoning" },
   { key: "artifactsForTheUser", label: "Artifacts" },
-  { key: "interactiveTemplates", label: "Interactive Templates" }
+  { key: "interactiveTemplates", label: "Interactive Templates" },
 ];
 
 export function LocalizationSettingsUiFacade({
   localization,
-  onChange
+  onChange,
 }: LocalizationSettingsUiFacadeProps) {
   const update = (patch: Partial<LocalizationSettings>) => {
     onChange({ ...localization, ...patch });
@@ -37,8 +37,8 @@ export function LocalizationSettingsUiFacade({
     update({
       categories: {
         ...localization.categories,
-        [key]: value
-      }
+        [key]: value,
+      },
     });
   };
 
@@ -48,39 +48,49 @@ export function LocalizationSettingsUiFacade({
         <h3>Localization</h3>
       </div>
       <div className="settings-grid two">
-        <label className="settings-field">
+        <label
+          className="settings-field"
+          htmlFor="localization-default-language"
+        >
           <span>Default Language</span>
           <LanguageSelect
-            value={localization.defaultLanguage}
+            id="localization-default-language"
             onChange={(value) => update({ defaultLanguage: value })}
+            value={localization.defaultLanguage}
           />
         </label>
-        <label className="settings-field">
+        <label className="settings-field" htmlFor="localization-ui-engine">
           <span>UI Engine</span>
           <input
-            value={localization.engineId}
+            id="localization-ui-engine"
             onChange={(event) => update({ engineId: event.target.value })}
+            value={localization.engineId}
           />
         </label>
-        <label className="settings-field">
+        <label
+          className="settings-field"
+          htmlFor="localization-reasoning-engine"
+        >
           <span>Reasoning Engine</span>
           <input
-            value={localization.reasoningEngineId}
+            id="localization-reasoning-engine"
             onChange={(event) =>
               update({ reasoningEngineId: event.target.value })
             }
+            value={localization.reasoningEngineId}
           />
         </label>
-        <label className="settings-field">
+        <label className="settings-field" htmlFor="localization-workflow-terms">
           <span>Workflow Terms</span>
           <select
-            value={localization.workflowTermsPolicy}
+            id="localization-workflow-terms"
             onChange={(event) =>
               update({
                 workflowTermsPolicy: event.target
-                  .value as LocalizationWorkflowTermsPolicy
+                  .value as LocalizationWorkflowTermsPolicy,
               })
             }
+            value={localization.workflowTermsPolicy}
           >
             <option value="keep_english">Keep English</option>
             <option value="translate">Translate</option>
@@ -90,35 +100,47 @@ export function LocalizationSettingsUiFacade({
       <label className="settings-check">
         <input
           checked={localization.glossaryEnabled}
+          onChange={(event) =>
+            update({ glossaryEnabled: event.target.checked })
+          }
           type="checkbox"
-          onChange={(event) => update({ glossaryEnabled: event.target.checked })}
         />
         <span>Glossary Enabled</span>
       </label>
       <div className="settings-grid two">
-        {CATEGORY_LABELS.map((category) => (
-          <label className="settings-field" key={category.key}>
-            <span>{category.label}</span>
-            <LanguageSelect
-              value={localization.categories[category.key]}
-              onChange={(value) => updateCategory(category.key, value)}
-            />
-          </label>
-        ))}
+        {CATEGORY_LABELS.map((category) => {
+          const id = `localization-category-${category.key}`;
+          return (
+            <label className="settings-field" htmlFor={id} key={category.key}>
+              <span>{category.label}</span>
+              <LanguageSelect
+                id={id}
+                onChange={(value) => updateCategory(category.key, value)}
+                value={localization.categories[category.key]}
+              />
+            </label>
+          );
+        })}
       </div>
     </section>
   );
 }
 
 function LanguageSelect({
+  id,
   onChange,
-  value
+  value,
 }: {
+  id: string;
   onChange: (value: string) => void;
   value: string;
 }) {
   return (
-    <select value={value} onChange={(event) => onChange(event.target.value)}>
+    <select
+      id={id}
+      onChange={(event) => onChange(event.target.value)}
+      value={value}
+    >
       {LANGUAGE_OPTIONS.map((language) => (
         <option key={language} value={language}>
           {language.toUpperCase()}

@@ -45,18 +45,25 @@ export class ProviderEventNormalizerFacade {
     return [];
   }
 
-  private normalizeCodexTurnCompleted(params: unknown): NormalizedProviderEvent {
+  private normalizeCodexTurnCompleted(
+    params: unknown
+  ): NormalizedProviderEvent {
     const turn = isRecord(params) && isRecord(params.turn) ? params.turn : null;
     const error = isRecord(turn?.error) ? turn.error : null;
     const status = readString(turn?.status);
     if (status === "failed" || error) {
-      return event("turn_failed", readString(error?.message) ?? "Codex turn failed");
+      return event(
+        "turn_failed",
+        readString(error?.message) ?? "Codex turn failed"
+      );
     }
     return event("turn_completed");
   }
 
-  private normalizeCodexCompletedItem(params: unknown): NormalizedProviderEvent[] {
-    if (!isRecord(params) || !isRecord(params.item)) {
+  private normalizeCodexCompletedItem(
+    params: unknown
+  ): NormalizedProviderEvent[] {
+    if (!(isRecord(params) && isRecord(params.item))) {
       return [];
     }
     const item = params.item;
@@ -75,7 +82,7 @@ export class ProviderEventNormalizerFacade {
   }
 
   private normalizeCodexTokenUsage(params: unknown): NormalizedProviderEvent[] {
-    if (!isRecord(params) || !isRecord(params.tokenUsage)) {
+    if (!(isRecord(params) && isRecord(params.tokenUsage))) {
       return [];
     }
     return [
@@ -83,8 +90,8 @@ export class ProviderEventNormalizerFacade {
         data: { kind: "token_usage", tokenUsage: params.tokenUsage },
         timestamp: nowIso(),
         type: "stream_event",
-        uuid: `${randomUUID()}::token_usage`
-      }
+        uuid: `${randomUUID()}::token_usage`,
+      },
     ];
   }
 }
@@ -100,7 +107,7 @@ function dialogMessage(
     ...(tag ? { tag } : {}),
     timestamp: nowIso(),
     type: "dialog_message",
-    uuid: id ?? randomUUID()
+    uuid: id ?? randomUUID(),
   };
 }
 
@@ -112,7 +119,7 @@ function event(
     ...(message ? { message } : {}),
     timestamp: nowIso(),
     type,
-    uuid: randomUUID()
+    uuid: randomUUID(),
   };
 }
 
@@ -129,7 +136,10 @@ function readString(value: unknown): string | null {
 
 function readStringArray(value: unknown): string[] {
   return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    ? value.filter(
+        (item): item is string =>
+          typeof item === "string" && item.trim().length > 0
+      )
     : [];
 }
 

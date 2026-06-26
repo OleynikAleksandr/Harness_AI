@@ -11,7 +11,7 @@ export function RecoveryControlsUiFacade({
   busy,
   onAllowRestartChange,
   onRestart,
-  status
+  status,
 }: RecoveryControlsUiFacadeProps) {
   return (
     <section className="settings-card">
@@ -21,16 +21,16 @@ export function RecoveryControlsUiFacade({
       <label className="settings-check">
         <input
           checked={allowRestart}
-          type="checkbox"
           onChange={(event) => onAllowRestartChange(event.target.checked)}
+          type="checkbox"
         />
         <span>Allow Restart Core</span>
       </label>
       <button
         className="settings-secondary"
         disabled={!allowRestart || busy}
-        type="button"
         onClick={onRestart}
+        type="button"
       >
         {busy ? "Restarting..." : "Restart Core"}
       </button>

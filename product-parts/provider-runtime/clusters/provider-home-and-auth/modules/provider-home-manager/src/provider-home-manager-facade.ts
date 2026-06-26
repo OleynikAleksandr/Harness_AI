@@ -1,4 +1,15 @@
-import { access, copyFile, link, lstat, mkdir, readFile, readlink, rm, symlink, writeFile } from "node:fs/promises";
+import {
+  access,
+  copyFile,
+  link,
+  lstat,
+  mkdir,
+  readFile,
+  readlink,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 
@@ -30,19 +41,30 @@ export class ProviderHomeManagerFacade {
         "home"
       );
     }
-    return path.join(homedir(), ".harness-ai", "providers", request.providerId, "home");
+    return path.join(
+      homedir(),
+      ".harness-ai",
+      "providers",
+      request.providerId,
+      "home"
+    );
   }
 
-  async prepareCodexHome(request: ProviderHomeRequest): Promise<PreparedProviderHome> {
-    const homePath = this.resolveProviderHome({ ...request, providerId: "codex" });
+  async prepareCodexHome(
+    request: ProviderHomeRequest
+  ): Promise<PreparedProviderHome> {
+    const homePath = this.resolveProviderHome({
+      ...request,
+      providerId: "codex",
+    });
     await mkdir(homePath, { recursive: true });
     const authLinked = await materializeAuthFile({
       destinationPath: path.join(homePath, AUTH_FILENAME),
-      sourcePath: path.join(LEGACY_CODEX_HOME, AUTH_FILENAME)
+      sourcePath: path.join(LEGACY_CODEX_HOME, AUTH_FILENAME),
     });
     await copyIfMissing({
       destinationPath: path.join(homePath, CONFIG_FILENAME),
-      sourcePath: path.join(LEGACY_CODEX_HOME, CONFIG_FILENAME)
+      sourcePath: path.join(LEGACY_CODEX_HOME, CONFIG_FILENAME),
     });
     await ensureSummaryConfig(path.join(homePath, CONFIG_FILENAME));
     return { authLinked, homePath };
@@ -61,7 +83,10 @@ async function materializeAuthFile(paths: {
     return true;
   }
   await rm(paths.destinationPath, { force: true });
-  const relativeSource = path.relative(path.dirname(paths.destinationPath), paths.sourcePath);
+  const relativeSource = path.relative(
+    path.dirname(paths.destinationPath),
+    paths.sourcePath
+  );
   try {
     await symlink(relativeSource || paths.sourcePath, paths.destinationPath);
   } catch {
@@ -74,7 +99,10 @@ async function copyIfMissing(paths: {
   destinationPath: string;
   sourcePath: string;
 }): Promise<void> {
-  if ((await exists(paths.destinationPath)) || !(await exists(paths.sourcePath))) {
+  if (
+    (await exists(paths.destinationPath)) ||
+    !(await exists(paths.sourcePath))
+  ) {
     return;
   }
   await mkdir(path.dirname(paths.destinationPath), { recursive: true });

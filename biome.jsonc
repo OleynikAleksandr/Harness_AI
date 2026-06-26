@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": [
+    "ultracite/core",
+    "ultracite/react",
+    "ultracite/biome/core",
+    "ultracite/biome/react"
+  ],
+  "files": {
+    "includes": [
+      "**/*",
+      "!!.codeai-hub",
+      "!!.harness/runtime",
+      "!!dist",
+      "!!node_modules",
+      "!!release"
+    ]
+  },
+  "linter": {
+    "rules": {
+      "performance": {
+        "noBarrelFile": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.{test,spec}.{ts,tsx,js,jsx,mjs}", "**/__tests__/**/*"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "error"
+          }
+        }
+      }
+    }
+  ]
+}

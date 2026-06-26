@@ -4,7 +4,7 @@ import { REASONING_EFFORT_OPTIONS } from "./settings-model-options.js";
 
 export function ProviderCard({
   children,
-  title
+  title,
 }: {
   children: ReactNode;
   title: string;
@@ -24,17 +24,19 @@ export function ProviderCard({
 export function ModelSelect({
   onChange,
   options,
-  value
+  value,
 }: {
   onChange: (value: string) => void;
   options: readonly string[];
   value: string;
 }) {
-  const resolvedOptions = options.includes(value) ? options : [value, ...options];
+  const resolvedOptions = options.includes(value)
+    ? options
+    : [value, ...options];
   return (
     <label className="settings-field">
       <span>Default Model</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
+      <select onChange={(event) => onChange(event.target.value)} value={value}>
         {resolvedOptions.map((option) => (
           <option key={option} value={option}>
             {option}
@@ -50,7 +52,7 @@ export function ConnectionFields({
   baseUrl,
   model,
   modelOptions,
-  onChange
+  onChange,
 }: {
   apiKey: string;
   baseUrl: string;
@@ -66,26 +68,26 @@ export function ConnectionFields({
     <>
       <TextField
         label="API Key"
+        onChange={(value) => onChange({ apiKey: value })}
         password
         value={apiKey}
-        onChange={(value) => onChange({ apiKey: value })}
       />
       <TextField
         label="Base URL"
-        value={baseUrl}
         onChange={(value) => onChange({ baseUrl: value })}
+        value={baseUrl}
       />
       {modelOptions ? (
         <ModelSelect
+          onChange={(value) => onChange({ defaultModel: value })}
           options={modelOptions}
           value={model}
-          onChange={(value) => onChange({ defaultModel: value })}
         />
       ) : (
         <TextField
           label="Default Model"
-          value={model}
           onChange={(value) => onChange({ defaultModel: value })}
+          value={model}
         />
       )}
     </>
@@ -96,7 +98,7 @@ export function TextField({
   label,
   onChange,
   password = false,
-  value
+  value,
 }: {
   label: string;
   onChange: (value: string) => void;
@@ -107,9 +109,9 @@ export function TextField({
     <label className="settings-field">
       <span>{label}</span>
       <input
+        onChange={(event) => onChange(event.target.value)}
         type={password ? "password" : "text"}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
       />
     </label>
   );
@@ -118,7 +120,7 @@ export function TextField({
 export function EffortSelect({
   label,
   onChange,
-  value
+  value,
 }: {
   label: string;
   onChange: (value: ReasoningEffort) => void;
@@ -128,8 +130,8 @@ export function EffortSelect({
     <label className="settings-field">
       <span>{label}</span>
       <select
-        value={value}
         onChange={(event) => onChange(event.target.value as ReasoningEffort)}
+        value={value}
       >
         {REASONING_EFFORT_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
@@ -143,7 +145,7 @@ export function EffortSelect({
 
 export function ContinuityRange({
   onChange,
-  value
+  value,
 }: {
   onChange: (value: number) => void;
   value: number;
@@ -154,9 +156,9 @@ export function ContinuityRange({
       <input
         max={80}
         min={5}
+        onChange={(event) => onChange(Number(event.target.value))}
         type="range"
         value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
       />
     </label>
   );
@@ -168,7 +170,7 @@ export function ProviderChecks({
   onThinkingDisplay,
   onThinkingEnabled,
   thinkingDisplay,
-  thinkingEnabled
+  thinkingEnabled,
 }: {
   autoUpdate?: boolean;
   onAutoUpdate?: (enabled: boolean) => void;
@@ -180,7 +182,11 @@ export function ProviderChecks({
   return (
     <>
       {typeof autoUpdate === "boolean" && onAutoUpdate ? (
-        <CheckField checked={autoUpdate} label="Auto Update" onChange={onAutoUpdate} />
+        <CheckField
+          checked={autoUpdate}
+          label="Auto Update"
+          onChange={onAutoUpdate}
+        />
       ) : null}
       {typeof thinkingEnabled === "boolean" && onThinkingEnabled ? (
         <CheckField
@@ -203,7 +209,7 @@ export function ProviderChecks({
 function CheckField({
   checked,
   label,
-  onChange
+  onChange,
 }: {
   checked: boolean;
   label: string;
@@ -213,8 +219,8 @@ function CheckField({
     <label className="settings-check">
       <input
         checked={checked}
-        type="checkbox"
         onChange={(event) => onChange(event.target.checked)}
+        type="checkbox"
       />
       <span>{label}</span>
     </label>

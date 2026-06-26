@@ -6,7 +6,10 @@ interface InputControlsProps {
   onSubmit: (text: string) => void | Promise<void>;
 }
 
-export function InputControlsFacade({ disabled = false, onSubmit }: InputControlsProps) {
+export function InputControlsFacade({
+  disabled = false,
+  onSubmit,
+}: InputControlsProps) {
   const [draft, setDraft] = useState("");
   const canSubmit = draft.trim().length > 0 && !disabled;
 
@@ -35,16 +38,16 @@ export function InputControlsFacade({ disabled = false, onSubmit }: InputControl
         value={draft}
       />
       <div className="input-actions">
-        <button className="icon-button" disabled type="button" title="Stop">
-          <Square size={16} aria-hidden="true" />
+        <button className="icon-button" disabled title="Stop" type="button">
+          <Square aria-hidden="true" size={16} />
         </button>
         <button
           className="icon-button primary"
           disabled={!canSubmit}
-          type="submit"
           title="Play"
+          type="submit"
         >
-          <Play size={17} aria-hidden="true" />
+          <Play aria-hidden="true" size={17} />
         </button>
       </div>
     </form>

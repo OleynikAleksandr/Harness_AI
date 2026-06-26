@@ -14,9 +14,9 @@
   --pm-help-text-color: rgba(115, 130, 140, 1);
   --pm-shadow-soft: 0 18px 40px rgba(7, 10, 15, 0.45);
   --pm-shadow-inset: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  font-family: var(--pm-font-family);
   color: var(--pm-text-primary);
   background: #0b0d12;
-  font-family: var(--pm-font-family);
 }
 
 * {
@@ -24,9 +24,9 @@
 }
 
 body {
-  margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  margin: 0;
   color: var(--pm-text-primary);
   background: #0b0d12;
 }
@@ -64,15 +64,15 @@ textarea {
 .file-link-button,
 .provider-card,
 .start-session-button {
-  border: 0;
   cursor: pointer;
+  border: 0;
 }
 
 .workspace-switcher {
   display: flex;
+  gap: 10px;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
@@ -97,9 +97,9 @@ textarea {
 
 .workspace-switcher small {
   overflow: hidden;
-  color: var(--pm-text-muted);
-  font-size: 12px;
   text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--pm-text-muted);
   white-space: nowrap;
 }
 
@@ -112,8 +112,8 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--pm-text-muted);
   font-size: 12px;
+  color: var(--pm-text-muted);
   text-transform: uppercase;
 }
 
@@ -125,9 +125,9 @@ textarea {
 .session-list-item,
 .settings-entry {
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
   min-height: 38px;
   padding: 9px 10px;
   color: var(--pm-text-primary);
@@ -190,9 +190,9 @@ textarea {
 
 .session-header {
   display: flex;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
   min-height: 72px;
   padding: 16px 22px;
   background: var(--pm-bg-panel);
@@ -201,8 +201,8 @@ textarea {
 
 .session-kicker {
   margin: 0 0 4px;
-  color: var(--pm-text-muted);
   font-size: 12px;
+  color: var(--pm-text-muted);
   text-transform: uppercase;
 }
 
@@ -213,9 +213,9 @@ textarea {
 }
 
 .file-link-button {
+  gap: 8px;
   width: auto;
   padding: 0 12px;
-  gap: 8px;
   color: var(--pm-accent-strong);
   text-decoration: none;
 }
@@ -241,8 +241,8 @@ textarea {
 .message-meta,
 .provider-card span,
 .provider-card small {
-  color: var(--pm-text-muted);
   font-size: 12px;
+  color: var(--pm-text-muted);
 }
 
 .telemetry-item strong,
@@ -282,9 +282,9 @@ textarea {
 
 .provider-picker-header {
   display: flex;
+  gap: 14px;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
 }
 
 .provider-picker-header h2,
@@ -358,8 +358,8 @@ textarea {
 
 .empty-session {
   display: grid;
-  place-items: start;
   gap: 12px;
+  place-items: start;
   width: min(520px, 100%);
   padding: 18px;
   margin: auto;
@@ -371,8 +371,8 @@ textarea {
 
 .start-session-button {
   display: inline-flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
   min-height: 36px;
   padding: 0 14px;
   color: #0b0d12;
@@ -399,13 +399,13 @@ textarea {
 .input-controls textarea {
   width: 100%;
   min-height: 76px;
-  resize: vertical;
   padding: 12px;
   color: var(--pm-text-primary);
+  resize: vertical;
+  outline: none;
   background: var(--pm-bg-surface);
   border: 1px solid var(--pm-border-color);
   border-radius: 8px;
-  outline: none;
 }
 
 .input-controls textarea:focus {
@@ -420,8 +420,8 @@ textarea {
 
 .input-actions {
   display: grid;
-  align-content: end;
   gap: 8px;
+  align-content: end;
 }
 
 @media (max-width: 780px) {

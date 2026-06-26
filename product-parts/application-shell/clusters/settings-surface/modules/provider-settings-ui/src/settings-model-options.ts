@@ -21,7 +21,7 @@ export const SETTINGS_TABS: ReadonlyArray<{
   { id: "glmOpenCode", label: "OpenCode" },
   { id: "localModels", label: "Local Models" },
   { id: "openRouter", label: "OpenRouter" },
-  { id: "general", label: "General" }
+  { id: "general", label: "General" },
 ];
 
 export const PROVIDER_MODEL_OPTIONS = {
@@ -29,7 +29,7 @@ export const PROVIDER_MODEL_OPTIONS = {
   codex: ["cli-default", "gpt-5.4", "gpt-5.4-mini"],
   kimi: ["cli-default", "kimi-k2.7-code", "kimi-k2.7-code-highspeed"],
   glmNative: ["glm-5.2"],
-  glmOpenCode: ["zai-coding-plan/glm-5.2", "kimi-for-coding/k2p7"]
+  glmOpenCode: ["zai-coding-plan/glm-5.2", "kimi-for-coding/k2p7"],
 } as const;
 
 export const REASONING_EFFORT_OPTIONS: ReadonlyArray<{
@@ -39,7 +39,7 @@ export const REASONING_EFFORT_OPTIONS: ReadonlyArray<{
   { label: "Off", value: "off" },
   { label: "Medium", value: "medium" },
   { label: "High", value: "high" },
-  { label: "Max", value: "max" }
+  { label: "Max", value: "max" },
 ];
 
 export const LANGUAGE_OPTIONS = ["en", "ru", "uk", "es", "de", "fr"] as const;

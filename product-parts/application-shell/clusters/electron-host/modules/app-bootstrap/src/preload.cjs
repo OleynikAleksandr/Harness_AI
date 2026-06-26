@@ -1,7 +1,8 @@
+"use strict";
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("harnessRuntime", {
-  providerDispatchMode: "core-session-dispatch"
+  providerDispatchMode: "core-session-dispatch",
 });
 
 contextBridge.exposeInMainWorld("harnessCore", {
@@ -9,7 +10,10 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:create-session", request),
   getSettings: () => ipcRenderer.invoke("harness-ai:core:get-settings"),
   getProviderSystemSettings: (providerId) =>
-    ipcRenderer.invoke("harness-ai:core:get-provider-system-settings", providerId),
+    ipcRenderer.invoke(
+      "harness-ai:core:get-provider-system-settings",
+      providerId
+    ),
   listProviders: () => ipcRenderer.invoke("harness-ai:core:list-providers"),
   onEvent: (listener) => {
     const handler = (_event, payload) => listener(payload);
@@ -19,12 +23,15 @@ contextBridge.exposeInMainWorld("harnessCore", {
     };
   },
   saveProviderSystemSettings: (request) =>
-    ipcRenderer.invoke("harness-ai:core:save-provider-system-settings", request),
+    ipcRenderer.invoke(
+      "harness-ai:core:save-provider-system-settings",
+      request
+    ),
   resetWorkspaceSettings: () =>
     ipcRenderer.invoke("harness-ai:core:reset-workspace-settings"),
   restartCore: () => ipcRenderer.invoke("harness-ai:core:restart"),
   saveSettings: (request) =>
     ipcRenderer.invoke("harness-ai:core:save-settings", request),
   sendMessage: (request) =>
-    ipcRenderer.invoke("harness-ai:core:send-message", request)
+    ipcRenderer.invoke("harness-ai:core:send-message", request),
 });

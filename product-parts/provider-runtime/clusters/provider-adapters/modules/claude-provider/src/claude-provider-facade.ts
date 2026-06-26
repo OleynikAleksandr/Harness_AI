@@ -12,8 +12,8 @@ export class ClaudeProviderFacade extends CliSessionProviderAdapter {
         ...(selectedModel && selectedModel !== "cli-default"
           ? ["--model", selectedModel]
           : []),
-        prompt
-      ]
+        prompt,
+      ],
     });
   }
 }

@@ -7,7 +7,7 @@ export interface HarnessWorkspace {
 const CURRENT_WORKSPACE: HarnessWorkspace = {
   id: "harness-ai-local",
   name: "Harness AI",
-  path: "/Users/oleksandroliinyk/VSCODE/harness-ai"
+  path: "/Users/oleksandroliinyk/VSCODE/harness-ai",
 };
 
 export class WorkspaceRegistryFacade {

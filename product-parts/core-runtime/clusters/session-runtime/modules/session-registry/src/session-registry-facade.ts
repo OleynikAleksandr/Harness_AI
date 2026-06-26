@@ -1,15 +1,15 @@
 export interface HarnessSession {
   id: string;
   title: string;
-  workspaceId: string;
   updatedAt: string;
+  workspaceId: string;
 }
 
 const FIRST_SESSION: HarnessSession = {
   id: "session-main",
   title: "Harness AI bootstrap",
   workspaceId: "harness-ai-local",
-  updatedAt: "2026-06-26T00:00:00.000Z"
+  updatedAt: "2026-06-26T00:00:00.000Z",
 };
 
 export class SessionRegistryFacade {

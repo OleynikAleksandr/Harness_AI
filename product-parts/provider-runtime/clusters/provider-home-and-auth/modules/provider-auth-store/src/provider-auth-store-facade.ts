@@ -15,14 +15,14 @@ export interface ProviderSystemSettings {
 const PROVIDER_SETTING_ALIASES: Partial<Record<ProviderId, string[]>> = {
   "glm-native": ["glmNative", "glm-native", "glm"],
   "local-models": ["localModels", "local-models", "local"],
-  openrouter: ["openRouter", "openrouter"]
+  openrouter: ["openRouter", "openrouter"],
 };
 
 export class ProviderAuthStoreFacade {
   getProviderSettings(providerId: ProviderId): ProviderSystemSettings {
     return {
       ...readGlobalProviderSettings(providerId),
-      ...readProviderSettings(providerId)
+      ...readProviderSettings(providerId),
     };
   }
 
@@ -31,7 +31,7 @@ export class ProviderAuthStoreFacade {
     const keys: Partial<Record<ProviderId, string[]>> = {
       "glm-native": ["GLM_API_KEY", "ZAI_API_KEY"],
       "local-models": ["HARNESS_AI_LOCAL_API_KEY", "LMSTUDIO_API_KEY"],
-      openrouter: ["OPENROUTER_API_KEY"]
+      openrouter: ["OPENROUTER_API_KEY"],
     };
     const settings = this.getProviderSettings(providerId);
     const fromSettings = firstText(settings.apiKey);
@@ -52,7 +52,7 @@ export class ProviderAuthStoreFacade {
     const urls: Partial<Record<ProviderId, string[]>> = {
       "glm-native": ["GLM_BASE_URL", "ZAI_BASE_URL"],
       "local-models": ["HARNESS_AI_LOCAL_MODELS_BASE_URL", "LMSTUDIO_BASE_URL"],
-      openrouter: ["OPENROUTER_BASE_URL"]
+      openrouter: ["OPENROUTER_BASE_URL"],
     };
     const settings = this.getProviderSettings(providerId);
     const fromSettings = firstText(settings.baseUrl);
@@ -83,7 +83,7 @@ export class ProviderAuthStoreFacade {
       "baseUrl",
       "configPath",
       "defaultModel",
-      "endpointTag"
+      "endpointTag",
     ] as const) {
       if (!Object.hasOwn(patch, key)) {
         continue;
@@ -92,10 +92,10 @@ export class ProviderAuthStoreFacade {
       if (value) {
         next[key] = value;
       } else {
-        delete next[key];
+        next[key] = undefined;
       }
     }
-    delete next.model;
+    next.model = undefined;
     const filePath = providerSettingsPath(providerId);
     mkdirSync(path.dirname(filePath), { recursive: true });
     writeFileSync(filePath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
@@ -109,7 +109,9 @@ function readProviderSettings(providerId: ProviderId): ProviderSystemSettings {
   return normalizeProviderSettings(readJson(providerSettingsPath(providerId)));
 }
 
-function readGlobalProviderSettings(providerId: ProviderId): ProviderSystemSettings {
+function readGlobalProviderSettings(
+  providerId: ProviderId
+): ProviderSystemSettings {
   const globalSettings = readRecord(
     readJson(path.join(harnessHome(), "settings", "settings.json"))
   );
@@ -128,7 +130,9 @@ function providerSettingsPath(providerId: ProviderId): string {
 }
 
 function harnessHome(): string {
-  return process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai");
+  return (
+    process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai")
+  );
 }
 
 function normalizeProviderSettings(value: unknown): ProviderSystemSettings {

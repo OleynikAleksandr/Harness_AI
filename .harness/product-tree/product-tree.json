@@ -23,9 +23,21 @@
           "name": "Electron Host",
           "purpose": "Desktop host lifecycle, Core Runtime bridge, and VS Code link opening.",
           "modules": [
-            { "id": "app-bootstrap", "name": "App Bootstrap", "purpose": "Electron lifecycle, window creation, and local app startup." },
-            { "id": "core-process-bridge", "name": "Core Process Bridge", "purpose": "Start or connect to the local Core Runtime process." },
-            { "id": "vscode-link-opener", "name": "VS Code Link Opener", "purpose": "Open absolute file links in Visual Studio Code." }
+            {
+              "id": "app-bootstrap",
+              "name": "App Bootstrap",
+              "purpose": "Electron lifecycle, window creation, and local app startup."
+            },
+            {
+              "id": "core-process-bridge",
+              "name": "Core Process Bridge",
+              "purpose": "Start or connect to the local Core Runtime process."
+            },
+            {
+              "id": "vscode-link-opener",
+              "name": "VS Code Link Opener",
+              "purpose": "Open absolute file links in Visual Studio Code."
+            }
           ]
         },
         {
@@ -33,10 +45,26 @@
           "name": "Session Interface",
           "purpose": "Classic chat session surface and session chrome.",
           "modules": [
-            { "id": "session-window", "name": "Session Window", "purpose": "Transcript/dialog layout and session chrome." },
-            { "id": "input-controls", "name": "Input Controls", "purpose": "Message input, Stop/Play controls, and busy/lock display." },
-            { "id": "session-telemetry", "name": "Session Telemetry", "purpose": "Usage limits, context window, and provider/model status surfaces." },
-            { "id": "session-sidebar", "name": "Session Sidebar", "purpose": "Workspace switcher, workspace session list, session rename, and Settings entry." }
+            {
+              "id": "session-window",
+              "name": "Session Window",
+              "purpose": "Transcript/dialog layout and session chrome."
+            },
+            {
+              "id": "input-controls",
+              "name": "Input Controls",
+              "purpose": "Message input, Stop/Play controls, and busy/lock display."
+            },
+            {
+              "id": "session-telemetry",
+              "name": "Session Telemetry",
+              "purpose": "Usage limits, context window, and provider/model status surfaces."
+            },
+            {
+              "id": "session-sidebar",
+              "name": "Session Sidebar",
+              "purpose": "Workspace switcher, workspace session list, session rename, and Settings entry."
+            }
           ]
         },
         {
@@ -44,9 +72,21 @@
           "name": "Settings Surface",
           "purpose": "Provider, localization, and recovery settings UI.",
           "modules": [
-            { "id": "provider-settings-ui", "name": "Provider Settings UI", "purpose": "Provider cards, auth/model/reasoning controls." },
-            { "id": "localization-settings-ui", "name": "Localization Settings UI", "purpose": "UI language and reasoning translation controls." },
-            { "id": "recovery-controls-ui", "name": "Recovery Controls UI", "purpose": "Core restart and recovery action surface." }
+            {
+              "id": "provider-settings-ui",
+              "name": "Provider Settings UI",
+              "purpose": "Provider cards, auth/model/reasoning controls."
+            },
+            {
+              "id": "localization-settings-ui",
+              "name": "Localization Settings UI",
+              "purpose": "UI language and reasoning translation controls."
+            },
+            {
+              "id": "recovery-controls-ui",
+              "name": "Recovery Controls UI",
+              "purpose": "Core restart and recovery action surface."
+            }
           ]
         }
       ]
@@ -61,10 +101,26 @@
           "name": "Workspace Architecture",
           "purpose": "Workspace registry, product tree storage, skeleton materialization, and file-link contracts.",
           "modules": [
-            { "id": "workspace-registry", "name": "Workspace Registry", "purpose": "Known workspaces and active workspace selection." },
-            { "id": "product-tree-store", "name": "Product Tree Store", "purpose": "Read and write product-tree JSON plus Markdown projection." },
-            { "id": "workspace-skeleton-materializer", "name": "Workspace Skeleton Materializer", "purpose": "Create filesystem structure from the approved product tree." },
-            { "id": "workspace-link-contract", "name": "Workspace Link Contract", "purpose": "Emit file-link targets for the Application Shell." }
+            {
+              "id": "workspace-registry",
+              "name": "Workspace Registry",
+              "purpose": "Known workspaces and active workspace selection."
+            },
+            {
+              "id": "product-tree-store",
+              "name": "Product Tree Store",
+              "purpose": "Read and write product-tree JSON plus Markdown projection."
+            },
+            {
+              "id": "workspace-skeleton-materializer",
+              "name": "Workspace Skeleton Materializer",
+              "purpose": "Create filesystem structure from the approved product tree."
+            },
+            {
+              "id": "workspace-link-contract",
+              "name": "Workspace Link Contract",
+              "purpose": "Emit file-link targets for the Application Shell."
+            }
           ]
         },
         {
@@ -72,13 +128,41 @@
           "name": "Session Runtime",
           "purpose": "Session metadata, JSONL history, turn state, and UI snapshots.",
           "modules": [
-            { "id": "session-registry", "name": "Session Registry", "purpose": "Session metadata, create/open/rename operations." },
-            { "id": "session-request-handler", "name": "Session Request Handler", "purpose": "Core-owned create/resume/send/stop routing for session actions." },
-            { "id": "provider-session-binding", "name": "Provider Session Binding", "purpose": "Map Core sessions to provider session ids and binding state." },
-            { "id": "session-event-stream", "name": "Session Event Stream", "purpose": "Provider-neutral Core session events for Application Shell projections." },
-            { "id": "session-history-store", "name": "Session History Store", "purpose": "Append-only JSONL session history." },
-            { "id": "turn-lifecycle", "name": "Turn Lifecycle", "purpose": "Running/idle/failure state and Stop/Continue boundaries." },
-            { "id": "session-snapshot-projector", "name": "Session Snapshot Projector", "purpose": "Read model for the Electron session UI." }
+            {
+              "id": "session-registry",
+              "name": "Session Registry",
+              "purpose": "Session metadata, create/open/rename operations."
+            },
+            {
+              "id": "session-request-handler",
+              "name": "Session Request Handler",
+              "purpose": "Core-owned create/resume/send/stop routing for session actions."
+            },
+            {
+              "id": "provider-session-binding",
+              "name": "Provider Session Binding",
+              "purpose": "Map Core sessions to provider session ids and binding state."
+            },
+            {
+              "id": "session-event-stream",
+              "name": "Session Event Stream",
+              "purpose": "Provider-neutral Core session events for Application Shell projections."
+            },
+            {
+              "id": "session-history-store",
+              "name": "Session History Store",
+              "purpose": "Append-only JSONL session history."
+            },
+            {
+              "id": "turn-lifecycle",
+              "name": "Turn Lifecycle",
+              "purpose": "Running/idle/failure state and Stop/Continue boundaries."
+            },
+            {
+              "id": "session-snapshot-projector",
+              "name": "Session Snapshot Projector",
+              "purpose": "Read model for the Electron session UI."
+            }
           ]
         },
         {
@@ -86,10 +170,26 @@
           "name": "Development Orchestrator",
           "purpose": "Plan-first lifecycle, commits, scope guards, and quality gates.",
           "modules": [
-            { "id": "plan-orchestrator", "name": "Plan Orchestrator", "purpose": "Plan-first lifecycle and recovery state." },
-            { "id": "git-transaction-manager", "name": "Git Transaction Manager", "purpose": "Git init, automatic commits, and clean-tree checks." },
-            { "id": "task-scope-guard", "name": "Task Scope Guard", "purpose": "Product Part / Cluster / Module ownership and file-scope checks." },
-            { "id": "quality-gate-runner", "name": "Quality Gate Runner", "purpose": "Post-skeleton quality commands and hooks." }
+            {
+              "id": "plan-orchestrator",
+              "name": "Plan Orchestrator",
+              "purpose": "Plan-first lifecycle and recovery state."
+            },
+            {
+              "id": "git-transaction-manager",
+              "name": "Git Transaction Manager",
+              "purpose": "Git init, automatic commits, and clean-tree checks."
+            },
+            {
+              "id": "task-scope-guard",
+              "name": "Task Scope Guard",
+              "purpose": "Product Part / Cluster / Module ownership and file-scope checks."
+            },
+            {
+              "id": "quality-gate-runner",
+              "name": "Quality Gate Runner",
+              "purpose": "Post-skeleton quality commands and hooks."
+            }
           ]
         },
         {
@@ -98,9 +198,21 @@
           "purpose": "Normalized request envelopes for future executor dispatch.",
           "mvpStatus": "planned-not-wired",
           "modules": [
-            { "id": "intent-envelope-contract", "name": "Intent Envelope Contract", "purpose": "Normalized request schema." },
-            { "id": "normalizer-provider-runner", "name": "Normalizer Provider Runner", "purpose": "Call a chosen provider/model for normalization." },
-            { "id": "execution-envelope-validator", "name": "Execution Envelope Validator", "purpose": "Validate normalized output before executor dispatch." }
+            {
+              "id": "intent-envelope-contract",
+              "name": "Intent Envelope Contract",
+              "purpose": "Normalized request schema."
+            },
+            {
+              "id": "normalizer-provider-runner",
+              "name": "Normalizer Provider Runner",
+              "purpose": "Call a chosen provider/model for normalization."
+            },
+            {
+              "id": "execution-envelope-validator",
+              "name": "Execution Envelope Validator",
+              "purpose": "Validate normalized output before executor dispatch."
+            }
           ]
         },
         {
@@ -108,9 +220,21 @@
           "name": "Settings And Localization",
           "purpose": "Settings persistence, UI localization, and reasoning translation.",
           "modules": [
-            { "id": "settings-store", "name": "Settings Store", "purpose": "Global and workspace settings persistence." },
-            { "id": "localization-runtime", "name": "Localization Runtime", "purpose": "UI localization bootstrap and bundle state." },
-            { "id": "reasoning-translation-overlay", "name": "Reasoning Translation Overlay", "purpose": "Async translation of visible reasoning/thinking." }
+            {
+              "id": "settings-store",
+              "name": "Settings Store",
+              "purpose": "Global and workspace settings persistence."
+            },
+            {
+              "id": "localization-runtime",
+              "name": "Localization Runtime",
+              "purpose": "UI localization bootstrap and bundle state."
+            },
+            {
+              "id": "reasoning-translation-overlay",
+              "name": "Reasoning Translation Overlay",
+              "purpose": "Async translation of visible reasoning/thinking."
+            }
           ]
         }
       ]
@@ -125,9 +249,21 @@
           "name": "Provider Registry",
           "purpose": "Provider catalog, model descriptors, status, startup, and recovery reporting.",
           "modules": [
-            { "id": "provider-registry", "name": "Provider Registry", "purpose": "Provider catalog and availability." },
-            { "id": "provider-descriptor", "name": "Provider Descriptor", "purpose": "Model/reasoning capabilities and UI metadata." },
-            { "id": "provider-health", "name": "Provider Health", "purpose": "Status, startup, and recovery reporting." }
+            {
+              "id": "provider-registry",
+              "name": "Provider Registry",
+              "purpose": "Provider catalog and availability."
+            },
+            {
+              "id": "provider-descriptor",
+              "name": "Provider Descriptor",
+              "purpose": "Model/reasoning capabilities and UI metadata."
+            },
+            {
+              "id": "provider-health",
+              "name": "Provider Health",
+              "purpose": "Status, startup, and recovery reporting."
+            }
           ]
         },
         {
@@ -135,15 +271,52 @@
           "name": "Provider Adapters",
           "purpose": "Fresh provider adapter modules for every MVP provider.",
           "modules": [
-            { "id": "provider-adapter-contract", "name": "Provider Adapter Contract", "purpose": "Shared create/resume/send/subscribe/close adapter boundary used by Core." },
-            { "id": "claude-provider", "name": "Claude Provider", "purpose": "Claude provider adapter." },
-            { "id": "codex-provider", "name": "Codex Provider", "purpose": "Codex provider adapter." },
-            { "id": "kimi-provider", "name": "Kimi Provider", "purpose": "Kimi provider adapter." },
-            { "id": "glm-native-provider", "name": "GLM Native Provider", "purpose": "GLM native provider adapter." },
-            { "id": "glm-opencode-provider", "name": "GLM OpenCode Provider", "purpose": "GLM OpenCode provider adapter." },
-            { "id": "openrouter-provider", "name": "OpenRouter Provider", "purpose": "OpenRouter provider adapter." },
-            { "id": "local-models-provider", "name": "Local Models Provider", "purpose": "Local model provider adapter." },
-            { "id": "provider-turn-runner", "name": "Legacy Direct Provider Turn Runner", "purpose": "Deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring.", "mvpStatus": "deprecated-to-delete" }
+            {
+              "id": "provider-adapter-contract",
+              "name": "Provider Adapter Contract",
+              "purpose": "Shared create/resume/send/subscribe/close adapter boundary used by Core."
+            },
+            {
+              "id": "claude-provider",
+              "name": "Claude Provider",
+              "purpose": "Claude provider adapter."
+            },
+            {
+              "id": "codex-provider",
+              "name": "Codex Provider",
+              "purpose": "Codex provider adapter."
+            },
+            {
+              "id": "kimi-provider",
+              "name": "Kimi Provider",
+              "purpose": "Kimi provider adapter."
+            },
+            {
+              "id": "glm-native-provider",
+              "name": "GLM Native Provider",
+              "purpose": "GLM native provider adapter."
+            },
+            {
+              "id": "glm-opencode-provider",
+              "name": "GLM OpenCode Provider",
+              "purpose": "GLM OpenCode provider adapter."
+            },
+            {
+              "id": "openrouter-provider",
+              "name": "OpenRouter Provider",
+              "purpose": "OpenRouter provider adapter."
+            },
+            {
+              "id": "local-models-provider",
+              "name": "Local Models Provider",
+              "purpose": "Local model provider adapter."
+            },
+            {
+              "id": "provider-turn-runner",
+              "name": "Legacy Direct Provider Turn Runner",
+              "purpose": "Deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring.",
+              "mvpStatus": "deprecated-to-delete"
+            }
           ]
         },
         {
@@ -151,9 +324,21 @@
           "name": "Provider Home And Auth",
           "purpose": "Isolated provider homes, auth references, and ignored runtime files.",
           "modules": [
-            { "id": "provider-home-manager", "name": "Provider Home Manager", "purpose": "Isolated provider home layout." },
-            { "id": "provider-auth-store", "name": "Provider Auth Store", "purpose": "API keys and auth references outside tracked workspace files." },
-            { "id": "provider-runtime-files", "name": "Provider Runtime Files", "purpose": "Runtime caches/logs ignored from workspace truth." }
+            {
+              "id": "provider-home-manager",
+              "name": "Provider Home Manager",
+              "purpose": "Isolated provider home layout."
+            },
+            {
+              "id": "provider-auth-store",
+              "name": "Provider Auth Store",
+              "purpose": "API keys and auth references outside tracked workspace files."
+            },
+            {
+              "id": "provider-runtime-files",
+              "name": "Provider Runtime Files",
+              "purpose": "Runtime caches/logs ignored from workspace truth."
+            }
           ]
         },
         {
@@ -161,9 +346,21 @@
           "name": "Provider Events And Translation",
           "purpose": "Provider stream normalization, usage telemetry, and translation engines.",
           "modules": [
-            { "id": "provider-event-normalizer", "name": "Provider Event Normalizer", "purpose": "Provider stream/event normalization." },
-            { "id": "usage-context-telemetry", "name": "Usage Context Telemetry", "purpose": "Usage limits and context-window signals." },
-            { "id": "provider-translation-engines", "name": "Provider Translation Engines", "purpose": "Provider-backed UI/reasoning translation engines." }
+            {
+              "id": "provider-event-normalizer",
+              "name": "Provider Event Normalizer",
+              "purpose": "Provider stream/event normalization."
+            },
+            {
+              "id": "usage-context-telemetry",
+              "name": "Usage Context Telemetry",
+              "purpose": "Usage limits and context-window signals."
+            },
+            {
+              "id": "provider-translation-engines",
+              "name": "Provider Translation Engines",
+              "purpose": "Provider-backed UI/reasoning translation engines."
+            }
           ]
         }
       ]

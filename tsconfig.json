@@ -12,5 +12,9 @@
     "types": ["node"],
     "noEmit": true
   },
-  "include": ["vite.config.ts", "product-parts/**/*.ts", "product-parts/**/*.tsx"]
+  "include": [
+    "vite.config.ts",
+    "product-parts/**/*.ts",
+    "product-parts/**/*.tsx"
+  ]
 }

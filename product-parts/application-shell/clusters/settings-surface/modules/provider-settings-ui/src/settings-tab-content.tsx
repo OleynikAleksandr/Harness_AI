@@ -8,11 +8,11 @@ import {
   ModelSelect,
   ProviderCard,
   ProviderChecks,
-  TextField
+  TextField,
 } from "./settings-controls.js";
 import {
   PROVIDER_MODEL_OPTIONS,
-  type SettingsTabId
+  type SettingsTabId,
 } from "./settings-model-options.js";
 
 interface SettingsTabContentProps {
@@ -30,7 +30,7 @@ export function SettingsTabContent({
   coreRestartStatus,
   onRestartCore,
   settings,
-  update
+  update,
 }: SettingsTabContentProps) {
   if (activeTab === "general") {
     return (
@@ -63,35 +63,34 @@ export function SettingsTabContent({
     return (
       <ProviderCard title="Claude">
         <ModelSelect
-          options={PROVIDER_MODEL_OPTIONS.claude}
-          value={provider.defaultModel}
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.claude.defaultModel = defaultModel;
             })
           }
+          options={PROVIDER_MODEL_OPTIONS.claude}
+          value={provider.defaultModel}
         />
         <ContinuityRange
-          value={provider.sessionContinuity.remainingPercentThreshold}
           onChange={(value) =>
             update((next) => {
               next.providers.claude.sessionContinuity.remainingPercentThreshold =
                 value;
             })
           }
+          value={provider.sessionContinuity.remainingPercentThreshold}
         />
         <EffortSelect
           label="Thinking Effort"
-          value={provider.thinking.effort}
           onChange={(effort) =>
             update((next) => {
               next.providers.claude.thinking.effort = effort;
             })
           }
+          value={provider.thinking.effort}
         />
         <ProviderChecks
           autoUpdate={provider.autoUpdate.enabled}
-          thinkingDisplay={provider.thinkingDisplaySyncEnabled}
           onAutoUpdate={(enabled) =>
             update((next) => {
               next.providers.claude.autoUpdate.enabled = enabled;
@@ -102,6 +101,7 @@ export function SettingsTabContent({
               next.providers.claude.thinkingDisplaySyncEnabled = enabled;
             })
           }
+          thinkingDisplay={provider.thinkingDisplaySyncEnabled}
         />
       </ProviderCard>
     );
@@ -109,46 +109,48 @@ export function SettingsTabContent({
 
   if (activeTab === "codex") {
     const provider = settings.providers.codex;
-    const reasoning = provider.reasoningByModel[provider.defaultModel] ?? "medium";
+    const reasoning =
+      provider.reasoningByModel[provider.defaultModel] ?? "medium";
     return (
       <ProviderCard title="Codex">
         <ModelSelect
-          options={PROVIDER_MODEL_OPTIONS.codex}
-          value={provider.defaultModel}
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.codex.defaultModel = defaultModel;
             })
           }
+          options={PROVIDER_MODEL_OPTIONS.codex}
+          value={provider.defaultModel}
         />
         <ContinuityRange
-          value={provider.sessionContinuity.remainingPercentThreshold}
           onChange={(value) =>
             update((next) => {
               next.providers.codex.sessionContinuity.remainingPercentThreshold =
                 value;
             })
           }
+          value={provider.sessionContinuity.remainingPercentThreshold}
         />
         <EffortSelect
           label="Reasoning"
-          value={reasoning}
           onChange={(effort) =>
             update((next) => {
-              next.providers.codex.reasoningByModel[provider.defaultModel] = effort;
+              next.providers.codex.reasoningByModel[provider.defaultModel] =
+                effort;
             })
           }
+          value={reasoning}
         />
         <label className="settings-check">
           <input
             checked={provider.reasoningSummaryEnabled}
-            type="checkbox"
             onChange={(event) =>
               update((next) => {
                 next.providers.codex.reasoningSummaryEnabled =
                   event.target.checked;
               })
             }
+            type="checkbox"
           />
           <span>Reasoning Summary</span>
         </label>
@@ -161,18 +163,16 @@ export function SettingsTabContent({
     return (
       <ProviderCard title="Kimi">
         <ModelSelect
-          options={PROVIDER_MODEL_OPTIONS.kimi}
-          value={provider.defaultModel}
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.kimi.defaultModel = defaultModel;
             })
           }
+          options={PROVIDER_MODEL_OPTIONS.kimi}
+          value={provider.defaultModel}
         />
         <ProviderChecks
           autoUpdate={provider.autoUpdate.enabled}
-          thinkingDisplay={provider.thinkingDisplaySyncEnabled}
-          thinkingEnabled={provider.thinkingEnabled}
           onAutoUpdate={(enabled) =>
             update((next) => {
               next.providers.kimi.autoUpdate.enabled = enabled;
@@ -188,6 +188,8 @@ export function SettingsTabContent({
               next.providers.kimi.thinkingEnabled = enabled;
             })
           }
+          thinkingDisplay={provider.thinkingDisplaySyncEnabled}
+          thinkingEnabled={provider.thinkingEnabled}
         />
       </ProviderCard>
     );
@@ -210,16 +212,14 @@ export function SettingsTabContent({
         />
         <EffortSelect
           label="Reasoning Effort"
-          value={provider.reasoningEffort}
           onChange={(reasoningEffort) =>
             update((next) => {
               next.providers.glmNative.reasoningEffort = reasoningEffort;
             })
           }
+          value={provider.reasoningEffort}
         />
         <ProviderChecks
-          thinkingDisplay={provider.thinkingDisplaySyncEnabled}
-          thinkingEnabled={provider.thinkingEnabled}
           onThinkingDisplay={(enabled) =>
             update((next) => {
               next.providers.glmNative.thinkingDisplaySyncEnabled = enabled;
@@ -230,6 +230,8 @@ export function SettingsTabContent({
               next.providers.glmNative.thinkingEnabled = enabled;
             })
           }
+          thinkingDisplay={provider.thinkingDisplaySyncEnabled}
+          thinkingEnabled={provider.thinkingEnabled}
         />
       </ProviderCard>
     );
@@ -252,12 +254,12 @@ export function SettingsTabContent({
         />
         <TextField
           label="Config Path"
-          value={provider.configPath}
           onChange={(configPath) =>
             update((next) => {
               next.providers.glmOpenCode.configPath = configPath;
             })
           }
+          value={provider.configPath}
         />
       </ProviderCard>
     );
@@ -268,12 +270,12 @@ export function SettingsTabContent({
       <ProviderCard title="Local Models">
         <TextField
           label="Default Model"
-          value={settings.providers.localModels.defaultModel}
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.localModels.defaultModel = defaultModel;
             })
           }
+          value={settings.providers.localModels.defaultModel}
         />
       </ProviderCard>
     );
@@ -294,32 +296,32 @@ export function SettingsTabContent({
       />
       <TextField
         label="Endpoint Tag"
-        value={provider.endpointTag}
         onChange={(endpointTag) =>
           update((next) => {
             next.providers.openRouter.endpointTag = endpointTag;
           })
         }
+        value={provider.endpointTag}
       />
       <TextField
         label="UI Translation Model"
-        value={provider.translationProfiles.uiTranslation.model}
         onChange={(model) =>
           update((next) => {
             next.providers.openRouter.translationProfiles.uiTranslation.model =
               model;
           })
         }
+        value={provider.translationProfiles.uiTranslation.model}
       />
       <TextField
         label="Reasoning Translation Model"
-        value={provider.translationProfiles.reasoningTranslation.model}
         onChange={(model) =>
           update((next) => {
             next.providers.openRouter.translationProfiles.reasoningTranslation.model =
               model;
           })
         }
+        value={provider.translationProfiles.reasoningTranslation.model}
       />
     </ProviderCard>
   );

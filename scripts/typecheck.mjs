@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 
 const tsc = "node_modules/.bin/tsc";
 if (!existsSync(tsc)) {

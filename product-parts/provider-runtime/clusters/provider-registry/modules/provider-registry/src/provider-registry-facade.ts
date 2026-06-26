@@ -1,7 +1,7 @@
 import type { ProviderAdapter } from "../../../../provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderCapabilities,
-  providerDescriptorFacade
+  providerDescriptorFacade,
 } from "../../provider-descriptor/src/provider-descriptor-facade.js";
 
 export type ProviderId =
@@ -17,8 +17,8 @@ export interface ProviderDescriptor {
   adapterStatus: "registered" | "unregistered";
   capabilities: ProviderCapabilities;
   id: ProviderId;
-  name: string;
   moduleId: string;
+  name: string;
   status: "available" | "needs-settings";
 }
 
@@ -32,44 +32,44 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     id: "claude",
     name: "Claude",
     moduleId: "claude-provider",
-    status: "needs-settings"
+    status: "needs-settings",
   },
   {
     id: "codex",
     name: "Codex",
     moduleId: "codex-provider",
-    status: "needs-settings"
+    status: "needs-settings",
   },
   {
     id: "kimi",
     name: "Kimi",
     moduleId: "kimi-provider",
-    status: "needs-settings"
+    status: "needs-settings",
   },
   {
     id: "glm-native",
     name: "GLM Native",
     moduleId: "glm-native-provider",
-    status: "needs-settings"
+    status: "needs-settings",
   },
   {
     id: "glm-opencode",
     name: "GLM OpenCode",
     moduleId: "glm-opencode-provider",
-    status: "needs-settings"
+    status: "needs-settings",
   },
   {
     id: "openrouter",
     name: "OpenRouter",
     moduleId: "openrouter-provider",
-    status: "needs-settings"
+    status: "needs-settings",
   },
   {
     id: "local-models",
     name: "Local Models",
     moduleId: "local-models-provider",
-    status: "available"
-  }
+    status: "available",
+  },
 ];
 
 export class ProviderRegistryFacade {
@@ -104,8 +104,10 @@ export class ProviderRegistryFacade {
   ): ProviderDescriptor {
     return {
       ...provider,
-      adapterStatus: this.adapters.has(provider.id) ? "registered" : "unregistered",
-      capabilities: providerDescriptorFacade.getCapabilities(provider.id)
+      adapterStatus: this.adapters.has(provider.id)
+        ? "registered"
+        : "unregistered",
+      capabilities: providerDescriptorFacade.getCapabilities(provider.id),
     };
   }
 }

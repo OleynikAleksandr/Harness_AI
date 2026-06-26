@@ -6,6 +6,7 @@ import { delimiter, join } from "node:path";
 
 const HTTP_TIMEOUT_MS = 120_000;
 const CLI_TIMEOUT_MS = 180_000;
+const TRAILING_SLASHES_REGEX = /\/+$/u;
 const CLI_PATH_ENTRIES = [
   join(homedir(), ".npm-global/bin"),
   join(homedir(), ".local/bin"),
@@ -16,20 +17,19 @@ const CLI_PATH_ENTRIES = [
   "/usr/bin",
   "/bin",
   "/usr/sbin",
-  "/sbin"
+  "/sbin",
 ];
 const NODE_CANDIDATES = [
   process.env.HARNESS_AI_NODE_PATH,
   "/usr/local/bin/node",
-  "/opt/homebrew/bin/node"
+  "/opt/homebrew/bin/node",
 ].filter(Boolean);
 
 const CLI_PROVIDERS = {
   claude: {
     commands: ["claude", join(homedir(), ".local/bin/claude")],
-    args: (request) => withOptionalModel(["--print"], request.model).concat(
-      request.prompt
-    )
+    args: (request) =>
+      withOptionalModel(["--print"], request.model).concat(request.prompt),
   },
   codex: {
     commands: ["codex", join(homedir(), ".npm-global/bin/codex")],
@@ -37,26 +37,29 @@ const CLI_PROVIDERS = {
     args: (request) =>
       ["exec", "--ask-for-approval", "never", "--sandbox", "read-only"]
         .concat(withOptionalModel([], request.model))
-        .concat(request.prompt)
+        .concat(request.prompt),
   },
   kimi: {
     commands: ["kimi", join(homedir(), ".kimi-code/bin/kimi")],
-    args: (request) => withOptionalModel(["--prompt", request.prompt], request.model)
+    args: (request) =>
+      withOptionalModel(["--prompt", request.prompt], request.model),
   },
   "glm-opencode": {
     commands: ["opencode", join(homedir(), ".opencode/bin/opencode")],
-    args: (request) => ["run"]
-      .concat(withOptionalModel(["--prompt", request.prompt], request.model))
-  }
+    args: (request) =>
+      ["run"].concat(
+        withOptionalModel(["--prompt", request.prompt], request.model)
+      ),
+  },
 };
 
 export class ProviderTurnRunnerFacade {
-  async runTurn(request, deps = {}) {
+  runTurn(request, deps = {}) {
     return runProviderTurn(request, deps);
   }
 }
 
-export async function runProviderTurn(request, deps = {}) {
+export function runProviderTurn(request, deps = {}) {
   const normalized = normalizeRequest(request);
   if (!normalized.ok) {
     return setupNeeded(normalized.error);
@@ -84,17 +87,15 @@ export async function runProviderTurn(request, deps = {}) {
 async function runCliProvider(request, deps) {
   const provider = CLI_PROVIDERS[request.providerId];
   try {
-    const result = await callCli(
-      provider,
-      provider.args(request),
-      deps
-    );
+    const result = await callCli(provider, provider.args(request), deps);
     const text = (result.stdout || result.stderr || "").trim();
     return text
       ? { ok: true, text }
       : setupNeeded(`${request.providerId} returned an empty response.`);
   } catch (error) {
-    return setupNeeded(`${request.providerId} CLI is not ready: ${cleanError(error)}`);
+    return setupNeeded(
+      `${request.providerId} CLI is not ready: ${cleanError(error)}`
+    );
   }
 }
 
@@ -103,7 +104,7 @@ async function runGlmNativeProvider(request, deps) {
   const providerSettings = findProviderSettings(settings, [
     "glmNative",
     "glm-native",
-    "glm"
+    "glm",
   ]);
   const apiKey = firstText(
     providerSettings.apiKey,
@@ -120,29 +121,35 @@ async function runGlmNativeProvider(request, deps) {
     providerSettings.model,
     process.env.GLM_MODEL,
     process.env.ZAI_MODEL,
-    "glm-5.2"
+    "glm-5.2",
   ]);
 
   if (!apiKey) {
     return setupNeeded("GLM Native API key is missing.");
   }
 
-  return runOpenAiCompatibleProvider({
-    apiKey,
-    baseUrl,
-    model,
-    prompt: request.prompt,
-    providerId: request.providerId
-  }, deps);
+  return runOpenAiCompatibleProvider(
+    {
+      apiKey,
+      baseUrl,
+      model,
+      prompt: request.prompt,
+      providerId: request.providerId,
+    },
+    deps
+  );
 }
 
 async function runOpenRouterProvider(request, deps) {
   const settings = await readRuntimeSettings(deps);
   const providerSettings = findProviderSettings(settings, [
     "openRouter",
-    "openrouter"
+    "openrouter",
   ]);
-  const apiKey = firstText(providerSettings.apiKey, process.env.OPENROUTER_API_KEY);
+  const apiKey = firstText(
+    providerSettings.apiKey,
+    process.env.OPENROUTER_API_KEY
+  );
   const baseUrl = firstText(
     providerSettings.baseUrl,
     process.env.OPENROUTER_BASE_URL,
@@ -150,7 +157,7 @@ async function runOpenRouterProvider(request, deps) {
   );
   const model = chooseModel(request.model, [
     providerSettings.model,
-    process.env.OPENROUTER_MODEL
+    process.env.OPENROUTER_MODEL,
   ]);
 
   if (!apiKey) {
@@ -160,13 +167,16 @@ async function runOpenRouterProvider(request, deps) {
     return setupNeeded("OpenRouter model is missing.");
   }
 
-  return runOpenAiCompatibleProvider({
-    apiKey,
-    baseUrl,
-    model,
-    prompt: request.prompt,
-    providerId: request.providerId
-  }, deps);
+  return runOpenAiCompatibleProvider(
+    {
+      apiKey,
+      baseUrl,
+      model,
+      prompt: request.prompt,
+      providerId: request.providerId,
+    },
+    deps
+  );
 }
 
 async function runLocalModelsProvider(request, deps) {
@@ -174,7 +184,7 @@ async function runLocalModelsProvider(request, deps) {
   const providerSettings = findProviderSettings(settings, [
     "localModels",
     "local-models",
-    "local"
+    "local",
   ]);
   const baseUrl = firstText(
     providerSettings.baseUrl,
@@ -185,20 +195,26 @@ async function runLocalModelsProvider(request, deps) {
   const model = chooseModel(request.model, [
     providerSettings.model,
     process.env.HARNESS_AI_LOCAL_MODEL,
-    process.env.LMSTUDIO_MODEL
+    process.env.LMSTUDIO_MODEL,
   ]);
 
   if (!model) {
     return setupNeeded("Local model name is missing.");
   }
 
-  return runOpenAiCompatibleProvider({
-    apiKey: firstText(providerSettings.apiKey, process.env.HARNESS_AI_LOCAL_API_KEY),
-    baseUrl,
-    model,
-    prompt: request.prompt,
-    providerId: request.providerId
-  }, deps);
+  return runOpenAiCompatibleProvider(
+    {
+      apiKey: firstText(
+        providerSettings.apiKey,
+        process.env.HARNESS_AI_LOCAL_API_KEY
+      ),
+      baseUrl,
+      model,
+      prompt: request.prompt,
+      providerId: request.providerId,
+    },
+    deps
+  );
 }
 
 async function runOpenAiCompatibleProvider(config, deps) {
@@ -207,7 +223,7 @@ async function runOpenAiCompatibleProvider(config, deps) {
       chatCompletionsUrl(config.baseUrl),
       {
         model: config.model,
-        messages: [{ role: "user", content: config.prompt }]
+        messages: [{ role: "user", content: config.prompt }],
       },
       config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {},
       deps
@@ -217,7 +233,9 @@ async function runOpenAiCompatibleProvider(config, deps) {
       ? { ok: true, text }
       : setupNeeded(`${config.providerId} returned an empty response.`);
   } catch (error) {
-    return setupNeeded(`${config.providerId} request failed: ${cleanError(error)}`);
+    return setupNeeded(
+      `${config.providerId} request failed: ${cleanError(error)}`
+    );
   }
 }
 
@@ -246,11 +264,15 @@ function isPlaceholderModel(model) {
 }
 
 function chooseModel(requestModel, fallbacks) {
-  return isPlaceholderModel(requestModel) ? firstText(...fallbacks) : requestModel;
+  return isPlaceholderModel(requestModel)
+    ? firstText(...fallbacks)
+    : requestModel;
 }
 
 function firstText(...values) {
-  return values.find((value) => typeof value === "string" && value.trim())?.trim();
+  return values
+    .find((value) => typeof value === "string" && value.trim())
+    ?.trim();
 }
 
 async function readRuntimeSettings(deps) {
@@ -259,15 +281,22 @@ async function readRuntimeSettings(deps) {
   }
   for (const path of [
     join(homedir(), ".harness-ai/settings/settings.json"),
-    join(homedir(), ".codeai-hub/settings/settings.json")
+    join(homedir(), ".codeai-hub/settings/settings.json"),
   ]) {
-    try {
-      return JSON.parse(await readFile(path, "utf8"));
-    } catch {
-      continue;
+    const settings = await readJsonFile(path);
+    if (settings) {
+      return settings;
     }
   }
   return {};
+}
+
+async function readJsonFile(path) {
+  try {
+    return JSON.parse(await readFile(path, "utf8"));
+  } catch {
+    return null;
+  }
 }
 
 function findProviderSettings(settings, keys) {
@@ -281,7 +310,7 @@ function findProviderSettings(settings, keys) {
 }
 
 function chatCompletionsUrl(baseUrl) {
-  const cleanBase = baseUrl.replace(/\/+$/u, "");
+  const cleanBase = baseUrl.replace(TRAILING_SLASHES_REGEX, "");
   return cleanBase.endsWith("/chat/completions")
     ? cleanBase
     : `${cleanBase}/chat/completions`;
@@ -298,10 +327,10 @@ async function postJson(url, body, headers, deps) {
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json",
-        ...headers
+        ...headers,
       },
       method: "POST",
-      signal: controller.signal
+      signal: controller.signal,
     });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
@@ -337,13 +366,13 @@ export function createCliAttempts(provider, args) {
   if (nodeExecutable) {
     attempts.push({
       args: [provider.nodeScript, ...args],
-      command: nodeExecutable
+      command: nodeExecutable,
     });
   }
   return attempts.concat(
     provider.commands.map((command) => ({
       args,
-      command
+      command,
     }))
   );
 }
@@ -356,7 +385,7 @@ function runCliCommand(command, args) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       env: createCliEnv(),
-      stdio: ["ignore", "pipe", "pipe"]
+      stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";
     let stderr = "";
@@ -391,7 +420,7 @@ export function createCliEnv(baseEnv = process.env) {
     .join(delimiter);
   return {
     ...baseEnv,
-    PATH: dedupePath(pathValue)
+    PATH: dedupePath(pathValue),
   };
 }
 

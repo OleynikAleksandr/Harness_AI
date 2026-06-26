@@ -12,8 +12,8 @@ export class KimiProviderFacade extends CliSessionProviderAdapter {
         prompt,
         ...(selectedModel && selectedModel !== "cli-default"
           ? ["--model", selectedModel]
-          : [])
-      ]
+          : []),
+      ],
     });
   }
 }

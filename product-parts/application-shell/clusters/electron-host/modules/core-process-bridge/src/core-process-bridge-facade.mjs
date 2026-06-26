@@ -1,6 +1,6 @@
-import { ipcMain } from "electron";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { ipcMain } from "electron";
 
 let bridge = null;
 
@@ -26,22 +26,27 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:get-settings", () =>
     runtime.settingsStoreFacade.getSettings(activeWorkspacePath(runtime))
   );
-  ipcMain.handle("harness-ai:core:get-provider-system-settings", (_event, providerId) =>
-    isProviderId(providerId)
-      ? runtime.providerAuthStoreFacade.getProviderSettings(providerId)
-      : {}
+  ipcMain.handle(
+    "harness-ai:core:get-provider-system-settings",
+    (_event, providerId) =>
+      isProviderId(providerId)
+        ? runtime.providerAuthStoreFacade.getProviderSettings(providerId)
+        : {}
   );
-  ipcMain.handle("harness-ai:core:save-provider-system-settings", (_event, request) => {
-    if (!isProviderId(request?.providerId)) {
-      return { error: "Unknown provider.", ok: false };
+  ipcMain.handle(
+    "harness-ai:core:save-provider-system-settings",
+    (_event, request) => {
+      if (!isProviderId(request?.providerId)) {
+        return { error: "Unknown provider.", ok: false };
+      }
+      const settings = runtime.providerAuthStoreFacade.saveProviderSettings(
+        request.providerId,
+        request.settings ?? {}
+      );
+      registerProviderAdapter(runtime, request.providerId);
+      return { ok: true, settings };
     }
-    const settings = runtime.providerAuthStoreFacade.saveProviderSettings(
-      request.providerId,
-      request.settings ?? {}
-    );
-    registerProviderAdapter(runtime, request.providerId);
-    return { ok: true, settings };
-  });
+  );
   ipcMain.handle("harness-ai:core:reset-workspace-settings", () => {
     const settings = runtime.settingsStoreFacade.resetWorkspaceSettings(
       activeWorkspacePath(runtime)
@@ -63,7 +68,9 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     return {
       ok: true,
       providers: runtime.providerRegistryFacade.listProviders(),
-      settings: runtime.settingsStoreFacade.getSettings(activeWorkspacePath(runtime))
+      settings: runtime.settingsStoreFacade.getSettings(
+        activeWorkspacePath(runtime)
+      ),
     };
   });
   ipcMain.handle("harness-ai:core:send-message", (_event, request) =>
@@ -72,7 +79,7 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   bridge = {
     attachWindow(window) {
       activeWebContents = window.webContents;
-    }
+    },
   };
   return bridge;
 }
@@ -94,7 +101,7 @@ async function loadRuntime(repositoryRoot) {
     glmNative,
     glmOpenCode,
     openRouter,
-    localModels
+    localModels,
   ] = await Promise.all([
     importRuntime(
       "core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js"
@@ -134,7 +141,7 @@ async function loadRuntime(repositoryRoot) {
     ),
     importRuntime(
       "provider-runtime/clusters/provider-adapters/modules/local-models-provider/src/local-models-provider-facade.js"
-    )
+    ),
   ]);
   return {
     ...sessionRequest,
@@ -149,7 +156,7 @@ async function loadRuntime(repositoryRoot) {
     ...glmNative,
     ...glmOpenCode,
     ...openRouter,
-    ...localModels
+    ...localModels,
   };
 }
 
@@ -166,7 +173,7 @@ const PROVIDER_IDS = [
   "glm-native",
   "glm-opencode",
   "openrouter",
-  "local-models"
+  "local-models",
 ];
 
 function registerProviderAdapter(runtime, providerId) {
@@ -185,7 +192,7 @@ function registerProviderAdapter(runtime, providerId) {
       providerId,
       new runtime.CodexProviderFacade({
         defaultModel: model(providerId),
-        workspacePath
+        workspacePath,
       })
     );
   }

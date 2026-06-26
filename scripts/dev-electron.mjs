@@ -5,7 +5,7 @@ import http from "node:http";
 const rendererUrl = "http://127.0.0.1:5173";
 
 const runtimeBuild = spawn("npm", ["run", "build:runtime"], {
-  stdio: "inherit"
+  stdio: "inherit",
 });
 const runtimeBuildStatus = await new Promise((resolve) => {
   runtimeBuild.on("exit", (code) => resolve(code ?? 1));
@@ -15,7 +15,7 @@ if (runtimeBuildStatus !== 0) {
 }
 
 const vite = spawn("npm", ["run", "dev:renderer", "--", "--port", "5173"], {
-  stdio: "inherit"
+  stdio: "inherit",
 });
 
 async function waitForRenderer() {
@@ -54,11 +54,11 @@ try {
     "npx",
     [
       "electron",
-      "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs"
+      "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
     ],
     {
       env: { ...process.env, HARNESS_AI_RENDERER_URL: rendererUrl },
-      stdio: "inherit"
+      stdio: "inherit",
     }
   );
   electron.on("exit", (code) => {

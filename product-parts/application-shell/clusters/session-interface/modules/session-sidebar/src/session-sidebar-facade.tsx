@@ -3,12 +3,12 @@ import type { HarnessSession } from "../../../../../../core-runtime/clusters/ses
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 
 interface SessionSidebarProps {
-  workspace: HarnessWorkspace;
-  sessions: HarnessSession[];
   activeSessionId: string;
   onCreateSession: () => void;
   onOpenSettings: () => void;
   onSelectSession: (sessionId: string) => void;
+  sessions: HarnessSession[];
+  workspace: HarnessWorkspace;
 }
 
 export function SessionSidebarFacade({
@@ -17,16 +17,20 @@ export function SessionSidebarFacade({
   activeSessionId,
   onCreateSession,
   onOpenSettings,
-  onSelectSession
+  onSelectSession,
 }: SessionSidebarProps) {
   return (
-    <aside className="session-sidebar" aria-label="Workspace sessions">
-      <button className="workspace-switcher" type="button" title="Workspace menu">
+    <aside aria-label="Workspace sessions" className="session-sidebar">
+      <button
+        className="workspace-switcher"
+        title="Workspace menu"
+        type="button"
+      >
         <span>
           <strong>{workspace.name}</strong>
           <small>{workspace.path}</small>
         </span>
-        <ChevronDown size={16} aria-hidden="true" />
+        <ChevronDown aria-hidden="true" size={16} />
       </button>
 
       <div className="sidebar-section">
@@ -35,14 +39,14 @@ export function SessionSidebarFacade({
           <button
             className="icon-button"
             onClick={onCreateSession}
-            type="button"
             title="New session"
+            type="button"
           >
-            <FolderPlus size={16} aria-hidden="true" />
+            <FolderPlus aria-hidden="true" size={16} />
           </button>
         </div>
 
-        <nav className="session-list" aria-label="Sessions">
+        <nav aria-label="Sessions" className="session-list">
           {sessions.map((session) => (
             <button
               className={
@@ -52,11 +56,11 @@ export function SessionSidebarFacade({
               }
               key={session.id}
               onClick={() => onSelectSession(session.id)}
-              type="button"
               title={session.title}
+              type="button"
             >
               <span>{session.title}</span>
-              <Edit3 size={14} aria-hidden="true" />
+              <Edit3 aria-hidden="true" size={14} />
             </button>
           ))}
         </nav>
@@ -65,10 +69,10 @@ export function SessionSidebarFacade({
       <button
         className="settings-entry"
         onClick={onOpenSettings}
-        type="button"
         title="Settings"
+        type="button"
       >
-        <Settings size={16} aria-hidden="true" />
+        <Settings aria-hidden="true" size={16} />
         <span>Settings</span>
       </button>
     </aside>

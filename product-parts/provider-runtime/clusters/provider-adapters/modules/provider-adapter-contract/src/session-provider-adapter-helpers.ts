@@ -5,7 +5,7 @@ import path from "node:path";
 import type {
   ProviderAdapter,
   ProviderEventListener,
-  ProviderTurnOptions
+  ProviderTurnOptions,
 } from "./provider-adapter-contract-facade.js";
 
 interface SessionState {
@@ -28,6 +28,7 @@ export interface OpenAiCompatibleAdapterOptions {
 }
 
 const DEFAULT_CLI_TIMEOUT_MS = 180_000;
+const TRAILING_SLASHES_REGEX = /\/+$/u;
 const PATH_ENTRIES = [
   path.join(homedir(), ".npm-global", "bin"),
   path.join(homedir(), ".local", "bin"),
@@ -36,10 +37,10 @@ const PATH_ENTRIES = [
   "/opt/homebrew/bin",
   "/usr/local/bin",
   "/usr/bin",
-  "/bin"
+  "/bin",
 ];
 
-export class SessionProviderAdapterBase {
+class SessionProviderAdapterBase {
   protected readonly sessions = new Map<string, SessionState>();
 
   closeSession(sessionId: string): Promise<void> {
@@ -52,7 +53,7 @@ export class SessionProviderAdapterBase {
     this.sessions.set(sessionId, {
       listeners: new Set(),
       messages: [],
-      workspacePath
+      workspacePath,
     });
     return Promise.resolve(sessionId);
   }
@@ -76,7 +77,10 @@ export class SessionProviderAdapterBase {
     if (existing) {
       return existing;
     }
-    const session = { listeners: new Set<ProviderEventListener>(), messages: [] };
+    const session = {
+      listeners: new Set<ProviderEventListener>(),
+      messages: [],
+    };
     this.sessions.set(sessionId, session);
     return session;
   }
@@ -86,8 +90,11 @@ export class CliSessionProviderAdapter
   extends SessionProviderAdapterBase
   implements ProviderAdapter
 {
-  constructor(private readonly options: CliProviderAdapterOptions) {
+  private readonly options: CliProviderAdapterOptions;
+
+  constructor(options: CliProviderAdapterOptions) {
     super();
+    this.options = options;
   }
 
   async sendMessage(
@@ -100,9 +107,12 @@ export class CliSessionProviderAdapter
     this.emit(sessionId, event("turn_started"));
     try {
       const text = await runCli({
-        args: this.options.args(prompt, readModel(turnOptions, this.options.model)),
+        args: this.options.args(
+          prompt,
+          readModel(turnOptions, this.options.model)
+        ),
         commands: this.options.commands,
-        timeoutMs: this.options.timeoutMs ?? DEFAULT_CLI_TIMEOUT_MS
+        timeoutMs: this.options.timeoutMs ?? DEFAULT_CLI_TIMEOUT_MS,
       });
       session.messages.push({ role: "user", content });
       session.messages.push({ role: "assistant", content: text });
@@ -120,24 +130,30 @@ export class OpenAiCompatibleSessionProviderAdapter
   extends SessionProviderAdapterBase
   implements ProviderAdapter
 {
-  constructor(private readonly options: OpenAiCompatibleAdapterOptions) {
+  private readonly options: OpenAiCompatibleAdapterOptions;
+
+  constructor(options: OpenAiCompatibleAdapterOptions) {
     super();
+    this.options = options;
   }
 
   async sendMessage(sessionId: string, content: string): Promise<void> {
     const session = this.ensureSession(sessionId);
     this.emit(sessionId, event("turn_started"));
     try {
-      const messages = [...session.messages, { role: "user" as const, content }];
+      const messages = [
+        ...session.messages,
+        { role: "user" as const, content },
+      ];
       const response = await fetch(chatUrl(this.options.baseUrl), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(this.options.apiKey
             ? { Authorization: `Bearer ${this.options.apiKey}` }
-            : {})
+            : {}),
         },
-        body: JSON.stringify({ model: this.options.model, messages })
+        body: JSON.stringify({ model: this.options.model, messages }),
       });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${await response.text()}`);
@@ -170,11 +186,14 @@ function runCli(options: {
       }
       const child = spawn(command, options.args, {
         env: { ...process.env, PATH: buildPath(process.env.PATH ?? "") },
-        stdio: ["ignore", "pipe", "pipe"]
+        stdio: ["ignore", "pipe", "pipe"],
       });
       let stdout = "";
       let stderr = "";
-      const timeout = setTimeout(() => child.kill("SIGTERM"), options.timeoutMs);
+      const timeout = setTimeout(
+        () => child.kill("SIGTERM"),
+        options.timeoutMs
+      );
       child.stdout.on("data", (chunk) => {
         stdout += chunk.toString();
       });
@@ -186,10 +205,14 @@ function runCli(options: {
         clearTimeout(timeout);
         if (code === 0) {
           const text = (stdout || stderr).trim();
-          text ? resolve(text) : reject(new Error("Provider returned empty output"));
+          text
+            ? resolve(text)
+            : reject(new Error("Provider returned empty output"));
           return;
         }
-        reject(new Error((stderr || `Provider exited with code ${code}`).trim()));
+        reject(
+          new Error((stderr || `Provider exited with code ${code}`).trim())
+        );
       });
     };
     tryNext();
@@ -206,18 +229,21 @@ function buildPrompt(
   return [
     ...history.map((message) => `${message.role}: ${message.content}`),
     `user: ${content}`,
-    "assistant:"
+    "assistant:",
   ].join("\n\n");
 }
 
 function buildPath(basePath: string): string {
-  return [...new Set([...basePath.split(path.delimiter).filter(Boolean), ...PATH_ENTRIES])].join(
-    path.delimiter
-  );
+  return [
+    ...new Set([
+      ...basePath.split(path.delimiter).filter(Boolean),
+      ...PATH_ENTRIES,
+    ]),
+  ].join(path.delimiter);
 }
 
 function chatUrl(baseUrl: string): string {
-  return `${baseUrl.replace(/\/+$/u, "")}/chat/completions`;
+  return `${baseUrl.replace(TRAILING_SLASHES_REGEX, "")}/chat/completions`;
 }
 
 function dialogMessage(content: string): unknown {
@@ -226,7 +252,7 @@ function dialogMessage(content: string): unknown {
     role: "assistant",
     timestamp: new Date().toISOString(),
     type: "dialog_message",
-    uuid: randomUUID()
+    uuid: randomUUID(),
   };
 }
 
@@ -235,24 +261,29 @@ function event(type: string, message?: string): unknown {
     ...(message ? { message } : {}),
     timestamp: new Date().toISOString(),
     type,
-    uuid: randomUUID()
+    uuid: randomUUID(),
   };
 }
 
 function extractOpenAiText(value: unknown): string {
-  if (!isRecord(value) || !Array.isArray(value.choices)) {
+  if (!(isRecord(value) && Array.isArray(value.choices))) {
     throw new Error("Provider response does not contain choices");
   }
   const first = value.choices[0];
-  const message = isRecord(first) && isRecord(first.message) ? first.message : null;
-  const content = typeof message?.content === "string" ? message.content.trim() : "";
+  const message =
+    isRecord(first) && isRecord(first.message) ? first.message : null;
+  const content =
+    typeof message?.content === "string" ? message.content.trim() : "";
   if (!content) {
     throw new Error("Provider returned empty response");
   }
   return content;
 }
 
-function readModel(turnOptions: ProviderTurnOptions | undefined, fallback?: string): string | undefined {
+function readModel(
+  turnOptions: ProviderTurnOptions | undefined,
+  fallback?: string
+): string | undefined {
   return typeof turnOptions?.model === "string" ? turnOptions.model : fallback;
 }
 

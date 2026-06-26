@@ -1,8 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
+import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 
 export interface ProviderModelSetting {
   providerId: ProviderId;
@@ -71,7 +71,9 @@ export interface HarnessSettings {
 }
 
 type SettingsPatch = DeepPartial<HarnessSettings>;
-type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T;
+type DeepPartial<T> = T extends object
+  ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : T;
 
 interface ProviderCommonSettings {
   autoUpdate: { enabled: boolean };
@@ -106,62 +108,71 @@ const DEFAULT_SETTINGS: HarnessSettings = {
         uiInterface: DEFAULT_LANGUAGE,
         uiLabels: DEFAULT_LANGUAGE,
         userGuidance: DEFAULT_LANGUAGE,
-        workflowTerms: DEFAULT_LANGUAGE
+        workflowTerms: DEFAULT_LANGUAGE,
       },
       defaultLanguage: DEFAULT_LANGUAGE,
       engineId: "google-gtx",
       glossaryEnabled: true,
       reasoningEngineId: "google-gtx",
-      workflowTermsPolicy: "keep_english"
-    }
+      workflowTermsPolicy: "keep_english",
+    },
   },
   providers: {
     claude: {
       ...commonProvider("cli-default"),
-      thinking: { enabled: true, effort: "medium" }
+      thinking: { enabled: true, effort: "medium" },
     },
     codex: {
       ...commonProvider("cli-default"),
       reasoningByModel: { "cli-default": "medium" },
-      reasoningSummaryEnabled: true
+      reasoningSummaryEnabled: true,
     },
     kimi: {
       ...commonProvider("cli-default"),
-      thinkingEnabled: true
+      thinkingEnabled: true,
     },
     glmNative: {
       ...connectionProvider("glm-5.2", "https://open.bigmodel.cn/api/paas/v4"),
       reasoningEffort: "max",
       thinkingDisplaySyncEnabled: true,
-      thinkingEnabled: true
+      thinkingEnabled: true,
     },
     glmOpenCode: {
       ...connectionProvider("zai-coding-plan/glm-5.2", ""),
       configPath: "",
-      thinkingDisplaySyncEnabled: true
+      thinkingDisplaySyncEnabled: true,
     },
     localModels: {
-      defaultModel: "local-model-default"
+      defaultModel: "local-model-default",
     },
     openRouter: {
-      ...connectionProvider("openrouter-default", "https://openrouter.ai/api/v1"),
+      ...connectionProvider(
+        "openrouter-default",
+        "https://openrouter.ai/api/v1"
+      ),
       endpointTag: "default",
       translationProfiles: {
-        reasoningTranslation: { endpointTag: "default", model: "openrouter-default" },
-        uiTranslation: { endpointTag: "default", model: "openrouter-default" }
-      }
-    }
-  }
+        reasoningTranslation: {
+          endpointTag: "default",
+          model: "openrouter-default",
+        },
+        uiTranslation: { endpointTag: "default", model: "openrouter-default" },
+      },
+    },
+  },
 };
 
-const PROVIDER_KEY_BY_ID: Record<ProviderId, keyof HarnessSettings["providers"]> = {
+const PROVIDER_KEY_BY_ID: Record<
+  ProviderId,
+  keyof HarnessSettings["providers"]
+> = {
   claude: "claude",
   codex: "codex",
   kimi: "kimi",
   "glm-native": "glmNative",
   "glm-opencode": "glmOpenCode",
   openrouter: "openRouter",
-  "local-models": "localModels"
+  "local-models": "localModels",
 };
 
 export class SettingsStoreFacade {
@@ -174,12 +185,16 @@ export class SettingsStoreFacade {
     );
   }
 
-  getProviderModel(providerId: ProviderId, workspacePath?: string): ProviderModelSetting {
+  getProviderModel(
+    providerId: ProviderId,
+    workspacePath?: string
+  ): ProviderModelSetting {
     const settings = this.getSettings(workspacePath);
     const provider = settings.providers[PROVIDER_KEY_BY_ID[providerId]];
     return {
       providerId,
-      selectedModel: firstText(readRecord(provider)?.defaultModel) ?? "cli-default"
+      selectedModel:
+        firstText(readRecord(provider)?.defaultModel) ?? "cli-default",
     };
   }
 
@@ -190,11 +205,17 @@ export class SettingsStoreFacade {
     return this.getSettings(workspacePath);
   }
 
-  saveSettings(settings: HarnessSettings, workspacePath?: string): HarnessSettings {
+  saveSettings(
+    settings: HarnessSettings,
+    workspacePath?: string
+  ): HarnessSettings {
     const next = mergeSettings(DEFAULT_SETTINGS, settings);
     writeJson(systemSettingsPath(), systemSettingsFrom(next));
     if (workspacePath) {
-      writeJson(workspaceSettingsPath(workspacePath), workspaceSettingsFrom(next));
+      writeJson(
+        workspaceSettingsPath(workspacePath),
+        workspaceSettingsFrom(next)
+      );
     }
     syncProviderAuthFiles(next);
     return this.getSettings(workspacePath);
@@ -208,15 +229,18 @@ function commonProvider(defaultModel: string): ProviderCommonSettings {
     autoUpdate: { enabled: false },
     defaultModel,
     sessionContinuity: { remainingPercentThreshold: 30 },
-    thinkingDisplaySyncEnabled: true
+    thinkingDisplaySyncEnabled: true,
   };
 }
 
-function connectionProvider(defaultModel: string, baseUrl: string): ProviderConnectionSettings {
+function connectionProvider(
+  defaultModel: string,
+  baseUrl: string
+): ProviderConnectionSettings {
   return {
     apiKey: "",
     baseUrl,
-    defaultModel
+    defaultModel,
   };
 }
 
@@ -230,15 +254,15 @@ function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
       glmNative: pickConnection(settings.providers.glmNative),
       glmOpenCode: {
         ...pickConnection(settings.providers.glmOpenCode),
-        configPath: settings.providers.glmOpenCode.configPath
+        configPath: settings.providers.glmOpenCode.configPath,
       },
       localModels: {},
       openRouter: {
         ...pickConnection(settings.providers.openRouter),
         endpointTag: settings.providers.openRouter.endpointTag,
-        translationProfiles: settings.providers.openRouter.translationProfiles
-      }
-    }
+        translationProfiles: settings.providers.openRouter.translationProfiles,
+      },
+    },
   };
 }
 
@@ -249,41 +273,48 @@ function workspaceSettingsFrom(settings: HarnessSettings): SettingsPatch {
       codex: {
         ...workspaceCommon(settings.providers.codex),
         reasoningByModel: settings.providers.codex.reasoningByModel,
-        reasoningSummaryEnabled: settings.providers.codex.reasoningSummaryEnabled
+        reasoningSummaryEnabled:
+          settings.providers.codex.reasoningSummaryEnabled,
       },
       kimi: {
         ...workspaceCommon(settings.providers.kimi),
-        thinkingEnabled: settings.providers.kimi.thinkingEnabled
+        thinkingEnabled: settings.providers.kimi.thinkingEnabled,
       },
       glmNative: {
         defaultModel: settings.providers.glmNative.defaultModel,
         reasoningEffort: settings.providers.glmNative.reasoningEffort,
-        thinkingDisplaySyncEnabled: settings.providers.glmNative.thinkingDisplaySyncEnabled,
-        thinkingEnabled: settings.providers.glmNative.thinkingEnabled
+        thinkingDisplaySyncEnabled:
+          settings.providers.glmNative.thinkingDisplaySyncEnabled,
+        thinkingEnabled: settings.providers.glmNative.thinkingEnabled,
       },
       glmOpenCode: {
         defaultModel: settings.providers.glmOpenCode.defaultModel,
-        thinkingDisplaySyncEnabled: settings.providers.glmOpenCode.thinkingDisplaySyncEnabled
+        thinkingDisplaySyncEnabled:
+          settings.providers.glmOpenCode.thinkingDisplaySyncEnabled,
       },
       localModels: settings.providers.localModels,
-      openRouter: { defaultModel: settings.providers.openRouter.defaultModel }
-    }
+      openRouter: { defaultModel: settings.providers.openRouter.defaultModel },
+    },
   };
 }
 
-function workspaceCommon(provider: ProviderCommonSettings): Partial<ProviderCommonSettings> {
+function workspaceCommon(
+  provider: ProviderCommonSettings
+): Partial<ProviderCommonSettings> {
   return {
     defaultModel: provider.defaultModel,
     sessionContinuity: provider.sessionContinuity,
-    thinkingDisplaySyncEnabled: provider.thinkingDisplaySyncEnabled
+    thinkingDisplaySyncEnabled: provider.thinkingDisplaySyncEnabled,
   };
 }
 
-function pickConnection(provider: ProviderConnectionSettings): ProviderConnectionSettings {
+function pickConnection(
+  provider: ProviderConnectionSettings
+): ProviderConnectionSettings {
   return {
     apiKey: provider.apiKey,
     baseUrl: provider.baseUrl,
-    defaultModel: provider.defaultModel
+    defaultModel: provider.defaultModel,
   };
 }
 
@@ -293,27 +324,41 @@ function providerAuthOverlay(): SettingsPatch {
       glmNative: providerSettingsOverlay("glm-native"),
       glmOpenCode: providerSettingsOverlay("glm-opencode"),
       localModels: providerSettingsOverlay("local-models"),
-      openRouter: providerSettingsOverlay("openrouter")
-    }
+      openRouter: providerSettingsOverlay("openrouter"),
+    },
   };
 }
 
-function providerSettingsOverlay(providerId: ProviderId): Record<string, string> {
+function providerSettingsOverlay(
+  providerId: ProviderId
+): Record<string, string> {
   const settings = providerAuthStoreFacade.getProviderSettings(providerId);
   return compactRecord({
     apiKey: settings.apiKey,
     baseUrl: settings.baseUrl,
     configPath: settings.configPath,
     defaultModel: settings.defaultModel ?? settings.model,
-    endpointTag: settings.endpointTag
+    endpointTag: settings.endpointTag,
   });
 }
 
 function syncProviderAuthFiles(settings: HarnessSettings): void {
-  providerAuthStoreFacade.saveProviderSettings("glm-native", settings.providers.glmNative);
-  providerAuthStoreFacade.saveProviderSettings("glm-opencode", settings.providers.glmOpenCode);
-  providerAuthStoreFacade.saveProviderSettings("local-models", settings.providers.localModels);
-  providerAuthStoreFacade.saveProviderSettings("openrouter", settings.providers.openRouter);
+  providerAuthStoreFacade.saveProviderSettings(
+    "glm-native",
+    settings.providers.glmNative
+  );
+  providerAuthStoreFacade.saveProviderSettings(
+    "glm-opencode",
+    settings.providers.glmOpenCode
+  );
+  providerAuthStoreFacade.saveProviderSettings(
+    "local-models",
+    settings.providers.localModels
+  );
+  providerAuthStoreFacade.saveProviderSettings(
+    "openrouter",
+    settings.providers.openRouter
+  );
 }
 
 function mergeSettings(...sources: unknown[]): HarnessSettings {
@@ -325,12 +370,15 @@ function mergeSettings(...sources: unknown[]): HarnessSettings {
 }
 
 function mergeRecord(base: unknown, patch: unknown): unknown {
-  if (!isRecord(base) || !isRecord(patch)) {
+  if (!(isRecord(base) && isRecord(patch))) {
     return patch ?? base;
   }
   const next: Record<string, unknown> = { ...base };
   for (const [key, value] of Object.entries(patch)) {
-    next[key] = isRecord(value) && isRecord(next[key]) ? mergeRecord(next[key], value) : value;
+    next[key] =
+      isRecord(value) && isRecord(next[key])
+        ? mergeRecord(next[key], value)
+        : value;
   }
   return next;
 }
@@ -357,10 +405,14 @@ function workspaceSettingsPath(workspacePath: string): string {
 }
 
 function harnessHome(): string {
-  return process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai");
+  return (
+    process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai")
+  );
 }
 
-function compactRecord(values: Record<string, unknown>): Record<string, string> {
+function compactRecord(
+  values: Record<string, unknown>
+): Record<string, string> {
   const compacted: Record<string, string> = {};
   for (const [key, value] of Object.entries(values)) {
     const text = firstText(value);

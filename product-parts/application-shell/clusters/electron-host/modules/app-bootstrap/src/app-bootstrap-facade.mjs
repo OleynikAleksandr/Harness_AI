@@ -1,6 +1,6 @@
-import { BrowserWindow, app } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { app, BrowserWindow } from "electron";
 import { initializeCoreProcessBridge } from "../../core-process-bridge/src/core-process-bridge-facade.mjs";
 import { openExternalUrl } from "../../vscode-link-opener/src/vscode-link-opener-facade.mjs";
 
@@ -20,20 +20,22 @@ export async function createMainWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       preload: join(moduleDir, "preload.cjs"),
-      sandbox: true
-    }
+      sandbox: true,
+    },
   });
 
   window.webContents.setWindowOpenHandler(({ url }) => {
-    void openExternalUrl(url);
+    openExternalUrl(url).catch((error) => {
+      console.error("Failed to open external URL", error);
+    });
     return { action: "deny" };
   });
 
   const rendererUrl = process.env.HARNESS_AI_RENDERER_URL;
   if (rendererUrl) {
-    void window.loadURL(rendererUrl);
+    await window.loadURL(rendererUrl);
   } else {
-    void window.loadFile(join(repositoryRoot, "dist/renderer/index.html"));
+    await window.loadFile(join(repositoryRoot, "dist/renderer/index.html"));
   }
   coreBridge.attachWindow(window);
 
@@ -46,7 +48,9 @@ export async function startHarnessAiApp() {
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      void createMainWindow();
+      createMainWindow().catch((error) => {
+        console.error("Failed to create Harness AI window", error);
+      });
     }
   });
 }

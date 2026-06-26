@@ -1,6 +1,25 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
+
+const LOCAL_MARKDOWN_LINK_REGEX = /\[[^\]]+\]\(([^)]+)\)/gu;
+const SKIP_LINK_TARGET_REGEX = /^(https?:|mailto:|vscode:|#)/u;
+const TRACKED_MARKDOWN_ARGS = [
+  "ls-files",
+  "--cached",
+  "--others",
+  "--exclude-standard",
+  "*.md",
+];
+
+function listMarkdownFiles() {
+  const result = spawnSync("git", TRACKED_MARKDOWN_ARGS, { encoding: "utf8" });
+  if (result.status === 0) {
+    return result.stdout.split("\n").filter(Boolean);
+  }
+  return walk(".");
+}
 
 function walk(dir, result = []) {
   for (const entry of readdirSync(dir)) {
@@ -19,12 +38,12 @@ function walk(dir, result = []) {
 }
 
 const issues = [];
-for (const file of walk(".")) {
+for (const file of listMarkdownFiles()) {
   const text = readFileSync(file, "utf8");
-  const matches = text.matchAll(/\[[^\]]+\]\(([^)]+)\)/gu);
+  const matches = text.matchAll(LOCAL_MARKDOWN_LINK_REGEX);
   for (const match of matches) {
     const target = match[1];
-    if (/^(https?:|mailto:|vscode:|#)/u.test(target)) {
+    if (SKIP_LINK_TARGET_REGEX.test(target)) {
       continue;
     }
     const cleanTarget = target.split("#")[0];

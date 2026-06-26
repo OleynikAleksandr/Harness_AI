@@ -1,16 +1,16 @@
 import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderId,
-  providerRegistryFacade
+  providerRegistryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import {
   type ProviderSessionBinding,
-  providerSessionBindingFacade
+  providerSessionBindingFacade,
 } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import {
   type CoreSessionMessage,
   type SessionCoreEvent,
-  sessionEventStreamFacade
+  sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 
 export interface CoreSession {
@@ -50,17 +50,20 @@ export interface SessionRequestHandlerDependencies {
 }
 
 interface ProviderSessionBindingFacadeLike {
-  createPending(sessionId: string, providerId: ProviderId): ProviderSessionBinding;
-  getBinding(sessionId: string): ProviderSessionBinding | null;
-  markReady(
+  createPending(
     sessionId: string,
-    providerId: ProviderId,
-    providerSessionId: string
+    providerId: ProviderId
   ): ProviderSessionBinding;
+  getBinding(sessionId: string): ProviderSessionBinding | null;
   markFailed(
     sessionId: string,
     providerId: ProviderId,
     error: string
+  ): ProviderSessionBinding;
+  markReady(
+    sessionId: string,
+    providerId: ProviderId,
+    providerSessionId: string
   ): ProviderSessionBinding;
 }
 
@@ -106,16 +109,22 @@ export class SessionRequestHandlerFacade {
       title: request.title ?? `${request.providerName} session`,
       updatedAt: now,
       workspaceId: request.workspaceId,
-      ...(request.workspacePath ? { workspacePath: request.workspacePath } : {})
+      ...(request.workspacePath
+        ? { workspacePath: request.workspacePath }
+        : {}),
     };
     this.sessions.set(session.id, session);
     this.publish({
       payload: { sessionId: session.id, title: session.title },
       timestamp: now,
-      type: "session:created"
+      type: "session:created",
     });
-    this.publishBinding(this.bindingFacade.createPending(session.id, session.providerId));
-    void this.bindProviderSession(session);
+    this.publishBinding(
+      this.bindingFacade.createPending(session.id, session.providerId)
+    );
+    this.bindProviderSession(session).catch((error: unknown) => {
+      this.publishError(session.id, stringifyError(error));
+    });
     return { ok: true, session };
   }
 
@@ -137,7 +146,7 @@ export class SessionRequestHandlerFacade {
       role: "user",
       sessionId: session.id,
       text,
-      timestamp: now
+      timestamp: now,
     });
     const runtimeBinding = this.runtimeBindings.get(session.id);
     if (!runtimeBinding) {
@@ -145,7 +154,12 @@ export class SessionRequestHandlerFacade {
       return { ok: true, session: updatedSession };
     }
     this.publishTurnState(session.id, "running");
-    void this.dispatchProviderMessage(session, runtimeBinding, text);
+    this.dispatchProviderMessage(session, runtimeBinding, text).catch(
+      (error: unknown) => {
+        this.publishError(session.id, stringifyError(error));
+        this.publishTurnState(session.id, "idle");
+      }
+    );
     return { ok: true, session: updatedSession };
   }
 
@@ -164,7 +178,7 @@ export class SessionRequestHandlerFacade {
     this.publish({
       payload: message,
       timestamp: message.timestamp,
-      type: "session:message"
+      type: "session:message",
     });
   }
 
@@ -172,7 +186,7 @@ export class SessionRequestHandlerFacade {
     this.publish({
       payload: binding,
       timestamp: binding.updatedAt,
-      type: "session:provider-binding"
+      type: "session:provider-binding",
     });
   }
 
@@ -180,18 +194,15 @@ export class SessionRequestHandlerFacade {
     this.publish({
       payload: { error, sessionId },
       timestamp: new Date().toISOString(),
-      type: "session:error"
+      type: "session:error",
     });
   }
 
-  private publishTurnState(
-    sessionId: string,
-    state: "idle" | "running"
-  ): void {
+  private publishTurnState(sessionId: string, state: "idle" | "running"): void {
     this.publish({
       payload: { sessionId, state },
       timestamp: new Date().toISOString(),
-      type: "session:turn-state"
+      type: "session:turn-state",
     });
   }
 
@@ -203,21 +214,27 @@ export class SessionRequestHandlerFacade {
     const adapter = this.providerRegistry.getAdapter(session.providerId);
     if (!adapter) {
       this.publishBinding(
-        this.bindingFacade.markFailed(session.id, session.providerId, ADAPTER_NOT_REGISTERED)
+        this.bindingFacade.markFailed(
+          session.id,
+          session.providerId,
+          ADAPTER_NOT_REGISTERED
+        )
       );
       this.publishError(session.id, ADAPTER_NOT_REGISTERED);
       return;
     }
     try {
       await adapter.initialize?.();
-      const providerSessionId = await adapter.createSession(session.workspacePath);
+      const providerSessionId = await adapter.createSession(
+        session.workspacePath
+      );
       const unsubscribe = adapter.subscribe(providerSessionId, (event) =>
         this.handleProviderEvent(session.id, event)
       );
       this.runtimeBindings.set(session.id, {
         adapter,
         providerSessionId,
-        unsubscribe
+        unsubscribe,
       });
       this.publishBinding(
         this.bindingFacade.markReady(
@@ -265,7 +282,7 @@ export class SessionRequestHandlerFacade {
         role: event.tag === "thinking" ? "thinking" : "assistant",
         sessionId,
         text: readString(event.content) ?? "",
-        timestamp: readString(event.timestamp) ?? new Date().toISOString()
+        timestamp: readString(event.timestamp) ?? new Date().toISOString(),
       });
       return;
     }
@@ -279,7 +296,10 @@ export class SessionRequestHandlerFacade {
     }
     if (event.type === "turn_failed" || event.type === "stream_error") {
       this.publishTurnState(sessionId, "idle");
-      this.publishError(sessionId, readString(event.message) ?? "Provider turn failed");
+      this.publishError(
+        sessionId,
+        readString(event.message) ?? "Provider turn failed"
+      );
     }
   }
 

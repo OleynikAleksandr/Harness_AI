@@ -14,12 +14,15 @@ export interface ProviderSessionBinding {
 export class ProviderSessionBindingFacade {
   private readonly bindings = new Map<string, ProviderSessionBinding>();
 
-  createPending(sessionId: string, providerId: ProviderId): ProviderSessionBinding {
+  createPending(
+    sessionId: string,
+    providerId: ProviderId
+  ): ProviderSessionBinding {
     return this.setBinding({
       providerId,
       sessionId,
       status: "pending",
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   }
 
@@ -33,7 +36,7 @@ export class ProviderSessionBindingFacade {
       providerSessionId,
       sessionId,
       status: "ready",
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   }
 
@@ -47,7 +50,7 @@ export class ProviderSessionBindingFacade {
       providerId,
       sessionId,
       status: "failed",
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   }
 

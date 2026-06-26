@@ -1,10 +1,14 @@
 #!/usr/bin/env node
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 
 const PLAN_PATH = ".harness/plans/todo-plan.md";
 const DEBT_PATH = ".git/harness-plan-debt";
+const COMMIT_MESSAGE_LINE_REGEX = /\r?\n/u;
+const ESCAPE_REGEX = /[.*+?^${}()|[\]\\]/gu;
+const EXPECTED_COMMIT_REGEX = /expected commit:\s*`([^`]+)`/u;
+const NEXT_TASK_REGEX = /\n(\d+)\. \[TODO\] `([^`]+)` ([^\n]+)/u;
 const STATE_RE =
   /<!-- harness-plan-state:start -->\n```json\n([\s\S]*?)\n```\n<!-- harness-plan-state:end -->/u;
 
@@ -40,7 +44,7 @@ function run(command, args) {
 }
 
 function expectedCommitFromLine(line) {
-  const match = line.match(/expected commit:\s*`([^`]+)`/u);
+  const match = line.match(EXPECTED_COMMIT_REGEX);
   if (!match || match[1] === "none") {
     return null;
   }
@@ -49,7 +53,7 @@ function expectedCommitFromLine(line) {
 
 function findNextTask(text, fromIndex) {
   const tail = text.slice(fromIndex);
-  const match = tail.match(/\n(\d+)\. \[TODO\] `([^`]+)` ([^\n]+)/u);
+  const match = tail.match(NEXT_TASK_REGEX);
   if (!match) {
     return null;
   }
@@ -59,7 +63,7 @@ function findNextTask(text, fromIndex) {
     lineEnd: lineStart + match[0].trimStart().length,
     taskId: match[2],
     line: match[0].trim(),
-    expectedCommitMessage: expectedCommitFromLine(match[0])
+    expectedCommitMessage: expectedCommitFromLine(match[0]),
   };
 }
 
@@ -70,7 +74,9 @@ function validatePlan() {
     return state;
   }
   if (state.executionScopeStatus !== "ACTIVE") {
-    throw new Error(`Unsupported executionScopeStatus: ${state.executionScopeStatus}`);
+    throw new Error(
+      `Unsupported executionScopeStatus: ${state.executionScopeStatus}`
+    );
   }
   if (!state.currentTaskId) {
     throw new Error("ACTIVE plan must have currentTaskId");
@@ -82,7 +88,9 @@ function validatePlan() {
     state.expectedCommitMessage &&
     !text.includes(`Git Commit: \`${state.expectedCommitMessage}\``)
   ) {
-    throw new Error(`Expected commit line not found: ${state.expectedCommitMessage}`);
+    throw new Error(
+      `Expected commit line not found: ${state.expectedCommitMessage}`
+    );
   }
   return state;
 }
@@ -100,7 +108,9 @@ function status() {
 }
 
 function validateCommitMessage(filePath) {
-  const message = readFileSync(filePath, "utf8").split(/\r?\n/u)[0].trim();
+  const message = readFileSync(filePath, "utf8")
+    .split(COMMIT_MESSAGE_LINE_REGEX)[0]
+    .trim();
   const text = readPlan();
   const state = readState(text);
   if (!message) {
@@ -117,13 +127,17 @@ function validateCommitMessage(filePath) {
 }
 
 function markCommitDone(text, state, message) {
+  let nextText = text;
   const currentTaskPattern = new RegExp(
     "(\\d+\\. )\\[IN_PROGRESS\\]( `" +
       escapeRegExp(state.currentTaskId) +
       "`[^\\n]*)",
     "u"
   );
-  text = text.replace(currentTaskPattern, `$1[DONE]$2 Result: Completed in commit \`${message}\`.`);
+  nextText = nextText.replace(
+    currentTaskPattern,
+    `$1[DONE]$2 Result: Completed in commit \`${message}\`.`
+  );
 
   const commitPattern = new RegExp(
     "(\\d+\\. )\\[TODO\\]( Git Commit: `" +
@@ -131,35 +145,37 @@ function markCommitDone(text, state, message) {
       "` \\(hash: )TBD(\\))",
     "u"
   );
-  const commitMatch = text.match(commitPattern);
+  const commitMatch = nextText.match(commitPattern);
   if (!commitMatch) {
     throw new Error(`Open Git Commit line not found for: ${message}`);
   }
-  text = text.replace(commitPattern, "$1[DONE]$2self$3");
+  nextText = nextText.replace(commitPattern, "$1[DONE]$2self$3");
 
-  const doneCommitIndex = text.indexOf(`Git Commit: \`${message}\``);
-  const nextTask = findNextTask(text, doneCommitIndex);
+  const doneCommitIndex = nextText.indexOf(`Git Commit: \`${message}\``);
+  const nextTask = findNextTask(nextText, doneCommitIndex);
   if (!nextTask) {
     state.executionScopeStatus = "NONE";
     state.currentTaskId = null;
     state.expectedCommitMessage = null;
     state.lastRecordedCommit = "self";
-    return replaceState(text, state);
+    return replaceState(nextText, state);
   }
 
-  text =
-    text.slice(0, nextTask.lineStart) +
+  nextText =
+    nextText.slice(0, nextTask.lineStart) +
     nextTask.line.replace("[TODO]", "[IN_PROGRESS]") +
-    text.slice(nextTask.lineEnd);
+    nextText.slice(nextTask.lineEnd);
   state.currentTaskId = nextTask.taskId;
   state.expectedCommitMessage = nextTask.expectedCommitMessage;
   state.lastRecordedCommit = "self";
-  return replaceState(text, state);
+  return replaceState(nextText, state);
 }
 
 function commit(message) {
   if (!message) {
-    throw new Error("Usage: npm run plan:commit -- \"<expected commit message>\"");
+    throw new Error(
+      'Usage: npm run plan:commit -- "<expected commit message>"'
+    );
   }
   let text = readPlan();
   const state = validatePlan();
@@ -193,7 +209,7 @@ function postCommit() {
 }
 
 function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  return value.replace(ESCAPE_REGEX, "\\$&");
 }
 
 const [command, ...args] = process.argv.slice(2);

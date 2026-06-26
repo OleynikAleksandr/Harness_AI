@@ -15,11 +15,16 @@ type HarnessSettings =
 interface Window {
   harnessCore?: {
     createSession(request: unknown): Promise<
-      | { ok: true; session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession }
+      | {
+          ok: true;
+          session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
       | { error: string; ok: false }
     >;
     getSettings(): Promise<HarnessSettings>;
-    getProviderSystemSettings(providerId: string): Promise<ProviderSystemSettings>;
+    getProviderSystemSettings(
+      providerId: string
+    ): Promise<ProviderSystemSettings>;
     listProviders(): Promise<
       import("../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js").ProviderDescriptor[]
     >;
@@ -36,8 +41,7 @@ interface Window {
       | { error: string; ok: false }
     >;
     resetWorkspaceSettings(): Promise<
-      | { ok: true; settings: HarnessSettings }
-      | { error: string; ok: false }
+      { ok: true; settings: HarnessSettings } | { error: string; ok: false }
     >;
     restartCore(): Promise<
       | {
@@ -50,11 +54,13 @@ interface Window {
     saveSettings(request: {
       settings: HarnessSettings;
     }): Promise<
-      | { ok: true; settings: HarnessSettings }
-      | { error: string; ok: false }
+      { ok: true; settings: HarnessSettings } | { error: string; ok: false }
     >;
     sendMessage(request: unknown): Promise<
-      | { ok: true; session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession }
+      | {
+          ok: true;
+          session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
       | { error: string; ok: false }
     >;
   };

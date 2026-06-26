@@ -12,15 +12,15 @@ export interface ProviderCapabilities {
 const DEFAULT_CAPABILITIES: ProviderCapabilities = {
   modelSync: {
     acceptsAppliedTurnConfig: true,
-    supportsReasoningSelection: true
+    supportsReasoningSelection: true,
   },
   requiresProviderHome: true,
-  supportsImmediateBinding: true
+  supportsImmediateBinding: true,
 };
 
 const HTTP_COMPATIBLE_CAPABILITIES: ProviderCapabilities = {
   ...DEFAULT_CAPABILITIES,
-  requiresProviderHome: false
+  requiresProviderHome: false,
 };
 
 export class ProviderDescriptorFacade {

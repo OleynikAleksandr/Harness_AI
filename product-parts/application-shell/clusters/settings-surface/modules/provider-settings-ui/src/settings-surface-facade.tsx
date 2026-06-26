@@ -1,10 +1,7 @@
 import { RotateCcw, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
-import {
-  SETTINGS_TABS,
-  type SettingsTabId
-} from "./settings-model-options.js";
+import { SETTINGS_TABS, type SettingsTabId } from "./settings-model-options.js";
 import { SettingsTabContent } from "./settings-tab-content.js";
 import "./settings-surface.css";
 
@@ -15,7 +12,7 @@ interface ProviderSettingsUiFacadeProps {
 
 export function ProviderSettingsUiFacade({
   isOpen,
-  onClose
+  onClose,
 }: ProviderSettingsUiFacadeProps) {
   const [activeTab, setActiveTab] = useState<SettingsTabId>("claude");
   const [busy, setBusy] = useState(false);
@@ -44,7 +41,9 @@ export function ProviderSettingsUiFacade({
       })
       .catch((error: unknown) => {
         if (!cancelled) {
-          setStatus(error instanceof Error ? error.message : "Settings load failed.");
+          setStatus(
+            error instanceof Error ? error.message : "Settings load failed."
+          );
         }
       })
       .finally(() => {
@@ -75,7 +74,7 @@ export function ProviderSettingsUiFacade({
   };
 
   const save = async () => {
-    if (!settings || !window.harnessCore) {
+    if (!(settings && window.harnessCore)) {
       return null;
     }
     setBusy(true);
@@ -86,15 +85,14 @@ export function ProviderSettingsUiFacade({
       setStatus("Settings saved.");
       setBusy(false);
       return result.settings;
-    } else {
-      setStatus(result.error);
     }
+    setStatus(result.error);
     setBusy(false);
     return null;
   };
 
   const restartCore = async () => {
-    if (!settings || !window.harnessCore) {
+    if (!(settings && window.harnessCore)) {
       return;
     }
     setCoreRestartBusy(true);
@@ -143,20 +141,20 @@ export function ProviderSettingsUiFacade({
           <button
             aria-label="Close Settings"
             className="settings-icon-button"
-            type="button"
             onClick={onClose}
+            type="button"
           >
             <X size={16} />
           </button>
         </header>
         <main className="settings-body">
-          <nav className="settings-tabs" aria-label="Settings sections">
+          <nav aria-label="Settings sections" className="settings-tabs">
             {SETTINGS_TABS.map((tab) => (
               <button
-                className={`settings-tab${activeTab === tab.id ? " active" : ""}`}
+                className={`settings-tab${activeTab === tab.id ? "active" : ""}`}
                 key={tab.id}
-                type="button"
                 onClick={() => setActiveTab(tab.id)}
+                type="button"
               >
                 {tab.label}
               </button>
@@ -183,8 +181,8 @@ export function ProviderSettingsUiFacade({
             <button
               className="settings-secondary"
               disabled={busy}
-              type="button"
               onClick={reset}
+              type="button"
             >
               <RotateCcw size={14} />
               Reset Workspace
@@ -192,8 +190,8 @@ export function ProviderSettingsUiFacade({
             <button
               className="settings-primary"
               disabled={busy || !dirty}
-              type="button"
               onClick={save}
+              type="button"
             >
               <Save size={14} />
               Save

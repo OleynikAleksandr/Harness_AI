@@ -1,10 +1,18 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const PRODUCT_TREE_PATH = ".harness/product-tree/product-tree.json";
 const MAX_LINES = 500;
-const SKIP_DIRS = new Set([".codeai-hub", ".git", "dist", "node_modules", "release"]);
+const LINE_SPLIT_REGEX = /\r?\n/u;
+const SOURCE_FILE_REGEX = /\.(mjs|js|ts|tsx)$/u;
+const SKIP_DIRS = new Set([
+  ".codeai-hub",
+  ".git",
+  "dist",
+  "node_modules",
+  "release",
+]);
 const SKIP_PATHS = new Set([".harness/runtime"]);
 
 function readJson(path) {
@@ -34,7 +42,7 @@ function walk(dir, result = []) {
 }
 
 function lineCount(path) {
-  return readFileSync(path, "utf8").split(/\r?\n/u).length;
+  return readFileSync(path, "utf8").split(LINE_SPLIT_REGEX).length;
 }
 
 function checkTree(tree) {
@@ -61,7 +69,7 @@ function checkTree(tree) {
 function checkLineLimits() {
   const offenders = [];
   for (const file of walk(".")) {
-    if (!/\.(mjs|js|ts|tsx)$/u.test(file)) {
+    if (!SOURCE_FILE_REGEX.test(file)) {
       continue;
     }
     const lines = lineCount(file);
@@ -70,7 +78,9 @@ function checkLineLimits() {
     }
   }
   if (offenders.length > 0) {
-    throw new Error(`Files exceed ${MAX_LINES} lines:\n${offenders.join("\n")}`);
+    throw new Error(
+      `Files exceed ${MAX_LINES} lines:\n${offenders.join("\n")}`
+    );
   }
 }
 

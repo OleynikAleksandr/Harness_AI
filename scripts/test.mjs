@@ -1,7 +1,9 @@
 #!/usr/bin/env node
+import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
+
+const TEST_FILE_REGEX = /\.test\.mjs$/u;
 
 function walk(dir, result = []) {
   if (!existsSync(dir)) {
@@ -12,7 +14,7 @@ function walk(dir, result = []) {
     const stat = statSync(path);
     if (stat.isDirectory()) {
       walk(path, result);
-    } else if (/\.test\.mjs$/u.test(path)) {
+    } else if (TEST_FILE_REGEX.test(path)) {
       result.push(path);
     }
   }

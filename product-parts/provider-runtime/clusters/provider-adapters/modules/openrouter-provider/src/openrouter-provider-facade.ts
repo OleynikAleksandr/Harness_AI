@@ -1,5 +1,5 @@
-import { OpenAiCompatibleSessionProviderAdapter } from "../../provider-adapter-contract/src/session-provider-adapter-helpers.js";
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
+import { OpenAiCompatibleSessionProviderAdapter } from "../../provider-adapter-contract/src/session-provider-adapter-helpers.js";
 
 export class OpenRouterProviderFacade extends OpenAiCompatibleSessionProviderAdapter {
   constructor(model = process.env.OPENROUTER_MODEL ?? "openrouter/auto") {
@@ -12,7 +12,7 @@ export class OpenRouterProviderFacade extends OpenAiCompatibleSessionProviderAda
       baseUrl:
         providerAuthStoreFacade.getBaseUrl("openrouter") ??
         "https://openrouter.ai/api/v1",
-      model: resolvedModel
+      model: resolvedModel,
     });
   }
 }

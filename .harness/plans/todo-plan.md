@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-codex-node-launch-hotfix-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase27.stream1.task1",
-  "expectedCommitMessage": "chore: verify codex node launch",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -222,5 +222,5 @@
 
 ### Stream: Package Check
 
-54. [IN_PROGRESS] `harness-ai.phase27.stream1.task1` Rebuild the macOS app and record evidence that the packaged provider runner contains the direct Codex Node launch path (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex node launch`).
-55. [TODO] Git Commit: `chore: verify codex node launch` (hash: TBD)
+54. [DONE] `harness-ai.phase27.stream1.task1` Rebuild the macOS app and record evidence that the packaged provider runner contains the direct Codex Node launch path (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex node launch`). Result: Completed in commit `chore: verify codex node launch`.
+55. [DONE] Git Commit: `chore: verify codex node launch` (hash: self)

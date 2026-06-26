@@ -66,10 +66,14 @@ export class CodexProviderFacade implements ProviderAdapter {
 
   constructor(options: CodexProviderOptions = {}) {
     this.command = options.codexCommand ?? "codex";
+    const defaultModel =
+      options.defaultModel && options.defaultModel !== "cli-default"
+        ? options.defaultModel
+        : (process.env.CODEX_MODEL ?? "gpt-5.4-mini");
     this.options = {
       approvalPolicy: options.approvalPolicy ?? "never",
       codexCommand: this.command,
-      defaultModel: options.defaultModel ?? "gpt-5.4-mini",
+      defaultModel,
       sandbox: options.sandbox ?? "danger-full-access",
       workspacePath: options.workspacePath
     };

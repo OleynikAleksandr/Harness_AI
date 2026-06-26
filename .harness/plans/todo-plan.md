@@ -8,8 +8,8 @@
   "planId": "harness-ai-provider-turn-execution-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase18.stream1.task1",
-  "expectedCommitMessage": "feat: expose provider turn ipc",
+  "currentTaskId": "harness-ai.phase19.stream1.task1",
+  "expectedCommitMessage": "feat: send turns to selected provider",
   "debt": null
 }
 ```
@@ -159,14 +159,14 @@
 
 ### Stream: Main Process Bridge
 
-36. [IN_PROGRESS] `harness-ai.phase18.stream1.task1` Expose provider turn execution from Electron main to the renderer through preload IPC (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider turn ipc`).
-37. [TODO] Git Commit: `feat: expose provider turn ipc` (hash: TBD)
+36. [DONE] `harness-ai.phase18.stream1.task1` Expose provider turn execution from Electron main to the renderer through preload IPC (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider turn ipc`). Result: Completed in commit `feat: expose provider turn ipc`.
+37. [DONE] Git Commit: `feat: expose provider turn ipc` (hash: self)
 
 ## Phase 19 - Session UI Provider Execution (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Send Message
 
-38. [TODO] `harness-ai.phase19.stream1.task1` Send chat input through the selected provider runner and render real responses or setup errors in the active session (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: send turns to selected provider`).
+38. [IN_PROGRESS] `harness-ai.phase19.stream1.task1` Send chat input through the selected provider runner and render real responses or setup errors in the active session (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: send turns to selected provider`).
 39. [TODO] Git Commit: `feat: send turns to selected provider` (hash: TBD)
 
 ## Phase 20 - Provider Execution Verification (owner: Codex, updated: 2026-06-26)

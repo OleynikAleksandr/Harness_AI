@@ -54,6 +54,7 @@
       "dist/renderer/**",
       "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**",
       "product-parts/application-shell/clusters/electron-host/modules/vscode-link-opener/src/**",
+      "product-parts/provider-runtime/clusters/provider-adapters/modules/provider-turn-runner/src/**",
       "package.json"
     ],
     "mac": {

@@ -8,8 +8,8 @@
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "feat: seed core session snapshot",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "feat: add first session ui slice",
   "debt": null
 }
 ```
@@ -69,14 +69,14 @@
 
 ### Stream: Local Session Snapshot
 
-11. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Implement the minimal Core-owned workspace/session snapshot seed for the first UI slice (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/**`; expected commit: `feat: seed core session snapshot`).
-12. [TODO] Git Commit: `feat: seed core session snapshot` (hash: TBD)
+11. [DONE] `harness-ai.phase5.stream1.task1` Implement the minimal Core-owned workspace/session snapshot seed for the first UI slice (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/**`; expected commit: `feat: seed core session snapshot`). Result: Completed in commit `feat: seed core session snapshot`.
+12. [DONE] Git Commit: `feat: seed core session snapshot` (hash: self)
 
 ## Phase 6 - Electron Session UI (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Chat Surface
 
-13. [TODO] `harness-ai.phase6.stream1.task1` Implement the first classic chat session UI with sidebar, transcript, telemetry strip, and input controls (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**`; expected commit: `feat: add first session ui slice`).
+13. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Implement the first classic chat session UI with sidebar, transcript, telemetry strip, and input controls (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**`; expected commit: `feat: add first session ui slice`).
 14. [TODO] Git Commit: `feat: add first session ui slice` (hash: TBD)
 
 ## Phase 7 - Electron Host Wiring (owner: Codex, updated: 2026-06-26)

@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase34.stream1.task1",
-  "expectedCommitMessage": "chore: verify working provider sessions",
+  "currentTaskId": "harness-ai.phase35.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -280,11 +280,11 @@
 
 ### Stream: Build And Package
 
-77. [IN_PROGRESS] `harness-ai.phase34.stream1.task1` Verify architecture, typecheck, tests, renderer build, and unsigned macOS packaging for working provider sessions; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify working provider sessions`).
-78. [TODO] Git Commit: `chore: verify working provider sessions` (hash: TBD)
+77. [DONE] `harness-ai.phase34.stream1.task1` Verify architecture, typecheck, tests, renderer build, and unsigned macOS packaging for working provider sessions; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify working provider sessions`). Result: Completed in commit `chore: verify working provider sessions`.
+78. [DONE] Git Commit: `chore: verify working provider sessions` (hash: self)
 
 ## Phase 35 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Provider Dialog Retest
 
-79. [TODO] `harness-ai.phase35.stream1.task1` User retests creating a session and sending a first message through each configured provider (scope: user workflow; expected commit: none).
+79. [IN_PROGRESS] `harness-ai.phase35.stream1.task1` User retests creating a session and sending a first message through each configured provider (scope: user workflow; expected commit: none).

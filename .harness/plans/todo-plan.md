@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase71.stream1.task1",
+  "expectedCommitMessage": "chore: verify selected settings tab styling",
   "debt": null
 }
 ```
@@ -525,3 +525,17 @@
 
 145. [DONE] `harness-ai.phase69.stream1.task1` Verify and package the Settings tab active-state styling for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify settings tab active styling`). Result: Completed in commit `chore: verify settings tab active styling`.
 146. [DONE] Git Commit: `chore: verify settings tab active styling` (hash: self)
+
+## Phase 70 - Settings Selected Tab State Refinement (owner: Codex, updated: 2026-06-26)
+
+### Stream: Settings Surface
+
+147. [DONE] `harness-ai.phase70.stream1.task1` Refine Settings selected tab styling so hover and selected states keep the same tab geometry while selected uses the model-row blue fill and outline (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: make settings selected tabs match model state`). Result: Completed in commit `fix: make settings selected tabs match model state`.
+148. [DONE] Git Commit: `fix: make settings selected tabs match model state` (hash: self)
+
+## Phase 71 - Settings Selected Tab Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+149. [IN_PROGRESS] `harness-ai.phase71.stream1.task1` Verify and package the selected-tab styling refinement for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify selected settings tab styling`).
+150. [TODO] Git Commit: `chore: verify selected settings tab styling` (hash: TBD)

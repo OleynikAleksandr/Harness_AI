@@ -8,7 +8,7 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase58.stream1.task1",
+  "currentTaskId": "harness-ai.phase60.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -449,4 +449,17 @@
 
 ### Stream: Settings Retest
 
-126. [IN_PROGRESS] `harness-ai.phase58.stream1.task1` User retests the CodeAI Hub-style Settings surface in Harness AI (scope: user workflow; expected commit: none).
+126. [DONE] `harness-ai.phase58.stream1.task1` User retests the CodeAI Hub-style Settings surface in Harness AI (scope: user workflow; expected commit: none). Result: User still saw the old packaged Settings UI; source was updated, but the macOS app artifact had not been rebuilt.
+
+## Phase 59 - Settings Layout Packaged App Rebuild (owner: Codex, updated: 2026-06-26)
+
+### Stream: Package Delivery
+
+127. [DONE] `harness-ai.phase59.stream1.task1` Rebuild the unsigned macOS app so the delivered Harness AI artifact includes the CodeAI Hub-style Settings surface (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: rebuild app with codeai settings layout`). Result: Completed in commit `chore: rebuild app with codeai settings layout`.
+128. [DONE] Git Commit: `chore: rebuild app with codeai settings layout` (hash: self)
+
+## Phase 60 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: Settings Retest
+
+129. [IN_PROGRESS] `harness-ai.phase60.stream1.task1` User relaunches the rebuilt app and retests the Settings surface (scope: user workflow; expected commit: none).

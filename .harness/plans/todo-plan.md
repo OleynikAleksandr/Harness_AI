@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-provider-turn-execution-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase20.stream1.task1",
-  "expectedCommitMessage": "chore: verify provider turn execution",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -173,5 +173,5 @@
 
 ### Stream: Build And Evidence
 
-40. [IN_PROGRESS] `harness-ai.phase20.stream1.task1` Verify build/package and provider execution error/success path, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider turn execution`).
-41. [TODO] Git Commit: `chore: verify provider turn execution` (hash: TBD)
+40. [DONE] `harness-ai.phase20.stream1.task1` Verify build/package and provider execution error/success path, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider turn execution`). Result: Completed in commit `chore: verify provider turn execution`.
+41. [DONE] Git Commit: `chore: verify provider turn execution` (hash: self)

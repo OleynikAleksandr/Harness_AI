@@ -4,6 +4,8 @@ import { join } from "node:path";
 
 const PRODUCT_TREE_PATH = ".harness/product-tree/product-tree.json";
 const MAX_LINES = 500;
+const SKIP_DIRS = new Set([".git", "dist", "node_modules", "release"]);
+const SKIP_PATHS = new Set([".harness/runtime"]);
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -17,10 +19,10 @@ function assertExists(path) {
 
 function walk(dir, result = []) {
   for (const entry of readdirSync(dir)) {
-    if (entry === ".git" || entry === "node_modules") {
+    const path = join(dir, entry);
+    if (SKIP_DIRS.has(entry) || SKIP_PATHS.has(path)) {
       continue;
     }
-    const path = join(dir, entry);
     const stat = statSync(path);
     if (stat.isDirectory()) {
       walk(path, result);

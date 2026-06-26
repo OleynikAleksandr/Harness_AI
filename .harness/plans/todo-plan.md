@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase38.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase40.stream1.task1",
+  "expectedCommitMessage": "feat: expose provider settings ipc",
   "debt": null
 }
 ```
@@ -307,4 +307,38 @@
 
 ### Stream: Provider Dialog Retest
 
-84. [IN_PROGRESS] `harness-ai.phase38.stream1.task1` User retests creating a session and sending a first message through each configured provider after packaged provider home fix (scope: user workflow; expected commit: none).
+84. [TODO] `harness-ai.phase38.stream1.task1` User retests creating a session and sending a first message through each configured provider after packaged provider home fix (scope: user workflow; expected commit: none). Continuation note: GLM Native has no product-owned settings/auth surface yet; implementation follows.
+
+## Phase 39 - System Provider Auth Settings (owner: Codex, updated: 2026-06-26)
+
+### Stream: System Settings Backend
+
+85. [DONE] `harness-ai.phase39.stream1.task1` Add Harness AI system provider settings under `~/.harness-ai/providers/<providerId>/settings.json`, let Core refresh provider adapters from those settings, and keep architecture checks out of ignored runtime state (scope: `product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.ts, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, scripts/check-architecture.mjs, .harness/plans/todo-plan.md`; expected commit: `feat: add system provider auth settings`). Result: Completed in commit `feat: add system provider auth settings`.
+86. [DONE] Git Commit: `feat: add system provider auth settings` (hash: self)
+
+## Phase 40 - Provider Settings IPC (owner: Codex, updated: 2026-06-26)
+
+### Stream: Renderer Bridge
+
+87. [IN_PROGRESS] `harness-ai.phase40.stream1.task1` Expose provider system settings read/write from Electron preload to the renderer (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider settings ipc`).
+88. [TODO] Git Commit: `feat: expose provider settings ipc` (hash: TBD)
+
+## Phase 41 - GLM Native Settings UI (owner: Codex, updated: 2026-06-26)
+
+### Stream: Minimal Settings Panel
+
+89. [TODO] `harness-ai.phase41.stream1.task1` Add a minimal in-app Settings panel for GLM Native API key, base URL, and default model so the provider can be tested before full settings architecture (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add glm native settings ui`).
+90. [TODO] Git Commit: `feat: add glm native settings ui` (hash: TBD)
+
+## Phase 42 - GLM Native Settings Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+91. [TODO] `harness-ai.phase42.stream1.task1` Verify system provider settings, rebuild the unsigned macOS app, and record evidence for GLM Native configuration (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify glm native settings`).
+92. [TODO] Git Commit: `chore: verify glm native settings` (hash: TBD)
+
+## Phase 43 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: Provider Dialog Retest
+
+93. [TODO] `harness-ai.phase43.stream1.task1` User retests creating sessions and sending a first message through each configured provider after GLM Native settings are available (scope: user workflow; expected commit: none).

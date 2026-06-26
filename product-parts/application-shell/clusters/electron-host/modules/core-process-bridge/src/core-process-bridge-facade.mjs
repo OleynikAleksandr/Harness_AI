@@ -23,6 +23,22 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:create-session", (_event, request) =>
     runtime.sessionRequestHandlerFacade.createSession(request)
   );
+  ipcMain.handle("harness-ai:core:get-provider-system-settings", (_event, providerId) =>
+    isProviderId(providerId)
+      ? runtime.providerAuthStoreFacade.getProviderSettings(providerId)
+      : {}
+  );
+  ipcMain.handle("harness-ai:core:save-provider-system-settings", (_event, request) => {
+    if (!isProviderId(request?.providerId)) {
+      return { error: "Unknown provider.", ok: false };
+    }
+    const settings = runtime.providerAuthStoreFacade.saveProviderSettings(
+      request.providerId,
+      request.settings ?? {}
+    );
+    registerProviderAdapter(runtime, request.providerId);
+    return { ok: true, settings };
+  });
   ipcMain.handle("harness-ai:core:send-message", (_event, request) =>
     runtime.sessionRequestHandlerFacade.sendMessage(request)
   );
@@ -43,6 +59,7 @@ async function loadRuntime(repositoryRoot) {
     sessionEvents,
     workspaceRegistry,
     providerRegistry,
+    providerAuthStore,
     settingsStore,
     claude,
     codex,
@@ -63,6 +80,9 @@ async function loadRuntime(repositoryRoot) {
     ),
     importRuntime(
       "provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js"
+    ),
+    importRuntime(
+      "provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js"
     ),
     importRuntime(
       "core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js"
@@ -94,6 +114,7 @@ async function loadRuntime(repositoryRoot) {
     ...sessionEvents,
     ...workspaceRegistry,
     ...providerRegistry,
+    ...providerAuthStore,
     ...settingsStore,
     ...claude,
     ...codex,
@@ -106,38 +127,73 @@ async function loadRuntime(repositoryRoot) {
 }
 
 function registerProviderAdapters(runtime) {
+  for (const providerId of PROVIDER_IDS) {
+    registerProviderAdapter(runtime, providerId);
+  }
+}
+
+const PROVIDER_IDS = [
+  "claude",
+  "codex",
+  "kimi",
+  "glm-native",
+  "glm-opencode",
+  "openrouter",
+  "local-models"
+];
+
+function registerProviderAdapter(runtime, providerId) {
   const model = (providerId) =>
+    runtime.providerAuthStoreFacade.getModel(providerId) ??
     runtime.settingsStoreFacade.getProviderModel(providerId).selectedModel;
   const workspacePath = runtime.workspaceRegistryFacade.getActiveWorkspace().path;
-  runtime.providerRegistryFacade.registerAdapter(
-    "claude",
-    new runtime.ClaudeProviderFacade(model("claude"))
-  );
-  runtime.providerRegistryFacade.registerAdapter(
-    "codex",
-    new runtime.CodexProviderFacade({
-      defaultModel: model("codex"),
-      workspacePath
-    })
-  );
-  runtime.providerRegistryFacade.registerAdapter(
-    "kimi",
-    new runtime.KimiProviderFacade(model("kimi"))
-  );
-  runtime.providerRegistryFacade.registerAdapter(
-    "glm-native",
-    new runtime.GlmNativeProviderFacade(model("glm-native"))
-  );
-  runtime.providerRegistryFacade.registerAdapter(
-    "glm-opencode",
-    new runtime.GlmOpenCodeProviderFacade(model("glm-opencode"))
-  );
-  runtime.providerRegistryFacade.registerAdapter(
-    "openrouter",
-    new runtime.OpenRouterProviderFacade(model("openrouter"))
-  );
-  runtime.providerRegistryFacade.registerAdapter(
-    "local-models",
-    new runtime.LocalModelsProviderFacade(model("local-models"))
-  );
+  if (providerId === "claude") {
+    runtime.providerRegistryFacade.registerAdapter(
+      providerId,
+      new runtime.ClaudeProviderFacade(model(providerId))
+    );
+  }
+  if (providerId === "codex") {
+    runtime.providerRegistryFacade.registerAdapter(
+      providerId,
+      new runtime.CodexProviderFacade({
+        defaultModel: model(providerId),
+        workspacePath
+      })
+    );
+  }
+  if (providerId === "kimi") {
+    runtime.providerRegistryFacade.registerAdapter(
+      providerId,
+      new runtime.KimiProviderFacade(model(providerId))
+    );
+  }
+  if (providerId === "glm-native") {
+    runtime.providerRegistryFacade.registerAdapter(
+      providerId,
+      new runtime.GlmNativeProviderFacade(model(providerId))
+    );
+  }
+  if (providerId === "glm-opencode") {
+    runtime.providerRegistryFacade.registerAdapter(
+      providerId,
+      new runtime.GlmOpenCodeProviderFacade(model(providerId))
+    );
+  }
+  if (providerId === "openrouter") {
+    runtime.providerRegistryFacade.registerAdapter(
+      providerId,
+      new runtime.OpenRouterProviderFacade(model(providerId))
+    );
+  }
+  if (providerId === "local-models") {
+    runtime.providerRegistryFacade.registerAdapter(
+      providerId,
+      new runtime.LocalModelsProviderFacade(model(providerId))
+    );
+  }
+}
+
+function isProviderId(value) {
+  return PROVIDER_IDS.includes(value);
 }

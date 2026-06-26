@@ -7,11 +7,13 @@ import "./settings-surface.css";
 interface ProviderSettingsUiFacadeProps {
   isOpen: boolean;
   onClose: () => void;
+  workspacePath: string;
 }
 
 export function ProviderSettingsUiFacade({
   isOpen,
   onClose,
+  workspacePath,
 }: ProviderSettingsUiFacadeProps) {
   const [activeTab, setActiveTab] = useState<SettingsTabId>("claude");
   const [busy, setBusy] = useState(false);
@@ -129,6 +131,11 @@ export function ProviderSettingsUiFacade({
     setBusy(false);
   };
 
+  const openGlossary = () => {
+    const glossaryPath = `${workspacePath}/.harness/settings/localization-glossary.txt`;
+    window.open(`vscode://file/${glossaryPath}:1:1`, "_blank", "noreferrer");
+  };
+
   return (
     <div className="settings-backdrop" role="presentation">
       <div aria-modal="true" className="settings-dialog" role="dialog">
@@ -165,6 +172,7 @@ export function ProviderSettingsUiFacade({
                 activeTab={activeTab}
                 coreRestartBusy={coreRestartBusy}
                 coreRestartStatus={coreRestartStatus}
+                onOpenGlossary={openGlossary}
                 onRestartCore={restartCore}
                 settings={settings}
                 update={update}

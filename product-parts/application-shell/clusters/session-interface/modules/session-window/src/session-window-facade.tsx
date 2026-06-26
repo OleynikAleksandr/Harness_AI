@@ -202,6 +202,7 @@ export function SessionWindowFacade() {
       <ProviderSettingsUiFacade
         isOpen={isSettingsOpen}
         onClose={closeSettings}
+        workspacePath={initialSnapshot.workspace.path}
       />
     </div>
   );

@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase60.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase62.stream1.task1",
+  "expectedCommitMessage": "chore: verify exact codeai settings surface",
   "debt": null
 }
 ```
@@ -462,4 +462,24 @@
 
 ### Stream: Settings Retest
 
-129. [IN_PROGRESS] `harness-ai.phase60.stream1.task1` User relaunches the rebuilt app and retests the Settings surface (scope: user workflow; expected commit: none).
+129. [DONE] `harness-ai.phase60.stream1.task1` User relaunches the rebuilt app and retests the Settings surface (scope: user workflow; expected commit: none). Result: User rejected approximate Settings parity; the Harness AI Settings surface must be an exact visual and functional port of the CodeAI Hub Settings surface.
+
+## Phase 61 - Exact CodeAI Settings Surface Port (owner: Codex, updated: 2026-06-26)
+
+### Stream: Settings Surface
+
+130. [DONE] `harness-ai.phase61.stream1.task1` Port the CodeAI Hub Settings surface visual structure, labels, cards, footer/header, General tab, and available provider controls into Harness AI modules without inventing new UI patterns (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/settings-surface/modules/localization-settings-ui/src/**, product-parts/application-shell/clusters/settings-surface/modules/recovery-controls-ui/src/**, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`; expected commit: `feat: port exact codeai settings surface`). Result: Completed in commit `feat: port exact codeai settings surface`.
+131. [DONE] Git Commit: `feat: port exact codeai settings surface` (hash: self)
+
+## Phase 62 - Exact Settings Verification And Package (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Evidence
+
+132. [IN_PROGRESS] `harness-ai.phase62.stream1.task1` Verify and package the exact CodeAI Settings surface port, then record evidence against the reference screenshots (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify exact codeai settings surface`).
+133. [TODO] Git Commit: `chore: verify exact codeai settings surface` (hash: TBD)
+
+## Phase 63 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: Settings Retest
+
+134. [TODO] `harness-ai.phase63.stream1.task1` User retests the exact CodeAI Hub-style Settings surface in the rebuilt app (scope: user workflow; expected commit: none).

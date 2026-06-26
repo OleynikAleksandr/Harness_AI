@@ -11,6 +11,7 @@ export interface ProviderModelSetting {
 
 export type LocalizationWorkflowTermsPolicy = "keep_english" | "translate";
 export type ReasoningEffort = "off" | "medium" | "high" | "max";
+export type GeneralResponseMode = "strict" | "hybrid" | "debug_raw";
 
 export interface LocalizationCategorySettings {
   artifactsForTheUser: string;
@@ -35,6 +36,19 @@ export interface HarnessSettings {
       glossaryEnabled: boolean;
       reasoningEngineId: string;
       workflowTermsPolicy: LocalizationWorkflowTermsPolicy;
+    };
+    nativeRequestCapture: {
+      enabled: boolean;
+    };
+    responsePolicy: {
+      mode: GeneralResponseMode;
+      strictOutput: {
+        instructionText: string;
+        schemaText: string;
+      };
+    };
+    textToSpeech: {
+      rate: number;
     };
   };
   providers: {
@@ -94,6 +108,29 @@ interface OpenRouterTranslationProfile {
 }
 
 const DEFAULT_LANGUAGE = "en";
+const DEFAULT_STRICT_OUTPUT_SCHEMA_TEXT = `${JSON.stringify(
+  {
+    additionalProperties: false,
+    properties: {
+      answer: {
+        description: "Final answer for the user. Markdown allowed.",
+        type: "string",
+      },
+    },
+    required: ["answer"],
+    type: "object",
+  },
+  null,
+  2
+)}\n`;
+const DEFAULT_STRICT_OUTPUT_INSTRUCTION_TEXT = [
+  "You must respond with a JSON object that matches the provided schema.",
+  "Populate the field:",
+  "- answer: the user-facing answer.",
+  "Return only JSON, no extra text.",
+  "",
+  "User request:",
+].join("\n");
 const DEFAULT_SETTINGS: HarnessSettings = {
   general: {
     coreControls: { allowRestart: true },
@@ -115,6 +152,19 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       glossaryEnabled: true,
       reasoningEngineId: "google-gtx",
       workflowTermsPolicy: "keep_english",
+    },
+    nativeRequestCapture: {
+      enabled: false,
+    },
+    responsePolicy: {
+      mode: "hybrid",
+      strictOutput: {
+        instructionText: DEFAULT_STRICT_OUTPUT_INSTRUCTION_TEXT,
+        schemaText: DEFAULT_STRICT_OUTPUT_SCHEMA_TEXT,
+      },
+    },
+    textToSpeech: {
+      rate: 1,
     },
   },
   providers: {

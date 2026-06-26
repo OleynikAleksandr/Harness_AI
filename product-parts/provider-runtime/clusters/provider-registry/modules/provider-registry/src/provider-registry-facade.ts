@@ -1,3 +1,9 @@
+import type { ProviderAdapter } from "../../../../provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import {
+  type ProviderCapabilities,
+  providerDescriptorFacade
+} from "../../provider-descriptor/src/provider-descriptor-facade.js";
+
 export type ProviderId =
   | "claude"
   | "codex"
@@ -8,13 +14,20 @@ export type ProviderId =
   | "local-models";
 
 export interface ProviderDescriptor {
+  adapterStatus: "registered" | "unregistered";
+  capabilities: ProviderCapabilities;
   id: ProviderId;
   name: string;
   moduleId: string;
   status: "available" | "needs-settings";
 }
 
-const PROVIDERS: ProviderDescriptor[] = [
+type ProviderBaseDescriptor = Omit<
+  ProviderDescriptor,
+  "adapterStatus" | "capabilities"
+>;
+
+const PROVIDERS: ProviderBaseDescriptor[] = [
   {
     id: "claude",
     name: "Claude",
@@ -60,8 +73,10 @@ const PROVIDERS: ProviderDescriptor[] = [
 ];
 
 export class ProviderRegistryFacade {
+  private readonly adapters = new Map<ProviderId, ProviderAdapter>();
+
   listProviders(): ProviderDescriptor[] {
-    return PROVIDERS;
+    return PROVIDERS.map((provider) => this.enrichDescriptor(provider));
   }
 
   getProvider(id: ProviderId): ProviderDescriptor {
@@ -69,7 +84,29 @@ export class ProviderRegistryFacade {
     if (!provider) {
       throw new Error(`Unknown provider: ${id}`);
     }
-    return provider;
+    return this.enrichDescriptor(provider);
+  }
+
+  getAdapter(id: ProviderId): ProviderAdapter | null {
+    return this.adapters.get(id) ?? null;
+  }
+
+  registerAdapter(id: ProviderId, adapter: ProviderAdapter): void {
+    this.adapters.set(id, adapter);
+  }
+
+  clearAdapters(): void {
+    this.adapters.clear();
+  }
+
+  private enrichDescriptor(
+    provider: ProviderBaseDescriptor
+  ): ProviderDescriptor {
+    return {
+      ...provider,
+      adapterStatus: this.adapters.has(provider.id) ? "registered" : "unregistered",
+      capabilities: providerDescriptorFacade.getCapabilities(provider.id)
+    };
   }
 }
 

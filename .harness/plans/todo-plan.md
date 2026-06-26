@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase30.stream1.task1",
-  "expectedCommitMessage": "feat: add provider adapter contract",
+  "currentTaskId": "harness-ai.phase30.stream1.task2",
+  "expectedCommitMessage": "feat: add codex app server adapter shell",
   "debt": null
 }
 ```
@@ -247,9 +247,9 @@
 
 ### Stream: Provider Runtime Boundary
 
-64. [IN_PROGRESS] `harness-ai.phase30.stream1.task1` Add the shared provider adapter contract and registry-owned adapter lookup modeled on CodeAI Hub `createSession/resumeSession/sendMessage/subscribe/closeSession` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/**`; expected commit: `feat: add provider adapter contract`).
-65. [TODO] Git Commit: `feat: add provider adapter contract` (hash: TBD)
-66. [TODO] `harness-ai.phase30.stream1.task2` Replace the Codex direct CLI path with a CodeAI Hub-style Codex adapter shell that owns app-server process startup, provider home/auth preparation, and normalized event subscription (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/**`; expected commit: `feat: add codex app server adapter shell`).
+64. [DONE] `harness-ai.phase30.stream1.task1` Add the shared provider adapter contract and registry-owned adapter lookup modeled on CodeAI Hub `createSession/resumeSession/sendMessage/subscribe/closeSession` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/**`; expected commit: `feat: add provider adapter contract`). Result: Completed in commit `feat: add provider adapter contract`.
+65. [DONE] Git Commit: `feat: add provider adapter contract` (hash: self)
+66. [IN_PROGRESS] `harness-ai.phase30.stream1.task2` Replace the Codex direct CLI path with a CodeAI Hub-style Codex adapter shell that owns app-server process startup, provider home/auth preparation, and normalized event subscription (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/**`; expected commit: `feat: add codex app server adapter shell`).
 67. [TODO] Git Commit: `feat: add codex app server adapter shell` (hash: TBD)
 
 ## Phase 31 - Tooling Verification (owner: Codex, updated: 2026-06-26)

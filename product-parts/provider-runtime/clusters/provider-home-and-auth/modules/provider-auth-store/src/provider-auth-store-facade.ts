@@ -6,7 +6,9 @@ import type { ProviderId } from "../../../../provider-registry/modules/provider-
 export interface ProviderSystemSettings {
   apiKey?: string;
   baseUrl?: string;
+  configPath?: string;
   defaultModel?: string;
+  endpointTag?: string;
   model?: string;
 }
 
@@ -76,7 +78,13 @@ export class ProviderAuthStoreFacade {
     patch: ProviderSystemSettings
   ): ProviderSystemSettings {
     const next = { ...this.getProviderSettings(providerId) };
-    for (const key of ["apiKey", "baseUrl", "defaultModel"] as const) {
+    for (const key of [
+      "apiKey",
+      "baseUrl",
+      "configPath",
+      "defaultModel",
+      "endpointTag"
+    ] as const) {
       if (!Object.hasOwn(patch, key)) {
         continue;
       }
@@ -131,7 +139,9 @@ function normalizeProviderSettings(value: unknown): ProviderSystemSettings {
   const settings: ProviderSystemSettings = {};
   const apiKey = firstText(record.apiKey);
   const baseUrl = firstText(record.baseUrl);
+  const configPath = firstText(record.configPath);
   const defaultModel = firstText(record.defaultModel);
+  const endpointTag = firstText(record.endpointTag);
   const model = firstText(record.model);
   if (apiKey) {
     settings.apiKey = apiKey;
@@ -139,8 +149,14 @@ function normalizeProviderSettings(value: unknown): ProviderSystemSettings {
   if (baseUrl) {
     settings.baseUrl = baseUrl;
   }
+  if (configPath) {
+    settings.configPath = configPath;
+  }
   if (defaultModel) {
     settings.defaultModel = defaultModel;
+  }
+  if (endpointTag) {
+    settings.endpointTag = endpointTag;
   }
   if (model) {
     settings.model = model;

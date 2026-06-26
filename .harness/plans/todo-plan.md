@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase45.stream1.task1",
-  "expectedCommitMessage": "feat: add project manager settings store",
+  "currentTaskId": "harness-ai.phase45.stream1.task2",
+  "expectedCommitMessage": "feat: expose full settings ipc",
   "debt": null
 }
 ```
@@ -354,9 +354,9 @@
 
 ### Stream: Core Settings Contract
 
-96. [IN_PROGRESS] `harness-ai.phase45.stream1.task1` Add a Project Manager-style settings snapshot, defaults, system/workspace persistence, and provider auth compatibility in Core Runtime (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: add project manager settings store`).
-97. [TODO] Git Commit: `feat: add project manager settings store` (hash: TBD)
-98. [TODO] `harness-ai.phase45.stream1.task2` Expose full settings load/save/reset operations through the Electron Core bridge and preload contract (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: expose full settings ipc`).
+96. [DONE] `harness-ai.phase45.stream1.task1` Add a Project Manager-style settings snapshot, defaults, system/workspace persistence, and provider auth compatibility in Core Runtime (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: add project manager settings store`). Result: Completed in commit `feat: add project manager settings store`.
+97. [DONE] Git Commit: `feat: add project manager settings store` (hash: self)
+98. [IN_PROGRESS] `harness-ai.phase45.stream1.task2` Expose full settings load/save/reset operations through the Electron Core bridge and preload contract (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: expose full settings ipc`).
 99. [TODO] Git Commit: `feat: expose full settings ipc` (hash: TBD)
 
 ## Phase 46 - Project Manager Settings Surface (owner: Codex, updated: 2026-06-26)

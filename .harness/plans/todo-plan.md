@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase57.stream1.task1",
-  "expectedCommitMessage": "chore: verify codeai settings layout",
+  "currentTaskId": "harness-ai.phase58.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -442,11 +442,11 @@
 
 ### Stream: Build And Evidence
 
-124. [IN_PROGRESS] `harness-ai.phase57.stream1.task1` Run required gates/builds and record evidence for CodeAI Hub Settings layout parity (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai settings layout`).
-125. [TODO] Git Commit: `chore: verify codeai settings layout` (hash: TBD)
+124. [DONE] `harness-ai.phase57.stream1.task1` Run required gates/builds and record evidence for CodeAI Hub Settings layout parity (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai settings layout`). Result: Completed in commit `chore: verify codeai settings layout`.
+125. [DONE] Git Commit: `chore: verify codeai settings layout` (hash: self)
 
 ## Phase 58 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Settings Retest
 
-126. [TODO] `harness-ai.phase58.stream1.task1` User retests the CodeAI Hub-style Settings surface in Harness AI (scope: user workflow; expected commit: none).
+126. [IN_PROGRESS] `harness-ai.phase58.stream1.task1` User retests the CodeAI Hub-style Settings surface in Harness AI (scope: user workflow; expected commit: none).

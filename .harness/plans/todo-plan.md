@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase31.stream1.task1",
-  "expectedCommitMessage": "chore: verify codeai provider runtime alignment",
+  "currentTaskId": "harness-ai.phase32.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -256,11 +256,11 @@
 
 ### Stream: Runtime Alignment Checks
 
-68. [IN_PROGRESS] `harness-ai.phase31.stream1.task1` Run architecture, typecheck, tests, renderer build, and package verification for the Core-owned provider runtime path; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai provider runtime alignment`).
-69. [TODO] Git Commit: `chore: verify codeai provider runtime alignment` (hash: TBD)
+68. [DONE] `harness-ai.phase31.stream1.task1` Run architecture, typecheck, tests, renderer build, and package verification for the Core-owned provider runtime path; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai provider runtime alignment`). Result: Completed in commit `chore: verify codeai provider runtime alignment`.
+69. [DONE] Git Commit: `chore: verify codeai provider runtime alignment` (hash: self)
 
 ## Phase 32 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Provider Session Retest
 
-70. [TODO] `harness-ai.phase32.stream1.task1` User retests session creation and first provider turn through the Core-owned runtime path (scope: user workflow; expected commit: none).
+70. [IN_PROGRESS] `harness-ai.phase32.stream1.task1` User retests session creation and first provider turn through the Core-owned runtime path (scope: user workflow; expected commit: none).

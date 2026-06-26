@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { runProviderTurn } from "./provider-turn-runner-facade.mjs";
+import {
+  createCliEnv,
+  runProviderTurn
+} from "./provider-turn-runner-facade.mjs";
 
 const cliResult = await runProviderTurn(
   { providerId: "claude", model: "cli-default", prompt: "Hello" },
@@ -45,3 +48,8 @@ const missingOpenRouterModel = await runProviderTurn(
 );
 assert.equal(missingOpenRouterModel.ok, false);
 assert.match(missingOpenRouterModel.text, /OpenRouter model is missing/u);
+
+const cliPath = createCliEnv({ PATH: "/tmp/custom-bin" }).PATH.split(":");
+assert.ok(cliPath.includes("/tmp/custom-bin"));
+assert.ok(cliPath.includes("/usr/local/bin"));
+assert.ok(cliPath.includes(`${process.env.HOME}/.npm-global/bin`));

@@ -1,10 +1,22 @@
 import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
 
 const HTTP_TIMEOUT_MS = 120_000;
 const CLI_TIMEOUT_MS = 180_000;
+const CLI_PATH_ENTRIES = [
+  join(homedir(), ".npm-global/bin"),
+  join(homedir(), ".local/bin"),
+  join(homedir(), ".kimi-code/bin"),
+  join(homedir(), ".opencode/bin"),
+  "/opt/homebrew/bin",
+  "/usr/local/bin",
+  "/usr/bin",
+  "/bin",
+  "/usr/sbin",
+  "/sbin"
+];
 
 const CLI_PROVIDERS = {
   claude: {
@@ -315,7 +327,7 @@ async function callCli(commands, args, deps) {
 function runCliCommand(command, args) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
-      env: process.env,
+      env: createCliEnv(),
       stdio: ["ignore", "pipe", "pipe"]
     });
     let stdout = "";
@@ -343,6 +355,30 @@ function runCliCommand(command, args) {
       }
     });
   });
+}
+
+export function createCliEnv(baseEnv = process.env) {
+  const pathValue = [baseEnv.PATH, ...CLI_PATH_ENTRIES]
+    .filter(Boolean)
+    .join(delimiter);
+  return {
+    ...baseEnv,
+    PATH: dedupePath(pathValue)
+  };
+}
+
+function dedupePath(pathValue) {
+  const seen = new Set();
+  return pathValue
+    .split(delimiter)
+    .filter((entry) => {
+      if (!entry || seen.has(entry)) {
+        return false;
+      }
+      seen.add(entry);
+      return true;
+    })
+    .join(delimiter);
 }
 
 function extractOpenAiText(response) {

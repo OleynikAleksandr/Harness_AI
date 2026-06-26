@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-pm-theme-session-start-2026-06-26",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-cli-path-hotfix-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase25.stream1.task1",
+  "expectedCommitMessage": "chore: verify packaged provider cli path",
   "debt": null
 }
 ```
@@ -196,3 +196,17 @@
 
 46. [DONE] `harness-ai.phase23.stream1.task1` Rebuild the renderer/macOS app and record verification evidence for the themed session-start shell (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify project manager themed shell`). Result: Completed in commit `chore: verify project manager themed shell`.
 47. [DONE] Git Commit: `chore: verify project manager themed shell` (hash: self)
+
+## Phase 24 - Packaged CLI PATH Hotfix (owner: Codex, updated: 2026-06-26)
+
+### Stream: Provider CLI Environment
+
+48. [DONE] `harness-ai.phase24.stream1.task1` Add a packaged-app-safe CLI PATH for provider commands whose launcher uses `/usr/bin/env node` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-turn-runner/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: provide cli path for packaged providers`). Result: Completed in commit `fix: provide cli path for packaged providers`.
+49. [DONE] Git Commit: `fix: provide cli path for packaged providers` (hash: self)
+
+## Phase 25 - CLI PATH Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Package Check
+
+50. [IN_PROGRESS] `harness-ai.phase25.stream1.task1` Rebuild the macOS app and record evidence that provider CLI PATH handling is packaged (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify packaged provider cli path`).
+51. [TODO] Git Commit: `chore: verify packaged provider cli path` (hash: TBD)

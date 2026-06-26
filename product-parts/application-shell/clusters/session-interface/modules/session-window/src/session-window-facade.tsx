@@ -1,5 +1,5 @@
 import { FileText, FolderPlus, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InputControlsFacade } from "../../input-controls/src/input-controls-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
 import { SessionTelemetryFacade } from "../../session-telemetry/src/session-telemetry-facade.js";
@@ -8,18 +8,18 @@ import {
   type SessionTelemetry,
   sessionSnapshotProjectorFacade
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import { sessionRequestHandlerFacade } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
+import {
+  type CoreSessionMessage,
+  type SessionCoreEvent,
+  sessionEventStreamFacade
+} from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import { settingsStoreFacade } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import {
   type ProviderDescriptor,
   providerRegistryFacade
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import "./session-window.css";
-
-interface SessionProviderSelection {
-  model: string;
-  providerId: ProviderDescriptor["id"];
-  providerName: string;
-}
 
 export function SessionWindowFacade() {
   const initialSnapshot = useMemo(
@@ -43,9 +43,6 @@ export function SessionWindowFacade() {
   >({
     [initialSnapshot.activeSessionId]: initialSnapshot.telemetry
   });
-  const [providerBySession, setProviderBySession] = useState<
-    Record<string, SessionProviderSelection>
-  >({});
   const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
 
   const activeSession =
@@ -54,80 +51,45 @@ export function SessionWindowFacade() {
   const telemetry =
     telemetryBySession[activeSessionId] ?? initialSnapshot.telemetry;
 
-  async function appendUserMessage(text: string) {
-    const sessionId = activeSessionId;
-    const provider = providerBySession[sessionId];
-    const timestamp = new Date().toISOString();
-    const userMessage: SessionMessage = {
-      id: `local-${timestamp}`,
-      role: "user",
-      text,
-      timestamp
-    };
-    const assistantMessage: SessionMessage = {
-      id: `local-reply-${timestamp}`,
-      role: "assistant",
-      text: "Provider is thinking...",
-      timestamp
-    };
-    setMessagesBySession((current) => ({
-      ...current,
-      [sessionId]: [
-        ...(current[sessionId] ?? []),
-        userMessage,
-        assistantMessage
-      ]
-    }));
-    setRunningSessionId(sessionId);
-    setTelemetryBySession((current) => ({
-      ...current,
-      [sessionId]: {
-        ...telemetry,
-        status: "running",
-        contextWindow: "Provider turn in progress"
-      }
-    }));
+  useEffect(
+    () =>
+      sessionEventStreamFacade.subscribe((event) => {
+        applyCoreEvent({
+          event,
+          setMessagesBySession,
+          setRunningSessionId,
+          setTelemetryBySession
+        });
+      }),
+    []
+  );
 
-    const result = await runProviderTurn(provider, text);
-    setMessagesBySession((current) => ({
-      ...current,
-      [sessionId]: (current[sessionId] ?? []).map((message) =>
-        message.id === assistantMessage.id
-          ? { ...message, text: result.text }
-          : message
-      )
-    }));
-    setTelemetryBySession((current) => ({
-      ...current,
-      [sessionId]: {
-        ...(current[sessionId] ?? telemetry),
-        status: "idle",
-        contextWindow: result.ok ? "Latest turn completed" : "Provider setup needed",
-        limitState: result.ok ? "Ready" : "Needs settings"
-      }
-    }));
-    setRunningSessionId((current) => (current === sessionId ? null : current));
+  function appendUserMessage(text: string) {
+    const sessionId = activeSessionId;
+    const result = sessionRequestHandlerFacade.sendMessage({ sessionId, text });
+    if (!result.ok) {
+      appendAssistantNotice(sessionId, result.error, setMessagesBySession);
+    }
   }
 
   function createSession(provider: ProviderDescriptor) {
     const model = settingsStoreFacade.getProviderModel(provider.id).selectedModel;
-    const timestamp = new Date().toISOString();
-    const session = {
-      id: `session-${provider.id}-${Date.now()}`,
+    const result = sessionRequestHandlerFacade.createSession({
+      model,
+      providerId: provider.id,
+      providerName: provider.name,
       title: `${provider.name} session`,
       workspaceId: initialSnapshot.workspace.id,
-      updatedAt: timestamp
-    };
-    const startupMessage: SessionMessage = {
-      id: `provider-${provider.id}-${Date.now()}`,
-      role: "assistant",
-      text: `${provider.name} session started with settings model ${model}.`,
-      timestamp
-    };
+      workspacePath: initialSnapshot.workspace.path
+    });
+    if (!result.ok) {
+      return;
+    }
+    const session = result.session;
     setSessions((current) => [session, ...current]);
     setMessagesBySession((current) => ({
       ...current,
-      [session.id]: [startupMessage]
+      [session.id]: []
     }));
     setTelemetryBySession((current) => ({
       ...current,
@@ -135,16 +97,8 @@ export function SessionWindowFacade() {
         provider: provider.name,
         model,
         status: "idle",
-        contextWindow: "Pending first provider turn",
-        limitState: provider.status === "available" ? "Ready" : "Needs settings"
-      }
-    }));
-    setProviderBySession((current) => ({
-      ...current,
-      [session.id]: {
-        model,
-        providerId: provider.id,
-        providerName: provider.name
+        contextWindow: "Core session ready",
+        limitState: "Provider adapter pending"
       }
     }));
     setActiveSessionId(session.id);
@@ -195,10 +149,7 @@ export function SessionWindowFacade() {
         </section>
 
         <InputControlsFacade
-          disabled={
-            !providerBySession[activeSessionId] ||
-            runningSessionId === activeSessionId
-          }
+          disabled={!activeSession || runningSessionId === activeSessionId}
           onSubmit={appendUserMessage}
         />
       </main>
@@ -214,37 +165,6 @@ export function SessionWindowFacade() {
   );
 }
 
-async function runProviderTurn(
-  provider: SessionProviderSelection | undefined,
-  prompt: string
-): Promise<HarnessProviderTurnResponse> {
-  if (!provider) {
-    return {
-      ok: false,
-      text: "Provider setup needed: create a provider session first."
-    };
-  }
-  if (!window.harnessProviders) {
-    return {
-      ok: false,
-      text: "Provider setup needed: Electron provider bridge is unavailable."
-    };
-  }
-  try {
-    return await window.harnessProviders.runTurn({
-      model: provider.model,
-      prompt,
-      providerId: provider.providerId
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      ok: false,
-      text: `Provider setup needed: ${provider.providerName} call failed: ${message}`
-    };
-  }
-}
-
 function EmptySessionStart({ onStart }: { onStart: () => void }) {
   return (
     <div className="empty-session">
@@ -256,6 +176,102 @@ function EmptySessionStart({ onStart }: { onStart: () => void }) {
       </button>
     </div>
   );
+}
+
+function applyCoreEvent(params: {
+  event: SessionCoreEvent;
+  setMessagesBySession: React.Dispatch<React.SetStateAction<Record<string, SessionMessage[]>>>;
+  setRunningSessionId: React.Dispatch<React.SetStateAction<string | null>>;
+  setTelemetryBySession: React.Dispatch<React.SetStateAction<Record<string, SessionTelemetry>>>;
+}) {
+  const { event, setMessagesBySession, setRunningSessionId, setTelemetryBySession } =
+    params;
+  if (event.type === "session:message") {
+    appendSessionMessage(event.payload, setMessagesBySession);
+    return;
+  }
+  if (event.type === "session:error") {
+    appendAssistantNotice(
+      event.payload.sessionId,
+      `Provider setup needed: ${event.payload.error}`,
+      setMessagesBySession
+    );
+    return;
+  }
+  if (event.type === "session:turn-state") {
+    setRunningSessionId((current) =>
+      event.payload.state === "running"
+        ? event.payload.sessionId
+        : current === event.payload.sessionId
+          ? null
+          : current
+    );
+    setTelemetryBySession((current) => ({
+      ...current,
+      [event.payload.sessionId]: {
+        ...(current[event.payload.sessionId] ?? sessionSnapshotProjectorFacade.getSnapshot().telemetry),
+        status: event.payload.state,
+        contextWindow:
+          event.payload.state === "running"
+            ? "Core dispatch in progress"
+            : "Core dispatch idle"
+      }
+    }));
+    return;
+  }
+  if (event.type === "session:provider-binding") {
+    setTelemetryBySession((current) => ({
+      ...current,
+      [event.payload.sessionId]: {
+        ...(current[event.payload.sessionId] ?? sessionSnapshotProjectorFacade.getSnapshot().telemetry),
+        limitState:
+          event.payload.status === "ready"
+            ? "Provider ready"
+            : event.payload.status === "failed"
+              ? "Provider adapter pending"
+              : "Provider binding pending"
+      }
+    }));
+  }
+}
+
+function appendSessionMessage(
+  message: CoreSessionMessage,
+  setMessagesBySession: React.Dispatch<React.SetStateAction<Record<string, SessionMessage[]>>>
+) {
+  const role = message.role === "user" ? "user" : "assistant";
+  setMessagesBySession((current) => ({
+    ...current,
+    [message.sessionId]: [
+      ...(current[message.sessionId] ?? []),
+      {
+        id: message.id,
+        role,
+        text: message.text,
+        timestamp: message.timestamp
+      }
+    ]
+  }));
+}
+
+function appendAssistantNotice(
+  sessionId: string,
+  text: string,
+  setMessagesBySession: React.Dispatch<React.SetStateAction<Record<string, SessionMessage[]>>>
+) {
+  const timestamp = new Date().toISOString();
+  setMessagesBySession((current) => ({
+    ...current,
+    [sessionId]: [
+      ...(current[sessionId] ?? []),
+      {
+        id: `notice-${timestamp}`,
+        role: "assistant",
+        text,
+        timestamp
+      }
+    ]
+  }));
 }
 
 function ProviderPicker({

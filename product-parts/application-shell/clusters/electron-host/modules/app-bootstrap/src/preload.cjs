@@ -1,5 +1,5 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge } = require("electron");
 
-contextBridge.exposeInMainWorld("harnessProviders", {
-  runTurn: (request) => ipcRenderer.invoke("harness-ai:provider-turn", request)
+contextBridge.exposeInMainWorld("harnessRuntime", {
+  providerDispatchMode: "core-session-dispatch"
 });

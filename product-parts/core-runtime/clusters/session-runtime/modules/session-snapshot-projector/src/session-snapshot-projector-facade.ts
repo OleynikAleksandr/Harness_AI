@@ -46,7 +46,7 @@ const BOOTSTRAP_MESSAGES: SessionMessage[] = [
 ];
 
 const TELEMETRY: SessionTelemetry = {
-  provider: "Direct provider",
+  provider: "Core Runtime",
   model: "Not connected yet",
   status: "idle",
   contextWindow: "Pending provider selection",

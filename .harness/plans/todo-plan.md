@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase62.stream1.task1",
-  "expectedCommitMessage": "chore: verify exact codeai settings surface",
+  "currentTaskId": "harness-ai.phase63.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -475,11 +475,11 @@
 
 ### Stream: Build And Evidence
 
-132. [IN_PROGRESS] `harness-ai.phase62.stream1.task1` Verify and package the exact CodeAI Settings surface port, then record evidence against the reference screenshots (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify exact codeai settings surface`).
-133. [TODO] Git Commit: `chore: verify exact codeai settings surface` (hash: TBD)
+132. [DONE] `harness-ai.phase62.stream1.task1` Verify and package the exact CodeAI Settings surface port, then record evidence against the reference screenshots (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify exact codeai settings surface`). Result: Completed in commit `chore: verify exact codeai settings surface`.
+133. [DONE] Git Commit: `chore: verify exact codeai settings surface` (hash: self)
 
 ## Phase 63 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Settings Retest
 
-134. [TODO] `harness-ai.phase63.stream1.task1` User retests the exact CodeAI Hub-style Settings surface in the rebuilt app (scope: user workflow; expected commit: none).
+134. [IN_PROGRESS] `harness-ai.phase63.stream1.task1` User retests the exact CodeAI Hub-style Settings surface in the rebuilt app (scope: user workflow; expected commit: none).

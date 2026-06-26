@@ -8,7 +8,7 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase50.stream1.task1",
+  "currentTaskId": "harness-ai.phase52.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -394,4 +394,17 @@
 
 ### Stream: Completed Settings Retest
 
-111. [IN_PROGRESS] `harness-ai.phase50.stream1.task1` User retests completed settings controls and provider session startup through saved settings (scope: user workflow; expected commit: none).
+111. [DONE] `harness-ai.phase50.stream1.task1` User retests completed settings controls and provider session startup through saved settings (scope: user workflow; expected commit: none). Result: User requested carrying CodeAI Hub agent/process instructions into Harness AI before the next session starts from this workspace.
+
+## Phase 51 - Agent Instruction Carryover (owner: Codex, updated: 2026-06-26)
+
+### Stream: Workspace Recovery Rules
+
+112. [DONE] `harness-ai.phase51.stream1.task1` Port the valuable CodeAI Hub AGENTS rules into Harness AI paths and add the missing todo-plan template artifact (scope: `AGENTS.md, .harness/plans/todo-plan.template.md, .harness/plans/todo-plan.md`; expected commit: `docs: align harness ai agent instructions`). Result: Completed in commit `docs: align harness ai agent instructions`.
+113. [DONE] Git Commit: `docs: align harness ai agent instructions` (hash: self)
+
+## Phase 52 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: New Workspace Session Start
+
+114. [IN_PROGRESS] `harness-ai.phase52.stream1.task1` User starts the next session from the Harness AI workspace and verifies AGENTS/planning recovery behavior (scope: user workflow; expected commit: none).

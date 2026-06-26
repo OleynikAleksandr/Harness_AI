@@ -8,8 +8,8 @@
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task1",
-  "expectedCommitMessage": "chore: install harness ai development harness",
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "chore: verify harness ai bootstrap gates",
   "debt": null
 }
 ```
@@ -41,14 +41,14 @@
 
 ### Stream: Local Rules And Checks
 
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task1` Install target-local AGENTS.md, package/tooling config, plan wrapper scripts, and first quality-gate scripts (scope: `AGENTS.md, package.json, tsconfig.json, scripts/**, .harness/plans/todo-plan.md`; expected commit: `chore: install harness ai development harness`).
-4. [TODO] Git Commit: `chore: install harness ai development harness` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream1.task1` Install target-local AGENTS.md, package/tooling config, plan wrapper scripts, Git hooks, and first quality-gate scripts (scope: `AGENTS.md, package.json, tsconfig.json, scripts/**, .husky/**, .harness/plans/todo-plan.md`; expected commit: `chore: install harness ai development harness`). Result: Completed in commit `chore: install harness ai development harness`.
+4. [DONE] Git Commit: `chore: install harness ai development harness` (hash: self)
 
 ## Phase 2 - Bootstrap Gate Verification (owner: Codex, updated: 2026-06-26)
 
 ### Stream: First Clean State
 
-5. [TODO] `harness-ai.phase2.stream1.task1` Run the available target-local checks, record bootstrap evidence, and prepare first implementation planning for the Electron session slice (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify harness ai bootstrap gates`).
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Run the available target-local checks, record bootstrap evidence, and prepare first implementation planning for the Electron session slice (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify harness ai bootstrap gates`).
 6. [TODO] Git Commit: `chore: verify harness ai bootstrap gates` (hash: TBD)
 
 ## Phase 3 - First Release Gate (owner: User, updated: 2026-06-26)

@@ -1,0 +1,22 @@
+{
+  "name": "harness-ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "git config core.hooksPath .husky",
+    "plan:status": "node scripts/plan.mjs status",
+    "plan:validate": "node scripts/plan.mjs validate",
+    "plan:repair": "node scripts/plan.mjs repair",
+    "plan:commit": "node scripts/plan.mjs commit",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "lint": "node scripts/lint.mjs",
+    "typecheck": "node scripts/typecheck.mjs",
+    "test": "node scripts/test.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "check:dup": "node scripts/check-dup.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

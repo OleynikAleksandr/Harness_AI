@@ -7,10 +7,13 @@ Owns session metadata, append-only JSONL history, turn state, and UI session sna
 ## Owned Modules
 
 - `session-registry`
+- `session-request-handler`
+- `provider-session-binding`
+- `session-event-stream`
 - `session-history-store`
 - `turn-lifecycle`
 - `session-snapshot-projector`
 
 ## Facade Rule
 
-Application Shell consumes projected snapshots and sends actions; it does not mutate session files directly.
+Application Shell consumes projected snapshots and sends actions; it does not mutate session files or call providers directly.

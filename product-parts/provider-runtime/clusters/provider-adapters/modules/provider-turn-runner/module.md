@@ -1,8 +1,10 @@
-# Provider Turn Runner Module
+# Legacy Direct Provider Turn Runner Module
 
 ## Responsibility
 
-Dispatch a selected session turn to the concrete provider adapter and return a provider-neutral response.
+Deprecated implementation debt. This module dispatches selected session turns directly to provider CLIs or HTTP APIs and bypasses the CodeAI Hub-style Core/provider adapter path.
+
+Do not extend this module. It remains only until the Application Shell is rewired to Core-owned session dispatch and the provider adapters expose the shared adapter contract.
 
 ## Public Facade
 
@@ -10,14 +12,14 @@ Dispatch a selected session turn to the concrete provider adapter and return a p
 
 ## Inputs
 
-- Provider id.
-- Selected model.
-- User prompt.
+- Historical direct provider id.
+- Historical selected model.
+- Historical user prompt.
 
 ## Outputs
 
-- Provider response text.
-- Provider setup or runtime error text.
+- Historical provider response text.
+- Historical provider setup or runtime error text.
 
 ## Owned Paths
 

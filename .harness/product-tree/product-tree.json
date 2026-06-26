@@ -73,6 +73,9 @@
           "purpose": "Session metadata, JSONL history, turn state, and UI snapshots.",
           "modules": [
             { "id": "session-registry", "name": "Session Registry", "purpose": "Session metadata, create/open/rename operations." },
+            { "id": "session-request-handler", "name": "Session Request Handler", "purpose": "Core-owned create/resume/send/stop routing for session actions." },
+            { "id": "provider-session-binding", "name": "Provider Session Binding", "purpose": "Map Core sessions to provider session ids and binding state." },
+            { "id": "session-event-stream", "name": "Session Event Stream", "purpose": "Provider-neutral Core session events for Application Shell projections." },
             { "id": "session-history-store", "name": "Session History Store", "purpose": "Append-only JSONL session history." },
             { "id": "turn-lifecycle", "name": "Turn Lifecycle", "purpose": "Running/idle/failure state and Stop/Continue boundaries." },
             { "id": "session-snapshot-projector", "name": "Session Snapshot Projector", "purpose": "Read model for the Electron session UI." }
@@ -132,6 +135,7 @@
           "name": "Provider Adapters",
           "purpose": "Fresh provider adapter modules for every MVP provider.",
           "modules": [
+            { "id": "provider-adapter-contract", "name": "Provider Adapter Contract", "purpose": "Shared create/resume/send/subscribe/close adapter boundary used by Core." },
             { "id": "claude-provider", "name": "Claude Provider", "purpose": "Claude provider adapter." },
             { "id": "codex-provider", "name": "Codex Provider", "purpose": "Codex provider adapter." },
             { "id": "kimi-provider", "name": "Kimi Provider", "purpose": "Kimi provider adapter." },
@@ -139,7 +143,7 @@
             { "id": "glm-opencode-provider", "name": "GLM OpenCode Provider", "purpose": "GLM OpenCode provider adapter." },
             { "id": "openrouter-provider", "name": "OpenRouter Provider", "purpose": "OpenRouter provider adapter." },
             { "id": "local-models-provider", "name": "Local Models Provider", "purpose": "Local model provider adapter." },
-            { "id": "provider-turn-runner", "name": "Provider Turn Runner", "purpose": "Dispatch selected session turns to the concrete provider adapter." }
+            { "id": "provider-turn-runner", "name": "Legacy Direct Provider Turn Runner", "purpose": "Deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring.", "mvpStatus": "deprecated-to-delete" }
           ]
         },
         {

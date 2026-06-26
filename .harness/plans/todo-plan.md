@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase28.stream1.task2",
-  "expectedCommitMessage": "docs: align provider runtime product tree",
+  "currentTaskId": "harness-ai.phase29.stream1.task1",
+  "expectedCommitMessage": "feat: add core session dispatch boundary",
   "debt": null
 }
 ```
@@ -231,14 +231,14 @@
 
 56. [DONE] `harness-ai.phase28.stream1.task1` Create the CodeAI Hub provider/runtime alignment planning document and reopen the Harness AI execution scope around the reference path (scope: `docs/architecture/CodeAIHubProviderRuntimeAlignment.md, .harness/plans/todo-plan.md`; expected commit: `docs: plan codeai hub provider runtime alignment`). Result: Completed in commit `docs: plan codeai hub provider runtime alignment`.
 57. [DONE] Git Commit: `docs: plan codeai hub provider runtime alignment` (hash: self)
-58. [IN_PROGRESS] `harness-ai.phase28.stream1.task2` Update the product tree and module docs so provider execution is Core-owned and direct provider turn running is implementation debt, not the target architecture (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/**/module.md`; expected commit: `docs: align provider runtime product tree`).
-59. [TODO] Git Commit: `docs: align provider runtime product tree` (hash: TBD)
+58. [DONE] `harness-ai.phase28.stream1.task2` Update the product tree and module docs so provider execution is Core-owned and direct provider turn running is implementation debt, not the target architecture (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/**/module.md, product-parts/**/src/.gitkeep, .harness/plans/todo-plan.md`; expected commit: `docs: align provider runtime product tree`). Result: Completed in commit `docs: align provider runtime product tree`.
+59. [DONE] Git Commit: `docs: align provider runtime product tree` (hash: self)
 
 ## Phase 29 - Core-Owned Session Dispatch (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Session Boundary
 
-60. [TODO] `harness-ai.phase29.stream1.task1` Add the Core session request handler shell, provider session binding contract, and event stream boundary without direct provider execution from UI or Electron host (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/provider-session-binding/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/**`; expected commit: `feat: add core session dispatch boundary`).
+60. [IN_PROGRESS] `harness-ai.phase29.stream1.task1` Add the Core session request handler shell, provider session binding contract, and event stream boundary without direct provider execution from UI or Electron host (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/provider-session-binding/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/**`; expected commit: `feat: add core session dispatch boundary`).
 61. [TODO] Git Commit: `feat: add core session dispatch boundary` (hash: TBD)
 62. [TODO] `harness-ai.phase29.stream1.task2` Rewire Electron IPC and the session UI to create sessions and send messages through the Core session dispatch boundary instead of the direct provider runner (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**`; expected commit: `feat: route session turns through core`).
 63. [TODO] Git Commit: `feat: route session turns through core` (hash: TBD)

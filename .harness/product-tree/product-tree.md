@@ -47,6 +47,9 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 ### Session Runtime
 
 - `session-registry`: session metadata, create/open/rename.
+- `session-request-handler`: Core-owned create/resume/send/stop routing for session actions.
+- `provider-session-binding`: Core session to provider session id and binding state.
+- `session-event-stream`: provider-neutral Core session events for Application Shell projections.
 - `session-history-store`: append-only JSONL history.
 - `turn-lifecycle`: running/idle/failure state, Stop/Continue boundaries.
 - `session-snapshot-projector`: read model for the Electron session UI.
@@ -82,6 +85,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 
 ### Provider Adapters
 
+- `provider-adapter-contract`: shared create/resume/send/subscribe/close adapter boundary used by Core.
 - `claude-provider`: Claude provider adapter.
 - `codex-provider`: Codex provider adapter.
 - `kimi-provider`: Kimi provider adapter.
@@ -89,7 +93,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 - `glm-opencode-provider`: GLM OpenCode provider adapter.
 - `openrouter-provider`: OpenRouter provider adapter.
 - `local-models-provider`: local model provider adapter.
-- `provider-turn-runner`: dispatches selected session turns to the concrete provider adapter.
+- `provider-turn-runner`: deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring.
 
 ### Provider Home And Auth
 

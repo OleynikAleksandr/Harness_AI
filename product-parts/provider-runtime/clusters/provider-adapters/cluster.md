@@ -6,6 +6,7 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 
 ## Owned Modules
 
+- `provider-adapter-contract`
 - `claude-provider`
 - `codex-provider`
 - `kimi-provider`
@@ -13,8 +14,8 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `glm-opencode-provider`
 - `openrouter-provider`
 - `local-models-provider`
-- `provider-turn-runner`
+- `provider-turn-runner` (deprecated direct dispatch debt until Core-owned dispatch replaces current UI wiring)
 
 ## Facade Rule
 
-Adapters expose provider facades and hide protocol-specific process, SDK, stream, and request details.
+Adapters expose the shared provider adapter contract and hide protocol-specific process, SDK, stream, and request details.

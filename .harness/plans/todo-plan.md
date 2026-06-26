@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase35.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase37.stream1.task1",
+  "expectedCommitMessage": "chore: verify packaged provider home",
   "debt": null
 }
 ```
@@ -287,4 +287,24 @@
 
 ### Stream: Provider Dialog Retest
 
-79. [IN_PROGRESS] `harness-ai.phase35.stream1.task1` User retests creating a session and sending a first message through each configured provider (scope: user workflow; expected commit: none).
+79. [TODO] `harness-ai.phase35.stream1.task1` User retests creating a session and sending a first message through each configured provider (scope: user workflow; expected commit: none). Continuation note: packaged Codex startup exposed provider home resolution under `app.asar`; hotfix follows.
+
+## Phase 36 - Packaged Provider Home Hotfix (owner: Codex, updated: 2026-06-26)
+
+### Stream: Runtime Writable Paths
+
+80. [DONE] `harness-ai.phase36.stream1.task1` Prevent packaged provider runtime from using `app.asar` as a provider home workspace root and keep Codex app-server startup on writable paths (scope: `product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, .harness/plans/todo-plan.md`; expected commit: `fix: resolve packaged provider home`). Result: Completed in commit `fix: resolve packaged provider home`.
+81. [DONE] Git Commit: `fix: resolve packaged provider home` (hash: self)
+
+## Phase 37 - Packaged Provider Home Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Smoke
+
+82. [IN_PROGRESS] `harness-ai.phase37.stream1.task1` Rebuild runtime/macOS app, verify packaged startup no longer resolves provider home inside `app.asar`, and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify packaged provider home`).
+83. [TODO] Git Commit: `chore: verify packaged provider home` (hash: TBD)
+
+## Phase 38 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: Provider Dialog Retest
+
+84. [TODO] `harness-ai.phase38.stream1.task1` User retests creating a session and sending a first message through each configured provider after packaged provider home fix (scope: user workflow; expected commit: none).

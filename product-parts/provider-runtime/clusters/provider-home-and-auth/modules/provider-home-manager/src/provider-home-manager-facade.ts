@@ -20,7 +20,7 @@ const SUMMARY_LINE_RE = /^\s*model_reasoning_summary\s*=\s*.+?$/gmu;
 
 export class ProviderHomeManagerFacade {
   resolveProviderHome(request: ProviderHomeRequest): string {
-    if (request.workspacePath) {
+    if (request.workspacePath && !request.workspacePath.includes(".asar")) {
       return path.join(
         request.workspacePath,
         ".harness",

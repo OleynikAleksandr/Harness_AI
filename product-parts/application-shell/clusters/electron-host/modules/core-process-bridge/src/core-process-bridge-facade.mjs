@@ -9,7 +9,7 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     return bridge;
   }
   const runtime = await loadRuntime(repositoryRoot);
-  registerProviderAdapters(runtime, repositoryRoot);
+  registerProviderAdapters(runtime);
   let activeWebContents = null;
   runtime.sessionEventStreamFacade.subscribe((event) => {
     if (!activeWebContents || activeWebContents.isDestroyed()) {
@@ -41,6 +41,7 @@ async function loadRuntime(repositoryRoot) {
   const [
     sessionRequest,
     sessionEvents,
+    workspaceRegistry,
     providerRegistry,
     settingsStore,
     claude,
@@ -56,6 +57,9 @@ async function loadRuntime(repositoryRoot) {
     ),
     importRuntime(
       "core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js"
+    ),
+    importRuntime(
+      "core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js"
     ),
     importRuntime(
       "provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js"
@@ -88,6 +92,7 @@ async function loadRuntime(repositoryRoot) {
   return {
     ...sessionRequest,
     ...sessionEvents,
+    ...workspaceRegistry,
     ...providerRegistry,
     ...settingsStore,
     ...claude,
@@ -100,9 +105,10 @@ async function loadRuntime(repositoryRoot) {
   };
 }
 
-function registerProviderAdapters(runtime, repositoryRoot) {
+function registerProviderAdapters(runtime) {
   const model = (providerId) =>
     runtime.settingsStoreFacade.getProviderModel(providerId).selectedModel;
+  const workspacePath = runtime.workspaceRegistryFacade.getActiveWorkspace().path;
   runtime.providerRegistryFacade.registerAdapter(
     "claude",
     new runtime.ClaudeProviderFacade(model("claude"))
@@ -111,7 +117,7 @@ function registerProviderAdapters(runtime, repositoryRoot) {
     "codex",
     new runtime.CodexProviderFacade({
       defaultModel: model("codex"),
-      workspacePath: repositoryRoot
+      workspacePath
     })
   );
   runtime.providerRegistryFacade.registerAdapter(

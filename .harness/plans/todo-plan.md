@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase40.stream1.task1",
-  "expectedCommitMessage": "feat: expose provider settings ipc",
+  "currentTaskId": "harness-ai.phase41.stream1.task1",
+  "expectedCommitMessage": "feat: add glm native settings ui",
   "debt": null
 }
 ```
@@ -320,14 +320,14 @@
 
 ### Stream: Renderer Bridge
 
-87. [IN_PROGRESS] `harness-ai.phase40.stream1.task1` Expose provider system settings read/write from Electron preload to the renderer (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider settings ipc`).
-88. [TODO] Git Commit: `feat: expose provider settings ipc` (hash: TBD)
+87. [DONE] `harness-ai.phase40.stream1.task1` Expose provider system settings read/write from Electron preload to the renderer (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider settings ipc`). Result: Completed in commit `feat: expose provider settings ipc`.
+88. [DONE] Git Commit: `feat: expose provider settings ipc` (hash: self)
 
 ## Phase 41 - GLM Native Settings UI (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Minimal Settings Panel
 
-89. [TODO] `harness-ai.phase41.stream1.task1` Add a minimal in-app Settings panel for GLM Native API key, base URL, and default model so the provider can be tested before full settings architecture (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add glm native settings ui`).
+89. [IN_PROGRESS] `harness-ai.phase41.stream1.task1` Add a minimal in-app Settings panel for GLM Native API key, base URL, and default model so the provider can be tested before full settings architecture (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add glm native settings ui`).
 90. [TODO] Git Commit: `feat: add glm native settings ui` (hash: TBD)
 
 ## Phase 42 - GLM Native Settings Verification (owner: Codex, updated: 2026-06-26)

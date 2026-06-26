@@ -1,0 +1,14 @@
+# Harness AI
+
+Harness AI is a standalone Electron application for software-product development through a classic chat surface and a strict Product Part / Cluster / Module architecture tree.
+
+This repository is intentionally new. CodeAI Hub is reference material only; Harness AI modules are written fresh under `product-parts/**`.
+
+## Bootstrap Status
+
+- Product tree source: `.harness/product-tree/product-tree.json`.
+- Human projection: `.harness/product-tree/product-tree.md`.
+- Active local plan: `.harness/plans/todo-plan.md`.
+- Production code root: `product-parts/**`.
+
+MVP starts with the workspace skeleton, then installs the local development harness, then implements the first runnable Electron session slice.

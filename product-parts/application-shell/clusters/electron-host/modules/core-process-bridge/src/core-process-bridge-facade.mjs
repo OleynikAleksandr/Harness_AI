@@ -23,6 +23,9 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:create-session", (_event, request) =>
     runtime.sessionRequestHandlerFacade.createSession(request)
   );
+  ipcMain.handle("harness-ai:core:get-settings", () =>
+    runtime.settingsStoreFacade.getSettings(activeWorkspacePath(runtime))
+  );
   ipcMain.handle("harness-ai:core:get-provider-system-settings", (_event, providerId) =>
     isProviderId(providerId)
       ? runtime.providerAuthStoreFacade.getProviderSettings(providerId)
@@ -37,6 +40,21 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
       request.settings ?? {}
     );
     registerProviderAdapter(runtime, request.providerId);
+    return { ok: true, settings };
+  });
+  ipcMain.handle("harness-ai:core:reset-workspace-settings", () => {
+    const settings = runtime.settingsStoreFacade.resetWorkspaceSettings(
+      activeWorkspacePath(runtime)
+    );
+    registerProviderAdapters(runtime);
+    return { ok: true, settings };
+  });
+  ipcMain.handle("harness-ai:core:save-settings", (_event, request) => {
+    const settings = runtime.settingsStoreFacade.saveSettings(
+      request?.settings ?? request,
+      activeWorkspacePath(runtime)
+    );
+    registerProviderAdapters(runtime);
     return { ok: true, settings };
   });
   ipcMain.handle("harness-ai:core:send-message", (_event, request) =>
@@ -143,10 +161,10 @@ const PROVIDER_IDS = [
 ];
 
 function registerProviderAdapter(runtime, providerId) {
+  const workspacePath = activeWorkspacePath(runtime);
   const model = (providerId) =>
-    runtime.providerAuthStoreFacade.getModel(providerId) ??
-    runtime.settingsStoreFacade.getProviderModel(providerId).selectedModel;
-  const workspacePath = runtime.workspaceRegistryFacade.getActiveWorkspace().path;
+    runtime.settingsStoreFacade.getProviderModel(providerId, workspacePath)
+      .selectedModel ?? runtime.providerAuthStoreFacade.getModel(providerId);
   if (providerId === "claude") {
     runtime.providerRegistryFacade.registerAdapter(
       providerId,
@@ -196,4 +214,8 @@ function registerProviderAdapter(runtime, providerId) {
 
 function isProviderId(value) {
   return PROVIDER_IDS.includes(value);
+}
+
+function activeWorkspacePath(runtime) {
+  return runtime.workspaceRegistryFacade.getActiveWorkspace().path;
 }

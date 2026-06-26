@@ -3,9 +3,14 @@
 interface ProviderSystemSettings {
   apiKey?: string;
   baseUrl?: string;
+  configPath?: string;
   defaultModel?: string;
+  endpointTag?: string;
   model?: string;
 }
+
+type HarnessSettings =
+  import("../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js").HarnessSettings;
 
 interface Window {
   harnessCore?: {
@@ -13,6 +18,7 @@ interface Window {
       | { ok: true; session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession }
       | { error: string; ok: false }
     >;
+    getSettings(): Promise<HarnessSettings>;
     getProviderSystemSettings(providerId: string): Promise<ProviderSystemSettings>;
     listProviders(): Promise<
       import("../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js").ProviderDescriptor[]
@@ -27,6 +33,16 @@ interface Window {
       settings: ProviderSystemSettings;
     }): Promise<
       | { ok: true; settings: ProviderSystemSettings }
+      | { error: string; ok: false }
+    >;
+    resetWorkspaceSettings(): Promise<
+      | { ok: true; settings: HarnessSettings }
+      | { error: string; ok: false }
+    >;
+    saveSettings(request: {
+      settings: HarnessSettings;
+    }): Promise<
+      | { ok: true; settings: HarnessSettings }
       | { error: string; ok: false }
     >;
     sendMessage(request: unknown): Promise<

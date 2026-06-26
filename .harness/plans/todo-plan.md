@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase47.stream1.task1",
-  "expectedCommitMessage": "chore: verify project manager settings surface",
+  "currentTaskId": "harness-ai.phase48.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -372,11 +372,11 @@
 
 ### Stream: Build And Package
 
-104. [IN_PROGRESS] `harness-ai.phase47.stream1.task1` Verify architecture, typecheck, tests, renderer build, unsigned macOS packaging, and settings persistence evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify project manager settings surface`).
-105. [TODO] Git Commit: `chore: verify project manager settings surface` (hash: TBD)
+104. [DONE] `harness-ai.phase47.stream1.task1` Verify architecture, typecheck, tests, renderer build, unsigned macOS packaging, and settings persistence evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify project manager settings surface`). Result: Completed in commit `chore: verify project manager settings surface`.
+105. [DONE] Git Commit: `chore: verify project manager settings surface` (hash: self)
 
 ## Phase 48 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
 
 ### Stream: Settings Retest
 
-106. [TODO] `harness-ai.phase48.stream1.task1` User retests the Project Manager-style settings surface and provider session startup through saved settings (scope: user workflow; expected commit: none).
+106. [IN_PROGRESS] `harness-ai.phase48.stream1.task1` User retests the Project Manager-style settings surface and provider session startup through saved settings (scope: user workflow; expected commit: none).

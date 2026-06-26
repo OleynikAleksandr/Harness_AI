@@ -5,11 +5,11 @@
 {
   "schema": "harness-ai-plan-v1",
   "executionScopeStatus": "ACTIVE",
-  "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
+  "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase43.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase45.stream1.task1",
+  "expectedCommitMessage": "feat: add project manager settings store",
   "debt": null
 }
 ```
@@ -341,4 +341,42 @@
 
 ### Stream: Provider Dialog Retest
 
-93. [IN_PROGRESS] `harness-ai.phase43.stream1.task1` User retests creating sessions and sending a first message through each configured provider after GLM Native settings are available (scope: user workflow; expected commit: none).
+93. [DONE] `harness-ai.phase43.stream1.task1` User retests creating sessions and sending a first message through each configured provider after GLM Native settings are available (scope: user workflow; expected commit: none). Result: GLM Native settings path works; user requested full Project Manager settings parity next.
+
+## Phase 44 - Project Manager Settings Parity Planning (owner: Codex, updated: 2026-06-26)
+
+### Stream: Reference Scope
+
+94. [DONE] `harness-ai.phase44.stream1.task1` Define the Harness AI settings parity scope from CodeAI Hub Project Manager and prevent local CodeAI runtime residue from entering planned commits/checks (scope: `.gitignore, scripts/check-architecture.mjs, docs/architecture/ProjectManagerSettingsParity.md, .harness/plans/todo-plan.md`; expected commit: `docs: plan project manager settings parity`). Result: Completed in commit `docs: plan project manager settings parity`.
+95. [DONE] Git Commit: `docs: plan project manager settings parity` (hash: self)
+
+## Phase 45 - Settings Persistence And IPC (owner: Codex, updated: 2026-06-26)
+
+### Stream: Core Settings Contract
+
+96. [IN_PROGRESS] `harness-ai.phase45.stream1.task1` Add a Project Manager-style settings snapshot, defaults, system/workspace persistence, and provider auth compatibility in Core Runtime (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: add project manager settings store`).
+97. [TODO] Git Commit: `feat: add project manager settings store` (hash: TBD)
+98. [TODO] `harness-ai.phase45.stream1.task2` Expose full settings load/save/reset operations through the Electron Core bridge and preload contract (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: expose full settings ipc`).
+99. [TODO] Git Commit: `feat: expose full settings ipc` (hash: TBD)
+
+## Phase 46 - Project Manager Settings Surface (owner: Codex, updated: 2026-06-26)
+
+### Stream: Renderer Settings UI
+
+100. [TODO] `harness-ai.phase46.stream1.task1` Build the Project Manager-style Settings modal with provider tabs, General localization/core controls, and excluded voice/response/native-capture options (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/settings-surface/modules/localization-settings-ui/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: add project manager settings surface`).
+101. [TODO] Git Commit: `feat: add project manager settings surface` (hash: TBD)
+102. [TODO] `harness-ai.phase46.stream1.task2` Replace the temporary GLM-only settings panel in the session window with the full settings surface (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: open full settings surface from session`).
+103. [TODO] Git Commit: `feat: open full settings surface from session` (hash: TBD)
+
+## Phase 47 - Settings Surface Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+104. [TODO] `harness-ai.phase47.stream1.task1` Verify architecture, typecheck, tests, renderer build, unsigned macOS packaging, and settings persistence evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify project manager settings surface`).
+105. [TODO] Git Commit: `chore: verify project manager settings surface` (hash: TBD)
+
+## Phase 48 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: Settings Retest
+
+106. [TODO] `harness-ai.phase48.stream1.task1` User retests the Project Manager-style settings surface and provider session startup through saved settings (scope: user workflow; expected commit: none).

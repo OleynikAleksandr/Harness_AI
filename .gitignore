@@ -14,6 +14,7 @@ release/
 # Harness runtime state
 .harness/runtime/
 .harness/sessions/*.lock
+.codeai-hub/
 
 # Provider homes, auth, logs, and caches must not be tracked
 .harness/runtime/providers/

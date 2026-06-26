@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 const PRODUCT_TREE_PATH = ".harness/product-tree/product-tree.json";
 const MAX_LINES = 500;
-const SKIP_DIRS = new Set([".git", "dist", "node_modules", "release"]);
+const SKIP_DIRS = new Set([".codeai-hub", ".git", "dist", "node_modules", "release"]);
 const SKIP_PATHS = new Set([".harness/runtime"]);
 
 function readJson(path) {

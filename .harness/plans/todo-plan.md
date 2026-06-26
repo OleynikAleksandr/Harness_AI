@@ -8,8 +8,8 @@
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "chore: add electron react toolchain",
   "debt": null
 }
 ```
@@ -51,8 +51,50 @@
 5. [DONE] `harness-ai.phase2.stream1.task1` Run the available target-local checks, record bootstrap evidence, and prepare first implementation planning for the Electron session slice (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify harness ai bootstrap gates`). Result: Completed in commit `chore: verify harness ai bootstrap gates`.
 6. [DONE] Git Commit: `chore: verify harness ai bootstrap gates` (hash: self)
 
-## Phase 3 - First Release Gate (owner: User, updated: 2026-06-26)
+## Phase 3 - First Electron Session Slice Planning (owner: Codex, updated: 2026-06-26)
+
+### Stream: Implementation Route
+
+7. [DONE] `harness-ai.phase3.stream1.task1` Create the first runnable Electron session slice planning document and expand the target-local implementation phases (scope: `.harness/plans/todo-plan.md, docs/architecture/FirstElectronSessionSlice.md`; expected commit: `docs: plan first electron session slice`). Result: Completed in commit `docs: plan first electron session slice`.
+8. [DONE] Git Commit: `docs: plan first electron session slice` (hash: self)
+
+## Phase 4 - Electron Toolchain (owner: Codex, updated: 2026-06-26)
+
+### Stream: Runtime Dependencies
+
+9. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Install the minimal Electron/React/Vite/TypeScript toolchain and update root config/scripts for dev and build commands (scope: `package.json, package-lock.json, tsconfig.json, vite.config.ts, index.html`; expected commit: `chore: add electron react toolchain`).
+10. [TODO] Git Commit: `chore: add electron react toolchain` (hash: TBD)
+
+## Phase 5 - Core Session Seed (owner: Codex, updated: 2026-06-26)
+
+### Stream: Local Session Snapshot
+
+11. [TODO] `harness-ai.phase5.stream1.task1` Implement the minimal Core-owned workspace/session snapshot seed for the first UI slice (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/**`; expected commit: `feat: seed core session snapshot`).
+12. [TODO] Git Commit: `feat: seed core session snapshot` (hash: TBD)
+
+## Phase 6 - Electron Session UI (owner: Codex, updated: 2026-06-26)
+
+### Stream: Chat Surface
+
+13. [TODO] `harness-ai.phase6.stream1.task1` Implement the first classic chat session UI with sidebar, transcript, telemetry strip, and input controls (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**`; expected commit: `feat: add first session ui slice`).
+14. [TODO] Git Commit: `feat: add first session ui slice` (hash: TBD)
+
+## Phase 7 - Electron Host Wiring (owner: Codex, updated: 2026-06-26)
+
+### Stream: Desktop Launch
+
+15. [TODO] `harness-ai.phase7.stream1.task1` Wire Electron main/preload startup, renderer entry, and VS Code link opening for the first desktop launch (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, product-parts/application-shell/clusters/electron-host/modules/vscode-link-opener/src/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**`; expected commit: `feat: wire electron desktop launch`).
+16. [TODO] Git Commit: `feat: wire electron desktop launch` (hash: TBD)
+
+## Phase 8 - Tooling Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: First Runnable App
+
+17. [TODO] `harness-ai.phase8.stream1.task1` Run the app checks/build, verify the Electron session UI can launch, and record evidence (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify first electron session slice`).
+18. [TODO] Git Commit: `chore: verify first electron session slice` (hash: TBD)
+
+## Phase 9 - First Release Gate (owner: User, updated: 2026-06-26)
 
 ### Stream: Release Decision
 
-7. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation (scope: user workflow; expected commit: none).
+19. [TODO] `harness-ai.phase9.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation (scope: user workflow; expected commit: none).

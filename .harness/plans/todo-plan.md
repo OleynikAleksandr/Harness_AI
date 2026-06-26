@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-codex-node-launch-hotfix-2026-06-26",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase28.stream1.task2",
+  "expectedCommitMessage": "docs: align provider runtime product tree",
   "debt": null
 }
 ```
@@ -224,3 +224,43 @@
 
 54. [DONE] `harness-ai.phase27.stream1.task1` Rebuild the macOS app and record evidence that the packaged provider runner contains the direct Codex Node launch path (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex node launch`). Result: Completed in commit `chore: verify codex node launch`.
 55. [DONE] Git Commit: `chore: verify codex node launch` (hash: self)
+
+## Phase 28 - CodeAI Hub Provider Runtime Alignment (owner: Codex, updated: 2026-06-26)
+
+### Stream: Reference Contract
+
+56. [DONE] `harness-ai.phase28.stream1.task1` Create the CodeAI Hub provider/runtime alignment planning document and reopen the Harness AI execution scope around the reference path (scope: `docs/architecture/CodeAIHubProviderRuntimeAlignment.md, .harness/plans/todo-plan.md`; expected commit: `docs: plan codeai hub provider runtime alignment`). Result: Completed in commit `docs: plan codeai hub provider runtime alignment`.
+57. [DONE] Git Commit: `docs: plan codeai hub provider runtime alignment` (hash: self)
+58. [IN_PROGRESS] `harness-ai.phase28.stream1.task2` Update the product tree and module docs so provider execution is Core-owned and direct provider turn running is implementation debt, not the target architecture (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/**/module.md`; expected commit: `docs: align provider runtime product tree`).
+59. [TODO] Git Commit: `docs: align provider runtime product tree` (hash: TBD)
+
+## Phase 29 - Core-Owned Session Dispatch (owner: Codex, updated: 2026-06-26)
+
+### Stream: Session Boundary
+
+60. [TODO] `harness-ai.phase29.stream1.task1` Add the Core session request handler shell, provider session binding contract, and event stream boundary without direct provider execution from UI or Electron host (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/provider-session-binding/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/**`; expected commit: `feat: add core session dispatch boundary`).
+61. [TODO] Git Commit: `feat: add core session dispatch boundary` (hash: TBD)
+62. [TODO] `harness-ai.phase29.stream1.task2` Rewire Electron IPC and the session UI to create sessions and send messages through the Core session dispatch boundary instead of the direct provider runner (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**`; expected commit: `feat: route session turns through core`).
+63. [TODO] Git Commit: `feat: route session turns through core` (hash: TBD)
+
+## Phase 30 - Provider Adapter Contract (owner: Codex, updated: 2026-06-26)
+
+### Stream: Provider Runtime Boundary
+
+64. [TODO] `harness-ai.phase30.stream1.task1` Add the shared provider adapter contract and registry-owned adapter lookup modeled on CodeAI Hub `createSession/resumeSession/sendMessage/subscribe/closeSession` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/**, product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/**`; expected commit: `feat: add provider adapter contract`).
+65. [TODO] Git Commit: `feat: add provider adapter contract` (hash: TBD)
+66. [TODO] `harness-ai.phase30.stream1.task2` Replace the Codex direct CLI path with a CodeAI Hub-style Codex adapter shell that owns app-server process startup, provider home/auth preparation, and normalized event subscription (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/**`; expected commit: `feat: add codex app server adapter shell`).
+67. [TODO] Git Commit: `feat: add codex app server adapter shell` (hash: TBD)
+
+## Phase 31 - Tooling Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Runtime Alignment Checks
+
+68. [TODO] `harness-ai.phase31.stream1.task1` Run architecture, typecheck, tests, renderer build, and package verification for the Core-owned provider runtime path; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai provider runtime alignment`).
+69. [TODO] Git Commit: `chore: verify codeai provider runtime alignment` (hash: TBD)
+
+## Phase 32 - User Workflow Acceptance (owner: User, updated: 2026-06-26)
+
+### Stream: Provider Session Retest
+
+70. [TODO] `harness-ai.phase32.stream1.task1` User retests session creation and first provider turn through the Core-owned runtime path (scope: user workflow; expected commit: none).

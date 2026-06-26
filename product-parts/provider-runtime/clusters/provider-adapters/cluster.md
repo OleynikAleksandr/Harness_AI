@@ -13,6 +13,7 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `glm-opencode-provider`
 - `openrouter-provider`
 - `local-models-provider`
+- `provider-turn-runner`
 
 ## Facade Rule
 

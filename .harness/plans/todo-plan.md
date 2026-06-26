@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-provider-selection-2026-06-26",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-provider-turn-execution-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase17.stream1.task1",
+  "expectedCommitMessage": "feat: run selected provider turns",
   "debt": null
 }
 ```
@@ -140,3 +140,38 @@
 
 30. [DONE] `harness-ai.phase15.stream1.task1` Verify provider picker build/UI behavior and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider session picker`). Result: Completed in commit `chore: verify provider session picker`.
 31. [DONE] Git Commit: `chore: verify provider session picker` (hash: self)
+
+## Phase 16 - Provider Turn Runner Architecture (owner: Codex, updated: 2026-06-26)
+
+### Stream: Runtime Boundary
+
+32. [DONE] `harness-ai.phase16.stream1.task1` Add the Provider Runtime module boundary for dispatching real provider turns from Electron main (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/provider-runtime/clusters/provider-adapters/cluster.md, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-turn-runner/module.md, .harness/plans/todo-plan.md`; expected commit: `docs: add provider turn runner module`). Result: Completed in commit `docs: add provider turn runner module`.
+33. [DONE] Git Commit: `docs: add provider turn runner module` (hash: self)
+
+## Phase 17 - Provider Turn Runner Implementation (owner: Codex, updated: 2026-06-26)
+
+### Stream: CLI And HTTP Dispatch
+
+34. [IN_PROGRESS] `harness-ai.phase17.stream1.task1` Implement the provider turn runner for CLI-backed providers and HTTP-backed providers using runtime credentials only (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-turn-runner/src/**, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: run selected provider turns`).
+35. [TODO] Git Commit: `feat: run selected provider turns` (hash: TBD)
+
+## Phase 18 - Electron Provider IPC (owner: Codex, updated: 2026-06-26)
+
+### Stream: Main Process Bridge
+
+36. [TODO] `harness-ai.phase18.stream1.task1` Expose provider turn execution from Electron main to the renderer through preload IPC (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: expose provider turn ipc`).
+37. [TODO] Git Commit: `feat: expose provider turn ipc` (hash: TBD)
+
+## Phase 19 - Session UI Provider Execution (owner: Codex, updated: 2026-06-26)
+
+### Stream: Send Message
+
+38. [TODO] `harness-ai.phase19.stream1.task1` Send chat input through the selected provider runner and render real responses or setup errors in the active session (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/session-interface/modules/input-controls/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: send turns to selected provider`).
+39. [TODO] Git Commit: `feat: send turns to selected provider` (hash: TBD)
+
+## Phase 20 - Provider Execution Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Evidence
+
+40. [TODO] `harness-ai.phase20.stream1.task1` Verify build/package and provider execution error/success path, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider turn execution`).
+41. [TODO] Git Commit: `chore: verify provider turn execution` (hash: TBD)

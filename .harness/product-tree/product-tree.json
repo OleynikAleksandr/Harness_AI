@@ -138,7 +138,8 @@
             { "id": "glm-native-provider", "name": "GLM Native Provider", "purpose": "GLM native provider adapter." },
             { "id": "glm-opencode-provider", "name": "GLM OpenCode Provider", "purpose": "GLM OpenCode provider adapter." },
             { "id": "openrouter-provider", "name": "OpenRouter Provider", "purpose": "OpenRouter provider adapter." },
-            { "id": "local-models-provider", "name": "Local Models Provider", "purpose": "Local model provider adapter." }
+            { "id": "local-models-provider", "name": "Local Models Provider", "purpose": "Local model provider adapter." },
+            { "id": "provider-turn-runner", "name": "Provider Turn Runner", "purpose": "Dispatch selected session turns to the concrete provider adapter." }
           ]
         },
         {

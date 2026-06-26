@@ -89,6 +89,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 - `glm-opencode-provider`: GLM OpenCode provider adapter.
 - `openrouter-provider`: OpenRouter provider adapter.
 - `local-models-provider`: local model provider adapter.
+- `provider-turn-runner`: dispatches selected session turns to the concrete provider adapter.
 
 ### Provider Home And Auth
 

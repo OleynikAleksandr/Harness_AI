@@ -57,6 +57,15 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     registerProviderAdapters(runtime);
     return { ok: true, settings };
   });
+  ipcMain.handle("harness-ai:core:restart", () => {
+    runtime.providerRegistryFacade.clearAdapters();
+    registerProviderAdapters(runtime);
+    return {
+      ok: true,
+      providers: runtime.providerRegistryFacade.listProviders(),
+      settings: runtime.settingsStoreFacade.getSettings(activeWorkspacePath(runtime))
+    };
+  });
   ipcMain.handle("harness-ai:core:send-message", (_event, request) =>
     runtime.sessionRequestHandlerFacade.sendMessage(request)
   );

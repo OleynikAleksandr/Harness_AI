@@ -39,6 +39,14 @@ interface Window {
       | { ok: true; settings: HarnessSettings }
       | { error: string; ok: false }
     >;
+    restartCore(): Promise<
+      | {
+          ok: true;
+          providers: import("../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js").ProviderDescriptor[];
+          settings: HarnessSettings;
+        }
+      | { error: string; ok: false }
+    >;
     saveSettings(request: {
       settings: HarnessSettings;
     }): Promise<

@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:save-provider-system-settings", request),
   resetWorkspaceSettings: () =>
     ipcRenderer.invoke("harness-ai:core:reset-workspace-settings"),
+  restartCore: () => ipcRenderer.invoke("harness-ai:core:restart"),
   saveSettings: (request) =>
     ipcRenderer.invoke("harness-ai:core:save-settings", request),
   sendMessage: (request) =>

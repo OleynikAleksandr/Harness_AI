@@ -17,12 +17,18 @@ import {
 
 interface SettingsTabContentProps {
   activeTab: SettingsTabId;
+  coreRestartBusy: boolean;
+  coreRestartStatus: string;
+  onRestartCore: () => void;
   settings: HarnessSettings;
   update: (mutator: (next: HarnessSettings) => void) => void;
 }
 
 export function SettingsTabContent({
   activeTab,
+  coreRestartBusy,
+  coreRestartStatus,
+  onRestartCore,
   settings,
   update
 }: SettingsTabContentProps) {
@@ -31,11 +37,14 @@ export function SettingsTabContent({
       <div className="settings-stack">
         <RecoveryControlsUiFacade
           allowRestart={settings.general.coreControls.allowRestart}
+          busy={coreRestartBusy}
           onAllowRestartChange={(allowRestart) =>
             update((next) => {
               next.general.coreControls.allowRestart = allowRestart;
             })
           }
+          onRestart={onRestartCore}
+          status={coreRestartStatus}
         />
         <LocalizationSettingsUiFacade
           localization={settings.general.localization}

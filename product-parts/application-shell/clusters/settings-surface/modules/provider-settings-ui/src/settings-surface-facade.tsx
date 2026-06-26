@@ -20,6 +20,10 @@ export function ProviderSettingsUiFacade({
   const [activeTab, setActiveTab] = useState<SettingsTabId>("claude");
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [coreRestartBusy, setCoreRestartBusy] = useState(false);
+  const [coreRestartStatus, setCoreRestartStatus] = useState(
+    "Core restart status will appear here."
+  );
   const [settings, setSettings] = useState<HarnessSettings | null>(null);
   const [status, setStatus] = useState("Settings are ready.");
 
@@ -72,7 +76,7 @@ export function ProviderSettingsUiFacade({
 
   const save = async () => {
     if (!settings || !window.harnessCore) {
-      return;
+      return null;
     }
     setBusy(true);
     const result = await window.harnessCore.saveSettings({ settings });
@@ -80,10 +84,36 @@ export function ProviderSettingsUiFacade({
       setSettings(result.settings);
       setDirty(false);
       setStatus("Settings saved.");
+      setBusy(false);
+      return result.settings;
     } else {
       setStatus(result.error);
     }
     setBusy(false);
+    return null;
+  };
+
+  const restartCore = async () => {
+    if (!settings || !window.harnessCore) {
+      return;
+    }
+    setCoreRestartBusy(true);
+    setCoreRestartStatus("Restart requested. Refreshing Core adapters...");
+    const savedSettings = dirty ? await save() : settings;
+    if (!savedSettings) {
+      setCoreRestartStatus("Core restart skipped: settings save failed.");
+      setCoreRestartBusy(false);
+      return;
+    }
+    const result = await window.harnessCore.restartCore();
+    if (result.ok) {
+      setSettings(result.settings);
+      setCoreRestartStatus("Core restart completed.");
+      setStatus("Core adapters refreshed.");
+    } else {
+      setCoreRestartStatus(result.error);
+    }
+    setCoreRestartBusy(false);
   };
 
   const reset = async () => {
@@ -136,6 +166,9 @@ export function ProviderSettingsUiFacade({
             {settings ? (
               <SettingsTabContent
                 activeTab={activeTab}
+                coreRestartBusy={coreRestartBusy}
+                coreRestartStatus={coreRestartStatus}
+                onRestartCore={restartCore}
                 settings={settings}
                 update={update}
               />

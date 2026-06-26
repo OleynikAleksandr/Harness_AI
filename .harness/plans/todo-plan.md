@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase46.stream1.task1",
-  "expectedCommitMessage": "feat: add project manager settings surface",
+  "currentTaskId": "harness-ai.phase46.stream1.task2",
+  "expectedCommitMessage": "feat: open full settings surface from session",
   "debt": null
 }
 ```
@@ -363,9 +363,9 @@
 
 ### Stream: Renderer Settings UI
 
-100. [IN_PROGRESS] `harness-ai.phase46.stream1.task1` Build the Project Manager-style Settings modal with provider tabs, General localization/core controls, and excluded voice/response/native-capture options (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/settings-surface/modules/localization-settings-ui/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: add project manager settings surface`).
-101. [TODO] Git Commit: `feat: add project manager settings surface` (hash: TBD)
-102. [TODO] `harness-ai.phase46.stream1.task2` Replace the temporary GLM-only settings panel in the session window with the full settings surface (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: open full settings surface from session`).
+100. [DONE] `harness-ai.phase46.stream1.task1` Build the Project Manager-style Settings modal with provider tabs, General localization/core controls, and excluded voice/response/native-capture options (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/settings-surface/modules/localization-settings-ui/src/**, product-parts/application-shell/clusters/settings-surface/modules/recovery-controls-ui/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: add project manager settings surface`). Result: Completed in commit `feat: add project manager settings surface`.
+101. [DONE] Git Commit: `feat: add project manager settings surface` (hash: self)
+102. [IN_PROGRESS] `harness-ai.phase46.stream1.task2` Replace the temporary GLM-only settings panel in the session window with the full settings surface (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: open full settings surface from session`).
 103. [TODO] Git Commit: `feat: open full settings surface from session` (hash: TBD)
 
 ## Phase 47 - Settings Surface Verification (owner: Codex, updated: 2026-06-26)

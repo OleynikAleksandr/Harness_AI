@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase75.stream1.task1",
-  "expectedCommitMessage": "chore: verify response mode removal",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -565,5 +565,5 @@
 
 ### Stream: Build And Package
 
-157. [IN_PROGRESS] `harness-ai.phase75.stream1.task1` Verify and package the Settings surface after Response Mode removal (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify response mode removal`).
-158. [TODO] Git Commit: `chore: verify response mode removal` (hash: TBD)
+157. [DONE] `harness-ai.phase75.stream1.task1` Verify and package the Settings surface after Response Mode removal (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify response mode removal`). Result: Completed in commit `chore: verify response mode removal`.
+158. [DONE] Git Commit: `chore: verify response mode removal` (hash: self)

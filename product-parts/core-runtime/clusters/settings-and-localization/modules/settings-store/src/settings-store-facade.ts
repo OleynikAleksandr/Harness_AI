@@ -38,18 +38,12 @@ export interface HarnessSettings {
       reasoningEngineId: string;
       workflowTermsPolicy: LocalizationWorkflowTermsPolicy;
     };
-    nativeRequestCapture: {
-      enabled: boolean;
-    };
     responsePolicy: {
       mode: GeneralResponseMode;
       strictOutput: {
         instructionText: string;
         schemaText: string;
       };
-    };
-    textToSpeech: {
-      rate: number;
     };
   };
   providers: {
@@ -132,6 +126,8 @@ const DEFAULT_STRICT_OUTPUT_INSTRUCTION_TEXT = [
   "",
   "User request:",
 ].join("\n");
+const DEFAULT_GLM_OPENCODE_CONFIG_PATH =
+  "~/.codeai-hub/providers/opencode/config.json";
 const DEFAULT_SETTINGS: HarnessSettings = {
   general: {
     coreControls: { allowRestart: true },
@@ -154,18 +150,12 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       reasoningEngineId: "google-gtx",
       workflowTermsPolicy: "keep_english",
     },
-    nativeRequestCapture: {
-      enabled: false,
-    },
     responsePolicy: {
       mode: "hybrid",
       strictOutput: {
         instructionText: DEFAULT_STRICT_OUTPUT_INSTRUCTION_TEXT,
         schemaText: DEFAULT_STRICT_OUTPUT_SCHEMA_TEXT,
       },
-    },
-    textToSpeech: {
-      rate: 1,
     },
   },
   providers: {
@@ -190,11 +180,11 @@ const DEFAULT_SETTINGS: HarnessSettings = {
     },
     glmOpenCode: {
       ...connectionProvider("zai-coding-plan/glm-5.2", ""),
-      configPath: "",
+      configPath: DEFAULT_GLM_OPENCODE_CONFIG_PATH,
       thinkingDisplaySyncEnabled: true,
     },
     localModels: {
-      defaultModel: "local-model-default",
+      defaultModel: "local-model",
     },
     openRouter: {
       ...connectionProvider(
@@ -298,7 +288,11 @@ function connectionProvider(
 
 function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
   return {
-    general: settings.general,
+    general: {
+      coreControls: settings.general.coreControls,
+      localization: settings.general.localization,
+      responsePolicy: settings.general.responsePolicy,
+    },
     providers: {
       claude: { autoUpdate: settings.providers.claude.autoUpdate },
       codex: { autoUpdate: settings.providers.codex.autoUpdate },

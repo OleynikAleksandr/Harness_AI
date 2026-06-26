@@ -10,6 +10,12 @@ const CODEX_MODEL_IDS = [
   "gpt-5.5",
 ];
 const KIMI_MODEL_IDS = ["kimi-k2.7-code", "kimi-k2.7-code-highspeed"];
+const GLM_OPENCODE_MODEL_IDS = [
+  "zai-coding-plan/glm-5.2",
+  "kimi-for-coding/k2p7",
+];
+const DEFAULT_GLM_OPENCODE_CONFIG_PATH =
+  "~/.codeai-hub/providers/opencode/config.json";
 
 export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   const next = structuredClone(settings);
@@ -26,6 +32,14 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   }
   if (!KIMI_MODEL_IDS.includes(next.providers.kimi.defaultModel)) {
     next.providers.kimi.defaultModel = "kimi-k2.7-code";
+  }
+  if (
+    !GLM_OPENCODE_MODEL_IDS.includes(next.providers.glmOpenCode.defaultModel)
+  ) {
+    next.providers.glmOpenCode.defaultModel = "zai-coding-plan/glm-5.2";
+  }
+  if (!next.providers.glmOpenCode.configPath.trim()) {
+    next.providers.glmOpenCode.configPath = DEFAULT_GLM_OPENCODE_CONFIG_PATH;
   }
   return next;
 }

@@ -82,11 +82,13 @@ export function SettingsTextField({
   label,
   onChange,
   password = false,
+  placeholder,
   value,
 }: {
   label: string;
   onChange: (value: string) => void;
   password?: boolean;
+  placeholder?: string;
   value: string;
 }) {
   return (
@@ -94,6 +96,7 @@ export function SettingsTextField({
       <span>{label}</span>
       <input
         onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
         type={password ? "password" : "text"}
         value={value}
       />

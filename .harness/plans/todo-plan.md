@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase67.stream1.task1",
+  "expectedCommitMessage": "chore: verify local models and opencode settings",
   "debt": null
 }
 ```
@@ -497,3 +497,17 @@
 
 137. [DONE] `harness-ai.phase65.stream1.task1` Verify and package the exact CodeAI Hub provider Settings tab port for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai settings provider tabs`). Result: Completed in commit `chore: verify codeai settings provider tabs`.
 138. [DONE] Git Commit: `chore: verify codeai settings provider tabs` (hash: self)
+
+## Phase 66 - CodeAI Settings Local Models And OpenCode Alignment (owner: Codex, updated: 2026-06-26)
+
+### Stream: Settings Surface
+
+139. [DONE] `harness-ai.phase66.stream1.task1` Remove Text-to-Speech and Provider Native Request Capture from General, port CodeAI Hub Local Models behavior from LM Studio discovery, and correct OpenCode Settings content against the reference implementation (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, product-parts/provider-runtime/**`; expected commit: `feat: align codeai settings local models and opencode`). Result: Completed in commit `feat: align codeai settings local models and opencode`.
+140. [DONE] Git Commit: `feat: align codeai settings local models and opencode` (hash: self)
+
+## Phase 67 - Local Models And OpenCode Settings Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+141. [IN_PROGRESS] `harness-ai.phase67.stream1.task1` Verify and package the Settings changes for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify local models and opencode settings`).
+142. [TODO] Git Commit: `chore: verify local models and opencode settings` (hash: TBD)

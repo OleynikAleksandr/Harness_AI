@@ -315,6 +315,13 @@
   color: #8f8f8f;
 }
 
+.settings-muted {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a8b3bf;
+}
+
 .settings-version-warning {
   padding: 8px 10px;
   font-size: 12px;

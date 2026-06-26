@@ -14,7 +14,7 @@ export interface ProviderVersionsSnapshot {
   checkedAt: string;
   claude: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
   codex: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
-  glmOpenCode?: { cli: ProviderVersionEntry };
+  glmOpenCode?: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
 }
 
 export function ProviderVersionsCard({
@@ -185,6 +185,12 @@ function versionRows(
         label: "OpenCode CLI",
         latestVersion: snapshot.glmOpenCode.cli.latestVersion,
         target: "cli" as const,
+      },
+      {
+        currentVersion: snapshot.glmOpenCode.sdk.currentVersion,
+        label: "OpenCode SDK",
+        latestVersion: snapshot.glmOpenCode.sdk.latestVersion,
+        target: "sdk" as const,
       },
     ];
   }

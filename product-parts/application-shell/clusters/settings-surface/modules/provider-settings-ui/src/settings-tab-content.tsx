@@ -1,4 +1,6 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
+import { OpenCodeSettingsCard } from "./opencode-settings-card.js";
 import {
   ProviderVersionsCard,
   type ProviderVersionsSnapshot,
@@ -24,6 +26,7 @@ interface SettingsTabContentProps {
   activeTab: SettingsTabId;
   coreRestartBusy: boolean;
   coreRestartStatus: string;
+  localModels: readonly string[];
   onOpenGlossary: () => void;
   onRestartCore: () => void;
   onUpdateProvider: (
@@ -45,6 +48,7 @@ export function SettingsTabContent({
   onOpenGlossary,
   onRestartCore,
   onUpdateProvider,
+  localModels,
   settings,
   update,
   versionError,
@@ -270,29 +274,14 @@ export function SettingsTabContent({
     const provider = settings.providers.glmOpenCode;
     return (
       <div className="settings-reference-stack">
-        <ConnectionProviderSettings
-          apiKey={provider.apiKey}
-          baseUrl={provider.baseUrl}
-          model={provider.defaultModel}
-          modelOptions={PROVIDER_MODEL_OPTIONS.glmOpenCode}
-          onChange={(patch) =>
+        <OpenCodeSettingsCard
+          onSettingsChange={(nextSettings) =>
             update((next) => {
-              Object.assign(next.providers.glmOpenCode, patch);
+              next.providers.glmOpenCode = nextSettings;
             })
           }
-          title="OpenCode"
+          settings={provider}
         />
-        <SettingsCard title="OpenCode Config">
-          <SettingsTextField
-            label="Config Path"
-            onChange={(configPath) =>
-              update((next) => {
-                next.providers.glmOpenCode.configPath = configPath;
-              })
-            }
-            value={provider.configPath}
-          />
-        </SettingsCard>
         <ProviderVersionsCard
           autoUpdate={false}
           error={versionError}
@@ -309,17 +298,15 @@ export function SettingsTabContent({
 
   if (activeTab === "localModels") {
     return (
-      <SettingsCard title="Local Models">
-        <SettingsTextField
-          label="Default Model"
-          onChange={(defaultModel) =>
-            update((next) => {
-              next.providers.localModels.defaultModel = defaultModel;
-            })
-          }
-          value={settings.providers.localModels.defaultModel}
-        />
-      </SettingsCard>
+      <LocalModelsSettingsCard
+        defaultModel={settings.providers.localModels.defaultModel}
+        models={localModels}
+        onDefaultModelChange={(defaultModel) =>
+          update((next) => {
+            next.providers.localModels.defaultModel = defaultModel;
+          })
+        }
+      />
     );
   }
 

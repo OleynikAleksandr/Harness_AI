@@ -29,6 +29,13 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:get-settings", () =>
     runtime.settingsStoreFacade.getSettings(activeWorkspacePath(runtime))
   );
+  ipcMain.handle("harness-ai:core:get-local-models", async () => {
+    try {
+      return { models: await loadLocalModels(), ok: true };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
+  });
   ipcMain.handle("harness-ai:core:get-provider-versions", async () => {
     try {
       return { ok: true, versions: await loadProviderVersions() };
@@ -274,20 +281,48 @@ const PROVIDER_PACKAGE_MAP = {
     cli: "@openai/codex",
     sdk: "@openai/codex-sdk",
   },
+  glmOpenCode: {
+    sdk: "@opencode-ai/sdk",
+  },
 };
+const OPENCODE_VERSION_COMMAND =
+  process.platform === "win32"
+    ? "opencode.cmd --version"
+    : "opencode --version";
+const VERSION_PATTERN = /\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/u;
 
 async function loadProviderVersions() {
-  const [claudeCli, claudeSdk, codexCli, codexSdk] = await Promise.all([
-    readPackageVersion(PROVIDER_PACKAGE_MAP.claude.cli),
-    readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
-    readPackageVersion(PROVIDER_PACKAGE_MAP.codex.cli),
-    readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
-  ]);
+  const [claudeCli, claudeSdk, codexCli, codexSdk, openCodeCli, openCodeSdk] =
+    await Promise.all([
+      readPackageVersion(PROVIDER_PACKAGE_MAP.claude.cli),
+      readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.cli),
+      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
+      readCommandPackageVersion("opencode", OPENCODE_VERSION_COMMAND),
+      readPackageVersion(PROVIDER_PACKAGE_MAP.glmOpenCode.sdk),
+    ]);
   return {
     checkedAt: new Date().toISOString(),
     claude: { cli: claudeCli, sdk: claudeSdk },
     codex: { cli: codexCli, sdk: codexSdk },
+    glmOpenCode: { cli: openCodeCli, sdk: openCodeSdk },
   };
+}
+
+async function loadLocalModels() {
+  if (typeof fetch !== "function") {
+    return [];
+  }
+  const response = await fetch("http://127.0.0.1:1234/v1/models");
+  if (!response.ok) {
+    return [];
+  }
+  const payload = await response.json();
+  return Array.isArray(payload?.data)
+    ? payload.data
+        .map((model) => (typeof model?.id === "string" ? model.id : null))
+        .filter(Boolean)
+    : [];
 }
 
 async function readPackageVersion(packageName) {
@@ -300,6 +335,29 @@ async function readPackageVersion(packageName) {
     latestVersion,
     packageName,
   };
+}
+
+async function readCommandPackageVersion(packageName, command) {
+  const [currentVersion, latestVersion] = await Promise.all([
+    readCommandVersion(command),
+    readLatestVersion(PROVIDER_PACKAGE_MAP.glmOpenCode.sdk),
+  ]);
+  return {
+    currentVersion,
+    latestVersion,
+    packageName,
+  };
+}
+
+async function readCommandVersion(command) {
+  try {
+    const { stdout } = await execAsync(command, {
+      maxBuffer: EXEC_MAX_BUFFER_BYTES,
+    });
+    return stdout.match(VERSION_PATTERN)?.[0] ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function readInstalledVersion(packageName) {

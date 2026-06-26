@@ -22,7 +22,7 @@ interface ProviderVersionsSnapshot {
   checkedAt: string;
   claude: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
   codex: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
-  glmOpenCode?: { cli: ProviderVersionEntry };
+  glmOpenCode?: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
 }
 
 interface Window {
@@ -35,6 +35,9 @@ interface Window {
       | { error: string; ok: false }
     >;
     getSettings(): Promise<HarnessSettings>;
+    getLocalModels(): Promise<
+      { models: string[]; ok: true } | { error: string; ok: false }
+    >;
     getProviderSystemSettings(
       providerId: string
     ): Promise<ProviderSystemSettings>;

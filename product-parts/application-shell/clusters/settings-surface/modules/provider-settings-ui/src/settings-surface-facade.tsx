@@ -33,6 +33,7 @@ export function ProviderSettingsUiFacade({
   const [versionUpdatingTargets, setVersionUpdatingTargets] = useState<
     string[]
   >([]);
+  const [localModels, setLocalModels] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -61,6 +62,22 @@ export function ProviderSettingsUiFacade({
           setBusy(false);
         }
       });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!(isOpen && window.harnessCore)) {
+      return;
+    }
+    let cancelled = false;
+    window.harnessCore.getLocalModels().then((result) => {
+      if (cancelled) {
+        return;
+      }
+      setLocalModels(result.ok ? result.models : []);
+    });
     return () => {
       cancelled = true;
     };
@@ -246,6 +263,7 @@ export function ProviderSettingsUiFacade({
                 activeTab={activeTab}
                 coreRestartBusy={coreRestartBusy}
                 coreRestartStatus={coreRestartStatus}
+                localModels={localModels}
                 onOpenGlossary={openGlossary}
                 onRestartCore={restartCore}
                 onUpdateProvider={updateProvider}

@@ -226,28 +226,6 @@ export function ReferenceGeneralSettings({
         </div>
       </SettingsCard>
 
-      <SettingsCard title="Text-to-Speech">
-        <p className="settings-description">
-          Control how fast message bubbles are read aloud.
-        </p>
-        <label className="settings-range-row">
-          <span>Speech speed</span>
-          <input
-            max={2}
-            min={0.75}
-            onChange={(event) =>
-              update((next) => {
-                next.general.textToSpeech.rate = Number(event.target.value);
-              })
-            }
-            step={0.05}
-            type="range"
-            value={general.textToSpeech.rate}
-          />
-          <output>{general.textToSpeech.rate.toFixed(2)}x</output>
-        </label>
-      </SettingsCard>
-
       <SettingsCard title="Core Controls">
         <p className="settings-description">
           Restart the CodeAI Hub core to trigger a fresh CLI detection cycle.
@@ -263,23 +241,6 @@ export function ReferenceGeneralSettings({
           </SettingsButton>
           <span className="settings-core-status">{coreRestartStatus}</span>
         </div>
-      </SettingsCard>
-
-      <SettingsCard title="Provider Native Request Capture">
-        <p className="settings-description">
-          Open the detached Capture Workbench to run managed snapshots and
-          compare captured native requests.
-        </p>
-        <SettingsToggle
-          checked={general.nativeRequestCapture.enabled}
-          description="Capture Workbench is available from Project Manager workspaces."
-          label="Enable request capture launcher"
-          onChange={(enabled) =>
-            update((next) => {
-              next.general.nativeRequestCapture.enabled = enabled;
-            })
-          }
-        />
       </SettingsCard>
     </div>
   );

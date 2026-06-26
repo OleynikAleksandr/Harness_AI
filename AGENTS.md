@@ -74,19 +74,24 @@
 
 - Никогда не обходи Husky hooks и quality gates через `--no-verify`.
 - Commit gates:
-  - `.husky/pre-commit`: `npm run check:architecture`, `npm run lint`, `npm run typecheck`, `npm test`
+  - `.husky/pre-commit`: `npm run plan:validate`, staged `npx ultracite fix`, `npm run check:architecture`, `npm run lint`, `npm run check:knip`, `npm run typecheck`, `npm test`
   - `.husky/commit-msg`: `node scripts/plan.mjs validate-commit-message "$1"`
   - `.husky/post-commit`: `node scripts/plan.mjs post-commit`
 - Push gates:
-  - `.husky/pre-push`: `npm run check:links`, `npm run check:dup`
+  - `.husky/pre-push`: `npm run plan:validate`, `npm run check:dup`, `npm run check:security`, `npm run check:links`
 - Ручной прогон нужен для диагностики и перед verification streams:
   ```bash
   npm run check:architecture
   npm run lint
+  npm run check:knip
   npm run typecheck
   npm test
+  npm run check:dup
+  npm run check:security
+  npm run check:links
   npm run build
   ```
+- `npm run quality` выполняет основной локальный пакет: architecture, Ultracite, Knip, typecheck и tests.
 
 ## 7. UI И Electron Safety
 

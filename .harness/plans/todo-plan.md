@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase53.stream1.task2",
-  "expectedCommitMessage": "chore: wire codeai quality hooks",
+  "currentTaskId": "harness-ai.phase54.stream1.task1",
+  "expectedCommitMessage": "chore: verify codeai quality gates",
   "debt": null
 }
 ```
@@ -415,14 +415,14 @@
 
 115. [DONE] `harness-ai.phase53.stream1.task1` Add CodeAI Hub quality gate tooling/config and apply the first Ultracite normalization required by the transferred gate set (scope: `package.json, package-lock.json, biome.jsonc, knip.json, .harness/plans/todo-plan.md, product-parts/**, scripts/**, tsconfig*.json, vite.config.ts, index.html`; expected commit: `chore: add codeai quality gate tooling`). Result: Completed in commit `chore: add codeai quality gate tooling`.
 116. [DONE] Git Commit: `chore: add codeai quality gate tooling` (hash: self)
-117. [IN_PROGRESS] `harness-ai.phase53.stream1.task2` Wire CodeAI Hub-style pre-commit/pre-push hooks and AGENTS rules to the real Harness quality gates (scope: `.husky/pre-commit, .husky/pre-push, AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `chore: wire codeai quality hooks`).
-118. [TODO] Git Commit: `chore: wire codeai quality hooks` (hash: TBD)
+117. [DONE] `harness-ai.phase53.stream1.task2` Wire CodeAI Hub-style pre-commit/pre-push hooks and AGENTS rules to the real Harness quality gates (scope: `.husky/pre-commit, .husky/pre-push, AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `chore: wire codeai quality hooks`). Result: Completed in commit `chore: wire codeai quality hooks`.
+118. [DONE] Git Commit: `chore: wire codeai quality hooks` (hash: self)
 
 ## Phase 54 - Quality Gate Verification (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Gate Evidence
 
-119. [TODO] `harness-ai.phase54.stream1.task1` Run the transferred quality gates and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai quality gates`).
+119. [IN_PROGRESS] `harness-ai.phase54.stream1.task1` Run the transferred quality gates and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codeai quality gates`).
 120. [TODO] Git Commit: `chore: verify codeai quality gates` (hash: TBD)
 
 ## Phase 55 - User Workflow Acceptance (owner: User, updated: 2026-06-26)

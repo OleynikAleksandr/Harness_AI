@@ -10,7 +10,8 @@
     "dev": "node scripts/dev-electron.mjs",
     "dev:renderer": "vite --host 127.0.0.1",
     "electron:start": "npm run build && electron product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
-    "build": "npm run typecheck && vite build",
+    "build": "npm run typecheck && npm run build:runtime && vite build",
+    "build:runtime": "tsc --project tsconfig.runtime.json",
     "package:mac": "npm run build && electron-builder --mac dir --publish never",
     "preview": "vite preview --host 127.0.0.1",
     "prepare": "git config core.hooksPath .husky",
@@ -52,7 +53,9 @@
     },
     "files": [
       "dist/renderer/**",
+      "dist/runtime/**",
       "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**",
+      "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**",
       "product-parts/application-shell/clusters/electron-host/modules/vscode-link-opener/src/**",
       "package.json"
     ],

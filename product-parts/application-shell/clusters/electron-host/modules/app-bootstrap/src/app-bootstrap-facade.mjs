@@ -1,12 +1,14 @@
 import { BrowserWindow, app } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { initializeCoreProcessBridge } from "../../core-process-bridge/src/core-process-bridge-facade.mjs";
 import { openExternalUrl } from "../../vscode-link-opener/src/vscode-link-opener-facade.mjs";
 
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = join(moduleDir, "../../../../../../..");
 
-export function createMainWindow() {
+export async function createMainWindow() {
+  const coreBridge = await initializeCoreProcessBridge(repositoryRoot);
   const window = new BrowserWindow({
     width: 1280,
     height: 820,
@@ -33,17 +35,18 @@ export function createMainWindow() {
   } else {
     void window.loadFile(join(repositoryRoot, "dist/renderer/index.html"));
   }
+  coreBridge.attachWindow(window);
 
   return window;
 }
 
 export async function startHarnessAiApp() {
   await app.whenReady();
-  createMainWindow();
+  await createMainWindow();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow();
+      void createMainWindow();
     }
   });
 }

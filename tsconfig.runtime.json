@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "noEmit": false,
+    "outDir": "dist/runtime",
+    "rootDir": "."
+  },
+  "include": ["product-parts/core-runtime/**/*.ts", "product-parts/provider-runtime/**/*.ts"]
+}

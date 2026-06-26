@@ -8,17 +8,9 @@ import {
   type SessionTelemetry,
   sessionSnapshotProjectorFacade
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
-import { sessionRequestHandlerFacade } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
-import {
-  type CoreSessionMessage,
-  type SessionCoreEvent,
-  sessionEventStreamFacade
-} from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import type { CoreSessionMessage, SessionCoreEvent } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import { settingsStoreFacade } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
-import {
-  type ProviderDescriptor,
-  providerRegistryFacade
-} from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import "./session-window.css";
 
 export function SessionWindowFacade() {
@@ -26,10 +18,7 @@ export function SessionWindowFacade() {
     () => sessionSnapshotProjectorFacade.getSnapshot(),
     []
   );
-  const providerOptions = useMemo(
-    () => providerRegistryFacade.listProviders(),
-    []
-  );
+  const [providerOptions, setProviderOptions] = useState<ProviderDescriptor[]>([]);
   const [sessions, setSessions] = useState(initialSnapshot.sessions.slice(0, 0));
   const [activeSessionId, setActiveSessionId] = useState("");
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
@@ -52,29 +41,39 @@ export function SessionWindowFacade() {
     telemetryBySession[activeSessionId] ?? initialSnapshot.telemetry;
 
   useEffect(
-    () =>
-      sessionEventStreamFacade.subscribe((event) => {
+    () => {
+      void window.harnessCore?.listProviders().then(setProviderOptions);
+      return window.harnessCore?.onEvent((event) => {
         applyCoreEvent({
           event,
           setMessagesBySession,
           setRunningSessionId,
           setTelemetryBySession
         });
-      }),
+      });
+    },
     []
   );
 
-  function appendUserMessage(text: string) {
+  async function appendUserMessage(text: string) {
     const sessionId = activeSessionId;
-    const result = sessionRequestHandlerFacade.sendMessage({ sessionId, text });
+    const result = await window.harnessCore?.sendMessage({ sessionId, text });
+    if (!result) {
+      appendAssistantNotice(
+        sessionId,
+        "Core runtime bridge is unavailable.",
+        setMessagesBySession
+      );
+      return;
+    }
     if (!result.ok) {
       appendAssistantNotice(sessionId, result.error, setMessagesBySession);
     }
   }
 
-  function createSession(provider: ProviderDescriptor) {
+  async function createSession(provider: ProviderDescriptor) {
     const model = settingsStoreFacade.getProviderModel(provider.id).selectedModel;
-    const result = sessionRequestHandlerFacade.createSession({
+    const result = await window.harnessCore?.createSession({
       model,
       providerId: provider.id,
       providerName: provider.name,
@@ -82,6 +81,9 @@ export function SessionWindowFacade() {
       workspaceId: initialSnapshot.workspace.id,
       workspacePath: initialSnapshot.workspace.path
     });
+    if (!result) {
+      return;
+    }
     if (!result.ok) {
       return;
     }

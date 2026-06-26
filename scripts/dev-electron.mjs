@@ -4,6 +4,16 @@ import http from "node:http";
 
 const rendererUrl = "http://127.0.0.1:5173";
 
+const runtimeBuild = spawn("npm", ["run", "build:runtime"], {
+  stdio: "inherit"
+});
+const runtimeBuildStatus = await new Promise((resolve) => {
+  runtimeBuild.on("exit", (code) => resolve(code ?? 1));
+});
+if (runtimeBuildStatus !== 0) {
+  process.exit(runtimeBuildStatus);
+}
+
 const vite = spawn("npm", ["run", "dev:renderer", "--", "--port", "5173"], {
   stdio: "inherit"
 });

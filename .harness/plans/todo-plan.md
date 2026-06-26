@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase33.stream1.task3",
-  "expectedCommitMessage": "feat: register providers for desktop sessions",
+  "currentTaskId": "harness-ai.phase34.stream1.task1",
+  "expectedCommitMessage": "chore: verify working provider sessions",
   "debt": null
 }
 ```
@@ -273,14 +273,14 @@
 72. [DONE] Git Commit: `feat: connect core dispatch to provider adapters` (hash: self)
 73. [DONE] `harness-ai.phase33.stream1.task2` Add working provider adapter facades for MVP provider choices behind the shared adapter contract (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/**, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**`; expected commit: `feat: add working provider adapter facades`). Result: Completed in commit `feat: add working provider adapter facades`.
 74. [DONE] Git Commit: `feat: add working provider adapter facades` (hash: self)
-75. [IN_PROGRESS] `harness-ai.phase33.stream1.task3` Register provider adapters from the Electron app bootstrap so Create Session can start a dialog through the selected provider (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**, package.json`; expected commit: `feat: register providers for desktop sessions`).
-76. [TODO] Git Commit: `feat: register providers for desktop sessions` (hash: TBD)
+75. [DONE] `harness-ai.phase33.stream1.task3` Register provider adapters from the Electron app bootstrap so Create Session can start a dialog through the selected provider (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**, scripts/dev-electron.mjs, tsconfig.runtime.json, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: register providers for desktop sessions`). Result: Completed in commit `feat: register providers for desktop sessions`.
+76. [DONE] Git Commit: `feat: register providers for desktop sessions` (hash: self)
 
 ## Phase 34 - Provider Session Verification (owner: Codex, updated: 2026-06-26)
 
 ### Stream: Build And Package
 
-77. [TODO] `harness-ai.phase34.stream1.task1` Verify architecture, typecheck, tests, renderer build, and unsigned macOS packaging for working provider sessions; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify working provider sessions`).
+77. [IN_PROGRESS] `harness-ai.phase34.stream1.task1` Verify architecture, typecheck, tests, renderer build, and unsigned macOS packaging for working provider sessions; record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify working provider sessions`).
 78. [TODO] Git Commit: `chore: verify working provider sessions` (hash: TBD)
 
 ## Phase 35 - User Workflow Acceptance (owner: User, updated: 2026-06-26)

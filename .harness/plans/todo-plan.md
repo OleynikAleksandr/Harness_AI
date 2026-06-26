@@ -8,8 +8,8 @@
   "planId": "harness-ai-bootstrap-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task1",
-  "expectedCommitMessage": "chore: verify local app packaging",
+  "currentTaskId": "harness-ai.phase11.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -104,11 +104,11 @@
 
 ### Stream: First Packaged App
 
-21. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` Build the unsigned local macOS app, record artifact path/evidence, and verify gates stay clean (scope: `.harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify local app packaging`).
-22. [TODO] Git Commit: `chore: verify local app packaging` (hash: TBD)
+21. [DONE] `harness-ai.phase10.stream1.task1` Build the unsigned local macOS app, record artifact path/evidence, fix nonblocking package metadata warnings, and verify gates stay clean (scope: `package.json, .harness/plans/todo-plan.md, docs/evidence/**`; expected commit: `chore: verify local app packaging`). Result: Completed in commit `chore: verify local app packaging`.
+22. [DONE] Git Commit: `chore: verify local app packaging` (hash: self)
 
 ## Phase 11 - First Release Gate (owner: User, updated: 2026-06-26)
 
 ### Stream: Release Decision
 
-23. [TODO] `harness-ai.phase11.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation or acceptance direction (scope: user workflow; expected commit: none).
+23. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` Stop at the first user-facing release/build handoff and ask for explicit release-build confirmation or acceptance direction (scope: user workflow; expected commit: none).

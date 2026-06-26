@@ -1,6 +1,8 @@
 {
   "name": "harness-ai",
   "version": "0.0.0",
+  "description": "Standalone AI product-development workspace app.",
+  "author": "Oleksandr Oliinyk",
   "private": true,
   "type": "module",
   "main": "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",

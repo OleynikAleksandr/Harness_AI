@@ -8,8 +8,8 @@
   "planId": "harness-ai-codeai-provider-runtime-alignment-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase29.stream1.task1",
-  "expectedCommitMessage": "feat: add core session dispatch boundary",
+  "currentTaskId": "harness-ai.phase29.stream1.task2",
+  "expectedCommitMessage": "feat: route session turns through core",
   "debt": null
 }
 ```
@@ -238,9 +238,9 @@
 
 ### Stream: Session Boundary
 
-60. [IN_PROGRESS] `harness-ai.phase29.stream1.task1` Add the Core session request handler shell, provider session binding contract, and event stream boundary without direct provider execution from UI or Electron host (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/provider-session-binding/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/**`; expected commit: `feat: add core session dispatch boundary`).
-61. [TODO] Git Commit: `feat: add core session dispatch boundary` (hash: TBD)
-62. [TODO] `harness-ai.phase29.stream1.task2` Rewire Electron IPC and the session UI to create sessions and send messages through the Core session dispatch boundary instead of the direct provider runner (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**`; expected commit: `feat: route session turns through core`).
+60. [DONE] `harness-ai.phase29.stream1.task1` Add the Core session request handler shell, provider session binding contract, and event stream boundary without direct provider execution from UI or Electron host (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/provider-session-binding/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/**`; expected commit: `feat: add core session dispatch boundary`). Result: Completed in commit `feat: add core session dispatch boundary`.
+61. [DONE] Git Commit: `feat: add core session dispatch boundary` (hash: self)
+62. [IN_PROGRESS] `harness-ai.phase29.stream1.task2` Rewire Electron IPC and the session UI to create sessions and send messages through the Core session dispatch boundary instead of the direct provider runner (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**`; expected commit: `feat: route session turns through core`).
 63. [TODO] Git Commit: `feat: route session turns through core` (hash: TBD)
 
 ## Phase 30 - Provider Adapter Contract (owner: Codex, updated: 2026-06-26)

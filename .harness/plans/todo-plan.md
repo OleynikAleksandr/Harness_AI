@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase69.stream1.task1",
+  "expectedCommitMessage": "chore: verify settings tab active styling",
   "debt": null
 }
 ```
@@ -511,3 +511,17 @@
 
 141. [DONE] `harness-ai.phase67.stream1.task1` Verify and package the Settings changes for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify local models and opencode settings`). Result: Completed in commit `chore: verify local models and opencode settings`.
 142. [DONE] Git Commit: `chore: verify local models and opencode settings` (hash: self)
+
+## Phase 68 - Settings Tab Active State Styling (owner: Codex, updated: 2026-06-26)
+
+### Stream: Settings Surface
+
+143. [DONE] `harness-ai.phase68.stream1.task1` Rework the Settings section active tab styling so selected sections read as tabs and remain consistent with the Settings model-row visual language (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: align settings tab active styling`). Result: Completed in commit `fix: align settings tab active styling`.
+144. [DONE] Git Commit: `fix: align settings tab active styling` (hash: self)
+
+## Phase 69 - Settings Tab Styling Verification (owner: Codex, updated: 2026-06-26)
+
+### Stream: Build And Package
+
+145. [IN_PROGRESS] `harness-ai.phase69.stream1.task1` Verify and package the Settings tab active-state styling for the delivered macOS app artifact (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify settings tab active styling`).
+146. [TODO] Git Commit: `chore: verify settings tab active styling` (hash: TBD)

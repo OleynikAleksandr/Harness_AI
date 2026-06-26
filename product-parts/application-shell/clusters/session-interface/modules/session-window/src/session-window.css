@@ -317,47 +317,6 @@ textarea {
   border-color: rgba(66, 201, 162, 0.6);
 }
 
-.settings-panel {
-  width: min(520px, 100%);
-}
-
-.settings-form {
-  display: grid;
-  gap: 12px;
-}
-
-.settings-field {
-  display: grid;
-  gap: 6px;
-  color: var(--pm-text-muted);
-  font-size: 12px;
-}
-
-.settings-field input {
-  width: 100%;
-  min-height: 38px;
-  padding: 9px 10px;
-  color: var(--pm-text-primary);
-  background: var(--pm-bg-surface);
-  border: 1px solid var(--pm-border-color);
-  border-radius: 8px;
-  outline: none;
-}
-
-.settings-field input:focus {
-  border-color: var(--pm-accent);
-  box-shadow: 0 0 0 3px rgba(66, 201, 162, 0.16);
-}
-
-.settings-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  color: var(--pm-text-muted);
-  font-size: 12px;
-}
-
 .message-stream {
   display: flex;
   flex-direction: column;

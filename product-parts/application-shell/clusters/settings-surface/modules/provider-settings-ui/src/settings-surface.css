@@ -349,6 +349,18 @@
 
 .settings-row-select select {
   width: 100%;
+  min-height: 28px;
+  color: #d7dde2;
+  color-scheme: dark;
+  background: #18191a;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+}
+
+.settings-row-select select:disabled {
+  color: #7b8187;
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .settings-option-row {

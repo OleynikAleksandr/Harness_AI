@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase142.stream1.task1",
+  "expectedCommitMessage": "chore: verify reasoning selector theme",
   "debt": null
 }
 ```
@@ -1015,3 +1015,17 @@
 
 280. [DONE] `harness-ai.phase140.stream1.task1` Remove bold/semi-bold typography from the user input hints and broadly lighten visible session/settings interface text weights (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: lighten interface typography`). Result: Completed in commit `fix: lighten interface typography`.
 281. [DONE] Git Commit: `fix: lighten interface typography` (hash: self)
+
+## Phase 141 - Provider Reasoning Selector Theme Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+282. [DONE] `harness-ai.phase141.stream1.task1` Apply dark-theme styling to model-row reasoning selectors and add Claude per-model thinking selection persisted in Settings (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/**, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, .harness/plans/todo-plan.md`; expected commit: `fix: align reasoning selectors with dark theme`). Result: Completed in commit `fix: align reasoning selectors with dark theme`.
+283. [DONE] Git Commit: `fix: align reasoning selectors with dark theme` (hash: self)
+
+## Phase 142 - Provider Reasoning Selector Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+284. [IN_PROGRESS] `harness-ai.phase142.stream1.task1` Run settings reasoning selector build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning selector theme`).
+285. [TODO] Git Commit: `chore: verify reasoning selector theme` (hash: TBD)

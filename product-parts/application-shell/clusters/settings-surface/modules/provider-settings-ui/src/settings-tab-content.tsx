@@ -1,4 +1,5 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { ClaudeDefaultModelCard } from "./claude-default-model-card.js";
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
 import { OpenCodeSettingsCard } from "./opencode-settings-card.js";
@@ -15,7 +16,6 @@ import {
 import { SessionContinuityCard } from "./session-continuity-card.js";
 import {
   PROVIDER_MODEL_OPTIONS,
-  REASONING_EFFORT_OPTIONS,
   type SettingsTabId,
 } from "./settings-model-options.js";
 import {
@@ -77,18 +77,7 @@ export function SettingsTabContent({
     const provider = settings.providers.claude;
     return (
       <div className="settings-reference-stack">
-        <DefaultModelCard
-          description="Выберите псевдоним Claude, который будет применяться при запуске новых сессий. Подробнее: doc/SolidWorks-WorkFlow/Modules/Claude.md"
-          note="Применяется только к вновь созданным сессиям Claude."
-          onChange={(defaultModel) =>
-            update((next) => {
-              next.providers.claude.defaultModel = defaultModel;
-            })
-          }
-          options={PROVIDER_MODEL_OPTIONS.claude}
-          title="Claude Default model"
-          value={provider.defaultModel}
-        />
+        <ClaudeDefaultModelCard provider={provider} update={update} />
         <ProviderVersionsCard
           autoUpdate={provider.autoUpdate.enabled}
           error={versionError}
@@ -103,37 +92,6 @@ export function SettingsTabContent({
           snapshot={versions}
           updatingTargets={versionUpdatingTargets}
         />
-        <SettingsCard title="Claude Thinking Settings">
-          <SettingsToggle
-            checked={provider.thinking.enabled}
-            description="При включении Claude будет использовать свой адаптивный путь мышления для сложных запросов. Выберите уровень усилий ниже, чтобы контролировать интенсивность рассуждений."
-            label="Enable thinking mode"
-            onChange={(enabled) =>
-              update((next) => {
-                next.providers.claude.thinking.enabled = enabled;
-              })
-            }
-          />
-          <SettingsToggle
-            checked={provider.thinkingDisplaySyncEnabled}
-            description="Show Claude reasoning as a normal assistant bubble with a Thinking label."
-            label="Thinking in dialog"
-            onChange={(enabled) =>
-              update((next) => {
-                next.providers.claude.thinkingDisplaySyncEnabled = enabled;
-              })
-            }
-          />
-          <ReasoningEffortRows
-            enabled={provider.thinking.enabled}
-            onChange={(effort) =>
-              update((next) => {
-                next.providers.claude.thinking.effort = effort;
-              })
-            }
-            value={provider.thinking.effort}
-          />
-        </SettingsCard>
         <SessionContinuityCard
           onChange={(value) =>
             update((next) => {
@@ -358,49 +316,6 @@ function DefaultModelCard({
         value={value}
       />
     </SettingsCard>
-  );
-}
-
-function ReasoningEffortRows({
-  enabled,
-  onChange,
-  value,
-}: {
-  enabled: boolean;
-  onChange: (
-    effort: HarnessSettings["providers"]["claude"]["thinking"]["effort"]
-  ) => void;
-  value: HarnessSettings["providers"]["claude"]["thinking"]["effort"];
-}) {
-  return (
-    <div
-      style={{
-        opacity: enabled ? 1 : 0.6,
-        pointerEvents: enabled ? "auto" : "none",
-      }}
-    >
-      <p className="settings-description">
-        Choose how much reasoning effort Claude should apply for new sessions.
-      </p>
-      <div className="settings-list">
-        {REASONING_EFFORT_OPTIONS.map((option) => (
-          <button
-            aria-pressed={option.value === value}
-            className={
-              option.value === value
-                ? "active settings-model-row"
-                : "settings-model-row"
-            }
-            key={option.value}
-            onClick={() => onChange(option.value)}
-            type="button"
-          >
-            <span className="settings-model-title">{option.label}</span>
-            <span className="settings-model-id">{option.value}</span>
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }
 

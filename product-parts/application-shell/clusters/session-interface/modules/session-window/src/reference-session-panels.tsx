@@ -235,7 +235,7 @@ function resolveReasoningLabel(
   }
   if (session.providerId === "claude") {
     return settings.providers.claude.thinking.enabled
-      ? `(${settings.providers.claude.thinking.effort})`
+      ? `(${settings.providers.claude.thinkingByModel[session.model] ?? settings.providers.claude.thinking.effort})`
       : "(off)";
   }
   if (session.providerId === "openrouter") {

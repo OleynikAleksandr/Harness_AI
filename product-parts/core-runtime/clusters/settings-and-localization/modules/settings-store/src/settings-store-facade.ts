@@ -41,6 +41,7 @@ export interface HarnessSettings {
   providers: {
     claude: ProviderCommonSettings & {
       thinking: { enabled: boolean; effort: ReasoningEffort };
+      thinkingByModel: Record<string, ReasoningEffort>;
     };
     codex: ProviderCommonSettings & {
       reasoningByModel: Record<string, ReasoningEffort>;
@@ -124,6 +125,7 @@ const DEFAULT_SETTINGS: HarnessSettings = {
     claude: {
       ...commonProvider("sonnet"),
       thinking: { enabled: true, effort: "medium" },
+      thinkingByModel: { sonnet: "medium" },
     },
     codex: {
       ...commonProvider("gpt-5.4-mini"),
@@ -276,7 +278,11 @@ function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
 function workspaceSettingsFrom(settings: HarnessSettings): SettingsPatch {
   return {
     providers: {
-      claude: workspaceCommon(settings.providers.claude),
+      claude: {
+        ...workspaceCommon(settings.providers.claude),
+        thinking: settings.providers.claude.thinking,
+        thinkingByModel: settings.providers.claude.thinkingByModel,
+      },
       codex: {
         ...workspaceCommon(settings.providers.codex),
         reasoningByModel: settings.providers.codex.reasoningByModel,

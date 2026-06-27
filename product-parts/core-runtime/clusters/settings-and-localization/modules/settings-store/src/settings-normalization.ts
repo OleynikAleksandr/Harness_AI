@@ -27,6 +27,16 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   ) {
     next.providers.claude.thinking.effort = "medium";
   }
+  if (!isRecord(next.providers.claude.thinkingByModel)) {
+    next.providers.claude.thinkingByModel = {};
+  }
+  for (const modelId of CLAUDE_MODEL_ALIASES) {
+    const effort = next.providers.claude.thinkingByModel[modelId];
+    if (!CLAUDE_THINKING_EFFORTS.includes(effort)) {
+      next.providers.claude.thinkingByModel[modelId] =
+        next.providers.claude.thinking.effort;
+    }
+  }
   if (!CODEX_MODEL_IDS.includes(next.providers.codex.defaultModel)) {
     next.providers.codex.defaultModel = "gpt-5.4-mini";
   }
@@ -42,4 +52,8 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
     next.providers.glmOpenCode.configPath = DEFAULT_GLM_OPENCODE_CONFIG_PATH;
   }
   return next;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

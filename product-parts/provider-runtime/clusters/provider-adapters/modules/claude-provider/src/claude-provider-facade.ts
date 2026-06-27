@@ -1,5 +1,7 @@
 import { homedir } from "node:os";
 import path from "node:path";
+import type { ProviderUsageLimitsRefreshRequest } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { readClaudeUsageLimits } from "../../provider-adapter-contract/src/provider-usage-limit-readers.js";
 import { CliSessionProviderAdapter } from "../../provider-adapter-contract/src/session-provider-adapter-helpers.js";
 
 export class ClaudeProviderFacade extends CliSessionProviderAdapter {
@@ -15,6 +17,15 @@ export class ClaudeProviderFacade extends CliSessionProviderAdapter {
         prompt,
       ],
     });
+  }
+
+  async refreshUsageLimits(
+    request: ProviderUsageLimitsRefreshRequest
+  ): Promise<void> {
+    const event = await readClaudeUsageLimits();
+    if (event) {
+      request.broadcast(event);
+    }
   }
 }
 

@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase122.stream1.task1",
-  "expectedCommitMessage": "fix: read provider usage limits",
+  "currentTaskId": "harness-ai.phase123.stream1.task1",
+  "expectedCommitMessage": "chore: verify provider usage limits",
   "debt": null
 }
 ```
@@ -888,14 +888,14 @@
 
 ### Stream: Provider Sources
 
-245. [IN_PROGRESS] `harness-ai.phase122.stream1.task1` Add provider-owned usage-limit readers for the current Harness providers that expose real account limit sources (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/**/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: read provider usage limits`).
-246. [TODO] Git Commit: `fix: read provider usage limits` (hash: TBD)
+245. [DONE] `harness-ai.phase122.stream1.task1` Add provider-owned usage-limit readers for the current Harness providers that expose real account limit sources (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/**/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: read provider usage limits`). Result: Completed in commit `fix: read provider usage limits`.
+246. [DONE] Git Commit: `fix: read provider usage limits` (hash: self)
 
 ## Phase 123 - Provider Usage Limit Verification (owner: Codex, updated: 2026-06-27)
 
 ### Stream: Build And Package
 
-247. [TODO] `harness-ai.phase123.stream1.task1` Run tests/build/package and record usage-limit indicator verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider usage limits`).
+247. [IN_PROGRESS] `harness-ai.phase123.stream1.task1` Run tests/build/package and record usage-limit indicator verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider usage limits`).
 248. [TODO] Git Commit: `chore: verify provider usage limits` (hash: TBD)
 
 ## Phase 124 - User Workflow Acceptance (owner: User, updated: 2026-06-27)

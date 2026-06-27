@@ -8,7 +8,9 @@ import type {
   ProviderAdapter,
   ProviderEventListener,
   ProviderTurnOptions,
+  ProviderUsageLimitsRefreshRequest,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { readCodexUsageLimits } from "../../provider-adapter-contract/src/provider-usage-limit-readers.js";
 
 interface CodexProviderOptions {
   approvalPolicy?: string;
@@ -171,6 +173,18 @@ export class CodexProviderFacade implements ProviderAdapter {
     this.sessions.delete(sessionId);
     if (this.sessions.size === 0) {
       this.stop();
+    }
+  }
+
+  async refreshUsageLimits(
+    request: ProviderUsageLimitsRefreshRequest
+  ): Promise<void> {
+    const response = await this.request<Record<string, unknown>>(
+      "account/rateLimits/read"
+    ).catch(() => null);
+    const event = readCodexUsageLimits(response?.rateLimits);
+    if (event) {
+      request.broadcast(event);
     }
   }
 

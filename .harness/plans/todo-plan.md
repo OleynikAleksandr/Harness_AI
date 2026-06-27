@@ -8,7 +8,7 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase118.stream1.task1",
+  "currentTaskId": "harness-ai.phase120.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -862,4 +862,17 @@
 
 ### Stream: Retest
 
-239. [IN_PROGRESS] `harness-ai.phase118.stream1.task1` User retests Settings version rows and manual update buttons for Claude, Codex, and OpenCode in the packaged app (scope: user workflow; expected commit: none).
+239. [TODO] `harness-ai.phase118.stream1.task1` User retests Settings version rows and manual update buttons for Claude, Codex, and OpenCode in the packaged app (scope: user workflow; expected commit: none). Retest found OpenCode SDK current version still missing; hotfix follows.
+
+## Phase 119 - OpenCode SDK Version Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Bridge
+
+240. [DONE] `harness-ai.phase119.stream1.task1` Install and detect OpenCode SDK current version from app/runtime dependencies as well as global npm state (scope: `package.json, package-lock.json, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: detect packaged opencode sdk version`). Result: Completed in commit `fix: detect packaged opencode sdk version`.
+241. [DONE] Git Commit: `fix: detect packaged opencode sdk version` (hash: self)
+
+## Phase 120 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Retest
+
+242. [IN_PROGRESS] `harness-ai.phase120.stream1.task1` User retests OpenCode SDK current version in Settings after packaged app restart (scope: user workflow; expected commit: none).

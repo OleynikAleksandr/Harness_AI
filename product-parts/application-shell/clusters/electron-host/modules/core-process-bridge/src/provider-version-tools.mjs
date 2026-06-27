@@ -1,5 +1,7 @@
 import { exec } from "node:child_process";
-import { join } from "node:path";
+import { readFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
@@ -38,6 +40,9 @@ const PROVIDER_CLI_VERSION_COMMANDS = {
     process.platform === "win32"
       ? "opencode.cmd --version"
       : "opencode --version",
+};
+const BUNDLED_PACKAGE_RESOLVERS = {
+  "@opencode-ai/sdk": () => import.meta.resolve("@opencode-ai/sdk"),
 };
 const VERSION_PATTERN = /\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/u;
 
@@ -87,12 +92,13 @@ async function readCliPackageVersion(providerId) {
 }
 
 async function readPackageVersion(packageName) {
-  const [currentVersion, latestVersion] = await Promise.all([
+  const [globalVersion, bundledVersion, latestVersion] = await Promise.all([
     readInstalledVersion(packageName),
+    readBundledPackageVersion(packageName),
     readLatestVersion(packageName),
   ]);
   return {
-    currentVersion,
+    currentVersion: globalVersion ?? bundledVersion,
     latestVersion,
     packageName,
   };
@@ -159,6 +165,36 @@ function extractInstalledVersion(packageName, output) {
   } catch {
     return null;
   }
+}
+
+async function readBundledPackageVersion(packageName) {
+  const resolvePackage = BUNDLED_PACKAGE_RESOLVERS[packageName];
+  if (!resolvePackage) {
+    return null;
+  }
+  try {
+    let directory = dirname(fileURLToPath(resolvePackage()));
+    for (let depth = 0; depth < 8; depth += 1) {
+      const packageJsonPath = join(directory, "package.json");
+      let parsed = null;
+      try {
+        parsed = JSON.parse(await readFile(packageJsonPath, "utf8"));
+      } catch {
+        parsed = null;
+      }
+      if (parsed?.name === packageName) {
+        return parsed.version ?? null;
+      }
+      const nextDirectory = dirname(directory);
+      if (nextDirectory === directory) {
+        return null;
+      }
+      directory = nextDirectory;
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 function buildExecEnv() {

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase81.stream1.task1",
-  "expectedCommitMessage": "chore: verify openrouter profile sections",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -607,5 +607,5 @@
 
 ### Stream: Build And Package
 
-169. [IN_PROGRESS] `harness-ai.phase81.stream1.task1` Verify and package the OpenRouter profile section separation change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter profile sections`).
-170. [TODO] Git Commit: `chore: verify openrouter profile sections` (hash: TBD)
+169. [DONE] `harness-ai.phase81.stream1.task1` Verify and package the OpenRouter profile section separation change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter profile sections`). Result: Completed in commit `chore: verify openrouter profile sections`.
+170. [DONE] Git Commit: `chore: verify openrouter profile sections` (hash: self)

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase98.stream1.task1",
-  "expectedCommitMessage": "feat: render core usage telemetry panels",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -726,5 +726,5 @@
 
 ### Stream: Display Only
 
-203. [IN_PROGRESS] `harness-ai.phase98.stream1.task1` Render the top limit panel and bottom token panel from Core telemetry only, matching reference layout without renderer-owned provider truth (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `feat: render core usage telemetry panels`).
-204. [TODO] Git Commit: `feat: render core usage telemetry panels` (hash: TBD)
+203. [DONE] `harness-ai.phase98.stream1.task1` Render the top limit panel and bottom token panel from Core telemetry only, matching reference layout without renderer-owned provider truth (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-telemetry/src/session-telemetry-facade.tsx`; expected commit: `feat: render core usage telemetry panels`). Result: Completed in commit `feat: render core usage telemetry panels`.
+204. [DONE] Git Commit: `feat: render core usage telemetry panels` (hash: self)

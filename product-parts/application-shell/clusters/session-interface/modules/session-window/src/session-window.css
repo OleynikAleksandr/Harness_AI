@@ -539,8 +539,14 @@ textarea {
 }
 
 .session-id-bar__limit-bar {
+  --limit-fill: 0%;
+
   height: 6px;
-  background: linear-gradient(90deg, #aeb3b6 28%, #565c60 28%);
+  background: linear-gradient(
+    90deg,
+    #aeb3b6 var(--limit-fill),
+    #565c60 var(--limit-fill)
+  );
   border-radius: 999px;
   opacity: 0.86;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type {
   SessionMessage,
@@ -14,7 +14,7 @@ export function SessionIdPanel({
   session: CoreSession | undefined;
   telemetry: SessionTelemetry;
 }) {
-  const idLabel = session ? `ID: ${shortenId(session.id)}` : "ID: unavailable";
+  const idLabel = resolveIdLabel(session, telemetry);
   return (
     <section
       aria-label="Session identifier"
@@ -22,8 +22,9 @@ export function SessionIdPanel({
     >
       <span className="session-id-bar__id">{idLabel}</span>
       <div className="session-id-bar__limits">
-        <LimitRow label={`Session ${telemetry.status}`} />
-        <LimitRow label={telemetry.limitState} />
+        {telemetry.limitRows.map((row) => (
+          <LimitRow key={row.label} row={row} />
+        ))}
       </div>
     </section>
   );
@@ -130,21 +131,40 @@ export function ReferenceStatusPanel({
       ) : null}
       <span className="session-status-chip session-status-chip--limits">
         <span>Токены:</span>
-        <strong title={telemetry.contextWindow}>
-          {telemetry.contextWindow}
+        <strong title={telemetry.tokenDisplay.title}>
+          {telemetry.tokenDisplay.value}
         </strong>
       </span>
     </section>
   );
 }
 
-function LimitRow({ label }: { label: string }) {
+function LimitRow({ row }: { row: SessionTelemetry["limitRows"][number] }) {
   return (
-    <div className="session-id-bar__limit-row">
-      <span className="session-id-bar__limit-label">{label}</span>
-      <span className="session-id-bar__limit-bar" />
+    <div className="session-id-bar__limit-row" title={row.resetLabel ?? ""}>
+      <span className="session-id-bar__limit-label">{row.text}</span>
+      <span
+        className="session-id-bar__limit-bar"
+        style={
+          row.percentUsed === null
+            ? undefined
+            : ({
+                "--limit-fill": `${row.percentUsed}%`,
+              } as CSSProperties)
+        }
+      />
     </div>
   );
+}
+
+function resolveIdLabel(
+  session: CoreSession | undefined,
+  telemetry: SessionTelemetry
+): string {
+  if (telemetry.providerSessionId) {
+    return `ID: ${shortenId(telemetry.providerSessionId)}-...`;
+  }
+  return session ? "ID: pending..." : "ID: unavailable";
 }
 
 function MessageBubble({

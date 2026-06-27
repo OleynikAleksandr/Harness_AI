@@ -9,8 +9,11 @@ export function SessionTelemetryFacade({ telemetry }: SessionTelemetryProps) {
     <section aria-label="Session telemetry" className="telemetry-strip">
       <TelemetryItem label="Provider" value={telemetry.provider} />
       <TelemetryItem label="Model" value={telemetry.model} />
-      <TelemetryItem label="Context" value={telemetry.contextWindow} />
-      <TelemetryItem label="Limits" value={telemetry.limitState} />
+      <TelemetryItem label="Tokens" value={telemetry.tokenDisplay.value} />
+      <TelemetryItem
+        label="Limits"
+        value={telemetry.limitRows[0]?.text ?? ""}
+      />
     </section>
   );
 }

@@ -127,16 +127,6 @@ export function SessionWindowFacade() {
       ...current,
       [session.id]: [],
     }));
-    setTelemetryBySession((current) => ({
-      ...current,
-      [session.id]: {
-        provider: provider.name,
-        model,
-        status: "idle",
-        contextWindow: "Core session ready",
-        limitState: "Provider adapter pending",
-      },
-    }));
     setActiveSessionId(session.id);
     setIsProviderPickerOpen(false);
   }
@@ -233,35 +223,12 @@ function applyCoreEvent(params: {
       }
       return current;
     });
-    setTelemetryBySession((current) => ({
-      ...current,
-      [event.payload.sessionId]: {
-        ...(current[event.payload.sessionId] ??
-          sessionSnapshotProjectorFacade.getSnapshot().telemetry),
-        status: event.payload.state,
-        contextWindow:
-          event.payload.state === "running"
-            ? "Core dispatch in progress"
-            : "Core dispatch idle",
-      },
-    }));
     return;
   }
-  if (event.type === "session:provider-binding") {
-    let limitState = "Provider binding pending";
-    if (event.payload.status === "ready") {
-      limitState = "Provider ready";
-    }
-    if (event.payload.status === "failed") {
-      limitState = "Provider adapter pending";
-    }
+  if (event.type === "session:telemetry") {
     setTelemetryBySession((current) => ({
       ...current,
-      [event.payload.sessionId]: {
-        ...(current[event.payload.sessionId] ??
-          sessionSnapshotProjectorFacade.getSnapshot().telemetry),
-        limitState,
-      },
+      [event.payload.sessionId]: event.payload.telemetry,
     }));
   }
 }

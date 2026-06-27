@@ -1,4 +1,8 @@
 import {
+  type ProviderUsageTelemetry,
+  usageContextTelemetryFacade,
+} from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
+import {
   type HarnessWorkspace,
   workspaceRegistryFacade,
 } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
@@ -14,13 +18,7 @@ export interface SessionMessage {
   timestamp: string;
 }
 
-export interface SessionTelemetry {
-  contextWindow: string;
-  limitState: string;
-  model: string;
-  provider: string;
-  status: "idle" | "running" | "stopped";
-}
+export type SessionTelemetry = ProviderUsageTelemetry;
 
 export interface SessionSnapshot {
   activeSessionId: string;
@@ -45,13 +43,14 @@ const BOOTSTRAP_MESSAGES: SessionMessage[] = [
   },
 ];
 
-const TELEMETRY: SessionTelemetry = {
-  provider: "Core Runtime",
-  model: "Not connected yet",
-  status: "idle",
-  contextWindow: "Pending provider selection",
-  limitState: "No active turn",
-};
+const TELEMETRY: SessionTelemetry = usageContextTelemetryFacade.createTelemetry(
+  {
+    provider: "Core Runtime",
+    model: "Not connected yet",
+    providerId: "core",
+    status: "idle",
+  }
+);
 
 export class SessionSnapshotProjectorFacade {
   getSnapshot(): SessionSnapshot {

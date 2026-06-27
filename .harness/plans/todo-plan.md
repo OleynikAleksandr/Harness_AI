@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase148.stream1.task1",
+  "expectedCommitMessage": "chore: verify restored interface font",
   "debt": null
 }
 ```
@@ -1057,3 +1057,17 @@
 
 292. [DONE] `harness-ai.phase146.stream1.task1` Run settings reasoning menu build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort menu`). Result: Completed in commit `chore: verify reasoning effort menu`.
 293. [DONE] Git Commit: `chore: verify reasoning effort menu` (hash: self)
+
+## Phase 147 - Restore Original Typography Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session And Settings UI
+
+294. [DONE] `harness-ai.phase147.stream1.task1` Remove the Roboto Flex experiment and restore the previous UI font stack while keeping the lighter font weights (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/fonts/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: restore original interface font`). Result: Completed in commit `fix: restore original interface font`.
+295. [DONE] Git Commit: `fix: restore original interface font` (hash: self)
+
+## Phase 148 - Restore Original Typography Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+296. [IN_PROGRESS] `harness-ai.phase148.stream1.task1` Run typography restore build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify restored interface font`).
+297. [TODO] Git Commit: `chore: verify restored interface font` (hash: TBD)

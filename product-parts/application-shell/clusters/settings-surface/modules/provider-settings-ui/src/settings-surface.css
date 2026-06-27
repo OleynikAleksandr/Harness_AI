@@ -8,16 +8,13 @@
   padding: 12px;
   font-family: var(
     --pm-font-family,
-    "Roboto Flex Harness",
     "Space Grotesk",
     "Sora",
     "IBM Plex Sans",
     "Segoe UI",
     sans-serif
   );
-  font-variation-settings: var(--pm-font-variation, "GRAD" -200, "opsz" 8);
   font-weight: 100;
-  font-optical-sizing: none;
   background: #101923;
 }
 
@@ -33,9 +30,7 @@
 .settings-backdrop h5,
 .settings-backdrop h6,
 .settings-backdrop strong {
-  font-variation-settings: var(--pm-font-variation, "GRAD" -200, "opsz" 8);
   font-weight: 100;
-  font-optical-sizing: none;
 }
 
 .settings-dialog {

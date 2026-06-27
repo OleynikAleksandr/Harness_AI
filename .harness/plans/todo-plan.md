@@ -8,7 +8,7 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase148.stream1.task1",
+  "currentTaskId": "harness-ai.phase149.stream1.task1",
   "expectedCommitMessage": "chore: verify restored interface font",
   "debt": null
 }
@@ -1065,9 +1065,16 @@
 294. [DONE] `harness-ai.phase147.stream1.task1` Remove the Roboto Flex experiment and restore the previous UI font stack while keeping the lighter font weights (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/fonts/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: restore original interface font`). Result: Completed in commit `fix: restore original interface font`.
 295. [DONE] Git Commit: `fix: restore original interface font` (hash: self)
 
-## Phase 148 - Restore Original Typography Verification (owner: Codex, updated: 2026-06-27)
+## Phase 148 - Accidental Local File Cleanup (owner: Codex, updated: 2026-06-27)
+
+### Stream: Hygiene
+
+296. [DONE] `harness-ai.phase148.stream1.task1` Remove the accidentally tracked local `.claude/CLAUDE.md` file from the repository (scope: `.claude/**, .harness/plans/todo-plan.md`; expected commit: `chore: remove accidental claude file`). Result: Completed in commit `chore: remove accidental claude file`.
+297. [DONE] Git Commit: `chore: remove accidental claude file` (hash: self)
+
+## Phase 149 - Restore Original Typography Verification (owner: Codex, updated: 2026-06-27)
 
 ### Stream: Build And Package
 
-296. [IN_PROGRESS] `harness-ai.phase148.stream1.task1` Run typography restore build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify restored interface font`).
-297. [TODO] Git Commit: `chore: verify restored interface font` (hash: TBD)
+298. [IN_PROGRESS] `harness-ai.phase149.stream1.task1` Run typography restore build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify restored interface font`).
+299. [TODO] Git Commit: `chore: verify restored interface font` (hash: TBD)

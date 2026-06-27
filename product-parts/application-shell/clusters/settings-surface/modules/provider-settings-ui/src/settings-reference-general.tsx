@@ -32,6 +32,10 @@ const TRANSLATION_ENGINE_OPTIONS = [
   },
 ] as const;
 
+const OPENROUTER_REASONING_TRANSLATION_ENGINE_ID =
+  "openrouter-reasoning-translation";
+const OPENROUTER_UI_TRANSLATION_ENGINE_ID = "openrouter-ui-translation";
+
 const CATEGORY_FIELDS: readonly {
   description: string;
   key: LocalizationCategoryKey;
@@ -86,6 +90,18 @@ export function ReferenceGeneralSettings({
 }) {
   const general = settings.general;
   const localization = general.localization;
+  const uiTranslationEngineOptions = translationEngineOptionsWithOpenRouter(
+    "UI",
+    OPENROUTER_UI_TRANSLATION_ENGINE_ID,
+    settings.providers.openRouter.translationProfiles.uiTranslation.model
+  );
+  const reasoningTranslationEngineOptions =
+    translationEngineOptionsWithOpenRouter(
+      "Reasoning",
+      OPENROUTER_REASONING_TRANSLATION_ENGINE_ID,
+      settings.providers.openRouter.translationProfiles.reasoningTranslation
+        .model
+    );
 
   return (
     <div className="settings-reference-stack">
@@ -106,7 +122,7 @@ export function ReferenceGeneralSettings({
                 next.general.localization.engineId = engineId;
               })
             }
-            options={TRANSLATION_ENGINE_OPTIONS}
+            options={uiTranslationEngineOptions}
             value={localization.engineId}
           />
           <SettingsSelect
@@ -116,7 +132,7 @@ export function ReferenceGeneralSettings({
                 next.general.localization.reasoningEngineId = reasoningEngineId;
               })
             }
-            options={TRANSLATION_ENGINE_OPTIONS}
+            options={reasoningTranslationEngineOptions}
             value={localization.reasoningEngineId}
           />
           <SettingsToggle
@@ -162,6 +178,21 @@ export function ReferenceGeneralSettings({
       </SettingsCard>
     </div>
   );
+}
+
+function translationEngineOptionsWithOpenRouter(
+  profileLabel: string,
+  value: string,
+  model: string
+): readonly { label: string; value: string }[] {
+  const trimmedModel = model.trim();
+  return [
+    ...TRANSLATION_ENGINE_OPTIONS,
+    {
+      label: `OpenRouter ${profileLabel} · ${trimmedModel || "openrouter-default"}`,
+      value,
+    },
+  ];
 }
 
 function GlossaryCard({

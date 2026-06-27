@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase86.stream1.task1",
+  "expectedCommitMessage": "chore: verify openrouter translation profile dropdowns",
   "debt": null
 }
 ```
@@ -630,3 +630,17 @@
 
 175. [DONE] `harness-ai.phase84.stream1.task1` Verify and package OpenRouter endpoint latency testing in Settings (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter endpoint latency ui`). Result: Completed in commit `chore: verify openrouter endpoint latency ui`.
 176. [DONE] Git Commit: `chore: verify openrouter endpoint latency ui` (hash: self)
+
+## Phase 85 - OpenRouter Translation Profiles In General (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+177. [DONE] `harness-ai.phase85.stream1.task1` Show selected OpenRouter UI and reasoning translation profile models in the General localization engine dropdowns (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, .harness/plans/todo-plan.md`; expected commit: `fix: show openrouter translation profiles in general`). Result: Completed in commit `fix: show openrouter translation profiles in general`.
+178. [DONE] Git Commit: `fix: show openrouter translation profiles in general` (hash: self)
+
+## Phase 86 - OpenRouter Translation Profiles In General Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+179. [IN_PROGRESS] `harness-ai.phase86.stream1.task1` Verify and package OpenRouter translation profile models in General localization engine dropdowns (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile dropdowns`).
+180. [TODO] Git Commit: `chore: verify openrouter translation profile dropdowns` (hash: TBD)

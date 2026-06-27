@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase124.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase126.stream1.task1",
+  "expectedCommitMessage": "chore: verify kimi cli alias hotfix",
   "debt": null
 }
 ```
@@ -903,3 +903,17 @@
 ### Stream: Retest
 
 249. [IN_PROGRESS] `harness-ai.phase124.stream1.task1` User retests provider usage-limit indicators in Claude, Codex, Kimi, GLM, OpenCode, OpenRouter, and Local Models sessions (scope: user workflow; expected commit: none).
+
+## Phase 125 - Kimi CLI Alias Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Provider Runtime
+
+250. [DONE] `harness-ai.phase125.stream1.task1` Avoid passing Harness-only Kimi model aliases as Kimi CLI `--model` config aliases while keeping provider-owned Kimi model metadata and workspace-local provider home launch cwd (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: avoid invalid kimi cli model alias`). Result: Completed in commit `fix: avoid invalid kimi cli model alias`.
+251. [DONE] Git Commit: `fix: avoid invalid kimi cli model alias` (hash: self)
+
+## Phase 126 - Kimi CLI Alias Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+252. [IN_PROGRESS] `harness-ai.phase126.stream1.task1` Run focused Kimi provider tests/build checks and package the macOS app for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi cli alias hotfix`).
+253. [TODO] Git Commit: `chore: verify kimi cli alias hotfix` (hash: TBD)

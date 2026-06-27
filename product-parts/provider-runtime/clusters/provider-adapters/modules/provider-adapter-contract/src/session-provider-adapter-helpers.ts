@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import type {
@@ -17,6 +18,7 @@ interface SessionState {
 export interface CliProviderAdapterOptions {
   args: (prompt: string, model?: string) => string[];
   commands: string[];
+  cwd?: (workspacePath?: string) => string | undefined;
   env?: (model?: string) => NodeJS.ProcessEnv | null;
   model?: string;
   timeoutMs?: number;
@@ -111,6 +113,7 @@ export class CliSessionProviderAdapter
       const text = await runCli({
         args: this.options.args(prompt, selectedModel),
         commands: this.options.commands,
+        cwd: this.options.cwd?.(session.workspacePath),
         env: this.options.env?.(selectedModel),
         timeoutMs: this.options.timeoutMs ?? DEFAULT_CLI_TIMEOUT_MS,
       });
@@ -188,6 +191,7 @@ export class OpenAiCompatibleSessionProviderAdapter
 function runCli(options: {
   args: string[];
   commands: string[];
+  cwd?: string;
   env?: NodeJS.ProcessEnv | null;
   timeoutMs: number;
 }): Promise<string> {
@@ -199,7 +203,11 @@ function runCli(options: {
         reject(new Error("Provider CLI is not available"));
         return;
       }
+      if (options.cwd) {
+        mkdirSync(options.cwd, { recursive: true });
+      }
       const child = spawn(command, options.args, {
+        ...(options.cwd ? { cwd: options.cwd } : {}),
         env: {
           ...process.env,
           ...(options.env ?? {}),

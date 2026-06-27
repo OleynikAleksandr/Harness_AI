@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import ts from "typescript";
 
 const source = readFileSync(
@@ -33,3 +35,26 @@ assert.equal(
   ),
   true
 );
+
+const tempCwd = mkdtempSync(join(tmpdir(), "harness-cli-cwd-"));
+try {
+  const cwdAdapter = new CliSessionProviderAdapter({
+    args: () => ["-e", "console.log(process.cwd())"],
+    commands: [process.execPath],
+    cwd: () => tempCwd,
+  });
+  const cwdSessionId = await cwdAdapter.createSession();
+  const cwdEvents = [];
+  cwdAdapter.subscribe(cwdSessionId, (event) => cwdEvents.push(event));
+  await cwdAdapter.sendMessage(cwdSessionId, "where");
+  assert.equal(
+    cwdEvents.some(
+      (event) =>
+        event?.type === "dialog_message" &&
+        event.content === realpathSync(tempCwd)
+    ),
+    true
+  );
+} finally {
+  rmSync(tempCwd, { force: true, recursive: true });
+}

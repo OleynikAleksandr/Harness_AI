@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase101.stream1.task1",
+  "expectedCommitMessage": "feat: bridge workspace and detached sessions",
   "debt": null
 }
 ```
@@ -735,3 +735,24 @@
 
 205. [DONE] `harness-ai.phase99.stream1.task1` Verify Kimi, GLM Native, GLM OpenCode, and OpenRouter telemetry mapping and keep each provider on its own Core/provider telemetry scope (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: split provider usage telemetry scopes`). Result: Completed in commit `fix: split provider usage telemetry scopes`.
 206. [DONE] Git Commit: `fix: split provider usage telemetry scopes` (hash: self)
+
+## Phase 100 - Core Workspace Registry (owner: Codex, updated: 2026-06-27)
+
+### Stream: Workspace Truth
+
+207. [DONE] `harness-ai.phase100.stream1.task1` Move known/active workspace list into Core-owned registry operations with stable ids and add coverage for adding/selecting workspaces (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, .harness/plans/todo-plan.md`; expected commit: `feat: manage workspaces in core`). Result: Completed in commit `feat: manage workspaces in core`.
+208. [DONE] Git Commit: `feat: manage workspaces in core` (hash: self)
+
+## Phase 101 - Workspace And Detached Window Bridge (owner: Codex, updated: 2026-06-27)
+
+### Stream: Electron Host
+
+209. [IN_PROGRESS] `harness-ai.phase101.stream1.task1` Expose Core workspace/session APIs, broadcast Core events to all windows, and open detached session BrowserWindows from the Electron host (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `feat: bridge workspace and detached sessions`).
+210. [TODO] Git Commit: `feat: bridge workspace and detached sessions` (hash: TBD)
+
+## Phase 102 - Workspace Session UI (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Surface
+
+211. [TODO] `harness-ai.phase102.stream1.task1` Add the workspace dropdown, bind the session list to the selected workspace, and render detached session windows from Core session events (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add workspace switcher and detached session windows`).
+212. [TODO] Git Commit: `feat: add workspace switcher and detached session windows` (hash: TBD)

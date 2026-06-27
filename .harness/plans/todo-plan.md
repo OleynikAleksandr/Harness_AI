@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase155.stream1.task1",
+  "currentTaskId": "harness-ai.phase157.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1118,4 +1118,17 @@
 
 ### Stream: Design Retest
 
-310. [IN_PROGRESS] `harness-ai.phase155.stream1.task1` User launches the rebuilt app and reviews the unified Teal Studio interface, then provides design feedback (scope: user workflow; expected commit: none).
+310. [DONE] `harness-ai.phase155.stream1.task1` User launches the rebuilt app and reviews the unified Teal Studio interface, then provides design feedback (scope: user workflow; expected commit: none). Result: User reviewed the first Teal Studio build and requested a session input field width fix so the right gap from the send button matches the field left inset.
+
+## Phase 156 - Session Input Field Width Fix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Input
+
+311. [DONE] `harness-ai.phase156.stream1.task1` Make the session input field fill the available flex row width so the gap from the play/stop button to the right edge of the input panel matches the field left inset, then rebuild the unsigned macOS app and record evidence (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, docs/evidence/**`; expected commit: `fix: balance session input field width`). Result: Completed in commit `fix: balance session input field width`.
+312. [DONE] Git Commit: `fix: balance session input field width` (hash: self)
+
+## Phase 157 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Design Retest
+
+313. [IN_PROGRESS] `harness-ai.phase157.stream1.task1` User relaunches the rebuilt app and reviews the balanced session input field width, then provides design feedback (scope: user workflow; expected commit: none).

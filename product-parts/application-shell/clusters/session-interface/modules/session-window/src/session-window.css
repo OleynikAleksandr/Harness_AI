@@ -828,6 +828,7 @@ strong {
 
 .session-input__container {
   position: relative;
+  flex: 1;
   min-width: 0;
 }
 

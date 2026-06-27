@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase130.stream1.task1",
-  "expectedCommitMessage": "chore: verify session sidebar controls",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -943,5 +943,5 @@
 
 ### Stream: Build And Package
 
-260. [IN_PROGRESS] `harness-ai.phase130.stream1.task1` Run focused checks/package for the sidebar layout and session delete route, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session sidebar controls`).
-261. [TODO] Git Commit: `chore: verify session sidebar controls` (hash: TBD)
+260. [DONE] `harness-ai.phase130.stream1.task1` Run focused checks/package for the sidebar layout and session delete route, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session sidebar controls`). Result: Completed in commit `chore: verify session sidebar controls`.
+261. [DONE] Git Commit: `chore: verify session sidebar controls` (hash: self)

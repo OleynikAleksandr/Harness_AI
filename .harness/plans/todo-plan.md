@@ -8,8 +8,8 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase154.stream1.task1",
-  "expectedCommitMessage": "chore: build teal studio design app",
+  "currentTaskId": "harness-ai.phase155.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -1111,11 +1111,11 @@
 
 ### Stream: Build And Package
 
-308. [IN_PROGRESS] `harness-ai.phase154.stream1.task1` Run the quality gates, rebuild the renderer and the unsigned macOS app for the Teal Studio design pass, and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: build teal studio design app`).
-309. [TODO] Git Commit: `chore: build teal studio design app` (hash: TBD)
+308. [DONE] `harness-ai.phase154.stream1.task1` Run the quality gates, rebuild the renderer and the unsigned macOS app for the Teal Studio design pass, and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: build teal studio design app`). Result: Completed in commit `chore: build teal studio design app`.
+309. [DONE] Git Commit: `chore: build teal studio design app` (hash: self)
 
 ## Phase 155 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
 
 ### Stream: Design Retest
 
-310. [TODO] `harness-ai.phase155.stream1.task1` User launches the rebuilt app and reviews the unified Teal Studio interface, then provides design feedback (scope: user workflow; expected commit: none).
+310. [IN_PROGRESS] `harness-ai.phase155.stream1.task1` User launches the rebuilt app and reviews the unified Teal Studio interface, then provides design feedback (scope: user workflow; expected commit: none).

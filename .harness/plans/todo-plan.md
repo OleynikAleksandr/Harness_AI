@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase109.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase111.stream1.task1",
+  "expectedCommitMessage": "chore: verify kimi alias hotfix",
   "debt": null
 }
 ```
@@ -802,4 +802,24 @@
 
 ### Stream: Retest
 
-224. [IN_PROGRESS] `harness-ai.phase109.stream1.task1` User retests closing Harness AI and detached windows without a main-process JavaScript error (scope: user workflow; expected commit: none).
+224. [TODO] `harness-ai.phase109.stream1.task1` User retests closing Harness AI and detached windows without a main-process JavaScript error (scope: user workflow; expected commit: none). Retest found Kimi alias config and duplicate provider error output; hotfix follows.
+
+## Phase 110 - Kimi Alias Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Provider Runtime
+
+225. [DONE] `harness-ai.phase110.stream1.task1` Configure CodeAI Kimi model aliases through Kimi CLI environment metadata and avoid duplicate Core error messages for one failed provider turn (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/**, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: configure kimi code aliases`). Result: Completed in commit `fix: configure kimi code aliases`.
+226. [DONE] Git Commit: `fix: configure kimi code aliases` (hash: self)
+
+## Phase 111 - Kimi Alias Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+227. [IN_PROGRESS] `harness-ai.phase111.stream1.task1` Run focused provider/Core tests, package the macOS app, and record Kimi alias verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi alias hotfix`).
+228. [TODO] Git Commit: `chore: verify kimi alias hotfix` (hash: TBD)
+
+## Phase 112 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Retest
+
+229. [TODO] `harness-ai.phase112.stream1.task1` User retests sending a Kimi request with `kimi-k2.7-code` from the packaged app (scope: user workflow; expected commit: none).

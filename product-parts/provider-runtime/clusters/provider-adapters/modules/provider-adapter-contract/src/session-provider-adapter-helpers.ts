@@ -17,6 +17,7 @@ interface SessionState {
 export interface CliProviderAdapterOptions {
   args: (prompt: string, model?: string) => string[];
   commands: string[];
+  env?: (model?: string) => NodeJS.ProcessEnv | null;
   model?: string;
   timeoutMs?: number;
 }
@@ -106,12 +107,11 @@ export class CliSessionProviderAdapter
     const prompt = buildPrompt(session.messages, content);
     this.emit(sessionId, event("turn_started"));
     try {
+      const selectedModel = readModel(turnOptions, this.options.model);
       const text = await runCli({
-        args: this.options.args(
-          prompt,
-          readModel(turnOptions, this.options.model)
-        ),
+        args: this.options.args(prompt, selectedModel),
         commands: this.options.commands,
+        env: this.options.env?.(selectedModel),
         timeoutMs: this.options.timeoutMs ?? DEFAULT_CLI_TIMEOUT_MS,
       });
       session.messages.push({ role: "user", content });
@@ -184,6 +184,7 @@ export class OpenAiCompatibleSessionProviderAdapter
 function runCli(options: {
   args: string[];
   commands: string[];
+  env?: NodeJS.ProcessEnv | null;
   timeoutMs: number;
 }): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -195,7 +196,11 @@ function runCli(options: {
         return;
       }
       const child = spawn(command, options.args, {
-        env: { ...process.env, PATH: buildPath(process.env.PATH ?? "") },
+        env: {
+          ...process.env,
+          ...(options.env ?? {}),
+          PATH: buildPath(process.env.PATH ?? ""),
+        },
         stdio: ["ignore", "pipe", "pipe"],
       });
       let stdout = "";

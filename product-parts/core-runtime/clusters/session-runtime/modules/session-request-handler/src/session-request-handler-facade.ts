@@ -420,7 +420,11 @@ export class SessionRequestHandlerFacade {
       this.publishTurnState(sessionId, "idle");
       return;
     }
-    if (event.type === "turn_failed" || event.type === "stream_error") {
+    if (event.type === "turn_failed") {
+      this.publishTurnState(sessionId, "idle");
+      return;
+    }
+    if (event.type === "stream_error") {
       this.publishTurnState(sessionId, "idle");
       this.publishError(
         sessionId,

@@ -40,7 +40,7 @@ textarea {
 .harness-app-shell {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr);
   min-height: 100vh;
   background: var(--pm-bg-primary);
 }
@@ -53,6 +53,9 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: max-content;
+  min-width: 218px;
+  max-width: 280px;
   min-height: 100vh;
   padding: 12px;
   color: var(--pm-text-primary);
@@ -166,16 +169,18 @@ textarea {
 
 .sidebar-section {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sidebar-section-header {
   display: flex;
   align-items: center;
   justify-content: stretch;
+  padding-bottom: 12px;
   font-size: 12px;
   color: var(--pm-text-muted);
   text-transform: uppercase;
+  border-bottom: 1px solid rgba(63, 71, 75, 0.8);
 }
 
 .session-list {
@@ -214,6 +219,8 @@ textarea {
   justify-content: flex-start;
   min-width: 0;
   padding: 9px 10px;
+  font-size: 13px;
+  font-weight: 650;
   text-align: left;
   background: transparent;
   border: 0;
@@ -240,12 +247,24 @@ textarea {
   top: calc(100% + 4px);
   right: 0;
   z-index: 15;
-  min-width: 118px;
+  min-width: 150px;
   padding: 5px;
   background: #161b21;
   border: 1px solid var(--pm-border-strong);
   border-radius: 8px;
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.42);
+}
+
+.session-context-menu strong {
+  display: block;
+  padding: 6px 7px;
+  font-size: 13px;
+  color: var(--pm-text-primary);
+}
+
+.session-context-actions {
+  display: flex;
+  gap: 5px;
 }
 
 .session-context-menu button {
@@ -259,7 +278,8 @@ textarea {
   border-radius: 6px;
 }
 
-.session-context-menu button:hover {
+.session-context-menu button:hover,
+.session-context-menu button.is-danger {
   color: #fff;
   background: rgba(221, 85, 72, 0.18);
 }
@@ -565,7 +585,7 @@ textarea {
 /* Reference session surface */
 .harness-app-shell {
   display: grid;
-  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr);
   min-height: 100vh;
   overflow: hidden;
   font-family: "Space Grotesk", "Sora", "IBM Plex Sans", "Segoe UI", sans-serif;
@@ -596,14 +616,14 @@ textarea {
   display: inline-flex;
   gap: 8px;
   align-items: center;
-  min-height: 32px;
-  padding: 0 10px;
-  font-size: 12px;
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--pm-accent-strong);
+  color: #eaf6ff;
   cursor: pointer;
-  background: rgba(66, 201, 162, 0.12);
-  border: 1px solid rgba(66, 201, 162, 0.45);
+  background: rgba(22, 98, 158, 0.5);
+  border: 1px solid rgba(43, 145, 220, 0.82);
   border-radius: 8px;
 }
 
@@ -613,8 +633,8 @@ textarea {
 
 .start-new-session-button:hover {
   color: var(--pm-text-primary);
-  background: rgba(66, 201, 162, 0.2);
-  border-color: rgba(66, 201, 162, 0.6);
+  background: rgba(25, 118, 190, 0.68);
+  border-color: rgba(73, 171, 238, 0.95);
 }
 
 .session-panel {

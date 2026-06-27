@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase134.stream1.task1",
+  "expectedCommitMessage": "chore: verify sidebar menu behavior",
   "debt": null
 }
 ```
@@ -959,3 +959,17 @@
 
 264. [DONE] `harness-ai.phase132.stream1.task1` Run focused session telemetry restore tests/build/package and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session telemetry restore`). Result: Completed in commit `chore: verify session telemetry restore`.
 265. [DONE] Git Commit: `chore: verify session telemetry restore` (hash: self)
+
+## Phase 133 - Sidebar Menu And Density Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Interface
+
+266. [DONE] `harness-ai.phase133.stream1.task1` Close session row context menus on outside click/Escape, require confirmation before deleting, shrink the sidebar to content, and restyle Start New Session as a separated blue primary control (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: tighten sidebar menu behavior`). Result: Completed in commit `fix: tighten sidebar menu behavior`.
+267. [DONE] Git Commit: `fix: tighten sidebar menu behavior` (hash: self)
+
+## Phase 134 - Sidebar Menu Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+268. [IN_PROGRESS] `harness-ai.phase134.stream1.task1` Run sidebar build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify sidebar menu behavior`).
+269. [TODO] Git Commit: `chore: verify sidebar menu behavior` (hash: TBD)

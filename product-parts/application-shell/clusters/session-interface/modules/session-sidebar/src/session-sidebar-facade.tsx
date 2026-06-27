@@ -5,7 +5,7 @@ import {
   Plus,
   Settings,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 
@@ -40,9 +40,46 @@ export function SessionSidebarFacade({
   onSelectWorkspace,
   onToggleWorkspaceMenu,
 }: SessionSidebarProps) {
+  const sidebarRef = useRef<HTMLElement | null>(null);
   const [menuSessionId, setMenuSessionId] = useState<string | null>(null);
+  const [confirmDeleteSessionId, setConfirmDeleteSessionId] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    if (!menuSessionId) {
+      return;
+    }
+    function closeMenu(event: PointerEvent) {
+      const target = event.target;
+      if (
+        target instanceof Element &&
+        !target.closest(".session-context-menu")
+      ) {
+        setMenuSessionId(null);
+        setConfirmDeleteSessionId(null);
+      }
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuSessionId(null);
+        setConfirmDeleteSessionId(null);
+      }
+    }
+    document.addEventListener("pointerdown", closeMenu);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeMenu);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [menuSessionId]);
+
   return (
-    <aside aria-label="Workspace sessions" className="session-sidebar">
+    <aside
+      aria-label="Workspace sessions"
+      className="session-sidebar"
+      ref={sidebarRef}
+    >
       <div className="workspace-switcher-wrap">
         <button
           aria-expanded={isWorkspaceMenuOpen}
@@ -111,9 +148,14 @@ export function SessionSidebarFacade({
               <div className="session-list-item">
                 <button
                   className="session-list-title"
-                  onClick={() => onSelectSession(session.id)}
+                  onClick={() => {
+                    setMenuSessionId(null);
+                    setConfirmDeleteSessionId(null);
+                    onSelectSession(session.id);
+                  }}
                   onContextMenu={(event) => {
                     event.preventDefault();
+                    setConfirmDeleteSessionId(null);
                     setMenuSessionId(session.id);
                   }}
                   title={session.title}
@@ -135,16 +177,45 @@ export function SessionSidebarFacade({
               </div>
               {menuSessionId === session.id ? (
                 <div className="session-context-menu">
-                  <button
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setMenuSessionId(null);
-                      onDeleteSession(session.id);
-                    }}
-                    type="button"
-                  >
-                    Delete
-                  </button>
+                  {confirmDeleteSessionId === session.id ? (
+                    <>
+                      <strong>Delete session?</strong>
+                      <div className="session-context-actions">
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setMenuSessionId(null);
+                            setConfirmDeleteSessionId(null);
+                          }}
+                          type="button"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="is-danger"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setMenuSessionId(null);
+                            setConfirmDeleteSessionId(null);
+                            onDeleteSession(session.id);
+                          }}
+                          type="button"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setConfirmDeleteSessionId(session.id);
+                      }}
+                      type="button"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               ) : null}
             </div>

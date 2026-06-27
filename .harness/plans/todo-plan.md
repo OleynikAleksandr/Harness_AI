@@ -973,3 +973,10 @@
 
 268. [DONE] `harness-ai.phase134.stream1.task1` Run sidebar build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify sidebar menu behavior`). Result: Completed in commit `chore: verify sidebar menu behavior`.
 269. [DONE] Git Commit: `chore: verify sidebar menu behavior` (hash: self)
+
+## Phase 135 - Active Session Row Color Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Interface
+
+270. [DONE] `harness-ai.phase135.stream1.task1` Remove saturated accent fill from the selected session row and render it as a neutral gray active state (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `fix: desaturate active session row`). Result: Completed in commit `fix: desaturate active session row`.
+271. [DONE] Git Commit: `fix: desaturate active session row` (hash: self)

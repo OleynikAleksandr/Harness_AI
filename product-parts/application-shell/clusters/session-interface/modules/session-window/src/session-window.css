@@ -233,7 +233,12 @@ textarea {
   padding: 0;
 }
 
-.session-list-row.is-active .session-list-item,
+.session-list-row.is-active .session-list-item {
+  color: var(--pm-text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
 .session-list-item:hover,
 .session-list-detach:hover,
 .settings-entry:hover {

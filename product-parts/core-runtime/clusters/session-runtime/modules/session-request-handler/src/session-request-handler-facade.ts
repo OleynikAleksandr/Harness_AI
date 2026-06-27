@@ -51,6 +51,7 @@ export interface SendCoreMessageRequest {
 export type CoreSessionActionResult =
   | { ok: true; session: CoreSession }
   | { error: string; ok: false };
+type DeleteSessionResult = { ok: true } | { error: string; ok: false };
 
 export interface SessionRequestHandlerDependencies {
   bindingFacade?: ProviderSessionBindingFacadeLike;
@@ -123,10 +124,10 @@ export class SessionRequestHandlerFacade {
       title: request.title ?? `${request.providerName} session`,
       updatedAt: now,
       workspaceId: request.workspaceId,
-      ...(request.workspacePath
-        ? { workspacePath: request.workspacePath }
-        : {}),
     };
+    if (request.workspacePath) {
+      session.workspacePath = request.workspacePath;
+    }
     this.sessions.set(session.id, session);
     this.eventStream.rememberSession?.(session);
     this.persistSessionIndex(session.workspacePath);
@@ -188,7 +189,22 @@ export class SessionRequestHandlerFacade {
     );
     return { ok: true, session: updatedSession };
   }
-
+  deleteSession(sessionId: string): DeleteSessionResult {
+    const session = this.sessions.get(sessionId);
+    if (!session) {
+      return { error: "Session not found", ok: false };
+    }
+    const binding = this.runtimeBindings.get(sessionId);
+    binding?.unsubscribe();
+    binding?.adapter
+      .closeSession(binding.providerSessionId)
+      .catch(() => undefined);
+    this.runtimeBindings.delete(sessionId);
+    this.telemetryBySession.delete(sessionId);
+    this.sessions.delete(sessionId);
+    this.persistSessionIndex(session.workspacePath);
+    return { ok: true };
+  }
   getSession(sessionId: string): CoreSession | null {
     return this.sessions.get(sessionId) ?? null;
   }

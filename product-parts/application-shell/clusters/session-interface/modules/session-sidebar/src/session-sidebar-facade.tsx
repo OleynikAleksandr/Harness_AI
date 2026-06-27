@@ -5,6 +5,7 @@ import {
   Plus,
   Settings,
 } from "lucide-react";
+import { useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 
@@ -13,6 +14,7 @@ interface SessionSidebarProps {
   isWorkspaceMenuOpen: boolean;
   onAddWorkspace: () => void;
   onCreateSession: () => void;
+  onDeleteSession: (sessionId: string) => void;
   onDetachSession: (sessionId: string) => void;
   onOpenSettings: () => void;
   onSelectSession: (sessionId: string) => void;
@@ -31,12 +33,14 @@ export function SessionSidebarFacade({
   isWorkspaceMenuOpen,
   onAddWorkspace,
   onCreateSession,
+  onDeleteSession,
   onDetachSession,
   onOpenSettings,
   onSelectSession,
   onSelectWorkspace,
   onToggleWorkspaceMenu,
 }: SessionSidebarProps) {
+  const [menuSessionId, setMenuSessionId] = useState<string | null>(null);
   return (
     <aside aria-label="Workspace sessions" className="session-sidebar">
       <div className="workspace-switcher-wrap">
@@ -49,7 +53,6 @@ export function SessionSidebarFacade({
         >
           <span>
             <strong>{workspace.name}</strong>
-            <small>{workspace.path}</small>
           </span>
           <ChevronDown aria-hidden="true" size={16} />
         </button>
@@ -84,7 +87,6 @@ export function SessionSidebarFacade({
 
       <div className="sidebar-section">
         <div className="sidebar-section-header">
-          <span>Sessions</span>
           <button
             className="start-new-session-button"
             onClick={onCreateSession}
@@ -106,22 +108,45 @@ export function SessionSidebarFacade({
               }
               key={session.id}
             >
-              <button
-                className="session-list-item"
-                onClick={() => onSelectSession(session.id)}
-                title={session.title}
-                type="button"
-              >
-                <span>{session.title}</span>
-              </button>
-              <button
-                className="session-list-detach"
-                onClick={() => onDetachSession(session.id)}
-                title="Detach session"
-                type="button"
-              >
-                <ExternalLink aria-hidden="true" size={14} />
-              </button>
+              <div className="session-list-item">
+                <button
+                  className="session-list-title"
+                  onClick={() => onSelectSession(session.id)}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    setMenuSessionId(session.id);
+                  }}
+                  title={session.title}
+                  type="button"
+                >
+                  <span>{session.title}</span>
+                </button>
+                <button
+                  className="session-list-detach"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDetachSession(session.id);
+                  }}
+                  title="Detach session"
+                  type="button"
+                >
+                  <ExternalLink aria-hidden="true" size={14} />
+                </button>
+              </div>
+              {menuSessionId === session.id ? (
+                <div className="session-context-menu">
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setMenuSessionId(null);
+                      onDeleteSession(session.id);
+                    }}
+                    type="button"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ) : null}
             </div>
           ))}
         </nav>

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase130.stream1.task1",
+  "expectedCommitMessage": "chore: verify session sidebar controls",
   "debt": null
 }
 ```
@@ -931,3 +931,17 @@
 
 256. [DONE] `harness-ai.phase128.stream1.task1` Run focused build/package checks for detached session window sizing and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify detached session sizing`). Result: Completed in commit `chore: verify detached session sizing`.
 257. [DONE] Git Commit: `chore: verify detached session sizing` (hash: self)
+
+## Phase 129 - Session Sidebar Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Interface
+
+258. [DONE] `harness-ai.phase129.stream1.task1` Tighten the left sidebar by hiding workspace path, moving Start New Session into the section header, embedding detach inside session rows, and adding Core-owned session delete from the row context menu (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: tighten session sidebar controls`). Result: Completed in commit `fix: tighten session sidebar controls`.
+259. [DONE] Git Commit: `fix: tighten session sidebar controls` (hash: self)
+
+## Phase 130 - Session Sidebar Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+260. [IN_PROGRESS] `harness-ai.phase130.stream1.task1` Run focused checks/package for the sidebar layout and session delete route, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session sidebar controls`).
+261. [TODO] Git Commit: `chore: verify session sidebar controls` (hash: TBD)

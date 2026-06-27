@@ -40,7 +40,7 @@ textarea {
 .harness-app-shell {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
   min-height: 100vh;
   background: var(--pm-bg-primary);
 }
@@ -64,6 +64,7 @@ textarea {
 .workspace-switcher,
 .settings-entry,
 .session-list-item,
+.session-list-title,
 .session-list-detach,
 .workspace-menu-item,
 .icon-button,
@@ -147,6 +148,7 @@ textarea {
 }
 
 .workspace-switcher strong,
+.session-list-title span,
 .session-list-item span,
 .workspace-menu-item strong {
   overflow: hidden;
@@ -170,7 +172,7 @@ textarea {
 .sidebar-section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: stretch;
   font-size: 12px;
   color: var(--pm-text-muted);
   text-transform: uppercase;
@@ -182,15 +184,13 @@ textarea {
 }
 
 .session-list-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px;
-  gap: 4px;
-  align-items: center;
+  position: relative;
 }
 
 .session-list-item,
 .settings-entry,
-.session-list-detach {
+.session-list-detach,
+.session-list-title {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -204,16 +204,28 @@ textarea {
 }
 
 .session-list-item {
+  gap: 4px;
   width: 100%;
+  padding: 0;
+}
+
+.session-list-title {
+  flex: 1;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 9px 10px;
+  text-align: left;
+  background: transparent;
+  border: 0;
 }
 
 .session-list-detach {
   justify-content: center;
-  width: 34px;
+  width: 30px;
+  min-height: 30px;
   padding: 0;
 }
 
-.session-list-item.is-active,
 .session-list-row.is-active .session-list-item,
 .session-list-item:hover,
 .session-list-detach:hover,
@@ -221,6 +233,35 @@ textarea {
   color: var(--pm-accent-strong);
   background: rgba(66, 201, 162, 0.12);
   border-color: rgba(66, 201, 162, 0.45);
+}
+
+.session-context-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 15;
+  min-width: 118px;
+  padding: 5px;
+  background: #161b21;
+  border: 1px solid var(--pm-border-strong);
+  border-radius: 8px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.42);
+}
+
+.session-context-menu button {
+  width: 100%;
+  min-height: 30px;
+  color: #f2b0a8;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+
+.session-context-menu button:hover {
+  color: #fff;
+  background: rgba(221, 85, 72, 0.18);
 }
 
 .settings-entry {
@@ -524,7 +565,7 @@ textarea {
 /* Reference session surface */
 .harness-app-shell {
   display: grid;
-  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
   min-height: 100vh;
   overflow: hidden;
   font-family: "Space Grotesk", "Sora", "IBM Plex Sans", "Segoe UI", sans-serif;
@@ -564,6 +605,10 @@ textarea {
   background: rgba(66, 201, 162, 0.12);
   border: 1px solid rgba(66, 201, 162, 0.45);
   border-radius: 8px;
+}
+
+.sidebar-section-header .start-new-session-button {
+  width: 100%;
 }
 
 .start-new-session-button:hover {

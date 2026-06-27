@@ -81,6 +81,9 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:create-session", (_event, request) =>
     runtime.sessionRequestHandlerFacade.createSession(request)
   );
+  ipcMain.handle("harness-ai:core:delete-session", (_event, sessionId) =>
+    runtime.sessionRequestHandlerFacade.deleteSession(String(sessionId ?? ""))
+  );
   ipcMain.handle("harness-ai:core:get-settings", (_event, workspacePath) =>
     runtime.settingsStoreFacade.getSettings(
       workspacePath || activeWorkspacePath(runtime)

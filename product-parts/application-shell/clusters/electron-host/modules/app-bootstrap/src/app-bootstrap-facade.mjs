@@ -81,7 +81,7 @@ async function openDetachedSessionWindow(request) {
       workspaceId,
     },
     title: "Harness AI Session",
-    width: 960,
+    width: 1000,
   });
   return { ok: true };
 }

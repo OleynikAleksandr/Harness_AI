@@ -34,6 +34,9 @@ interface Window {
         }
       | { error: string; ok: false }
     >;
+    deleteSession(
+      sessionId: string
+    ): Promise<{ ok: true } | { error: string; ok: false }>;
     getSessionEvents(
       sessionId: string
     ): Promise<

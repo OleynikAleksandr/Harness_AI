@@ -1,4 +1,3 @@
-import { X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   CoreSessionMessage,
@@ -15,6 +14,7 @@ import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/w
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
+import { getProviderModel, ProviderPicker } from "./provider-picker.js";
 import {
   DialogPanel,
   ReferenceInputPanel,
@@ -159,18 +159,24 @@ export function SessionWindowFacade() {
   }
 
   async function appendUserMessage(text: string) {
-    const sessionId = activeSessionId;
-    const result = await window.harnessCore?.sendMessage({ sessionId, text });
+    const result = await window.harnessCore?.sendMessage({
+      sessionId: activeSessionId,
+      text,
+    });
     if (!result) {
       appendAssistantNotice(
-        sessionId,
+        activeSessionId,
         "Core runtime bridge is unavailable.",
         setMessagesBySession
       );
       return;
     }
     if (!result.ok) {
-      appendAssistantNotice(sessionId, result.error, setMessagesBySession);
+      appendAssistantNotice(
+        activeSessionId,
+        result.error,
+        setMessagesBySession
+      );
     }
   }
 
@@ -245,7 +251,11 @@ export function SessionWindowFacade() {
       workspaceId: activeWorkspace.id,
     });
   }
-
+  async function deleteSession(sessionId: string) {
+    if ((await window.harnessCore?.deleteSession(sessionId))?.ok) {
+      await refreshSessions(activeWorkspace.id);
+    }
+  }
   return (
     <div
       className={
@@ -260,6 +270,7 @@ export function SessionWindowFacade() {
           isWorkspaceMenuOpen={isWorkspaceMenuOpen}
           onAddWorkspace={addWorkspace}
           onCreateSession={openProviderPicker}
+          onDeleteSession={deleteSession}
           onDetachSession={detachSession}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onSelectSession={selectSession}
@@ -410,84 +421,6 @@ function appendAssistantNotice(
       },
     ],
   }));
-}
-
-function ProviderPicker({
-  onClose,
-  onSelect,
-  providers,
-  settings,
-}: {
-  onClose: () => void;
-  onSelect: (provider: ProviderDescriptor) => void;
-  providers: ProviderDescriptor[];
-  settings: HarnessSettings | null;
-}) {
-  return (
-    <div className="provider-picker-backdrop">
-      <section aria-label="Choose provider" className="provider-picker-card">
-        <header className="provider-picker-header">
-          <div>
-            <p className="session-kicker">New session</p>
-            <h2>Choose provider</h2>
-          </div>
-          <button
-            className="icon-button"
-            onClick={onClose}
-            title="Close"
-            type="button"
-          >
-            <X aria-hidden="true" size={16} />
-          </button>
-        </header>
-
-        <div className="provider-grid">
-          {providers.map((provider) => {
-            const model = getProviderModel(provider.id, settings);
-            return (
-              <button
-                className="provider-card"
-                key={provider.id}
-                onClick={() => onSelect(provider)}
-                type="button"
-              >
-                <strong>{provider.name}</strong>
-                <span>{model}</span>
-                <small>{provider.status}</small>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function getProviderModel(
-  providerId: ProviderDescriptor["id"],
-  settings: HarnessSettings | null | undefined
-): string {
-  if (!settings) {
-    return "cli-default";
-  }
-  switch (providerId) {
-    case "claude":
-      return settings.providers.claude.defaultModel;
-    case "codex":
-      return settings.providers.codex.defaultModel;
-    case "kimi":
-      return settings.providers.kimi.defaultModel;
-    case "glm-native":
-      return settings.providers.glmNative.defaultModel;
-    case "glm-opencode":
-      return settings.providers.glmOpenCode.defaultModel;
-    case "openrouter":
-      return settings.providers.openRouter.defaultModel;
-    case "local-models":
-      return settings.providers.localModels.defaultModel;
-    default:
-      return "cli-default";
-  }
 }
 
 function noop() {

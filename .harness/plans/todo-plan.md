@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase120.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase122.stream1.task1",
+  "expectedCommitMessage": "fix: read provider usage limits",
   "debt": null
 }
 ```
@@ -875,4 +875,31 @@
 
 ### Stream: Retest
 
-242. [IN_PROGRESS] `harness-ai.phase120.stream1.task1` User retests OpenCode SDK current version in Settings after packaged app restart (scope: user workflow; expected commit: none).
+242. [TODO] `harness-ai.phase120.stream1.task1` User retests OpenCode SDK current version in Settings after packaged app restart (scope: user workflow; expected commit: none). Retest found usage-limit indicators are never refreshed; hotfix follows.
+
+## Phase 121 - Provider Usage Limit Refresh Route (owner: Codex, updated: 2026-06-27)
+
+### Stream: Core Telemetry
+
+243. [DONE] `harness-ai.phase121.stream1.task1` Add Core-owned optional provider usage-limit refresh dispatch after binding and completed turns (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: refresh provider usage telemetry`). Result: Completed in commit `fix: refresh provider usage telemetry`.
+244. [DONE] Git Commit: `fix: refresh provider usage telemetry` (hash: self)
+
+## Phase 122 - Provider Usage Limit Readers (owner: Codex, updated: 2026-06-27)
+
+### Stream: Provider Sources
+
+245. [IN_PROGRESS] `harness-ai.phase122.stream1.task1` Add provider-owned usage-limit readers for the current Harness providers that expose real account limit sources (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/**/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: read provider usage limits`).
+246. [TODO] Git Commit: `fix: read provider usage limits` (hash: TBD)
+
+## Phase 123 - Provider Usage Limit Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+247. [TODO] `harness-ai.phase123.stream1.task1` Run tests/build/package and record usage-limit indicator verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider usage limits`).
+248. [TODO] Git Commit: `chore: verify provider usage limits` (hash: TBD)
+
+## Phase 124 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Retest
+
+249. [TODO] `harness-ai.phase124.stream1.task1` User retests provider usage-limit indicators in Claude, Codex, Kimi, GLM, OpenCode, OpenRouter, and Local Models sessions (scope: user workflow; expected commit: none).

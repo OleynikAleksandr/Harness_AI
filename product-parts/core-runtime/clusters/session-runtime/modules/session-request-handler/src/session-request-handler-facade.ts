@@ -1,5 +1,3 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderTurnStatus,
@@ -19,6 +17,10 @@ import {
   type SessionCoreEvent,
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
+import {
+  readWorkspaceSessionIndex,
+  writeWorkspaceSessionIndex,
+} from "./session-history-store.js";
 
 export interface CoreSession {
   createdAt: string;
@@ -271,13 +273,7 @@ export class SessionRequestHandlerFacade {
     const workspaceSessions = this.listSessions().filter(
       (session) => session.workspacePath === workspacePath
     );
-    const indexPath = sessionIndexPath(workspacePath);
-    mkdirSync(dirname(indexPath), { recursive: true });
-    writeFileSync(
-      indexPath,
-      JSON.stringify(workspaceSessions, null, 2),
-      "utf8"
-    );
+    writeWorkspaceSessionIndex(workspacePath, workspaceSessions);
   }
 
   private setTelemetry(
@@ -368,6 +364,7 @@ export class SessionRequestHandlerFacade {
           providerSessionId
         )
       );
+      this.refreshUsageLimits(session.id).catch(() => undefined);
     } catch (error) {
       this.publishBinding(
         this.bindingFacade.markFailed(
@@ -418,6 +415,7 @@ export class SessionRequestHandlerFacade {
     }
     if (event.type === "turn_completed") {
       this.publishTurnState(sessionId, "idle");
+      this.refreshUsageLimits(sessionId).catch(() => undefined);
       return;
     }
     if (event.type === "turn_failed") {
@@ -439,6 +437,20 @@ export class SessionRequestHandlerFacade {
       return PROVIDER_STARTING;
     }
     return binding?.error ?? ADAPTER_NOT_REGISTERED;
+  }
+
+  private async refreshUsageLimits(sessionId: string): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    const binding = this.runtimeBindings.get(sessionId);
+    if (!(session?.workspacePath && binding?.adapter.refreshUsageLimits)) {
+      return;
+    }
+    await binding.adapter.refreshUsageLimits({
+      broadcast: (event) => this.handleProviderEvent(sessionId, event),
+      providerSessionId: binding.providerSessionId,
+      runtimeSessionId: sessionId,
+      workspacePath: session.workspacePath,
+    });
   }
 }
 
@@ -464,36 +476,8 @@ function readString(value: unknown): string | null {
     : null;
 }
 
-function sessionIndexPath(workspacePath: string): string {
-  return join(workspacePath, ".harness", "sessions", "index.json");
-}
-
 function readWorkspaceSessions(workspacePath: string): CoreSession[] {
-  const indexPath = sessionIndexPath(workspacePath);
-  if (!existsSync(indexPath)) {
-    return [];
-  }
-  try {
-    const parsed = JSON.parse(readFileSync(indexPath, "utf8")) as unknown;
-    return Array.isArray(parsed) ? parsed.filter(isCoreSession) : [];
-  } catch {
-    return [];
-  }
-}
-
-function isCoreSession(value: unknown): value is CoreSession {
-  return (
-    isRecord(value) &&
-    typeof value.id === "string" &&
-    typeof value.providerId === "string" &&
-    typeof value.providerName === "string" &&
-    typeof value.model === "string" &&
-    typeof value.title === "string" &&
-    typeof value.workspaceId === "string" &&
-    typeof value.workspacePath === "string" &&
-    typeof value.createdAt === "string" &&
-    typeof value.updatedAt === "string"
-  );
+  return readWorkspaceSessionIndex(workspacePath);
 }
 
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

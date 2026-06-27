@@ -2,10 +2,20 @@ export interface ProviderTurnOptions {
   [key: string]: unknown;
 }
 
+export interface ProviderUsageLimitsRefreshRequest {
+  broadcast: (event: unknown) => void;
+  providerSessionId: string;
+  runtimeSessionId: string;
+  workspacePath: string;
+}
+
 export interface ProviderAdapter {
   closeSession(sessionId: string): Promise<void>;
   createSession(workspacePath?: string): Promise<string>;
   initialize?(): Promise<void>;
+  refreshUsageLimits?(
+    request: ProviderUsageLimitsRefreshRequest
+  ): Promise<void> | void;
   resumeSession?(sessionId: string, workspacePath?: string): Promise<string>;
   sendMessage(
     sessionId: string,

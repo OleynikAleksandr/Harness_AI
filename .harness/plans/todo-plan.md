@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase106.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase108.stream1.task1",
+  "expectedCommitMessage": "chore: verify window close hotfix",
   "debt": null
 }
 ```
@@ -782,4 +782,24 @@
 
 ### Stream: Retest
 
-219. [IN_PROGRESS] `harness-ai.phase106.stream1.task1` User retests workspace switching, session list restore, and detached session replay after Core/app restart (scope: user workflow; expected commit: none).
+219. [TODO] `harness-ai.phase106.stream1.task1` User retests workspace switching, session list restore, and detached session replay after Core/app restart (scope: user workflow; expected commit: none). Retest found a close-time Electron destroyed-object bug; hotfix follows.
+
+## Phase 107 - Window Close Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Electron Host
+
+220. [DONE] `harness-ai.phase107.stream1.task1` Prevent the Core bridge window detach cleanup from reading BrowserWindow webContents after the window has been destroyed (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, .harness/plans/todo-plan.md`; expected commit: `fix: avoid destroyed webcontents on close`). Result: Completed in commit `fix: avoid destroyed webcontents on close`.
+221. [DONE] Git Commit: `fix: avoid destroyed webcontents on close` (hash: self)
+
+## Phase 108 - Window Close Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+222. [IN_PROGRESS] `harness-ai.phase108.stream1.task1` Run focused gates, package the macOS app, and record close hotfix verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify window close hotfix`).
+223. [TODO] Git Commit: `chore: verify window close hotfix` (hash: TBD)
+
+## Phase 109 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Retest
+
+224. [TODO] `harness-ai.phase109.stream1.task1` User retests closing Harness AI and detached windows without a main-process JavaScript error (scope: user workflow; expected commit: none).

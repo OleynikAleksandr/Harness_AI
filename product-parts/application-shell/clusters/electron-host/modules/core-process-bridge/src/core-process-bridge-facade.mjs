@@ -167,9 +167,10 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   );
   bridge = {
     attachWindow(window) {
-      webContentsTargets.add(window.webContents);
+      const webContents = window.webContents;
+      webContentsTargets.add(webContents);
       window.on("closed", () => {
-        webContentsTargets.delete(window.webContents);
+        webContentsTargets.delete(webContents);
       });
     },
   };

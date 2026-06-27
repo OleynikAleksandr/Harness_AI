@@ -158,9 +158,19 @@ export class OpenAiCompatibleSessionProviderAdapter
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${await response.text()}`);
       }
-      const text = extractOpenAiText(await response.json());
+      const json = await response.json();
+      const text = extractOpenAiText(json);
       session.messages.push({ role: "user", content });
       session.messages.push({ role: "assistant", content: text });
+      const tokenUsage = extractOpenAiTokenUsage(json);
+      if (tokenUsage) {
+        this.emit(sessionId, {
+          data: { kind: "token_usage", tokenUsage },
+          timestamp: new Date().toISOString(),
+          type: "stream_event",
+          uuid: randomUUID(),
+        });
+      }
       this.emit(sessionId, dialogMessage(text));
       this.emit(sessionId, event("turn_completed"));
     } catch (error) {
@@ -280,11 +290,39 @@ function extractOpenAiText(value: unknown): string {
   return content;
 }
 
+function extractOpenAiTokenUsage(value: unknown): {
+  limit: number;
+  used: number;
+} | null {
+  const usage = isRecord(value) && isRecord(value.usage) ? value.usage : null;
+  if (!usage) {
+    return null;
+  }
+  const input = readNumber(usage.input_tokens);
+  const output = readNumber(usage.output_tokens);
+  const total =
+    readNumber(usage.total_tokens) ??
+    readNumber(usage.totalTokens) ??
+    (input !== null && output !== null ? input + output : null);
+  return total !== null && total > 0 ? { limit: 0, used: total } : null;
+}
+
 function readModel(
   turnOptions: ProviderTurnOptions | undefined,
   fallback?: string
 ): string | undefined {
   return typeof turnOptions?.model === "string" ? turnOptions.model : fallback;
+}
+
+function readNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value.replace(/,/gu, ""));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
 }
 
 function stringifyError(error: unknown): string {

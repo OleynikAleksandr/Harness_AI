@@ -1,5 +1,10 @@
 import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
+  type ProviderTurnStatus,
+  type ProviderUsageTelemetry,
+  usageContextTelemetryFacade,
+} from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
+import {
   type ProviderId,
   providerRegistryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
@@ -91,6 +96,10 @@ export class SessionRequestHandlerFacade {
   private readonly providerRegistry: ProviderRegistryLike;
   private readonly runtimeBindings = new Map<string, ProviderRuntimeBinding>();
   private readonly sessions = new Map<string, CoreSession>();
+  private readonly telemetryBySession = new Map<
+    string,
+    ProviderUsageTelemetry
+  >();
 
   constructor(deps: SessionRequestHandlerDependencies = {}) {
     this.bindingFacade = deps.bindingFacade ?? providerSessionBindingFacade;
@@ -114,6 +123,15 @@ export class SessionRequestHandlerFacade {
         : {}),
     };
     this.sessions.set(session.id, session);
+    this.setTelemetry(
+      session.id,
+      usageContextTelemetryFacade.createTelemetry({
+        model: session.model,
+        provider: session.providerName,
+        providerId: session.providerId,
+        status: "idle",
+      })
+    );
     this.publish({
       payload: { sessionId: session.id, title: session.title },
       timestamp: now,
@@ -188,6 +206,7 @@ export class SessionRequestHandlerFacade {
       timestamp: binding.updatedAt,
       type: "session:provider-binding",
     });
+    this.updateTelemetryWithBinding(binding);
   }
 
   private publishError(sessionId: string, error: string): void {
@@ -199,6 +218,7 @@ export class SessionRequestHandlerFacade {
   }
 
   private publishTurnState(sessionId: string, state: "idle" | "running"): void {
+    this.updateTelemetryStatus(sessionId, state);
     this.publish({
       payload: { sessionId, state },
       timestamp: new Date().toISOString(),
@@ -208,6 +228,61 @@ export class SessionRequestHandlerFacade {
 
   private publish(event: SessionCoreEvent): void {
     this.eventStream.publish(event);
+  }
+
+  private setTelemetry(
+    sessionId: string,
+    telemetry: ProviderUsageTelemetry
+  ): void {
+    const current = this.telemetryBySession.get(sessionId);
+    if (current && JSON.stringify(current) === JSON.stringify(telemetry)) {
+      return;
+    }
+    this.telemetryBySession.set(sessionId, telemetry);
+    this.publish({
+      payload: { sessionId, telemetry },
+      timestamp: telemetry.updatedAt,
+      type: "session:telemetry",
+    });
+  }
+
+  private updateTelemetryStatus(
+    sessionId: string,
+    status: ProviderTurnStatus
+  ): void {
+    const current = this.telemetryBySession.get(sessionId);
+    if (!current) {
+      return;
+    }
+    this.setTelemetry(
+      sessionId,
+      usageContextTelemetryFacade.applyStatus(current, status)
+    );
+  }
+
+  private updateTelemetryWithBinding(binding: ProviderSessionBinding): void {
+    const current = this.telemetryBySession.get(binding.sessionId);
+    if (!current) {
+      return;
+    }
+    this.setTelemetry(
+      binding.sessionId,
+      usageContextTelemetryFacade.applyBinding(current, binding)
+    );
+  }
+
+  private updateTelemetryWithProviderEvent(
+    sessionId: string,
+    event: unknown
+  ): void {
+    const current = this.telemetryBySession.get(sessionId);
+    if (!current) {
+      return;
+    }
+    this.setTelemetry(
+      sessionId,
+      usageContextTelemetryFacade.applyProviderEvent(current, event)
+    );
   }
 
   private async bindProviderSession(session: CoreSession): Promise<void> {
@@ -276,6 +351,7 @@ export class SessionRequestHandlerFacade {
     if (!isRecord(event) || typeof event.type !== "string") {
       return;
     }
+    this.updateTelemetryWithProviderEvent(sessionId, event);
     if (event.type === "dialog_message") {
       this.publishMessage({
         id: readString(event.uuid) ?? createId("message-provider"),

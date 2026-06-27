@@ -1,0 +1,55 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import ts from "typescript";
+
+const source = readFileSync(
+  new URL("./usage-context-telemetry-facade.ts", import.meta.url),
+  "utf8"
+);
+const compiled = ts.transpileModule(source, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
+const { usageContextTelemetryFacade } = await import(moduleUrl);
+
+const codex = usageContextTelemetryFacade.createTelemetry({
+  model: "gpt-5.4-mini",
+  provider: "Codex",
+  providerId: "codex",
+});
+assert.equal(codex.providerScopeKey, "codex:global");
+assert.equal(codex.tokenDisplay.value, "0 (100%)");
+assert.equal(codex.limitRows[0].text, "Session ...");
+assert.equal(codex.limitRows[1].text, "Weekly ...");
+
+const withTokens = usageContextTelemetryFacade.applyProviderEvent(codex, {
+  data: { kind: "token_usage", tokenUsage: { limit: 200_000, used: 22_328 } },
+  type: "stream_event",
+});
+assert.equal(withTokens.tokenDisplay.value, "22,328 (89%)");
+
+const kimi = usageContextTelemetryFacade.createTelemetry({
+  model: "kimi-k2.7-code",
+  provider: "Kimi",
+  providerId: "kimi",
+});
+assert.equal(kimi.providerScopeKey, "kimi:global");
+assert.equal(kimi.tokenUsage.limit, 262_144);
+assert.equal(kimi.limitRows[0].text, "5h unavailable");
+
+const withLimits = usageContextTelemetryFacade.applyProviderEvent(kimi, {
+  data: {
+    usageLimits: {
+      currentSession: { percentUsed: 9, resetsAt: "2026-05-19T12:50:12.630Z" },
+      currentWeekAllModels: { percentUsed: 13 },
+      currentWeekSonnetOnly: { percentUsed: 0 },
+    },
+  },
+  type: "stream_event",
+});
+assert.equal(withLimits.limitRows[0].text.includes("5h 9%"), true);
+assert.equal(withLimits.limitRows[1].text, "Weekly 13%");
+assert.equal(withLimits.limitRows[2].text, "Parallel 0%");

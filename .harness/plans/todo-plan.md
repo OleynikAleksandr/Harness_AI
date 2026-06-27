@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase98.stream1.task1",
+  "expectedCommitMessage": "feat: render core usage telemetry panels",
   "debt": null
 }
 ```
@@ -714,3 +714,17 @@
 
 199. [DONE] `harness-ai.phase96.stream1.task1` Codify that UI and transport surfaces are never sources of product or workflow truth; Core/shared contracts own truth and UI only renders or submits input (scope: `AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `docs: codify core authority rule`). Result: Completed in commit `docs: codify core authority rule`.
 200. [DONE] Git Commit: `docs: codify core authority rule` (hash: self)
+
+## Phase 97 - Core Usage Telemetry (owner: Codex, updated: 2026-06-27)
+
+### Stream: Provider Truth
+
+201. [DONE] `harness-ai.phase97.stream1.task1` Add provider-owned usage/context telemetry derivation and publish Core session telemetry events from provider events and bindings (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/session-provider-adapter-helpers.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`; expected commit: `feat: publish core usage telemetry`). Result: Completed in commit `feat: publish core usage telemetry`.
+202. [DONE] Git Commit: `feat: publish core usage telemetry` (hash: self)
+
+## Phase 98 - Session Usage Panels Display (owner: Codex, updated: 2026-06-27)
+
+### Stream: Display Only
+
+203. [IN_PROGRESS] `harness-ai.phase98.stream1.task1` Render the top limit panel and bottom token panel from Core telemetry only, matching reference layout without renderer-owned provider truth (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `feat: render core usage telemetry panels`).
+204. [TODO] Git Commit: `feat: render core usage telemetry panels` (hash: TBD)

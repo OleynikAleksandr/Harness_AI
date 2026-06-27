@@ -1,3 +1,4 @@
+import type { ProviderUsageTelemetry } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 
 export type CoreSessionRole = "user" | "assistant" | "system" | "thinking";
@@ -37,6 +38,11 @@ export type SessionCoreEvent =
       payload: ProviderSessionBinding;
       timestamp: string;
       type: "session:provider-binding";
+    }
+  | {
+      payload: { sessionId: string; telemetry: ProviderUsageTelemetry };
+      timestamp: string;
+      type: "session:telemetry";
     };
 
 export type SessionCoreEventListener = (event: SessionCoreEvent) => void;

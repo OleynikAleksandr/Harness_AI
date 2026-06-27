@@ -45,6 +45,10 @@ textarea {
   background: var(--pm-bg-primary);
 }
 
+.harness-app-shell--detached {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .session-sidebar {
   display: flex;
   flex-direction: column;
@@ -60,12 +64,18 @@ textarea {
 .workspace-switcher,
 .settings-entry,
 .session-list-item,
+.session-list-detach,
+.workspace-menu-item,
 .icon-button,
 .file-link-button,
 .provider-card,
 .start-session-button {
   cursor: pointer;
   border: 0;
+}
+
+.workspace-switcher-wrap {
+  position: relative;
 }
 
 .workspace-switcher {
@@ -83,13 +93,62 @@ textarea {
   border-radius: 8px;
 }
 
+.workspace-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  display: grid;
+  gap: 4px;
+  padding: 6px;
+  background: #161b21;
+  border: 1px solid var(--pm-border-strong);
+  border-radius: 8px;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.42);
+}
+
+.workspace-menu-item {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  color: var(--pm-text-primary);
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.workspace-menu-item:hover,
+.workspace-menu-item.is-active {
+  background: rgba(66, 201, 162, 0.12);
+  border-color: rgba(66, 201, 162, 0.45);
+}
+
+.workspace-menu-item small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pm-text-muted);
+  white-space: nowrap;
+}
+
+.workspace-menu-item--add {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--pm-accent-strong);
+}
+
 .workspace-switcher span {
   display: grid;
   min-width: 0;
 }
 
 .workspace-switcher strong,
-.session-list-item span {
+.session-list-item span,
+.workspace-menu-item strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -122,8 +181,16 @@ textarea {
   gap: 6px;
 }
 
+.session-list-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 4px;
+  align-items: center;
+}
+
 .session-list-item,
-.settings-entry {
+.settings-entry,
+.session-list-detach {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -136,8 +203,20 @@ textarea {
   border-radius: 8px;
 }
 
+.session-list-item {
+  width: 100%;
+}
+
+.session-list-detach {
+  justify-content: center;
+  width: 34px;
+  padding: 0;
+}
+
 .session-list-item.is-active,
+.session-list-row.is-active .session-list-item,
 .session-list-item:hover,
+.session-list-detach:hover,
 .settings-entry:hover {
   color: var(--pm-accent-strong);
   background: rgba(66, 201, 162, 0.12);

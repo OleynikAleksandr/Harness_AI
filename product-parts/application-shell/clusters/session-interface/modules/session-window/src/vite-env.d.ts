@@ -39,7 +39,7 @@ interface Window {
     ): Promise<
       import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent[]
     >;
-    getSettings(): Promise<HarnessSettings>;
+    getSettings(workspacePath?: string): Promise<HarnessSettings>;
     getLocalModels(): Promise<
       { models: string[]; ok: true } | { error: string; ok: false }
     >;

@@ -67,8 +67,10 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:create-session", (_event, request) =>
     runtime.sessionRequestHandlerFacade.createSession(request)
   );
-  ipcMain.handle("harness-ai:core:get-settings", () =>
-    runtime.settingsStoreFacade.getSettings(activeWorkspacePath(runtime))
+  ipcMain.handle("harness-ai:core:get-settings", (_event, workspacePath) =>
+    runtime.settingsStoreFacade.getSettings(
+      workspacePath || activeWorkspacePath(runtime)
+    )
   );
   ipcMain.handle("harness-ai:core:get-local-models", async () => {
     try {

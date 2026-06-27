@@ -14,7 +14,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:create-session", request),
   getSessionEvents: (sessionId) =>
     ipcRenderer.invoke("harness-ai:core:get-session-events", sessionId),
-  getSettings: () => ipcRenderer.invoke("harness-ai:core:get-settings"),
+  getSettings: (workspacePath) =>
+    ipcRenderer.invoke("harness-ai:core:get-settings", workspacePath),
   getLocalModels: () => ipcRenderer.invoke("harness-ai:core:get-local-models"),
   getProviderSystemSettings: (providerId) =>
     ipcRenderer.invoke(

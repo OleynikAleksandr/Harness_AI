@@ -11,6 +11,7 @@ import {
   sessionSnapshotProjectorFacade,
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
@@ -20,6 +21,7 @@ import {
   ReferenceStatusPanel,
   SessionIdPanel,
 } from "./reference-session-panels.js";
+import { resolveDetachedSessionMode } from "./session-window-routing.js";
 import "./session-window.css";
 
 export function SessionWindowFacade() {
@@ -27,11 +29,21 @@ export function SessionWindowFacade() {
     () => sessionSnapshotProjectorFacade.getSnapshot(),
     []
   );
+  const detachedMode = useMemo(resolveDetachedSessionMode, []);
   const [providerOptions, setProviderOptions] = useState<ProviderDescriptor[]>(
     []
   );
+  const [workspaces, setWorkspaces] = useState<HarnessWorkspace[]>([
+    initialSnapshot.workspace,
+  ]);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(
+    detachedMode?.workspaceId ?? initialSnapshot.workspace.id
+  );
   const [sessions, setSessions] = useState<CoreSession[]>([]);
-  const [activeSessionId, setActiveSessionId] = useState("");
+  const [activeSessionId, setActiveSessionId] = useState(
+    detachedMode?.sessionId ?? ""
+  );
+  const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsSnapshot, setSettingsSnapshot] =
@@ -48,8 +60,12 @@ export function SessionWindowFacade() {
   });
   const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
 
+  const activeWorkspace =
+    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
+    initialSnapshot.workspace;
   const activeSession =
-    sessions.find((session) => session.id === activeSessionId) ?? sessions[0];
+    sessions.find((session) => session.id === activeSessionId) ??
+    (detachedMode ? undefined : sessions[0]);
   const activeSessionDataId = activeSession?.id ?? activeSessionId;
   const messages = activeSession
     ? (messagesBySession[activeSessionDataId] ?? [])
@@ -57,17 +73,66 @@ export function SessionWindowFacade() {
   const telemetry =
     telemetryBySession[activeSessionDataId] ?? initialSnapshot.telemetry;
 
-  const refreshSettingsSnapshot = useCallback(async () => {
-    const snapshot = await window.harnessCore?.getSettings();
-    if (snapshot) {
-      setSettingsSnapshot(snapshot);
+  const refreshSettingsSnapshot = useCallback(
+    async (workspacePath?: string) => {
+      const snapshot = await window.harnessCore?.getSettings(workspacePath);
+      if (snapshot) {
+        setSettingsSnapshot(snapshot);
+      }
+      return snapshot ?? null;
+    },
+    []
+  );
+
+  const hydrateSession = useCallback(async (sessionId: string) => {
+    const events = await window.harnessCore?.getSessionEvents(sessionId);
+    for (const event of events ?? []) {
+      applyCoreEvent({
+        event,
+        setMessagesBySession,
+        setRunningSessionId,
+        setTelemetryBySession,
+      });
     }
-    return snapshot ?? null;
   }, []);
+
+  const refreshSessions = useCallback(
+    async (workspaceId: string, preferredSessionId?: string) => {
+      const loaded = await window.harnessCore?.listSessions(workspaceId);
+      const nextSessions = loaded ?? [];
+      setSessions(nextSessions);
+      let nextActiveSessionId = nextSessions[0]?.id ?? "";
+      if (
+        preferredSessionId &&
+        nextSessions.some((item) => item.id === preferredSessionId)
+      ) {
+        nextActiveSessionId = preferredSessionId;
+      }
+      setActiveSessionId(nextActiveSessionId);
+      if (nextActiveSessionId) {
+        await hydrateSession(nextActiveSessionId);
+      }
+    },
+    [hydrateSession]
+  );
 
   useEffect(() => {
     window.harnessCore?.listProviders().then(setProviderOptions).catch(noop);
-    refreshSettingsSnapshot().catch(noop);
+    window.harnessCore
+      ?.listWorkspaces()
+      .then((snapshot) => {
+        setWorkspaces(snapshot.workspaces);
+        const workspaceId =
+          detachedMode?.workspaceId ?? snapshot.activeWorkspaceId;
+        const workspace =
+          snapshot.workspaces.find((item) => item.id === workspaceId) ??
+          snapshot.workspaces[0] ??
+          initialSnapshot.workspace;
+        setActiveWorkspaceId(workspace.id);
+        refreshSettingsSnapshot(workspace.path).catch(noop);
+        refreshSessions(workspace.id, detachedMode?.sessionId).catch(noop);
+      })
+      .catch(noop);
     return window.harnessCore?.onEvent((event) => {
       applyCoreEvent({
         event,
@@ -76,7 +141,12 @@ export function SessionWindowFacade() {
         setTelemetryBySession,
       });
     });
-  }, [refreshSettingsSnapshot]);
+  }, [
+    detachedMode,
+    initialSnapshot.workspace,
+    refreshSessions,
+    refreshSettingsSnapshot,
+  ]);
 
   function openProviderPicker() {
     setIsProviderPickerOpen(true);
@@ -105,15 +175,16 @@ export function SessionWindowFacade() {
   }
 
   async function createSession(provider: ProviderDescriptor) {
-    const snapshot = settingsSnapshot ?? (await refreshSettingsSnapshot());
+    const snapshot =
+      settingsSnapshot ?? (await refreshSettingsSnapshot(activeWorkspace.path));
     const model = getProviderModel(provider.id, snapshot);
     const result = await window.harnessCore?.createSession({
       model,
       providerId: provider.id,
       providerName: provider.name,
       title: `${provider.name} session`,
-      workspaceId: initialSnapshot.workspace.id,
-      workspacePath: initialSnapshot.workspace.path,
+      workspaceId: activeWorkspace.id,
+      workspacePath: activeWorkspace.path,
     });
     if (!result) {
       return;
@@ -131,16 +202,76 @@ export function SessionWindowFacade() {
     setIsProviderPickerOpen(false);
   }
 
+  async function selectWorkspace(workspaceId: string) {
+    if (detachedMode) {
+      return;
+    }
+    const result = await window.harnessCore?.selectWorkspace(workspaceId);
+    if (!result?.ok) {
+      return;
+    }
+    setActiveWorkspaceId(result.workspace.id);
+    setIsWorkspaceMenuOpen(false);
+    await refreshSettingsSnapshot(result.workspace.path);
+    await refreshSessions(result.workspace.id);
+  }
+
+  async function addWorkspace() {
+    if (detachedMode) {
+      return;
+    }
+    const result = await window.harnessCore?.pickWorkspaceFolder();
+    if (!result?.ok) {
+      return;
+    }
+    const snapshot = await window.harnessCore?.listWorkspaces();
+    if (snapshot) {
+      setWorkspaces(snapshot.workspaces);
+    }
+    setActiveWorkspaceId(result.workspace.id);
+    setIsWorkspaceMenuOpen(false);
+    await refreshSettingsSnapshot(result.workspace.path);
+    await refreshSessions(result.workspace.id);
+  }
+
+  async function selectSession(sessionId: string) {
+    setActiveSessionId(sessionId);
+    await hydrateSession(sessionId);
+  }
+
+  async function detachSession(sessionId: string) {
+    await window.harnessShell?.detachSession({
+      sessionId,
+      workspaceId: activeWorkspace.id,
+    });
+  }
+
   return (
-    <div className="harness-app-shell">
-      <SessionSidebarFacade
-        activeSessionId={activeSession?.id ?? ""}
-        onCreateSession={openProviderPicker}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onSelectSession={setActiveSessionId}
-        sessions={sessions}
-        workspace={initialSnapshot.workspace}
-      />
+    <div
+      className={
+        detachedMode
+          ? "harness-app-shell harness-app-shell--detached"
+          : "harness-app-shell"
+      }
+    >
+      {detachedMode ? null : (
+        <SessionSidebarFacade
+          activeSessionId={activeSession?.id ?? ""}
+          isWorkspaceMenuOpen={isWorkspaceMenuOpen}
+          onAddWorkspace={addWorkspace}
+          onCreateSession={openProviderPicker}
+          onDetachSession={detachSession}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onSelectSession={selectSession}
+          onSelectWorkspace={selectWorkspace}
+          onToggleWorkspaceMenu={() =>
+            setIsWorkspaceMenuOpen((current) => !current)
+          }
+          sessions={sessions}
+          workspace={activeWorkspace}
+          workspaces={workspaces}
+        />
+      )}
 
       {activeSession ? (
         <main className="session-reference-shell">
@@ -179,7 +310,7 @@ export function SessionWindowFacade() {
       <ProviderSettingsUiFacade
         isOpen={isSettingsOpen}
         onClose={closeSettings}
-        workspacePath={initialSnapshot.workspace.path}
+        workspacePath={activeWorkspace.path}
       />
     </div>
   );
@@ -241,16 +372,22 @@ function appendSessionMessage(
 ) {
   setMessagesBySession((current) => ({
     ...current,
-    [message.sessionId]: [
-      ...(current[message.sessionId] ?? []),
-      {
-        id: message.id,
-        role: message.role,
-        text: message.text,
-        timestamp: message.timestamp,
-      },
-    ],
+    [message.sessionId]: appendUniqueMessage(current[message.sessionId] ?? [], {
+      id: message.id,
+      role: message.role,
+      text: message.text,
+      timestamp: message.timestamp,
+    }),
   }));
+}
+
+function appendUniqueMessage(
+  messages: SessionMessage[],
+  message: SessionMessage
+): SessionMessage[] {
+  return messages.some((item) => item.id === message.id)
+    ? messages
+    : [...messages, message];
 }
 
 function appendAssistantNotice(

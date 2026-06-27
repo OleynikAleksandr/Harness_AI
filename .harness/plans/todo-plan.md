@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase102.stream1.task1",
-  "expectedCommitMessage": "feat: add workspace switcher and detached session windows",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -754,5 +754,5 @@
 
 ### Stream: Session Surface
 
-211. [IN_PROGRESS] `harness-ai.phase102.stream1.task1` Add the workspace dropdown, bind the session list to the selected workspace, and render detached session windows from Core session events (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add workspace switcher and detached session windows`).
-212. [TODO] Git Commit: `feat: add workspace switcher and detached session windows` (hash: TBD)
+211. [DONE] `harness-ai.phase102.stream1.task1` Add the workspace dropdown, bind the session list to the selected workspace, and render detached session windows from Core session events (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-routing.ts, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `feat: add workspace switcher and detached session windows`). Result: Completed in commit `feat: add workspace switcher and detached session windows`.
+212. [DONE] Git Commit: `feat: add workspace switcher and detached session windows` (hash: self)

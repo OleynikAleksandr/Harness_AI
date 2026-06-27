@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase108.stream1.task1",
-  "expectedCommitMessage": "chore: verify window close hotfix",
+  "currentTaskId": "harness-ai.phase109.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -795,11 +795,11 @@
 
 ### Stream: Build And Package
 
-222. [IN_PROGRESS] `harness-ai.phase108.stream1.task1` Run focused gates, package the macOS app, and record close hotfix verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify window close hotfix`).
-223. [TODO] Git Commit: `chore: verify window close hotfix` (hash: TBD)
+222. [DONE] `harness-ai.phase108.stream1.task1` Run focused gates, package the macOS app, and record close hotfix verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify window close hotfix`). Result: Completed in commit `chore: verify window close hotfix`.
+223. [DONE] Git Commit: `chore: verify window close hotfix` (hash: self)
 
 ## Phase 109 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
 
 ### Stream: Retest
 
-224. [TODO] `harness-ai.phase109.stream1.task1` User retests closing Harness AI and detached windows without a main-process JavaScript error (scope: user workflow; expected commit: none).
+224. [IN_PROGRESS] `harness-ai.phase109.stream1.task1` User retests closing Harness AI and detached windows without a main-process JavaScript error (scope: user workflow; expected commit: none).

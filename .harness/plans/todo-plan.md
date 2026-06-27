@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase84.stream1.task1",
-  "expectedCommitMessage": "chore: verify openrouter endpoint latency ui",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -628,5 +628,5 @@
 
 ### Stream: Build And Package
 
-175. [IN_PROGRESS] `harness-ai.phase84.stream1.task1` Verify and package OpenRouter endpoint latency testing in Settings (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter endpoint latency ui`).
-176. [TODO] Git Commit: `chore: verify openrouter endpoint latency ui` (hash: TBD)
+175. [DONE] `harness-ai.phase84.stream1.task1` Verify and package OpenRouter endpoint latency testing in Settings (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter endpoint latency ui`). Result: Completed in commit `chore: verify openrouter endpoint latency ui`.
+176. [DONE] Git Commit: `chore: verify openrouter endpoint latency ui` (hash: self)

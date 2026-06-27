@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase92.stream1.task1",
-  "expectedCommitMessage": "chore: verify session status panel settings removal",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -684,5 +684,5 @@
 
 ### Stream: Build And Package
 
-191. [IN_PROGRESS] `harness-ai.phase92.stream1.task1` Verify and package the session status panel without the redundant Settings control (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session status panel settings removal`).
-192. [TODO] Git Commit: `chore: verify session status panel settings removal` (hash: TBD)
+191. [DONE] `harness-ai.phase92.stream1.task1` Verify and package the session status panel without the redundant Settings control (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session status panel settings removal`). Result: Completed in commit `chore: verify session status panel settings removal`.
+192. [DONE] Git Commit: `chore: verify session status panel settings removal` (hash: self)

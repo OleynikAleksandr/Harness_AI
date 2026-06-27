@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase95.stream1.task1",
-  "expectedCommitMessage": "chore: verify reference input file handling",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -705,5 +705,5 @@
 
 ### Stream: Build And Package
 
-197. [IN_PROGRESS] `harness-ai.phase95.stream1.task1` Verify and package restored reference input field behaviors (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference input file handling`).
-198. [TODO] Git Commit: `chore: verify reference input file handling` (hash: TBD)
+197. [DONE] `harness-ai.phase95.stream1.task1` Verify and package restored reference input field behaviors (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference input file handling`). Result: Completed in commit `chore: verify reference input file handling`.
+198. [DONE] Git Commit: `chore: verify reference input file handling` (hash: self)

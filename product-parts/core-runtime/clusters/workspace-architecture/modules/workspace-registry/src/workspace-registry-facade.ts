@@ -1,5 +1,3 @@
-import path from "node:path";
-
 export interface HarnessWorkspace {
   id: string;
   name: string;
@@ -11,6 +9,8 @@ const CURRENT_WORKSPACE: HarnessWorkspace = {
   name: "Harness AI",
   path: "/Users/oleksandroliinyk/VSCODE/harness-ai",
 };
+const TRAILING_SLASHES_PATTERN = /\/+$/u;
+const WORKSPACE_ID_MODULO = 1_000_000_007;
 
 export class WorkspaceRegistryFacade {
   private activeWorkspaceId = CURRENT_WORKSPACE.id;
@@ -31,7 +31,7 @@ export class WorkspaceRegistryFacade {
   }
 
   addWorkspace(workspacePath: string): HarnessWorkspace {
-    const normalizedPath = path.resolve(workspacePath);
+    const normalizedPath = normalizeWorkspacePath(workspacePath);
     const existing = this.getKnownWorkspaces().find(
       (workspace) => workspace.path === normalizedPath
     );
@@ -40,7 +40,7 @@ export class WorkspaceRegistryFacade {
     }
     const workspace = {
       id: buildWorkspaceId(normalizedPath),
-      name: path.basename(normalizedPath) || normalizedPath,
+      name: workspaceNameFromPath(normalizedPath),
       path: normalizedPath,
     };
     this.workspaces.set(workspace.id, workspace);
@@ -57,10 +57,21 @@ export class WorkspaceRegistryFacade {
   }
 }
 
+function normalizeWorkspacePath(workspacePath: string): string {
+  const trimmed = workspacePath.trim().replace(TRAILING_SLASHES_PATTERN, "");
+  return trimmed || workspacePath;
+}
+
+function workspaceNameFromPath(workspacePath: string): string {
+  return workspacePath.split("/").filter(Boolean).at(-1) ?? workspacePath;
+}
+
 function buildWorkspaceId(workspacePath: string): string {
-  return `workspace-${Buffer.from(workspacePath)
-    .toString("base64url")
-    .slice(0, 32)}`;
+  let hash = 0;
+  for (const char of workspacePath) {
+    hash = (hash * 31 + char.charCodeAt(0)) % WORKSPACE_ID_MODULO;
+  }
+  return `workspace-${hash.toString(36)}`;
 }
 
 export const workspaceRegistryFacade = new WorkspaceRegistryFacade();

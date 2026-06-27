@@ -207,6 +207,7 @@ export function SessionSidebarFacade({
                     </>
                   ) : (
                     <button
+                      className="is-danger"
                       onClick={(event) => {
                         event.stopPropagation();
                         setConfirmDeleteSessionId(session.id);

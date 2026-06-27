@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase157.stream1.task1",
+  "currentTaskId": "harness-ai.phase159.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1131,4 +1131,17 @@
 
 ### Stream: Design Retest
 
-313. [IN_PROGRESS] `harness-ai.phase157.stream1.task1` User relaunches the rebuilt app and reviews the balanced session input field width, then provides design feedback (scope: user workflow; expected commit: none).
+313. [DONE] `harness-ai.phase157.stream1.task1` User relaunches the rebuilt app and reviews the balanced session input field width, then provides design feedback (scope: user workflow; expected commit: none). Result: Input width accepted; user reported the session right-click context menu (Delete and Delete confirmation) is off-style and must match the app.
+
+## Phase 158 - Session Context Menu Teal Studio Restyle (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Sidebar
+
+314. [DONE] `harness-ai.phase158.stream1.task1` Restyle the session right-click context menu (Delete item and Delete confirmation) onto Teal Studio: neutral Cancel and menu buttons with teal hover, a clean danger style for Delete instead of the brown fill, mark the standalone Delete item as danger by class only, then rebuild the unsigned macOS app and record evidence (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, docs/evidence/**`; expected commit: `fix: restyle session context menu to teal studio`). Result: Completed in commit `fix: restyle session context menu to teal studio`.
+315. [DONE] Git Commit: `fix: restyle session context menu to teal studio` (hash: self)
+
+## Phase 159 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Design Retest
+
+316. [IN_PROGRESS] `harness-ai.phase159.stream1.task1` User relaunches the rebuilt app and reviews the restyled session context menu, then provides design feedback (scope: user workflow; expected commit: none).

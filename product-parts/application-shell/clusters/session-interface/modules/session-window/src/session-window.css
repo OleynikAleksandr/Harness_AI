@@ -27,14 +27,28 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  font-weight: 100;
   color: var(--pm-text-primary);
   background: #0b0d12;
 }
 
 button,
 input,
+select,
 textarea {
   font: inherit;
+  font-weight: 100;
+}
+
+b,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong {
+  font-weight: 100;
 }
 
 .harness-app-shell {
@@ -220,7 +234,7 @@ textarea {
   min-width: 0;
   padding: 9px 10px;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 100;
   text-align: left;
   background: transparent;
   border: 0;
@@ -354,7 +368,7 @@ textarea {
 .session-header h1 {
   margin: 0;
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 100;
 }
 
 .file-link-button {
@@ -400,7 +414,7 @@ textarea {
 
 .telemetry-item strong {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 100;
 }
 
 .provider-picker-backdrop {
@@ -436,7 +450,7 @@ textarea {
 .empty-session h2 {
   margin: 0;
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 100;
 }
 
 .provider-grid {
@@ -624,7 +638,7 @@ textarea {
   min-height: 38px;
   padding: 0 12px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 100;
   color: #eaf6ff;
   cursor: pointer;
   background: rgba(22, 98, 158, 0.5);
@@ -664,7 +678,7 @@ textarea {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 100;
   color: #aeb3b6;
   white-space: nowrap;
 }
@@ -685,7 +699,7 @@ textarea {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 100;
   color: #a9aeb2;
   text-align: right;
   white-space: nowrap;
@@ -730,7 +744,7 @@ textarea {
 .session-start-button {
   min-height: 34px;
   padding: 0 14px;
-  font-weight: 700;
+  font-weight: 100;
   color: #d6fff1;
   cursor: pointer;
   background: #243b36;
@@ -778,7 +792,7 @@ textarea {
 
 .session-message__role {
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 100;
   color: #00d5c7;
 }
 
@@ -788,7 +802,7 @@ textarea {
 
 .session-message__time {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 100;
   color: #969da2;
 }
 
@@ -823,7 +837,7 @@ textarea {
   overflow: auto;
   font-family: Menlo, Monaco, Consolas, monospace;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 100;
   color: #c2c7ca;
   resize: vertical;
   outline: none;
@@ -833,6 +847,7 @@ textarea {
 }
 
 .session-input__textarea::placeholder {
+  font-weight: 100;
   color: #777d82;
 }
 
@@ -862,7 +877,7 @@ textarea {
   left: 20px;
   font-family: Menlo, Monaco, Consolas, monospace;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 100;
   line-height: 20px;
   color: #9aa3a9;
   overflow-wrap: anywhere;
@@ -925,7 +940,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 100;
   color: #8c9397;
 }
 
@@ -949,7 +964,7 @@ textarea {
   min-height: 36px;
   padding: 0 14px;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 100;
   color: #aeb6ba;
   background: #292a2b;
   border: 1px solid #42494d;

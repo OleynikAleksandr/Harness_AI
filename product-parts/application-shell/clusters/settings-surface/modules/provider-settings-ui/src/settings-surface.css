@@ -6,7 +6,23 @@
   align-items: stretch;
   justify-content: center;
   padding: 12px;
+  font-weight: 100;
   background: #101923;
+}
+
+.settings-backdrop button,
+.settings-backdrop input,
+.settings-backdrop select,
+.settings-backdrop textarea,
+.settings-backdrop b,
+.settings-backdrop h1,
+.settings-backdrop h2,
+.settings-backdrop h3,
+.settings-backdrop h4,
+.settings-backdrop h5,
+.settings-backdrop h6,
+.settings-backdrop strong {
+  font-weight: 100;
 }
 
 .settings-dialog {
@@ -33,7 +49,7 @@
 .settings-title h2 {
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 100;
   color: #ffffff;
   letter-spacing: 0;
 }
@@ -74,7 +90,7 @@
   min-height: 40px;
   padding: 10px 14px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 100;
   color: #cccccc;
   letter-spacing: 0;
   white-space: nowrap;
@@ -144,7 +160,7 @@
 .settings-control-title {
   margin: 0;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 100;
   color: #ffffff;
   letter-spacing: 0;
 }
@@ -152,7 +168,7 @@
 .settings-profile-title {
   margin: 4px 0 6px;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 100;
   color: #ffffff;
   letter-spacing: 0;
 }
@@ -207,7 +223,7 @@
 
 .settings-toggle-row strong {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 100;
   color: #ffffff;
 }
 
@@ -220,7 +236,7 @@
 .settings-callout {
   padding: 10px 12px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 100;
   color: #cccccc;
   background: #303030;
   border-radius: 4px;
@@ -327,7 +343,7 @@
   display: grid;
   gap: 5px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 100;
   color: #9b9b9b;
 }
 
@@ -347,7 +363,7 @@
 .settings-model-title,
 .settings-option-row span {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 100;
   color: #ffffff;
 }
 
@@ -392,7 +408,7 @@
 .settings-latency-panel h4 {
   margin: 0;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 100;
   color: #e8f5dc;
   letter-spacing: 0;
 }
@@ -415,7 +431,7 @@
   min-height: 30px;
   padding: 5px 12px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 100;
   color: #f3ffe8;
   cursor: pointer;
   background: #3d7a42;

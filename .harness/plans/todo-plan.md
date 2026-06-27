@@ -1008,3 +1008,10 @@
 
 278. [DONE] `harness-ai.phase139.stream1.task1` Run session input wait-copy build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify input wait copy`). Result: Completed in commit `chore: verify input wait copy`.
 279. [DONE] Git Commit: `chore: verify input wait copy` (hash: self)
+
+## Phase 140 - Interface Typography Weight Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session And Settings UI
+
+280. [DONE] `harness-ai.phase140.stream1.task1` Remove bold/semi-bold typography from the user input hints and broadly lighten visible session/settings interface text weights (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: lighten interface typography`). Result: Completed in commit `fix: lighten interface typography`.
+281. [DONE] Git Commit: `fix: lighten interface typography` (hash: self)

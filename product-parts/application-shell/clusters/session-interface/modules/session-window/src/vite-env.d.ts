@@ -34,6 +34,11 @@ interface Window {
         }
       | { error: string; ok: false }
     >;
+    getSessionEvents(
+      sessionId: string
+    ): Promise<
+      import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent[]
+    >;
     getSettings(): Promise<HarnessSettings>;
     getLocalModels(): Promise<
       { models: string[]; ok: true } | { error: string; ok: false }
@@ -48,6 +53,15 @@ interface Window {
     listProviders(): Promise<
       import("../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js").ProviderDescriptor[]
     >;
+    listSessions(
+      workspaceId?: string
+    ): Promise<
+      import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession[]
+    >;
+    listWorkspaces(): Promise<{
+      activeWorkspaceId: string;
+      workspaces: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace[];
+    }>;
     onEvent(
       listener: (
         event: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent
@@ -63,6 +77,13 @@ interface Window {
     resetWorkspaceSettings(): Promise<
       { ok: true; settings: HarnessSettings } | { error: string; ok: false }
     >;
+    pickWorkspaceFolder(): Promise<
+      | {
+          ok: true;
+          workspace: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace;
+        }
+      | { canceled?: boolean; error?: string; ok: false }
+    >;
     restartCore(): Promise<
       | {
           ok: true;
@@ -75,6 +96,13 @@ interface Window {
       settings: HarnessSettings;
     }): Promise<
       { ok: true; settings: HarnessSettings } | { error: string; ok: false }
+    >;
+    selectWorkspace(workspaceId: string): Promise<
+      | {
+          ok: true;
+          workspace: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace;
+        }
+      | { error: string; ok: false }
     >;
     sendMessage(request: unknown): Promise<
       | {
@@ -96,5 +124,11 @@ interface Window {
   };
   harnessRuntime?: {
     providerDispatchMode: "core-session-dispatch";
+  };
+  harnessShell?: {
+    detachSession(request: {
+      sessionId: string;
+      workspaceId: string;
+    }): Promise<{ ok: true } | { error: string; ok: false }>;
   };
 }

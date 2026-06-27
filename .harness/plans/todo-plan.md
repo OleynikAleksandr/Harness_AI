@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase101.stream1.task1",
-  "expectedCommitMessage": "feat: bridge workspace and detached sessions",
+  "currentTaskId": "harness-ai.phase102.stream1.task1",
+  "expectedCommitMessage": "feat: add workspace switcher and detached session windows",
   "debt": null
 }
 ```
@@ -747,12 +747,12 @@
 
 ### Stream: Electron Host
 
-209. [IN_PROGRESS] `harness-ai.phase101.stream1.task1` Expose Core workspace/session APIs, broadcast Core events to all windows, and open detached session BrowserWindows from the Electron host (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `feat: bridge workspace and detached sessions`).
-210. [TODO] Git Commit: `feat: bridge workspace and detached sessions` (hash: TBD)
+209. [DONE] `harness-ai.phase101.stream1.task1` Expose Core workspace/session APIs, broadcast Core events to all windows, and open detached session BrowserWindows from the Electron host (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `feat: bridge workspace and detached sessions`). Result: Completed in commit `feat: bridge workspace and detached sessions`.
+210. [DONE] Git Commit: `feat: bridge workspace and detached sessions` (hash: self)
 
 ## Phase 102 - Workspace Session UI (owner: Codex, updated: 2026-06-27)
 
 ### Stream: Session Surface
 
-211. [TODO] `harness-ai.phase102.stream1.task1` Add the workspace dropdown, bind the session list to the selected workspace, and render detached session windows from Core session events (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add workspace switcher and detached session windows`).
+211. [IN_PROGRESS] `harness-ai.phase102.stream1.task1` Add the workspace dropdown, bind the session list to the selected workspace, and render detached session windows from Core session events (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: add workspace switcher and detached session windows`).
 212. [TODO] Git Commit: `feat: add workspace switcher and detached session windows` (hash: TBD)

@@ -2,7 +2,7 @@ import { exec } from "node:child_process";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { ipcMain } from "electron";
+import { dialog, ipcMain } from "electron";
 
 let bridge = null;
 const execAsync = promisify(exec);
@@ -13,13 +13,54 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   }
   const runtime = await loadRuntime(repositoryRoot);
   registerProviderAdapters(runtime);
-  let activeWebContents = null;
+  const webContentsTargets = new Set();
   runtime.sessionEventStreamFacade.subscribe((event) => {
-    if (!activeWebContents || activeWebContents.isDestroyed()) {
-      return;
+    for (const target of webContentsTargets) {
+      if (target.isDestroyed()) {
+        webContentsTargets.delete(target);
+      } else {
+        target.send("harness-ai:core-event", event);
+      }
     }
-    activeWebContents.send("harness-ai:core-event", event);
   });
+  ipcMain.handle("harness-ai:core:list-workspaces", () => ({
+    activeWorkspaceId: runtime.workspaceRegistryFacade.getActiveWorkspace().id,
+    workspaces: runtime.workspaceRegistryFacade.getKnownWorkspaces(),
+  }));
+  ipcMain.handle("harness-ai:core:pick-workspace-folder", async () => {
+    const result = await dialog.showOpenDialog({
+      buttonLabel: "Select Workspace Folder",
+      properties: ["openDirectory"],
+    });
+    if (result.canceled || !result.filePaths[0]) {
+      return { canceled: true, ok: false };
+    }
+    const workspace = runtime.workspaceRegistryFacade.addWorkspace(
+      result.filePaths[0]
+    );
+    runtime.workspaceRegistryFacade.selectWorkspace(workspace.id);
+    runtime.providerRegistryFacade.clearAdapters();
+    registerProviderAdapters(runtime);
+    return { ok: true, workspace };
+  });
+  ipcMain.handle("harness-ai:core:select-workspace", (_event, workspaceId) => {
+    try {
+      const workspace = runtime.workspaceRegistryFacade.selectWorkspace(
+        String(workspaceId ?? "")
+      );
+      runtime.providerRegistryFacade.clearAdapters();
+      registerProviderAdapters(runtime);
+      return { ok: true, workspace };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
+  });
+  ipcMain.handle("harness-ai:core:list-sessions", (_event, workspaceId) =>
+    runtime.sessionRequestHandlerFacade.listSessions(workspaceId)
+  );
+  ipcMain.handle("harness-ai:core:get-session-events", (_event, sessionId) =>
+    runtime.sessionEventStreamFacade.listEvents(sessionId)
+  );
   ipcMain.handle("harness-ai:core:list-providers", () =>
     runtime.providerRegistryFacade.listProviders()
   );
@@ -112,7 +153,10 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   );
   bridge = {
     attachWindow(window) {
-      activeWebContents = window.webContents;
+      webContentsTargets.add(window.webContents);
+      window.on("closed", () => {
+        webContentsTargets.delete(window.webContents);
+      });
     },
   };
   return bridge;

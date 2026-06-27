@@ -1,4 +1,5 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { CodexDefaultModelCard } from "./codex-default-model-card.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
 import { OpenCodeSettingsCard } from "./opencode-settings-card.js";
 import {
@@ -20,7 +21,6 @@ import {
 import {
   ModelRows,
   SettingsCard,
-  SettingsSelect,
   SettingsTextField,
   SettingsToggle,
 } from "./settings-reference-controls.js";
@@ -150,22 +150,9 @@ export function SettingsTabContent({
 
   if (activeTab === "codex") {
     const provider = settings.providers.codex;
-    const reasoning =
-      provider.reasoningByModel[provider.defaultModel] ?? "medium";
     return (
       <div className="settings-reference-stack">
-        <DefaultModelCard
-          description="Select which Codex model to use when starting new sessions. Each model can store its own reasoning effort level."
-          note="Changes apply when creating a new Codex session."
-          onChange={(defaultModel) =>
-            update((next) => {
-              next.providers.codex.defaultModel = defaultModel;
-            })
-          }
-          options={PROVIDER_MODEL_OPTIONS.codex}
-          title="Codex Default model"
-          value={provider.defaultModel}
-        />
+        <CodexDefaultModelCard provider={provider} update={update} />
         <ProviderVersionsCard
           autoUpdate={provider.autoUpdate.enabled}
           error={versionError}
@@ -190,28 +177,6 @@ export function SettingsTabContent({
           title="Codex Session Continuity"
           value={provider.sessionContinuity.remainingPercentThreshold}
         />
-        <SettingsCard title="Reasoning">
-          <SettingsSelect
-            label="Reasoning"
-            onChange={(effort) =>
-              update((next) => {
-                next.providers.codex.reasoningByModel[provider.defaultModel] =
-                  effort as HarnessSettings["providers"]["codex"]["reasoningByModel"][string];
-              })
-            }
-            options={REASONING_EFFORT_OPTIONS}
-            value={reasoning}
-          />
-          <SettingsToggle
-            checked={provider.reasoningSummaryEnabled}
-            label="Reasoning Summary"
-            onChange={(enabled) =>
-              update((next) => {
-                next.providers.codex.reasoningSummaryEnabled = enabled;
-              })
-            }
-          />
-        </SettingsCard>
       </div>
     );
   }

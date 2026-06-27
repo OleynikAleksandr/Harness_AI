@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase137.stream1.task1",
+  "expectedCommitMessage": "chore: verify codex per model reasoning",
   "debt": null
 }
 ```
@@ -980,3 +980,17 @@
 
 270. [DONE] `harness-ai.phase135.stream1.task1` Remove saturated accent fill from the selected session row and render it as a neutral gray active state (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `fix: desaturate active session row`). Result: Completed in commit `fix: desaturate active session row`.
 271. [DONE] Git Commit: `fix: desaturate active session row` (hash: self)
+
+## Phase 136 - Codex Per-Model Reasoning UI Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+272. [DONE] `harness-ai.phase136.stream1.task1` Move Codex reasoning selection into each Codex model row so Settings edits `reasoningByModel[modelId]` directly instead of showing one separate default-model reasoning control (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: show codex reasoning per model`). Result: Completed in commit `fix: show codex reasoning per model`.
+273. [DONE] Git Commit: `fix: show codex reasoning per model` (hash: self)
+
+## Phase 137 - Codex Per-Model Reasoning Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+274. [IN_PROGRESS] `harness-ai.phase137.stream1.task1` Run settings build verification for Codex per-model reasoning controls and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex per model reasoning`).
+275. [TODO] Git Commit: `chore: verify codex per model reasoning` (hash: TBD)

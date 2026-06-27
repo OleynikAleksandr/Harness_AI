@@ -303,6 +303,38 @@
   box-shadow: inset 0 0 0 1px #0e639c;
 }
 
+.settings-model-row--with-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  align-items: center;
+}
+
+.settings-model-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.settings-row-select {
+  display: grid;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9b9b9b;
+}
+
+.settings-row-select select {
+  width: 100%;
+}
+
 .settings-option-row {
   padding-left: 12px;
   background: #252526;

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase142.stream1.task1",
-  "expectedCommitMessage": "chore: verify reasoning selector theme",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -1027,5 +1027,5 @@
 
 ### Stream: Build And Package
 
-284. [IN_PROGRESS] `harness-ai.phase142.stream1.task1` Run settings reasoning selector build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning selector theme`).
-285. [TODO] Git Commit: `chore: verify reasoning selector theme` (hash: TBD)
+284. [DONE] `harness-ai.phase142.stream1.task1` Run settings reasoning selector build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning selector theme`). Result: Completed in commit `chore: verify reasoning selector theme`.
+285. [DONE] Git Commit: `chore: verify reasoning selector theme` (hash: self)

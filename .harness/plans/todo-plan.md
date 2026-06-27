@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-session-restore-2026-06-27",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase152.stream1.task1",
+  "expectedCommitMessage": "fix: unify session window to teal studio",
   "debt": null
 }
 ```
@@ -1085,3 +1085,37 @@
 
 300. [DONE] `harness-ai.phase150.stream1.task1` Keep the Claude provider instruction file as an inactive archived reference instead of active repo instructions (scope: `.claude/**, .harness/plans/todo-plan.md`; expected commit: `chore: archive claude provider instructions`). Result: Completed in commit `chore: archive claude provider instructions`.
 301. [DONE] Git Commit: `chore: archive claude provider instructions` (hash: self)
+
+## Phase 151 - Settings Surface Teal Studio Unification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+302. [DONE] `harness-ai.phase151.stream1.task1` Unify the Settings surface onto the Teal Studio design language (variant A): replace the VS Code blue accent and backgrounds with the shared pm teal tokens, restyle the reasoning R2 trigger and menu into the shared popup palette, move radio, tab, and checkbox selection to teal, unify radii, and set font weights by field role while keeping success and warning status colors (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; expected commit: `fix: unify settings surface to teal studio`). Result: Completed in commit `fix: unify settings surface to teal studio`.
+303. [DONE] Git Commit: `fix: unify settings surface to teal studio` (hash: self)
+
+## Phase 152 - Session Window Teal Studio Unification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Interface
+
+304. [IN_PROGRESS] `harness-ai.phase152.stream1.task1` Remove the blue reference layer from the session window and unify it onto the Teal Studio tokens: collapse the duplicate blue shell, panel, message, and status colors onto the shared pm teal tokens, replace the monospace input with the UI font plus teal focus while keeping mono only for code and IDs, unify radii, and set font weights by role (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `fix: unify session window to teal studio`).
+305. [TODO] Git Commit: `fix: unify session window to teal studio` (hash: TBD)
+
+## Phase 153 - Reference Send Button Restyle (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Input
+
+306. [TODO] `harness-ai.phase153.stream1.task1` Restyle the session send button after the CodeAI Hub reference without changing behavior: render the outlined play action button outside the input field through the session-input action markup, add the action button and icon styles including the smaller stop square as a design-only state, and keep the existing submit handler and disabled logic untouched (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `fix: restyle session send button from reference`).
+307. [TODO] Git Commit: `fix: restyle session send button from reference` (hash: TBD)
+
+## Phase 154 - Teal Studio Build And Evidence (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+308. [TODO] `harness-ai.phase154.stream1.task1` Run the quality gates, rebuild the renderer and the unsigned macOS app for the Teal Studio design pass, and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: build teal studio design app`).
+309. [TODO] Git Commit: `chore: build teal studio design app` (hash: TBD)
+
+## Phase 155 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Design Retest
+
+310. [TODO] `harness-ai.phase155.stream1.task1` User launches the rebuilt app and reviews the unified Teal Studio interface, then provides design feedback (scope: user workflow; expected commit: none).

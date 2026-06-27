@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase77.stream1.task1",
-  "expectedCommitMessage": "chore: verify openrouter model search settings",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -579,5 +579,5 @@
 
 ### Stream: Build And Package
 
-161. [IN_PROGRESS] `harness-ai.phase77.stream1.task1` Verify and package the OpenRouter Settings model search change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter model search settings`).
-162. [TODO] Git Commit: `chore: verify openrouter model search settings` (hash: TBD)
+161. [DONE] `harness-ai.phase77.stream1.task1` Verify and package the OpenRouter Settings model search change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter model search settings`). Result: Completed in commit `chore: verify openrouter model search settings`.
+162. [DONE] Git Commit: `chore: verify openrouter model search settings` (hash: self)

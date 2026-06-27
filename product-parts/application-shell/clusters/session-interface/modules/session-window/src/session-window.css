@@ -836,6 +836,43 @@ textarea {
   color: #777d82;
 }
 
+.session-input--wait-copy .session-input__textarea::placeholder {
+  color: transparent;
+  opacity: 0;
+}
+
+@keyframes session-input-wait-copy-pulse {
+  0% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
+}
+
+.session-input__wait-copy-overlay {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  left: 20px;
+  font-family: Menlo, Monaco, Consolas, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
+  color: #9aa3a9;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  pointer-events: none;
+  opacity: 0.4;
+  animation: session-input-wait-copy-pulse 1000ms ease-in-out infinite;
+  will-change: opacity;
+}
+
 .session-input__textarea:focus,
 .session-input__textarea--focused {
   border-color: #455054;

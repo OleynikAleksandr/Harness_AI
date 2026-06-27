@@ -67,6 +67,7 @@ export function ReferenceInputPanel({
 }) {
   const [draft, setDraft] = useState("");
   const canSubmit = draft.trim().length > 0 && !disabled;
+  const waitCopy = disabled ? "Agent is working… Please wait." : null;
   const submit = () => {
     if (!canSubmit) {
       return;
@@ -77,7 +78,11 @@ export function ReferenceInputPanel({
   return (
     <form
       aria-label="Message input"
-      className="session-input session-panel"
+      className={
+        waitCopy
+          ? "session-input session-input--wait-copy session-panel"
+          : "session-input session-panel"
+      }
       onSubmit={(event) => {
         event.preventDefault();
         submit();
@@ -88,8 +93,11 @@ export function ReferenceInputPanel({
           disabled={disabled}
           onSubmit={submit}
           onValueChange={setDraft}
-          placeholder="Type your request or drag files with Shift held..."
+          placeholder={
+            waitCopy ?? "Type your request or drag files with Shift held..."
+          }
           value={draft}
+          waitCopy={draft.length === 0 ? waitCopy : null}
         />
         <button
           aria-label="Send message"

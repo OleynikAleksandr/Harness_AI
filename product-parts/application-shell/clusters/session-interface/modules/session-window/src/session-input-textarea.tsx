@@ -14,6 +14,7 @@ interface SessionInputTextareaProps {
   onValueChange: (nextValue: string) => void;
   placeholder: string;
   value: string;
+  waitCopy?: null | string;
 }
 
 export function SessionInputTextarea({
@@ -22,6 +23,7 @@ export function SessionInputTextarea({
   onValueChange,
   placeholder,
   value,
+  waitCopy = null,
 }: SessionInputTextareaProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -211,6 +213,11 @@ export function SessionInputTextarea({
       {isDragging ? (
         <output className="session-input__overlay">
           {DEFAULT_DRAG_OVERLAY_LABEL}
+        </output>
+      ) : null}
+      {waitCopy && !isDragging ? (
+        <output aria-hidden="true" className="session-input__wait-copy-overlay">
+          {waitCopy}
         </output>
       ) : null}
     </div>

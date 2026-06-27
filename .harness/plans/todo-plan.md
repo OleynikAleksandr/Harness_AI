@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase139.stream1.task1",
+  "expectedCommitMessage": "chore: verify input wait copy",
   "debt": null
 }
 ```
@@ -994,3 +994,17 @@
 
 274. [DONE] `harness-ai.phase137.stream1.task1` Run settings build verification for Codex per-model reasoning controls and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex per model reasoning`). Result: Completed in commit `chore: verify codex per model reasoning`.
 275. [DONE] Git Commit: `chore: verify codex per model reasoning` (hash: self)
+
+## Phase 138 - Session Input Wait Copy Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Interface
+
+276. [DONE] `harness-ai.phase138.stream1.task1` Show the reference pulsing "Agent is working… Please wait." copy inside the user input while the active session is waiting for an agent response (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: pulse input wait copy`). Result: Completed in commit `fix: pulse input wait copy`.
+277. [DONE] Git Commit: `fix: pulse input wait copy` (hash: self)
+
+## Phase 139 - Session Input Wait Copy Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+278. [IN_PROGRESS] `harness-ai.phase139.stream1.task1` Run session input wait-copy build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify input wait copy`).
+279. [TODO] Git Commit: `chore: verify input wait copy` (hash: TBD)

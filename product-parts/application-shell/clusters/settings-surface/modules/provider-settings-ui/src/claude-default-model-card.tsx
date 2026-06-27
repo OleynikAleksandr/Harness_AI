@@ -1,8 +1,6 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
-import {
-  PROVIDER_MODEL_OPTIONS,
-  REASONING_EFFORT_OPTIONS,
-} from "./settings-model-options.js";
+import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
+import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
 interface ClaudeDefaultModelCardProps {
@@ -64,14 +62,12 @@ export function ClaudeDefaultModelCard({
               <span className="settings-model-id">{option.id}</span>
               <p className="settings-model-description">{option.description}</p>
             </button>
-            <label className="settings-row-select">
+            <div className="settings-row-select">
               <span>Reasoning</span>
-              <select
+              <ReasoningEffortSelect
                 disabled={!provider.thinking.enabled}
-                onChange={(event) =>
+                onChange={(effort) =>
                   update((next) => {
-                    const effort = event.target
-                      .value as HarnessSettings["providers"]["claude"]["thinkingByModel"][string];
                     next.providers.claude.thinkingByModel[option.id] = effort;
                     if (option.id === next.providers.claude.defaultModel) {
                       next.providers.claude.thinking.effort = effort;
@@ -79,14 +75,8 @@ export function ClaudeDefaultModelCard({
                   })
                 }
                 value={provider.thinkingByModel[option.id] ?? "medium"}
-              >
-                {REASONING_EFFORT_OPTIONS.map((reasoning) => (
-                  <option key={reasoning.value} value={reasoning.value}>
-                    {reasoning.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              />
+            </div>
           </div>
         ))}
       </div>

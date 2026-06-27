@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase146.stream1.task1",
+  "expectedCommitMessage": "chore: verify reasoning effort menu",
   "debt": null
 }
 ```
@@ -1043,3 +1043,17 @@
 
 288. [DONE] `harness-ai.phase144.stream1.task1` Run typography experiment build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify roboto flex typography`). Result: Completed in commit `chore: verify roboto flex typography`.
 289. [DONE] Git Commit: `chore: verify roboto flex typography` (hash: self)
+
+## Phase 145 - Reasoning Menu Theme Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+290. [DONE] `harness-ai.phase145.stream1.task1` Replace native reasoning effort selects with a dark in-app menu for Codex and Claude model rows (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: darken reasoning effort menu`). Result: Completed in commit `fix: darken reasoning effort menu`.
+291. [DONE] Git Commit: `fix: darken reasoning effort menu` (hash: self)
+
+## Phase 146 - Reasoning Menu Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+292. [IN_PROGRESS] `harness-ai.phase146.stream1.task1` Run settings reasoning menu build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort menu`).
+293. [TODO] Git Commit: `chore: verify reasoning effort menu` (hash: TBD)

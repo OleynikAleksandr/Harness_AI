@@ -1,8 +1,6 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
-import {
-  PROVIDER_MODEL_OPTIONS,
-  REASONING_EFFORT_OPTIONS,
-} from "./settings-model-options.js";
+import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
+import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
 interface CodexDefaultModelCardProps {
@@ -54,25 +52,17 @@ export function CodexDefaultModelCard({
               <span className="settings-model-id">{option.id}</span>
               <p className="settings-model-description">{option.description}</p>
             </button>
-            <label className="settings-row-select">
+            <div className="settings-row-select">
               <span>Reasoning</span>
-              <select
-                onChange={(event) =>
+              <ReasoningEffortSelect
+                onChange={(value) =>
                   update((next) => {
-                    next.providers.codex.reasoningByModel[option.id] = event
-                      .target
-                      .value as HarnessSettings["providers"]["codex"]["reasoningByModel"][string];
+                    next.providers.codex.reasoningByModel[option.id] = value;
                   })
                 }
                 value={provider.reasoningByModel[option.id] ?? "medium"}
-              >
-                {REASONING_EFFORT_OPTIONS.map((reasoning) => (
-                  <option key={reasoning.value} value={reasoning.value}>
-                    {reasoning.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              />
+            </div>
           </div>
         ))}
       </div>

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase139.stream1.task1",
-  "expectedCommitMessage": "chore: verify input wait copy",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -1006,5 +1006,5 @@
 
 ### Stream: Build And Package
 
-278. [IN_PROGRESS] `harness-ai.phase139.stream1.task1` Run session input wait-copy build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify input wait copy`).
-279. [TODO] Git Commit: `chore: verify input wait copy` (hash: TBD)
+278. [DONE] `harness-ai.phase139.stream1.task1` Run session input wait-copy build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify input wait copy`). Result: Completed in commit `chore: verify input wait copy`.
+279. [DONE] Git Commit: `chore: verify input wait copy` (hash: self)

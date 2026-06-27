@@ -82,6 +82,19 @@ export class SessionEventStreamFacade {
     return this.events.filter((event) => event.payload.sessionId === sessionId);
   }
 
+  latestTelemetryBySession(): Map<string, ProviderUsageTelemetry> {
+    const telemetryBySession = new Map<string, ProviderUsageTelemetry>();
+    for (const event of this.events) {
+      if (event.type === "session:telemetry") {
+        telemetryBySession.set(
+          event.payload.sessionId,
+          event.payload.telemetry
+        );
+      }
+    }
+    return telemetryBySession;
+  }
+
   clear(): void {
     this.events.length = 0;
     this.listeners.clear();

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase132.stream1.task1",
+  "expectedCommitMessage": "chore: verify session telemetry restore",
   "debt": null
 }
 ```
@@ -945,3 +945,17 @@
 
 260. [DONE] `harness-ai.phase130.stream1.task1` Run focused checks/package for the sidebar layout and session delete route, then record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session sidebar controls`). Result: Completed in commit `chore: verify session sidebar controls`.
 261. [DONE] Git Commit: `chore: verify session sidebar controls` (hash: self)
+
+## Phase 131 - Session Telemetry Restore Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Core Session State
+
+262. [DONE] `harness-ai.phase131.stream1.task1` Restore persisted session telemetry into Core live session state before resumed provider bindings can publish fresh telemetry after kernel restart (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: restore session telemetry history`). Result: Completed in commit `fix: restore session telemetry history`.
+263. [DONE] Git Commit: `fix: restore session telemetry history` (hash: self)
+
+## Phase 132 - Session Telemetry Restore Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+264. [IN_PROGRESS] `harness-ai.phase132.stream1.task1` Run focused session telemetry restore tests/build/package and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session telemetry restore`).
+265. [TODO] Git Commit: `chore: verify session telemetry restore` (hash: TBD)

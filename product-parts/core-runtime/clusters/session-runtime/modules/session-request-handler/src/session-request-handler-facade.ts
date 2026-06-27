@@ -106,13 +106,11 @@ export class SessionRequestHandlerFacade {
     string,
     ProviderUsageTelemetry
   >();
-
   constructor(deps: SessionRequestHandlerDependencies = {}) {
     this.bindingFacade = deps.bindingFacade ?? providerSessionBindingFacade;
     this.eventStream = deps.eventStream ?? sessionEventStreamFacade;
     this.providerRegistry = deps.providerRegistry ?? providerRegistryFacade;
   }
-
   createSession(request: CreateCoreSessionRequest): CoreSessionActionResult {
     const now = new Date().toISOString();
     const session: CoreSession = {
@@ -208,7 +206,6 @@ export class SessionRequestHandlerFacade {
   getSession(sessionId: string): CoreSession | null {
     return this.sessions.get(sessionId) ?? null;
   }
-
   listSessions(workspaceId?: string): CoreSession[] {
     const sessions = Array.from(this.sessions.values());
     const filtered = workspaceId
@@ -216,10 +213,9 @@ export class SessionRequestHandlerFacade {
       : sessions;
     return filtered.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
-
   restoreSessionHistory(workspaces: WorkspaceHistoryRef[]): CoreSession[] {
     const restoredSessions = workspaces.flatMap((workspace) =>
-      readWorkspaceSessions(workspace.path)
+      readWorkspaceSessionIndex(workspace.path)
     );
     for (const session of restoredSessions) {
       this.sessions.set(session.id, session);
@@ -235,7 +231,15 @@ export class SessionRequestHandlerFacade {
     }
     return this.listSessions();
   }
-
+  restoreTelemetryHistory(
+    telemetryBySession: ReadonlyMap<string, ProviderUsageTelemetry>
+  ): void {
+    for (const [sessionId, telemetry] of telemetryBySession) {
+      if (this.sessions.has(sessionId)) {
+        this.telemetryBySession.set(sessionId, telemetry);
+      }
+    }
+  }
   resumeRestoredSessions(): void {
     for (const session of this.sessions.values()) {
       this.bindProviderSession(session).catch((error: unknown) => {
@@ -490,10 +494,6 @@ function readString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
     : null;
-}
-
-function readWorkspaceSessions(workspacePath: string): CoreSession[] {
-  return readWorkspaceSessionIndex(workspacePath);
 }
 
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

@@ -191,6 +191,9 @@ function restoreCoreState(runtime) {
     runtime.workspaceRegistryFacade.getKnownWorkspaces()
   );
   runtime.sessionEventStreamFacade.configureSessionHistory(sessions);
+  runtime.sessionRequestHandlerFacade.restoreTelemetryHistory(
+    runtime.sessionEventStreamFacade.latestTelemetryBySession()
+  );
 }
 
 async function loadRuntime(repositoryRoot) {

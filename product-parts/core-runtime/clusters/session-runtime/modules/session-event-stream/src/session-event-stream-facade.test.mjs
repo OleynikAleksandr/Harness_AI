@@ -32,11 +32,53 @@ firstStream.publish({
   timestamp: "2026-06-27T00:00:00.000Z",
   type: "session:message",
 });
+firstStream.publish({
+  payload: {
+    sessionId: session.id,
+    telemetry: {
+      model: "test-model",
+      provider: "Test",
+      providerId: "codex",
+      status: "idle",
+      tokenUsage: {
+        contextWindow: 100,
+        remaining: 75,
+        used: 25,
+      },
+      updatedAt: "2026-06-27T00:00:01.000Z",
+    },
+  },
+  timestamp: "2026-06-27T00:00:01.000Z",
+  type: "session:telemetry",
+});
+firstStream.publish({
+  payload: {
+    sessionId: session.id,
+    telemetry: {
+      model: "test-model",
+      provider: "Test",
+      providerId: "codex",
+      status: "idle",
+      tokenUsage: {
+        contextWindow: 100,
+        remaining: 60,
+        used: 40,
+      },
+      updatedAt: "2026-06-27T00:00:02.000Z",
+    },
+  },
+  timestamp: "2026-06-27T00:00:02.000Z",
+  type: "session:telemetry",
+});
 
 const secondStream = new SessionEventStreamFacade();
 secondStream.configureSessionHistory([session]);
 
-assert.equal(secondStream.listEvents(session.id).length, 1);
+assert.equal(secondStream.listEvents(session.id).length, 3);
 assert.equal(secondStream.listEvents(session.id)[0].type, "session:message");
+assert.equal(
+  secondStream.latestTelemetryBySession().get(session.id)?.tokenUsage?.used,
+  40
+);
 
 rmSync(workspacePath, { force: true, recursive: true });

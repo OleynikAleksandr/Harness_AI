@@ -324,7 +324,6 @@
     ),
     rgba(66, 201, 162, 0.12);
   border-color: var(--pm-accent, #42c9a2);
-  box-shadow: inset 0 0 0 1px var(--pm-accent, #42c9a2);
 }
 
 .settings-model-row--with-control {
@@ -612,9 +611,9 @@
 
 .settings-button.primary {
   min-width: 160px;
-  color: #0b0d12;
-  background: var(--pm-accent, #42c9a2);
-  border-color: #3a3d41;
+  color: #b8d1c7;
+  background: #263832;
+  border-color: #2d9a86;
 }
 
 .settings-button.confirm {
@@ -674,9 +673,10 @@
 }
 
 .settings-primary:not(:disabled) {
-  color: #0b0d12;
+  color: #b8d1c7;
   cursor: pointer;
-  background: var(--pm-accent, #42c9a2);
+  background: #263832;
+  border: 1px solid #2d9a86;
 }
 
 .settings-primary:disabled,

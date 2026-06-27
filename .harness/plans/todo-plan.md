@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase163.stream1.task1",
+  "currentTaskId": "harness-ai.phase165.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1170,4 +1170,17 @@
 
 ### Stream: Design Retest
 
-322. [IN_PROGRESS] `harness-ai.phase163.stream1.task1` User relaunches the rebuilt app and reviews the context menu button states and smaller fonts, then provides design feedback (scope: user workflow; expected commit: none).
+322. [DONE] `harness-ai.phase163.stream1.task1` User relaunches the rebuilt app and reviews the context menu button states and smaller fonts, then provides design feedback (scope: user workflow; expected commit: none). Result: Context menu accepted. User asked to mute the bright filled buttons (Start New Session, Save Changes) to the status-panel button style, and to make settings selected-element outlines single-pixel like the model chip.
+
+## Phase 164 - Soften Accent Fills And Selection Outlines (owner: Codex, updated: 2026-06-27)
+
+### Stream: Buttons And Selection
+
+323. [DONE] `harness-ai.phase164.stream1.task1` Mute the bright accent-filled buttons (start session, start new session, settings primary/Save Changes, primary icon button) to the muted status-panel button style (dark teal fill, teal border, light teal text), and replace the double settings selection outline (1px border plus inset 1px shadow) with a single 1px border like the model chip, then rebuild the unsigned macOS app and record evidence (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, docs/evidence/**`; expected commit: `fix: soften accent fills and selection outlines`). Result: Completed in commit `fix: soften accent fills and selection outlines`.
+324. [DONE] Git Commit: `fix: soften accent fills and selection outlines` (hash: self)
+
+## Phase 165 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Design Retest
+
+325. [IN_PROGRESS] `harness-ai.phase165.stream1.task1` User relaunches the rebuilt app and reviews the muted filled buttons and single-pixel selection outlines, then provides design feedback (scope: user workflow; expected commit: none).

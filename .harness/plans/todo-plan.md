@@ -8,8 +8,8 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase152.stream1.task1",
-  "expectedCommitMessage": "fix: unify session window to teal studio",
+  "currentTaskId": "harness-ai.phase153.stream1.task1",
+  "expectedCommitMessage": "fix: restyle session send button from reference",
   "debt": null
 }
 ```
@@ -1097,14 +1097,14 @@
 
 ### Stream: Session Interface
 
-304. [IN_PROGRESS] `harness-ai.phase152.stream1.task1` Remove the blue reference layer from the session window and unify it onto the Teal Studio tokens: collapse the duplicate blue shell, panel, message, and status colors onto the shared pm teal tokens, replace the monospace input with the UI font plus teal focus while keeping mono only for code and IDs, unify radii, and set font weights by role (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `fix: unify session window to teal studio`).
-305. [TODO] Git Commit: `fix: unify session window to teal studio` (hash: TBD)
+304. [DONE] `harness-ai.phase152.stream1.task1` Remove the blue reference layer from the session window and unify it onto the Teal Studio tokens: collapse the duplicate blue shell, panel, message, and status colors onto the shared pm teal tokens, replace the monospace input with the UI font plus teal focus while keeping mono only for code and IDs, unify radii, and set font weights by role (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `fix: unify session window to teal studio`). Result: Completed in commit `fix: unify session window to teal studio`.
+305. [DONE] Git Commit: `fix: unify session window to teal studio` (hash: self)
 
 ## Phase 153 - Reference Send Button Restyle (owner: Codex, updated: 2026-06-27)
 
 ### Stream: Session Input
 
-306. [TODO] `harness-ai.phase153.stream1.task1` Restyle the session send button after the CodeAI Hub reference without changing behavior: render the outlined play action button outside the input field through the session-input action markup, add the action button and icon styles including the smaller stop square as a design-only state, and keep the existing submit handler and disabled logic untouched (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `fix: restyle session send button from reference`).
+306. [IN_PROGRESS] `harness-ai.phase153.stream1.task1` Restyle the session send button after the CodeAI Hub reference without changing behavior: render the outlined play action button outside the input field through the session-input action markup, add the action button and icon styles including the smaller stop square as a design-only state, and keep the existing submit handler and disabled logic untouched (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; expected commit: `fix: restyle session send button from reference`).
 307. [TODO] Git Commit: `fix: restyle session send button from reference` (hash: TBD)
 
 ## Phase 154 - Teal Studio Build And Evidence (owner: Codex, updated: 2026-06-27)

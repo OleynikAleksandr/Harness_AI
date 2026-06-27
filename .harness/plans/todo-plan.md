@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase132.stream1.task1",
-  "expectedCommitMessage": "chore: verify session telemetry restore",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -957,5 +957,5 @@
 
 ### Stream: Build And Package
 
-264. [IN_PROGRESS] `harness-ai.phase132.stream1.task1` Run focused session telemetry restore tests/build/package and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session telemetry restore`).
-265. [TODO] Git Commit: `chore: verify session telemetry restore` (hash: TBD)
+264. [DONE] `harness-ai.phase132.stream1.task1` Run focused session telemetry restore tests/build/package and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session telemetry restore`). Result: Completed in commit `chore: verify session telemetry restore`.
+265. [DONE] Git Commit: `chore: verify session telemetry restore` (hash: self)

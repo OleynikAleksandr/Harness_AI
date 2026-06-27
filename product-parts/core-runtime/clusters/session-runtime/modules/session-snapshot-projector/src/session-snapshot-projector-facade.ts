@@ -9,7 +9,7 @@ import {
 
 export interface SessionMessage {
   id: string;
-  role: "user" | "assistant";
+  role: "assistant" | "system" | "thinking" | "user";
   text: string;
   timestamp: string;
 }

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase88.stream1.task1",
+  "expectedCommitMessage": "chore: verify reference session panels",
   "debt": null
 }
 ```
@@ -644,3 +644,17 @@
 
 179. [DONE] `harness-ai.phase86.stream1.task1` Verify and package OpenRouter translation profile models in General localization engine dropdowns (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile dropdowns`). Result: Completed in commit `chore: verify openrouter translation profile dropdowns`.
 180. [DONE] Git Commit: `chore: verify openrouter translation profile dropdowns` (hash: self)
+
+## Phase 87 - Reference Session Panels (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Surface
+
+181. [DONE] `harness-ai.phase87.stream1.task1` Port the reference session panel layout for session id, dialog, input, and status using Core events/settings as display inputs (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, .harness/plans/todo-plan.md`; expected commit: `feat: port reference session panels`). Result: Completed in commit `feat: port reference session panels`.
+182. [DONE] Git Commit: `feat: port reference session panels` (hash: self)
+
+## Phase 88 - Reference Session Panels Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+183. [IN_PROGRESS] `harness-ai.phase88.stream1.task1` Verify and package the reference session panel layout (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference session panels`).
+184. [TODO] Git Commit: `chore: verify reference session panels` (hash: TBD)

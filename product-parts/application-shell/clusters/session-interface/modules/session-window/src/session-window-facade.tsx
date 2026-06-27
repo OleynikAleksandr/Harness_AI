@@ -1,9 +1,10 @@
-import { FileText, FolderPlus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   CoreSessionMessage,
   SessionCoreEvent,
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import {
   type SessionMessage,
   type SessionTelemetry,
@@ -12,9 +13,12 @@ import {
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
-import { InputControlsFacade } from "../../input-controls/src/input-controls-facade.js";
-import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
-import { SessionTelemetryFacade } from "../../session-telemetry/src/session-telemetry-facade.js";
+import {
+  DialogPanel,
+  ReferenceInputPanel,
+  ReferenceStatusPanel,
+  SessionIdPanel,
+} from "./reference-session-panels.js";
 import "./session-window.css";
 
 export function SessionWindowFacade() {
@@ -25,9 +29,7 @@ export function SessionWindowFacade() {
   const [providerOptions, setProviderOptions] = useState<ProviderDescriptor[]>(
     []
   );
-  const [sessions, setSessions] = useState(
-    initialSnapshot.sessions.slice(0, 0)
-  );
+  const [sessions, setSessions] = useState<CoreSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState("");
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -139,54 +141,25 @@ export function SessionWindowFacade() {
 
   return (
     <div className="harness-app-shell">
-      <SessionSidebarFacade
-        activeSessionId={activeSessionId}
-        onCreateSession={openProviderPicker}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onSelectSession={setActiveSessionId}
-        sessions={sessions}
-        workspace={initialSnapshot.workspace}
-      />
-
-      <main className="session-main">
-        <header className="session-header">
-          <div>
-            <p className="session-kicker">Harness AI</p>
-            <h1>{activeSession?.title ?? "Start a session"}</h1>
-          </div>
-          <a
-            className="file-link-button"
-            href="vscode://file//Users/oleksandroliinyk/VSCODE/harness-ai/README.md:1:1"
-            rel="noreferrer"
-            target="_blank"
-            title="Open workspace"
-          >
-            <FileText aria-hidden="true" size={16} />
-            <span>Workspace</span>
-          </a>
-        </header>
-
-        <SessionTelemetryFacade telemetry={telemetry} />
-
-        <section aria-label="Transcript" className="message-stream">
-          {activeSession ? (
-            messages.map((message) => (
-              <article
-                className={`message-row ${message.role}`}
-                key={message.id}
-              >
-                <div className="message-meta">{message.role}</div>
-                <p>{message.text}</p>
-              </article>
-            ))
-          ) : (
-            <EmptySessionStart onStart={openProviderPicker} />
-          )}
-        </section>
-
-        <InputControlsFacade
+      <main className="session-reference-shell">
+        <SessionIdPanel session={activeSession} telemetry={telemetry} />
+        <DialogPanel
+          messages={messages}
+          onStart={openProviderPicker}
+          providerName={activeSession?.providerName}
+          session={activeSession}
+        />
+        <ReferenceInputPanel
           disabled={!activeSession || runningSessionId === activeSessionId}
           onSubmit={appendUserMessage}
+          session={activeSession}
+        />
+        <ReferenceStatusPanel
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onStart={openProviderPicker}
+          session={activeSession}
+          settings={settingsSnapshot}
+          telemetry={telemetry}
         />
       </main>
 
@@ -204,19 +177,6 @@ export function SessionWindowFacade() {
         onClose={closeSettings}
         workspacePath={initialSnapshot.workspace.path}
       />
-    </div>
-  );
-}
-
-function EmptySessionStart({ onStart }: { onStart: () => void }) {
-  return (
-    <div className="empty-session">
-      <p className="session-kicker">No active session</p>
-      <h2>Choose a provider to start</h2>
-      <button className="start-session-button" onClick={onStart} type="button">
-        <FolderPlus aria-hidden="true" size={16} />
-        <span>Start session</span>
-      </button>
     </div>
   );
 }
@@ -298,14 +258,13 @@ function appendSessionMessage(
     React.SetStateAction<Record<string, SessionMessage[]>>
   >
 ) {
-  const role = message.role === "user" ? "user" : "assistant";
   setMessagesBySession((current) => ({
     ...current,
     [message.sessionId]: [
       ...(current[message.sessionId] ?? []),
       {
         id: message.id,
-        role,
+        role: message.role,
         text: message.text,
         timestamp: message.timestamp,
       },

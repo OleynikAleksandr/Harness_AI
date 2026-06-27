@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import {
+  type OpenRouterEndpointLatencyResult,
+  testOpenRouterEndpointLatency,
+} from "./openrouter-endpoint-latency.js";
+import {
   loadOpenRouterModelEndpoints,
   type OpenRouterEndpointResult,
   type OpenRouterModelSearchResult,
@@ -82,6 +86,10 @@ export function OpenRouterModelEndpointPicker({
   const [modelsLoading, setModelsLoading] = useState(false);
   const [endpointsLoading, setEndpointsLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
+  const [latencyLoading, setLatencyLoading] = useState(false);
+  const [latencyResults, setLatencyResults] = useState<
+    OpenRouterEndpointLatencyResult[]
+  >([]);
 
   useEffect(() => {
     setQuery(value);
@@ -125,6 +133,7 @@ export function OpenRouterModelEndpointPicker({
   useEffect(() => {
     if (!value.includes("/")) {
       setEndpoints([]);
+      setLatencyResults([]);
       return;
     }
     let cancelled = false;
@@ -138,6 +147,7 @@ export function OpenRouterModelEndpointPicker({
       .then((results) => {
         if (!cancelled) {
           setEndpoints(results);
+          setLatencyResults([]);
         }
       })
       .catch((reason: unknown) => {
@@ -158,6 +168,38 @@ export function OpenRouterModelEndpointPicker({
 
   const usesAutomaticEndpoint =
     !endpointTag || endpointTag === DEFAULT_ENDPOINT_TAG;
+  const latencyByEndpoint = new Map(
+    latencyResults.map((result) => [result.endpointTag, result])
+  );
+  const fastestResult = selectFastestResult(latencyResults);
+  const hasLatencyTargets =
+    endpoints.length > 0 ||
+    Boolean(endpointTag && endpointTag !== DEFAULT_ENDPOINT_TAG);
+
+  const testEndpoints = async () => {
+    const endpointTags =
+      endpoints.length > 0
+        ? endpoints.map((endpoint) => endpoint.tag)
+        : [endpointTag].filter((tag) => tag && tag !== DEFAULT_ENDPOINT_TAG);
+    if (endpointTags.length === 0) {
+      setError("No OpenRouter endpoints are available for this model.");
+      return;
+    }
+    setLatencyLoading(true);
+    setError(null);
+    const results = await Promise.all(
+      endpointTags.map((endpointTag) =>
+        testOpenRouterEndpointLatency({
+          apiKey,
+          baseUrl,
+          endpointTag,
+          model: value,
+        })
+      )
+    );
+    setLatencyResults(results);
+    setLatencyLoading(false);
+  };
 
   return (
     <div className="settings-reference-stack tight">
@@ -232,14 +274,89 @@ export function OpenRouterModelEndpointPicker({
                 type="button"
               >
                 <span className="settings-model-title">{endpoint.label}</span>
-                <span className="settings-model-id">{endpoint.name}</span>
+                <span className="settings-model-id">
+                  {formatEndpointMetric(endpoint)}
+                  {formatLatencyResult(latencyByEndpoint.get(endpoint.tag))}
+                </span>
               </button>
             ))}
+          </div>
+          <div className="settings-latency-panel">
+            <h4>OpenRouter Endpoint Latency</h4>
+            <p>
+              Tests this selected model against concrete provider endpoints.
+            </p>
+            <div className="settings-latency-actions">
+              <button
+                className="settings-latency-button"
+                disabled={
+                  !(apiKey && value && hasLatencyTargets) || latencyLoading
+                }
+                onClick={testEndpoints}
+                type="button"
+              >
+                {latencyLoading ? "Testing..." : "Test latency"}
+              </button>
+              {fastestResult ? (
+                <button
+                  className="settings-latency-secondary"
+                  onClick={() =>
+                    onChange({ endpointTag: fastestResult.endpointTag })
+                  }
+                  type="button"
+                >
+                  Use fastest: {fastestResult.endpointTag}
+                </button>
+              ) : null}
+            </div>
+            {apiKey ? null : (
+              <p className="settings-latency-note">
+                OpenRouter API key is required.
+              </p>
+            )}
           </div>
         </div>
       ) : null}
       {error ? <p className="settings-note">{error}</p> : null}
     </div>
+  );
+}
+
+function formatEndpointMetric(endpoint: OpenRouterEndpointResult): string {
+  const parts: string[] = [];
+  if (endpoint.uptimeLast30m !== null) {
+    parts.push(`${endpoint.uptimeLast30m.toFixed(2)}% uptime`);
+  }
+  if (endpoint.latencyLast30m !== null) {
+    parts.push(`${endpoint.latencyLast30m.toFixed(2)}s`);
+  }
+  if (endpoint.throughputLast30m !== null) {
+    parts.push(`${Math.round(endpoint.throughputLast30m)} tps`);
+  }
+  return parts.length > 0 ? parts.join(" · ") : endpoint.name;
+}
+
+function formatLatencyResult(
+  result: OpenRouterEndpointLatencyResult | undefined
+): string {
+  if (!result) {
+    return "";
+  }
+  if (!result.ok) {
+    return ` · live failed: ${result.error ?? "unknown error"}`;
+  }
+  return ` · live ${result.latencyMs ?? 0} ms`;
+}
+
+function selectFastestResult(
+  results: readonly OpenRouterEndpointLatencyResult[]
+): null | OpenRouterEndpointLatencyResult {
+  return (
+    results
+      .filter((result) => result.ok && result.latencyMs !== null)
+      .sort(
+        (left, right) => (left.latencyMs ?? 0) - (right.latencyMs ?? 0)
+      )[0] ?? null
   );
 }
 

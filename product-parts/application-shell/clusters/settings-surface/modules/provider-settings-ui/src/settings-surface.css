@@ -346,6 +346,68 @@
   color: #a8b3bf;
 }
 
+.settings-latency-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(92, 122, 72, 0.18);
+  border: 1px solid rgba(126, 173, 92, 0.72);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(126, 173, 92, 0.16);
+}
+
+.settings-latency-panel h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e8f5dc;
+  letter-spacing: 0;
+}
+
+.settings-latency-panel p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #c8d6bd;
+}
+
+.settings-latency-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.settings-latency-button,
+.settings-latency-secondary {
+  min-height: 30px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f3ffe8;
+  cursor: pointer;
+  background: #3d7a42;
+  border: 1px solid #5ca65f;
+  border-radius: 5px;
+}
+
+.settings-latency-secondary {
+  color: #d7e8ce;
+  background: rgba(39, 50, 36, 0.8);
+  border-color: rgba(126, 173, 92, 0.55);
+}
+
+.settings-latency-button:disabled {
+  color: #8f9a88;
+  cursor: not-allowed;
+  background: rgba(61, 122, 66, 0.28);
+  border-color: rgba(126, 173, 92, 0.28);
+}
+
+.settings-latency-note {
+  color: #aebba5;
+}
+
 .settings-version-warning {
   padding: 8px 10px;
   font-size: 12px;

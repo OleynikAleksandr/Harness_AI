@@ -13,6 +13,7 @@ release/
 
 # Harness runtime state
 .harness/runtime/
+.harness/sessions/
 .harness/sessions/*.lock
 .codeai-hub/
 

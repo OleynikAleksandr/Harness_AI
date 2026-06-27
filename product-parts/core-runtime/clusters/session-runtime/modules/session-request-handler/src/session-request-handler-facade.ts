@@ -1,3 +1,5 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderTurnStatus,
@@ -74,6 +76,7 @@ interface ProviderSessionBindingFacadeLike {
 
 interface SessionEventStreamLike {
   publish(event: SessionCoreEvent): void;
+  rememberSession?(session: CoreSession): void;
 }
 
 interface ProviderRegistryLike {
@@ -123,6 +126,8 @@ export class SessionRequestHandlerFacade {
         : {}),
     };
     this.sessions.set(session.id, session);
+    this.eventStream.rememberSession?.(session);
+    this.persistSessionIndex(session.workspacePath);
     this.setTelemetry(
       session.id,
       usageContextTelemetryFacade.createTelemetry({
@@ -159,6 +164,7 @@ export class SessionRequestHandlerFacade {
     const now = new Date().toISOString();
     const updatedSession = { ...session, updatedAt: now };
     this.sessions.set(session.id, updatedSession);
+    this.persistSessionIndex(updatedSession.workspacePath);
     this.publishMessage({
       id: createId("message-user"),
       role: "user",
@@ -187,9 +193,37 @@ export class SessionRequestHandlerFacade {
 
   listSessions(workspaceId?: string): CoreSession[] {
     const sessions = Array.from(this.sessions.values());
-    return workspaceId
+    const filtered = workspaceId
       ? sessions.filter((session) => session.workspaceId === workspaceId)
       : sessions;
+    return filtered.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }
+
+  restoreSessionHistory(workspaces: WorkspaceHistoryRef[]): CoreSession[] {
+    const restoredSessions = workspaces.flatMap((workspace) =>
+      readWorkspaceSessions(workspace.path)
+    );
+    for (const session of restoredSessions) {
+      this.sessions.set(session.id, session);
+      this.telemetryBySession.set(
+        session.id,
+        usageContextTelemetryFacade.createTelemetry({
+          model: session.model,
+          provider: session.providerName,
+          providerId: session.providerId,
+          status: "idle",
+        })
+      );
+    }
+    return this.listSessions();
+  }
+
+  resumeRestoredSessions(): void {
+    for (const session of this.sessions.values()) {
+      this.bindProviderSession(session).catch((error: unknown) => {
+        this.publishError(session.id, stringifyError(error));
+      });
+    }
   }
 
   private publishMessage(message: CoreSessionMessage): void {
@@ -228,6 +262,22 @@ export class SessionRequestHandlerFacade {
 
   private publish(event: SessionCoreEvent): void {
     this.eventStream.publish(event);
+  }
+
+  private persistSessionIndex(workspacePath?: string): void {
+    if (!workspacePath) {
+      return;
+    }
+    const workspaceSessions = this.listSessions().filter(
+      (session) => session.workspacePath === workspacePath
+    );
+    const indexPath = sessionIndexPath(workspacePath);
+    mkdirSync(dirname(indexPath), { recursive: true });
+    writeFileSync(
+      indexPath,
+      JSON.stringify(workspaceSessions, null, 2),
+      "utf8"
+    );
   }
 
   private setTelemetry(
@@ -388,6 +438,10 @@ export class SessionRequestHandlerFacade {
   }
 }
 
+interface WorkspaceHistoryRef {
+  path: string;
+}
+
 function createId(prefix: string): string {
   return `${prefix}-${globalThis.crypto.randomUUID()}`;
 }
@@ -404,6 +458,38 @@ function readString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
     : null;
+}
+
+function sessionIndexPath(workspacePath: string): string {
+  return join(workspacePath, ".harness", "sessions", "index.json");
+}
+
+function readWorkspaceSessions(workspacePath: string): CoreSession[] {
+  const indexPath = sessionIndexPath(workspacePath);
+  if (!existsSync(indexPath)) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(readFileSync(indexPath, "utf8")) as unknown;
+    return Array.isArray(parsed) ? parsed.filter(isCoreSession) : [];
+  } catch {
+    return [];
+  }
+}
+
+function isCoreSession(value: unknown): value is CoreSession {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.providerId === "string" &&
+    typeof value.providerName === "string" &&
+    typeof value.model === "string" &&
+    typeof value.title === "string" &&
+    typeof value.workspaceId === "string" &&
+    typeof value.workspacePath === "string" &&
+    typeof value.createdAt === "string" &&
+    typeof value.updatedAt === "string"
+  );
 }
 
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

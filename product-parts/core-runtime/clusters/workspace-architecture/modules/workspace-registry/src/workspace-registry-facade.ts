@@ -4,6 +4,11 @@ export interface HarnessWorkspace {
   path: string;
 }
 
+export interface WorkspaceRegistrySnapshot {
+  activeWorkspaceId: string;
+  workspaces: HarnessWorkspace[];
+}
+
 const CURRENT_WORKSPACE: HarnessWorkspace = {
   id: "harness-ai-local",
   name: "Harness AI",
@@ -55,6 +60,26 @@ export class WorkspaceRegistryFacade {
     this.activeWorkspaceId = workspace.id;
     return workspace;
   }
+
+  restoreSnapshot(snapshot: WorkspaceRegistrySnapshot): void {
+    this.workspaces.clear();
+    this.workspaces.set(CURRENT_WORKSPACE.id, CURRENT_WORKSPACE);
+    for (const workspace of snapshot.workspaces) {
+      if (isWorkspace(workspace)) {
+        this.workspaces.set(workspace.id, workspace);
+      }
+    }
+    this.activeWorkspaceId = this.workspaces.has(snapshot.activeWorkspaceId)
+      ? snapshot.activeWorkspaceId
+      : CURRENT_WORKSPACE.id;
+  }
+
+  getSnapshot(): WorkspaceRegistrySnapshot {
+    return {
+      activeWorkspaceId: this.getActiveWorkspace().id,
+      workspaces: this.getKnownWorkspaces(),
+    };
+  }
 }
 
 function normalizeWorkspacePath(workspacePath: string): string {
@@ -72,6 +97,16 @@ function buildWorkspaceId(workspacePath: string): string {
     hash = (hash * 31 + char.charCodeAt(0)) % WORKSPACE_ID_MODULO;
   }
   return `workspace-${hash.toString(36)}`;
+}
+
+function isWorkspace(value: unknown): value is HarnessWorkspace {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as HarnessWorkspace).id === "string" &&
+    typeof (value as HarnessWorkspace).name === "string" &&
+    typeof (value as HarnessWorkspace).path === "string"
+  );
 }
 
 export const workspaceRegistryFacade = new WorkspaceRegistryFacade();

@@ -29,3 +29,13 @@ assert.equal(registry.getKnownWorkspaces().length, firstCount + 1);
 assert.equal(registry.selectWorkspace(workspace.id).id, workspace.id);
 assert.equal(registry.getActiveWorkspace().id, workspace.id);
 assert.throws(() => registry.selectWorkspace("missing-workspace"));
+
+const restored = new WorkspaceRegistryFacade();
+restored.restoreSnapshot(registry.getSnapshot());
+assert.equal(restored.getActiveWorkspace().id, workspace.id);
+assert.equal(
+  restored
+    .getKnownWorkspaces()
+    .some((knownWorkspace) => knownWorkspace.id === workspace.id),
+  true
+);

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
+  "executionScopeStatus": "ACTIVE",
+  "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase105.stream1.task1",
+  "expectedCommitMessage": "chore: verify core session restore",
   "debt": null
 }
 ```
@@ -763,3 +763,23 @@
 
 213. [DONE] `harness-ai.phase103.stream1.task1` Remove Node-only path usage from the shared workspace registry facade so renderer imports stay browser-safe (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: keep workspace registry renderer safe`). Result: Completed in commit `fix: keep workspace registry renderer safe`.
 214. [DONE] Git Commit: `fix: keep workspace registry renderer safe` (hash: self)
+
+## Phase 104 - Core Session Restore (owner: Codex, updated: 2026-06-27)
+
+### Stream: Core Truth Persistence
+
+215. [DONE] `harness-ai.phase104.stream1.task1` Persist Core-owned workspace registry, session index, and session event replay so session lists and detached/opened sessions survive Core/app reloads without UI truth (scope: `product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, .gitignore, .harness/plans/todo-plan.md`; expected commit: `feat: persist core workspaces and sessions`). Result: Completed in commit `feat: persist core workspaces and sessions`.
+216. [DONE] Git Commit: `feat: persist core workspaces and sessions` (hash: self)
+
+## Phase 105 - Session Restore Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+217. [IN_PROGRESS] `harness-ai.phase105.stream1.task1` Run plan validation, focused tests, build, package the macOS app, and record restore verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify core session restore`).
+218. [TODO] Git Commit: `chore: verify core session restore` (hash: TBD)
+
+## Phase 106 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Retest
+
+219. [TODO] `harness-ai.phase106.stream1.task1` User retests workspace switching, session list restore, and detached session replay after Core/app restart (scope: user workflow; expected commit: none).

@@ -3,6 +3,10 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { dialog, ipcMain } from "electron";
+import {
+  loadWorkspaceRegistrySnapshot,
+  saveWorkspaceRegistrySnapshot,
+} from "./core-state-persistence.mjs";
 
 let bridge = null;
 const execAsync = promisify(exec);
@@ -12,7 +16,9 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     return bridge;
   }
   const runtime = await loadRuntime(repositoryRoot);
+  restoreCoreState(runtime);
   registerProviderAdapters(runtime);
+  runtime.sessionRequestHandlerFacade.resumeRestoredSessions();
   const webContentsTargets = new Set();
   runtime.sessionEventStreamFacade.subscribe((event) => {
     for (const target of webContentsTargets) {
@@ -39,6 +45,9 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
       result.filePaths[0]
     );
     runtime.workspaceRegistryFacade.selectWorkspace(workspace.id);
+    saveWorkspaceRegistrySnapshot(
+      runtime.workspaceRegistryFacade.getSnapshot()
+    );
     runtime.providerRegistryFacade.clearAdapters();
     registerProviderAdapters(runtime);
     return { ok: true, workspace };
@@ -47,6 +56,9 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     try {
       const workspace = runtime.workspaceRegistryFacade.selectWorkspace(
         String(workspaceId ?? "")
+      );
+      saveWorkspaceRegistrySnapshot(
+        runtime.workspaceRegistryFacade.getSnapshot()
       );
       runtime.providerRegistryFacade.clearAdapters();
       registerProviderAdapters(runtime);
@@ -162,6 +174,17 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     },
   };
   return bridge;
+}
+
+function restoreCoreState(runtime) {
+  const workspaceSnapshot = loadWorkspaceRegistrySnapshot();
+  if (workspaceSnapshot) {
+    runtime.workspaceRegistryFacade.restoreSnapshot(workspaceSnapshot);
+  }
+  const sessions = runtime.sessionRequestHandlerFacade.restoreSessionHistory(
+    runtime.workspaceRegistryFacade.getKnownWorkspaces()
+  );
+  runtime.sessionEventStreamFacade.configureSessionHistory(sessions);
 }
 
 async function loadRuntime(repositoryRoot) {

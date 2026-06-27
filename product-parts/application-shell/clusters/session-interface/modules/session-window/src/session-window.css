@@ -820,9 +820,10 @@ strong {
 }
 
 .session-input__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 58px;
-  gap: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  width: 100%;
 }
 
 .session-input__container {
@@ -916,23 +917,72 @@ strong {
   border-radius: 8px;
 }
 
-.session-input__send {
-  display: grid;
-  place-items: center;
-  align-self: center;
-  width: 58px;
-  min-height: 58px;
-  font-size: 22px;
-  color: #d7dbe0;
-  cursor: pointer;
-  background: #242526;
-  border: 1px solid #464c51;
-  border-radius: 8px;
+.session-input__action {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
 }
 
-.session-input__send:disabled {
+.session-input__action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: rgba(220, 220, 220, 1);
+  cursor: pointer;
+  background-color: rgba(30, 30, 30, 1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+}
+
+.session-input__action-button:hover {
+  background-color: rgba(40, 40, 40, 1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.session-input__action-button:focus-visible {
+  outline: 2px solid var(--pm-accent, #42c9a2);
+  outline-offset: 2px;
+}
+
+.session-input__action-button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
+}
+
+.session-input__action-button--stop {
+  color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(220, 61, 61, 0.2);
+  border-color: rgba(220, 61, 61, 0.38);
+}
+
+.session-input__action-button--stop:hover {
+  background-color: rgba(220, 61, 61, 0.26);
+  border-color: rgba(220, 61, 61, 0.45);
+}
+
+.session-input__action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.session-input__action-icon--play {
+  font-size: 14px;
+}
+
+/* ponytail: stop square is styled but unwired; it appears only once a stop-turn function is added */
+.session-input__action-icon--stop {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  border-radius: 3px;
 }
 
 .session-input__footer {

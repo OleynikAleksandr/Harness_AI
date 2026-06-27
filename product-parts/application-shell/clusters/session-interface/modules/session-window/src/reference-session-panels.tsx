@@ -99,14 +99,21 @@ export function ReferenceInputPanel({
           value={draft}
           waitCopy={draft.length === 0 ? waitCopy : null}
         />
-        <button
-          aria-label="Send message"
-          className="session-input__send"
-          disabled={!canSubmit}
-          type="submit"
-        >
-          ▶
-        </button>
+        <div className="session-input__action">
+          <button
+            aria-label="Send message"
+            className="session-input__action-button"
+            disabled={!canSubmit}
+            type="submit"
+          >
+            <span
+              aria-hidden="true"
+              className="session-input__action-icon session-input__action-icon--play"
+            >
+              ▶
+            </span>
+          </button>
+        </div>
       </div>
       <div className="session-input__footer">
         <span>Press Enter to send, Shift+Enter for a new line</span>

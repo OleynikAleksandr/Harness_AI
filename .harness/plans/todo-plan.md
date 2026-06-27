@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase88.stream1.task1",
-  "expectedCommitMessage": "chore: verify reference session panels",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -656,5 +656,5 @@
 
 ### Stream: Build And Package
 
-183. [IN_PROGRESS] `harness-ai.phase88.stream1.task1` Verify and package the reference session panel layout (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference session panels`).
-184. [TODO] Git Commit: `chore: verify reference session panels` (hash: TBD)
+183. [DONE] `harness-ai.phase88.stream1.task1` Verify and package the reference session panel layout (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference session panels`). Result: Completed in commit `chore: verify reference session panels`.
+184. [DONE] Git Commit: `chore: verify reference session panels` (hash: self)

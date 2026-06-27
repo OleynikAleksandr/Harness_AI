@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase115.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase117.stream1.task1",
+  "expectedCommitMessage": "chore: verify provider version controls",
   "debt": null
 }
 ```
@@ -842,4 +842,24 @@
 
 ### Stream: Retest
 
-234. [IN_PROGRESS] `harness-ai.phase115.stream1.task1` User retests token usage display after one turn in Claude, Codex, Kimi, OpenCode, GLM, and OpenRouter sessions (scope: user workflow; expected commit: none).
+234. [TODO] `harness-ai.phase115.stream1.task1` User retests token usage display after one turn in Claude, Codex, Kimi, OpenCode, GLM, and OpenRouter sessions (scope: user workflow; expected commit: none). Retest found provider CLI/SDK version detection and update buttons broken; hotfix follows.
+
+## Phase 116 - Provider Version Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Bridge
+
+235. [DONE] `harness-ai.phase116.stream1.task1` Fix packaged-app provider CLI/SDK current/latest version detection and enable manual update buttons for Claude, Codex, and OpenCode targets (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, .harness/plans/todo-plan.md`; expected commit: `fix: detect provider tool versions`). Result: Completed in commit `fix: detect provider tool versions`.
+236. [DONE] Git Commit: `fix: detect provider tool versions` (hash: self)
+
+## Phase 117 - Provider Version Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+237. [IN_PROGRESS] `harness-ai.phase117.stream1.task1` Run focused version checks, package the macOS app, and record provider version/update verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider version controls`).
+238. [TODO] Git Commit: `chore: verify provider version controls` (hash: TBD)
+
+## Phase 118 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Retest
+
+239. [TODO] `harness-ai.phase118.stream1.task1` User retests Settings version rows and manual update buttons for Claude, Codex, and OpenCode in the packaged app (scope: user workflow; expected commit: none).

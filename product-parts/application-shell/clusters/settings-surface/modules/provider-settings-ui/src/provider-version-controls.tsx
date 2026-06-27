@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
-export type UpdatableProviderId = "claude" | "codex";
+export type UpdatableProviderId = "claude" | "codex" | "glmOpenCode";
 export type VersionTarget = "cli" | "sdk";
 
 export interface ProviderVersionEntry {
@@ -45,9 +45,6 @@ export function ProviderVersionsCard({
   }
   const rows = versionRows(provider, snapshot);
   const handleUpdate = (target: VersionTarget) => {
-    if (provider === "glmOpenCode") {
-      return;
-    }
     const key = `${provider}:${target}`;
     if (pendingTarget !== key) {
       setPendingTarget(key);
@@ -95,11 +92,7 @@ export function ProviderVersionsCard({
         {rows.map((row) => (
           <VersionRow
             key={`${provider}:${row.target}`}
-            onUpdate={
-              provider === "glmOpenCode"
-                ? undefined
-                : () => handleUpdate(row.target)
-            }
+            onUpdate={() => handleUpdate(row.target)}
             pendingConfirmation={pendingTarget === `${provider}:${row.target}`}
             row={row}
             updating={updatingTargets.includes(`${provider}:${row.target}`)}

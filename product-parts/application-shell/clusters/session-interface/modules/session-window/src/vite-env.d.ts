@@ -112,7 +112,7 @@ interface Window {
       | { error: string; ok: false }
     >;
     updateProviderVersion(request: {
-      provider: "claude" | "codex";
+      provider: "claude" | "codex" | "glmOpenCode";
       target: "cli" | "sdk";
     }): Promise<
       | { ok: true; versions: ProviderVersionsSnapshot }

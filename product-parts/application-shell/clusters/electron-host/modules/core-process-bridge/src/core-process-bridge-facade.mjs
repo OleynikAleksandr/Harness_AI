@@ -1,15 +1,17 @@
-import { exec } from "node:child_process";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { promisify } from "node:util";
 import { dialog, ipcMain } from "electron";
 import {
   loadWorkspaceRegistrySnapshot,
   saveWorkspaceRegistrySnapshot,
 } from "./core-state-persistence.mjs";
+import {
+  installLatestGlobalPackage,
+  loadProviderVersions,
+  resolveProviderPackage,
+} from "./provider-version-tools.mjs";
 
 let bridge = null;
-const execAsync = promisify(exec);
 
 export async function initializeCoreProcessBridge(repositoryRoot) {
   if (bridge) {
@@ -340,45 +342,6 @@ function activeWorkspacePath(runtime) {
   return runtime.workspaceRegistryFacade.getActiveWorkspace().path;
 }
 
-const NPM_COMMAND = process.platform === "win32" ? "npm.cmd" : "npm";
-const EXEC_MAX_BUFFER_BYTES = 10 * 1_048_576;
-const PROVIDER_PACKAGE_MAP = {
-  claude: {
-    cli: "@anthropic-ai/claude-code",
-    sdk: "@anthropic-ai/claude-agent-sdk",
-  },
-  codex: {
-    cli: "@openai/codex",
-    sdk: "@openai/codex-sdk",
-  },
-  glmOpenCode: {
-    sdk: "@opencode-ai/sdk",
-  },
-};
-const OPENCODE_VERSION_COMMAND =
-  process.platform === "win32"
-    ? "opencode.cmd --version"
-    : "opencode --version";
-const VERSION_PATTERN = /\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/u;
-
-async function loadProviderVersions() {
-  const [claudeCli, claudeSdk, codexCli, codexSdk, openCodeCli, openCodeSdk] =
-    await Promise.all([
-      readPackageVersion(PROVIDER_PACKAGE_MAP.claude.cli),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.cli),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
-      readCommandPackageVersion("opencode", OPENCODE_VERSION_COMMAND),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.glmOpenCode.sdk),
-    ]);
-  return {
-    checkedAt: new Date().toISOString(),
-    claude: { cli: claudeCli, sdk: claudeSdk },
-    codex: { cli: codexCli, sdk: codexSdk },
-    glmOpenCode: { cli: openCodeCli, sdk: openCodeSdk },
-  };
-}
-
 async function loadLocalModels() {
   if (typeof fetch !== "function") {
     return [];
@@ -393,105 +356,6 @@ async function loadLocalModels() {
         .map((model) => (typeof model?.id === "string" ? model.id : null))
         .filter(Boolean)
     : [];
-}
-
-async function readPackageVersion(packageName) {
-  const [currentVersion, latestVersion] = await Promise.all([
-    readInstalledVersion(packageName),
-    readLatestVersion(packageName),
-  ]);
-  return {
-    currentVersion,
-    latestVersion,
-    packageName,
-  };
-}
-
-async function readCommandPackageVersion(packageName, command) {
-  const [currentVersion, latestVersion] = await Promise.all([
-    readCommandVersion(command),
-    readLatestVersion(PROVIDER_PACKAGE_MAP.glmOpenCode.sdk),
-  ]);
-  return {
-    currentVersion,
-    latestVersion,
-    packageName,
-  };
-}
-
-async function readCommandVersion(command) {
-  try {
-    const { stdout } = await execAsync(command, {
-      maxBuffer: EXEC_MAX_BUFFER_BYTES,
-    });
-    return stdout.match(VERSION_PATTERN)?.[0] ?? null;
-  } catch {
-    return null;
-  }
-}
-
-async function readInstalledVersion(packageName) {
-  try {
-    const { stdout } = await execAsync(
-      `${NPM_COMMAND} list -g ${packageName} --depth=0 --json`,
-      { maxBuffer: EXEC_MAX_BUFFER_BYTES }
-    );
-    return extractInstalledVersion(packageName, stdout);
-  } catch (error) {
-    return extractInstalledVersion(packageName, error?.stdout ?? "");
-  }
-}
-
-async function readLatestVersion(packageName) {
-  try {
-    const { stdout } = await execAsync(
-      `${NPM_COMMAND} view ${packageName} version --json`,
-      {
-        maxBuffer: EXEC_MAX_BUFFER_BYTES,
-      }
-    );
-    const trimmed = stdout.trim();
-    if (!trimmed) {
-      return null;
-    }
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (typeof parsed === "string") {
-        return parsed.trim();
-      }
-      if (Array.isArray(parsed)) {
-        return parsed.at(-1) ?? null;
-      }
-    } catch {
-      return trimmed;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function extractInstalledVersion(packageName, output) {
-  try {
-    const parsed = JSON.parse(output);
-    return parsed.dependencies?.[packageName]?.version ?? null;
-  } catch {
-    return null;
-  }
-}
-
-async function installLatestGlobalPackage(packageName) {
-  await execAsync(`${NPM_COMMAND} install -g ${packageName}@latest`, {
-    maxBuffer: EXEC_MAX_BUFFER_BYTES,
-  });
-}
-
-function resolveProviderPackage(provider, target) {
-  const packageName = PROVIDER_PACKAGE_MAP[provider]?.[target];
-  if (!packageName) {
-    throw new Error("Unknown provider update target.");
-  }
-  return packageName;
 }
 
 function describeError(error) {

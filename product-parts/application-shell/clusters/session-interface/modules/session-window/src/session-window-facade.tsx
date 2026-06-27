@@ -165,7 +165,6 @@ export function SessionWindowFacade() {
             session={activeSession}
           />
           <ReferenceStatusPanel
-            onOpenSettings={() => setIsSettingsOpen(true)}
             session={activeSession}
             settings={settingsSnapshot}
             telemetry={telemetry}

@@ -747,12 +747,6 @@ textarea {
   color: #c2cac6;
 }
 
-.session-status-button--settings {
-  color: #9fa7ab;
-  background: #252526;
-  border-color: #444b4f;
-}
-
 .session-status-chip--label {
   color: #8d9295;
 }

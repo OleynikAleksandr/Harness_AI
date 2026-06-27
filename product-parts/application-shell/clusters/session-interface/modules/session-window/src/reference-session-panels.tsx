@@ -113,12 +113,10 @@ export function ReferenceInputPanel({
 }
 
 export function ReferenceStatusPanel({
-  onOpenSettings,
   session,
   settings,
   telemetry,
 }: {
-  onOpenSettings: () => void;
   session: CoreSession | undefined;
   settings: HarnessSettings | null;
   telemetry: SessionTelemetry;
@@ -141,13 +139,6 @@ export function ReferenceStatusPanel({
           {telemetry.contextWindow}
         </strong>
       </span>
-      <button
-        className="session-status-button session-status-button--settings"
-        onClick={onOpenSettings}
-        type="button"
-      >
-        Settings
-      </button>
     </section>
   );
 }

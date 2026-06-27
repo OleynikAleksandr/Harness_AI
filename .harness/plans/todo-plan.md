@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase92.stream1.task1",
+  "expectedCommitMessage": "chore: verify session status panel settings removal",
   "debt": null
 }
 ```
@@ -672,3 +672,17 @@
 
 187. [DONE] `harness-ai.phase90.stream1.task1` Verify and package sidebar-owned session start with reference panels in the right workspace only after session creation (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify sidebar session surface`). Result: Completed in commit `chore: verify sidebar session surface`.
 188. [DONE] Git Commit: `chore: verify sidebar session surface` (hash: self)
+
+## Phase 91 - Session Status Panel Settings Button (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Surface
+
+189. [DONE] `harness-ai.phase91.stream1.task1` Remove the redundant Settings control from the bottom session status panel while keeping Settings in the left sidebar (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `fix: remove settings from session status panel`). Result: Completed in commit `fix: remove settings from session status panel`.
+190. [DONE] Git Commit: `fix: remove settings from session status panel` (hash: self)
+
+## Phase 92 - Session Status Panel Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+191. [IN_PROGRESS] `harness-ai.phase92.stream1.task1` Verify and package the session status panel without the redundant Settings control (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session status panel settings removal`).
+192. [TODO] Git Commit: `chore: verify session status panel settings removal` (hash: TBD)

@@ -1,8 +1,12 @@
 "use strict";
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 contextBridge.exposeInMainWorld("harnessRuntime", {
   providerDispatchMode: "core-session-dispatch",
+});
+
+contextBridge.exposeInMainWorld("harnessFilePaths", {
+  getPathForFile: (file) => webUtils.getPathForFile(file),
 });
 
 contextBridge.exposeInMainWorld("harnessCore", {

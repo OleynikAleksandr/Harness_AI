@@ -91,6 +91,9 @@ interface Window {
       | { error: string; ok: false }
     >;
   };
+  harnessFilePaths?: {
+    getPathForFile(file: File): string;
+  };
   harnessRuntime?: {
     providerDispatchMode: "core-session-dispatch";
   };

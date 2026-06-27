@@ -8,8 +8,8 @@
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase94.stream1.task1",
-  "expectedCommitMessage": "feat: restore reference input file handling",
+  "currentTaskId": "harness-ai.phase95.stream1.task1",
+  "expectedCommitMessage": "chore: verify reference input file handling",
   "debt": null
 }
 ```
@@ -698,12 +698,12 @@
 
 ### Stream: Session Input
 
-195. [IN_PROGRESS] `harness-ai.phase94.stream1.task1` Restore reference input textarea behaviors: auto-height, cursor insertion, copy/paste normalization, and Shift file drag/drop path insertion (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-input-textarea.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-input-paths.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-input-paths.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: restore reference input file handling`).
-196. [TODO] Git Commit: `feat: restore reference input file handling` (hash: TBD)
+195. [DONE] `harness-ai.phase94.stream1.task1` Restore reference input textarea behaviors: auto-height, cursor insertion, copy/paste normalization, and Shift file drag/drop path insertion (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-input-textarea.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-input-paths.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-input-paths.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, .harness/plans/todo-plan.md`; expected commit: `feat: restore reference input file handling`). Result: Completed in commit `feat: restore reference input file handling`.
+196. [DONE] Git Commit: `feat: restore reference input file handling` (hash: self)
 
 ## Phase 95 - Reference Input Field Verification (owner: Codex, updated: 2026-06-27)
 
 ### Stream: Build And Package
 
-197. [TODO] `harness-ai.phase95.stream1.task1` Verify and package restored reference input field behaviors (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference input file handling`).
+197. [IN_PROGRESS] `harness-ai.phase95.stream1.task1` Verify and package restored reference input field behaviors (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference input file handling`).
 198. [TODO] Git Commit: `chore: verify reference input file handling` (hash: TBD)

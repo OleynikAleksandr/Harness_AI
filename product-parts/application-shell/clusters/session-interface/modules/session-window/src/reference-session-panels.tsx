@@ -5,6 +5,7 @@ import type {
   SessionTelemetry,
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { SessionInputTextarea } from "./session-input-textarea.js";
 
 export function SessionIdPanel({
   session,
@@ -82,16 +83,10 @@ export function ReferenceInputPanel({
       }}
     >
       <div className="session-input__row">
-        <textarea
-          aria-label="Message"
+        <SessionInputTextarea
           disabled={disabled}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              submit();
-            }
-          }}
+          onSubmit={submit}
+          onValueChange={setDraft}
           placeholder="Type your request or drag files with Shift held..."
           value={draft}
         />

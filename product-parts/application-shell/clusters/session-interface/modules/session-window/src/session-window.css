@@ -651,10 +651,17 @@ textarea {
   gap: 12px;
 }
 
-.session-input textarea {
+.session-input__container {
+  position: relative;
+  min-width: 0;
+}
+
+.session-input__textarea {
   width: 100%;
   min-height: 78px;
+  max-height: 200px;
   padding: 18px 20px;
+  overflow: auto;
   font-family: Menlo, Monaco, Consolas, monospace;
   font-size: 15px;
   font-weight: 700;
@@ -666,18 +673,35 @@ textarea {
   border-radius: 4px;
 }
 
-.session-input textarea::placeholder {
+.session-input__textarea::placeholder {
   color: #777d82;
 }
 
-.session-input textarea:focus {
+.session-input__textarea:focus,
+.session-input__textarea--focused {
   border-color: #455054;
   box-shadow: none;
 }
 
-.session-input textarea:disabled {
+.session-input__textarea:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.session-input__container--dragging .session-input__textarea {
+  border-color: #0e639c;
+}
+
+.session-input__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #d7dbe0;
+  pointer-events: none;
+  background: rgba(14, 99, 156, 0.18);
+  border: 1px solid #0e639c;
+  border-radius: 4px;
 }
 
 .session-input__send {

@@ -13,6 +13,7 @@ import {
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
+import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
 import {
   DialogPanel,
   ReferenceInputPanel,
@@ -49,11 +50,12 @@ export function SessionWindowFacade() {
 
   const activeSession =
     sessions.find((session) => session.id === activeSessionId) ?? sessions[0];
+  const activeSessionDataId = activeSession?.id ?? activeSessionId;
   const messages = activeSession
-    ? (messagesBySession[activeSessionId] ?? [])
+    ? (messagesBySession[activeSessionDataId] ?? [])
     : [];
   const telemetry =
-    telemetryBySession[activeSessionId] ?? initialSnapshot.telemetry;
+    telemetryBySession[activeSessionDataId] ?? initialSnapshot.telemetry;
 
   const refreshSettingsSnapshot = useCallback(async () => {
     const snapshot = await window.harnessCore?.getSettings();
@@ -141,27 +143,40 @@ export function SessionWindowFacade() {
 
   return (
     <div className="harness-app-shell">
-      <main className="session-reference-shell">
-        <SessionIdPanel session={activeSession} telemetry={telemetry} />
-        <DialogPanel
-          messages={messages}
-          onStart={openProviderPicker}
-          providerName={activeSession?.providerName}
-          session={activeSession}
+      <SessionSidebarFacade
+        activeSessionId={activeSession?.id ?? ""}
+        onCreateSession={openProviderPicker}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onSelectSession={setActiveSessionId}
+        sessions={sessions}
+        workspace={initialSnapshot.workspace}
+      />
+
+      {activeSession ? (
+        <main className="session-reference-shell">
+          <SessionIdPanel session={activeSession} telemetry={telemetry} />
+          <DialogPanel
+            messages={messages}
+            providerName={activeSession.providerName}
+          />
+          <ReferenceInputPanel
+            disabled={runningSessionId === activeSession.id}
+            onSubmit={appendUserMessage}
+            session={activeSession}
+          />
+          <ReferenceStatusPanel
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            session={activeSession}
+            settings={settingsSnapshot}
+            telemetry={telemetry}
+          />
+        </main>
+      ) : (
+        <main
+          aria-label="Session workspace"
+          className="session-empty-workspace"
         />
-        <ReferenceInputPanel
-          disabled={!activeSession || runningSessionId === activeSessionId}
-          onSubmit={appendUserMessage}
-          session={activeSession}
-        />
-        <ReferenceStatusPanel
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onStart={openProviderPicker}
-          session={activeSession}
-          settings={settingsSnapshot}
-          telemetry={telemetry}
-        />
-      </main>
+      )}
 
       {isProviderPickerOpen ? (
         <ProviderPicker

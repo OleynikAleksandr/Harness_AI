@@ -37,12 +37,13 @@ export function SessionSidebarFacade({
         <div className="sidebar-section-header">
           <span>Sessions</span>
           <button
-            className="icon-button"
+            className="start-new-session-button"
             onClick={onCreateSession}
-            title="New session"
+            title="Start New Session"
             type="button"
           >
             <FolderPlus aria-hidden="true" size={16} />
+            <span>Start New Session</span>
           </button>
         </div>
 

@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase90.stream1.task1",
+  "expectedCommitMessage": "chore: verify sidebar session surface",
   "debt": null
 }
 ```
@@ -658,3 +658,17 @@
 
 183. [DONE] `harness-ai.phase88.stream1.task1` Verify and package the reference session panel layout (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference session panels`). Result: Completed in commit `chore: verify reference session panels`.
 184. [DONE] Git Commit: `chore: verify reference session panels` (hash: self)
+
+## Phase 89 - Sidebar-Owned Session Start (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Surface Placement
+
+185. [DONE] `harness-ai.phase89.stream1.task1` Keep the left sidebar visible, make it the only new-session entry point, and render reference session panels only when a Core session exists (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, .harness/plans/todo-plan.md`; expected commit: `fix: keep session panels inside sidebar shell`). Result: Completed in commit `fix: keep session panels inside sidebar shell`.
+186. [DONE] Git Commit: `fix: keep session panels inside sidebar shell` (hash: self)
+
+## Phase 90 - Sidebar Session Surface Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+187. [IN_PROGRESS] `harness-ai.phase90.stream1.task1` Verify and package sidebar-owned session start with reference panels in the right workspace only after session creation (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify sidebar session surface`).
+188. [TODO] Git Commit: `chore: verify sidebar session surface` (hash: TBD)

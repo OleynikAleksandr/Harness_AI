@@ -30,31 +30,11 @@ export function SessionIdPanel({
 
 export function DialogPanel({
   messages,
-  onStart,
   providerName,
-  session,
 }: {
   messages: SessionMessage[];
-  onStart: () => void;
   providerName: string | undefined;
-  session: CoreSession | undefined;
 }) {
-  if (!session) {
-    return (
-      <section aria-label="Transcript" className="session-dialog session-panel">
-        <div className="session-dialog__empty">
-          <p>No active session.</p>
-          <button
-            className="session-start-button"
-            onClick={onStart}
-            type="button"
-          >
-            Start session
-          </button>
-        </div>
-      </section>
-    );
-  }
   return (
     <section aria-label="Transcript" className="session-dialog session-panel">
       <div className="session-dialog__scroll">
@@ -134,13 +114,11 @@ export function ReferenceInputPanel({
 
 export function ReferenceStatusPanel({
   onOpenSettings,
-  onStart,
   session,
   settings,
   telemetry,
 }: {
   onOpenSettings: () => void;
-  onStart: () => void;
   session: CoreSession | undefined;
   settings: HarnessSettings | null;
   telemetry: SessionTelemetry;
@@ -151,9 +129,7 @@ export function ReferenceStatusPanel({
       <span className="session-status-chip session-status-chip--label">
         Модель:
       </span>
-      <button className="session-status-button" onClick={onStart} type="button">
-        {telemetry.model}
-      </button>
+      <span className="session-status-button">{telemetry.model}</span>
       {reasoning ? (
         <span className="session-status-button session-status-button--compact">
           {reasoning}

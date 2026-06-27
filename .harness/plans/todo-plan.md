@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase79.stream1.task1",
-  "expectedCommitMessage": "chore: verify openrouter translation profile pickers",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -593,5 +593,5 @@
 
 ### Stream: Build And Package
 
-165. [IN_PROGRESS] `harness-ai.phase79.stream1.task1` Verify and package the OpenRouter translation profile picker change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile pickers`).
-166. [TODO] Git Commit: `chore: verify openrouter translation profile pickers` (hash: TBD)
+165. [DONE] `harness-ai.phase79.stream1.task1` Verify and package the OpenRouter translation profile picker change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile pickers`). Result: Completed in commit `chore: verify openrouter translation profile pickers`.
+166. [DONE] Git Commit: `chore: verify openrouter translation profile pickers` (hash: self)

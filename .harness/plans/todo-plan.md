@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase114.stream1.task1",
-  "expectedCommitMessage": "chore: verify provider token usage fallback",
+  "currentTaskId": "harness-ai.phase115.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -835,11 +835,11 @@
 
 ### Stream: Build And Package
 
-232. [IN_PROGRESS] `harness-ai.phase114.stream1.task1` Run focused telemetry tests, package the macOS app, and record provider token usage verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider token usage fallback`).
-233. [TODO] Git Commit: `chore: verify provider token usage fallback` (hash: TBD)
+232. [DONE] `harness-ai.phase114.stream1.task1` Run focused telemetry tests, package the macOS app, and record provider token usage verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider token usage fallback`). Result: Completed in commit `chore: verify provider token usage fallback`.
+233. [DONE] Git Commit: `chore: verify provider token usage fallback` (hash: self)
 
 ## Phase 115 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
 
 ### Stream: Retest
 
-234. [TODO] `harness-ai.phase115.stream1.task1` User retests token usage display after one turn in Claude, Codex, Kimi, OpenCode, GLM, and OpenRouter sessions (scope: user workflow; expected commit: none).
+234. [IN_PROGRESS] `harness-ai.phase115.stream1.task1` User retests token usage display after one turn in Claude, Codex, Kimi, OpenCode, GLM, and OpenRouter sessions (scope: user workflow; expected commit: none).

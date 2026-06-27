@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase137.stream1.task1",
-  "expectedCommitMessage": "chore: verify codex per model reasoning",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -992,5 +992,5 @@
 
 ### Stream: Build And Package
 
-274. [IN_PROGRESS] `harness-ai.phase137.stream1.task1` Run settings build verification for Codex per-model reasoning controls and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex per model reasoning`).
-275. [TODO] Git Commit: `chore: verify codex per model reasoning` (hash: TBD)
+274. [DONE] `harness-ai.phase137.stream1.task1` Run settings build verification for Codex per-model reasoning controls and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex per model reasoning`). Result: Completed in commit `chore: verify codex per model reasoning`.
+275. [DONE] Git Commit: `chore: verify codex per model reasoning` (hash: self)

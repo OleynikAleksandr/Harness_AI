@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase144.stream1.task1",
-  "expectedCommitMessage": "chore: verify roboto flex typography",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -1041,5 +1041,5 @@
 
 ### Stream: Build And Package
 
-288. [IN_PROGRESS] `harness-ai.phase144.stream1.task1` Run typography experiment build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify roboto flex typography`).
-289. [TODO] Git Commit: `chore: verify roboto flex typography` (hash: TBD)
+288. [DONE] `harness-ai.phase144.stream1.task1` Run typography experiment build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify roboto flex typography`). Result: Completed in commit `chore: verify roboto flex typography`.
+289. [DONE] Git Commit: `chore: verify roboto flex typography` (hash: self)

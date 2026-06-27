@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase161.stream1.task1",
+  "currentTaskId": "harness-ai.phase163.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1157,4 +1157,17 @@
 
 ### Stream: Design Retest
 
-319. [IN_PROGRESS] `harness-ai.phase161.stream1.task1` User relaunches the rebuilt app and reviews the rescaled session context menu, then provides design feedback (scope: user workflow; expected commit: none).
+319. [DONE] `harness-ai.phase161.stream1.task1` User relaunches the rebuilt app and reviews the rescaled session context menu, then provides design feedback (scope: user workflow; expected commit: none). Result: User approved horizontal centering, asked for smaller fonts and proper button states (resting, hover, pressed), with Delete turning solid red when pressed.
+
+## Phase 162 - Session Context Menu Button States (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Sidebar
+
+320. [DONE] `harness-ai.phase162.stream1.task1` Reduce the session context menu font size to 11px and add resting/hover/pressed button states (neutral buttons deepen teal on press, danger Delete becomes a solid red fill on press), then rebuild the unsigned macOS app and record evidence (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, docs/evidence/**`; expected commit: `fix: add context menu button states`). Result: Completed in commit `fix: add context menu button states`.
+321. [DONE] Git Commit: `fix: add context menu button states` (hash: self)
+
+## Phase 163 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Design Retest
+
+322. [IN_PROGRESS] `harness-ai.phase163.stream1.task1` User relaunches the rebuilt app and reviews the context menu button states and smaller fonts, then provides design feedback (scope: user workflow; expected commit: none).

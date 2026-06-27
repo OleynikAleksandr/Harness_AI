@@ -277,7 +277,7 @@ strong {
 .session-context-menu strong {
   display: block;
   padding: 4px 6px 7px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
   color: var(--pm-text-primary);
   text-align: center;
@@ -293,9 +293,9 @@ strong {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 28px;
+  min-height: 26px;
   padding: 0 10px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--pm-text-primary);
   text-align: center;
   cursor: pointer;
@@ -309,6 +309,11 @@ strong {
   border-color: rgba(66, 201, 162, 0.45);
 }
 
+.session-context-menu button:active {
+  background: rgba(66, 201, 162, 0.2);
+  border-color: var(--pm-accent, #42c9a2);
+}
+
 .session-context-menu button.is-danger {
   color: #f0999b;
   background: rgba(224, 75, 74, 0.14);
@@ -319,6 +324,12 @@ strong {
   color: #ffd9d6;
   background: rgba(224, 75, 74, 0.22);
   border-color: rgba(224, 75, 74, 0.6);
+}
+
+.session-context-menu button.is-danger:active {
+  color: #fff;
+  background: #dc3d3d;
+  border-color: #dc3d3d;
 }
 
 .settings-entry {

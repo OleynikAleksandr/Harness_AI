@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase111.stream1.task1",
-  "expectedCommitMessage": "chore: verify kimi alias hotfix",
+  "currentTaskId": "harness-ai.phase112.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -815,11 +815,11 @@
 
 ### Stream: Build And Package
 
-227. [IN_PROGRESS] `harness-ai.phase111.stream1.task1` Run focused provider/Core tests, package the macOS app, and record Kimi alias verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi alias hotfix`).
-228. [TODO] Git Commit: `chore: verify kimi alias hotfix` (hash: TBD)
+227. [DONE] `harness-ai.phase111.stream1.task1` Run focused provider/Core tests, package the macOS app, and record Kimi alias verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi alias hotfix`). Result: Completed in commit `chore: verify kimi alias hotfix`.
+228. [DONE] Git Commit: `chore: verify kimi alias hotfix` (hash: self)
 
 ## Phase 112 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
 
 ### Stream: Retest
 
-229. [TODO] `harness-ai.phase112.stream1.task1` User retests sending a Kimi request with `kimi-k2.7-code` from the packaged app (scope: user workflow; expected commit: none).
+229. [IN_PROGRESS] `harness-ai.phase112.stream1.task1` User retests sending a Kimi request with `kimi-k2.7-code` from the packaged app (scope: user workflow; expected commit: none).

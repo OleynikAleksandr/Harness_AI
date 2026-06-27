@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase128.stream1.task1",
-  "expectedCommitMessage": "chore: verify detached session sizing",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -929,5 +929,5 @@
 
 ### Stream: Build And Package
 
-256. [IN_PROGRESS] `harness-ai.phase128.stream1.task1` Run focused build/package checks for detached session window sizing and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify detached session sizing`).
-257. [TODO] Git Commit: `chore: verify detached session sizing` (hash: TBD)
+256. [DONE] `harness-ai.phase128.stream1.task1` Run focused build/package checks for detached session window sizing and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify detached session sizing`). Result: Completed in commit `chore: verify detached session sizing`.
+257. [DONE] Git Commit: `chore: verify detached session sizing` (hash: self)

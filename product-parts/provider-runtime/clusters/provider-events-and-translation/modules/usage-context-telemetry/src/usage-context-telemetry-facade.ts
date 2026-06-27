@@ -287,7 +287,7 @@ function formatTokenUsage(tokenUsage: ProviderTokenUsage): {
 }
 
 function fallbackLabels(providerId: string): ProviderUsageLimitLabels {
-  return isKimiFamily(providerId)
+  return hasFiveHourWindow(providerId)
     ? {
         currentSession: "5h",
         currentWeekAllModels: "Weekly",
@@ -311,18 +311,27 @@ function providerScopeKey(providerId: string): string | null {
   if (providerId === "claude" || providerId === "codex") {
     return `${providerId}:global`;
   }
-  if (isKimiFamily(providerId)) {
-    return "kimi:global";
+  if (hasProviderUsageScope(providerId)) {
+    return `${providerId}:global`;
   }
   return null;
 }
 
 function defaultTokenLimit(providerId: string): number {
-  return isKimiFamily(providerId) ? KIMI_TOKEN_LIMIT : DEFAULT_TOKEN_LIMIT;
+  return hasFiveHourWindow(providerId) ? KIMI_TOKEN_LIMIT : DEFAULT_TOKEN_LIMIT;
 }
 
-function isKimiFamily(providerId: string): boolean {
+function hasFiveHourWindow(providerId: string): boolean {
   return providerId === "kimi" || providerId.startsWith("glm-");
+}
+
+function hasProviderUsageScope(providerId: string): boolean {
+  return (
+    providerId === "kimi" ||
+    providerId === "glm-native" ||
+    providerId === "glm-opencode" ||
+    providerId === "openrouter"
+  );
 }
 
 function buildResetLabel(value: string): string {

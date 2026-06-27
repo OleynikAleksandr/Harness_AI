@@ -53,3 +53,37 @@ const withLimits = usageContextTelemetryFacade.applyProviderEvent(kimi, {
 assert.equal(withLimits.limitRows[0].text.includes("5h 9%"), true);
 assert.equal(withLimits.limitRows[1].text, "Weekly 13%");
 assert.equal(withLimits.limitRows[2].text, "Parallel 0%");
+
+const glmNative = usageContextTelemetryFacade.createTelemetry({
+  model: "glm-5.2",
+  provider: "GLM Native",
+  providerId: "glm-native",
+});
+assert.equal(glmNative.providerScopeKey, "glm-native:global");
+assert.equal(glmNative.limitRows[0].text, "5h unavailable");
+
+const glmOpenCode = usageContextTelemetryFacade.createTelemetry({
+  model: "glm-5.2",
+  provider: "GLM OpenCode",
+  providerId: "glm-opencode",
+});
+assert.equal(glmOpenCode.providerScopeKey, "glm-opencode:global");
+assert.equal(glmOpenCode.limitRows[0].text, "5h unavailable");
+
+const openRouter = usageContextTelemetryFacade.createTelemetry({
+  model: "google/gemini-3.1-flash-lite",
+  provider: "OpenRouter",
+  providerId: "openrouter",
+});
+assert.equal(openRouter.providerScopeKey, "openrouter:global");
+assert.equal(openRouter.limitRows[0].text, "Session unavailable");
+assert.equal(openRouter.limitRows[1].text, "Weekly unavailable");
+
+const openRouterWithTokens = usageContextTelemetryFacade.applyProviderEvent(
+  openRouter,
+  {
+    data: { kind: "token_usage", tokenUsage: { total_tokens: 512 } },
+    type: "stream_event",
+  }
+);
+assert.equal(openRouterWithTokens.tokenDisplay.value, "512 (0%)");

@@ -728,3 +728,10 @@
 
 203. [DONE] `harness-ai.phase98.stream1.task1` Render the top limit panel and bottom token panel from Core telemetry only, matching reference layout without renderer-owned provider truth (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-telemetry/src/session-telemetry-facade.tsx`; expected commit: `feat: render core usage telemetry panels`). Result: Completed in commit `feat: render core usage telemetry panels`.
 204. [DONE] Git Commit: `feat: render core usage telemetry panels` (hash: self)
+
+## Phase 99 - Provider Usage Telemetry Scope Audit (owner: Codex, updated: 2026-06-27)
+
+### Stream: Provider Truth
+
+205. [DONE] `harness-ai.phase99.stream1.task1` Verify Kimi, GLM Native, GLM OpenCode, and OpenRouter telemetry mapping and keep each provider on its own Core/provider telemetry scope (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: split provider usage telemetry scopes`). Result: Completed in commit `fix: split provider usage telemetry scopes`.
+206. [DONE] Git Commit: `fix: split provider usage telemetry scopes` (hash: self)

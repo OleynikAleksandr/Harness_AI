@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase112.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase114.stream1.task1",
+  "expectedCommitMessage": "chore: verify provider token usage fallback",
   "debt": null
 }
 ```
@@ -822,4 +822,24 @@
 
 ### Stream: Retest
 
-229. [IN_PROGRESS] `harness-ai.phase112.stream1.task1` User retests sending a Kimi request with `kimi-k2.7-code` from the packaged app (scope: user workflow; expected commit: none).
+229. [TODO] `harness-ai.phase112.stream1.task1` User retests sending a Kimi request with `kimi-k2.7-code` from the packaged app (scope: user workflow; expected commit: none). Retest found missing token usage telemetry for non-HTTP providers; hotfix follows.
+
+## Phase 113 - Provider Token Usage Fallback (owner: Codex, updated: 2026-06-27)
+
+### Stream: Provider Runtime
+
+230. [DONE] `harness-ai.phase113.stream1.task1` Emit provider-owned token usage fallback telemetry for CLI/Codex providers when the upstream provider does not send exact token usage (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/**, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: emit provider token usage fallback`). Result: Completed in commit `fix: emit provider token usage fallback`.
+231. [DONE] Git Commit: `fix: emit provider token usage fallback` (hash: self)
+
+## Phase 114 - Token Usage Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+232. [IN_PROGRESS] `harness-ai.phase114.stream1.task1` Run focused telemetry tests, package the macOS app, and record provider token usage verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider token usage fallback`).
+233. [TODO] Git Commit: `chore: verify provider token usage fallback` (hash: TBD)
+
+## Phase 115 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Retest
+
+234. [TODO] `harness-ai.phase115.stream1.task1` User retests token usage display after one turn in Claude, Codex, Kimi, OpenCode, GLM, and OpenRouter sessions (scope: user workflow; expected commit: none).

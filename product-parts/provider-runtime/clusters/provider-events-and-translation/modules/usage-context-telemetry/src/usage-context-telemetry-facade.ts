@@ -128,7 +128,12 @@ export class UsageContextTelemetryFacade {
       providerId: current.providerId,
       providerSessionId: current.providerSessionId,
       status: current.status,
-      tokenUsage: tokenUsage ?? current.tokenUsage,
+      tokenUsage: tokenUsage
+        ? {
+            ...tokenUsage,
+            limit: tokenUsage.limit || current.tokenUsage.limit,
+          }
+        : current.tokenUsage,
       usageLimitLabels: current.usageLimitLabels,
       usageLimits: usageLimits ?? current.usageLimits,
     });

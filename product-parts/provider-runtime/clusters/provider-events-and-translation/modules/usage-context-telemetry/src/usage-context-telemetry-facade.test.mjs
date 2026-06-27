@@ -31,6 +31,16 @@ const withTokens = usageContextTelemetryFacade.applyProviderEvent(codex, {
 });
 assert.equal(withTokens.tokenDisplay.value, "22,328 (89%)");
 
+const withTokensNoLimit = usageContextTelemetryFacade.applyProviderEvent(
+  codex,
+  {
+    data: { kind: "token_usage", tokenUsage: { used: 1000 } },
+    type: "stream_event",
+  }
+);
+assert.equal(withTokensNoLimit.tokenUsage.limit, 200_000);
+assert.equal(withTokensNoLimit.tokenDisplay.value, "1,000 (99%)");
+
 const kimi = usageContextTelemetryFacade.createTelemetry({
   model: "kimi-k2.7-code",
   provider: "Kimi",
@@ -86,4 +96,4 @@ const openRouterWithTokens = usageContextTelemetryFacade.applyProviderEvent(
     type: "stream_event",
   }
 );
-assert.equal(openRouterWithTokens.tokenDisplay.value, "512 (0%)");
+assert.equal(openRouterWithTokens.tokenDisplay.value, "512 (100%)");

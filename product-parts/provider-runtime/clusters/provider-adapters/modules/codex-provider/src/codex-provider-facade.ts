@@ -26,7 +26,9 @@ interface JsonRpcResponse {
 
 interface CodexSessionState {
   activeTurnId: string | null;
+  hasExactTokenUsageInTurn: boolean;
   listeners: Set<ProviderEventListener>;
+  pendingInputTokens: number;
   workspacePath: string;
 }
 
@@ -135,6 +137,8 @@ export class CodexProviderFacade implements ProviderAdapter {
     _turnOptions?: ProviderTurnOptions
   ): Promise<void> {
     const state = this.ensureSession(sessionId);
+    state.pendingInputTokens = estimateTokenCount(content);
+    state.hasExactTokenUsageInTurn = false;
     const response = await this.request<Record<string, unknown>>("turn/start", {
       cwd: state.workspacePath,
       input: [{ text: content, text_elements: [], type: "text" }],
@@ -289,9 +293,22 @@ export class CodexProviderFacade implements ProviderAdapter {
     )) {
       if (event.type === "turn_started") {
         state.activeTurnId = null;
+        state.hasExactTokenUsageInTurn = false;
+      }
+      if (isTokenUsageEvent(event)) {
+        state.hasExactTokenUsageInTurn = true;
+      }
+      if (event.type === "dialog_message" && !state.hasExactTokenUsageInTurn) {
+        this.emit(
+          threadId,
+          tokenUsageEvent(
+            state.pendingInputTokens + estimateTokenCount(event.content)
+          )
+        );
       }
       if (event.type === "turn_completed" || event.type === "turn_failed") {
         state.activeTurnId = null;
+        state.pendingInputTokens = 0;
       }
       this.emit(threadId, event);
     }
@@ -307,7 +324,9 @@ export class CodexProviderFacade implements ProviderAdapter {
     }
     const state = {
       activeTurnId: null,
+      hasExactTokenUsageInTurn: false,
       listeners: new Set<ProviderEventListener>(),
+      pendingInputTokens: 0,
       workspacePath,
     };
     this.sessions.set(sessionId, state);
@@ -356,6 +375,25 @@ function readString(value: unknown): string | null {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function tokenUsageEvent(used: number): unknown {
+  return {
+    data: { kind: "token_usage", tokenUsage: { used } },
+    timestamp: new Date().toISOString(),
+    type: "stream_event",
+    uuid: `${globalThis.crypto.randomUUID()}::token_usage_fallback`,
+  };
+}
+
+function isTokenUsageEvent(value: unknown): boolean {
+  const event = isRecord(value) ? value : null;
+  const data = isRecord(event?.data) ? event.data : null;
+  return event?.type === "stream_event" && data?.kind === "token_usage";
+}
+
+function estimateTokenCount(text: string): number {
+  return Math.max(1, Math.ceil(text.trim().length / 4));
 }
 
 export const codexProviderFacade = new CodexProviderFacade();

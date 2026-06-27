@@ -116,6 +116,10 @@ export class CliSessionProviderAdapter
       });
       session.messages.push({ role: "user", content });
       session.messages.push({ role: "assistant", content: text });
+      this.emit(
+        sessionId,
+        tokenUsageEvent(estimateTokenCount(prompt) + estimateTokenCount(text))
+      );
       this.emit(sessionId, dialogMessage(text));
       this.emit(sessionId, event("turn_completed"));
     } catch (error) {
@@ -278,6 +282,19 @@ function event(type: string, message?: string): unknown {
     type,
     uuid: randomUUID(),
   };
+}
+
+function tokenUsageEvent(used: number): unknown {
+  return {
+    data: { kind: "token_usage", tokenUsage: { used } },
+    timestamp: new Date().toISOString(),
+    type: "stream_event",
+    uuid: randomUUID(),
+  };
+}
+
+function estimateTokenCount(text: string): number {
+  return Math.max(1, Math.ceil(text.trim().length / 4));
 }
 
 function extractOpenAiText(value: unknown): string {

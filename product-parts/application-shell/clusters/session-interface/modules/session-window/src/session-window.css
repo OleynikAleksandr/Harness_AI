@@ -1,6 +1,16 @@
+@font-face {
+  font-family: "Roboto Flex Harness";
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url("./fonts/roboto-flex-variable.ttf") format("truetype");
+}
+
 :root {
   --pm-font-family:
-    "Space Grotesk", "Sora", "IBM Plex Sans", "Segoe UI", sans-serif;
+    "Roboto Flex Harness", "Space Grotesk", "Sora", "IBM Plex Sans", "Segoe UI",
+    sans-serif;
+  --pm-font-variation: "GRAD" -200, "opsz" 8;
   --pm-bg-primary: #0f1216;
   --pm-bg-secondary: #151a20;
   --pm-bg-surface: #0f141b;
@@ -15,6 +25,8 @@
   --pm-shadow-soft: 0 18px 40px rgba(7, 10, 15, 0.45);
   --pm-shadow-inset: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
   font-family: var(--pm-font-family);
+  font-variation-settings: var(--pm-font-variation);
+  font-optical-sizing: none;
   color: var(--pm-text-primary);
   background: #0b0d12;
 }
@@ -27,7 +39,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  font-variation-settings: var(--pm-font-variation);
   font-weight: 100;
+  font-optical-sizing: none;
   color: var(--pm-text-primary);
   background: #0b0d12;
 }
@@ -37,7 +51,9 @@ input,
 select,
 textarea {
   font: inherit;
+  font-variation-settings: var(--pm-font-variation);
   font-weight: 100;
+  font-optical-sizing: none;
 }
 
 b,
@@ -607,7 +623,9 @@ strong {
   grid-template-columns: max-content minmax(0, 1fr);
   min-height: 100vh;
   overflow: hidden;
-  font-family: "Space Grotesk", "Sora", "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-family: var(--pm-font-family);
+  font-variation-settings: var(--pm-font-variation);
+  font-optical-sizing: none;
   color: #b9c0c4;
   background: #101a24;
 }
@@ -835,8 +853,9 @@ strong {
   max-height: 200px;
   padding: 18px 20px;
   overflow: auto;
-  font-family: Menlo, Monaco, Consolas, monospace;
+  font-family: var(--pm-font-family);
   font-size: 15px;
+  font-variation-settings: var(--pm-font-variation);
   font-weight: 100;
   color: #c2c7ca;
   resize: vertical;
@@ -875,8 +894,9 @@ strong {
   top: 18px;
   right: 20px;
   left: 20px;
-  font-family: Menlo, Monaco, Consolas, monospace;
+  font-family: var(--pm-font-family);
   font-size: 15px;
+  font-variation-settings: var(--pm-font-variation);
   font-weight: 100;
   line-height: 20px;
   color: #9aa3a9;

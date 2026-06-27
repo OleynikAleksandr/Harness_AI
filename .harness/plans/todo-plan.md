@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase144.stream1.task1",
+  "expectedCommitMessage": "chore: verify roboto flex typography",
   "debt": null
 }
 ```
@@ -1029,3 +1029,17 @@
 
 284. [DONE] `harness-ai.phase142.stream1.task1` Run settings reasoning selector build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning selector theme`). Result: Completed in commit `chore: verify reasoning selector theme`.
 285. [DONE] Git Commit: `chore: verify reasoning selector theme` (hash: self)
+
+## Phase 143 - Roboto Flex Typography Experiment (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session And Settings UI
+
+286. [DONE] `harness-ai.phase143.stream1.task1` Try Roboto Flex as the UI font with thin weight and negative grade to reduce glyph stroke thickness (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/fonts/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: try roboto flex typography`). Result: Completed in commit `fix: try roboto flex typography`.
+287. [DONE] Git Commit: `fix: try roboto flex typography` (hash: self)
+
+## Phase 144 - Roboto Flex Typography Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+288. [IN_PROGRESS] `harness-ai.phase144.stream1.task1` Run typography experiment build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify roboto flex typography`).
+289. [TODO] Git Commit: `chore: verify roboto flex typography` (hash: TBD)

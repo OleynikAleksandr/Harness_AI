@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase146.stream1.task1",
-  "expectedCommitMessage": "chore: verify reasoning effort menu",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -1055,5 +1055,5 @@
 
 ### Stream: Build And Package
 
-292. [IN_PROGRESS] `harness-ai.phase146.stream1.task1` Run settings reasoning menu build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort menu`).
-293. [TODO] Git Commit: `chore: verify reasoning effort menu` (hash: TBD)
+292. [DONE] `harness-ai.phase146.stream1.task1` Run settings reasoning menu build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort menu`). Result: Completed in commit `chore: verify reasoning effort menu`.
+293. [DONE] Git Commit: `chore: verify reasoning effort menu` (hash: self)

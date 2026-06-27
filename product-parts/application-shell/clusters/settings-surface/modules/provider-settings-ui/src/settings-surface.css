@@ -149,6 +149,14 @@
   letter-spacing: 0;
 }
 
+.settings-profile-title {
+  margin: 4px 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0;
+}
+
 .settings-description,
 .settings-helper,
 .settings-control-description {

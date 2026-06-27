@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase81.stream1.task1",
+  "expectedCommitMessage": "chore: verify openrouter profile sections",
   "debt": null
 }
 ```
@@ -595,3 +595,17 @@
 
 165. [DONE] `harness-ai.phase79.stream1.task1` Verify and package the OpenRouter translation profile picker change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile pickers`). Result: Completed in commit `chore: verify openrouter translation profile pickers`.
 166. [DONE] Git Commit: `chore: verify openrouter translation profile pickers` (hash: self)
+
+## Phase 80 - OpenRouter Profile Section Separation (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+167. [DONE] `harness-ai.phase80.stream1.task1` Visually separate UI and reasoning OpenRouter translation profile pickers into distinct Settings blocks (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `fix: separate openrouter profile sections`). Result: Completed in commit `fix: separate openrouter profile sections`.
+168. [DONE] Git Commit: `fix: separate openrouter profile sections` (hash: self)
+
+## Phase 81 - OpenRouter Profile Section Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+169. [IN_PROGRESS] `harness-ai.phase81.stream1.task1` Verify and package the OpenRouter profile section separation change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter profile sections`).
+170. [TODO] Git Commit: `chore: verify openrouter profile sections` (hash: TBD)

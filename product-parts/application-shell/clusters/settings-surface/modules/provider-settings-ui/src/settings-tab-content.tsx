@@ -326,11 +326,12 @@ export function SettingsTabContent({
         settings={provider}
       />
       <SettingsCard title="OpenRouter Profiles">
+        <h4 className="settings-profile-title">UI Translation Model</h4>
         <OpenRouterModelEndpointPicker
           apiKey={provider.apiKey}
           baseUrl={provider.baseUrl}
           endpointTag={provider.translationProfiles.uiTranslation.endpointTag}
-          label="UI Translation Model"
+          label="Model slug search"
           onChange={(patch) =>
             update((next) => {
               Object.assign(
@@ -341,13 +342,16 @@ export function SettingsTabContent({
           }
           value={provider.translationProfiles.uiTranslation.model}
         />
+      </SettingsCard>
+      <SettingsCard title="OpenRouter Profiles">
+        <h4 className="settings-profile-title">Reasoning Translation Model</h4>
         <OpenRouterModelEndpointPicker
           apiKey={provider.apiKey}
           baseUrl={provider.baseUrl}
           endpointTag={
             provider.translationProfiles.reasoningTranslation.endpointTag
           }
-          label="Reasoning Translation Model"
+          label="Model slug search"
           onChange={(patch) =>
             update((next) => {
               Object.assign(

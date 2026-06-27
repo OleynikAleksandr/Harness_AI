@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "ACTIVE",
+  "executionScopeStatus": "NONE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase86.stream1.task1",
-  "expectedCommitMessage": "chore: verify openrouter translation profile dropdowns",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -642,5 +642,5 @@
 
 ### Stream: Build And Package
 
-179. [IN_PROGRESS] `harness-ai.phase86.stream1.task1` Verify and package OpenRouter translation profile models in General localization engine dropdowns (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile dropdowns`).
-180. [TODO] Git Commit: `chore: verify openrouter translation profile dropdowns` (hash: TBD)
+179. [DONE] `harness-ai.phase86.stream1.task1` Verify and package OpenRouter translation profile models in General localization engine dropdowns (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile dropdowns`). Result: Completed in commit `chore: verify openrouter translation profile dropdowns`.
+180. [DONE] Git Commit: `chore: verify openrouter translation profile dropdowns` (hash: self)

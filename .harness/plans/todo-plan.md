@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase117.stream1.task1",
-  "expectedCommitMessage": "chore: verify provider version controls",
+  "currentTaskId": "harness-ai.phase118.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -855,11 +855,11 @@
 
 ### Stream: Build And Package
 
-237. [IN_PROGRESS] `harness-ai.phase117.stream1.task1` Run focused version checks, package the macOS app, and record provider version/update verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider version controls`).
-238. [TODO] Git Commit: `chore: verify provider version controls` (hash: TBD)
+237. [DONE] `harness-ai.phase117.stream1.task1` Run focused version checks, package the macOS app, and record provider version/update verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider version controls`). Result: Completed in commit `chore: verify provider version controls`.
+238. [DONE] Git Commit: `chore: verify provider version controls` (hash: self)
 
 ## Phase 118 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
 
 ### Stream: Retest
 
-239. [TODO] `harness-ai.phase118.stream1.task1` User retests Settings version rows and manual update buttons for Claude, Codex, and OpenCode in the packaged app (scope: user workflow; expected commit: none).
+239. [IN_PROGRESS] `harness-ai.phase118.stream1.task1` User retests Settings version rows and manual update buttons for Claude, Codex, and OpenCode in the packaged app (scope: user workflow; expected commit: none).

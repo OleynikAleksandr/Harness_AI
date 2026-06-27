@@ -12,9 +12,12 @@ export interface OpenRouterModelSearchResult {
 
 export interface OpenRouterEndpointResult {
   label: string;
+  latencyLast30m: null | number;
   name: string;
   providerName: string;
   tag: string;
+  throughputLast30m: null | number;
+  uptimeLast30m: null | number;
 }
 
 interface OpenRouterRequestOptions {
@@ -117,8 +120,11 @@ function mapEndpoint(value: unknown): null | OpenRouterEndpointResult {
   const providerName = readString(value.provider_name) || tag;
   return {
     label: `${providerName} - ${tag}`,
+    latencyLast30m: readNumber(value.latency_last_30m),
     name: readString(value.name) || tag,
     providerName,
+    throughputLast30m: readNumber(value.throughput_last_30m),
+    uptimeLast30m: readNumber(value.uptime_last_30m),
     tag,
   };
 }

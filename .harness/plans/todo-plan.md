@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase83.stream1.task1",
+  "expectedCommitMessage": "feat: add openrouter endpoint latency ui",
   "debt": null
 }
 ```
@@ -609,3 +609,24 @@
 
 169. [DONE] `harness-ai.phase81.stream1.task1` Verify and package the OpenRouter profile section separation change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter profile sections`). Result: Completed in commit `chore: verify openrouter profile sections`.
 170. [DONE] Git Commit: `chore: verify openrouter profile sections` (hash: self)
+
+## Phase 82 - OpenRouter Endpoint Latency Helper (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+171. [DONE] `harness-ai.phase82.stream1.task1` Add OpenRouter endpoint metrics and live latency probe support for Settings (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-model-search.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-endpoint-latency.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-endpoint-latency.test.mjs, .harness/plans/todo-plan.md`; expected commit: `feat: add openrouter endpoint latency helper`). Result: Completed in commit `feat: add openrouter endpoint latency helper`.
+172. [DONE] Git Commit: `feat: add openrouter endpoint latency helper` (hash: self)
+
+## Phase 83 - OpenRouter Endpoint Latency UI (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+173. [IN_PROGRESS] `harness-ai.phase83.stream1.task1` Add grey-green latency test UI to each OpenRouter model picker in Settings (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, .harness/plans/todo-plan.md`; expected commit: `feat: add openrouter endpoint latency ui`).
+174. [TODO] Git Commit: `feat: add openrouter endpoint latency ui` (hash: TBD)
+
+## Phase 84 - OpenRouter Endpoint Latency Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+175. [TODO] `harness-ai.phase84.stream1.task1` Verify and package OpenRouter endpoint latency testing in Settings (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter endpoint latency ui`).
+176. [TODO] Git Commit: `chore: verify openrouter endpoint latency ui` (hash: TBD)

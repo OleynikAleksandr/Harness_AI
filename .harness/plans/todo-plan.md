@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase79.stream1.task1",
+  "expectedCommitMessage": "chore: verify openrouter translation profile pickers",
   "debt": null
 }
 ```
@@ -581,3 +581,17 @@
 
 161. [DONE] `harness-ai.phase77.stream1.task1` Verify and package the OpenRouter Settings model search change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter model search settings`). Result: Completed in commit `chore: verify openrouter model search settings`.
 162. [DONE] Git Commit: `chore: verify openrouter model search settings` (hash: self)
+
+## Phase 78 - OpenRouter Translation Profile Pickers (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+163. [DONE] `harness-ai.phase78.stream1.task1` Reuse the OpenRouter model search and endpoint selection for UI and reasoning translation profiles in Settings (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx, .harness/plans/todo-plan.md`; expected commit: `fix: add openrouter translation profile pickers`). Result: Completed in commit `fix: add openrouter translation profile pickers`.
+164. [DONE] Git Commit: `fix: add openrouter translation profile pickers` (hash: self)
+
+## Phase 79 - OpenRouter Translation Profile Picker Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+165. [IN_PROGRESS] `harness-ai.phase79.stream1.task1` Verify and package the OpenRouter translation profile picker change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter translation profile pickers`).
+166. [TODO] Git Commit: `chore: verify openrouter translation profile pickers` (hash: TBD)

@@ -1,7 +1,10 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
 import { OpenCodeSettingsCard } from "./opencode-settings-card.js";
-import { OpenRouterSettingsCard } from "./openrouter-settings-card.js";
+import {
+  OpenRouterModelEndpointPicker,
+  OpenRouterSettingsCard,
+} from "./openrouter-settings-card.js";
 import {
   ProviderVersionsCard,
   type ProviderVersionsSnapshot,
@@ -323,22 +326,35 @@ export function SettingsTabContent({
         settings={provider}
       />
       <SettingsCard title="OpenRouter Profiles">
-        <SettingsTextField
+        <OpenRouterModelEndpointPicker
+          apiKey={provider.apiKey}
+          baseUrl={provider.baseUrl}
+          endpointTag={provider.translationProfiles.uiTranslation.endpointTag}
           label="UI Translation Model"
-          onChange={(model) =>
+          onChange={(patch) =>
             update((next) => {
-              next.providers.openRouter.translationProfiles.uiTranslation.model =
-                model;
+              Object.assign(
+                next.providers.openRouter.translationProfiles.uiTranslation,
+                patch
+              );
             })
           }
           value={provider.translationProfiles.uiTranslation.model}
         />
-        <SettingsTextField
+        <OpenRouterModelEndpointPicker
+          apiKey={provider.apiKey}
+          baseUrl={provider.baseUrl}
+          endpointTag={
+            provider.translationProfiles.reasoningTranslation.endpointTag
+          }
           label="Reasoning Translation Model"
-          onChange={(model) =>
+          onChange={(patch) =>
             update((next) => {
-              next.providers.openRouter.translationProfiles.reasoningTranslation.model =
-                model;
+              Object.assign(
+                next.providers.openRouter.translationProfiles
+                  .reasoningTranslation,
+                patch
+              );
             })
           }
           value={provider.translationProfiles.reasoningTranslation.model}

@@ -13,6 +13,8 @@ import {
 
 type OpenRouterSettings = HarnessSettings["providers"]["openRouter"];
 
+const DEFAULT_ENDPOINT_TAG = "default";
+
 export function OpenRouterSettingsCard({
   onChange,
   settings,
@@ -20,86 +22,6 @@ export function OpenRouterSettingsCard({
   onChange: (settings: OpenRouterSettings) => void;
   settings: OpenRouterSettings;
 }) {
-  const [query, setQuery] = useState(settings.defaultModel);
-  const [models, setModels] = useState<OpenRouterModelSearchResult[]>([]);
-  const [endpoints, setEndpoints] = useState<OpenRouterEndpointResult[]>([]);
-  const [modelsLoading, setModelsLoading] = useState(false);
-  const [endpointsLoading, setEndpointsLoading] = useState(false);
-  const [error, setError] = useState<null | string>(null);
-
-  useEffect(() => {
-    setQuery(settings.defaultModel);
-  }, [settings.defaultModel]);
-
-  useEffect(() => {
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery) {
-      setModels([]);
-      return;
-    }
-    let cancelled = false;
-    setModelsLoading(true);
-    setError(null);
-    searchOpenRouterModels({
-      apiKey: settings.apiKey,
-      baseUrl: settings.baseUrl,
-      query: trimmedQuery,
-    })
-      .then((results) => {
-        if (!cancelled) {
-          setModels(results);
-        }
-      })
-      .catch((reason: unknown) => {
-        if (!cancelled) {
-          setError(reason instanceof Error ? reason.message : String(reason));
-          setModels([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setModelsLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [settings.apiKey, settings.baseUrl, query]);
-
-  useEffect(() => {
-    if (!settings.defaultModel.includes("/")) {
-      setEndpoints([]);
-      return;
-    }
-    let cancelled = false;
-    setEndpointsLoading(true);
-    setError(null);
-    loadOpenRouterModelEndpoints({
-      apiKey: settings.apiKey,
-      baseUrl: settings.baseUrl,
-      modelId: settings.defaultModel,
-    })
-      .then((results) => {
-        if (!cancelled) {
-          setEndpoints(results);
-        }
-      })
-      .catch((reason: unknown) => {
-        if (!cancelled) {
-          setError(reason instanceof Error ? reason.message : String(reason));
-          setEndpoints([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setEndpointsLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [settings.apiKey, settings.baseUrl, settings.defaultModel]);
-
   const update = (patch: Partial<OpenRouterSettings>) => {
     onChange({ ...settings, ...patch });
   };
@@ -122,8 +44,125 @@ export function OpenRouterSettingsCard({
         placeholder="https://openrouter.ai/api/v1"
         value={settings.baseUrl}
       />
+      <OpenRouterModelEndpointPicker
+        apiKey={settings.apiKey}
+        baseUrl={settings.baseUrl}
+        endpointTag={settings.endpointTag}
+        label="Model slug search"
+        onChange={(patch) =>
+          update({
+            defaultModel: patch.model ?? settings.defaultModel,
+            endpointTag: patch.endpointTag ?? settings.endpointTag,
+          })
+        }
+        value={settings.defaultModel}
+      />
+    </SettingsCard>
+  );
+}
+
+export function OpenRouterModelEndpointPicker({
+  apiKey,
+  baseUrl,
+  endpointTag,
+  label,
+  onChange,
+  value,
+}: {
+  apiKey: string;
+  baseUrl: string;
+  endpointTag: string;
+  label: string;
+  onChange: (patch: { endpointTag?: string; model?: string }) => void;
+  value: string;
+}) {
+  const [query, setQuery] = useState(value);
+  const [models, setModels] = useState<OpenRouterModelSearchResult[]>([]);
+  const [endpoints, setEndpoints] = useState<OpenRouterEndpointResult[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [endpointsLoading, setEndpointsLoading] = useState(false);
+  const [error, setError] = useState<null | string>(null);
+
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
+
+  useEffect(() => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      setModels([]);
+      return;
+    }
+    let cancelled = false;
+    setModelsLoading(true);
+    setError(null);
+    searchOpenRouterModels({
+      apiKey,
+      baseUrl,
+      query: trimmedQuery,
+    })
+      .then((results) => {
+        if (!cancelled) {
+          setModels(results);
+        }
+      })
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setError(reason instanceof Error ? reason.message : String(reason));
+          setModels([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setModelsLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiKey, baseUrl, query]);
+
+  useEffect(() => {
+    if (!value.includes("/")) {
+      setEndpoints([]);
+      return;
+    }
+    let cancelled = false;
+    setEndpointsLoading(true);
+    setError(null);
+    loadOpenRouterModelEndpoints({
+      apiKey,
+      baseUrl,
+      modelId: value,
+    })
+      .then((results) => {
+        if (!cancelled) {
+          setEndpoints(results);
+        }
+      })
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setError(reason instanceof Error ? reason.message : String(reason));
+          setEndpoints([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setEndpointsLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiKey, baseUrl, value]);
+
+  const usesAutomaticEndpoint =
+    !endpointTag || endpointTag === DEFAULT_ENDPOINT_TAG;
+
+  return (
+    <div className="settings-reference-stack tight">
       <label className="settings-field">
-        <span>Model slug search</span>
+        <span>{label}</span>
         <input
           onChange={(event) => setQuery(event.target.value)}
           placeholder="google/gemini-3.1-flash-lite"
@@ -131,7 +170,7 @@ export function OpenRouterSettingsCard({
           value={query}
         />
       </label>
-      {settings.defaultModel ? (
+      {value ? (
         <button
           aria-pressed="true"
           className="active settings-model-row"
@@ -139,7 +178,7 @@ export function OpenRouterSettingsCard({
           type="button"
         >
           <span className="settings-model-title">Selected model</span>
-          <span className="settings-model-id">{settings.defaultModel}</span>
+          <span className="settings-model-id">{value}</span>
         </button>
       ) : null}
       <div className="settings-list">
@@ -148,23 +187,28 @@ export function OpenRouterSettingsCard({
           <OpenRouterModelRow
             key={model.id}
             model={model}
-            onSelect={() => update({ defaultModel: model.id, endpointTag: "" })}
-            selected={model.id === settings.defaultModel}
+            onSelect={() =>
+              onChange({
+                endpointTag: DEFAULT_ENDPOINT_TAG,
+                model: model.id,
+              })
+            }
+            selected={model.id === value}
           />
         ))}
       </div>
-      {settings.defaultModel ? (
+      {value ? (
         <div className="settings-reference-stack tight">
           <p className="settings-description">Endpoint</p>
           <div className="settings-list">
             <button
-              aria-pressed={!settings.endpointTag}
+              aria-pressed={usesAutomaticEndpoint}
               className={
-                settings.endpointTag
-                  ? "settings-model-row"
-                  : "active settings-model-row"
+                usesAutomaticEndpoint
+                  ? "active settings-model-row"
+                  : "settings-model-row"
               }
-              onClick={() => update({ endpointTag: "" })}
+              onClick={() => onChange({ endpointTag: DEFAULT_ENDPOINT_TAG })}
               type="button"
             >
               <span className="settings-model-title">
@@ -177,14 +221,14 @@ export function OpenRouterSettingsCard({
             ) : null}
             {endpoints.map((endpoint) => (
               <button
-                aria-pressed={endpoint.tag === settings.endpointTag}
+                aria-pressed={endpoint.tag === endpointTag}
                 className={
-                  endpoint.tag === settings.endpointTag
+                  endpoint.tag === endpointTag
                     ? "active settings-model-row"
                     : "settings-model-row"
                 }
                 key={endpoint.tag}
-                onClick={() => update({ endpointTag: endpoint.tag })}
+                onClick={() => onChange({ endpointTag: endpoint.tag })}
                 type="button"
               >
                 <span className="settings-model-title">{endpoint.label}</span>
@@ -195,7 +239,7 @@ export function OpenRouterSettingsCard({
         </div>
       ) : null}
       {error ? <p className="settings-note">{error}</p> : null}
-    </SettingsCard>
+    </div>
   );
 }
 

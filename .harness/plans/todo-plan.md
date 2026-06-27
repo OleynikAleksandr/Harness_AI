@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase123.stream1.task1",
-  "expectedCommitMessage": "chore: verify provider usage limits",
+  "currentTaskId": "harness-ai.phase124.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -895,11 +895,11 @@
 
 ### Stream: Build And Package
 
-247. [IN_PROGRESS] `harness-ai.phase123.stream1.task1` Run tests/build/package and record usage-limit indicator verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider usage limits`).
-248. [TODO] Git Commit: `chore: verify provider usage limits` (hash: TBD)
+247. [DONE] `harness-ai.phase123.stream1.task1` Run tests/build/package and record usage-limit indicator verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider usage limits`). Result: Completed in commit `chore: verify provider usage limits`.
+248. [DONE] Git Commit: `chore: verify provider usage limits` (hash: self)
 
 ## Phase 124 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
 
 ### Stream: Retest
 
-249. [TODO] `harness-ai.phase124.stream1.task1` User retests provider usage-limit indicators in Claude, Codex, Kimi, GLM, OpenCode, OpenRouter, and Local Models sessions (scope: user workflow; expected commit: none).
+249. [IN_PROGRESS] `harness-ai.phase124.stream1.task1` User retests provider usage-limit indicators in Claude, Codex, Kimi, GLM, OpenCode, OpenRouter, and Local Models sessions (scope: user workflow; expected commit: none).

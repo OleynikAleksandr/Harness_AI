@@ -8,8 +8,8 @@
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase105.stream1.task1",
-  "expectedCommitMessage": "chore: verify core session restore",
+  "currentTaskId": "harness-ai.phase106.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -775,11 +775,11 @@
 
 ### Stream: Build And Package
 
-217. [IN_PROGRESS] `harness-ai.phase105.stream1.task1` Run plan validation, focused tests, build, package the macOS app, and record restore verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify core session restore`).
-218. [TODO] Git Commit: `chore: verify core session restore` (hash: TBD)
+217. [DONE] `harness-ai.phase105.stream1.task1` Run plan validation, focused tests, build, package the macOS app, and record restore verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify core session restore`). Result: Completed in commit `chore: verify core session restore`.
+218. [DONE] Git Commit: `chore: verify core session restore` (hash: self)
 
 ## Phase 106 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
 
 ### Stream: Retest
 
-219. [TODO] `harness-ai.phase106.stream1.task1` User retests workspace switching, session list restore, and detached session replay after Core/app restart (scope: user workflow; expected commit: none).
+219. [IN_PROGRESS] `harness-ai.phase106.stream1.task1` User retests workspace switching, session list restore, and detached session replay after Core/app restart (scope: user workflow; expected commit: none).

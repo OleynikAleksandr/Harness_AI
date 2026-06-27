@@ -276,15 +276,16 @@ strong {
 
 .session-context-menu strong {
   display: block;
-  padding: 6px 7px 8px;
-  font-size: 13px;
+  padding: 4px 6px 7px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--pm-text-primary);
+  text-align: center;
 }
 
 .session-context-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .session-context-menu button {
@@ -292,9 +293,9 @@ strong {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 32px;
-  padding: 0 12px;
-  font-size: 13px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
   color: var(--pm-text-primary);
   text-align: center;
   cursor: pointer;

@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase159.stream1.task1",
+  "currentTaskId": "harness-ai.phase161.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1144,4 +1144,17 @@
 
 ### Stream: Design Retest
 
-316. [IN_PROGRESS] `harness-ai.phase159.stream1.task1` User relaunches the rebuilt app and reviews the restyled session context menu, then provides design feedback (scope: user workflow; expected commit: none).
+316. [DONE] `harness-ai.phase159.stream1.task1` User relaunches the rebuilt app and reviews the restyled session context menu, then provides design feedback (scope: user workflow; expected commit: none). Result: User reported the context menu Delete button and Delete confirmation use oversized fonts and buttons that do not match the app scale.
+
+## Phase 160 - Session Context Menu Scale Fix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Session Sidebar
+
+317. [DONE] `harness-ai.phase160.stream1.task1` Scale the session context menu (Delete item, Delete confirmation title, Cancel/Delete buttons) down to the app popover scale used by the settings reasoning menu (12px text, 28px control height, centered title), then rebuild the unsigned macOS app and record evidence (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, docs/evidence/**`; expected commit: `fix: scale session context menu to app size`). Result: Completed in commit `fix: scale session context menu to app size`.
+318. [DONE] Git Commit: `fix: scale session context menu to app size` (hash: self)
+
+## Phase 161 - User Workflow Acceptance (owner: User, updated: 2026-06-27)
+
+### Stream: Design Retest
+
+319. [IN_PROGRESS] `harness-ai.phase161.stream1.task1` User relaunches the rebuilt app and reviews the rescaled session context menu, then provides design feedback (scope: user workflow; expected commit: none).

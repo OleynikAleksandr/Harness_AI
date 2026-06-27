@@ -72,7 +72,7 @@ async function openDetachedSessionWindow(request) {
     return { error: "Session id and workspace id are required.", ok: false };
   }
   await createHarnessWindow({
-    height: 900,
+    height: 820,
     minHeight: 700,
     minWidth: 760,
     query: {
@@ -81,7 +81,7 @@ async function openDetachedSessionWindow(request) {
       workspaceId,
     },
     title: "Harness AI Session",
-    width: 1180,
+    width: 960,
   });
   return { ok: true };
 }

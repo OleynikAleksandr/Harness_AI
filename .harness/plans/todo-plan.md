@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-session-restore-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase128.stream1.task1",
+  "expectedCommitMessage": "chore: verify detached session sizing",
   "debt": null
 }
 ```
@@ -917,3 +917,17 @@
 
 252. [DONE] `harness-ai.phase126.stream1.task1` Run focused Kimi provider tests/build checks and package the macOS app for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi cli alias hotfix`). Result: Completed in commit `chore: verify kimi cli alias hotfix`.
 253. [DONE] Git Commit: `chore: verify kimi cli alias hotfix` (hash: self)
+
+## Phase 127 - Detached Session Window Hotfix (owner: Codex, updated: 2026-06-27)
+
+### Stream: Electron Shell
+
+254. [DONE] `harness-ai.phase127.stream1.task1` Make detached session windows render the session surface at the same width as the main workspace session pane without an empty right field (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**, product-parts/application-shell/clusters/session-interface/modules/session-window/src/**, .harness/plans/todo-plan.md`; expected commit: `fix: size detached session window`). Result: Completed in commit `fix: size detached session window`.
+255. [DONE] Git Commit: `fix: size detached session window` (hash: self)
+
+## Phase 128 - Detached Session Window Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+256. [IN_PROGRESS] `harness-ai.phase128.stream1.task1` Run focused build/package checks for detached session window sizing and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify detached session sizing`).
+257. [TODO] Git Commit: `chore: verify detached session sizing` (hash: TBD)

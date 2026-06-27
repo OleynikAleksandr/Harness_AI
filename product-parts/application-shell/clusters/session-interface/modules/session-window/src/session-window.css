@@ -532,6 +532,10 @@ textarea {
   background: #101a24;
 }
 
+.harness-app-shell--detached {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .session-reference-shell {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto auto;

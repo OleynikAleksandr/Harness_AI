@@ -707,3 +707,10 @@
 
 197. [DONE] `harness-ai.phase95.stream1.task1` Verify and package restored reference input field behaviors (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference input file handling`). Result: Completed in commit `chore: verify reference input file handling`.
 198. [DONE] Git Commit: `chore: verify reference input file handling` (hash: self)
+
+## Phase 96 - Core Authority Rule (owner: Codex, updated: 2026-06-27)
+
+### Stream: Development Directives
+
+199. [DONE] `harness-ai.phase96.stream1.task1` Codify that UI and transport surfaces are never sources of product or workflow truth; Core/shared contracts own truth and UI only renders or submits input (scope: `AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `docs: codify core authority rule`). Result: Completed in commit `docs: codify core authority rule`.
+200. [DONE] Git Commit: `docs: codify core authority rule` (hash: self)

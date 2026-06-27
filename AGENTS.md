@@ -54,8 +54,11 @@
 ## 4. Core Authority
 
 - UI, Electron host, будущий VS Code surface, web/mobile clients и любые transport/input surfaces не являются источником workflow truth.
+- UI не является источником правды ни для product state, session state, provider state, settings truth, лимитов, токенов, workflow decisions, orchestration decisions, localization state, artifact truth или managed lifecycle. UI только передаёт ввод пользователя и отображает данные/команды, полученные из Core или shared read-model contracts.
+- Если для поведения нужен calculation/derivation/normalization/validation, он живёт в Core Runtime или shared contract module. Renderer/client code не должен вычислять business truth, выбирать authority, склеивать provider semantics или принимать workflow decisions.
 - Core Runtime владеет session state, provider binding, settings snapshot, orchestration state, gates, localization target, system instructions и managed lifecycle.
 - Если поведение ломается без открытого UI, это архитектурный дефект.
+- Если один и тот же факт можно получить из нескольких мест, сначала установи единый Core/shared source of truth и только затем подключай отображение. Не лечи расхождения UI-эвристиками.
 - Prompt templates, schemas, examples и repair contracts должны попадать в provider prompt inline. Ссылка на файл допустима только как provenance/output target, но не как обязательный источник инструкции.
 - Artifact parser/validator/read-model truth принадлежит Core/shared contract modules, а не renderer/client-local code.
 - Managed repair lifecycle должен входить в Core как raw intent; client не строит repair prompts в обход Core.

@@ -1078,3 +1078,10 @@
 
 298. [DONE] `harness-ai.phase149.stream1.task1` Run typography restore build/package verification and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify restored interface font`). Result: Completed in commit `chore: verify restored interface font`.
 299. [DONE] Git Commit: `chore: verify restored interface font` (hash: self)
+
+## Phase 150 - Session Closeout Instruction Archive (owner: Codex, updated: 2026-06-27)
+
+### Stream: Hygiene
+
+300. [DONE] `harness-ai.phase150.stream1.task1` Keep the Claude provider instruction file as an inactive archived reference instead of active repo instructions (scope: `.claude/**, .harness/plans/todo-plan.md`; expected commit: `chore: archive claude provider instructions`). Result: Completed in commit `chore: archive claude provider instructions`.
+301. [DONE] Git Commit: `chore: archive claude provider instructions` (hash: self)

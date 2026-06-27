@@ -4,12 +4,12 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
+  "executionScopeStatus": "ACTIVE",
   "planId": "harness-ai-project-manager-settings-parity-2026-06-26",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase77.stream1.task1",
+  "expectedCommitMessage": "chore: verify openrouter model search settings",
   "debt": null
 }
 ```
@@ -567,3 +567,17 @@
 
 157. [DONE] `harness-ai.phase75.stream1.task1` Verify and package the Settings surface after Response Mode removal (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify response mode removal`). Result: Completed in commit `chore: verify response mode removal`.
 158. [DONE] Git Commit: `chore: verify response mode removal` (hash: self)
+
+## Phase 76 - OpenRouter Settings Model Search (owner: Codex, updated: 2026-06-27)
+
+### Stream: Settings Surface
+
+159. [DONE] `harness-ai.phase76.stream1.task1` Add CodeAI Hub-style OpenRouter model slug search and endpoint selection to the Settings OpenRouter tab (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-model-search.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx, .harness/plans/todo-plan.md`; expected commit: `feat: add openrouter model search settings`). Result: Completed in commit `feat: add openrouter model search settings`.
+160. [DONE] Git Commit: `feat: add openrouter model search settings` (hash: self)
+
+## Phase 77 - OpenRouter Settings Search Verification (owner: Codex, updated: 2026-06-27)
+
+### Stream: Build And Package
+
+161. [IN_PROGRESS] `harness-ai.phase77.stream1.task1` Verify and package the OpenRouter Settings model search change (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify openrouter model search settings`).
+162. [TODO] Git Commit: `chore: verify openrouter model search settings` (hash: TBD)

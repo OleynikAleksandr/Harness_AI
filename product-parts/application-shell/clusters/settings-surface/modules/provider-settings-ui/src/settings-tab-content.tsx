@@ -1,6 +1,7 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
 import { OpenCodeSettingsCard } from "./opencode-settings-card.js";
+import { OpenRouterSettingsCard } from "./openrouter-settings-card.js";
 import {
   ProviderVersionsCard,
   type ProviderVersionsSnapshot,
@@ -313,27 +314,15 @@ export function SettingsTabContent({
   const provider = settings.providers.openRouter;
   return (
     <div className="settings-reference-stack">
-      <ConnectionProviderSettings
-        apiKey={provider.apiKey}
-        baseUrl={provider.baseUrl}
-        model={provider.defaultModel}
-        onChange={(patch) =>
+      <OpenRouterSettingsCard
+        onChange={(nextSettings) =>
           update((next) => {
-            Object.assign(next.providers.openRouter, patch);
+            next.providers.openRouter = nextSettings;
           })
         }
-        title="OpenRouter"
+        settings={provider}
       />
       <SettingsCard title="OpenRouter Profiles">
-        <SettingsTextField
-          label="Endpoint Tag"
-          onChange={(endpointTag) =>
-            update((next) => {
-              next.providers.openRouter.endpointTag = endpointTag;
-            })
-          }
-          value={provider.endpointTag}
-        />
         <SettingsTextField
           label="UI Translation Model"
           onChange={(model) =>

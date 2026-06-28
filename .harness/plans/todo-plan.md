@@ -8,8 +8,8 @@
   "planId": "kimi-usage-limits-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "chore: verify kimi usage limits app",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -56,11 +56,11 @@
 
 ### Stream: Evidence
 
-5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Update relevant module docs, run gates/build/package, and record evidence for user testing (scope: `product-parts/**/module.md, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi usage limits app`).
-6. [TODO] Git Commit: `chore: verify kimi usage limits app` (hash: TBD)
+5. [DONE] `harness-ai.phase3.stream1.task1` Update relevant module docs, run gates/build/package, and record evidence for user testing (scope: `product-parts/**/module.md, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi usage limits app`). Result: Completed in commit `chore: verify kimi usage limits app`.
+6. [DONE] Git Commit: `chore: verify kimi usage limits app` (hash: self)
 
 ## Phase 4 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-7. [TODO] `harness-ai.phase4.stream1.task1` User retests Kimi session limit display in packaged Harness AI app (scope: user workflow; expected commit: none).
+7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` User retests Kimi session limit display in packaged Harness AI app (scope: user workflow; expected commit: none).

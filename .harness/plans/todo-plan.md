@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task1",
-  "expectedCommitMessage": "chore: verify reference provider module migration",
+  "currentTaskId": "harness-ai.phase11.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -117,11 +117,11 @@
 
 ### Stream: Build And Evidence
 
-19. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` Run required gates, update evidence, rebuild `dist/`, package macOS app, and hand off the provider-module migration for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference provider module migration`).
-20. [TODO] Git Commit: `chore: verify reference provider module migration` (hash: TBD)
+19. [DONE] `harness-ai.phase10.stream1.task1` Run required gates, update evidence, rebuild `dist/`, package macOS app, and hand off the provider-module migration for user retest (scope: `docs/evidence/**, docs/architecture/**, package.json, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference provider module migration`). Result: Completed in commit `chore: verify reference provider module migration`.
+20. [DONE] Git Commit: `chore: verify reference provider module migration` (hash: self)
 
 ## Phase 11 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-21. [TODO] `harness-ai.phase11.stream1.task1` User relaunches the packaged app and retests migrated provider modules provider-by-provider (scope: user workflow; expected commit: none).
+21. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` User relaunches the packaged app and retests migrated provider modules provider-by-provider (scope: user workflow; expected commit: none).

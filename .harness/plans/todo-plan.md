@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "fix: force terminate core process on restart",
+  "currentTaskId": "harness-ai.phase2.stream2.task1",
+  "expectedCommitMessage": "fix: restart core button spacing and spinner",
   "debt": null
 }
 ```
@@ -77,12 +77,12 @@
 
 ### Stream: Real process restart
 
-7. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Make `core-process-supervisor.stop()` truly terminate the core process: capture the pid from the health payload and force-kill (SIGTERM then SIGKILL) when HTTP `/shutdown` does not bring it down, so `restart()` always respawns a fresh process that re-reads disk (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-supervisor.mjs`; expected commit: `fix: force terminate core process on restart`).
-8. [TODO] Git Commit: `fix: force terminate core process on restart` (hash: TBD)
+7. [DONE] `harness-ai.phase2.stream1.task1` Make `core-process-supervisor.stop()` truly terminate the core process: capture the pid from the health payload and force-kill (SIGTERM then SIGKILL) when HTTP `/shutdown` does not bring it down, so `restart()` always respawns a fresh process that re-reads disk (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-supervisor.mjs`; expected commit: `fix: force terminate core process on restart`). Result: Completed in commit `fix: force terminate core process on restart`.
+8. [DONE] Git Commit: `fix: force terminate core process on restart` (hash: self)
 
 ### Stream: Restart button UI
 
-9. [TODO] `harness-ai.phase2.stream2.task1` Fix the Restart Core control: add `.settings-core-row`/`.settings-core-status` layout (gap between button and label) and a spinner shown while restarting (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; expected commit: `fix: restart core button spacing and spinner`).
+9. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Fix the Restart Core control: add `.settings-core-row`/`.settings-core-status` layout (gap between button and label) and a spinner shown while restarting (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; expected commit: `fix: restart core button spacing and spinner`).
 10. [TODO] Git Commit: `fix: restart core button spacing and spinner` (hash: TBD)
 
 ## Phase 3 - Tooling Verification And Packaging (owner: Codex, updated: 2026-06-28)

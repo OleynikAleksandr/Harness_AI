@@ -7,6 +7,9 @@ const HEALTH_PATH = "/api/v1/health";
 const SHUTDOWN_PATH = "/api/v1/shutdown";
 const START_ATTEMPTS = 30;
 const START_DELAY_MS = 250;
+const STOP_ATTEMPTS = 40;
+// Escalate to SIGKILL after this many SIGTERM attempts went unanswered.
+const SIGKILL_AFTER_ATTEMPTS = 8;
 
 export function createCoreProcessSupervisor(repositoryRoot, options = {}) {
   const host = options.host ?? process.env.CORE_HOST ?? DEFAULT_CORE_HOST;
@@ -49,13 +52,9 @@ export function createCoreProcessSupervisor(repositoryRoot, options = {}) {
       if (!running) {
         return { ok: true, stopped: false };
       }
-      const response = await fetch(`${baseUrl}${SHUTDOWN_PATH}`, {
-        method: "POST",
-      });
-      if (!response.ok) {
-        throw new Error(`Core shutdown failed with status ${response.status}.`);
-      }
-      await waitForStopped(baseUrl);
+      const pid = typeof running.pid === "number" ? running.pid : null;
+      await requestShutdown(baseUrl);
+      await ensureStopped(baseUrl, pid);
       return { ok: true, stopped: true };
     },
     async restart() {
@@ -86,14 +85,50 @@ async function waitForHealthy(baseUrl) {
   throw new Error("Core process did not become healthy.");
 }
 
-async function waitForStopped(baseUrl) {
-  for (let attempt = 0; attempt < START_ATTEMPTS; attempt += 1) {
-    if (!(await readHealth(baseUrl))) {
+async function requestShutdown(baseUrl) {
+  // Best-effort graceful shutdown; a hung core is handled by signal escalation.
+  try {
+    await fetch(`${baseUrl}${SHUTDOWN_PATH}`, { method: "POST" });
+  } catch {
+    // Ignore; ensureStopped force-kills if the process is still alive.
+  }
+}
+
+async function ensureStopped(baseUrl, pid) {
+  for (let attempt = 0; attempt < STOP_ATTEMPTS; attempt += 1) {
+    const httpAlive = Boolean(await readHealth(baseUrl));
+    const processAlive = pid !== null && isProcessAlive(pid);
+    if (!(httpAlive || processAlive)) {
       return;
+    }
+    if (pid !== null) {
+      signalProcess(
+        pid,
+        attempt < SIGKILL_AFTER_ATTEMPTS ? "SIGTERM" : "SIGKILL"
+      );
     }
     await delay(START_DELAY_MS);
   }
-  throw new Error("Core process did not stop.");
+  if (pid !== null && isProcessAlive(pid)) {
+    throw new Error("Core process did not stop.");
+  }
+}
+
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function signalProcess(pid, signal) {
+  try {
+    process.kill(pid, signal);
+  } catch {
+    // Process already gone or not permitted; nothing to do.
+  }
 }
 
 function delay(ms) {

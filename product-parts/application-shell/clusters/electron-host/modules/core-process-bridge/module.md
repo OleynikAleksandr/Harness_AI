@@ -26,7 +26,10 @@ modules or own Core truth.
 - Core Runtime connection status.
 - Renderer-safe Core API endpoint metadata.
 - Renderer-safe forwarding of Core RPC results and Core events.
-- Real Core process restart through health and shutdown contracts.
+- Real Core process restart through health and shutdown contracts. `stop()` first
+  asks the core to shut down over HTTP, then force-terminates the process by pid
+  (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so
+  `restart()` always respawns a fresh process that re-reads disk state.
 
 ## Owned Paths
 

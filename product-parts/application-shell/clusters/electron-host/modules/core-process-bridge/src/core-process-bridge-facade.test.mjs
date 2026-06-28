@@ -22,3 +22,6 @@ assert.doesNotMatch(source, /sessionRequestHandlerFacade/u);
 assert.match(supervisorSource, /ELECTRON_RUN_AS_NODE/u);
 assert.match(supervisorSource, /"\/api\/v1\/health"/u);
 assert.match(supervisorSource, /"\/api\/v1\/shutdown"/u);
+// Restart must force-terminate a hung core, not rely on HTTP shutdown alone.
+assert.match(supervisorSource, /process\.kill/u);
+assert.match(supervisorSource, /SIGKILL/u);

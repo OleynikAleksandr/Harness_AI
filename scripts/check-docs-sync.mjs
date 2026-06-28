@@ -3,29 +3,65 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
-// Maps a changed module source file to the module directory that owns it.
-const MODULE_SRC_RE = /^(product-parts\/.+?\/modules\/[^/]+)\/src\//u;
-// Only behavior/contract code triggers the gate. Styles/markup/assets under
-// src (e.g. .css) are presentation and do not require a module.md update.
-const CODE_EXT_RE = /\.(?:ts|tsx|mjs|cjs|js|jsx)$/u;
+// Source code whose change must be reflected in documentation.
+const CODE_RE = /^(?:product-parts|scripts)\/.*\.(?:ts|tsx|mjs|cjs|js|jsx)$/u;
+// Documentation that describes the code (NOT the plan or evidence logs).
+const DOC_RE =
+  /^(?:product-parts\/.*\.md|docs\/architecture\/.*\.md|\.harness\/product-tree\/.*|AGENTS\.md|README\.md)$/u;
+// Extracts part/cluster/module from a changed module source file.
+const MODULE_SRC_RE =
+  /^product-parts\/([^/]+)\/clusters\/([^/]+)\/modules\/([^/]+)\/src\//u;
 const SKIP_MARKER = "[skip-docs]";
 
 export function hasSkipMarker(message) {
   return message.includes(SKIP_MARKER);
 }
 
-// Given the staged file list, return module dirs whose src changed but whose
-// own module.md was not also staged. Those modules have stale documentation.
-export function modulesMissingDoc(staged) {
-  const stagedSet = new Set(staged);
-  const modules = new Set();
-  for (const file of staged) {
+export function codeChanges(staged) {
+  return staged.filter((file) => CODE_RE.test(file));
+}
+
+export function docChanges(staged) {
+  return staged.filter((file) => DOC_RE.test(file));
+}
+
+// The specific module/cluster/part docs that own the changed source files.
+export function moduleDocTargets(codeFiles) {
+  const targets = new Set();
+  for (const file of codeFiles) {
     const match = file.match(MODULE_SRC_RE);
-    if (match && CODE_EXT_RE.test(file)) {
-      modules.add(match[1]);
+    if (match) {
+      const [, part, cluster, module] = match;
+      const base = `product-parts/${part}`;
+      targets.add(`${base}/clusters/${cluster}/modules/${module}/module.md`);
+      targets.add(`${base}/clusters/${cluster}/cluster.md`);
+      targets.add(`${base}/product-part.md`);
     }
   }
-  return [...modules].filter((dir) => !stagedSet.has(`${dir}/module.md`));
+  return [...targets];
+}
+
+function buildInstruction(codeFiles) {
+  const moduleTargets = moduleDocTargets(codeFiles);
+  const always = [
+    "docs/architecture/** — cross-cutting architecture docs",
+    ".harness/product-tree/product-tree.json + product-tree.md — part/cluster/module structure",
+    "AGENTS.md — if commands, gates, scripts, or process changed",
+  ];
+  const moduleBlock = moduleTargets.length
+    ? `Docs owning the changed modules:\n${moduleTargets
+        .map((target) => `  - ${target}`)
+        .join("\n")}\n\n`
+    : "";
+  return [
+    "Docs sync: this commit changes source code, so documentation may be stale.",
+    "Before committing, review each path below and make it match the current code:",
+    "",
+    `${moduleBlock}Always review:\n${always.map((a) => `  - ${a}`).join("\n")}`,
+    "",
+    "Then stage the docs you updated and commit again.",
+    `If this change truly affects no documentation, add ${SKIP_MARKER} to the commit message.`,
+  ].join("\n");
 }
 
 function stagedFiles() {
@@ -41,25 +77,26 @@ function stagedFiles() {
 }
 
 function run(messageFile) {
-  if (messageFile && existsSync(messageFile)) {
-    const message = readFileSync(messageFile, "utf8");
-    if (hasSkipMarker(message)) {
-      console.log("Docs sync: skipped via [skip-docs].");
-      return;
-    }
+  if (
+    messageFile &&
+    existsSync(messageFile) &&
+    hasSkipMarker(readFileSync(messageFile, "utf8"))
+  ) {
+    console.log("Docs sync: skipped via [skip-docs].");
+    return;
   }
-  const missing = modulesMissingDoc(stagedFiles());
-  if (missing.length > 0) {
-    console.error(
-      `Docs sync: module source changed without updating its module.md:\n${missing
-        .map((dir) => `  - ${dir}/module.md`)
-        .join(
-          "\n"
-        )}\nUpdate each module.md to match the new behavior, and update docs/architecture/** or .harness/product-tree/** if structure or contracts changed. If this change truly does not affect documentation, add ${SKIP_MARKER} to the commit message.`
-    );
-    process.exit(1);
+  const staged = stagedFiles();
+  const code = codeChanges(staged);
+  if (code.length === 0) {
+    console.log("Docs sync: no source code changed.");
+    return;
   }
-  console.log("Docs sync: OK");
+  if (docChanges(staged).length > 0) {
+    console.log("Docs sync: documentation updated alongside code.");
+    return;
+  }
+  console.error(buildInstruction(code));
+  process.exit(1);
 }
 
 const invokedDirectly =

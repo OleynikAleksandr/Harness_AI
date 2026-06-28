@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase176.stream1.task1",
+  "currentTaskId": "harness-ai.phase178.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1255,4 +1255,17 @@
 
 ### Stream: Docs-Sync Retest
 
-342. [IN_PROGRESS] `harness-ai.phase176.stream1.task1` User reviews the docs-sync gate and the documentation-relevance rule, and decides on any wider coverage (scope: user workflow; expected commit: none).
+342. [DONE] `harness-ai.phase176.stream1.task1` User reviews the docs-sync gate and the documentation-relevance rule, and decides on any wider coverage (scope: user workflow; expected commit: none). Result: User asked the gate to fire on any code change and emit a full instruction listing every doc path (module/cluster/part, docs/architecture, product-tree) for the agent to bring in sync, rather than narrowly checking module.md.
+
+## Phase 177 - Docs-Sync Full Review Instruction (owner: Codex, updated: 2026-06-28)
+
+### Stream: Quality Gates
+
+343. [DONE] `harness-ai.phase177.stream1.task1` Rework check:docs-sync so any source change with no documentation update fails with an instruction listing the owning module/cluster/product-part docs plus docs/architecture, .harness/product-tree and AGENTS.md, and update the rule wording in AGENTS.md section 3 (scope: `scripts/check-docs-sync.mjs, scripts/check-docs-sync.test.mjs, AGENTS.md`; expected commit: `feat: docs-sync gate instructs full doc review`). Result: Completed in commit `feat: docs-sync gate instructs full doc review`.
+344. [DONE] Git Commit: `feat: docs-sync gate instructs full doc review` (hash: self)
+
+## Phase 178 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Docs-Sync Retest
+
+345. [IN_PROGRESS] `harness-ai.phase178.stream1.task1` User reviews the reworked docs-sync instruction gate and confirms it covers the documents that matter (scope: user workflow; expected commit: none).

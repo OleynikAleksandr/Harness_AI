@@ -1,4 +1,7 @@
-import type { HarnessSettings } from "./settings-store-facade.js";
+import type {
+  HarnessSettings,
+  ReasoningEffort,
+} from "./settings-store-facade.js";
 
 const CLAUDE_MODEL_ALIASES = ["sonnet", "opus", "haiku"];
 const CLAUDE_THINKING_EFFORTS = [
@@ -9,6 +12,19 @@ const CLAUDE_THINKING_EFFORTS = [
   "max",
   "ultracode",
 ];
+
+// Reasoning effort levels each Claude alias exposes, mirroring the Claude CLI:
+// Opus adds ultracode, Sonnet drops xhigh, Haiku has no effort selection.
+// Lives here (not in the persistence facade) so the renderer can import it
+// without pulling node:fs/os/path into the client bundle.
+export const CLAUDE_REASONING_EFFORTS_BY_MODEL: Record<
+  string,
+  readonly ReasoningEffort[]
+> = {
+  opus: ["low", "medium", "high", "xhigh", "max", "ultracode"],
+  sonnet: ["low", "medium", "high", "max"],
+  haiku: [],
+};
 const CODEX_MODEL_IDS = [
   "gpt-5.2",
   "gpt-5.3-codex-spark",

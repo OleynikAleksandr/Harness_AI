@@ -1,7 +1,5 @@
-import {
-  CLAUDE_REASONING_EFFORTS_BY_MODEL,
-  type HarnessSettings,
-} from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { CLAUDE_REASONING_EFFORTS_BY_MODEL } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
+import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
 import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";

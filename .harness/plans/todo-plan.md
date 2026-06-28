@@ -47,16 +47,18 @@
 4. [DONE] Git Commit: `fix: render reasoning effort menu in a portal` (hash: self)
 5. [DONE] `harness-ai.phase1.stream1.task3` Add the Core per-model effort capability map and wire Claude/Codex cards to it (Opus full + ultracode, Sonnet without xhigh, Haiku hides the selector; Codex keeps its set without ultracode) (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/claude-default-model-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/codex-default-model-card.tsx`; docs: settings-store `module.md`, provider-settings-ui `module.md`; expected commit: `feat: filter reasoning effort levels per claude model`). Result: Completed in commit `feat: filter reasoning effort levels per claude model`.
 6. [DONE] Git Commit: `feat: filter reasoning effort levels per claude model` (hash: self)
+7. [DONE] `harness-ai.phase1.stream1.task4` Move `CLAUDE_REASONING_EFFORTS_BY_MODEL` from the persistence facade to `settings-normalization` so the renderer bundle no longer pulls `node:fs/os/path` (Core Authority: UI must not import persistence) (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/claude-default-model-card.tsx`; docs: settings-store `module.md`, provider-settings-ui `module.md`; expected commit: `fix: move reasoning capability map off the persistence facade`). Result: Completed in commit `fix: move reasoning capability map off the persistence facade`.
+8. [DONE] Git Commit: `fix: move reasoning capability map off the persistence facade` (hash: self)
 
 ## Phase 2 - Tooling Verification (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Build And Evidence
 
-7. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Run required gates, then `npm run build` and `npm run package:mac`, record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort ui and repackage app`).
-8. [TODO] Git Commit: `chore: verify reasoning effort ui and repackage app` (hash: TBD)
+9. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Run required gates, then `npm run build` and `npm run package:mac`, record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort ui and repackage app`).
+10. [TODO] Git Commit: `chore: verify reasoning effort ui and repackage app` (hash: TBD)
 
 ## Phase 3 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-9. [TODO] `harness-ai.phase3.stream1.task1` User reopens Settings, verifies the reasoning dropdown overlays correctly for Claude and Codex, and confirms per-model levels (scope: user workflow; expected commit: none).
+11. [TODO] `harness-ai.phase3.stream1.task1` User reopens Settings, verifies the reasoning dropdown overlays correctly for Claude and Codex, and confirms per-model levels (scope: user workflow; expected commit: none).

@@ -115,6 +115,11 @@
 21. [DONE] `harness-ai.phase7.stream3.task1` Add a documentation index and AGENTS instructions requiring all related Markdown files to stay synchronized with code changes (scope: `AGENTS.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: add documentation index instructions`). Result: Completed in commit `docs: add documentation index instructions`.
 22. [DONE] Git Commit: `docs: add documentation index instructions` (hash: self)
 
+### Stream: Plan Template Follow-Up
+
+23. [DONE] `harness-ai.phase7.stream4.task1` Update the active plan template so new scopes use the documentation index, avoid redundant `AGENTS.md` context links, and preserve current documentation-sync rules (scope: `.harness/plans/todo-plan.template.md, .harness/plans/todo-plan.md`; expected commit: `docs: update todo plan template`). Result: Completed in commit `docs: update todo plan template`.
+24. [DONE] Git Commit: `docs: update todo plan template` (hash: self)
+
 ### Stream: Retest
 
-23. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).
+25. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).

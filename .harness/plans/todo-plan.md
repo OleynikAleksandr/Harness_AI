@@ -8,8 +8,8 @@
   "planId": "reasoning-effort-ui-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "chore: verify reasoning effort ui and repackage app",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -54,11 +54,11 @@
 
 ### Stream: Build And Evidence
 
-9. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Run required gates, then `npm run build` and `npm run package:mac`, record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort ui and repackage app`).
-10. [TODO] Git Commit: `chore: verify reasoning effort ui and repackage app` (hash: TBD)
+9. [DONE] `harness-ai.phase2.stream1.task1` Run required gates, then `npm run build` and `npm run package:mac`, record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reasoning effort ui and repackage app`). Result: Completed in commit `chore: verify reasoning effort ui and repackage app`.
+10. [DONE] Git Commit: `chore: verify reasoning effort ui and repackage app` (hash: self)
 
 ## Phase 3 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-11. [TODO] `harness-ai.phase3.stream1.task1` User reopens Settings, verifies the reasoning dropdown overlays correctly for Claude and Codex, and confirms per-model levels (scope: user workflow; expected commit: none).
+11. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` User reopens Settings, verifies the reasoning dropdown overlays correctly for Claude and Codex, and confirms per-model levels (scope: user workflow; expected commit: none).

@@ -19,6 +19,7 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
 - Provider session id.
 - Provider event subscription.
 - Provider lifecycle errors.
+- OpenAI-compatible final `reasoning_content` / `reasoning` fields emitted as thinking dialog messages before assistant text.
 
 ## Owned Paths
 

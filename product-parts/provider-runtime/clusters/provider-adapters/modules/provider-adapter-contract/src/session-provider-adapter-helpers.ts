@@ -167,6 +167,7 @@ export class OpenAiCompatibleSessionProviderAdapter
       }
       const json = await response.json();
       const text = extractOpenAiText(json);
+      const reasoningBlocks = extractOpenAiReasoningBlocks(json);
       session.messages.push({ role: "user", content });
       session.messages.push({ role: "assistant", content: text });
       const tokenUsage = extractOpenAiTokenUsage(json);
@@ -177,6 +178,9 @@ export class OpenAiCompatibleSessionProviderAdapter
           type: "stream_event",
           uuid: randomUUID(),
         });
+      }
+      for (const block of reasoningBlocks) {
+        this.emit(sessionId, dialogMessage(block, "thinking"));
       }
       this.emit(sessionId, dialogMessage(text));
       this.emit(sessionId, event("turn_completed"));
@@ -273,10 +277,11 @@ function chatUrl(baseUrl: string): string {
   return `${baseUrl.replace(TRAILING_SLASHES_REGEX, "")}/chat/completions`;
 }
 
-function dialogMessage(content: string): unknown {
+function dialogMessage(content: string, tag?: string): unknown {
   return {
     content,
     role: "assistant",
+    ...(tag ? { tag } : {}),
     timestamp: new Date().toISOString(),
     type: "dialog_message",
     uuid: randomUUID(),
@@ -320,6 +325,22 @@ function extractOpenAiText(value: unknown): string {
   return content;
 }
 
+function extractOpenAiReasoningBlocks(value: unknown): string[] {
+  if (!(isRecord(value) && Array.isArray(value.choices))) {
+    return [];
+  }
+  const first = value.choices[0];
+  const message =
+    isRecord(first) && isRecord(first.message) ? first.message : null;
+  if (!message) {
+    return [];
+  }
+  return [
+    ...readTextBlocks(message.reasoning_content),
+    ...readTextBlocks(message.reasoning),
+  ];
+}
+
 function extractOpenAiTokenUsage(value: unknown): {
   limit: number;
   used: number;
@@ -353,6 +374,18 @@ function readNumber(value: unknown): number | null {
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
+}
+
+function readTextBlocks(value: unknown): string[] {
+  if (typeof value === "string" && value.trim()) {
+    return [value.trim()];
+  }
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is string =>
+          typeof item === "string" && item.trim().length > 0
+      )
+    : [];
 }
 
 function stringifyError(error: unknown): string {

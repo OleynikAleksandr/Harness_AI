@@ -15,7 +15,8 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
-const { CliSessionProviderAdapter } = await import(moduleUrl);
+const { CliSessionProviderAdapter, OpenAiCompatibleSessionProviderAdapter } =
+  await import(moduleUrl);
 
 const adapter = new CliSessionProviderAdapter({
   args: () => ["-e", "console.log('assistant output')"],
@@ -57,4 +58,41 @@ try {
   );
 } finally {
   rmSync(tempCwd, { force: true, recursive: true });
+}
+
+const originalFetch = globalThis.fetch;
+try {
+  globalThis.fetch = async () =>
+    new Response(
+      JSON.stringify({
+        choices: [
+          {
+            message: {
+              content: "assistant answer",
+              reasoning_content: "provider reasoning",
+            },
+          },
+        ],
+      }),
+      { status: 200 }
+    );
+  const openAiAdapter = new OpenAiCompatibleSessionProviderAdapter({
+    baseUrl: "http://provider.test/v1",
+    model: "reasoning-model",
+  });
+  const openAiSessionId = await openAiAdapter.createSession();
+  const openAiEvents = [];
+  openAiAdapter.subscribe(openAiSessionId, (event) => openAiEvents.push(event));
+  await openAiAdapter.sendMessage(openAiSessionId, "think");
+  assert.deepEqual(
+    openAiEvents
+      .filter((event) => event?.type === "dialog_message")
+      .map(({ content, tag }) => ({ content, tag })),
+    [
+      { content: "provider reasoning", tag: "thinking" },
+      { content: "assistant answer", tag: undefined },
+    ]
+  );
+} finally {
+  globalThis.fetch = originalFetch;
 }

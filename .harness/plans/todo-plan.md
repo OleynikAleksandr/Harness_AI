@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "fix: port provider reasoning emitters",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": "chore: verify provider reasoning parity",
   "debt": null
 }
 ```
@@ -87,14 +87,14 @@
 
 ### Stream: Provider Adapter
 
-12. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Compare the remaining Harness provider adapters against CodeAI-HUB reasoning emitters and port the next smallest provider-native reasoning path needed for visible thinking (scope: TBD after reference audit; expected commit: `fix: port provider reasoning emitters`).
-13. [TODO] Git Commit: `fix: port provider reasoning emitters` (hash: TBD)
+12. [DONE] `harness-ai.phase7.stream1.task1` Compare the remaining Harness provider adapters against CodeAI-HUB reasoning emitters and port the next smallest provider-native reasoning path needed for visible thinking (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/session-provider-adapter-helpers.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/session-provider-adapter-helpers.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md`; expected commit: `fix: port provider reasoning emitters`). Result: Completed in commit `fix: port provider reasoning emitters`.
+13. [DONE] Git Commit: `fix: port provider reasoning emitters` (hash: self)
 
 ## Phase 8 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Verification
 
-14. [TODO] `harness-ai.phase8.stream1.task1` Update docs/evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning parity`).
+14. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Update docs/evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning parity`).
 15. [TODO] Git Commit: `chore: verify provider reasoning parity` (hash: TBD)
 
 ## Phase 9 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

@@ -11,6 +11,9 @@ export interface CoreSession {
   nextSessionMode: NextSessionMode;
   providerId: ProviderId;
   providerName: string;
+  // Provider's own session id (e.g. Codex rollout id); used to locate and delete
+  // provider-owned artifacts when the session is removed.
+  providerSessionId?: string;
   title: string;
   updatedAt: string;
   workspaceId: string;

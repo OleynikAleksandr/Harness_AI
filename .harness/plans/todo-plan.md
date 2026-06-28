@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream2.task1",
-  "expectedCommitMessage": "refactor: persist provider session id on core session",
+  "currentTaskId": "harness-ai.phase1.stream3.task1",
+  "expectedCommitMessage": "fix: delete provider rollout artifact on session removal",
   "debt": null
 }
 ```
@@ -65,12 +65,12 @@
 
 ### Stream: Self-sufficient session record
 
-3. [IN_PROGRESS] `harness-ai.phase1.stream2.task1` Persist `providerSessionId` on `CoreSession` so a deleted session can locate its provider rollout without parsing the event log (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts`; expected commit: `refactor: persist provider session id on core session`).
-4. [TODO] Git Commit: `refactor: persist provider session id on core session` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream2.task1` Persist `providerSessionId` on `CoreSession` so a deleted session can locate its provider rollout without parsing the event log (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts`; expected commit: `refactor: persist provider session id on core session`). Result: Completed in commit `refactor: persist provider session id on core session`.
+4. [DONE] Git Commit: `refactor: persist provider session id on core session` (hash: self)
 
 ### Stream: Provider-owned cleanup
 
-5. [TODO] `harness-ai.phase1.stream3.task1` Add optional `deleteSessionArtifacts(providerSessionId, workspacePath)` to the provider-adapter contract (no-op default) and implement it in the Codex adapter to remove `home/sessions/**/rollout-*-<providerSessionId>.jsonl`, then call it from `deleteSession` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/provider/codex-provider-adapter.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`; expected commit: `fix: delete provider rollout artifact on session removal`).
+5. [IN_PROGRESS] `harness-ai.phase1.stream3.task1` Add optional `deleteSessionArtifacts(providerSessionId, workspacePath)` to the provider-adapter contract (no-op default) and implement it in the Codex adapter to remove `home/sessions/**/rollout-*-<providerSessionId>.jsonl`, then call it from `deleteSession` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/provider/codex-provider-adapter.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`; expected commit: `fix: delete provider rollout artifact on session removal`).
 6. [TODO] Git Commit: `fix: delete provider rollout artifact on session removal` (hash: TBD)
 
 ## Phase 2 - Core Restart Repair (owner: Codex, updated: 2026-06-28)

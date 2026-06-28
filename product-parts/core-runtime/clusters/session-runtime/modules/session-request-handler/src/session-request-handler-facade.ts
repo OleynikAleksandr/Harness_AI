@@ -381,6 +381,8 @@ export class SessionRequestHandlerFacade {
           providerSessionId
         )
       );
+      this.sessions.set(session.id, { ...session, providerSessionId });
+      this.persistSessionIndex(session.workspacePath);
       this.refreshUsageLimits(session.id).catch(() => undefined);
     } catch (error) {
       this.publishBinding(

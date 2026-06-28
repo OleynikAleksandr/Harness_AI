@@ -41,7 +41,9 @@ function isCoreSession(value: unknown): value is CoreSession {
     typeof value.workspaceId === "string" &&
     typeof value.workspacePath === "string" &&
     typeof value.createdAt === "string" &&
-    typeof value.updatedAt === "string"
+    typeof value.updatedAt === "string" &&
+    (value.providerSessionId === undefined ||
+      typeof value.providerSessionId === "string")
   );
 }
 

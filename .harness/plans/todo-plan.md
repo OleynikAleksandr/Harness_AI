@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase12.stream1.task1",
+  "expectedCommitMessage": "fix: restore codex and kimi thinking events",
   "debt": null
 }
 ```
@@ -101,7 +101,7 @@
 
 ### Stream: Retest
 
-16. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).
+16. [DONE] `harness-ai.phase9.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none). Result: GLM Native and OpenRouter/Gemini reasoning appeared. Codex and Kimi still did not show reasoning. Claude did not appear to run from the workspace containing `CLAUDE.md` and did not show reasoning.
 
 ## Phase 10 - UI Authority Rule (owner: Codex, updated: 2026-06-28)
 
@@ -109,3 +109,30 @@
 
 17. [DONE] `harness-ai.phase10.stream1.task1` Document that UI surfaces must never infer product truth, including reasoning/thinking classification (scope: `AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `docs: clarify ui cannot infer product truth`). Result: Completed in commit `docs: clarify ui cannot infer product truth`.
 18. [DONE] Git Commit: `docs: clarify ui cannot infer product truth` (hash: self)
+
+## Phase 11 - Claude Workspace Context (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Adapter
+
+19. [DONE] `harness-ai.phase11.stream1.task1` Run Claude CLI provider sessions from the active workspace path so Claude can load workspace files such as `CLAUDE.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md`; expected commit: `fix: run claude sessions from workspace`). Result: Completed in commit `fix: run claude sessions from workspace`.
+20. [DONE] Git Commit: `fix: run claude sessions from workspace` (hash: self)
+
+## Phase 12 - Codex And Kimi Native Reasoning Repair (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Adapter
+
+21. [IN_PROGRESS] `harness-ai.phase12.stream1.task1` Inspect the actual Codex/Kimi native event outputs from the latest retest and port the smallest CodeAI-HUB native reasoning emitter still missing in Harness (scope: TBD after event inspection; expected commit: `fix: restore codex and kimi thinking events`).
+22. [TODO] Git Commit: `fix: restore codex and kimi thinking events` (hash: TBD)
+
+## Phase 13 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
+
+### Stream: Verification
+
+23. [TODO] `harness-ai.phase13.stream1.task1` Update evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify claude codex kimi reasoning repair`).
+24. [TODO] Git Commit: `chore: verify claude codex kimi reasoning repair` (hash: TBD)
+
+## Phase 14 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Retest
+
+25. [TODO] `harness-ai.phase14.stream1.task1` User relaunches the packaged app and verifies Claude workspace context plus Codex/Kimi reasoning display (scope: user workflow; expected commit: none).

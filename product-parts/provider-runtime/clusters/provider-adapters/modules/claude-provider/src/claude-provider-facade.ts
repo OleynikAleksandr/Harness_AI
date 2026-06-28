@@ -8,6 +8,7 @@ export class ClaudeProviderFacade extends CliSessionProviderAdapter {
   constructor(model?: string) {
     super({
       commands: ["claude", path.join(homedir(), ".local", "bin", "claude")],
+      cwd: (workspacePath) => workspacePath,
       model,
       args: (prompt, selectedModel) => [
         "--print",

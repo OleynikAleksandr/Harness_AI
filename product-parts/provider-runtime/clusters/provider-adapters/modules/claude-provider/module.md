@@ -17,6 +17,7 @@ Fresh Harness AI adapter for Claude provider turns.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- Claude CLI runs with the active workspace as `cwd`, so workspace-level files such as `CLAUDE.md` are visible to the provider.
 
 ## Owned Paths
 

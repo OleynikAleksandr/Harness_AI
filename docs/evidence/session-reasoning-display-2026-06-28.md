@@ -42,3 +42,47 @@ Result:
 - `check:links` passed.
 - `npm run package:mac` rebuilt `release/mac-arm64/Harness AI.app`.
 - Known non-blocking output remained: Knip configuration hints, jscpd existing clone counts below configured thresholds, electron-builder default icon and unsigned app notices.
+
+## Cross-Provider Reasoning Settings Parity Follow-Up
+
+Reference files checked in CodeAI-Hub:
+
+- `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/core/src/remote-bridge/handlers/session-request-handler-applied-turn-config.ts`
+- `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/Claude_Module/src/sdk/claude-sdk-manager.ts`
+- `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/Claude_Module/src/provider/claude-applied-turn-config.ts`
+- `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/Kimi_Module/src/provider/kimi-provider-adapter.ts`
+- `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/GLM_Module/src/provider/glm-native-adapter-utils.ts`
+- `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/GLM_OpenCode_Module/src/provider/glm-opencode-provider-adapter.ts`
+- `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/src/client/project-manager/services/workflow-step-start-settings-defaults.ts`
+
+Harness changes verified:
+
+- Core now derives provider turn options from the Core settings snapshot for Codex, Claude, Kimi, GLM Native, GLM OpenCode, OpenRouter, Local Models, and fallback providers instead of applying settings only to Codex.
+- Claude receives Core-owned `thinkingEnabled`, `reasoningEffort`, and `thinkingDisplaySyncEnabled` in provider turn options. Full CodeAI-Hub Claude SDK parity remains a separate larger migration because Harness still uses the existing CLI adapter.
+- Kimi receives Core-owned `thinkingEnabled` and `thinkingDisplaySyncEnabled`; visible reasoning still depends on the provider emitting native thinking chunks in stream JSON.
+- GLM Native receives Core-owned `thinkingEnabled` and `reasoningEffort`; the shared OpenAI-compatible helper maps these to GLM request fields `thinking` and `reasoning_effort`.
+- GLM OpenCode and OpenRouter receive the same Core-owned model/endpoint selection shape as the reference settings flow, without adding UI-owned provider logic.
+- Shared OpenAI-compatible adapters do not receive GLM-only request fields unless the adapter declares `providerId: "glm-native"`.
+
+Verification commands for the follow-up:
+
+- `node product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/provider-turn-options.test.mjs`
+- `node product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/session-provider-adapter-helpers.test.mjs`
+- `npm run typecheck`
+- `npm test`
+- `npm run plan:commit -- "fix: apply reasoning settings across providers"`
+- `npm run check:dup`
+- `npm run check:security`
+- `npm run check:links`
+- `npm run build`
+- `npm run package:mac`
+- `test -d "release/mac-arm64/Harness AI.app"`
+
+Result:
+
+- All follow-up commands completed successfully.
+- `npm test` passed 20 tests.
+- `check:security` reported 0 high vulnerabilities.
+- `check:links` passed.
+- `npm run package:mac` rebuilt `release/mac-arm64/Harness AI.app`.
+- Known non-blocking output remained: Knip configuration hints, existing jscpd clone counts below failure threshold, electron-builder default icon and unsigned app notices.

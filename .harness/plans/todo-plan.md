@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase23.stream1.task1",
-  "expectedCommitMessage": "chore: verify provider reasoning settings parity",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -197,5 +197,5 @@
 
 ### Stream: Verification
 
-42. [IN_PROGRESS] `harness-ai.phase23.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off cross-provider reasoning settings parity for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning settings parity`).
-43. [TODO] Git Commit: `chore: verify provider reasoning settings parity` (hash: TBD)
+42. [DONE] `harness-ai.phase23.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off cross-provider reasoning settings parity for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning settings parity`). Result: Completed in commit `chore: verify provider reasoning settings parity`.
+43. [DONE] Git Commit: `chore: verify provider reasoning settings parity` (hash: self)

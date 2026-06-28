@@ -20,7 +20,7 @@ Render the transcript/dialog layout and session chrome.
 
 - Rendered chat session surface.
 - Session-level UI actions sent to Core.
-- Next-session mode panel display; session creation submits the native raw baseline.
+- Next-session mode panel display; session creation submits the native raw baseline and regression tests guard that preview choices do not change runtime input.
 
 ## Owned Paths
 

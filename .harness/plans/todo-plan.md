@@ -8,8 +8,8 @@
   "planId": "next-session-mode-ui-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "feat: wire next session mode selection",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "docs: document next session mode architecture",
   "debt": null
 }
 ```
@@ -85,14 +85,14 @@
 
 ### Stream: Session Creation
 
-9. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Wire selected Next Session Mode into session creation through Core, persist next-session defaults in settings, and expose read-only mode metadata for started sessions (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**`; expected commit: `feat: wire next session mode selection`).
-10. [TODO] Git Commit: `feat: wire next session mode selection` (hash: TBD)
+9. [DONE] `harness-ai.phase5.stream1.task1` Wire selected Next Session Mode into session creation through Core, persist next-session defaults in settings, and expose read-only mode metadata for started sessions (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**`; expected commit: `feat: wire next session mode selection`). Result: Completed in commit `feat: wire next session mode selection`.
+10. [DONE] Git Commit: `feat: wire next session mode selection` (hash: self)
 
 ## Phase 6 - Documentation And Product Tree (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Architecture Sync
 
-11. [TODO] `harness-ai.phase6.stream1.task1` Update architecture documentation and product tree projections for the Next Session Mode contract, profile registry and UI ownership (scope: `docs/architecture/**, .harness/product-tree/**, product-parts/**/module.md`; expected commit: `docs: document next session mode architecture`).
+11. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Update architecture documentation and product tree projections for the Next Session Mode contract, profile registry and UI ownership (scope: `docs/architecture/**, .harness/product-tree/**, product-parts/**/module.md`; expected commit: `docs: document next session mode architecture`).
 12. [TODO] Git Commit: `docs: document next session mode architecture` (hash: TBD)
 
 ## Phase 7 - Tooling Verification And Package (owner: Codex, updated: 2026-06-28)

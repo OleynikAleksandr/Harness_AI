@@ -127,6 +127,11 @@
 27. [DONE] `harness-ai.phase7.stream6.task1` Rebuild packaged macOS app and record Kimi usage-limits verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi usage limits package`). Result: Completed in commit `chore: verify kimi usage limits package`.
 28. [DONE] Git Commit: `chore: verify kimi usage limits package` (hash: self)
 
+### Stream: Provider Usage Limit Ownership Cleanup
+
+29. [DONE] `harness-ai.phase7.stream7.task1` Move provider-specific usage-limit reader logic out of the shared provider adapter contract and verify each provider keeps its own usage-limit mechanism (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `refactor: keep usage limit readers provider-owned`). Result: Completed in commit `refactor: keep usage limit readers provider-owned`.
+30. [DONE] Git Commit: `refactor: keep usage limit readers provider-owned` (hash: self)
+
 ### Stream: Retest
 
-29. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).
+31. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).

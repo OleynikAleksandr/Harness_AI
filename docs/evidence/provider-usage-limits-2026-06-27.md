@@ -25,7 +25,9 @@
 - `test -d "release/mac-arm64/Harness AI.app"`
 - `app.asar` contains:
   - `dist/runtime/.../session-history-store.js`
-  - `dist/runtime/.../provider-usage-limit-readers.js`
+  - historical cleanup note: the old shared
+    `provider-usage-limit-readers.js` bundle path was later removed because
+    provider-specific readers now live in their provider modules.
 
 ## Notes
 

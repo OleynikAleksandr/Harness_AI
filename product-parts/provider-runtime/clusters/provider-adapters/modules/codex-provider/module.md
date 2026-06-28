@@ -34,6 +34,8 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- Codex usage-limit telemetry built inside the Codex provider module from
+  app-server rate-limit snapshots/events.
 - Turn-level Codex reasoning summaries emitted by the reference app-server
   event router.
 - Provider-home `config.toml` materialized by the reference provider-home

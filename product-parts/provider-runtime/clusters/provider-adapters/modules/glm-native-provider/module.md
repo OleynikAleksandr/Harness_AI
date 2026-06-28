@@ -7,7 +7,7 @@ Harness-packaged GLM Native provider migrated from CodeAI-Hub.
 The module owns the Harness facade and the embedded reference GLM native
 runtime. The facade only binds Harness auth/settings, selected model, workspace
 path and provider home path; request building, thinking controls, SSE parsing,
-tool execution, session logging and usage limits come from the migrated
+tool execution, session logging and GLM-specific usage limits come from the migrated
 CodeAI-Hub module.
 Provider home storage is Harness-owned: workspace sessions use
 `<workspace>/.harness/runtime/providers/glm-native/home`, and non-workspace

@@ -21,6 +21,8 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Provider events from the migrated Claude Agent SDK session/runtime path.
 - Visible thinking/reasoning dialog messages emitted by the migrated Claude stream router and thinking dialog emitter.
 - Provider usage/context telemetry.
+- Claude usage-limit telemetry read by this provider module through the
+  Claude/Anthropic OAuth probe and rate-limit headers.
 - Claude Agent SDK runs with the active workspace as `cwd`, and the active workspace path plus `AGENTS.md` instructions are injected into the SDK system prompt by provider runtime.
 - Provider home storage is Harness-owned: workspace sessions use `<workspace>/.harness/runtime/providers/claude/home`, and non-workspace fallbacks use `~/.harness-ai/providers/claude/home`.
 - Packaged macOS app setup resolves `npm` through GUI-safe PATH augmentation before installing/checking the Claude Agent SDK, then resolves the Claude executable from the SDK platform optional dependency layout.

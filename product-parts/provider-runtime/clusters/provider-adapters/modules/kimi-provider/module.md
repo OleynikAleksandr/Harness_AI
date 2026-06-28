@@ -7,7 +7,7 @@ Harness-packaged Kimi provider migrated from CodeAI-Hub.
 The module owns the Harness facade and the embedded reference Kimi ACP
 implementation. The facade only binds Harness workspace paths, provider home
 state, selected model and thinking default; lifecycle, managed agent profile,
-wire process/router, event normalization and usage readers come from the
+wire process/router, event normalization and Kimi-specific usage readers come from the
 migrated CodeAI-Hub module.
 Provider home storage is Harness-owned: workspace sessions use
 `<workspace>/.harness/runtime/providers/kimi/home`, and non-workspace

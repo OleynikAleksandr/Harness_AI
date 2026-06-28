@@ -23,7 +23,8 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
   adapters.
 - Provider-visible reasoning/thinking events emitted by provider-owned runtime
   modules rather than shared wrapper parsers.
-- Usage-limit reader helpers for provider-specific telemetry probes.
+- Usage-limit refresh boundary only; provider-specific usage-limit readers live
+  inside their provider modules.
 
 ## Owned Paths
 

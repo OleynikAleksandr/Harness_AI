@@ -4,6 +4,7 @@ import type {
   SessionMessage,
   SessionTelemetry,
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { SessionInputTextarea } from "./session-input-textarea.js";
 
@@ -238,7 +239,11 @@ function resolveReasoningLabel(
     return null;
   }
   if (session.providerId === "codex") {
-    return `(${settings.providers.codex.reasoningByModel[session.model] ?? "medium"})`;
+    const effort = resolveCodexReasoningEffort(
+      session.model,
+      settings.providers.codex.reasoningByModel[session.model]
+    );
+    return effort ? `(${effort})` : null;
   }
   if (session.providerId === "claude") {
     return settings.providers.claude.thinking.enabled

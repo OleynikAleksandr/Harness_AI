@@ -1,3 +1,7 @@
+import {
+  CODEX_REASONING_EFFORTS_BY_MODEL,
+  resolveCodexReasoningEffort,
+} from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
 import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
@@ -29,42 +33,57 @@ export function CodexDefaultModelCard({
         }
       />
       <div className="settings-list">
-        {PROVIDER_MODEL_OPTIONS.codex.map((option) => (
-          <div
-            className={
-              option.id === provider.defaultModel
-                ? "active settings-model-row settings-model-row--with-control"
-                : "settings-model-row settings-model-row--with-control"
-            }
-            key={option.id}
-          >
-            <button
-              aria-pressed={option.id === provider.defaultModel}
-              className="settings-model-choice"
-              onClick={() =>
-                update((next) => {
-                  next.providers.codex.defaultModel = option.id;
-                })
+        {PROVIDER_MODEL_OPTIONS.codex.map((option) => {
+          const efforts = CODEX_REASONING_EFFORTS_BY_MODEL[option.id] ?? [];
+          const resolvedEffort = resolveCodexReasoningEffort(
+            option.id,
+            provider.reasoningByModel[option.id]
+          );
+          return (
+            <div
+              className={
+                option.id === provider.defaultModel
+                  ? "active settings-model-row settings-model-row--with-control"
+                  : "settings-model-row settings-model-row--with-control"
               }
-              type="button"
+              key={option.id}
             >
-              <span className="settings-model-title">{option.label}</span>
-              <span className="settings-model-id">{option.id}</span>
-              <p className="settings-model-description">{option.description}</p>
-            </button>
-            <div className="settings-row-select">
-              <span>Reasoning</span>
-              <ReasoningEffortSelect
-                onChange={(value) =>
+              <button
+                aria-pressed={option.id === provider.defaultModel}
+                className="settings-model-choice"
+                onClick={() =>
                   update((next) => {
-                    next.providers.codex.reasoningByModel[option.id] = value;
+                    next.providers.codex.defaultModel = option.id;
                   })
                 }
-                value={provider.reasoningByModel[option.id] ?? "medium"}
-              />
+                type="button"
+              >
+                <span className="settings-model-title">{option.label}</span>
+                <span className="settings-model-id">{option.id}</span>
+                <p className="settings-model-description">
+                  {option.description}
+                </p>
+              </button>
+              <div className="settings-row-select">
+                <span>Reasoning</span>
+                {resolvedEffort ? (
+                  <ReasoningEffortSelect
+                    onChange={(value) =>
+                      update((next) => {
+                        next.providers.codex.reasoningByModel[option.id] =
+                          value;
+                      })
+                    }
+                    value={resolvedEffort}
+                    values={efforts}
+                  />
+                ) : (
+                  <span>Not adjustable</span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <p className="settings-note">
         Changes apply when creating a new Codex session.

@@ -39,6 +39,10 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 Out-of-process long-running local authority for workspaces, sessions, orchestration, provider composition, settings, localization, and workspace truth.
 
+### Runtime Process
+
+- `core-runtime-process`: Core process entrypoint plus health, status and shutdown process contracts.
+
 ### Workspace Architecture
 
 - `workspace-registry`: known workspaces and active workspace selection.

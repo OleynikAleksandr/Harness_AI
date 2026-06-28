@@ -97,6 +97,18 @@
       "purpose": "Out-of-process long-running local authority for workspaces, sessions, orchestration, provider composition, settings, localization, and workspace truth.",
       "clusters": [
         {
+          "id": "runtime-process",
+          "name": "Runtime Process",
+          "purpose": "Out-of-process Core Runtime server lifecycle and process contracts.",
+          "modules": [
+            {
+              "id": "core-runtime-process",
+              "name": "Core Runtime Process",
+              "purpose": "Core process entrypoint plus health, status and shutdown process contracts."
+            }
+          ]
+        },
+        {
           "id": "workspace-architecture",
           "name": "Workspace Architecture",
           "purpose": "Workspace registry, product tree storage, skeleton materialization, and file-link contracts.",

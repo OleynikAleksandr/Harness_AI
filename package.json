@@ -8,6 +8,7 @@
   "main": "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
   "scripts": {
     "dev": "node scripts/dev-electron.mjs",
+    "core:start": "node dist/runtime/product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.js",
     "dev:renderer": "vite --host 127.0.0.1",
     "electron:start": "npm run build && electron product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
     "build": "npm run typecheck && npm run build:runtime && vite build",
@@ -91,6 +92,7 @@
   },
   "knip": {
     "ignoreFiles": [
+      "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts",
       "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-usage-limits-snapshot.ts"
     ],
     "ignoreIssues": {

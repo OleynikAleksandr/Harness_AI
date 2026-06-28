@@ -8,6 +8,7 @@ truth.
 
 ## Owned Clusters
 
+- `runtime-process`
 - `workspace-architecture`
 - `session-runtime`
 - `development-orchestrator`

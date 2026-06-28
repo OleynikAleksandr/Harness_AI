@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat: add core runtime process boundary",
+  "currentTaskId": "harness-ai.phase4.stream2.task1",
+  "expectedCommitMessage": "feat: host provider runtime inside core process",
   "debt": null
 }
 ```
@@ -69,12 +69,12 @@
 
 ### Stream: Runtime Server
 
-7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Add the minimal Core Runtime process entry with health and shutdown endpoints, keeping session/provider/settings truth inside Core (scope: `product-parts/core-runtime/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: add core runtime process boundary`).
-8. [TODO] Git Commit: `feat: add core runtime process boundary` (hash: TBD)
+7. [DONE] `harness-ai.phase4.stream1.task1` Add the minimal Core Runtime process entry with health and shutdown endpoints, keeping session/provider/settings truth inside Core (scope: `product-parts/core-runtime/**, .harness/product-tree/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: add core runtime process boundary`). Result: Completed in commit `feat: add core runtime process boundary`.
+8. [DONE] Git Commit: `feat: add core runtime process boundary` (hash: self)
 
 ### Stream: Provider Binding
 
-9. [TODO] `harness-ai.phase4.stream2.task1` Move provider adapter registration and session request handling behind the Core process API instead of Electron-host composition (scope: `product-parts/core-runtime/**, product-parts/provider-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: host provider runtime inside core process`).
+9. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Move provider adapter registration and session request handling behind the Core process API instead of Electron-host composition (scope: `product-parts/core-runtime/**, product-parts/provider-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: host provider runtime inside core process`).
 10. [TODO] Git Commit: `feat: host provider runtime inside core process` (hash: TBD)
 
 ## Phase 5 - Application Shell Supervisor Client (owner: Codex, updated: 2026-06-28)

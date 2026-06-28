@@ -1,7 +1,11 @@
+import { coreRuntimeApi } from "./core-runtime-api.js";
 import { coreRuntimeProcessFacade } from "./core-runtime-process-facade.js";
+
+coreRuntimeApi.initialize();
 
 coreRuntimeProcessFacade
   .start({
+    api: coreRuntimeApi,
     onShutdown: () => {
       setTimeout(() => process.exit(0), 10);
     },

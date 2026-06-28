@@ -1,7 +1,18 @@
-import { createServer, type IncomingMessage, type Server } from "node:http";
+import {
+  createServer,
+  type IncomingMessage,
+  type Server,
+  type ServerResponse,
+} from "node:http";
 import type { AddressInfo } from "node:net";
 
+export interface CoreRuntimeProcessApi {
+  invoke(method: string, payload: unknown): Promise<unknown> | unknown;
+  subscribe(listener: (event: unknown) => void): () => void;
+}
+
 export interface CoreRuntimeProcessOptions {
+  readonly api?: CoreRuntimeProcessApi;
   readonly host?: string;
   readonly onShutdown?: () => void;
   readonly port?: number;
@@ -35,6 +46,24 @@ export class CoreRuntimeProcessFacade {
       }
       if (request.method === "GET" && request.url === "/api/v1/status") {
         writeJson(response, 200, this.createHealthPayload(options.version));
+        return;
+      }
+      if (request.method === "GET" && request.url === "/api/v1/events") {
+        this.openEventStream(response, options.api);
+        request.on("close", () => {
+          response.end();
+        });
+        return;
+      }
+      if (request.method === "POST" && request.url === "/api/v1/rpc") {
+        this.handleRpcRequest(request, response, options.api).catch(
+          (error: unknown) => {
+            writeJson(response, 500, {
+              error: describeError(error),
+              ok: false,
+            });
+          }
+        );
         return;
       }
       if (request.method === "POST" && request.url === "/api/v1/shutdown") {
@@ -72,6 +101,51 @@ export class CoreRuntimeProcessFacade {
       version: version ?? process.env.npm_package_version ?? "0.0.0",
     };
   }
+
+  private async handleRpcRequest(
+    request: IncomingMessage,
+    response: ServerResponse,
+    api: CoreRuntimeProcessApi | undefined
+  ): Promise<void> {
+    if (!api) {
+      writeJson(response, 503, {
+        error: "Core API is unavailable.",
+        ok: false,
+      });
+      return;
+    }
+    const envelope = readRecord(JSON.parse(await readBody(request)));
+    const method = readString(envelope?.method);
+    if (!method) {
+      writeJson(response, 400, {
+        error: "Core method is required.",
+        ok: false,
+      });
+      return;
+    }
+    const result = await api.invoke(method, envelope?.payload);
+    writeJson(response, 200, { ok: true, result });
+  }
+
+  private openEventStream(
+    response: ServerResponse,
+    api: CoreRuntimeProcessApi | undefined
+  ): void {
+    response.writeHead(200, {
+      "cache-control": "no-cache",
+      connection: "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+    });
+    if (!api) {
+      response.write(`event: error\ndata: "Core API is unavailable."\n\n`);
+      return;
+    }
+    response.write(": connected\n\n");
+    const unsubscribe = api.subscribe((event) => {
+      response.write(`data: ${JSON.stringify(event)}\n\n`);
+    });
+    response.on("close", unsubscribe);
+  }
 }
 
 const readPort = (raw: string | undefined): number => {
@@ -105,7 +179,7 @@ const resolveServerPort = (server: Server): number => {
 };
 
 const writeJson = (
-  response: import("node:http").ServerResponse,
+  response: ServerResponse,
   statusCode: number,
   payload: unknown
 ): void => {
@@ -118,5 +192,24 @@ const writeJson = (
 const drainRequest = (request: IncomingMessage): void => {
   request.resume();
 };
+
+const readBody = async (request: IncomingMessage): Promise<string> => {
+  let body = "";
+  for await (const chunk of request) {
+    body += String(chunk);
+  }
+  return body || "{}";
+};
+
+const readRecord = (value: unknown): Record<string, unknown> | null =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+
+const readString = (value: unknown): string =>
+  typeof value === "string" ? value : "";
+
+const describeError = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 export const coreRuntimeProcessFacade = new CoreRuntimeProcessFacade();

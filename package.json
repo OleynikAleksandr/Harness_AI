@@ -92,7 +92,6 @@
   },
   "knip": {
     "ignoreFiles": [
-      "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts",
       "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-usage-limits-snapshot.ts"
     ],
     "ignoreIssues": {

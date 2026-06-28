@@ -1,0 +1,306 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
+import { ClaudeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
+import { CodexProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
+import { GlmNativeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/glm-native-provider-facade.js";
+import { GlmOpenCodeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/src/glm-opencode-provider-facade.js";
+import { KimiProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
+import { LocalModelsProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-provider/src/local-models-provider-facade.js";
+import { OpenRouterProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/openrouter-provider/src/openrouter-provider-facade.js";
+import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
+import {
+  type ProviderId,
+  providerRegistryFacade,
+} from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import { sessionEventStreamFacade } from "../../../../session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import { sessionRequestHandlerFacade } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
+import {
+  type HarnessSettings,
+  settingsStoreFacade,
+} from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import {
+  type WorkspaceRegistrySnapshot,
+  workspaceRegistryFacade,
+} from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
+
+type CoreEventListener = (event: unknown) => void;
+
+const PROVIDER_IDS: ProviderId[] = [
+  "claude",
+  "codex",
+  "kimi",
+  "glm-native",
+  "glm-opencode",
+  "openrouter",
+  "local-models",
+];
+
+const WORKSPACE_REGISTRY_FILE = join(
+  process.env.HARNESS_AI_HOME || join(homedir(), ".harness-ai"),
+  "workspaces.json"
+);
+
+export class CoreRuntimeApi {
+  private initialized = false;
+
+  initialize(): void {
+    if (this.initialized) {
+      return;
+    }
+    this.restoreState();
+    this.registerProviderAdapters();
+    sessionRequestHandlerFacade.resumeRestoredSessions();
+    this.initialized = true;
+  }
+
+  subscribe(listener: CoreEventListener): () => void {
+    return sessionEventStreamFacade.subscribe(listener);
+  }
+
+  invoke(method: string, payload: unknown): unknown {
+    this.initialize();
+    switch (method) {
+      case "list-workspaces":
+        return {
+          activeWorkspaceId: workspaceRegistryFacade.getActiveWorkspace().id,
+          workspaces: workspaceRegistryFacade.getKnownWorkspaces(),
+        };
+      case "add-workspace":
+        return this.addWorkspace(readString(payload));
+      case "select-workspace":
+        return this.selectWorkspace(readString(payload));
+      case "list-sessions":
+        return sessionRequestHandlerFacade.listSessions(readString(payload));
+      case "get-session-events":
+        return this.getSessionEvents(readString(payload));
+      case "list-providers":
+        return providerRegistryFacade.listProviders();
+      case "create-session":
+        return sessionRequestHandlerFacade.createSession(payload as never);
+      case "delete-session":
+        return sessionRequestHandlerFacade.deleteSession(readString(payload));
+      case "get-settings":
+        return settingsStoreFacade.getSettings(
+          readString(payload) || this.activeWorkspacePath()
+        );
+      case "get-provider-system-settings":
+        return providerAuthStoreFacade.getProviderSettings(
+          readProviderId(payload)
+        );
+      case "save-provider-system-settings":
+        return this.saveProviderSystemSettings(payload);
+      case "reset-workspace-settings":
+        return this.resetWorkspaceSettings();
+      case "save-settings":
+        return this.saveSettings(payload);
+      case "restart-adapters":
+        return this.restartAdapters();
+      case "send-message":
+        return sessionRequestHandlerFacade.sendMessage(payload as never);
+      default:
+        return { error: `Unknown Core method: ${method}`, ok: false };
+    }
+  }
+
+  private restoreState(): void {
+    const snapshot = loadWorkspaceRegistrySnapshot();
+    if (snapshot) {
+      workspaceRegistryFacade.restoreSnapshot(snapshot);
+    }
+    const sessions = sessionRequestHandlerFacade.restoreSessionHistory(
+      workspaceRegistryFacade.getKnownWorkspaces()
+    );
+    sessionEventStreamFacade.configureSessionHistory(sessions);
+    sessionRequestHandlerFacade.restoreTelemetryHistory(
+      sessionEventStreamFacade.latestTelemetryBySession()
+    );
+  }
+
+  private addWorkspace(workspacePath: string): {
+    ok: true;
+    workspace: unknown;
+  } {
+    const workspace = workspaceRegistryFacade.addWorkspace(workspacePath);
+    workspaceRegistryFacade.selectWorkspace(workspace.id);
+    saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
+    this.registerProviderAdapters();
+    return { ok: true, workspace };
+  }
+
+  private selectWorkspace(
+    workspaceId: string
+  ): { error: string; ok: false } | { ok: true; workspace: unknown } {
+    try {
+      const workspace = workspaceRegistryFacade.selectWorkspace(workspaceId);
+      saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
+      this.registerProviderAdapters();
+      return { ok: true, workspace };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
+  }
+
+  private getSessionEvents(sessionId: string): unknown[] {
+    sessionRequestHandlerFacade
+      .refreshUsageLimits(sessionId)
+      .catch(() => undefined);
+    return sessionEventStreamFacade.listEvents(sessionId);
+  }
+
+  private saveProviderSystemSettings(payload: unknown): {
+    error?: string;
+    ok: boolean;
+    settings?: unknown;
+  } {
+    const request = readRecord(payload);
+    const providerId = readProviderId(request?.providerId);
+    if (!providerId) {
+      return { error: "Unknown provider.", ok: false };
+    }
+    const settings = providerAuthStoreFacade.saveProviderSettings(
+      providerId,
+      readRecord(request?.settings) ?? {}
+    );
+    this.registerProviderAdapter(providerId);
+    return { ok: true, settings };
+  }
+
+  private resetWorkspaceSettings(): { ok: true; settings: unknown } {
+    const settings = settingsStoreFacade.resetWorkspaceSettings(
+      this.activeWorkspacePath()
+    );
+    this.registerProviderAdapters();
+    return { ok: true, settings };
+  }
+
+  private saveSettings(payload: unknown): { ok: true; settings: unknown } {
+    const settings = settingsStoreFacade.saveSettings(
+      (readRecord(payload)?.settings ?? payload) as HarnessSettings,
+      this.activeWorkspacePath()
+    );
+    this.registerProviderAdapters();
+    return { ok: true, settings };
+  }
+
+  private restartAdapters(): {
+    ok: true;
+    providers: unknown;
+    settings: unknown;
+  } {
+    this.registerProviderAdapters();
+    return {
+      ok: true,
+      providers: providerRegistryFacade.listProviders(),
+      settings: settingsStoreFacade.getSettings(this.activeWorkspacePath()),
+    };
+  }
+
+  private registerProviderAdapters(): void {
+    providerRegistryFacade.clearAdapters();
+    for (const providerId of PROVIDER_IDS) {
+      this.registerProviderAdapter(providerId);
+    }
+  }
+
+  private registerProviderAdapter(providerId: ProviderId): void {
+    const workspacePath = this.activeWorkspacePath();
+    const model =
+      settingsStoreFacade.getProviderModel(providerId, workspacePath)
+        .selectedModel ?? providerAuthStoreFacade.getModel(providerId);
+    if (providerId === "claude") {
+      providerRegistryFacade.registerAdapter(
+        providerId,
+        new ClaudeProviderFacade(model, workspacePath)
+      );
+    }
+    if (providerId === "codex") {
+      providerRegistryFacade.registerAdapter(
+        providerId,
+        new CodexProviderFacade({ defaultModel: model, workspacePath })
+      );
+    }
+    if (providerId === "kimi") {
+      providerRegistryFacade.registerAdapter(
+        providerId,
+        new KimiProviderFacade(model, workspacePath)
+      );
+    }
+    if (providerId === "glm-native") {
+      providerRegistryFacade.registerAdapter(
+        providerId,
+        new GlmNativeProviderFacade(model, workspacePath)
+      );
+    }
+    if (providerId === "glm-opencode") {
+      providerRegistryFacade.registerAdapter(
+        providerId,
+        new GlmOpenCodeProviderFacade(model, workspacePath)
+      );
+    }
+    if (providerId === "openrouter") {
+      providerRegistryFacade.registerAdapter(
+        providerId,
+        new OpenRouterProviderFacade(model ?? undefined)
+      );
+    }
+    if (providerId === "local-models") {
+      providerRegistryFacade.registerAdapter(
+        providerId,
+        new LocalModelsProviderFacade(model ?? undefined)
+      );
+    }
+  }
+
+  private activeWorkspacePath(): string {
+    return workspaceRegistryFacade.getActiveWorkspace().path;
+  }
+}
+
+function loadWorkspaceRegistrySnapshot(): WorkspaceRegistrySnapshot | null {
+  if (!existsSync(WORKSPACE_REGISTRY_FILE)) {
+    return null;
+  }
+  try {
+    const snapshot = JSON.parse(
+      readFileSync(WORKSPACE_REGISTRY_FILE, "utf8")
+    ) as unknown;
+    return readRecord(snapshot)?.workspaces
+      ? (snapshot as WorkspaceRegistrySnapshot)
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveWorkspaceRegistrySnapshot(snapshot: unknown): void {
+  mkdirSync(dirname(WORKSPACE_REGISTRY_FILE), { recursive: true });
+  writeFileSync(
+    WORKSPACE_REGISTRY_FILE,
+    JSON.stringify(snapshot, null, 2),
+    "utf8"
+  );
+}
+
+function readProviderId(value: unknown): ProviderId {
+  if (PROVIDER_IDS.includes(value as ProviderId)) {
+    return value as ProviderId;
+  }
+  throw new Error("Unknown provider.");
+}
+
+function readRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function readString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function describeError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+export const coreRuntimeApi = new CoreRuntimeApi();

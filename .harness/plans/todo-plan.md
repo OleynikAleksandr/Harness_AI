@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream2.task1",
-  "expectedCommitMessage": "feat: host provider runtime inside core process",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "feat: supervise core process from application shell",
   "debt": null
 }
 ```
@@ -74,14 +74,14 @@
 
 ### Stream: Provider Binding
 
-9. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Move provider adapter registration and session request handling behind the Core process API instead of Electron-host composition (scope: `product-parts/core-runtime/**, product-parts/provider-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: host provider runtime inside core process`).
-10. [TODO] Git Commit: `feat: host provider runtime inside core process` (hash: TBD)
+9. [DONE] `harness-ai.phase4.stream2.task1` Move provider adapter registration and session request handling behind the Core process API instead of Electron-host composition (scope: `product-parts/core-runtime/**, product-parts/provider-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: host provider runtime inside core process`). Result: Completed in commit `feat: host provider runtime inside core process`.
+10. [DONE] Git Commit: `feat: host provider runtime inside core process` (hash: self)
 
 ## Phase 5 - Application Shell Supervisor Client (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Supervisor
 
-11. [TODO] `harness-ai.phase5.stream1.task1` Replace Electron-host direct runtime imports with a CodeAI-Hub-style Core supervisor that starts, stops, restarts and health-checks the Core process (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, .harness/plans/todo-plan.md`; expected commit: `feat: supervise core process from application shell`).
+11. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Replace Electron-host direct runtime imports with a CodeAI-Hub-style Core supervisor that starts, stops, restarts and health-checks the Core process (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, .harness/plans/todo-plan.md`; expected commit: `feat: supervise core process from application shell`).
 12. [TODO] Git Commit: `feat: supervise core process from application shell` (hash: TBD)
 
 ### Stream: Bridge

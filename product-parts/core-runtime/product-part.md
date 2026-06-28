@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Long-running local authority for workspaces, sessions, orchestration, settings, localization, and workspace truth.
+Out-of-process long-running local authority for workspaces, sessions,
+orchestration, provider composition, settings, localization, and workspace
+truth.
 
 ## Owned Clusters
 
@@ -16,6 +18,7 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 
 - Own workspace/session state and snapshots consumed by Application Shell.
 - Own next-session mode truth; Application Shell can display and submit mode choices but cannot decide provider behavior locally.
+- Own provider adapter registration and provider session binding.
 - Run plan-first development orchestration and quality gates.
 - Coordinate providers through Provider Runtime facades.
 - Normalize visible provider reasoning before it reaches UI snapshots.
@@ -25,4 +28,5 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 ## Out Of Scope
 
 - Electron renderer composition.
+- Application Shell windowing and display composition.
 - Provider-specific protocol implementation details.

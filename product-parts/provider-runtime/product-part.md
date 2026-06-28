@@ -2,7 +2,8 @@
 
 ## Purpose
 
-Provider adapters, provider homes/auth, usage telemetry, and provider-backed translation engines.
+Independent provider adapters, provider homes/auth, usage telemetry, and
+provider-backed translation engines composed by Core Runtime only.
 
 ## Owned Clusters
 
@@ -21,5 +22,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 ## Out Of Scope
 
 - Session UI state.
+- Application Shell backend composition.
+- Core workflow/session truth.
 - Product tree ownership.
 - Plan lifecycle policy.

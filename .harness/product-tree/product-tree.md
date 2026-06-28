@@ -12,30 +12,32 @@ The machine source of truth is `.harness/product-tree/product-tree.json`. This M
 
 ## Application Shell
 
-Standalone Electron application surface around the session UI.
+Standalone Electron interface surface and Core supervisor/client. It owns no backend truth.
+
+Application Shell submits user input, displays Core read models/events, manages windows, and supervises the Core process. It must not compose Core Runtime or Provider Runtime implementation modules in-process.
 
 ### Electron Host
 
 - `app-bootstrap`: Electron lifecycle, window creation, local app startup.
-- `core-process-bridge`: starts or connects to the local Core Runtime process.
+- `core-process-bridge`: starts, stops, restarts, health-checks, or connects to the local Core Runtime process through process contracts only.
 - `vscode-link-opener`: opens absolute file links in Visual Studio Code.
 
 ### Session Interface
 
-- `session-window`: transcript/dialog layout, session chrome, and next-session mode panel.
-- `input-controls`: message input, Stop/Play controls, busy/lock display.
-- `session-telemetry`: usage limits, context window, provider/model status surfaces.
+- `session-window`: transcript/dialog layout, session chrome, and next-session mode panel from Core read models.
+- `input-controls`: message input, Stop/Play controls, busy/lock display, and user intent submission only.
+- `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
 - `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry.
 
 ### Settings Surface
 
-- `provider-settings-ui`: provider cards, auth/model/reasoning controls.
-- `localization-settings-ui`: UI language and reasoning translation controls.
-- `recovery-controls-ui`: Core restart/recovery action surface.
+- `provider-settings-ui`: provider cards, auth/model/reasoning controls submitted through Core contracts.
+- `localization-settings-ui`: UI language and reasoning translation controls submitted through Core contracts.
+- `recovery-controls-ui`: Core restart/recovery action surface backed by a real Core process stop/start lifecycle.
 
 ## Core Runtime
 
-Long-running local authority for workspaces, sessions, orchestration, settings, localization, and workspace truth.
+Out-of-process long-running local authority for workspaces, sessions, orchestration, provider composition, settings, localization, and workspace truth.
 
 ### Workspace Architecture
 
@@ -47,7 +49,7 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 ### Session Runtime
 
 - `session-registry`: session metadata, create/open/rename.
-- `session-request-handler`: Core-owned create/resume/send/stop routing and next-session mode truth for session actions.
+- `session-request-handler`: Core-owned create/resume/send/stop routing, provider dispatch, and next-session mode truth for session actions.
 - `provider-session-binding`: Core session to provider session id and binding state.
 - `session-event-stream`: provider-neutral Core session events for Application Shell projections.
 - `session-history-store`: append-only JSONL history.
@@ -76,11 +78,11 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 
 ## Provider Runtime
 
-Provider adapters, provider homes/auth, usage telemetry, and provider-backed translation engines.
+Independent provider adapters, provider homes/auth, usage telemetry, and provider-backed translation engines composed by Core Runtime only.
 
 ### Provider Registry
 
-- `provider-registry`: provider catalog, availability, and invocation profile descriptors.
+- `provider-registry`: provider catalog, availability, invocation profile descriptors, and Core-owned adapter registration.
 - `provider-descriptor`: model/reasoning capabilities and UI metadata.
 - `provider-health`: status, startup, and recovery reporting.
 
@@ -94,7 +96,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 - `glm-opencode-provider`: GLM OpenCode provider adapter.
 - `openrouter-provider`: OpenRouter provider adapter.
 - `local-models-provider`: local model provider adapter.
-- `provider-turn-runner`: deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring.
+- `provider-turn-runner`: deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring; Application Shell must not extend it.
 
 ### Provider Home And Auth
 

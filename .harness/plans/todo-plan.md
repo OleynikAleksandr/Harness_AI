@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "docs: map reference core runtime boundary",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: add core runtime process boundary",
   "debt": null
 }
 ```
@@ -25,6 +25,7 @@
   - `AGENTS.md`
   - `.harness/product-tree/product-tree.md`
   - `docs/architecture/CodeAIHubProviderRuntimeAlignment.md`
+  - `docs/architecture/ReferenceCoreRuntimeBoundary.md`
   - `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/src/extension-module/core/core-process-manager.ts`
   - `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/core-supervisor/src/index.ts`
   - `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/src/client/ui/src/core-bridge/core-bridge.ts`
@@ -36,7 +37,8 @@
 - Each microtask touches no more than 3 functional files unless this plan splits it first.
 - Product Part / Cluster / Module filesystem ownership is primary.
 - CodeAI-Hub is the behavioral reference. Do not invent a new Core lifecycle where the reference already has one.
-- Application Shell is not Core. Application Shell may supervise, connect, display and forward user input only.
+- Application Shell is not Core and not backend. Application Shell may supervise, connect, display and forward user input only.
+- Application Shell must not instantiate provider facades, register provider adapters, own settings/session/provider truth, or import provider implementation modules.
 - Core Runtime owns workflow/session/provider/settings truth and runs out-of-process.
 - No direct `application-shell` imports of `core-runtime` implementation modules are allowed after this scope.
 - Commit with `npm run plan:commit -- "<expected commit message>"`.
@@ -52,14 +54,14 @@
 
 ### Stream: Runtime Contract
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Map CodeAI-Hub Core supervisor, health/shutdown, port registry, WebSocket/HTTP bridge and shutdown lifecycle into a Harness AI migration contract (scope: `docs/architecture/**, .harness/product-tree/**, .harness/plans/todo-plan.md`; expected commit: `docs: map reference core runtime boundary`).
-4. [TODO] Git Commit: `docs: map reference core runtime boundary` (hash: TBD)
+3. [DONE] `harness-ai.phase2.stream1.task1` Map CodeAI-Hub Core supervisor, health/shutdown, port registry, WebSocket/HTTP bridge, provider composition ownership and Application Shell UI-only boundary into a Harness AI migration contract (scope: `docs/architecture/**, .harness/product-tree/**, product-parts/*/product-part.md, .harness/plans/todo-plan.md`; expected commit: `docs: map reference core runtime boundary`). Result: Completed in commit `docs: map reference core runtime boundary`.
+4. [DONE] Git Commit: `docs: map reference core runtime boundary` (hash: self)
 
 ## Phase 3 - Core Runtime Process (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Runtime Server
 
-5. [TODO] `harness-ai.phase3.stream1.task1` Add the minimal Core Runtime process entry with health and shutdown endpoints, keeping session/provider/settings truth inside Core (scope: `product-parts/core-runtime/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: add core runtime process boundary`).
+5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Add the minimal Core Runtime process entry with health and shutdown endpoints, keeping session/provider/settings truth inside Core (scope: `product-parts/core-runtime/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: add core runtime process boundary`).
 6. [TODO] Git Commit: `feat: add core runtime process boundary` (hash: TBD)
 
 ### Stream: Provider Binding

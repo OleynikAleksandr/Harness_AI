@@ -16,12 +16,12 @@
     {
       "id": "application-shell",
       "name": "Application Shell",
-      "purpose": "Standalone Electron application surface around the session UI.",
+      "purpose": "Standalone Electron interface surface and Core supervisor/client. It owns no backend truth.",
       "clusters": [
         {
           "id": "electron-host",
           "name": "Electron Host",
-          "purpose": "Desktop host lifecycle, Core Runtime bridge, and VS Code link opening.",
+          "purpose": "Desktop host lifecycle, Core process supervision/client bridge, and VS Code link opening. It must not compose Core or provider runtime modules in-process.",
           "modules": [
             {
               "id": "app-bootstrap",
@@ -31,7 +31,7 @@
             {
               "id": "core-process-bridge",
               "name": "Core Process Bridge",
-              "purpose": "Start or connect to the local Core Runtime process."
+              "purpose": "Start, stop, restart, health-check, or connect to the local Core Runtime process through process contracts only."
             },
             {
               "id": "vscode-link-opener",
@@ -43,7 +43,7 @@
         {
           "id": "session-interface",
           "name": "Session Interface",
-          "purpose": "Classic chat session surface and session chrome.",
+          "purpose": "Classic chat session surface and session chrome. It submits user input and renders Core read models only.",
           "modules": [
             {
               "id": "session-window",
@@ -70,7 +70,7 @@
         {
           "id": "settings-surface",
           "name": "Settings Surface",
-          "purpose": "Provider, localization, and recovery settings UI.",
+          "purpose": "Provider, localization, and recovery settings UI. It edits settings through Core contracts only.",
           "modules": [
             {
               "id": "provider-settings-ui",
@@ -94,7 +94,7 @@
     {
       "id": "core-runtime",
       "name": "Core Runtime",
-      "purpose": "Long-running local authority for workspaces, sessions, orchestration, settings, localization, and workspace truth.",
+      "purpose": "Out-of-process long-running local authority for workspaces, sessions, orchestration, provider composition, settings, localization, and workspace truth.",
       "clusters": [
         {
           "id": "workspace-architecture",
@@ -136,7 +136,7 @@
             {
               "id": "session-request-handler",
               "name": "Session Request Handler",
-              "purpose": "Core-owned create/resume/send/stop routing and next-session mode truth for session actions."
+              "purpose": "Core-owned create/resume/send/stop routing, provider dispatch, and next-session mode truth for session actions."
             },
             {
               "id": "provider-session-binding",
@@ -247,7 +247,7 @@
     {
       "id": "provider-runtime",
       "name": "Provider Runtime",
-      "purpose": "Provider adapters, provider homes/auth, usage telemetry, and provider-backed translation engines.",
+      "purpose": "Independent provider adapters, provider homes/auth, usage telemetry, and provider-backed translation engines composed by Core Runtime only.",
       "clusters": [
         {
           "id": "provider-registry",
@@ -274,7 +274,7 @@
         {
           "id": "provider-adapters",
           "name": "Provider Adapters",
-          "purpose": "Fresh provider adapter modules for every MVP provider.",
+          "purpose": "Independent provider adapter modules for every MVP provider. Application Shell must not instantiate them.",
           "modules": [
             {
               "id": "provider-adapter-contract",

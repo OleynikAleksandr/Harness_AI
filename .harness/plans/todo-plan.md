@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "chore: verify and package session delete and core restart",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -89,11 +89,11 @@
 
 ### Stream: Build And Evidence
 
-11. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Run required gates (architecture, lint, knip, typecheck, tests), then build and package the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify and package session delete and core restart`).
-12. [TODO] Git Commit: `chore: verify and package session delete and core restart` (hash: TBD)
+11. [DONE] `harness-ai.phase3.stream1.task1` Run required gates (architecture, lint, knip, typecheck, tests), then build and package the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify and package session delete and core restart`). Result: Completed in commit `chore: verify and package session delete and core restart`.
+12. [DONE] Git Commit: `chore: verify and package session delete and core restart` (hash: self)
 
 ## Phase 4 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-13. [TODO] `harness-ai.phase4.stream1.task1` User retests in the packaged app: delete a session and confirm its event log + provider rollout are gone (shared home intact); press Restart Core and confirm the process truly restarts (state re-read from disk), with correct spacing and a spinner (scope: user workflow; expected commit: none).
+13. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` User retests in the packaged app: delete a session and confirm its event log + provider rollout are gone (shared home intact); press Restart Core and confirm the process truly restarts (state re-read from disk), with correct spacing and a spinner (scope: user workflow; expected commit: none).

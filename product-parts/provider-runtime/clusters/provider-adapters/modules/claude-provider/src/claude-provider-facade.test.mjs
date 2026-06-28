@@ -33,6 +33,7 @@ assert.match(npmRunnerSource, /buildNpmEnvironment/u);
 
 for (const path of [
   "sdk/claude-sdk-manager.ts",
+  "installer/sdk-executable-path.ts",
   "session/session-manager.ts",
   "messaging/claude-stream-event-router.ts",
   "messaging/claude-thinking-dialog-emitter.ts",

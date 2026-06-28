@@ -4,13 +4,12 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { ClaudeInstallerPaths, ModuleReporter } from "../types.js";
 import { runNpmCommand } from "./npm-runner.js";
+import { resolveClaudeAgentSdkExecutablePath } from "./sdk-executable-path.js";
 
 const PACKAGE_NAME = "@anthropic-ai/claude-agent-sdk";
 const HOME_DIRECTORY_PATTERN = /^~(?=$|\/|\\)/u;
 const USERPROFILE_PATTERN = /%USERPROFILE%/giu;
 const SDK_ENTRY_FILENAME = "sdk.mjs";
-const CLI_EXECUTABLE_UNIX = "claude";
-const CLI_EXECUTABLE_WINDOWS = "claude.cmd";
 
 export type InstallerEvent =
   | { readonly type: "status"; readonly message: string }
@@ -139,10 +138,12 @@ export class SDKInstaller {
   }
 
   private resolveExecutablePath(): string {
-    if (process.platform === "win32") {
-      return path.join(this.npmPrefix, CLI_EXECUTABLE_WINDOWS);
-    }
-    return path.join(this.npmPrefix, "bin", CLI_EXECUTABLE_UNIX);
+    return resolveClaudeAgentSdkExecutablePath({
+      arch: process.arch,
+      moduleDirectory: this.moduleDirectory,
+      npmPrefix: this.npmPrefix,
+      platform: process.platform,
+    });
   }
 
   private async ensurePrefixDirectories(): Promise<void> {

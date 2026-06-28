@@ -132,3 +132,10 @@
 
 22. [DONE] `harness-ai.phase12.stream1.task1` Fix Claude packaged npm discovery and shared Core live assistant chunk coalescing/tail dedupe using CodeAI-Hub reference behavior, then update tests/docs and package the macOS app for retest (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: repair provider setup and live chunk display`). Result: Completed in commit `fix: repair provider setup and live chunk display`.
 23. [DONE] Git Commit: `fix: repair provider setup and live chunk display` (hash: self)
+
+## Phase 13 - Claude SDK Binary Layout Retest Defect (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Runtime
+
+24. [DONE] `harness-ai.phase13.stream1.task1` Fix Claude Agent SDK executable resolution for the installed packaged layout where the `claude` binary lives inside the platform optional dependency instead of `<prefix>/bin/claude`, then update tests/docs and package the macOS app for retest (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: resolve claude sdk packaged executable`). Result: Completed in commit `fix: resolve claude sdk packaged executable`.
+25. [DONE] Git Commit: `fix: resolve claude sdk packaged executable` (hash: self)

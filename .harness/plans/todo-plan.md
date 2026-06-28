@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
-  "expectedCommitMessage": "feat: migrate openrouter and local model providers",
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": "refactor: align provider contracts with reference modules",
   "debt": null
 }
 ```
@@ -103,14 +103,14 @@
 
 ### Stream: Provider Runtime
 
-15. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Migrate CodeAI-Hub OpenRouter and local-model provider behavior into Harness modules, including endpoint/model settings, reasoning/thinking stream handling, request bodies, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/openrouter-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/local-models-provider/**`; expected commit: `feat: migrate openrouter and local model providers`).
-16. [TODO] Git Commit: `feat: migrate openrouter and local model providers` (hash: TBD)
+15. [DONE] `harness-ai.phase8.stream1.task1` Migrate CodeAI-Hub OpenRouter and local-model provider behavior into Harness modules, including endpoint/model settings, reasoning/thinking stream handling, request bodies, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/openrouter-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/local-models-provider/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, .harness/plans/todo-plan.md`; expected commit: `feat: migrate openrouter and local model providers`). Result: Completed in commit `feat: migrate openrouter and local model providers`.
+16. [DONE] Git Commit: `feat: migrate openrouter and local model providers` (hash: self)
 
 ## Phase 9 - Shared Contract Cleanup (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Core And Contracts
 
-17. [TODO] `harness-ai.phase9.stream1.task1` Remove obsolete wrapper assumptions and align Core/session/provider adapter contracts with the migrated CodeAI-Hub provider modules without moving truth into UI (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**`; expected commit: `refactor: align provider contracts with reference modules`).
+17. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Remove obsolete wrapper assumptions and align Core/session/provider adapter contracts with the migrated CodeAI-Hub provider modules without moving truth into UI (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**`; expected commit: `refactor: align provider contracts with reference modules`).
 18. [TODO] Git Commit: `refactor: align provider contracts with reference modules` (hash: TBD)
 
 ## Phase 10 - Verification And Packaged App (owner: Codex, updated: 2026-06-28)

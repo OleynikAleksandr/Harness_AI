@@ -329,13 +329,13 @@ function registerProviderAdapter(runtime, providerId) {
   if (providerId === "openrouter") {
     runtime.providerRegistryFacade.registerAdapter(
       providerId,
-      new runtime.OpenRouterProviderFacade(model(providerId))
+      new runtime.OpenRouterProviderFacade(model(providerId), workspacePath)
     );
   }
   if (providerId === "local-models") {
     runtime.providerRegistryFacade.registerAdapter(
       providerId,
-      new runtime.LocalModelsProviderFacade(model(providerId))
+      new runtime.LocalModelsProviderFacade(model(providerId), workspacePath)
     );
   }
 }

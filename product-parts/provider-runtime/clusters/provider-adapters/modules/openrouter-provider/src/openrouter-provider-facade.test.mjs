@@ -1,0 +1,35 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const moduleDir = dirname(fileURLToPath(import.meta.url));
+const source = readFileSync(
+  join(moduleDir, "openrouter-provider-facade.ts"),
+  "utf8"
+);
+const bridgeSource = readFileSync(
+  join(
+    moduleDir,
+    "../../../../../../application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs"
+  ),
+  "utf8"
+);
+
+assert.match(source, /extends OpenRouterProviderAdapter/u);
+assert.match(source, /getProviderSettings\("openrouter"\)/u);
+assert.match(source, /defaultEndpointTag: settings\.endpointTag/u);
+assert.match(
+  bridgeSource,
+  /new runtime\.OpenRouterProviderFacade\(model\(providerId\), workspacePath\)/u
+);
+
+for (const relativePath of [
+  "reference/open-router-provider-adapter.ts",
+  "reference/open-router-sse-reader.ts",
+  "reference/codex-workflow-instruction-profile.ts",
+  "reference/glm-native-agent-runtime.ts",
+  "reference/glm-native-tool-executors.ts",
+]) {
+  assert.equal(existsSync(join(moduleDir, relativePath)), true, relativePath);
+}

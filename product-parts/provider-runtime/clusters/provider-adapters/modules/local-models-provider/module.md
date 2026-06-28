@@ -2,7 +2,12 @@
 
 ## Responsibility
 
-Fresh Harness AI adapter for local model provider turns.
+Harness-packaged Local Models provider migrated from CodeAI-Hub.
+
+The module owns the Harness facade and embedded reference LM Studio runtime.
+The facade binds the selected local model; LM Studio discovery, model loading,
+workflow tools, prompt controls and native streaming come from the migrated
+CodeAI-Hub module.
 
 ## Public Facade
 
@@ -17,6 +22,8 @@ Fresh Harness AI adapter for local model provider turns.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- Local assistant and thinking stream events from the reference LM Studio SSE
+  reader.
 
 ## Owned Paths
 

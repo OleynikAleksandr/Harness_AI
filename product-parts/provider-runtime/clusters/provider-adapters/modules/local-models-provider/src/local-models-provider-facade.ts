@@ -1,25 +1,15 @@
-import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
-import { OpenAiCompatibleSessionProviderAdapter } from "../../provider-adapter-contract/src/session-provider-adapter-helpers.js";
+import { LocalModelsProviderAdapter } from "./reference/local-models-provider-adapter.js";
 
-export class LocalModelsProviderFacade extends OpenAiCompatibleSessionProviderAdapter {
+export class LocalModelsProviderFacade extends LocalModelsProviderAdapter {
   constructor(
     model = process.env.HARNESS_AI_LOCAL_MODEL ??
       process.env.LMSTUDIO_MODEL ??
       "local-model-default"
   ) {
-    const resolvedModel =
-      model === "local-model-default"
-        ? (process.env.HARNESS_AI_LOCAL_MODEL ??
-          process.env.LMSTUDIO_MODEL ??
-          "local-model-default")
-        : model;
-    super({
-      apiKey: providerAuthStoreFacade.getApiKey("local-models"),
-      baseUrl:
-        providerAuthStoreFacade.getBaseUrl("local-models") ??
-        "http://127.0.0.1:1234/v1",
-      model: resolvedModel,
-    });
+    if (model && model !== "local-model-default") {
+      process.env.CODEAI_LMSTUDIO_DEFAULT_MODEL = model;
+    }
+    super();
   }
 }
 

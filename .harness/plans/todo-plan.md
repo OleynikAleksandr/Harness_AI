@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "chore: verify reference core runtime rebuild app",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -100,11 +100,11 @@
 
 ### Stream: Build And Evidence
 
-17. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Run required gates, regression checks, rebuild packaged macOS app and record evidence for Core process lifecycle retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference core runtime rebuild app`).
-18. [TODO] Git Commit: `chore: verify reference core runtime rebuild app` (hash: TBD)
+17. [DONE] `harness-ai.phase7.stream1.task1` Run required gates, regression checks, rebuild packaged macOS app and record evidence for Core process lifecycle retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference core runtime rebuild app`). Result: Completed in commit `chore: verify reference core runtime rebuild app`.
+18. [DONE] Git Commit: `chore: verify reference core runtime rebuild app` (hash: self)
 
 ## Phase 8 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-19. [TODO] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).
+19. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).

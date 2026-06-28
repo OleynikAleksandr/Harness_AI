@@ -34,6 +34,7 @@
 - Product Part / Cluster / Module filesystem ownership is primary.
 - CodeAI Hub may be read as reference material, but modules are not copied wholesale.
 - No release/package build starts as a release decision without explicit user confirmation.
+- Scope closeout/archival is user-directed only: the agent never initiates moving `Execution Scope Status` to `NONE`, running `npm run plan:archive`, or starting a fresh empty plan — it may only suggest it and wait for the user's direct order.
 - Verification/package builds for the current implementation scope are allowed when the active plan asks for them.
 - Commit with `npm run plan:commit -- "<expected commit message>"`.
 

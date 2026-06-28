@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase170.stream1.task1",
+  "currentTaskId": "harness-ai.phase172.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1216,4 +1216,17 @@
 
 ### Stream: Plan Archival Retest
 
-333. [IN_PROGRESS] `harness-ai.phase170.stream1.task1` User reviews the plan archival workflow and decides when to archive the current oversized scope (scope: user workflow; expected commit: none).
+333. [DONE] `harness-ai.phase170.stream1.task1` User reviews the plan archival workflow and decides when to archive the current oversized scope (scope: user workflow; expected commit: none). Result: User chose not to archive yet and required that scope closure/archival be locked as a user-directed-only rule in AGENTS.md before anything is closed.
+
+## Phase 171 - User-Directed Scope Closure Rule (owner: Codex, updated: 2026-06-28)
+
+### Stream: Workspace Instructions
+
+334. [DONE] `harness-ai.phase171.stream1.task1` Strengthen AGENTS.md so closing/archiving a scope (NONE transition, archive move, plan:archive, fresh empty plan) is user-directed only and never agent-initiated, separate user acceptance from a close order, remove the --force bypass hint, and mirror the rule in the plan template (scope: `AGENTS.md, .harness/plans/todo-plan.template.md`; expected commit: `docs: require user-directed scope closure`). Result: Completed in commit `docs: require user-directed scope closure`.
+335. [DONE] Git Commit: `docs: require user-directed scope closure` (hash: self)
+
+## Phase 172 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Rule Retest
+
+336. [IN_PROGRESS] `harness-ai.phase172.stream1.task1` User reviews the user-directed scope closure rule in AGENTS.md and decides on any code-level enforcement (scope: user workflow; expected commit: none).

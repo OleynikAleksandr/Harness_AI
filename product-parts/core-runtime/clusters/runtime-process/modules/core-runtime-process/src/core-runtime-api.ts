@@ -14,7 +14,10 @@ import {
   providerRegistryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { sessionEventStreamFacade } from "../../../../session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
-import { sessionRequestHandlerFacade } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
+import {
+  type CoreSession,
+  sessionRequestHandlerFacade,
+} from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import {
   type HarnessSettings,
   settingsStoreFacade,
@@ -86,8 +89,12 @@ export class CoreRuntimeApi {
         return sessionRequestHandlerFacade.createSession(payload as never);
       case "delete-session": {
         const sessionId = readString(payload);
+        const session = sessionRequestHandlerFacade
+          .listSessions()
+          .find((item) => item.id === sessionId);
         const result = sessionRequestHandlerFacade.deleteSession(sessionId);
         sessionEventStreamFacade.deleteSessionEvents(sessionId);
+        this.deleteProviderSessionArtifacts(session);
         return result;
       }
       case "get-settings":
@@ -155,6 +162,21 @@ export class CoreRuntimeApi {
     } catch (error) {
       return { error: describeError(error), ok: false };
     }
+  }
+
+  private deleteProviderSessionArtifacts(
+    session: CoreSession | undefined
+  ): void {
+    if (!(session?.providerSessionId && session.workspacePath)) {
+      return;
+    }
+    const adapter = providerRegistryFacade.getAdapter(session.providerId);
+    Promise.resolve(
+      adapter?.deleteSessionArtifacts?.(
+        session.providerSessionId,
+        session.workspacePath
+      )
+    ).catch(() => undefined);
   }
 
   private getSessionEvents(sessionId: string): unknown[] {

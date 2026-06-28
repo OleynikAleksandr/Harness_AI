@@ -8,6 +8,7 @@ import type {
   CodexTurnOptions,
   CodexUsageLimitsStreamPayload,
 } from "../types.js";
+import { deleteCodexRolloutArtifacts } from "./codex-rollout-cleanup.js";
 
 export class CodexProviderAdapter {
   readonly usageLimitsFacade?: CodexModuleOptions["usageLimitsFacade"];
@@ -42,6 +43,13 @@ export class CodexProviderAdapter {
 
   closeSession(sessionId: string): Promise<void> {
     return this.facade.closeSession(sessionId);
+  }
+
+  deleteSessionArtifacts(
+    providerSessionId: string,
+    workspacePath: string
+  ): void {
+    deleteCodexRolloutArtifacts(workspacePath, providerSessionId);
   }
 
   captureNativeRequest(

@@ -12,6 +12,12 @@ export interface ProviderUsageLimitsRefreshRequest {
 export interface ProviderAdapter {
   closeSession(sessionId: string): Promise<void>;
   createSession(workspacePath?: string): Promise<string>;
+  // Delete provider-owned artifacts for a removed session (e.g. a rollout log).
+  // Optional: providers without per-session files leave it unimplemented.
+  deleteSessionArtifacts?(
+    providerSessionId: string,
+    workspacePath: string
+  ): Promise<void> | void;
   initialize?(): Promise<void>;
   refreshUsageLimits?(
     request: ProviderUsageLimitsRefreshRequest

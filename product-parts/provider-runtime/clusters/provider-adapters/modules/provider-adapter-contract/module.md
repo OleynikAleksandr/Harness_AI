@@ -25,6 +25,9 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
   modules rather than shared wrapper parsers.
 - Usage-limit refresh boundary only; provider-specific usage-limit readers live
   inside their provider modules.
+- Optional `deleteSessionArtifacts(providerSessionId, workspacePath)` boundary so a
+  removed session can clean up provider-owned per-session files; providers without
+  such files leave it unimplemented.
 
 ## Owned Paths
 

@@ -28,8 +28,9 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - Graceful shutdown acknowledgement.
 - Server-sent Core events and RPC results.
 - Provider version snapshots, provider update results and local-model lists.
-- On `delete-session` RPC, orchestrates session removal and deletes the session's
-  event log so the on-disk artifact does not outlive the session record.
+- On `delete-session` RPC, orchestrates session removal: deletes the session's
+  event log and asks the provider adapter to delete its own per-session artifact
+  (e.g. the Codex rollout) so nothing outlives the session record.
 
 ## Owned Paths
 

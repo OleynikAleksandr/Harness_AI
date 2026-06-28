@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream3.task1",
-  "expectedCommitMessage": "fix: delete provider rollout artifact on session removal",
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "fix: force terminate core process on restart",
   "debt": null
 }
 ```
@@ -70,14 +70,14 @@
 
 ### Stream: Provider-owned cleanup
 
-5. [IN_PROGRESS] `harness-ai.phase1.stream3.task1` Add optional `deleteSessionArtifacts(providerSessionId, workspacePath)` to the provider-adapter contract (no-op default) and implement it in the Codex adapter to remove `home/sessions/**/rollout-*-<providerSessionId>.jsonl`, then call it from `deleteSession` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/provider/codex-provider-adapter.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`; expected commit: `fix: delete provider rollout artifact on session removal`).
-6. [TODO] Git Commit: `fix: delete provider rollout artifact on session removal` (hash: TBD)
+5. [DONE] `harness-ai.phase1.stream3.task1` Add optional `deleteSessionArtifacts(providerSessionId, workspacePath)` to the provider-adapter contract (no-op default), implement a pure rollout-cleanup helper plus the Codex adapter method that removes `home/sessions/**/rollout-*-<providerSessionId>.jsonl`, and orchestrate the call on `delete-session` from the core runtime API using the persisted `providerSessionId` (plan splits this microtask across 4 functional files; scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/provider/codex-rollout-cleanup.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/provider/codex-provider-adapter.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`; expected commit: `fix: delete provider rollout artifact on session removal`). Result: Completed in commit `fix: delete provider rollout artifact on session removal`.
+6. [DONE] Git Commit: `fix: delete provider rollout artifact on session removal` (hash: self)
 
 ## Phase 2 - Core Restart Repair (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Real process restart
 
-7. [TODO] `harness-ai.phase2.stream1.task1` Make `core-process-supervisor.stop()` truly terminate the core process: capture the pid from the health payload and force-kill (SIGTERM then SIGKILL) when HTTP `/shutdown` does not bring it down, so `restart()` always respawns a fresh process that re-reads disk (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-supervisor.mjs`; expected commit: `fix: force terminate core process on restart`).
+7. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Make `core-process-supervisor.stop()` truly terminate the core process: capture the pid from the health payload and force-kill (SIGTERM then SIGKILL) when HTTP `/shutdown` does not bring it down, so `restart()` always respawns a fresh process that re-reads disk (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-supervisor.mjs`; expected commit: `fix: force terminate core process on restart`).
 8. [TODO] Git Commit: `fix: force terminate core process on restart` (hash: TBD)
 
 ### Stream: Restart button UI

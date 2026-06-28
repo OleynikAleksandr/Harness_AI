@@ -42,6 +42,9 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
   process code under Harness runtime paths.
 - Native Codex `thread/start` without workflow `baseInstructions` or
   `project_doc_max_bytes: 0` override for ordinary workspace sessions.
+- `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the Codex
+  rollout log(s) for a removed session from the workspace provider home, leaving
+  the shared provider home otherwise intact.
 
 ## Owned Paths
 

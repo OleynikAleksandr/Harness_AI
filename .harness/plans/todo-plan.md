@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "docs: map reference provider module migration",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: migrate claude agent sdk provider",
   "debt": null
 }
 ```
@@ -61,14 +61,14 @@
 
 ### Stream: Architecture
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Inventory CodeAI-Hub provider modules, facade classes, runtime contracts, settings files, provider homes, event routers, and tests; write a provider-by-provider migration map before changing provider code (scope: `docs/architecture/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `docs: map reference provider module migration`).
-4. [TODO] Git Commit: `docs: map reference provider module migration` (hash: TBD)
+3. [DONE] `harness-ai.phase2.stream1.task1` Inventory CodeAI-Hub provider modules, facade classes, runtime contracts, settings files, provider homes, event routers, and tests; write a provider-by-provider migration map before changing provider code (scope: `docs/architecture/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `docs: map reference provider module migration`). Result: Completed in commit `docs: map reference provider module migration`.
+4. [DONE] Git Commit: `docs: map reference provider module migration` (hash: self)
 
 ## Phase 3 - Claude Agent SDK Provider Migration (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Provider Runtime
 
-5. [TODO] `harness-ai.phase3.stream1.task1` Replace the simplified Harness Claude CLI provider with a Harness-packaged migration of CodeAI-Hub `Claude_Module`: Agent SDK manager, session manager, stream router, thinking emitter, runtime profile, system prompt/tool/settings controls, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**`; expected commit: `feat: migrate claude agent sdk provider`).
+5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Replace the simplified Harness Claude CLI provider with a Harness-packaged migration of CodeAI-Hub `Claude_Module`: Agent SDK manager, session manager, stream router, thinking emitter, runtime profile, system prompt/tool/settings controls, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**`; expected commit: `feat: migrate claude agent sdk provider`).
 6. [TODO] Git Commit: `feat: migrate claude agent sdk provider` (hash: TBD)
 
 ## Phase 4 - Codex App Server Provider Migration (owner: Codex, updated: 2026-06-28)

@@ -13,7 +13,7 @@
 ## 1. Recovery Owner И Старт Сессии
 
 - Единственный recovery owner: `.harness/plans/todo-plan.md`.
-- В начале сессии сначала читай `.harness/plans/todo-plan.md`, затем выполняй `npm run plan:status`.
+- В начале сессии сначала читай `.harness/plans/todo-plan.md`, затем выполняй `npm run plan:status`, затем используй `docs/DOCUMENTATION_INDEX.md` как навигацию по документации для выбора только релевантных документов.
 - Если `Execution Scope Status: ACTIVE`, следуй только active plan, `Context Pack For This Cycle` и текущему `Current Task`.
 - Если `Execution Scope Status: BLOCKED`, выполни `npm run plan:status`, прочитай причину и не продолжай реализацию до `npm run plan:repair` или явного решения пользователя.
 - Если `Execution Scope Status: NONE` или active plan отсутствует, сначала согласуй новый scope и создай минимальный active plan по шаблону `.harness/plans/todo-plan.template.md`.
@@ -50,7 +50,8 @@
 - Новый функционал или алгоритм означает новый module или строго additive изменение существующего module.
 - Не трогай закрытый работающий module без необходимости. Исправляй root cause в общем маршруте, если через него идут sibling callers.
 - Файл implementation code не должен превышать 500 строк.
-- Документация обязана быть 100% релевантна текущему коду. Любое изменение исходного кода (`product-parts/**` и `scripts/**`) в том же commit сопровождается актуализацией релевантной документации: `module.md` затронутого модуля, его `cluster.md` и `product-part.md`, `docs/architecture/**` и `.harness/product-tree/**` (json + readable projection). Устаревшая или несоответствующая коду документация — это дефект наравне со сломанным кодом.
+- Документация обязана быть 100% релевантна текущему коду. Любое изменение исходного кода (`product-parts/**` и `scripts/**`) в том же commit сопровождается актуализацией всех связанных Markdown-документов: `module.md` затронутого модуля, его `cluster.md` и `product-part.md`, релевантных `docs/architecture/**`, `.harness/product-tree/**` (json + readable projection), `docs/evidence/**`, `README.md`, `AGENTS.md`, `CLAUDE.md` и любых других `.md` / `.markdown`, перечисленных или покрытых в `docs/DOCUMENTATION_INDEX.md`. Устаревшая или несоответствующая коду документация — это дефект наравне со сломанным кодом.
+- `docs/DOCUMENTATION_INDEX.md` — обязательный каталог tracked Markdown-документации. Если добавляешь, переносишь или удаляешь `.md` / `.markdown` файл, обнови этот индекс в том же commit. В начале новой сессии ссылку на документацию давай через `.harness/plans/todo-plan.md` и `docs/DOCUMENTATION_INDEX.md`, а не длинным списком отдельных Markdown-файлов.
 - Гейт `check:docs-sync` (в `.husky/commit-msg`) срабатывает на любое изменение исходного кода. Если в коммите не обновлён ни один документ кода, гейт падает с инструкцией, перечисляющей все пути для проверки: `module.md`/`cluster.md`/`product-part.md` затронутых модулей плюс `docs/architecture/**`, `.harness/product-tree/**` и `AGENTS.md`. Это твоя задача — пройти список и привести каждый релевантный документ в соответствие коду, затем закоммитить вместе с обновлёнными доками.
 - Гейт проверяет только факт обновления документации, а не её содержание; смысловая релевантность каждого документа коду — на твоей ответственности (см. раздел 10). Если правка действительно не затрагивает ни один документ (например, рефактор без изменения поведения/контракта), добавь `[skip-docs]` в commit message.
 
@@ -74,6 +75,7 @@
 - Archived closed-scope plans: `.harness/plans/archive/<planId>.md` (перенос в этот каталог инициирует только пользователь прямой командой; см. разделы 9 и 10).
 - Product tree source: `.harness/product-tree/product-tree.json`.
 - Product tree readable projection: `.harness/product-tree/product-tree.md`.
+- Documentation catalog: `docs/DOCUMENTATION_INDEX.md`.
 - Architecture/planning docs: `docs/architecture/**`.
 - Verification evidence: `docs/evidence/**`.
 - Runtime state, provider homes, auth residue, caches and logs: ignored local state only.
@@ -147,4 +149,4 @@
 - Не инициируй закрытие или архивацию scope. Перевод `Execution Scope Status` в `NONE`, перенос плана в `.harness/plans/archive/`, запуск `npm run plan:archive` и старт нового пустого плана выполняются ТОЛЬКО по прямой команде пользователя. Агент может предложить закрытие, но решение и его момент принадлежат пользователю (см. раздел 9).
 - Не откатывай чужие изменения без прямого запроса.
 - Не редактируй версии `package.json` вручную без отдельного release/versioning решения.
-- Любое изменение кода синхронно отражай в релевантной документации в том же commit: `module.md` затронутого модуля обязателен, а `.harness/product-tree/**` и `docs/architecture/**` — при изменении структуры/контрактов/процесса. Документация должна быть 100% релевантна текущему коду; устаревшая документация = дефект (см. раздел 3). Изменения процесса дополнительно отражай в active plan.
+- Любое изменение кода синхронно отражай во всех релевантных Markdown-документах в том же commit: `module.md` затронутого модуля обязателен, `cluster.md`/`product-part.md` обязательны при изменении boundary/ownership, `.harness/product-tree/**` и `docs/architecture/**` — при изменении структуры/контрактов/процесса, а остальные связанные `.md` / `.markdown` ищи через `docs/DOCUMENTATION_INDEX.md`. Документация должна быть 100% релевантна текущему коду; устаревшая документация = дефект (см. раздел 3). Изменения процесса дополнительно отражай в active plan.

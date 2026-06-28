@@ -1,7 +1,7 @@
 /**
  * Idea Collector Structured Output.
  *
- * NOTE: Provider modules are installed into `~/.codeai-hub/providers/**` without a
+ * NOTE: Provider modules are installed into `~/.harness-ai/providers/**` without a
  * full workspace `node_modules` tree. To keep the Claude provider self-contained
  * in that environment, we implement a minimal parser here instead of importing
  * `@codeai-hub/idea-collector` at runtime.

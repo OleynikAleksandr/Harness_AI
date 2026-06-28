@@ -103,7 +103,7 @@ interface OpenRouterTranslationProfile {
 
 const DEFAULT_LANGUAGE = "en";
 const DEFAULT_GLM_OPENCODE_CONFIG_PATH =
-  "~/.codeai-hub/providers/opencode/config.json";
+  "~/.harness-ai/providers/opencode/config.json";
 const DEFAULT_SETTINGS: HarnessSettings = {
   general: {
     coreControls: { allowRestart: true },

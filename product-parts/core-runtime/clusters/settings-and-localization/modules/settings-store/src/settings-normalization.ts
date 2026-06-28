@@ -56,7 +56,7 @@ const GLM_OPENCODE_MODEL_IDS = [
   "kimi-for-coding/k2p7",
 ];
 const DEFAULT_GLM_OPENCODE_CONFIG_PATH =
-  "~/.codeai-hub/providers/opencode/config.json";
+  "~/.harness-ai/providers/opencode/config.json";
 
 export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   const next = structuredClone(settings);

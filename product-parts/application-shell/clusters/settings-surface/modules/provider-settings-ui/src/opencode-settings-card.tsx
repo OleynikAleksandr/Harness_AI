@@ -53,8 +53,7 @@ export function OpenCodeSettingsCard({
         value={settings.defaultModel}
       />
       <p className="settings-note">
-        Uses isolated home at
-        .codeai-hub/&lt;workspace&gt;/runtime/providers/opencode/home.
+        Uses isolated home at .harness/runtime/providers/glm-opencode/home.
       </p>
     </SettingsCard>
   );

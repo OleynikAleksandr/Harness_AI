@@ -17,6 +17,7 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 
 - Provider settings update intents.
 - Auth/configuration action intents.
+- Harness-owned provider path labels; the OpenCode card points users to `.harness/runtime/providers/glm-opencode/home`.
 
 ## Reasoning Effort Select
 

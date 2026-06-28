@@ -79,13 +79,18 @@
 
 ## Phase 6 - Verification Package (owner: Codex, updated: 2026-06-28)
 
+### Stream: Settings Defaults
+
+12. [DONE] `harness-ai.phase5.stream3.task1` Replace leftover CodeAI-Hub paths in provider settings defaults, settings UI copy and Claude auth hint (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/**, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, .harness/plans/todo-plan.md`; expected commit: `fix: use harness paths in provider settings defaults`). Result: Completed in commit `fix: use harness paths in provider settings defaults`.
+13. [DONE] Git Commit: `fix: use harness paths in provider settings defaults` (hash: self)
+
 ### Stream: Evidence
 
-12. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Run targeted/full verification and rebuild packaged macOS app for provider runtime namespace retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify harness runtime namespace app`).
-13. [TODO] Git Commit: `chore: verify harness runtime namespace app` (hash: TBD)
+14. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Run targeted/full verification and rebuild packaged macOS app for provider runtime namespace retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify harness runtime namespace app`).
+15. [TODO] Git Commit: `chore: verify harness runtime namespace app` (hash: TBD)
 
 ## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-14. [TODO] `harness-ai.phase7.stream1.task1` User deletes old workspace runtime residue and retests provider session startup in packaged Harness AI app (scope: user workflow; expected commit: none).
+16. [TODO] `harness-ai.phase7.stream1.task1` User deletes old workspace runtime residue and retests provider session startup in packaged Harness AI app (scope: user workflow; expected commit: none).

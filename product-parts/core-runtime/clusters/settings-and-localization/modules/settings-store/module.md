@@ -17,6 +17,7 @@ Own global and workspace settings persistence.
 
 - Settings snapshot.
 - Persisted settings update.
+- Provider default paths normalized to Harness namespaces, including OpenCode config under `~/.harness-ai/providers/opencode/config.json`.
 
 ## Reasoning Effort Contract
 

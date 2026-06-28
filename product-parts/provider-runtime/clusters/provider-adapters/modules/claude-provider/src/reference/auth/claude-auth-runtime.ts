@@ -17,7 +17,7 @@ const execFileAsync = promisify(execFile);
 export const CLAUDE_LOGIN_HINT =
   "Claude CLI authentication required. Run `claude /login` in a terminal session.";
 export const CLAUDE_PROVIDER_HOME_LOGIN_HINT =
-  "Claude provider-home authentication required. Run `claude /login`, then restart Core. If it still fails, run `HOME=~/.codeai-hub/providers/claude/home claude /login`, then restart Core.";
+  "Claude provider-home authentication required. Run `claude /login`, then restart Core. If it still fails, run `HOME=~/.harness-ai/providers/claude/home claude /login`, then restart Core.";
 
 const LEGACY_CLAUDE_DIR = path.join(homedir(), ".claude");
 const CREDENTIALS_FILENAME = ".credentials.json";

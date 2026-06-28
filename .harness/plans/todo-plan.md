@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase172.stream1.task1",
+  "currentTaskId": "harness-ai.phase174.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1229,4 +1229,17 @@
 
 ### Stream: Rule Retest
 
-336. [IN_PROGRESS] `harness-ai.phase172.stream1.task1` User reviews the user-directed scope closure rule in AGENTS.md and decides on any code-level enforcement (scope: user workflow; expected commit: none).
+336. [DONE] `harness-ai.phase172.stream1.task1` User reviews the user-directed scope closure rule in AGENTS.md and decides on any code-level enforcement (scope: user workflow; expected commit: none). Result: User ordered the code-level fix within the current plan so plan.mjs cannot auto-close a scope.
+
+## Phase 173 - Stop Automatic Scope Closure (owner: Codex, updated: 2026-06-28)
+
+### Stream: Plan Tooling
+
+337. [DONE] `harness-ai.phase173.stream1.task1` Stop markCommitDone from auto-setting Execution Scope Status to NONE when no next task remains (keep the scope ACTIVE with no open task), let validatePlan accept an ACTIVE scope without currentTaskId, and cover both with a test (scope: `scripts/plan.mjs, scripts/plan-archive.test.mjs`; expected commit: `fix: keep scope active until user-directed close`). Result: Completed in commit `fix: keep scope active until user-directed close`.
+338. [DONE] Git Commit: `fix: keep scope active until user-directed close` (hash: self)
+
+## Phase 174 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Closure Behavior Retest
+
+339. [IN_PROGRESS] `harness-ai.phase174.stream1.task1` User confirms a completed plan no longer auto-closes and that closing remains a deliberate user-directed action (scope: user workflow; expected commit: none).

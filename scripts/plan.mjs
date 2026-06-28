@@ -86,10 +86,9 @@ function validatePlan() {
       `Unsupported executionScopeStatus: ${state.executionScopeStatus}`
     );
   }
-  if (!state.currentTaskId) {
-    throw new Error("ACTIVE plan must have currentTaskId");
-  }
-  if (!text.includes(`\`${state.currentTaskId}\``)) {
+  // An ACTIVE scope with no currentTaskId is valid: all tasks are done but the
+  // scope stays open until the user explicitly closes it (npm run plan:archive).
+  if (state.currentTaskId && !text.includes(`\`${state.currentTaskId}\``)) {
     throw new Error(`Current task not found: ${state.currentTaskId}`);
   }
   if (
@@ -138,7 +137,7 @@ function validateCommitMessage(filePath) {
   throw new Error(`Commit message is not present in active plan: ${message}`);
 }
 
-function markCommitDone(text, state, message) {
+export function markCommitDone(text, state, message) {
   let nextText = text;
   const currentTaskPattern = new RegExp(
     "(\\d+\\. )\\[IN_PROGRESS\\]( `" +
@@ -166,7 +165,9 @@ function markCommitDone(text, state, message) {
   const doneCommitIndex = nextText.indexOf(`Git Commit: \`${message}\``);
   const nextTask = findNextTask(nextText, doneCommitIndex);
   if (!nextTask) {
-    state.executionScopeStatus = "NONE";
+    // No remaining task. Keep the scope ACTIVE with no open task — closing it
+    // (transition to NONE / archive) is user-directed only, never an automatic
+    // side effect of a commit. The user runs `npm run plan:archive` to close.
     state.currentTaskId = null;
     state.expectedCommitMessage = null;
     state.lastRecordedCommit = "self";

@@ -604,6 +604,7 @@
 
 .settings-button {
   display: inline-flex;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   min-height: 34px;
@@ -636,6 +637,33 @@
   background: var(--pm-border-color, #26303b);
   border-color: var(--pm-border-color, #26303b);
   opacity: 1;
+}
+
+.settings-core-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.settings-core-status {
+  font-size: 12px;
+  color: var(--pm-text-secondary, #9bb4ab);
+}
+
+.settings-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(184, 209, 199, 0.35);
+  border-top-color: #b8d1c7;
+  border-radius: 50%;
+  animation: settings-spin 0.7s linear infinite;
+}
+
+@keyframes settings-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .settings-footer {

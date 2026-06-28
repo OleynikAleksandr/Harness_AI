@@ -171,7 +171,14 @@ export function ReferenceGeneralSettings({
             onClick={onRestartCore}
             variant="primary"
           >
-            {coreRestartBusy ? "Restarting..." : "Restart Core"}
+            {coreRestartBusy ? (
+              <>
+                <span aria-hidden="true" className="settings-spinner" />
+                Restarting...
+              </>
+            ) : (
+              "Restart Core"
+            )}
           </SettingsButton>
           <span className="settings-core-status">{coreRestartStatus}</span>
         </div>

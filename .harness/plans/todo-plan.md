@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream2.task1",
-  "expectedCommitMessage": "fix: restart core button spacing and spinner",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "chore: verify and package session delete and core restart",
   "debt": null
 }
 ```
@@ -82,14 +82,14 @@
 
 ### Stream: Restart button UI
 
-9. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Fix the Restart Core control: add `.settings-core-row`/`.settings-core-status` layout (gap between button and label) and a spinner shown while restarting (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; expected commit: `fix: restart core button spacing and spinner`).
-10. [TODO] Git Commit: `fix: restart core button spacing and spinner` (hash: TBD)
+9. [DONE] `harness-ai.phase2.stream2.task1` Fix the Restart Core control: add `.settings-core-row`/`.settings-core-status` layout (gap between button and label) and a spinner shown while restarting (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; expected commit: `fix: restart core button spacing and spinner`). Result: Completed in commit `fix: restart core button spacing and spinner`.
+10. [DONE] Git Commit: `fix: restart core button spacing and spinner` (hash: self)
 
 ## Phase 3 - Tooling Verification And Packaging (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Build And Evidence
 
-11. [TODO] `harness-ai.phase3.stream1.task1` Run required gates (architecture, lint, knip, typecheck, tests), then build and package the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify and package session delete and core restart`).
+11. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Run required gates (architecture, lint, knip, typecheck, tests), then build and package the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify and package session delete and core restart`).
 12. [TODO] Git Commit: `chore: verify and package session delete and core restart` (hash: TBD)
 
 ## Phase 4 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

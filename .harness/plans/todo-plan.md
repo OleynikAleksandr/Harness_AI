@@ -8,8 +8,8 @@
   "planId": "kimi-usage-limits-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "fix: display kimi usage limits",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "chore: verify kimi usage limits app",
   "debt": null
 }
 ```
@@ -49,14 +49,14 @@
 
 ### Stream: Provider Telemetry
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Compare CodeAI Hub Kimi limit handling and fix Harness Kimi/Core telemetry so 5-hour and weekly limits render correctly (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**`; expected commit: `fix: display kimi usage limits`).
-4. [TODO] Git Commit: `fix: display kimi usage limits` (hash: TBD)
+3. [DONE] `harness-ai.phase2.stream1.task1` Compare CodeAI Hub Kimi limit handling and fix Harness Kimi/Core telemetry so 5-hour and weekly limits render correctly (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**`; expected commit: `fix: display kimi usage limits`). Result: Completed in commit `fix: display kimi usage limits`.
+4. [DONE] Git Commit: `fix: display kimi usage limits` (hash: self)
 
 ## Phase 3 - Documentation And Verification (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Evidence
 
-5. [TODO] `harness-ai.phase3.stream1.task1` Update relevant module docs, run gates/build/package, and record evidence for user testing (scope: `product-parts/**/module.md, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi usage limits app`).
+5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Update relevant module docs, run gates/build/package, and record evidence for user testing (scope: `product-parts/**/module.md, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi usage limits app`).
 6. [TODO] Git Commit: `chore: verify kimi usage limits app` (hash: TBD)
 
 ## Phase 4 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

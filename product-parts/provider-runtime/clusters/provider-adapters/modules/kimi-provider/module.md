@@ -24,6 +24,7 @@ migrated CodeAI-Hub module.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- Kimi 5h and weekly usage limit telemetry read from the native Kimi usage API via the same user config used by the reference Kimi runtime.
 - Kimi ACP assistant/thinking events routed by the reference session event
   router.
 - Managed Kimi agent profile materialized under Harness runtime provider home.

@@ -26,6 +26,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.
 - Assistant live chunks tagged `live` are kept in Core session state so final provider full-text messages can be suppressed or reduced to an unseen live tail before UI display.
 - Provider bindings are promoted from temporary ids to real provider session ids in Core before later turns are dispatched, so resumed provider turns never depend on renderer state.
+- Usage limits can be refreshed by Core when a session dialog is hydrated, so provider limit rows such as Kimi 5h/weekly recover even when the original binding-time read was unavailable.
 - Session mode metadata is stored on the Core session. The only active runtime behavior in this scope is `Native · Raw`; managed/normalized selections may be visualized by clients but are not applied to provider dispatch until a later Core contract enables them.
 
 ## Owned Paths

@@ -21,3 +21,4 @@ assert.match(source, /buildProviderTurnOptions\(session\)/u);
 assert.match(source, /readPromotedProviderSessionId\(event\)/u);
 assert.match(source, /this\.runtimeBindings\.set\(sessionId, \{/u);
 assert.match(source, /promotedProviderSessionId/u);
+assert.match(source, /async refreshUsageLimits\(sessionId: string\)/u);

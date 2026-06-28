@@ -72,9 +72,12 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   ipcMain.handle("harness-ai:core:list-sessions", (_event, workspaceId) =>
     runtime.sessionRequestHandlerFacade.listSessions(workspaceId)
   );
-  ipcMain.handle("harness-ai:core:get-session-events", (_event, sessionId) =>
-    runtime.sessionEventStreamFacade.listEvents(sessionId)
-  );
+  ipcMain.handle("harness-ai:core:get-session-events", (_event, sessionId) => {
+    runtime.sessionRequestHandlerFacade
+      .refreshUsageLimits(String(sessionId ?? ""))
+      .catch(() => undefined);
+    return runtime.sessionEventStreamFacade.listEvents(sessionId);
+  });
   ipcMain.handle("harness-ai:core:list-providers", () =>
     runtime.providerRegistryFacade.listProviders()
   );

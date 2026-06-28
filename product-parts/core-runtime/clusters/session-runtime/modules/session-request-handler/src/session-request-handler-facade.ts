@@ -476,7 +476,7 @@ export class SessionRequestHandlerFacade {
     }
   }
 
-  private async refreshUsageLimits(sessionId: string): Promise<void> {
+  async refreshUsageLimits(sessionId: string): Promise<void> {
     const session = this.sessions.get(sessionId);
     const binding = this.runtimeBindings.get(sessionId);
     if (!(session?.workspacePath && binding?.adapter.refreshUsageLimits)) {

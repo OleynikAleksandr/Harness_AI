@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "feat: migrate kimi provider module",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "feat: migrate glm native provider module",
   "debt": null
 }
 ```
@@ -82,14 +82,14 @@
 
 ### Stream: Provider Runtime
 
-9. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Migrate CodeAI-Hub `Kimi_Module` behavior into the Harness Kimi provider module, including managed profile, lifecycle, event normalizer, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**`; expected commit: `feat: migrate kimi provider module`).
-10. [TODO] Git Commit: `feat: migrate kimi provider module` (hash: TBD)
+9. [DONE] `harness-ai.phase5.stream1.task1` Migrate CodeAI-Hub `Kimi_Module` behavior into the Harness Kimi provider module, including managed profile, lifecycle, event normalizer, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, .harness/plans/todo-plan.md`; expected commit: `feat: migrate kimi provider module`). Result: Completed in commit `feat: migrate kimi provider module`.
+10. [DONE] Git Commit: `feat: migrate kimi provider module` (hash: self)
 
 ## Phase 6 - GLM Native Provider Migration (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Provider Runtime
 
-11. [TODO] `harness-ai.phase6.stream1.task1` Migrate CodeAI-Hub `GLM_Module` native provider behavior into the Harness GLM Native provider module, including request config, thinking controls, event normalization, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**`; expected commit: `feat: migrate glm native provider module`).
+11. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Migrate CodeAI-Hub `GLM_Module` native provider behavior into the Harness GLM Native provider module, including request config, thinking controls, event normalization, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**`; expected commit: `feat: migrate glm native provider module`).
 12. [TODO] Git Commit: `feat: migrate glm native provider module` (hash: TBD)
 
 ## Phase 7 - GLM OpenCode Provider Migration (owner: Codex, updated: 2026-06-28)

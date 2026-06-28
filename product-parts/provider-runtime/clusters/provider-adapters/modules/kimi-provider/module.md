@@ -2,7 +2,13 @@
 
 ## Responsibility
 
-Fresh Harness AI adapter for Kimi provider turns.
+Harness-packaged Kimi provider migrated from CodeAI-Hub.
+
+The module owns the Harness facade and the embedded reference Kimi ACP
+implementation. The facade only binds Harness workspace paths, provider home
+state, selected model and thinking default; lifecycle, managed agent profile,
+wire process/router, event normalization and usage readers come from the
+migrated CodeAI-Hub module.
 
 ## Public Facade
 
@@ -18,7 +24,9 @@ Fresh Harness AI adapter for Kimi provider turns.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
-- Kimi `stream-json` assistant/thinking chunks routed through the shared provider adapter contract.
+- Kimi ACP assistant/thinking events routed by the reference session event
+  router.
+- Managed Kimi agent profile materialized under Harness runtime provider home.
 
 ## Owned Paths
 

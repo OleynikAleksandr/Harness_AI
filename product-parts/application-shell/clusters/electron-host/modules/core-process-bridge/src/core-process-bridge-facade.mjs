@@ -311,7 +311,7 @@ function registerProviderAdapter(runtime, providerId) {
   if (providerId === "kimi") {
     runtime.providerRegistryFacade.registerAdapter(
       providerId,
-      new runtime.KimiProviderFacade(model(providerId))
+      new runtime.KimiProviderFacade(model(providerId), workspacePath)
     );
   }
   if (providerId === "glm-native") {

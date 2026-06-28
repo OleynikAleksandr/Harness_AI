@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat: add session reasoning display module",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: show provider reasoning in sessions",
   "debt": null
 }
 ```
@@ -53,14 +53,14 @@
 
 ### Stream: Core Runtime
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Inspect CodeAI-HUB reasoning display flow, then add the minimal Harness shared reasoning display module with a facade and focused tests (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/**, product-parts/core-runtime/clusters/session-runtime/cluster.md, product-parts/core-runtime/product-part.md`; expected commit: `feat: add session reasoning display module`).
-4. [TODO] Git Commit: `feat: add session reasoning display module` (hash: TBD)
+3. [DONE] `harness-ai.phase2.stream1.task1` Inspect CodeAI-HUB reasoning display flow, then add the minimal Harness shared reasoning display module with a facade and focused tests (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/**, product-parts/core-runtime/clusters/session-runtime/cluster.md, product-parts/core-runtime/product-part.md, .harness/product-tree/**`; expected commit: `feat: add session reasoning display module`). Result: Completed in commit `feat: add session reasoning display module`.
+4. [DONE] Git Commit: `feat: add session reasoning display module` (hash: self)
 
 ## Phase 3 - Session Wiring (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Dialog Surface
 
-5. [TODO] `harness-ai.phase3.stream1.task1` Wire provider reasoning/thinking events through the shared module into session snapshots and the dialog panel for all providers using the common event path (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; docs: session-request-handler `module.md`, session-window `module.md`; expected commit: `feat: show provider reasoning in sessions`).
+5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Wire provider reasoning/thinking events through the shared module into session snapshots and the dialog panel for all providers using the common event path (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; docs: session-request-handler `module.md`, session-window `module.md`; expected commit: `feat: show provider reasoning in sessions`).
 6. [TODO] Git Commit: `feat: show provider reasoning in sessions` (hash: TBD)
 
 ## Phase 4 - Docs And Verification (owner: Codex, updated: 2026-06-28)

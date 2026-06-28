@@ -13,6 +13,7 @@ Owns session metadata, append-only JSONL history, turn state, and UI session sna
 - `session-history-store`
 - `turn-lifecycle`
 - `session-snapshot-projector`
+- `session-reasoning-display`
 
 ## Facade Rule
 

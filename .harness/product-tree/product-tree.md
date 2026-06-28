@@ -53,6 +53,7 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 - `session-history-store`: append-only JSONL history.
 - `turn-lifecycle`: running/idle/failure state, Stop/Continue boundaries.
 - `session-snapshot-projector`: read model for the Electron session UI.
+- `session-reasoning-display`: projects provider-visible reasoning/thinking into Core dialog messages.
 
 ### Development Orchestrator
 

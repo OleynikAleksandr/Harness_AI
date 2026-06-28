@@ -162,6 +162,11 @@
               "id": "session-snapshot-projector",
               "name": "Session Snapshot Projector",
               "purpose": "Read model for the Electron session UI."
+            },
+            {
+              "id": "session-reasoning-display",
+              "name": "Session Reasoning Display",
+              "purpose": "Project provider-visible reasoning/thinking into Core dialog messages."
             }
           ]
         },

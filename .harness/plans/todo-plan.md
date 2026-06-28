@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase18.stream1.task1",
+  "expectedCommitMessage": "fix: show codex reasoning controls by capability",
   "debt": null
 }
 ```
@@ -150,3 +150,24 @@
 
 28. [DONE] `harness-ai.phase16.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off for Codex retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex visible reasoning summaries`). Result: Completed in commit `chore: verify codex visible reasoning summaries`.
 29. [DONE] Git Commit: `chore: verify codex visible reasoning summaries` (hash: self)
+
+## Phase 17 - Codex Reasoning Capabilities (owner: Codex, updated: 2026-06-28)
+
+### Stream: Core Runtime
+
+30. [DONE] `harness-ai.phase17.stream1.task1` Replace the Claude-like Codex reasoning fallback with Codex model capability-aware effort resolution, including model-specific defaults and no effort for models without declared levels (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**`; expected commit: `fix: use codex reasoning capabilities`). Result: Completed in commit `fix: use codex reasoning capabilities`.
+31. [DONE] Git Commit: `fix: use codex reasoning capabilities` (hash: self)
+
+## Phase 18 - Codex Reasoning Settings UI (owner: Codex, updated: 2026-06-28)
+
+### Stream: Settings Surface
+
+32. [IN_PROGRESS] `harness-ai.phase18.stream1.task1` Render Codex reasoning selectors from Codex capabilities instead of the shared Claude/default selector set, and hide unsupported model controls (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**`; expected commit: `fix: show codex reasoning controls by capability`).
+33. [TODO] Git Commit: `fix: show codex reasoning controls by capability` (hash: TBD)
+
+## Phase 19 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
+
+### Stream: Verification
+
+34. [TODO] `harness-ai.phase19.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the Codex reasoning capability fix for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reasoning capabilities`).
+35. [TODO] Git Commit: `chore: verify codex reasoning capabilities` (hash: TBD)

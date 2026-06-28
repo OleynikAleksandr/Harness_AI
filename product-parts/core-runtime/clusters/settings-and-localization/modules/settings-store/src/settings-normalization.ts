@@ -32,6 +32,22 @@ const CODEX_MODEL_IDS = [
   "gpt-5.4",
   "gpt-5.5",
 ];
+const CODEX_REASONING_DEFAULTS_BY_MODEL: Record<string, ReasoningEffort> = {
+  "gpt-5.3-codex-spark": "high",
+  "gpt-5.4": "medium",
+  "gpt-5.4-mini": "medium",
+  "gpt-5.5": "medium",
+};
+export const CODEX_REASONING_EFFORTS_BY_MODEL: Record<
+  string,
+  readonly ReasoningEffort[]
+> = {
+  "gpt-5.2": [],
+  "gpt-5.3-codex-spark": ["low", "medium", "high", "xhigh"],
+  "gpt-5.4-mini": ["low", "medium", "high", "xhigh"],
+  "gpt-5.4": ["low", "medium", "high", "xhigh"],
+  "gpt-5.5": ["low", "medium", "high", "xhigh"],
+};
 const KIMI_MODEL_IDS = ["kimi-k2.7-code", "kimi-k2.7-code-highspeed"];
 const GLM_OPENCODE_MODEL_IDS = [
   "zai-coding-plan/glm-5.2",
@@ -63,6 +79,18 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   if (!CODEX_MODEL_IDS.includes(next.providers.codex.defaultModel)) {
     next.providers.codex.defaultModel = "gpt-5.4-mini";
   }
+  if (!isRecord(next.providers.codex.reasoningByModel)) {
+    next.providers.codex.reasoningByModel = {};
+  }
+  next.providers.codex.reasoningByModel = Object.fromEntries(
+    CODEX_MODEL_IDS.flatMap((modelId) => {
+      const effort = resolveCodexReasoningEffort(
+        modelId,
+        next.providers.codex.reasoningByModel[modelId]
+      );
+      return effort ? [[modelId, effort]] : [];
+    })
+  );
   if (!KIMI_MODEL_IDS.includes(next.providers.kimi.defaultModel)) {
     next.providers.kimi.defaultModel = "kimi-k2.7-code";
   }
@@ -75,6 +103,22 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
     next.providers.glmOpenCode.configPath = DEFAULT_GLM_OPENCODE_CONFIG_PATH;
   }
   return next;
+}
+
+export function resolveCodexReasoningEffort(
+  modelId: string,
+  storedEffort: ReasoningEffort | undefined
+): ReasoningEffort | null {
+  const efforts = CODEX_REASONING_EFFORTS_BY_MODEL[modelId] ?? [];
+  if (efforts.length === 0) {
+    return null;
+  }
+  if (storedEffort && efforts.includes(storedEffort)) {
+    return storedEffort;
+  }
+  const defaultEffort =
+    CODEX_REASONING_DEFAULTS_BY_MODEL[modelId] ?? efforts[0];
+  return efforts.includes(defaultEffort) ? defaultEffort : efforts[0];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -13,7 +13,15 @@ assert.match(
 assert.match(source, /session\.providerId !== "codex"/u);
 assert.match(
   source,
-  /codex\.reasoningByModel\[session\.model\] \?\? "medium"/u
+  /resolveCodexReasoningEffort\(\s*session\.model,\s*codex\.reasoningByModel\[session\.model\]\s*\)/u
+);
+assert.match(
+  source,
+  /\.\.\.\(reasoningEffort \? \{ reasoningEffort \} : \{\}\)/u
+);
+assert.doesNotMatch(
+  source,
+  /reasoningByModel\[session\.model\] \?\? "medium"/u
 );
 assert.match(
   source,

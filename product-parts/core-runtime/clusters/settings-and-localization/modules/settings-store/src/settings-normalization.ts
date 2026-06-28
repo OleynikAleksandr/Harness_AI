@@ -33,7 +33,8 @@ const CODEX_MODEL_IDS = [
   "gpt-5.5",
 ];
 const CODEX_REASONING_DEFAULTS_BY_MODEL: Record<string, ReasoningEffort> = {
-  "gpt-5.3-codex-spark": "high",
+  "gpt-5.2": "medium",
+  "gpt-5.3-codex-spark": "medium",
   "gpt-5.4": "medium",
   "gpt-5.4-mini": "medium",
   "gpt-5.5": "medium",
@@ -42,12 +43,13 @@ export const CODEX_REASONING_EFFORTS_BY_MODEL: Record<
   string,
   readonly ReasoningEffort[]
 > = {
-  "gpt-5.2": [],
+  "gpt-5.2": ["low", "medium", "high", "xhigh"],
   "gpt-5.3-codex-spark": ["low", "medium", "high", "xhigh"],
   "gpt-5.4-mini": ["low", "medium", "high", "xhigh"],
   "gpt-5.4": ["low", "medium", "high", "xhigh"],
   "gpt-5.5": ["low", "medium", "high", "xhigh"],
 };
+const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
 const KIMI_MODEL_IDS = ["kimi-k2.7-code", "kimi-k2.7-code-highspeed"];
 const GLM_OPENCODE_MODEL_IDS = [
   "zai-coding-plan/glm-5.2",
@@ -119,6 +121,10 @@ export function resolveCodexReasoningEffort(
   const defaultEffort =
     CODEX_REASONING_DEFAULTS_BY_MODEL[modelId] ?? efforts[0];
   return efforts.includes(defaultEffort) ? defaultEffort : efforts[0];
+}
+
+export function supportsCodexReasoningSummary(modelId: string): boolean {
+  return !CODEX_MODELS_WITHOUT_REASONING_SUMMARY.has(modelId);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase21.stream1.task1",
+  "expectedCommitMessage": "chore: verify codex reference summary config",
   "debt": null
 }
 ```
@@ -171,3 +171,17 @@
 
 34. [DONE] `harness-ai.phase19.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the Codex reasoning capability fix for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reasoning capabilities`). Result: Completed in commit `chore: verify codex reasoning capabilities`.
 35. [DONE] Git Commit: `chore: verify codex reasoning capabilities` (hash: self)
+
+## Phase 20 - Codex Reference Settings Alignment (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Runtime
+
+36. [DONE] `harness-ai.phase20.stream1.task1` Align Harness Codex settings and provider-home behavior with CodeAI-Hub: keep provider-home `model_reasoning_summary` neutral, keep per-turn summary control in Core/provider turn options, and capability-gate Spark summaries (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**`; expected commit: `fix: align codex summary config with reference`). Result: Completed in commit `fix: align codex summary config with reference`.
+37. [DONE] Git Commit: `fix: align codex summary config with reference` (hash: self)
+
+## Phase 21 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
+
+### Stream: Verification
+
+38. [IN_PROGRESS] `harness-ai.phase21.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the reference-aligned Codex summary behavior for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reference summary config`).
+39. [TODO] Git Commit: `chore: verify codex reference summary config` (hash: TBD)

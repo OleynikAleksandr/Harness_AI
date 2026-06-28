@@ -53,6 +53,7 @@ const CODEX_APP_SERVER_ARGS = [
   "--disable",
   "apps",
 ];
+const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
 
 export class CodexProviderFacade implements ProviderAdapter {
   private child: ChildProcessWithoutNullStreams | null = null;
@@ -148,7 +149,7 @@ export class CodexProviderFacade implements ProviderAdapter {
       ...(reasoningEffort ? { effort: reasoningEffort } : {}),
       input: [{ text: content, text_elements: [], type: "text" }],
       model: selectedModel,
-      summary: readReasoningSummaryEnabled(turnOptions) ? "detailed" : "none",
+      summary: resolveReasoningSummary(selectedModel, turnOptions),
       threadId: sessionId,
     });
     const turn = isRecord(response.turn) ? response.turn : null;
@@ -389,6 +390,16 @@ function readReasoningEffort(
   return typeof turnOptions?.reasoningEffort === "string"
     ? turnOptions.reasoningEffort
     : null;
+}
+
+function resolveReasoningSummary(
+  model: string,
+  turnOptions: ProviderTurnOptions | undefined
+): "detailed" | "none" {
+  if (CODEX_MODELS_WITHOUT_REASONING_SUMMARY.has(model)) {
+    return "none";
+  }
+  return readReasoningSummaryEnabled(turnOptions) ? "detailed" : "none";
 }
 
 function readReasoningSummaryEnabled(

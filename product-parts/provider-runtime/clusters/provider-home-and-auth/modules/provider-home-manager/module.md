@@ -17,7 +17,7 @@ Own isolated provider home layout.
 
 - Provider home paths.
 - Home preparation diagnostics.
-- Codex provider-home `model_reasoning_summary = "detailed"` materialized at top-level TOML scope so Codex app-server can emit visible reasoning summary notifications.
+- Codex provider-home `model_reasoning_summary = "none"` materialized at top-level TOML scope. Provider-home config is process-global; visible reasoning summaries are controlled per turn by Core/provider turn options.
 
 ## Owned Paths
 

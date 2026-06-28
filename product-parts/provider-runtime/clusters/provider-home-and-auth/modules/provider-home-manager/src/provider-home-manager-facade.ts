@@ -26,8 +26,10 @@ export interface PreparedProviderHome {
 const AUTH_FILENAME = "auth.json";
 const CONFIG_FILENAME = "config.toml";
 const LEGACY_CODEX_HOME = path.join(homedir(), ".codex");
-const SUMMARY_LINE = 'model_reasoning_summary = "detailed"';
+const LEGACY_SUMMARY_LINE_RE = /^\s*default_reasoning_summary\s*=\s*.+?$/gmu;
+const SUMMARY_LINE = 'model_reasoning_summary = "none"';
 const SUMMARY_LINE_RE = /^\s*model_reasoning_summary\s*=\s*.+?$/gmu;
+const REASONING_EFFORT_LINE_RE = /^\s*model_reasoning_effort\s*=\s*.+$/mu;
 const TOML_TABLE_RE = /^\s*\[/mu;
 
 export class ProviderHomeManagerFacade {
@@ -121,7 +123,22 @@ async function ensureSummaryConfig(configPath: string): Promise<void> {
 }
 
 export function materializeCodexReasoningSummaryConfig(raw: string): string {
-  const withoutExisting = raw.replace(SUMMARY_LINE_RE, "").trimEnd();
+  const withoutLegacy = raw
+    .replace(LEGACY_SUMMARY_LINE_RE, "")
+    .replace(SUMMARY_LINE_RE, "")
+    .trim();
+  const effortMatch = REASONING_EFFORT_LINE_RE.exec(withoutLegacy);
+  if (effortMatch?.index !== undefined) {
+    const insertIndex = effortMatch.index + effortMatch[0].length;
+    return `${[
+      withoutLegacy.slice(0, insertIndex).trimEnd(),
+      SUMMARY_LINE,
+      withoutLegacy.slice(insertIndex).trimStart(),
+    ]
+      .filter(Boolean)
+      .join("\n")}\n`;
+  }
+  const withoutExisting = withoutLegacy.trimEnd();
   const tableMatch = TOML_TABLE_RE.exec(withoutExisting);
   if (!tableMatch) {
     return `${[withoutExisting, SUMMARY_LINE].filter(Boolean).join("\n")}\n`;

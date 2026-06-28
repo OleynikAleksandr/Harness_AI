@@ -22,16 +22,31 @@ assert.equal(
       "[features]",
       "apps = true",
       "[hooks.state.example]",
-      'model_reasoning_summary = "none"',
+      'model_reasoning_summary = "auto"',
       "",
     ].join("\n")
   ),
   [
     'model = "gpt-5.5"',
-    'model_reasoning_summary = "detailed"',
+    'model_reasoning_summary = "none"',
     "[features]",
     "apps = true",
     "[hooks.state.example]",
+    "",
+  ].join("\n")
+);
+
+assert.equal(
+  materializeCodexReasoningSummaryConfig(
+    [
+      'default_reasoning_summary = "auto"',
+      'model_reasoning_effort = "xhigh"',
+      "",
+    ].join("\n")
+  ),
+  [
+    'model_reasoning_effort = "xhigh"',
+    'model_reasoning_summary = "none"',
     "",
   ].join("\n")
 );

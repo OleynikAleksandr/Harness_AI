@@ -58,6 +58,7 @@
 
 - UI, Electron host, будущий VS Code surface, web/mobile clients и любые transport/input surfaces не являются источником workflow truth.
 - UI не является источником правды ни для product state, session state, provider state, settings truth, лимитов, токенов, workflow decisions, orchestration decisions, localization state, artifact truth или managed lifecycle. UI только передаёт ввод пользователя и отображает данные/команды, полученные из Core или shared read-model contracts.
+- UI не классифицирует, не распознаёт и не выводит product truth из текста или provider payloads. В частности, renderer не решает, что является reasoning/thinking, assistant output, статусом, лимитом, моделью или provider capability; эти факты приходят из Core/shared contracts уже нормализованными.
 - Если для поведения нужен calculation/derivation/normalization/validation, он живёт в Core Runtime или shared contract module. Renderer/client code не должен вычислять business truth, выбирать authority, склеивать provider semantics или принимать workflow decisions.
 - Core Runtime владеет session state, provider binding, settings snapshot, orchestration state, gates, localization target, system instructions и managed lifecycle.
 - Если поведение ломается без открытого UI, это архитектурный дефект.

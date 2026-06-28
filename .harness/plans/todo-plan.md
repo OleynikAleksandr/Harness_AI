@@ -102,3 +102,10 @@
 ### Stream: Retest
 
 16. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).
+
+## Phase 10 - UI Authority Rule (owner: Codex, updated: 2026-06-28)
+
+### Stream: Documentation
+
+17. [DONE] `harness-ai.phase10.stream1.task1` Document that UI surfaces must never infer product truth, including reasoning/thinking classification (scope: `AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `docs: clarify ui cannot infer product truth`). Result: Completed in commit `docs: clarify ui cannot infer product truth`.
+18. [DONE] Git Commit: `docs: clarify ui cannot infer product truth` (hash: self)

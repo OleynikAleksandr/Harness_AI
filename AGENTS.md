@@ -67,6 +67,7 @@
 
 - Active execution plan: `.harness/plans/todo-plan.md`.
 - Plan template: `.harness/plans/todo-plan.template.md`.
+- Archived closed-scope plans: `.harness/plans/archive/<planId>.md`.
 - Product tree source: `.harness/product-tree/product-tree.json`.
 - Product tree readable projection: `.harness/product-tree/product-tree.md`.
 - Architecture/planning docs: `docs/architecture/**`.
@@ -123,6 +124,15 @@
 - Перед передачей пользователю unsigned macOS app проверь, что существует:
   `release/mac-arm64/Harness AI.app`
 - Scope closeout, archive active plan и переход `Execution Scope Status: NONE` разрешены только после явного user acceptance.
+- Процедура закрытия и архивации scope (держит recovery owner маленьким):
+  ```bash
+  npm run plan:archive            # текущий план -> .harness/plans/archive/<planId>.md,
+                                  # todo-plan.md заменяется на пустую NONE-заглушку и коммитится
+  ```
+  - Запускай только на чистом рабочем дереве (команда делает `git add -A` + commit).
+  - Если в плане ещё есть `[IN_PROGRESS]`/`[TODO]`, команда откажет; добавь `--force` для осознанного закрытия незавершённого scope.
+  - При `Execution Scope Status: NONE` plan-валидация commit-сообщений отключена, чтобы прошли archive- и bootstrap-коммиты нового scope.
+  - После архивации согласуй новый scope и создай активный план из `.harness/plans/todo-plan.template.md` (см. раздел 1).
 
 ## 10. Критические Правила
 

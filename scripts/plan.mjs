@@ -1,9 +1,17 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const PLAN_PATH = ".harness/plans/todo-plan.md";
+const ARCHIVE_DIR = ".harness/plans/archive";
 const DEBT_PATH = ".git/harness-plan-debt";
 const COMMIT_MESSAGE_LINE_REGEX = /\r?\n/u;
 const ESCAPE_REGEX = /[.*+?^${}()|[\]\\]/gu;
@@ -20,7 +28,7 @@ function writePlan(text) {
   writeFileSync(PLAN_PATH, text, "utf8");
 }
 
-function readState(text = readPlan()) {
+export function readState(text = readPlan()) {
   const match = text.match(STATE_RE);
   if (!match) {
     throw new Error(`Missing plan state block in ${PLAN_PATH}`);
@@ -116,6 +124,10 @@ function validateCommitMessage(filePath) {
   if (!message) {
     throw new Error("Commit message is empty");
   }
+  if (state.executionScopeStatus === "NONE") {
+    console.log("No active scope; commit message check skipped.");
+    return;
+  }
   if (
     state.expectedCommitMessage === message ||
     text.includes(`Git Commit: \`${message}\``)
@@ -208,30 +220,92 @@ function postCommit() {
   console.log("Plan post-commit: no local debt");
 }
 
+export function planHasActiveTask(text) {
+  return text.includes("[IN_PROGRESS]") || text.includes("[TODO]");
+}
+
+export function buildClosedPlan(branch) {
+  const state = {
+    schema: "harness-ai-plan-v1",
+    executionScopeStatus: "NONE",
+    planId: null,
+    branch: branch ?? "main",
+    lastRecordedCommit: "self",
+    currentTaskId: null,
+    expectedCommitMessage: null,
+    debt: null,
+  };
+  const json = JSON.stringify(state, null, 2);
+  return `# Harness AI Development TODO Plan
+
+<!-- harness-plan-state:start -->
+\`\`\`json
+${json}
+\`\`\`
+<!-- harness-plan-state:end -->
+
+## No Active Scope
+
+No active execution scope. Per AGENTS.md, agree a new scope with the user, then
+create the active plan from \`${PLAN_PATH.replace("todo-plan.md", "todo-plan.template.md")}\`.
+`;
+}
+
+function archive(force) {
+  const text = readPlan();
+  const state = readState(text);
+  if (
+    !(force || state.executionScopeStatus === "NONE") &&
+    planHasActiveTask(text)
+  ) {
+    throw new Error(
+      "Active or pending tasks remain; finish the scope or pass --force to archive anyway."
+    );
+  }
+  const planId = state.planId ?? "plan";
+  const archivePath = join(ARCHIVE_DIR, `${planId}.md`);
+  if (existsSync(archivePath)) {
+    throw new Error(`Archive already exists: ${archivePath}`);
+  }
+  mkdirSync(ARCHIVE_DIR, { recursive: true });
+  writeFileSync(archivePath, text, "utf8");
+  writePlan(buildClosedPlan(state.branch));
+  run("git", ["add", "-A"]);
+  run("git", ["commit", "-m", `chore: archive plan ${planId}`]);
+  console.log(`Archived ${planId} to ${archivePath}`);
+}
+
 function escapeRegExp(value) {
   return value.replace(ESCAPE_REGEX, "\\$&");
 }
 
-const [command, ...args] = process.argv.slice(2);
+const invokedDirectly =
+  import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
 
-try {
-  if (command === "status") {
-    status();
-  } else if (command === "validate") {
-    validatePlan();
-    console.log("Plan validation: OK");
-  } else if (command === "validate-commit-message") {
-    validateCommitMessage(join(process.cwd(), args[0] ?? ""));
-  } else if (command === "commit") {
-    commit(args.join(" ").trim());
-  } else if (command === "repair") {
-    repair();
-  } else if (command === "post-commit") {
-    postCommit();
-  } else {
-    throw new Error(`Unknown plan command: ${command ?? "(missing)"}`);
+if (invokedDirectly) {
+  const [command, ...args] = process.argv.slice(2);
+
+  try {
+    if (command === "status") {
+      status();
+    } else if (command === "validate") {
+      validatePlan();
+      console.log("Plan validation: OK");
+    } else if (command === "validate-commit-message") {
+      validateCommitMessage(join(process.cwd(), args[0] ?? ""));
+    } else if (command === "commit") {
+      commit(args.join(" ").trim());
+    } else if (command === "archive") {
+      archive(args.includes("--force"));
+    } else if (command === "repair") {
+      repair();
+    } else if (command === "post-commit") {
+      postCommit();
+    } else {
+      throw new Error(`Unknown plan command: ${command ?? "(missing)"}`);
+    }
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
   }
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
 }

@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase168.stream1.task1",
+  "currentTaskId": "harness-ai.phase170.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1203,4 +1203,17 @@
 
 ### Stream: Session Start Verification
 
-330. [IN_PROGRESS] `harness-ai.phase168.stream1.task1` User starts a new session and confirms the OpenRouter blocks no longer show the "Selected model" row and that the active agent instructions load from the root CLAUDE.md import (scope: user workflow; expected commit: none).
+330. [DONE] `harness-ai.phase168.stream1.task1` User starts a new session and confirms the OpenRouter blocks no longer show the "Selected model" row and that the active agent instructions load from the root CLAUDE.md import (scope: user workflow; expected commit: none). Result: User deferred the OpenRouter/instructions retest and instead requested a plan archival mechanism so the recovery owner plan stops growing without bound.
+
+## Phase 169 - Plan Archival Command (owner: Codex, updated: 2026-06-28)
+
+### Stream: Plan Tooling
+
+331. [DONE] `harness-ai.phase169.stream1.task1` Add a `plan:archive` command that moves the closed-scope plan into `.harness/plans/archive/<planId>.md`, replaces the active plan with a NONE stub, skips commit-message validation while scope is NONE, guards against archiving unfinished work, and document the procedure (scope: `scripts/plan.mjs, scripts/plan-archive.test.mjs, package.json, AGENTS.md`; expected commit: `feat: add plan archive command`). Result: Completed in commit `feat: add plan archive command`.
+332. [DONE] Git Commit: `feat: add plan archive command` (hash: self)
+
+## Phase 170 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Plan Archival Retest
+
+333. [IN_PROGRESS] `harness-ai.phase170.stream1.task1` User reviews the plan archival workflow and decides when to archive the current oversized scope (scope: user workflow; expected commit: none).

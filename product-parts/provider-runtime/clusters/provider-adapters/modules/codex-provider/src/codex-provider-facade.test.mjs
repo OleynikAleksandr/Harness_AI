@@ -8,6 +8,10 @@ const source = readFileSync(
   join(moduleDir, "codex-provider-facade.ts"),
   "utf8"
 );
+const appServerSource = readFileSync(
+  join(moduleDir, "reference/app-server/codex-app-server-facade.ts"),
+  "utf8"
+);
 
 assert.match(
   source,
@@ -21,6 +25,12 @@ assert.match(
 );
 assert.match(source, /defaultApprovalMode: "never"/u);
 assert.match(source, /defaultSandboxMode: "danger-full-access"/u);
+assert.match(appServerSource, /CODEX_DEFAULT_PROCESS_PROFILE_KEY/u);
+assert.doesNotMatch(
+  appServerSource,
+  /baseInstructions: workflowProfile\.baseInstructions/u
+);
+assert.doesNotMatch(appServerSource, /config: workflowProfile\.threadConfig/u);
 
 for (const relativePath of [
   "reference/provider/codex-provider-adapter.ts",

@@ -15,7 +15,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 
 - Own provider catalog, descriptors, health, and adapters.
 - Keep provider homes, caches, auth references, and runtime files isolated.
-- Own provider-specific runtime prompts and workspace instruction injection before requests reach external SDKs or CLIs.
+- Own provider-specific runtime prompts or native project-instruction startup before requests reach external SDKs or CLIs.
 - Normalize provider events for Core Runtime.
 
 ## Out Of Scope

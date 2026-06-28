@@ -146,3 +146,10 @@
 
 26. [DONE] `harness-ai.phase14.stream1.task1` Fix Claude real session id promotion so later turns use resume instead of the temp id, and inject workspace path plus `AGENTS.md` into the Claude system prompt from Core/provider-owned runtime code (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: repair claude session resume and workspace instructions`). Result: Completed in commit `fix: repair claude session resume and workspace instructions`.
 27. [DONE] Git Commit: `fix: repair claude session resume and workspace instructions` (hash: self)
+
+## Phase 15 - Codex Workspace Instructions Bootstrap (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Runtime
+
+28. [DONE] `harness-ai.phase15.stream1.task1` Port the CodeAI-Hub Codex app-server instruction bootstrap so Codex starts in the active workspace with provider-native instructions that direct native Codex to read workspace `AGENTS.md`, then update focused tests/docs and package the macOS app for retest (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: inject codex workspace instructions`). Result: Completed in commit `fix: inject codex workspace instructions`.
+29. [DONE] Git Commit: `fix: inject codex workspace instructions` (hash: self)

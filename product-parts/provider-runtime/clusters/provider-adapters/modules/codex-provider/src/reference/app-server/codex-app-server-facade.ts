@@ -14,8 +14,8 @@ import {
   CodexAppServerEventRouter,
 } from "./codex-app-server-event-router.js";
 import { buildCodexReasoningSummaryParams } from "./codex-reasoning-summary-params.js";
-import { resolveCodexWorkflowInvocationProfile } from "./codex-workflow-instruction-profile.js";
 import { CodexAppServerProcess } from "./process/codex-app-server-process.js";
+import { CODEX_DEFAULT_PROCESS_PROFILE_KEY } from "./process/codex-app-server-process-profile.js";
 
 const DEFAULT_REASONING_SUMMARY: CodexReasoningSummaryMode = "detailed";
 const CODEX_WORKFLOW_DEFAULT_APPROVAL_POLICY = "never";
@@ -134,10 +134,9 @@ export class CodexAppServerFacade {
   private readonly workspace: CodexModuleOptions["workspace"];
 
   constructor(options: CodexModuleOptions) {
-    const workflowProfile = resolveCodexWorkflowInvocationProfile();
     this.workspace = options.workspace;
     this.process = new CodexAppServerProcess({
-      processProfileKey: workflowProfile.processProfileKey,
+      processProfileKey: CODEX_DEFAULT_PROCESS_PROFILE_KEY,
       reporter: options.reporter,
     });
     this.eventRouter = new CodexAppServerEventRouter({
@@ -158,7 +157,6 @@ export class CodexAppServerFacade {
   }
 
   async createSession(workspacePath?: string): Promise<string> {
-    const workflowProfile = resolveCodexWorkflowInvocationProfile();
     const response = await this.process.request<Record<string, unknown>>(
       "thread/start",
       {
@@ -170,8 +168,6 @@ export class CodexAppServerFacade {
           this.workspace.defaultSandboxMode ?? CODEX_WORKFLOW_DEFAULT_SANDBOX,
         model: this.workspace.defaultModel,
         persistExtendedHistory: true,
-        baseInstructions: workflowProfile.baseInstructions,
-        config: workflowProfile.threadConfig,
       }
     );
     const thread = isRecord(response.thread) ? response.thread : null;

@@ -17,6 +17,7 @@ import {
   type SessionCoreEvent,
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
+import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
 import {
   readWorkspaceSessionIndex,
   writeWorkspaceSessionIndex,
@@ -203,9 +204,6 @@ export class SessionRequestHandlerFacade {
     this.persistSessionIndex(session.workspacePath);
     return { ok: true };
   }
-  getSession(sessionId: string): CoreSession | null {
-    return this.sessions.get(sessionId) ?? null;
-  }
   listSessions(workspaceId?: string): CoreSession[] {
     const sessions = Array.from(this.sessions.values());
     const filtered = workspaceId
@@ -213,7 +211,7 @@ export class SessionRequestHandlerFacade {
       : sessions;
     return filtered.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
-  restoreSessionHistory(workspaces: WorkspaceHistoryRef[]): CoreSession[] {
+  restoreSessionHistory(workspaces: { path: string }[]): CoreSession[] {
     const restoredSessions = workspaces.flatMap((workspace) =>
       readWorkspaceSessionIndex(workspace.path)
     );
@@ -419,14 +417,18 @@ export class SessionRequestHandlerFacade {
       return;
     }
     this.updateTelemetryWithProviderEvent(sessionId, event);
-    if (event.type === "dialog_message") {
-      this.publishMessage({
-        id: readString(event.uuid) ?? createId("message-provider"),
-        role: event.tag === "thinking" ? "thinking" : "assistant",
-        sessionId,
-        text: readString(event.content) ?? "",
-        timestamp: readString(event.timestamp) ?? new Date().toISOString(),
-      });
+    const displayMessages =
+      sessionReasoningDisplayFacade.projectProviderEvent(event);
+    if (displayMessages.length > 0) {
+      for (const message of displayMessages) {
+        this.publishMessage({
+          id: message.id,
+          role: message.role,
+          sessionId,
+          text: message.text,
+          timestamp: message.timestamp,
+        });
+      }
       return;
     }
     if (event.type === "turn_started") {
@@ -472,10 +474,6 @@ export class SessionRequestHandlerFacade {
       workspacePath: session.workspacePath,
     });
   }
-}
-
-interface WorkspaceHistoryRef {
-  path: string;
 }
 
 function createId(prefix: string): string {

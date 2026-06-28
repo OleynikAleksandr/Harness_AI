@@ -20,6 +20,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Core session events.
 - Provider dispatch requests through the provider adapter contract.
 - Session errors and lifecycle state.
+- Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.
 
 ## Owned Paths
 

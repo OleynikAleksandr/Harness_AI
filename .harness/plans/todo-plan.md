@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "feat: show provider reasoning in sessions",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "chore: verify session reasoning display",
   "debt": null
 }
 ```
@@ -60,14 +60,14 @@
 
 ### Stream: Dialog Surface
 
-5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Wire provider reasoning/thinking events through the shared module into session snapshots and the dialog panel for all providers using the common event path (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`; docs: session-request-handler `module.md`, session-window `module.md`; expected commit: `feat: show provider reasoning in sessions`).
-6. [TODO] Git Commit: `feat: show provider reasoning in sessions` (hash: TBD)
+5. [DONE] `harness-ai.phase3.stream1.task1` Wire provider reasoning/thinking events through the shared module into Core session messages for all providers using the common event path (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md`; expected commit: `feat: show provider reasoning in sessions`). Result: Completed in commit `feat: show provider reasoning in sessions`.
+6. [DONE] Git Commit: `feat: show provider reasoning in sessions` (hash: self)
 
 ## Phase 4 - Docs And Verification (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Build And Evidence
 
-7. [TODO] `harness-ai.phase4.stream1.task1` Update architecture/product-tree docs, run required checks, build, package the macOS app, and record verification evidence (scope: `docs/architecture/**, docs/evidence/**, .harness/product-tree/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session reasoning display`).
+7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Update architecture/product-tree docs, run required checks, build, package the macOS app, and record verification evidence (scope: `docs/architecture/**, docs/evidence/**, .harness/product-tree/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session reasoning display`).
 8. [TODO] Git Commit: `chore: verify session reasoning display` (hash: TBD)
 
 ## Phase 5 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

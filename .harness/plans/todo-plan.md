@@ -8,8 +8,8 @@
   "planId": "kimi-usage-limits-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "chore: verify harness runtime namespace app",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -86,11 +86,11 @@
 
 ### Stream: Evidence
 
-14. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Run targeted/full verification and rebuild packaged macOS app for provider runtime namespace retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify harness runtime namespace app`).
-15. [TODO] Git Commit: `chore: verify harness runtime namespace app` (hash: TBD)
+14. [DONE] `harness-ai.phase6.stream1.task1` Run targeted/full verification and rebuild packaged macOS app for provider runtime namespace retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify harness runtime namespace app`). Result: Completed in commit `chore: verify harness runtime namespace app`.
+15. [DONE] Git Commit: `chore: verify harness runtime namespace app` (hash: self)
 
 ## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-16. [TODO] `harness-ai.phase7.stream1.task1` User deletes old workspace runtime residue and retests provider session startup in packaged Harness AI app (scope: user workflow; expected commit: none).
+16. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` User deletes old workspace runtime residue and retests provider session startup in packaged Harness AI app (scope: user workflow; expected commit: none).

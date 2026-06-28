@@ -9,6 +9,9 @@ implementation. The facade only binds Harness workspace paths, provider home
 state and settings path; provider workflow, app-server process management,
 reasoning summary routing and provider-home config materialization come from
 the migrated CodeAI-Hub module.
+Provider home storage is Harness-owned: workspace sessions use
+`<workspace>/.harness/runtime/providers/codex/home`, and non-workspace
+fallbacks use `~/.harness-ai/providers/codex/home`.
 Normal Harness sessions start Codex through the native/default app-server
 profile so Codex keeps its own system instructions, native tooling, and
 workspace `AGENTS.md` project-instruction discovery from `cwd`.

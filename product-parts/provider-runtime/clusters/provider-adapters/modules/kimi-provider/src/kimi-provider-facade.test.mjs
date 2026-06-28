@@ -12,6 +12,10 @@ const bridgeSource = readFileSync(
   ),
   "utf8"
 );
+const managedProfileSource = readFileSync(
+  join(moduleDir, "reference/provider/kimi-managed-agent-profile.ts"),
+  "utf8"
+);
 
 assert.match(
   source,
@@ -20,6 +24,9 @@ assert.match(
 assert.match(source, /extends KimiProviderAdapter/u);
 assert.match(source, /providerHomePath: path\.join\(/u);
 assert.match(source, /"\.harness"/u);
+assert.match(managedProfileSource, /"\.harness-ai"/u);
+assert.match(managedProfileSource, /"\.harness"/u);
+assert.doesNotMatch(managedProfileSource, /"\.codeai-hub"/u);
 assert.match(source, /thinkingEnabled: true/u);
 assert.match(
   bridgeSource,

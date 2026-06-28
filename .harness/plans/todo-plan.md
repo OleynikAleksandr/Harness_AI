@@ -8,8 +8,8 @@
   "planId": "kimi-usage-limits-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase5.stream2.task1",
+  "expectedCommitMessage": "fix: use harness runtime homes for glm providers",
   "debt": null
 }
 ```
@@ -63,4 +63,29 @@
 
 ### Stream: Retest
 
-7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` User retests Kimi session limit display in packaged Harness AI app (scope: user workflow; expected commit: none).
+7. [DONE] `harness-ai.phase4.stream1.task1` User retests Kimi session limit display in packaged Harness AI app (scope: user workflow; expected commit: none). Result: User reported Kimi still does not show context-window tokens or limits and behaves as if tool actions are pre-approved.
+
+## Phase 5 - Provider Runtime Namespace Cleanup (owner: Codex, updated: 2026-06-28)
+
+### Stream: Primary Provider Homes
+
+8. [DONE] `harness-ai.phase5.stream1.task1` Replace leftover CodeAI-Hub provider-home path builders with Harness runtime homes for Codex, Claude and Kimi (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**, .harness/plans/todo-plan.md`; expected commit: `fix: use harness runtime homes for primary providers`). Result: Completed in commit `fix: use harness runtime homes for primary providers`.
+9. [DONE] Git Commit: `fix: use harness runtime homes for primary providers` (hash: self)
+
+### Stream: Secondary Provider Homes
+
+10. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Replace leftover CodeAI-Hub provider-home defaults for GLM Native and OpenCode provider runtime profiles (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/**, .harness/plans/todo-plan.md`; expected commit: `fix: use harness runtime homes for glm providers`).
+11. [TODO] Git Commit: `fix: use harness runtime homes for glm providers` (hash: TBD)
+
+## Phase 6 - Verification Package (owner: Codex, updated: 2026-06-28)
+
+### Stream: Evidence
+
+12. [TODO] `harness-ai.phase6.stream1.task1` Run targeted/full verification and rebuild packaged macOS app for provider runtime namespace retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify harness runtime namespace app`).
+13. [TODO] Git Commit: `chore: verify harness runtime namespace app` (hash: TBD)
+
+## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Retest
+
+14. [TODO] `harness-ai.phase7.stream1.task1` User deletes old workspace runtime residue and retests provider session startup in packaged Harness AI app (scope: user workflow; expected commit: none).

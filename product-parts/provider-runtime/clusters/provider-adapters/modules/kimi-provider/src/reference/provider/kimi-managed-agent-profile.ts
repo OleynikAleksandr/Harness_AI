@@ -9,7 +9,7 @@ import {
 
 const MANAGED_AGENT_DIR = "codeai-managed-agent";
 const KIMI_PROVIDER_HOME_RELATIVE_PATH = path.join(
-  ".codeai-hub",
+  ".harness-ai",
   "providers",
   "kimi",
   "home"
@@ -18,7 +18,6 @@ const KIMI_DEFAULT_CONFIG_RELATIVE_PATH = path.join(
   ".kimi-code",
   "config.toml"
 );
-const WORKSPACE_FALLBACK_SLUG = "workspace";
 const KIMI_CLI_PATH_ENV = "KIMI_CLI_PATH";
 const KIMI_BINARY_NAME = "kimi";
 const KIMI_CODE_BIN_RELATIVE_PATH = path.join(".kimi-code", "bin");
@@ -208,20 +207,10 @@ const resolveHomeDir = (homeDir?: string): string => {
   return resolvedHomeDir;
 };
 
-const normalizeWorkspaceRuntimeSlug = (value: string): string => {
-  const normalized = value
-    .normalize("NFKD")
-    .toLowerCase()
-    .replace(/[\u0300-\u036f]/g, "");
-  const parts = normalized.match(/[a-z0-9]+/gu);
-  return parts?.join("-") || WORKSPACE_FALLBACK_SLUG;
-};
-
 const resolveWorkspaceKimiProviderHome = (workspacePath: string): string =>
   path.join(
     path.resolve(workspacePath),
-    ".codeai-hub",
-    normalizeWorkspaceRuntimeSlug(path.basename(workspacePath)),
+    ".harness",
     "runtime",
     "providers",
     "kimi",

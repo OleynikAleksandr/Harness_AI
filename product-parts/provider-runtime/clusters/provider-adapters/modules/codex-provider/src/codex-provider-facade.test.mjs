@@ -12,6 +12,10 @@ const appServerSource = readFileSync(
   join(moduleDir, "reference/app-server/codex-app-server-facade.ts"),
   "utf8"
 );
+const appServerProcessSource = readFileSync(
+  join(moduleDir, "reference/app-server/process/codex-app-server-process.ts"),
+  "utf8"
+);
 
 assert.match(
   source,
@@ -26,6 +30,9 @@ assert.match(
 assert.match(source, /defaultApprovalMode: "never"/u);
 assert.match(source, /defaultSandboxMode: "danger-full-access"/u);
 assert.match(appServerSource, /CODEX_DEFAULT_PROCESS_PROFILE_KEY/u);
+assert.match(appServerProcessSource, /"\.harness-ai"/u);
+assert.match(appServerProcessSource, /"\.harness"/u);
+assert.doesNotMatch(appServerProcessSource, /"\.codeai-hub"/u);
 assert.doesNotMatch(
   appServerSource,
   /baseInstructions: workflowProfile\.baseInstructions/u

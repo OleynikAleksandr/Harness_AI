@@ -1,31 +1,20 @@
 import { homedir } from "node:os";
 import path from "node:path";
 
-const DEFAULT_CODEAI_CLAUDE_HOME = path.join(
+const DEFAULT_HARNESS_CLAUDE_HOME = path.join(
   homedir(),
-  ".codeai-hub",
+  ".harness-ai",
   "providers",
   "claude",
   "home"
 );
-const WORKSPACE_FALLBACK_SLUG = "workspace";
 
 type EnvironmentMap = Readonly<Record<string, string | undefined>>;
-
-const normalizeWorkspaceRuntimeSlug = (value: string): string => {
-  const normalized = value
-    .normalize("NFKD")
-    .toLowerCase()
-    .replace(/[\u0300-\u036f]/g, "");
-  const parts = normalized.match(/[a-z0-9]+/gu);
-  return parts?.join("-") || WORKSPACE_FALLBACK_SLUG;
-};
 
 const resolveWorkspaceClaudeHome = (workspaceRoot: string): string =>
   path.join(
     workspaceRoot,
-    ".codeai-hub",
-    normalizeWorkspaceRuntimeSlug(path.basename(workspaceRoot)),
+    ".harness",
     "runtime",
     "providers",
     "claude",
@@ -35,7 +24,9 @@ const resolveWorkspaceClaudeHome = (workspaceRoot: string): string =>
 export const resolveClaudeProviderHome = (
   environment: EnvironmentMap = process.env
 ): string => {
-  const explicitHome = environment.CODEAI_CLAUDE_HOME?.trim();
+  const explicitHome =
+    environment.HARNESS_CLAUDE_HOME?.trim() ??
+    environment.CODEAI_CLAUDE_HOME?.trim();
   if (explicitHome) {
     return explicitHome;
   }
@@ -47,7 +38,7 @@ export const resolveClaudeProviderHome = (
     return resolveWorkspaceClaudeHome(path.resolve(workspaceRoot));
   }
 
-  return DEFAULT_CODEAI_CLAUDE_HOME;
+  return DEFAULT_HARNESS_CLAUDE_HOME;
 };
 
 export const resolveClaudeProviderClaudeDir = (): string =>

@@ -70,7 +70,7 @@ const buildAugmentedPath = (basePath = process.env.PATH ?? ""): string => {
 
 const DEFAULT_PROVIDER_CODEX_HOME = path.join(
   homedir(),
-  ".codeai-hub",
+  ".harness-ai",
   "providers",
   "codex",
   "home"
@@ -79,7 +79,6 @@ const LEGACY_CODEX_HOME = path.join(homedir(), ".codex");
 const AUTH_FILENAME = "auth.json";
 const CONFIG_FILENAME = "config.toml";
 const START_TIMEOUT_MS = 10_000;
-const WORKSPACE_FALLBACK_SLUG = "workspace";
 
 type EnvironmentMap = Readonly<Record<string, string | undefined>>;
 
@@ -89,25 +88,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const toError = (error: unknown): Error =>
   error instanceof Error ? error : new Error(String(error));
 
-const normalizeWorkspaceRuntimeSlug = (value: string): string => {
-  const normalized = value
-    .normalize("NFKD")
-    .toLowerCase()
-    .replace(/[\u0300-\u036f]/g, "");
-  const parts = normalized.match(/[a-z0-9]+/gu);
-  return parts?.join("-") || WORKSPACE_FALLBACK_SLUG;
-};
-
 const resolveWorkspaceCodexHome = (workspaceRoot: string): string =>
-  path.join(
-    workspaceRoot,
-    ".codeai-hub",
-    normalizeWorkspaceRuntimeSlug(path.basename(workspaceRoot)),
-    "runtime",
-    "providers",
-    "codex",
-    "home"
-  );
+  path.join(workspaceRoot, ".harness", "runtime", "providers", "codex", "home");
 
 const resolveProviderCodexHome = (
   environment: EnvironmentMap = process.env

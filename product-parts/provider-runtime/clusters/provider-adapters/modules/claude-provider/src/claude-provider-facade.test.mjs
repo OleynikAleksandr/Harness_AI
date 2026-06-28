@@ -19,6 +19,10 @@ const npmRunnerSource = readFileSync(
   new URL("./reference/installer/npm-runner.ts", moduleDir),
   "utf8"
 );
+const providerHomeSource = readFileSync(
+  new URL("./reference/sdk/claude-provider-home.ts", moduleDir),
+  "utf8"
+);
 
 assert.match(facadeSource, /extends ClaudeProviderAdapter/u);
 assert.match(facadeSource, /from "\.\/reference\/index\.js"/u);
@@ -30,6 +34,10 @@ assert.match(
 assert.match(npmRunnerSource, /GUI_NPM_PATHS/u);
 assert.match(npmRunnerSource, /\/opt\/homebrew\/bin/u);
 assert.match(npmRunnerSource, /buildNpmEnvironment/u);
+assert.match(providerHomeSource, /HARNESS_CLAUDE_HOME/u);
+assert.match(providerHomeSource, /"\.harness-ai"/u);
+assert.match(providerHomeSource, /"\.harness"/u);
+assert.doesNotMatch(providerHomeSource, /"\.codeai-hub"/u);
 
 for (const path of [
   "sdk/claude-sdk-manager.ts",

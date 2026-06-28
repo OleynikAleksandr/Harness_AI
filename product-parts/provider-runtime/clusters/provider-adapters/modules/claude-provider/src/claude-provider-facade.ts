@@ -17,6 +17,7 @@ export class ClaudeProviderFacade extends ClaudeProviderAdapter {
       "home"
     );
     process.env.CLAUDE_WORKSPACE_PATH = workspacePath;
+    process.env.HARNESS_CLAUDE_HOME = providerHome;
     process.env.CODEAI_CLAUDE_HOME = providerHome;
     super({
       installerPaths: {

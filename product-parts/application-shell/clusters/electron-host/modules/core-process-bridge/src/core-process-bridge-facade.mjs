@@ -323,7 +323,7 @@ function registerProviderAdapter(runtime, providerId) {
   if (providerId === "glm-opencode") {
     runtime.providerRegistryFacade.registerAdapter(
       providerId,
-      new runtime.GlmOpenCodeProviderFacade(model(providerId))
+      new runtime.GlmOpenCodeProviderFacade(model(providerId), workspacePath)
     );
   }
   if (providerId === "openrouter") {

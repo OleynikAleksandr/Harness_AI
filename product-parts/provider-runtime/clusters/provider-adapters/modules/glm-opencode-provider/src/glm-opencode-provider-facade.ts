@@ -1,23 +1,28 @@
-import { homedir } from "node:os";
 import path from "node:path";
-import { CliSessionProviderAdapter } from "../../provider-adapter-contract/src/session-provider-adapter-helpers.js";
+import { GlmOpenCodeProviderAdapter } from "./reference/index.js";
 
-export class GlmOpenCodeProviderFacade extends CliSessionProviderAdapter {
-  constructor(model?: string) {
+export class GlmOpenCodeProviderFacade extends GlmOpenCodeProviderAdapter {
+  constructor(model?: string, workspacePath = process.cwd()) {
     super({
-      commands: [
-        "opencode",
-        path.join(homedir(), ".opencode", "bin", "opencode"),
-      ],
-      model,
-      args: (prompt, selectedModel) => [
-        "run",
-        "--prompt",
-        prompt,
-        ...(selectedModel ? ["--model", selectedModel] : []),
-      ],
+      workspace: {
+        defaultModel: model && model !== "cli-default" ? model : undefined,
+        providerHomePath: path.join(
+          workspacePath,
+          ".harness",
+          "runtime",
+          "providers",
+          "glm-opencode",
+          "home"
+        ),
+        settingsPath: workspaceSettingsPath(workspacePath),
+        workspacePath,
+      },
     });
   }
+}
+
+function workspaceSettingsPath(workspacePath: string): string {
+  return path.join(workspacePath, ".harness", "settings", "settings.json");
 }
 
 export const glmOpenCodeProviderFacade = new GlmOpenCodeProviderFacade();

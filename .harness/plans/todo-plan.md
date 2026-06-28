@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "feat: migrate glm opencode provider module",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": "feat: migrate openrouter and local model providers",
   "debt": null
 }
 ```
@@ -96,14 +96,14 @@
 
 ### Stream: Provider Runtime
 
-13. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Migrate CodeAI-Hub `GLM_OpenCode_Module` behavior into the Harness GLM OpenCode provider module, including OpenCode process/session behavior, output normalization, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/**`; expected commit: `feat: migrate glm opencode provider module`).
-14. [TODO] Git Commit: `feat: migrate glm opencode provider module` (hash: TBD)
+13. [DONE] `harness-ai.phase7.stream1.task1` Migrate CodeAI-Hub `GLM_OpenCode_Module` behavior into the Harness GLM OpenCode provider module, including OpenCode process/session behavior, output normalization, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, .harness/plans/todo-plan.md`; expected commit: `feat: migrate glm opencode provider module`). Result: Completed in commit `feat: migrate glm opencode provider module`.
+14. [DONE] Git Commit: `feat: migrate glm opencode provider module` (hash: self)
 
 ## Phase 8 - OpenRouter And Local Models Migration (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Provider Runtime
 
-15. [TODO] `harness-ai.phase8.stream1.task1` Migrate CodeAI-Hub OpenRouter and local-model provider behavior into Harness modules, including endpoint/model settings, reasoning/thinking stream handling, request bodies, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/openrouter-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/local-models-provider/**`; expected commit: `feat: migrate openrouter and local model providers`).
+15. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Migrate CodeAI-Hub OpenRouter and local-model provider behavior into Harness modules, including endpoint/model settings, reasoning/thinking stream handling, request bodies, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/openrouter-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/local-models-provider/**`; expected commit: `feat: migrate openrouter and local model providers`).
 16. [TODO] Git Commit: `feat: migrate openrouter and local model providers` (hash: TBD)
 
 ## Phase 9 - Shared Contract Cleanup (owner: Codex, updated: 2026-06-28)

@@ -9,6 +9,9 @@ Implemented:
 - Wired `session-request-handler` to publish facade-projected messages through the existing `session:message` stream, so the existing Session Window thinking bubble renderer is reused.
 - Ported the missing CodeAI-HUB Codex app-server parity: `turn/start` now requests `summary: "detailed"`, and Codex reasoning summary/text delta notifications are normalized into `thinking` dialog messages.
 - Added a shared OpenAI-compatible fallback that emits final `reasoning_content` / `reasoning` response fields as `thinking` dialog messages before assistant text.
+- Restored Codex applied reasoning settings: Core now passes Codex reasoning effort and summary enablement from Core-owned settings into provider turn options, and the Codex adapter sends `effort` plus enabled/disabled `summary` in `turn/start`.
+- Restored Kimi workspace/native-output parity for the current CLI path: Kimi now runs from the active workspace cwd and requests `--output-format stream-json`; the shared CLI adapter emits native thinking chunks as `thinking` dialog messages when Kimi includes them.
+- Restored Claude workspace context by running Claude CLI sessions from the active workspace cwd so files such as `CLAUDE.md` are visible to the provider.
 - Kept provider-specific protocol parsing out of the UI.
 
 Storage facts:
@@ -32,7 +35,7 @@ Verification commands:
 Result:
 
 - All commands completed successfully.
-- `npm test` passed 14 tests.
+- `npm test` passed 16 tests.
 - `check:architecture` reported 50 product-tree modules and no ownership errors.
 - `check:security` reported 0 high vulnerabilities.
 - `check:links` passed.

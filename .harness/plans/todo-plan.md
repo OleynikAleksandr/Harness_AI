@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase13.stream1.task1",
-  "expectedCommitMessage": "chore: verify claude codex kimi reasoning repair",
+  "currentTaskId": "harness-ai.phase14.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -128,11 +128,11 @@
 
 ### Stream: Verification
 
-23. [IN_PROGRESS] `harness-ai.phase13.stream1.task1` Update evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify claude codex kimi reasoning repair`).
-24. [TODO] Git Commit: `chore: verify claude codex kimi reasoning repair` (hash: TBD)
+23. [DONE] `harness-ai.phase13.stream1.task1` Update evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify claude codex kimi reasoning repair`). Result: Completed in commit `chore: verify claude codex kimi reasoning repair`.
+24. [DONE] Git Commit: `chore: verify claude codex kimi reasoning repair` (hash: self)
 
 ## Phase 14 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-25. [TODO] `harness-ai.phase14.stream1.task1` User relaunches the packaged app and verifies Claude workspace context plus Codex/Kimi reasoning display (scope: user workflow; expected commit: none).
+25. [IN_PROGRESS] `harness-ai.phase14.stream1.task1` User relaunches the packaged app and verifies Claude workspace context plus Codex/Kimi reasoning display (scope: user workflow; expected commit: none).

@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase19.stream1.task1",
-  "expectedCommitMessage": "chore: verify codex reasoning capabilities",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -169,5 +169,5 @@
 
 ### Stream: Verification
 
-34. [IN_PROGRESS] `harness-ai.phase19.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the Codex reasoning capability fix for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reasoning capabilities`).
-35. [TODO] Git Commit: `chore: verify codex reasoning capabilities` (hash: TBD)
+34. [DONE] `harness-ai.phase19.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the Codex reasoning capability fix for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reasoning capabilities`). Result: Completed in commit `chore: verify codex reasoning capabilities`.
+35. [DONE] Git Commit: `chore: verify codex reasoning capabilities` (hash: self)

@@ -1,4 +1,7 @@
-import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import {
+  CLAUDE_REASONING_EFFORTS_BY_MODEL,
+  type HarnessSettings,
+} from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
 import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
@@ -39,46 +42,57 @@ export function ClaudeDefaultModelCard({
         }
       />
       <div className="settings-list">
-        {PROVIDER_MODEL_OPTIONS.claude.map((option) => (
-          <div
-            className={
-              option.id === provider.defaultModel
-                ? "active settings-model-row settings-model-row--with-control"
-                : "settings-model-row settings-model-row--with-control"
-            }
-            key={option.id}
-          >
-            <button
-              aria-pressed={option.id === provider.defaultModel}
-              className="settings-model-choice"
-              onClick={() =>
-                update((next) => {
-                  next.providers.claude.defaultModel = option.id;
-                })
+        {PROVIDER_MODEL_OPTIONS.claude.map((option) => {
+          const efforts = CLAUDE_REASONING_EFFORTS_BY_MODEL[option.id] ?? [];
+          return (
+            <div
+              className={
+                option.id === provider.defaultModel
+                  ? "active settings-model-row settings-model-row--with-control"
+                  : "settings-model-row settings-model-row--with-control"
               }
-              type="button"
+              key={option.id}
             >
-              <span className="settings-model-title">{option.label}</span>
-              <span className="settings-model-id">{option.id}</span>
-              <p className="settings-model-description">{option.description}</p>
-            </button>
-            <div className="settings-row-select">
-              <span>Reasoning</span>
-              <ReasoningEffortSelect
-                disabled={!provider.thinking.enabled}
-                onChange={(effort) =>
+              <button
+                aria-pressed={option.id === provider.defaultModel}
+                className="settings-model-choice"
+                onClick={() =>
                   update((next) => {
-                    next.providers.claude.thinkingByModel[option.id] = effort;
-                    if (option.id === next.providers.claude.defaultModel) {
-                      next.providers.claude.thinking.effort = effort;
-                    }
+                    next.providers.claude.defaultModel = option.id;
                   })
                 }
-                value={provider.thinkingByModel[option.id] ?? "medium"}
-              />
+                type="button"
+              >
+                <span className="settings-model-title">{option.label}</span>
+                <span className="settings-model-id">{option.id}</span>
+                <p className="settings-model-description">
+                  {option.description}
+                </p>
+              </button>
+              <div className="settings-row-select">
+                <span>Reasoning</span>
+                {efforts.length > 0 ? (
+                  <ReasoningEffortSelect
+                    disabled={!provider.thinking.enabled}
+                    onChange={(effort) =>
+                      update((next) => {
+                        next.providers.claude.thinkingByModel[option.id] =
+                          effort;
+                        if (option.id === next.providers.claude.defaultModel) {
+                          next.providers.claude.thinking.effort = effort;
+                        }
+                      })
+                    }
+                    value={provider.thinkingByModel[option.id] ?? "medium"}
+                    values={efforts}
+                  />
+                ) : (
+                  <span>Not adjustable</span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <p className="settings-note">
         Применяется только к вновь созданным сессиям Claude.

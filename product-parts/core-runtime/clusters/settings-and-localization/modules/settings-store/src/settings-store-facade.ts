@@ -19,6 +19,17 @@ export type ReasoningEffort =
   | "max"
   | "ultracode";
 
+// Reasoning effort levels each Claude alias exposes, mirroring the Claude CLI:
+// Opus adds ultracode, Sonnet drops xhigh, Haiku has no effort selection.
+export const CLAUDE_REASONING_EFFORTS_BY_MODEL: Record<
+  string,
+  readonly ReasoningEffort[]
+> = {
+  opus: ["low", "medium", "high", "xhigh", "max", "ultracode"],
+  sonnet: ["low", "medium", "high", "max"],
+  haiku: [],
+};
+
 export interface LocalizationCategorySettings {
   artifactsForTheUser: string;
   interactiveTemplates: string;

@@ -103,8 +103,13 @@
 17. [DONE] `harness-ai.phase7.stream1.task1` Run required gates, regression checks, rebuild packaged macOS app and record evidence for Core process lifecycle retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference core runtime rebuild app`). Result: Completed in commit `chore: verify reference core runtime rebuild app`.
 18. [DONE] Git Commit: `chore: verify reference core runtime rebuild app` (hash: self)
 
+### Stream: Documentation Follow-Up
+
+19. [DONE] `harness-ai.phase7.stream2.task1` Align Core Runtime product-part and runtime-process cluster documents with the implemented out-of-process Core RPC/SSE/provider-tooling boundary (scope: `product-parts/core-runtime/product-part.md, product-parts/core-runtime/clusters/runtime-process/cluster.md, .harness/plans/todo-plan.md`; expected commit: `docs: align core runtime process documentation`). Result: Completed in commit `docs: align core runtime process documentation`.
+20. [DONE] Git Commit: `docs: align core runtime process documentation` (hash: self)
+
 ## Phase 8 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-19. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).
+21. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).

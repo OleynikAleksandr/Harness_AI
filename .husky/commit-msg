@@ -2,3 +2,4 @@
 set -e
 
 node scripts/plan.mjs validate-commit-message "$1"
+node scripts/check-docs-sync.mjs "$1"

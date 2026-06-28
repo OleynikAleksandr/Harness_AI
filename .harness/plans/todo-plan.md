@@ -8,7 +8,7 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase174.stream1.task1",
+  "currentTaskId": "harness-ai.phase176.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -1242,4 +1242,17 @@
 
 ### Stream: Closure Behavior Retest
 
-339. [IN_PROGRESS] `harness-ai.phase174.stream1.task1` User confirms a completed plan no longer auto-closes and that closing remains a deliberate user-directed action (scope: user workflow; expected commit: none).
+339. [DONE] `harness-ai.phase174.stream1.task1` User confirms a completed plan no longer auto-closes and that closing remains a deliberate user-directed action (scope: user workflow; expected commit: none). Result: User required that documentation stay 100% relevant to the code — every code change must update the relevant docs (module.md, .harness/product-tree, docs/architecture) — and asked for an enforcing gate, not just a rule.
+
+## Phase 175 - Docs-Sync Gate (owner: Codex, updated: 2026-06-28)
+
+### Stream: Quality Gates
+
+340. [DONE] `harness-ai.phase175.stream1.task1` Add a check:docs-sync gate (in .husky/commit-msg) that fails when a module's src code changes without updating its module.md (with a [skip-docs] escape), wire it into package.json scripts, and document the documentation-relevance rule in AGENTS.md sections 3, 6 and 10 (scope: `scripts/check-docs-sync.mjs, scripts/check-docs-sync.test.mjs, .husky/commit-msg, package.json, AGENTS.md`; expected commit: `feat: add docs-sync gate for module docs`). Result: Completed in commit `feat: add docs-sync gate for module docs`.
+341. [DONE] Git Commit: `feat: add docs-sync gate for module docs` (hash: self)
+
+## Phase 176 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Docs-Sync Retest
+
+342. [IN_PROGRESS] `harness-ai.phase176.stream1.task1` User reviews the docs-sync gate and the documentation-relevance rule, and decides on any wider coverage (scope: user workflow; expected commit: none).

@@ -50,6 +50,8 @@
 - Новый функционал или алгоритм означает новый module или строго additive изменение существующего module.
 - Не трогай закрытый работающий module без необходимости. Исправляй root cause в общем маршруте, если через него идут sibling callers.
 - Файл implementation code не должен превышать 500 строк.
+- Документация обязана быть 100% релевантна текущему коду. Любое изменение `src/**` модуля в том же commit сопровождается обновлением его `module.md`; при изменении структуры/контрактов — также `.harness/product-tree/**` (json + readable projection) и релевантных `docs/architecture/**`. Устаревшая или несоответствующая коду документация — это дефект наравне со сломанным кодом.
+- Гейт `check:docs-sync` (в `.husky/commit-msg`) автоматически требует обновить `module.md`, если изменён `src/**` этого модуля. Привязку к `docs/architecture/**` и `.harness/product-tree/**` гейт не проверяет автоматически — это ответственность исполнителя по правилу выше. Если правка действительно не влияет на документацию (рефактор без изменения поведения/контракта), добавь `[skip-docs]` в commit message.
 
 ## 4. Core Authority
 
@@ -79,7 +81,7 @@
 - Никогда не обходи Husky hooks и quality gates через `--no-verify`.
 - Commit gates:
   - `.husky/pre-commit`: `npm run plan:validate`, staged `npx ultracite fix`, `npm run check:architecture`, `npm run lint`, `npm run check:knip`, `npm run typecheck`, `npm test`
-  - `.husky/commit-msg`: `node scripts/plan.mjs validate-commit-message "$1"`
+  - `.husky/commit-msg`: `node scripts/plan.mjs validate-commit-message "$1"`, `node scripts/check-docs-sync.mjs "$1"`
   - `.husky/post-commit`: `node scripts/plan.mjs post-commit`
 - Push gates:
   - `.husky/pre-push`: `npm run plan:validate`, `npm run check:dup`, `npm run check:security`, `npm run check:links`
@@ -143,4 +145,4 @@
 - Не инициируй закрытие или архивацию scope. Перевод `Execution Scope Status` в `NONE`, перенос плана в `.harness/plans/archive/`, запуск `npm run plan:archive` и старт нового пустого плана выполняются ТОЛЬКО по прямой команде пользователя. Агент может предложить закрытие, но решение и его момент принадлежат пользователю (см. раздел 9).
 - Не откатывай чужие изменения без прямого запроса.
 - Не редактируй версии `package.json` вручную без отдельного release/versioning решения.
-- Любое изменение архитектуры или процесса синхронно отражай в active plan и релевантной документации в том же commit.
+- Любое изменение кода синхронно отражай в релевантной документации в том же commit: `module.md` затронутого модуля обязателен, а `.harness/product-tree/**` и `docs/architecture/**` — при изменении структуры/контрактов/процесса. Документация должна быть 100% релевантна текущему коду; устаревшая документация = дефект (см. раздел 3). Изменения процесса дополнительно отражай в active plan.

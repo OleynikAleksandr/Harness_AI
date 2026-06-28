@@ -115,6 +115,45 @@ This scope must remove or replace:
 - renderer imports of provider-runtime implementation types when a Core read-model contract should be used instead;
 - misleading `Restart Core` behavior that only rebuilds provider adapters in-process.
 
+## Regression Preservation Contract
+
+Moving Core out of the Electron process changes the transport boundary only. It
+must not change the user-visible session/provider contracts that already work.
+
+The Application Shell must continue to receive these Core-owned read models and
+events after the refactor:
+
+- session lifecycle events: created, restored, deleted and active turn state;
+- user, assistant, system, thinking and live assistant messages;
+- provider binding state with Core session id and provider session id;
+- runtime model/provider status;
+- token usage and context-window telemetry;
+- provider usage limits, including 5-hour/session and weekly buckets where the provider exposes them;
+- visible reasoning/thinking projection;
+- append-only session JSONL readback under `<workspace>/.harness/sessions/**`;
+- settings-driven model, reasoning and provider auth selections;
+- refreshed read models after real Core restart/reconnect.
+
+The refactor is not accepted if Application Shell needs local heuristics to
+rebuild any of those facts. They must be emitted by Core or provider modules
+through Core contracts.
+
+## Verification Guards
+
+Each implementation phase that changes the Core process boundary must preserve
+or add the smallest runnable checks for the contracts it touches. At minimum
+the final package verification must cover:
+
+- Core health endpoint reports ready before UI session calls proceed;
+- Core shutdown endpoint stops the process and restart starts a fresh process;
+- restored sessions still hydrate their JSONL events;
+- provider binding survives Core-owned resume/rebind paths;
+- token/context telemetry still reaches the session read model;
+- usage-limit telemetry still reaches the session read model;
+- reasoning/thinking events still project into dialog messages;
+- settings changes are persisted by Core and visible after reconnect;
+- Application Shell contains no direct provider facade construction or provider adapter registration.
+
 ## Acceptance Criteria
 
 - Starting Harness AI starts or attaches to a separate Core process.
@@ -123,3 +162,4 @@ This scope must remove or replace:
 - Application Shell can be killed without being the source of workflow truth.
 - Provider modules are instantiated by Core process code only.
 - Architecture checks fail on direct Application Shell imports of Core Runtime implementation modules or provider adapter implementation modules.
+- Existing UI-visible telemetry, provider limits, reasoning, session history and settings contracts still work through Core process contracts.

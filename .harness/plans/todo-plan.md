@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "feat: supervise core process from application shell",
+  "currentTaskId": "harness-ai.phase5.stream2.task1",
+  "expectedCommitMessage": "feat: bridge application shell to core process api",
   "debt": null
 }
 ```
@@ -81,12 +81,12 @@
 
 ### Stream: Supervisor
 
-11. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Replace Electron-host direct runtime imports with a CodeAI-Hub-style Core supervisor that starts, stops, restarts and health-checks the Core process (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, .harness/plans/todo-plan.md`; expected commit: `feat: supervise core process from application shell`).
-12. [TODO] Git Commit: `feat: supervise core process from application shell` (hash: TBD)
+11. [DONE] `harness-ai.phase5.stream1.task1` Replace Electron-host direct runtime imports with a CodeAI-Hub-style Core supervisor that starts, stops, restarts and health-checks the Core process (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, .harness/plans/todo-plan.md`; expected commit: `feat: supervise core process from application shell`). Result: Completed in commit `feat: supervise core process from application shell`.
+12. [DONE] Git Commit: `feat: supervise core process from application shell` (hash: self)
 
 ### Stream: Bridge
 
-13. [TODO] `harness-ai.phase5.stream2.task1` Replace renderer IPC handlers that call Core singletons with a client bridge to Core HTTP/WebSocket contracts (scope: `product-parts/application-shell/**, product-parts/core-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: bridge application shell to core process api`).
+13. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Replace renderer IPC handlers that call Core singletons with a client bridge to Core HTTP/WebSocket contracts (scope: `product-parts/application-shell/**, product-parts/core-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: bridge application shell to core process api`).
 14. [TODO] Git Commit: `feat: bridge application shell to core process api` (hash: TBD)
 
 ## Phase 6 - Cleanup And Guards (owner: Codex, updated: 2026-06-28)

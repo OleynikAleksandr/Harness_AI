@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { dialog, ipcMain } from "electron";
+import { createCoreProcessSupervisor } from "./core-process-supervisor.mjs";
 import {
   loadWorkspaceRegistrySnapshot,
   saveWorkspaceRegistrySnapshot,
@@ -17,6 +18,8 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   if (bridge) {
     return bridge;
   }
+  const coreSupervisor = createCoreProcessSupervisor(repositoryRoot);
+  await coreSupervisor.start();
   const runtime = await loadRuntime(repositoryRoot);
   restoreCoreState(runtime);
   registerProviderAdapters(runtime);
@@ -159,11 +162,13 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
       }
     }
   );
-  ipcMain.handle("harness-ai:core:restart", () => {
+  ipcMain.handle("harness-ai:core:restart", async () => {
+    await coreSupervisor.restart();
     runtime.providerRegistryFacade.clearAdapters();
     registerProviderAdapters(runtime);
     return {
       ok: true,
+      core: coreSupervisor.getConnectionInfo(),
       providers: runtime.providerRegistryFacade.listProviders(),
       settings: runtime.settingsStoreFacade.getSettings(
         activeWorkspacePath(runtime)

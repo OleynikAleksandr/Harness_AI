@@ -6,6 +6,14 @@ const PRODUCT_TREE_PATH = ".harness/product-tree/product-tree.json";
 const MAX_LINES = 500;
 const LINE_SPLIT_REGEX = /\r?\n/u;
 const SOURCE_FILE_REGEX = /\.(mjs|js|ts|tsx)$/u;
+const APPLICATION_SHELL_DIR = "product-parts/application-shell";
+const ELECTRON_HOST_DIR =
+  "product-parts/application-shell/clusters/electron-host";
+const PROVIDER_ADAPTER_IMPLEMENTATION_REGEX =
+  /provider-runtime\/clusters\/provider-adapters\/modules\/[^"')\s]+-provider\/src\//u;
+const CORE_RUNTIME_CLUSTER_REGEX = /core-runtime\/clusters\//u;
+const ALLOWED_CORE_PROCESS_ENTRYPOINT =
+  "core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.js";
 const SKIP_DIRS = new Set([
   ".codeai-hub",
   ".git",
@@ -84,10 +92,47 @@ function checkLineLimits() {
   }
 }
 
+function checkApplicationShellCoreBoundary() {
+  const offenders = [];
+  for (const file of walk(APPLICATION_SHELL_DIR)) {
+    if (!SOURCE_FILE_REGEX.test(file)) {
+      continue;
+    }
+    const source = readFileSync(file, "utf8");
+    if (PROVIDER_ADAPTER_IMPLEMENTATION_REGEX.test(source)) {
+      offenders.push(
+        `${file}: Application Shell must not import provider adapter implementation modules.`
+      );
+    }
+    if (file.startsWith(ELECTRON_HOST_DIR)) {
+      const normalizedSource = source.replaceAll(
+        ALLOWED_CORE_PROCESS_ENTRYPOINT,
+        ""
+      );
+      if (CORE_RUNTIME_CLUSTER_REGEX.test(normalizedSource)) {
+        offenders.push(
+          `${file}: Electron Host must use Core process contracts instead of direct Core Runtime implementation imports.`
+        );
+      }
+      if (normalizedSource.includes("provider-runtime/")) {
+        offenders.push(
+          `${file}: Electron Host must not import Provider Runtime implementation.`
+        );
+      }
+    }
+  }
+  if (offenders.length > 0) {
+    throw new Error(
+      `Application Shell Core boundary violations:\n${offenders.join("\n")}`
+    );
+  }
+}
+
 try {
   assertExists(PRODUCT_TREE_PATH);
   const summary = checkTree(readJson(PRODUCT_TREE_PATH));
   checkLineLimits();
+  checkApplicationShellCoreBoundary();
   console.log(
     `Architecture check: OK (${summary.productParts} product parts, ${summary.clusters} clusters, ${summary.modules} modules)`
   );

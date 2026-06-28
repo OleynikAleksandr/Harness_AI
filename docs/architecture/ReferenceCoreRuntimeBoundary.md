@@ -153,6 +153,9 @@ the final package verification must cover:
 - reasoning/thinking events still project into dialog messages;
 - settings changes are persisted by Core and visible after reconnect;
 - Application Shell contains no direct provider facade construction or provider adapter registration.
+- `check:architecture` rejects Electron Host direct Core Runtime loading,
+  Electron Host Provider Runtime imports, and any Application Shell import of
+  provider adapter implementation modules.
 
 ## Acceptance Criteria
 
@@ -161,5 +164,6 @@ the final package verification must cover:
 - Restart Core performs a real stop/start sequence.
 - Application Shell can be killed without being the source of workflow truth.
 - Provider modules are instantiated by Core process code only.
-- Architecture checks fail on direct Application Shell imports of Core Runtime implementation modules or provider adapter implementation modules.
+- Architecture checks fail on Electron Host direct Core Runtime loading and
+  Application Shell provider adapter implementation imports.
 - Existing UI-visible telemetry, provider limits, reasoning, session history and settings contracts still work through Core process contracts.

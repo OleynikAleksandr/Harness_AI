@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "test: guard application shell core boundary",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "chore: verify reference core runtime rebuild app",
   "debt": null
 }
 ```
@@ -93,14 +93,14 @@
 
 ### Stream: Boundary Enforcement
 
-15. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Add architecture guard coverage that rejects direct Application Shell imports of Core Runtime implementation modules and provider adapter implementation modules (scope: `scripts/**, product-parts/application-shell/**, .harness/plans/todo-plan.md`; expected commit: `test: guard application shell core boundary`).
-16. [TODO] Git Commit: `test: guard application shell core boundary` (hash: TBD)
+15. [DONE] `harness-ai.phase6.stream1.task1` Add architecture guard coverage that rejects Electron Host direct Core loading and Application Shell provider adapter implementation imports (scope: `scripts/**, product-parts/application-shell/**, docs/architecture/ReferenceCoreRuntimeBoundary.md, .harness/plans/todo-plan.md`; expected commit: `test: guard application shell core boundary`). Result: Completed in commit `test: guard application shell core boundary`.
+16. [DONE] Git Commit: `test: guard application shell core boundary` (hash: self)
 
 ## Phase 7 - Verification Package (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Build And Evidence
 
-17. [TODO] `harness-ai.phase7.stream1.task1` Run required gates, regression checks, rebuild packaged macOS app and record evidence for Core process lifecycle retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference core runtime rebuild app`).
+17. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Run required gates, regression checks, rebuild packaged macOS app and record evidence for Core process lifecycle retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference core runtime rebuild app`).
 18. [TODO] Git Commit: `chore: verify reference core runtime rebuild app` (hash: TBD)
 
 ## Phase 8 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

@@ -8,8 +8,8 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase165.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase167.stream1.task1",
+  "expectedCommitMessage": "chore: load agent instructions via root claude md",
   "debt": null
 }
 ```
@@ -1183,4 +1183,24 @@
 
 ### Stream: Design Retest
 
-325. [IN_PROGRESS] `harness-ai.phase165.stream1.task1` User relaunches the rebuilt app and reviews the muted filled buttons and single-pixel selection outlines, then provides design feedback (scope: user workflow; expected commit: none).
+325. [DONE] `harness-ai.phase165.stream1.task1` User relaunches the rebuilt app and reviews the muted filled buttons and single-pixel selection outlines, then provides design feedback (scope: user workflow; expected commit: none). Result: User approved the muted buttons and single-pixel outlines, asked to remove the redundant OpenRouter "Selected model" row from all three OpenRouter blocks, and to make the active agent instructions load automatically at session start.
+
+## Phase 166 - Remove OpenRouter Selected Model Row (owner: Codex, updated: 2026-06-28)
+
+### Stream: Settings Surface
+
+326. [DONE] `harness-ai.phase166.stream1.task1` Remove the redundant "Selected model" row from the shared OpenRouter model/endpoint picker so the chat, UI translation, and reasoning translation OpenRouter blocks no longer show it, then rebuild and repackage the unsigned macOS app (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.tsx`; expected commit: `fix: remove openrouter selected model row`). Result: Completed in commit `fix: remove openrouter selected model row`.
+327. [DONE] Git Commit: `fix: remove openrouter selected model row` (hash: self)
+
+## Phase 167 - Load Agent Instructions Every Session (owner: Codex, updated: 2026-06-28)
+
+### Stream: Workspace Instructions
+
+328. [IN_PROGRESS] `harness-ai.phase167.stream1.task1` Add a root CLAUDE.md that imports AGENTS.md so Claude Code loads the active instructions at session start, document the build vs package:mac order in AGENTS.md, and remove the inactive archived .claude/Claude.md (scope: `CLAUDE.md, AGENTS.md, .claude/Claude.md`; expected commit: `chore: load agent instructions via root claude md`).
+329. [TODO] Git Commit: `chore: load agent instructions via root claude md` (hash: TBD)
+
+## Phase 168 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Session Start Verification
+
+330. [TODO] `harness-ai.phase168.stream1.task1` User starts a new session and confirms the OpenRouter blocks no longer show the "Selected model" row and that the active agent instructions load from the root CLAUDE.md import (scope: user workflow; expected commit: none).

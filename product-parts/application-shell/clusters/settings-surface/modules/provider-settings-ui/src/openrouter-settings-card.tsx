@@ -212,17 +212,6 @@ export function OpenRouterModelEndpointPicker({
           value={query}
         />
       </label>
-      {value ? (
-        <button
-          aria-pressed="true"
-          className="active settings-model-row"
-          onClick={() => undefined}
-          type="button"
-        >
-          <span className="settings-model-title">Selected model</span>
-          <span className="settings-model-id">{value}</span>
-        </button>
-      ) : null}
       <div className="settings-list">
         {modelsLoading ? <p className="settings-muted">Searching...</p> : null}
         {models.map((model) => (

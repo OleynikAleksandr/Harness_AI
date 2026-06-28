@@ -8,8 +8,8 @@
   "planId": "next-session-mode-ui-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "chore: verify next session mode app",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -99,11 +99,11 @@
 
 ### Stream: Build And Evidence
 
-13. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Run required gates, record evidence, build `dist/`, and package the macOS app for user testing (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify next session mode app`).
-14. [TODO] Git Commit: `chore: verify next session mode app` (hash: TBD)
+13. [DONE] `harness-ai.phase7.stream1.task1` Run required gates, record evidence, build `dist/`, and package the macOS app for user testing (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify next session mode app`). Result: Completed in commit `chore: verify next session mode app`.
+14. [DONE] Git Commit: `chore: verify next session mode app` (hash: self)
 
 ## Phase 8 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-15. [TODO] `harness-ai.phase8.stream1.task1` User retests the packaged Harness AI app and verifies the next-session mode workflow visually and behaviorally (scope: user workflow; expected commit: none).
+15. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests the packaged Harness AI app and verifies the next-session mode workflow visually and behaviorally (scope: user workflow; expected commit: none).

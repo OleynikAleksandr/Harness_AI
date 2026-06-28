@@ -59,6 +59,7 @@ The next product-tree update should replace the role of `provider-turn-runner` w
   - `session-request-handler`
   - `provider-session-binding`
   - `session-event-stream`
+  - `session-reasoning-display`
 - Provider Runtime / Provider Adapters:
   - `provider-adapter-contract`
   - one adapter module per provider
@@ -71,3 +72,5 @@ The next product-tree update should replace the role of `provider-turn-runner` w
 ## Immediate Implementation Rule
 
 From this scope forward, provider execution must enter through Core session dispatch. Any shortcut that calls a provider outside the CodeAI Hub-style Core/provider adapter path requires explicit user approval before implementation.
+
+Visible provider reasoning follows the same rule: provider events enter Core, `session-reasoning-display` projects explicit thinking events or tagged visible reasoning into Core `thinking` messages, and the UI only renders the projected session messages.

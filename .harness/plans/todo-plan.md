@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "chore: verify session reasoning display",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -67,11 +67,11 @@
 
 ### Stream: Build And Evidence
 
-7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Update architecture/product-tree docs, run required checks, build, package the macOS app, and record verification evidence (scope: `docs/architecture/**, docs/evidence/**, .harness/product-tree/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session reasoning display`).
-8. [TODO] Git Commit: `chore: verify session reasoning display` (hash: TBD)
+7. [DONE] `harness-ai.phase4.stream1.task1` Update architecture/product-tree docs, run required checks, build, package the macOS app, and record verification evidence (scope: `docs/architecture/**, docs/evidence/**, .harness/product-tree/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify session reasoning display`). Result: Completed in commit `chore: verify session reasoning display`.
+8. [DONE] Git Commit: `chore: verify session reasoning display` (hash: self)
 
 ## Phase 5 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-9. [TODO] `harness-ai.phase5.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).
+9. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).

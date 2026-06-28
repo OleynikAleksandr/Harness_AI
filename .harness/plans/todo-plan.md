@@ -101,3 +101,10 @@
 
 17. [DONE] `harness-ai.phase8.stream1.task1` Bind Codex app-server provider home from the workspace-scoped process environment instead of global process state, so new Codex sessions write under `<workspace>/.harness/runtime/providers/codex/home` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, .harness/plans/todo-plan.md`; expected commit: `fix: bind codex app server home from workspace env`). Result: Completed in commit `fix: bind codex app server home from workspace env`.
 18. [DONE] Git Commit: `fix: bind codex app server home from workspace env` (hash: self)
+
+## Phase 9 - Verification Package (owner: Codex, updated: 2026-06-28)
+
+### Stream: Build And Evidence
+
+19. [DONE] `harness-ai.phase9.stream1.task1` Rebuild packaged macOS app and record evidence that Codex runtime home binding is present in the shipped app (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex workspace runtime home app`). Result: Completed in commit `chore: verify codex workspace runtime home app`.
+20. [DONE] Git Commit: `chore: verify codex workspace runtime home app` (hash: self)

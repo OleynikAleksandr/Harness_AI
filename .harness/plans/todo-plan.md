@@ -4,18 +4,97 @@
 ```json
 {
   "schema": "harness-ai-plan-v1",
-  "executionScopeStatus": "NONE",
-  "planId": null,
+  "executionScopeStatus": "ACTIVE",
+  "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "docs: map reference core runtime boundary",
   "debt": null
 }
 ```
 <!-- harness-plan-state:end -->
 
-## No Active Scope
+## Context Pack For This Cycle
 
-No active execution scope. Per AGENTS.md, agree a new scope with the user, then
-create the active plan from `.harness/plans/todo-plan.template.md`.
+- **Planning source:** User directive to stop extending the current mixed Electron/Core runtime and rebuild Harness AI according to the CodeAI-Hub reference architecture.
+- **Reference project:** `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub`.
+- **Architecture truth:** `.harness/product-tree/product-tree.json`.
+- **Readable architecture projection:** `.harness/product-tree/product-tree.md`.
+- **Read this context before implementation:**
+  - `AGENTS.md`
+  - `.harness/product-tree/product-tree.md`
+  - `docs/architecture/CodeAIHubProviderRuntimeAlignment.md`
+  - `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/src/extension-module/core/core-process-manager.ts`
+  - `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/core-supervisor/src/index.ts`
+  - `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/src/client/ui/src/core-bridge/core-bridge.ts`
+
+## Execution Rules
+
+- The active plan is the recovery owner for this workspace.
+- Every implementation task has a paired `Git Commit: ...` line.
+- Each microtask touches no more than 3 functional files unless this plan splits it first.
+- Product Part / Cluster / Module filesystem ownership is primary.
+- CodeAI-Hub is the behavioral reference. Do not invent a new Core lifecycle where the reference already has one.
+- Application Shell is not Core. Application Shell may supervise, connect, display and forward user input only.
+- Core Runtime owns workflow/session/provider/settings truth and runs out-of-process.
+- No direct `application-shell` imports of `core-runtime` implementation modules are allowed after this scope.
+- Commit with `npm run plan:commit -- "<expected commit message>"`.
+
+## Phase 1 - Scope Bootstrap (owner: Codex, updated: 2026-06-28)
+
+### Stream: Plan Setup
+
+1. [DONE] `harness-ai.phase1.stream1.task1` Create active scope plan for rebuilding the Harness AI Core lifecycle from the CodeAI-Hub reference architecture (scope: `.harness/plans/todo-plan.md`; expected commit: `chore: start reference core runtime rebuild scope`). Result: Completed in commit `chore: start reference core runtime rebuild scope`.
+2. [DONE] Git Commit: `chore: start reference core runtime rebuild scope` (hash: self)
+
+## Phase 2 - Reference Boundary Map (owner: Codex, updated: 2026-06-28)
+
+### Stream: Runtime Contract
+
+3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Map CodeAI-Hub Core supervisor, health/shutdown, port registry, WebSocket/HTTP bridge and shutdown lifecycle into a Harness AI migration contract (scope: `docs/architecture/**, .harness/product-tree/**, .harness/plans/todo-plan.md`; expected commit: `docs: map reference core runtime boundary`).
+4. [TODO] Git Commit: `docs: map reference core runtime boundary` (hash: TBD)
+
+## Phase 3 - Core Runtime Process (owner: Codex, updated: 2026-06-28)
+
+### Stream: Runtime Server
+
+5. [TODO] `harness-ai.phase3.stream1.task1` Add the minimal Core Runtime process entry with health and shutdown endpoints, keeping session/provider/settings truth inside Core (scope: `product-parts/core-runtime/**, package.json, .harness/plans/todo-plan.md`; expected commit: `feat: add core runtime process boundary`).
+6. [TODO] Git Commit: `feat: add core runtime process boundary` (hash: TBD)
+
+### Stream: Provider Binding
+
+7. [TODO] `harness-ai.phase3.stream2.task1` Move provider adapter registration and session request handling behind the Core process API instead of Electron-host composition (scope: `product-parts/core-runtime/**, product-parts/provider-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: host provider runtime inside core process`).
+8. [TODO] Git Commit: `feat: host provider runtime inside core process` (hash: TBD)
+
+## Phase 4 - Application Shell Supervisor Client (owner: Codex, updated: 2026-06-28)
+
+### Stream: Supervisor
+
+9. [TODO] `harness-ai.phase4.stream1.task1` Replace Electron-host direct runtime imports with a CodeAI-Hub-style Core supervisor that starts, stops, restarts and health-checks the Core process (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/**, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/**, .harness/plans/todo-plan.md`; expected commit: `feat: supervise core process from application shell`).
+10. [TODO] Git Commit: `feat: supervise core process from application shell` (hash: TBD)
+
+### Stream: Bridge
+
+11. [TODO] `harness-ai.phase4.stream2.task1` Replace renderer IPC handlers that call Core singletons with a client bridge to Core HTTP/WebSocket contracts (scope: `product-parts/application-shell/**, product-parts/core-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: bridge application shell to core process api`).
+12. [TODO] Git Commit: `feat: bridge application shell to core process api` (hash: TBD)
+
+## Phase 5 - Cleanup And Guards (owner: Codex, updated: 2026-06-28)
+
+### Stream: Boundary Enforcement
+
+13. [TODO] `harness-ai.phase5.stream1.task1` Add architecture guard coverage that rejects direct Application Shell imports of Core Runtime implementation modules (scope: `scripts/**, product-parts/application-shell/**, .harness/plans/todo-plan.md`; expected commit: `test: guard application shell core boundary`).
+14. [TODO] Git Commit: `test: guard application shell core boundary` (hash: TBD)
+
+## Phase 6 - Verification Package (owner: Codex, updated: 2026-06-28)
+
+### Stream: Build And Evidence
+
+15. [TODO] `harness-ai.phase6.stream1.task1` Run required gates, rebuild packaged macOS app and record evidence for Core process lifecycle retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference core runtime rebuild app`).
+16. [TODO] Git Commit: `chore: verify reference core runtime rebuild app` (hash: TBD)
+
+## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Retest
+
+17. [TODO] `harness-ai.phase7.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).

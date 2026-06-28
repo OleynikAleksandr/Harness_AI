@@ -8,8 +8,8 @@
   "planId": "next-session-mode-ui-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "docs: document next session mode architecture",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "chore: verify next session mode app",
   "debt": null
 }
 ```
@@ -92,14 +92,14 @@
 
 ### Stream: Architecture Sync
 
-11. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Update architecture documentation and product tree projections for the Next Session Mode contract, profile registry and UI ownership (scope: `docs/architecture/**, .harness/product-tree/**, product-parts/**/module.md`; expected commit: `docs: document next session mode architecture`).
-12. [TODO] Git Commit: `docs: document next session mode architecture` (hash: TBD)
+11. [DONE] `harness-ai.phase6.stream1.task1` Update architecture documentation and product tree projections for the Next Session Mode contract, profile registry and UI ownership (scope: `docs/architecture/**, .harness/product-tree/**, product-parts/**/module.md`; expected commit: `docs: document next session mode architecture`). Result: Completed in commit `docs: document next session mode architecture`.
+12. [DONE] Git Commit: `docs: document next session mode architecture` (hash: self)
 
 ## Phase 7 - Tooling Verification And Package (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Build And Evidence
 
-13. [TODO] `harness-ai.phase7.stream1.task1` Run required gates, record evidence, build `dist/`, and package the macOS app for user testing (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify next session mode app`).
+13. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Run required gates, record evidence, build `dist/`, and package the macOS app for user testing (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify next session mode app`).
 14. [TODO] Git Commit: `chore: verify next session mode app` (hash: TBD)
 
 ## Phase 8 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

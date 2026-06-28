@@ -48,7 +48,7 @@
             {
               "id": "session-window",
               "name": "Session Window",
-              "purpose": "Transcript/dialog layout and session chrome."
+              "purpose": "Transcript/dialog layout, session chrome, and next-session mode panel."
             },
             {
               "id": "input-controls",
@@ -63,7 +63,7 @@
             {
               "id": "session-sidebar",
               "name": "Session Sidebar",
-              "purpose": "Workspace switcher, workspace session list, session rename, and Settings entry."
+              "purpose": "Workspace switcher, workspace session list, next-session mode entry, session rename, and Settings entry."
             }
           ]
         },
@@ -126,7 +126,7 @@
         {
           "id": "session-runtime",
           "name": "Session Runtime",
-          "purpose": "Session metadata, JSONL history, turn state, and UI snapshots.",
+          "purpose": "Session metadata, next-session mode truth, JSONL history, turn state, and UI snapshots.",
           "modules": [
             {
               "id": "session-registry",
@@ -136,7 +136,7 @@
             {
               "id": "session-request-handler",
               "name": "Session Request Handler",
-              "purpose": "Core-owned create/resume/send/stop routing for session actions."
+              "purpose": "Core-owned create/resume/send/stop routing and next-session mode truth for session actions."
             },
             {
               "id": "provider-session-binding",
@@ -252,12 +252,12 @@
         {
           "id": "provider-registry",
           "name": "Provider Registry",
-          "purpose": "Provider catalog, model descriptors, status, startup, and recovery reporting.",
+          "purpose": "Provider catalog, invocation profile descriptors, model descriptors, status, startup, and recovery reporting.",
           "modules": [
             {
               "id": "provider-registry",
               "name": "Provider Registry",
-              "purpose": "Provider catalog and availability."
+              "purpose": "Provider catalog, availability, and invocation profile descriptors."
             },
             {
               "id": "provider-descriptor",

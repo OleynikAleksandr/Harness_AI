@@ -22,10 +22,10 @@ Standalone Electron application surface around the session UI.
 
 ### Session Interface
 
-- `session-window`: transcript/dialog layout and session chrome.
+- `session-window`: transcript/dialog layout, session chrome, and next-session mode panel.
 - `input-controls`: message input, Stop/Play controls, busy/lock display.
 - `session-telemetry`: usage limits, context window, provider/model status surfaces.
-- `session-sidebar`: workspace switcher, workspace sessions list, session rename, Settings entry.
+- `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry.
 
 ### Settings Surface
 
@@ -47,7 +47,7 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 ### Session Runtime
 
 - `session-registry`: session metadata, create/open/rename.
-- `session-request-handler`: Core-owned create/resume/send/stop routing for session actions.
+- `session-request-handler`: Core-owned create/resume/send/stop routing and next-session mode truth for session actions.
 - `provider-session-binding`: Core session to provider session id and binding state.
 - `session-event-stream`: provider-neutral Core session events for Application Shell projections.
 - `session-history-store`: append-only JSONL history.
@@ -80,7 +80,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 
 ### Provider Registry
 
-- `provider-registry`: provider catalog and availability.
+- `provider-registry`: provider catalog, availability, and invocation profile descriptors.
 - `provider-descriptor`: model/reasoning capabilities and UI metadata.
 - `provider-health`: status, startup, and recovery reporting.
 

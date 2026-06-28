@@ -1,0 +1,28 @@
+import { ClaudeProviderAdapter as ClaudeProviderAdapterImpl } from "./provider/claude-provider-adapter.js";
+
+import type {
+  ClaudeInstallerPaths as ClaudeInstallerPathsType,
+  ClaudeModuleOptions as ClaudeModuleOptionsType,
+  ClaudeUsageLimitsFacadeBridge as ClaudeUsageLimitsFacadeBridgeType,
+  ClaudeUsageLimitsStreamPayload as ClaudeUsageLimitsStreamPayloadType,
+  ClaudeWorkspaceOptions as ClaudeWorkspaceOptionsType,
+  ModuleReporter as ModuleReporterType,
+} from "./types.js";
+
+const ClaudeProviderAdapter = ClaudeProviderAdapterImpl;
+type ClaudeInstallerPaths = ClaudeInstallerPathsType;
+type ClaudeModuleOptions = ClaudeModuleOptionsType;
+type ClaudeUsageLimitsFacadeBridge = ClaudeUsageLimitsFacadeBridgeType;
+type ClaudeUsageLimitsStreamPayload = ClaudeUsageLimitsStreamPayloadType;
+type ClaudeWorkspaceOptions = ClaudeWorkspaceOptionsType;
+type ModuleReporter = ModuleReporterType;
+
+export type {
+  ClaudeInstallerPaths,
+  ClaudeModuleOptions,
+  ClaudeUsageLimitsFacadeBridge,
+  ClaudeUsageLimitsStreamPayload,
+  ClaudeWorkspaceOptions,
+  ModuleReporter,
+};
+export { ClaudeProviderAdapter };

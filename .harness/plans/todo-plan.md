@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "feat: migrate claude agent sdk provider",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "feat: migrate codex app server provider",
   "debt": null
 }
 ```
@@ -68,14 +68,14 @@
 
 ### Stream: Provider Runtime
 
-5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Replace the simplified Harness Claude CLI provider with a Harness-packaged migration of CodeAI-Hub `Claude_Module`: Agent SDK manager, session manager, stream router, thinking emitter, runtime profile, system prompt/tool/settings controls, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**`; expected commit: `feat: migrate claude agent sdk provider`).
-6. [TODO] Git Commit: `feat: migrate claude agent sdk provider` (hash: TBD)
+5. [DONE] `harness-ai.phase3.stream1.task1` Replace the simplified Harness Claude CLI provider with a Harness-packaged migration of CodeAI-Hub `Claude_Module`: Agent SDK manager, session manager, stream router, thinking emitter, runtime profile, system prompt/tool/settings controls, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, package.json`; expected commit: `feat: migrate claude agent sdk provider`). Result: Completed in commit `feat: migrate claude agent sdk provider`.
+6. [DONE] Git Commit: `feat: migrate claude agent sdk provider` (hash: self)
 
 ## Phase 4 - Codex App Server Provider Migration (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Provider Runtime
 
-7. [TODO] `harness-ai.phase4.stream1.task1` Replace the partial Harness Codex app-server adapter with a Harness-packaged migration of CodeAI-Hub `Codex_AppServer_Module`: process profile, provider home/auth, app-server facade, event router, reasoning buffers, usage limits, applied turn config, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**`; expected commit: `feat: migrate codex app server provider`).
+7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Replace the partial Harness Codex app-server adapter with a Harness-packaged migration of CodeAI-Hub `Codex_AppServer_Module`: process profile, provider home/auth, app-server facade, event router, reasoning buffers, usage limits, applied turn config, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**`; expected commit: `feat: migrate codex app server provider`).
 8. [TODO] Git Commit: `feat: migrate codex app server provider` (hash: TBD)
 
 ## Phase 5 - Kimi Provider Migration (owner: Codex, updated: 2026-06-28)

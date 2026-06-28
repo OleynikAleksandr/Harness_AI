@@ -1,0 +1,477 @@
+import { readFileSync } from "node:fs";
+import type { SDKInstaller } from "../installer/sdk-installer.js";
+import type { SDKMessageProcessor } from "../messaging/message-processor.js";
+import {
+  type AppliedClaudeTurnConfig,
+  applyClaudeTurnRuntimeConfig,
+  readAppliedClaudeTurnConfig,
+} from "../provider/claude-applied-turn-config.js";
+import { ClaudeSessionStaleBindingError } from "../provider/claude-session-stale-binding-error.js";
+import type { SDKSessionManager } from "../session/session-manager.js";
+import type { ActiveSession } from "../session/types.js";
+import type {
+  ClaudeStreamMessage,
+  ClaudeWorkspaceOptions,
+  ModuleReporter,
+} from "../types.js";
+import {
+  buildClaudeCodeRuntimeProfile,
+  type ClaudeCodeRuntimeProfile,
+} from "./claude-runtime-profile.js";
+import { CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT } from "./claude-workflow-system-prompt.js";
+
+export type QueryFunction = (payload: {
+  readonly prompt: string;
+  readonly options: Record<string, unknown>;
+}) => AsyncIterableIterator<ClaudeStreamMessage> & {
+  interrupt?: () => Promise<void>;
+};
+
+const SHORT_ID_LENGTH = 8;
+const TEMP_SESSION_PREFIX = "temp_";
+const SETTINGS_SNAPSHOT_CACHE_TTL_MS = 500;
+
+export interface ClaudeSDKAuthProvider {
+  ensureSubscriptionAuth(options?: {
+    readonly executablePath?: string;
+  }): Promise<void>;
+  getAuthEnvironment(): NodeJS.ProcessEnv;
+}
+
+interface ClaudeManagerDependencies {
+  readonly authManager: ClaudeSDKAuthProvider;
+  readonly enableDebugStreams?: boolean;
+  readonly installer: SDKInstaller;
+  readonly processor: SDKMessageProcessor;
+  readonly reporter?: ModuleReporter;
+  readonly runtimeProfile?: ClaudeCodeRuntimeProfile;
+  readonly sessions: SDKSessionManager;
+  readonly workspace: ClaudeWorkspaceOptions;
+}
+
+interface ThinkingSettings {
+  readonly effort: "low" | "medium" | "high" | "xhigh" | "max";
+  readonly enabled: boolean;
+}
+
+interface ClaudeSettingsSnapshot {
+  readonly defaultModel?: unknown;
+  readonly providers?: {
+    readonly claude?: {
+      readonly thinking?: {
+        readonly effort?: unknown;
+        readonly enabled?: unknown;
+        readonly maxTokens?: unknown;
+      };
+      readonly defaultModel?: unknown;
+    };
+  };
+  readonly thinking?: {
+    readonly effort?: unknown;
+    readonly enabled?: unknown;
+    readonly maxTokens?: unknown;
+  };
+}
+
+interface ClaudeQueryOptions extends Record<string, unknown> {
+  additionalDirectories: string[];
+  allowDangerouslySkipPermissions: boolean;
+  cwd: string;
+  effort?: "low" | "medium" | "high" | "xhigh" | "max";
+  env: NodeJS.ProcessEnv;
+  includePartialMessages: boolean;
+  model?: string;
+  outputFormat?: {
+    type: "json_schema";
+    schema: Record<string, unknown>;
+  };
+  pathToClaudeCodeExecutable: string;
+  permissionMode: "bypassPermissions";
+  projectPath: string;
+  resume?: string;
+  settingSources: string[];
+  systemPrompt?: string;
+  thinking?: {
+    readonly display?: "summarized" | "omitted";
+    readonly type: "adaptive" | "disabled";
+  };
+  title?: string;
+  tools: string[];
+}
+
+export class ClaudeSDKManager {
+  private sdkModule: { readonly query: QueryFunction } | null = null;
+  private queryFunction: QueryFunction | null = null;
+  private initialized = false;
+  private readonly deps: ClaudeManagerDependencies;
+  private contextReaderConfigured = false;
+  private settingsSnapshotCache: {
+    readonly expiresAtMs: number;
+    readonly settingsPath: string;
+    readonly snapshot: ClaudeSettingsSnapshot | null;
+  } | null = null;
+
+  constructor(deps: ClaudeManagerDependencies) {
+    this.deps = deps;
+  }
+
+  async initialize(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+    await this.deps.installer.ensureInstalled();
+    await this.deps.authManager.ensureSubscriptionAuth({
+      executablePath: this.deps.installer.getExecutablePath(),
+    });
+    this.sdkModule = await this.deps.installer.loadModule<{
+      readonly query: QueryFunction;
+    }>();
+    this.queryFunction = this.sdkModule.query;
+    if (!this.contextReaderConfigured) {
+      this.deps.processor.configureContextUsageReader({
+        executablePath: this.deps.installer.getExecutablePath(),
+        env: this.resolveAuthEnvironment(),
+      });
+      this.contextReaderConfigured = true;
+    }
+    this.initialized = true;
+  }
+
+  async createSession(workspacePath?: string): Promise<string> {
+    await this.initialize();
+    const actualWorkspacePath =
+      workspacePath ?? this.deps.workspace.workspacePath;
+    const { tempId } = this.deps.sessions.createSession(actualWorkspacePath);
+    return tempId;
+  }
+
+  async resumeSession(
+    sessionId: string,
+    workspacePath?: string
+  ): Promise<string> {
+    await this.initialize();
+    const actualWorkspacePath =
+      workspacePath ?? this.deps.workspace.workspacePath;
+    this.deps.sessions.createResumedSession(actualWorkspacePath, sessionId);
+    this.proactiveUsageLimitsRefresh(sessionId);
+    return sessionId;
+  }
+
+  proactiveUsageLimitsRefresh(sessionId: string): void {
+    const session = this.deps.sessions.getSession(sessionId);
+    if (!session) {
+      return;
+    }
+    this.deps.processor.proactiveUsageLimitsRefresh(session, sessionId);
+  }
+
+  async sendMessage(
+    sessionId: string,
+    content: string,
+    turnOptions?: Record<string, unknown>
+  ): Promise<void> {
+    await this.initialize();
+    const session = this.deps.sessions.getSession(sessionId);
+    if (!session) {
+      throw new ClaudeSessionStaleBindingError(sessionId);
+    }
+    applyClaudeTurnRuntimeConfig({
+      owner: session,
+      turnOptions,
+    });
+    this.deps.processor.enqueueTurn(
+      session.sessionId,
+      {
+        content,
+        turnOptions,
+        internal: false,
+        enqueuedAt: Date.now(),
+      },
+      {
+        createIterator: (payload) => {
+          const outputSchema = readOutputSchema(payload.turn.turnOptions);
+          payload.session.structuredOutputSchema = outputSchema;
+          return this.invokeQuery({
+            session: payload.session,
+            prompt: payload.turn.content,
+            outputSchema,
+            turnOptions: payload.turn.turnOptions,
+          });
+        },
+        onRealSessionId: (payload) => {
+          this.promoteSessionId(
+            payload.previousSessionId,
+            payload.realSessionId,
+            payload.session
+          );
+        },
+      }
+    );
+  }
+
+  async closeSession(sessionId: string): Promise<void> {
+    await this.deps.sessions.closeSession(sessionId);
+  }
+
+  getSession(sessionId: string): ActiveSession | undefined {
+    return this.deps.sessions.getSession(sessionId);
+  }
+
+  private promoteSessionId(
+    tempId: string,
+    realId: string,
+    session?: ActiveSession
+  ): void {
+    if (tempId === realId) {
+      return;
+    }
+    this.deps.sessions.updateSessionId(tempId, realId);
+    const targetSession = session ?? this.deps.sessions.getSession(realId);
+    targetSession?.eventEmitter.emit("sessionIdChanged", {
+      oldId: tempId,
+      newId: realId,
+      shortId: realId.slice(0, SHORT_ID_LENGTH),
+    });
+  }
+
+  private invokeQuery(payload: {
+    readonly session: ActiveSession;
+    readonly prompt: string;
+    readonly outputSchema: Record<string, unknown> | null;
+    readonly turnOptions?: Record<string, unknown>;
+  }): AsyncIterableIterator<ClaudeStreamMessage> & {
+    interrupt?: () => Promise<void>;
+  } {
+    if (!this.queryFunction) {
+      throw new Error("SDK query function not initialized");
+    }
+    const { outputSchema, prompt, session, turnOptions } = payload;
+    const options = this.buildQueryOptions({
+      session,
+      outputSchema,
+      turnOptions,
+    });
+    const queryInstance = this.queryFunction({
+      prompt,
+      options,
+    });
+    return queryInstance;
+  }
+
+  private resolveResumeSessionId(session: ActiveSession): string | null {
+    if (session.sessionId.startsWith(TEMP_SESSION_PREFIX)) {
+      return null;
+    }
+    return session.sessionId;
+  }
+
+  private buildQueryOptions(payload: {
+    readonly session: ActiveSession;
+    readonly outputSchema: Record<string, unknown> | null;
+    readonly turnOptions?: Record<string, unknown>;
+  }): ClaudeQueryOptions {
+    const { outputSchema, session, turnOptions } = payload;
+    const settingsSnapshot = this.loadClaudeSettingsSnapshot();
+    const appliedConfig = readAppliedClaudeTurnConfig(turnOptions);
+    const resolvedModel =
+      appliedConfig?.modelId ?? this.deps.workspace.defaultModel;
+    const runtimeProfile = this.resolveRuntimeProfile();
+    const thinkingOptions = this.resolveThinkingOptions(
+      settingsSnapshot,
+      appliedConfig
+    );
+    const resumeSessionId = this.resolveResumeSessionId(session);
+    const options: ClaudeQueryOptions = {
+      cwd: session.workspacePath,
+      permissionMode: "bypassPermissions",
+      allowDangerouslySkipPermissions: true,
+      additionalDirectories: [session.workspacePath],
+      includePartialMessages: true,
+      projectPath: this.resolveProjectPath(),
+      // Keep CodeAI Hub-managed Claude turns in SDK isolation mode so
+      // CLAUDE.md/settings discovery cannot walk parent directories from cwd.
+      settingSources: [...runtimeProfile.settingSources],
+      systemPrompt: CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT,
+      tools: [...runtimeProfile.toolNames],
+      env: this.resolveAuthEnvironment(),
+      pathToClaudeCodeExecutable: this.deps.installer.getExecutablePath(),
+    };
+    if (resolvedModel) {
+      options.model = resolvedModel;
+    }
+    if (thinkingOptions.thinking) {
+      options.thinking = thinkingOptions.thinking;
+    }
+    if (thinkingOptions.effort) {
+      options.effort = thinkingOptions.effort;
+    }
+    if (resumeSessionId) {
+      options.resume = resumeSessionId;
+    }
+    if (runtimeProfile.sessionTitle) {
+      options.title = runtimeProfile.sessionTitle;
+    }
+    if (outputSchema) {
+      options.outputFormat = {
+        type: "json_schema",
+        schema: outputSchema,
+      };
+    }
+    return options;
+  }
+
+  private resolveProjectPath(): string {
+    return this.resolveRuntimeProfile().projectPath;
+  }
+
+  private resolveRuntimeProfile(): ClaudeCodeRuntimeProfile {
+    return (
+      this.deps.runtimeProfile ??
+      buildClaudeCodeRuntimeProfile({
+        projectSlug: this.deps.workspace.claudeProjectSlug,
+      })
+    );
+  }
+
+  private resolveAuthEnvironment(): NodeJS.ProcessEnv {
+    return { ...this.deps.authManager.getAuthEnvironment() };
+  }
+
+  private resolveThinkingOptions(
+    snapshot: ClaudeSettingsSnapshot | null,
+    appliedConfig?: AppliedClaudeTurnConfig | null
+  ): {
+    readonly effort?: "low" | "medium" | "high" | "xhigh" | "max";
+    readonly thinking?: {
+      readonly display?: "summarized" | "omitted";
+      readonly type: "adaptive" | "disabled";
+    };
+  } {
+    if (appliedConfig?.thinkingEnabled !== undefined) {
+      if (!appliedConfig.thinkingEnabled) {
+        return { thinking: { type: "disabled" } };
+      }
+      // Hidden reasoning: keep effort, suppress plain-text `thinking_delta`.
+      const display: "summarized" | "omitted" =
+        appliedConfig.thinkingDisplaySyncEnabled === false
+          ? "omitted"
+          : "summarized";
+      return {
+        thinking: { type: "adaptive", display },
+        effort: appliedConfig.reasoningEffort ?? "medium",
+      };
+    }
+
+    const payload = this.resolveThinkingSettings(snapshot);
+    if (!payload?.enabled) {
+      return {
+        thinking: { type: "disabled" },
+      };
+    }
+    return {
+      thinking: { type: "adaptive", display: "summarized" },
+      effort: payload.effort,
+    };
+  }
+
+  private resolveThinkingSettings(
+    snapshot: ClaudeSettingsSnapshot | null
+  ): ThinkingSettings | null {
+    const candidate =
+      snapshot?.providers?.claude?.thinking ?? snapshot?.thinking;
+    if (!candidate || typeof candidate.enabled !== "boolean") {
+      return null;
+    }
+    return {
+      enabled: candidate.enabled,
+      effort: resolveClaudeThinkingEffort(
+        candidate.effort ?? candidate.maxTokens
+      ),
+    };
+  }
+
+  private loadClaudeSettingsSnapshot(): ClaudeSettingsSnapshot | null {
+    const settingsPath = this.deps.workspace.settingsPath;
+    if (!settingsPath) {
+      return null;
+    }
+    const nowMs = Date.now();
+    const cached = this.settingsSnapshotCache;
+    if (cached?.settingsPath === settingsPath && cached.expiresAtMs > nowMs) {
+      return cached.snapshot;
+    }
+    const snapshot = this.readClaudeSettingsSnapshot(settingsPath);
+    this.settingsSnapshotCache = {
+      expiresAtMs: nowMs + SETTINGS_SNAPSHOT_CACHE_TTL_MS,
+      settingsPath,
+      snapshot,
+    };
+    return snapshot;
+  }
+
+  private readClaudeSettingsSnapshot(
+    settingsPath: string
+  ): ClaudeSettingsSnapshot | null {
+    try {
+      const raw = readFileSync(settingsPath, "utf8");
+      return JSON.parse(raw) as ClaudeSettingsSnapshot;
+    } catch {
+      return null;
+    }
+  }
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const readOutputSchema = (
+  turnOptions?: Record<string, unknown>
+): Record<string, unknown> | null => {
+  if (!turnOptions) {
+    return null;
+  }
+  const schema = turnOptions.outputSchema;
+  return isRecord(schema) ? schema : null;
+};
+
+const CLAUDE_THINKING_EFFORTS = new Set([
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+]);
+const LEGACY_THINKING_TOKEN_ANCHORS: readonly {
+  readonly effort: "low" | "medium" | "high" | "max";
+  readonly maxTokens: number;
+}[] = [
+  { effort: "low", maxTokens: 2000 },
+  { effort: "medium", maxTokens: 4000 },
+  { effort: "high", maxTokens: 10_000 },
+  { effort: "max", maxTokens: 32_000 },
+];
+
+const resolveLegacyClaudeThinkingEffort = (
+  value: unknown
+): "low" | "medium" | "high" | "max" => {
+  const numericValue = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return "medium";
+  }
+
+  return LEGACY_THINKING_TOKEN_ANCHORS.reduce(
+    (closest, candidate) =>
+      Math.abs(candidate.maxTokens - numericValue) <
+      Math.abs(closest.maxTokens - numericValue)
+        ? candidate
+        : closest,
+    LEGACY_THINKING_TOKEN_ANCHORS[0]
+  ).effort;
+};
+
+const resolveClaudeThinkingEffort = (
+  value: unknown
+): "low" | "medium" | "high" | "xhigh" | "max" =>
+  typeof value === "string" && CLAUDE_THINKING_EFFORTS.has(value)
+    ? (value as "low" | "medium" | "high" | "xhigh" | "max")
+    : resolveLegacyClaudeThinkingEffort(value);

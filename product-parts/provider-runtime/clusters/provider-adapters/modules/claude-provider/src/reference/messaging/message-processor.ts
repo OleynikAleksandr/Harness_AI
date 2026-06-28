@@ -1,0 +1,412 @@
+import crypto from "node:crypto";
+import type { SDKSessionManager } from "../session/session-manager.js";
+import type {
+  ActiveSession,
+  ClaudeQueuedTurn,
+  ClaudeTurnProcessorHooks,
+} from "../session/types.js";
+import type {
+  ClaudeStreamMessage,
+  ClaudeUsageLimitsFacadeBridge,
+  ModuleReporter,
+} from "../types.js";
+import {
+  ClaudeMessageFinishHandler,
+  type ContextUsageReaderConfig,
+} from "./claude-message-finish-handler.js";
+import { ClaudeStreamEventRouter } from "./claude-stream-event-router.js";
+import type { ClaudeTextTranslationAdapter } from "./claude-thought-translation-adapter.js";
+
+interface ProcessResponseOptions {
+  readonly iterator: AsyncIterable<ClaudeStreamMessage>;
+  readonly onRealSessionId: (sessionId: string) => void;
+  readonly sessionId: string;
+}
+
+interface ProcessResponseState {
+  promotedSessionId: string | null;
+  resultSessionId: string | null;
+}
+
+interface MessageProcessorOptions {
+  readonly projectPath: string;
+  readonly providerId?: string;
+  readonly reporter?: ModuleReporter;
+  readonly thoughtTranslator?: ClaudeTextTranslationAdapter;
+  readonly usageLimitsFacade?: ClaudeUsageLimitsFacadeBridge;
+}
+
+interface SendOptions {
+  readonly internal?: boolean;
+  readonly userMessageVisibility?: "deferred";
+}
+
+const readDeferredUserMessageVisibility = (
+  turnOptions?: Record<string, unknown>
+): "deferred" | undefined =>
+  turnOptions?.userMessageVisibility === "deferred" ? "deferred" : undefined;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const readAssistantStopReason = (
+  message: ClaudeStreamMessage
+): string | null => {
+  if (message.type !== "assistant") {
+    return null;
+  }
+  const nestedMessage = isRecord(message.message)
+    ? (message.message as Record<string, unknown>)
+    : null;
+  const stopReason = nestedMessage?.stop_reason ?? message.stop_reason;
+  return typeof stopReason === "string" ? stopReason : null;
+};
+
+const isAssistantEndTurnMessage = (message: ClaudeStreamMessage): boolean =>
+  readAssistantStopReason(message) === "end_turn";
+
+export class SDKMessageProcessor {
+  private readonly finishHandler: ClaudeMessageFinishHandler;
+  private readonly reporter?: ModuleReporter;
+  private readonly sessionManager: SDKSessionManager;
+  private readonly streamEventRouter: ClaudeStreamEventRouter;
+
+  constructor(
+    sessionManager: SDKSessionManager,
+    options: MessageProcessorOptions
+  ) {
+    this.sessionManager = sessionManager;
+    this.reporter = options.reporter;
+    this.finishHandler = new ClaudeMessageFinishHandler({
+      providerId: options.providerId,
+      reporter: options.reporter,
+      usageLimitsFacade: options.usageLimitsFacade,
+    });
+    this.streamEventRouter = new ClaudeStreamEventRouter(
+      options.reporter,
+      options.thoughtTranslator,
+      undefined,
+      options.providerId
+    );
+  }
+
+  configureContextUsageReader(config: ContextUsageReaderConfig): void {
+    this.finishHandler.configureContextUsageReader(config);
+  }
+
+  proactiveUsageLimitsRefresh(
+    session: ActiveSession,
+    claudeSessionId: string | null | undefined
+  ): void {
+    this.finishHandler
+      .proactiveUsageLimitsRefresh(session, claudeSessionId)
+      .catch((error: unknown) => {
+        this.reporter?.warn?.(
+          `Claude proactive usage limits refresh failed: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+      });
+  }
+
+  enqueueTurn(
+    sessionId: string,
+    turn: ClaudeQueuedTurn,
+    hooks: ClaudeTurnProcessorHooks
+  ): void {
+    const session = this.sessionManager.getSession(sessionId);
+    if (!session) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+    this.sessionManager.enqueueTurn(session.sessionId, turn);
+    this.startQueueLoop(session, hooks);
+  }
+
+  private startQueueLoop(
+    session: ActiveSession,
+    hooks: ClaudeTurnProcessorHooks
+  ): void {
+    if (session.processingLoop) {
+      return;
+    }
+    const loop = this.consumeTurnQueue(session, hooks)
+      .catch((error) => {
+        if (this.isSessionShuttingDown(session)) {
+          return;
+        }
+        this.reporter?.error?.("Claude queue processing failed", error);
+        this.emitSessionError(session, { type: "processor", error });
+      })
+      .finally(() => {
+        session.processingLoop = undefined;
+        if (
+          session.turnQueue &&
+          session.turnQueue.pending.length > 0 &&
+          !session.turnQueue.shutdownRequested
+        ) {
+          this.startQueueLoop(session, hooks);
+        }
+      });
+    session.processingLoop = loop;
+  }
+
+  private async consumeTurnQueue(
+    session: ActiveSession,
+    hooks: ClaudeTurnProcessorHooks
+  ): Promise<void> {
+    const queueState = session.turnQueue;
+    if (
+      !(queueState && !queueState.processing && !queueState.shutdownRequested)
+    ) {
+      return;
+    }
+    queueState.processing = true;
+    try {
+      for (;;) {
+        if (queueState.shutdownRequested) {
+          return;
+        }
+        const turn = this.sessionManager.takeNextTurn(session.sessionId);
+        if (!turn) {
+          return;
+        }
+        this.sessionManager.beginTurn(session.sessionId, {
+          internal: turn.internal,
+        });
+        session.structuredOutputUuids?.clear();
+        try {
+          this.send(session.sessionId, turn.content, {
+            internal: turn.internal,
+            userMessageVisibility: readDeferredUserMessageVisibility(
+              turn.turnOptions
+            ),
+          });
+          session.messageController.pendingMessages.length = 0;
+          const iterator = hooks.createIterator({ session, turn });
+          session.queryInstance = iterator;
+          const processingSessionId = session.sessionId;
+          await this.processResponses({
+            sessionId: processingSessionId,
+            iterator,
+            onRealSessionId: (realSessionId) => {
+              const previousSessionId = session.sessionId;
+              if (!realSessionId || realSessionId === previousSessionId) {
+                return;
+              }
+              hooks.onRealSessionId({
+                session,
+                previousSessionId,
+                realSessionId,
+              });
+            },
+          });
+        } catch (error) {
+          if (this.isSessionShuttingDown(session)) {
+            return;
+          }
+          this.finishHandler.emitTurnFailed(session, error, session.sessionId);
+          this.reporter?.error?.("Claude turn processing failed", error);
+          this.emitSessionError(session, { type: "dispatch", error });
+        } finally {
+          this.sessionManager.clearInFlightTurn(session.sessionId);
+          session.queryInstance = undefined;
+        }
+      }
+    } finally {
+      queueState.processing = false;
+    }
+  }
+
+  send(sessionId: string, content: string, options?: SendOptions): void {
+    const targetSession = this.sessionManager.getSession(sessionId);
+    if (!targetSession) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+    const internal = options?.internal ?? false;
+
+    targetSession.messageController.pendingMessages.push({
+      type: "user",
+      message: {
+        role: "user",
+        content,
+      },
+    });
+
+    if (targetSession.messageController.resolveNext) {
+      const resolver = targetSession.messageController.resolveNext;
+      targetSession.messageController.resolveNext = null;
+      resolver(targetSession.messageController.pendingMessages.shift() ?? null);
+    }
+    if (!internal) {
+      this.finishHandler.emitTurnStarted(targetSession, sessionId);
+      const userMessageVisibility = options?.userMessageVisibility;
+      targetSession.eventEmitter.emit("message", {
+        type: "user_input",
+        content,
+        uuid: crypto.randomUUID(),
+        claudeSessionId: sessionId,
+        timestamp: new Date().toISOString(),
+        ...(userMessageVisibility
+          ? {
+              data: { userMessageVisibility },
+              userMessageVisibility,
+            }
+          : {}),
+      });
+    }
+  }
+
+  async processResponses(options: ProcessResponseOptions): Promise<void> {
+    const state: ProcessResponseState = {
+      promotedSessionId: null,
+      resultSessionId: null,
+    };
+    try {
+      for await (const message of options.iterator) {
+        const completed = await this.processResponseMessage({
+          message,
+          options,
+          state,
+        });
+        if (completed) {
+          return;
+        }
+      }
+      const session = this.resolveSession(
+        options.sessionId,
+        state.promotedSessionId
+      );
+      if (session) {
+        if (state.resultSessionId) {
+          await this.completeTurnAtProviderBoundary(
+            session,
+            state.resultSessionId
+          );
+          return;
+        }
+        this.finishHandler.emitTurnFailed(
+          session,
+          new Error("Claude stream ended without result"),
+          state.promotedSessionId ?? options.sessionId
+        );
+      }
+    } catch (error) {
+      const session = this.resolveSession(
+        options.sessionId,
+        state.promotedSessionId
+      );
+      if (session && !this.isSessionShuttingDown(session)) {
+        this.finishHandler.emitTurnFailed(
+          session,
+          error,
+          state.promotedSessionId ?? options.sessionId
+        );
+      }
+      if (this.isSessionShuttingDown(session)) {
+        return;
+      }
+      this.emitSessionError(session, { type: "processing", error });
+      this.reporter?.error?.("Claude stream processing failed", error);
+    }
+  }
+
+  private async processResponseMessage(params: {
+    readonly message: ClaudeStreamMessage;
+    readonly options: ProcessResponseOptions;
+    readonly state: ProcessResponseState;
+  }): Promise<boolean> {
+    const activeSession = this.resolveSession(
+      params.options.sessionId,
+      params.state.promotedSessionId
+    );
+    const realSessionId = params.message.session_id;
+    if (!params.state.promotedSessionId && realSessionId) {
+      params.state.promotedSessionId = realSessionId;
+      activeSession?.eventEmitter.emit("realSessionId", realSessionId);
+      params.options.onRealSessionId(realSessionId);
+    }
+    await this.dispatchMessage(activeSession, params.message);
+    if (params.message.type === "result") {
+      params.state.resultSessionId =
+        params.message.session_id ??
+        params.state.promotedSessionId ??
+        params.options.sessionId;
+    }
+    if (!(activeSession && isAssistantEndTurnMessage(params.message))) {
+      return false;
+    }
+    await this.completeTurnAtProviderBoundary(
+      activeSession,
+      params.message.session_id ??
+        params.state.promotedSessionId ??
+        params.options.sessionId
+    );
+    return true;
+  }
+
+  private async completeTurnAtProviderBoundary(
+    session: ActiveSession,
+    claudeSessionId: string
+  ): Promise<void> {
+    await this.streamEventRouter.handleStreamCompleted(session);
+    await this.finishHandler.completeTurn(session, claudeSessionId);
+  }
+
+  private resolveSession(
+    tempId: string,
+    promotedId: string | null
+  ): ActiveSession | undefined {
+    return (
+      this.sessionManager.getSession(tempId) ??
+      (promotedId ? this.sessionManager.getSession(promotedId) : undefined)
+    );
+  }
+
+  private emitSessionError(
+    session: ActiveSession | undefined,
+    payload: {
+      readonly error: unknown;
+      readonly type: "dispatch" | "processing" | "processor";
+    }
+  ): void {
+    if (!session || this.isSessionShuttingDown(session)) {
+      return;
+    }
+    session.eventEmitter.emit("error", payload);
+  }
+
+  private isSessionShuttingDown(session: ActiveSession | undefined): boolean {
+    return Boolean(session?.turnQueue?.shutdownRequested);
+  }
+
+  private async dispatchMessage(
+    session: ActiveSession | undefined,
+    message: ClaudeStreamMessage
+  ): Promise<void> {
+    const emitter = session?.eventEmitter;
+    if (!emitter) {
+      return;
+    }
+
+    switch (message.type) {
+      case "assistant": {
+        await this.streamEventRouter.handleAssistantMessage(session, message);
+        break;
+      }
+      case "stream_event": {
+        await this.streamEventRouter.handleStreamEvent(session, message);
+        break;
+      }
+      case "rate_limit_event": {
+        await this.finishHandler.handleRateLimitEvent(session, message);
+        break;
+      }
+      case "result": {
+        await this.streamEventRouter.handleResultMessage(session, message);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+}

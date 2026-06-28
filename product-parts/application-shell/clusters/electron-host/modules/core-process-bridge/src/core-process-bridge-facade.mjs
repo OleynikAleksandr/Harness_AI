@@ -296,7 +296,7 @@ function registerProviderAdapter(runtime, providerId) {
   if (providerId === "claude") {
     runtime.providerRegistryFacade.registerAdapter(
       providerId,
-      new runtime.ClaudeProviderFacade(model(providerId))
+      new runtime.ClaudeProviderFacade(model(providerId), workspacePath)
     );
   }
   if (providerId === "codex") {

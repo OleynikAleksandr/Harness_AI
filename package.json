@@ -88,5 +88,15 @@
     "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
       "ultracite fix"
     ]
+  },
+  "knip": {
+    "ignoreFiles": [
+      "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-usage-limits-snapshot.ts"
+    ],
+    "ignoreIssues": {
+      "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/**": [
+        "exports"
+      ]
+    }
   }
 }

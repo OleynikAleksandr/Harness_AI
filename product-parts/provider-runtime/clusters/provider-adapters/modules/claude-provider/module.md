@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Fresh Harness AI adapter for Claude provider turns.
+Harness-packaged migration of the CodeAI-Hub Claude provider module.
 
 ## Public Facade
 
@@ -11,13 +11,23 @@ Fresh Harness AI adapter for Claude provider turns.
 ## Inputs
 
 - Provider turn request.
-- Claude auth/home configuration.
+- Active workspace path and selected Claude model from Core-owned settings.
+- Claude provider-home/auth state.
+- CodeAI-Hub-compatible applied turn options for model, thinking, effort, tools, system prompt/runtime profile, and structured output.
 
 ## Outputs
 
-- Normalized provider events.
+- Provider events from the migrated Claude Agent SDK session/runtime path.
+- Visible thinking/reasoning dialog messages emitted by the migrated Claude stream router and thinking dialog emitter.
 - Provider usage/context telemetry.
-- Claude CLI runs with the active workspace as `cwd`, so workspace-level files such as `CLAUDE.md` are visible to the provider.
+- Claude Agent SDK runs with the active workspace as `cwd`, so workspace-level files such as `CLAUDE.md` are visible to the provider.
+
+## Reference Alignment
+
+- Source of truth: `/Users/oleksandroliinyk/VSCODE/CodeAI-Hub/packages/Claude_Module/src/**`.
+- The module keeps the CodeAI-Hub SDK manager, session manager, auth/home bridge, runtime profile, message processor, stream router, live buffers, thinking emitter, and focused runtime helpers under `src/reference/**`.
+- The Harness facade is only an adapter from the Harness provider contract into the migrated reference provider module.
+- Translation compatibility is currently local to this provider module and preserves the reference contract without moving translation truth into UI.
 
 ## Owned Paths
 

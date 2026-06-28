@@ -17,6 +17,7 @@ Normalize provider stream/event payloads for Core Runtime.
 
 - Provider-neutral event record.
 - Event normalization diagnostics.
+- Codex reasoning summary/text deltas materialized as `dialog_message` events tagged `thinking`.
 
 ## Owned Paths
 

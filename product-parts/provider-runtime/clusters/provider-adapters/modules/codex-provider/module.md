@@ -17,6 +17,7 @@ Fresh Harness AI adapter for Codex provider turns.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- Turn-level Codex reasoning summaries requested as `summary: "detailed"` so app-server reasoning notifications can reach Core.
 
 ## Owned Paths
 

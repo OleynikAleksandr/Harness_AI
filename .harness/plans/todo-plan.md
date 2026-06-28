@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "fix: port provider reasoning emitters",
   "debt": null
 }
 ```
@@ -74,4 +74,31 @@
 
 ### Stream: Retest
 
-9. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).
+9. [DONE] `harness-ai.phase5.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none). Result: User reported reasoning is still not visible and asked to port the reference provider-native reasoning flow instead of re-solving it locally.
+
+## Phase 6 - Codex Reasoning Parity (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Adapter
+
+10. [DONE] `harness-ai.phase6.stream1.task1` Port the minimal CodeAI-HUB Codex app-server reasoning summary path: request turn-level summaries and normalize live/final reasoning notifications into thinking dialog messages (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.test.mjs`; docs: codex-provider `module.md`, provider-event-normalizer `module.md`; expected commit: `fix: enable codex reasoning summaries`). Result: Completed in commit `fix: enable codex reasoning summaries`.
+11. [DONE] Git Commit: `fix: enable codex reasoning summaries` (hash: self)
+
+## Phase 7 - Provider Reasoning Audit (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Adapter
+
+12. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Compare the remaining Harness provider adapters against CodeAI-HUB reasoning emitters and port the next smallest provider-native reasoning path needed for visible thinking (scope: TBD after reference audit; expected commit: `fix: port provider reasoning emitters`).
+13. [TODO] Git Commit: `fix: port provider reasoning emitters` (hash: TBD)
+
+## Phase 8 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
+
+### Stream: Verification
+
+14. [TODO] `harness-ai.phase8.stream1.task1` Update docs/evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning parity`).
+15. [TODO] Git Commit: `chore: verify provider reasoning parity` (hash: TBD)
+
+## Phase 9 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+
+### Stream: Retest
+
+16. [TODO] `harness-ai.phase9.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).

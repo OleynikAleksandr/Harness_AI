@@ -136,15 +136,17 @@ export class CodexProviderFacade implements ProviderAdapter {
   async sendMessage(
     sessionId: string,
     content: string,
-    _turnOptions?: ProviderTurnOptions
+    turnOptions?: ProviderTurnOptions
   ): Promise<void> {
     const state = this.ensureSession(sessionId);
     state.pendingInputTokens = estimateTokenCount(content);
     state.hasExactTokenUsageInTurn = false;
+    const selectedModel = readModel(turnOptions, this.options.defaultModel);
     const response = await this.request<Record<string, unknown>>("turn/start", {
       cwd: state.workspacePath,
       input: [{ text: content, text_elements: [], type: "text" }],
-      model: this.options.defaultModel,
+      model: selectedModel,
+      summary: "detailed",
       threadId: sessionId,
     });
     const turn = isRecord(response.turn) ? response.turn : null;
@@ -370,6 +372,13 @@ function buildPath(basePath = ""): string {
     parts.add(candidate);
   }
   return Array.from(parts).join(path.delimiter);
+}
+
+function readModel(
+  turnOptions: ProviderTurnOptions | undefined,
+  fallback: string
+): string {
+  return typeof turnOptions?.model === "string" ? turnOptions.model : fallback;
 }
 
 function readThreadId(response: Record<string, unknown>): string {

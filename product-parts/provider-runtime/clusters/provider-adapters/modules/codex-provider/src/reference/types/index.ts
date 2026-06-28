@@ -134,6 +134,7 @@ export interface CodexThreadItem {
 
 export interface CodexModuleOptions {
   readonly enableDebugStreams?: boolean;
+  readonly environment?: Readonly<Record<string, string>>;
   readonly installerPaths: CodexInstallerPaths;
   readonly reporter?: ModuleReporter;
   readonly usageLimitsFacade?: CodexUsageLimitsFacadeBridge;

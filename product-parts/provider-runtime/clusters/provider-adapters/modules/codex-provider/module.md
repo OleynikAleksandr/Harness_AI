@@ -12,6 +12,10 @@ the migrated CodeAI-Hub module.
 Provider home storage is Harness-owned: workspace sessions use
 `<workspace>/.harness/runtime/providers/codex/home`, and non-workspace
 fallbacks use `~/.harness-ai/providers/codex/home`.
+The workspace-scoped `CODEX_HOME`, `CODEX_WORKSPACE_PATH` and
+`CODEX_SETTINGS_PATH` values are passed into the app-server process options, so
+provider-home preparation uses the active workspace environment rather than
+global process state.
 Normal Harness sessions start Codex through the native/default app-server
 profile so Codex keeps its own system instructions, native tooling, and
 workspace `AGENTS.md` project-instruction discovery from `cwd`.

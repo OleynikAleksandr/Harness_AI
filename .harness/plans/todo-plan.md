@@ -8,7 +8,7 @@
   "planId": "kimi-usage-limits-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -93,4 +93,11 @@
 
 ### Stream: Retest
 
-16. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` User deletes old workspace runtime residue and retests provider session startup in packaged Harness AI app (scope: user workflow; expected commit: none).
+16. [DONE] `harness-ai.phase7.stream1.task1` User deletes old workspace runtime residue and retests provider session startup in packaged Harness AI app (scope: user workflow; expected commit: none). Result: User reported `Start New Session` still creates `<workspace>/.codeai-hub/.../runtime/providers/codex/home`.
+
+## Phase 8 - Codex Workspace Runtime Binding (owner: Codex, updated: 2026-06-28)
+
+### Stream: App Server Environment
+
+17. [DONE] `harness-ai.phase8.stream1.task1` Bind Codex app-server provider home from the workspace-scoped process environment instead of global process state, so new Codex sessions write under `<workspace>/.harness/runtime/providers/codex/home` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, .harness/plans/todo-plan.md`; expected commit: `fix: bind codex app server home from workspace env`). Result: Completed in commit `fix: bind codex app server home from workspace env`.
+18. [DONE] Git Commit: `fix: bind codex app server home from workspace env` (hash: self)

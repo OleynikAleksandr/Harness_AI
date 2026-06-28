@@ -22,6 +22,11 @@ export class CodexProviderFacade extends CodexProviderAdapter {
     process.env.CODEX_WORKSPACE_PATH = workspacePath;
     process.env.CODEX_SETTINGS_PATH = workspaceSettingsPath(workspacePath);
     super({
+      environment: {
+        CODEX_HOME: providerHome,
+        CODEX_SETTINGS_PATH: workspaceSettingsPath(workspacePath),
+        CODEX_WORKSPACE_PATH: workspacePath,
+      },
       installerPaths: {
         linux: path.join(homedir(), ".harness-ai", "providers", "codex"),
         macOS: path.join(homedir(), ".harness-ai", "providers", "codex"),

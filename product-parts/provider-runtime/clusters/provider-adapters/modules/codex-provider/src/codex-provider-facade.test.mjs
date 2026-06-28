@@ -27,11 +27,18 @@ assert.match(
   source,
   /process\.env\.CODEX_SETTINGS_PATH = workspaceSettingsPath/u
 );
+assert.match(source, /environment: \{\s+CODEX_HOME: providerHome,/u);
+assert.match(source, /CODEX_WORKSPACE_PATH: workspacePath/u);
 assert.match(source, /defaultApprovalMode: "never"/u);
 assert.match(source, /defaultSandboxMode: "danger-full-access"/u);
 assert.match(appServerSource, /CODEX_DEFAULT_PROCESS_PROFILE_KEY/u);
+assert.match(appServerSource, /environment: options\.environment \?\? \{\}/u);
 assert.match(appServerProcessSource, /"\.harness-ai"/u);
 assert.match(appServerProcessSource, /"\.harness"/u);
+assert.match(
+  appServerProcessSource,
+  /prepareProviderCodexHome\(processEnvironment\)/u
+);
 assert.doesNotMatch(appServerProcessSource, /"\.codeai-hub"/u);
 assert.doesNotMatch(
   appServerSource,

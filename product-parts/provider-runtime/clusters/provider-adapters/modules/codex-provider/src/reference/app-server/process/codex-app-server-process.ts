@@ -129,8 +129,10 @@ const copyLegacyFileIfMissing = async (
   }
 };
 
-const prepareProviderCodexHome = async (): Promise<string> => {
-  const providerCodexHome = resolveProviderCodexHome();
+const prepareProviderCodexHome = async (
+  environment: EnvironmentMap = process.env
+): Promise<string> => {
+  const providerCodexHome = resolveProviderCodexHome(environment);
   await mkdir(providerCodexHome, { recursive: true });
   await materializeCodexProviderHomeAuth({
     authFilename: AUTH_FILENAME,
@@ -256,16 +258,20 @@ export class CodexAppServerProcess {
   }
 
   private async startInternal(): Promise<void> {
-    const providerCodexHome = await prepareProviderCodexHome();
+    const processEnvironment = {
+      ...process.env,
+      ...this.environment,
+    };
+    const providerCodexHome =
+      await prepareProviderCodexHome(processEnvironment);
     const child = spawn(
       CODEX_EXECUTABLE,
       [...this.processProfile.appServerArgs],
       {
         env: {
-          ...process.env,
-          ...this.environment,
+          ...processEnvironment,
           CODEX_HOME: providerCodexHome,
-          PATH: buildAugmentedPath(this.environment.PATH),
+          PATH: buildAugmentedPath(processEnvironment.PATH),
         },
         stdio: ["pipe", "pipe", "pipe"],
       }

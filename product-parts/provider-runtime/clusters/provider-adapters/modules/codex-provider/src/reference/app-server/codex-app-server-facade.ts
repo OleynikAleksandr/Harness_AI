@@ -136,6 +136,7 @@ export class CodexAppServerFacade {
   constructor(options: CodexModuleOptions) {
     this.workspace = options.workspace;
     this.process = new CodexAppServerProcess({
+      environment: options.environment ?? {},
       processProfileKey: CODEX_DEFAULT_PROCESS_PROFILE_KEY,
       reporter: options.reporter,
     });

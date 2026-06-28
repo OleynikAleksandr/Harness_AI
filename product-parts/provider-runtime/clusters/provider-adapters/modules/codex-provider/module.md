@@ -17,7 +17,7 @@ Fresh Harness AI adapter for Codex provider turns.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
-- Turn-level Codex reasoning summaries requested from Core-applied settings: `summary: "detailed"` when enabled, `summary: "none"` when disabled, plus the configured reasoning `effort`.
+- Turn-level Codex reasoning summaries requested from Core-applied settings: `summary: "detailed"` when enabled, `summary: "none"` when disabled, plus the configured reasoning `effort`. Provider-home fallback summary config is prepared by `provider-home-manager`.
 
 ## Owned Paths
 

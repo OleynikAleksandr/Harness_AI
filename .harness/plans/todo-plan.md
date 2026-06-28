@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase16.stream1.task1",
+  "expectedCommitMessage": "chore: verify codex visible reasoning summaries",
   "debt": null
 }
 ```
@@ -135,4 +135,18 @@
 
 ### Stream: Retest
 
-25. [IN_PROGRESS] `harness-ai.phase14.stream1.task1` User relaunches the packaged app and verifies Claude workspace context plus Codex/Kimi reasoning display (scope: user workflow; expected commit: none).
+25. [DONE] `harness-ai.phase14.stream1.task1` User relaunches the packaged app and verifies Claude workspace context plus Codex/Kimi reasoning display (scope: user workflow; expected commit: none). Result: User reported Codex still has no visible reasoning. Native Codex rollout shows reasoning tokens and encrypted reasoning, but no visible `summary` blocks; `turn_context.summary` resolved to `auto`.
+
+## Phase 15 - Codex Visible Summary Repair (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Adapter
+
+26. [DONE] `harness-ai.phase15.stream1.task1` Restore visible Codex reasoning summaries by aligning Harness Codex provider-home/request summary configuration with the CodeAI-HUB app-server behavior and the current Codex CLI protocol (scope: `product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**`; docs: relevant module docs and evidence; expected commit: `fix: request visible codex reasoning summaries`). Result: Completed in commit `fix: request visible codex reasoning summaries`.
+27. [DONE] Git Commit: `fix: request visible codex reasoning summaries` (hash: self)
+
+## Phase 16 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
+
+### Stream: Verification
+
+28. [IN_PROGRESS] `harness-ai.phase16.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off for Codex retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex visible reasoning summaries`).
+29. [TODO] Git Commit: `chore: verify codex visible reasoning summaries` (hash: TBD)

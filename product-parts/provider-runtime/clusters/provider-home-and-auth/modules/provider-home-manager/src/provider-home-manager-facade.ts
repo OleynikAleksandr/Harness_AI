@@ -26,8 +26,9 @@ export interface PreparedProviderHome {
 const AUTH_FILENAME = "auth.json";
 const CONFIG_FILENAME = "config.toml";
 const LEGACY_CODEX_HOME = path.join(homedir(), ".codex");
-const SUMMARY_LINE = 'model_reasoning_summary = "none"';
+const SUMMARY_LINE = 'model_reasoning_summary = "detailed"';
 const SUMMARY_LINE_RE = /^\s*model_reasoning_summary\s*=\s*.+?$/gmu;
+const TOML_TABLE_RE = /^\s*\[/mu;
 
 export class ProviderHomeManagerFacade {
   resolveProviderHome(request: ProviderHomeRequest): string {
@@ -111,10 +112,27 @@ async function copyIfMissing(paths: {
 
 async function ensureSummaryConfig(configPath: string): Promise<void> {
   const raw = await readFile(configPath, "utf8").catch(() => "");
-  const withoutExisting = raw.replace(SUMMARY_LINE_RE, "").trim();
-  const next = `${[withoutExisting, SUMMARY_LINE].filter(Boolean).join("\n")}\n`;
   await mkdir(path.dirname(configPath), { recursive: true });
-  await writeFile(configPath, next, "utf8");
+  await writeFile(
+    configPath,
+    materializeCodexReasoningSummaryConfig(raw),
+    "utf8"
+  );
+}
+
+export function materializeCodexReasoningSummaryConfig(raw: string): string {
+  const withoutExisting = raw.replace(SUMMARY_LINE_RE, "").trimEnd();
+  const tableMatch = TOML_TABLE_RE.exec(withoutExisting);
+  if (!tableMatch) {
+    return `${[withoutExisting, SUMMARY_LINE].filter(Boolean).join("\n")}\n`;
+  }
+  return `${[
+    withoutExisting.slice(0, tableMatch.index).trimEnd(),
+    SUMMARY_LINE,
+    withoutExisting.slice(tableMatch.index).trimStart(),
+  ]
+    .filter(Boolean)
+    .join("\n")}\n`;
 }
 
 async function pointsToSource(paths: {

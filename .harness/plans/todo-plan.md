@@ -139,3 +139,10 @@
 
 24. [DONE] `harness-ai.phase13.stream1.task1` Fix Claude Agent SDK executable resolution for the installed packaged layout where the `claude` binary lives inside the platform optional dependency instead of `<prefix>/bin/claude`, then update tests/docs and package the macOS app for retest (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: resolve claude sdk packaged executable`). Result: Completed in commit `fix: resolve claude sdk packaged executable`.
 25. [DONE] Git Commit: `fix: resolve claude sdk packaged executable` (hash: self)
+
+## Phase 14 - Claude Session Resume And Workspace Instructions (owner: Codex, updated: 2026-06-28)
+
+### Stream: Core And Provider Runtime
+
+26. [DONE] `harness-ai.phase14.stream1.task1` Fix Claude real session id promotion so later turns use resume instead of the temp id, and inject workspace path plus `AGENTS.md` into the Claude system prompt from Core/provider-owned runtime code (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: repair claude session resume and workspace instructions`). Result: Completed in commit `fix: repair claude session resume and workspace instructions`.
+27. [DONE] Git Commit: `fix: repair claude session resume and workspace instructions` (hash: self)

@@ -18,4 +18,4 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 
 ## Facade Rule
 
-Adapters expose the shared provider adapter contract and hide protocol-specific process, SDK, stream, and request details.
+Adapters expose the shared provider adapter contract and hide protocol-specific process, SDK, stream, request, workspace prompt, and session id details.

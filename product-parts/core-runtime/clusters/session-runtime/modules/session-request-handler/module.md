@@ -15,6 +15,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Raw user message payload.
 - Turn options from Core-owned settings/model binding.
 - Core-owned provider settings used to derive applied turn options for all providers: model selection, Claude/Kimi/GLM thinking toggles, GLM reasoning effort, OpenRouter endpoint tag, and Codex reasoning effort/summary enablement. Codex effort is resolved through the settings-store Codex capability contract.
+- Provider session id promotion events emitted by migrated provider runtimes, including Claude `sessionIdChanged` and reference-compatible `realSessionId` events.
 
 ## Outputs
 
@@ -23,6 +24,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Session errors and lifecycle state.
 - Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.
 - Assistant live chunks tagged `live` are kept in Core session state so final provider full-text messages can be suppressed or reduced to an unseen live tail before UI display.
+- Provider bindings are promoted from temporary ids to real provider session ids in Core before later turns are dispatched, so resumed provider turns never depend on renderer state.
 
 ## Owned Paths
 

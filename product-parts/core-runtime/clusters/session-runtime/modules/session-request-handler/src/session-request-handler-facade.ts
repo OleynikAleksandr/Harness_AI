@@ -12,12 +12,21 @@ import {
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
+import { readPromotedProviderSessionId } from "./provider-session-id-promotion.js";
 import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import {
   readWorkspaceSessionIndex,
   writeWorkspaceSessionIndex,
 } from "./session-history-store.js";
 import { resolveLiveAssistantTail } from "./session-live-tail-dedupe.js";
+import {
+  ADAPTER_NOT_REGISTERED,
+  createId,
+  isRecord,
+  readString,
+  resolveBindingUnavailableMessage,
+  stringifyError,
+} from "./session-request-handler-runtime-utils.js";
 import type {
   CoreSession,
   CoreSessionActionResult,
@@ -39,10 +48,6 @@ export type {
   SendCoreMessageRequest,
   SessionRequestHandlerDependencies,
 } from "./session-request-handler-types.js";
-
-const ADAPTER_NOT_REGISTERED =
-  "Provider adapter is not registered in Core runtime.";
-const PROVIDER_STARTING = "Provider session is still starting.";
 
 export class SessionRequestHandlerFacade {
   private readonly bindingFacade: ProviderSessionBindingFacadeLike;
@@ -125,7 +130,12 @@ export class SessionRequestHandlerFacade {
     });
     const runtimeBinding = this.runtimeBindings.get(session.id);
     if (!runtimeBinding) {
-      this.publishError(session.id, this.bindingUnavailableMessage(session.id));
+      this.publishError(
+        session.id,
+        resolveBindingUnavailableMessage(
+          this.bindingFacade.getBinding(session.id)
+        )
+      );
       return { ok: true, session: updatedSession };
     }
     this.publishTurnState(session.id, "running");
@@ -411,6 +421,29 @@ export class SessionRequestHandlerFacade {
       return;
     }
     this.updateTelemetryWithProviderEvent(sessionId, event);
+    const promotedProviderSessionId = readPromotedProviderSessionId(event);
+    if (promotedProviderSessionId) {
+      const session = this.sessions.get(sessionId);
+      const binding = this.runtimeBindings.get(sessionId);
+      if (
+        session &&
+        binding &&
+        binding.providerSessionId !== promotedProviderSessionId
+      ) {
+        this.runtimeBindings.set(sessionId, {
+          ...binding,
+          providerSessionId: promotedProviderSessionId,
+        });
+        this.publishBinding(
+          this.bindingFacade.markReady(
+            sessionId,
+            session.providerId,
+            promotedProviderSessionId
+          )
+        );
+      }
+      return;
+    }
     const displayMessages =
       sessionReasoningDisplayFacade.projectProviderEvent(event);
     if (displayMessages.length > 0) {
@@ -448,14 +481,6 @@ export class SessionRequestHandlerFacade {
     }
   }
 
-  private bindingUnavailableMessage(sessionId: string): string {
-    const binding = this.bindingFacade.getBinding(sessionId);
-    if (binding?.status === "pending") {
-      return PROVIDER_STARTING;
-    }
-    return binding?.error ?? ADAPTER_NOT_REGISTERED;
-  }
-
   private async refreshUsageLimits(sessionId: string): Promise<void> {
     const session = this.sessions.get(sessionId);
     const binding = this.runtimeBindings.get(sessionId);
@@ -469,24 +494,6 @@ export class SessionRequestHandlerFacade {
       workspacePath: session.workspacePath,
     });
   }
-}
-
-function createId(prefix: string): string {
-  return `${prefix}-${globalThis.crypto.randomUUID()}`;
-}
-
-function stringifyError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function readString(value: unknown): string | null {
-  return typeof value === "string" && value.trim().length > 0
-    ? value.trim()
-    : null;
 }
 
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

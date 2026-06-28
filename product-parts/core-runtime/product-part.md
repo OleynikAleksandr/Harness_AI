@@ -18,6 +18,7 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 - Run plan-first development orchestration and quality gates.
 - Coordinate providers through Provider Runtime facades.
 - Normalize visible provider reasoning before it reaches UI snapshots.
+- Promote provider session ids emitted by provider runtimes so Core keeps the authoritative binding for later turns.
 - Preserve provider-neutral message tags and coalesce live assistant chunks before session readback/display.
 
 ## Out Of Scope

@@ -18,7 +18,7 @@ import {
   buildClaudeCodeRuntimeProfile,
   type ClaudeCodeRuntimeProfile,
 } from "./claude-runtime-profile.js";
-import { CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT } from "./claude-workflow-system-prompt.js";
+import { buildClaudeWorkspaceSystemPrompt } from "./claude-workspace-system-prompt.js";
 
 export type QueryFunction = (payload: {
   readonly prompt: string;
@@ -291,7 +291,7 @@ export class ClaudeSDKManager {
       // Keep CodeAI Hub-managed Claude turns in SDK isolation mode so
       // CLAUDE.md/settings discovery cannot walk parent directories from cwd.
       settingSources: [...runtimeProfile.settingSources],
-      systemPrompt: CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT,
+      systemPrompt: buildClaudeWorkspaceSystemPrompt(session.workspacePath),
       tools: [...runtimeProfile.toolNames],
       env: this.resolveAuthEnvironment(),
       pathToClaudeCodeExecutable: this.deps.installer.getExecutablePath(),

@@ -37,6 +37,7 @@ for (const path of [
   "session/session-manager.ts",
   "messaging/claude-stream-event-router.ts",
   "messaging/claude-thinking-dialog-emitter.ts",
+  "sdk/claude-workspace-system-prompt.ts",
   "provider/claude-provider-adapter.ts",
 ]) {
   assert.equal(existsSync(join(referenceRoot.pathname, path)), true, path);

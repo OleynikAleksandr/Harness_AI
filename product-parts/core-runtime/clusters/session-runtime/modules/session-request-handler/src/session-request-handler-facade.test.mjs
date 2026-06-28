@@ -18,3 +18,6 @@ assert.match(
 assert.match(source, /from "\.\/session-live-tail-dedupe\.js"/u);
 assert.doesNotMatch(source, /event\.tag === "thinking"/u);
 assert.match(source, /buildProviderTurnOptions\(session\)/u);
+assert.match(source, /readPromotedProviderSessionId\(event\)/u);
+assert.match(source, /this\.runtimeBindings\.set\(sessionId, \{/u);
+assert.match(source, /promotedProviderSessionId/u);

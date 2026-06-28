@@ -2,7 +2,7 @@
 
 ## Boundary
 
-Owns session metadata, append-only JSONL history, turn state, live assistant chunk read-models, and UI session snapshots.
+Owns session metadata, append-only JSONL history, provider session bindings, provider id promotion, turn state, live assistant chunk read-models, and UI session snapshots.
 
 ## Owned Modules
 

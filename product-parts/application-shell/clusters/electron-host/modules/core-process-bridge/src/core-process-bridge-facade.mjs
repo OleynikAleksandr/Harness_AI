@@ -317,7 +317,7 @@ function registerProviderAdapter(runtime, providerId) {
   if (providerId === "glm-native") {
     runtime.providerRegistryFacade.registerAdapter(
       providerId,
-      new runtime.GlmNativeProviderFacade(model(providerId))
+      new runtime.GlmNativeProviderFacade(model(providerId), workspacePath)
     );
   }
   if (providerId === "glm-opencode") {

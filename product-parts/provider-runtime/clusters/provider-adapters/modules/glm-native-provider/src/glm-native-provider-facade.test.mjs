@@ -1,0 +1,41 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const moduleDir = dirname(fileURLToPath(import.meta.url));
+const source = readFileSync(
+  join(moduleDir, "glm-native-provider-facade.ts"),
+  "utf8"
+);
+const bridgeSource = readFileSync(
+  join(
+    moduleDir,
+    "../../../../../../application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs"
+  ),
+  "utf8"
+);
+
+assert.match(
+  source,
+  /import \{ GlmProviderAdapter \} from "\.\/reference\/index\.js"/u
+);
+assert.match(source, /extends GlmProviderAdapter/u);
+assert.match(source, /providerAuthStoreFacade\.getApiKey\("glm-native"\)/u);
+assert.match(source, /providerHomePath: path\.join\(/u);
+assert.match(source, /settingsPath: workspaceSettingsPath\(workspacePath\)/u);
+assert.match(
+  bridgeSource,
+  /new runtime\.GlmNativeProviderFacade\(model\(providerId\), workspacePath\)/u
+);
+
+for (const relativePath of [
+  "reference/provider/glm-native-provider-adapter.ts",
+  "reference/provider/glm-native-agent-runtime.ts",
+  "reference/provider/glm-native-sse-parser.ts",
+  "reference/provider/glm-native-stream-reader.ts",
+  "reference/provider/glm-native-tool-executors.ts",
+  "reference/provider/glm-usage-limits-reader.ts",
+]) {
+  assert.equal(existsSync(join(moduleDir, relativePath)), true, relativePath);
+}

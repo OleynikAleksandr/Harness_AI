@@ -2,7 +2,13 @@
 
 ## Responsibility
 
-Fresh Harness AI adapter for GLM native provider turns.
+Harness-packaged GLM Native provider migrated from CodeAI-Hub.
+
+The module owns the Harness facade and the embedded reference GLM native
+runtime. The facade only binds Harness auth/settings, selected model, workspace
+path and provider home path; request building, thinking controls, SSE parsing,
+tool execution, session logging and usage limits come from the migrated
+CodeAI-Hub module.
 
 ## Public Facade
 
@@ -17,7 +23,8 @@ Fresh Harness AI adapter for GLM native provider turns.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
-- OpenAI-compatible request body receives Core-owned GLM Native thinking and reasoning effort through the shared provider adapter helper.
+- GLM Native thinking and assistant stream events from the reference SSE parser.
+- Runtime tool execution and session logs under Harness runtime provider home.
 
 ## Owned Paths
 

@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "feat: migrate glm native provider module",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "feat: migrate glm opencode provider module",
   "debt": null
 }
 ```
@@ -89,14 +89,14 @@
 
 ### Stream: Provider Runtime
 
-11. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Migrate CodeAI-Hub `GLM_Module` native provider behavior into the Harness GLM Native provider module, including request config, thinking controls, event normalization, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**`; expected commit: `feat: migrate glm native provider module`).
-12. [TODO] Git Commit: `feat: migrate glm native provider module` (hash: TBD)
+11. [DONE] `harness-ai.phase6.stream1.task1` Migrate CodeAI-Hub `GLM_Module` native provider behavior into the Harness GLM Native provider module, including request config, thinking controls, event normalization, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, .harness/plans/todo-plan.md`; expected commit: `feat: migrate glm native provider module`). Result: Completed in commit `feat: migrate glm native provider module`.
+12. [DONE] Git Commit: `feat: migrate glm native provider module` (hash: self)
 
 ## Phase 7 - GLM OpenCode Provider Migration (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Provider Runtime
 
-13. [TODO] `harness-ai.phase7.stream1.task1` Migrate CodeAI-Hub `GLM_OpenCode_Module` behavior into the Harness GLM OpenCode provider module, including OpenCode process/session behavior, output normalization, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/**`; expected commit: `feat: migrate glm opencode provider module`).
+13. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Migrate CodeAI-Hub `GLM_OpenCode_Module` behavior into the Harness GLM OpenCode provider module, including OpenCode process/session behavior, output normalization, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/**`; expected commit: `feat: migrate glm opencode provider module`).
 14. [TODO] Git Commit: `feat: migrate glm opencode provider module` (hash: TBD)
 
 ## Phase 8 - OpenRouter And Local Models Migration (owner: Codex, updated: 2026-06-28)

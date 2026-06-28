@@ -73,4 +73,4 @@ The next product-tree update should replace the role of `provider-turn-runner` w
 
 From this scope forward, provider execution must enter through Core session dispatch. Any shortcut that calls a provider outside the CodeAI Hub-style Core/provider adapter path requires explicit user approval before implementation.
 
-Visible provider reasoning follows the same rule: provider events enter Core, `session-reasoning-display` projects explicit thinking events or tagged visible reasoning into Core `thinking` messages, and the UI only renders the projected session messages.
+Visible provider reasoning follows the same rule: provider adapters request provider-native visible reasoning where the provider requires an explicit turn option, provider events enter Core, `session-reasoning-display` projects explicit thinking events or tagged visible reasoning into Core `thinking` messages, and the UI only renders the projected session messages. Provider-native persistence under isolated provider homes is separate from Harness Core dialog JSONL history under `<workspace>/.harness/sessions/**`.

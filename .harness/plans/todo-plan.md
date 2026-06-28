@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
-  "expectedCommitMessage": "chore: verify provider reasoning parity",
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -94,11 +94,11 @@
 
 ### Stream: Verification
 
-14. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Update docs/evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning parity`).
-15. [TODO] Git Commit: `chore: verify provider reasoning parity` (hash: TBD)
+14. [DONE] `harness-ai.phase8.stream1.task1` Update docs/evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning parity`). Result: Completed in commit `chore: verify provider reasoning parity`.
+15. [DONE] Git Commit: `chore: verify provider reasoning parity` (hash: self)
 
 ## Phase 9 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Retest
 
-16. [TODO] `harness-ai.phase9.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).
+16. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` User relaunches the packaged app and verifies provider reasoning is visible in session dialogs (scope: user workflow; expected commit: none).

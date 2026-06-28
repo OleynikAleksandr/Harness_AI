@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task1",
-  "expectedCommitMessage": "refactor: align provider contracts with reference modules",
+  "currentTaskId": "harness-ai.phase10.stream1.task1",
+  "expectedCommitMessage": "chore: verify reference provider module migration",
   "debt": null
 }
 ```
@@ -110,14 +110,14 @@
 
 ### Stream: Core And Contracts
 
-17. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Remove obsolete wrapper assumptions and align Core/session/provider adapter contracts with the migrated CodeAI-Hub provider modules without moving truth into UI (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**`; expected commit: `refactor: align provider contracts with reference modules`).
-18. [TODO] Git Commit: `refactor: align provider contracts with reference modules` (hash: TBD)
+17. [DONE] `harness-ai.phase9.stream1.task1` Remove obsolete wrapper assumptions and align Core/session/provider adapter contracts with the migrated CodeAI-Hub provider modules without moving truth into UI (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**`; expected commit: `refactor: align provider contracts with reference modules`). Result: Completed in commit `refactor: align provider contracts with reference modules`.
+18. [DONE] Git Commit: `refactor: align provider contracts with reference modules` (hash: self)
 
 ## Phase 10 - Verification And Packaged App (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Build And Evidence
 
-19. [TODO] `harness-ai.phase10.stream1.task1` Run required gates, update evidence, rebuild `dist/`, package macOS app, and hand off the provider-module migration for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference provider module migration`).
+19. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` Run required gates, update evidence, rebuild `dist/`, package macOS app, and hand off the provider-module migration for user retest (scope: `docs/evidence/**, docs/architecture/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify reference provider module migration`).
 20. [TODO] Git Commit: `chore: verify reference provider module migration` (hash: TBD)
 
 ## Phase 11 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

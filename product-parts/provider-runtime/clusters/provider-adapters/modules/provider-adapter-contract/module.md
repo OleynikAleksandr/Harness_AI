@@ -19,10 +19,11 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
 - Provider session id.
 - Provider event subscription.
 - Provider lifecycle errors.
-- Core-owned `turnOptions.model` applied by shared CLI/OpenAI-compatible helpers so provider sessions use the selected model for each turn.
-- OpenAI-compatible final `reasoning_content` / `reasoning` fields emitted as thinking dialog messages before assistant text.
-- GLM Native OpenAI-compatible turns receive Core-owned `thinking` and `reasoning_effort` request fields from turn options; other OpenAI-compatible providers do not receive GLM-only fields.
-- Opt-in CLI `stream-json` output parsing for providers such as Kimi, emitting `thinking` dialog messages before assistant text when native thinking chunks are present.
+- Core-owned `turnOptions` passed through to provider-owned migrated reference
+  adapters.
+- Provider-visible reasoning/thinking events emitted by provider-owned runtime
+  modules rather than shared wrapper parsers.
+- Usage-limit reader helpers for provider-specific telemetry probes.
 
 ## Owned Paths
 

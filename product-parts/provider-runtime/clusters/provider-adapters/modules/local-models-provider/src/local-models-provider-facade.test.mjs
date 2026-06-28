@@ -8,10 +8,10 @@ const source = readFileSync(
   join(moduleDir, "local-models-provider-facade.ts"),
   "utf8"
 );
-const bridgeSource = readFileSync(
+const coreRuntimeSource = readFileSync(
   join(
     moduleDir,
-    "../../../../../../application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs"
+    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts"
   ),
   "utf8"
 );
@@ -19,8 +19,8 @@ const bridgeSource = readFileSync(
 assert.match(source, /extends LocalModelsProviderAdapter/u);
 assert.match(source, /CODEAI_LMSTUDIO_DEFAULT_MODEL/u);
 assert.match(
-  bridgeSource,
-  /new runtime\.LocalModelsProviderFacade\(model\(providerId\), workspacePath\)/u
+  coreRuntimeSource,
+  /new LocalModelsProviderFacade\(model \?\? undefined\)/u
 );
 
 for (const relativePath of [

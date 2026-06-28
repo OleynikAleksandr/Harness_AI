@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream2.task1",
-  "expectedCommitMessage": "feat: bridge application shell to core process api",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "test: guard application shell core boundary",
   "debt": null
 }
 ```
@@ -86,14 +86,14 @@
 
 ### Stream: Bridge
 
-13. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Replace renderer IPC handlers that call Core singletons with a client bridge to Core HTTP/WebSocket contracts (scope: `product-parts/application-shell/**, product-parts/core-runtime/**, .harness/plans/todo-plan.md`; expected commit: `feat: bridge application shell to core process api`).
-14. [TODO] Git Commit: `feat: bridge application shell to core process api` (hash: TBD)
+13. [DONE] `harness-ai.phase5.stream2.task1` Replace renderer IPC handlers that call Core singletons with a client bridge to Core HTTP/WebSocket contracts and move provider registration guard tests to the Core owner (scope: `product-parts/application-shell/**, product-parts/core-runtime/**, product-parts/provider-runtime/clusters/provider-adapters/modules/*/src/*facade.test.mjs, .harness/plans/todo-plan.md`; expected commit: `feat: bridge application shell to core process api`). Result: Completed in commit `feat: bridge application shell to core process api`.
+14. [DONE] Git Commit: `feat: bridge application shell to core process api` (hash: self)
 
 ## Phase 6 - Cleanup And Guards (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Boundary Enforcement
 
-15. [TODO] `harness-ai.phase6.stream1.task1` Add architecture guard coverage that rejects direct Application Shell imports of Core Runtime implementation modules and provider adapter implementation modules (scope: `scripts/**, product-parts/application-shell/**, .harness/plans/todo-plan.md`; expected commit: `test: guard application shell core boundary`).
+15. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Add architecture guard coverage that rejects direct Application Shell imports of Core Runtime implementation modules and provider adapter implementation modules (scope: `scripts/**, product-parts/application-shell/**, .harness/plans/todo-plan.md`; expected commit: `test: guard application shell core boundary`).
 16. [TODO] Git Commit: `test: guard application shell core boundary` (hash: TBD)
 
 ## Phase 7 - Verification Package (owner: Codex, updated: 2026-06-28)

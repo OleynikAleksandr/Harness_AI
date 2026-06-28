@@ -6,7 +6,9 @@ Start, stop, restart, health-check, or connect to the local Core Runtime
 process used by the Electron host.
 
 This module is Application Shell infrastructure only. It supervises the Core
-process and forwards UI calls; it must not own Core truth.
+process, forwards renderer IPC as Core RPC, and relays Core event-stream
+messages to renderer windows. It must not import Core/provider implementation
+modules or own Core truth.
 
 ## Public Facade
 
@@ -23,7 +25,7 @@ process and forwards UI calls; it must not own Core truth.
 
 - Core Runtime connection status.
 - Renderer-safe Core API endpoint metadata.
-- Best-effort Core usage-limit refresh trigger for hydrated sessions; provider limit truth stays in Core/provider modules.
+- Renderer-safe forwarding of Core RPC results and Core events.
 - Real Core process restart through health and shutdown contracts.
 
 ## Owned Paths

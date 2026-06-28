@@ -7,9 +7,9 @@ const facadeSource = readFileSync(
   new URL("./claude-provider-facade.ts", moduleDir),
   "utf8"
 );
-const bridgeSource = readFileSync(
+const coreRuntimeSource = readFileSync(
   new URL(
-    "../../../../../../application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs",
+    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts",
     moduleDir
   ),
   "utf8"
@@ -28,8 +28,8 @@ assert.match(facadeSource, /extends ClaudeProviderAdapter/u);
 assert.match(facadeSource, /from "\.\/reference\/index\.js"/u);
 assert.doesNotMatch(facadeSource, /CliSessionProviderAdapter/u);
 assert.match(
-  bridgeSource,
-  /new runtime\.ClaudeProviderFacade\(model\(providerId\), workspacePath\)/u
+  coreRuntimeSource,
+  /new ClaudeProviderFacade\(model, workspacePath\)/u
 );
 assert.match(npmRunnerSource, /GUI_NPM_PATHS/u);
 assert.match(npmRunnerSource, /\/opt\/homebrew\/bin/u);

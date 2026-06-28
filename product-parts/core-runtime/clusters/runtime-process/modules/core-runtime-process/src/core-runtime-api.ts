@@ -23,6 +23,12 @@ import {
   type WorkspaceRegistrySnapshot,
   workspaceRegistryFacade,
 } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
+import {
+  installLatestGlobalPackage,
+  loadLocalModels,
+  loadProviderVersions,
+  resolveProviderPackage,
+} from "./core-provider-tools.js";
 
 type CoreEventListener = (event: unknown) => void;
 
@@ -84,6 +90,10 @@ export class CoreRuntimeApi {
         return settingsStoreFacade.getSettings(
           readString(payload) || this.activeWorkspacePath()
         );
+      case "get-local-models":
+        return this.getLocalModels();
+      case "get-provider-versions":
+        return this.getProviderVersions();
       case "get-provider-system-settings":
         return providerAuthStoreFacade.getProviderSettings(
           readProviderId(payload)
@@ -94,6 +104,8 @@ export class CoreRuntimeApi {
         return this.resetWorkspaceSettings();
       case "save-settings":
         return this.saveSettings(payload);
+      case "update-provider-version":
+        return this.updateProviderVersion(payload);
       case "restart-adapters":
         return this.restartAdapters();
       case "send-message":
@@ -148,6 +160,30 @@ export class CoreRuntimeApi {
     return sessionEventStreamFacade.listEvents(sessionId);
   }
 
+  private async getLocalModels(): Promise<{
+    error?: string;
+    models?: string[];
+    ok: boolean;
+  }> {
+    try {
+      return { models: await loadLocalModels(), ok: true };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
+  }
+
+  private async getProviderVersions(): Promise<{
+    error?: string;
+    ok: boolean;
+    versions?: unknown;
+  }> {
+    try {
+      return { ok: true, versions: await loadProviderVersions() };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
+  }
+
   private saveProviderSystemSettings(payload: unknown): {
     error?: string;
     ok: boolean;
@@ -181,6 +217,25 @@ export class CoreRuntimeApi {
     );
     this.registerProviderAdapters();
     return { ok: true, settings };
+  }
+
+  private async updateProviderVersion(payload: unknown): Promise<{
+    error?: string;
+    ok: boolean;
+    versions?: unknown;
+  }> {
+    try {
+      const request = readRecord(payload);
+      const packageName = resolveProviderPackage(
+        request?.provider,
+        request?.target
+      );
+      await installLatestGlobalPackage(packageName);
+      this.registerProviderAdapters();
+      return { ok: true, versions: await loadProviderVersions() };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
   }
 
   private restartAdapters(): {

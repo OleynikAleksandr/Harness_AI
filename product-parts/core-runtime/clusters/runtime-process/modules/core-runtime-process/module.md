@@ -7,7 +7,8 @@ Runs the Core Runtime as an out-of-process local server.
 This module owns the process entrypoint and process contracts used by the
 Application Shell supervisor/client: health, status, shutdown, Core RPC, and
 Core event streaming. Session, provider and settings truth stays inside this
-Core process boundary.
+Core process boundary. Provider CLI/version tooling and local-model discovery
+also run here so the Application Shell remains UI/supervisor/client only.
 
 ## Public Facade
 
@@ -18,6 +19,7 @@ Core process boundary.
 - Core process host and port options.
 - Shutdown request from the local supervisor/client.
 - Core RPC envelope from the Application Shell client.
+- Provider version/update requests and local-model discovery requests.
 
 ## Outputs
 
@@ -25,6 +27,7 @@ Core process boundary.
 - Health/status payload with process identity.
 - Graceful shutdown acknowledgement.
 - Server-sent Core events and RPC results.
+- Provider version snapshots, provider update results and local-model lists.
 
 ## Owned Paths
 

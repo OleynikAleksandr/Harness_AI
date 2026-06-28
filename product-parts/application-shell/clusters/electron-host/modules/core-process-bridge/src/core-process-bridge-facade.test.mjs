@@ -11,11 +11,14 @@ const supervisorSource = readFileSync(
 );
 
 assert.match(source, /harness-ai:core:get-session-events/u);
-assert.match(source, /sessionRequestHandlerFacade\s*\.\s*refreshUsageLimits/u);
-assert.match(source, /catch\(\(\) => undefined\)/u);
 assert.match(source, /createCoreProcessSupervisor\(repositoryRoot\)/u);
 assert.match(source, /await coreSupervisor\.start\(\)/u);
 assert.match(source, /await coreSupervisor\.restart\(\)/u);
+assert.match(source, /\/api\/v1\/rpc/u);
+assert.match(source, /\/api\/v1\/events/u);
+assert.doesNotMatch(source, /loadRuntime/u);
+assert.doesNotMatch(source, /provider-runtime\/clusters\/provider-adapters/u);
+assert.doesNotMatch(source, /sessionRequestHandlerFacade/u);
 assert.match(supervisorSource, /ELECTRON_RUN_AS_NODE/u);
 assert.match(supervisorSource, /"\/api\/v1\/health"/u);
 assert.match(supervisorSource, /"\/api\/v1\/shutdown"/u);

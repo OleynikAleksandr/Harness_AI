@@ -5,10 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 const source = readFileSync(join(moduleDir, "kimi-provider-facade.ts"), "utf8");
-const bridgeSource = readFileSync(
+const coreRuntimeSource = readFileSync(
   join(
     moduleDir,
-    "../../../../../../application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs"
+    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts"
   ),
   "utf8"
 );
@@ -29,8 +29,8 @@ assert.match(managedProfileSource, /"\.harness"/u);
 assert.doesNotMatch(managedProfileSource, /"\.codeai-hub"/u);
 assert.match(source, /thinkingEnabled: true/u);
 assert.match(
-  bridgeSource,
-  /new runtime\.KimiProviderFacade\(model\(providerId\), workspacePath\)/u
+  coreRuntimeSource,
+  /new KimiProviderFacade\(model, workspacePath\)/u
 );
 
 for (const relativePath of [

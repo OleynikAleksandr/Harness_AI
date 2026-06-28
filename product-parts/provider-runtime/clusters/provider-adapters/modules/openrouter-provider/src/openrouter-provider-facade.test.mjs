@@ -8,10 +8,10 @@ const source = readFileSync(
   join(moduleDir, "openrouter-provider-facade.ts"),
   "utf8"
 );
-const bridgeSource = readFileSync(
+const coreRuntimeSource = readFileSync(
   join(
     moduleDir,
-    "../../../../../../application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs"
+    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts"
   ),
   "utf8"
 );
@@ -20,8 +20,8 @@ assert.match(source, /extends OpenRouterProviderAdapter/u);
 assert.match(source, /getProviderSettings\("openrouter"\)/u);
 assert.match(source, /defaultEndpointTag: settings\.endpointTag/u);
 assert.match(
-  bridgeSource,
-  /new runtime\.OpenRouterProviderFacade\(model\(providerId\), workspacePath\)/u
+  coreRuntimeSource,
+  /new OpenRouterProviderFacade\(model \?\? undefined\)/u
 );
 
 for (const relativePath of [

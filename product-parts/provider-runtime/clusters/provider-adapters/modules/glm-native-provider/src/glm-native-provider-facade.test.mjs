@@ -8,10 +8,10 @@ const source = readFileSync(
   join(moduleDir, "glm-native-provider-facade.ts"),
   "utf8"
 );
-const bridgeSource = readFileSync(
+const coreRuntimeSource = readFileSync(
   join(
     moduleDir,
-    "../../../../../../application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs"
+    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts"
   ),
   "utf8"
 );
@@ -32,8 +32,8 @@ assert.match(runtimeProfileSource, /"\.harness-ai"/u);
 assert.match(runtimeProfileSource, /HARNESS_GLOBAL_SETTINGS_PATH/u);
 assert.doesNotMatch(runtimeProfileSource, /"\.codeai-hub"|~\/\.codeai-hub/u);
 assert.match(
-  bridgeSource,
-  /new runtime\.GlmNativeProviderFacade\(model\(providerId\), workspacePath\)/u
+  coreRuntimeSource,
+  /new GlmNativeProviderFacade\(model, workspacePath\)/u
 );
 
 for (const relativePath of [

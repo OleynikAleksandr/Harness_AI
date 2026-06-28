@@ -69,7 +69,7 @@ export const createOpenCodeRemoteSession = async (
 ): Promise<string> => {
   const response = await client.session.create({
     directory: workspacePath,
-    title: "codeai-hub",
+    title: "harness-ai",
   });
   const sessionId = readString(response.data?.id);
   if (!sessionId) {

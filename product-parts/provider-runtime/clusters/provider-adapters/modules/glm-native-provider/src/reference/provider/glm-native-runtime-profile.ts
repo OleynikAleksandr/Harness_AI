@@ -12,7 +12,7 @@ const GLM_MAX_REASONING_ALIASES = new Set(["max", "xhigh"]);
 const GLM_REASONING_OFF_ALIASES = new Set(["minimal", "none"]);
 const GLOBAL_SETTINGS_PATH = path.join(
   os.homedir(),
-  ".codeai-hub",
+  ".harness-ai",
   "settings",
   "settings.json"
 );
@@ -73,7 +73,9 @@ const readSettingsProvider = (
 
 const readGlobalSettingsProvider = (): Record<string, unknown> | null =>
   readSettingsProvider(
-    readString(process.env.CODEAI_GLOBAL_SETTINGS_PATH) ?? GLOBAL_SETTINGS_PATH
+    readString(process.env.HARNESS_GLOBAL_SETTINGS_PATH) ??
+      readString(process.env.CODEAI_GLOBAL_SETTINGS_PATH) ??
+      GLOBAL_SETTINGS_PATH
   );
 
 const stripTrailingSlash = (value: string): string =>
@@ -83,7 +85,7 @@ const resolveProviderHomePath = (
   providerHomePath: string | undefined
 ): string =>
   providerHomePath ??
-  path.join(os.homedir(), ".codeai-hub", "providers", "glm-native", "home");
+  path.join(os.homedir(), ".harness-ai", "providers", "glm-native", "home");
 
 const normalizeReasoningEffort = (value: string | null): "high" | "max" => {
   if (value && GLM_HIGH_REASONING_ALIASES.has(value)) {

@@ -9,6 +9,9 @@ runtime. The facade only binds Harness auth/settings, selected model, workspace
 path and provider home path; request building, thinking controls, SSE parsing,
 tool execution, session logging and usage limits come from the migrated
 CodeAI-Hub module.
+Provider home storage is Harness-owned: workspace sessions use
+`<workspace>/.harness/runtime/providers/glm-native/home`, and non-workspace
+fallbacks use `~/.harness-ai/providers/glm-native/home`.
 
 ## Public Facade
 

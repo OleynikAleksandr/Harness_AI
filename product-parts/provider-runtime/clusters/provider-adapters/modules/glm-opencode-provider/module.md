@@ -9,6 +9,9 @@ The facade only binds Harness workspace paths, settings path, selected model and
 provider home path; OpenCode server/session behavior, output normalization,
 SSE processing and runtime profile resolution come from the migrated CodeAI-Hub
 module.
+Provider home storage is Harness-owned: workspace sessions use
+`<workspace>/.harness/runtime/providers/glm-opencode/home`, and non-workspace
+fallbacks use `~/.harness-ai/providers/opencode/home`.
 
 ## Public Facade
 

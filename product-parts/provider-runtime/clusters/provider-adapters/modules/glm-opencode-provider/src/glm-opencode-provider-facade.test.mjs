@@ -15,6 +15,14 @@ const bridgeSource = readFileSync(
   ),
   "utf8"
 );
+const runtimeProfileSource = readFileSync(
+  join(moduleDir, "reference/provider/glm-opencode-runtime-profile.ts"),
+  "utf8"
+);
+const turnStreamSource = readFileSync(
+  join(moduleDir, "reference/provider/glm-opencode-turn-stream.ts"),
+  "utf8"
+);
 
 assert.match(
   source,
@@ -23,6 +31,10 @@ assert.match(
 assert.match(source, /extends GlmOpenCodeProviderAdapter/u);
 assert.match(source, /providerHomePath: path\.join\(/u);
 assert.match(source, /settingsPath: workspaceSettingsPath\(workspacePath\)/u);
+assert.match(runtimeProfileSource, /\.harness-ai/u);
+assert.match(runtimeProfileSource, /HARNESS_GLM_OPENCODE_COMMAND/u);
+assert.match(turnStreamSource, /title: "harness-ai"/u);
+assert.doesNotMatch(runtimeProfileSource, /"\.codeai-hub"|~\/\.codeai-hub/u);
 assert.match(
   bridgeSource,
   /new runtime\.GlmOpenCodeProviderFacade\(model\(providerId\), workspacePath\)/u

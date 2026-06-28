@@ -15,6 +15,10 @@ const bridgeSource = readFileSync(
   ),
   "utf8"
 );
+const runtimeProfileSource = readFileSync(
+  join(moduleDir, "reference/provider/glm-native-runtime-profile.ts"),
+  "utf8"
+);
 
 assert.match(
   source,
@@ -24,6 +28,9 @@ assert.match(source, /extends GlmProviderAdapter/u);
 assert.match(source, /providerAuthStoreFacade\.getApiKey\("glm-native"\)/u);
 assert.match(source, /providerHomePath: path\.join\(/u);
 assert.match(source, /settingsPath: workspaceSettingsPath\(workspacePath\)/u);
+assert.match(runtimeProfileSource, /"\.harness-ai"/u);
+assert.match(runtimeProfileSource, /HARNESS_GLOBAL_SETTINGS_PATH/u);
+assert.doesNotMatch(runtimeProfileSource, /"\.codeai-hub"|~\/\.codeai-hub/u);
 assert.match(
   bridgeSource,
   /new runtime\.GlmNativeProviderFacade\(model\(providerId\), workspacePath\)/u

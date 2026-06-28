@@ -16,15 +16,15 @@ export const GLM_OPENCODE_DEFAULT_MODEL_SELECTOR = `${GLM_OPENCODE_PROVIDER_KEY}
 export const KIMI_OPENCODE_MODEL_ID = "k2p7";
 const KIMI_OPENCODE_PROVIDER_KEY = "kimi-for-coding";
 export const KIMI_OPENCODE_DEFAULT_MODEL_SELECTOR = `${KIMI_OPENCODE_PROVIDER_KEY}/${KIMI_OPENCODE_MODEL_ID}`;
-const OPENCODE_WRAPPER_AGENT_NAME = "codeai-hub";
+const OPENCODE_WRAPPER_AGENT_NAME = "harness-ai";
 const DEFAULT_GLM_OPENCODE_CONFIG_PATH =
-  "~/.codeai-hub/providers/opencode/config.json";
+  "~/.harness-ai/providers/opencode/config.json";
 const DEFAULT_GLM_OPENCODE_PROVIDER_HOME_PATH =
-  "~/.codeai-hub/providers/opencode/home";
+  "~/.harness-ai/providers/opencode/home";
 const LEGACY_GLM_OPENCODE_CONFIG_PATH =
-  "~/.codeai-hub/providers/glm-opencode/config.json";
+  "~/.harness-ai/providers/glm-opencode/config.json";
 const LEGACY_GLM_OPENCODE_PROVIDER_HOME_PATH =
-  "~/.codeai-hub/providers/glm-opencode/home";
+  "~/.harness-ai/providers/glm-opencode/home";
 
 interface GlmOpenCodeConfigFile {
   readonly api_key?: unknown;
@@ -203,6 +203,7 @@ const resolveOpenCodeCommand = (
   environment: NodeJS.ProcessEnv
 ): string => {
   const explicit =
+    readString(environment.HARNESS_GLM_OPENCODE_COMMAND) ??
     readString(environment.CODEAI_GLM_OPENCODE_COMMAND) ??
     readString(environment.OPENCODE_COMMAND) ??
     readString(config.openCodeCommand) ??

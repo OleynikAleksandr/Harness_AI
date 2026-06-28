@@ -8,8 +8,8 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat: migrate codex app server provider",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "feat: migrate kimi provider module",
   "debt": null
 }
 ```
@@ -75,14 +75,14 @@
 
 ### Stream: Provider Runtime
 
-7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Replace the partial Harness Codex app-server adapter with a Harness-packaged migration of CodeAI-Hub `Codex_AppServer_Module`: process profile, provider home/auth, app-server facade, event router, reasoning buffers, usage limits, applied turn config, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**`; expected commit: `feat: migrate codex app server provider`).
-8. [TODO] Git Commit: `feat: migrate codex app server provider` (hash: TBD)
+7. [DONE] `harness-ai.phase4.stream1.task1` Replace the partial Harness Codex app-server adapter with a Harness-packaged migration of CodeAI-Hub `Codex_AppServer_Module`: process profile, provider home/auth, app-server facade, event router, reasoning buffers, usage limits, applied turn config, and focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/**`; expected commit: `feat: migrate codex app server provider`). Result: Completed in commit `feat: migrate codex app server provider`.
+8. [DONE] Git Commit: `feat: migrate codex app server provider` (hash: self)
 
 ## Phase 5 - Kimi Provider Migration (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Provider Runtime
 
-9. [TODO] `harness-ai.phase5.stream1.task1` Migrate CodeAI-Hub `Kimi_Module` behavior into the Harness Kimi provider module, including managed profile, lifecycle, event normalizer, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**`; expected commit: `feat: migrate kimi provider module`).
+9. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Migrate CodeAI-Hub `Kimi_Module` behavior into the Harness Kimi provider module, including managed profile, lifecycle, event normalizer, thinking handling, settings, and tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**`; expected commit: `feat: migrate kimi provider module`).
 10. [TODO] Git Commit: `feat: migrate kimi provider module` (hash: TBD)
 
 ## Phase 6 - GLM Native Provider Migration (owner: Codex, updated: 2026-06-28)

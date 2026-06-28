@@ -9,6 +9,7 @@ export interface CoreSessionMessage {
   id: string;
   role: CoreSessionRole;
   sessionId: string;
+  tag?: string;
   text: string;
   timestamp: string;
 }
@@ -76,10 +77,10 @@ export class SessionEventStreamFacade {
   }
 
   listEvents(sessionId?: string): SessionCoreEvent[] {
-    if (!sessionId) {
-      return [...this.events];
-    }
-    return this.events.filter((event) => event.payload.sessionId === sessionId);
+    const events = sessionId
+      ? this.events.filter((event) => event.payload.sessionId === sessionId)
+      : this.events;
+    return coalesceLiveAssistantMessageEvents(events);
   }
 
   latestTelemetryBySession(): Map<string, ProviderUsageTelemetry> {
@@ -152,6 +153,50 @@ export class SessionEventStreamFacade {
       }
     }
   }
+}
+
+function coalesceLiveAssistantMessageEvents(
+  events: readonly SessionCoreEvent[]
+): SessionCoreEvent[] {
+  const coalesced: SessionCoreEvent[] = [];
+  for (const event of events) {
+    const previous = coalesced.at(-1);
+    if (
+      event.type !== "session:message" ||
+      previous?.type !== "session:message" ||
+      event.payload.sessionId !== previous.payload.sessionId ||
+      !isLiveAssistantMessage(previous.payload, event.payload)
+    ) {
+      coalesced.push(event);
+      continue;
+    }
+    const nextText =
+      previous.payload.id === event.payload.id
+        ? event.payload.text
+        : `${previous.payload.text}${event.payload.text}`;
+    coalesced[coalesced.length - 1] = {
+      ...previous,
+      payload: {
+        ...previous.payload,
+        text: nextText,
+        timestamp: event.payload.timestamp,
+      },
+      timestamp: event.timestamp,
+    };
+  }
+  return coalesced;
+}
+
+function isLiveAssistantMessage(
+  previous: Pick<CoreSessionMessage, "role" | "tag">,
+  next: Pick<CoreSessionMessage, "role" | "tag">
+): boolean {
+  return (
+    previous.role === "assistant" &&
+    previous.tag === "live" &&
+    next.role === "assistant" &&
+    next.tag === "live"
+  );
 }
 
 function parseEvent(line: string): SessionCoreEvent | null {

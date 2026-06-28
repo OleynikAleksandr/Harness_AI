@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { coalesceLiveAssistantMessages } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/live-assistant-message-coalescer.js";
 import type {
   CoreSessionMessage,
   SessionCoreEvent,
@@ -383,12 +384,15 @@ function appendSessionMessage(
 ) {
   setMessagesBySession((current) => ({
     ...current,
-    [message.sessionId]: appendUniqueMessage(current[message.sessionId] ?? [], {
-      id: message.id,
-      role: message.role,
-      text: message.text,
-      timestamp: message.timestamp,
-    }),
+    [message.sessionId]: coalesceLiveAssistantMessages(
+      appendUniqueMessage(current[message.sessionId] ?? [], {
+        id: message.id,
+        role: message.role,
+        ...(message.tag ? { tag: message.tag } : {}),
+        text: message.text,
+        timestamp: message.timestamp,
+      })
+    ),
   }));
 }
 
@@ -396,9 +400,13 @@ function appendUniqueMessage(
   messages: SessionMessage[],
   message: SessionMessage
 ): SessionMessage[] {
-  return messages.some((item) => item.id === message.id)
-    ? messages
-    : [...messages, message];
+  const existingIndex = messages.findIndex((item) => item.id === message.id);
+  if (existingIndex === -1) {
+    return [...messages, message];
+  }
+  return messages.map((item, index) =>
+    index === existingIndex ? message : item
+  );
 }
 
 function appendAssistantNotice(

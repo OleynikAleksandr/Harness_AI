@@ -11,6 +11,7 @@ Render the transcript/dialog layout and session chrome.
 ## Inputs
 
 - Session snapshot from Core Runtime.
+- Core session messages with provider-neutral role/tag fields.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels use the Core settings-store capability resolver and disappear when the selected Codex model has no declared reasoning effort levels.
 

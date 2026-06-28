@@ -21,6 +21,7 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Visible thinking/reasoning dialog messages emitted by the migrated Claude stream router and thinking dialog emitter.
 - Provider usage/context telemetry.
 - Claude Agent SDK runs with the active workspace as `cwd`, so workspace-level files such as `CLAUDE.md` are visible to the provider.
+- Packaged macOS app setup resolves `npm` through GUI-safe PATH augmentation before installing/checking the Claude Agent SDK.
 
 ## Reference Alignment
 

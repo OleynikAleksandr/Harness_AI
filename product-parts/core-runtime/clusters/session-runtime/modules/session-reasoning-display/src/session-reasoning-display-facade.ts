@@ -3,6 +3,7 @@ export type SessionReasoningDisplayRole = "assistant" | "thinking";
 export interface SessionReasoningDisplayMessage {
   id: string;
   role: SessionReasoningDisplayRole;
+  tag?: string;
   text: string;
   timestamp: string;
 }
@@ -27,7 +28,8 @@ export class SessionReasoningDisplayFacade {
           `${baseId}::thinking::${index}`,
           "thinking",
           text,
-          timestamp
+          timestamp,
+          "thinking"
         )
       );
     }
@@ -35,11 +37,12 @@ export class SessionReasoningDisplayFacade {
     if (!text) {
       return [];
     }
+    const tag = readString(event.tag);
     if (isThinkingEvent(event)) {
-      return [displayMessage(baseId, "thinking", text, timestamp)];
+      return [displayMessage(baseId, "thinking", text, timestamp, "thinking")];
     }
     if (type === "assistant" || type === "dialog_message") {
-      return splitTaggedReasoning(text, baseId, timestamp);
+      return splitTaggedReasoning(text, baseId, timestamp, tag ?? undefined);
     }
     return [];
   }
@@ -57,10 +60,11 @@ export class SessionReasoningDisplayFacade {
         `${baseId}::thinking::${index}`,
         "thinking",
         text,
-        timestamp
+        timestamp,
+        "thinking"
       )
     );
-    const content = readString(value.content);
+    const content = readRawString(value.content);
     if (content) {
       messages.push(
         ...splitTaggedReasoning(content, `${baseId}::content`, timestamp)
@@ -73,7 +77,8 @@ export class SessionReasoningDisplayFacade {
 function splitTaggedReasoning(
   text: string,
   baseId: string,
-  timestamp: string
+  timestamp: string,
+  tag?: string
 ): SessionReasoningDisplayMessage[] {
   const messages: SessionReasoningDisplayMessage[] = [];
   let cursor = 0;
@@ -86,14 +91,16 @@ function splitTaggedReasoning(
       `${baseId}::assistant::${index}`,
       "assistant",
       text.slice(cursor, match.index),
-      timestamp
+      timestamp,
+      tag
     );
     pushText(
       messages,
       `${baseId}::thinking::${index}`,
       "thinking",
       match[2] ?? "",
-      timestamp
+      timestamp,
+      "thinking"
     );
     cursor = match.index + match[0].length;
     index += 1;
@@ -104,11 +111,12 @@ function splitTaggedReasoning(
     `${baseId}::assistant::${index}`,
     "assistant",
     text.slice(cursor),
-    timestamp
+    timestamp,
+    tag
   );
   return messages.length > 0
     ? messages
-    : [displayMessage(baseId, "assistant", text, timestamp)];
+    : [displayMessage(baseId, "assistant", text, timestamp, tag)];
 }
 
 function pushText(
@@ -116,11 +124,12 @@ function pushText(
   id: string,
   role: SessionReasoningDisplayRole,
   text: string,
-  timestamp: string
+  timestamp: string,
+  tag?: string
 ): void {
-  const trimmed = text.trim();
-  if (trimmed) {
-    messages.push(displayMessage(id, role, trimmed, timestamp));
+  const message = displayMessage(id, role, text, timestamp, tag);
+  if (message.text) {
+    messages.push(message);
   }
 }
 
@@ -128,9 +137,17 @@ function displayMessage(
   id: string,
   role: SessionReasoningDisplayRole,
   text: string,
-  timestamp: string
+  timestamp: string,
+  tag?: string
 ): SessionReasoningDisplayMessage {
-  return { id, role, text: text.trim(), timestamp };
+  const displayText = tag === "live" ? text : text.trim();
+  return {
+    id,
+    role,
+    ...(tag ? { tag } : {}),
+    text: displayText.trim().length > 0 ? displayText : "",
+    timestamp,
+  };
 }
 
 function isThinkingEvent(event: Record<string, unknown>): boolean {
@@ -153,9 +170,9 @@ function readReasoningTexts(value: Record<string, unknown>): string[] {
 
 function readDisplayText(value: Record<string, unknown>): string | null {
   return (
-    readString(value.content) ??
-    readString(value.text) ??
-    readString(value.message)
+    readRawString(value.content) ??
+    readRawString(value.text) ??
+    readRawString(value.message)
   );
 }
 
@@ -182,6 +199,10 @@ function readString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
     : null;
+}
+
+function readRawString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -15,6 +15,10 @@ const bridgeSource = readFileSync(
   "utf8"
 );
 const referenceRoot = new URL("./reference", moduleDir);
+const npmRunnerSource = readFileSync(
+  new URL("./reference/installer/npm-runner.ts", moduleDir),
+  "utf8"
+);
 
 assert.match(facadeSource, /extends ClaudeProviderAdapter/u);
 assert.match(facadeSource, /from "\.\/reference\/index\.js"/u);
@@ -23,6 +27,9 @@ assert.match(
   bridgeSource,
   /new runtime\.ClaudeProviderFacade\(model\(providerId\), workspacePath\)/u
 );
+assert.match(npmRunnerSource, /GUI_NPM_PATHS/u);
+assert.match(npmRunnerSource, /\/opt\/homebrew\/bin/u);
+assert.match(npmRunnerSource, /buildNpmEnvironment/u);
 
 for (const path of [
   "sdk/claude-sdk-manager.ts",

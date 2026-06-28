@@ -29,6 +29,7 @@ assert.deepEqual(
     {
       id: "codex-reasoning",
       role: "thinking",
+      tag: "thinking",
       text: "checking tools",
       timestamp: "2026-06-28T00:00:00.000Z",
     },
@@ -46,6 +47,7 @@ assert.deepEqual(
     {
       id: "tagged::thinking::0",
       role: "thinking",
+      tag: "thinking",
       text: "plan first",
       timestamp: "2026-06-28T00:00:01.000Z",
     },
@@ -72,6 +74,7 @@ assert.deepEqual(
     {
       id: "glm-chunk::thinking::0",
       role: "thinking",
+      tag: "thinking",
       text: "visible reasoning",
       timestamp: "2026-06-28T00:00:02.000Z",
     },
@@ -80,6 +83,25 @@ assert.deepEqual(
       role: "assistant",
       text: "visible answer",
       timestamp: "2026-06-28T00:00:02.000Z",
+    },
+  ]
+);
+
+assert.deepEqual(
+  facade.projectProviderEvent({
+    content: " world",
+    tag: "live",
+    timestamp: "2026-06-28T00:00:03.000Z",
+    type: "assistant",
+    uuid: "live-chunk",
+  }),
+  [
+    {
+      id: "live-chunk::assistant::0",
+      role: "assistant",
+      tag: "live",
+      text: " world",
+      timestamp: "2026-06-28T00:00:03.000Z",
     },
   ]
 );

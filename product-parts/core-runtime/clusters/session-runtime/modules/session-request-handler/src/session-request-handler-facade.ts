@@ -1,17 +1,11 @@
-import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderTurnStatus,
   type ProviderUsageTelemetry,
   usageContextTelemetryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
-import {
-  type ProviderId,
-  providerRegistryFacade,
-} from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
-import {
-  type ProviderSessionBinding,
-  providerSessionBindingFacade,
-} from "../../provider-session-binding/src/provider-session-binding-facade.js";
+import { providerRegistryFacade } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
+import { providerSessionBindingFacade } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import {
   type CoreSessionMessage,
   type SessionCoreEvent,
@@ -23,76 +17,28 @@ import {
   readWorkspaceSessionIndex,
   writeWorkspaceSessionIndex,
 } from "./session-history-store.js";
+import { resolveLiveAssistantTail } from "./session-live-tail-dedupe.js";
+import type {
+  CoreSession,
+  CoreSessionActionResult,
+  CreateCoreSessionRequest,
+  DeleteSessionResult,
+  ProviderRegistryLike,
+  ProviderRuntimeBinding,
+  ProviderSessionBindingFacadeLike,
+  SendCoreMessageRequest,
+  SessionEventStreamLike,
+  SessionRequestHandlerDependencies,
+} from "./session-request-handler-types.js";
 
-export interface CoreSession {
-  createdAt: string;
-  id: string;
-  model: string;
-  providerId: ProviderId;
-  providerName: string;
-  title: string;
-  updatedAt: string;
-  workspaceId: string;
-  workspacePath?: string;
-}
-
-export interface CreateCoreSessionRequest {
-  model: string;
-  providerId: ProviderId;
-  providerName: string;
-  title?: string;
-  workspaceId: string;
-  workspacePath?: string;
-}
-
-export interface SendCoreMessageRequest {
-  sessionId: string;
-  text: string;
-}
-
-export type CoreSessionActionResult =
-  | { ok: true; session: CoreSession }
-  | { error: string; ok: false };
-type DeleteSessionResult = { ok: true } | { error: string; ok: false };
-
-export interface SessionRequestHandlerDependencies {
-  bindingFacade?: ProviderSessionBindingFacadeLike;
-  eventStream?: SessionEventStreamLike;
-  providerRegistry?: ProviderRegistryLike;
-}
-
-interface ProviderSessionBindingFacadeLike {
-  createPending(
-    sessionId: string,
-    providerId: ProviderId
-  ): ProviderSessionBinding;
-  getBinding(sessionId: string): ProviderSessionBinding | null;
-  markFailed(
-    sessionId: string,
-    providerId: ProviderId,
-    error: string
-  ): ProviderSessionBinding;
-  markReady(
-    sessionId: string,
-    providerId: ProviderId,
-    providerSessionId: string
-  ): ProviderSessionBinding;
-}
-
-interface SessionEventStreamLike {
-  publish(event: SessionCoreEvent): void;
-  rememberSession?(session: CoreSession): void;
-}
-
-interface ProviderRegistryLike {
-  getAdapter(providerId: ProviderId): ProviderAdapter | null;
-}
-
-interface ProviderRuntimeBinding {
-  adapter: ProviderAdapter;
-  providerSessionId: string;
-  unsubscribe: () => void;
-}
+export type {
+  CoreSession,
+  CoreSessionActionResult,
+  CreateCoreSessionRequest,
+  DeleteSessionResult,
+  SendCoreMessageRequest,
+  SessionRequestHandlerDependencies,
+} from "./session-request-handler-types.js";
 
 const ADAPTER_NOT_REGISTERED =
   "Provider adapter is not registered in Core runtime.";
@@ -103,6 +49,7 @@ export class SessionRequestHandlerFacade {
   private readonly eventStream: SessionEventStreamLike;
   private readonly providerRegistry: ProviderRegistryLike;
   private readonly runtimeBindings = new Map<string, ProviderRuntimeBinding>();
+  private readonly messagesBySession = new Map<string, CoreSessionMessage[]>();
   private readonly sessions = new Map<string, CoreSession>();
   private readonly telemetryBySession = new Map<
     string,
@@ -129,6 +76,7 @@ export class SessionRequestHandlerFacade {
       session.workspacePath = request.workspacePath;
     }
     this.sessions.set(session.id, session);
+    this.messagesBySession.set(session.id, []);
     this.eventStream.rememberSession?.(session);
     this.persistSessionIndex(session.workspacePath);
     this.setTelemetry(
@@ -200,6 +148,7 @@ export class SessionRequestHandlerFacade {
       .closeSession(binding.providerSessionId)
       .catch(() => undefined);
     this.runtimeBindings.delete(sessionId);
+    this.messagesBySession.delete(sessionId);
     this.telemetryBySession.delete(sessionId);
     this.sessions.delete(sessionId);
     this.persistSessionIndex(session.workspacePath);
@@ -218,6 +167,10 @@ export class SessionRequestHandlerFacade {
     );
     for (const session of restoredSessions) {
       this.sessions.set(session.id, session);
+      this.messagesBySession.set(
+        session.id,
+        this.readRememberedMessages(session.id)
+      );
       this.telemetryBySession.set(
         session.id,
         usageContextTelemetryFacade.createTelemetry({
@@ -248,11 +201,51 @@ export class SessionRequestHandlerFacade {
   }
 
   private publishMessage(message: CoreSessionMessage): void {
+    const displayMessage = this.resolveDisplayMessage(message);
+    if (!displayMessage) {
+      return;
+    }
+    this.rememberMessage(displayMessage);
     this.publish({
-      payload: message,
-      timestamp: message.timestamp,
+      payload: displayMessage,
+      timestamp: displayMessage.timestamp,
       type: "session:message",
     });
+  }
+
+  private resolveDisplayMessage(
+    message: CoreSessionMessage
+  ): CoreSessionMessage | null {
+    if (message.role !== "assistant" || message.tag === "live") {
+      return message;
+    }
+    const deduped = resolveLiveAssistantTail(
+      this.messagesBySession.get(message.sessionId) ?? [],
+      message.text
+    );
+    if (!deduped) {
+      return null;
+    }
+    return {
+      ...message,
+      text: deduped.text,
+      ...(deduped.tag ? { tag: deduped.tag } : {}),
+    };
+  }
+
+  private rememberMessage(message: CoreSessionMessage): void {
+    const messages = this.messagesBySession.get(message.sessionId) ?? [];
+    messages.push(message);
+    this.messagesBySession.set(message.sessionId, messages);
+  }
+
+  private readRememberedMessages(sessionId: string): CoreSessionMessage[] {
+    return (
+      this.eventStream
+        .listEvents?.(sessionId)
+        .filter((event) => event.type === "session:message")
+        .map((event) => event.payload) ?? []
+    );
   }
 
   private publishBinding(binding: ProviderSessionBinding): void {
@@ -426,6 +419,7 @@ export class SessionRequestHandlerFacade {
           id: message.id,
           role: message.role,
           sessionId,
+          ...(message.tag ? { tag: message.tag } : {}),
           text: message.text,
           timestamp: message.timestamp,
         });

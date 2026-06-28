@@ -16,6 +16,7 @@ Project provider-visible reasoning/thinking payloads into Core dialog messages.
 ## Outputs
 
 - Core-ready assistant and thinking display messages.
+- Provider `tag` markers, including `live` and `thinking`, preserved for downstream Core/UI read-model handling.
 
 ## Owned Paths
 

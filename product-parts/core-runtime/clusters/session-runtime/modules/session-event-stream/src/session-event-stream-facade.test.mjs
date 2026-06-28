@@ -70,12 +70,42 @@ firstStream.publish({
   timestamp: "2026-06-27T00:00:02.000Z",
   type: "session:telemetry",
 });
+firstStream.publish({
+  payload: {
+    id: "live-1",
+    role: "assistant",
+    sessionId: session.id,
+    tag: "live",
+    text: "Привет",
+    timestamp: "2026-06-27T00:00:03.000Z",
+  },
+  timestamp: "2026-06-27T00:00:03.000Z",
+  type: "session:message",
+});
+firstStream.publish({
+  payload: {
+    id: "live-2",
+    role: "assistant",
+    sessionId: session.id,
+    tag: "live",
+    text: ", мир.",
+    timestamp: "2026-06-27T00:00:04.000Z",
+  },
+  timestamp: "2026-06-27T00:00:04.000Z",
+  type: "session:message",
+});
 
 const secondStream = new SessionEventStreamFacade();
 secondStream.configureSessionHistory([session]);
 
-assert.equal(secondStream.listEvents(session.id).length, 3);
+assert.equal(secondStream.listEvents(session.id).length, 4);
 assert.equal(secondStream.listEvents(session.id)[0].type, "session:message");
+const liveMessage = secondStream
+  .listEvents(session.id)
+  .find(
+    (event) => event.type === "session:message" && event.payload.tag === "live"
+  );
+assert.equal(liveMessage?.payload.text, "Привет, мир.");
 assert.equal(
   secondStream.latestTelemetryBySession().get(session.id)?.tokenUsage?.used,
   40

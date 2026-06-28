@@ -76,6 +76,8 @@ From this scope forward, provider execution must enter through Core session disp
 
 Visible provider reasoning follows the same rule: provider adapters request provider-native visible reasoning where the provider requires an explicit turn option, provider events enter Core, `session-reasoning-display` projects explicit thinking events or tagged visible reasoning into Core `thinking` messages, and the UI only renders the projected session messages. Provider-native persistence under isolated provider homes is separate from Harness Core dialog JSONL history under `<workspace>/.harness/sessions/**`.
 
+Live assistant text follows the CodeAI Hub append-only contract: providers may emit assistant chunks tagged `live`; Core preserves that tag, coalesces consecutive live chunks for session readback/display, and suppresses or reduces a later full-text final answer when the live text already covers it. Renderer code must not infer provider chunk semantics without this Core/shared contract.
+
 ## Reference Module Migration Map
 
 This migration is provider-by-provider. CodeAI Hub is the behavioral source of truth; Harness adaptation is limited to product-tree placement, facade boundaries, imports, focused tests, and Core contract integration.
@@ -102,6 +104,7 @@ Required behavior:
 - Preserve SDK query options for `cwd`, `projectPath`, `additionalDirectories`, `settingSources`, `systemPrompt`, `tools`, `model`, `effort`, `thinking`, `resume`, and structured output.
 - Preserve thinking stream handling: content block start/delta/stop, thinking live buffer, text live buffer, final thinking reconciliation, and `dialog_message` emissions tagged as `thinking`.
 - Preserve auth/home bridge, usage/context probes, stale binding handling, and runtime profile behavior.
+- In the packaged macOS app, preserve reference installer behavior while augmenting the npm runner PATH for GUI launches so Homebrew npm can be found before Claude SDK setup.
 
 ### Codex
 

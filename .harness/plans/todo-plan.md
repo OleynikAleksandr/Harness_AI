@@ -8,7 +8,7 @@
   "planId": "reference-provider-modules-migration-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream1.task1",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -124,4 +124,11 @@
 
 ### Stream: Retest
 
-21. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` User relaunches the packaged app and retests migrated provider modules provider-by-provider (scope: user workflow; expected commit: none).
+21. [DONE] `harness-ai.phase11.stream1.task1` User relaunches the packaged app and retests migrated provider modules provider-by-provider (scope: user workflow; expected commit: none). Result: Retest found Claude packaged setup `spawn npm ENOENT` and shared assistant live chunk display splitting.
+
+## Phase 12 - Provider Retest Defects (owner: Codex, updated: 2026-06-28)
+
+### Stream: Provider Runtime And Core Display
+
+22. [DONE] `harness-ai.phase12.stream1.task1` Fix Claude packaged npm discovery and shared Core live assistant chunk coalescing/tail dedupe using CodeAI-Hub reference behavior, then update tests/docs and package the macOS app for retest (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**, docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `fix: repair provider setup and live chunk display`). Result: Completed in commit `fix: repair provider setup and live chunk display`.
+23. [DONE] Git Commit: `fix: repair provider setup and live chunk display` (hash: self)

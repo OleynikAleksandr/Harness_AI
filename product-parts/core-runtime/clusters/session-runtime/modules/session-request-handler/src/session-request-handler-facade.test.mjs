@@ -11,5 +11,10 @@ assert.match(
   /sessionReasoningDisplayFacade\.projectProviderEvent\(event\)/u
 );
 assert.match(source, /role: message\.role/u);
+assert.match(
+  source,
+  /\.\.\.\(message\.tag \? \{ tag: message\.tag \} : \{\}\)/u
+);
+assert.match(source, /from "\.\/session-live-tail-dedupe\.js"/u);
 assert.doesNotMatch(source, /event\.tag === "thinking"/u);
 assert.match(source, /buildProviderTurnOptions\(session\)/u);

@@ -14,6 +14,7 @@ import {
 export interface SessionMessage {
   id: string;
   role: "assistant" | "system" | "thinking" | "user";
+  tag?: string;
   text: string;
   timestamp: string;
 }

@@ -17,6 +17,8 @@ Expose provider-neutral Core session events to Application Shell projections. Pr
 ## Outputs
 
 - Renderer-safe session event payloads.
+- Core read-model messages with provider `tag` markers preserved.
+- Consecutive assistant messages tagged `live` coalesced for session replay/readback.
 - Snapshot invalidation signals.
 
 ## Owned Paths

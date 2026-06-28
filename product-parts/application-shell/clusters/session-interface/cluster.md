@@ -2,7 +2,7 @@
 
 ## Boundary
 
-Owns the classic chat session renderer, input controls, telemetry surface, and left sidebar.
+Owns the classic chat session renderer, input controls, telemetry surface, and left sidebar. It consumes Core session role/tag contracts for display.
 
 ## Owned Modules
 

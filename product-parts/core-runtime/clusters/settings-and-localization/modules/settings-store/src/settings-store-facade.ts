@@ -11,7 +11,13 @@ export interface ProviderModelSetting {
 }
 
 export type LocalizationWorkflowTermsPolicy = "keep_english" | "translate";
-export type ReasoningEffort = "low" | "medium" | "high" | "xhigh" | "max";
+export type ReasoningEffort =
+  | "low"
+  | "medium"
+  | "high"
+  | "xhigh"
+  | "max"
+  | "ultracode";
 
 export interface LocalizationCategorySettings {
   artifactsForTheUser: string;

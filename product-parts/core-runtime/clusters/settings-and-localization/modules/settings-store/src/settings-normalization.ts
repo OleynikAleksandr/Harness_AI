@@ -1,7 +1,14 @@
 import type { HarnessSettings } from "./settings-store-facade.js";
 
 const CLAUDE_MODEL_ALIASES = ["sonnet", "opus", "haiku"];
-const CLAUDE_THINKING_EFFORTS = ["low", "medium", "high", "xhigh", "max"];
+const CLAUDE_THINKING_EFFORTS = [
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+  "ultracode",
+];
 const CODEX_MODEL_IDS = [
   "gpt-5.2",
   "gpt-5.3-codex-spark",

@@ -18,6 +18,7 @@ import {
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
+import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import {
   readWorkspaceSessionIndex,
   writeWorkspaceSessionIndex,
@@ -404,7 +405,7 @@ export class SessionRequestHandlerFacade {
       await runtimeBinding.adapter.sendMessage(
         runtimeBinding.providerSessionId,
         text,
-        { model: session.model }
+        buildProviderTurnOptions(session)
       );
     } catch (error) {
       this.publishTurnState(session.id, "idle");

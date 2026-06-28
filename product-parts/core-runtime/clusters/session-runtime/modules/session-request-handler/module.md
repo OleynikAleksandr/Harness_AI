@@ -14,6 +14,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Session id or provider selection.
 - Raw user message payload.
 - Turn options from Core-owned settings/model binding.
+- Core-owned provider settings used to derive applied turn options such as Codex reasoning effort and reasoning summary enablement.
 
 ## Outputs
 

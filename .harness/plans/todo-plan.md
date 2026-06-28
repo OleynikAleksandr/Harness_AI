@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream1.task1",
-  "expectedCommitMessage": "fix: restore codex and kimi thinking events",
+  "currentTaskId": "harness-ai.phase13.stream1.task1",
+  "expectedCommitMessage": "chore: verify claude codex kimi reasoning repair",
   "debt": null
 }
 ```
@@ -121,14 +121,14 @@
 
 ### Stream: Provider Adapter
 
-21. [IN_PROGRESS] `harness-ai.phase12.stream1.task1` Inspect the actual Codex/Kimi native event outputs from the latest retest and port the smallest CodeAI-HUB native reasoning emitter still missing in Harness (scope: TBD after event inspection; expected commit: `fix: restore codex and kimi thinking events`).
-22. [TODO] Git Commit: `fix: restore codex and kimi thinking events` (hash: TBD)
+21. [DONE] `harness-ai.phase12.stream1.task1` Inspect the actual Codex/Kimi native event outputs from the latest retest, pass Core-owned Codex reasoning effort into `turn/start`, and normalize Kimi CLI `stream-json` thinking chunks from the workspace cwd (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**`; expected commit: `fix: restore codex and kimi thinking events`). Result: Completed in commit `fix: restore codex and kimi thinking events`.
+22. [DONE] Git Commit: `fix: restore codex and kimi thinking events` (hash: self)
 
 ## Phase 13 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Verification
 
-23. [TODO] `harness-ai.phase13.stream1.task1` Update evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify claude codex kimi reasoning repair`).
+23. [IN_PROGRESS] `harness-ai.phase13.stream1.task1` Update evidence, run gates, build, package macOS app, and hand off for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify claude codex kimi reasoning repair`).
 24. [TODO] Git Commit: `chore: verify claude codex kimi reasoning repair` (hash: TBD)
 
 ## Phase 14 - User Workflow Acceptance (owner: User, updated: 2026-06-28)

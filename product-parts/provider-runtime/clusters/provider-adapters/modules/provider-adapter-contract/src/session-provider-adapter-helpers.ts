@@ -21,6 +21,7 @@ export interface CliProviderAdapterOptions {
   cwd?: (workspacePath?: string) => string | undefined;
   env?: (model?: string) => NodeJS.ProcessEnv | null;
   model?: string;
+  outputParser?: "kimi-stream-json";
   timeoutMs?: number;
 }
 
@@ -31,6 +32,7 @@ export interface OpenAiCompatibleAdapterOptions {
 }
 
 const DEFAULT_CLI_TIMEOUT_MS = 180_000;
+const LINE_BREAK_REGEX = /\r?\n/u;
 const TRAILING_SLASHES_REGEX = /\/+$/u;
 const PATH_ENTRIES = [
   path.join(homedir(), ".npm-global", "bin"),
@@ -117,19 +119,83 @@ export class CliSessionProviderAdapter
         env: this.options.env?.(selectedModel),
         timeoutMs: this.options.timeoutMs ?? DEFAULT_CLI_TIMEOUT_MS,
       });
+      const output = parseCliOutput(text, this.options.outputParser);
       session.messages.push({ role: "user", content });
-      session.messages.push({ role: "assistant", content: text });
+      session.messages.push({ role: "assistant", content: output.assistant });
       this.emit(
         sessionId,
-        tokenUsageEvent(estimateTokenCount(prompt) + estimateTokenCount(text))
+        tokenUsageEvent(
+          estimateTokenCount(prompt) + estimateTokenCount(output.assistant)
+        )
       );
-      this.emit(sessionId, dialogMessage(text));
+      for (const thinking of output.thinking) {
+        this.emit(sessionId, dialogMessage(thinking, "thinking"));
+      }
+      this.emit(sessionId, dialogMessage(output.assistant));
       this.emit(sessionId, event("turn_completed"));
     } catch (error) {
       const message = stringifyError(error);
       this.emit(sessionId, event("turn_failed", message));
       throw error;
     }
+  }
+}
+
+function parseCliOutput(
+  text: string,
+  parser: CliProviderAdapterOptions["outputParser"]
+): { assistant: string; thinking: string[] } {
+  if (parser !== "kimi-stream-json") {
+    return { assistant: text, thinking: [] };
+  }
+  const assistant: string[] = [];
+  const thinking: string[] = [];
+  for (const line of text.split(LINE_BREAK_REGEX)) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
+    const item = parseJsonRecord(trimmed);
+    if (!item) {
+      assistant.push(line);
+      continue;
+    }
+    appendKimiStreamJsonOutput(item, assistant, thinking);
+  }
+  const assistantText = assistant.join("").trim();
+  return { assistant: assistantText || text, thinking };
+}
+
+function parseJsonRecord(line: string): Record<string, unknown> | null {
+  try {
+    const record = JSON.parse(line);
+    return isRecord(record) ? record : null;
+  } catch {
+    return null;
+  }
+}
+
+function appendKimiStreamJsonOutput(
+  item: Record<string, unknown>,
+  assistant: string[],
+  thinking: string[]
+): void {
+  const content = readText(item?.content ?? item?.text);
+  const role = readText(item?.role);
+  const type = readText(item?.type);
+  const payload = isRecord(item?.payload) ? item.payload : null;
+  const payloadType = readText(payload?.type);
+  const payloadThink = readText(payload?.think);
+  if (content && (role === "assistant" || type === "text")) {
+    assistant.push(content);
+    return;
+  }
+  if (content && (role === "thinking" || type === "think")) {
+    thinking.push(content);
+    return;
+  }
+  if (payloadThink && payloadType === "think") {
+    thinking.push(payloadThink);
   }
 }
 
@@ -386,6 +452,10 @@ function readTextBlocks(value: unknown): string[] {
           typeof item === "string" && item.trim().length > 0
       )
     : [];
+}
+
+function readText(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
 }
 
 function stringifyError(error: unknown): string {

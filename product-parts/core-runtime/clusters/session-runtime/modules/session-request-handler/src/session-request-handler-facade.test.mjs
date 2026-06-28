@@ -12,3 +12,4 @@ assert.match(
 );
 assert.match(source, /role: message\.role/u);
 assert.doesNotMatch(source, /event\.tag === "thinking"/u);
+assert.match(source, /buildProviderTurnOptions\(session\)/u);

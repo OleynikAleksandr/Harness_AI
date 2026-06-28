@@ -142,11 +142,13 @@ export class CodexProviderFacade implements ProviderAdapter {
     state.pendingInputTokens = estimateTokenCount(content);
     state.hasExactTokenUsageInTurn = false;
     const selectedModel = readModel(turnOptions, this.options.defaultModel);
+    const reasoningEffort = readReasoningEffort(turnOptions);
     const response = await this.request<Record<string, unknown>>("turn/start", {
       cwd: state.workspacePath,
+      ...(reasoningEffort ? { effort: reasoningEffort } : {}),
       input: [{ text: content, text_elements: [], type: "text" }],
       model: selectedModel,
-      summary: "detailed",
+      summary: readReasoningSummaryEnabled(turnOptions) ? "detailed" : "none",
       threadId: sessionId,
     });
     const turn = isRecord(response.turn) ? response.turn : null;
@@ -379,6 +381,20 @@ function readModel(
   fallback: string
 ): string {
   return typeof turnOptions?.model === "string" ? turnOptions.model : fallback;
+}
+
+function readReasoningEffort(
+  turnOptions: ProviderTurnOptions | undefined
+): string | null {
+  return typeof turnOptions?.reasoningEffort === "string"
+    ? turnOptions.reasoningEffort
+    : null;
+}
+
+function readReasoningSummaryEnabled(
+  turnOptions: ProviderTurnOptions | undefined
+): boolean {
+  return turnOptions?.reasoningSummaryEnabled !== false;
 }
 
 function readThreadId(response: Record<string, unknown>): string {

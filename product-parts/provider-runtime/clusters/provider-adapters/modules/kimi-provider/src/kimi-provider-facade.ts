@@ -11,13 +11,15 @@ export class KimiProviderFacade extends CliSessionProviderAdapter {
     super({
       commands: ["kimi", path.join(homedir(), ".kimi-code", "bin", "kimi")],
       cwd: (workspacePath) =>
+        workspacePath ??
         providerHomeManagerFacade.resolveProviderHome({
           providerId: "kimi",
           workspacePath,
         }),
       env: buildKimiModelEnvironment,
       model,
-      args: (prompt) => ["--prompt", prompt],
+      args: (prompt) => ["--prompt", prompt, "--output-format", "stream-json"],
+      outputParser: "kimi-stream-json",
     });
   }
 

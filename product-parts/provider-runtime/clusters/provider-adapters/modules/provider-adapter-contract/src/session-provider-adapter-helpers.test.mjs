@@ -60,6 +60,33 @@ try {
   rmSync(tempCwd, { force: true, recursive: true });
 }
 
+const kimiStreamAdapter = new CliSessionProviderAdapter({
+  args: () => [
+    "-e",
+    [
+      "console.log(JSON.stringify({role:'thinking',content:'visible thought'}));",
+      "console.log(JSON.stringify({role:'assistant',content:'visible answer'}));",
+    ].join(""),
+  ],
+  commands: [process.execPath],
+  outputParser: "kimi-stream-json",
+});
+const kimiStreamSessionId = await kimiStreamAdapter.createSession();
+const kimiStreamEvents = [];
+kimiStreamAdapter.subscribe(kimiStreamSessionId, (event) =>
+  kimiStreamEvents.push(event)
+);
+await kimiStreamAdapter.sendMessage(kimiStreamSessionId, "think");
+assert.deepEqual(
+  kimiStreamEvents
+    .filter((event) => event?.type === "dialog_message")
+    .map(({ content, tag }) => ({ content, tag })),
+  [
+    { content: "visible thought", tag: "thinking" },
+    { content: "visible answer", tag: undefined },
+  ]
+);
+
 const originalFetch = globalThis.fetch;
 try {
   globalThis.fetch = async () =>

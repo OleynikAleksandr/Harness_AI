@@ -28,6 +28,8 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - Graceful shutdown acknowledgement.
 - Server-sent Core events and RPC results.
 - Provider version snapshots, provider update results and local-model lists.
+- On `delete-session` RPC, orchestrates session removal and deletes the session's
+  event log so the on-disk artifact does not outlive the session record.
 
 ## Owned Paths
 

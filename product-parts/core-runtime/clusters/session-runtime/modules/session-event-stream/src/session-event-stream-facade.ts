@@ -1,4 +1,10 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  unlinkSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import type { ProviderUsageTelemetry } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
@@ -101,6 +107,23 @@ export class SessionEventStreamFacade {
     this.listeners.clear();
     this.sessionEventFiles.clear();
     this.loadedEventFiles.clear();
+  }
+
+  deleteSessionEvents(sessionId: string): void {
+    const eventFile = this.sessionEventFiles.get(sessionId);
+    if (eventFile) {
+      if (existsSync(eventFile)) {
+        unlinkSync(eventFile);
+      }
+      this.loadedEventFiles.delete(eventFile);
+      this.sessionEventFiles.delete(sessionId);
+    }
+    // Drop in-memory events so a later append cannot recreate the file.
+    for (let index = this.events.length - 1; index >= 0; index -= 1) {
+      if (this.events[index].payload.sessionId === sessionId) {
+        this.events.splice(index, 1);
+      }
+    }
   }
 
   configureSessionHistory(sessions: SessionHistoryRef[]): void {

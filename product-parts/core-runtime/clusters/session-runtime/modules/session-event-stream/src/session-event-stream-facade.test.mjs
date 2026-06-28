@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import ts from "typescript";
@@ -110,5 +110,20 @@ assert.equal(
   secondStream.latestTelemetryBySession().get(session.id)?.tokenUsage?.used,
   40
 );
+
+// deleteSessionEvents removes the file, clears in-memory events, and is idempotent.
+const eventFile = join(
+  workspacePath,
+  ".harness",
+  "sessions",
+  "events",
+  `${encodeURIComponent(session.id)}.jsonl`
+);
+assert.equal(existsSync(eventFile), true);
+firstStream.deleteSessionEvents(session.id);
+assert.equal(existsSync(eventFile), false);
+assert.equal(firstStream.listEvents(session.id).length, 0);
+firstStream.deleteSessionEvents(session.id);
+firstStream.deleteSessionEvents("session-never-existed");
 
 rmSync(workspacePath, { force: true, recursive: true });

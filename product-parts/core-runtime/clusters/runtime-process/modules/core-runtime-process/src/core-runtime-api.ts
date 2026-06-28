@@ -84,8 +84,12 @@ export class CoreRuntimeApi {
         return providerRegistryFacade.listProviders();
       case "create-session":
         return sessionRequestHandlerFacade.createSession(payload as never);
-      case "delete-session":
-        return sessionRequestHandlerFacade.deleteSession(readString(payload));
+      case "delete-session": {
+        const sessionId = readString(payload);
+        const result = sessionRequestHandlerFacade.deleteSession(sessionId);
+        sessionEventStreamFacade.deleteSessionEvents(sessionId);
+        return result;
+      }
       case "get-settings":
         return settingsStoreFacade.getSettings(
           readString(payload) || this.activeWorkspacePath()

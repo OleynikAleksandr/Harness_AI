@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream1.task1",
-  "expectedCommitMessage": "chore: verify codex reference summary config",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -183,5 +183,5 @@
 
 ### Stream: Verification
 
-38. [IN_PROGRESS] `harness-ai.phase21.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the reference-aligned Codex summary behavior for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reference summary config`).
-39. [TODO] Git Commit: `chore: verify codex reference summary config` (hash: TBD)
+38. [DONE] `harness-ai.phase21.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the reference-aligned Codex summary behavior for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reference summary config`). Result: Completed in commit `chore: verify codex reference summary config`.
+39. [DONE] Git Commit: `chore: verify codex reference summary config` (hash: self)

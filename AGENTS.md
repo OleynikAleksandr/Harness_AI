@@ -113,11 +113,13 @@
 ## 9. Release And Packaging Gate
 
 - Новый release/package build нельзя запускать как release decision без явного подтверждения пользователя.
-- Для обычной verification сборки текущего scope можно запускать:
+- Порядок сборки приложения (важно — это разные артефакты):
   ```bash
-  npm run build
-  npm run package:mac
+  npm run build        # пересобирает только dist/ (renderer + runtime)
+  npm run package:mac  # пересобирает app.asar внутри release/mac-arm64/Harness AI.app
   ```
+- `npm run build` НЕ обновляет упакованное `Harness AI.app`. Запущенное приложение продолжит работать на старом коде из `app.asar`.
+- Любое изменение, которое пользователь проверяет в упакованном приложении (UI и прочее), требует `npm run package:mac`, а не только `npm run build`. После пересборки приложение нужно перезапустить.
 - Перед передачей пользователю unsigned macOS app проверь, что существует:
   `release/mac-arm64/Harness AI.app`
 - Scope closeout, archive active plan и переход `Execution Scope Status: NONE` разрешены только после явного user acceptance.

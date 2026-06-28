@@ -8,8 +8,8 @@
   "planId": "harness-ai-teal-studio-design-2026-06-27",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase167.stream1.task1",
-  "expectedCommitMessage": "chore: load agent instructions via root claude md",
+  "currentTaskId": "harness-ai.phase168.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -1196,11 +1196,11 @@
 
 ### Stream: Workspace Instructions
 
-328. [IN_PROGRESS] `harness-ai.phase167.stream1.task1` Add a root CLAUDE.md that imports AGENTS.md so Claude Code loads the active instructions at session start, document the build vs package:mac order in AGENTS.md, and remove the inactive archived .claude/Claude.md (scope: `CLAUDE.md, AGENTS.md, .claude/Claude.md`; expected commit: `chore: load agent instructions via root claude md`).
-329. [TODO] Git Commit: `chore: load agent instructions via root claude md` (hash: TBD)
+328. [DONE] `harness-ai.phase167.stream1.task1` Add a root CLAUDE.md that imports AGENTS.md so Claude Code loads the active instructions at session start, document the build vs package:mac order in AGENTS.md, and remove the inactive archived .claude/Claude.md (scope: `CLAUDE.md, AGENTS.md, .claude/Claude.md`; expected commit: `chore: load agent instructions via root claude md`). Result: Completed in commit `chore: load agent instructions via root claude md`.
+329. [DONE] Git Commit: `chore: load agent instructions via root claude md` (hash: self)
 
 ## Phase 168 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
 
 ### Stream: Session Start Verification
 
-330. [TODO] `harness-ai.phase168.stream1.task1` User starts a new session and confirms the OpenRouter blocks no longer show the "Selected model" row and that the active agent instructions load from the root CLAUDE.md import (scope: user workflow; expected commit: none).
+330. [IN_PROGRESS] `harness-ai.phase168.stream1.task1` User starts a new session and confirms the OpenRouter blocks no longer show the "Selected model" row and that the active agent instructions load from the root CLAUDE.md import (scope: user workflow; expected commit: none).

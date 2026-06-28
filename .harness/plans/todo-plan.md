@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase16.stream1.task1",
-  "expectedCommitMessage": "chore: verify codex visible reasoning summaries",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -148,5 +148,5 @@
 
 ### Stream: Verification
 
-28. [IN_PROGRESS] `harness-ai.phase16.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off for Codex retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex visible reasoning summaries`).
-29. [TODO] Git Commit: `chore: verify codex visible reasoning summaries` (hash: TBD)
+28. [DONE] `harness-ai.phase16.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off for Codex retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex visible reasoning summaries`). Result: Completed in commit `chore: verify codex visible reasoning summaries`.
+29. [DONE] Git Commit: `chore: verify codex visible reasoning summaries` (hash: self)

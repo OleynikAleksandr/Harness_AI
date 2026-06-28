@@ -29,6 +29,7 @@ export interface OpenAiCompatibleAdapterOptions {
   apiKey?: string | null;
   baseUrl: string;
   model: string;
+  providerId?: string;
 }
 
 const DEFAULT_CLI_TIMEOUT_MS = 180_000;
@@ -210,7 +211,11 @@ export class OpenAiCompatibleSessionProviderAdapter
     this.options = options;
   }
 
-  async sendMessage(sessionId: string, content: string): Promise<void> {
+  async sendMessage(
+    sessionId: string,
+    content: string,
+    turnOptions?: ProviderTurnOptions
+  ): Promise<void> {
     const session = this.ensureSession(sessionId);
     this.emit(sessionId, event("turn_started"));
     try {
@@ -218,6 +223,7 @@ export class OpenAiCompatibleSessionProviderAdapter
         ...session.messages,
         { role: "user" as const, content },
       ];
+      const selectedModel = readModel(turnOptions, this.options.model);
       const response = await fetch(chatUrl(this.options.baseUrl), {
         method: "POST",
         headers: {
@@ -226,7 +232,14 @@ export class OpenAiCompatibleSessionProviderAdapter
             ? { Authorization: `Bearer ${this.options.apiKey}` }
             : {}),
         },
-        body: JSON.stringify({ model: this.options.model, messages }),
+        body: JSON.stringify({
+          messages,
+          model: selectedModel,
+          ...openAiCompatibleReasoningParams(
+            this.options.providerId,
+            turnOptions
+          ),
+        }),
       });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${await response.text()}`);
@@ -256,6 +269,25 @@ export class OpenAiCompatibleSessionProviderAdapter
       throw error;
     }
   }
+}
+
+function openAiCompatibleReasoningParams(
+  providerId: string | undefined,
+  turnOptions: ProviderTurnOptions | undefined
+): Record<string, unknown> {
+  if (providerId !== "glm-native") {
+    return {};
+  }
+  const thinkingEnabled = turnOptions?.thinkingEnabled !== false;
+  return {
+    thinking: {
+      type: thinkingEnabled ? "enabled" : "disabled",
+      ...(thinkingEnabled ? { clear_thinking: false } : {}),
+    },
+    ...(thinkingEnabled && typeof turnOptions?.reasoningEffort === "string"
+      ? { reasoning_effort: turnOptions.reasoningEffort }
+      : {}),
+  };
 }
 
 function runCli(options: {

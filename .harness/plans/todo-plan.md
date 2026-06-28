@@ -8,8 +8,8 @@
   "planId": "session-reasoning-display-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase23.stream1.task1",
+  "expectedCommitMessage": "chore: verify provider reasoning settings parity",
   "debt": null
 }
 ```
@@ -185,3 +185,17 @@
 
 38. [DONE] `harness-ai.phase21.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off the reference-aligned Codex summary behavior for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify codex reference summary config`). Result: Completed in commit `chore: verify codex reference summary config`.
 39. [DONE] Git Commit: `chore: verify codex reference summary config` (hash: self)
+
+## Phase 22 - Cross-Provider Reasoning Settings Parity (owner: Codex, updated: 2026-06-28)
+
+### Stream: Core Runtime And Provider Adapter Contract
+
+40. [DONE] `harness-ai.phase22.stream1.task1` Compare CodeAI-Hub provider reasoning/thinking settings flow for Claude, Kimi, GLM Native, GLM OpenCode, OpenRouter, and Local Models, then apply the minimal Harness equivalent through Core turn options and shared adapter helpers (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/**, product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**`; expected commit: `fix: apply reasoning settings across providers`). Result: Completed in commit `fix: apply reasoning settings across providers`.
+41. [DONE] Git Commit: `fix: apply reasoning settings across providers` (hash: self)
+
+## Phase 23 - Rebuild And Retest (owner: Codex, updated: 2026-06-28)
+
+### Stream: Verification
+
+42. [IN_PROGRESS] `harness-ai.phase23.stream1.task1` Run gates, rebuild/package the macOS app, update evidence, and hand off cross-provider reasoning settings parity for user retest (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify provider reasoning settings parity`).
+43. [TODO] Git Commit: `chore: verify provider reasoning settings parity` (hash: TBD)

@@ -10,7 +10,20 @@ assert.match(
   source,
   /settingsStoreFacade\.getSettings\(session\.workspacePath\)/u
 );
-assert.match(source, /session\.providerId !== "codex"/u);
+assert.match(source, /session\.providerId === "claude"/u);
+assert.match(
+  source,
+  /thinkingByModel\[session\.model\] \?\? claude\.thinking\.effort/u
+);
+assert.match(source, /session\.providerId === "kimi"/u);
+assert.match(source, /session\.providerId === "glm-native"/u);
+assert.match(source, /reasoningEffort: glmNative\.reasoningEffort/u);
+assert.match(source, /session\.providerId === "glm-opencode"/u);
+assert.match(source, /session\.providerId === "openrouter"/u);
+assert.match(
+  source,
+  /endpointTag: settings\.providers\.openRouter\.endpointTag/u
+);
 assert.match(
   source,
   /resolveCodexReasoningEffort\(\s*session\.model,\s*codex\.reasoningByModel\[session\.model\]\s*\)/u

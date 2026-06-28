@@ -17,6 +17,7 @@ export class GlmNativeProviderFacade extends OpenAiCompatibleSessionProviderAdap
       apiKey,
       baseUrl,
       model,
+      providerId: "glm-native",
     });
     this.baseUrl = baseUrl;
   }

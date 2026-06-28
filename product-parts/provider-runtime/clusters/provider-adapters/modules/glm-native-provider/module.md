@@ -17,6 +17,7 @@ Fresh Harness AI adapter for GLM native provider turns.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- OpenAI-compatible request body receives Core-owned GLM Native thinking and reasoning effort through the shared provider adapter helper.
 
 ## Owned Paths
 

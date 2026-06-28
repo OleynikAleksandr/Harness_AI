@@ -89,8 +89,10 @@ assert.deepEqual(
 
 const originalFetch = globalThis.fetch;
 try {
-  globalThis.fetch = async () =>
-    new Response(
+  const requestBodies = [];
+  globalThis.fetch = (_url, init) => {
+    requestBodies.push(JSON.parse(String(init?.body ?? "{}")));
+    return new Response(
       JSON.stringify({
         choices: [
           {
@@ -103,6 +105,7 @@ try {
       }),
       { status: 200 }
     );
+  };
   const openAiAdapter = new OpenAiCompatibleSessionProviderAdapter({
     baseUrl: "http://provider.test/v1",
     model: "reasoning-model",
@@ -110,7 +113,13 @@ try {
   const openAiSessionId = await openAiAdapter.createSession();
   const openAiEvents = [];
   openAiAdapter.subscribe(openAiSessionId, (event) => openAiEvents.push(event));
-  await openAiAdapter.sendMessage(openAiSessionId, "think");
+  await openAiAdapter.sendMessage(openAiSessionId, "think", {
+    model: "turn-model",
+    reasoningEffort: "high",
+  });
+  assert.equal(requestBodies[0].model, "turn-model");
+  assert.equal(requestBodies[0].reasoning_effort, undefined);
+  assert.equal(requestBodies[0].thinking, undefined);
   assert.deepEqual(
     openAiEvents
       .filter((event) => event?.type === "dialog_message")
@@ -119,6 +128,46 @@ try {
       { content: "provider reasoning", tag: "thinking" },
       { content: "assistant answer", tag: undefined },
     ]
+  );
+
+  requestBodies.length = 0;
+  globalThis.fetch = (_url, init) => {
+    requestBodies.push(JSON.parse(String(init?.body ?? "{}")));
+    return new Response(
+      JSON.stringify({
+        choices: [
+          {
+            message: {
+              content: "glm answer",
+            },
+          },
+        ],
+      }),
+      { status: 200 }
+    );
+  };
+  const glmAdapter = new OpenAiCompatibleSessionProviderAdapter({
+    baseUrl: "http://provider.test/v1",
+    model: "glm-default",
+    providerId: "glm-native",
+  });
+  const glmSessionId = await glmAdapter.createSession();
+  await glmAdapter.sendMessage(glmSessionId, "think", {
+    model: "glm-5.2",
+    reasoningEffort: "max",
+    thinkingEnabled: true,
+  });
+  assert.deepEqual(
+    {
+      model: requestBodies[0].model,
+      reasoning_effort: requestBodies[0].reasoning_effort,
+      thinking: requestBodies[0].thinking,
+    },
+    {
+      model: "glm-5.2",
+      reasoning_effort: "max",
+      thinking: { clear_thinking: false, type: "enabled" },
+    }
   );
 } finally {
   globalThis.fetch = originalFetch;

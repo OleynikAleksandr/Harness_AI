@@ -14,7 +14,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Session id or provider selection.
 - Raw user message payload.
 - Turn options from Core-owned settings/model binding.
-- Core-owned provider settings used to derive applied turn options such as Codex reasoning effort and reasoning summary enablement. Codex effort is resolved through the settings-store Codex capability contract and omitted for models without declared reasoning levels.
+- Core-owned provider settings used to derive applied turn options for all providers: model selection, Claude/Kimi/GLM thinking toggles, GLM reasoning effort, OpenRouter endpoint tag, and Codex reasoning effort/summary enablement. Codex effort is resolved through the settings-store Codex capability contract.
 
 ## Outputs
 

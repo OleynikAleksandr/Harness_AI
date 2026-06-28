@@ -12,6 +12,7 @@ import {
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
+import { resolveNextSessionMode } from "./next-session-mode.js";
 import { readPromotedProviderSessionId } from "./provider-session-id-promotion.js";
 import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import {
@@ -40,14 +41,7 @@ import type {
   SessionRequestHandlerDependencies,
 } from "./session-request-handler-types.js";
 
-export type {
-  CoreSession,
-  CoreSessionActionResult,
-  CreateCoreSessionRequest,
-  DeleteSessionResult,
-  SendCoreMessageRequest,
-  SessionRequestHandlerDependencies,
-} from "./session-request-handler-types.js";
+export type { CoreSession } from "./session-request-handler-types.js";
 
 export class SessionRequestHandlerFacade {
   private readonly bindingFacade: ProviderSessionBindingFacadeLike;
@@ -71,6 +65,7 @@ export class SessionRequestHandlerFacade {
       createdAt: now,
       id: createId(`session-${request.providerId}`),
       model: request.model,
+      nextSessionMode: resolveNextSessionMode(request.nextSessionMode),
       providerId: request.providerId,
       providerName: request.providerName,
       title: request.title ?? `${request.providerName} session`,
@@ -495,5 +490,4 @@ export class SessionRequestHandlerFacade {
     });
   }
 }
-
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

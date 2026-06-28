@@ -2,11 +2,13 @@ import type { ProviderAdapter } from "../../../../../../provider-runtime/cluster
 import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import type { SessionCoreEvent } from "../../session-event-stream/src/session-event-stream-facade.js";
+import type { NextSessionMode } from "./next-session-mode.js";
 
 export interface CoreSession {
   createdAt: string;
   id: string;
   model: string;
+  nextSessionMode: NextSessionMode;
   providerId: ProviderId;
   providerName: string;
   title: string;
@@ -17,6 +19,7 @@ export interface CoreSession {
 
 export interface CreateCoreSessionRequest {
   model: string;
+  nextSessionMode?: unknown;
   providerId: ProviderId;
   providerName: string;
   title?: string;

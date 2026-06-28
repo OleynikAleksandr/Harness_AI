@@ -14,11 +14,13 @@ Render the transcript/dialog layout and session chrome.
 - Core session messages with provider-neutral role/tag fields.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels use the Core settings-store capability resolver and disappear when the selected Codex model has no declared reasoning effort levels.
+- Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
 
 ## Outputs
 
 - Rendered chat session surface.
 - Session-level UI actions sent to Core.
+- Next-session mode panel display; session creation submits the native raw baseline.
 
 ## Owned Paths
 

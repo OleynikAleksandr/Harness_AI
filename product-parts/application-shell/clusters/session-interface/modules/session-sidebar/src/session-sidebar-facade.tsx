@@ -16,6 +16,7 @@ interface SessionSidebarProps {
   onCreateSession: () => void;
   onDeleteSession: (sessionId: string) => void;
   onDetachSession: (sessionId: string) => void;
+  onOpenNextSessionMode: () => void;
   onOpenSettings: () => void;
   onSelectSession: (sessionId: string) => void;
   onSelectWorkspace: (workspaceId: string) => void;
@@ -35,6 +36,7 @@ export function SessionSidebarFacade({
   onCreateSession,
   onDeleteSession,
   onDetachSession,
+  onOpenNextSessionMode,
   onOpenSettings,
   onSelectSession,
   onSelectWorkspace,
@@ -121,6 +123,16 @@ export function SessionSidebarFacade({
           </div>
         ) : null}
       </div>
+
+      <button
+        className="next-session-mode-button"
+        onClick={onOpenNextSessionMode}
+        title="Next session starts as Native Raw"
+        type="button"
+      >
+        <span>Next Session Mode</span>
+        <strong>Native · Raw</strong>
+      </button>
 
       <div className="sidebar-section">
         <div className="sidebar-section-header">

@@ -2,7 +2,7 @@
 
 ## Boundary
 
-Owns provider catalog, model descriptors, availability, health, startup, and recovery reporting.
+Owns provider catalog, model descriptors, invocation profile descriptors, availability, health, startup, and recovery reporting.
 
 ## Owned Modules
 

@@ -13,7 +13,7 @@ Provider adapters, provider homes/auth, usage telemetry, and provider-backed tra
 
 ## Responsibilities
 
-- Own provider catalog, descriptors, health, and adapters.
+- Own provider catalog, descriptors, invocation profile metadata, health, and adapters.
 - Keep provider homes, caches, auth references, and runtime files isolated.
 - Own provider-specific runtime prompts or native project-instruction startup before requests reach external SDKs or CLIs.
 - Normalize provider events for Core Runtime.

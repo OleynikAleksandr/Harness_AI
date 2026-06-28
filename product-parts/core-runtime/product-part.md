@@ -15,6 +15,7 @@ Long-running local authority for workspaces, sessions, orchestration, settings, 
 ## Responsibilities
 
 - Own workspace/session state and snapshots consumed by Application Shell.
+- Own next-session mode truth; Application Shell can display and submit mode choices but cannot decide provider behavior locally.
 - Run plan-first development orchestration and quality gates.
 - Coordinate providers through Provider Runtime facades.
 - Normalize visible provider reasoning before it reaches UI snapshots.

@@ -15,6 +15,7 @@ import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/w
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
+import { NextSessionModePanel } from "./next-session-mode-panel.js";
 import { getProviderModel, ProviderPicker } from "./provider-picker.js";
 import {
   DialogPanel,
@@ -47,6 +48,7 @@ export function SessionWindowFacade() {
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isNextSessionModeOpen, setIsNextSessionModeOpen] = useState(false);
   const [settingsSnapshot, setSettingsSnapshot] =
     useState<HarnessSettings | null>(null);
   const [messagesBySession, setMessagesBySession] = useState<
@@ -187,6 +189,7 @@ export function SessionWindowFacade() {
     const model = getProviderModel(provider.id, snapshot);
     const result = await window.harnessCore?.createSession({
       model,
+      nextSessionMode: { invocationMode: "native", requestMode: "raw" },
       providerId: provider.id,
       providerName: provider.name,
       title: `${provider.name} session`,
@@ -273,6 +276,7 @@ export function SessionWindowFacade() {
           onCreateSession={openProviderPicker}
           onDeleteSession={deleteSession}
           onDetachSession={detachSession}
+          onOpenNextSessionMode={() => setIsNextSessionModeOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onSelectSession={selectSession}
           onSelectWorkspace={selectWorkspace}
@@ -324,6 +328,10 @@ export function SessionWindowFacade() {
         onClose={closeSettings}
         workspacePath={activeWorkspace.path}
       />
+
+      {isNextSessionModeOpen ? (
+        <NextSessionModePanel onClose={() => setIsNextSessionModeOpen(false)} />
+      ) : null}
     </div>
   );
 }

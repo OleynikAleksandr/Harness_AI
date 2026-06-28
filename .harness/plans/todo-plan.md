@@ -8,8 +8,8 @@
   "planId": "next-session-mode-ui-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat: add next session mode contract",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "feat: wire next session mode selection",
   "debt": null
 }
 ```
@@ -64,28 +64,28 @@
 
 ### Stream: Core Source Of Truth
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Add the Core/shared Next Session Mode contract and tests for invocation mode, request preprocessing, managed profile selection, defaults and validation (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/cluster.md, product-parts/core-runtime/product-part.md`; expected commit: `feat: add next session mode contract`).
-4. [TODO] Git Commit: `feat: add next session mode contract` (hash: TBD)
+3. [DONE] `harness-ai.phase2.stream1.task1` Add the Core/shared Next Session Mode contract and tests for invocation mode, request preprocessing, managed profile selection, defaults and validation (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/core-runtime/clusters/session-runtime/cluster.md, product-parts/core-runtime/product-part.md`; expected commit: `feat: add next session mode contract`). Result: Completed in commit `feat: add next session mode contract`.
+4. [DONE] Git Commit: `feat: add next session mode contract` (hash: self)
 
 ## Phase 3 - Managed Profile Registry (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Provider-Aware Profiles
 
-5. [TODO] `harness-ai.phase3.stream1.task1` Add provider-aware managed profile descriptors/facade, including Auto Normalizer as the first managed selection option and native baseline metadata for comparison (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/**, product-parts/provider-runtime/clusters/provider-registry/cluster.md, product-parts/provider-runtime/product-part.md`; expected commit: `feat: add managed profile registry`).
-6. [TODO] Git Commit: `feat: add managed profile registry` (hash: TBD)
+5. [DONE] `harness-ai.phase3.stream1.task1` Add provider-aware managed profile descriptors/facade, including Auto Normalizer as the first managed selection option and native baseline metadata for comparison (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/**, product-parts/provider-runtime/clusters/provider-registry/cluster.md, product-parts/provider-runtime/product-part.md`; expected commit: `feat: add managed profile registry`). Result: Completed in commit `feat: add managed profile registry`.
+6. [DONE] Git Commit: `feat: add managed profile registry` (hash: self)
 
 ## Phase 4 - Next Session Mode UI (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Product UI
 
-7. [TODO] `harness-ai.phase4.stream1.task1` Implement the sidebar `Next Session Mode` summary and settings panel from the approved prototype, using existing product colors, typography and button radii (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**, product-parts/application-shell/clusters/session-interface/cluster.md`; expected commit: `feat: add next session mode picker`).
-8. [TODO] Git Commit: `feat: add next session mode picker` (hash: TBD)
+7. [DONE] `harness-ai.phase4.stream1.task1` Implement the sidebar `Next Session Mode` summary and settings panel from the approved prototype, using existing product colors, typography and button radii (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**, product-parts/application-shell/clusters/session-interface/cluster.md`; expected commit: `feat: add next session mode picker`). Result: Completed in commit `feat: add next session mode picker`.
+8. [DONE] Git Commit: `feat: add next session mode picker` (hash: self)
 
 ## Phase 5 - Runtime Wiring (owner: Codex, updated: 2026-06-28)
 
 ### Stream: Session Creation
 
-9. [TODO] `harness-ai.phase5.stream1.task1` Wire selected Next Session Mode into session creation through Core, persist next-session defaults in settings, and expose read-only mode metadata for started sessions (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**`; expected commit: `feat: wire next session mode selection`).
+9. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Wire selected Next Session Mode into session creation through Core, persist next-session defaults in settings, and expose read-only mode metadata for started sessions (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/**, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, product-parts/application-shell/clusters/session-interface/modules/session-window/**`; expected commit: `feat: wire next session mode selection`).
 10. [TODO] Git Commit: `feat: wire next session mode selection` (hash: TBD)
 
 ## Phase 6 - Documentation And Product Tree (owner: Codex, updated: 2026-06-28)

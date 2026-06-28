@@ -22,6 +22,13 @@ export interface ProviderDescriptor {
   status: "available" | "needs-settings";
 }
 
+export interface ProviderInvocationProfile {
+  description: string;
+  id: string;
+  label: string;
+  mode: "managed" | "native";
+}
+
 type ProviderBaseDescriptor = Omit<
   ProviderDescriptor,
   "adapterStatus" | "capabilities"
@@ -72,6 +79,28 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
   },
 ];
 
+const INVOCATION_PROFILES: ProviderInvocationProfile[] = [
+  {
+    description: "Vendor CLI or SDK behavior with the raw user request.",
+    id: "native-raw",
+    label: "Native · Raw",
+    mode: "native",
+  },
+  {
+    description: "Visualizer-only option reserved for normalizer selection.",
+    id: "managed-auto-normalizer",
+    label: "Auto Normalizer",
+    mode: "managed",
+  },
+  {
+    description:
+      "Visualizer-only option reserved for an explicit managed profile.",
+    id: "managed-user-profile",
+    label: "User Profile",
+    mode: "managed",
+  },
+];
+
 export class ProviderRegistryFacade {
   private readonly adapters = new Map<ProviderId, ProviderAdapter>();
 
@@ -89,6 +118,10 @@ export class ProviderRegistryFacade {
 
   getAdapter(id: ProviderId): ProviderAdapter | null {
     return this.adapters.get(id) ?? null;
+  }
+
+  listInvocationProfiles(): ProviderInvocationProfile[] {
+    return INVOCATION_PROFILES.map((profile) => ({ ...profile }));
   }
 
   registerAdapter(id: ProviderId, adapter: ProviderAdapter): void {

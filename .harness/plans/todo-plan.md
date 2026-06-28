@@ -8,8 +8,8 @@
   "planId": "reference-core-runtime-rebuild-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase7.stream6.task1",
+  "expectedCommitMessage": "chore: verify kimi usage limits package",
   "debt": null
 }
 ```
@@ -120,6 +120,13 @@
 23. [DONE] `harness-ai.phase7.stream4.task1` Update the active plan template so new scopes use the documentation index, avoid redundant `AGENTS.md` context links, and preserve current documentation-sync rules (scope: `.harness/plans/todo-plan.template.md, .harness/plans/todo-plan.md`; expected commit: `docs: update todo plan template`). Result: Completed in commit `docs: update todo plan template`.
 24. [DONE] Git Commit: `docs: update todo plan template` (hash: self)
 
+### Stream: Kimi Usage Limits Retest Follow-Up
+
+25. [DONE] `harness-ai.phase7.stream5.task1` Accept reference-compatible Kimi usage limit refresh payloads that do not include a provider event `type`, while preserving typed provider event routing (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/**, .harness/plans/todo-plan.md`; expected commit: `fix: accept kimi usage limit events without type`). Result: Completed in commit `fix: accept kimi usage limit events without type`.
+26. [DONE] Git Commit: `fix: accept kimi usage limit events without type` (hash: self)
+27. [IN_PROGRESS] `harness-ai.phase7.stream6.task1` Rebuild packaged macOS app and record Kimi usage-limits verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify kimi usage limits package`).
+28. [TODO] Git Commit: `chore: verify kimi usage limits package` (hash: TBD)
+
 ### Stream: Retest
 
-25. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).
+29. [TODO] `harness-ai.phase8.stream1.task1` User retests Harness AI with out-of-process Core lifecycle, real Restart Core behavior, preserved telemetry/limits/reasoning/session history and no workspace `.codeai-hub` runtime residue (scope: user workflow; expected commit: none).

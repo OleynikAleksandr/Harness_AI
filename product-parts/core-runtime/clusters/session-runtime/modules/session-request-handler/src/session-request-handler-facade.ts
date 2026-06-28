@@ -412,10 +412,13 @@ export class SessionRequestHandlerFacade {
   }
 
   private handleProviderEvent(sessionId: string, event: unknown): void {
-    if (!isRecord(event) || typeof event.type !== "string") {
+    if (!isRecord(event)) {
       return;
     }
     this.updateTelemetryWithProviderEvent(sessionId, event);
+    if (typeof event.type !== "string") {
+      return;
+    }
     const promotedProviderSessionId = readPromotedProviderSessionId(event);
     if (promotedProviderSessionId) {
       const session = this.sessions.get(sessionId);

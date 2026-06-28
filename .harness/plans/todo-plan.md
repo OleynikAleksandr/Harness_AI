@@ -8,8 +8,8 @@
   "planId": "reasoning-effort-ui-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task2",
-  "expectedCommitMessage": "fix: render reasoning effort menu in a portal",
+  "currentTaskId": "harness-ai.phase1.stream1.task3",
+  "expectedCommitMessage": "feat: filter reasoning effort levels per claude model",
   "debt": null
 }
 ```
@@ -43,9 +43,9 @@
 
 1. [DONE] `harness-ai.phase1.stream1.task1` Add `ultracode` to the Core `ReasoningEffort` contract and validation whitelist (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.ts`; docs: settings-store `module.md`, settings-and-localization `cluster.md`, core-runtime `product-part.md`; expected commit: `feat: add ultracode reasoning effort to core contract`). Result: Completed in commit `feat: add ultracode reasoning effort to core contract`.
 2. [DONE] Git Commit: `feat: add ultracode reasoning effort to core contract` (hash: self)
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task2` Render the reasoning-effort menu through a React portal (fixes overlay clipping for Claude and Codex), add the `Ultracode` catalog option, and accept an optional per-model `values` prop (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/reasoning-effort-select.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-model-options.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; docs: provider-settings-ui `module.md`, settings-surface `cluster.md`, application-shell `product-part.md`; expected commit: `fix: render reasoning effort menu in a portal`).
-4. [TODO] Git Commit: `fix: render reasoning effort menu in a portal` (hash: TBD)
-5. [TODO] `harness-ai.phase1.stream1.task3` Add the Core per-model effort capability map and wire Claude/Codex cards to it (Opus full + ultracode, Sonnet without xhigh, Haiku hides the selector; Codex keeps its set without ultracode) (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/claude-default-model-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/codex-default-model-card.tsx`; docs: settings-store `module.md`, provider-settings-ui `module.md`; expected commit: `feat: filter reasoning effort levels per claude model`).
+3. [DONE] `harness-ai.phase1.stream1.task2` Render the reasoning-effort menu through a React portal (fixes overlay clipping for Claude and Codex), add the `Ultracode` catalog option, and accept an optional per-model `values` prop (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/reasoning-effort-select.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-model-options.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; docs: provider-settings-ui `module.md`, settings-surface `cluster.md`, application-shell `product-part.md`; expected commit: `fix: render reasoning effort menu in a portal`). Result: Completed in commit `fix: render reasoning effort menu in a portal`.
+4. [DONE] Git Commit: `fix: render reasoning effort menu in a portal` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase1.stream1.task3` Add the Core per-model effort capability map and wire Claude/Codex cards to it (Opus full + ultracode, Sonnet without xhigh, Haiku hides the selector; Codex keeps its set without ultracode) (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/claude-default-model-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/codex-default-model-card.tsx`; docs: settings-store `module.md`, provider-settings-ui `module.md`; expected commit: `feat: filter reasoning effort levels per claude model`).
 6. [TODO] Git Commit: `feat: filter reasoning effort levels per claude model` (hash: TBD)
 
 ## Phase 2 - Tooling Verification (owner: Codex, updated: 2026-06-28)

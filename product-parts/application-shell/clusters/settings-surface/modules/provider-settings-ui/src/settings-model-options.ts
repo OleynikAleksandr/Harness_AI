@@ -108,6 +108,7 @@ export const REASONING_EFFORT_OPTIONS: ReadonlyArray<{
   { label: "High", value: "high" },
   { label: "x-High", value: "xhigh" },
   { label: "Max", value: "max" },
+  { label: "Ultracode", value: "ultracode" },
 ];
 
 export const LANGUAGE_OPTIONS = ["en", "ru", "uk", "es", "de", "fr"] as const;

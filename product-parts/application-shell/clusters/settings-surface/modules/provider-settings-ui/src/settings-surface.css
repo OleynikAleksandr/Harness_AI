@@ -388,14 +388,21 @@
 }
 
 .settings-reasoning-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  left: 0;
-  z-index: 30;
+  position: fixed;
+  z-index: 50;
   display: grid;
   gap: 2px;
   padding: 5px;
+  font-family: var(
+    --pm-font-family,
+    "Space Grotesk",
+    "Sora",
+    "IBM Plex Sans",
+    "Segoe UI",
+    sans-serif
+  );
+  font-size: 12px;
+  font-weight: 300;
   background: #161b21;
   border: 1px solid var(--pm-border-color, #26303b);
   border-radius: 6px;

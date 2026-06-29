@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat: expose provider readiness in descriptor",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "feat: orchestrate provider readiness from core runtime",
   "debt": null
 }
 ```
@@ -113,14 +113,14 @@
 
 ### Stream: Descriptor readiness
 
-23. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Additively expose readiness on `ProviderDescriptor` (which lives in `provider-registry-facade.ts`): add `readinessStatus` ('ready'|'checking'|'preparing'|'failed') and optional `readinessMessage`; have `enrichDescriptor` call the registry's pure `combine(provider, activeWorkspace)` (active workspace from workspace-registry) — do not re-implement precedence; add a point test confirming the combination (product-part: provider-runtime / cluster: provider-registry / module: provider-registry; scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.ts, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/module.md` plus the combination test; expected commit: `feat: expose provider readiness in descriptor`).
-24. [TODO] Git Commit: `feat: expose provider readiness in descriptor` (hash: TBD)
+23. [DONE] `harness-ai.phase4.stream1.task1` Additively expose readiness on `ProviderDescriptor` (which lives in `provider-registry-facade.ts`): add `readinessStatus` ('ready'|'checking'|'preparing'|'failed') and optional `readinessMessage`; have `enrichDescriptor` call the registry's pure `combine(provider, activeWorkspace)` (active workspace from workspace-registry) — do not re-implement precedence; add a point test confirming the combination (product-part: provider-runtime / cluster: provider-registry / module: provider-registry; scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.ts, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/module.md` plus the combination test; expected commit: `feat: expose provider readiness in descriptor`). Result: Completed in commit `feat: expose provider readiness in descriptor`.
+24. [DONE] Git Commit: `feat: expose provider readiness in descriptor` (hash: self)
 
 ## Phase 5 - Core Orchestration And Event Forwarding (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Core orchestration
 
-25. [TODO] `harness-ai.phase5.stream1.task1` Wire orchestration in Core (minimal touch): `initialize()` fires the liveness preflight (fire-and-forget) after adapter registration (and thus on Reset Core); `selectWorkspace()`/`addWorkspace()` fire the workspace provisioner for the active workspace; subscribe to the readiness-registry RAW-change observable, compute `combine(provider, activeWorkspace)` and PUBLISH the combined `provider:status` event for the active workspace (round3.6); fan-out `CoreRuntimeApi.subscribe()` over BOTH `sessionEventStreamFacade` and these provider-status events, returning a composed unsubscribe — readiness events stay in-memory, never written to session JSONL (product-part: core-runtime / cluster: runtime-process / module: core-runtime-process; scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat: orchestrate provider readiness from core runtime`).
+25. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Wire orchestration in Core (minimal touch): `initialize()` fires the liveness preflight (fire-and-forget) after adapter registration (and thus on Reset Core); `selectWorkspace()`/`addWorkspace()` fire the workspace provisioner for the active workspace; subscribe to the readiness-registry RAW-change observable, compute `combine(provider, activeWorkspace)` and PUBLISH the combined `provider:status` event for the active workspace (round3.6); fan-out `CoreRuntimeApi.subscribe()` over BOTH `sessionEventStreamFacade` and these provider-status events, returning a composed unsubscribe — readiness events stay in-memory, never written to session JSONL (product-part: core-runtime / cluster: runtime-process / module: core-runtime-process; scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat: orchestrate provider readiness from core runtime`).
 26. [TODO] Git Commit: `feat: orchestrate provider readiness from core runtime` (hash: TBD)
 
 ## Phase 6 - New-Session Cards With Live States (owner: Codex, updated: 2026-06-29)

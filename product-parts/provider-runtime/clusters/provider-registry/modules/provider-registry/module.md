@@ -18,6 +18,8 @@ Own provider catalog, availability, and provider invocation profile descriptors.
 
 - Provider catalog snapshot.
 - Enabled/disabled provider state.
+- Provider readiness status/message for the Core-selected readiness workspace,
+  using the provider-readiness registry combine function.
 - Invocation profile descriptor snapshot. `Native · Raw` is the only active runtime baseline in the current scope; managed profile descriptors are visual metadata until Core enables their behavior.
 
 ## Owned Paths

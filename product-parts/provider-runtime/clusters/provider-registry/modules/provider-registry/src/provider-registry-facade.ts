@@ -1,4 +1,5 @@
 import type { ProviderAdapter } from "../../../../provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { providerReadinessRegistryFacade } from "../../../../provider-readiness/modules/provider-readiness-registry/src/provider-readiness-registry-facade.js";
 import {
   type ProviderCapabilities,
   providerDescriptorFacade,
@@ -19,6 +20,8 @@ export interface ProviderDescriptor {
   id: ProviderId;
   moduleId: string;
   name: string;
+  readinessMessage?: string;
+  readinessStatus: "checking" | "preparing" | "ready" | "failed";
   status: "available" | "needs-settings";
 }
 
@@ -31,7 +34,7 @@ export interface ProviderInvocationProfile {
 
 type ProviderBaseDescriptor = Omit<
   ProviderDescriptor,
-  "adapterStatus" | "capabilities"
+  "adapterStatus" | "capabilities" | "readinessMessage" | "readinessStatus"
 >;
 
 const PROVIDERS: ProviderBaseDescriptor[] = [
@@ -103,6 +106,7 @@ const INVOCATION_PROFILES: ProviderInvocationProfile[] = [
 
 export class ProviderRegistryFacade {
   private readonly adapters = new Map<ProviderId, ProviderAdapter>();
+  private readinessWorkspaceId = "";
 
   listProviders(): ProviderDescriptor[] {
     return PROVIDERS.map((provider) => this.enrichDescriptor(provider));
@@ -132,15 +136,24 @@ export class ProviderRegistryFacade {
     this.adapters.clear();
   }
 
+  setReadinessWorkspace(workspaceId: string): void {
+    this.readinessWorkspaceId = workspaceId;
+  }
+
   private enrichDescriptor(
     provider: ProviderBaseDescriptor
   ): ProviderDescriptor {
+    const readiness = providerReadinessRegistryFacade.combine(
+      provider.id,
+      this.readinessWorkspaceId
+    );
     return {
       ...provider,
       adapterStatus: this.adapters.has(provider.id)
         ? "registered"
         : "unregistered",
       capabilities: providerDescriptorFacade.getCapabilities(provider.id),
+      ...readiness,
     };
   }
 }

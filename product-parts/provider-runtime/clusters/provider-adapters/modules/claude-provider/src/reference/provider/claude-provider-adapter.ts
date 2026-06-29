@@ -17,6 +17,7 @@ import type {
   ClaudeUsageLimitsStreamPayload,
   ModuleReporter,
 } from "../types.js";
+import { deleteClaudeTranscriptArtifacts } from "./claude-transcript-cleanup.js";
 
 export type SessionListener = (payload: unknown) => void;
 
@@ -145,6 +146,13 @@ export class ClaudeProviderAdapter {
   async closeSession(sessionId: string): Promise<void> {
     await this.sdkManager.closeSession(sessionId);
     this.listeners.delete(sessionId);
+  }
+
+  deleteSessionArtifacts(
+    providerSessionId: string,
+    workspacePath: string
+  ): void {
+    deleteClaudeTranscriptArtifacts(workspacePath, providerSessionId);
   }
 
   async captureNativeRequest(

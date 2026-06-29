@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream2.task1",
-  "expectedCommitMessage": "fix: delete claude session transcript on session removal",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "chore: repackage with claude and glm-native artifact cleanup",
   "debt": null
 }
 ```
@@ -107,14 +107,14 @@ existing generic orchestration in `core-runtime-api`.
 
 ### Stream: Claude cleanup
 
-15. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Add a pure Claude transcript-cleanup helper and a `deleteSessionArtifacts` method on the Claude adapter that removes `home/.claude/projects/**/<providerSessionId>.jsonl`, leaving shared config/caches/mcp-logs intact (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-transcript-cleanup.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts`; expected commit: `fix: delete claude session transcript on session removal`).
-16. [TODO] Git Commit: `fix: delete claude session transcript on session removal` (hash: TBD)
+15. [DONE] `harness-ai.phase5.stream2.task1` Add a pure Claude transcript-cleanup helper and a `deleteSessionArtifacts` method on the Claude adapter that removes `home/.claude/projects/**/<providerSessionId>.jsonl`, leaving shared config/caches/mcp-logs intact (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-transcript-cleanup.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts`; expected commit: `fix: delete claude session transcript on session removal`). Result: Completed in commit `fix: delete claude session transcript on session removal`.
+16. [DONE] Git Commit: `fix: delete claude session transcript on session removal` (hash: self)
 
 ## Phase 6 - Repackage (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-17. [TODO] `harness-ai.phase6.stream1.task1` Run required gates, rebuild and repackage the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and update evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: repackage with claude and glm-native artifact cleanup`).
+17. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Run required gates, rebuild and repackage the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and update evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: repackage with claude and glm-native artifact cleanup`).
 18. [TODO] Git Commit: `chore: repackage with claude and glm-native artifact cleanup` (hash: TBD)
 
 ## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-29)

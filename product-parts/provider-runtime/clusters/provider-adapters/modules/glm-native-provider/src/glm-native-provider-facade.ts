@@ -1,5 +1,7 @@
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
+import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { GlmProviderAdapter } from "./reference/index.js";
 
 export class GlmNativeProviderFacade extends GlmProviderAdapter {
@@ -29,6 +31,16 @@ export class GlmNativeProviderFacade extends GlmProviderAdapter {
         workspacePath,
       },
     });
+  }
+
+  async ensureWorkspaceHome(workspacePath: string): Promise<void> {
+    await mkdir(
+      providerHomeManagerFacade.resolveProviderHome({
+        providerId: "glm-native",
+        workspacePath,
+      }),
+      { recursive: true }
+    );
   }
 }
 

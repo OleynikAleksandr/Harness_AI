@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream2.task3",
-  "expectedCommitMessage": "feat: glm-native ensure-workspace-home",
+  "currentTaskId": "harness-ai.phase3.stream2.task4",
+  "expectedCommitMessage": "feat: kimi ensure-workspace-home",
   "debt": null
 }
 ```
@@ -95,10 +95,10 @@
 13. [DONE] `harness-ai.phase3.stream2.task2` Implement Claude `ensureWorkspaceHome` by extracting the keychain symlink + `.claude.json` carry-over out of `ensureProviderHomeSessionBootstrap` into a CLI-free helper (touches the Claude module + its `module.md`), with an idempotency point test (product-part: provider-runtime / cluster: provider-adapters / module: claude-provider; scope: claude adapter + the new CLI-free keychain/.claude.json helper + `claude-provider/module.md` + test; expected commit: `feat: claude ensure-workspace-home`). Result: Completed in commit `feat: claude ensure-workspace-home`.
 14. [DONE] Git Commit: `feat: claude ensure-workspace-home` (hash: self)
 
-15. [IN_PROGRESS] `harness-ai.phase3.stream2.task3` Implement GLM-native `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (round3.4/3.5 — split per provider) (product-part: provider-runtime / cluster: provider-adapters / module: glm-native-provider; scope: glm-native adapter + test + `glm-native-provider/module.md`; expected commit: `feat: glm-native ensure-workspace-home`).
-16. [TODO] Git Commit: `feat: glm-native ensure-workspace-home` (hash: TBD)
+15. [DONE] `harness-ai.phase3.stream2.task3` Implement GLM-native `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (round3.4/3.5 — split per provider) (product-part: provider-runtime / cluster: provider-adapters / module: glm-native-provider; scope: glm-native adapter + test + `glm-native-provider/module.md`; expected commit: `feat: glm-native ensure-workspace-home`). Result: Completed in commit `feat: glm-native ensure-workspace-home`.
+16. [DONE] Git Commit: `feat: glm-native ensure-workspace-home` (hash: self)
 
-17. [TODO] `harness-ai.phase3.stream2.task4` Implement Kimi `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (product-part: provider-runtime / cluster: provider-adapters / module: kimi-provider; scope: kimi adapter + test + `kimi-provider/module.md`; expected commit: `feat: kimi ensure-workspace-home`).
+17. [IN_PROGRESS] `harness-ai.phase3.stream2.task4` Implement Kimi `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (product-part: provider-runtime / cluster: provider-adapters / module: kimi-provider; scope: kimi adapter + test + `kimi-provider/module.md`; expected commit: `feat: kimi ensure-workspace-home`).
 18. [TODO] Git Commit: `feat: kimi ensure-workspace-home` (hash: TBD)
 
 19. [TODO] `harness-ai.phase3.stream2.task5` Implement glm-opencode `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (product-part: provider-runtime / cluster: provider-adapters / module: glm-opencode-provider; scope: glm-opencode adapter + test + `glm-opencode-provider/module.md`; expected commit: `feat: glm-opencode ensure-workspace-home`).

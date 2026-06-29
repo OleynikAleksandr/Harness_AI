@@ -30,6 +30,9 @@ liveness preflight without treating that global home as a workspace root.
 - Provider usage/context telemetry.
 - GLM Native thinking and assistant stream events from the reference SSE parser.
 - Runtime tool execution and session logs under Harness runtime provider home.
+- `ensureWorkspaceHome(workspacePath)` creates the workspace GLM Native
+  provider home without starting the runtime; auth remains owned by the
+  provider auth store/settings boundary.
 - `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the GLM rollout
   log (`home/sessions/**/<providerSessionId>.jsonl`) for a removed session, leaving
   the shared provider home intact.

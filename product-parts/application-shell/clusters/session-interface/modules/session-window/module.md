@@ -39,8 +39,9 @@ Render the transcript/dialog layout and session chrome.
   field (`rgba(30,30,30,1)`, 13px/lh20, radius 4, focused `rgba(32,32,32,1)`), an
   orange drag overlay, an outlined 36px action button that shows the play ▶ when
   idle and the red stop square while the agent works, a pulsing wait-copy overlay
-  ("Agent is working… Please wait.") over the field, and a monospace `total:`
-  timer in the footer right. The Stop button calls Core `stopTurn`.
+  ("Agent is working… Please wait.") over the field — light `rgba(206,211,217,1)`
+  at a 0.55–0.9 pulse so it stays readable on the dark field — and a monospace
+  `total:` timer in the footer right. The Stop button calls Core `stopTurn`.
 
 ## Outputs
 

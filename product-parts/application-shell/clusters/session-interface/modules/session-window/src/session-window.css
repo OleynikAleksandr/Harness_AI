@@ -1207,15 +1207,15 @@ strong {
 
 @keyframes session-input-wait-copy-pulse {
   0% {
-    opacity: 0.2;
+    opacity: 0.55;
   }
 
   50% {
-    opacity: 0.4;
+    opacity: 0.9;
   }
 
   100% {
-    opacity: 0.2;
+    opacity: 0.55;
   }
 }
 
@@ -1226,11 +1226,11 @@ strong {
   left: 12px;
   font-size: 13px;
   line-height: 20px;
-  color: rgba(140, 140, 140, 1);
+  color: rgba(206, 211, 217, 1);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   pointer-events: none;
-  opacity: 0.4;
+  opacity: 0.9;
   animation: session-input-wait-copy-pulse 1000ms ease-in-out infinite;
   will-change: opacity;
 }

@@ -39,7 +39,7 @@ import type {
   SessionEventStreamLike,
   SessionRequestHandlerDependencies,
 } from "./session-request-handler-types.js";
-import { SessionTurnCancellation } from "./session-turn-cancellation.js";
+import { SessionTurnStop } from "./session-turn-stop.js";
 
 export type { CoreSession } from "./session-request-handler-types.js";
 export class SessionRequestHandlerFacade {
@@ -53,13 +53,11 @@ export class SessionRequestHandlerFacade {
     string,
     ProviderUsageTelemetry
   >();
-  private readonly cancellation = new SessionTurnCancellation({
+  private readonly turnStop = new SessionTurnStop({
+    deleteBinding: (sessionId) => this.runtimeBindings.delete(sessionId),
     getBinding: (sessionId) => this.runtimeBindings.get(sessionId),
     getSession: (sessionId) => this.sessions.get(sessionId),
     publishIdle: (sessionId) => this.publishTurnState(sessionId, "idle"),
-    refreshUsageLimits: (sessionId) => {
-      this.refreshUsageLimits(sessionId).catch(() => undefined);
-    },
   });
   constructor(deps: SessionRequestHandlerDependencies = {}) {
     this.bindingFacade = deps.bindingFacade ?? providerSessionBindingFacade;
@@ -120,7 +118,6 @@ export class SessionRequestHandlerFacade {
     }
 
     const now = new Date().toISOString();
-    this.cancellation.clear(session.id);
     const updatedSession = { ...session, updatedAt: now };
     this.sessions.set(session.id, updatedSession);
     this.persistSessionIndex(updatedSession.workspacePath);
@@ -131,18 +128,8 @@ export class SessionRequestHandlerFacade {
       text,
       timestamp: now,
     });
-    const runtimeBinding = this.runtimeBindings.get(session.id);
-    if (!runtimeBinding) {
-      this.publishError(
-        session.id,
-        resolveBindingUnavailableMessage(
-          this.bindingFacade.getBinding(session.id)
-        )
-      );
-      return { ok: true, session: updatedSession };
-    }
     this.publishTurnState(session.id, "running");
-    this.dispatchProviderMessage(session, runtimeBinding, text).catch(
+    this.dispatchProviderMessage(updatedSession, text).catch(
       (error: unknown) => {
         this.publishError(session.id, stringifyError(error));
         this.publishTurnState(session.id, "idle");
@@ -151,7 +138,7 @@ export class SessionRequestHandlerFacade {
     return { ok: true, session: updatedSession };
   }
   stopTurn(sessionId: string): CoreSessionActionResult {
-    return this.cancellation.stop(sessionId);
+    return this.turnStop.stop(sessionId);
   }
   deleteSession(sessionId: string): DeleteSessionResult {
     const session = this.sessions.get(sessionId);
@@ -361,9 +348,15 @@ export class SessionRequestHandlerFacade {
     }
     try {
       await adapter.initialize?.();
-      const providerSessionId = await adapter.createSession(
-        session.workspacePath
-      );
+      // Resume the prior provider session when one is known (oneshot + resume),
+      // otherwise create a fresh provider session.
+      const providerSessionId =
+        session.providerSessionId && adapter.resumeSession
+          ? await adapter.resumeSession(
+              session.providerSessionId,
+              session.workspacePath
+            )
+          : await adapter.createSession(session.workspacePath);
       const unsubscribe = adapter.subscribe(providerSessionId, (event) =>
         this.handleProviderEvent(session.id, event)
       );
@@ -394,19 +387,27 @@ export class SessionRequestHandlerFacade {
 
   private async dispatchProviderMessage(
     session: CoreSession,
-    runtimeBinding: ProviderRuntimeBinding,
     text: string
   ): Promise<void> {
-    try {
-      await runtimeBinding.adapter.sendMessage(
-        runtimeBinding.providerSessionId,
-        text,
-        buildProviderTurnOptions(session)
-      );
-    } catch (error) {
-      this.publishTurnState(session.id, "idle");
-      this.publishError(session.id, stringifyError(error));
+    // Resume-on-send: after a Stop the binding is gone, so rebind (which resumes
+    // by providerSessionId) before dispatching the turn.
+    let binding = this.runtimeBindings.get(session.id);
+    if (!binding) {
+      await this.bindProviderSession(session);
+      binding = this.runtimeBindings.get(session.id);
     }
+    if (!binding) {
+      throw new Error(
+        resolveBindingUnavailableMessage(
+          this.bindingFacade.getBinding(session.id)
+        )
+      );
+    }
+    await binding.adapter.sendMessage(
+      binding.providerSessionId,
+      text,
+      buildProviderTurnOptions(session)
+    );
   }
 
   private handleProviderEvent(sessionId: string, event: unknown): void {
@@ -440,9 +441,6 @@ export class SessionRequestHandlerFacade {
           )
         );
       }
-      return;
-    }
-    if (this.cancellation.consume(sessionId, event.type)) {
       return;
     }
     const displayMessages =

@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -125,18 +125,35 @@
    expected commit: `Wire Stop button to Core stopTurn`).
 8. [DONE] Git Commit: `Wire Stop button to Core stopTurn` (hash: self)
 
-## Phase 7 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 7 - Fix Turn Stop (closeSession + resume) (owner: Codex, updated: 2026-06-29)
+
+### Stream: Stop Rework
+
+9. [DONE] `harness-ai.phase7.stream1.task1` Rework Stop to match the Result: Completed in commit `Rework turn stop to close provider session and resume on next message`.
+   reference: `stopTurn` unsubscribes, calls `adapter.closeSession` (which really
+   interrupts the in-flight turn — Claude `interrupt`, Kimi `cancel`) and
+   invalidates the runtime binding; `sendMessage` rebinds by `resumeSession`
+   (oneshot + resume) when the binding is gone; `bindProviderSession` resumes by
+   `providerSessionId` instead of always creating. Drop the unused cancel/ignore
+   path and `interruptTurn` contract hook
+   (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`,
+   `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-turn-stop.ts`,
+   `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts`,
+   plus module docs; expected commit: `Rework turn stop to close provider session and resume on next message`).
+10. [DONE] Git Commit: `Rework turn stop to close provider session and resume on next message` (hash: self)
+
+## Phase 8 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-9. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Run required gates/build and record
-   evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
-   commit: `Record input panel and turn stop verification`).
-10. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+11. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Run required gates/build and record
+    evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
+    commit: `Record input panel and turn stop verification`).
+12. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 8 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 9 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-11. [TODO] `harness-ai.phase8.stream1.task1` User retests input visuals + Stop in
+13. [TODO] `harness-ai.phase9.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

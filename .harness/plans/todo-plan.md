@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -142,18 +142,28 @@
    plus module docs; expected commit: `Rework turn stop to close provider session and resume on next message`).
 10. [DONE] Git Commit: `Rework turn stop to close provider session and resume on next message` (hash: self)
 
-## Phase 8 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 8 - Repo Cleanup (owner: Codex, updated: 2026-06-29)
+
+### Stream: Cleanup
+
+11. [DONE] `harness-ai.phase8.stream1.task1` Remove the stray duplicate Result: Completed in commit `Remove stray duplicate preload.cjs from repo root`.
+    `preload.cjs` from the repo root (an untracked pre-session copy of the real
+    `app-bootstrap/src/preload.cjs`, unused, pulled in by `git add -A`)
+    (scope: `preload.cjs`; expected commit: `Remove stray duplicate preload.cjs from repo root`).
+12. [DONE] Git Commit: `Remove stray duplicate preload.cjs from repo root` (hash: self)
+
+## Phase 9 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-11. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Run required gates/build and record
+13. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-12. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+14. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 9 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 10 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-13. [TODO] `harness-ai.phase9.stream1.task1` User retests input visuals + Stop in
+15. [TODO] `harness-ai.phase10.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

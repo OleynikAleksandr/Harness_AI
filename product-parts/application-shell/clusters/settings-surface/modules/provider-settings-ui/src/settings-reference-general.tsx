@@ -105,6 +105,30 @@ export function ReferenceGeneralSettings({
 
   return (
     <div className="settings-reference-stack">
+      <SettingsCard title="Core Controls">
+        <p className="settings-description">
+          Restart the Harness AI core to trigger a fresh CLI detection cycle.
+          Use this option after resolving CLI authentication or quota issues.
+        </p>
+        <div className="settings-core-row">
+          <SettingsButton
+            disabled={coreRestartBusy}
+            onClick={onRestartCore}
+            variant="primary"
+          >
+            {coreRestartBusy ? (
+              <>
+                <span aria-hidden="true" className="settings-spinner" />
+                Restarting...
+              </>
+            ) : (
+              "Restart Core"
+            )}
+          </SettingsButton>
+          <span className="settings-core-status">{coreRestartStatus}</span>
+        </div>
+      </SettingsCard>
+
       <SettingsCard title="Localization">
         <p className="settings-description">
           Configure which user-facing text should stay in English and which
@@ -157,30 +181,6 @@ export function ReferenceGeneralSettings({
               update={update}
             />
           ))}
-        </div>
-      </SettingsCard>
-
-      <SettingsCard title="Core Controls">
-        <p className="settings-description">
-          Restart the CodeAI Hub core to trigger a fresh CLI detection cycle.
-          Use this option after resolving CLI authentication or quota issues.
-        </p>
-        <div className="settings-core-row">
-          <SettingsButton
-            disabled={coreRestartBusy}
-            onClick={onRestartCore}
-            variant="primary"
-          >
-            {coreRestartBusy ? (
-              <>
-                <span aria-hidden="true" className="settings-spinner" />
-                Restarting...
-              </>
-            ) : (
-              "Restart Core"
-            )}
-          </SettingsButton>
-          <span className="settings-core-status">{coreRestartStatus}</span>
         </div>
       </SettingsCard>
     </div>

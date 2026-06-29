@@ -18,7 +18,7 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Provider settings update intents.
 - Auth/configuration action intents.
 - Harness-owned provider path labels; the OpenCode card points users to `.harness/runtime/providers/glm-opencode/home`.
-- Core restart intent from the Core Controls card. The restart row (`settings-core-row`) lays the button and its status label out with a gap, and the button shows a spinner (`settings-spinner`) while the restart is in flight.
+- Core restart intent from the Core Controls card. The Core Controls card is the first card in the General tab (above Localization), and its copy refers to the Harness AI core. The restart row (`settings-core-row`) lays the button and its status label out with a gap, and the button shows a spinner (`settings-spinner`) while the restart is in flight.
 
 ## Reasoning Effort Select
 

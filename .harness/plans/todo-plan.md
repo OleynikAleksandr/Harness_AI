@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase13.stream1.task1",
+  "currentTaskId": "harness-ai.phase14.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -202,18 +202,29 @@
     plus module docs; expected commit: `Lift provider picker overlay above the session bubbles`).
 20. [DONE] Git Commit: `Lift provider picker overlay above the session bubbles` (hash: self)
 
-## Phase 13 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 13 - Reorder General Settings (owner: Codex, updated: 2026-06-29)
+
+### Stream: Settings Order
+
+21. [DONE] `harness-ai.phase13.stream1.task1` Move the Core Controls card Result: Completed in commit `Move Core Controls to the top of General settings`.
+    to the top of the General settings list (before Localization), and fix the
+    leftover "CodeAI Hub core" reference text to "Harness AI core" in that card
+    (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx`,
+    plus module docs; expected commit: `Move Core Controls to the top of General settings`).
+22. [DONE] Git Commit: `Move Core Controls to the top of General settings` (hash: self)
+
+## Phase 14 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-21. [IN_PROGRESS] `harness-ai.phase13.stream1.task1` Run required gates/build and record
+23. [IN_PROGRESS] `harness-ai.phase14.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-22. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+24. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 14 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 15 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-23. [TODO] `harness-ai.phase14.stream1.task1` User retests input visuals + Stop in
+25. [TODO] `harness-ai.phase15.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

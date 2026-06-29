@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "chore: verify and package provider readiness",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -134,11 +134,11 @@
 
 ### Stream: Build And Evidence
 
-29. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Run required gates (architecture, lint, knip, typecheck, tests, dup, security, links), then build and package the macOS app (user-confirmed at that time), and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify and package provider readiness`).
-30. [TODO] Git Commit: `chore: verify and package provider readiness` (hash: TBD)
+29. [DONE] `harness-ai.phase7.stream1.task1` Run required gates (architecture, lint, knip, typecheck, tests, dup, security, links), then build and package the macOS app (user-confirmed at that time), and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify and package provider readiness`). Result: Completed in commit `chore: verify and package provider readiness`.
+30. [DONE] Git Commit: `chore: verify and package provider readiness` (hash: self)
 
 ## Phase 8 - User Acceptance: Provider Readiness (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-31. [TODO] `harness-ai.phase8.stream1.task1` User retests in the packaged app: at start providers show Checking → Ready/Failed; entering a workspace shows Preparing → Ready; a failed provider is blocked with an actionable message; Reset Core re-runs the checks; cards update live without reopening (scope: user workflow; expected commit: none).
+31. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` User retests in the packaged app: at start providers show Checking → Ready/Failed; entering a workspace shows Preparing → Ready; a failed provider is blocked with an actionable message; Reset Core re-runs the checks; cards update live without reopening (scope: user workflow; expected commit: none).

@@ -172,6 +172,9 @@ export function SessionWindowFacade() {
   function openProviderPicker() {
     setIsProviderPickerOpen(true);
     refreshSettingsSnapshot().catch(noop);
+    // Re-query the live Core catalog so the card reflects provider updates
+    // (renames, Restart Core) instead of the list cached at startup.
+    window.harnessCore?.listProviders().then(setProviderOptions).catch(noop);
   }
 
   function closeSettings() {

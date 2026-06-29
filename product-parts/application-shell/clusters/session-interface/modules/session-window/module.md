@@ -55,6 +55,9 @@ Render the transcript/dialog layout and session chrome.
 - The provider picker renders as a full-cover modal: its backdrop carries a high
   z-index (above the position:relative dialog bubbles and the next-mode panel)
   and a dense scrim, so the running session UI does not show through.
+- Opening the provider picker re-queries `listProviders` from Core, so the card
+  reflects the live catalog (provider renames, Restart Core) instead of the list
+  cached at renderer startup.
 
 ## Owned Paths
 

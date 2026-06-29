@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase15.stream1.task1",
+  "currentTaskId": "harness-ai.phase16.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -227,18 +227,31 @@
     plus module docs; expected commit: `Rename GLM OpenCode provider display name to OpenCode`).
 24. [DONE] Git Commit: `Rename GLM OpenCode provider display name to OpenCode` (hash: self)
 
-## Phase 15 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 15 - Refresh Providers On Picker Open (owner: Codex, updated: 2026-06-29)
+
+### Stream: Picker Refresh
+
+25. [DONE] `harness-ai.phase15.stream1.task1` The renderer loads the Result: Completed in commit `Refresh provider list when the new-session picker opens`.
+    provider list once at startup and never refreshes it, so a Core update (e.g.
+    a provider rename, or Restart Core) leaves the New Session card showing the
+    stale list. Re-query `listProviders` when the picker opens so the card always
+    reflects the live Core catalog
+    (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`,
+    plus module docs; expected commit: `Refresh provider list when the new-session picker opens`).
+26. [DONE] Git Commit: `Refresh provider list when the new-session picker opens` (hash: self)
+
+## Phase 16 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-25. [IN_PROGRESS] `harness-ai.phase15.stream1.task1` Run required gates/build and record
+27. [IN_PROGRESS] `harness-ai.phase16.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-26. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+28. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 16 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 17 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-27. [TODO] `harness-ai.phase16.stream1.task1` User retests input visuals + Stop in
+29. [TODO] `harness-ai.phase17.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

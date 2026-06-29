@@ -12,6 +12,17 @@ interface ProviderSystemSettings {
 type HarnessSettings =
   import("../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js").HarnessSettings;
 
+interface ProviderStatusEvent {
+  payload: {
+    providerId: string;
+    readinessMessage?: string;
+    readinessStatus: "checking" | "preparing" | "ready" | "failed";
+    workspaceId: string;
+  };
+  timestamp: string;
+  type: "provider:status";
+}
+
 interface ProviderVersionEntry {
   currentVersion: null | string;
   latestVersion: null | string;
@@ -67,7 +78,9 @@ interface Window {
     }>;
     onEvent(
       listener: (
-        event: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent
+        event:
+          | import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent
+          | ProviderStatusEvent
       ) => void
     ): () => void;
     saveProviderSystemSettings(request: {

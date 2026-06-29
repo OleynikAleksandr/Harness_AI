@@ -34,16 +34,26 @@ export function ProviderPicker({
         <div className="provider-grid">
           {providers.map((provider) => {
             const model = getProviderModel(provider.id, settings);
+            const isReady = provider.readinessStatus === "ready";
             return (
               <button
-                className="provider-card"
+                className={`provider-card provider-card--${provider.readinessStatus}`}
+                disabled={!isReady}
                 key={provider.id}
                 onClick={() => onSelect(provider)}
                 type="button"
               >
                 <strong>{provider.name}</strong>
                 <span>{model}</span>
-                <small>{provider.status}</small>
+                <small className="provider-readiness">
+                  {provider.readinessStatus === "checking" ? (
+                    <span aria-hidden="true" className="provider-spinner" />
+                  ) : null}
+                  {provider.readinessStatus === "preparing" ? (
+                    <span aria-hidden="true" className="provider-spinner" />
+                  ) : null}
+                  {readinessLabel(provider)}
+                </small>
               </button>
             );
           })}
@@ -51,6 +61,19 @@ export function ProviderPicker({
       </section>
     </div>
   );
+}
+
+function readinessLabel(provider: ProviderDescriptor): string {
+  if (provider.readinessStatus === "ready") {
+    return "Ready";
+  }
+  if (provider.readinessStatus === "checking") {
+    return "Checking provider...";
+  }
+  if (provider.readinessStatus === "preparing") {
+    return "Preparing workspace...";
+  }
+  return provider.readinessMessage ?? "Provider setup failed.";
 }
 
 export function getProviderModel(

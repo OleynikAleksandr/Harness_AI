@@ -137,6 +137,23 @@ export function SessionWindowFacade() {
       })
       .catch(noop);
     return window.harnessCore?.onEvent((event) => {
+      if (isProviderStatusEvent(event)) {
+        if (event.payload.workspaceId !== activeWorkspaceId) {
+          return;
+        }
+        setProviderOptions((current) =>
+          current.map((provider) =>
+            provider.id === event.payload.providerId
+              ? {
+                  ...provider,
+                  readinessMessage: event.payload.readinessMessage,
+                  readinessStatus: event.payload.readinessStatus,
+                }
+              : provider
+          )
+        );
+        return;
+      }
       applyCoreEvent({
         event,
         setMessagesBySession,
@@ -146,6 +163,7 @@ export function SessionWindowFacade() {
     });
   }, [
     detachedMode,
+    activeWorkspaceId,
     initialSnapshot.workspace,
     refreshSessions,
     refreshSettingsSnapshot,
@@ -184,6 +202,9 @@ export function SessionWindowFacade() {
   }
 
   async function createSession(provider: ProviderDescriptor) {
+    if (provider.readinessStatus !== "ready") {
+      return;
+    }
     const snapshot =
       settingsSnapshot ?? (await refreshSettingsSnapshot(activeWorkspace.path));
     const model = getProviderModel(provider.id, snapshot);
@@ -333,6 +354,14 @@ export function SessionWindowFacade() {
         <NextSessionModePanel onClose={() => setIsNextSessionModeOpen(false)} />
       ) : null}
     </div>
+  );
+}
+
+function isProviderStatusEvent(event: unknown): event is ProviderStatusEvent {
+  return (
+    typeof event === "object" &&
+    event !== null &&
+    (event as { type?: unknown }).type === "provider:status"
   );
 }
 

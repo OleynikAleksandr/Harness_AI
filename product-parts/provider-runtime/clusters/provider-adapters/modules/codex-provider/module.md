@@ -48,6 +48,8 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
 - `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the Codex
   rollout log(s) for a removed session from the workspace provider home, leaving
   the shared provider home otherwise intact.
+- `ensureWorkspaceHome(workspacePath)` materializes workspace Codex auth/config
+  through the provider home manager without starting the Codex app-server.
 
 ## Owned Paths
 

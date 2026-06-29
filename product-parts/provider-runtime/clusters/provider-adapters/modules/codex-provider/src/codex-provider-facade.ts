@@ -1,5 +1,6 @@
 import { homedir } from "node:os";
 import path from "node:path";
+import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { CodexProviderAdapter } from "./reference/index.js";
 
 interface CodexProviderOptions {
@@ -41,6 +42,13 @@ export class CodexProviderFacade extends CodexProviderAdapter {
         defaultSandboxMode: "danger-full-access",
         workspacePath,
       },
+    });
+  }
+
+  async ensureWorkspaceHome(workspacePath: string): Promise<void> {
+    await providerHomeManagerFacade.prepareCodexHome({
+      providerId: "codex",
+      workspacePath,
     });
   }
 }

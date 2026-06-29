@@ -8,8 +8,8 @@
   "planId": "codex-native-session-delete-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "Record Codex native session deletion verification",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -52,11 +52,11 @@
 
 ### Stream: Focused Checks
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Run focused cleanup tests and required validation for the active scope (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record Codex native session deletion verification`).
-4. [TODO] Git Commit: `Record Codex native session deletion verification` (hash: TBD)
+3. [DONE] `harness-ai.phase2.stream1.task1` Run focused cleanup tests and required validation for the active scope (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record Codex native session deletion verification`). Result: Completed in commit `Record Codex native session deletion verification`.
+4. [DONE] Git Commit: `Record Codex native session deletion verification` (hash: self)
 
 ## Phase 3 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-5. [TODO] `harness-ai.phase3.stream1.task1` User retests deletion of the reported Codex session in the app (scope: user workflow; expected commit: none).
+5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` User retests deletion of the reported Codex session in the app (scope: user workflow; expected commit: none).

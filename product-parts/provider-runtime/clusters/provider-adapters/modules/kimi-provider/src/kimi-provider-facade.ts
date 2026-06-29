@@ -1,5 +1,7 @@
 import path from "node:path";
+import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { KimiProviderAdapter } from "./reference/index.js";
+import { materializeKimiManagedAgentProfile } from "./reference/provider/kimi-managed-agent-profile.js";
 
 export class KimiProviderFacade extends KimiProviderAdapter {
   constructor(
@@ -24,6 +26,15 @@ export class KimiProviderFacade extends KimiProviderAdapter {
         workspacePath,
       },
     });
+  }
+
+  async ensureWorkspaceHome(workspacePath: string): Promise<void> {
+    await materializeKimiManagedAgentProfile(
+      providerHomeManagerFacade.resolveProviderHome({
+        providerId: "kimi",
+        workspacePath,
+      })
+    );
   }
 }
 

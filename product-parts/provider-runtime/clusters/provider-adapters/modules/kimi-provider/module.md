@@ -33,6 +33,8 @@ liveness preflight without treating that global home as a workspace root.
 - Kimi ACP assistant/thinking events routed by the reference session event
   router.
 - Managed Kimi agent profile materialized under Harness runtime provider home.
+- `ensureWorkspaceHome(workspacePath)` creates the workspace Kimi provider
+  home and materializes the managed agent profile without starting Kimi CLI.
 
 ## Owned Paths
 

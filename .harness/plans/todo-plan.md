@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream1.task1",
+  "currentTaskId": "harness-ai.phase13.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -188,18 +188,32 @@
     plus module docs; expected commit: `Normalize Kimi runtime session id prefix on resume`).
 18. [DONE] Git Commit: `Normalize Kimi runtime session id prefix on resume` (hash: self)
 
-## Phase 12 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 12 - Fix Provider Picker Overlay (owner: Codex, updated: 2026-06-29)
+
+### Stream: Picker Overlay
+
+19. [DONE] `harness-ai.phase12.stream1.task1` Make the New Session provider Result: Completed in commit `Lift provider picker overlay above the session bubbles`.
+    picker overlay cover the running session UI: the dialog bubbles are
+    `position: relative; z-index: 1/2`, so they painted over the
+    `.provider-picker-backdrop` (which had no z-index). Give the backdrop a high
+    z-index (above bubbles and the next-mode panel) and a denser scrim so nothing
+    shows through
+    (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`,
+    plus module docs; expected commit: `Lift provider picker overlay above the session bubbles`).
+20. [DONE] Git Commit: `Lift provider picker overlay above the session bubbles` (hash: self)
+
+## Phase 13 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-19. [IN_PROGRESS] `harness-ai.phase12.stream1.task1` Run required gates/build and record
+21. [IN_PROGRESS] `harness-ai.phase13.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-20. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+22. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 13 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 14 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-21. [TODO] `harness-ai.phase13.stream1.task1` User retests input visuals + Stop in
+23. [TODO] `harness-ai.phase14.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

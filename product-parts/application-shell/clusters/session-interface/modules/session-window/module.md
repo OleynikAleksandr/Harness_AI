@@ -52,6 +52,9 @@ Render the transcript/dialog layout and session chrome.
 - Next-session mode panel display; session creation submits the native raw baseline and regression tests guard that preview choices do not change runtime input.
 - New-session provider cards display Ready / Checking provider... / Preparing
   workspace... / Failed from Core readiness values; non-ready cards are disabled.
+- The provider picker renders as a full-cover modal: its backdrop carries a high
+  z-index (above the position:relative dialog bubbles and the next-mode panel)
+  and a dense scrim, so the running session UI does not show through.
 
 ## Owned Paths
 

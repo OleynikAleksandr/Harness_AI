@@ -447,12 +447,15 @@ strong {
 }
 
 .provider-picker-backdrop {
+  /* z-index sits above the dialog bubbles (which are position:relative z-index
+     1/2) and the next-mode panel (40) so the picker fully covers the session. */
   position: fixed;
   inset: 0;
+  z-index: 60;
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(7, 10, 15, 0.7);
+  background: rgba(7, 10, 15, 0.82);
 }
 
 .provider-picker-card {

@@ -1,5 +1,4 @@
 import {
-  type ProviderTurnStatus,
   type ProviderUsageTelemetry,
   usageContextTelemetryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
@@ -254,12 +253,33 @@ export class SessionRequestHandlerFacade {
   }
 
   private publishBinding(binding: ProviderSessionBinding): void {
+    this.rememberProviderSessionId(binding);
     this.publish({
       payload: binding,
       timestamp: binding.updatedAt,
       type: "session:provider-binding",
     });
-    this.updateTelemetryWithBinding(binding);
+    this.updateTelemetry(binding.sessionId, (current) =>
+      usageContextTelemetryFacade.applyBinding(current, binding)
+    );
+  }
+
+  // Persist the provider session id on the Core session for both the initial
+  // binding and later promotions (e.g. Claude realSessionId), so a removed
+  // session can locate its provider artifact by the id used in the filename.
+  private rememberProviderSessionId(binding: ProviderSessionBinding): void {
+    const session = this.sessions.get(binding.sessionId);
+    if (
+      session &&
+      binding.providerSessionId &&
+      session.providerSessionId !== binding.providerSessionId
+    ) {
+      this.sessions.set(binding.sessionId, {
+        ...session,
+        providerSessionId: binding.providerSessionId,
+      });
+      this.persistSessionIndex(session.workspacePath);
+    }
   }
 
   private publishError(sessionId: string, error: string): void {
@@ -271,7 +291,9 @@ export class SessionRequestHandlerFacade {
   }
 
   private publishTurnState(sessionId: string, state: "idle" | "running"): void {
-    this.updateTelemetryStatus(sessionId, state);
+    this.updateTelemetry(sessionId, (current) =>
+      usageContextTelemetryFacade.applyStatus(current, state)
+    );
     this.publish({
       payload: { sessionId, state },
       timestamp: new Date().toISOString(),
@@ -309,43 +331,14 @@ export class SessionRequestHandlerFacade {
     });
   }
 
-  private updateTelemetryStatus(
+  private updateTelemetry(
     sessionId: string,
-    status: ProviderTurnStatus
+    apply: (current: ProviderUsageTelemetry) => ProviderUsageTelemetry
   ): void {
     const current = this.telemetryBySession.get(sessionId);
-    if (!current) {
-      return;
+    if (current) {
+      this.setTelemetry(sessionId, apply(current));
     }
-    this.setTelemetry(
-      sessionId,
-      usageContextTelemetryFacade.applyStatus(current, status)
-    );
-  }
-
-  private updateTelemetryWithBinding(binding: ProviderSessionBinding): void {
-    const current = this.telemetryBySession.get(binding.sessionId);
-    if (!current) {
-      return;
-    }
-    this.setTelemetry(
-      binding.sessionId,
-      usageContextTelemetryFacade.applyBinding(current, binding)
-    );
-  }
-
-  private updateTelemetryWithProviderEvent(
-    sessionId: string,
-    event: unknown
-  ): void {
-    const current = this.telemetryBySession.get(sessionId);
-    if (!current) {
-      return;
-    }
-    this.setTelemetry(
-      sessionId,
-      usageContextTelemetryFacade.applyProviderEvent(current, event)
-    );
   }
 
   private async bindProviderSession(session: CoreSession): Promise<void> {
@@ -381,8 +374,6 @@ export class SessionRequestHandlerFacade {
           providerSessionId
         )
       );
-      this.sessions.set(session.id, { ...session, providerSessionId });
-      this.persistSessionIndex(session.workspacePath);
       this.refreshUsageLimits(session.id).catch(() => undefined);
     } catch (error) {
       this.publishBinding(
@@ -417,7 +408,9 @@ export class SessionRequestHandlerFacade {
     if (!isRecord(event)) {
       return;
     }
-    this.updateTelemetryWithProviderEvent(sessionId, event);
+    this.updateTelemetry(sessionId, (current) =>
+      usageContextTelemetryFacade.applyProviderEvent(current, event)
+    );
     if (typeof event.type !== "string") {
       return;
     }

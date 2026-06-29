@@ -24,5 +24,7 @@ assert.match(source, /promotedProviderSessionId/u);
 assert.match(source, /async refreshUsageLimits\(sessionId: string\)/u);
 assert.match(
   source,
-  /if \(!isRecord\(event\)\)[\s\S]+?this\.updateTelemetryWithProviderEvent\(sessionId, event\);[\s\S]+?if \(typeof event\.type !== "string"\)/u
+  /if \(!isRecord\(event\)\)[\s\S]+?usageContextTelemetryFacade\.applyProviderEvent\(current, event\)[\s\S]+?if \(typeof event\.type !== "string"\)/u
 );
+// Provider session id is persisted on both initial binding and promotion.
+assert.match(source, /private rememberProviderSessionId\(/u);

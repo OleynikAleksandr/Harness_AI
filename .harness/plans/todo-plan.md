@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": "chore: repackage with claude promoted session id fix",
   "debt": null
 }
 ```
@@ -117,8 +117,27 @@ existing generic orchestration in `core-runtime-api`.
 17. [DONE] `harness-ai.phase6.stream1.task1` Run required gates, rebuild and repackage the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and update evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: repackage with claude and glm-native artifact cleanup`). Result: Completed in commit `chore: repackage with claude and glm-native artifact cleanup`.
 18. [DONE] Git Commit: `chore: repackage with claude and glm-native artifact cleanup` (hash: self)
 
+## Phase 8 - Claude Promoted Session Id Persistence (owner: Codex, updated: 2026-06-29)
+
+User retest showed Claude still leaves its transcript orphaned: Claude promotes
+its provider session id (realSessionId) after the first turn, and the transcript
+file is named by the promoted id, but `CoreSession.providerSessionId` kept only
+the initial id, so the suffix match missed. Persist the promoted id too.
+
+### Stream: Persist promoted id
+
+19. [DONE] `harness-ai.phase8.stream1.task1` Centralize provider-session-id persistence in `publishBinding` (covers both the initial binding and `promotedProviderSessionId`), generalize the three duplicated telemetry-update methods into one to stay under the 500-line limit, and update the static facade test (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs`; expected commit: `fix: persist promoted claude session id for artifact cleanup`). Result: Completed in commit `fix: persist promoted claude session id for artifact cleanup`.
+20. [DONE] Git Commit: `fix: persist promoted claude session id for artifact cleanup` (hash: self)
+
+## Phase 9 - Repackage (owner: Codex, updated: 2026-06-29)
+
+### Stream: Build And Evidence
+
+21. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Run required gates, rebuild and repackage the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and update evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: repackage with claude promoted session id fix`).
+22. [TODO] Git Commit: `chore: repackage with claude promoted session id fix` (hash: TBD)
+
 ## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-19. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` User retests in the packaged app: delete sessions for Codex, Claude, GLM-native and Kimi and confirm each provider's native per-session artifact is gone with the shared home intact; confirm Restart Core spacing/spinner and a true process restart (scope: user workflow; expected commit: none).
+23. [TODO] `harness-ai.phase7.stream1.task1` User retests in the packaged app: delete sessions for Codex, Claude, GLM-native and Kimi and confirm each provider's native per-session artifact is gone with the shared home intact; confirm Restart Core spacing/spinner and a true process restart (scope: user workflow; expected commit: none).

@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -107,19 +107,19 @@
 
 ### Stream: Input Visual
 
-5. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Port the reference input field +
+5. [DONE] `harness-ai.phase5.stream1.task1` Port the reference input field + Result: Completed in commit `Port reference input field and play/stop button visuals`.
    play/stop button visuals and the wait-copy overlay
    (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`,
    `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`,
    `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-input-textarea.tsx`,
    plus module docs; expected commit: `Port reference input field and play/stop button visuals`).
-6. [TODO] Git Commit: `Port reference input field and play/stop button visuals` (hash: TBD)
+6. [DONE] Git Commit: `Port reference input field and play/stop button visuals` (hash: self)
 
 ## Phase 6 - Stop Wiring (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Wiring
 
-7. [TODO] `harness-ai.phase6.stream1.task1` Wire the running-session state and
+7. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Wire the running-session state and
    the Stop button to `harnessCore.stopTurn`
    (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`;
    expected commit: `Wire Stop button to Core stopTurn`).

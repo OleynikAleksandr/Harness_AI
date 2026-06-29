@@ -62,16 +62,19 @@ export function DialogPanel({
 
 export function ReferenceInputPanel({
   disabled,
+  onStop,
   onSubmit,
   session,
 }: {
   disabled: boolean;
+  onStop?: () => void;
   onSubmit: (text: string) => void | Promise<void>;
   session: CoreSession | undefined;
 }) {
   const [draft, setDraft] = useState("");
   const canSubmit = draft.trim().length > 0 && !disabled;
   const waitCopy = disabled ? "Agent is working… Please wait." : null;
+  const showStop = disabled && Boolean(onStop);
   const submit = () => {
     if (!canSubmit) {
       return;
@@ -104,24 +107,46 @@ export function ReferenceInputPanel({
           waitCopy={draft.length === 0 ? waitCopy : null}
         />
         <div className="session-input__action">
-          <button
-            aria-label="Send message"
-            className="session-input__action-button"
-            disabled={!canSubmit}
-            type="submit"
-          >
-            <span
-              aria-hidden="true"
-              className="session-input__action-icon session-input__action-icon--play"
+          {showStop ? (
+            <button
+              aria-label="Stop current turn"
+              className="session-input__action-button session-input__action-button--stop"
+              onClick={() => onStop?.()}
+              title="Stop current turn"
+              type="button"
             >
-              ▶
-            </span>
-          </button>
+              <span
+                aria-hidden="true"
+                className="session-input__action-icon session-input__action-icon--stop"
+              />
+            </button>
+          ) : (
+            <button
+              aria-label="Send message"
+              className="session-input__action-button"
+              disabled={!canSubmit}
+              type="submit"
+            >
+              <span
+                aria-hidden="true"
+                className="session-input__action-icon session-input__action-icon--play"
+              >
+                ▶
+              </span>
+            </button>
+          )}
         </div>
       </div>
       <div className="session-input__footer">
-        <span>Press Enter to send, Shift+Enter for a new line</span>
-        <ElapsedTotal createdAt={session?.createdAt} />
+        <span
+          className="session-input__hint"
+          style={disabled ? { visibility: "hidden" } : undefined}
+        >
+          Press Enter to send, Shift+Enter for a new line
+        </span>
+        <div className="session-input__footer-right">
+          <ElapsedTotal createdAt={session?.createdAt} />
+        </div>
       </div>
     </form>
   );

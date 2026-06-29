@@ -35,6 +35,10 @@ liveness preflight without treating that global home as a workspace root.
 - Managed Kimi agent profile materialized under Harness runtime provider home.
 - `ensureWorkspaceHome(workspacePath)` creates the workspace Kimi provider
   home and materializes the managed agent profile without starting Kimi CLI.
+- `resumeSession` accepts the runtime `kimi:`-prefixed id that Core persists
+  (createSession's return value) and strips the prefix before the ACP
+  `session/resume`, which only knows the bare provider session id. This keeps
+  resume-after-Stop working with the Core-stored id.
 
 ## Owned Paths
 

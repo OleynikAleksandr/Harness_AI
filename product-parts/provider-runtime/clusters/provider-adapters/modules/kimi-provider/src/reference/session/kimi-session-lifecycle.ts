@@ -73,7 +73,9 @@ export class KimiSessionLifecycle {
   }
 
   async resume(providerSessionId: string): Promise<string> {
-    const normalizedProviderSessionId = providerSessionId.trim();
+    const normalizedProviderSessionId = this.fromRuntimeSessionId(
+      providerSessionId.trim()
+    );
     if (normalizedProviderSessionId.length === 0) {
       throw new Error("Cannot resume Kimi session with an empty provider id.");
     }
@@ -157,6 +159,15 @@ export class KimiSessionLifecycle {
 
   private toRuntimeSessionId(providerSessionId: string): string {
     return `kimi:${providerSessionId}`;
+  }
+
+  // Core stores and passes back the runtime id (createSession's return value),
+  // so resume may receive the `kimi:`-prefixed form; the ACP only knows the bare
+  // provider session id.
+  private fromRuntimeSessionId(sessionId: string): string {
+    return sessionId.startsWith("kimi:")
+      ? sessionId.slice("kimi:".length)
+      : sessionId;
   }
 
   private requireSession(sessionId: string): ActiveKimiSession {

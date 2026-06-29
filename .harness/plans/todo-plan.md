@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream1.task1",
+  "currentTaskId": "harness-ai.phase12.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -175,18 +175,31 @@
     plus module docs; expected commit: `Keep input field opaque while the agent works`).
 16. [DONE] Git Commit: `Keep input field opaque while the agent works` (hash: self)
 
-## Phase 11 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 11 - Fix Kimi Resume Id (owner: Codex, updated: 2026-06-29)
+
+### Stream: Kimi Resume
+
+17. [DONE] `harness-ai.phase11.stream1.task1` Fix resume after Stop for Result: Completed in commit `Normalize Kimi runtime session id prefix on resume`.
+    Kimi: `resumeSession` received the runtime `kimi:`-prefixed id and sent it
+    straight to the ACP `session/resume`, which only knows the bare provider id
+    (`Unknown sessionId: kimi:session_...`). Normalize the `kimi:` prefix in the
+    Kimi session lifecycle resume so it matches what `send`/`close` already use
+    (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/session/kimi-session-lifecycle.ts`,
+    plus module docs; expected commit: `Normalize Kimi runtime session id prefix on resume`).
+18. [DONE] Git Commit: `Normalize Kimi runtime session id prefix on resume` (hash: self)
+
+## Phase 12 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-17. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` Run required gates/build and record
+19. [IN_PROGRESS] `harness-ai.phase12.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-18. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+20. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 12 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 13 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-19. [TODO] `harness-ai.phase12.stream1.task1` User retests input visuals + Stop in
+21. [TODO] `harness-ai.phase13.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

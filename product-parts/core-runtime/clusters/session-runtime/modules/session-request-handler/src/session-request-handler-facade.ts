@@ -41,7 +41,6 @@ import type {
 } from "./session-request-handler-types.js";
 
 export type { CoreSession } from "./session-request-handler-types.js";
-
 export class SessionRequestHandlerFacade {
   private readonly bindingFacade: ProviderSessionBindingFacadeLike;
   private readonly eventStream: SessionEventStreamLike;
@@ -147,9 +146,23 @@ export class SessionRequestHandlerFacade {
       return { error: "Session not found", ok: false };
     }
     const binding = this.runtimeBindings.get(sessionId);
+    const providerSessionId =
+      binding?.providerSessionId ?? session.providerSessionId;
+    const adapter =
+      binding?.adapter ?? this.providerRegistry.getAdapter(session.providerId);
     binding?.unsubscribe();
-    binding?.adapter
-      .closeSession(binding.providerSessionId)
+    (binding
+      ? binding.adapter.closeSession(binding.providerSessionId)
+      : Promise.resolve()
+    )
+      .then(() => {
+        if (session.workspacePath && providerSessionId) {
+          return adapter?.deleteSessionArtifacts?.(
+            providerSessionId,
+            session.workspacePath
+          );
+        }
+      })
       .catch(() => undefined);
     this.runtimeBindings.delete(sessionId);
     this.messagesBySession.delete(sessionId);
@@ -203,7 +216,6 @@ export class SessionRequestHandlerFacade {
       });
     }
   }
-
   private publishMessage(message: CoreSessionMessage): void {
     const displayMessage = this.resolveDisplayMessage(message);
     if (!displayMessage) {
@@ -264,9 +276,6 @@ export class SessionRequestHandlerFacade {
     );
   }
 
-  // Persist the provider session id on the Core session for both the initial
-  // binding and later promotions (e.g. Claude realSessionId), so a removed
-  // session can locate its provider artifact by the id used in the filename.
   private rememberProviderSessionId(binding: ProviderSessionBinding): void {
     const session = this.sessions.get(binding.sessionId);
     if (
@@ -473,7 +482,6 @@ export class SessionRequestHandlerFacade {
       );
     }
   }
-
   async refreshUsageLimits(sessionId: string): Promise<void> {
     const session = this.sessions.get(sessionId);
     const binding = this.runtimeBindings.get(sessionId);

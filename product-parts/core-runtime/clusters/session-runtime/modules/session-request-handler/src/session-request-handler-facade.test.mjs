@@ -28,3 +28,8 @@ assert.match(
 );
 // Provider session id is persisted on both initial binding and promotion.
 assert.match(source, /private rememberProviderSessionId\(/u);
+assert.match(
+  source,
+  /binding\?\.providerSessionId \?\? session\.providerSessionId/u
+);
+assert.match(source, /deleteSessionArtifacts\?\.\(/u);

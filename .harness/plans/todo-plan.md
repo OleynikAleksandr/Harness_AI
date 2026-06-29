@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -119,17 +119,17 @@
 
 ### Stream: Wiring
 
-7. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Wire the running-session state and
+7. [DONE] `harness-ai.phase6.stream1.task1` Wire the running-session state and Result: Completed in commit `Wire Stop button to Core stopTurn`.
    the Stop button to `harnessCore.stopTurn`
    (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`;
    expected commit: `Wire Stop button to Core stopTurn`).
-8. [TODO] Git Commit: `Wire Stop button to Core stopTurn` (hash: TBD)
+8. [DONE] Git Commit: `Wire Stop button to Core stopTurn` (hash: self)
 
 ## Phase 7 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-9. [TODO] `harness-ai.phase7.stream1.task1` Run required gates/build and record
+9. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Run required gates/build and record
    evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
    commit: `Record input panel and turn stop verification`).
 10. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)

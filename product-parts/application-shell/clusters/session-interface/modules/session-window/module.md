@@ -45,7 +45,8 @@ Render the transcript/dialog layout and session chrome.
 ## Outputs
 
 - Rendered chat session surface.
-- Session-level UI actions sent to Core.
+- Session-level UI actions sent to Core, including the running-turn Stop that
+  calls Core `stopTurn` with the active session id.
 - Next-session mode panel display; session creation submits the native raw baseline and regression tests guard that preview choices do not change runtime input.
 - New-session provider cards display Ready / Checking provider... / Preparing
   workspace... / Failed from Core readiness values; non-ready cards are disabled.

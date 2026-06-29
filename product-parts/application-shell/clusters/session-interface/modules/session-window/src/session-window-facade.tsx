@@ -201,6 +201,10 @@ export function SessionWindowFacade() {
     }
   }
 
+  async function stopActiveTurn(sessionId: string) {
+    await window.harnessCore?.stopTurn(sessionId);
+  }
+
   async function createSession(provider: ProviderDescriptor) {
     if (provider.readinessStatus !== "ready") {
       return;
@@ -320,6 +324,7 @@ export function SessionWindowFacade() {
           />
           <ReferenceInputPanel
             disabled={runningSessionId === activeSession.id}
+            onStop={() => stopActiveTurn(activeSession.id)}
             onSubmit={appendUserMessage}
             session={activeSession}
           />

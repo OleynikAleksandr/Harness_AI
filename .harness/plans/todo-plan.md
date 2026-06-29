@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream2.task1",
-  "expectedCommitMessage": "feat: provider liveness preflight checker",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: provider-owned ensure-workspace-home contract",
   "debt": null
 }
 ```
@@ -77,14 +77,14 @@
 
 ### Stream: Liveness checker
 
-7. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Add the liveness checker: per provider branch on `capabilities.requiresProviderHome` — home-based providers (`requiresProviderHome: true` — claude, codex, kimi, glm-native, glm-opencode) run a full background preflight against the GLOBAL home via the factory (`adapter.initialize()`), one at a time per the whole-preflight env isolation (GAP 1 round3.2); API-key providers (only openrouter, local-models) use key presence and `loadLocalModels` reachability for local-models (R9); classify ready/failed with a human actionable message; write raw liveness into the registry; add a point test for failed-vs-ready classification (product-part: provider-runtime / cluster: provider-readiness / module: provider-liveness-checker; scope: `product-parts/provider-runtime/clusters/provider-readiness/modules/provider-liveness-checker/module.md, product-parts/provider-runtime/clusters/provider-readiness/modules/provider-liveness-checker/src/provider-liveness-checker-facade.ts` plus the checker test; expected commit: `feat: provider liveness preflight checker`).
-8. [TODO] Git Commit: `feat: provider liveness preflight checker` (hash: TBD)
+7. [DONE] `harness-ai.phase2.stream2.task1` Add the liveness checker: per provider branch on `capabilities.requiresProviderHome` — home-based providers (`requiresProviderHome: true` — claude, codex, kimi, glm-native, glm-opencode) run a full background preflight against the GLOBAL home via the factory (`adapter.initialize()`), one at a time per the whole-preflight env isolation (GAP 1 round3.2); API-key providers (only openrouter, local-models) use key presence and `loadLocalModels` reachability for local-models (R9); classify ready/failed with a human actionable message; write raw liveness into the registry; add a point test for failed-vs-ready classification (product-part: provider-runtime / cluster: provider-readiness / module: provider-liveness-checker; scope: `product-parts/provider-runtime/clusters/provider-readiness/modules/provider-liveness-checker/module.md, product-parts/provider-runtime/clusters/provider-readiness/modules/provider-liveness-checker/src/provider-liveness-checker-facade.ts` plus the checker test; expected commit: `feat: provider liveness preflight checker`). Result: Completed in commit `feat: provider liveness preflight checker`.
+8. [DONE] Git Commit: `feat: provider liveness preflight checker` (hash: self)
 
 ## Phase 3 - Workspace Provisioning (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Provider-owned ensure-home contract
 
-9. [TODO] `harness-ai.phase3.stream1.task1` Add optional, CLI-free `ensureWorkspaceHome(workspacePath): Promise<void>` to the provider-adapter contract (GAP 2, provider-owned like `deleteSessionArtifacts`; API-key providers leave it unimplemented = no-op default), plus a reusable CLI-free home/auth materialization helper in the home manager; update the home-manager module.md (product-part: provider-runtime / cluster: provider-adapters / module: provider-adapter-contract, and provider-home-and-auth / provider-home-manager; scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md`; expected commit: `feat: provider-owned ensure-workspace-home contract`).
+9. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Add optional, CLI-free `ensureWorkspaceHome(workspacePath): Promise<void>` to the provider-adapter contract (GAP 2, provider-owned like `deleteSessionArtifacts`; API-key providers leave it unimplemented = no-op default), plus a reusable CLI-free home/auth materialization helper in the home manager; update the home-manager module.md (product-part: provider-runtime / cluster: provider-adapters / module: provider-adapter-contract, and provider-home-and-auth / provider-home-manager; scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md`; expected commit: `feat: provider-owned ensure-workspace-home contract`).
 10. [TODO] Git Commit: `feat: provider-owned ensure-workspace-home contract` (hash: TBD)
 
 ### Stream: Per-provider ensure-home implementations

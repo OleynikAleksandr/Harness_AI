@@ -23,6 +23,12 @@ export interface PreparedProviderHome {
   homePath: string;
 }
 
+export interface ProviderHomeFileRequest {
+  destinationPath: string;
+  sourcePath: string;
+  strategy: "copy-if-missing" | "link";
+}
+
 const AUTH_FILENAME = "auth.json";
 const CONFIG_FILENAME = "config.toml";
 const LEGACY_CODEX_HOME = path.join(homedir(), ".codex");
@@ -71,6 +77,19 @@ export class ProviderHomeManagerFacade {
     });
     await ensureSummaryConfig(path.join(homePath, CONFIG_FILENAME));
     return { authLinked, homePath };
+  }
+
+  async materializeProviderHomeFile(
+    request: ProviderHomeFileRequest
+  ): Promise<boolean> {
+    if (!(await exists(request.sourcePath))) {
+      return false;
+    }
+    if (request.strategy === "link") {
+      return materializeAuthFile(request);
+    }
+    await copyIfMissing(request);
+    return true;
   }
 }
 

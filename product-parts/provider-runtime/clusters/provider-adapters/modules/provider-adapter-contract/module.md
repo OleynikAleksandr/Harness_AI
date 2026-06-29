@@ -28,6 +28,9 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
 - Optional `deleteSessionArtifacts(providerSessionId, workspacePath)` boundary so a
   removed session can clean up provider-owned per-session files; providers without
   such files leave it unimplemented.
+- Optional `ensureWorkspaceHome(workspacePath)` boundary so Core can ask each
+  provider to prepare workspace home/auth without starting the provider CLI/SDK;
+  providers without workspace home work leave it unimplemented.
 
 ## Owned Paths
 

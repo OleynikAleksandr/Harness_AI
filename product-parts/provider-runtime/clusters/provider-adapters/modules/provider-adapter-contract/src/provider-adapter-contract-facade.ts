@@ -18,6 +18,8 @@ export interface ProviderAdapter {
     providerSessionId: string,
     workspacePath: string
   ): Promise<void> | void;
+  // Prepare provider-owned workspace home/auth without starting provider CLI/SDK.
+  ensureWorkspaceHome?(workspacePath: string): Promise<void> | void;
   initialize?(): Promise<void>;
   refreshUsageLimits?(
     request: ProviderUsageLimitsRefreshRequest

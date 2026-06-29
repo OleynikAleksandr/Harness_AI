@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "feat: provider-owned ensure-workspace-home contract",
+  "currentTaskId": "harness-ai.phase3.stream2.task1",
+  "expectedCommitMessage": "feat: codex ensure-workspace-home",
   "debt": null
 }
 ```
@@ -84,12 +84,12 @@
 
 ### Stream: Provider-owned ensure-home contract
 
-9. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Add optional, CLI-free `ensureWorkspaceHome(workspacePath): Promise<void>` to the provider-adapter contract (GAP 2, provider-owned like `deleteSessionArtifacts`; API-key providers leave it unimplemented = no-op default), plus a reusable CLI-free home/auth materialization helper in the home manager; update the home-manager module.md (product-part: provider-runtime / cluster: provider-adapters / module: provider-adapter-contract, and provider-home-and-auth / provider-home-manager; scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md`; expected commit: `feat: provider-owned ensure-workspace-home contract`).
-10. [TODO] Git Commit: `feat: provider-owned ensure-workspace-home contract` (hash: TBD)
+9. [DONE] `harness-ai.phase3.stream1.task1` Add optional, CLI-free `ensureWorkspaceHome(workspacePath): Promise<void>` to the provider-adapter contract (GAP 2, provider-owned like `deleteSessionArtifacts`; API-key providers leave it unimplemented = no-op default), plus a reusable CLI-free home/auth materialization helper in the home manager; update the home-manager module.md (product-part: provider-runtime / cluster: provider-adapters / module: provider-adapter-contract, and provider-home-and-auth / provider-home-manager; scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md`; expected commit: `feat: provider-owned ensure-workspace-home contract`). Result: Completed in commit `feat: provider-owned ensure-workspace-home contract`.
+10. [DONE] Git Commit: `feat: provider-owned ensure-workspace-home contract` (hash: self)
 
 ### Stream: Per-provider ensure-home implementations
 
-11. [TODO] `harness-ai.phase3.stream2.task1` Implement Codex `ensureWorkspaceHome` (auth.json + config materialize, no app-server start) with an idempotency point test; update the codex module.md (round3.5) (product-part: provider-runtime / cluster: provider-adapters / module: codex-provider; scope: codex adapter + an ensure helper + test + `codex-provider/module.md`; expected commit: `feat: codex ensure-workspace-home`).
+11. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Implement Codex `ensureWorkspaceHome` (auth.json + config materialize, no app-server start) with an idempotency point test; update the codex module.md (round3.5) (product-part: provider-runtime / cluster: provider-adapters / module: codex-provider; scope: codex adapter + an ensure helper + test + `codex-provider/module.md`; expected commit: `feat: codex ensure-workspace-home`).
 12. [TODO] Git Commit: `feat: codex ensure-workspace-home` (hash: TBD)
 
 13. [TODO] `harness-ai.phase3.stream2.task2` Implement Claude `ensureWorkspaceHome` by extracting the keychain symlink + `.claude.json` carry-over out of `ensureProviderHomeSessionBootstrap` into a CLI-free helper (touches the Claude module + its `module.md`), with an idempotency point test (product-part: provider-runtime / cluster: provider-adapters / module: claude-provider; scope: claude adapter + the new CLI-free keychain/.claude.json helper + `claude-provider/module.md` + test; expected commit: `feat: claude ensure-workspace-home`).

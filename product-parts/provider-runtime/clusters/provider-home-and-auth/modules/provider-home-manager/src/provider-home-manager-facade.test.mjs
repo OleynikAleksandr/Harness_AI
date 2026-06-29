@@ -1,5 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import ts from "typescript";
 
 const source = readFileSync(
@@ -13,7 +21,8 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
-const { materializeCodexReasoningSummaryConfig } = await import(moduleUrl);
+const { materializeCodexReasoningSummaryConfig, ProviderHomeManagerFacade } =
+  await import(moduleUrl);
 
 assert.equal(
   materializeCodexReasoningSummaryConfig(
@@ -35,6 +44,23 @@ assert.equal(
     "",
   ].join("\n")
 );
+
+const tempDir = mkdtempSync(join(tmpdir(), "harness-provider-home-"));
+const sourcePath = join(tempDir, "auth.json");
+const destinationPath = join(tempDir, "home", "auth.json");
+writeFileSync(sourcePath, '{"ok":true}\n', "utf8");
+
+assert.equal(
+  await new ProviderHomeManagerFacade().materializeProviderHomeFile({
+    destinationPath,
+    sourcePath,
+    strategy: "copy-if-missing",
+  }),
+  true
+);
+assert.equal(existsSync(destinationPath), true);
+
+rmSync(tempDir, { force: true, recursive: true });
 
 assert.equal(
   materializeCodexReasoningSummaryConfig(

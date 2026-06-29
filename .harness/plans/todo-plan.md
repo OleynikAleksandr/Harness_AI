@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -18,28 +18,29 @@
 ## Context Pack For This Cycle
 
 - **Planning source:** user request — port the reference (CodeAI Hub) session
-  dialog bubble visuals (user / assistant / thinking / system) into Harness AI.
+  dialog visuals into Harness AI: first the message bubbles, then the panel
+  backdrop / chrome.
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Readable architecture projection:** `.harness/product-tree/product-tree.md`.
 - **Read this context before implementation:**
   - `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`
   - Reference visual source (read-only): `CodeAI-Hub/media/session-view.css`
-    (`.session-dialog__message*` rules) and `CodeAI-Hub/doc/SolidWorks-WorkFlow/DesignSystem/CorporateDesign.html`.
+    (`.session-dialog__message*` and `.session-panel` rules).
 
 ## Confirmed Scope Decisions
 
 - Palette: exact copy of the reference provider palette (user `#2c3b52`,
   Claude `#ff9105`, Codex `#01f0d8`, Kimi `#77d6ff`, thinking muted). Providers
-  without a reference tint (glm-native, glm-opencode, openrouter, local-models)
-  use the neutral assistant background, as the reference does for unlisted ones.
-  This is a deliberate departure from the unified Teal Studio accent in the
-  dialog zone only.
-- Fonts: switch the dialog zone font-family to the reference system-ui stack;
-  copy sizes / weights / line-heights / letter-spacing 1:1.
-- Membership: bubble visuals only (background / border / shadow / colors /
-  fonts / geometry). Content stays plain text, thinking bubbles always expanded
-  (no toggle), no markdown engine.
+  without a reference tint use the neutral assistant background. Deliberate
+  departure from the unified Teal Studio accent in the dialog zone only.
+- Fonts: reference system-ui stack in the dialog zone; sizes/weights 1:1.
+- Membership: bubble visuals only (plain text, thinking always expanded, no
+  markdown).
+- Panel backdrop (all four `.session-panel` surfaces — id bar, dialog, input,
+  status): reference grey `rgba(40,41,42,1)` background, clean `1px solid
+  rgba(67,68,70,1)` chrome, no `box-shadow` (the previous inset ring read as a
+  double outline). Outer app shell background is unchanged.
 
 ## Execution Rules
 
@@ -50,8 +51,6 @@
 - CodeAI Hub may be read as reference material, but modules are not copied wholesale.
 - Application Shell is UI/client only. It is not source of truth for workflow,
   settings, provider state, limits, tokens, reasoning, artifacts or orchestration.
-  Provider tint is selected from the Core-owned `session.providerId`; the renderer
-  only maps that id to a CSS class.
 - Any source change updates every related Markdown document in the same commit.
 - No release/package build starts as a release decision without explicit user confirmation.
 - Scope closeout/archival is user-directed only.
@@ -74,18 +73,31 @@
    plus `module.md`; expected commit: `Port reference dialog bubble visuals to session window`).
 2. [DONE] Git Commit: `Port reference dialog bubble visuals to session window` (hash: self)
 
-## Phase 2 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 2 - Session Panel Backdrop (owner: Codex, updated: 2026-06-29)
+
+### Stream: Panel Backdrop
+
+1. [DONE] `harness-ai.phase2.stream1.task1` Align the shared Result: Completed in commit `Align session panels with reference grey backdrop and 1px chrome`.
+   `.session-panel` surface (all four session panels) with the reference: grey
+   `rgba(40,41,42,1)` background, clean `1px solid rgba(67,68,70,1)` border, and
+   remove the `box-shadow` (inset ring + drop shadow) so the chrome reads as a
+   single 1px outline
+   (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`,
+   plus `module.md`; expected commit: `Align session panels with reference grey backdrop and 1px chrome`).
+2. [DONE] Git Commit: `Align session panels with reference grey backdrop and 1px chrome` (hash: self)
+
+## Phase 3 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Run required gates/build and record
+3. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Run required gates/build and record
    evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
-   commit: `Record dialog bubble visual port verification`).
-4. [TODO] Git Commit: `Record dialog bubble visual port verification` (hash: TBD)
+   commit: `Record dialog visual port verification`).
+4. [TODO] Git Commit: `Record dialog visual port verification` (hash: TBD)
 
-## Phase 3 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 4 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-5. [TODO] `harness-ai.phase3.stream1.task1` User retests the dialog bubble
-   visuals in the packaged app (scope: user workflow; expected commit: none).
+5. [TODO] `harness-ai.phase4.stream1.task1` User retests the dialog visuals in
+   the packaged app (scope: user workflow; expected commit: none).

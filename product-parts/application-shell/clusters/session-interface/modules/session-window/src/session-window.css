@@ -869,12 +869,11 @@ strong {
 }
 
 .session-panel {
-  background: var(--pm-bg-panel, #101823);
-  border: 1px solid var(--pm-border-color, #26303b);
+  /* Reference panel chrome: grey backdrop + a single clean 1px outline, no
+     shadow. The previous inset ring read as a double border. */
+  background: rgba(40, 41, 42, 1);
+  border: 1px solid rgba(67, 68, 70, 1);
   border-radius: 6px;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 18px 34px rgba(0, 0, 0, 0.35);
 }
 
 .session-id-bar {

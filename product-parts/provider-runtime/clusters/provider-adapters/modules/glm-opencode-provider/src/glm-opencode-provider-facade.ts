@@ -1,5 +1,10 @@
 import path from "node:path";
+import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { GlmOpenCodeProviderAdapter } from "./reference/index.js";
+import {
+  buildGlmOpenCodeRuntimeProfile,
+  ensureGlmOpenCodeRuntimeProfile,
+} from "./reference/provider/glm-opencode-runtime-profile.js";
 
 export class GlmOpenCodeProviderFacade extends GlmOpenCodeProviderAdapter {
   constructor(
@@ -24,6 +29,19 @@ export class GlmOpenCodeProviderFacade extends GlmOpenCodeProviderAdapter {
         workspacePath,
       },
     });
+  }
+
+  ensureWorkspaceHome(workspacePath: string): void {
+    ensureGlmOpenCodeRuntimeProfile(
+      buildGlmOpenCodeRuntimeProfile({
+        providerHomePath: providerHomeManagerFacade.resolveProviderHome({
+          providerId: "glm-opencode",
+          workspacePath,
+        }),
+        settingsPath: workspaceSettingsPath(workspacePath),
+        workspacePath,
+      })
+    );
   }
 }
 

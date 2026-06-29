@@ -30,6 +30,9 @@ liveness preflight without treating that global home as a workspace root.
 - Provider usage/context telemetry.
 - OpenCode assistant/thinking stream events normalized by the reference output
   normalizer.
+- `ensureWorkspaceHome(workspacePath)` materializes the isolated OpenCode
+  runtime home/config/data directories and auth file for the workspace without
+  starting OpenCode.
 
 ## Owned Paths
 

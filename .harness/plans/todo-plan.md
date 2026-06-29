@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream2.task5",
-  "expectedCommitMessage": "feat: glm-opencode ensure-workspace-home",
+  "currentTaskId": "harness-ai.phase3.stream3.task1",
+  "expectedCommitMessage": "feat: provider workspace provisioner",
   "debt": null
 }
 ```
@@ -101,12 +101,12 @@
 17. [DONE] `harness-ai.phase3.stream2.task4` Implement Kimi `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (product-part: provider-runtime / cluster: provider-adapters / module: kimi-provider; scope: kimi adapter + test + `kimi-provider/module.md`; expected commit: `feat: kimi ensure-workspace-home`). Result: Completed in commit `feat: kimi ensure-workspace-home`.
 18. [DONE] Git Commit: `feat: kimi ensure-workspace-home` (hash: self)
 
-19. [IN_PROGRESS] `harness-ai.phase3.stream2.task5` Implement glm-opencode `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (product-part: provider-runtime / cluster: provider-adapters / module: glm-opencode-provider; scope: glm-opencode adapter + test + `glm-opencode-provider/module.md`; expected commit: `feat: glm-opencode ensure-workspace-home`).
-20. [TODO] Git Commit: `feat: glm-opencode ensure-workspace-home` (hash: TBD)
+19. [DONE] `harness-ai.phase3.stream2.task5` Implement glm-opencode `ensureWorkspaceHome` (mkdir home + light auth carry-over) with an idempotency point test; update the module.md (product-part: provider-runtime / cluster: provider-adapters / module: glm-opencode-provider; scope: glm-opencode adapter + test + `glm-opencode-provider/module.md`; expected commit: `feat: glm-opencode ensure-workspace-home`). Result: Completed in commit `feat: glm-opencode ensure-workspace-home`.
+20. [DONE] Git Commit: `feat: glm-opencode ensure-workspace-home` (hash: self)
 
 ### Stream: Provisioner module
 
-21. [TODO] `harness-ai.phase3.stream3.task1` Add the workspace provisioner: for the selected workspace, mark each provider provisioning 'preparing' in the registry, call `adapter.ensureWorkspaceHome(workspacePath)` via the contract, then mark 'ready'/'failed'; background, no CLI (product-part: provider-runtime / cluster: provider-readiness / module: provider-workspace-provisioner; scope: `product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/module.md, product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.ts, product-parts/provider-runtime/clusters/provider-readiness/cluster.md` plus product-tree docs; expected commit: `feat: provider workspace provisioner`).
+21. [IN_PROGRESS] `harness-ai.phase3.stream3.task1` Add the workspace provisioner: for the selected workspace, mark each provider provisioning 'preparing' in the registry, call `adapter.ensureWorkspaceHome(workspacePath)` via the contract, then mark 'ready'/'failed'; background, no CLI (product-part: provider-runtime / cluster: provider-readiness / module: provider-workspace-provisioner; scope: `product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/module.md, product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.ts, product-parts/provider-runtime/clusters/provider-readiness/cluster.md` plus product-tree docs; expected commit: `feat: provider workspace provisioner`).
 22. [TODO] Git Commit: `feat: provider workspace provisioner` (hash: TBD)
 
 ## Phase 4 - Readiness In Descriptor (owner: Codex, updated: 2026-06-29)

@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase16.stream1.task1",
+  "currentTaskId": "harness-ai.phase17.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -240,18 +240,32 @@
     plus module docs; expected commit: `Refresh provider list when the new-session picker opens`).
 26. [DONE] Git Commit: `Refresh provider list when the new-session picker opens` (hash: self)
 
-## Phase 16 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 16 - Restart Core Full Reset (owner: Codex, updated: 2026-06-29)
+
+### Stream: Full Reset
+
+27. [DONE] `harness-ai.phase16.stream1.task1` Make Restart Core a full Result: Completed in commit `Reload renderer after Restart Core for a full memory reset`.
+    reset: the Core process is already killed and respawned (SIGTERM→SIGKILL by
+    pid, then fresh spawn), but the renderer kept all its in-memory state. After
+    a successful restart, reload the renderer (`window.location.reload`) so every
+    UI cache (providers, sessions, messages, telemetry) is cleared and
+    re-hydrated from the fresh Core — no need to quit the app or reboot
+    (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`,
+    plus module docs; expected commit: `Reload renderer after Restart Core for a full memory reset`).
+28. [DONE] Git Commit: `Reload renderer after Restart Core for a full memory reset` (hash: self)
+
+## Phase 17 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-27. [IN_PROGRESS] `harness-ai.phase16.stream1.task1` Run required gates/build and record
+29. [IN_PROGRESS] `harness-ai.phase17.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-28. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+30. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 17 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 18 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-29. [TODO] `harness-ai.phase17.stream1.task1` User retests input visuals + Stop in
+31. [TODO] `harness-ai.phase18.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

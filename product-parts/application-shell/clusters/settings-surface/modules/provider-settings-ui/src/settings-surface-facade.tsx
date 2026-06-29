@@ -172,12 +172,14 @@ export function ProviderSettingsUiFacade({
     }
     const result = await window.harnessCore.restartCore();
     if (result.ok) {
-      setSettings(result.settings);
-      setCoreRestartStatus("Core restart completed.");
-      setStatus("Core adapters refreshed.");
-    } else {
-      setCoreRestartStatus(result.error);
+      setCoreRestartStatus("Core restart completed. Reloading...");
+      // Full reset: the Core process was killed and respawned; reload the
+      // renderer so every in-memory UI cache (providers, sessions, messages,
+      // telemetry) is cleared and re-hydrated from the fresh Core.
+      window.location.reload();
+      return;
     }
+    setCoreRestartStatus(result.error);
     setCoreRestartBusy(false);
   };
 

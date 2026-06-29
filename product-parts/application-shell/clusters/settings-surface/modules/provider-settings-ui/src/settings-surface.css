@@ -1,4 +1,16 @@
 .settings-backdrop {
+  --ss-bg: #141516;
+  --ss-block: #1c1d1e;
+  --ss-block-border: #2f3134;
+  --ss-card: #232527;
+  --ss-card-border: #3b3f42;
+  --ss-sel: #20302a;
+  --ss-sel-border: #356a59;
+  --ss-field: #2c2f31;
+  --ss-field-border: #43474b;
+  --ss-field-sel: #284038;
+  --ss-field-sel-border: #3c7a66;
+
   position: fixed;
   inset: 0;
   z-index: 30;
@@ -41,8 +53,8 @@
   height: calc(100vh - 24px);
   overflow: hidden;
   color: var(--pm-text-primary, #e7eaee);
-  background: var(--pm-bg-surface, #0f141b);
-  border: 1px solid var(--pm-border-color, #26303b);
+  background: var(--ss-bg);
+  border: 1px solid var(--ss-block-border);
 }
 
 .settings-header {
@@ -84,8 +96,8 @@
   align-items: stretch;
   padding: 0 20px;
   overflow-x: auto;
-  background: var(--pm-bg-surface, #0f141b);
-  border-bottom: 1px solid var(--pm-border-color, #26303b);
+  background: var(--ss-bg);
+  border-bottom: 1px solid var(--ss-block-border);
 }
 
 .settings-tab {
@@ -118,8 +130,8 @@
 
 .settings-tab.active {
   color: var(--pm-text-primary, #e7eaee);
-  background: rgba(66, 201, 162, 0.12);
-  border-color: var(--pm-accent, #42c9a2);
+  background: var(--ss-sel);
+  border-color: var(--ss-sel-border);
 }
 
 .settings-tab:focus-visible {
@@ -152,9 +164,9 @@
   flex-direction: column;
   gap: 10px;
   padding: 16px;
-  background: var(--pm-bg-panel, #101823);
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 6px;
+  background: var(--ss-block);
+  border: 1px solid var(--ss-block-border);
+  border-radius: 12px;
 }
 
 .settings-card-header {
@@ -204,10 +216,10 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 10px 12px;
-  background: var(--pm-bg-panel, #101823);
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 6px;
+  padding: 10px 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
 .settings-toggle-row {
@@ -246,8 +258,9 @@
   font-size: 12px;
   font-weight: 300;
   color: var(--pm-text-primary, #e7eaee);
-  background: var(--pm-bg-panel, #101823);
-  border-radius: 6px;
+  background: var(--ss-card);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 8px;
 }
 
 .settings-field {
@@ -271,9 +284,9 @@
   padding: 8px 10px;
   font-size: 12px;
   color: var(--pm-text-primary, #e7eaee);
-  background: var(--pm-bg-surface, #0f141b);
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 6px;
+  background: var(--ss-field);
+  border: 1px solid var(--ss-field-border);
+  border-radius: 7px;
 }
 
 .settings-field textarea {
@@ -305,12 +318,12 @@
     radial-gradient(
       circle at 21px 50%,
       transparent 0 6px,
-      #5a5a5a 7px 9px,
+      #5c6063 7px 9px,
       transparent 10px
     ),
-    var(--pm-bg-panel, #101823);
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 6px;
+    var(--ss-card);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 10px;
 }
 
 .settings-model-row.active,
@@ -322,8 +335,8 @@
       var(--pm-accent, #42c9a2) 4px 9px,
       transparent 10px
     ),
-    rgba(66, 201, 162, 0.12);
-  border-color: var(--pm-accent, #42c9a2);
+    var(--ss-sel);
+  border-color: var(--ss-sel-border);
 }
 
 .settings-model-row--with-control {
@@ -356,7 +369,7 @@
 
 .settings-option-row {
   padding-left: 12px;
-  background: var(--pm-bg-panel, #101823);
+  background: var(--ss-card);
 }
 
 .settings-reasoning-select {
@@ -376,9 +389,20 @@
     6px no-repeat,
     linear-gradient(135deg, #c7d0d8 50%, transparent 50%) right 8px center / 6px
     6px no-repeat,
-    #0e1521;
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 6px;
+    var(--ss-field);
+  border: 1px solid var(--ss-field-border);
+  border-radius: 7px;
+}
+
+.settings-model-row.active .settings-reasoning-trigger,
+.settings-option-row.active .settings-reasoning-trigger {
+  background:
+    linear-gradient(45deg, transparent 50%, #c7d0d8 50%) right 13px center / 6px
+    6px no-repeat,
+    linear-gradient(135deg, #c7d0d8 50%, transparent 50%) right 8px center / 6px
+    6px no-repeat,
+    var(--ss-field-sel);
+  border-color: var(--ss-field-sel-border);
 }
 
 .settings-reasoning-trigger:disabled {
@@ -403,9 +427,9 @@
   );
   font-size: 12px;
   font-weight: 300;
-  background: #161b21;
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 6px;
+  background: var(--ss-card);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 8px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5);
 }
 
@@ -446,7 +470,7 @@
 }
 
 .settings-option-row.active {
-  background: rgba(66, 201, 162, 0.12);
+  background: var(--ss-sel);
 }
 
 .settings-model-title,
@@ -561,9 +585,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background: var(--pm-bg-panel, #101823);
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 6px;
+  background: var(--ss-card);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 10px;
 }
 
 .settings-version-row-label {
@@ -591,8 +615,8 @@
   padding: 4px 8px;
   font-size: 11px;
   color: #d0d0d0;
-  background: var(--pm-bg-panel, #101823);
-  border: 1px solid var(--pm-border-color, #26303b);
+  background: var(--ss-card);
+  border: 1px solid var(--ss-card-border);
   border-radius: 999px;
 }
 
@@ -672,8 +696,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: var(--pm-bg-surface, #0f141b);
-  border-top: 1px solid var(--pm-border-color, #26303b);
+  background: var(--ss-bg);
+  border-top: 1px solid var(--ss-block-border);
 }
 
 .settings-actions {

@@ -27,6 +27,13 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - The Claude card reads `CLAUDE_REASONING_EFFORTS_BY_MODEL` from Core `settings-normalization` (a persistence-free module, so the renderer bundle stays clean of `node:fs`) to pass each alias its supported levels (Opus gets ultracode, Sonnet drops xhigh) and renders "Not adjustable" instead of a selector for Haiku.
 - The Codex card reads `CODEX_REASONING_EFFORTS_BY_MODEL` and `resolveCodexReasoningEffort` from the same Core module. Codex selectors show only the levels declared for that Codex model and use Core defaults. Summary support is separate from effort selection; Spark still exposes effort levels but the provider disables per-turn summaries for it.
 
+## Settings Surface Styling
+
+- `settings-surface.css` defines scoped `--ss-*` design tokens on `.settings-backdrop`; the global `--pm-*` tokens in `session-window.css` are left unchanged, so this restyle is contained to the settings dialog and shared by every provider tab through the common classes.
+- Neutral graphite palette with three elevation levels: dialog/content (`--ss-bg`) is the darkest surface, the section block `.settings-card` (`--ss-block`) sits one step lighter, and the model/version cards `.settings-model-row` / `.settings-version-row` (`--ss-card`) are lighter still. Card borders (`--ss-card-border`) are value-matched to the field borders so they read with the same weight on their respective surfaces.
+- Selection is teal by tone, not by brightness: the selected model (`.settings-model-row.active` / `.settings-option-row.active`) and the active provider tab (`.settings-tab.active`) use a muted teal fill (`--ss-sel`) at the same lightness as the neutral cards plus a thin muted teal border (`--ss-sel-border`); the bright accent dot stays as the radio indicator.
+- Reasoning fields (`.settings-reasoning-trigger`) and text fields are in-tone with their row — one step lighter than the card (`--ss-field`) — and switch to a teal-tinted fill (`--ss-field-sel`) on the active model, instead of the previous near-black field. Toggle rows are borderless rows inside the block rather than separate framed boxes.
+
 ## Owned Paths
 
 - `module.md`

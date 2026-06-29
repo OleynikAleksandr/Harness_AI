@@ -27,6 +27,9 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Provider home storage is Harness-owned: workspace sessions use `<workspace>/.harness/runtime/providers/claude/home`, and non-workspace fallbacks use `~/.harness-ai/providers/claude/home`.
 - The facade accepts an explicit `providerHomePath` for Core-owned global-home
   liveness preflight without treating that global home as a workspace root.
+- `ensureWorkspaceHome(workspacePath)` creates the workspace Claude provider
+  home and carries over Keychains/`.claude.json` auth files without starting
+  the Claude CLI or Agent SDK.
 - `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the Claude CLI session transcript (`home/.claude/projects/**/<providerSessionId>.jsonl`) for a removed session, leaving shared `.claude.json`, caches and mcp-logs intact.
 - Packaged macOS app setup resolves `npm` through GUI-safe PATH augmentation before installing/checking the Claude Agent SDK, then resolves the Claude executable from the SDK platform optional dependency layout.
 

@@ -1,6 +1,8 @@
 import { homedir } from "node:os";
 import path from "node:path";
+import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { readClaudeUsageLimitsPayload } from "./claude-usage-limits-reader.js";
+import { ensureClaudeProviderHomeAuthFiles } from "./reference/auth/claude-auth-home-bridge.js";
 import {
   ClaudeProviderAdapter,
   type ClaudeUsageLimitsStreamPayload,
@@ -68,6 +70,15 @@ export class ClaudeProviderFacade extends ClaudeProviderAdapter {
         workspacePath,
       },
     });
+  }
+
+  async ensureWorkspaceHome(workspacePath: string): Promise<void> {
+    await ensureClaudeProviderHomeAuthFiles(
+      providerHomeManagerFacade.resolveProviderHome({
+        providerId: "claude",
+        workspacePath,
+      })
+    );
   }
 }
 

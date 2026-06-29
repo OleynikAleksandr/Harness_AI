@@ -36,12 +36,13 @@ export class ClaudeAuthHomeBridge {
     this.reporter = options?.reporter;
   }
 
-  async ensureMacOSProviderHomeKeychainBridgeIfNeeded(): Promise<void> {
+  async ensureMacOSProviderHomeKeychainBridgeIfNeeded(
+    providerHome = resolveClaudeProviderHome()
+  ): Promise<void> {
     if (!isMacOS) {
       return;
     }
 
-    const providerHome = resolveClaudeProviderHome();
     const realHome = homedir();
     if (path.resolve(providerHome) === path.resolve(realHome)) {
       return;
@@ -99,12 +100,11 @@ export class ClaudeAuthHomeBridge {
     }
   }
 
-  async linkLegacyCliStateIfNeeded(): Promise<void> {
+  async linkLegacyCliStateIfNeeded(
+    providerHome = resolveClaudeProviderHome()
+  ): Promise<void> {
     const source = path.join(homedir(), CLAUDE_STATE_FILENAME);
-    const destination = path.join(
-      resolveClaudeProviderHome(),
-      CLAUDE_STATE_FILENAME
-    );
+    const destination = path.join(providerHome, CLAUDE_STATE_FILENAME);
 
     try {
       await access(source);
@@ -113,7 +113,7 @@ export class ClaudeAuthHomeBridge {
     }
 
     try {
-      await mkdir(resolveClaudeProviderHome(), { recursive: true });
+      await mkdir(providerHome, { recursive: true });
       await this.ensureLinkedOrCopiedFile(source, destination);
     } catch {
       // ignore linking errors; auth check below will surface failures
@@ -185,4 +185,13 @@ export class ClaudeAuthHomeBridge {
       return null;
     }
   }
+}
+
+export async function ensureClaudeProviderHomeAuthFiles(
+  providerHome: string
+): Promise<void> {
+  await mkdir(providerHome, { recursive: true });
+  const bridge = new ClaudeAuthHomeBridge();
+  await bridge.ensureMacOSProviderHomeKeychainBridgeIfNeeded(providerHome);
+  await bridge.linkLegacyCliStateIfNeeded(providerHome);
 }

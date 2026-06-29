@@ -264,7 +264,7 @@
         {
           "id": "provider-registry",
           "name": "Provider Registry",
-          "purpose": "Provider catalog, invocation profile descriptors, model descriptors, status, startup, and recovery reporting.",
+          "purpose": "Provider catalog, invocation profile descriptors, model descriptors, and availability.",
           "modules": [
             {
               "id": "provider-registry",
@@ -275,11 +275,18 @@
               "id": "provider-descriptor",
               "name": "Provider Descriptor",
               "purpose": "Model/reasoning capabilities and UI metadata."
-            },
+            }
+          ]
+        },
+        {
+          "id": "provider-readiness",
+          "name": "Provider Readiness",
+          "purpose": "Provider liveness, workspace provisioning readiness, and recovery status combination.",
+          "modules": [
             {
-              "id": "provider-health",
-              "name": "Provider Health",
-              "purpose": "Status, startup, and recovery reporting."
+              "id": "provider-readiness-registry",
+              "name": "Provider Readiness Registry",
+              "purpose": "Raw provider liveness and workspace provisioning state, readiness combination, and raw readiness change notifications."
             }
           ]
         },

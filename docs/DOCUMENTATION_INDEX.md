@@ -58,6 +58,9 @@ surface, process boundary, provider semantics, UI display contract or runtime
 state changes, update every affected product-part/cluster/module document in
 the same commit.
 
+Provider readiness docs are part of this product documentation tree under
+`product-parts/provider-runtime/clusters/provider-readiness/**`.
+
 ## Evidence
 
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,

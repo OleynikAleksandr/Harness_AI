@@ -88,7 +88,10 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 
 - `provider-registry`: provider catalog, availability, invocation profile descriptors, and Core-owned adapter registration.
 - `provider-descriptor`: model/reasoning capabilities and UI metadata.
-- `provider-health`: status, startup, and recovery reporting.
+
+### Provider Readiness
+
+- `provider-readiness-registry`: raw provider liveness and workspace provisioning state, readiness combination, and raw readiness change notifications.
 
 ### Provider Adapters
 

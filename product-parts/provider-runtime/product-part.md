@@ -8,13 +8,14 @@ provider-backed translation engines composed by Core Runtime only.
 ## Owned Clusters
 
 - `provider-registry`
+- `provider-readiness`
 - `provider-adapters`
 - `provider-home-and-auth`
 - `provider-events-and-translation`
 
 ## Responsibilities
 
-- Own provider catalog, descriptors, invocation profile metadata, health, and adapters.
+- Own provider catalog, descriptors, invocation profile metadata, readiness, and adapters.
 - Keep provider homes, caches, auth references, and runtime files isolated.
 - Own provider-specific runtime prompts or native project-instruction startup before requests reach external SDKs or CLIs.
 - Normalize provider events for Core Runtime.

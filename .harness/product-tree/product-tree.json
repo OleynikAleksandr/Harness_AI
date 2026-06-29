@@ -287,6 +287,11 @@
               "id": "provider-readiness-registry",
               "name": "Provider Readiness Registry",
               "purpose": "Raw provider liveness and workspace provisioning state, readiness combination, and raw readiness change notifications."
+            },
+            {
+              "id": "provider-liveness-checker",
+              "name": "Provider Liveness Checker",
+              "purpose": "Provider liveness preflight helpers and env-isolated global-home adapter initialization."
             }
           ]
         },

@@ -4,20 +4,23 @@ import { CodexProviderAdapter } from "./reference/index.js";
 
 interface CodexProviderOptions {
   defaultModel?: string;
+  providerHomePath?: string;
   workspacePath?: string;
 }
 
 export class CodexProviderFacade extends CodexProviderAdapter {
   constructor(options: CodexProviderOptions = {}) {
     const workspacePath = options.workspacePath ?? process.cwd();
-    const providerHome = path.join(
-      workspacePath,
-      ".harness",
-      "runtime",
-      "providers",
-      "codex",
-      "home"
-    );
+    const providerHome =
+      options.providerHomePath ??
+      path.join(
+        workspacePath,
+        ".harness",
+        "runtime",
+        "providers",
+        "codex",
+        "home"
+      );
     process.env.CODEX_HOME = providerHome;
     process.env.CODEX_WORKSPACE_PATH = workspacePath;
     process.env.CODEX_SETTINGS_PATH = workspaceSettingsPath(workspacePath);

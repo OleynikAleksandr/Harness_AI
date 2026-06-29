@@ -8,6 +8,7 @@ Core Runtime orchestration.
 ## Owned Modules
 
 - `provider-readiness-registry`
+- `provider-liveness-checker`
 
 ## Facade Rule
 

@@ -7,15 +7,21 @@ import {
 } from "./reference/index.js";
 
 export class ClaudeProviderFacade extends ClaudeProviderAdapter {
-  constructor(model?: string, workspacePath = process.cwd()) {
-    const providerHome = path.join(
-      workspacePath,
-      ".harness",
-      "runtime",
-      "providers",
-      "claude",
-      "home"
-    );
+  constructor(
+    model?: string,
+    workspacePath = process.cwd(),
+    providerHomePath?: string
+  ) {
+    const providerHome =
+      providerHomePath ??
+      path.join(
+        workspacePath,
+        ".harness",
+        "runtime",
+        "providers",
+        "claude",
+        "home"
+      );
     process.env.CLAUDE_WORKSPACE_PATH = workspacePath;
     process.env.HARNESS_CLAUDE_HOME = providerHome;
     process.env.CODEAI_CLAUDE_HOME = providerHome;

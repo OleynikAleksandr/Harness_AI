@@ -59,7 +59,8 @@ state changes, update every affected product-part/cluster/module document in
 the same commit.
 
 Provider readiness docs are part of this product documentation tree under
-`product-parts/provider-runtime/clusters/provider-readiness/**`.
+`product-parts/provider-runtime/clusters/provider-readiness/**`, including the
+readiness registry and liveness checker modules.
 
 ## Evidence
 

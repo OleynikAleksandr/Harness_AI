@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task1",
-  "expectedCommitMessage": "chore: repackage with claude promoted session id fix",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -133,11 +133,11 @@ the initial id, so the suffix match missed. Persist the promoted id too.
 
 ### Stream: Build And Evidence
 
-21. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Run required gates, rebuild and repackage the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and update evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: repackage with claude promoted session id fix`).
-22. [TODO] Git Commit: `chore: repackage with claude promoted session id fix` (hash: TBD)
+21. [DONE] `harness-ai.phase9.stream1.task1` Run required gates, rebuild and repackage the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and update evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: repackage with claude promoted session id fix`). Result: Completed in commit `chore: repackage with claude promoted session id fix`.
+22. [DONE] Git Commit: `chore: repackage with claude promoted session id fix` (hash: self)
 
 ## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-23. [TODO] `harness-ai.phase7.stream1.task1` User retests in the packaged app: delete sessions for Codex, Claude, GLM-native and Kimi and confirm each provider's native per-session artifact is gone with the shared home intact; confirm Restart Core spacing/spinner and a true process restart (scope: user workflow; expected commit: none).
+23. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` User retests in the packaged app: delete sessions for Codex, Claude, GLM-native and Kimi and confirm each provider's native per-session artifact is gone with the shared home intact; confirm Restart Core spacing/spinner and a true process restart (scope: user workflow; expected commit: none).

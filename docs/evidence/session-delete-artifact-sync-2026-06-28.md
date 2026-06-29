@@ -90,3 +90,24 @@ idempotent, missing dir tolerated).
 - `npm test` - OK (36)
 - `npm run check:dup` / `check:security` / `check:links` - OK
 - `npm run build` + `npm run package:mac` - OK; `Harness AI.app` repackaged (unsigned)
+
+## Follow-up 2 (2026-06-29): Claude promoted session id
+
+A further retest showed Claude still orphaned its transcript. Root cause: Claude
+promotes its provider session id (`realSessionId`) after the first turn, and the
+transcript file is named by the promoted id, but `CoreSession.providerSessionId`
+only kept the initial id, so the suffix match missed.
+
+Fix: provider-session-id persistence was centralized in `publishBinding`, which
+runs for both the initial binding and the promotion path, so the persisted id
+now always equals the id the provider uses in the filename. To stay under the
+500-line file limit, the three duplicated telemetry-update methods were
+generalized into one `updateTelemetry(sessionId, apply)`; the static facade test
+was updated accordingly.
+
+### Checks (follow-up 2)
+
+- `npm run lint` / `typecheck` / `check:architecture` - OK
+- `npm test` - OK (36)
+- `npm run check:dup` / `check:security` / `check:links` - OK
+- `npm run build` + `npm run package:mac` - OK; `Harness AI.app` repackaged (unsigned)

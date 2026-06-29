@@ -31,6 +31,10 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
 - Optional `ensureWorkspaceHome(workspacePath)` boundary so Core can ask each
   provider to prepare workspace home/auth without starting the provider CLI/SDK;
   providers without workspace home work leave it unimplemented.
+- Optional `interruptTurn(sessionId)` boundary so Core can ask the adapter to stop
+  the in-flight turn's underlying process/transport. Core already cancels the turn
+  at the session level (unlocks input, drops late output); adapters without a
+  cheap interrupt leave it unimplemented.
 
 ## Owned Paths
 

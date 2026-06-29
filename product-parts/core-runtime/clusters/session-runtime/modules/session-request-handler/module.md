@@ -30,6 +30,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Session mode metadata is stored on the Core session. The only active runtime behavior in this scope is `Native · Raw`; managed/normalized selections may be visualized by clients but are not applied to provider dispatch until a later Core contract enables them.
 - The provider session id is persisted on the Core session record (`providerSessionId`) whenever a binding is published (`publishBinding`), covering both the initial bind and later promotions (e.g. Claude `realSessionId`). This keeps the persisted id equal to the id the provider uses in its artifact filename, so a removed session can locate and delete its provider-owned artifacts without parsing the event log, even after a core restart.
 - Deleting a Core session calls the provider adapter's optional `deleteSessionArtifacts(providerSessionId, workspacePath)` hook after closing the live binding, using the live provider session id or the persisted `providerSessionId` fallback.
+- `stopTurn(sessionId)` cancels the in-flight turn at the session level: it flips turn-state to idle so the input unlocks immediately, marks the turn cancelled so the late streamed provider output is dropped until the next user message (the flag clears on the turn's terminal event), and calls the optional adapter `interruptTurn(providerSessionId)` hook when implemented. The next `sendMessage` clears the cancelled flag.
 
 ## Owned Paths
 

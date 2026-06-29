@@ -137,6 +137,8 @@ export class CoreRuntimeApi {
         return this.restartAdapters();
       case "send-message":
         return sessionRequestHandlerFacade.sendMessage(payload as never);
+      case "stop-turn":
+        return sessionRequestHandlerFacade.stopTurn(readString(payload));
       default:
         return { error: `Unknown Core method: ${method}`, ok: false };
     }

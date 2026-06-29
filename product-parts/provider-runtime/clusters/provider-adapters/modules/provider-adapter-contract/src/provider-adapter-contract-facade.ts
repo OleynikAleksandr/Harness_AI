@@ -21,6 +21,10 @@ export interface ProviderAdapter {
   // Prepare provider-owned workspace home/auth without starting provider CLI/SDK.
   ensureWorkspaceHome?(workspacePath: string): Promise<void> | void;
   initialize?(): Promise<void>;
+  // Interrupt the in-flight turn for a provider session. Optional: Core already
+  // cancels the turn at the session level (unlocks input, drops late output);
+  // an adapter implements this to also stop the underlying process/transport.
+  interruptTurn?(sessionId: string): Promise<void> | void;
   refreshUsageLimits?(
     request: ProviderUsageLimitsRefreshRequest
   ): Promise<void> | void;

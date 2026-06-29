@@ -18,7 +18,7 @@ import {
   readWorkspaceSessionIndex,
   writeWorkspaceSessionIndex,
 } from "./session-history-store.js";
-import { resolveLiveAssistantTail } from "./session-live-tail-dedupe.js";
+import { resolveDisplayMessage } from "./session-live-tail-dedupe.js";
 import {
   ADAPTER_NOT_REGISTERED,
   createId,
@@ -39,6 +39,7 @@ import type {
   SessionEventStreamLike,
   SessionRequestHandlerDependencies,
 } from "./session-request-handler-types.js";
+import { SessionTurnCancellation } from "./session-turn-cancellation.js";
 
 export type { CoreSession } from "./session-request-handler-types.js";
 export class SessionRequestHandlerFacade {
@@ -52,6 +53,14 @@ export class SessionRequestHandlerFacade {
     string,
     ProviderUsageTelemetry
   >();
+  private readonly cancellation = new SessionTurnCancellation({
+    getBinding: (sessionId) => this.runtimeBindings.get(sessionId),
+    getSession: (sessionId) => this.sessions.get(sessionId),
+    publishIdle: (sessionId) => this.publishTurnState(sessionId, "idle"),
+    refreshUsageLimits: (sessionId) => {
+      this.refreshUsageLimits(sessionId).catch(() => undefined);
+    },
+  });
   constructor(deps: SessionRequestHandlerDependencies = {}) {
     this.bindingFacade = deps.bindingFacade ?? providerSessionBindingFacade;
     this.eventStream = deps.eventStream ?? sessionEventStreamFacade;
@@ -111,6 +120,7 @@ export class SessionRequestHandlerFacade {
     }
 
     const now = new Date().toISOString();
+    this.cancellation.clear(session.id);
     const updatedSession = { ...session, updatedAt: now };
     this.sessions.set(session.id, updatedSession);
     this.persistSessionIndex(updatedSession.workspacePath);
@@ -139,6 +149,9 @@ export class SessionRequestHandlerFacade {
       }
     );
     return { ok: true, session: updatedSession };
+  }
+  stopTurn(sessionId: string): CoreSessionActionResult {
+    return this.cancellation.stop(sessionId);
   }
   deleteSession(sessionId: string): DeleteSessionResult {
     const session = this.sessions.get(sessionId);
@@ -217,7 +230,10 @@ export class SessionRequestHandlerFacade {
     }
   }
   private publishMessage(message: CoreSessionMessage): void {
-    const displayMessage = this.resolveDisplayMessage(message);
+    const displayMessage = resolveDisplayMessage(
+      this.messagesBySession.get(message.sessionId) ?? [],
+      message
+    );
     if (!displayMessage) {
       return;
     }
@@ -227,26 +243,6 @@ export class SessionRequestHandlerFacade {
       timestamp: displayMessage.timestamp,
       type: "session:message",
     });
-  }
-
-  private resolveDisplayMessage(
-    message: CoreSessionMessage
-  ): CoreSessionMessage | null {
-    if (message.role !== "assistant" || message.tag === "live") {
-      return message;
-    }
-    const deduped = resolveLiveAssistantTail(
-      this.messagesBySession.get(message.sessionId) ?? [],
-      message.text
-    );
-    if (!deduped) {
-      return null;
-    }
-    return {
-      ...message,
-      text: deduped.text,
-      ...(deduped.tag ? { tag: deduped.tag } : {}),
-    };
   }
 
   private rememberMessage(message: CoreSessionMessage): void {
@@ -444,6 +440,9 @@ export class SessionRequestHandlerFacade {
           )
         );
       }
+      return;
+    }
+    if (this.cancellation.consume(sessionId, event.type)) {
       return;
     }
     const displayMessages =

@@ -1,5 +1,26 @@
 import type { CoreSessionMessage } from "../../session-event-stream/src/session-event-stream-facade.js";
 
+// Project an incoming provider message for display: pass non-assistant/live
+// messages through, otherwise reduce a final assistant message to its unseen
+// live tail (or drop it when fully covered by already-streamed live chunks).
+export function resolveDisplayMessage(
+  existingMessages: readonly CoreSessionMessage[],
+  message: CoreSessionMessage
+): CoreSessionMessage | null {
+  if (message.role !== "assistant" || message.tag === "live") {
+    return message;
+  }
+  const deduped = resolveLiveAssistantTail(existingMessages, message.text);
+  if (!deduped) {
+    return null;
+  }
+  return {
+    ...message,
+    text: deduped.text,
+    ...(deduped.tag ? { tag: deduped.tag } : {}),
+  };
+}
+
 export function resolveLiveAssistantTail(
   messages: readonly CoreSessionMessage[],
   finalText: string

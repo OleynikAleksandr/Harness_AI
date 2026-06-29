@@ -74,7 +74,7 @@ assert.equal(glmNative.limitRows[0].text, "5h unavailable");
 
 const glmOpenCode = usageContextTelemetryFacade.createTelemetry({
   model: "glm-5.2",
-  provider: "GLM OpenCode",
+  provider: "OpenCode",
   providerId: "glm-opencode",
 });
 assert.equal(glmOpenCode.providerScopeKey, "glm-opencode:global");

@@ -64,7 +64,7 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
   },
   {
     id: "glm-opencode",
-    name: "GLM OpenCode",
+    name: "OpenCode",
     moduleId: "glm-opencode-provider",
     status: "needs-settings",
   },

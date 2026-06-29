@@ -16,7 +16,9 @@ Own provider catalog, availability, and provider invocation profile descriptors.
 
 ## Outputs
 
-- Provider catalog snapshot.
+- Provider catalog snapshot. The `glm-opencode` provider keeps its id but its
+  display `name` is "OpenCode" (the runner can host different models), and that
+  name is what the new-session card and dialog role label show.
 - Enabled/disabled provider state.
 - Provider readiness status/message for the Core-selected readiness workspace,
   using the provider-readiness registry combine function.

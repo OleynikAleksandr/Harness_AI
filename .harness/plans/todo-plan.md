@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream1.task1",
+  "currentTaskId": "harness-ai.phase15.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -213,18 +213,32 @@
     plus module docs; expected commit: `Move Core Controls to the top of General settings`).
 22. [DONE] Git Commit: `Move Core Controls to the top of General settings` (hash: self)
 
-## Phase 14 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 14 - Rename GLM OpenCode to OpenCode (owner: Codex, updated: 2026-06-29)
+
+### Stream: Provider Rename
+
+23. [DONE] `harness-ai.phase14.stream1.task1` Rename the provider display Result: Completed in commit `Rename GLM OpenCode provider display name to OpenCode`.
+    name "GLM OpenCode" to "OpenCode" (the runner can host different models). Keep
+    the `glm-opencode` id. The registry `name` feeds the new-session card and the
+    dialog role label; settings already say "OpenCode". Also update the telemetry
+    test data
+    (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.ts`,
+    `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.test.mjs`,
+    plus module docs; expected commit: `Rename GLM OpenCode provider display name to OpenCode`).
+24. [DONE] Git Commit: `Rename GLM OpenCode provider display name to OpenCode` (hash: self)
+
+## Phase 15 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-23. [IN_PROGRESS] `harness-ai.phase14.stream1.task1` Run required gates/build and record
+25. [IN_PROGRESS] `harness-ai.phase15.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-24. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+26. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 15 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 16 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-25. [TODO] `harness-ai.phase15.stream1.task1` User retests input visuals + Stop in
+27. [TODO] `harness-ai.phase16.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

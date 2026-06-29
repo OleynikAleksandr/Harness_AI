@@ -60,7 +60,7 @@ the same commit.
 
 Provider readiness docs are part of this product documentation tree under
 `product-parts/provider-runtime/clusters/provider-readiness/**`, including the
-readiness registry and liveness checker modules.
+readiness registry, liveness checker, and workspace provisioner modules.
 
 ## Evidence
 

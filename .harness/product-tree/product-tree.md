@@ -93,6 +93,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 
 - `provider-readiness-registry`: raw provider liveness and workspace provisioning state, readiness combination, and raw readiness change notifications.
 - `provider-liveness-checker`: provider liveness preflight helpers and env-isolated global-home adapter initialization.
+- `provider-workspace-provisioner`: provider-owned workspace home provisioning and raw per-workspace readiness state updates.
 
 ### Provider Adapters
 

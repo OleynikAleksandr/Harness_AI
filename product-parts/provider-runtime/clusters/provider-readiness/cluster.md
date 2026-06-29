@@ -9,9 +9,11 @@ Core Runtime orchestration.
 
 - `provider-readiness-registry`
 - `provider-liveness-checker`
+- `provider-workspace-provisioner`
 
 ## Facade Rule
 
 Core Runtime writes raw provider liveness and workspace provisioning state
-through readiness facades, then computes active-workspace provider status from
-the registry-owned combine function.
+through readiness facades, runs workspace provisioning through provider-owned
+adapter contracts, then computes active-workspace provider status from the
+registry-owned combine function.

@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream3.task1",
-  "expectedCommitMessage": "feat: provider workspace provisioner",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "feat: expose provider readiness in descriptor",
   "debt": null
 }
 ```
@@ -106,14 +106,14 @@
 
 ### Stream: Provisioner module
 
-21. [IN_PROGRESS] `harness-ai.phase3.stream3.task1` Add the workspace provisioner: for the selected workspace, mark each provider provisioning 'preparing' in the registry, call `adapter.ensureWorkspaceHome(workspacePath)` via the contract, then mark 'ready'/'failed'; background, no CLI (product-part: provider-runtime / cluster: provider-readiness / module: provider-workspace-provisioner; scope: `product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/module.md, product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.ts, product-parts/provider-runtime/clusters/provider-readiness/cluster.md` plus product-tree docs; expected commit: `feat: provider workspace provisioner`).
-22. [TODO] Git Commit: `feat: provider workspace provisioner` (hash: TBD)
+21. [DONE] `harness-ai.phase3.stream3.task1` Add the workspace provisioner: for the selected workspace, mark each provider provisioning 'preparing' in the registry, call `adapter.ensureWorkspaceHome(workspacePath)` via the contract, then mark 'ready'/'failed'; background, no CLI (product-part: provider-runtime / cluster: provider-readiness / module: provider-workspace-provisioner; scope: `product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/module.md, product-parts/provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.ts, product-parts/provider-runtime/clusters/provider-readiness/cluster.md` plus product-tree docs; expected commit: `feat: provider workspace provisioner`). Result: Completed in commit `feat: provider workspace provisioner`.
+22. [DONE] Git Commit: `feat: provider workspace provisioner` (hash: self)
 
 ## Phase 4 - Readiness In Descriptor (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Descriptor readiness
 
-23. [TODO] `harness-ai.phase4.stream1.task1` Additively expose readiness on `ProviderDescriptor` (which lives in `provider-registry-facade.ts`): add `readinessStatus` ('ready'|'checking'|'preparing'|'failed') and optional `readinessMessage`; have `enrichDescriptor` call the registry's pure `combine(provider, activeWorkspace)` (active workspace from workspace-registry) — do not re-implement precedence; add a point test confirming the combination (product-part: provider-runtime / cluster: provider-registry / module: provider-registry; scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.ts, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/module.md` plus the combination test; expected commit: `feat: expose provider readiness in descriptor`).
+23. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Additively expose readiness on `ProviderDescriptor` (which lives in `provider-registry-facade.ts`): add `readinessStatus` ('ready'|'checking'|'preparing'|'failed') and optional `readinessMessage`; have `enrichDescriptor` call the registry's pure `combine(provider, activeWorkspace)` (active workspace from workspace-registry) — do not re-implement precedence; add a point test confirming the combination (product-part: provider-runtime / cluster: provider-registry / module: provider-registry; scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.ts, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/module.md` plus the combination test; expected commit: `feat: expose provider readiness in descriptor`).
 24. [TODO] Git Commit: `feat: expose provider readiness in descriptor` (hash: TBD)
 
 ## Phase 5 - Core Orchestration And Event Forwarding (owner: Codex, updated: 2026-06-29)

@@ -292,6 +292,11 @@
               "id": "provider-liveness-checker",
               "name": "Provider Liveness Checker",
               "purpose": "Provider liveness preflight helpers and env-isolated global-home adapter initialization."
+            },
+            {
+              "id": "provider-workspace-provisioner",
+              "name": "Provider Workspace Provisioner",
+              "purpose": "Provider-owned workspace home provisioning and raw per-workspace readiness state updates."
             }
           ]
         },

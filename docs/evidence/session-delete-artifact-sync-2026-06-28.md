@@ -62,3 +62,31 @@ orphaned.
 - `npm run check:links` - OK
 - `npm run build` - OK
 - `npm run package:mac` - OK; `release/mac-arm64/Harness AI.app` rebuilt (unsigned)
+
+## Follow-up (2026-06-29): GLM-native and Claude cleanup
+
+User retest of the packaged app showed Codex and Kimi cleaned up correctly, but
+GLM-native and Claude left their native per-session file orphaned (Core-owned
+index/events were cleaned for all providers). Kimi writes no per-session file,
+so it needed nothing.
+
+- GLM-native: added `glm-native-rollout-cleanup` helper + adapter
+  `deleteSessionArtifacts`, removing `home/sessions/**/<providerSessionId>.jsonl`.
+- Claude: added `claude-transcript-cleanup` helper + adapter
+  `deleteSessionArtifacts`, removing the CLI transcript
+  `home/.claude/projects/**/<providerSessionId>.jsonl` while leaving shared
+  `.claude.json`, caches and mcp-logs intact.
+
+Both facades `extend` their reference adapter, so the method is inherited and
+invoked by the existing generic `core-runtime-api` orchestration; no Core change
+was needed. Each helper has a guard test (target removed, sibling kept,
+idempotent, missing dir tolerated).
+
+### Checks (follow-up)
+
+- `npm run check:architecture` - OK
+- `npm run lint` - OK
+- `npm run typecheck` - OK
+- `npm test` - OK (36)
+- `npm run check:dup` / `check:security` / `check:links` - OK
+- `npm run build` + `npm run package:mac` - OK; `Harness AI.app` repackaged (unsigned)

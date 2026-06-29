@@ -9,6 +9,12 @@ import { KimiProviderFacade } from "../../../../../../provider-runtime/clusters/
 import { LocalModelsProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-provider/src/local-models-provider-facade.js";
 import { OpenRouterProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/openrouter-provider/src/openrouter-provider-facade.js";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
+import { providerLivenessCheckerFacade } from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-liveness-checker/src/provider-liveness-checker-facade.js";
+import {
+  type ProviderReadinessRawChange,
+  providerReadinessRegistryFacade,
+} from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-readiness-registry/src/provider-readiness-registry-facade.js";
+import { providerWorkspaceProvisionerFacade } from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.js";
 import {
   type ProviderId,
   providerRegistryFacade,
@@ -52,6 +58,8 @@ const WORKSPACE_REGISTRY_FILE = join(
 
 export class CoreRuntimeApi {
   private initialized = false;
+  private readonly providerStatusListeners = new Set<CoreEventListener>();
+  private readinessUnsubscribe: (() => void) | null = null;
 
   initialize(): void {
     if (this.initialized) {
@@ -59,12 +67,20 @@ export class CoreRuntimeApi {
     }
     this.restoreState();
     this.registerProviderAdapters();
+    this.subscribeProviderReadiness();
+    this.startProviderLivenessPreflight();
+    this.startWorkspaceProvisioning();
     sessionRequestHandlerFacade.resumeRestoredSessions();
     this.initialized = true;
   }
 
   subscribe(listener: CoreEventListener): () => void {
-    return sessionEventStreamFacade.subscribe(listener);
+    const unsubscribeSession = sessionEventStreamFacade.subscribe(listener);
+    this.providerStatusListeners.add(listener);
+    return () => {
+      unsubscribeSession();
+      this.providerStatusListeners.delete(listener);
+    };
   }
 
   invoke(method: string, payload: unknown): unknown {
@@ -148,6 +164,7 @@ export class CoreRuntimeApi {
     workspaceRegistryFacade.selectWorkspace(workspace.id);
     saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
     this.registerProviderAdapters();
+    this.startWorkspaceProvisioning();
     return { ok: true, workspace };
   }
 
@@ -158,6 +175,7 @@ export class CoreRuntimeApi {
       const workspace = workspaceRegistryFacade.selectWorkspace(workspaceId);
       saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
       this.registerProviderAdapters();
+      this.startWorkspaceProvisioning();
       return { ok: true, workspace };
     } catch (error) {
       return { error: describeError(error), ok: false };
@@ -278,6 +296,7 @@ export class CoreRuntimeApi {
   }
 
   private registerProviderAdapters(): void {
+    this.syncProviderReadinessWorkspace();
     providerRegistryFacade.clearAdapters();
     for (const providerId of PROVIDER_IDS) {
       this.registerProviderAdapter(providerId);
@@ -335,6 +354,70 @@ export class CoreRuntimeApi {
 
   private activeWorkspacePath(): string {
     return workspaceRegistryFacade.getActiveWorkspace().path;
+  }
+
+  private publishProviderStatus(providerId: string): void {
+    const workspace = workspaceRegistryFacade.getActiveWorkspace();
+    const readiness = providerReadinessRegistryFacade.combine(
+      providerId,
+      workspace.id
+    );
+    const event = {
+      payload: {
+        providerId,
+        workspaceId: workspace.id,
+        ...readiness,
+      },
+      timestamp: new Date().toISOString(),
+      type: "provider:status",
+    };
+    for (const listener of this.providerStatusListeners) {
+      listener(event);
+    }
+  }
+
+  private startProviderLivenessPreflight(): void {
+    providerLivenessCheckerFacade
+      .checkProviders(PROVIDER_IDS)
+      .catch(() => undefined);
+  }
+
+  private startWorkspaceProvisioning(): void {
+    const workspace = workspaceRegistryFacade.getActiveWorkspace();
+    providerWorkspaceProvisionerFacade
+      .provisionWorkspace({
+        workspaceId: workspace.id,
+        workspacePath: workspace.path,
+      })
+      .catch(() => undefined);
+  }
+
+  private subscribeProviderReadiness(): void {
+    if (this.readinessUnsubscribe) {
+      return;
+    }
+    this.readinessUnsubscribe = providerReadinessRegistryFacade.subscribe(
+      (change) => this.handleProviderReadinessChange(change)
+    );
+  }
+
+  private handleProviderReadinessChange(
+    change: ProviderReadinessRawChange
+  ): void {
+    const activeWorkspace = workspaceRegistryFacade.getActiveWorkspace();
+    if (
+      change.scope === "provisioning" &&
+      change.workspaceId !== activeWorkspace.id
+    ) {
+      return;
+    }
+    this.publishProviderStatus(change.providerId);
+  }
+
+  private syncProviderReadinessWorkspace(): void {
+    providerRegistryFacade.setReadinessWorkspace(
+      workspaceRegistryFacade.getActiveWorkspace().id
+    );
   }
 }
 

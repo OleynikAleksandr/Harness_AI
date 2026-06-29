@@ -8,8 +8,8 @@
   "planId": "provider-readiness-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "feat: orchestrate provider readiness from core runtime",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "feat: live provider readiness states in new-session cards",
   "debt": null
 }
 ```
@@ -120,14 +120,14 @@
 
 ### Stream: Core orchestration
 
-25. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Wire orchestration in Core (minimal touch): `initialize()` fires the liveness preflight (fire-and-forget) after adapter registration (and thus on Reset Core); `selectWorkspace()`/`addWorkspace()` fire the workspace provisioner for the active workspace; subscribe to the readiness-registry RAW-change observable, compute `combine(provider, activeWorkspace)` and PUBLISH the combined `provider:status` event for the active workspace (round3.6); fan-out `CoreRuntimeApi.subscribe()` over BOTH `sessionEventStreamFacade` and these provider-status events, returning a composed unsubscribe — readiness events stay in-memory, never written to session JSONL (product-part: core-runtime / cluster: runtime-process / module: core-runtime-process; scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat: orchestrate provider readiness from core runtime`).
-26. [TODO] Git Commit: `feat: orchestrate provider readiness from core runtime` (hash: TBD)
+25. [DONE] `harness-ai.phase5.stream1.task1` Wire orchestration in Core (minimal touch): `initialize()` fires the liveness preflight (fire-and-forget) after adapter registration (and thus on Reset Core); `selectWorkspace()`/`addWorkspace()` fire the workspace provisioner for the active workspace; subscribe to the readiness-registry RAW-change observable, compute `combine(provider, activeWorkspace)` and PUBLISH the combined `provider:status` event for the active workspace (round3.6); fan-out `CoreRuntimeApi.subscribe()` over BOTH `sessionEventStreamFacade` and these provider-status events, returning a composed unsubscribe — readiness events stay in-memory, never written to session JSONL (product-part: core-runtime / cluster: runtime-process / module: core-runtime-process; scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat: orchestrate provider readiness from core runtime`). Result: Completed in commit `feat: orchestrate provider readiness from core runtime`.
+26. [DONE] Git Commit: `feat: orchestrate provider readiness from core runtime` (hash: self)
 
 ## Phase 6 - New-Session Cards With Live States (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Provider cards
 
-27. [TODO] `harness-ai.phase6.stream1.task1` Render the four card states (Ready clickable / "Checking provider…" / "Preparing workspace…" / Failed non-clickable with message), disable non-ready, add the spinner CSS; declare the `provider:status` event type in `vite-env.d.ts`; subscribe `session-window-facade` to `provider:status` events and write the event's COMBINED `readinessStatus`/`readinessMessage` straight onto the matching descriptor for the active workspace — display-only, the renderer classifies nothing (product-part: application-shell / cluster: session-interface / module: session-window; scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/provider-picker.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: live provider readiness states in new-session cards`).
+27. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Render the four card states (Ready clickable / "Checking provider…" / "Preparing workspace…" / Failed non-clickable with message), disable non-ready, add the spinner CSS; declare the `provider:status` event type in `vite-env.d.ts`; subscribe `session-window-facade` to `provider:status` events and write the event's COMBINED `readinessStatus`/`readinessMessage` straight onto the matching descriptor for the active workspace — display-only, the renderer classifies nothing (product-part: application-shell / cluster: session-interface / module: session-window; scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/provider-picker.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: live provider readiness states in new-session cards`).
 28. [TODO] Git Commit: `feat: live provider readiness states in new-session cards` (hash: TBD)
 
 ## Phase 7 - Verification And Packaging (owner: Codex, updated: 2026-06-29)

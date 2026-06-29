@@ -27,6 +27,9 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - Health/status payload with process identity.
 - Graceful shutdown acknowledgement.
 - Server-sent Core events and RPC results.
+- In-memory provider readiness events (`provider:status`) derived from raw
+  readiness changes for the active workspace; these are streamed to clients but
+  not written to session history JSONL.
 - Provider version snapshots, provider update results and local-model lists.
 - On `delete-session` RPC, orchestrates session removal: deletes the session's
   event log and asks the provider adapter to delete its own per-session artifact

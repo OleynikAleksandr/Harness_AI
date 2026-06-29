@@ -26,5 +26,11 @@ assert.match(source, /text\/event-stream/u);
 assert.match(apiSource, /new ClaudeProviderFacade/u);
 assert.match(apiSource, /new CodexProviderFacade/u);
 assert.match(apiSource, /providerRegistryFacade\.clearAdapters/u);
+assert.match(apiSource, /providerReadinessRegistryFacade\.subscribe/u);
+assert.match(apiSource, /type: "provider:status"/u);
+assert.doesNotMatch(
+  apiSource,
+  /sessionEventStreamFacade\.publish\(\{\s+payload:\s+\{\s+providerId/u
+);
 assert.match(apiSource, /sessionRequestHandlerFacade\.createSession/u);
 assert.match(entrySource, /api: coreRuntimeApi/u);

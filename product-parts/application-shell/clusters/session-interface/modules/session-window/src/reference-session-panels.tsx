@@ -33,9 +33,11 @@ export function SessionIdPanel({
 
 export function DialogPanel({
   messages,
+  providerId,
   providerName,
 }: {
   messages: SessionMessage[];
+  providerId: string | undefined;
   providerName: string | undefined;
 }) {
   return (
@@ -48,6 +50,7 @@ export function DialogPanel({
             <MessageBubble
               key={message.id}
               message={message}
+              providerId={providerId}
               providerName={providerName}
             />
           ))
@@ -185,24 +188,81 @@ function resolveIdLabel(
 
 function MessageBubble({
   message,
+  providerId,
   providerName,
 }: {
   message: SessionMessage;
+  providerId: string | undefined;
   providerName: string | undefined;
 }) {
+  const isThinking = isThinkingMessage(message);
+  const tint = resolveProviderTint(providerId);
   return (
-    <article className={`session-message session-message--${message.role}`}>
-      <header className="session-message__header">
-        <span className="session-message__role">
-          {resolveMessageRoleLabel(message.role, providerName)}
+    <article className={resolveBubbleClassName(message, isThinking, tint)}>
+      <header
+        className={
+          isThinking
+            ? "session-dialog__message-header session-dialog__message-header--thinking"
+            : "session-dialog__message-header"
+        }
+      >
+        <span className="session-dialog__role">
+          {resolveMessageRoleLabel(message.role, isThinking, providerName)}
         </span>
-        <span className="session-message__time">
+        <span className="session-dialog__timestamp">
           {formatMessageTime(message.timestamp)}
         </span>
       </header>
-      <div className="session-message__content">{message.text}</div>
+      <div
+        className={
+          isThinking
+            ? "session-dialog__content session-dialog__content--thinking"
+            : "session-dialog__content"
+        }
+      >
+        {message.text}
+      </div>
     </article>
   );
+}
+
+function isThinkingMessage(message: SessionMessage): boolean {
+  return (
+    message.role === "thinking" ||
+    (message.role === "assistant" && message.tag === "thinking")
+  );
+}
+
+function resolveProviderTint(
+  providerId: string | undefined
+): "claude" | "codex" | "kimi" | null {
+  if (
+    providerId === "claude" ||
+    providerId === "codex" ||
+    providerId === "kimi"
+  ) {
+    return providerId;
+  }
+  return null;
+}
+
+function resolveBubbleClassName(
+  message: SessionMessage,
+  isThinking: boolean,
+  tint: "claude" | "codex" | "kimi" | null
+): string {
+  const base = "session-dialog__message";
+  if (isThinking) {
+    return tint
+      ? `${base} session-dialog__message--assistant-thinking session-dialog__message--assistant-${tint}`
+      : `${base} session-dialog__message--thinking`;
+  }
+  if (message.role === "assistant") {
+    return tint
+      ? `${base} session-dialog__message--assistant session-dialog__message--assistant-${tint}`
+      : `${base} session-dialog__message--assistant`;
+  }
+  return `${base} session-dialog__message--${message.role}`;
 }
 
 function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
@@ -220,13 +280,14 @@ function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
 
 function resolveMessageRoleLabel(
   role: SessionMessage["role"],
+  isThinking: boolean,
   providerName: string | undefined
 ): string {
+  if (isThinking) {
+    return "Thinking";
+  }
   if (role === "assistant") {
     return providerName ?? "Assistant";
-  }
-  if (role === "thinking") {
-    return "Thinking";
   }
   return role === "system" ? "System" : "User";
 }

@@ -17,6 +17,21 @@ Render the transcript/dialog layout and session chrome.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
 - Core-owned provider readiness descriptors and live `provider:status` events.
 
+## Dialog Bubble Visuals
+
+- Dialog bubbles reproduce the reference (CodeAI Hub) `.session-dialog__message*`
+  visual contract: provider-tinted assistant/thinking plates (Claude `#ff9105`,
+  Codex `#01f0d8`, Kimi `#77d6ff`), the blue `#2c3b52` user plate, the muted
+  thinking plate, asymmetric left/right margins, drop shadows, and the system-ui
+  font in the dialog zone only (project-wide Space Grotesk is unchanged).
+- Provider tint is derived from the Core-owned `session.providerId`; the renderer
+  only maps that id to a CSS modifier and never classifies provider truth.
+  Providers without a reference tint (glm-native, glm-opencode, openrouter,
+  local-models) use the neutral assistant background.
+- A thinking bubble is `role === "thinking"` or an assistant message tagged
+  `thinking`. Bubbles render plain text (no markdown engine) and thinking plates
+  stay expanded (no collapse toggle).
+
 ## Outputs
 
 - Rendered chat session surface.

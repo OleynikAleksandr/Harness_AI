@@ -931,18 +931,26 @@ strong {
 }
 
 .session-dialog {
+  /* Dialog zone copies the reference system-ui stack so bubble text matches the
+     reference exactly, without changing the project-wide Space Grotesk family. */
   min-height: 0;
   padding: 10px;
   overflow: hidden;
+  /* Dialog zone copies the reference system-ui stack so bubble text matches the
+     reference exactly, without changing the project-wide Space Grotesk family. */
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", Helvetica,
+    Arial, sans-serif;
 }
 
 .session-dialog__scroll {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   height: 100%;
-  padding: 0 44px 32px;
-  overflow: auto;
+  padding-top: 18px;
+  padding-bottom: 34px;
+  overflow-y: auto;
 }
 
 .session-dialog__empty {
@@ -964,65 +972,173 @@ strong {
   border-radius: 5px;
 }
 
-.session-message {
-  width: min(1120px, calc(100% - 80px));
-  padding: 12px 18px 16px;
-  color: var(--pm-text-primary, #e7eaee);
-  background: var(--pm-bg-panel, #101823);
-  border: 1px solid var(--pm-border-color, #26303b);
-  border-radius: 8px;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
-}
-
-.session-message--user {
-  align-self: flex-end;
-  background: rgba(66, 201, 162, 0.12);
-  border-color: rgba(66, 201, 162, 0.35);
-}
-
-.session-message--system {
-  align-self: center;
-  background: var(--pm-bg-surface, #0f141b);
-}
-
-.session-message--thinking {
-  align-self: center;
-  font-family: Menlo, Monaco, Consolas, monospace;
-  background: rgba(66, 201, 162, 0.12);
-}
-
-.session-message--assistant {
-  align-self: flex-start;
-}
-
-.session-message__header {
+/* Dialog bubble visuals — exact copy of the reference contract
+   (CodeAI-Hub/media/session-view.css `.session-dialog__message*`). Provider
+   tint covers claude/codex/kimi; other providers fall back to the neutral
+   assistant background, as the reference does for unlisted ones. */
+.session-dialog__message {
+  position: relative;
+  box-sizing: border-box;
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 10px 10px;
+  color: #adb2ba;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.session-dialog__message-header {
+  display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
 }
 
-.session-message__role {
-  font-size: 14px;
-  font-weight: 300;
-  color: var(--pm-accent-strong, #5fe3ba);
+.session-dialog__message-header--thinking {
+  gap: 6px;
+  justify-content: flex-start;
 }
 
-.session-message--system .session-message__role {
-  color: #9fa5a9;
-}
-
-.session-message__time {
+.session-dialog__role {
   font-size: 12px;
-  font-weight: 300;
-  color: #969da2;
+  font-weight: 500;
+  letter-spacing: 0.2px;
 }
 
-.session-message__content {
-  font-size: 15px;
-  line-height: 1.42;
+.session-dialog__timestamp {
+  margin-left: auto;
+  font-size: 10px;
+  color: #7a7e85;
+}
+
+.session-dialog__content {
+  font-size: 13px;
+  font-weight: 200;
+  line-height: 1.25;
+  color: #adb2ba;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  /* ponytail: content is plain text (no markdown engine), so pre-wrap preserves
+     the newlines the reference gets from rendered <p> blocks. */
   white-space: pre-wrap;
+}
+
+.session-dialog__content--thinking {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 200;
+  line-height: 1.05;
+  color: rgba(173, 178, 186, 0.7);
+}
+
+.session-dialog__message--user {
+  margin: 0 30px 0 80px;
+  background-color: #2c3b52;
+  border-color: #46474a;
+  box-shadow: 0px 6px 14px 3px #000;
+}
+
+.session-dialog__message--user .session-dialog__role {
+  color: #6d9cef;
+}
+
+.session-dialog__message--system {
+  margin: 0 80px;
+  background-color: #303234;
+  border-color: #46474a;
+  box-shadow: 0px 6px 14.1px 3px #000;
+}
+
+.session-dialog__message--system .session-dialog__role {
+  color: rgba(173, 178, 186, 0.78);
+}
+
+.session-dialog__message--assistant {
+  z-index: 2;
+  margin: 0 80px 0 30px;
+  background-color: #393531;
+  border-color: #46474a;
+  box-shadow: 0px 6px 14.1px 3px #000;
+}
+
+.session-dialog__message--assistant-claude {
+  background-color: #312d2a;
+}
+
+.session-dialog__message--assistant-claude .session-dialog__role {
+  color: #ff9105;
+}
+
+.session-dialog__message--assistant-codex {
+  background-color: #293230;
+}
+
+.session-dialog__message--assistant-codex .session-dialog__role {
+  color: #01f0d8;
+}
+
+.session-dialog__message--assistant-kimi {
+  background-color: #27313a;
+}
+
+.session-dialog__message--assistant-kimi .session-dialog__role {
+  color: #77d6ff;
+}
+
+.session-dialog__message--thinking,
+.session-dialog__message--assistant-thinking {
+  gap: 0;
+  background-color: rgba(44, 50, 48, 0.45);
+  border-color: rgba(71, 71, 74, 0.45);
+  box-shadow: 0px 6px 14.1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.session-dialog__message--thinking {
+  z-index: 1;
+  padding: 6px 10px 10px;
+  margin: 0 80px 0 30px;
+  border-radius: 4px;
+}
+
+.session-dialog__message--assistant-thinking {
+  z-index: 2;
+  margin: 0 80px 0 30px;
+}
+
+.session-dialog__message--thinking .session-dialog__role,
+.session-dialog__message--assistant-thinking .session-dialog__role {
+  font-weight: 200;
+}
+
+.session-dialog__message--thinking .session-dialog__role {
+  color: rgba(173, 178, 186, 0.6);
+}
+
+.session-dialog__message--assistant-thinking.session-dialog__message--assistant-claude
+  .session-dialog__role {
+  color: rgba(255, 145, 5, 0.6);
+}
+
+.session-dialog__message--assistant-thinking.session-dialog__message--assistant-codex
+  .session-dialog__role {
+  color: rgba(1, 240, 216, 0.6);
+}
+
+.session-dialog__message--assistant-thinking.session-dialog__message--assistant-kimi
+  .session-dialog__role {
+  color: rgba(119, 214, 255, 0.64);
+}
+
+.session-dialog__message--assistant-thinking .session-dialog__content {
+  color: rgba(173, 178, 186, 0.7);
+}
+
+.session-dialog__message--assistant-thinking .session-dialog__timestamp {
+  color: rgba(173, 178, 186, 0.6);
 }
 
 .session-input {
@@ -1289,7 +1405,13 @@ strong {
     padding: 0 6px 18px;
   }
 
-  .session-message {
-    width: 100%;
+  /* Collapse the desktop 30/80px bubble margins so plates fit a narrow screen. */
+  .session-dialog__message--user,
+  .session-dialog__message--system,
+  .session-dialog__message--assistant,
+  .session-dialog__message--thinking,
+  .session-dialog__message--assistant-thinking {
+    margin-right: 8px;
+    margin-left: 8px;
   }
 }

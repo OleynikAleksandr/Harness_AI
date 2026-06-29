@@ -315,6 +315,7 @@ export function SessionWindowFacade() {
           <SessionIdPanel session={activeSession} telemetry={telemetry} />
           <DialogPanel
             messages={messages}
+            providerId={activeSession.providerId}
             providerName={activeSession.providerName}
           />
           <ReferenceInputPanel

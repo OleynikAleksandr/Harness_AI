@@ -28,6 +28,9 @@ fallbacks use `~/.harness-ai/providers/glm-native/home`.
 - Provider usage/context telemetry.
 - GLM Native thinking and assistant stream events from the reference SSE parser.
 - Runtime tool execution and session logs under Harness runtime provider home.
+- `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the GLM rollout
+  log (`home/sessions/**/<providerSessionId>.jsonl`) for a removed session, leaving
+  the shared provider home intact.
 
 ## Owned Paths
 

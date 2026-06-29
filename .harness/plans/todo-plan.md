@@ -8,8 +8,8 @@
   "planId": "session-delete-artifact-sync-2026-06-28",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase5.stream2.task1",
+  "expectedCommitMessage": "fix: delete claude session transcript on session removal",
   "debt": null
 }
 ```
@@ -92,8 +92,33 @@
 11. [DONE] `harness-ai.phase3.stream1.task1` Run required gates (architecture, lint, knip, typecheck, tests), then build and package the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: verify and package session delete and core restart`). Result: Completed in commit `chore: verify and package session delete and core restart`.
 12. [DONE] Git Commit: `chore: verify and package session delete and core restart` (hash: self)
 
-## Phase 4 - User Workflow Acceptance (owner: User, updated: 2026-06-28)
+## Phase 5 - Provider Artifact Cleanup Completion (owner: Codex, updated: 2026-06-29)
+
+User retest found that only Codex (and Kimi, which writes no per-session file)
+clean up their native artifact; GLM-native and Claude leave their per-session
+native file orphaned. Both facades `extend` their reference adapter, so a
+`deleteSessionArtifacts` method on the adapter is inherited and invoked by the
+existing generic orchestration in `core-runtime-api`.
+
+### Stream: GLM-native cleanup
+
+13. [DONE] `harness-ai.phase5.stream1.task1` Add a pure GLM-native rollout-cleanup helper and a `deleteSessionArtifacts` method on the GLM adapter that removes `home/sessions/**/<providerSessionId>.jsonl` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-rollout-cleanup.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-provider-adapter.ts`; expected commit: `fix: delete glm-native rollout artifact on session removal`). Result: Completed in commit `fix: delete glm-native rollout artifact on session removal`.
+14. [DONE] Git Commit: `fix: delete glm-native rollout artifact on session removal` (hash: self)
+
+### Stream: Claude cleanup
+
+15. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Add a pure Claude transcript-cleanup helper and a `deleteSessionArtifacts` method on the Claude adapter that removes `home/.claude/projects/**/<providerSessionId>.jsonl`, leaving shared config/caches/mcp-logs intact (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-transcript-cleanup.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts`; expected commit: `fix: delete claude session transcript on session removal`).
+16. [TODO] Git Commit: `fix: delete claude session transcript on session removal` (hash: TBD)
+
+## Phase 6 - Repackage (owner: Codex, updated: 2026-06-29)
+
+### Stream: Build And Evidence
+
+17. [TODO] `harness-ai.phase6.stream1.task1` Run required gates, rebuild and repackage the macOS app (`npm run build` then `npm run package:mac`, user-confirmed), and update evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore: repackage with claude and glm-native artifact cleanup`).
+18. [TODO] Git Commit: `chore: repackage with claude and glm-native artifact cleanup` (hash: TBD)
+
+## Phase 7 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-13. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` User retests in the packaged app: delete a session and confirm its event log + provider rollout are gone (shared home intact); press Restart Core and confirm the process truly restarts (state re-read from disk), with correct spacing and a spinner (scope: user workflow; expected commit: none).
+19. [TODO] `harness-ai.phase7.stream1.task1` User retests in the packaged app: delete sessions for Codex, Claude, GLM-native and Kimi and confirm each provider's native per-session artifact is gone with the shared home intact; confirm Restart Core spacing/spinner and a true process restart (scope: user workflow; expected commit: none).

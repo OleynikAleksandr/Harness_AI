@@ -21,6 +21,7 @@ import {
   GLM_NATIVE_WORKFLOW_TOOLS,
   type GlmSessionMessage,
 } from "./glm-native-agent-runtime.js";
+import { deleteGlmNativeRolloutArtifacts } from "./glm-native-rollout-cleanup.js";
 import {
   buildGlmRuntimeProfile,
   ensureGlmRuntimeProfile,
@@ -203,6 +204,13 @@ export class GlmProviderAdapter {
     this.sessions.delete(sessionId);
     this.listeners.delete(sessionId);
     return Promise.resolve();
+  }
+
+  deleteSessionArtifacts(
+    providerSessionId: string,
+    workspacePath: string
+  ): void {
+    deleteGlmNativeRolloutArtifacts(workspacePath, providerSessionId);
   }
 
   // Core dispatches this on session lifecycle (duck-typed); reuses resolved profile.

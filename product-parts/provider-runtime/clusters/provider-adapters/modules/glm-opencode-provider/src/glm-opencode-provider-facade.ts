@@ -2,18 +2,24 @@ import path from "node:path";
 import { GlmOpenCodeProviderAdapter } from "./reference/index.js";
 
 export class GlmOpenCodeProviderFacade extends GlmOpenCodeProviderAdapter {
-  constructor(model?: string, workspacePath = process.cwd()) {
+  constructor(
+    model?: string,
+    workspacePath = process.cwd(),
+    providerHomePath?: string
+  ) {
     super({
       workspace: {
         defaultModel: model && model !== "cli-default" ? model : undefined,
-        providerHomePath: path.join(
-          workspacePath,
-          ".harness",
-          "runtime",
-          "providers",
-          "glm-opencode",
-          "home"
-        ),
+        providerHomePath:
+          providerHomePath ??
+          path.join(
+            workspacePath,
+            ".harness",
+            "runtime",
+            "providers",
+            "glm-opencode",
+            "home"
+          ),
         settingsPath: workspaceSettingsPath(workspacePath),
         workspacePath,
       },

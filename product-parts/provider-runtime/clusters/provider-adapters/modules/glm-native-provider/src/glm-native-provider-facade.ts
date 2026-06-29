@@ -5,7 +5,8 @@ import { GlmProviderAdapter } from "./reference/index.js";
 export class GlmNativeProviderFacade extends GlmProviderAdapter {
   constructor(
     model = process.env.GLM_MODEL ?? process.env.ZAI_MODEL ?? "glm-5.2",
-    workspacePath = process.cwd()
+    workspacePath = process.cwd(),
+    providerHomePath?: string
   ) {
     super({
       workspace: {
@@ -14,14 +15,16 @@ export class GlmNativeProviderFacade extends GlmProviderAdapter {
           providerAuthStoreFacade.getBaseUrl("glm-native") ??
           "https://api.z.ai/api/coding/paas/v4",
         defaultModel: model,
-        providerHomePath: path.join(
-          workspacePath,
-          ".harness",
-          "runtime",
-          "providers",
-          "glm-native",
-          "home"
-        ),
+        providerHomePath:
+          providerHomePath ??
+          path.join(
+            workspacePath,
+            ".harness",
+            "runtime",
+            "providers",
+            "glm-native",
+            "home"
+          ),
         settingsPath: workspaceSettingsPath(workspacePath),
         workspacePath,
       },

@@ -26,7 +26,8 @@ assert.match(
 );
 assert.match(source, /extends GlmProviderAdapter/u);
 assert.match(source, /providerAuthStoreFacade\.getApiKey\("glm-native"\)/u);
-assert.match(source, /providerHomePath: path\.join\(/u);
+assert.match(source, /providerHomePath\?: string/u);
+assert.match(source, /providerHomePath \?\?\s+path\.join\(/u);
 assert.match(source, /settingsPath: workspaceSettingsPath\(workspacePath\)/u);
 assert.match(runtimeProfileSource, /"\.harness-ai"/u);
 assert.match(runtimeProfileSource, /HARNESS_GLOBAL_SETTINGS_PATH/u);

@@ -2,18 +2,24 @@ import path from "node:path";
 import { KimiProviderAdapter } from "./reference/index.js";
 
 export class KimiProviderFacade extends KimiProviderAdapter {
-  constructor(model?: string, workspacePath = process.cwd()) {
+  constructor(
+    model?: string,
+    workspacePath = process.cwd(),
+    providerHomePath?: string
+  ) {
     super({
       workspace: {
         defaultModel: normalizeModel(model),
-        providerHomePath: path.join(
-          workspacePath,
-          ".harness",
-          "runtime",
-          "providers",
-          "kimi",
-          "home"
-        ),
+        providerHomePath:
+          providerHomePath ??
+          path.join(
+            workspacePath,
+            ".harness",
+            "runtime",
+            "providers",
+            "kimi",
+            "home"
+          ),
         thinkingEnabled: true,
         workspacePath,
       },

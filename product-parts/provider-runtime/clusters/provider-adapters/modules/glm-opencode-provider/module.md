@@ -11,7 +11,9 @@ SSE processing and runtime profile resolution come from the migrated CodeAI-Hub
 module.
 Provider home storage is Harness-owned: workspace sessions use
 `<workspace>/.harness/runtime/providers/glm-opencode/home`, and non-workspace
-fallbacks use `~/.harness-ai/providers/opencode/home`.
+fallbacks use `~/.harness-ai/providers/glm-opencode/home`.
+The facade accepts an explicit `providerHomePath` for Core-owned global-home
+liveness preflight without treating that global home as a workspace root.
 
 ## Public Facade
 

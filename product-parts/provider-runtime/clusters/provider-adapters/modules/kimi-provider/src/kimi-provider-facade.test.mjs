@@ -22,7 +22,8 @@ assert.match(
   /import \{ KimiProviderAdapter \} from "\.\/reference\/index\.js"/u
 );
 assert.match(source, /extends KimiProviderAdapter/u);
-assert.match(source, /providerHomePath: path\.join\(/u);
+assert.match(source, /providerHomePath\?: string/u);
+assert.match(source, /providerHomePath \?\?\s+path\.join\(/u);
 assert.match(source, /"\.harness"/u);
 assert.match(managedProfileSource, /"\.harness-ai"/u);
 assert.match(managedProfileSource, /"\.harness"/u);

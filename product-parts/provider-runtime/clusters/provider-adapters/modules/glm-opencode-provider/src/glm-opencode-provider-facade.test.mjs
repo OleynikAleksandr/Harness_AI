@@ -29,7 +29,8 @@ assert.match(
   /import \{ GlmOpenCodeProviderAdapter \} from "\.\/reference\/index\.js"/u
 );
 assert.match(source, /extends GlmOpenCodeProviderAdapter/u);
-assert.match(source, /providerHomePath: path\.join\(/u);
+assert.match(source, /providerHomePath\?: string/u);
+assert.match(source, /providerHomePath \?\?\s+path\.join\(/u);
 assert.match(source, /settingsPath: workspaceSettingsPath\(workspacePath\)/u);
 assert.match(runtimeProfileSource, /\.harness-ai/u);
 assert.match(runtimeProfileSource, /HARNESS_GLM_OPENCODE_COMMAND/u);

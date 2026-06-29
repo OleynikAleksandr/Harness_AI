@@ -36,7 +36,8 @@ Render the transcript/dialog layout and session chrome.
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background
   is unchanged.
 - The input panel copies the reference `.session-input*` visuals: a compact dark
-  field (`rgba(30,30,30,1)`, 13px/lh20, radius 4, focused `rgba(32,32,32,1)`), an
+  field (`rgba(30,30,30,1)`, 13px/lh20, radius 4, focused `rgba(32,32,32,1)`, and
+  no opacity fade while disabled so it stays visible as the agent works), an
   orange drag overlay, an outlined 36px action button that shows the play ▶ when
   idle and the red stop square while the agent works, a pulsing wait-copy overlay
   ("Agent is working… Please wait.") over the field — light `rgba(206,211,217,1)`

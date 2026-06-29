@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task1",
+  "currentTaskId": "harness-ai.phase11.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -163,18 +163,30 @@
     plus module docs; expected commit: `Make wait-copy overlay readable on the dark input field`).
 14. [DONE] Git Commit: `Make wait-copy overlay readable on the dark input field` (hash: self)
 
-## Phase 10 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 10 - Disabled Field Opacity (owner: Codex, updated: 2026-06-29)
+
+### Stream: Input Field
+
+15. [DONE] `harness-ai.phase10.stream1.task1` Stop the input field from Result: Completed in commit `Keep input field opaque while the agent works`.
+    fading while the agent works: drop the `opacity: 0.55` on the disabled
+    textarea (a leftover not in the reference) so the field keeps its dark colour
+    and stays visible under the wait-copy overlay
+    (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`,
+    plus module docs; expected commit: `Keep input field opaque while the agent works`).
+16. [DONE] Git Commit: `Keep input field opaque while the agent works` (hash: self)
+
+## Phase 11 - Tooling Verification (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Build And Evidence
 
-15. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` Run required gates/build and record
+17. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` Run required gates/build and record
     evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected
     commit: `Record input panel and turn stop verification`).
-16. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
+18. [TODO] Git Commit: `Record input panel and turn stop verification` (hash: TBD)
 
-## Phase 11 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 12 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
 
 ### Stream: Retest
 
-17. [TODO] `harness-ai.phase11.stream1.task1` User retests input visuals + Stop in
+19. [TODO] `harness-ai.phase12.stream1.task1` User retests input visuals + Stop in
     the packaged app (scope: user workflow; expected commit: none).

@@ -1242,8 +1242,9 @@ strong {
 }
 
 .session-input__textarea:disabled {
+  /* No opacity fade: the field keeps its dark colour while the agent works so it
+     stays visible under the wait-copy overlay (matches the reference). */
   cursor: not-allowed;
-  opacity: 0.55;
 }
 
 .session-input__container--dragging .session-input__textarea {

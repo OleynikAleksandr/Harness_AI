@@ -8,7 +8,7 @@
   "planId": "session-dialog-bubbles-visual-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -94,19 +94,20 @@
 
 ### Stream: Bridge
 
-3. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Expose `stopTurn` through the
-   electron-host bridge: add the `harness-ai:core:stop-turn` IPC→RPC mapping and
-   the `harnessCore.stopTurn` preload method
+3. [DONE] `harness-ai.phase4.stream1.task1` Expose `stopTurn` through the Result: Completed in commit `Expose stopTurn through the electron-host core bridge`.
+   electron-host bridge: add the `harness-ai:core:stop-turn` IPC→RPC mapping, the
+   `harnessCore.stopTurn` preload method, and the renderer `harnessCore` type
    (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`,
-   `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs`,
+   `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`,
+   `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`,
    plus module docs; expected commit: `Expose stopTurn through the electron-host core bridge`).
-4. [TODO] Git Commit: `Expose stopTurn through the electron-host core bridge` (hash: TBD)
+4. [DONE] Git Commit: `Expose stopTurn through the electron-host core bridge` (hash: self)
 
 ## Phase 5 - Input Panel Visual (owner: Codex, updated: 2026-06-29)
 
 ### Stream: Input Visual
 
-5. [TODO] `harness-ai.phase5.stream1.task1` Port the reference input field +
+5. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Port the reference input field +
    play/stop button visuals and the wait-copy overlay
    (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`,
    `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`,

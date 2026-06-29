@@ -19,6 +19,7 @@ const IPC_TO_RPC = {
   "harness-ai:core:save-settings": "save-settings",
   "harness-ai:core:select-workspace": "select-workspace",
   "harness-ai:core:send-message": "send-message",
+  "harness-ai:core:stop-turn": "stop-turn",
   "harness-ai:core:update-provider-version": "update-provider-version",
 };
 const EVENT_STREAM_RECONNECT_MS = 1000;

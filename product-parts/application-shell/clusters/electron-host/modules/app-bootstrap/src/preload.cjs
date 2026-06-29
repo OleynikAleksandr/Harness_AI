@@ -53,6 +53,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:select-workspace", workspaceId),
   sendMessage: (request) =>
     ipcRenderer.invoke("harness-ai:core:send-message", request),
+  stopTurn: (sessionId) =>
+    ipcRenderer.invoke("harness-ai:core:stop-turn", sessionId),
   updateProviderVersion: (request) =>
     ipcRenderer.invoke("harness-ai:core:update-provider-version", request),
 });

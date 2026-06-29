@@ -127,6 +127,13 @@ interface Window {
         }
       | { error: string; ok: false }
     >;
+    stopTurn(sessionId: string): Promise<
+      | {
+          ok: true;
+          session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
+      | { error: string; ok: false }
+    >;
     updateProviderVersion(request: {
       provider: "claude" | "codex" | "glmOpenCode";
       target: "cli" | "sdk";

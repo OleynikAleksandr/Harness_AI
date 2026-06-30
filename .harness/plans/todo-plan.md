@@ -8,8 +8,8 @@
   "planId": "ui-typography-hierarchy-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "Record UI typography hierarchy verification",
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -89,6 +89,6 @@
 
 ### Stream: Package And Retest
 
-7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record typography verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record UI typography hierarchy verification`).
-8. [TODO] Git Commit: `Record UI typography hierarchy verification` (hash: TBD)
-9. [TODO] `harness-ai.phase4.stream1.task2` User retests the text hierarchy across all tabs, the session interface and the sidebar in the packaged app (scope: user workflow; expected commit: none).
+7. [DONE] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record typography verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record UI typography hierarchy verification`). Result: Completed in commit `Record UI typography hierarchy verification`.
+8. [DONE] Git Commit: `Record UI typography hierarchy verification` (hash: self)
+9. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` User retests the text hierarchy across all tabs, the session interface and the sidebar in the packaged app (scope: user workflow; expected commit: none).

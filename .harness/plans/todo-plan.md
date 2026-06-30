@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task4",
-  "expectedCommitMessage": "docs: record localization ui repair package",
+  "currentTaskId": "harness-ai.phase8.stream1.task5",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -222,6 +222,6 @@
 57. [DONE] Git Commit: `fix: materialize ui localization runtime` (hash: self)
 58. [DONE] `harness-ai.phase8.stream1.task3` Hide translation engine options that are not registered in the current Harness runtime so interface localization cannot save a non-working engine id (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, .harness/plans/todo-plan.md`; expected commit: `fix: hide unavailable localization engines`). Result: Completed in commit `fix: hide unavailable localization engines`.
 59. [DONE] Git Commit: `fix: hide unavailable localization engines` (hash: self)
-60. [IN_PROGRESS] `harness-ai.phase8.stream1.task4` Rebuild the packaged app after the localization UI repair and record verification evidence (scope: `docs/evidence/localization-ui-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization ui repair package`).
-61. [TODO] Git Commit: `docs: record localization ui repair package` (hash: TBD)
-62. [TODO] `harness-ai.phase8.stream1.task5` User retests Settings Localization engine persistence and Russian interface translation in the rebuilt packaged app (scope: user workflow; expected commit: none).
+60. [DONE] `harness-ai.phase8.stream1.task4` Rebuild the packaged app after the localization UI repair and record verification evidence (scope: `docs/evidence/localization-ui-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization ui repair package`). Result: Completed in commit `docs: record localization ui repair package`.
+61. [DONE] Git Commit: `docs: record localization ui repair package` (hash: self)
+62. [IN_PROGRESS] `harness-ai.phase8.stream1.task5` User retests Settings Localization engine persistence and Russian interface translation in the rebuilt packaged app (scope: user workflow; expected commit: none).

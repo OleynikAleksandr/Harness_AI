@@ -74,6 +74,8 @@ readiness registry, liveness checker, and workspace provisioner modules.
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —
   packaged application rebuild evidence for the localization transfer scope.
+- `docs/evidence/localization-ui-repair-packaged-app-2026-06-30.md` —
+  packaged application rebuild evidence for the interface localization repair.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

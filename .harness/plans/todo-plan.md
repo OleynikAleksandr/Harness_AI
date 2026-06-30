@@ -8,8 +8,8 @@
   "planId": "ui-typography-hierarchy-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "Record model card and button polish verification",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -102,6 +102,6 @@
 
 ### Stream: Package And Retest
 
-14. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record polish verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record model card and button polish verification`).
-15. [TODO] Git Commit: `Record model card and button polish verification` (hash: TBD)
-16. [TODO] `harness-ai.phase6.stream1.task2` User retests the model cards and the Start New Session button in the packaged app (scope: user workflow; expected commit: none).
+14. [DONE] `harness-ai.phase6.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record polish verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record model card and button polish verification`). Result: Completed in commit `Record model card and button polish verification`.
+15. [DONE] Git Commit: `Record model card and button polish verification` (hash: self)
+16. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User retests the model cards and the Start New Session button in the packaged app (scope: user workflow; expected commit: none).

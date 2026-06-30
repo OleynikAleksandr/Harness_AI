@@ -15,6 +15,8 @@ materialization, bootstrap payload reuse, and bundle state.
 - UI localization settings snapshot.
 - Source dictionaries keyed by localization category and language.
 - Approved English source dictionaries shipped as TypeScript exports.
+- Settings shell, provider tab and first shared provider-card source strings are
+  part of the approved English dictionaries.
 - Glossary preserve/preferred-translation rules.
 - User-managed do-not-translate terms.
 - Translation facade for materializing non-English UI bundles.

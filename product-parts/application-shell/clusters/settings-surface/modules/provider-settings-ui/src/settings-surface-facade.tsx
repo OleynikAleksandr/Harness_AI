@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import type { ProviderVersionsSnapshot } from "./provider-version-controls.js";
 import { SETTINGS_TABS, type SettingsTabId } from "./settings-model-options.js";
 import { SettingsTabContent } from "./settings-tab-content.js";
@@ -16,6 +17,7 @@ export function ProviderSettingsUiFacade({
   onClose,
   workspacePath,
 }: ProviderSettingsUiFacadeProps) {
+  const { t } = useBrowserLocalization();
   const [activeTab, setActiveTab] = useState<SettingsTabId>("claude");
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -234,19 +236,26 @@ export function ProviderSettingsUiFacade({
       <div aria-modal="true" className="settings-dialog" role="dialog">
         <header className="settings-header">
           <div className="settings-title">
-            <h2>Settings</h2>
+            <h2>{t("ui_labels", "settings.title", "Settings")}</h2>
           </div>
           <button
-            aria-label="Close Settings"
+            aria-label={t(
+              "ui_labels",
+              "settings.closeSettings",
+              "Close Settings"
+            )}
             className="settings-icon-button"
             onClick={onClose}
-            title="Close Settings"
+            title={t("ui_labels", "settings.closeSettings", "Close Settings")}
             type="button"
           >
             ×
           </button>
         </header>
-        <nav aria-label="Settings sections" className="settings-tabs">
+        <nav
+          aria-label={t("ui_labels", "settings.sections", "Settings sections")}
+          className="settings-tabs"
+        >
           {SETTINGS_TABS.map((tab) => (
             <button
               className={
@@ -256,7 +265,7 @@ export function ProviderSettingsUiFacade({
               onClick={() => setActiveTab(tab.id)}
               type="button"
             >
-              {tab.label}
+              {t("ui_labels", `settings.tab.${tab.id}`, tab.label)}
             </button>
           ))}
         </nav>
@@ -279,7 +288,13 @@ export function ProviderSettingsUiFacade({
                 versionUpdatingTargets={versionUpdatingTargets}
               />
             ) : (
-              <div className="settings-card">Loading settings...</div>
+              <div className="settings-card">
+                {t(
+                  "messages_for_the_user",
+                  "settings.loading",
+                  "Loading settings..."
+                )}
+              </div>
             )}
           </div>
         </main>
@@ -291,7 +306,9 @@ export function ProviderSettingsUiFacade({
             title={status}
             type="button"
           >
-            {busy ? "Resetting..." : "Reset to Defaults"}
+            {busy
+              ? t("messages_for_the_user", "settings.resetting", "Resetting...")
+              : t("ui_labels", "settings.resetDefaults", "Reset to Defaults")}
           </button>
           <div className="settings-actions">
             <button
@@ -299,7 +316,7 @@ export function ProviderSettingsUiFacade({
               onClick={onClose}
               type="button"
             >
-              Close
+              {t("ui_labels", "common.close", "Close")}
             </button>
             <button
               className="settings-primary"
@@ -307,7 +324,9 @@ export function ProviderSettingsUiFacade({
               onClick={save}
               type="button"
             >
-              {busy ? "Saving..." : "Save Changes"}
+              {busy
+                ? t("messages_for_the_user", "settings.saving", "Saving...")
+                : t("ui_labels", "settings.saveChanges", "Save Changes")}
             </button>
           </div>
         </footer>

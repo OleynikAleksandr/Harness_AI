@@ -1,4 +1,5 @@
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ClaudeDefaultModelCard } from "./claude-default-model-card.js";
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
@@ -60,6 +61,7 @@ export function SettingsTabContent({
   versions,
   versionUpdatingTargets,
 }: SettingsTabContentProps) {
+  const { t } = useBrowserLocalization();
   if (activeTab === "general") {
     return (
       <ReferenceGeneralSettings
@@ -99,7 +101,11 @@ export function SettingsTabContent({
                 value;
             })
           }
-          title="Claude Session Continuity"
+          title={t(
+            "ui_labels",
+            "settings.provider.claude.sessionContinuity",
+            "Claude Session Continuity"
+          )}
           value={provider.sessionContinuity.remainingPercentThreshold}
         />
       </div>
@@ -132,7 +138,11 @@ export function SettingsTabContent({
                 value;
             })
           }
-          title="Codex Session Continuity"
+          title={t(
+            "ui_labels",
+            "settings.provider.codex.sessionContinuity",
+            "Codex Session Continuity"
+          )}
           value={provider.sessionContinuity.remainingPercentThreshold}
         />
       </div>
@@ -144,21 +154,37 @@ export function SettingsTabContent({
     return (
       <div className="settings-reference-stack">
         <DefaultModelCard
-          description="Choose the Kimi model used when new sessions start."
-          note="Uses the installed Kimi Code CLI through ACP."
+          description={t(
+            "ui_helper_text",
+            "settings.provider.kimi.defaultModel.description",
+            "Choose the Kimi model used when new sessions start."
+          )}
+          note={t(
+            "ui_helper_text",
+            "settings.provider.kimi.defaultModel.note",
+            "Uses the installed Kimi Code CLI through ACP."
+          )}
           onChange={(defaultModel) =>
             update((next) => {
               next.providers.kimi.defaultModel = defaultModel;
             })
           }
           options={PROVIDER_MODEL_OPTIONS.kimi}
-          title="Kimi Default model"
+          title={t(
+            "ui_labels",
+            "settings.provider.kimi.defaultModel",
+            "Kimi Default model"
+          )}
           value={provider.defaultModel}
         />
-        <SettingsCard title="Thinking">
+        <SettingsCard title={t("ui_labels", "settings.thinking", "Thinking")}>
           <SettingsToggle
             checked={provider.thinkingEnabled}
-            label="Thinking Enabled"
+            label={t(
+              "ui_labels",
+              "settings.thinking.enabled",
+              "Thinking Enabled"
+            )}
             onChange={(enabled) =>
               update((next) => {
                 next.providers.kimi.thinkingEnabled = enabled;
@@ -167,7 +193,11 @@ export function SettingsTabContent({
           />
           <SettingsToggle
             checked={provider.thinkingDisplaySyncEnabled}
-            label="Thinking Display Sync"
+            label={t(
+              "ui_labels",
+              "settings.thinking.displaySync",
+              "Thinking Display Sync"
+            )}
             onChange={(enabled) =>
               update((next) => {
                 next.providers.kimi.thinkingDisplaySyncEnabled = enabled;
@@ -192,7 +222,7 @@ export function SettingsTabContent({
             Object.assign(next.providers.glmNative, patch);
           })
         }
-        title="GLM"
+        title={t("ui_labels", "settings.provider.glm", "GLM")}
       />
     );
   }
@@ -248,13 +278,29 @@ export function SettingsTabContent({
         }
         settings={provider}
       />
-      <SettingsCard title="OpenRouter Profiles">
-        <h4 className="settings-profile-title">UI Translation Model</h4>
+      <SettingsCard
+        title={t(
+          "ui_labels",
+          "settings.openRouter.profiles",
+          "OpenRouter Profiles"
+        )}
+      >
+        <h4 className="settings-profile-title">
+          {t(
+            "ui_labels",
+            "settings.openRouter.uiTranslationModel",
+            "UI Translation Model"
+          )}
+        </h4>
         <OpenRouterModelEndpointPicker
           apiKey={provider.apiKey}
           baseUrl={provider.baseUrl}
           endpointTag={provider.translationProfiles.uiTranslation.endpointTag}
-          label="Model slug search"
+          label={t(
+            "ui_labels",
+            "settings.openRouter.modelSlugSearch",
+            "Model slug search"
+          )}
           onChange={(patch) =>
             update((next) => {
               Object.assign(
@@ -266,15 +312,31 @@ export function SettingsTabContent({
           value={provider.translationProfiles.uiTranslation.model}
         />
       </SettingsCard>
-      <SettingsCard title="OpenRouter Profiles">
-        <h4 className="settings-profile-title">Reasoning Translation Model</h4>
+      <SettingsCard
+        title={t(
+          "ui_labels",
+          "settings.openRouter.profiles",
+          "OpenRouter Profiles"
+        )}
+      >
+        <h4 className="settings-profile-title">
+          {t(
+            "ui_labels",
+            "settings.openRouter.reasoningTranslationModel",
+            "Reasoning Translation Model"
+          )}
+        </h4>
         <OpenRouterModelEndpointPicker
           apiKey={provider.apiKey}
           baseUrl={provider.baseUrl}
           endpointTag={
             provider.translationProfiles.reasoningTranslation.endpointTag
           }
-          label="Model slug search"
+          label={t(
+            "ui_labels",
+            "settings.openRouter.modelSlugSearch",
+            "Model slug search"
+          )}
           onChange={(patch) =>
             update((next) => {
               Object.assign(

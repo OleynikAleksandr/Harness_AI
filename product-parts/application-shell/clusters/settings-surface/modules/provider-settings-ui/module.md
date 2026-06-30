@@ -29,6 +29,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   current Harness runtime. OpenRouter/Codex/Claude localization engines are not
   displayed until their provider-backed translation engines exist in
   `ProviderTranslationEnginesFacade`.
+- Settings shell copy, provider tab labels, and the first shared provider-card
+  labels/helpers resolve through the browser localization provider and approved
+  source dictionary ids.
 
 ## Reasoning Effort Select
 

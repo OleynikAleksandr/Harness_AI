@@ -79,6 +79,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/localization-coverage-cache-repair-packaged-app-2026-06-30.md`
   — packaged application rebuild evidence for Settings localization coverage and
   cache layout repair.
+- `docs/evidence/localization-refresh-repair-packaged-app-2026-06-30.md` —
+  packaged application rebuild evidence for refreshing the open Settings
+  localization payload after save/reset.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

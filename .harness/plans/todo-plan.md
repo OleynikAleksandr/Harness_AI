@@ -8,8 +8,8 @@
   "planId": "reasoning-menu-opacity-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "Record reasoning menu opacity verification",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -65,6 +65,6 @@
 
 ### Stream: Package And Retest
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record reasoning menu opacity evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record reasoning menu opacity verification`).
-4. [TODO] Git Commit: `Record reasoning menu opacity verification` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` User retests the reasoning menu across provider tabs in the packaged app (scope: user workflow; expected commit: none).
+3. [DONE] `harness-ai.phase2.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record reasoning menu opacity evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record reasoning menu opacity verification`). Result: Completed in commit `Record reasoning menu opacity verification`.
+4. [DONE] Git Commit: `Record reasoning menu opacity verification` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the reasoning menu across provider tabs in the packaged app (scope: user workflow; expected commit: none).

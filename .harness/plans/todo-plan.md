@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task1",
-  "expectedCommitMessage": "feat: add translation engine contract",
+  "currentTaskId": "harness-ai.phase1.stream2.task1",
+  "expectedCommitMessage": "feat: add google gtx translation engine",
   "debt": null
 }
 ```
@@ -81,12 +81,12 @@
 
 ### Stream: Shared Translation Contract
 
-5. [IN_PROGRESS] `harness-ai.phase1.stream1.task1` Add the minimal provider-neutral translation request/result contract, engine registry, fail-closed no-engine behavior, and output formatting normalizer under `provider-translation-engines` using the CodeAI Hub contracts as reference (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/translation-text-format-normalizer.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.test.mjs`; expected commit: `feat: add translation engine contract`).
-6. [TODO] Git Commit: `feat: add translation engine contract` (hash: TBD)
+5. [DONE] `harness-ai.phase1.stream1.task1` Add the minimal provider-neutral translation request/result contract, engine registry, fail-closed no-engine behavior, and output formatting normalizer under `provider-translation-engines` using the CodeAI Hub contracts as reference (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/translation-text-format-normalizer.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.test.mjs`; expected commit: `feat: add translation engine contract`). Result: Completed in commit `feat: add translation engine contract`.
+6. [DONE] Git Commit: `feat: add translation engine contract` (hash: self)
 
 ### Stream: Google GTX Engine
 
-7. [TODO] `harness-ai.phase1.stream2.task1` Add the Google GTX translation engine as a separate engine implementation behind `ProviderTranslationEnginesFacade` instead of putting transport logic in the facade (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/translation-response-parser.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.test.mjs`; expected commit: `feat: add google gtx translation engine`).
+7. [IN_PROGRESS] `harness-ai.phase1.stream2.task1` Add the Google GTX translation engine as a separate engine implementation behind `ProviderTranslationEnginesFacade` instead of putting transport logic in the facade (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/translation-response-parser.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.test.mjs`; expected commit: `feat: add google gtx translation engine`).
 8. [TODO] Git Commit: `feat: add google gtx translation engine` (hash: TBD)
 
 ### Stream: Provider-Owned Engine Selection

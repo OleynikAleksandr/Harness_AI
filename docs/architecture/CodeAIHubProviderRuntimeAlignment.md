@@ -52,6 +52,13 @@ flowchart LR
 
 Renderer and Electron host must not call provider CLIs or SDKs directly. They may only send UI intents to Core and render Core-owned snapshots/events.
 
+Visible reasoning translation follows this same authority split. Provider
+Runtime exposes provider-backed translation engines, but Core resolves the
+reasoning language/engine policy from settings, marks eligible visible
+reasoning messages as pending, stores translated overlays as sidecar records,
+and broadcasts `session:message_translation` patches. The renderer applies
+`localizedContent` for display and must keep source `text` as Core truth.
+
 ## Module Direction
 
 The next product-tree update should replace the role of `provider-turn-runner` with explicit modules:
@@ -67,6 +74,9 @@ The next product-tree update should replace the role of `provider-turn-runner` w
 - Provider Runtime / Provider Events And Translation:
   - `provider-event-normalizer`
   - `provider-translation-engines`
+- Core Runtime / Settings And Localization:
+  - `localization-runtime`
+  - `reasoning-translation-overlay`
 - Application Shell / Electron Host:
   - `core-process-bridge`
 
@@ -75,6 +85,13 @@ The next product-tree update should replace the role of `provider-turn-runner` w
 From this scope forward, provider execution must enter through Core session dispatch. Any shortcut that calls a provider outside the CodeAI Hub-style Core/provider adapter path requires explicit user approval before implementation.
 
 Visible provider reasoning follows the same rule: provider adapters request provider-native visible reasoning where the provider requires an explicit turn option, provider events enter Core, `session-reasoning-display` projects explicit thinking events or tagged visible reasoning into Core `thinking` messages, and the UI only renders the projected session messages. Provider-native persistence under isolated provider homes is separate from Harness Core dialog JSONL history under `<workspace>/.harness/sessions/**`.
+
+Translation overlays are Core-owned display state. Session JSONL remains the
+canonical source transcript, while translated reasoning sidecars live under the
+workspace session sidecar directory and are reapplied only when the stored
+source hash still matches the message text. UI localization bundles are a
+separate materialized runtime payload and do not depend on reasoning overlay
+settings.
 
 Live assistant text follows the CodeAI Hub append-only contract: providers may emit assistant chunks tagged `live`; Core preserves that tag, coalesces consecutive live chunks for session readback/display, and suppresses or reduces a later full-text final answer when the live text already covers it. Renderer code must not infer provider chunk semantics without this Core/shared contract.
 
@@ -127,6 +144,10 @@ Required behavior:
 - Replace partial app-server logic with the reference process/facade/event-router stack.
 - Preserve app-server process profile, provider home/auth normalization, base instructions/config, thread start/resume, stale binding handling, turn interrupt, and usage limit updates.
 - Preserve reasoning behavior: summary params, summary stream buffer, live reasoning fallback buffer, item completion reconciliation, agent message delta buffering, and `thinking` tagged dialog messages.
+- Preserve stable reasoning summary block identities:
+  `<itemId>::summary-block::<index>`, stream completed summary paragraphs when
+  the next part starts, and do not duplicate already-streamed blocks when the
+  final item arrives.
 - Preserve Codex capability and Spark summary gating from the reference module.
 
 ### Kimi

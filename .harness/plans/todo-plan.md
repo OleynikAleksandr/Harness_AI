@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "docs: document localization transfer architecture",
+  "currentTaskId": "harness-ai.phase6.stream2.task1",
+  "expectedCommitMessage": "docs: update localization product tree",
   "debt": null
 }
 ```
@@ -191,12 +191,12 @@
 
 ### Stream: Architecture Docs
 
-45. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Update cross-cut architecture docs for the completed localization transfer and verify module docs were updated in their source commits, without deferring module documentation from earlier phases (scope: `docs/architecture/ProjectManagerSettingsParity.md, docs/architecture/CodeAIHubProviderRuntimeAlignment.md, product-parts/core-runtime/clusters/settings-and-localization/cluster.md`; expected commit: `docs: document localization transfer architecture`).
-46. [TODO] Git Commit: `docs: document localization transfer architecture` (hash: TBD)
+45. [DONE] `harness-ai.phase6.stream1.task1` Update cross-cut architecture docs for the completed localization transfer and verify module docs were updated in their source commits, without deferring module documentation from earlier phases (scope: `docs/architecture/ProjectManagerSettingsParity.md, docs/architecture/CodeAIHubProviderRuntimeAlignment.md, product-parts/core-runtime/clusters/settings-and-localization/cluster.md`; expected commit: `docs: document localization transfer architecture`). Result: Completed in commit `docs: document localization transfer architecture`.
+46. [DONE] Git Commit: `docs: document localization transfer architecture` (hash: self)
 
 ### Stream: Product Tree Docs
 
-47. [TODO] `harness-ai.phase6.stream2.task1` Audit product tree source/projection and affected Product Part docs after implementation, fixing only drift that remains after source commits already updated their ownership docs (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/application-shell/product-part.md`; expected commit: `docs: update localization product tree`).
+47. [IN_PROGRESS] `harness-ai.phase6.stream2.task1` Audit product tree source/projection and affected Product Part docs after implementation, fixing only drift that remains after source commits already updated their ownership docs (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/application-shell/product-part.md`; expected commit: `docs: update localization product tree`).
 48. [TODO] Git Commit: `docs: update localization product tree` (hash: TBD)
 
 ### Stream: Verification Evidence

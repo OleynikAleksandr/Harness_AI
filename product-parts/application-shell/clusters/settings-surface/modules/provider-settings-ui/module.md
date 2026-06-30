@@ -42,6 +42,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Settings shell copy, provider tab labels, and the first shared provider-card
   labels/helpers resolve through the browser localization provider and approved
   source dictionary ids.
+- Claude default-model helper copy, thinking descriptions, model descriptions,
+  and new-session note resolve through the browser localization provider instead
+  of hardcoded Russian text, so Claude follows the same UI Helper Text language
+  selection as the rest of Settings.
 - When the dialog opens, and after a successful settings save or workspace
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are

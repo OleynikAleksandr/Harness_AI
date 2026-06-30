@@ -1,5 +1,6 @@
 import { CLAUDE_REASONING_EFFORTS_BY_MODEL } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
 import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
@@ -13,15 +14,23 @@ export function ClaudeDefaultModelCard({
   provider,
   update,
 }: ClaudeDefaultModelCardProps) {
+  const { t } = useBrowserLocalization();
   return (
     <SettingsCard title="Claude Default model">
       <p className="settings-description">
-        Выберите псевдоним Claude, который будет применяться при запуске новых
-        сессий. Каждая модель хранит свой уровень thinking.
+        {t(
+          "ui_helper_text",
+          "settings.provider.claude.defaultModel.description",
+          "Choose the Claude alias used when new sessions start. Each model stores its own thinking level."
+        )}
       </p>
       <SettingsToggle
         checked={provider.thinking.enabled}
-        description="При включении Claude будет использовать свой адаптивный путь мышления для сложных запросов."
+        description={t(
+          "ui_helper_text",
+          "settings.provider.claude.thinking.enabled.description",
+          "When enabled, Claude can use its adaptive thinking path for complex requests."
+        )}
         label="Enable thinking mode"
         onChange={(enabled) =>
           update((next) => {
@@ -31,7 +40,11 @@ export function ClaudeDefaultModelCard({
       />
       <SettingsToggle
         checked={provider.thinkingDisplaySyncEnabled}
-        description="Show Claude reasoning as a normal assistant bubble with a Thinking label."
+        description={t(
+          "ui_helper_text",
+          "settings.provider.claude.thinking.dialog.description",
+          "Show Claude reasoning as a normal assistant bubble with a Thinking label."
+        )}
         label="Thinking in dialog"
         onChange={(enabled) =>
           update((next) => {
@@ -63,7 +76,11 @@ export function ClaudeDefaultModelCard({
               >
                 <span className="settings-model-title">{option.label}</span>
                 <p className="settings-model-description">
-                  {option.description}
+                  {t(
+                    "ui_helper_text",
+                    `settings.provider.claude.model.${option.id}.description`,
+                    option.description
+                  )}
                 </p>
               </button>
               <div className="settings-row-select">
@@ -92,7 +109,11 @@ export function ClaudeDefaultModelCard({
         })}
       </div>
       <p className="settings-note">
-        Применяется только к вновь созданным сессиям Claude.
+        {t(
+          "ui_helper_text",
+          "settings.provider.claude.newSessions.note",
+          "Applies only to newly created Claude sessions."
+        )}
       </p>
     </SettingsCard>
   );

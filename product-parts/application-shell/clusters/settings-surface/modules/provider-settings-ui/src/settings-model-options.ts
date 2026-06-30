@@ -27,19 +27,17 @@ export const SETTINGS_TABS: ReadonlyArray<{
 export const PROVIDER_MODEL_OPTIONS = {
   claude: [
     {
-      description:
-        "Лучше всего подходит для повседневных задач (claude-sonnet-4-5-20250929).",
+      description: "Best fit for everyday tasks (claude-sonnet-4-5-20250929).",
       id: "sonnet",
       label: "Sonnet",
     },
     {
-      description: "Наиболее мощный для сложных, агентных рабочих нагрузок.",
+      description: "Most powerful option for complex agentic workloads.",
       id: "opus",
       label: "Opus",
     },
     {
-      description:
-        "Самый быстрый псевдоним для быстрых ответов и прототипирования.",
+      description: "Fastest alias for quick answers and prototyping.",
       id: "haiku",
       label: "Haiku",
     },

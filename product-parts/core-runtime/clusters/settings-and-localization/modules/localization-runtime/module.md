@@ -17,6 +17,8 @@ materialization, bootstrap payload reuse, and bundle state.
 - Approved English source dictionaries shipped as TypeScript exports.
 - Settings shell, provider tab and first shared provider-card source strings are
   part of the approved English dictionaries.
+- Claude provider settings helper copy and model descriptions are part of the
+  approved `ui_helper_text` dictionary.
 - Settings localization refresh blocker copy is part of the approved
   `messages_for_the_user` dictionary so the blocking save feedback itself can
   be localized.

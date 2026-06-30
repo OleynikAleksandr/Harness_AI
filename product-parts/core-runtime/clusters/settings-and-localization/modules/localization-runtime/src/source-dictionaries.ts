@@ -102,6 +102,20 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Open the glossary file in VS Code and edit one English term per line. The file is created automatically on first open and starts with common product and workflow terms.",
     "settings.localization.workflowTerms":
       "`Workflow Terms` now follow `UI Labels`, and `Default Language (English)` is the reset state for every category.",
+    "settings.provider.claude.defaultModel.description":
+      "Choose the Claude alias used when new sessions start. Each model stores its own thinking level.",
+    "settings.provider.claude.model.haiku.description":
+      "Fastest alias for quick answers and prototyping.",
+    "settings.provider.claude.model.opus.description":
+      "Most powerful option for complex agentic workloads.",
+    "settings.provider.claude.model.sonnet.description":
+      "Best fit for everyday tasks (claude-sonnet-4-5-20250929).",
+    "settings.provider.claude.newSessions.note":
+      "Applies only to newly created Claude sessions.",
+    "settings.provider.claude.thinking.dialog.description":
+      "Show Claude reasoning as a normal assistant bubble with a Thinking label.",
+    "settings.provider.claude.thinking.enabled.description":
+      "When enabled, Claude can use its adaptive thinking path for complex requests.",
     "settings.provider.kimi.defaultModel.description":
       "Choose the Kimi model used when new sessions start.",
     "settings.provider.kimi.defaultModel.note":

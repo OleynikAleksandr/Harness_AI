@@ -53,6 +53,10 @@ Every Product Part, Cluster and Module owns its local Markdown contract:
 - `product-parts/*/clusters/*/modules/*/module.md` — Module responsibility,
   public facade, inputs, outputs and owned paths.
 
+Application Shell browser localization docs live under
+`product-parts/application-shell/clusters/browser-localization/**` and follow
+the same cluster/module contract.
+
 These files are code-adjacent contracts. When behavior, ownership, facade
 surface, process boundary, provider semantics, UI display contract or runtime
 state changes, update every affected product-part/cluster/module document in

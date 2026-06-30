@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "feat: add browser localization provider",
+  "currentTaskId": "harness-ai.phase3.stream2.task1",
+  "expectedCommitMessage": "feat: add localization source dictionaries",
   "debt": null
 }
 ```
@@ -125,12 +125,12 @@
 
 ### Stream: Browser Localization Provider
 
-21. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Add a shared Application Shell browser localization provider facade and consume the bridge payload from `session-window`, so Settings, Sidebar, and Session UI use one public `t(category, messageId, fallback)` boundary instead of sibling imports; this same commit also creates/updates the new browser-localization cluster/module docs and product-tree entries (scope: `product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`; expected commit: `feat: add browser localization provider`).
-22. [TODO] Git Commit: `feat: add browser localization provider` (hash: TBD)
+21. [DONE] `harness-ai.phase3.stream1.task1` Add a shared Application Shell browser localization provider facade and consume the bridge payload from `session-window`, so Settings, Sidebar, and Session UI use one public `t(category, messageId, fallback)` boundary instead of sibling imports; this same commit also creates/updates the new browser-localization cluster/module docs and product-tree entries (scope: `product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`; expected commit: `feat: add browser localization provider`). Result: Completed in commit `feat: add browser localization provider`.
+22. [DONE] Git Commit: `feat: add browser localization provider` (hash: self)
 
 ### Stream: Source Dictionaries
 
-23. [TODO] `harness-ai.phase3.stream2.task1` Add approved English source dictionaries as TypeScript module exports so the dictionaries are typechecked and included in `dist/runtime` and the packaged app (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionary-registry.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs`; expected commit: `feat: add localization source dictionaries`).
+23. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Add approved English source dictionaries as TypeScript module exports so the dictionaries are typechecked and included in `dist/runtime` and the packaged app (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionary-registry.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs`; expected commit: `feat: add localization source dictionaries`).
 24. [TODO] Git Commit: `feat: add localization source dictionaries` (hash: TBD)
 
 ### Stream: Settings Surface Markers

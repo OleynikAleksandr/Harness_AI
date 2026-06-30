@@ -10,9 +10,11 @@ import {
   type SessionTelemetry,
   sessionSnapshotProjectorFacade,
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import type { LocalizationRuntimePayload } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
 import { NextSessionModePanel } from "./next-session-mode-panel.js";
@@ -51,6 +53,8 @@ export function SessionWindowFacade() {
   const [isNextSessionModeOpen, setIsNextSessionModeOpen] = useState(false);
   const [settingsSnapshot, setSettingsSnapshot] =
     useState<HarnessSettings | null>(null);
+  const [localizationPayload, setLocalizationPayload] =
+    useState<LocalizationRuntimePayload | null>(null);
   const [messagesBySession, setMessagesBySession] = useState<
     Record<string, SessionMessage[]>
   >({
@@ -62,7 +66,6 @@ export function SessionWindowFacade() {
     [initialSnapshot.activeSessionId]: initialSnapshot.telemetry,
   });
   const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
-
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
     initialSnapshot.workspace;
@@ -86,6 +89,13 @@ export function SessionWindowFacade() {
     },
     []
   );
+
+  const refreshLocalizationPayload = useCallback(async () => {
+    const payload = await window.harnessCore?.getLocalizationRuntimePayload();
+    if (payload) {
+      setLocalizationPayload(payload);
+    }
+  }, []);
 
   const hydrateSession = useCallback(async (sessionId: string) => {
     const events = await window.harnessCore?.getSessionEvents(sessionId);
@@ -133,6 +143,7 @@ export function SessionWindowFacade() {
           initialSnapshot.workspace;
         setActiveWorkspaceId(workspace.id);
         refreshSettingsSnapshot(workspace.path).catch(noop);
+        refreshLocalizationPayload().catch(noop);
         refreshSessions(workspace.id, detachedMode?.sessionId).catch(noop);
       })
       .catch(noop);
@@ -165,6 +176,7 @@ export function SessionWindowFacade() {
     detachedMode,
     activeWorkspaceId,
     initialSnapshot.workspace,
+    refreshLocalizationPayload,
     refreshSessions,
     refreshSettingsSnapshot,
   ]);
@@ -180,6 +192,7 @@ export function SessionWindowFacade() {
   function closeSettings() {
     setIsSettingsOpen(false);
     refreshSettingsSnapshot().catch(noop);
+    refreshLocalizationPayload().catch(noop);
   }
 
   async function appendUserMessage(text: string) {
@@ -251,6 +264,7 @@ export function SessionWindowFacade() {
     setActiveWorkspaceId(result.workspace.id);
     setIsWorkspaceMenuOpen(false);
     await refreshSettingsSnapshot(result.workspace.path);
+    await refreshLocalizationPayload();
     await refreshSessions(result.workspace.id);
   }
 
@@ -269,6 +283,7 @@ export function SessionWindowFacade() {
     setActiveWorkspaceId(result.workspace.id);
     setIsWorkspaceMenuOpen(false);
     await refreshSettingsSnapshot(result.workspace.path);
+    await refreshLocalizationPayload();
     await refreshSessions(result.workspace.id);
   }
 
@@ -288,81 +303,82 @@ export function SessionWindowFacade() {
       await refreshSessions(activeWorkspace.id);
     }
   }
+  const shellClassName = detachedMode
+    ? "harness-app-shell harness-app-shell--detached"
+    : "harness-app-shell";
   return (
-    <div
-      className={
-        detachedMode
-          ? "harness-app-shell harness-app-shell--detached"
-          : "harness-app-shell"
-      }
-    >
-      {detachedMode ? null : (
-        <SessionSidebarFacade
-          activeSessionId={activeSession?.id ?? ""}
-          isWorkspaceMenuOpen={isWorkspaceMenuOpen}
-          onAddWorkspace={addWorkspace}
-          onCreateSession={openProviderPicker}
-          onDeleteSession={deleteSession}
-          onDetachSession={detachSession}
-          onOpenNextSessionMode={() => setIsNextSessionModeOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onSelectSession={selectSession}
-          onSelectWorkspace={selectWorkspace}
-          onToggleWorkspaceMenu={() =>
-            setIsWorkspaceMenuOpen((current) => !current)
-          }
-          sessions={sessions}
-          workspace={activeWorkspace}
-          workspaces={workspaces}
-        />
-      )}
+    <BrowserLocalizationProvider payload={localizationPayload}>
+      <div className={shellClassName}>
+        {detachedMode ? null : (
+          <SessionSidebarFacade
+            activeSessionId={activeSession?.id ?? ""}
+            isWorkspaceMenuOpen={isWorkspaceMenuOpen}
+            onAddWorkspace={addWorkspace}
+            onCreateSession={openProviderPicker}
+            onDeleteSession={deleteSession}
+            onDetachSession={detachSession}
+            onOpenNextSessionMode={() => setIsNextSessionModeOpen(true)}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            onSelectSession={selectSession}
+            onSelectWorkspace={selectWorkspace}
+            onToggleWorkspaceMenu={() =>
+              setIsWorkspaceMenuOpen((current) => !current)
+            }
+            sessions={sessions}
+            workspace={activeWorkspace}
+            workspaces={workspaces}
+          />
+        )}
 
-      {activeSession ? (
-        <main className="session-reference-shell">
-          <SessionIdPanel session={activeSession} telemetry={telemetry} />
-          <DialogPanel
-            messages={messages}
-            providerId={activeSession.providerId}
-            providerName={activeSession.providerName}
+        {activeSession ? (
+          <main className="session-reference-shell">
+            <SessionIdPanel session={activeSession} telemetry={telemetry} />
+            <DialogPanel
+              messages={messages}
+              providerId={activeSession.providerId}
+              providerName={activeSession.providerName}
+            />
+            <ReferenceInputPanel
+              disabled={runningSessionId === activeSession.id}
+              onStop={() => stopActiveTurn(activeSession.id)}
+              onSubmit={appendUserMessage}
+              session={activeSession}
+            />
+            <ReferenceStatusPanel
+              session={activeSession}
+              settings={settingsSnapshot}
+              telemetry={telemetry}
+            />
+          </main>
+        ) : (
+          <main
+            aria-label="Session workspace"
+            className="session-empty-workspace"
           />
-          <ReferenceInputPanel
-            disabled={runningSessionId === activeSession.id}
-            onStop={() => stopActiveTurn(activeSession.id)}
-            onSubmit={appendUserMessage}
-            session={activeSession}
-          />
-          <ReferenceStatusPanel
-            session={activeSession}
+        )}
+
+        {isProviderPickerOpen ? (
+          <ProviderPicker
+            onClose={() => setIsProviderPickerOpen(false)}
+            onSelect={createSession}
+            providers={providerOptions}
             settings={settingsSnapshot}
-            telemetry={telemetry}
           />
-        </main>
-      ) : (
-        <main
-          aria-label="Session workspace"
-          className="session-empty-workspace"
+        ) : null}
+
+        <ProviderSettingsUiFacade
+          isOpen={isSettingsOpen}
+          onClose={closeSettings}
+          workspacePath={activeWorkspace.path}
         />
-      )}
 
-      {isProviderPickerOpen ? (
-        <ProviderPicker
-          onClose={() => setIsProviderPickerOpen(false)}
-          onSelect={createSession}
-          providers={providerOptions}
-          settings={settingsSnapshot}
-        />
-      ) : null}
-
-      <ProviderSettingsUiFacade
-        isOpen={isSettingsOpen}
-        onClose={closeSettings}
-        workspacePath={activeWorkspace.path}
-      />
-
-      {isNextSessionModeOpen ? (
-        <NextSessionModePanel onClose={() => setIsNextSessionModeOpen(false)} />
-      ) : null}
-    </div>
+        {isNextSessionModeOpen ? (
+          <NextSessionModePanel
+            onClose={() => setIsNextSessionModeOpen(false)}
+          />
+        ) : null}
+      </div>
+    </BrowserLocalizationProvider>
   );
 }
 

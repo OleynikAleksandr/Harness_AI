@@ -35,6 +35,10 @@ Application Shell submits user input, displays Core read models/events, manages 
 - `localization-settings-ui`: UI language and reasoning translation controls submitted through Core contracts.
 - `recovery-controls-ui`: Core restart/recovery action surface backed by a real Core process stop/start lifecycle.
 
+### Browser Localization
+
+- `browser-localization-provider`: shared renderer localization provider and `t(category, messageId, fallback)` lookup boundary.
+
 ## Core Runtime
 
 Out-of-process long-running local authority for workspaces, sessions, orchestration, provider composition, settings, localization, and workspace truth.

@@ -11,6 +11,7 @@ implementation modules in-process.
 ## Owned Clusters
 
 - `electron-host`
+- `browser-localization`
 - `session-interface`
 - `settings-surface`
 
@@ -18,6 +19,7 @@ implementation modules in-process.
 
 - Own the desktop application window and renderer surface.
 - Present classic chat sessions, workspace selection, session lists, and settings from Core read models.
+- Resolve browser display copy through Core-provided localization payloads.
 - Forward user input and settings changes to Core contracts.
 - Start, stop, restart, health-check, or connect to the Core process.
 - Open workspace file links in Visual Studio Code.

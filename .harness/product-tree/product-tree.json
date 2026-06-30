@@ -88,6 +88,18 @@
               "purpose": "Core restart and recovery action surface."
             }
           ]
+        },
+        {
+          "id": "browser-localization",
+          "name": "Browser Localization",
+          "purpose": "Renderer-local access to Core-provided localization runtime payloads.",
+          "modules": [
+            {
+              "id": "browser-localization-provider",
+              "name": "Browser Localization Provider",
+              "purpose": "Shared renderer localization provider and t(category, messageId, fallback) lookup boundary."
+            }
+          ]
         }
       ]
     },

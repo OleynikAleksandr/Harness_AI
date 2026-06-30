@@ -49,6 +49,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Codex default-model helper copy, reasoning summary description, model
   descriptions, and new-session note also resolve through the browser
   localization provider.
+- Kimi default-model row descriptions resolve through the browser localization
+  provider; the card description and note already use the same boundary.
 - When the dialog opens, and after a successful settings save or workspace
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are

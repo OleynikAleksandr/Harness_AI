@@ -169,7 +169,11 @@ export function SettingsTabContent({
               next.providers.kimi.defaultModel = defaultModel;
             })
           }
-          options={PROVIDER_MODEL_OPTIONS.kimi}
+          options={localizeModelOptions(
+            t,
+            "settings.provider.kimi.model",
+            PROVIDER_MODEL_OPTIONS.kimi
+          )}
           title={t(
             "ui_labels",
             "settings.provider.kimi.defaultModel",
@@ -351,6 +355,26 @@ export function SettingsTabContent({
       </SettingsCard>
     </div>
   );
+}
+
+function localizeModelOptions(
+  t: ReturnType<typeof useBrowserLocalization>["t"],
+  messagePrefix: string,
+  options: Parameters<typeof ModelRows>[0]["options"]
+): Parameters<typeof ModelRows>[0]["options"] {
+  return options.map((option) => {
+    if (typeof option === "string" || !option.description) {
+      return option;
+    }
+    return {
+      ...option,
+      description: t(
+        "ui_helper_text",
+        `${messagePrefix}.${option.id}.description`,
+        option.description
+      ),
+    };
+  });
 }
 
 function DefaultModelCard({

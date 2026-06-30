@@ -136,6 +136,10 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Choose the Kimi model used when new sessions start.",
     "settings.provider.kimi.defaultModel.note":
       "Uses the installed Kimi Code CLI through ACP.",
+    "settings.provider.kimi.model.kimi-k2.7-code.description":
+      "Kimi K2.7 Code model exposed through Kimi Code ACP.",
+    "settings.provider.kimi.model.kimi-k2.7-code-highspeed.description":
+      "Lower-latency Kimi K2.7 coding model exposed through ACP.",
     "session.input.hint": "Press Enter to send, Shift+Enter for a new line",
     "session.input.placeholder": "Message the active provider.",
     "sidebar.nextSessionMode.description": "Next session starts as Native Raw",

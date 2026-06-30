@@ -20,7 +20,9 @@ materialization, bootstrap payload reuse, and bundle state.
 - General Settings App Controls source strings identify restart as a full app
   relaunch because the Electron host and Core runtime both reload from disk.
 - Claude provider settings helper copy and model descriptions are part of the
-  approved `ui_helper_text` dictionary.
+  approved `ui_helper_text` dictionary. Alias descriptions stay
+  version-neutral; the Sonnet source string does not include a concrete model
+  id so localized bundles do not preserve stale Anthropic release numbers.
 - Codex provider settings helper copy and model descriptions are part of the
   approved `ui_helper_text` dictionary.
 - Kimi provider settings helper copy and model descriptions are part of the

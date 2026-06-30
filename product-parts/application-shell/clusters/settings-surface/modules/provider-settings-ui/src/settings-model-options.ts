@@ -27,7 +27,7 @@ export const SETTINGS_TABS: ReadonlyArray<{
 export const PROVIDER_MODEL_OPTIONS = {
   claude: [
     {
-      description: "Best fit for everyday tasks (claude-sonnet-4-5-20250929).",
+      description: "Best fit for everyday tasks.",
       id: "sonnet",
       label: "Sonnet",
     },

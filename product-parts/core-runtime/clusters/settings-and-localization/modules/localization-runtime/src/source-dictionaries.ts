@@ -129,7 +129,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.provider.claude.model.opus.description":
       "Most powerful option for complex agentic workloads.",
     "settings.provider.claude.model.sonnet.description":
-      "Best fit for everyday tasks (claude-sonnet-4-5-20250929).",
+      "Best fit for everyday tasks.",
     "settings.provider.claude.newSessions.note":
       "Applies only to newly created Claude sessions.",
     "settings.provider.claude.thinking.dialog.description":

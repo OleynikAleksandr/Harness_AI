@@ -113,6 +113,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild evidence for remaining Settings localization
   coverage, dynamic OpenRouter description translation, and localization cache
   invalidation by source dictionary fingerprint.
+- `docs/evidence/sonnet-alias-description-package-2026-06-30.md` — packaged
+  application rebuild evidence for removing the stale concrete Claude Sonnet
+  model id from Settings helper copy.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

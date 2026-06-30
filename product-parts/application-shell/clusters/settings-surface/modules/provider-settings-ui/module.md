@@ -61,7 +61,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Claude default-model helper copy, thinking descriptions, model descriptions,
   and new-session note resolve through the browser localization provider instead
   of hardcoded Russian text, so Claude follows the same UI Helper Text language
-  selection as the rest of Settings.
+  selection as the rest of Settings. Claude alias descriptions stay
+  version-neutral; the Sonnet helper copy does not include a concrete
+  Anthropic model id because the alias should track the current underlying
+  model.
 - Codex default-model helper copy, reasoning summary description, model
   descriptions, and new-session note also resolve through the browser
   localization provider.

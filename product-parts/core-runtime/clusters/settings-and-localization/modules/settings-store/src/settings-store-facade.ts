@@ -1,9 +1,13 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
-import path from "node:path";
+import { dirname } from "node:path";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { normalizeSettings } from "./settings-normalization.js";
+import {
+  logCoreSettingsSnapshot,
+  systemSettingsPath,
+  workspaceSettingsPath,
+} from "./settings-store-logger.js";
 
 export type LocalizationWorkflowTermsPolicy = "keep_english" | "translate";
 export type ReasoningEffort =
@@ -185,7 +189,7 @@ const PROVIDER_KEY_BY_ID: Record<
 
 export class SettingsStoreFacade {
   getSettings(workspacePath?: string): HarnessSettings {
-    return normalizeSettings(
+    const settings = normalizeSettings(
       mergeSettings(
         DEFAULT_SETTINGS,
         readJson(systemSettingsPath()),
@@ -193,6 +197,8 @@ export class SettingsStoreFacade {
         workspacePath ? readJson(workspaceSettingsPath(workspacePath)) : null
       )
     );
+    logCoreSettingsSnapshot("settings.get", workspacePath, settings);
+    return settings;
   }
 
   getProviderModel(
@@ -228,6 +234,7 @@ export class SettingsStoreFacade {
   }
 
   resetWorkspaceSettings(workspacePath?: string): HarnessSettings {
+    logCoreSettingsSnapshot("settings.reset", workspacePath);
     if (workspacePath) {
       rmSync(workspaceSettingsPath(workspacePath), { force: true });
     }
@@ -239,6 +246,7 @@ export class SettingsStoreFacade {
     workspacePath?: string
   ): HarnessSettings {
     const next = normalizeSettings(mergeSettings(DEFAULT_SETTINGS, settings));
+    logCoreSettingsSnapshot("settings.save.requested", workspacePath, next);
     writeJson(systemSettingsPath(), systemSettingsFrom(next));
     if (workspacePath) {
       writeJson(
@@ -247,7 +255,9 @@ export class SettingsStoreFacade {
       );
     }
     syncProviderAuthFiles(next);
-    return this.getSettings(workspacePath);
+    const saved = this.getSettings(workspacePath);
+    logCoreSettingsSnapshot("settings.save.completed", workspacePath, saved);
+    return saved;
   }
 }
 
@@ -453,35 +463,19 @@ function readJson(filePath: string): unknown {
 }
 
 function writeJson(filePath: string, value: unknown): void {
-  mkdirSync(path.dirname(filePath), { recursive: true });
+  mkdirSync(dirname(filePath), { recursive: true });
   writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function systemSettingsPath(): string {
-  return path.join(harnessHome(), "settings", "settings.json");
-}
-
-function workspaceSettingsPath(workspacePath: string): string {
-  return path.join(workspacePath, ".harness", "settings", "settings.json");
-}
-
-function harnessHome(): string {
-  return (
-    process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai")
-  );
 }
 
 function compactRecord(
   values: Record<string, unknown>
 ): Record<string, string> {
-  const compacted: Record<string, string> = {};
-  for (const [key, value] of Object.entries(values)) {
-    const text = firstText(value);
-    if (text) {
-      compacted[key] = text;
-    }
-  }
-  return compacted;
+  return Object.fromEntries(
+    Object.entries(values).flatMap(([key, value]) => {
+      const text = firstText(value);
+      return text ? [[key, text]] : [];
+    })
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -489,10 +483,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function firstText(...values: unknown[]): string | null {
-  for (const value of values) {
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
-    }
-  }
-  return null;
+  return (
+    values
+      .find(
+        (value): value is string =>
+          typeof value === "string" && Boolean(value.trim())
+      )
+      ?.trim() ?? null
+  );
 }

@@ -86,7 +86,12 @@ async function openDetachedSessionWindow(request) {
   return { ok: true };
 }
 
-function restartHarnessApp() {
+async function restartHarnessApp() {
+  const bridge = await coreBridge();
+  const stopped = await bridge.stopCore();
+  if (!stopped.ok) {
+    return stopped;
+  }
   setTimeout(() => {
     app.relaunch({ args: process.argv.slice(1) });
     app.exit(0);

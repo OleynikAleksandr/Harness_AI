@@ -19,8 +19,10 @@ Own Electron lifecycle, window creation, and local application startup.
 - Renderer preload/bootstrap state.
 - Preload bridge methods for Core-owned localization runtime payloads.
 - Renderer-safe shell bridge method for full Electron app relaunch. The
-  relaunch path schedules `app.relaunch(...)` and exits the current host so the
-  next process reloads the packaged `app.asar` from disk.
+  relaunch path first stops the supervised Core process through the Core Process
+  Bridge, then schedules `app.relaunch(...)` and exits the current host so the
+  next process reloads the packaged `app.asar` and starts a fresh Core runtime
+  from disk.
 
 ## Owned Paths
 

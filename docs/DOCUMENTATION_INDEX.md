@@ -104,6 +104,8 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/settings-full-app-restart-package-2026-06-30.md` — packaged
   application rebuild evidence for replacing Settings restart with full Electron
   app relaunch.
+- `docs/evidence/app-relaunch-core-shutdown-package-2026-06-30.md` — packaged
+  application rebuild evidence for stopping Core before Electron app relaunch.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

@@ -82,6 +82,16 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
         webContentsTargets.delete(webContents);
       });
     },
+    async stopCore() {
+      stopEventStream();
+      try {
+        await coreSupervisor.stop();
+        return { ok: true };
+      } catch (error) {
+        stopEventStream = connectCoreEvents(coreClient, webContentsTargets);
+        return { error: toErrorMessage(error), ok: false };
+      }
+    },
   };
   return bridge;
 }

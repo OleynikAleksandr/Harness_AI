@@ -14,6 +14,8 @@ assert.match(source, /harness-ai:core:get-session-events/u);
 assert.match(source, /createCoreProcessSupervisor\(repositoryRoot\)/u);
 assert.match(source, /await coreSupervisor\.start\(\)/u);
 assert.match(source, /await coreSupervisor\.restart\(\)/u);
+assert.match(source, /async stopCore\(\)/u);
+assert.match(source, /await coreSupervisor\.stop\(\)/u);
 assert.match(source, /catch \(error\)[\s\S]*ok: false/u);
 assert.match(source, /toErrorMessage\(error\)/u);
 assert.match(source, /\/api\/v1\/rpc/u);

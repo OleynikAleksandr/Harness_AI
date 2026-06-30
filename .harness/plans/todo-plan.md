@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase16.stream1.task2",
-  "expectedCommitMessage": "docs: record blocking localization refresh package",
+  "currentTaskId": "harness-ai.phase16.stream1.task3",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -306,6 +306,6 @@
 
 102. [DONE] `harness-ai.phase16.stream1.task1` Show a blocking Settings localization refresh card with spinner after Save while the localization runtime payload refresh is running, without relying on a silent disabled Save button (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.test.mjs, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix: show blocking localization refresh state`). Result: Completed in commit `fix: show blocking localization refresh state`.
 103. [DONE] Git Commit: `fix: show blocking localization refresh state` (hash: self)
-104. [IN_PROGRESS] `harness-ai.phase16.stream1.task2` Rebuild the packaged app after the blocking localization refresh UI repair and record evidence (scope: `docs/evidence/blocking-localization-refresh-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record blocking localization refresh package`).
-105. [TODO] Git Commit: `docs: record blocking localization refresh package` (hash: TBD)
-106. [TODO] `harness-ai.phase16.stream1.task3` User retests Save feedback and interaction blocking while localization refresh runs in the rebuilt packaged app (scope: user workflow; expected commit: none).
+104. [DONE] `harness-ai.phase16.stream1.task2` Rebuild the packaged app after the blocking localization refresh UI repair and record evidence (scope: `docs/evidence/blocking-localization-refresh-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record blocking localization refresh package`). Result: Completed in commit `docs: record blocking localization refresh package`.
+105. [DONE] Git Commit: `docs: record blocking localization refresh package` (hash: self)
+106. [IN_PROGRESS] `harness-ai.phase16.stream1.task3` User retests Save feedback and interaction blocking while localization refresh runs in the rebuilt packaged app (scope: user workflow; expected commit: none).

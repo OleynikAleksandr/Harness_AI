@@ -95,6 +95,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/settings-save-responsiveness-package-2026-06-30.md` —
   packaged application rebuild evidence for Settings Save responsiveness after
   localization category changes.
+- `docs/evidence/blocking-localization-refresh-package-2026-06-30.md` —
+  packaged application rebuild evidence for reference-style blocking
+  localization refresh feedback after Settings Save.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

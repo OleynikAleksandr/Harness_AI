@@ -86,11 +86,20 @@ async function openDetachedSessionWindow(request) {
   return { ok: true };
 }
 
+function restartHarnessApp() {
+  setTimeout(() => {
+    app.relaunch({ args: process.argv.slice(1) });
+    app.exit(0);
+  }, 50);
+  return { ok: true };
+}
+
 export async function startHarnessAiApp() {
   await app.whenReady();
   ipcMain.handle("harness-ai:app:detach-session", (_event, request) =>
     openDetachedSessionWindow(request)
   );
+  ipcMain.handle("harness-ai:app:restart", () => restartHarnessApp());
   await createMainWindow();
 
   app.on("activate", () => {

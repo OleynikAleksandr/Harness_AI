@@ -156,5 +156,6 @@ interface Window {
       sessionId: string;
       workspaceId: string;
     }): Promise<{ ok: true } | { error: string; ok: false }>;
+    restartApp(): Promise<{ ok: true } | { error: string; ok: false }>;
   };
 }

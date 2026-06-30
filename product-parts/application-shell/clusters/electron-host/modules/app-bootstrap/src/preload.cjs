@@ -64,4 +64,5 @@ contextBridge.exposeInMainWorld("harnessCore", {
 contextBridge.exposeInMainWorld("harnessShell", {
   detachSession: (request) =>
     ipcRenderer.invoke("harness-ai:app:detach-session", request),
+  restartApp: () => ipcRenderer.invoke("harness-ai:app:restart"),
 });

@@ -3,11 +3,12 @@ import {
   usageContextTelemetryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
 import { providerRegistryFacade } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import { ReasoningTranslationOverlayFacade } from "../../../../settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.js";
+import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import { providerSessionBindingFacade } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import {
   type CoreSessionMessage,
-  type SessionCoreEvent,
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
@@ -46,6 +47,8 @@ export class SessionRequestHandlerFacade {
   private readonly bindingFacade: ProviderSessionBindingFacadeLike;
   private readonly eventStream: SessionEventStreamLike;
   private readonly providerRegistry: ProviderRegistryLike;
+  private readonly reasoningTranslation =
+    new ReasoningTranslationOverlayFacade();
   private readonly runtimeBindings = new Map<string, ProviderRuntimeBinding>();
   private readonly messagesBySession = new Map<string, CoreSessionMessage[]>();
   private readonly sessions = new Map<string, CoreSession>();
@@ -93,7 +96,7 @@ export class SessionRequestHandlerFacade {
         status: "idle",
       })
     );
-    this.publish({
+    this.eventStream.publish({
       payload: { sessionId: session.id, title: session.title },
       timestamp: now,
       type: "session:created",
@@ -216,20 +219,21 @@ export class SessionRequestHandlerFacade {
       });
     }
   }
-  private publishMessage(message: CoreSessionMessage): void {
+  private publishMessage(message: CoreSessionMessage) {
     const displayMessage = resolveDisplayMessage(
       this.messagesBySession.get(message.sessionId) ?? [],
       message
     );
     if (!displayMessage) {
-      return;
+      return null;
     }
     this.rememberMessage(displayMessage);
-    this.publish({
+    this.eventStream.publish({
       payload: displayMessage,
       timestamp: displayMessage.timestamp,
       type: "session:message",
     });
+    return displayMessage;
   }
 
   private rememberMessage(message: CoreSessionMessage): void {
@@ -249,7 +253,7 @@ export class SessionRequestHandlerFacade {
 
   private publishBinding(binding: ProviderSessionBinding): void {
     this.rememberProviderSessionId(binding);
-    this.publish({
+    this.eventStream.publish({
       payload: binding,
       timestamp: binding.updatedAt,
       type: "session:provider-binding",
@@ -275,7 +279,7 @@ export class SessionRequestHandlerFacade {
   }
 
   private publishError(sessionId: string, error: string): void {
-    this.publish({
+    this.eventStream.publish({
       payload: { error, sessionId },
       timestamp: new Date().toISOString(),
       type: "session:error",
@@ -286,15 +290,11 @@ export class SessionRequestHandlerFacade {
     this.updateTelemetry(sessionId, (current) =>
       usageContextTelemetryFacade.applyStatus(current, state)
     );
-    this.publish({
+    this.eventStream.publish({
       payload: { sessionId, state },
       timestamp: new Date().toISOString(),
       type: "session:turn-state",
     });
-  }
-
-  private publish(event: SessionCoreEvent): void {
-    this.eventStream.publish(event);
   }
 
   private persistSessionIndex(workspacePath?: string): void {
@@ -307,16 +307,13 @@ export class SessionRequestHandlerFacade {
     writeWorkspaceSessionIndex(workspacePath, workspaceSessions);
   }
 
-  private setTelemetry(
-    sessionId: string,
-    telemetry: ProviderUsageTelemetry
-  ): void {
+  private setTelemetry(sessionId: string, telemetry: ProviderUsageTelemetry) {
     const current = this.telemetryBySession.get(sessionId);
     if (current && JSON.stringify(current) === JSON.stringify(telemetry)) {
       return;
     }
     this.telemetryBySession.set(sessionId, telemetry);
-    this.publish({
+    this.eventStream.publish({
       payload: { sessionId, telemetry },
       timestamp: telemetry.updatedAt,
       type: "session:telemetry",
@@ -348,8 +345,6 @@ export class SessionRequestHandlerFacade {
     }
     try {
       await adapter.initialize?.();
-      // Resume the prior provider session when one is known (oneshot + resume),
-      // otherwise create a fresh provider session.
       const providerSessionId =
         session.providerSessionId && adapter.resumeSession
           ? await adapter.resumeSession(
@@ -446,16 +441,23 @@ export class SessionRequestHandlerFacade {
     const displayMessages =
       sessionReasoningDisplayFacade.projectProviderEvent(event);
     if (displayMessages.length > 0) {
-      for (const message of displayMessages) {
-        this.publishMessage({
-          id: message.id,
-          role: message.role,
-          sessionId,
-          ...(message.tag ? { tag: message.tag } : {}),
-          text: message.text,
-          timestamp: message.timestamp,
-        });
-      }
+      const session = this.sessions.get(sessionId);
+      this.reasoningTranslation.publishDisplayMessages({
+        displayMessages,
+        publishMessage: (message) => this.publishMessage(message),
+        publishPatch: (payload) =>
+          this.eventStream.publish({
+            payload,
+            timestamp: new Date().toISOString(),
+            type: "session:message_translation",
+          }),
+        sessionId,
+        settings: session
+          ? settingsStoreFacade.getSettings(session.workspacePath).general
+              .localization
+          : null,
+        workspacePath: session?.workspacePath,
+      });
       return;
     }
     if (event.type === "turn_started") {
@@ -493,4 +495,5 @@ export class SessionRequestHandlerFacade {
     });
   }
 }
+
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream4.task1",
-  "expectedCommitMessage": "feat: translate visible reasoning overlays",
+  "currentTaskId": "harness-ai.phase4.stream5.task1",
+  "expectedCommitMessage": "feat: reveal translated reasoning progressively",
   "debt": null
 }
 ```
@@ -167,12 +167,12 @@
 
 ### Stream: Session Request Integration
 
-37. [IN_PROGRESS] `harness-ai.phase4.stream4.task1` Run reasoning translation after visible thinking messages are persisted/broadcast, while keeping source transcript truth in session history and writing overlays through the sidecar store (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs`; expected commit: `feat: translate visible reasoning overlays`).
-38. [TODO] Git Commit: `feat: translate visible reasoning overlays` (hash: TBD)
+37. [DONE] `harness-ai.phase4.stream4.task1` Run reasoning translation after visible thinking messages are persisted/broadcast, while keeping source transcript truth in session history and writing overlays through the sidecar store (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs`; expected commit: `feat: translate visible reasoning overlays`). Result: Completed in commit `feat: translate visible reasoning overlays`.
+38. [DONE] Git Commit: `feat: translate visible reasoning overlays` (hash: self)
 
 ### Stream: Translation-First UI Reveal
 
-39. [TODO] `harness-ai.phase4.stream5.task1` Update session UI to hide pending source reasoning, apply `session:message_translation` patches, merge thinking blocks, and reveal translated text progressively (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/translated-text-reveal.ts`; expected commit: `feat: reveal translated reasoning progressively`).
+39. [IN_PROGRESS] `harness-ai.phase4.stream5.task1` Update session UI to hide pending source reasoning, apply `session:message_translation` patches, merge thinking blocks, and reveal translated text progressively (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/translated-text-reveal.ts`; expected commit: `feat: reveal translated reasoning progressively`).
 40. [TODO] Git Commit: `feat: reveal translated reasoning progressively` (hash: TBD)
 
 ## Phase 5 - Provider Reasoning Block Fidelity (owner: Codex, updated: 2026-06-30)

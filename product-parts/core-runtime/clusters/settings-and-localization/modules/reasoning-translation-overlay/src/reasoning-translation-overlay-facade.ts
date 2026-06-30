@@ -2,6 +2,7 @@ import {
   ProviderTranslationEnginesFacade,
   type ProviderTranslationResult,
 } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";
+import { ReasoningTranslationOverlayStore } from "./reasoning-translation-overlay-store.js";
 import { createReasoningSourceHash } from "./source-hash.js";
 
 const SOURCE_LANGUAGE = "en";
@@ -18,6 +19,20 @@ export interface ReasoningTranslationCandidate {
   readonly messageId: string;
   readonly sessionId: string;
   readonly sourceText: string;
+}
+
+export interface ReasoningTranslationMessageCandidate
+  extends ReasoningTranslationCandidate {
+  readonly role?: string;
+  readonly tag?: string;
+}
+
+export interface ReasoningTranslationDisplayMessage {
+  readonly id: string;
+  readonly role: "assistant" | "thinking";
+  readonly tag?: string;
+  readonly text: string;
+  readonly timestamp: string;
 }
 
 export interface ReasoningTranslationPendingState {
@@ -38,6 +53,29 @@ export interface ReasoningTranslationOverlay {
   readonly targetLanguage: string;
 }
 
+export interface ReasoningTranslationPatchPayload {
+  readonly localizedContent: string;
+  readonly messageId: string;
+  readonly sessionId: string;
+  readonly sourceHash: string;
+  readonly targetLanguage: string;
+}
+
+export interface ReasoningTranslationPublishedMessage {
+  readonly id: string;
+  readonly role: string;
+  readonly sessionId: string;
+  readonly tag?: string;
+  readonly text: string;
+}
+
+export interface ReasoningTranslationPublishableMessage
+  extends ReasoningTranslationPublishedMessage {
+  readonly role: "assistant" | "thinking";
+  readonly timestamp: string;
+  readonly translationState?: "pending";
+}
+
 export interface ReasoningTranslationPolicy {
   readonly enabled: boolean;
   readonly engineId: string;
@@ -47,6 +85,10 @@ export interface ReasoningTranslationPolicy {
 }
 
 interface ReasoningTranslationOverlayOptions {
+  readonly overlayStore?: Pick<
+    ReasoningTranslationOverlayStore,
+    "appendOverlay"
+  >;
   readonly translationFacade?: Pick<
     ProviderTranslationEnginesFacade,
     "translate"
@@ -54,12 +96,18 @@ interface ReasoningTranslationOverlayOptions {
 }
 
 export class ReasoningTranslationOverlayFacade {
+  private readonly overlayStore: Pick<
+    ReasoningTranslationOverlayStore,
+    "appendOverlay"
+  >;
   private readonly translationFacade: Pick<
     ProviderTranslationEnginesFacade,
     "translate"
   >;
 
   constructor(options: ReasoningTranslationOverlayOptions = {}) {
+    this.overlayStore =
+      options.overlayStore ?? new ReasoningTranslationOverlayStore();
     this.translationFacade =
       options.translationFacade ?? new ProviderTranslationEnginesFacade();
   }
@@ -113,6 +161,16 @@ export class ReasoningTranslationOverlayFacade {
     };
   }
 
+  resolvePendingStateForMessage(
+    request: ReasoningTranslationMessageCandidate & {
+      readonly settings: ReasoningTranslationSettingsSnapshot;
+    }
+  ): ReasoningTranslationPendingState | null {
+    return isReasoningMessage(request)
+      ? this.resolvePendingState(request)
+      : null;
+  }
+
   async translateVisibleReasoning(
     request: ReasoningTranslationCandidate & {
       readonly settings: ReasoningTranslationSettingsSnapshot;
@@ -138,6 +196,78 @@ export class ReasoningTranslationOverlayFacade {
       sessionId: request.sessionId,
       sourceHash,
     });
+  }
+
+  async translateVisibleReasoningMessage(
+    request: ReasoningTranslationMessageCandidate & {
+      readonly settings: ReasoningTranslationSettingsSnapshot;
+      readonly workspacePath?: string;
+    }
+  ): Promise<ReasoningTranslationPatchPayload | null> {
+    if (!isReasoningMessage(request)) {
+      return null;
+    }
+    const overlay = await this.translateVisibleReasoning(request);
+    if (!overlay) {
+      return null;
+    }
+    if (request.workspacePath) {
+      this.overlayStore.appendOverlay(request.workspacePath, overlay);
+    }
+    if (!(overlay.status === "translated" && overlay.localizedContent)) {
+      return null;
+    }
+    return {
+      localizedContent: overlay.localizedContent,
+      messageId: overlay.messageId,
+      sessionId: overlay.sessionId,
+      sourceHash: overlay.sourceHash,
+      targetLanguage: overlay.targetLanguage,
+    };
+  }
+
+  publishDisplayMessages(options: {
+    readonly displayMessages: readonly ReasoningTranslationDisplayMessage[];
+    readonly publishMessage: (
+      message: ReasoningTranslationPublishableMessage
+    ) => ReasoningTranslationPublishedMessage | null;
+    readonly publishPatch: (payload: ReasoningTranslationPatchPayload) => void;
+    readonly sessionId: string;
+    readonly settings: ReasoningTranslationSettingsSnapshot | null;
+    readonly workspacePath?: string;
+  }): void {
+    for (const message of options.displayMessages) {
+      const sourceMessage = createSourceMessage(message, options.sessionId);
+      const pendingState = options.settings
+        ? this.resolvePendingStateForMessage({
+            ...sourceMessage,
+            settings: options.settings,
+            sourceText: sourceMessage.text,
+          })
+        : null;
+      const publishedMessage = options.publishMessage({
+        ...sourceMessage,
+        ...(pendingState
+          ? { translationState: pendingState.translationState }
+          : {}),
+      });
+      if (!(options.settings && publishedMessage)) {
+        continue;
+      }
+      this.translateVisibleReasoningMessage({
+        messageId: publishedMessage.id,
+        ...publishedMessage,
+        settings: options.settings,
+        sourceText: publishedMessage.text,
+        workspacePath: options.workspacePath,
+      })
+        .then((payload) => {
+          if (payload) {
+            options.publishPatch(payload);
+          }
+        })
+        .catch(() => undefined);
+    }
   }
 }
 
@@ -179,5 +309,28 @@ function createOverlay(options: {
     sourceHash: options.sourceHash,
     status: localizedContent ? "translated" : "fallback",
     targetLanguage: options.result.targetLanguage,
+  };
+}
+
+function isReasoningMessage(
+  message: Pick<ReasoningTranslationMessageCandidate, "role" | "tag">
+): boolean {
+  return message.role === "thinking" || message.tag === "thinking";
+}
+
+function createSourceMessage(
+  message: ReasoningTranslationDisplayMessage,
+  sessionId: string
+): ReasoningTranslationPublishableMessage & {
+  readonly messageId: string;
+} {
+  return {
+    id: message.id,
+    messageId: message.id,
+    role: message.role,
+    sessionId,
+    ...(message.tag ? { tag: message.tag } : {}),
+    text: message.text,
+    timestamp: message.timestamp,
   };
 }

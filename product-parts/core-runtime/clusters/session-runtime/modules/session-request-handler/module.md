@@ -24,6 +24,13 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Provider dispatch requests through the provider adapter contract.
 - Session errors and lifecycle state.
 - Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.
+- Visible reasoning messages are marked pending when the reasoning localization
+  policy requires translation, then translated asynchronously through the
+  reasoning translation overlay module after the source message has been
+  published.
+- Successful reasoning translations are persisted as sidecar overlays and
+  broadcast as `session:message_translation` patch events; source message `text`
+  remains the canonical transcript.
 - Assistant live chunks tagged `live` are kept in Core session state so final provider full-text messages can be suppressed or reduced to an unseen live tail before UI display.
 - Provider bindings are promoted from temporary ids to real provider session ids in Core before later turns are dispatched, so resumed provider turns never depend on renderer state.
 - Usage limits can be refreshed by Core when a session dialog is hydrated, so provider limit rows such as Kimi 5h/weekly recover even when the original binding-time read was unavailable. Reference-compatible provider telemetry payloads without a provider event `type` are still accepted for telemetry before typed event routing begins.

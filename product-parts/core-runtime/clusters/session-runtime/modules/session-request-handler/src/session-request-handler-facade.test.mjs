@@ -10,10 +10,9 @@ assert.match(
   source,
   /sessionReasoningDisplayFacade\.projectProviderEvent\(event\)/u
 );
-assert.match(source, /role: message\.role/u);
 assert.match(
   source,
-  /\.\.\.\(message\.tag \? \{ tag: message\.tag \} : \{\}\)/u
+  /this\.reasoningTranslation\.publishDisplayMessages\(\{[\s\S]+?displayMessages/u
 );
 assert.match(source, /from "\.\/session-live-tail-dedupe\.js"/u);
 assert.doesNotMatch(source, /event\.tag === "thinking"/u);
@@ -22,6 +21,9 @@ assert.match(source, /readPromotedProviderSessionId\(event\)/u);
 assert.match(source, /this\.runtimeBindings\.set\(sessionId, \{/u);
 assert.match(source, /promotedProviderSessionId/u);
 assert.match(source, /async refreshUsageLimits\(sessionId: string\)/u);
+assert.match(source, /ReasoningTranslationOverlayFacade/u);
+assert.match(source, /publishDisplayMessages/u);
+assert.match(source, /type: "session:message_translation"/u);
 assert.match(
   source,
   /if \(!isRecord\(event\)\)[\s\S]+?usageContextTelemetryFacade\.applyProviderEvent\(current, event\)[\s\S]+?if \(typeof event\.type !== "string"\)/u

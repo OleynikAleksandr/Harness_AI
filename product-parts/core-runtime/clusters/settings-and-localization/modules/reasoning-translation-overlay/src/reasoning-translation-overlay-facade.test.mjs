@@ -40,7 +40,7 @@ const facadeSource = compile("reasoning-translation-overlay-facade.ts")
     'from "./reasoning-translation-overlay-projector.js";',
     `from "${projectorUrl}";`
   )
-  .replace(
+  .replaceAll(
     'from "./reasoning-translation-overlay-store.js";',
     `from "${storeUrl}";`
   )

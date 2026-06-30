@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream1.task3",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase12.stream1.task2",
+  "expectedCommitMessage": "docs: record localization select dirty package",
   "debt": null
 }
 ```
@@ -258,4 +258,14 @@
 78. [DONE] Git Commit: `fix: refresh localization payload when settings opens` (hash: self)
 79. [DONE] `harness-ai.phase11.stream1.task2` Rebuild the packaged app after the Settings-open localization refresh repair and record evidence (scope: `docs/evidence/localization-open-refresh-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization open refresh package`). Result: Completed in commit `docs: record localization open refresh package`.
 80. [DONE] Git Commit: `docs: record localization open refresh package` (hash: self)
-81. [IN_PROGRESS] `harness-ai.phase11.stream1.task3` User retests Russian Settings helper copy after reopening Settings in the rebuilt packaged app (scope: user workflow; expected commit: none).
+81. [DONE] `harness-ai.phase11.stream1.task3` User retests Russian Settings helper copy after reopening Settings in the rebuilt packaged app (scope: user workflow; expected commit: none). Result: User reported language selector changes do not activate Save Changes, so category selection changes are not being committed to the Settings draft.
+
+## Phase 12 - Settings Select Dirty State Repair (owner: Codex, updated: 2026-06-30)
+
+### Stream: Select Change Commit
+
+82. [DONE] `harness-ai.phase12.stream1.task1` Commit shared Settings select value changes on the native input event as well as change, so localization language selectors immediately mark the Settings draft dirty (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-controls.tsx`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix: commit settings select input changes`). Result: Completed in commit `fix: commit settings select input changes`.
+83. [DONE] Git Commit: `fix: commit settings select input changes` (hash: self)
+84. [IN_PROGRESS] `harness-ai.phase12.stream1.task2` Rebuild the packaged app after the Settings select dirty-state repair and record evidence (scope: `docs/evidence/localization-select-dirty-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization select dirty package`).
+85. [TODO] Git Commit: `docs: record localization select dirty package` (hash: TBD)
+86. [TODO] `harness-ai.phase12.stream1.task3` User retests language selector dirty state and Russian Settings helper copy in the rebuilt packaged app (scope: user workflow; expected commit: none).

@@ -36,6 +36,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are
   no dirty Settings changes to save.
+- Shared native select controls commit both `input` and `change` events so
+  language/category selections immediately mark the Settings draft dirty and
+  enable Save Changes.
 
 ## Reasoning Effort Select
 

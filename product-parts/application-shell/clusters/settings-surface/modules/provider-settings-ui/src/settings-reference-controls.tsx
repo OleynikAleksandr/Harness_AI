@@ -64,10 +64,19 @@ export function SettingsSelect({
   options: readonly { label: string; value: string }[];
   value: string;
 }) {
+  const commitValue = (nextValue: string) => {
+    if (nextValue !== value) {
+      onChange(nextValue);
+    }
+  };
   return (
     <label className="settings-field">
       <span>{label}</span>
-      <select onChange={(event) => onChange(event.target.value)} value={value}>
+      <select
+        onChange={(event) => commitValue(event.currentTarget.value)}
+        onInput={(event) => commitValue(event.currentTarget.value)}
+        value={value}
+      >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

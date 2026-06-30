@@ -125,6 +125,9 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
       "Glossary protection is disabled. Terms may be translated.",
     "settings.localization.glossary.enabled":
       "Glossary protection is enabled. Terms from the glossary file remain protected during localization.",
+    "settings.localization.refreshing.description":
+      "Harness AI is saving translated interface resources. Settings will be available again when this finishes.",
+    "settings.localization.refreshing.title": "Updating localization",
     "session.empty": "Select or create a session.",
     "session.id.pending": "ID: pending...",
     "session.id.unavailable": "ID: unavailable",

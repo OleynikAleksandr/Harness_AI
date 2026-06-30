@@ -23,11 +23,12 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   always clear their busy state. Failed restarts remain on the Settings surface
   with the Core-owned error message instead of leaving the Restart Core spinner
   running forever.
-- After a successful Settings save, Core save completion clears the Save busy
-  state and the Settings surface shows a blocking localization refresh card with
-  a spinner while translated UI bundles refresh. The overlay blocks Settings
-  interaction until refresh finishes, matching the reference workflow without
-  relying on a silent disabled Save button.
+- Settings Save owns the full localization refresh lifecycle: before Core
+  save/materialization starts, the Settings surface shows a blocking
+  localization refresh card with a spinner, then keeps the overlay active until
+  the browser localization payload refresh settles. This blocks Settings
+  interaction for the same operation the user is waiting on instead of showing a
+  silent disabled Save button after Core work already completed.
 - General tab Core Controls and Localization copy resolves through the shared
   browser localization provider with stable message ids and bootstrap
   fallbacks.

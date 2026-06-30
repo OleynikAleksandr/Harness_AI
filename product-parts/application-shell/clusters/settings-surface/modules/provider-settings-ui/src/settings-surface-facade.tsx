@@ -151,13 +151,16 @@ export function ProviderSettingsUiFacade({
       return null;
     }
     setBusy(true);
+    setLocalizationRefreshBusy(true);
     try {
       const result = await window.harnessCore.saveSettings({ settings });
       if (result.ok) {
         setSettings(result.settings);
         setDirty(false);
-        setStatus("Settings saved.");
-        refreshLocalizationRuntimeAfterSave();
+        setStatus("Settings saved. Updating localization...");
+        if (await refreshLocalizationRuntimeAfterSave()) {
+          setStatus("Settings saved.");
+        }
         return result.settings;
       }
       setStatus(result.error);
@@ -166,19 +169,19 @@ export function ProviderSettingsUiFacade({
       setStatus(toErrorMessage(error, "Settings save failed."));
       return null;
     } finally {
+      setLocalizationRefreshBusy(false);
       setBusy(false);
     }
   };
 
-  const refreshLocalizationRuntimeAfterSave = () => {
-    setLocalizationRefreshBusy(true);
-    onLocalizationRuntimeRefresh()
-      .catch((error: unknown) => {
-        setStatus(toErrorMessage(error, "Localization refresh failed."));
-      })
-      .finally(() => {
-        setLocalizationRefreshBusy(false);
-      });
+  const refreshLocalizationRuntimeAfterSave = async () => {
+    try {
+      await onLocalizationRuntimeRefresh();
+      return true;
+    } catch (error) {
+      setStatus(toErrorMessage(error, "Localization refresh failed."));
+      return false;
+    }
   };
 
   const restartCore = async () => {

@@ -11,20 +11,28 @@ const saveSource = source.slice(
   source.indexOf("const restartCore = async () =>")
 );
 const refreshSource = source.slice(
-  source.indexOf("const refreshLocalizationRuntimeAfterSave = () =>"),
+  source.indexOf("const refreshLocalizationRuntimeAfterSave = async () =>"),
   source.indexOf("const restartCore = async () =>")
 );
 
-assert.doesNotMatch(
+assert.match(
   saveSource,
-  /await onLocalizationRuntimeRefresh\(\)/u,
-  "Settings Save must not stay busy while localization runtime payload refreshes."
+  /setLocalizationRefreshBusy\(true\)[\s\S]*await window\.harnessCore\.saveSettings/u,
+  "Settings Save must show the localization blocker before Core save/materialization starts."
 );
-assert.match(saveSource, /refreshLocalizationRuntimeAfterSave\(\)/u);
-assert.match(refreshSource, /setLocalizationRefreshBusy\(true\)/u);
-assert.match(refreshSource, /onLocalizationRuntimeRefresh\(\)[\s\S]*\.catch/u);
+assert.match(saveSource, /await refreshLocalizationRuntimeAfterSave\(\)/u);
+assert.match(
+  saveSource,
+  /finally \{[\s\S]*setLocalizationRefreshBusy\(false\)[\s\S]*setBusy\(false\)/u,
+  "Settings Save must keep Settings blocked until localization refresh settles."
+);
 assert.match(
   refreshSource,
-  /\.finally\(\(\) => \{[\s\S]*setLocalizationRefreshBusy\(false\)/u
+  /await onLocalizationRuntimeRefresh\(\)[\s\S]*catch \(error\)/u
+);
+assert.doesNotMatch(
+  refreshSource,
+  /setLocalizationRefreshBusy/u,
+  "The Save path owns blocker state so refresh errors cannot clear it early."
 );
 assert.match(source, /settings-localization-blocker/u);

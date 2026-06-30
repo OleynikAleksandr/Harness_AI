@@ -8,7 +8,7 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase16.stream1.task3",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -308,4 +308,11 @@
 103. [DONE] Git Commit: `fix: show blocking localization refresh state` (hash: self)
 104. [DONE] `harness-ai.phase16.stream1.task2` Rebuild the packaged app after the blocking localization refresh UI repair and record evidence (scope: `docs/evidence/blocking-localization-refresh-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record blocking localization refresh package`). Result: Completed in commit `docs: record blocking localization refresh package`.
 105. [DONE] Git Commit: `docs: record blocking localization refresh package` (hash: self)
-106. [IN_PROGRESS] `harness-ai.phase16.stream1.task3` User retests Save feedback and interaction blocking while localization refresh runs in the rebuilt packaged app (scope: user workflow; expected commit: none).
+106. [DONE] `harness-ai.phase16.stream1.task3` User retests Save feedback and interaction blocking while localization refresh runs in the rebuilt packaged app (scope: user workflow; expected commit: none). Result: User reported the release still does not show the requested fixes; Core logs show settings saves reach Core, but the visible blocking refresh contract is still ineffective.
+
+## Phase 17 - Blocking Localization Refresh Repair (owner: Codex, updated: 2026-06-30)
+
+### Stream: Save-Owned Refresh Feedback
+
+107. [DONE] `harness-ai.phase17.stream1.task1` Make Settings Save own the full localization refresh lifecycle so the blocking card is visible while save/materialization/runtime payload refresh is in progress, and add missing localization source ids for the blocker copy (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, .harness/plans/todo-plan.md`; expected commit: `fix: block settings save during localization refresh`). Result: Completed in commit `fix: block settings save during localization refresh`.
+108. [DONE] Git Commit: `fix: block settings save during localization refresh` (hash: self)

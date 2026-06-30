@@ -31,6 +31,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   readiness changes for the active workspace; these are streamed to clients but
   not written to session history JSONL.
 - Provider version snapshots, provider update results and local-model lists.
+  CLI update targets run the provider's own self-update command (`claude update`,
+  `codex update`, `opencode upgrade`) so the active install is updated wherever it
+  lives; SDK targets use `npm install -g <pkg>@latest`. This avoids updating a
+  stale `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
+  stays first on PATH.
 - On `delete-session` RPC, orchestrates session removal: deletes the session's
   event log and asks the provider adapter to delete its own per-session artifact
   (e.g. the Codex rollout) so nothing outlives the session record.

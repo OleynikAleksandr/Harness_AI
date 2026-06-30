@@ -41,6 +41,12 @@ const PROVIDER_CLI_VERSION_COMMANDS = {
       ? "opencode.cmd --version"
       : "opencode --version",
 } as const;
+const PROVIDER_CLI_UPDATE_COMMANDS = {
+  claude: process.platform === "win32" ? "claude.cmd update" : "claude update",
+  codex: process.platform === "win32" ? "codex.cmd update" : "codex update",
+  glmOpenCode:
+    process.platform === "win32" ? "opencode.cmd upgrade" : "opencode upgrade",
+} as const;
 const BUNDLED_PACKAGE_RESOLVERS: Record<string, () => string> = {
   "@opencode-ai/sdk": () => import.meta.resolve("@opencode-ai/sdk"),
 };
@@ -88,6 +94,17 @@ export async function installLatestGlobalPackage(
   packageName: string
 ): Promise<void> {
   await execAsync(`${NPM_COMMAND} install -g ${packageName}@latest`, {
+    env: buildExecEnv(),
+    maxBuffer: EXEC_MAX_BUFFER_BYTES,
+  });
+}
+
+export async function updateProviderCli(provider: unknown): Promise<void> {
+  const command = PROVIDER_CLI_UPDATE_COMMANDS[provider as ProviderVersionKey];
+  if (!command) {
+    throw new Error("Unknown provider CLI update target.");
+  }
+  await execAsync(command, {
     env: buildExecEnv(),
     maxBuffer: EXEC_MAX_BUFFER_BYTES,
   });

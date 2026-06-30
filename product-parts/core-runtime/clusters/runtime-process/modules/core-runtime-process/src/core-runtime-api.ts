@@ -37,6 +37,7 @@ import {
   loadLocalModels,
   loadProviderVersions,
   resolveProviderPackage,
+  updateProviderCli,
 } from "./core-provider-tools.js";
 
 type CoreEventListener = (event: unknown) => void;
@@ -272,11 +273,15 @@ export class CoreRuntimeApi {
   }> {
     try {
       const request = readRecord(payload);
-      const packageName = resolveProviderPackage(
-        request?.provider,
-        request?.target
-      );
-      await installLatestGlobalPackage(packageName);
+      if (request?.target === "cli") {
+        await updateProviderCli(request?.provider);
+      } else {
+        const packageName = resolveProviderPackage(
+          request?.provider,
+          request?.target
+        );
+        await installLatestGlobalPackage(packageName);
+      }
       this.registerProviderAdapters();
       return { ok: true, versions: await loadProviderVersions() };
     } catch (error) {

@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream3.task1",
-  "expectedCommitMessage": "feat: localize general settings copy",
+  "currentTaskId": "harness-ai.phase3.stream4.task1",
+  "expectedCommitMessage": "feat: localize session surface copy",
   "debt": null
 }
 ```
@@ -135,12 +135,12 @@
 
 ### Stream: Settings Surface Markers
 
-25. [IN_PROGRESS] `harness-ai.phase3.stream3.task1` Replace hardcoded Localization and Core Controls settings copy with marked localization lookups through the shared browser localization provider facade (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize general settings copy`).
-26. [TODO] Git Commit: `feat: localize general settings copy` (hash: TBD)
+25. [DONE] `harness-ai.phase3.stream3.task1` Replace hardcoded Localization and Core Controls settings copy with marked localization lookups through the shared browser localization provider facade (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize general settings copy`). Result: Completed in commit `feat: localize general settings copy`.
+26. [DONE] Git Commit: `feat: localize general settings copy` (hash: self)
 
 ### Stream: Session Surface Markers
 
-27. [TODO] `harness-ai.phase3.stream4.task1` Replace hardcoded session dialog, input, status, and empty-state copy with marked localization lookups (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize session surface copy`).
+27. [IN_PROGRESS] `harness-ai.phase3.stream4.task1` Replace hardcoded session dialog, input, status, and empty-state copy with marked localization lookups (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize session surface copy`).
 28. [TODO] Git Commit: `feat: localize session surface copy` (hash: TBD)
 
 ### Stream: Sidebar And Menu Markers

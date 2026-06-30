@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream2.task1",
-  "expectedCommitMessage": "feat: add localization source dictionaries",
+  "currentTaskId": "harness-ai.phase3.stream3.task1",
+  "expectedCommitMessage": "feat: localize general settings copy",
   "debt": null
 }
 ```
@@ -130,12 +130,12 @@
 
 ### Stream: Source Dictionaries
 
-23. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Add approved English source dictionaries as TypeScript module exports so the dictionaries are typechecked and included in `dist/runtime` and the packaged app (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionary-registry.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs`; expected commit: `feat: add localization source dictionaries`).
-24. [TODO] Git Commit: `feat: add localization source dictionaries` (hash: TBD)
+23. [DONE] `harness-ai.phase3.stream2.task1` Add approved English source dictionaries as TypeScript module exports so the dictionaries are typechecked and included in `dist/runtime` and the packaged app (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionary-registry.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs`; expected commit: `feat: add localization source dictionaries`). Result: Completed in commit `feat: add localization source dictionaries`.
+24. [DONE] Git Commit: `feat: add localization source dictionaries` (hash: self)
 
 ### Stream: Settings Surface Markers
 
-25. [TODO] `harness-ai.phase3.stream3.task1` Replace hardcoded Localization and Core Controls settings copy with marked localization lookups through the shared browser localization provider facade (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize general settings copy`).
+25. [IN_PROGRESS] `harness-ai.phase3.stream3.task1` Replace hardcoded Localization and Core Controls settings copy with marked localization lookups through the shared browser localization provider facade (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize general settings copy`).
 26. [TODO] Git Commit: `feat: localize general settings copy` (hash: TBD)
 
 ### Stream: Session Surface Markers

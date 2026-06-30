@@ -14,8 +14,15 @@ function compile(file) {
   ).outputText;
 }
 
+const dictionariesUrl = `data:text/javascript;base64,${Buffer.from(
+  compile("source-dictionaries.ts")
+).toString("base64")}`;
+const registrySource = compile("source-dictionary-registry.ts").replace(
+  'from "./source-dictionaries.js";',
+  `from "${dictionariesUrl}";`
+);
 const registryUrl = `data:text/javascript;base64,${Buffer.from(
-  compile("source-dictionary-registry.ts")
+  registrySource
 ).toString("base64")}`;
 const glossaryUrl = `data:text/javascript;base64,${Buffer.from(
   compile("glossary-protector.ts")

@@ -1,3 +1,5 @@
+import { APPROVED_ENGLISH_SOURCE_DICTIONARIES } from "./source-dictionaries.js";
+
 export const DEFAULT_LOCALIZATION_SOURCE_LANGUAGE = "en";
 
 export const LOCALIZATION_CATEGORY_IDS = [
@@ -32,7 +34,7 @@ export class SourceDictionaryRegistry {
   >();
 
   constructor(
-    sourceDictionaries: readonly LocalizationSourceDictionary[] = []
+    sourceDictionaries: readonly LocalizationSourceDictionary[] = APPROVED_ENGLISH_SOURCE_DICTIONARIES
   ) {
     for (const dictionary of sourceDictionaries) {
       this.register(dictionary);

@@ -1469,3 +1469,45 @@ strong {
     margin-left: 8px;
   }
 }
+
+/* Text hierarchy layer: primary roles read semi-bold, secondary roles are
+   italic, thin and dimmed to one muted tone. The bare element resets near the
+   top are 0,0,1, so these class selectors win without extra scoping. Semantic,
+   provider and accent colours are intentionally left untouched. */
+.session-list-title,
+.workspace-switcher strong,
+.workspace-menu-item strong,
+.session-header h1,
+.provider-picker-header h2,
+.empty-session h2,
+.session-context-menu strong,
+.next-mode-panel h2,
+.next-mode-panel h3,
+.next-mode-section h3,
+.telemetry-item strong,
+.session-id-bar__id,
+.session-id-bar__limit-label {
+  font-weight: 500;
+}
+
+.sidebar-section-header,
+.session-kicker,
+.workspace-switcher small,
+.workspace-menu-item small,
+.message-meta,
+.telemetry-item span,
+.provider-card span,
+.provider-card small,
+.next-mode-panel p,
+.next-mode-panel__footer,
+.next-mode-card small,
+.next-mode-profile small,
+.next-session-mode-button span,
+.session-dialog__timestamp,
+.session-input__hint,
+.session-input__total,
+.session-status-chip--label {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--pm-text-muted, #767d86);
+}

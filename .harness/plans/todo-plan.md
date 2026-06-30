@@ -8,8 +8,8 @@
   "planId": "ui-typography-hierarchy-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "Apply text hierarchy to session window and sidebar",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "Record UI typography hierarchy verification",
   "debt": null
 }
 ```
@@ -82,13 +82,13 @@
 
 ### Stream: Session Window
 
-5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Apply the same hierarchy to the session interface, message panels and the left sidebar (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `Apply text hierarchy to session window and sidebar`).
-6. [TODO] Git Commit: `Apply text hierarchy to session window and sidebar` (hash: TBD)
+5. [DONE] `harness-ai.phase3.stream1.task1` Apply the same hierarchy to the session interface, message panels and the left sidebar (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `Apply text hierarchy to session window and sidebar`). Result: Completed in commit `Apply text hierarchy to session window and sidebar`.
+6. [DONE] Git Commit: `Apply text hierarchy to session window and sidebar` (hash: self)
 
 ## Phase 4 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)
 
 ### Stream: Package And Retest
 
-7. [TODO] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record typography verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record UI typography hierarchy verification`).
+7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record typography verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record UI typography hierarchy verification`).
 8. [TODO] Git Commit: `Record UI typography hierarchy verification` (hash: TBD)
 9. [TODO] `harness-ai.phase4.stream1.task2` User retests the text hierarchy across all tabs, the session interface and the sidebar in the packaged app (scope: user workflow; expected commit: none).

@@ -44,6 +44,19 @@ Render the transcript/dialog layout and session chrome.
   at a 0.55–0.9 pulse so it stays readable on the dark field — and a monospace
   `total:` timer in the footer right. The Stop button calls Core `stopTurn`.
 
+## Text Hierarchy
+
+- A layer at the end of `session-window.css` makes primary roles (sidebar session
+  names, panel/section headers, message role labels, telemetry and id-bar labels)
+  `font-weight: 500`, and secondary roles (section kickers, message meta and
+  timestamps, telemetry counters, provider/mode card meta, the input hint and
+  token total, the status label) italic + `font-weight: 300`, dimmed to
+  `--pm-text-muted`. Provider-tinted role colours, semantic/accent colours, the
+  message body, reasoning/thinking content and input-typed text are left
+  untouched. The bare element resets (`button/h*/strong { font-weight: 300 }`)
+  are 0,0,1, so these class selectors win without extra scoping. Shared `--pm-*`
+  tokens lift primary brighter (`#f1f3f5`) and dim muted (`#767d86`).
+
 ## Outputs
 
 - Rendered chat session surface.

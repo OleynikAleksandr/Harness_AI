@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream3.task1",
-  "expectedCommitMessage": "feat: carry session translation patches",
+  "currentTaskId": "harness-ai.phase4.stream4.task1",
+  "expectedCommitMessage": "feat: translate visible reasoning overlays",
   "debt": null
 }
 ```
@@ -162,12 +162,12 @@
 
 ### Stream: Core Session Events
 
-35. [IN_PROGRESS] `harness-ai.phase4.stream3.task1` Extend Core session message/event contracts with `translationState`, `localizedContent`, and `session:message_translation` patch events, matching the CodeAI Hub naming contract (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.test.mjs`; expected commit: `feat: carry session translation patches`).
-36. [TODO] Git Commit: `feat: carry session translation patches` (hash: TBD)
+35. [DONE] `harness-ai.phase4.stream3.task1` Extend Core session message/event contracts with `translationState`, `localizedContent`, and `session:message_translation` patch events, matching the CodeAI Hub naming contract (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.test.mjs`; expected commit: `feat: carry session translation patches`). Result: Completed in commit `feat: carry session translation patches`.
+36. [DONE] Git Commit: `feat: carry session translation patches` (hash: self)
 
 ### Stream: Session Request Integration
 
-37. [TODO] `harness-ai.phase4.stream4.task1` Run reasoning translation after visible thinking messages are persisted/broadcast, while keeping source transcript truth in session history and writing overlays through the sidecar store (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs`; expected commit: `feat: translate visible reasoning overlays`).
+37. [IN_PROGRESS] `harness-ai.phase4.stream4.task1` Run reasoning translation after visible thinking messages are persisted/broadcast, while keeping source transcript truth in session history and writing overlays through the sidecar store (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs`; expected commit: `feat: translate visible reasoning overlays`).
 38. [TODO] Git Commit: `feat: translate visible reasoning overlays` (hash: TBD)
 
 ### Stream: Translation-First UI Reveal

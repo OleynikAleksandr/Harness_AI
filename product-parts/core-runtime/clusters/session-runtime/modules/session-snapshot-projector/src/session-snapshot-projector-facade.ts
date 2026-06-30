@@ -13,10 +13,20 @@ import {
 
 export interface SessionMessage {
   id: string;
+  localizedContent?: string;
   role: "assistant" | "system" | "thinking" | "user";
   tag?: string;
   text: string;
   timestamp: string;
+  translationState?: "pending";
+}
+
+export interface SessionMessageTranslationPatch {
+  localizedContent: string;
+  messageId: string;
+  sessionId: string;
+  sourceHash: string;
+  targetLanguage: string;
 }
 
 export type SessionTelemetry = ProviderUsageTelemetry;
@@ -54,6 +64,21 @@ const TELEMETRY: SessionTelemetry = usageContextTelemetryFacade.createTelemetry(
 );
 
 export class SessionSnapshotProjectorFacade {
+  applyMessageTranslationPatch(
+    messages: readonly SessionMessage[],
+    patch: SessionMessageTranslationPatch
+  ): SessionMessage[] {
+    return messages.map((message) =>
+      message.id === patch.messageId
+        ? {
+            ...message,
+            localizedContent: patch.localizedContent,
+            translationState: undefined,
+          }
+        : message
+    );
+  }
+
   getSnapshot(): SessionSnapshot {
     const workspace = workspaceRegistryFacade.getActiveWorkspace();
     return {

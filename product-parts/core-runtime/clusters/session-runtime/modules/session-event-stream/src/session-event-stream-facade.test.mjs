@@ -73,11 +73,13 @@ firstStream.publish({
 firstStream.publish({
   payload: {
     id: "live-1",
+    localizedContent: "Привет",
     role: "assistant",
     sessionId: session.id,
     tag: "live",
     text: "Привет",
     timestamp: "2026-06-27T00:00:03.000Z",
+    translationState: "pending",
   },
   timestamp: "2026-06-27T00:00:03.000Z",
   type: "session:message",
@@ -85,6 +87,7 @@ firstStream.publish({
 firstStream.publish({
   payload: {
     id: "live-2",
+    localizedContent: ", мир.",
     role: "assistant",
     sessionId: session.id,
     tag: "live",
@@ -94,11 +97,22 @@ firstStream.publish({
   timestamp: "2026-06-27T00:00:04.000Z",
   type: "session:message",
 });
+firstStream.publish({
+  payload: {
+    localizedContent: "Проверяю план.",
+    messageId: "thinking-1",
+    sessionId: session.id,
+    sourceHash: "source-hash-1",
+    targetLanguage: "ru",
+  },
+  timestamp: "2026-06-27T00:00:05.000Z",
+  type: "session:message_translation",
+});
 
 const secondStream = new SessionEventStreamFacade();
 secondStream.configureSessionHistory([session]);
 
-assert.equal(secondStream.listEvents(session.id).length, 4);
+assert.equal(secondStream.listEvents(session.id).length, 5);
 assert.equal(secondStream.listEvents(session.id)[0].type, "session:message");
 const liveMessage = secondStream
   .listEvents(session.id)
@@ -106,6 +120,12 @@ const liveMessage = secondStream
     (event) => event.type === "session:message" && event.payload.tag === "live"
   );
 assert.equal(liveMessage?.payload.text, "Привет, мир.");
+assert.equal(liveMessage?.payload.localizedContent, "Привет, мир.");
+assert.equal(liveMessage?.payload.translationState, "pending");
+const translationPatch = secondStream
+  .listEvents(session.id)
+  .find((event) => event.type === "session:message_translation");
+assert.equal(translationPatch?.payload.localizedContent, "Проверяю план.");
 assert.equal(
   secondStream.latestTelemetryBySession().get(session.id)?.tokenUsage?.used,
   40

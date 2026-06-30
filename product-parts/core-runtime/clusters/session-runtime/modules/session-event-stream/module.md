@@ -18,6 +18,8 @@ Expose provider-neutral Core session events to Application Shell projections. Pr
 
 - Renderer-safe session event payloads.
 - Core read-model messages with provider `tag` markers preserved.
+- Core message translation metadata: `translationState`, `localizedContent`,
+  and `session:message_translation` patch events.
 - Consecutive assistant messages tagged `live` coalesced for session replay/readback.
 - Snapshot invalidation signals.
 - Per-session teardown via `deleteSessionEvents(sessionId)`: idempotently unlinks the

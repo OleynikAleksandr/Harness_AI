@@ -10,14 +10,25 @@ import type { ProviderUsageTelemetry } from "../../../../../../provider-runtime/
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 
 export type CoreSessionRole = "user" | "assistant" | "system" | "thinking";
+export type CoreSessionTranslationState = "pending";
 
 export interface CoreSessionMessage {
   id: string;
+  localizedContent?: string;
   role: CoreSessionRole;
   sessionId: string;
   tag?: string;
   text: string;
   timestamp: string;
+  translationState?: CoreSessionTranslationState;
+}
+
+export interface CoreSessionMessageTranslationPatch {
+  localizedContent: string;
+  messageId: string;
+  sessionId: string;
+  sourceHash: string;
+  targetLanguage: string;
 }
 
 export type CoreTurnState = "idle" | "running";
@@ -32,6 +43,11 @@ export type SessionCoreEvent =
       payload: CoreSessionMessage;
       timestamp: string;
       type: "session:message";
+    }
+  | {
+      payload: CoreSessionMessageTranslationPatch;
+      timestamp: string;
+      type: "session:message_translation";
     }
   | {
       payload: { error: string; sessionId: string };
@@ -197,17 +213,40 @@ function coalesceLiveAssistantMessageEvents(
       previous.payload.id === event.payload.id
         ? event.payload.text
         : `${previous.payload.text}${event.payload.text}`;
+    const localizedContent = coalesceOptionalText(
+      previous.payload.localizedContent,
+      event.payload.localizedContent,
+      previous.payload.id === event.payload.id
+    );
+    const translationState =
+      previous.payload.translationState ?? event.payload.translationState;
     coalesced[coalesced.length - 1] = {
       ...previous,
       payload: {
         ...previous.payload,
+        ...(localizedContent ? { localizedContent } : {}),
         text: nextText,
         timestamp: event.payload.timestamp,
+        ...(translationState ? { translationState } : {}),
       },
       timestamp: event.timestamp,
     };
   }
   return coalesced;
+}
+
+function coalesceOptionalText(
+  previous: string | undefined,
+  next: string | undefined,
+  replacePrevious: boolean
+): string | undefined {
+  if (replacePrevious) {
+    return next ?? previous;
+  }
+  if (!(previous || next)) {
+    return undefined;
+  }
+  return `${previous ?? ""}${next ?? ""}`;
 }
 
 function isLiveAssistantMessage(

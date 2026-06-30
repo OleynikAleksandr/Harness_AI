@@ -97,6 +97,7 @@ export class LocalizationRuntimeFacade {
   }
 }
 
+export { GlossaryProtector, type GlossaryRule } from "./glossary-protector.js";
 export {
   DEFAULT_LOCALIZATION_SOURCE_LANGUAGE,
   LOCALIZATION_CATEGORY_IDS,
@@ -104,3 +105,4 @@ export {
   type LocalizationSourceDictionary,
   type LocalizationSourceDictionaryEntries,
 } from "./source-dictionary-registry.js";
+export { UserGlossaryStore } from "./user-glossary-store.js";

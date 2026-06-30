@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream2.task1",
-  "expectedCommitMessage": "feat: add localization glossary protection",
+  "currentTaskId": "harness-ai.phase2.stream3.task1",
+  "expectedCommitMessage": "feat: materialize localization bundles",
   "debt": null
 }
 ```
@@ -103,12 +103,12 @@
 
 ### Stream: Glossary Protection
 
-13. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Port glossary preserve-term protection and user glossary loading into the `localization-runtime` module (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/user-glossary-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.test.mjs`; expected commit: `feat: add localization glossary protection`).
-14. [TODO] Git Commit: `feat: add localization glossary protection` (hash: TBD)
+13. [DONE] `harness-ai.phase2.stream2.task1` Port glossary preserve-term protection and user glossary loading into the `localization-runtime` module (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/user-glossary-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.test.mjs`; expected commit: `feat: add localization glossary protection`). Result: Completed in commit `feat: add localization glossary protection`.
+14. [DONE] Git Commit: `feat: add localization glossary protection` (hash: self)
 
 ### Stream: Bundle Materialization
 
-15. [TODO] `harness-ai.phase2.stream3.task1` Implement bundle materialization and persisted bootstrap payload reuse for UI categories through `LocalizationRuntimeFacade` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.test.mjs`; expected commit: `feat: materialize localization bundles`).
+15. [IN_PROGRESS] `harness-ai.phase2.stream3.task1` Implement bundle materialization and persisted bootstrap payload reuse for UI categories through `LocalizationRuntimeFacade` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.test.mjs`; expected commit: `feat: materialize localization bundles`).
 16. [TODO] Git Commit: `feat: materialize localization bundles` (hash: TBD)
 
 ### Stream: Settings Sync Boundary

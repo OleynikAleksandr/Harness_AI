@@ -17,10 +17,19 @@ function compile(file) {
 const registryUrl = `data:text/javascript;base64,${Buffer.from(
   compile("source-dictionary-registry.ts")
 ).toString("base64")}`;
-const facadeSource = compile("localization-runtime-facade.ts").replaceAll(
-  'from "./source-dictionary-registry.js";',
-  `from "${registryUrl}";`
-);
+const glossaryUrl = `data:text/javascript;base64,${Buffer.from(
+  compile("glossary-protector.ts")
+).toString("base64")}`;
+const userGlossaryUrl = `data:text/javascript;base64,${Buffer.from(
+  compile("user-glossary-store.ts")
+).toString("base64")}`;
+const facadeSource = compile("localization-runtime-facade.ts")
+  .replaceAll(
+    'from "./source-dictionary-registry.js";',
+    `from "${registryUrl}";`
+  )
+  .replaceAll('from "./glossary-protector.js";', `from "${glossaryUrl}";`)
+  .replaceAll('from "./user-glossary-store.js";', `from "${userGlossaryUrl}";`);
 const { LocalizationRuntimeFacade } = await import(
   `data:text/javascript;base64,${Buffer.from(facadeSource).toString("base64")}`
 );

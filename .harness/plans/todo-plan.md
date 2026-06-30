@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream1.task2",
-  "expectedCommitMessage": "docs: record localization select dirty package",
+  "currentTaskId": "harness-ai.phase12.stream1.task3",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -266,6 +266,6 @@
 
 82. [DONE] `harness-ai.phase12.stream1.task1` Commit shared Settings select value changes on the native input event as well as change, so localization language selectors immediately mark the Settings draft dirty (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-controls.tsx`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix: commit settings select input changes`). Result: Completed in commit `fix: commit settings select input changes`.
 83. [DONE] Git Commit: `fix: commit settings select input changes` (hash: self)
-84. [IN_PROGRESS] `harness-ai.phase12.stream1.task2` Rebuild the packaged app after the Settings select dirty-state repair and record evidence (scope: `docs/evidence/localization-select-dirty-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization select dirty package`).
-85. [TODO] Git Commit: `docs: record localization select dirty package` (hash: TBD)
-86. [TODO] `harness-ai.phase12.stream1.task3` User retests language selector dirty state and Russian Settings helper copy in the rebuilt packaged app (scope: user workflow; expected commit: none).
+84. [DONE] `harness-ai.phase12.stream1.task2` Rebuild the packaged app after the Settings select dirty-state repair and record evidence (scope: `docs/evidence/localization-select-dirty-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization select dirty package`). Result: Completed in commit `docs: record localization select dirty package`.
+85. [DONE] Git Commit: `docs: record localization select dirty package` (hash: self)
+86. [IN_PROGRESS] `harness-ai.phase12.stream1.task3` User retests language selector dirty state and Russian Settings helper copy in the rebuilt packaged app (scope: user workflow; expected commit: none).

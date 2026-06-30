@@ -85,6 +85,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/localization-open-refresh-packaged-app-2026-06-30.md` —
   packaged application rebuild evidence for refreshing Settings localization
   payload when the dialog opens.
+- `docs/evidence/localization-select-dirty-packaged-app-2026-06-30.md` —
+  packaged application rebuild evidence for native Settings select dirty-state
+  repair.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

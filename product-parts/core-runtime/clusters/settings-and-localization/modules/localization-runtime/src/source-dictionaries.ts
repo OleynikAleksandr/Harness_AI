@@ -12,6 +12,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.sections": "Settings sections",
     "settings.coreControls": "App Controls",
     "settings.coreControls.restart": "Restart App",
+    "settings.coreControls.restartStatus": "Restart app status",
     "settings.localization": "Localization",
     "settings.localization.artifactsForTheUser": "Artifacts for the User",
     "settings.localization.category.artifacts": "Artifacts for the User",
@@ -25,6 +26,10 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.localization.reasoningEngine": "Reasoning Translation Engine",
     "settings.localization.uiEngine": "UI Translation Engine",
     "settings.openRouter.modelSlugSearch": "Model slug search",
+    "settings.openRouter.endpoint": "Endpoint",
+    "settings.openRouter.endpointAutomatic": "OpenRouter - automatic",
+    "settings.openRouter.latency": "OpenRouter Endpoint Latency",
+    "settings.openRouter.latency.test": "Test latency",
     "settings.openRouter.profiles": "OpenRouter Profiles",
     "settings.openRouter.reasoningTranslationModel":
       "Reasoning Translation Model",
@@ -32,7 +37,20 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.claude.sessionContinuity": "Claude Session Continuity",
     "settings.provider.codex.sessionContinuity": "Codex Session Continuity",
     "settings.provider.glm": "GLM",
+    "settings.provider.glm.defaultModel": "GLM Default model",
+    "settings.provider.apiKey": "API Key",
+    "settings.provider.baseUrl": "Base URL",
+    "settings.provider.defaultModel": "Default Model",
     "settings.provider.kimi.defaultModel": "Kimi Default model",
+    "settings.provider.localModels": "Local Models",
+    "settings.provider.openCode": "OpenCode",
+    "settings.provider.openCode.config": "Config",
+    "settings.provider.openCode.defaultModel": "Default model",
+    "settings.provider.openCode.optionalApiKey": "Optional Z.AI API key",
+    "settings.provider.openRouter": "OpenRouter",
+    "settings.provider.sessionContinuity.threshold":
+      "Remaining context threshold (%)",
+    "settings.thinking.reasoningInDialog": "Reasoning in dialog",
     "settings.tab.claude": "Claude",
     "settings.tab.codex": "Codex",
     "settings.tab.general": "General",
@@ -84,6 +102,8 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Choose UI languages and translation engines.",
     "settings.coreControls.description":
       "Restart the Harness AI app. The current app closes and relaunches, so the Electron host and Core runtime both reload from disk.",
+    "settings.coreControls.restartStatus.ready":
+      "App restart status will appear here.",
     "settings.localization.category.artifacts.description":
       "Forms and final user-facing artifacts. Agent instructions and templates stay in English.",
     "settings.localization.category.messages.description":
@@ -140,6 +160,32 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Kimi K2.7 Code model exposed through Kimi Code ACP.",
     "settings.provider.kimi.model.kimi-k2.7-code-highspeed.description":
       "Lower-latency Kimi K2.7 coding model exposed through ACP.",
+    "settings.provider.sessionContinuity.description":
+      "When the remaining context window drops to or below this percentage, Harness AI can automatically wrap up the current session and start a new one. Default: 30%.",
+    "settings.provider.glm.defaultModel.description":
+      "Choose the GLM model used when new sessions start.",
+    "settings.provider.localModels.description":
+      "Select the default LM Studio model used for new Local Models sessions.",
+    "settings.provider.openCode.description":
+      "Runs models already configured in OpenCode. Tested selectors: zai-coding-plan/glm-5.2 and kimi-for-coding/k2p7.",
+    "settings.provider.openCode.auth.placeholder":
+      "Optional; OpenCode auth is used first",
+    "settings.provider.openCode.home.note":
+      "Uses isolated home at .harness/runtime/providers/glm-opencode/home.",
+    "settings.provider.openCode.defaultModel.description": "Default model",
+    "settings.provider.openCode.model.glm-5.2.description":
+      "Z.AI Coding Plan selector",
+    "settings.provider.openCode.model.kimi-for-coding/k2p7.description":
+      "Kimi for Coding selector",
+    "settings.provider.openCode.reasoning.dialog.description":
+      "Show OpenCode reasoning as a normal assistant bubble in the dialog.",
+    "settings.provider.openRouter.description":
+      "Uses OpenRouter chat completions with an exact model slug.",
+    "settings.openRouter.defaultRouting.description": "default routing",
+    "settings.openRouter.latency.description":
+      "Tests this selected model against concrete provider endpoints.",
+    "settings.provider.localModels.empty":
+      "No downloaded LM Studio models are currently visible to Core.",
     "session.input.hint": "Press Enter to send, Shift+Enter for a new line",
     "session.input.placeholder": "Message the active provider.",
     "sidebar.nextSessionMode.description": "Next session starts as Native Raw",
@@ -155,6 +201,14 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
     "settings.coreControls.restarting": "Restarting app...",
     "settings.resetting": "Resetting...",
     "settings.saving": "Saving...",
+    "settings.openRouter.endpoints.loading": "Loading endpoints...",
+    "settings.openRouter.apiKeyRequired": "OpenRouter API key is required.",
+    "settings.openRouter.latency.noTargets":
+      "No OpenRouter endpoints are available for this model.",
+    "settings.openRouter.latency.testing": "Testing...",
+    "settings.openRouter.models.searching": "Searching...",
+    "settings.provider.localModels.empty":
+      "No downloaded LM Studio models are currently visible to Core.",
     "settings.localization.glossary.disabled":
       "Glossary protection is disabled. Terms may be translated.",
     "settings.localization.glossary.enabled":

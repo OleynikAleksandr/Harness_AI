@@ -30,7 +30,10 @@ modules or own Core truth.
   reaches the Core-owned turn cancellation, and
   `harness-ai:core:get-localization-runtime-payload` →
   `get-localization-runtime-payload`, so renderer localization receives the
-  Core materialized browser bundles instead of falling back to English.
+  Core materialized browser bundles instead of falling back to English. It also
+  forwards `harness-ai:core:translate-dynamic-text` →
+  `translate-dynamic-text` for provider-returned text that must be translated by
+  Core instead of the renderer.
 - Real Core process restart through health and shutdown contracts. `stop()` first
   asks the core to shut down over HTTP, then force-terminates the process by pid
   (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so

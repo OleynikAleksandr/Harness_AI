@@ -1,3 +1,4 @@
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { SettingsCard } from "./settings-reference-controls.js";
 
 interface LocalModelsSettingsCardProps {
@@ -11,15 +12,22 @@ export function LocalModelsSettingsCard({
   models,
   onDefaultModelChange,
 }: LocalModelsSettingsCardProps) {
+  const { t } = useBrowserLocalization();
   const selectedModel = models.includes(defaultModel)
     ? defaultModel
     : models[0];
 
   return (
-    <SettingsCard title="Local Models">
+    <SettingsCard
+      title={t("ui_labels", "settings.provider.localModels", "Local Models")}
+    >
       <div className="settings-list">
         <p className="settings-description">
-          Select the default LM Studio model used for new Local Models sessions.
+          {t(
+            "ui_helper_text",
+            "settings.provider.localModels.description",
+            "Select the default LM Studio model used for new Local Models sessions."
+          )}
         </p>
         {models.length > 0 ? (
           models.map((modelKey) => (
@@ -44,7 +52,11 @@ export function LocalModelsSettingsCard({
           ))
         ) : (
           <p className="settings-muted">
-            No downloaded LM Studio models are currently visible to Core.
+            {t(
+              "messages_for_the_user",
+              "settings.provider.localModels.empty",
+              "No downloaded LM Studio models are currently visible to Core."
+            )}
           </p>
         )}
       </div>

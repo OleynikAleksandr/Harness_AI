@@ -25,6 +25,10 @@ materialization, bootstrap payload reuse, and bundle state.
   approved `ui_helper_text` dictionary.
 - Kimi provider settings helper copy and model descriptions are part of the
   approved `ui_helper_text` dictionary.
+- GLM, OpenCode, Local Models, OpenRouter and session continuity Settings
+  helper copy are part of the approved dictionaries so selecting Russian for UI
+  Helper Text or Messages for the User covers those provider tabs without
+  renderer-local string derivation.
 - Settings localization refresh blocker copy is part of the approved
   `messages_for_the_user` dictionary so the blocking save feedback itself can
   be localized.
@@ -44,6 +48,10 @@ materialization, bootstrap payload reuse, and bundle state.
   payload is cached under `Localization/cache/browser-runtime-bootstrap.json`.
   The Core Runtime Process supplies the Harness home `Localization` root for
   packaged-app browser runtime payloads.
+- Cache reuse is keyed by both the localization settings snapshot and the
+  source dictionary fingerprint. Per-category materialized bundles also store
+  that fingerprint, so adding or changing approved source strings invalidates
+  stale cached bundles that lack the new message ids.
 - Selective materialization for settings changes that affect UI bundles.
 - Runtime payload with active engine id, available engine catalogs, and
   category-keyed bundle entries.

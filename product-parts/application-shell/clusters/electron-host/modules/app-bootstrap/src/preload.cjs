@@ -57,6 +57,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:send-message", request),
   stopTurn: (sessionId) =>
     ipcRenderer.invoke("harness-ai:core:stop-turn", sessionId),
+  translateDynamicText: (request) =>
+    ipcRenderer.invoke("harness-ai:core:translate-dynamic-text", request),
   updateProviderVersion: (request) =>
     ipcRenderer.invoke("harness-ai:core:update-provider-version", request),
 });

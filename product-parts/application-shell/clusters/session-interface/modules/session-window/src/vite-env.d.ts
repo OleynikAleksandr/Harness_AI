@@ -137,6 +137,13 @@ interface Window {
         }
       | { error: string; ok: false }
     >;
+    translateDynamicText(request: {
+      category?: "generic" | "reasoning";
+      text: string;
+    }): Promise<
+      | { ok: true; status: string; text: string }
+      | { error: string; ok: false; text: string }
+    >;
     updateProviderVersion(request: {
       provider: "claude" | "codex" | "glmOpenCode";
       target: "cli" | "sdk";

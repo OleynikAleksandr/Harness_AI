@@ -43,6 +43,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   the Harness home `Localization` directory, using Core settings category
   mapping and provider-owned translation engines so browser clients render
   Core-owned localization state instead of deriving it locally.
+- Dynamic renderer text that cannot be part of static source dictionaries, such
+  as OpenRouter model descriptions returned by provider search, is translated by
+  the `translate-dynamic-text` Core RPC. The RPC uses the saved Reasoning
+  Translation Engine and the `reasoning` localization category language, keeping
+  translation execution inside Core/provider-owned boundaries.
 - The category mapping follows the settings controls that users see in General:
   `uiInterface` feeds `ui_labels`, `userGuidance` feeds `ui_helper_text`, and
   `systemFeedback` feeds `messages_for_the_user`.

@@ -57,7 +57,8 @@ export class LocalizationMaterializer {
   async materializeRuntimePayload(
     settings: LocalizationRuntimeSettingsSnapshot
   ): Promise<LocalizationRuntimePayload> {
-    const cacheKey = JSON.stringify(settings);
+    const sourceFingerprint = this.sourceRegistry.fingerprint();
+    const cacheKey = JSON.stringify({ settings, sourceFingerprint });
     const cached = await this.readCachedPayload(cacheKey);
     if (cached) {
       return cached;
@@ -70,7 +71,7 @@ export class LocalizationMaterializer {
         await Promise.all(
           LOCALIZATION_CATEGORY_IDS.map(async (category) => [
             category,
-            await this.materializeBundle(category, settings),
+            await this.materializeBundle(category, settings, sourceFingerprint),
           ])
         )
       ) as Record<LocalizationCategoryId, LocalizationResolvedRuntimeBundle>,
@@ -81,11 +82,16 @@ export class LocalizationMaterializer {
 
   private async materializeBundle(
     category: LocalizationCategoryId,
-    settings: LocalizationRuntimeSettingsSnapshot
+    settings: LocalizationRuntimeSettingsSnapshot,
+    sourceFingerprint: string
   ): Promise<LocalizationResolvedRuntimeBundle> {
     const language = resolveLanguage(category, settings);
     const dictionary = this.sourceRegistry.resolve(category);
-    const cached = await this.readCachedBundle(category, language);
+    const cached = await this.readCachedBundle(
+      category,
+      language,
+      sourceFingerprint
+    );
     if (cached) {
       return cached;
     }
@@ -131,13 +137,14 @@ export class LocalizationMaterializer {
       language,
       source: error ? "source_fallback" : "materialized",
     } satisfies LocalizationResolvedRuntimeBundle;
-    await this.writeCachedBundle(category, bundle);
+    await this.writeCachedBundle(category, bundle, sourceFingerprint);
     return bundle;
   }
 
   private async readCachedBundle(
     category: LocalizationCategoryId,
-    language: string
+    language: string,
+    sourceFingerprint: string
   ): Promise<LocalizationResolvedRuntimeBundle | null> {
     if (!this.localizationRootDirectory || language === "en") {
       return null;
@@ -148,10 +155,12 @@ export class LocalizationMaterializer {
       ) as {
         entries?: Record<string, string>;
         language?: string;
+        sourceFingerprint?: string;
         source?: string;
       };
       if (
         cached.language === language &&
+        cached.sourceFingerprint === sourceFingerprint &&
         cached.source === "materialized" &&
         cached.entries
       ) {
@@ -169,7 +178,8 @@ export class LocalizationMaterializer {
 
   private async writeCachedBundle(
     category: LocalizationCategoryId,
-    bundle: LocalizationResolvedRuntimeBundle
+    bundle: LocalizationResolvedRuntimeBundle,
+    sourceFingerprint: string
   ): Promise<void> {
     if (
       !this.localizationRootDirectory ||
@@ -182,7 +192,7 @@ export class LocalizationMaterializer {
     await fs.mkdir(path.dirname(bundlePath), { recursive: true });
     await fs.writeFile(
       bundlePath,
-      `${JSON.stringify({ category, ...bundle }, null, 2)}\n`,
+      `${JSON.stringify({ category, sourceFingerprint, ...bundle }, null, 2)}\n`,
       "utf8"
     );
   }

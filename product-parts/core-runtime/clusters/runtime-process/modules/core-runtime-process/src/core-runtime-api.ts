@@ -32,6 +32,7 @@ import {
   type WorkspaceRegistrySnapshot,
   workspaceRegistryFacade,
 } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
+import { translateDynamicCoreText } from "./core-dynamic-translation.js";
 import { materializeCoreLocalizationRuntimePayload } from "./core-localization-runtime.js";
 import {
   installLatestGlobalPackage,
@@ -145,6 +146,12 @@ export class CoreRuntimeApi {
         return sessionRequestHandlerFacade.sendMessage(payload as never);
       case "stop-turn":
         return sessionRequestHandlerFacade.stopTurn(readString(payload));
+      case "translate-dynamic-text":
+        return translateDynamicCoreText({
+          category: readString(readRecord(payload)?.category),
+          settings: settingsStoreFacade.getSettings(this.activeWorkspacePath()),
+          text: readString(readRecord(payload)?.text),
+        });
       default:
         return { error: `Unknown Core method: ${method}`, ok: false };
     }

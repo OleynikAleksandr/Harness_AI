@@ -15,6 +15,10 @@ assert.match(
   source,
   /"harness-ai:core:get-localization-runtime-payload":\s*"get-localization-runtime-payload"/u
 );
+assert.match(
+  source,
+  /"harness-ai:core:translate-dynamic-text":\s*"translate-dynamic-text"/u
+);
 assert.match(source, /createCoreProcessSupervisor\(repositoryRoot\)/u);
 assert.match(source, /await coreSupervisor\.start\(\)/u);
 assert.match(source, /await coreSupervisor\.restart\(\)/u);

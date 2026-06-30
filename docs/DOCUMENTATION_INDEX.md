@@ -109,6 +109,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/localization-runtime-payload-ipc-package-2026-06-30.md` —
   packaged application rebuild evidence for forwarding the browser localization
   runtime payload IPC through the Electron Core process bridge.
+- `docs/evidence/remaining-settings-localization-package-2026-06-30.md` —
+  packaged application rebuild evidence for remaining Settings localization
+  coverage, dynamic OpenRouter description translation, and localization cache
+  invalidation by source dictionary fingerprint.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

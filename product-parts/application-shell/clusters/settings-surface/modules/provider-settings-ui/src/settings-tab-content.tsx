@@ -424,33 +424,46 @@ function ConnectionProviderSettings({
   }) => void;
   title: string;
 }) {
+  const { t } = useBrowserLocalization();
   return (
     <div className="settings-reference-stack">
       <SettingsCard title={`${title} Connection`}>
         <SettingsTextField
-          label="API Key"
+          label={t("ui_labels", "settings.provider.apiKey", "API Key")}
           onChange={(value) => onChange({ apiKey: value })}
           password
           value={apiKey}
         />
         <SettingsTextField
-          label="Base URL"
+          label={t("ui_labels", "settings.provider.baseUrl", "Base URL")}
           onChange={(value) => onChange({ baseUrl: value })}
           value={baseUrl}
         />
       </SettingsCard>
       {modelOptions ? (
         <DefaultModelCard
-          description={`Choose the ${title} model used when new sessions start.`}
+          description={t(
+            "ui_helper_text",
+            "settings.provider.glm.defaultModel.description",
+            `Choose the ${title} model used when new sessions start.`
+          )}
           onChange={(defaultModel) => onChange({ defaultModel })}
           options={modelOptions}
-          title={`${title} Default model`}
+          title={t(
+            "ui_labels",
+            "settings.provider.glm.defaultModel",
+            `${title} Default model`
+          )}
           value={model}
         />
       ) : (
         <SettingsCard title={`${title} Default model`}>
           <SettingsTextField
-            label="Default Model"
+            label={t(
+              "ui_labels",
+              "settings.provider.defaultModel",
+              "Default Model"
+            )}
             onChange={(defaultModel) => onChange({ defaultModel })}
             value={model}
           />

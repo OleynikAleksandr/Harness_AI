@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import {
   type OpenRouterEndpointLatencyResult,
   testOpenRouterEndpointLatency,
@@ -26,24 +27,31 @@ export function OpenRouterSettingsCard({
   onChange: (settings: OpenRouterSettings) => void;
   settings: OpenRouterSettings;
 }) {
+  const { t } = useBrowserLocalization();
   const update = (patch: Partial<OpenRouterSettings>) => {
     onChange({ ...settings, ...patch });
   };
 
   return (
-    <SettingsCard title="OpenRouter">
+    <SettingsCard
+      title={t("ui_labels", "settings.provider.openRouter", "OpenRouter")}
+    >
       <p className="settings-description">
-        Uses OpenRouter chat completions with an exact model slug.
+        {t(
+          "ui_helper_text",
+          "settings.provider.openRouter.description",
+          "Uses OpenRouter chat completions with an exact model slug."
+        )}
       </p>
       <SettingsTextField
-        label="API Key"
+        label={t("ui_labels", "settings.provider.apiKey", "API Key")}
         onChange={(apiKey) => update({ apiKey })}
         password
         placeholder="sk-or-..."
         value={settings.apiKey}
       />
       <SettingsTextField
-        label="Base URL"
+        label={t("ui_labels", "settings.provider.baseUrl", "Base URL")}
         onChange={(baseUrl) => update({ baseUrl })}
         placeholder="https://openrouter.ai/api/v1"
         value={settings.baseUrl}
@@ -52,7 +60,11 @@ export function OpenRouterSettingsCard({
         apiKey={settings.apiKey}
         baseUrl={settings.baseUrl}
         endpointTag={settings.endpointTag}
-        label="Model slug search"
+        label={t(
+          "ui_labels",
+          "settings.openRouter.modelSlugSearch",
+          "Model slug search"
+        )}
         onChange={(patch) =>
           update({
             defaultModel: patch.model ?? settings.defaultModel,
@@ -80,8 +92,10 @@ export function OpenRouterModelEndpointPicker({
   onChange: (patch: { endpointTag?: string; model?: string }) => void;
   value: string;
 }) {
+  const { t } = useBrowserLocalization();
   const [query, setQuery] = useState(value);
   const [models, setModels] = useState<OpenRouterModelSearchResult[]>([]);
+  const translatedDescriptions = useTranslatedOpenRouterDescriptions(models);
   const [endpoints, setEndpoints] = useState<OpenRouterEndpointResult[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [endpointsLoading, setEndpointsLoading] = useState(false);
@@ -182,7 +196,13 @@ export function OpenRouterModelEndpointPicker({
         ? endpoints.map((endpoint) => endpoint.tag)
         : [endpointTag].filter((tag) => tag && tag !== DEFAULT_ENDPOINT_TAG);
     if (endpointTags.length === 0) {
-      setError("No OpenRouter endpoints are available for this model.");
+      setError(
+        t(
+          "messages_for_the_user",
+          "settings.openRouter.latency.noTargets",
+          "No OpenRouter endpoints are available for this model."
+        )
+      );
       return;
     }
     setLatencyLoading(true);
@@ -213,7 +233,15 @@ export function OpenRouterModelEndpointPicker({
         />
       </label>
       <div className="settings-list">
-        {modelsLoading ? <p className="settings-muted">Searching...</p> : null}
+        {modelsLoading ? (
+          <p className="settings-muted">
+            {t(
+              "messages_for_the_user",
+              "settings.openRouter.models.searching",
+              "Searching..."
+            )}
+          </p>
+        ) : null}
         {models.map((model) => (
           <OpenRouterModelRow
             key={model.id}
@@ -225,12 +253,15 @@ export function OpenRouterModelEndpointPicker({
               })
             }
             selected={model.id === value}
+            translatedDescription={translatedDescriptions[model.id]}
           />
         ))}
       </div>
       {value ? (
         <div className="settings-reference-stack tight">
-          <p className="settings-description">Endpoint</p>
+          <p className="settings-description">
+            {t("ui_labels", "settings.openRouter.endpoint", "Endpoint")}
+          </p>
           <div className="settings-list">
             <button
               aria-pressed={usesAutomaticEndpoint}
@@ -243,12 +274,28 @@ export function OpenRouterModelEndpointPicker({
               type="button"
             >
               <span className="settings-model-title">
-                OpenRouter - automatic
+                {t(
+                  "ui_labels",
+                  "settings.openRouter.endpointAutomatic",
+                  "OpenRouter - automatic"
+                )}
               </span>
-              <span className="settings-model-id">default routing</span>
+              <span className="settings-model-id">
+                {t(
+                  "ui_helper_text",
+                  "settings.openRouter.defaultRouting.description",
+                  "default routing"
+                )}
+              </span>
             </button>
             {endpointsLoading ? (
-              <p className="settings-muted">Loading endpoints...</p>
+              <p className="settings-muted">
+                {t(
+                  "messages_for_the_user",
+                  "settings.openRouter.endpoints.loading",
+                  "Loading endpoints..."
+                )}
+              </p>
             ) : null}
             {endpoints.map((endpoint) => (
               <button
@@ -271,9 +318,19 @@ export function OpenRouterModelEndpointPicker({
             ))}
           </div>
           <div className="settings-latency-panel">
-            <h4>OpenRouter Endpoint Latency</h4>
+            <h4>
+              {t(
+                "ui_labels",
+                "settings.openRouter.latency",
+                "OpenRouter Endpoint Latency"
+              )}
+            </h4>
             <p>
-              Tests this selected model against concrete provider endpoints.
+              {t(
+                "ui_helper_text",
+                "settings.openRouter.latency.description",
+                "Tests this selected model against concrete provider endpoints."
+              )}
             </p>
             <div className="settings-latency-actions">
               <button
@@ -284,7 +341,17 @@ export function OpenRouterModelEndpointPicker({
                 onClick={testEndpoints}
                 type="button"
               >
-                {latencyLoading ? "Testing..." : "Test latency"}
+                {latencyLoading
+                  ? t(
+                      "messages_for_the_user",
+                      "settings.openRouter.latency.testing",
+                      "Testing..."
+                    )
+                  : t(
+                      "ui_labels",
+                      "settings.openRouter.latency.test",
+                      "Test latency"
+                    )}
               </button>
               {fastestResult ? (
                 <button
@@ -300,7 +367,11 @@ export function OpenRouterModelEndpointPicker({
             </div>
             {apiKey ? null : (
               <p className="settings-latency-note">
-                OpenRouter API key is required.
+                {t(
+                  "messages_for_the_user",
+                  "settings.openRouter.apiKeyRequired",
+                  "OpenRouter API key is required."
+                )}
               </p>
             )}
           </div>
@@ -353,11 +424,14 @@ function OpenRouterModelRow({
   model,
   onSelect,
   selected,
+  translatedDescription,
 }: {
   model: OpenRouterModelSearchResult;
   onSelect: () => void;
   selected: boolean;
+  translatedDescription?: string;
 }) {
+  const description = translatedDescription ?? model.description;
   return (
     <button
       aria-pressed={selected}
@@ -367,9 +441,51 @@ function OpenRouterModelRow({
     >
       <span className="settings-model-title">{model.name}</span>
       <span className="settings-model-id">{model.id}</span>
-      {model.description ? (
-        <p className="settings-model-description">{model.description}</p>
+      {description ? (
+        <p className="settings-model-description">{description}</p>
       ) : null}
     </button>
   );
+}
+
+function useTranslatedOpenRouterDescriptions(
+  models: readonly OpenRouterModelSearchResult[]
+): Record<string, string> {
+  const [translated, setTranslated] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const descriptions = models.filter((model) => model.description.trim());
+    if (descriptions.length === 0) {
+      setTranslated({});
+      return;
+    }
+    let cancelled = false;
+    Promise.all(
+      descriptions.map(async (model) => {
+        const result = await window.harnessCore?.translateDynamicText({
+          category: "reasoning",
+          text: model.description,
+        });
+        return [
+          model.id,
+          result?.ok ? result.text : model.description,
+        ] as const;
+      })
+    )
+      .then((entries) => {
+        if (!cancelled) {
+          setTranslated(Object.fromEntries(entries));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTranslated({});
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [models]);
+
+  return translated;
 }

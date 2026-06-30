@@ -64,6 +64,24 @@ export class SourceDictionaryRegistry {
     const dictionary = this.resolve(category, language);
     return dictionary?.entries[messageId.trim()] ?? null;
   }
+
+  fingerprint(): string {
+    return JSON.stringify(
+      [...this.dictionaries.values()]
+        .map((dictionary) => ({
+          category: dictionary.category,
+          entries: Object.entries(dictionary.entries).sort(([left], [right]) =>
+            left.localeCompare(right)
+          ),
+          language: dictionary.language,
+        }))
+        .sort((left, right) =>
+          `${left.category}:${left.language}`.localeCompare(
+            `${right.category}:${right.language}`
+          )
+        )
+    );
+  }
 }
 
 function normalizeDictionary(

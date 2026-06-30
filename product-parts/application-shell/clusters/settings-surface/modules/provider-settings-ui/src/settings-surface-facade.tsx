@@ -24,9 +24,7 @@ export function ProviderSettingsUiFacade({
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [coreRestartBusy, setCoreRestartBusy] = useState(false);
-  const [coreRestartStatus, setCoreRestartStatus] = useState(
-    "App restart status will appear here."
-  );
+  const [coreRestartStatus, setCoreRestartStatus] = useState("");
   const [settings, setSettings] = useState<HarnessSettings | null>(null);
   const [status, setStatus] = useState("Settings are ready.");
   const [versionError, setVersionError] = useState<null | string>(null);
@@ -301,7 +299,14 @@ export function ProviderSettingsUiFacade({
               <SettingsTabContent
                 activeTab={activeTab}
                 coreRestartBusy={coreRestartBusy}
-                coreRestartStatus={coreRestartStatus}
+                coreRestartStatus={
+                  coreRestartStatus ||
+                  t(
+                    "ui_helper_text",
+                    "settings.coreControls.restartStatus.ready",
+                    "App restart status will appear here."
+                  )
+                }
                 localModels={localModels}
                 onOpenGlossary={openGlossary}
                 onRestartCore={restartApp}

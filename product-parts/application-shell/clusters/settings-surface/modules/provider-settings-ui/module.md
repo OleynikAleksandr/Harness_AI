@@ -49,6 +49,15 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Settings shell copy, provider tab labels, and the first shared provider-card
   labels/helpers resolve through the browser localization provider and approved
   source dictionary ids.
+- Remaining Settings provider helper copy resolves through the same browser
+  localization provider, including session continuity helper text, GLM default
+  model helper text, OpenCode helper text/model descriptions, Local Models
+  helper/empty-state text, OpenRouter helper text, endpoint latency helper copy,
+  and the initial Restart App status message.
+- Dynamic OpenRouter model descriptions returned by OpenRouter search are not
+  added to static dictionaries. They are sent to Core through
+  `translateDynamicText`, which uses the Reasoning Translation Engine target and
+  returns translated text for the visible model rows.
 - Claude default-model helper copy, thinking descriptions, model descriptions,
   and new-session note resolve through the browser localization provider instead
   of hardcoded Russian text, so Claude follows the same UI Helper Text language

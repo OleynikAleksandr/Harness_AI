@@ -20,6 +20,8 @@ Own workspace switcher, selected-workspace session list, next-session mode entry
 - Session open/create/rename intents.
 - Next-session mode panel open intent.
 - Settings navigation intent.
+- Sidebar, workspace menu, session context menu, and Settings entry copy
+  resolved through the shared browser localization provider.
 
 ## Owned Paths
 

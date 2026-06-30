@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream5.task1",
-  "expectedCommitMessage": "feat: localize sidebar and menu copy",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "feat: add reasoning translation overlay facade",
   "debt": null
 }
 ```
@@ -145,14 +145,14 @@
 
 ### Stream: Sidebar And Menu Markers
 
-29. [IN_PROGRESS] `harness-ai.phase3.stream5.task1` Replace hardcoded sidebar, workspace menu, session menu, and Settings entry copy with marked localization lookups (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize sidebar and menu copy`).
-30. [TODO] Git Commit: `feat: localize sidebar and menu copy` (hash: TBD)
+29. [DONE] `harness-ai.phase3.stream5.task1` Replace hardcoded sidebar, workspace menu, session menu, and Settings entry copy with marked localization lookups (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `feat: localize sidebar and menu copy`). Result: Completed in commit `feat: localize sidebar and menu copy`.
+30. [DONE] Git Commit: `feat: localize sidebar and menu copy` (hash: self)
 
 ## Phase 4 - Reasoning Translation Overlay (owner: Codex, updated: 2026-06-30)
 
 ### Stream: Overlay Contract
 
-31. [TODO] `harness-ai.phase4.stream1.task1` Add `ReasoningTranslationOverlayFacade` with policy resolution from Settings, source hashing, pending-state decision, and translation dispatch through `ProviderTranslationEnginesFacade` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/source-hash.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.test.mjs`; expected commit: `feat: add reasoning translation overlay facade`).
+31. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Add `ReasoningTranslationOverlayFacade` with policy resolution from Settings, source hashing, pending-state decision, and translation dispatch through `ProviderTranslationEnginesFacade` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/source-hash.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.test.mjs`; expected commit: `feat: add reasoning translation overlay facade`).
 32. [TODO] Git Commit: `feat: add reasoning translation overlay facade` (hash: TBD)
 
 ### Stream: Overlay Persistence

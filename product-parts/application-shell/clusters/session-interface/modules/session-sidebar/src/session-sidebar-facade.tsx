@@ -8,6 +8,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
 interface SessionSidebarProps {
   activeSessionId: string;
@@ -42,6 +43,7 @@ export function SessionSidebarFacade({
   onSelectWorkspace,
   onToggleWorkspaceMenu,
 }: SessionSidebarProps) {
+  const { t } = useBrowserLocalization();
   const sidebarRef = useRef<HTMLElement | null>(null);
   const [menuSessionId, setMenuSessionId] = useState<string | null>(null);
   const [confirmDeleteSessionId, setConfirmDeleteSessionId] = useState<
@@ -78,7 +80,11 @@ export function SessionSidebarFacade({
 
   return (
     <aside
-      aria-label="Workspace sessions"
+      aria-label={t(
+        "ui_labels",
+        "sidebar.workspaceSessions",
+        "Workspace sessions"
+      )}
       className="session-sidebar"
       ref={sidebarRef}
     >
@@ -87,7 +93,7 @@ export function SessionSidebarFacade({
           aria-expanded={isWorkspaceMenuOpen}
           className="workspace-switcher"
           onClick={onToggleWorkspaceMenu}
-          title="Workspace menu"
+          title={t("ui_labels", "sidebar.workspaceMenu", "Workspace menu")}
           type="button"
         >
           <span>
@@ -118,7 +124,9 @@ export function SessionSidebarFacade({
               type="button"
             >
               <Plus aria-hidden="true" size={14} />
-              <span>Add Workspace</span>
+              <span>
+                {t("ui_labels", "sidebar.addWorkspace", "Add Workspace")}
+              </span>
             </button>
           </div>
         ) : null}
@@ -127,10 +135,16 @@ export function SessionSidebarFacade({
       <button
         className="next-session-mode-button"
         onClick={onOpenNextSessionMode}
-        title="Next session starts as Native Raw"
+        title={t(
+          "ui_helper_text",
+          "sidebar.nextSessionMode.description",
+          "Next session starts as Native Raw"
+        )}
         type="button"
       >
-        <span>Next Session Mode</span>
+        <span>
+          {t("ui_labels", "sidebar.nextSessionMode", "Next Session Mode")}
+        </span>
         <strong>Native · Raw</strong>
       </button>
 
@@ -139,15 +153,24 @@ export function SessionSidebarFacade({
           <button
             className="start-new-session-button"
             onClick={onCreateSession}
-            title="Start New Session"
+            title={t(
+              "ui_labels",
+              "sidebar.startNewSession",
+              "Start New Session"
+            )}
             type="button"
           >
             <FolderPlus aria-hidden="true" size={16} />
-            <span>Start New Session</span>
+            <span>
+              {t("ui_labels", "sidebar.startNewSession", "Start New Session")}
+            </span>
           </button>
         </div>
 
-        <nav aria-label="Sessions" className="session-list">
+        <nav
+          aria-label={t("ui_labels", "sidebar.sessions", "Sessions")}
+          className="session-list"
+        >
           {sessions.map((session) => (
             <div
               className={
@@ -181,7 +204,11 @@ export function SessionSidebarFacade({
                     event.stopPropagation();
                     onDetachSession(session.id);
                   }}
-                  title="Detach session"
+                  title={t(
+                    "ui_labels",
+                    "sidebar.detachSession",
+                    "Detach session"
+                  )}
                   type="button"
                 >
                   <ExternalLink aria-hidden="true" size={14} />
@@ -191,7 +218,13 @@ export function SessionSidebarFacade({
                 <div className="session-context-menu">
                   {confirmDeleteSessionId === session.id ? (
                     <>
-                      <strong>Delete session?</strong>
+                      <strong>
+                        {t(
+                          "messages_for_the_user",
+                          "sidebar.deleteConfirm",
+                          "Delete session?"
+                        )}
+                      </strong>
                       <div className="session-context-actions">
                         <button
                           onClick={(event) => {
@@ -201,7 +234,7 @@ export function SessionSidebarFacade({
                           }}
                           type="button"
                         >
-                          Cancel
+                          {t("ui_labels", "common.cancel", "Cancel")}
                         </button>
                         <button
                           className="is-danger"
@@ -213,7 +246,7 @@ export function SessionSidebarFacade({
                           }}
                           type="button"
                         >
-                          Delete
+                          {t("ui_labels", "common.delete", "Delete")}
                         </button>
                       </div>
                     </>
@@ -226,7 +259,7 @@ export function SessionSidebarFacade({
                       }}
                       type="button"
                     >
-                      Delete
+                      {t("ui_labels", "common.delete", "Delete")}
                     </button>
                   )}
                 </div>
@@ -239,11 +272,11 @@ export function SessionSidebarFacade({
       <button
         className="settings-entry"
         onClick={onOpenSettings}
-        title="Settings"
+        title={t("ui_labels", "settings.title", "Settings")}
         type="button"
       >
         <Settings aria-hidden="true" size={16} />
-        <span>Settings</span>
+        <span>{t("ui_labels", "settings.title", "Settings")}</span>
       </button>
     </aside>
   );

@@ -1,3 +1,8 @@
+import type { GlossaryRule } from "./glossary-protector.js";
+import {
+  LocalizationMaterializer,
+  type LocalizationTranslationFacadeContract,
+} from "./localization-materializer.js";
 import {
   DEFAULT_LOCALIZATION_SOURCE_LANGUAGE,
   LOCALIZATION_CATEGORY_IDS,
@@ -45,15 +50,20 @@ export interface LocalizationRuntimePayload {
 
 interface LocalizationRuntimeFacadeOptions {
   readonly engineCatalogs?: readonly LocalizationEngineLanguageCatalog[];
+  readonly glossaryRules?: readonly GlossaryRule[];
+  readonly localizationRootDirectory?: string;
   readonly sourceDictionaries?: readonly LocalizationSourceDictionary[];
+  readonly translationFacade?: LocalizationTranslationFacadeContract;
 }
 
 export class LocalizationRuntimeFacade {
   private readonly engineCatalogs: readonly LocalizationEngineLanguageCatalog[];
+  private readonly options: LocalizationRuntimeFacadeOptions;
   private readonly sourceRegistry: SourceDictionaryRegistry;
 
   constructor(options: LocalizationRuntimeFacadeOptions = {}) {
     this.engineCatalogs = options.engineCatalogs ?? [];
+    this.options = options;
     this.sourceRegistry = new SourceDictionaryRegistry(
       options.sourceDictionaries
     );
@@ -81,6 +91,18 @@ export class LocalizationRuntimeFacade {
     };
   }
 
+  materializeRuntimePayload(
+    settings: LocalizationRuntimeSettingsSnapshot
+  ): Promise<LocalizationRuntimePayload> {
+    return new LocalizationMaterializer({
+      activeEngineCatalogs: this.engineCatalogs,
+      glossaryRules: this.options.glossaryRules,
+      localizationRootDirectory: this.options.localizationRootDirectory,
+      sourceRegistry: this.sourceRegistry,
+      translationFacade: this.options.translationFacade,
+    }).materializeRuntimePayload(settings);
+  }
+
   private sourceFallbackBundle(
     category: LocalizationCategoryId,
     settings: LocalizationRuntimeSettingsSnapshot
@@ -98,6 +120,10 @@ export class LocalizationRuntimeFacade {
 }
 
 export { GlossaryProtector, type GlossaryRule } from "./glossary-protector.js";
+export {
+  LocalizationMaterializer,
+  type LocalizationTranslationFacadeContract,
+} from "./localization-materializer.js";
 export {
   DEFAULT_LOCALIZATION_SOURCE_LANGUAGE,
   LOCALIZATION_CATEGORY_IDS,

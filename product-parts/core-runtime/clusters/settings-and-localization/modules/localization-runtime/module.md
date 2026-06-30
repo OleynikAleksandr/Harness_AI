@@ -3,7 +3,8 @@
 ## Responsibility
 
 Own UI localization runtime contracts, source dictionary lookup, bootstrap
-payload shape, glossary protection, user glossary loading, and bundle state.
+payload shape, glossary protection, user glossary loading, bundle
+materialization, bootstrap payload reuse, and bundle state.
 
 ## Public Facade
 
@@ -15,6 +16,7 @@ payload shape, glossary protection, user glossary loading, and bundle state.
 - Source dictionaries keyed by localization category and language.
 - Glossary preserve/preferred-translation rules.
 - User-managed do-not-translate terms.
+- Translation facade for materializing non-English UI bundles.
 - Localization bundles.
 
 ## Outputs
@@ -22,6 +24,8 @@ payload shape, glossary protection, user glossary loading, and bundle state.
 - Source dictionary strings for stable message ids.
 - Glossary-protected text and restored translated text.
 - User glossary overrides from `do-not-translate-terms.txt`.
+- Materialized runtime bundles cached as `browser-runtime-bootstrap.json` when a
+  localization root is provided.
 - Runtime payload with active engine id, available engine catalogs, and
   category-keyed bundle entries.
 - Missing key diagnostics.

@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream3.task1",
-  "expectedCommitMessage": "docs: record localization transfer evidence",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "docs: record localization packaged verification",
   "debt": null
 }
 ```
@@ -201,13 +201,13 @@
 
 ### Stream: Verification Evidence
 
-49. [IN_PROGRESS] `harness-ai.phase6.stream3.task1` Record focused evidence for localized UI bundles, glossary protection, packaged dictionary availability, and translation-first reasoning behavior (scope: `docs/evidence/localization-transfer-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization transfer evidence`).
-50. [TODO] Git Commit: `docs: record localization transfer evidence` (hash: TBD)
+49. [DONE] `harness-ai.phase6.stream3.task1` Record focused evidence for localized UI bundles, glossary protection, packaged dictionary availability, and translation-first reasoning behavior (scope: `docs/evidence/localization-transfer-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization transfer evidence`). Result: Completed in commit `docs: record localization transfer evidence`.
+50. [DONE] Git Commit: `docs: record localization transfer evidence` (hash: self)
 
 ## Phase 7 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)
 
 ### Stream: Package And Retest
 
-51. [TODO] `harness-ai.phase7.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record package evidence (scope: `docs/evidence/localization-transfer-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization packaged verification`).
+51. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record package evidence (scope: `docs/evidence/localization-transfer-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization packaged verification`).
 52. [TODO] Git Commit: `docs: record localization packaged verification` (hash: TBD)
 53. [TODO] `harness-ai.phase7.stream1.task2` User retests Settings Localization, glossary protection, localized UI/help/menu copy, and live reasoning translation in the packaged app (scope: user workflow; expected commit: none).

@@ -8,8 +8,8 @@
   "planId": "settings-surface-restyle-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "Record settings surface restyle verification",
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -87,6 +87,6 @@
 
 ### Stream: Package And Retest
 
-5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record settings restyle visual verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record settings surface restyle verification`).
-6. [TODO] Git Commit: `Record settings surface restyle verification` (hash: TBD)
-7. [TODO] `harness-ai.phase3.stream1.task2` User retests the restyled settings tabs in the packaged app (scope: user workflow; expected commit: none).
+5. [DONE] `harness-ai.phase3.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record settings restyle visual verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record settings surface restyle verification`). Result: Completed in commit `Record settings surface restyle verification`.
+6. [DONE] Git Commit: `Record settings surface restyle verification` (hash: self)
+7. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` User retests the restyled settings tabs in the packaged app (scope: user workflow; expected commit: none).

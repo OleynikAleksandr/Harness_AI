@@ -19,6 +19,9 @@ Render the transcript/dialog layout and session chrome.
 - Core-owned localization runtime payload from the Electron preload bridge.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
+- The session window owns refresh of the browser localization runtime payload
+  and passes that refresh callback to Settings, so save/reset can show newly
+  materialized localized copy without reopening the app shell.
 
 ## Dialog Bubble Visuals
 

@@ -9,12 +9,14 @@ import "./settings-surface.css";
 interface ProviderSettingsUiFacadeProps {
   isOpen: boolean;
   onClose: () => void;
+  onLocalizationRuntimeRefresh: () => Promise<void>;
   workspacePath: string;
 }
 
 export function ProviderSettingsUiFacade({
   isOpen,
   onClose,
+  onLocalizationRuntimeRefresh,
   workspacePath,
 }: ProviderSettingsUiFacadeProps) {
   const { t } = useBrowserLocalization();
@@ -151,6 +153,7 @@ export function ProviderSettingsUiFacade({
     if (result.ok) {
       setSettings(result.settings);
       setDirty(false);
+      await onLocalizationRuntimeRefresh();
       setStatus("Settings saved.");
       setBusy(false);
       return result.settings;
@@ -194,6 +197,7 @@ export function ProviderSettingsUiFacade({
     if (result.ok) {
       setSettings(result.settings);
       setDirty(false);
+      await onLocalizationRuntimeRefresh();
       setStatus("Workspace settings reset.");
     } else {
       setStatus(result.error);

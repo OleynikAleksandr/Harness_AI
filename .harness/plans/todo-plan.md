@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task5",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase10.stream1.task2",
+  "expectedCommitMessage": "docs: record localization refresh package",
   "debt": null
 }
 ```
@@ -238,4 +238,14 @@
 68. [DONE] Git Commit: `fix: cache localization bundles by category` (hash: self)
 69. [DONE] `harness-ai.phase9.stream1.task4` Rebuild the packaged app after localization coverage and cache repairs, then record evidence (scope: `docs/evidence/localization-coverage-cache-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization coverage cache package`). Result: Completed in commit `docs: record localization coverage cache package`.
 70. [DONE] Git Commit: `docs: record localization coverage cache package` (hash: self)
-71. [IN_PROGRESS] `harness-ai.phase9.stream1.task5` User retests General and provider settings shell localization plus Harness localization cache layout in the rebuilt packaged app (scope: user workflow; expected commit: none).
+71. [DONE] `harness-ai.phase9.stream1.task5` User retests General and provider settings shell localization plus Harness localization cache layout in the rebuilt packaged app (scope: user workflow; expected commit: none). Result: User confirmed the Harness localization cache layout is created, but the open Settings UI still shows English helper copy after choosing Russian.
+
+## Phase 10 - Settings Localization Refresh Repair (owner: Codex, updated: 2026-06-30)
+
+### Stream: Runtime Payload Refresh
+
+72. [DONE] `harness-ai.phase10.stream1.task1` Refresh the browser localization runtime payload after Settings save/reset so newly materialized Russian bundles are visible in the open Settings modal (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`; docs: `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix: refresh localization payload after settings save`). Result: Completed in commit `fix: refresh localization payload after settings save`.
+73. [DONE] Git Commit: `fix: refresh localization payload after settings save` (hash: self)
+74. [IN_PROGRESS] `harness-ai.phase10.stream1.task2` Rebuild the packaged app after the Settings localization refresh repair and record evidence (scope: `docs/evidence/localization-refresh-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization refresh package`).
+75. [TODO] Git Commit: `docs: record localization refresh package` (hash: TBD)
+76. [TODO] `harness-ai.phase10.stream1.task3` User retests Russian Settings localization in the rebuilt packaged app (scope: user workflow; expected commit: none).

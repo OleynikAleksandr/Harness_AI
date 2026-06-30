@@ -32,6 +32,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Settings shell copy, provider tab labels, and the first shared provider-card
   labels/helpers resolve through the browser localization provider and approved
   source dictionary ids.
+- After a successful settings save or workspace settings reset, the facade calls
+  the parent-provided localization runtime refresh callback so newly
+  materialized bundles are visible in the open Settings dialog.
 
 ## Reasoning Effort Select
 

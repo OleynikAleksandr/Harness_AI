@@ -369,6 +369,7 @@ export function SessionWindowFacade() {
         <ProviderSettingsUiFacade
           isOpen={isSettingsOpen}
           onClose={closeSettings}
+          onLocalizationRuntimeRefresh={refreshLocalizationPayload}
           workspacePath={activeWorkspace.path}
         />
 

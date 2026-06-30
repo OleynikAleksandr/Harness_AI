@@ -155,8 +155,8 @@ export function ProviderSettingsUiFacade({
       if (result.ok) {
         setSettings(result.settings);
         setDirty(false);
-        await onLocalizationRuntimeRefresh();
         setStatus("Settings saved.");
+        onLocalizationRuntimeRefresh().catch(() => undefined);
         return result.settings;
       }
       setStatus(result.error);

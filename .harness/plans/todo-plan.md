@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream1.task3",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase15.stream1.task2",
+  "expectedCommitMessage": "docs: record settings save responsiveness package",
   "debt": null
 }
 ```
@@ -288,4 +288,14 @@
 93. [DONE] Git Commit: `fix: stop core restart spinner on failure` (hash: self)
 94. [DONE] `harness-ai.phase14.stream1.task2` Rebuild the packaged app after Core restart failure handling and record evidence (scope: `docs/evidence/core-restart-failure-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record core restart failure package`). Result: Completed in commit `docs: record core restart failure package`.
 95. [DONE] Git Commit: `docs: record core restart failure package` (hash: self)
-96. [IN_PROGRESS] `harness-ai.phase14.stream1.task3` User retests Restart Core and localization selector flow in the rebuilt packaged app (scope: user workflow; expected commit: none).
+96. [DONE] `harness-ai.phase14.stream1.task3` User retests Restart Core and localization selector flow in the rebuilt packaged app (scope: user workflow; expected commit: none). Result: User clarified the remaining blocking defect is Save button responsiveness after saving one localization category; subsequent category changes can reach Core through Restart Core, but Save stays visually disabled because Settings remains busy.
+
+## Phase 15 - Settings Save Responsiveness (owner: Codex, updated: 2026-06-30)
+
+### Stream: Non-Blocking Localization Refresh
+
+97. [DONE] `harness-ai.phase15.stream1.task1` Stop the post-save localization runtime refresh from keeping Settings busy after Core has already saved the draft, so later Settings changes can enable Save immediately (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.test.mjs`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix: keep settings save responsive after localization refresh`). Result: Completed in commit `fix: keep settings save responsive after localization refresh`.
+98. [DONE] Git Commit: `fix: keep settings save responsive after localization refresh` (hash: self)
+99. [IN_PROGRESS] `harness-ai.phase15.stream1.task2` Rebuild the packaged app after the Settings save responsiveness repair and record evidence (scope: `docs/evidence/settings-save-responsiveness-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record settings save responsiveness package`).
+100. [TODO] Git Commit: `docs: record settings save responsiveness package` (hash: TBD)
+101. [TODO] `harness-ai.phase15.stream1.task3` User retests saving multiple localization category changes one after another in the rebuilt packaged app (scope: user workflow; expected commit: none).

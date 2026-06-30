@@ -10,8 +10,8 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.resetDefaults": "Reset to Defaults",
     "settings.saveChanges": "Save Changes",
     "settings.sections": "Settings sections",
-    "settings.coreControls": "Core Controls",
-    "settings.coreControls.restart": "Restart Core",
+    "settings.coreControls": "App Controls",
+    "settings.coreControls.restart": "Restart App",
     "settings.localization": "Localization",
     "settings.localization.artifactsForTheUser": "Artifacts for the User",
     "settings.localization.category.artifacts": "Artifacts for the User",
@@ -83,7 +83,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.localization.description":
       "Choose UI languages and translation engines.",
     "settings.coreControls.description":
-      "Restart the Harness AI core to trigger a fresh CLI detection cycle. Use this option after resolving CLI authentication or quota issues.",
+      "Restart the Harness AI app. The current app closes and relaunches, so the Electron host and Core runtime both reload from disk.",
     "settings.localization.category.artifacts.description":
       "Forms and final user-facing artifacts. Agent instructions and templates stay in English.",
     "settings.localization.category.messages.description":
@@ -152,7 +152,7 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
   entries: {
     "core.bridge.unavailable": "Core runtime bridge is unavailable.",
     "provider.setup.needed": "Provider setup needed: {error}",
-    "settings.coreControls.restarting": "Restarting...",
+    "settings.coreControls.restarting": "Restarting app...",
     "settings.resetting": "Resetting...",
     "settings.saving": "Saving...",
     "settings.localization.glossary.disabled":

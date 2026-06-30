@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase20.stream1.task2",
-  "expectedCommitMessage": "fix: restart app from settings",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -341,5 +341,5 @@
 
 117. [DONE] `harness-ai.phase20.stream1.task1` Add an Electron host relaunch IPC exposed through the preload shell bridge so renderer surfaces can request a full app restart instead of only restarting Core (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; docs: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/cluster.md, .harness/plans/todo-plan.md`; expected commit: `feat: add electron app relaunch bridge`). Result: Completed in commit `feat: add electron app relaunch bridge`.
 118. [DONE] Git Commit: `feat: add electron app relaunch bridge` (hash: self)
-119. [IN_PROGRESS] `harness-ai.phase20.stream1.task2` Replace the General Settings Core Controls action with a full Restart App flow that saves dirty settings first, calls the Electron relaunch bridge, and updates localized button/status copy (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, docs/evidence/settings-full-app-restart-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `fix: restart app from settings`).
-120. [TODO] Git Commit: `fix: restart app from settings` (hash: TBD)
+119. [DONE] `harness-ai.phase20.stream1.task2` Replace the General Settings Core Controls action with a full Restart App flow that saves dirty settings first, calls the Electron relaunch bridge, and updates localized button/status copy (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, docs/evidence/settings-full-app-restart-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `fix: restart app from settings`). Result: Completed in commit `fix: restart app from settings`.
+120. [DONE] Git Commit: `fix: restart app from settings` (hash: self)

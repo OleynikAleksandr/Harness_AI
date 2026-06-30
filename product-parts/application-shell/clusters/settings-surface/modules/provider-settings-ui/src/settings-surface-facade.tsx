@@ -25,7 +25,7 @@ export function ProviderSettingsUiFacade({
   const [dirty, setDirty] = useState(false);
   const [coreRestartBusy, setCoreRestartBusy] = useState(false);
   const [coreRestartStatus, setCoreRestartStatus] = useState(
-    "Core restart status will appear here."
+    "App restart status will appear here."
   );
   const [settings, setSettings] = useState<HarnessSettings | null>(null);
   const [status, setStatus] = useState("Settings are ready.");
@@ -184,30 +184,27 @@ export function ProviderSettingsUiFacade({
     }
   };
 
-  const restartCore = async () => {
-    if (!(settings && window.harnessCore)) {
+  const restartApp = async () => {
+    if (!(settings && window.harnessCore && window.harnessShell)) {
+      setCoreRestartStatus("App restart bridge is unavailable.");
       return;
     }
     setCoreRestartBusy(true);
-    setCoreRestartStatus("Restart requested. Refreshing Core adapters...");
+    setCoreRestartStatus("Restart requested. Saving settings...");
     try {
       const savedSettings = dirty ? await save() : settings;
       if (!savedSettings) {
-        setCoreRestartStatus("Core restart skipped: settings save failed.");
+        setCoreRestartStatus("App restart skipped: settings save failed.");
         return;
       }
-      const result = await window.harnessCore.restartCore();
+      const result = await window.harnessShell.restartApp();
       if (result.ok) {
-        setCoreRestartStatus("Core restart completed. Reloading...");
-        // Full reset: the Core process was killed and respawned; reload the
-        // renderer so every in-memory UI cache (providers, sessions, messages,
-        // telemetry) is cleared and re-hydrated from the fresh Core.
-        window.location.reload();
+        setCoreRestartStatus("App restart requested. Relaunching...");
         return;
       }
       setCoreRestartStatus(result.error);
     } catch (error) {
-      setCoreRestartStatus(toErrorMessage(error, "Core restart failed."));
+      setCoreRestartStatus(toErrorMessage(error, "App restart failed."));
     } finally {
       setCoreRestartBusy(false);
     }
@@ -307,7 +304,7 @@ export function ProviderSettingsUiFacade({
                 coreRestartStatus={coreRestartStatus}
                 localModels={localModels}
                 onOpenGlossary={openGlossary}
-                onRestartCore={restartCore}
+                onRestartCore={restartApp}
                 onUpdateProvider={updateProvider}
                 settings={settings}
                 update={update}

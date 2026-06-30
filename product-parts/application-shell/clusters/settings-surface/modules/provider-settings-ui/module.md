@@ -18,11 +18,18 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Provider settings update intents.
 - Auth/configuration action intents.
 - Harness-owned provider path labels; the OpenCode card points users to `.harness/runtime/providers/glm-opencode/home`.
-- Core restart intent from the Core Controls card. The Core Controls card is the first card in the General tab (above Localization), and its copy refers to the Harness AI core. The restart row (`settings-core-row`) lays the button and its status label out with a gap, and the button shows a spinner (`settings-spinner`) while the restart is in flight. Restart Core is a full reset: Core kills and respawns its process, and on success the renderer reloads (`window.location.reload`) so all in-memory UI state is cleared and re-hydrated from the fresh Core.
-- Settings save and Restart Core actions catch rejected Core bridge promises and
-  always clear their busy state. Failed restarts remain on the Settings surface
-  with the Core-owned error message instead of leaving the Restart Core spinner
-  running forever.
+- Full app restart intent from the App Controls card. The App Controls card is
+  the first card in the General tab (above Localization), and its copy makes
+  clear that the Electron host and Core runtime both reload from disk. The
+  restart row (`settings-core-row`) lays the button and its status label out
+  with a gap, and the button shows a spinner (`settings-spinner`) while the
+  restart is being requested. Restart App saves dirty Settings first, then calls
+  the Electron host relaunch bridge instead of only restarting the Core child
+  process.
+- Settings save and Restart App actions catch rejected bridge promises and
+  always clear their busy state. Failed restart requests remain on the Settings
+  surface with an error message instead of leaving the restart spinner running
+  forever.
 - Settings Save owns the full localization refresh lifecycle: before Core
   save/materialization starts, the Settings surface shows a blocking
   localization refresh card with a spinner, then keeps the overlay active until

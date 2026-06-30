@@ -101,6 +101,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/packaged-app-process-cleanup-2026-06-30.md` — package script
   evidence for stopping stale packaged Harness AI app/Core processes before
   rebuilding `app.asar`.
+- `docs/evidence/settings-full-app-restart-package-2026-06-30.md` — packaged
+  application rebuild evidence for replacing Settings restart with full Electron
+  app relaunch.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

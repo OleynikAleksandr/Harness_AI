@@ -17,6 +17,8 @@ materialization, bootstrap payload reuse, and bundle state.
 - Approved English source dictionaries shipped as TypeScript exports.
 - Settings shell, provider tab and first shared provider-card source strings are
   part of the approved English dictionaries.
+- General Settings App Controls source strings identify restart as a full app
+  relaunch because the Electron host and Core runtime both reload from disk.
 - Claude provider settings helper copy and model descriptions are part of the
   approved `ui_helper_text` dictionary.
 - Codex provider settings helper copy and model descriptions are part of the

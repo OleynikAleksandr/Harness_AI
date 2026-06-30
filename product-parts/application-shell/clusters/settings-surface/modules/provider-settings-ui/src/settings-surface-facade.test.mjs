@@ -8,11 +8,15 @@ const source = readFileSync(
 
 const saveSource = source.slice(
   source.indexOf("const save = async () =>"),
-  source.indexOf("const restartCore = async () =>")
+  source.indexOf("const restartApp = async () =>")
 );
 const refreshSource = source.slice(
   source.indexOf("const refreshLocalizationRuntimeAfterSave = async () =>"),
-  source.indexOf("const restartCore = async () =>")
+  source.indexOf("const restartApp = async () =>")
+);
+const restartSource = source.slice(
+  source.indexOf("const restartApp = async () =>"),
+  source.indexOf("const reset = async () =>")
 );
 
 assert.match(
@@ -35,4 +39,15 @@ assert.doesNotMatch(
   /setLocalizationRefreshBusy/u,
   "The Save path owns blocker state so refresh errors cannot clear it early."
 );
+assert.match(
+  restartSource,
+  /dirty \? await save\(\) : settings/u,
+  "Restart App must save dirty Settings before relaunching the Electron host."
+);
+assert.match(
+  restartSource,
+  /await window\.harnessShell\.restartApp\(\)/u,
+  "Settings restart must relaunch the Electron host instead of restarting only Core."
+);
+assert.doesNotMatch(restartSource, /restartCore/u);
 assert.match(source, /settings-localization-blocker/u);

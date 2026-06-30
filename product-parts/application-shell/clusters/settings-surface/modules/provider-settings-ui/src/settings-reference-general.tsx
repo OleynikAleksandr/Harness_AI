@@ -110,7 +110,7 @@ export function ReferenceGeneralSettings({
           {t(
             "ui_helper_text",
             "settings.coreControls.description",
-            "Restart the Harness AI core to trigger a fresh CLI detection cycle. Use this option after resolving CLI authentication or quota issues."
+            "Restart the Harness AI app. The current app closes and relaunches, so the Electron host and Core runtime both reload from disk."
           )}
         </p>
         <div className="settings-core-row">
@@ -125,11 +125,11 @@ export function ReferenceGeneralSettings({
                 {t(
                   "messages_for_the_user",
                   "settings.coreControls.restarting",
-                  "Restarting..."
+                  "Restarting app..."
                 )}
               </>
             ) : (
-              t("ui_labels", "settings.coreControls.restart", "Restart Core")
+              t("ui_labels", "settings.coreControls.restart", "Restart App")
             )}
           </SettingsButton>
           <span className="settings-core-status">{coreRestartStatus}</span>

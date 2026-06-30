@@ -9,6 +9,7 @@
   --pm-border-strong: #354152;
   --pm-text-primary: #f1f3f5;
   --pm-text-muted: #767d86;
+  --pm-text-secondary: #868d97;
   --pm-accent: #42c9a2;
   --pm-accent-strong: #5fe3ba;
   --pm-help-text-color: rgba(115, 130, 140, 1);
@@ -1510,5 +1511,5 @@ strong {
 .session-status-chip--label {
   font-style: italic;
   font-weight: 300;
-  color: var(--pm-text-muted, #767d86);
+  color: var(--pm-text-secondary, #868d97);
 }

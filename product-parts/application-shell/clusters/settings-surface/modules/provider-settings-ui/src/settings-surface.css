@@ -800,5 +800,5 @@
 .settings-backdrop .settings-core-status {
   font-style: italic;
   font-weight: 300;
-  color: var(--pm-text-muted, #767d86);
+  color: var(--pm-text-secondary, #868d97);
 }

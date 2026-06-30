@@ -55,7 +55,8 @@ Render the transcript/dialog layout and session chrome.
   message body, reasoning/thinking content and input-typed text are left
   untouched. The bare element resets (`button/h*/strong { font-weight: 300 }`)
   are 0,0,1, so these class selectors win without extra scoping. Shared `--pm-*`
-  tokens lift primary brighter (`#f1f3f5`) and dim muted (`#767d86`).
+  tokens lift primary brighter (`#f1f3f5`) and dim muted (`#767d86`); the italic
+  secondary text uses a slightly brighter `--pm-text-secondary` (`#868d97`).
 - The `.start-new-session-button` resets `font-style: normal` so it stays upright
   inside its now-italic `.sidebar-section-header` container.
 

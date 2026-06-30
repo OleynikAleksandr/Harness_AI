@@ -8,8 +8,8 @@
   "planId": "ui-typography-hierarchy-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": "Record secondary brightness verification",
   "debt": null
 }
 ```
@@ -104,4 +104,19 @@
 
 14. [DONE] `harness-ai.phase6.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record polish verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record model card and button polish verification`). Result: Completed in commit `Record model card and button polish verification`.
 15. [DONE] Git Commit: `Record model card and button polish verification` (hash: self)
-16. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User retests the model cards and the Start New Session button in the packaged app (scope: user workflow; expected commit: none).
+16. [DONE] `harness-ai.phase6.stream1.task2` User retests the model cards and the Start New Session button in the packaged app (scope: user workflow; expected commit: none). Result: User accepted and asked to brighten the italic secondary text (Phase 7).
+
+## Phase 7 - Secondary Brightness (owner: Codex, updated: 2026-06-30)
+
+### Stream: Typography
+
+17. [DONE] `harness-ai.phase7.stream1.task1` Introduce `--pm-text-secondary` (`#868d97`, slightly brighter than muted) and use it for the italic secondary text in both UI files, leaving non-italic muted (icons, placeholder) unchanged (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `Brighten the italic secondary text slightly`). Result: Completed in commit `Brighten the italic secondary text slightly`.
+18. [DONE] Git Commit: `Brighten the italic secondary text slightly` (hash: self)
+
+## Phase 8 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)
+
+### Stream: Package And Retest
+
+19. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record secondary brightness evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record secondary brightness verification`).
+20. [TODO] Git Commit: `Record secondary brightness verification` (hash: TBD)
+21. [TODO] `harness-ai.phase8.stream1.task2` User retests the secondary text brightness in the packaged app (scope: user workflow; expected commit: none).

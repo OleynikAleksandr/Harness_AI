@@ -8,8 +8,8 @@
   "planId": "settings-surface-restyle-2026-06-29",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "Record settings surface restyle verification",
   "debt": null
 }
 ```
@@ -17,10 +17,10 @@
 
 ## Context Pack For This Cycle
 
-- **Planning source:** user request — apply the accepted Settings visual style
-  (neutral graphite, three elevation levels, muted borders, muted teal selection
-  fill + thin teal border, in-tone reasoning fields) to all provider tabs, and
-  give the active provider tab the same selection treatment as the selected model.
+- **Planning source:** user request — (1) apply the accepted Settings visual
+  style to all provider tabs, and (2) align the plan phase model so plans no
+  longer carry a redundant gate-verification phase (gates already run on every
+  commit).
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Read this context before implementation:**
@@ -43,6 +43,9 @@
   near-black `#0e1521`; teal-tinted variant on the active model.
 - Active provider tab (`.settings-tab.active`) gets the same selection treatment.
 - Model id row is left as-is (content, out of this visual scope).
+- Plan phase model: quality gates run automatically on every commit, so plans do
+  not include a separate gate-run phase; the final phase is package + user
+  acceptance, used only when the change is visible in the packaged app.
 
 ## Execution Rules
 
@@ -53,6 +56,8 @@
 - Application Shell is UI/client only; it is not source of truth for workflow,
   settings, provider state, reasoning or orchestration. This change is presentation only.
 - Any source change updates every related Markdown document in the same commit.
+- Quality gates run automatically on every commit (`.husky/pre-commit`) and push
+  (`.husky/pre-push`); this plan never includes a separate phase to run gates.
 - No release/package build starts as a release decision without explicit user confirmation.
 - Verification/package builds for the current implementation scope are allowed when this plan asks for them.
 - Scope closeout/archival is user-directed only.
@@ -71,18 +76,17 @@
    plus module docs; expected commit: `Restyle provider settings surface with neutral elevation and muted teal selection`).
 2. [DONE] Git Commit: `Restyle provider settings surface with neutral elevation and muted teal selection` (hash: self)
 
-## Phase 2 - Tooling Verification (owner: Codex, updated: 2026-06-29)
+## Phase 2 - Planning Model Alignment (owner: Codex, updated: 2026-06-30)
 
-### Stream: Build And Evidence
+### Stream: Plan Process
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Run required gates, package the app
-   for visual verification, and record evidence
-   (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record settings surface restyle verification`).
-4. [TODO] Git Commit: `Record settings surface restyle verification` (hash: TBD)
+3. [DONE] `harness-ai.phase2.stream1.task1` Drop the redundant gate-verification phase from the plan template and current plan, and align AGENTS.md section 6 so plans run gates on every commit and keep only a package + acceptance final phase (scope: `.harness/plans/todo-plan.template.md, AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `Align plan phase model: drop redundant gate verification phase`). Result: Completed in commit `Align plan phase model: drop redundant gate verification phase`.
+4. [DONE] Git Commit: `Align plan phase model: drop redundant gate verification phase` (hash: self)
 
-## Phase 3 - User Workflow Acceptance (owner: User, updated: 2026-06-29)
+## Phase 3 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)
 
-### Stream: Retest
+### Stream: Package And Retest
 
-5. [TODO] `harness-ai.phase3.stream1.task1` User retests the restyled settings
-   tabs in the packaged app (scope: user workflow; expected commit: none).
+5. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record settings restyle visual verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record settings surface restyle verification`).
+6. [TODO] Git Commit: `Record settings surface restyle verification` (hash: TBD)
+7. [TODO] `harness-ai.phase3.stream1.task2` User retests the restyled settings tabs in the packaged app (scope: user workflow; expected commit: none).

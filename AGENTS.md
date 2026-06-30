@@ -89,7 +89,8 @@
   - `.husky/post-commit`: `node scripts/plan.mjs post-commit`
 - Push gates:
   - `.husky/pre-push`: `npm run plan:validate`, `npm run check:dup`, `npm run check:security`, `npm run check:links`
-- Ручной прогон нужен для диагностики и перед verification streams:
+- Quality gates выполняются автоматически на каждом commit (`.husky/pre-commit`) и push (`.husky/pre-push`). Поэтому план НЕ должен содержать отдельную фазу или задачу «прогнать gates» — это дублирование того, что hooks уже делают принудительно (без прохождения gates коммита просто не будет). Финальная фаза плана нужна только когда изменение видно в упакованном приложении: это package-сборка + user acceptance (см. раздел 9), а не gate-прогон.
+- Ручной прогон нужен только для диагностики и перед сборкой пакета:
   ```bash
   npm run check:architecture
   npm run lint

@@ -51,6 +51,7 @@
 - No release/package build starts as a release decision without explicit user confirmation.
 - Scope closeout/archival is user-directed only: the agent never initiates moving `Execution Scope Status` to `NONE`, running `npm run plan:archive`, or starting a fresh empty plan — it may only suggest it and wait for the user's direct order.
 - Verification/package builds for the current implementation scope are allowed when the active plan asks for them.
+- Quality gates run automatically on every commit (`.husky/pre-commit`) and push (`.husky/pre-push`); plans never include a separate phase or task just to run gates.
 - Commit with `npm run plan:commit -- "<expected commit message>"`.
 
 ## Phase <N> - <Phase Name> (owner: Codex, updated: YYYY-MM-DD)
@@ -60,15 +61,13 @@
 1. [IN_PROGRESS] `harness-ai.phase<N>.stream1.task1` <task description> (scope: `<file1, file2, file3>`; expected commit: `<expected commit message>`).
 2. [TODO] Git Commit: `<expected commit message>` (hash: TBD)
 
-## Phase <N+1> - Tooling Verification (owner: Codex, updated: YYYY-MM-DD)
+## Phase <N+1> - Package & User Acceptance (owner: Codex + User, updated: YYYY-MM-DD)
 
-### Stream: Build And Evidence
+### Stream: Package And Retest
 
-3. [TODO] `harness-ai.phase<N+1>.stream1.task1` Run required gates/builds and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `<verification commit message>`).
+> Add this phase only when the change is visible in the packaged app. Gates run
+> automatically on every commit, so there is no separate gate-run phase.
+
+3. [TODO] `harness-ai.phase<N+1>.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `<verification commit message>`).
 4. [TODO] Git Commit: `<verification commit message>` (hash: TBD)
-
-## Phase <N+2> - User Workflow Acceptance (owner: User, updated: YYYY-MM-DD)
-
-### Stream: Retest
-
-5. [TODO] `harness-ai.phase<N+2>.stream1.task1` User retests the implemented workflow (scope: user workflow; expected commit: none).
+5. [TODO] `harness-ai.phase<N+1>.stream1.task2` User retests the implemented workflow in the packaged app (scope: user workflow; expected commit: none).

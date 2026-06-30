@@ -427,8 +427,8 @@
   );
   font-size: 12px;
   font-weight: 300;
-  background: var(--ss-card);
-  border: 1px solid var(--ss-card-border);
+  background: var(--ss-card, #232527);
+  border: 1px solid var(--ss-card-border, #3b3f42);
   border-radius: 8px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5);
 }

@@ -8,8 +8,8 @@
   "planId": "ui-typography-hierarchy-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
-  "expectedCommitMessage": "Record secondary brightness verification",
+  "currentTaskId": "harness-ai.phase8.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -117,6 +117,6 @@
 
 ### Stream: Package And Retest
 
-19. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record secondary brightness evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record secondary brightness verification`).
-20. [TODO] Git Commit: `Record secondary brightness verification` (hash: TBD)
-21. [TODO] `harness-ai.phase8.stream1.task2` User retests the secondary text brightness in the packaged app (scope: user workflow; expected commit: none).
+19. [DONE] `harness-ai.phase8.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record secondary brightness evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record secondary brightness verification`). Result: Completed in commit `Record secondary brightness verification`.
+20. [DONE] Git Commit: `Record secondary brightness verification` (hash: self)
+21. [IN_PROGRESS] `harness-ai.phase8.stream1.task2` User retests the secondary text brightness in the packaged app (scope: user workflow; expected commit: none).

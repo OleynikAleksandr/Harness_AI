@@ -186,11 +186,12 @@ export function ReferenceGeneralSettings({
             )}
             onChange={(engineId) =>
               update((next) => {
+                next.general.localization.uiEngineId = engineId;
                 next.general.localization.engineId = engineId;
               })
             }
             options={uiTranslationEngineOptions}
-            value={localization.engineId}
+            value={localization.uiEngineId}
           />
           <SettingsSelect
             label={t(

@@ -22,6 +22,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - General tab Core Controls and Localization copy resolves through the shared
   browser localization provider with stable message ids and bootstrap
   fallbacks.
+- The Localization UI Translation Engine select reads and writes Core-owned
+  `general.localization.uiEngineId`; the legacy `engineId` alias is only kept in
+  sync for settings normalization compatibility.
 
 ## Reasoning Effort Select
 

@@ -24,7 +24,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 ### Session Interface
 
-- `session-window`: transcript/dialog layout, session chrome, and next-session mode panel from Core read models.
+- `session-window`: transcript/dialog layout, session chrome, next-session mode panel, and Core-provided localizedContent reveal from Core read models.
 - `input-controls`: message input, Stop/Play controls, busy/lock display, and user intent submission only.
 - `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
 - `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry.
@@ -37,7 +37,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 ### Browser Localization
 
-- `browser-localization-provider`: shared renderer localization provider and `t(category, messageId, fallback)` lookup boundary.
+- `browser-localization-provider`: shared renderer localization provider and `t(category, messageId, fallback)` lookup boundary over Core-provided runtime payloads.
 
 ## Core Runtime
 
@@ -81,8 +81,8 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 ### Settings And Localization
 
 - `settings-store`: global/workspace settings persistence.
-- `localization-runtime`: UI localization bootstrap and bundle state.
-- `reasoning-translation-overlay`: async translation of visible reasoning/thinking.
+- `localization-runtime`: approved source dictionaries, glossary protection, browser localization bootstrap, and materialized runtime bundle state.
+- `reasoning-translation-overlay`: visible reasoning translation policy, source hashing, pending state, sidecar overlays, and patch payloads.
 
 ## Provider Runtime
 

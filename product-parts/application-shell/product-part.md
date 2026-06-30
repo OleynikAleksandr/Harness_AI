@@ -20,6 +20,8 @@ implementation modules in-process.
 - Own the desktop application window and renderer surface.
 - Present classic chat sessions, workspace selection, session lists, and settings from Core read models.
 - Resolve browser display copy through Core-provided localization payloads.
+- Render Core-provided `localizedContent` patches for translated reasoning
+  without rewriting Core source message text.
 - Forward user input and settings changes to Core contracts.
 - Start, stop, restart, health-check, or connect to the Core process.
 - Open workspace file links in Visual Studio Code.
@@ -30,5 +32,6 @@ implementation modules in-process.
 - Provider adapter instantiation or registration.
 - Core Runtime module composition.
 - Session history persistence truth.
+- Translation overlay truth.
 - Settings truth.
 - Plan orchestration truth.

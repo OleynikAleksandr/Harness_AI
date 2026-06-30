@@ -48,7 +48,7 @@
             {
               "id": "session-window",
               "name": "Session Window",
-              "purpose": "Transcript/dialog layout, session chrome, and next-session mode panel."
+              "purpose": "Transcript/dialog layout, session chrome, next-session mode panel, and Core-provided localizedContent reveal."
             },
             {
               "id": "input-controls",
@@ -97,7 +97,7 @@
             {
               "id": "browser-localization-provider",
               "name": "Browser Localization Provider",
-              "purpose": "Shared renderer localization provider and t(category, messageId, fallback) lookup boundary."
+              "purpose": "Shared renderer localization provider and t(category, messageId, fallback) lookup boundary over Core-provided runtime payloads."
             }
           ]
         }
@@ -247,7 +247,7 @@
         {
           "id": "settings-and-localization",
           "name": "Settings And Localization",
-          "purpose": "Settings persistence, UI localization, and reasoning translation.",
+          "purpose": "Settings persistence, UI localization runtime materialization, and visible reasoning translation overlay state.",
           "modules": [
             {
               "id": "settings-store",
@@ -257,12 +257,12 @@
             {
               "id": "localization-runtime",
               "name": "Localization Runtime",
-              "purpose": "UI localization bootstrap and bundle state."
+              "purpose": "Approved source dictionaries, glossary protection, browser localization bootstrap, and materialized runtime bundle state."
             },
             {
               "id": "reasoning-translation-overlay",
               "name": "Reasoning Translation Overlay",
-              "purpose": "Async translation of visible reasoning/thinking."
+              "purpose": "Visible reasoning translation policy, source hashing, pending state, sidecar overlays, and patch payloads."
             }
           ]
         }

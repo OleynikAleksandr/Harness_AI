@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream2.task1",
-  "expectedCommitMessage": "docs: update localization product tree",
+  "currentTaskId": "harness-ai.phase6.stream3.task1",
+  "expectedCommitMessage": "docs: record localization transfer evidence",
   "debt": null
 }
 ```
@@ -196,12 +196,12 @@
 
 ### Stream: Product Tree Docs
 
-47. [IN_PROGRESS] `harness-ai.phase6.stream2.task1` Audit product tree source/projection and affected Product Part docs after implementation, fixing only drift that remains after source commits already updated their ownership docs (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/application-shell/product-part.md`; expected commit: `docs: update localization product tree`).
-48. [TODO] Git Commit: `docs: update localization product tree` (hash: TBD)
+47. [DONE] `harness-ai.phase6.stream2.task1` Audit product tree source/projection and affected Product Part docs after implementation, fixing only drift that remains after source commits already updated their ownership docs (scope: `.harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, product-parts/application-shell/product-part.md`; expected commit: `docs: update localization product tree`). Result: Completed in commit `docs: update localization product tree`.
+48. [DONE] Git Commit: `docs: update localization product tree` (hash: self)
 
 ### Stream: Verification Evidence
 
-49. [TODO] `harness-ai.phase6.stream3.task1` Record focused evidence for localized UI bundles, glossary protection, packaged dictionary availability, and translation-first reasoning behavior (scope: `docs/evidence/localization-transfer-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization transfer evidence`).
+49. [IN_PROGRESS] `harness-ai.phase6.stream3.task1` Record focused evidence for localized UI bundles, glossary protection, packaged dictionary availability, and translation-first reasoning behavior (scope: `docs/evidence/localization-transfer-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization transfer evidence`).
 50. [TODO] Git Commit: `docs: record localization transfer evidence` (hash: TBD)
 
 ## Phase 7 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)

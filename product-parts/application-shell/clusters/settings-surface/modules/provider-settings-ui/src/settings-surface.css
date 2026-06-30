@@ -770,3 +770,34 @@
     padding-left: 16px;
   }
 }
+
+/* Text hierarchy layer: primary roles read as semi-bold anchors, secondary
+   roles are italic + thin and collapse to one muted tone (this overrides the
+   per-rule literal greys above so every secondary line matches). */
+.settings-tab,
+.settings-card h3,
+.settings-control-title,
+.settings-profile-title,
+.settings-toggle-row strong,
+.settings-model-title,
+.settings-option-row span,
+.settings-version-name,
+.settings-row-select {
+  font-weight: 500;
+}
+
+.settings-description,
+.settings-helper,
+.settings-control-description,
+.settings-toggle-row small,
+.settings-model-id,
+.settings-option-row small,
+.settings-model-description,
+.settings-note,
+.settings-muted,
+.settings-version-text,
+.settings-core-status {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--pm-text-muted, #767d86);
+}

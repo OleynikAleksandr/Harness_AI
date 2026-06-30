@@ -16,6 +16,7 @@ Render the transcript/dialog layout and session chrome.
 - Provider settings snapshot for display-only labels. Codex reasoning labels use the Core settings-store capability resolver and disappear when the selected Codex model has no declared reasoning effort levels.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
 - Core-owned provider readiness descriptors and live `provider:status` events.
+- Core-owned localization runtime payload from the Electron preload bridge.
 
 ## Dialog Bubble Visuals
 

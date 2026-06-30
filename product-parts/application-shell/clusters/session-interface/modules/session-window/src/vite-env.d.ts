@@ -11,6 +11,8 @@ interface ProviderSystemSettings {
 
 type HarnessSettings =
   import("../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js").HarnessSettings;
+type LocalizationRuntimePayload =
+  import("../../../../../../core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js").LocalizationRuntimePayload;
 
 interface ProviderStatusEvent {
   payload: {
@@ -54,6 +56,7 @@ interface Window {
       import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent[]
     >;
     getSettings(workspacePath?: string): Promise<HarnessSettings>;
+    getLocalizationRuntimePayload(): Promise<LocalizationRuntimePayload>;
     getLocalModels(): Promise<
       { models: string[]; ok: true } | { error: string; ok: false }
     >;

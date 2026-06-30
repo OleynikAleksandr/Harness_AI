@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream5.task1",
-  "expectedCommitMessage": "feat: expose localization runtime bridge",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: add browser localization provider",
   "debt": null
 }
 ```
@@ -118,14 +118,14 @@
 
 ### Stream: Core Bridge Bootstrap Payload
 
-19. [IN_PROGRESS] `harness-ai.phase2.stream5.task1` Expose the localization runtime bootstrap payload through the Core runtime API and Electron preload bridge instead of leaving UI bootstrap implicit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: expose localization runtime bridge`).
-20. [TODO] Git Commit: `feat: expose localization runtime bridge` (hash: TBD)
+19. [DONE] `harness-ai.phase2.stream5.task1` Expose the localization runtime bootstrap payload through the Core runtime API and Electron preload bridge instead of leaving UI bootstrap implicit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: expose localization runtime bridge`). Result: Completed in commit `feat: expose localization runtime bridge`.
+20. [DONE] Git Commit: `feat: expose localization runtime bridge` (hash: self)
 
 ## Phase 3 - UI Text Markers And Bootstrap Consumption (owner: Codex, updated: 2026-06-30)
 
 ### Stream: Browser Localization Provider
 
-21. [TODO] `harness-ai.phase3.stream1.task1` Add a shared Application Shell browser localization provider facade and consume the bridge payload from `session-window`, so Settings, Sidebar, and Session UI use one public `t(category, messageId, fallback)` boundary instead of sibling imports; this same commit also creates/updates the new browser-localization cluster/module docs and product-tree entries (scope: `product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`; expected commit: `feat: add browser localization provider`).
+21. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Add a shared Application Shell browser localization provider facade and consume the bridge payload from `session-window`, so Settings, Sidebar, and Session UI use one public `t(category, messageId, fallback)` boundary instead of sibling imports; this same commit also creates/updates the new browser-localization cluster/module docs and product-tree entries (scope: `product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.tsx, product-parts/application-shell/clusters/browser-localization/modules/browser-localization-provider/src/browser-localization-provider.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`; expected commit: `feat: add browser localization provider`).
 22. [TODO] Git Commit: `feat: add browser localization provider` (hash: TBD)
 
 ### Stream: Source Dictionaries

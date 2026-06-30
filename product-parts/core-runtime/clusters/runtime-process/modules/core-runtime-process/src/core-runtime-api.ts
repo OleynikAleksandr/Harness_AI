@@ -24,6 +24,7 @@ import {
   type CoreSession,
   sessionRequestHandlerFacade,
 } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
+import { LocalizationRuntimeFacade } from "../../../../settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js";
 import {
   type HarnessSettings,
   settingsStoreFacade,
@@ -117,6 +118,12 @@ export class CoreRuntimeApi {
       case "get-settings":
         return settingsStoreFacade.getSettings(
           readString(payload) || this.activeWorkspacePath()
+        );
+      case "get-localization-runtime-payload":
+        return new LocalizationRuntimeFacade().createRuntimePayload(
+          localizationRuntimeSettings(
+            settingsStoreFacade.getSettings(this.activeWorkspacePath())
+          )
         );
       case "get-local-models":
         return this.getLocalModels();
@@ -458,6 +465,16 @@ function readProviderId(value: unknown): ProviderId {
     return value as ProviderId;
   }
   throw new Error("Unknown provider.");
+}
+
+function localizationRuntimeSettings(settings: HarnessSettings) {
+  const localization = settings.general.localization;
+  return {
+    categories: localization.categories,
+    defaultLanguage: localization.defaultLanguage,
+    uiEngineId: localization.uiEngineId,
+    workflowTermsPolicy: localization.workflowTermsPolicy,
+  };
 }
 
 function readRecord(value: unknown): Record<string, unknown> | null {

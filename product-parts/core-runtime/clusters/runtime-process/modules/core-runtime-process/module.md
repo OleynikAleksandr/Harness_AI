@@ -39,6 +39,9 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - On `delete-session` RPC, orchestrates session removal: deletes the session's
   event log and asks the provider adapter to delete its own per-session artifact
   (e.g. the Codex rollout) so nothing outlives the session record.
+- Localization runtime bootstrap payloads are exposed through Core RPC so
+  browser clients render Core-owned localization state instead of deriving it
+  locally.
 
 ## Owned Paths
 

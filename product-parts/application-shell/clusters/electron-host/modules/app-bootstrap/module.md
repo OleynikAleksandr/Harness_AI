@@ -17,6 +17,7 @@ Own Electron lifecycle, window creation, and local application startup.
 
 - Running Electron main window.
 - Renderer preload/bootstrap state.
+- Preload bridge methods for Core-owned localization runtime payloads.
 
 ## Owned Paths
 

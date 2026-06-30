@@ -90,6 +90,8 @@ readiness registry, liveness checker, and workspace provisioner modules.
   repair.
 - `docs/evidence/core-settings-diagnostics-package-2026-06-30.md` — packaged
   application rebuild evidence for Core-owned settings diagnostics logs.
+- `docs/evidence/core-restart-failure-package-2026-06-30.md` — packaged
+  application rebuild evidence for Core restart failure handling in Settings.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

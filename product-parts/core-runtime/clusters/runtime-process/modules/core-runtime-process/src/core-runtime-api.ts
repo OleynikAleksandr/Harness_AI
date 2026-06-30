@@ -24,7 +24,6 @@ import {
   type CoreSession,
   sessionRequestHandlerFacade,
 } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
-import { LocalizationRuntimeFacade } from "../../../../settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js";
 import {
   type HarnessSettings,
   settingsStoreFacade,
@@ -33,6 +32,7 @@ import {
   type WorkspaceRegistrySnapshot,
   workspaceRegistryFacade,
 } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
+import { materializeCoreLocalizationRuntimePayload } from "./core-localization-runtime.js";
 import {
   installLatestGlobalPackage,
   loadLocalModels,
@@ -120,10 +120,8 @@ export class CoreRuntimeApi {
           readString(payload) || this.activeWorkspacePath()
         );
       case "get-localization-runtime-payload":
-        return new LocalizationRuntimeFacade().createRuntimePayload(
-          localizationRuntimeSettings(
-            settingsStoreFacade.getSettings(this.activeWorkspacePath())
-          )
+        return materializeCoreLocalizationRuntimePayload(
+          settingsStoreFacade.getSettings(this.activeWorkspacePath())
         );
       case "get-local-models":
         return this.getLocalModels();
@@ -264,11 +262,18 @@ export class CoreRuntimeApi {
     return { ok: true, settings };
   }
 
-  private saveSettings(payload: unknown): { ok: true; settings: unknown } {
+  private async saveSettings(
+    payload: unknown
+  ): Promise<{ ok: true; settings: unknown }> {
+    const workspacePath = this.activeWorkspacePath();
+    const previous = settingsStoreFacade.getSettings(workspacePath);
     const settings = settingsStoreFacade.saveSettings(
       (readRecord(payload)?.settings ?? payload) as HarnessSettings,
-      this.activeWorkspacePath()
+      workspacePath
     );
+    if (settingsStoreFacade.shouldSyncLocalization(previous, settings)) {
+      await materializeCoreLocalizationRuntimePayload(settings);
+    }
     this.registerProviderAdapters();
     return { ok: true, settings };
   }
@@ -465,16 +470,6 @@ function readProviderId(value: unknown): ProviderId {
     return value as ProviderId;
   }
   throw new Error("Unknown provider.");
-}
-
-function localizationRuntimeSettings(settings: HarnessSettings) {
-  const localization = settings.general.localization;
-  return {
-    categories: localization.categories,
-    defaultLanguage: localization.defaultLanguage,
-    uiEngineId: localization.uiEngineId,
-    workflowTermsPolicy: localization.workflowTermsPolicy,
-  };
 }
 
 function readRecord(value: unknown): Record<string, unknown> | null {

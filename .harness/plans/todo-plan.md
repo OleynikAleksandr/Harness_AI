@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task2",
-  "expectedCommitMessage": "fix: materialize ui localization runtime",
+  "currentTaskId": "harness-ai.phase8.stream1.task3",
+  "expectedCommitMessage": "docs: record localization ui repair package",
   "debt": null
 }
 ```
@@ -218,8 +218,8 @@
 
 54. [DONE] `harness-ai.phase8.stream1.task1` Persist the UI translation engine selection through the Core-owned `uiEngineId` field instead of the legacy `engineId` alias (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, .harness/plans/todo-plan.md`; expected commit: `fix: persist ui localization selection`). Result: Completed in commit `fix: persist ui localization selection`.
 55. [DONE] Git Commit: `fix: persist ui localization selection` (hash: self)
-56. [IN_PROGRESS] `harness-ai.phase8.stream1.task2` Materialize the UI localization runtime from Core using Harness settings category mapping and a persisted Harness home localization root (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.test.mjs`; docs: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `fix: materialize ui localization runtime`).
-57. [TODO] Git Commit: `fix: materialize ui localization runtime` (hash: TBD)
-58. [TODO] `harness-ai.phase8.stream1.task3` Rebuild the packaged app after the localization UI repair and record verification evidence (scope: `docs/evidence/localization-ui-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization ui repair package`).
+56. [DONE] `harness-ai.phase8.stream1.task2` Materialize the UI localization runtime from Core using Harness settings category mapping and a persisted Harness home localization root (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.test.mjs`; docs: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `fix: materialize ui localization runtime`). Result: Completed in commit `fix: materialize ui localization runtime`.
+57. [DONE] Git Commit: `fix: materialize ui localization runtime` (hash: self)
+58. [IN_PROGRESS] `harness-ai.phase8.stream1.task3` Rebuild the packaged app after the localization UI repair and record verification evidence (scope: `docs/evidence/localization-ui-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization ui repair package`).
 59. [TODO] Git Commit: `docs: record localization ui repair package` (hash: TBD)
 60. [TODO] `harness-ai.phase8.stream1.task4` User retests Settings Localization engine persistence and Russian interface translation in the rebuilt packaged app (scope: user workflow; expected commit: none).

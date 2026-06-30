@@ -31,6 +31,7 @@ export function ProviderSettingsUiFacade({
   const [status, setStatus] = useState("Settings are ready.");
   const [versionError, setVersionError] = useState<null | string>(null);
   const [versionLoading, setVersionLoading] = useState(false);
+  const [localizationRefreshBusy, setLocalizationRefreshBusy] = useState(false);
   const [versions, setVersions] = useState<null | ProviderVersionsSnapshot>(
     null
   );
@@ -156,7 +157,7 @@ export function ProviderSettingsUiFacade({
         setSettings(result.settings);
         setDirty(false);
         setStatus("Settings saved.");
-        onLocalizationRuntimeRefresh().catch(() => undefined);
+        refreshLocalizationRuntimeAfterSave();
         return result.settings;
       }
       setStatus(result.error);
@@ -167,6 +168,17 @@ export function ProviderSettingsUiFacade({
     } finally {
       setBusy(false);
     }
+  };
+
+  const refreshLocalizationRuntimeAfterSave = () => {
+    setLocalizationRefreshBusy(true);
+    onLocalizationRuntimeRefresh()
+      .catch((error: unknown) => {
+        setStatus(toErrorMessage(error, "Localization refresh failed."));
+      })
+      .finally(() => {
+        setLocalizationRefreshBusy(false);
+      });
   };
 
   const restartCore = async () => {
@@ -334,7 +346,7 @@ export function ProviderSettingsUiFacade({
             </button>
             <button
               className="settings-primary"
-              disabled={busy || !dirty}
+              disabled={busy || localizationRefreshBusy || !dirty}
               onClick={save}
               type="button"
             >
@@ -344,6 +356,29 @@ export function ProviderSettingsUiFacade({
             </button>
           </div>
         </footer>
+        {localizationRefreshBusy ? (
+          <div className="settings-localization-blocker" role="status">
+            <div className="settings-localization-card">
+              <span aria-hidden="true" className="settings-spinner" />
+              <div>
+                <p className="settings-localization-title">
+                  {t(
+                    "messages_for_the_user",
+                    "settings.localization.refreshing.title",
+                    "Updating localization"
+                  )}
+                </p>
+                <p className="settings-localization-description">
+                  {t(
+                    "messages_for_the_user",
+                    "settings.localization.refreshing.description",
+                    "Harness AI is saving translated interface resources. Settings will be available again when this finishes."
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

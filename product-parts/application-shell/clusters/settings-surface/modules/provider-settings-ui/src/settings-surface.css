@@ -694,6 +694,43 @@
   }
 }
 
+.settings-localization-blocker {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(20, 21, 22, 0.82);
+}
+
+.settings-localization-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  width: min(440px, 100%);
+  padding: 16px;
+  background: var(--ss-card);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 8px;
+}
+
+.settings-localization-title,
+.settings-localization-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--pm-text-primary, #e7eaee);
+}
+
+.settings-localization-description {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--pm-text-secondary, #868d97);
+}
+
 .settings-footer {
   display: flex;
   flex-shrink: 0;

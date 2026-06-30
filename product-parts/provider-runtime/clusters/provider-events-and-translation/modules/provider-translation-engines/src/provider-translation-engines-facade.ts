@@ -1,4 +1,7 @@
+import { GoogleGtxTranslationEngine } from "./google-gtx-translation-engine.js";
 import { normalizeTranslationTextFormatting } from "./translation-text-format-normalizer.js";
+
+const DEFAULT_TRANSLATION_ENGINE_ID = "google-gtx";
 
 export type ProviderTranslationStatus = "translated" | "fallback" | "skipped";
 export type ProviderTranslationCategory = "document" | "generic" | "reasoning";
@@ -49,9 +52,12 @@ export class ProviderTranslationEnginesFacade {
   private readonly reporter?: ProviderTranslationReporter;
 
   constructor(options: ProviderTranslationEnginesOptions = {}) {
-    this.defaultEngineId = options.defaultEngineId;
+    this.defaultEngineId =
+      options.defaultEngineId ?? DEFAULT_TRANSLATION_ENGINE_ID;
     this.reporter = options.reporter;
-    for (const engine of options.engines ?? []) {
+    for (const engine of options.engines ?? [
+      new GoogleGtxTranslationEngine({ reporter: this.reporter }),
+    ]) {
       this.registerEngine(engine);
     }
   }

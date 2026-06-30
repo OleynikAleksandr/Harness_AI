@@ -5,6 +5,8 @@ import ts from "typescript";
 function loadFacade() {
   const sources = new Map(
     [
+      "translation-response-parser.ts",
+      "google-gtx-translation-engine.ts",
       "translation-text-format-normalizer.ts",
       "provider-translation-engines-facade.ts",
     ].map((file) => [
@@ -26,8 +28,24 @@ function loadFacade() {
   const normalizerUrl = `data:text/javascript;base64,${Buffer.from(
     compiled.get("translation-text-format-normalizer.ts")
   ).toString("base64")}`;
+  const parserUrl = `data:text/javascript;base64,${Buffer.from(
+    compiled.get("translation-response-parser.ts")
+  ).toString("base64")}`;
+  const googleSource = compiled
+    .get("google-gtx-translation-engine.ts")
+    .replace(
+      'from "./translation-response-parser.js";',
+      `from "${parserUrl}";`
+    );
+  const googleUrl = `data:text/javascript;base64,${Buffer.from(
+    googleSource
+  ).toString("base64")}`;
   const facadeSource = compiled
     .get("provider-translation-engines-facade.ts")
+    .replace(
+      'from "./google-gtx-translation-engine.js";',
+      `from "${googleUrl}";`
+    )
     .replace(
       'from "./translation-text-format-normalizer.js";',
       `from "${normalizerUrl}";`

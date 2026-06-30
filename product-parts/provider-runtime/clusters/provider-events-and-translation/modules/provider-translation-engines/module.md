@@ -5,6 +5,11 @@
 Own the provider-neutral translation facade, engine registry, formatting
 normalization, and provider-backed UI/reasoning translation engines.
 
+The built-in `google-gtx` engine owns the unauthenticated Google GTX transport
+adapter and response parser. It uses GET for short requests, POST form transport
+for longer payloads, and returns fallback results instead of throwing on
+transport or parse failures.
+
 ## Public Facade
 
 `ProviderTranslationEnginesFacade`

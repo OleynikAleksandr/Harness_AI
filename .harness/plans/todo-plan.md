@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream2.task1",
-  "expectedCommitMessage": "feat: add google gtx translation engine",
+  "currentTaskId": "harness-ai.phase1.stream3.task1",
+  "expectedCommitMessage": "feat: resolve configured translation engines",
   "debt": null
 }
 ```
@@ -86,12 +86,12 @@
 
 ### Stream: Google GTX Engine
 
-7. [IN_PROGRESS] `harness-ai.phase1.stream2.task1` Add the Google GTX translation engine as a separate engine implementation behind `ProviderTranslationEnginesFacade` instead of putting transport logic in the facade (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/translation-response-parser.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.test.mjs`; expected commit: `feat: add google gtx translation engine`).
-8. [TODO] Git Commit: `feat: add google gtx translation engine` (hash: TBD)
+7. [DONE] `harness-ai.phase1.stream2.task1` Add the Google GTX translation engine as a separate engine implementation behind `ProviderTranslationEnginesFacade` instead of putting transport logic in the facade (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/translation-response-parser.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/google-gtx-translation-engine.test.mjs`; expected commit: `feat: add google gtx translation engine`). Result: Completed in commit `feat: add google gtx translation engine`.
+8. [DONE] Git Commit: `feat: add google gtx translation engine` (hash: self)
 
 ### Stream: Provider-Owned Engine Selection
 
-9. [TODO] `harness-ai.phase1.stream3.task1` Wire explicit engine id resolution and fail-closed unavailable-engine behavior for configured UI/reasoning translation engines (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.test.mjs`; expected commit: `feat: resolve configured translation engines`).
+9. [IN_PROGRESS] `harness-ai.phase1.stream3.task1` Wire explicit engine id resolution and fail-closed unavailable-engine behavior for configured UI/reasoning translation engines (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.test.mjs`; expected commit: `feat: resolve configured translation engines`).
 10. [TODO] Git Commit: `feat: resolve configured translation engines` (hash: TBD)
 
 ## Phase 2 - Localization Runtime Bundles (owner: Codex, updated: 2026-06-30)

@@ -13,7 +13,15 @@ const apiSource = readFileSync(
 assert.match(source, /path\.join\(harnessHome\(\), "Localization"\)/u);
 assert.match(
   source,
-  /ui_labels: firstText\(\s*categories\.uiLabels,\s*categories\.uiInterface,\s*categories\.workflowTerms\s*\)/u
+  /messages_for_the_user: firstText\(\s*categories\.systemFeedback,\s*categories\.messagesForTheUser\s*\)/u
+);
+assert.match(
+  source,
+  /ui_helper_text: firstText\(\s*categories\.userGuidance,\s*categories\.uiHelperText\s*\)/u
+);
+assert.match(
+  source,
+  /ui_labels: firstText\(\s*categories\.uiInterface,\s*categories\.uiLabels,\s*categories\.workflowTerms\s*\)/u
 );
 assert.match(source, /new ProviderTranslationEnginesFacade\(\)/u);
 assert.match(apiSource, /materializeCoreLocalizationRuntimePayload\(/u);

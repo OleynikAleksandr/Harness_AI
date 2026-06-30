@@ -43,6 +43,9 @@ also run here so the Application Shell remains UI/supervisor/client only.
   the Harness home `Localization` directory, using Core settings category
   mapping and provider-owned translation engines so browser clients render
   Core-owned localization state instead of deriving it locally.
+- The category mapping follows the settings controls that users see in General:
+  `uiInterface` feeds `ui_labels`, `userGuidance` feeds `ui_helper_text`, and
+  `systemFeedback` feeds `messages_for_the_user`.
 
 ## Owned Paths
 

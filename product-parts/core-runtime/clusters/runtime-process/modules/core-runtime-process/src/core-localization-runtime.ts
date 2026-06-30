@@ -46,8 +46,8 @@ export function resolveCoreLocalizationRuntimeSettings(
         categories.artifactsForTheUser
       ),
       messages_for_the_user: firstText(
-        categories.messagesForTheUser,
-        categories.systemFeedback
+        categories.systemFeedback,
+        categories.messagesForTheUser
       ),
       reasoning: firstText(categories.reasoning),
       system_feedback: firstText(
@@ -55,13 +55,13 @@ export function resolveCoreLocalizationRuntimeSettings(
         categories.messagesForTheUser
       ),
       ui_helper_text: firstText(
-        categories.uiHelperText,
-        categories.userGuidance
+        categories.userGuidance,
+        categories.uiHelperText
       ),
       ui_interface: firstText(categories.uiInterface, categories.uiLabels),
       ui_labels: firstText(
-        categories.uiLabels,
         categories.uiInterface,
+        categories.uiLabels,
         categories.workflowTerms
       ),
       user_guidance: firstText(

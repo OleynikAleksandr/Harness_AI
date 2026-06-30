@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task5",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase9.stream1.task2",
+  "expectedCommitMessage": "feat: localize provider settings shell copy",
   "debt": null
 }
 ```
@@ -224,4 +224,14 @@
 59. [DONE] Git Commit: `fix: hide unavailable localization engines` (hash: self)
 60. [DONE] `harness-ai.phase8.stream1.task4` Rebuild the packaged app after the localization UI repair and record verification evidence (scope: `docs/evidence/localization-ui-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization ui repair package`). Result: Completed in commit `docs: record localization ui repair package`.
 61. [DONE] Git Commit: `docs: record localization ui repair package` (hash: self)
-62. [IN_PROGRESS] `harness-ai.phase8.stream1.task5` User retests Settings Localization engine persistence and Russian interface translation in the rebuilt packaged app (scope: user workflow; expected commit: none).
+62. [DONE] `harness-ai.phase8.stream1.task5` User retests Settings Localization engine persistence and Russian interface translation in the rebuilt packaged app (scope: user workflow; expected commit: none). Result: User reported only a small subset of helper text translated; General and most provider tabs remain English.
+
+## Phase 9 - Localization Coverage Repair (owner: Codex, updated: 2026-06-30)
+
+### Stream: Runtime Category Mapping
+
+63. [DONE] `harness-ai.phase9.stream1.task1` Map the visible General localization category selectors to the runtime categories that the renderer actually reads (`uiInterface` -> `ui_labels`, `userGuidance` -> `ui_helper_text`, `systemFeedback` -> `messages_for_the_user`) so already-marked General copy materializes in the selected language (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `fix: map localization category selections`). Result: Completed in commit `fix: map localization category selections`.
+64. [DONE] Git Commit: `fix: map localization category selections` (hash: self)
+65. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` Add the first provider-settings localization marker slice for provider tab labels and shared provider card helper copy, then update source dictionaries and module docs (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat: localize provider settings shell copy`).
+66. [TODO] Git Commit: `feat: localize provider settings shell copy` (hash: TBD)
+67. [TODO] `harness-ai.phase9.stream1.task3` Replace single bootstrap-only localization cache with the reference-style Harness cache layout for browser runtime payload reuse (scope: to be narrowed after reading CodeAI Hub localization cache/store modules; expected commit: TBD).

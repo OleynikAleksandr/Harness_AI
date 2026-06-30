@@ -22,6 +22,12 @@ const providerFacadeUrl = `data:text/javascript;base64,${Buffer.from(`
     }
   }
 `).toString("base64")}`;
+const projectorUrl = `data:text/javascript;base64,${Buffer.from(`
+  export class ReasoningTranslationOverlayProjector {}
+`).toString("base64")}`;
+const storeUrl = `data:text/javascript;base64,${Buffer.from(`
+  export class ReasoningTranslationOverlayStore {}
+`).toString("base64")}`;
 const hashUrl = `data:text/javascript;base64,${Buffer.from(
   compile("source-hash.ts")
 ).toString("base64")}`;
@@ -29,6 +35,14 @@ const facadeSource = compile("reasoning-translation-overlay-facade.ts")
   .replace(
     'from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";',
     `from "${providerFacadeUrl}";`
+  )
+  .replace(
+    'from "./reasoning-translation-overlay-projector.js";',
+    `from "${projectorUrl}";`
+  )
+  .replace(
+    'from "./reasoning-translation-overlay-store.js";',
+    `from "${storeUrl}";`
   )
   .replace('from "./source-hash.js";', `from "${hashUrl}";`);
 const { ReasoningTranslationOverlayFacade } = await import(

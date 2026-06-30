@@ -144,6 +144,12 @@ export class ReasoningTranslationOverlayFacade {
 export const reasoningTranslationOverlayFacade =
   new ReasoningTranslationOverlayFacade();
 
+export { ReasoningTranslationOverlayProjector } from "./reasoning-translation-overlay-projector.js";
+export {
+  type ReasoningTranslationOverlayRecord,
+  ReasoningTranslationOverlayStore,
+} from "./reasoning-translation-overlay-store.js";
+
 function resolveTargetLanguage(
   settings: ReasoningTranslationSettingsSnapshot
 ): string | null {

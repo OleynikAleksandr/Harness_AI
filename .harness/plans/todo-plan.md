@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream2.task1",
-  "expectedCommitMessage": "feat: persist reasoning translation overlays",
+  "currentTaskId": "harness-ai.phase4.stream3.task1",
+  "expectedCommitMessage": "feat: carry session translation patches",
   "debt": null
 }
 ```
@@ -157,12 +157,12 @@
 
 ### Stream: Overlay Persistence
 
-33. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Persist reasoning translation overlays as sidecar records and expose a projector API that merges valid overlays by message id and source hash before live patch broadcast is added (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-projector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.test.mjs`; expected commit: `feat: persist reasoning translation overlays`).
-34. [TODO] Git Commit: `feat: persist reasoning translation overlays` (hash: TBD)
+33. [DONE] `harness-ai.phase4.stream2.task1` Persist reasoning translation overlays as sidecar records and expose a projector API that merges valid overlays by message id and source hash before live patch broadcast is added (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-projector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.test.mjs`; expected commit: `feat: persist reasoning translation overlays`). Result: Completed in commit `feat: persist reasoning translation overlays`.
+34. [DONE] Git Commit: `feat: persist reasoning translation overlays` (hash: self)
 
 ### Stream: Core Session Events
 
-35. [TODO] `harness-ai.phase4.stream3.task1` Extend Core session message/event contracts with `translationState`, `localizedContent`, and `session:message_translation` patch events, matching the CodeAI Hub naming contract (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.test.mjs`; expected commit: `feat: carry session translation patches`).
+35. [IN_PROGRESS] `harness-ai.phase4.stream3.task1` Extend Core session message/event contracts with `translationState`, `localizedContent`, and `session:message_translation` patch events, matching the CodeAI Hub naming contract (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.test.mjs`; expected commit: `feat: carry session translation patches`).
 36. [TODO] Git Commit: `feat: carry session translation patches` (hash: TBD)
 
 ### Stream: Session Request Integration

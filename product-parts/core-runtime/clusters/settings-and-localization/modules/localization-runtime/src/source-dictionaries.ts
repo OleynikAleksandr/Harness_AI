@@ -27,7 +27,18 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "language.uk": "Ukrainian (uk)",
     "session.new": "New Session",
     "session.settings": "Settings",
+    "session.identifier": "Session identifier",
+    "session.input": "Message input",
+    "session.input.send": "Send message",
+    "session.input.stop": "Stop current turn",
+    "session.role.assistant": "Assistant",
+    "session.role.system": "System",
+    "session.role.thinking": "Thinking",
+    "session.role.user": "User",
     "session.sidebar.workspaces": "Workspaces",
+    "session.status.model": "Model:",
+    "session.status.tokens": "Tokens:",
+    "session.transcript": "Transcript",
   },
   language: "en",
 } as const satisfies LocalizationSourceDictionary;
@@ -57,6 +68,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Open the glossary file in VS Code and edit one English term per line. The file is created automatically on first open and starts with common product and workflow terms.",
     "settings.localization.workflowTerms":
       "`Workflow Terms` now follow `UI Labels`, and `Default Language (English)` is the reset state for every category.",
+    "session.input.hint": "Press Enter to send, Shift+Enter for a new line",
     "session.input.placeholder": "Message the active provider.",
   },
   language: "en",
@@ -73,6 +85,10 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
     "settings.localization.glossary.enabled":
       "Glossary protection is enabled. Terms from the glossary file remain protected during localization.",
     "session.empty": "Select or create a session.",
+    "session.id.pending": "ID: pending...",
+    "session.id.unavailable": "ID: unavailable",
+    "session.input.wait": "Agent is working... Please wait.",
+    "session.noMessages": "No messages yet.",
   },
   language: "en",
 } as const satisfies LocalizationSourceDictionary;

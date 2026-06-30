@@ -6,6 +6,7 @@ import type {
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { SessionInputTextarea } from "./session-input-textarea.js";
 
 export function SessionIdPanel({
@@ -15,10 +16,11 @@ export function SessionIdPanel({
   session: CoreSession | undefined;
   telemetry: SessionTelemetry;
 }) {
-  const idLabel = resolveIdLabel(session, telemetry);
+  const { t } = useBrowserLocalization();
+  const idLabel = resolveIdLabel(session, telemetry, t);
   return (
     <section
-      aria-label="Session identifier"
+      aria-label={t("ui_labels", "session.identifier", "Session identifier")}
       className="session-panel session-id-bar"
     >
       <span className="session-id-bar__id">{idLabel}</span>
@@ -40,11 +42,21 @@ export function DialogPanel({
   providerId: string | undefined;
   providerName: string | undefined;
 }) {
+  const { t } = useBrowserLocalization();
   return (
-    <section aria-label="Transcript" className="session-dialog session-panel">
+    <section
+      aria-label={t("ui_labels", "session.transcript", "Transcript")}
+      className="session-dialog session-panel"
+    >
       <div className="session-dialog__scroll">
         {messages.length === 0 ? (
-          <p className="session-dialog__empty">No messages yet.</p>
+          <p className="session-dialog__empty">
+            {t(
+              "messages_for_the_user",
+              "session.noMessages",
+              "No messages yet."
+            )}
+          </p>
         ) : (
           messages.map((message) => (
             <MessageBubble
@@ -71,9 +83,16 @@ export function ReferenceInputPanel({
   onSubmit: (text: string) => void | Promise<void>;
   session: CoreSession | undefined;
 }) {
+  const { t } = useBrowserLocalization();
   const [draft, setDraft] = useState("");
   const canSubmit = draft.trim().length > 0 && !disabled;
-  const waitCopy = disabled ? "Agent is working… Please wait." : null;
+  const waitCopy = disabled
+    ? t(
+        "messages_for_the_user",
+        "session.input.wait",
+        "Agent is working... Please wait."
+      )
+    : null;
   const showStop = disabled && Boolean(onStop);
   const submit = () => {
     if (!canSubmit) {
@@ -84,7 +103,7 @@ export function ReferenceInputPanel({
   };
   return (
     <form
-      aria-label="Message input"
+      aria-label={t("ui_labels", "session.input", "Message input")}
       className={
         waitCopy
           ? "session-input session-input--wait-copy session-panel"
@@ -101,7 +120,12 @@ export function ReferenceInputPanel({
           onSubmit={submit}
           onValueChange={setDraft}
           placeholder={
-            waitCopy ?? "Type your request or drag files with Shift held..."
+            waitCopy ??
+            t(
+              "ui_helper_text",
+              "session.input.placeholder",
+              "Type your request or drag files with Shift held..."
+            )
           }
           value={draft}
           waitCopy={draft.length === 0 ? waitCopy : null}
@@ -109,10 +133,14 @@ export function ReferenceInputPanel({
         <div className="session-input__action">
           {showStop ? (
             <button
-              aria-label="Stop current turn"
+              aria-label={t(
+                "ui_labels",
+                "session.input.stop",
+                "Stop current turn"
+              )}
               className="session-input__action-button session-input__action-button--stop"
               onClick={() => onStop?.()}
-              title="Stop current turn"
+              title={t("ui_labels", "session.input.stop", "Stop current turn")}
               type="button"
             >
               <span
@@ -122,7 +150,7 @@ export function ReferenceInputPanel({
             </button>
           ) : (
             <button
-              aria-label="Send message"
+              aria-label={t("ui_labels", "session.input.send", "Send message")}
               className="session-input__action-button"
               disabled={!canSubmit}
               type="submit"
@@ -142,7 +170,11 @@ export function ReferenceInputPanel({
           className="session-input__hint"
           style={disabled ? { visibility: "hidden" } : undefined}
         >
-          Press Enter to send, Shift+Enter for a new line
+          {t(
+            "ui_helper_text",
+            "session.input.hint",
+            "Press Enter to send, Shift+Enter for a new line"
+          )}
         </span>
         <div className="session-input__footer-right">
           <ElapsedTotal createdAt={session?.createdAt} />
@@ -161,11 +193,12 @@ export function ReferenceStatusPanel({
   settings: HarnessSettings | null;
   telemetry: SessionTelemetry;
 }) {
+  const { t } = useBrowserLocalization();
   const reasoning = resolveReasoningLabel(session, settings);
   return (
     <section className="session-status session-panel">
       <span className="session-status-chip session-status-chip--label">
-        Модель:
+        {t("ui_labels", "session.status.model", "Model:")}
       </span>
       <span className="session-status-button">{telemetry.model}</span>
       {reasoning ? (
@@ -174,7 +207,7 @@ export function ReferenceStatusPanel({
         </span>
       ) : null}
       <span className="session-status-chip session-status-chip--limits">
-        <span>Токены:</span>
+        <span>{t("ui_labels", "session.status.tokens", "Tokens:")}</span>
         <strong title={telemetry.tokenDisplay.title}>
           {telemetry.tokenDisplay.value}
         </strong>
@@ -203,12 +236,15 @@ function LimitRow({ row }: { row: SessionTelemetry["limitRows"][number] }) {
 
 function resolveIdLabel(
   session: CoreSession | undefined,
-  telemetry: SessionTelemetry
+  telemetry: SessionTelemetry,
+  t: ReturnType<typeof useBrowserLocalization>["t"]
 ): string {
   if (telemetry.providerSessionId) {
     return `ID: ${shortenId(telemetry.providerSessionId)}-...`;
   }
-  return session ? "ID: pending..." : "ID: unavailable";
+  return session
+    ? t("messages_for_the_user", "session.id.pending", "ID: pending...")
+    : t("messages_for_the_user", "session.id.unavailable", "ID: unavailable");
 }
 
 function MessageBubble({
@@ -220,6 +256,7 @@ function MessageBubble({
   providerId: string | undefined;
   providerName: string | undefined;
 }) {
+  const { t } = useBrowserLocalization();
   const isThinking = isThinkingMessage(message);
   const tint = resolveProviderTint(providerId);
   return (
@@ -232,7 +269,7 @@ function MessageBubble({
         }
       >
         <span className="session-dialog__role">
-          {resolveMessageRoleLabel(message.role, isThinking, providerName)}
+          {resolveMessageRoleLabel(message.role, isThinking, providerName, t)}
         </span>
         <span className="session-dialog__timestamp">
           {formatMessageTime(message.timestamp)}
@@ -306,15 +343,20 @@ function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
 function resolveMessageRoleLabel(
   role: SessionMessage["role"],
   isThinking: boolean,
-  providerName: string | undefined
+  providerName: string | undefined,
+  t: ReturnType<typeof useBrowserLocalization>["t"]
 ): string {
   if (isThinking) {
-    return "Thinking";
+    return t("ui_labels", "session.role.thinking", "Thinking");
   }
   if (role === "assistant") {
-    return providerName ?? "Assistant";
+    return (
+      providerName ?? t("ui_labels", "session.role.assistant", "Assistant")
+    );
   }
-  return role === "system" ? "System" : "User";
+  return role === "system"
+    ? t("ui_labels", "session.role.system", "System")
+    : t("ui_labels", "session.role.user", "User");
 }
 
 function resolveReasoningLabel(

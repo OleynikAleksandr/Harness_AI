@@ -17,6 +17,8 @@ Render the transcript/dialog layout and session chrome.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
 - Core-owned provider readiness descriptors and live `provider:status` events.
 - Core-owned localization runtime payload from the Electron preload bridge.
+- Session dialog, input, status, empty-state, and role labels resolve through
+  the shared browser localization provider with fallback strings.
 
 ## Dialog Bubble Visuals
 

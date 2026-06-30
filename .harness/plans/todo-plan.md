@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat: add localization runtime facade",
+  "currentTaskId": "harness-ai.phase2.stream2.task1",
+  "expectedCommitMessage": "feat: add localization glossary protection",
   "debt": null
 }
 ```
@@ -98,12 +98,12 @@
 
 ### Stream: Runtime Contract
 
-11. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Add `LocalizationRuntimeFacade` contract, category ids, runtime payload shape, and source dictionary lookup based on CodeAI Hub localization contracts (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionary-registry.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.test.mjs`; expected commit: `feat: add localization runtime facade`).
-12. [TODO] Git Commit: `feat: add localization runtime facade` (hash: TBD)
+11. [DONE] `harness-ai.phase2.stream1.task1` Add `LocalizationRuntimeFacade` contract, category ids, runtime payload shape, and source dictionary lookup based on CodeAI Hub localization contracts (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionary-registry.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.test.mjs`; expected commit: `feat: add localization runtime facade`). Result: Completed in commit `feat: add localization runtime facade`.
+12. [DONE] Git Commit: `feat: add localization runtime facade` (hash: self)
 
 ### Stream: Glossary Protection
 
-13. [TODO] `harness-ai.phase2.stream2.task1` Port glossary preserve-term protection and user glossary loading into the `localization-runtime` module (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/user-glossary-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.test.mjs`; expected commit: `feat: add localization glossary protection`).
+13. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Port glossary preserve-term protection and user glossary loading into the `localization-runtime` module (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/user-glossary-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.test.mjs`; expected commit: `feat: add localization glossary protection`).
 14. [TODO] Git Commit: `feat: add localization glossary protection` (hash: TBD)
 
 ### Stream: Bundle Materialization

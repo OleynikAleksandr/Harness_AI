@@ -8,8 +8,8 @@
   "planId": "provider-cli-native-update-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "Record CLI native update verification",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -68,6 +68,6 @@
 
 ### Stream: Package And Retest
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record CLI update fix evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record CLI native update verification`).
-4. [TODO] Git Commit: `Record CLI native update verification` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` User retests the Claude CLI update (and other CLI updates) in the packaged app (scope: user workflow; expected commit: none).
+3. [DONE] `harness-ai.phase2.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record CLI update fix evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record CLI native update verification`). Result: Completed in commit `Record CLI native update verification`.
+4. [DONE] Git Commit: `Record CLI native update verification` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the Claude CLI update (and other CLI updates) in the packaged app (scope: user workflow; expected commit: none).

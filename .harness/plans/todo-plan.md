@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase13.stream1.task2",
-  "expectedCommitMessage": "docs: record core settings diagnostics package",
+  "currentTaskId": "harness-ai.phase13.stream1.task3",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -276,6 +276,6 @@
 
 87. [DONE] `harness-ai.phase13.stream1.task1` Add Core-owned JSONL diagnostics for settings load, save, reset, and localization category snapshots under `~/.harness-ai/logs/core/`, creating the Harness log roots for core/interface/providers without logging secrets (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-logger.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-logger.test.mjs`; docs: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/module.md, product-parts/core-runtime/clusters/settings-and-localization/cluster.md`; expected commit: `feat: add core settings diagnostics log`). Result: Completed in commit `feat: add core settings diagnostics log`.
 88. [DONE] Git Commit: `feat: add core settings diagnostics log` (hash: self)
-89. [IN_PROGRESS] `harness-ai.phase13.stream1.task2` Rebuild the packaged app after adding Core settings diagnostics and record evidence (scope: `docs/evidence/core-settings-diagnostics-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record core settings diagnostics package`).
-90. [TODO] Git Commit: `docs: record core settings diagnostics package` (hash: TBD)
-91. [TODO] `harness-ai.phase13.stream1.task3` User retests localization selector changes and shares `~/.harness-ai/logs/core/settings-store.jsonl` evidence if selectors still diverge (scope: user workflow; expected commit: none).
+89. [DONE] `harness-ai.phase13.stream1.task2` Rebuild the packaged app after adding Core settings diagnostics and record evidence (scope: `docs/evidence/core-settings-diagnostics-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record core settings diagnostics package`). Result: Completed in commit `docs: record core settings diagnostics package`.
+90. [DONE] Git Commit: `docs: record core settings diagnostics package` (hash: self)
+91. [IN_PROGRESS] `harness-ai.phase13.stream1.task3` User retests localization selector changes and shares `~/.harness-ai/logs/core/settings-store.jsonl` evidence if selectors still diverge (scope: user workflow; expected commit: none).

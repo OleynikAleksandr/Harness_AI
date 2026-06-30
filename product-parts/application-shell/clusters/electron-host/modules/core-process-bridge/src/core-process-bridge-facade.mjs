@@ -55,14 +55,23 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
 
   ipcMain.handle("harness-ai:core:restart", async () => {
     stopEventStream();
-    await coreSupervisor.restart();
+    try {
+      await coreSupervisor.restart();
+    } catch (error) {
+      stopEventStream = connectCoreEvents(coreClient, webContentsTargets);
+      return { error: toErrorMessage(error), ok: false };
+    }
     stopEventStream = connectCoreEvents(coreClient, webContentsTargets);
-    return {
-      core: coreSupervisor.getConnectionInfo(),
-      ok: true,
-      providers: await coreClient.rpc("list-providers"),
-      settings: await coreClient.rpc("get-settings"),
-    };
+    try {
+      return {
+        core: coreSupervisor.getConnectionInfo(),
+        ok: true,
+        providers: await coreClient.rpc("list-providers"),
+        settings: await coreClient.rpc("get-settings"),
+      };
+    } catch (error) {
+      return { error: toErrorMessage(error), ok: false };
+    }
   });
 
   bridge = {
@@ -157,4 +166,8 @@ function parseSseFrame(frame) {
     return null;
   }
   return JSON.parse(data);
+}
+
+function toErrorMessage(error) {
+  return error instanceof Error ? error.message : String(error);
 }

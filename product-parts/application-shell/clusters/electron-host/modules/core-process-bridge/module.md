@@ -32,6 +32,11 @@ modules or own Core truth.
   asks the core to shut down over HTTP, then force-terminates the process by pid
   (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so
   `restart()` always respawns a fresh process that re-reads disk state.
+- Core restart IPC returns renderer-safe `{ ok: false, error }` responses when
+  restart or post-restart hydration fails, instead of rejecting the IPC invoke
+  and leaving the Settings surface without a settled result. The Core event
+  stream is reconnected after a successful restart and after a failed restart
+  attempt.
 
 ## Owned Paths
 

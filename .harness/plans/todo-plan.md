@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase13.stream1.task3",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase14.stream1.task2",
+  "expectedCommitMessage": "docs: record core restart failure package",
   "debt": null
 }
 ```
@@ -278,4 +278,14 @@
 88. [DONE] Git Commit: `feat: add core settings diagnostics log` (hash: self)
 89. [DONE] `harness-ai.phase13.stream1.task2` Rebuild the packaged app after adding Core settings diagnostics and record evidence (scope: `docs/evidence/core-settings-diagnostics-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record core settings diagnostics package`). Result: Completed in commit `docs: record core settings diagnostics package`.
 90. [DONE] Git Commit: `docs: record core settings diagnostics package` (hash: self)
-91. [IN_PROGRESS] `harness-ai.phase13.stream1.task3` User retests localization selector changes and shares `~/.harness-ai/logs/core/settings-store.jsonl` evidence if selectors still diverge (scope: user workflow; expected commit: none).
+91. [DONE] `harness-ai.phase13.stream1.task3` User retests localization selector changes and shares `~/.harness-ai/logs/core/settings-store.jsonl` evidence if selectors still diverge (scope: user workflow; expected commit: none). Result: Core logs showed localization saves reach Core, including `userGuidance`, then `systemFeedback` and `artifactsForTheUser`; user reported Restart Core hangs with an endless restarting state.
+
+## Phase 14 - Core Restart Failure Handling (owner: Codex, updated: 2026-06-30)
+
+### Stream: Restart Non-Hang
+
+92. [DONE] `harness-ai.phase14.stream1.task1` Make Core restart failures return renderer-safe errors and ensure the Settings Restart Core spinner always settles instead of hanging forever (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`; docs: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix: stop core restart spinner on failure`). Result: Completed in commit `fix: stop core restart spinner on failure`.
+93. [DONE] Git Commit: `fix: stop core restart spinner on failure` (hash: self)
+94. [IN_PROGRESS] `harness-ai.phase14.stream1.task2` Rebuild the packaged app after Core restart failure handling and record evidence (scope: `docs/evidence/core-restart-failure-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record core restart failure package`).
+95. [TODO] Git Commit: `docs: record core restart failure package` (hash: TBD)
+96. [TODO] `harness-ai.phase14.stream1.task3` User retests Restart Core and localization selector flow in the rebuilt packaged app (scope: user workflow; expected commit: none).

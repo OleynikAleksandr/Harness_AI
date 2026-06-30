@@ -150,18 +150,23 @@ export function ProviderSettingsUiFacade({
       return null;
     }
     setBusy(true);
-    const result = await window.harnessCore.saveSettings({ settings });
-    if (result.ok) {
-      setSettings(result.settings);
-      setDirty(false);
-      await onLocalizationRuntimeRefresh();
-      setStatus("Settings saved.");
+    try {
+      const result = await window.harnessCore.saveSettings({ settings });
+      if (result.ok) {
+        setSettings(result.settings);
+        setDirty(false);
+        await onLocalizationRuntimeRefresh();
+        setStatus("Settings saved.");
+        return result.settings;
+      }
+      setStatus(result.error);
+      return null;
+    } catch (error) {
+      setStatus(toErrorMessage(error, "Settings save failed."));
+      return null;
+    } finally {
       setBusy(false);
-      return result.settings;
     }
-    setStatus(result.error);
-    setBusy(false);
-    return null;
   };
 
   const restartCore = async () => {
@@ -170,23 +175,27 @@ export function ProviderSettingsUiFacade({
     }
     setCoreRestartBusy(true);
     setCoreRestartStatus("Restart requested. Refreshing Core adapters...");
-    const savedSettings = dirty ? await save() : settings;
-    if (!savedSettings) {
-      setCoreRestartStatus("Core restart skipped: settings save failed.");
+    try {
+      const savedSettings = dirty ? await save() : settings;
+      if (!savedSettings) {
+        setCoreRestartStatus("Core restart skipped: settings save failed.");
+        return;
+      }
+      const result = await window.harnessCore.restartCore();
+      if (result.ok) {
+        setCoreRestartStatus("Core restart completed. Reloading...");
+        // Full reset: the Core process was killed and respawned; reload the
+        // renderer so every in-memory UI cache (providers, sessions, messages,
+        // telemetry) is cleared and re-hydrated from the fresh Core.
+        window.location.reload();
+        return;
+      }
+      setCoreRestartStatus(result.error);
+    } catch (error) {
+      setCoreRestartStatus(toErrorMessage(error, "Core restart failed."));
+    } finally {
       setCoreRestartBusy(false);
-      return;
     }
-    const result = await window.harnessCore.restartCore();
-    if (result.ok) {
-      setCoreRestartStatus("Core restart completed. Reloading...");
-      // Full reset: the Core process was killed and respawned; reload the
-      // renderer so every in-memory UI cache (providers, sessions, messages,
-      // telemetry) is cleared and re-hydrated from the fresh Core.
-      window.location.reload();
-      return;
-    }
-    setCoreRestartStatus(result.error);
-    setCoreRestartBusy(false);
   };
 
   const reset = async () => {
@@ -338,4 +347,8 @@ export function ProviderSettingsUiFacade({
       </div>
     </div>
   );
+}
+
+function toErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
 }

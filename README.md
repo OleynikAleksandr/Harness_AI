@@ -12,3 +12,12 @@ This repository is intentionally new. CodeAI Hub is reference material only; Har
 - Production code root: `product-parts/**`.
 
 MVP starts with the workspace skeleton, then installs the local development harness, then implements the first runnable Electron session slice.
+
+## Packaged App Rebuilds
+
+Use `npm run package:mac` when a change must be tested in
+`release/mac-arm64/Harness AI.app`. The script first runs
+`scripts/stop-packaged-app-processes.mjs`, which stops only running processes
+launched from this repository's packaged app path before rebuilding `app.asar`.
+This prevents an already-running packaged Core from continuing to serve an old
+runtime after the package has been rebuilt.

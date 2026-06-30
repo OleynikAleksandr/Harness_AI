@@ -98,6 +98,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/blocking-localization-refresh-package-2026-06-30.md` —
   packaged application rebuild evidence for reference-style blocking
   localization refresh feedback after Settings Save.
+- `docs/evidence/packaged-app-process-cleanup-2026-06-30.md` — package script
+  evidence for stopping stale packaged Harness AI app/Core processes before
+  rebuilding `app.asar`.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

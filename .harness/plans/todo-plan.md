@@ -327,3 +327,10 @@
 112. [DONE] Git Commit: `fix: localize codex settings copy` (hash: self)
 113. [DONE] `harness-ai.phase18.stream1.task3` Replace Kimi provider settings model-row descriptions with browser localization lookups and approved source dictionary ids, keeping the existing Kimi card helper copy localized through the shared provider boundary (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-model-options.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, .harness/plans/todo-plan.md`; expected commit: `fix: localize kimi settings copy`). Result: Completed in commit `fix: localize kimi settings copy`.
 114. [DONE] Git Commit: `fix: localize kimi settings copy` (hash: self)
+
+## Phase 19 - Packaged App Process Cleanup (owner: Codex, updated: 2026-06-30)
+
+### Stream: Package Freshness Guard
+
+115. [DONE] `harness-ai.phase19.stream1.task1` Stop any running packaged Harness AI app/Core processes from `release/mac-arm64/Harness AI.app` before rebuilding the macOS package, so the next user launch reads the new `app.asar` instead of an already-running old runtime (scope: `scripts/stop-packaged-app-processes.mjs, scripts/stop-packaged-app-processes.test.mjs, package.json`; docs: `README.md, docs/evidence/packaged-app-process-cleanup-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `fix: stop old packaged app before packaging`). Result: Completed in commit `fix: stop old packaged app before packaging`.
+116. [DONE] Git Commit: `fix: stop old packaged app before packaging` (hash: self)

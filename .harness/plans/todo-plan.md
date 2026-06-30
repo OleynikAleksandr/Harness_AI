@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase18.stream1.task2",
-  "expectedCommitMessage": "fix: localize codex settings copy",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -323,5 +323,5 @@
 
 109. [DONE] `harness-ai.phase18.stream1.task1` Replace hardcoded Claude provider settings helper copy and model descriptions with browser localization lookups and approved source dictionary ids, so Claude is not special-cased in Russian and follows the selected UI Helper Text language (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/claude-default-model-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-model-options.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, .harness/plans/todo-plan.md`; expected commit: `fix: localize claude settings copy`). Result: Completed in commit `fix: localize claude settings copy`.
 110. [DONE] Git Commit: `fix: localize claude settings copy` (hash: self)
-111. [IN_PROGRESS] `harness-ai.phase18.stream1.task2` Replace Codex provider settings helper copy and model descriptions with browser localization lookups and approved source dictionary ids (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/codex-default-model-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-model-options.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, .harness/plans/todo-plan.md`; expected commit: `fix: localize codex settings copy`).
-112. [TODO] Git Commit: `fix: localize codex settings copy` (hash: TBD)
+111. [DONE] `harness-ai.phase18.stream1.task2` Replace Codex provider settings helper copy and model descriptions with browser localization lookups and approved source dictionary ids (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/codex-default-model-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-model-options.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, .harness/plans/todo-plan.md`; expected commit: `fix: localize codex settings copy`). Result: Completed in commit `fix: localize codex settings copy`.
+112. [DONE] Git Commit: `fix: localize codex settings copy` (hash: self)

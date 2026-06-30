@@ -116,6 +116,22 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Show Claude reasoning as a normal assistant bubble with a Thinking label.",
     "settings.provider.claude.thinking.enabled.description":
       "When enabled, Claude can use its adaptive thinking path for complex requests.",
+    "settings.provider.codex.defaultModel.description":
+      "Select which Codex model to use when starting new sessions. Each model stores its own reasoning effort level.",
+    "settings.provider.codex.model.gpt-5.2.description":
+      "Optimized for professional work and long-running agents",
+    "settings.provider.codex.model.gpt-5.3-codex-spark.description":
+      "Ultra-fast coding model for lower-latency engineering tasks",
+    "settings.provider.codex.model.gpt-5.4-mini.description":
+      "Smaller GPT-5.4 variant for faster everyday coding tasks",
+    "settings.provider.codex.model.gpt-5.4.description":
+      "Best general agentic model for tasks across industries",
+    "settings.provider.codex.model.gpt-5.5.description":
+      "Best general agentic model for tasks across industries",
+    "settings.provider.codex.newSessions.note":
+      "Changes apply when creating a new Codex session.",
+    "settings.provider.codex.reasoningSummary.description":
+      "Show Codex reasoning summaries in the dialog when the model provides them.",
     "settings.provider.kimi.defaultModel.description":
       "Choose the Kimi model used when new sessions start.",
     "settings.provider.kimi.defaultModel.note":

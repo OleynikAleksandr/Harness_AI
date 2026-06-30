@@ -3,6 +3,7 @@ import {
   resolveCodexReasoningEffort,
 } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
 import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
@@ -16,15 +17,23 @@ export function CodexDefaultModelCard({
   provider,
   update,
 }: CodexDefaultModelCardProps) {
+  const { t } = useBrowserLocalization();
   return (
     <SettingsCard title="Codex Default model">
       <p className="settings-description">
-        Select which Codex model to use when starting new sessions. Each model
-        stores its own reasoning effort level.
+        {t(
+          "ui_helper_text",
+          "settings.provider.codex.defaultModel.description",
+          "Select which Codex model to use when starting new sessions. Each model stores its own reasoning effort level."
+        )}
       </p>
       <SettingsToggle
         checked={provider.reasoningSummaryEnabled}
-        description="Show Codex reasoning summaries in the dialog when the model provides them."
+        description={t(
+          "ui_helper_text",
+          "settings.provider.codex.reasoningSummary.description",
+          "Show Codex reasoning summaries in the dialog when the model provides them."
+        )}
         label="Reasoning Summary"
         onChange={(enabled) =>
           update((next) => {
@@ -60,7 +69,11 @@ export function CodexDefaultModelCard({
               >
                 <span className="settings-model-title">{option.label}</span>
                 <p className="settings-model-description">
-                  {option.description}
+                  {t(
+                    "ui_helper_text",
+                    `settings.provider.codex.model.${option.id}.description`,
+                    option.description
+                  )}
                 </p>
               </button>
               <div className="settings-row-select">
@@ -85,7 +98,11 @@ export function CodexDefaultModelCard({
         })}
       </div>
       <p className="settings-note">
-        Changes apply when creating a new Codex session.
+        {t(
+          "ui_helper_text",
+          "settings.provider.codex.newSessions.note",
+          "Changes apply when creating a new Codex session."
+        )}
       </p>
     </SettingsCard>
   );

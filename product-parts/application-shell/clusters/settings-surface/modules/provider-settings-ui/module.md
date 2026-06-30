@@ -46,6 +46,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   and new-session note resolve through the browser localization provider instead
   of hardcoded Russian text, so Claude follows the same UI Helper Text language
   selection as the rest of Settings.
+- Codex default-model helper copy, reasoning summary description, model
+  descriptions, and new-session note also resolve through the browser
+  localization provider.
 - When the dialog opens, and after a successful settings save or workspace
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are

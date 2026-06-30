@@ -350,3 +350,10 @@
 
 121. [DONE] `harness-ai.phase21.stream1.task1` Stop the supervised Core process before Electron app relaunch so the new host cannot attach to an orphan Core on the fixed port and must start a fresh runtime from the current package (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs`; docs: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, docs/evidence/app-relaunch-core-shutdown-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `fix: stop core before app relaunch`). Result: Completed in commit `fix: stop core before app relaunch`.
 122. [DONE] Git Commit: `fix: stop core before app relaunch` (hash: self)
+
+## Phase 22 - Agent Instruction Cleanup (owner: Codex, updated: 2026-06-30)
+
+### Stream: Workspace Instructions
+
+123. [DONE] `harness-ai.phase22.stream1.task1` Commit the requested AGENTS.md instruction cleanup so the workspace instructions no longer remain as an uncommitted local change (scope: `AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `docs: update agent instructions`). Result: Completed in commit `docs: update agent instructions`.
+124. [DONE] Git Commit: `docs: update agent instructions` (hash: self)

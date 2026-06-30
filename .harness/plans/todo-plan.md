@@ -8,8 +8,8 @@
   "planId": "reasoning-menu-opacity-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "Record reasoning menu contrast verification",
   "debt": null
 }
 ```
@@ -17,9 +17,10 @@
 
 ## Context Pack For This Cycle
 
-- **Planning source:** user request — the reasoning-level dropdown menu renders
-  with a transparent background, so the settings UI shows through it; make it
-  fully opaque. Check across all providers.
+- **Planning source:** user request — visual polish of the reasoning-level
+  dropdown menu: (1) make it fully opaque, then (2) lift its surface/border above
+  the model cards so it no longer blends into the surface below it. Check across
+  all providers.
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Read this context before implementation:**
@@ -27,16 +28,17 @@
 
 ## Confirmed Scope Decisions
 
-- Root cause: `ReasoningEffortSelect` renders its menu via
-  `createPortal(..., document.body)`, outside `.settings-backdrop`. The `--ss-*`
-  design tokens are declared only on `.settings-backdrop`, so inside the portal
-  `var(--ss-card)` / `var(--ss-card-border)` do not resolve and the menu
-  background falls back to `transparent`.
+- Root cause (opacity): `ReasoningEffortSelect` renders its menu via
+  `createPortal(..., document.body)`, outside `.settings-backdrop`, so the
+  `--ss-*` tokens declared there do not resolve and the background fell back to
+  `transparent`.
 - Fix is one shared CSS class (`.settings-reasoning-menu`) used by all providers
   (Claude + Codex), so a single edit covers every provider tab.
-- Add opaque fallbacks matching the token values: `background: var(--ss-card,
-  #232527)`, `border: 1px solid var(--ss-card-border, #3b3f42)`. No global
-  `--pm-*`/`--ss-*` token changes; the rest of the surface is untouched.
+- Because the menu always renders in the portal (tokens never resolve), it uses
+  literal popup-elevation values, not `--ss-*` tokens: surface `#313438` and
+  border `#4d5258`, a few steps lighter than the model cards (`#232527`), so the
+  popup reads above the surface below it. No global `--pm-*`/`--ss-*` token
+  changes; the rest of the surface is untouched.
 
 ## Execution Rules
 
@@ -67,4 +69,19 @@
 
 3. [DONE] `harness-ai.phase2.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record reasoning menu opacity evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record reasoning menu opacity verification`). Result: Completed in commit `Record reasoning menu opacity verification`.
 4. [DONE] Git Commit: `Record reasoning menu opacity verification` (hash: self)
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the reasoning menu across provider tabs in the packaged app (scope: user workflow; expected commit: none).
+5. [DONE] `harness-ai.phase2.stream1.task2` User retests the reasoning menu across provider tabs in the packaged app (scope: user workflow; expected commit: none). Result: User confirmed the menu is opaque in the packaged app (screenshot).
+
+## Phase 3 - Reasoning Menu Contrast (owner: Codex, updated: 2026-06-30)
+
+### Stream: Provider Settings UI
+
+6. [DONE] `harness-ai.phase3.stream1.task1` Lighten the reasoning menu surface (#313438) and border (#4d5258) a few steps above the model cards so the popup reads above the surface below it, for every provider (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `Lighten reasoning menu surface and border for contrast`). Result: Completed in commit `Lighten reasoning menu surface and border for contrast`.
+7. [DONE] Git Commit: `Lighten reasoning menu surface and border for contrast` (hash: self)
+
+## Phase 4 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)
+
+### Stream: Package And Retest
+
+8. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record reasoning menu contrast evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record reasoning menu contrast verification`).
+9. [TODO] Git Commit: `Record reasoning menu contrast verification` (hash: TBD)
+10. [TODO] `harness-ai.phase4.stream1.task2` User retests the reasoning menu contrast in the packaged app (scope: user workflow; expected commit: none).

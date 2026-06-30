@@ -427,8 +427,12 @@
   );
   font-size: 12px;
   font-weight: 300;
-  background: var(--ss-card, #232527);
-  border: 1px solid var(--ss-card-border, #3b3f42);
+  /* ponytail: this menu renders in a document.body portal, outside
+     .settings-backdrop, so --ss-* tokens never resolve here. Use literal
+     popup-elevation values a few steps lighter than the model cards (#232527),
+     with a lighter border, so the menu stands off the surface below it. */
+  background: #313438;
+  border: 1px solid #4d5258;
   border-radius: 8px;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5);
 }

@@ -8,8 +8,8 @@
   "planId": "provider-cli-native-update-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "Record update spinner verification",
   "debt": null
 }
 ```
@@ -70,4 +70,19 @@
 
 3. [DONE] `harness-ai.phase2.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record CLI update fix evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record CLI native update verification`). Result: Completed in commit `Record CLI native update verification`.
 4. [DONE] Git Commit: `Record CLI native update verification` (hash: self)
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the Claude CLI update (and other CLI updates) in the packaged app (scope: user workflow; expected commit: none).
+5. [DONE] `harness-ai.phase2.stream1.task2` User retests the Claude CLI update (and other CLI updates) in the packaged app (scope: user workflow; expected commit: none). Result: User confirmed the update works after resetting Core (a stale Core process held the old code); asked to add a spinner while updating (Phase 3).
+
+## Phase 3 - Update Spinner (owner: Codex, updated: 2026-06-30)
+
+### Stream: Provider Settings UI
+
+6. [DONE] `harness-ai.phase3.stream1.task1` Show a spinner on the version update button while a target is updating (until the current version refreshes), in the shared `ProviderVersionsCard` so it covers every provider with manual updates (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/provider-version-controls.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `Show a spinner on provider update buttons while updating`). Result: Completed in commit `Show a spinner on provider update buttons while updating`.
+7. [DONE] Git Commit: `Show a spinner on provider update buttons while updating` (hash: self)
+
+## Phase 4 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)
+
+### Stream: Package And Retest
+
+8. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record update spinner evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record update spinner verification`).
+9. [TODO] Git Commit: `Record update spinner verification` (hash: TBD)
+10. [TODO] `harness-ai.phase4.stream1.task2` User retests the update spinner in the packaged app (scope: user workflow; expected commit: none).

@@ -153,6 +153,9 @@ function VersionRow({
           onClick={onUpdate}
           type="button"
         >
+          {updating ? (
+            <span aria-hidden="true" className="settings-spinner" />
+          ) : null}
           {buttonLabel}
         </button>
       ) : (

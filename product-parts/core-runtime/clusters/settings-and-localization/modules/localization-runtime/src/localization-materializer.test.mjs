@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -83,6 +83,16 @@ try {
     source: "materialized",
   });
   assert.equal(translateCount, 1);
+  assert.equal(
+    existsSync(
+      path.join(tempDirectory, "cache", "browser-runtime-bootstrap.json")
+    ),
+    true
+  );
+  assert.equal(
+    existsSync(path.join(tempDirectory, "catalogs", "ui_labels", "ru.json")),
+    true
+  );
 
   const cachedPayload = await materializer.materializeRuntimePayload(settings);
   assert.deepEqual(cachedPayload, payload);

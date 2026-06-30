@@ -85,6 +85,10 @@ export class LocalizationMaterializer {
   ): Promise<LocalizationResolvedRuntimeBundle> {
     const language = resolveLanguage(category, settings);
     const dictionary = this.sourceRegistry.resolve(category);
+    const cached = await this.readCachedBundle(category, language);
+    if (cached) {
+      return cached;
+    }
     if (!(dictionary && this.translationFacade) || language === "en") {
       return {
         entries: dictionary?.entries ?? {},
@@ -121,12 +125,66 @@ export class LocalizationMaterializer {
       }
     }
 
-    return {
+    const bundle = {
       entries,
       error,
       language,
       source: error ? "source_fallback" : "materialized",
-    };
+    } satisfies LocalizationResolvedRuntimeBundle;
+    await this.writeCachedBundle(category, bundle);
+    return bundle;
+  }
+
+  private async readCachedBundle(
+    category: LocalizationCategoryId,
+    language: string
+  ): Promise<LocalizationResolvedRuntimeBundle | null> {
+    if (!this.localizationRootDirectory || language === "en") {
+      return null;
+    }
+    try {
+      const cached = JSON.parse(
+        await fs.readFile(this.bundlePath(category, language), "utf8")
+      ) as {
+        entries?: Record<string, string>;
+        language?: string;
+        source?: string;
+      };
+      if (
+        cached.language === language &&
+        cached.source === "materialized" &&
+        cached.entries
+      ) {
+        return {
+          entries: cached.entries,
+          language,
+          source: "materialized",
+        };
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  private async writeCachedBundle(
+    category: LocalizationCategoryId,
+    bundle: LocalizationResolvedRuntimeBundle
+  ): Promise<void> {
+    if (
+      !this.localizationRootDirectory ||
+      bundle.language === "en" ||
+      bundle.source !== "materialized"
+    ) {
+      return;
+    }
+    const bundlePath = this.bundlePath(category, bundle.language);
+    await fs.mkdir(path.dirname(bundlePath), { recursive: true });
+    await fs.writeFile(
+      bundlePath,
+      `${JSON.stringify({ category, ...bundle }, null, 2)}\n`,
+      "utf8"
+    );
   }
 
   private async readCachedPayload(
@@ -154,7 +212,7 @@ export class LocalizationMaterializer {
     if (!this.localizationRootDirectory) {
       return;
     }
-    await fs.mkdir(this.localizationRootDirectory, { recursive: true });
+    await fs.mkdir(path.dirname(this.bootstrapPath), { recursive: true });
     await fs.writeFile(
       this.bootstrapPath,
       `${JSON.stringify({ cacheKey, payload }, null, 2)}\n`,
@@ -163,7 +221,23 @@ export class LocalizationMaterializer {
   }
 
   private get bootstrapPath(): string {
-    return path.join(this.localizationRootDirectory ?? "", BOOTSTRAP_FILE_NAME);
+    return path.join(
+      this.localizationRootDirectory ?? "",
+      "cache",
+      BOOTSTRAP_FILE_NAME
+    );
+  }
+
+  private bundlePath(
+    category: LocalizationCategoryId,
+    language: string
+  ): string {
+    return path.join(
+      this.localizationRootDirectory ?? "",
+      "catalogs",
+      category,
+      `${normalizeLanguage(language)}.json`
+    );
   }
 }
 
@@ -176,4 +250,8 @@ function resolveLanguage(
     settings.defaultLanguage.trim() ||
     DEFAULT_LOCALIZATION_SOURCE_LANGUAGE
   );
+}
+
+function normalizeLanguage(language: string): string {
+  return language.trim().toLowerCase() || DEFAULT_LOCALIZATION_SOURCE_LANGUAGE;
 }

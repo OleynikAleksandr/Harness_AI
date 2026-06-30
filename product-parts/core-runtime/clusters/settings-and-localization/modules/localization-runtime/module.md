@@ -28,9 +28,11 @@ materialization, bootstrap payload reuse, and bundle state.
 - Default source registry backed by bundled English dictionaries.
 - Glossary-protected text and restored translated text.
 - User glossary overrides from `do-not-translate-terms.txt`.
-- Materialized runtime bundles cached as `browser-runtime-bootstrap.json` when a
-  localization root is provided. The Core Runtime Process supplies the Harness
-  home `Localization` root for packaged-app browser runtime payloads.
+- Materialized runtime bundles are cached under
+  `Localization/catalogs/<category>/<language>.json`, and the browser bootstrap
+  payload is cached under `Localization/cache/browser-runtime-bootstrap.json`.
+  The Core Runtime Process supplies the Harness home `Localization` root for
+  packaged-app browser runtime payloads.
 - Selective materialization for settings changes that affect UI bundles.
 - Runtime payload with active engine id, available engine catalogs, and
   category-keyed bundle entries.

@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task3",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase9.stream1.task4",
+  "expectedCommitMessage": "docs: record localization coverage cache package",
   "debt": null
 }
 ```
@@ -234,4 +234,8 @@
 64. [DONE] Git Commit: `fix: map localization category selections` (hash: self)
 65. [DONE] `harness-ai.phase9.stream1.task2` Add the first provider-settings localization marker slice for provider tab labels and shared provider card helper copy, then update source dictionaries and module docs (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat: localize provider settings shell copy`). Result: Completed in commit `feat: localize provider settings shell copy`.
 66. [DONE] Git Commit: `feat: localize provider settings shell copy` (hash: self)
-67. [IN_PROGRESS] `harness-ai.phase9.stream1.task3` Replace single bootstrap-only localization cache with the reference-style Harness cache layout for browser runtime payload reuse (scope: to be narrowed after reading CodeAI Hub localization cache/store modules; expected commit: TBD).
+67. [DONE] `harness-ai.phase9.stream1.task3` Replace the single root bootstrap cache with the first reference-style Harness localization cache layout: per-category translated bundles under `Localization/catalogs/<category>/<language>.json` and browser bootstrap under `Localization/cache/browser-runtime-bootstrap.json` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `fix: cache localization bundles by category`). Result: Completed in commit `fix: cache localization bundles by category`.
+68. [DONE] Git Commit: `fix: cache localization bundles by category` (hash: self)
+69. [IN_PROGRESS] `harness-ai.phase9.stream1.task4` Rebuild the packaged app after localization coverage and cache repairs, then record evidence (scope: `docs/evidence/localization-coverage-cache-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization coverage cache package`).
+70. [TODO] Git Commit: `docs: record localization coverage cache package` (hash: TBD)
+71. [TODO] `harness-ai.phase9.stream1.task5` User retests General and provider settings shell localization plus Harness localization cache layout in the rebuilt packaged app (scope: user workflow; expected commit: none).

@@ -161,7 +161,6 @@ export function ModelRows({
             type="button"
           >
             <span className="settings-model-title">{option.label}</span>
-            <span className="settings-model-id">{option.id}</span>
             {option.description ? (
               <p className="settings-model-description">{option.description}</p>
             ) : null}

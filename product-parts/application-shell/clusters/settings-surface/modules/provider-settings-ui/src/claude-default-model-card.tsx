@@ -62,7 +62,6 @@ export function ClaudeDefaultModelCard({
                 type="button"
               >
                 <span className="settings-model-title">{option.label}</span>
-                <span className="settings-model-id">{option.id}</span>
                 <p className="settings-model-description">
                   {option.description}
                 </p>

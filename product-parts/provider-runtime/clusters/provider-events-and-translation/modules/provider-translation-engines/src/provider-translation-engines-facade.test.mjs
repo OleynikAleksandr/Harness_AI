@@ -118,6 +118,29 @@ assert.deepEqual(
   }
 );
 
+assert.deepEqual(
+  await new ProviderTranslationEnginesFacade({
+    defaultEngineId: "echo",
+    engines: [translatedEngine],
+  }).translate({
+    category: "reasoning",
+    engineId: "configured-missing-reasoning-engine",
+    sourceLanguage: "en",
+    targetLanguage: "ru",
+    text: "Thinking",
+  }),
+  {
+    engine: "configured-missing-reasoning-engine",
+    errorCode: "no_engine",
+    finalText: "Thinking",
+    originalText: "Thinking",
+    sourceLanguage: "en",
+    status: "fallback",
+    targetLanguage: "ru",
+    translatedText: null,
+  }
+);
+
 const fallbackResult = await new ProviderTranslationEnginesFacade({
   defaultEngineId: "echo",
   engines: [translatedEngine],

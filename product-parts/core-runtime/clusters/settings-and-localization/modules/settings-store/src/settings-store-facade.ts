@@ -41,6 +41,7 @@ export interface HarnessSettings {
       engineId: string;
       glossaryEnabled: boolean;
       reasoningEngineId: string;
+      uiEngineId: string;
       workflowTermsPolicy: LocalizationWorkflowTermsPolicy;
     };
   };
@@ -124,6 +125,7 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       engineId: "google-gtx",
       glossaryEnabled: true,
       reasoningEngineId: "google-gtx",
+      uiEngineId: "google-gtx",
       workflowTermsPolicy: "keep_english",
     },
   },
@@ -207,6 +209,17 @@ export class SettingsStoreFacade {
     return {
       providerId,
       selectedModel: firstText(readRecord(provider)?.defaultModel) ?? "sonnet",
+    };
+  }
+
+  getLocalizationTranslationEngines(workspacePath?: string): {
+    reasoningEngineId: string;
+    uiEngineId: string;
+  } {
+    const localization = this.getSettings(workspacePath).general.localization;
+    return {
+      reasoningEngineId: localization.reasoningEngineId,
+      uiEngineId: localization.uiEngineId,
     };
   }
 
@@ -385,7 +398,20 @@ function mergeSettings(...sources: unknown[]): HarnessSettings {
   for (const source of sources) {
     next = mergeRecord(next, source);
   }
-  return next as HarnessSettings;
+  return normalizeLocalizationEngineIds(next as HarnessSettings);
+}
+
+function normalizeLocalizationEngineIds(
+  settings: HarnessSettings
+): HarnessSettings {
+  const localization = settings.general.localization;
+  const uiEngineId =
+    firstText(localization.uiEngineId, localization.engineId) ?? "google-gtx";
+  localization.uiEngineId = uiEngineId;
+  localization.engineId = uiEngineId;
+  localization.reasoningEngineId =
+    firstText(localization.reasoningEngineId) ?? "google-gtx";
+  return settings;
 }
 
 function mergeRecord(base: unknown, patch: unknown): unknown {

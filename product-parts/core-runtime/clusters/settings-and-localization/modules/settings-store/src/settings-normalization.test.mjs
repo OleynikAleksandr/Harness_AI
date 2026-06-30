@@ -5,6 +5,10 @@ const source = readFileSync(
   new URL("./settings-normalization.ts", import.meta.url),
   "utf8"
 );
+const facadeSource = readFileSync(
+  new URL("./settings-store-facade.ts", import.meta.url),
+  "utf8"
+);
 
 assert.match(source, /CODEX_REASONING_EFFORTS_BY_MODEL/u);
 assert.match(source, /"gpt-5\.2": \["low", "medium", "high", "xhigh"\]/u);
@@ -20,4 +24,10 @@ assert.match(source, /return null/u);
 assert.match(
   source,
   /next\.providers\.codex\.reasoningByModel = Object\.fromEntries/u
+);
+assert.match(facadeSource, /uiEngineId: "google-gtx"/u);
+assert.match(facadeSource, /getLocalizationTranslationEngines/u);
+assert.match(
+  facadeSource,
+  /firstText\(localization\.uiEngineId, localization\.engineId\)/u
 );

@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream5.task1",
-  "expectedCommitMessage": "feat: reveal translated reasoning progressively",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "fix: align codex reasoning block streaming",
   "debt": null
 }
 ```
@@ -172,14 +172,14 @@
 
 ### Stream: Translation-First UI Reveal
 
-39. [IN_PROGRESS] `harness-ai.phase4.stream5.task1` Update session UI to hide pending source reasoning, apply `session:message_translation` patches, merge thinking blocks, and reveal translated text progressively (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/translated-text-reveal.ts`; expected commit: `feat: reveal translated reasoning progressively`).
-40. [TODO] Git Commit: `feat: reveal translated reasoning progressively` (hash: TBD)
+39. [DONE] `harness-ai.phase4.stream5.task1` Update session UI to hide pending source reasoning, apply `session:message_translation` patches, merge thinking blocks, and reveal translated text progressively (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/translated-text-reveal.ts`; expected commit: `feat: reveal translated reasoning progressively`). Result: Completed in commit `feat: reveal translated reasoning progressively`.
+40. [DONE] Git Commit: `feat: reveal translated reasoning progressively` (hash: self)
 
 ## Phase 5 - Provider Reasoning Block Fidelity (owner: Codex, updated: 2026-06-30)
 
 ### Stream: Codex Block Identity
 
-41. [TODO] `harness-ai.phase5.stream1.task1` Align Codex normalized reasoning block ids and paragraph streaming with the CodeAI Hub summary-block contract so overlays attach per block without duplicates (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/module.md`; expected commit: `fix: align codex reasoning block streaming`).
+41. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Align Codex normalized reasoning block ids and paragraph streaming with the CodeAI Hub summary-block contract so overlays attach per block without duplicates (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/module.md`; expected commit: `fix: align codex reasoning block streaming`).
 42. [TODO] Git Commit: `fix: align codex reasoning block streaming` (hash: TBD)
 
 ### Stream: Claude Visible Thinking

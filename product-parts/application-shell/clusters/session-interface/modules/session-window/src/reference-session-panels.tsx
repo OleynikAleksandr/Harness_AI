@@ -8,6 +8,11 @@ import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clus
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { SessionInputTextarea } from "./session-input-textarea.js";
+import {
+  mergeThinkingMessagesForDisplay,
+  resolveTranslatedDisplayText,
+  useTranslatedTextReveal,
+} from "./translated-text-reveal.js";
 
 export function SessionIdPanel({
   session,
@@ -58,7 +63,7 @@ export function DialogPanel({
             )}
           </p>
         ) : (
-          messages.map((message) => (
+          mergeThinkingMessagesForDisplay(messages).map((message) => (
             <MessageBubble
               key={message.id}
               message={message}
@@ -258,6 +263,11 @@ function MessageBubble({
 }) {
   const { t } = useBrowserLocalization();
   const isThinking = isThinkingMessage(message);
+  const displayText = resolveTranslatedDisplayText(message, isThinking);
+  const revealedText = useTranslatedTextReveal(
+    displayText,
+    Boolean(message.localizedContent)
+  );
   const tint = resolveProviderTint(providerId);
   return (
     <article className={resolveBubbleClassName(message, isThinking, tint)}>
@@ -282,7 +292,7 @@ function MessageBubble({
             : "session-dialog__content"
         }
       >
-        {message.text}
+        {revealedText}
       </div>
     </article>
   );

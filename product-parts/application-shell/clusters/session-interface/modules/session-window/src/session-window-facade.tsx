@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { coalesceLiveAssistantMessages } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/live-assistant-message-coalescer.js";
-import type {
-  CoreSessionMessage,
-  SessionCoreEvent,
-} from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import type { SessionCoreEvent } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import {
   type SessionMessage,
@@ -27,6 +23,10 @@ import {
 } from "./reference-session-panels.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
 import "./session-window.css";
+import {
+  appendSessionMessageToState,
+  applySessionTranslationPatchToState,
+} from "./translated-text-reveal.js";
 
 export function SessionWindowFacade() {
   const initialSnapshot = useMemo(
@@ -407,7 +407,15 @@ function applyCoreEvent(params: {
     setTelemetryBySession,
   } = params;
   if (event.type === "session:message") {
-    appendSessionMessage(event.payload, setMessagesBySession);
+    setMessagesBySession((current) =>
+      appendSessionMessageToState(current, event.payload)
+    );
+    return;
+  }
+  if (event.type === "session:message_translation") {
+    setMessagesBySession((current) =>
+      applySessionTranslationPatchToState(current, event.payload)
+    );
     return;
   }
   if (event.type === "session:error") {
@@ -436,39 +444,6 @@ function applyCoreEvent(params: {
       [event.payload.sessionId]: event.payload.telemetry,
     }));
   }
-}
-
-function appendSessionMessage(
-  message: CoreSessionMessage,
-  setMessagesBySession: React.Dispatch<
-    React.SetStateAction<Record<string, SessionMessage[]>>
-  >
-) {
-  setMessagesBySession((current) => ({
-    ...current,
-    [message.sessionId]: coalesceLiveAssistantMessages(
-      appendUniqueMessage(current[message.sessionId] ?? [], {
-        id: message.id,
-        role: message.role,
-        ...(message.tag ? { tag: message.tag } : {}),
-        text: message.text,
-        timestamp: message.timestamp,
-      })
-    ),
-  }));
-}
-
-function appendUniqueMessage(
-  messages: SessionMessage[],
-  message: SessionMessage
-): SessionMessage[] {
-  const existingIndex = messages.findIndex((item) => item.id === message.id);
-  if (existingIndex === -1) {
-    return [...messages, message];
-  }
-  return messages.map((item, index) =>
-    index === existingIndex ? message : item
-  );
 }
 
 function appendAssistantNotice(

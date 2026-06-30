@@ -34,6 +34,9 @@ Render the transcript/dialog layout and session chrome.
 - A thinking bubble is `role === "thinking"` or an assistant message tagged
   `thinking`. Bubbles render plain text (no markdown engine) and thinking plates
   stay expanded (no collapse toggle).
+- Pending translated reasoning hides the source text until Core patches
+  `localizedContent`; translated thinking is revealed progressively in the
+  renderer while source `text` remains unchanged in state.
 - The shared `.session-panel` surface (id bar, dialog, input, status) uses the
   reference grey backdrop `rgba(40,41,42,1)` with a single clean `1px solid
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background

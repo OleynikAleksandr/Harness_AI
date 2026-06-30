@@ -26,20 +26,7 @@ const LANGUAGE_OPTIONS = [
 
 const TRANSLATION_ENGINE_OPTIONS = [
   { label: "Google GTX Free", value: "google-gtx" },
-  { label: "OpenAI Codex · GPT-5.4 Mini", value: "codex-gpt-5.4-mini" },
-  {
-    label: "OpenAI Codex · GPT-5.3 Codex Spark",
-    value: "codex-gpt-5.3-codex-spark",
-  },
-  {
-    label: "Anthropic Claude · Haiku 4.5",
-    value: "anthropic-claude-haiku-4-5",
-  },
 ] as const;
-
-const OPENROUTER_REASONING_TRANSLATION_ENGINE_ID =
-  "openrouter-reasoning-translation";
-const OPENROUTER_UI_TRANSLATION_ENGINE_ID = "openrouter-ui-translation";
 
 const CATEGORY_FIELDS: readonly {
   description: string;
@@ -112,18 +99,7 @@ export function ReferenceGeneralSettings({
     label: t("ui_labels", option.messageId, option.label),
     value: option.value,
   }));
-  const uiTranslationEngineOptions = translationEngineOptionsWithOpenRouter(
-    "UI",
-    OPENROUTER_UI_TRANSLATION_ENGINE_ID,
-    settings.providers.openRouter.translationProfiles.uiTranslation.model
-  );
-  const reasoningTranslationEngineOptions =
-    translationEngineOptionsWithOpenRouter(
-      "Reasoning",
-      OPENROUTER_REASONING_TRANSLATION_ENGINE_ID,
-      settings.providers.openRouter.translationProfiles.reasoningTranslation
-        .model
-    );
+  const translationEngineOptions = TRANSLATION_ENGINE_OPTIONS;
 
   return (
     <div className="settings-reference-stack">
@@ -190,7 +166,7 @@ export function ReferenceGeneralSettings({
                 next.general.localization.engineId = engineId;
               })
             }
-            options={uiTranslationEngineOptions}
+            options={translationEngineOptions}
             value={localization.uiEngineId}
           />
           <SettingsSelect
@@ -204,7 +180,7 @@ export function ReferenceGeneralSettings({
                 next.general.localization.reasoningEngineId = reasoningEngineId;
               })
             }
-            options={reasoningTranslationEngineOptions}
+            options={translationEngineOptions}
             value={localization.reasoningEngineId}
           />
           <SettingsToggle
@@ -244,21 +220,6 @@ export function ReferenceGeneralSettings({
       </SettingsCard>
     </div>
   );
-}
-
-function translationEngineOptionsWithOpenRouter(
-  profileLabel: string,
-  value: string,
-  model: string
-): readonly { label: string; value: string }[] {
-  const trimmedModel = model.trim();
-  return [
-    ...TRANSLATION_ENGINE_OPTIONS,
-    {
-      label: `OpenRouter ${profileLabel} · ${trimmedModel || "openrouter-default"}`,
-      value,
-    },
-  ];
 }
 
 function GlossaryCard({

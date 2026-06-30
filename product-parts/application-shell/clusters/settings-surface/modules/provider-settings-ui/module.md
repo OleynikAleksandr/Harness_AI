@@ -25,6 +25,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - The Localization UI Translation Engine select reads and writes Core-owned
   `general.localization.uiEngineId`; the legacy `engineId` alias is only kept in
   sync for settings normalization compatibility.
+- Localization translation engine selects show only engines registered in the
+  current Harness runtime. OpenRouter/Codex/Claude localization engines are not
+  displayed until their provider-backed translation engines exist in
+  `ProviderTranslationEnginesFacade`.
 
 ## Reasoning Effort Select
 

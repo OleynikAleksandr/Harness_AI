@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "docs: record localization packaged verification",
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -208,6 +208,6 @@
 
 ### Stream: Package And Retest
 
-51. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record package evidence (scope: `docs/evidence/localization-transfer-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization packaged verification`).
-52. [TODO] Git Commit: `docs: record localization packaged verification` (hash: TBD)
-53. [TODO] `harness-ai.phase7.stream1.task2` User retests Settings Localization, glossary protection, localized UI/help/menu copy, and live reasoning translation in the packaged app (scope: user workflow; expected commit: none).
+51. [DONE] `harness-ai.phase7.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record package evidence (scope: `docs/evidence/localization-transfer-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization packaged verification`). Result: Completed in commit `docs: record localization packaged verification`.
+52. [DONE] Git Commit: `docs: record localization packaged verification` (hash: self)
+53. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` User retests Settings Localization, glossary protection, localized UI/help/menu copy, and live reasoning translation in the packaged app (scope: user workflow; expected commit: none).

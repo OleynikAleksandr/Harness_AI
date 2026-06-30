@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task3",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase11.stream1.task2",
+  "expectedCommitMessage": "docs: record localization open refresh package",
   "debt": null
 }
 ```
@@ -248,4 +248,14 @@
 73. [DONE] Git Commit: `fix: refresh localization payload after settings save` (hash: self)
 74. [DONE] `harness-ai.phase10.stream1.task2` Rebuild the packaged app after the Settings localization refresh repair and record evidence (scope: `docs/evidence/localization-refresh-repair-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization refresh package`). Result: Completed in commit `docs: record localization refresh package`.
 75. [DONE] Git Commit: `docs: record localization refresh package` (hash: self)
-76. [IN_PROGRESS] `harness-ai.phase10.stream1.task3` User retests Russian Settings localization in the rebuilt packaged app (scope: user workflow; expected commit: none).
+76. [DONE] `harness-ai.phase10.stream1.task3` User retests Russian Settings localization in the rebuilt packaged app (scope: user workflow; expected commit: none). Result: User reported Settings helper copy still falls back to English even though Russian cache files exist.
+
+## Phase 11 - Settings Open Localization Refresh (owner: Codex, updated: 2026-06-30)
+
+### Stream: Modal Open Refresh
+
+77. [DONE] `harness-ai.phase11.stream1.task1` Refresh the browser localization runtime payload when Settings opens, so the dialog cannot remain on fallback copy when there are no dirty changes to save (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`; docs: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix: refresh localization payload when settings opens`). Result: Completed in commit `fix: refresh localization payload when settings opens`.
+78. [DONE] Git Commit: `fix: refresh localization payload when settings opens` (hash: self)
+79. [IN_PROGRESS] `harness-ai.phase11.stream1.task2` Rebuild the packaged app after the Settings-open localization refresh repair and record evidence (scope: `docs/evidence/localization-open-refresh-packaged-app-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record localization open refresh package`).
+80. [TODO] Git Commit: `docs: record localization open refresh package` (hash: TBD)
+81. [TODO] `harness-ai.phase11.stream1.task3` User retests Russian Settings helper copy after reopening Settings in the rebuilt packaged app (scope: user workflow; expected commit: none).

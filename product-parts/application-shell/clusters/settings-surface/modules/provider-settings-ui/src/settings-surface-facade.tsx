@@ -45,6 +45,7 @@ export function ProviderSettingsUiFacade({
     }
     let cancelled = false;
     setBusy(true);
+    onLocalizationRuntimeRefresh().catch(() => undefined);
     window.harnessCore
       ?.getSettings()
       .then((snapshot) => {
@@ -69,7 +70,7 @@ export function ProviderSettingsUiFacade({
     return () => {
       cancelled = true;
     };
-  }, [isOpen]);
+  }, [isOpen, onLocalizationRuntimeRefresh]);
 
   useEffect(() => {
     if (!(isOpen && window.harnessCore)) {

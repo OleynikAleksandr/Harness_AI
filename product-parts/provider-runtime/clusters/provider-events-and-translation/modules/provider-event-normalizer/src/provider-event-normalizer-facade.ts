@@ -23,6 +23,7 @@ export type NormalizedProviderEvent =
     };
 
 export class ProviderEventNormalizerFacade {
+  private readonly emittedSummaryIndexesByItem = new Map<string, Set<number>>();
   private readonly reasoningTextByItem = new Map<string, string>();
   private readonly summaryPartsByItem = new Map<string, string[]>();
 
@@ -98,19 +99,27 @@ export class ProviderEventNormalizerFacade {
   ): NormalizedProviderEvent[] {
     const itemId = readString(item.id);
     const itemKey = itemId ? codexItemKey(params, itemId) : null;
-    const blocks = readStringArray(item.summary).length
-      ? readStringArray(item.summary)
-      : readStringArray(item.content);
     const fallback = itemKey ? this.reasoningTextByItem.get(itemKey) : null;
+    const resolvedBlocks = itemKey
+      ? this.flushRemainingReasoningBlocks({
+          fallback,
+          finalContentBlocks: readStringArray(item.content),
+          finalSummaryBlocks: readStringArray(item.summary),
+          itemId: itemId ?? "reasoning",
+          itemKey,
+        })
+      : resolveReasoningBlocks(readStringArray(item.summary), fallback).map(
+          (content, index) => ({ content, index })
+        );
     if (itemKey) {
+      this.emittedSummaryIndexesByItem.delete(itemKey);
       this.reasoningTextByItem.delete(itemKey);
       this.summaryPartsByItem.delete(itemKey);
     }
-    const resolvedBlocks = resolveReasoningBlocks(blocks, fallback);
-    return resolvedBlocks.map((block, index) =>
+    return resolvedBlocks.map((block) =>
       dialogMessage(
-        block,
-        itemId ? `${itemId}::summary-block::${index}` : null,
+        block.content,
+        itemId ? `${itemId}::summary-block::${block.index}` : null,
         "thinking"
       )
     );
@@ -127,17 +136,16 @@ export class ProviderEventNormalizerFacade {
     if (!(itemId && summaryIndex !== null)) {
       return [];
     }
-    const parts = this.summaryPartsByItem.get(codexItemKey(params, itemId));
-    const content = parts?.[summaryIndex - 1]?.trim();
-    return content
-      ? [
-          dialogMessage(
-            content,
-            `${itemId}::summary-block::${summaryIndex - 1}`,
-            "thinking"
-          ),
-        ]
-      : [];
+    return this.flushAccumulatedBeforeIndex(
+      codexItemKey(params, itemId),
+      summaryIndex
+    ).map((block) =>
+      dialogMessage(
+        block.content,
+        `${itemId}::summary-block::${block.index}`,
+        "thinking"
+      )
+    );
   }
 
   private appendCodexReasoningSummaryDelta(params: unknown): void {
@@ -152,6 +160,7 @@ export class ProviderEventNormalizerFacade {
     }
     const key = codexItemKey(params, itemId);
     const parts = this.summaryPartsByItem.get(key) ?? [];
+    ensureSummarySlot(parts, summaryIndex);
     parts[summaryIndex] = `${parts[summaryIndex] ?? ""}${delta}`;
     this.summaryPartsByItem.set(key, parts);
   }
@@ -184,6 +193,92 @@ export class ProviderEventNormalizerFacade {
         uuid: `${randomUUID()}::token_usage`,
       },
     ];
+  }
+
+  private flushAccumulatedBeforeIndex(
+    itemKey: string,
+    summaryIndex: number
+  ): { content: string; index: number }[] {
+    const parts = this.summaryPartsByItem.get(itemKey) ?? [];
+    const emitted = this.emittedSummaryIndexesByItem.get(itemKey) ?? new Set();
+    const blocks: { content: string; index: number }[] = [];
+    ensureSummarySlot(parts, summaryIndex);
+    for (let index = 0; index < summaryIndex; index += 1) {
+      const content = parts[index]?.trim();
+      if (!(content && !emitted.has(index))) {
+        continue;
+      }
+      emitted.add(index);
+      blocks.push({ content, index });
+    }
+    this.summaryPartsByItem.set(itemKey, parts);
+    this.emittedSummaryIndexesByItem.set(itemKey, emitted);
+    return blocks;
+  }
+
+  private flushRemainingReasoningBlocks(options: {
+    readonly fallback: string | null | undefined;
+    readonly finalContentBlocks: readonly string[];
+    readonly finalSummaryBlocks: readonly string[];
+    readonly itemId: string;
+    readonly itemKey: string;
+  }): { content: string; index: number }[] {
+    const finalSummary = this.flushFinalBlocks(
+      options.itemKey,
+      options.finalSummaryBlocks
+    );
+    if (finalSummary.length > 0) {
+      return finalSummary;
+    }
+    const parts = this.summaryPartsByItem.get(options.itemKey);
+    if (parts?.length) {
+      const accumulated = this.flushAccumulatedBeforeIndex(
+        options.itemKey,
+        parts.length
+      );
+      if (accumulated.length > 0) {
+        return accumulated;
+      }
+    }
+    const finalContent = this.flushFinalBlocks(
+      options.itemKey,
+      options.finalContentBlocks
+    );
+    if (finalContent.length > 0) {
+      return finalContent;
+    }
+    return this.flushFallbackBlock(options.itemKey, options.fallback);
+  }
+
+  private flushFinalBlocks(
+    itemKey: string,
+    blocks: readonly string[]
+  ): { content: string; index: number }[] {
+    const emitted = this.emittedSummaryIndexesByItem.get(itemKey) ?? new Set();
+    const flushed = blocks.flatMap((block, index) => {
+      const content = block.trim();
+      if (!(content && !emitted.has(index))) {
+        return [];
+      }
+      emitted.add(index);
+      return [{ content, index }];
+    });
+    this.emittedSummaryIndexesByItem.set(itemKey, emitted);
+    return flushed;
+  }
+
+  private flushFallbackBlock(
+    itemKey: string,
+    fallback: string | null | undefined
+  ): { content: string; index: number }[] {
+    const content = fallback?.trim();
+    const emitted = this.emittedSummaryIndexesByItem.get(itemKey) ?? new Set();
+    if (!(content && !emitted.has(0))) {
+      return [];
+    }
+    emitted.add(0);
+    this.emittedSummaryIndexesByItem.set(itemKey, emitted);
+    return [{ content, index: 0 }];
   }
 }
 
@@ -241,6 +336,12 @@ function resolveReasoningBlocks(
     return blocks;
   }
   return fallback ? [fallback] : [];
+}
+
+function ensureSummarySlot(parts: string[], summaryIndex: number): void {
+  while (parts.length <= summaryIndex) {
+    parts.push("");
+  }
 }
 
 function readStringArray(value: unknown): string[] {

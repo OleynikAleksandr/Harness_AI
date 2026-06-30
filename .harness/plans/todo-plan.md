@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "fix: align codex reasoning block streaming",
+  "currentTaskId": "harness-ai.phase5.stream2.task1",
+  "expectedCommitMessage": "test: cover claude reasoning translation eligibility",
   "debt": null
 }
 ```
@@ -179,12 +179,12 @@
 
 ### Stream: Codex Block Identity
 
-41. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Align Codex normalized reasoning block ids and paragraph streaming with the CodeAI Hub summary-block contract so overlays attach per block without duplicates (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/module.md`; expected commit: `fix: align codex reasoning block streaming`).
-42. [TODO] Git Commit: `fix: align codex reasoning block streaming` (hash: TBD)
+41. [DONE] `harness-ai.phase5.stream1.task1` Align Codex normalized reasoning block ids and paragraph streaming with the CodeAI Hub summary-block contract so overlays attach per block without duplicates (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/provider-event-normalizer/module.md`; expected commit: `fix: align codex reasoning block streaming`). Result: Completed in commit `fix: align codex reasoning block streaming`.
+42. [DONE] Git Commit: `fix: align codex reasoning block streaming` (hash: self)
 
 ### Stream: Claude Visible Thinking
 
-43. [TODO] `harness-ai.phase5.stream2.task1` Confirm Claude visible thinking emits stable readable thinking segments through Core projection by reading the reference buffer and adding focused Harness-owned coverage for translation eligibility (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/module.md`; expected commit: `test: cover claude reasoning translation eligibility`).
+43. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Confirm Claude visible thinking emits stable readable thinking segments through Core projection by reading the reference buffer and adding focused Harness-owned coverage for translation eligibility (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/module.md`; expected commit: `test: cover claude reasoning translation eligibility`).
 44. [TODO] Git Commit: `test: cover claude reasoning translation eligibility` (hash: TBD)
 
 ## Phase 6 - Final Evidence And Cross-Cut Docs (owner: Codex, updated: 2026-06-30)

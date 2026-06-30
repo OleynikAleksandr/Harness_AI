@@ -48,6 +48,27 @@ assert.deepEqual(
   ]
 );
 
+assert.deepEqual(
+  normalizer
+    .normalizeCodexNotification("item/completed", {
+      item: {
+        id: "reasoning-1",
+        summary: ["first block should not duplicate", "second block"],
+        type: "reasoning",
+      },
+      threadId: "thread-1",
+    })
+    .map(({ content, tag, type, uuid }) => ({ content, tag, type, uuid })),
+  [
+    {
+      content: "second block",
+      tag: "thinking",
+      type: "dialog_message",
+      uuid: "reasoning-1::summary-block::1",
+    },
+  ]
+);
+
 normalizer.normalizeCodexNotification("item/reasoning/textDelta", {
   delta: "fallback ",
   itemId: "reasoning-2",

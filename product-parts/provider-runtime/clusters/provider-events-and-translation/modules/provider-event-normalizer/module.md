@@ -17,7 +17,10 @@ Normalize provider stream/event payloads for Core Runtime.
 
 - Provider-neutral event record.
 - Event normalization diagnostics.
-- Codex reasoning summary/text deltas materialized as `dialog_message` events tagged `thinking`.
+- Codex reasoning summary/text deltas materialized as stable
+  `dialog_message` events tagged `thinking`; summary block ids use
+  `<itemId>::summary-block::<index>` and completed items do not duplicate blocks
+  already streamed when later summary parts started.
 
 ## Owned Paths
 

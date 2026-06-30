@@ -8,8 +8,8 @@
   "planId": "reasoning-menu-opacity-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "Record reasoning menu contrast verification",
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -82,6 +82,6 @@
 
 ### Stream: Package And Retest
 
-8. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record reasoning menu contrast evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record reasoning menu contrast verification`).
-9. [TODO] Git Commit: `Record reasoning menu contrast verification` (hash: TBD)
-10. [TODO] `harness-ai.phase4.stream1.task2` User retests the reasoning menu contrast in the packaged app (scope: user workflow; expected commit: none).
+8. [DONE] `harness-ai.phase4.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record reasoning menu contrast evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record reasoning menu contrast verification`). Result: Completed in commit `Record reasoning menu contrast verification`.
+9. [DONE] Git Commit: `Record reasoning menu contrast verification` (hash: self)
+10. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` User retests the reasoning menu contrast in the packaged app (scope: user workflow; expected commit: none).

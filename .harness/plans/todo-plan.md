@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat: add reasoning translation overlay facade",
+  "currentTaskId": "harness-ai.phase4.stream2.task1",
+  "expectedCommitMessage": "feat: persist reasoning translation overlays",
   "debt": null
 }
 ```
@@ -152,12 +152,12 @@
 
 ### Stream: Overlay Contract
 
-31. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Add `ReasoningTranslationOverlayFacade` with policy resolution from Settings, source hashing, pending-state decision, and translation dispatch through `ProviderTranslationEnginesFacade` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/source-hash.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.test.mjs`; expected commit: `feat: add reasoning translation overlay facade`).
-32. [TODO] Git Commit: `feat: add reasoning translation overlay facade` (hash: TBD)
+31. [DONE] `harness-ai.phase4.stream1.task1` Add `ReasoningTranslationOverlayFacade` with policy resolution from Settings, source hashing, pending-state decision, and translation dispatch through `ProviderTranslationEnginesFacade` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/source-hash.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.test.mjs`; expected commit: `feat: add reasoning translation overlay facade`). Result: Completed in commit `feat: add reasoning translation overlay facade`.
+32. [DONE] Git Commit: `feat: add reasoning translation overlay facade` (hash: self)
 
 ### Stream: Overlay Persistence
 
-33. [TODO] `harness-ai.phase4.stream2.task1` Persist reasoning translation overlays as sidecar records and expose a projector API that merges valid overlays by message id and source hash before live patch broadcast is added (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-projector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.test.mjs`; expected commit: `feat: persist reasoning translation overlays`).
+33. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Persist reasoning translation overlays as sidecar records and expose a projector API that merges valid overlays by message id and source hash before live patch broadcast is added (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-projector.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.test.mjs`; expected commit: `feat: persist reasoning translation overlays`).
 34. [TODO] Git Commit: `feat: persist reasoning translation overlays` (hash: TBD)
 
 ### Stream: Core Session Events

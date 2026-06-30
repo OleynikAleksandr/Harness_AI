@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream2.task1",
-  "expectedCommitMessage": "test: cover claude reasoning translation eligibility",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "docs: document localization transfer architecture",
   "debt": null
 }
 ```
@@ -184,14 +184,14 @@
 
 ### Stream: Claude Visible Thinking
 
-43. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Confirm Claude visible thinking emits stable readable thinking segments through Core projection by reading the reference buffer and adding focused Harness-owned coverage for translation eligibility (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/module.md`; expected commit: `test: cover claude reasoning translation eligibility`).
-44. [TODO] Git Commit: `test: cover claude reasoning translation eligibility` (hash: TBD)
+43. [DONE] `harness-ai.phase5.stream2.task1` Confirm Claude visible thinking emits stable readable thinking segments through Core projection by reading the reference buffer and adding focused Harness-owned coverage for translation eligibility (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/src/session-reasoning-display-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-reasoning-display/module.md`; expected commit: `test: cover claude reasoning translation eligibility`). Result: Completed in commit `test: cover claude reasoning translation eligibility`.
+44. [DONE] Git Commit: `test: cover claude reasoning translation eligibility` (hash: self)
 
 ## Phase 6 - Final Evidence And Cross-Cut Docs (owner: Codex, updated: 2026-06-30)
 
 ### Stream: Architecture Docs
 
-45. [TODO] `harness-ai.phase6.stream1.task1` Update cross-cut architecture docs for the completed localization transfer and verify module docs were updated in their source commits, without deferring module documentation from earlier phases (scope: `docs/architecture/ProjectManagerSettingsParity.md, docs/architecture/CodeAIHubProviderRuntimeAlignment.md, product-parts/core-runtime/clusters/settings-and-localization/cluster.md`; expected commit: `docs: document localization transfer architecture`).
+45. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Update cross-cut architecture docs for the completed localization transfer and verify module docs were updated in their source commits, without deferring module documentation from earlier phases (scope: `docs/architecture/ProjectManagerSettingsParity.md, docs/architecture/CodeAIHubProviderRuntimeAlignment.md, product-parts/core-runtime/clusters/settings-and-localization/cluster.md`; expected commit: `docs: document localization transfer architecture`).
 46. [TODO] Git Commit: `docs: document localization transfer architecture` (hash: TBD)
 
 ### Stream: Product Tree Docs

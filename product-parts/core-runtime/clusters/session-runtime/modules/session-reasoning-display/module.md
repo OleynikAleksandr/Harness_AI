@@ -17,6 +17,9 @@ Project provider-visible reasoning/thinking payloads into Core dialog messages.
 
 - Core-ready assistant and thinking display messages.
 - Provider `tag` markers, including `live` and `thinking`, preserved for downstream Core/UI read-model handling.
+- Claude visible thinking dialog fragments keep their stable provider uuid and
+  become Core `thinking` messages tagged `thinking`, making them eligible for
+  the Core reasoning translation overlay.
 
 ## Owned Paths
 

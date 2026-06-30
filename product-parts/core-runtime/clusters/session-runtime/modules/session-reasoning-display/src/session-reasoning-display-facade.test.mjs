@@ -105,3 +105,50 @@ assert.deepEqual(
     },
   ]
 );
+
+assert.deepEqual(
+  facade.projectProviderEvent({
+    content: "Inspecting the workspace before editing.",
+    role: "assistant",
+    tag: "thinking",
+    timestamp: "2026-06-28T00:00:04.000Z",
+    type: "dialog_message",
+    uuid: "claude-message::thinking_live::0",
+  }),
+  [
+    {
+      id: "claude-message::thinking_live::0",
+      role: "thinking",
+      tag: "thinking",
+      text: "Inspecting the workspace before editing.",
+      timestamp: "2026-06-28T00:00:04.000Z",
+    },
+  ]
+);
+
+assert.deepEqual(
+  facade.projectProviderEvent({
+    data: {
+      content: "Done.",
+      thinking: [{ text: "Reading the relevant files." }],
+    },
+    timestamp: "2026-06-28T00:00:05.000Z",
+    type: "stream_event",
+    uuid: "claude-stream",
+  }),
+  [
+    {
+      id: "claude-stream::thinking::0",
+      role: "thinking",
+      tag: "thinking",
+      text: "Reading the relevant files.",
+      timestamp: "2026-06-28T00:00:05.000Z",
+    },
+    {
+      id: "claude-stream::content::assistant::0",
+      role: "assistant",
+      text: "Done.",
+      timestamp: "2026-06-28T00:00:05.000Z",
+    },
+  ]
+);

@@ -4,6 +4,8 @@ import { createCoreProcessSupervisor } from "./core-process-supervisor.mjs";
 const IPC_TO_RPC = {
   "harness-ai:core:create-session": "create-session",
   "harness-ai:core:delete-session": "delete-session",
+  "harness-ai:core:get-localization-runtime-payload":
+    "get-localization-runtime-payload",
   "harness-ai:core:get-local-models": "get-local-models",
   "harness-ai:core:get-provider-system-settings":
     "get-provider-system-settings",

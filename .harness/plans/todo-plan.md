@@ -357,3 +357,10 @@
 
 123. [DONE] `harness-ai.phase22.stream1.task1` Commit the requested AGENTS.md instruction cleanup so the workspace instructions no longer remain as an uncommitted local change (scope: `AGENTS.md, .harness/plans/todo-plan.md`; expected commit: `docs: update agent instructions`). Result: Completed in commit `docs: update agent instructions`.
 124. [DONE] Git Commit: `docs: update agent instructions` (hash: self)
+
+## Phase 23 - Browser Localization Payload IPC Repair (owner: Codex, updated: 2026-06-30)
+
+### Stream: Electron Bridge
+
+125. [DONE] `harness-ai.phase23.stream1.task1` Register the renderer localization runtime payload IPC channel in the Electron Core process bridge so `BrowserLocalizationProvider` can receive Core materialized bundles after startup, Settings Save, and Restart App (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs`; docs: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, docs/evidence/localization-runtime-payload-ipc-package-2026-06-30.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `fix: forward localization runtime payload ipc`). Result: Completed in commit `fix: forward localization runtime payload ipc`.
+126. [DONE] Git Commit: `fix: forward localization runtime payload ipc` (hash: self)

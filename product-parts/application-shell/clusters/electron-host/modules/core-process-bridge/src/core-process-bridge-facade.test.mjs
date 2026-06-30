@@ -11,6 +11,10 @@ const supervisorSource = readFileSync(
 );
 
 assert.match(source, /harness-ai:core:get-session-events/u);
+assert.match(
+  source,
+  /"harness-ai:core:get-localization-runtime-payload":\s*"get-localization-runtime-payload"/u
+);
 assert.match(source, /createCoreProcessSupervisor\(repositoryRoot\)/u);
 assert.match(source, /await coreSupervisor\.start\(\)/u);
 assert.match(source, /await coreSupervisor\.restart\(\)/u);

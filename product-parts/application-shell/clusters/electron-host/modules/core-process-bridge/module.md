@@ -27,7 +27,10 @@ modules or own Core truth.
 - Renderer-safe Core API endpoint metadata.
 - Renderer-safe forwarding of Core RPC results and Core events. The IPC→RPC map
   includes `harness-ai:core:stop-turn` → `stop-turn`, so the renderer Stop button
-  reaches the Core-owned turn cancellation.
+  reaches the Core-owned turn cancellation, and
+  `harness-ai:core:get-localization-runtime-payload` →
+  `get-localization-runtime-payload`, so renderer localization receives the
+  Core materialized browser bundles instead of falling back to English.
 - Real Core process restart through health and shutdown contracts. `stop()` first
   asks the core to shut down over HTTP, then force-terminates the process by pid
   (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so

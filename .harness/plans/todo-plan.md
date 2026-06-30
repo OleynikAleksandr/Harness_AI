@@ -8,8 +8,8 @@
   "planId": "ui-typography-hierarchy-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task2",
-  "expectedCommitMessage": "Keep the start-new-session button upright",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "Record model card and button polish verification",
   "debt": null
 }
 ```
@@ -95,13 +95,13 @@
 
 ### Stream: Session Window
 
-12. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` Reset `.start-new-session-button` to `font-style: normal` so it does not inherit the italic from `.sidebar-section-header` (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `Keep the start-new-session button upright`).
-13. [TODO] Git Commit: `Keep the start-new-session button upright` (hash: TBD)
+12. [DONE] `harness-ai.phase5.stream1.task2` Reset `.start-new-session-button` to `font-style: normal` so it does not inherit the italic from `.sidebar-section-header` (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `Keep the start-new-session button upright`). Result: Completed in commit `Keep the start-new-session button upright`.
+13. [DONE] Git Commit: `Keep the start-new-session button upright` (hash: self)
 
 ## Phase 6 - Package & User Acceptance (owner: Codex + User, updated: 2026-06-30)
 
 ### Stream: Package And Retest
 
-14. [TODO] `harness-ai.phase6.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record polish verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record model card and button polish verification`).
+14. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Package the app (`npm run package:mac`, user-confirmed) and record polish verification evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record model card and button polish verification`).
 15. [TODO] Git Commit: `Record model card and button polish verification` (hash: TBD)
 16. [TODO] `harness-ai.phase6.stream1.task2` User retests the model cards and the Start New Session button in the packaged app (scope: user workflow; expected commit: none).

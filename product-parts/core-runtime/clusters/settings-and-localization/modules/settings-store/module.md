@@ -21,6 +21,8 @@ Own global and workspace settings persistence.
 - Localization translation engine ids resolved as `uiEngineId` and
   `reasoningEngineId`; legacy `engineId` is kept as a UI compatibility alias
   for the UI translation engine.
+- Localization sync impact checks include UI bundle settings only and exclude
+  live reasoning language/engine settings.
 
 ## Reasoning Effort Contract
 

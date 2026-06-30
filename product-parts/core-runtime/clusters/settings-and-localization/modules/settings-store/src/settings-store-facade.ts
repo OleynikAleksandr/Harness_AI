@@ -5,11 +5,6 @@ import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clus
 import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { normalizeSettings } from "./settings-normalization.js";
 
-export interface ProviderModelSetting {
-  providerId: ProviderId;
-  selectedModel: string;
-}
-
 export type LocalizationWorkflowTermsPolicy = "keep_english" | "translate";
 export type ReasoningEffort =
   | "low"
@@ -203,12 +198,14 @@ export class SettingsStoreFacade {
   getProviderModel(
     providerId: ProviderId,
     workspacePath?: string
-  ): ProviderModelSetting {
+  ): { providerId: ProviderId; selectedModel: string } {
     const settings = this.getSettings(workspacePath);
     const provider = settings.providers[PROVIDER_KEY_BY_ID[providerId]];
+    const selectedModel =
+      "defaultModel" in provider ? provider.defaultModel : "sonnet";
     return {
       providerId,
-      selectedModel: firstText(readRecord(provider)?.defaultModel) ?? "sonnet",
+      selectedModel: firstText(selectedModel) ?? "sonnet",
     };
   }
 
@@ -221,6 +218,13 @@ export class SettingsStoreFacade {
       reasoningEngineId: localization.reasoningEngineId,
       uiEngineId: localization.uiEngineId,
     };
+  }
+
+  shouldSyncLocalization(
+    previous: HarnessSettings,
+    next: HarnessSettings
+  ): boolean {
+    return localizationSyncKey(previous) !== localizationSyncKey(next);
   }
 
   resetWorkspaceSettings(workspacePath?: string): HarnessSettings {
@@ -414,6 +418,18 @@ function normalizeLocalizationEngineIds(
   return settings;
 }
 
+function localizationSyncKey(settings: HarnessSettings): string {
+  const localization = settings.general.localization;
+  const { reasoning: _reasoning, ...uiCategories } = localization.categories;
+  return JSON.stringify({
+    categories: uiCategories,
+    defaultLanguage: localization.defaultLanguage,
+    glossaryEnabled: localization.glossaryEnabled,
+    uiEngineId: localization.uiEngineId,
+    workflowTermsPolicy: localization.workflowTermsPolicy,
+  });
+}
+
 function mergeRecord(base: unknown, patch: unknown): unknown {
   if (!(isRecord(base) && isRecord(patch))) {
     return patch ?? base;
@@ -466,10 +482,6 @@ function compactRecord(
     }
   }
   return compacted;
-}
-
-function readRecord(value: unknown): Record<string, unknown> | null {
-  return isRecord(value) ? value : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

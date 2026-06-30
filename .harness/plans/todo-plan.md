@@ -8,8 +8,8 @@
   "planId": "localization-transfer-2026-06-30",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream4.task1",
-  "expectedCommitMessage": "feat: sync localization settings selectively",
+  "currentTaskId": "harness-ai.phase2.stream5.task1",
+  "expectedCommitMessage": "feat: expose localization runtime bridge",
   "debt": null
 }
 ```
@@ -113,12 +113,12 @@
 
 ### Stream: Settings Sync Boundary
 
-17. [IN_PROGRESS] `harness-ai.phase2.stream4.task1` Trigger localization sync only for localization-impacting settings changes (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.test.mjs`; expected commit: `feat: sync localization settings selectively`).
-18. [TODO] Git Commit: `feat: sync localization settings selectively` (hash: TBD)
+17. [DONE] `harness-ai.phase2.stream4.task1` Trigger localization sync only for localization-impacting settings changes (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.test.mjs`; expected commit: `feat: sync localization settings selectively`). Result: Completed in commit `feat: sync localization settings selectively`.
+18. [DONE] Git Commit: `feat: sync localization settings selectively` (hash: self)
 
 ### Stream: Core Bridge Bootstrap Payload
 
-19. [TODO] `harness-ai.phase2.stream5.task1` Expose the localization runtime bootstrap payload through the Core runtime API and Electron preload bridge instead of leaving UI bootstrap implicit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: expose localization runtime bridge`).
+19. [IN_PROGRESS] `harness-ai.phase2.stream5.task1` Expose the localization runtime bootstrap payload through the Core runtime API and Electron preload bridge instead of leaving UI bootstrap implicit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat: expose localization runtime bridge`).
 20. [TODO] Git Commit: `feat: expose localization runtime bridge` (hash: TBD)
 
 ## Phase 3 - UI Text Markers And Bootstrap Consumption (owner: Codex, updated: 2026-06-30)

@@ -9,6 +9,9 @@ const facadeSource = readFileSync(
   new URL("./settings-store-facade.ts", import.meta.url),
   "utf8"
 );
+const localizationSyncKeySource = facadeSource.slice(
+  facadeSource.indexOf("function localizationSyncKey")
+);
 
 assert.match(source, /CODEX_REASONING_EFFORTS_BY_MODEL/u);
 assert.match(source, /"gpt-5\.2": \["low", "medium", "high", "xhigh"\]/u);
@@ -27,7 +30,10 @@ assert.match(
 );
 assert.match(facadeSource, /uiEngineId: "google-gtx"/u);
 assert.match(facadeSource, /getLocalizationTranslationEngines/u);
+assert.match(facadeSource, /shouldSyncLocalization/u);
 assert.match(
   facadeSource,
   /firstText\(localization\.uiEngineId, localization\.engineId\)/u
 );
+assert.match(facadeSource, /reasoning: _reasoning/u);
+assert.doesNotMatch(localizationSyncKeySource, /reasoningEngineId/u);

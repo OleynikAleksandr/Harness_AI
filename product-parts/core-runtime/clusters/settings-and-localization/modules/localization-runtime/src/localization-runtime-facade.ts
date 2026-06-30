@@ -103,6 +103,18 @@ export class LocalizationRuntimeFacade {
     }).materializeRuntimePayload(settings);
   }
 
+  materializeRuntimePayloadForSettingsChange(
+    previous: LocalizationRuntimeSettingsSnapshot,
+    next: LocalizationRuntimeSettingsSnapshot
+  ): Promise<LocalizationRuntimePayload | null> {
+    if (
+      localizationRuntimeSyncKey(previous) === localizationRuntimeSyncKey(next)
+    ) {
+      return Promise.resolve(null);
+    }
+    return this.materializeRuntimePayload(next);
+  }
+
   private sourceFallbackBundle(
     category: LocalizationCategoryId,
     settings: LocalizationRuntimeSettingsSnapshot
@@ -132,3 +144,15 @@ export {
   type LocalizationSourceDictionaryEntries,
 } from "./source-dictionary-registry.js";
 export { UserGlossaryStore } from "./user-glossary-store.js";
+
+function localizationRuntimeSyncKey(
+  settings: LocalizationRuntimeSettingsSnapshot
+): string {
+  const { reasoning: _reasoning, ...uiCategories } = settings.categories;
+  return JSON.stringify({
+    categories: uiCategories,
+    defaultLanguage: settings.defaultLanguage,
+    uiEngineId: settings.uiEngineId,
+    workflowTermsPolicy: settings.workflowTermsPolicy,
+  });
+}

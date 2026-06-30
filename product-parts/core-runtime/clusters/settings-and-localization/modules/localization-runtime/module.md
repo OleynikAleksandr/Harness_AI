@@ -26,6 +26,7 @@ materialization, bootstrap payload reuse, and bundle state.
 - User glossary overrides from `do-not-translate-terms.txt`.
 - Materialized runtime bundles cached as `browser-runtime-bootstrap.json` when a
   localization root is provided.
+- Selective materialization for settings changes that affect UI bundles.
 - Runtime payload with active engine id, available engine catalogs, and
   category-keyed bundle entries.
 - Missing key diagnostics.

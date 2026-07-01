@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app for provider versions card localization fix",
+  "currentTaskId": "harness-ai.phase11.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -265,6 +265,6 @@
 
 ### Stream: Package And Retest
 
-37. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for provider versions card localization fix`).
-38. [TODO] Git Commit: `chore(package): rebuild packaged app for provider versions card localization fix` (hash: TBD)
-39. [TODO] `harness-ai.phase11.stream1.task2` User retests: with UI Helper Text / Messages for the User set to English, the Claude/Codex/OpenCode Versions cards show the warning banner and auto-update description in English, not Russian (scope: user workflow; expected commit: none).
+37. [DONE] `harness-ai.phase11.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for provider versions card localization fix`). Result: Completed in commit `chore(package): rebuild packaged app for provider versions card localization fix`.
+38. [DONE] Git Commit: `chore(package): rebuild packaged app for provider versions card localization fix` (hash: self)
+39. [IN_PROGRESS] `harness-ai.phase11.stream1.task2` User retests: with UI Helper Text / Messages for the User set to English, the Claude/Codex/OpenCode Versions cards show the warning banner and auto-update description in English, not Russian (scope: user workflow; expected commit: none).

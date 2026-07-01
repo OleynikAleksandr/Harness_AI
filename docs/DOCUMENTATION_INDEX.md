@@ -145,6 +145,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
   `Term - Desired translation` entries, wired through the existing
   `GlossaryProtector` preferred-translation engine via a new wildcard target
   language.
+- `docs/evidence/provider-versions-card-localization-package-2026-07-01.md` —
+  packaged application rebuild evidence for localizing two hardcoded Russian
+  strings in the Claude/Codex/OpenCode Versions cards.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

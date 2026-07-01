@@ -137,6 +137,8 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Show Claude reasoning as a normal assistant message with a Thinking label.",
     "settings.provider.claude.thinking.enabled.description":
       "When enabled, Claude can use its adaptive thinking path for complex requests.",
+    "settings.provider.versions.autoUpdate.description":
+      "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below.",
     "settings.provider.codex.defaultModel.description":
       "Select which Codex model to use when starting new sessions. Each model stores its own reasoning effort level.",
     "settings.provider.codex.model.gpt-5.2.description":
@@ -219,6 +221,8 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
     "settings.localization.refreshing.description":
       "Harness AI is saving translated interface resources. Settings will be available again when this finishes.",
     "settings.localization.refreshing.title": "Updating localization",
+    "settings.provider.versions.warning":
+      "Warning: updating is at your own risk. New versions may be incompatible. Updating will close active sessions.",
     "session.empty": "Select or create a session.",
     "session.id.pending": "ID: pending...",
     "session.id.unavailable": "ID: unavailable",

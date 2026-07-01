@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase11.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app for provider versions card localization fix",
   "debt": null
 }
 ```
@@ -241,4 +241,30 @@
 
 32. [DONE] `harness-ai.phase9.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary preferred-translation entries`). Result: Completed in commit `chore(package): rebuild packaged app for glossary preferred-translation entries`.
 33. [DONE] Git Commit: `chore(package): rebuild packaged app for glossary preferred-translation entries` (hash: self)
-34. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` User retests: add a `Term - Desired translation` line to the glossary, click "Rebuild translations", confirm the running app shows the exact desired translation for that term instead of a generic machine translation (scope: user workflow; expected commit: none).
+34. [DONE] `harness-ai.phase9.stream1.task2` User retests: add a `Term - Desired translation` line to the glossary, click "Rebuild translations", confirm the running app shows the exact desired translation for that term instead of a generic machine translation (scope: user workflow; expected commit: none). Result: User confirmed (chat, 2026-07-01) — "Проверил, все в порядке, работает как я просил."
+
+## Phase 10 - Fix Hardcoded Russian Strings In Provider Versions Card (owner: Codex, updated: 2026-07-01)
+
+> User request (chat, 2026-07-01), with screenshots: in an otherwise-English
+> session, the Claude Versions, Codex Versions, and OpenCode Versions cards in
+> Settings each show a Russian warning banner and a Russian auto-update
+> toggle description, regardless of the configured UI language. Root cause
+> (confirmed in code): `ProviderVersionsCard`
+> (`provider-version-controls.tsx`) never imported
+> `useBrowserLocalization`/`t()` at all — the warning banner text and the
+> `SettingsToggle` `description` prop were hardcoded literal Russian strings
+> in JSX, so they rendered in Russian unconditionally, unlike every other
+> Settings card in this codebase.
+
+### Stream: Localize The Two Hardcoded Strings
+
+35. [DONE] `harness-ai.phase10.stream1.task1` Wire `ProviderVersionsCard` into the browser localization provider (`useBrowserLocalization`/`t()`, matching the pattern already used by sibling cards in this file's parent) and replace its two hardcoded Russian strings with `t()` calls backed by new approved English source strings: `settings.provider.versions.warning` (`messages_for_the_user`) for the update-risk banner, and `settings.provider.versions.autoUpdate.description` (`ui_helper_text`) for the auto-update toggle description. Scoped to only these two genuinely-broken strings; the component's other already-English strings (titles, "Loading version information...", version-row labels) are left as-is, matching this repo's existing convention of leaving some transient status strings unlocalized (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/provider-version-controls.tsx`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`, plus `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix(provider-settings-ui): localize hardcoded Russian strings in the provider versions card`). Result: Completed in commit `fix(provider-settings-ui): localize hardcoded Russian strings in the provider versions card`.
+36. [DONE] Git Commit: `fix(provider-settings-ui): localize hardcoded Russian strings in the provider versions card` (hash: self)
+
+## Phase 11 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
+
+### Stream: Package And Retest
+
+37. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for provider versions card localization fix`).
+38. [TODO] Git Commit: `chore(package): rebuild packaged app for provider versions card localization fix` (hash: TBD)
+39. [TODO] `harness-ai.phase11.stream1.task2` User retests: with UI Helper Text / Messages for the User set to English, the Claude/Codex/OpenCode Versions cards show the warning banner and auto-update description in English, not Russian (scope: user workflow; expected commit: none).

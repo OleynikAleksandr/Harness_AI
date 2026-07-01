@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
 export type UpdatableProviderId = "claude" | "codex" | "glmOpenCode";
@@ -36,6 +37,7 @@ export function ProviderVersionsCard({
   snapshot: null | ProviderVersionsSnapshot;
   updatingTargets: readonly string[];
 }) {
+  const { t } = useBrowserLocalization();
   const [pendingTarget, setPendingTarget] = useState<null | string>(null);
   let title = "OpenCode Versions";
   if (provider === "claude") {
@@ -65,13 +67,20 @@ export function ProviderVersionsCard({
       title={title}
     >
       <div className="settings-version-warning">
-        Предупреждение: Обновление выполняется на ваш страх и риск. Новые версии
-        могут быть несовместимы. Обновление закроет активные сеансы.
+        {t(
+          "messages_for_the_user",
+          "settings.provider.versions.warning",
+          "Warning: updating is at your own risk. New versions may be incompatible. Updating will close active sessions."
+        )}
       </div>
       {provider === "glmOpenCode" ? null : (
         <SettingsToggle
           checked={autoUpdate}
-          description="Автоматически проверять и обновлять CLI and SDK при запуске ядра. Ручные обновления доступны ниже."
+          description={t(
+            "ui_helper_text",
+            "settings.provider.versions.autoUpdate.description",
+            "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below."
+          )}
           label={`Auto-update ${provider === "claude" ? "Claude" : "Codex"}`}
           onChange={onAutoUpdateChange}
         />

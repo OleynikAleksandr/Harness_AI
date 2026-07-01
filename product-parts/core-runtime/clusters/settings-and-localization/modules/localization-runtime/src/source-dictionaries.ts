@@ -118,9 +118,9 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.localization.glossary.description":
       "Keep protected terms, provider names, and product vocabulary stable during localization.",
     "settings.localization.glossary.prefilled":
-      "File is prefilled with common terms such as: Harness AI, CodeAI Hub, Project Manager, Claude.",
+      "File is prefilled with do-not-translate terms such as: Harness AI, CodeAI Hub, Project Manager, Claude, plus translation examples such as: Pull Request - Пул-реквест.",
     "settings.localization.glossaryTerms.description":
-      "Open the glossary file in VS Code and edit one English term per line. The file is created automatically on first open and starts with common product and workflow terms.",
+      'Open the glossary file in VS Code. Write a term alone on a line to keep it untranslated, for example: Harness AI. Write "Term - Desired translation" to control exactly how a term is translated instead, for example: Pull Request - Пул-реквест. The file is created automatically on first open and starts with a few examples of both.',
     "settings.localization.workflowTerms":
       "`Workflow Terms` now follow `UI Labels`, and `Default Language (English)` is the reset state for every category.",
     "settings.provider.claude.defaultModel.description":

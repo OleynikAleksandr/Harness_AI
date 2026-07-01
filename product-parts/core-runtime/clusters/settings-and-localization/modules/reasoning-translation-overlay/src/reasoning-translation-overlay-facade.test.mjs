@@ -105,6 +105,7 @@ assert.deepEqual(
     messageId: "m1",
     sessionId: "s1",
     sourceHash: expectedHash,
+    sourceText,
     status: "translated",
     targetLanguage: "ru",
   }
@@ -182,6 +183,7 @@ assert.deepEqual(
     messageId: "m3",
     sessionId: "s1",
     sourceHash: expectedHash,
+    sourceText,
     status: "fallback",
     targetLanguage: "ru",
   }

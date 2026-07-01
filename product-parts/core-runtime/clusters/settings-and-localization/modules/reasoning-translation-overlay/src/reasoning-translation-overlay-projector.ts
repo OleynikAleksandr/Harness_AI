@@ -12,13 +12,9 @@ export class ReasoningTranslationOverlayProjector {
     messages: readonly T[],
     overlays: readonly ReasoningTranslationOverlayRecord[]
   ): T[] {
-    const overlayByMessageId = latestValidOverlayByMessageId(overlays);
     return messages.map((message) => {
-      const overlay = overlayByMessageId.get(message.id);
-      if (
-        !overlay ||
-        overlay.sourceHash !== createReasoningSourceHash(message.text)
-      ) {
+      const overlay = latestApplicableOverlay(message, overlays);
+      if (!overlay) {
         return message;
       }
       return { ...message, localizedContent: overlay.localizedContent };
@@ -26,21 +22,38 @@ export class ReasoningTranslationOverlayProjector {
   }
 }
 
-function latestValidOverlayByMessageId(
+function latestApplicableOverlay(
+  message: ReasoningTranslationProjectableMessage,
   overlays: readonly ReasoningTranslationOverlayRecord[]
-): Map<string, ReasoningTranslationOverlayRecord> {
-  const overlayByMessageId = new Map<
-    string,
-    ReasoningTranslationOverlayRecord
-  >();
-  for (const overlay of overlays) {
-    if (
-      overlay.status === "translated" &&
-      typeof overlay.localizedContent === "string" &&
-      overlay.localizedContent.trim().length > 0
-    ) {
-      overlayByMessageId.set(overlay.messageId, overlay);
+): ReasoningTranslationOverlayRecord | null {
+  for (let index = overlays.length - 1; index >= 0; index -= 1) {
+    const overlay = overlays[index];
+    if (overlay && isApplicableOverlay(message, overlay)) {
+      return overlay;
     }
   }
-  return overlayByMessageId;
+  return null;
+}
+
+function isApplicableOverlay(
+  message: ReasoningTranslationProjectableMessage,
+  overlay: ReasoningTranslationOverlayRecord
+): boolean {
+  return (
+    overlay.messageId === message.id &&
+    overlay.status === "translated" &&
+    typeof overlay.localizedContent === "string" &&
+    overlay.localizedContent.trim().length > 0 &&
+    (overlay.sourceHash === createReasoningSourceHash(message.text) ||
+      isPrefixSourceMatch(message.text, overlay.sourceText))
+  );
+}
+
+function isPrefixSourceMatch(
+  currentText: string,
+  overlaySourceText: string | undefined
+): boolean {
+  return Boolean(
+    overlaySourceText?.trim() && currentText.startsWith(overlaySourceText)
+  );
 }

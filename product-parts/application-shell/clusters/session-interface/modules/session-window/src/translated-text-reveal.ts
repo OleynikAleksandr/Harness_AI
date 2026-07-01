@@ -110,8 +110,25 @@ function appendUniqueMessage(
     return [...messages, message];
   }
   return messages.map((item, index) =>
-    index === existingIndex ? message : item
+    index === existingIndex ? mergeRepeatedMessage(item, message) : item
   );
+}
+
+function mergeRepeatedMessage(
+  previous: SessionMessage,
+  next: SessionMessage
+): SessionMessage {
+  if (
+    isThinkingMessage(previous) &&
+    isThinkingMessage(next) &&
+    previous.localizedContent?.trim() &&
+    !next.localizedContent?.trim() &&
+    next.translationState === "pending" &&
+    next.text.startsWith(previous.text)
+  ) {
+    return { ...next, localizedContent: previous.localizedContent };
+  }
+  return next;
 }
 
 function withLocalizedContent(

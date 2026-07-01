@@ -13,9 +13,11 @@ the Settings localization snapshot, marks eligible visible reasoning as
 `translationState: "pending"`, hashes the source text, and dispatches the
 translation request through Provider Runtime translation engines.
 `ReasoningTranslationOverlayStore` appends overlay records under the workspace
-session sidecar directory, and `ReasoningTranslationOverlayProjector` applies
-only translated overlays whose stored source hash still matches the current
-message text.
+session sidecar directory, including the translated source text for new records.
+`ReasoningTranslationOverlayProjector` applies translated overlays whose stored
+source hash still matches the current message text, and keeps the latest
+translated prefix visible while a growing reasoning message is waiting for its
+next translation.
 
 ## Inputs
 
@@ -28,6 +30,7 @@ message text.
 - Translated reasoning overlay.
 - Translation pending/error state.
 - Source hash used by later projection to ignore stale overlays.
+- Prefix-stable projection for growing reasoning streams.
 
 ## Owned Paths
 

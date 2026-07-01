@@ -63,6 +63,7 @@ try {
       messageId: "m1",
       sessionId: "s1",
       sourceHash: createReasoningSourceHash("old text"),
+      sourceText: "old text",
       status: "translated",
       targetLanguage: "ru",
     },
@@ -76,6 +77,7 @@ try {
       messageId: "m1",
       sessionId: "s1",
       sourceHash,
+      sourceText,
       status: "translated",
       targetLanguage: "ru",
     },
@@ -103,6 +105,7 @@ try {
     projector.projectMessages(
       [
         { id: "m1", text: sourceText },
+        { id: "m1", text: `${sourceText} Next block is still pending.` },
         { id: "m2", text: "Fallback" },
         { id: "m3", text: "No overlay" },
       ],
@@ -113,6 +116,11 @@ try {
         id: "m1",
         localizedContent: "Сначала проверю текущий план.",
         text: sourceText,
+      },
+      {
+        id: "m1",
+        localizedContent: "Сначала проверю текущий план.",
+        text: `${sourceText} Next block is still pending.`,
       },
       { id: "m2", text: "Fallback" },
       { id: "m3", text: "No overlay" },

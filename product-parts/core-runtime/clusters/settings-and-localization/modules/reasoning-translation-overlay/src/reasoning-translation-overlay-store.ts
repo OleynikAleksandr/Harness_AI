@@ -76,6 +76,8 @@ function parseOverlayRecord(
       typeof value.messageId === "string" &&
       typeof value.sessionId === "string" &&
       typeof value.sourceHash === "string" &&
+      (typeof value.sourceText === "undefined" ||
+        typeof value.sourceText === "string") &&
       (value.status === "fallback" || value.status === "translated") &&
       typeof value.targetLanguage === "string"
     ) {

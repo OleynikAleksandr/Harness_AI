@@ -49,6 +49,7 @@ export interface ReasoningTranslationOverlay {
   readonly messageId: string;
   readonly sessionId: string;
   readonly sourceHash: string;
+  readonly sourceText?: string;
   readonly status: "fallback" | "translated";
   readonly targetLanguage: string;
 }
@@ -195,6 +196,7 @@ export class ReasoningTranslationOverlayFacade {
       result,
       sessionId: request.sessionId,
       sourceHash,
+      sourceText: request.sourceText,
     });
   }
 
@@ -293,6 +295,7 @@ function createOverlay(options: {
   readonly result: ProviderTranslationResult;
   readonly sessionId: string;
   readonly sourceHash: string;
+  readonly sourceText: string;
 }): ReasoningTranslationOverlay {
   const localizedContent =
     options.result.status === "translated" && options.result.finalText.trim()
@@ -307,6 +310,7 @@ function createOverlay(options: {
     messageId: options.messageId,
     sessionId: options.sessionId,
     sourceHash: options.sourceHash,
+    sourceText: options.sourceText,
     status: localizedContent ? "translated" : "fallback",
     targetLanguage: options.result.targetLanguage,
   };

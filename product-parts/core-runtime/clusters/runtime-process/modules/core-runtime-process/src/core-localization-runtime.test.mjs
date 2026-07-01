@@ -23,5 +23,8 @@ assert.match(
   source,
   /ui_labels: firstText\(\s*categories\.uiInterface,\s*categories\.uiLabels,\s*categories\.workflowTerms\s*\)/u
 );
-assert.match(source, /new ProviderTranslationEnginesFacade\(\)/u);
+assert.match(
+  source,
+  /new ProviderTranslationEnginesFacade\(\{\s*engines: createProviderTranslationEngines\(/u
+);
 assert.match(apiSource, /materializeCoreLocalizationRuntimePayload\(/u);

@@ -2,6 +2,10 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { ProviderTranslationEnginesFacade } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";
 import {
+  createProviderTranslationEngines,
+  type OpenRouterTranslationEnginesConfig,
+} from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-factory.js";
+import {
   LocalizationRuntimeFacade,
   type LocalizationRuntimePayload,
   type LocalizationRuntimeSettingsSnapshot,
@@ -24,7 +28,11 @@ export async function materializeCoreLocalizationRuntimePayload(
       sourceTerm,
     })),
     localizationRootDirectory,
-    translationFacade: new ProviderTranslationEnginesFacade(),
+    translationFacade: new ProviderTranslationEnginesFacade({
+      engines: createProviderTranslationEngines(
+        resolveOpenRouterTranslationEnginesConfig(settings)
+      ),
+    }),
   }).materializeRuntimePayload(
     resolveCoreLocalizationRuntimeSettings(settings)
   );
@@ -73,6 +81,18 @@ export function resolveCoreLocalizationRuntimeSettings(
     defaultLanguage: firstText(localization.defaultLanguage) || "en",
     uiEngineId: firstText(localization.uiEngineId, localization.engineId),
     workflowTermsPolicy: localization.workflowTermsPolicy,
+  };
+}
+
+export function resolveOpenRouterTranslationEnginesConfig(
+  settings: HarnessSettings
+): OpenRouterTranslationEnginesConfig {
+  const openRouter = settings.providers.openRouter;
+  return {
+    apiKey: openRouter.apiKey,
+    baseUrl: openRouter.baseUrl,
+    reasoningTranslation: openRouter.translationProfiles.reasoningTranslation,
+    uiTranslation: openRouter.translationProfiles.uiTranslation,
   };
 }
 

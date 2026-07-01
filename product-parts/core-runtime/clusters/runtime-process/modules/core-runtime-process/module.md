@@ -42,7 +42,12 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - Localization runtime bootstrap payloads are materialized through Core RPC into
   the Harness home `Localization` directory, using Core settings category
   mapping and provider-owned translation engines so browser clients render
-  Core-owned localization state instead of deriving it locally.
+  Core-owned localization state instead of deriving it locally. The engine set
+  passed to the provider translation facade is built from the saved OpenRouter
+  connection and `uiTranslation`/`reasoningTranslation` profiles (via
+  `createProviderTranslationEngines`), so a configured OpenRouter model is
+  available whenever the UI Translation Engine setting selects it, alongside
+  the always-available `google-gtx` engine.
 - Dynamic renderer text that cannot be part of static source dictionaries, such
   as OpenRouter model descriptions returned by provider search, is translated by
   the `translate-dynamic-text` Core RPC. The RPC uses the saved Reasoning

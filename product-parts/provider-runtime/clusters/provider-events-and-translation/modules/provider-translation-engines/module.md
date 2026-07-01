@@ -10,6 +10,24 @@ adapter and response parser. It uses GET for short requests, POST form transport
 for longer payloads, and returns fallback results instead of throwing on
 transport or parse failures.
 
+The `OpenRouterTranslationEngine` issues a lean, non-streaming OpenRouter chat
+completion call (one system instruction plus the source text) and returns the
+assistant reply as the translated text, with the same fail-closed fallback
+behavior as `google-gtx` on transport, auth, or empty-response failures. It
+never performs tool calls or session/agentic behavior — it is a pure
+request/response translation transport.
+
+`provider-translation-engines-factory.ts` builds the registered engine set
+(`createProviderTranslationEngines`) from an OpenRouter connection
+(`apiKey`/`baseUrl`) plus the `uiTranslation`/`reasoningTranslation` profile
+configs (`model`/`endpointTag`). Each configured profile registers its own
+engine id (`openrouter-ui-translation`, `openrouter-reasoning-translation`) so
+the UI Translation Engine and Reasoning Translation Engine selections resolve
+independently. A profile whose model is still the unset placeholder
+(`openrouter-default`) is skipped — no OpenRouter engine is registered for it.
+Callers hold the current settings snapshot (this module never reads settings
+itself) and pass the relevant connection/profile config in.
+
 ## Public Facade
 
 `ProviderTranslationEnginesFacade`
@@ -19,6 +37,9 @@ transport or parse failures.
 - Translation request with explicit source and target languages.
 - Optional explicit provider/model translation engine id.
 - Registered provider translation engines.
+- For `createProviderTranslationEngines`: OpenRouter connection
+  (`apiKey`/`baseUrl`) and `uiTranslation`/`reasoningTranslation` profile
+  configs (`model`/`endpointTag`) supplied by the caller's settings snapshot.
 
 ## Outputs
 

@@ -52,7 +52,9 @@ also run here so the Application Shell remains UI/supervisor/client only.
   as OpenRouter model descriptions returned by provider search, is translated by
   the `translate-dynamic-text` Core RPC. The RPC uses the saved Reasoning
   Translation Engine and the `reasoning` localization category language, keeping
-  translation execution inside Core/provider-owned boundaries.
+  translation execution inside Core/provider-owned boundaries. Its engine set
+  is also built through `createProviderTranslationEngines`, so a configured
+  OpenRouter reasoning translation model resolves here too.
 - The category mapping follows the settings controls that users see in General:
   `uiInterface` feeds `ui_labels`, `userGuidance` feeds `ui_helper_text`, and
   `systemFeedback` feeds `messages_for_the_user`.

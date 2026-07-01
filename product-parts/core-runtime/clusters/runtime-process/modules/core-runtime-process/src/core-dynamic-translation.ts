@@ -1,5 +1,7 @@
 import { ProviderTranslationEnginesFacade } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";
+import { createProviderTranslationEngines } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-factory.js";
 import type { HarnessSettings } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { resolveOpenRouterTranslationEnginesConfig } from "./core-localization-runtime.js";
 
 export async function translateDynamicCoreText(params: {
   readonly category?: string;
@@ -21,7 +23,11 @@ export async function translateDynamicCoreText(params: {
     return { ok: true, status: "skipped", text: params.text };
   }
   try {
-    const result = await new ProviderTranslationEnginesFacade().translate({
+    const result = await new ProviderTranslationEnginesFacade({
+      engines: createProviderTranslationEngines(
+        resolveOpenRouterTranslationEnginesConfig(params.settings)
+      ),
+    }).translate({
       category: params.category?.trim() || "reasoning",
       engineId: localization.reasoningEngineId,
       sourceLanguage: "en",

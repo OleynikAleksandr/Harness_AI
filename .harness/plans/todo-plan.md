@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app for glossary copy and reasoning terminology fix",
   "debt": null
 }
 ```
@@ -179,4 +179,35 @@
 
 20. [DONE] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for rebuild-translations action`). Result: Completed in commit `chore(package): rebuild packaged app for rebuild-translations action`.
 21. [DONE] Git Commit: `chore(package): rebuild packaged app for rebuild-translations action` (hash: self)
-22. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none).
+22. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none). Note: user moved on to two new requests (chat, 2026-07-01) below before confirming this retest; left open/unconfirmed rather than marked DONE.
+
+## Phase 6 - Glossary Copy Accuracy And Reasoning Terminology (owner: Codex, updated: 2026-07-01)
+
+> User request (chat, 2026-07-01), two items:
+> 1. The Settings glossary helper text example terms ("Project Manager,
+>    Description, CODEX_HOME, questionnaire.md.") are leftover CodeAI Hub
+>    reference-app vocabulary and no longer match the actual seeded terms in
+>    `user-glossary-store.ts` ("Harness AI, CodeAI Hub, Project Manager,
+>    Claude, Codex, VS Code, TypeScript, Markdown") — flagged during the
+>    Phase 1 audit, user now confirmed it should be fixed.
+> 2. User asked what "assistant bubble" / "Reasoning bubbles" means in two
+>    Settings description strings, and pointed out that generic machine
+>    translation renders "bubble(s)" literally as Russian "пузыри" (soap
+>    bubbles), which reads wrong/confusing. "Bubble" is UI-implementation
+>    jargon for a chat message's rounded container, not user-facing
+>    terminology the description needs; reword the English source text to
+>    "message(s)" instead of protecting "bubble" in the glossary, since the
+>    latter would leave the English word stranded mid-Russian-sentence.
+
+### Stream: Fix Stale Reference Copy And Awkward Machine-Translation Wording
+
+23. [DONE] `harness-ai.phase6.stream1.task1` In `source-dictionaries.ts`: (a) update `settings.localization.glossary.prefilled` from the stale CodeAI Hub example terms to real examples drawn from `SEEDED_PRESERVE_TERMS` (`Harness AI, CodeAI Hub, Project Manager, Claude`); (b) reword the three approved strings that use "bubble(s)" — `settings.localization.category.reasoning.description`, `settings.provider.claude.thinking.dialog.description`, `settings.provider.openCode.reasoning.dialog.description` — replacing "bubble"/"bubbles" with "message"/"messages" (meaning is unchanged; avoids the literal, confusing machine-translation into Russian "пузыри"). Pure copy/text-content fix, no behavior or contract change, so the commit uses `[skip-docs]` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`; expected commit: `fix(localization-runtime): correct stale glossary example terms and reword bubble to message for cleaner machine translation [skip-docs]`). Result: Completed in commit `fix(localization-runtime): correct stale glossary example terms and reword bubble to message for cleaner machine translation [skip-docs]`.
+24. [DONE] Git Commit: `fix(localization-runtime): correct stale glossary example terms and reword bubble to message for cleaner machine translation [skip-docs]` (hash: self)
+
+## Phase 7 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
+
+### Stream: Package And Retest
+
+25. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`).
+26. [TODO] Git Commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix` (hash: TBD)
+27. [TODO] `harness-ai.phase7.stream1.task2` User retests: Settings glossary helper text shows the real seeded example terms, and the Reasoning category / Claude / OpenCode thinking descriptions read naturally when translated to Russian (no literal "пузыри") (scope: user workflow; expected commit: none).

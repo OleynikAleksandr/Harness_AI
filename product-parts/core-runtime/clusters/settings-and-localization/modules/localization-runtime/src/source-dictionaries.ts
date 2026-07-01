@@ -110,7 +110,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.localization.category.messages.description":
       "Warnings, errors, hints, status updates, and other messages addressed to the user.",
     "settings.localization.category.reasoning.description":
-      "Visible Thinking and Reasoning bubbles emitted by the provider during a turn. Hidden reasoning is never translated.",
+      "Visible Thinking and Reasoning messages emitted by the provider during a turn. Hidden reasoning is never translated.",
     "settings.localization.category.uiHelperText.description":
       "Short interface explanations and helper copy that clarifies labels and settings.",
     "settings.localization.category.uiLabels.description":
@@ -118,7 +118,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.localization.glossary.description":
       "Keep protected terms, provider names, and product vocabulary stable during localization.",
     "settings.localization.glossary.prefilled":
-      "File is prefilled with common terms such as: Project Manager, Description, CODEX_HOME, questionnaire.md.",
+      "File is prefilled with common terms such as: Harness AI, CodeAI Hub, Project Manager, Claude.",
     "settings.localization.glossaryTerms.description":
       "Open the glossary file in VS Code and edit one English term per line. The file is created automatically on first open and starts with common product and workflow terms.",
     "settings.localization.workflowTerms":
@@ -134,7 +134,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.provider.claude.newSessions.note":
       "Applies only to newly created Claude sessions.",
     "settings.provider.claude.thinking.dialog.description":
-      "Show Claude reasoning as a normal assistant bubble with a Thinking label.",
+      "Show Claude reasoning as a normal assistant message with a Thinking label.",
     "settings.provider.claude.thinking.enabled.description":
       "When enabled, Claude can use its adaptive thinking path for complex requests.",
     "settings.provider.codex.defaultModel.description":
@@ -179,7 +179,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.provider.openCode.model.kimi-for-coding/k2p7.description":
       "Kimi for Coding selector",
     "settings.provider.openCode.reasoning.dialog.description":
-      "Show OpenCode reasoning as a normal assistant bubble in the dialog.",
+      "Show OpenCode reasoning as a normal assistant message in the dialog.",
     "settings.provider.openRouter.description":
       "Uses OpenRouter chat completions with an exact model slug.",
     "settings.openRouter.defaultRouting.description": "default routing",

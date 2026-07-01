@@ -8,8 +8,8 @@
   "planId": "openrouter-translation-engines-2026-07-01",
   "branch": "claude/silly-tesla-92349d",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app for localization bundle cache engine-key fix",
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -162,6 +162,6 @@
 
 ### Stream: Package And Retest
 
-16. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for localization bundle cache engine-key fix`).
-17. [TODO] Git Commit: `chore(package): rebuild packaged app for localization bundle cache engine-key fix` (hash: TBD)
-18. [TODO] `harness-ai.phase4.stream1.task2` User retests that switching UI/Reasoning Translation Engine while keeping the same target language triggers a fresh translation (spinner appears, content changes) in the packaged app (scope: user workflow; expected commit: none).
+16. [DONE] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for localization bundle cache engine-key fix`). Result: Completed in commit `chore(package): rebuild packaged app for localization bundle cache engine-key fix`.
+17. [DONE] Git Commit: `chore(package): rebuild packaged app for localization bundle cache engine-key fix` (hash: self)
+18. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` User retests that switching UI/Reasoning Translation Engine while keeping the same target language triggers a fresh translation (spinner appears, content changes) in the packaged app (scope: user workflow; expected commit: none).

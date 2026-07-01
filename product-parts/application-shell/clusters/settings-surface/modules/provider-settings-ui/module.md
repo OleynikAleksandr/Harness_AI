@@ -85,6 +85,11 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Shared native select controls commit both `input` and `change` events so
   language/category selections immediately mark the Settings draft dirty and
   enable Save Changes.
+- The Localization "Open glossary file" action calls the Core
+  `ensureGlossaryFile` bridge method first (which creates the do-not-translate
+  glossary file with seeded terms if it does not exist yet) and opens the
+  real returned path in VS Code; it no longer guesses a path under the open
+  workspace, so the facade no longer needs a `workspacePath` prop.
 
 ## Reasoning Effort Select
 

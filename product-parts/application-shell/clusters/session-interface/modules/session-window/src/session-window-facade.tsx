@@ -370,7 +370,6 @@ export function SessionWindowFacade() {
           isOpen={isSettingsOpen}
           onClose={closeSettings}
           onLocalizationRuntimeRefresh={refreshLocalizationPayload}
-          workspacePath={activeWorkspace.path}
         />
 
         {isNextSessionModeOpen ? (

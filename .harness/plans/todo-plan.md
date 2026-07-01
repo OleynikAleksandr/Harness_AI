@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream3.task1",
-  "expectedCommitMessage": "fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path",
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app for glossary open-file fix",
   "debt": null
 }
 ```
@@ -113,13 +113,13 @@
 
 ### Stream: Renderer Button Fix
 
-5. [IN_PROGRESS] `harness-ai.phase1.stream3.task1` Fix `openGlossary()` in `settings-surface-facade.tsx` to call `window.harnessCore.ensureGlossaryFile()` first and open the real returned `filePath` via `vscode://file/<filePath>:1:1` instead of the fabricated workspace-relative path, handling the `{ error, ok: false }` branch without a native alert (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path`).
-6. [TODO] Git Commit: `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path` (hash: TBD)
+5. [DONE] `harness-ai.phase1.stream3.task1` Fix `openGlossary()` in `settings-surface-facade.tsx` to call `window.harnessCore.ensureGlossaryFile()` first and open the real returned `filePath` via `vscode://file/<filePath>:1:1` instead of the fabricated workspace-relative path, surfacing the `{ error, ok: false }` branch through the existing `setStatus` feedback line instead of a native alert; this removes the component's only use of the `workspacePath` prop, so it is dropped from `ProviderSettingsUiFacadeProps` and from the caller in `session-window-facade.tsx` (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path`). Result: Completed in commit `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path`.
+6. [DONE] Git Commit: `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path` (hash: self)
 
 ## Phase 2 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
 
 ### Stream: Package And Retest
 
-7. [TODO] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary open-file fix`).
+7. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary open-file fix`).
 8. [TODO] Git Commit: `chore(package): rebuild packaged app for glossary open-file fix` (hash: TBD)
 9. [TODO] `harness-ai.phase2.stream1.task2` User retests "Open glossary file" in the packaged app: the button opens the real, auto-created `do-not-translate-terms.txt` in VS Code with seeded terms, no native error dialog (scope: user workflow; expected commit: none).

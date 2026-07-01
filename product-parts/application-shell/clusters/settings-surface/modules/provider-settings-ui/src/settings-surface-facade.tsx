@@ -10,14 +10,12 @@ interface ProviderSettingsUiFacadeProps {
   isOpen: boolean;
   onClose: () => void;
   onLocalizationRuntimeRefresh: () => Promise<void>;
-  workspacePath: string;
 }
 
 export function ProviderSettingsUiFacade({
   isOpen,
   onClose,
   onLocalizationRuntimeRefresh,
-  workspacePath,
 }: ProviderSettingsUiFacadeProps) {
   const { t } = useBrowserLocalization();
   const [activeTab, setActiveTab] = useState<SettingsTabId>("claude");
@@ -225,9 +223,20 @@ export function ProviderSettingsUiFacade({
     setBusy(false);
   };
 
-  const openGlossary = () => {
-    const glossaryPath = `${workspacePath}/.harness/settings/localization-glossary.txt`;
-    window.open(`vscode://file/${glossaryPath}:1:1`, "_blank", "noreferrer");
+  const openGlossary = async () => {
+    if (!window.harnessCore) {
+      return;
+    }
+    const result = await window.harnessCore.ensureGlossaryFile();
+    if (result.ok) {
+      window.open(
+        `vscode://file/${result.filePath}:1:1`,
+        "_blank",
+        "noreferrer"
+      );
+      return;
+    }
+    setStatus(result.error);
   };
 
   const updateProvider = async (

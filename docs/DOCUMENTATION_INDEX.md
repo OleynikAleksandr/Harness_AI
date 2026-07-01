@@ -140,6 +140,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   — packaged application rebuild evidence for correcting stale CodeAI Hub
   glossary example terms and rewording "bubble" to "message" in reasoning
   description copy for cleaner machine translation.
+- `docs/evidence/localization-glossary-preferred-translation-package-2026-07-01.md`
+  — packaged application rebuild evidence for glossary
+  `Term - Desired translation` entries, wired through the existing
+  `GlossaryProtector` preferred-translation engine via a new wildcard target
+  language.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app for glossary preferred-translation entries",
+  "currentTaskId": "harness-ai.phase9.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -239,6 +239,6 @@
 
 ### Stream: Package And Retest
 
-32. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary preferred-translation entries`).
-33. [TODO] Git Commit: `chore(package): rebuild packaged app for glossary preferred-translation entries` (hash: TBD)
-34. [TODO] `harness-ai.phase9.stream1.task2` User retests: add a `Term - Desired translation` line to the glossary, click "Rebuild translations", confirm the running app shows the exact desired translation for that term instead of a generic machine translation (scope: user workflow; expected commit: none).
+32. [DONE] `harness-ai.phase9.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary preferred-translation entries`). Result: Completed in commit `chore(package): rebuild packaged app for glossary preferred-translation entries`.
+33. [DONE] Git Commit: `chore(package): rebuild packaged app for glossary preferred-translation entries` (hash: self)
+34. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` User retests: add a `Term - Desired translation` line to the glossary, click "Rebuild translations", confirm the running app shows the exact desired translation for that term instead of a generic machine translation (scope: user workflow; expected commit: none).

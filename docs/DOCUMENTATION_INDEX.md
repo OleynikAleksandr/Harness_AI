@@ -122,6 +122,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/reasoning-translation-reveal-package-2026-07-01.md` —
   packaged application rebuild evidence for preventing translated reasoning
   reveal animation from restarting on growing batches.
+- `docs/evidence/openrouter-translation-engines-package-2026-07-01.md` —
+  packaged application rebuild evidence for the OpenRouter-backed UI/Reasoning
+  Translation Engine options in General Settings.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

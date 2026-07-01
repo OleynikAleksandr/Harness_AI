@@ -8,8 +8,8 @@
   "planId": "openrouter-translation-engines-2026-07-01",
   "branch": "claude/silly-tesla-92349d",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app for OpenRouter translation engine verification",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -131,6 +131,6 @@
 
 ### Stream: Package And Retest
 
-11. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification`).
-12. [TODO] Git Commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification` (hash: TBD)
-13. [TODO] `harness-ai.phase2.stream1.task2` User retests OpenRouter-backed UI/Reasoning Translation Engine selection in the packaged app (scope: user workflow; expected commit: none).
+11. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification`). Result: Completed in commit `chore(package): rebuild packaged app for OpenRouter translation engine verification`.
+12. [DONE] Git Commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification` (hash: self)
+13. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests OpenRouter-backed UI/Reasoning Translation Engine selection in the packaged app (scope: user workflow; expected commit: none).

@@ -99,14 +99,20 @@ export function ReferenceGeneralSettings({
   coreRestartBusy,
   coreRestartStatus,
   onOpenGlossary,
+  onRebuildTranslations,
   onRestartCore,
+  rebuildTranslationsBusy,
+  rebuildTranslationsStatus,
   settings,
   update,
 }: {
   coreRestartBusy: boolean;
   coreRestartStatus: string;
   onOpenGlossary: () => void;
+  onRebuildTranslations: () => void;
   onRestartCore: () => void;
+  rebuildTranslationsBusy: boolean;
+  rebuildTranslationsStatus: string;
   settings: HarnessSettings;
   update: (mutator: (next: HarnessSettings) => void) => void;
 }) {
@@ -230,6 +236,9 @@ export function ReferenceGeneralSettings({
           <GlossaryCard
             enabled={localization.glossaryEnabled}
             onOpen={onOpenGlossary}
+            onRebuild={onRebuildTranslations}
+            rebuildBusy={rebuildTranslationsBusy}
+            rebuildStatus={rebuildTranslationsStatus}
             t={t}
           />
           {CATEGORY_FIELDS.map((category) => (
@@ -251,10 +260,16 @@ export function ReferenceGeneralSettings({
 function GlossaryCard({
   enabled,
   onOpen,
+  onRebuild,
+  rebuildBusy,
+  rebuildStatus,
   t,
 }: {
   enabled: boolean;
   onOpen: () => void;
+  onRebuild: () => void;
+  rebuildBusy: boolean;
+  rebuildStatus: string;
   t: ReturnType<typeof useBrowserLocalization>["t"];
 }) {
   return (
@@ -286,13 +301,36 @@ function GlossaryCard({
               "Glossary protection is disabled. Terms may be translated."
             )}
       </div>
-      <SettingsButton onClick={onOpen} variant="primary">
-        {t(
-          "ui_labels",
-          "settings.localization.openGlossary",
-          "Open glossary file"
-        )}
-      </SettingsButton>
+      <div className="settings-core-row">
+        <SettingsButton onClick={onOpen} variant="primary">
+          {t(
+            "ui_labels",
+            "settings.localization.openGlossary",
+            "Open glossary file"
+          )}
+        </SettingsButton>
+        <SettingsButton disabled={rebuildBusy} onClick={onRebuild}>
+          {rebuildBusy ? (
+            <>
+              <span aria-hidden="true" className="settings-spinner" />
+              {t(
+                "messages_for_the_user",
+                "settings.localization.rebuilding",
+                "Rebuilding translations..."
+              )}
+            </>
+          ) : (
+            t(
+              "ui_labels",
+              "settings.localization.rebuildTranslations",
+              "Rebuild translations"
+            )
+          )}
+        </SettingsButton>
+        {rebuildStatus ? (
+          <span className="settings-core-status">{rebuildStatus}</span>
+        ) : null}
+      </div>
       <p className="settings-control-description mono">
         {t(
           "ui_helper_text",

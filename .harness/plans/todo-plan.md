@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream4.task1",
-  "expectedCommitMessage": "feat(provider-settings-ui): add Rebuild translations button next to Open glossary file",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app for rebuild-translations action",
   "debt": null
 }
 ```
@@ -170,13 +170,13 @@
 
 ### Stream: Renderer Button
 
-18. [IN_PROGRESS] `harness-ai.phase4.stream4.task1` Add busy/status state and a handler in `settings-surface-facade.tsx` (`rebuildTranslations()`: calls `window.harnessCore.rebuildLocalization()`, then on success calls the existing `onLocalizationRuntimeRefresh()` so the running UI picks up the fresh translations immediately, surfacing errors through the same status mechanism used elsewhere), thread the new props through `settings-tab-content.tsx`, and render a second `SettingsButton` ("Rebuild translations", with a `settings-spinner` + status text while busy) inside the same `.settings-core-row` as "Open glossary file" in `GlossaryCard` (`settings-reference-general.tsx`) (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx`, plus `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `feat(provider-settings-ui): add Rebuild translations button next to Open glossary file`).
-19. [TODO] Git Commit: `feat(provider-settings-ui): add Rebuild translations button next to Open glossary file` (hash: TBD)
+18. [DONE] `harness-ai.phase4.stream4.task1` Add busy/status state and a handler in `settings-surface-facade.tsx` (`rebuildTranslations()`: calls `window.harnessCore.rebuildLocalization()`, then on success calls the existing `onLocalizationRuntimeRefresh()` so the running UI picks up the fresh translations immediately, surfacing errors through the same status mechanism used elsewhere), thread the new props through `settings-tab-content.tsx`, and render a second `SettingsButton` ("Rebuild translations", with a `settings-spinner` + status text while busy) inside the same `.settings-core-row` as "Open glossary file" in `GlossaryCard` (`settings-reference-general.tsx`) (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx`, plus `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `feat(provider-settings-ui): add Rebuild translations button next to Open glossary file`). Result: Completed in commit `feat(provider-settings-ui): add Rebuild translations button next to Open glossary file`.
+19. [DONE] Git Commit: `feat(provider-settings-ui): add Rebuild translations button next to Open glossary file` (hash: self)
 
 ## Phase 5 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
 
 ### Stream: Package And Retest
 
-20. [TODO] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for rebuild-translations action`).
+20. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for rebuild-translations action`).
 21. [TODO] Git Commit: `chore(package): rebuild packaged app for rebuild-translations action` (hash: TBD)
 22. [TODO] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none).

@@ -33,11 +33,14 @@ interface SettingsTabContentProps {
   coreRestartStatus: string;
   localModels: readonly string[];
   onOpenGlossary: () => void;
+  onRebuildTranslations: () => void;
   onRestartCore: () => void;
   onUpdateProvider: (
     provider: UpdatableProviderId,
     target: VersionTarget
   ) => void;
+  rebuildTranslationsBusy: boolean;
+  rebuildTranslationsStatus: string;
   settings: HarnessSettings;
   update: (mutator: (next: HarnessSettings) => void) => void;
   versionError: null | string;
@@ -51,9 +54,12 @@ export function SettingsTabContent({
   coreRestartBusy,
   coreRestartStatus,
   onOpenGlossary,
+  onRebuildTranslations,
   onRestartCore,
   onUpdateProvider,
   localModels,
+  rebuildTranslationsBusy,
+  rebuildTranslationsStatus,
   settings,
   update,
   versionError,
@@ -68,7 +74,10 @@ export function SettingsTabContent({
         coreRestartBusy={coreRestartBusy}
         coreRestartStatus={coreRestartStatus}
         onOpenGlossary={onOpenGlossary}
+        onRebuildTranslations={onRebuildTranslations}
         onRestartCore={onRestartCore}
+        rebuildTranslationsBusy={rebuildTranslationsBusy}
+        rebuildTranslationsStatus={rebuildTranslationsStatus}
         settings={settings}
         update={update}
       />

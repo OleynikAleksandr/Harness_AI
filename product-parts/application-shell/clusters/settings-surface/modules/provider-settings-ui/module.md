@@ -90,6 +90,17 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   glossary file with seeded terms if it does not exist yet) and opens the
   real returned path in VS Code; it no longer guesses a path under the open
   workspace, so the facade no longer needs a `workspacePath` prop.
+- A "Rebuild translations" button sits next to "Open glossary file" in the
+  same row (`GlossaryCard`, `.settings-core-row`) so editing the glossary
+  file directly (outside Settings Save) has a way to take effect. It calls
+  the Core `rebuildLocalization` bridge method, which forces a full
+  retranslation ignoring the localization bundle cache (glossary content is
+  not part of that cache key), then calls the parent-provided localization
+  runtime refresh callback so the running app picks up fresh translations
+  immediately. The button shows a `settings-spinner` and localized
+  "Rebuilding translations..." label while busy; the row's status span shows
+  the plain-English result/error afterward, matching the Restart App row's
+  status convention.
 
 ## Reasoning Effort Select
 

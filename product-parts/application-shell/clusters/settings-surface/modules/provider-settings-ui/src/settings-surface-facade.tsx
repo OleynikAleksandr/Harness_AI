@@ -23,6 +23,9 @@ export function ProviderSettingsUiFacade({
   const [dirty, setDirty] = useState(false);
   const [coreRestartBusy, setCoreRestartBusy] = useState(false);
   const [coreRestartStatus, setCoreRestartStatus] = useState("");
+  const [rebuildTranslationsBusy, setRebuildTranslationsBusy] = useState(false);
+  const [rebuildTranslationsStatus, setRebuildTranslationsStatus] =
+    useState("");
   const [settings, setSettings] = useState<HarnessSettings | null>(null);
   const [status, setStatus] = useState("Settings are ready.");
   const [versionError, setVersionError] = useState<null | string>(null);
@@ -239,6 +242,41 @@ export function ProviderSettingsUiFacade({
     setStatus(result.error);
   };
 
+  const rebuildTranslations = async () => {
+    if (!window.harnessCore) {
+      return;
+    }
+    setRebuildTranslationsBusy(true);
+    setRebuildTranslationsStatus(
+      t(
+        "messages_for_the_user",
+        "settings.localization.rebuilding",
+        "Rebuilding translations..."
+      )
+    );
+    try {
+      const result = await window.harnessCore.rebuildLocalization();
+      if (result.ok) {
+        await onLocalizationRuntimeRefresh();
+        setRebuildTranslationsStatus(
+          t(
+            "messages_for_the_user",
+            "settings.localization.rebuilt",
+            "Translations rebuilt."
+          )
+        );
+        return;
+      }
+      setRebuildTranslationsStatus(result.error);
+    } catch (error) {
+      setRebuildTranslationsStatus(
+        toErrorMessage(error, "Translations rebuild failed.")
+      );
+    } finally {
+      setRebuildTranslationsBusy(false);
+    }
+  };
+
   const updateProvider = async (
     provider: "claude" | "codex" | "glmOpenCode",
     target: "cli" | "sdk"
@@ -318,8 +356,11 @@ export function ProviderSettingsUiFacade({
                 }
                 localModels={localModels}
                 onOpenGlossary={openGlossary}
+                onRebuildTranslations={rebuildTranslations}
                 onRestartCore={restartApp}
                 onUpdateProvider={updateProvider}
+                rebuildTranslationsBusy={rebuildTranslationsBusy}
+                rebuildTranslationsStatus={rebuildTranslationsStatus}
                 settings={settings}
                 update={update}
                 versionError={versionError}

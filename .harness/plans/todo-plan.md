@@ -8,8 +8,8 @@
   "planId": "reasoning-translation-prefix-stability-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "Record translated reasoning stream package evidence",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -56,6 +56,6 @@
 
 ### Stream: Package And Retest
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record translated reasoning stream package evidence`).
-4. [TODO] Git Commit: `Record translated reasoning stream package evidence` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` User retests the implemented translated reasoning workflow in the packaged app (scope: user workflow; expected commit: none).
+3. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `Record translated reasoning stream package evidence`). Result: Completed in commit `Record translated reasoning stream package evidence`.
+4. [DONE] Git Commit: `Record translated reasoning stream package evidence` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the implemented translated reasoning workflow in the packaged app (scope: user workflow; expected commit: none).

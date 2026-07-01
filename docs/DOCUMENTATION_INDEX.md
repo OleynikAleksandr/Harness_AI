@@ -116,6 +116,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/sonnet-alias-description-package-2026-06-30.md` — packaged
   application rebuild evidence for removing the stale concrete Claude Sonnet
   model id from Settings helper copy.
+- `docs/evidence/reasoning-translation-prefix-package-2026-07-01.md` —
+  packaged application rebuild evidence for translated reasoning prefix
+  stability in growing provider streams.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

@@ -13,6 +13,14 @@ const entrySource = readFileSync(
   new URL("./core-runtime-process-entry.ts", import.meta.url),
   "utf8"
 );
+const lifecycleSource = readFileSync(
+  new URL("./core-provider-lifecycle.ts", import.meta.url),
+  "utf8"
+);
+const adapterRegistrationSource = readFileSync(
+  new URL("./core-provider-adapter-registration.ts", import.meta.url),
+  "utf8"
+);
 
 assert.match(source, /"\/api\/v1\/health"/u);
 assert.match(source, /"\/api\/v1\/status"/u);
@@ -23,13 +31,13 @@ assert.match(source, /createServer/u);
 assert.match(source, /options\.onShutdown\?\.\(\)/u);
 assert.match(source, /process\.env\.CORE_PORT/u);
 assert.match(source, /text\/event-stream/u);
-assert.match(apiSource, /new ClaudeProviderFacade/u);
-assert.match(apiSource, /new CodexProviderFacade/u);
-assert.match(apiSource, /providerRegistryFacade\.clearAdapters/u);
-assert.match(apiSource, /providerReadinessRegistryFacade\.subscribe/u);
-assert.match(apiSource, /type: "provider:status"/u);
+assert.match(adapterRegistrationSource, /new ClaudeProviderFacade/u);
+assert.match(adapterRegistrationSource, /new CodexProviderFacade/u);
+assert.match(lifecycleSource, /providerRegistryFacade\.clearAdapters/u);
+assert.match(lifecycleSource, /providerReadinessRegistryFacade\.subscribe/u);
+assert.match(lifecycleSource, /type: "provider:status"/u);
 assert.doesNotMatch(
-  apiSource,
+  lifecycleSource,
   /sessionEventStreamFacade\.publish\(\{\s+payload:\s+\{\s+providerId/u
 );
 assert.match(apiSource, /sessionRequestHandlerFacade\.createSession/u);

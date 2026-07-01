@@ -11,7 +11,7 @@ const source = readFileSync(
 const coreRuntimeSource = readFileSync(
   join(
     moduleDir,
-    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts"
+    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-adapter-registration.ts"
   ),
   "utf8"
 );

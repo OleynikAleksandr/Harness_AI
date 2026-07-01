@@ -9,7 +9,7 @@ const facadeSource = readFileSync(
 );
 const coreRuntimeSource = readFileSync(
   new URL(
-    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts",
+    "../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-adapter-registration.ts",
     moduleDir
   ),
   "utf8"

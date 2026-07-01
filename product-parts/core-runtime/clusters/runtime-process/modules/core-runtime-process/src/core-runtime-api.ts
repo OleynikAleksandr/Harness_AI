@@ -1,19 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { ClaudeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
-import { CodexProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
-import { GlmNativeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/glm-native-provider-facade.js";
-import { GlmOpenCodeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/src/glm-opencode-provider-facade.js";
-import { KimiProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
-import { LocalModelsProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-provider/src/local-models-provider-facade.js";
-import { OpenRouterProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/openrouter-provider/src/openrouter-provider-facade.js";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
-import { providerLivenessCheckerFacade } from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-liveness-checker/src/provider-liveness-checker-facade.js";
-import {
-  type ProviderReadinessRawChange,
-  providerReadinessRegistryFacade,
-} from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-readiness-registry/src/provider-readiness-registry-facade.js";
 import { providerWorkspaceProvisionerFacade } from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.js";
 import {
   type ProviderId,
@@ -36,24 +24,17 @@ import { translateDynamicCoreText } from "./core-dynamic-translation.js";
 import { ensureCoreGlossaryFileRpcResult } from "./core-glossary-rpc.js";
 import { materializeCoreLocalizationRuntimePayload } from "./core-localization-runtime.js";
 import {
+  type CoreEventListener,
+  CoreProviderLifecycle,
+  PROVIDER_IDS,
+} from "./core-provider-lifecycle.js";
+import {
   installLatestGlobalPackage,
   loadLocalModels,
   loadProviderVersions,
   resolveProviderPackage,
   updateProviderCli,
 } from "./core-provider-tools.js";
-
-type CoreEventListener = (event: unknown) => void;
-
-const PROVIDER_IDS: ProviderId[] = [
-  "claude",
-  "codex",
-  "kimi",
-  "glm-native",
-  "glm-opencode",
-  "openrouter",
-  "local-models",
-];
 
 const WORKSPACE_REGISTRY_FILE = join(
   process.env.HARNESS_AI_HOME || join(homedir(), ".harness-ai"),
@@ -62,17 +43,16 @@ const WORKSPACE_REGISTRY_FILE = join(
 
 export class CoreRuntimeApi {
   private initialized = false;
-  private readonly providerStatusListeners = new Set<CoreEventListener>();
-  private readinessUnsubscribe: (() => void) | null = null;
+  private readonly providerLifecycle = new CoreProviderLifecycle();
 
   initialize(): void {
     if (this.initialized) {
       return;
     }
     this.restoreState();
-    this.registerProviderAdapters();
-    this.subscribeProviderReadiness();
-    this.startProviderLivenessPreflight();
+    this.providerLifecycle.registerAdapters();
+    this.providerLifecycle.subscribeReadiness();
+    this.providerLifecycle.startLivenessPreflight();
     this.startWorkspaceProvisioning();
     sessionRequestHandlerFacade.resumeRestoredSessions();
     this.initialized = true;
@@ -80,10 +60,11 @@ export class CoreRuntimeApi {
 
   subscribe(listener: CoreEventListener): () => void {
     const unsubscribeSession = sessionEventStreamFacade.subscribe(listener);
-    this.providerStatusListeners.add(listener);
+    const unsubscribeProviderStatus =
+      this.providerLifecycle.addStatusListener(listener);
     return () => {
       unsubscribeSession();
-      this.providerStatusListeners.delete(listener);
+      unsubscribeProviderStatus();
     };
   }
 
@@ -181,7 +162,7 @@ export class CoreRuntimeApi {
     const workspace = workspaceRegistryFacade.addWorkspace(workspacePath);
     workspaceRegistryFacade.selectWorkspace(workspace.id);
     saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
-    this.registerProviderAdapters();
+    this.providerLifecycle.registerAdapters();
     this.startWorkspaceProvisioning();
     return { ok: true, workspace };
   }
@@ -192,7 +173,7 @@ export class CoreRuntimeApi {
     try {
       const workspace = workspaceRegistryFacade.selectWorkspace(workspaceId);
       saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
-      this.registerProviderAdapters();
+      this.providerLifecycle.registerAdapters();
       this.startWorkspaceProvisioning();
       return { ok: true, workspace };
     } catch (error) {
@@ -260,7 +241,7 @@ export class CoreRuntimeApi {
       providerId,
       readRecord(request?.settings) ?? {}
     );
-    this.registerProviderAdapter(providerId);
+    this.providerLifecycle.registerAdapter(providerId);
     return { ok: true, settings };
   }
 
@@ -268,7 +249,7 @@ export class CoreRuntimeApi {
     const settings = settingsStoreFacade.resetWorkspaceSettings(
       this.activeWorkspacePath()
     );
-    this.registerProviderAdapters();
+    this.providerLifecycle.registerAdapters();
     return { ok: true, settings };
   }
 
@@ -284,7 +265,7 @@ export class CoreRuntimeApi {
     if (settingsStoreFacade.shouldSyncLocalization(previous, settings)) {
       await materializeCoreLocalizationRuntimePayload(settings);
     }
-    this.registerProviderAdapters();
+    this.providerLifecycle.registerAdapters();
     return { ok: true, settings };
   }
 
@@ -304,7 +285,7 @@ export class CoreRuntimeApi {
         );
         await installLatestGlobalPackage(packageName);
       }
-      this.registerProviderAdapters();
+      this.providerLifecycle.registerAdapters();
       return { ok: true, versions: await loadProviderVersions() };
     } catch (error) {
       return { error: describeError(error), ok: false };
@@ -316,7 +297,7 @@ export class CoreRuntimeApi {
     providers: unknown;
     settings: unknown;
   } {
-    this.registerProviderAdapters();
+    this.providerLifecycle.registerAdapters();
     return {
       ok: true,
       providers: providerRegistryFacade.listProviders(),
@@ -324,91 +305,8 @@ export class CoreRuntimeApi {
     };
   }
 
-  private registerProviderAdapters(): void {
-    this.syncProviderReadinessWorkspace();
-    providerRegistryFacade.clearAdapters();
-    for (const providerId of PROVIDER_IDS) {
-      this.registerProviderAdapter(providerId);
-    }
-  }
-
-  private registerProviderAdapter(providerId: ProviderId): void {
-    const workspacePath = this.activeWorkspacePath();
-    const model =
-      settingsStoreFacade.getProviderModel(providerId, workspacePath)
-        .selectedModel ?? providerAuthStoreFacade.getModel(providerId);
-    if (providerId === "claude") {
-      providerRegistryFacade.registerAdapter(
-        providerId,
-        new ClaudeProviderFacade(model, workspacePath)
-      );
-    }
-    if (providerId === "codex") {
-      providerRegistryFacade.registerAdapter(
-        providerId,
-        new CodexProviderFacade({ defaultModel: model, workspacePath })
-      );
-    }
-    if (providerId === "kimi") {
-      providerRegistryFacade.registerAdapter(
-        providerId,
-        new KimiProviderFacade(model, workspacePath)
-      );
-    }
-    if (providerId === "glm-native") {
-      providerRegistryFacade.registerAdapter(
-        providerId,
-        new GlmNativeProviderFacade(model, workspacePath)
-      );
-    }
-    if (providerId === "glm-opencode") {
-      providerRegistryFacade.registerAdapter(
-        providerId,
-        new GlmOpenCodeProviderFacade(model, workspacePath)
-      );
-    }
-    if (providerId === "openrouter") {
-      providerRegistryFacade.registerAdapter(
-        providerId,
-        new OpenRouterProviderFacade(model ?? undefined)
-      );
-    }
-    if (providerId === "local-models") {
-      providerRegistryFacade.registerAdapter(
-        providerId,
-        new LocalModelsProviderFacade(model ?? undefined)
-      );
-    }
-  }
-
   private activeWorkspacePath(): string {
     return workspaceRegistryFacade.getActiveWorkspace().path;
-  }
-
-  private publishProviderStatus(providerId: string): void {
-    const workspace = workspaceRegistryFacade.getActiveWorkspace();
-    const readiness = providerReadinessRegistryFacade.combine(
-      providerId,
-      workspace.id
-    );
-    const event = {
-      payload: {
-        providerId,
-        workspaceId: workspace.id,
-        ...readiness,
-      },
-      timestamp: new Date().toISOString(),
-      type: "provider:status",
-    };
-    for (const listener of this.providerStatusListeners) {
-      listener(event);
-    }
-  }
-
-  private startProviderLivenessPreflight(): void {
-    providerLivenessCheckerFacade
-      .checkProviders(PROVIDER_IDS)
-      .catch(() => undefined);
   }
 
   private startWorkspaceProvisioning(): void {
@@ -419,34 +317,6 @@ export class CoreRuntimeApi {
         workspacePath: workspace.path,
       })
       .catch(() => undefined);
-  }
-
-  private subscribeProviderReadiness(): void {
-    if (this.readinessUnsubscribe) {
-      return;
-    }
-    this.readinessUnsubscribe = providerReadinessRegistryFacade.subscribe(
-      (change) => this.handleProviderReadinessChange(change)
-    );
-  }
-
-  private handleProviderReadinessChange(
-    change: ProviderReadinessRawChange
-  ): void {
-    const activeWorkspace = workspaceRegistryFacade.getActiveWorkspace();
-    if (
-      change.scope === "provisioning" &&
-      change.workspaceId !== activeWorkspace.id
-    ) {
-      return;
-    }
-    this.publishProviderStatus(change.providerId);
-  }
-
-  private syncProviderReadinessWorkspace(): void {
-    providerRegistryFacade.setReadinessWorkspace(
-      workspaceRegistryFacade.getActiveWorkspace().id
-    );
   }
 }
 

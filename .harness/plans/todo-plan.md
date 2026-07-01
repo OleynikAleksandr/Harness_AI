@@ -8,7 +8,7 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -122,4 +122,18 @@
 
 7. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary open-file fix`). Result: Completed in commit `chore(package): rebuild packaged app for glossary open-file fix`.
 8. [DONE] Git Commit: `chore(package): rebuild packaged app for glossary open-file fix` (hash: self)
-9. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests "Open glossary file" in the packaged app: the button opens the real, auto-created `do-not-translate-terms.txt` in VS Code with seeded terms, no native error dialog (scope: user workflow; expected commit: none).
+9. [DONE] `harness-ai.phase2.stream1.task2` User retests "Open glossary file" in the packaged app: the button opens the real, auto-created `do-not-translate-terms.txt` in VS Code with seeded terms, no native error dialog (scope: user workflow; expected commit: none). Result: User confirmed (chat, 2026-07-01) — "Glossary protection заработал нормально!" User then asked how to make an edited glossary actually retranslate; this is the new work in Phase 3+ below.
+
+## Phase 3 - Core Runtime Api Architecture Split (owner: Codex, updated: 2026-07-01)
+
+### Stream: Split Provider Lifecycle Out Of CoreRuntimeApi
+
+> Discovered while starting the "Rebuild translations" feature: `core-runtime-api.ts`
+> was already at 499/500 lines after the Phase 1 `ensure-glossary-file` addition,
+> so the next new RPC case would have pushed it over the 500-line implementation
+> file cap again. User directed (chat, 2026-07-01): whenever a class in this
+> module approaches 500 lines, split it into two documents by functionality
+> instead of doing further ad hoc line-shaving.
+
+10. [DONE] `harness-ai.phase3.stream1.task1` Split `CoreRuntimeApi` (`core-runtime-api.ts`) by responsibility: keep RPC dispatch (`invoke()`) plus workspace/session/settings handling in `CoreRuntimeApi`, and move provider adapter registration + provider readiness event publishing (previously `registerProviderAdapters`/`registerProviderAdapter`/`publishProviderStatus`/`startProviderLivenessPreflight`/`subscribeProviderReadiness`/`handleProviderReadinessChange`/`syncProviderReadinessWorkspace`, plus the `providerStatusListeners`/`readinessUnsubscribe` state) into a new `CoreProviderLifecycle` class in `core-provider-lifecycle.ts`; the per-provider adapter instantiation switch itself becomes a plain `registerProviderAdapterInstance()` function in a new `core-provider-adapter-registration.ts` (already extracted while investigating the line-count block). `CoreRuntimeApi` now holds a `providerLifecycle` instance and delegates to it. Result: `core-runtime-api.ts` shrank from 499 to 369 lines; `core-provider-lifecycle.ts` is 111 lines and `core-provider-adapter-registration.ts` is 60 lines, both well under the cap. Updated 7 static-source regression tests (`core-runtime-process-facade.test.mjs` plus the claude/kimi/glm-native/glm-opencode/local-models/openrouter provider facade tests) that asserted specific literal code (e.g. `new ClaudeProviderFacade(model, workspacePath)`, `providerRegistryFacade.clearAdapters`, `type: "provider:status"`) existed in `core-runtime-api.ts`, to instead check the file each assertion's target code actually moved to (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-lifecycle.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-adapter-registration.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-facade.test.mjs`, plus the 6 provider facade test files' path-only updates, and `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `refactor(core-runtime-process): split provider adapter lifecycle out of CoreRuntimeApi to stay under the 500-line file cap`). Result: Completed in commit `refactor(core-runtime-process): split provider adapter lifecycle out of CoreRuntimeApi to stay under the 500-line file cap`.
+11. [DONE] Git Commit: `refactor(core-runtime-process): split provider adapter lifecycle out of CoreRuntimeApi to stay under the 500-line file cap` (hash: self)

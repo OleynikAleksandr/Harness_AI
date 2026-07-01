@@ -64,6 +64,15 @@ also run here so the Application Shell remains UI/supervisor/client only.
   not already exist, and returns its resolved path so a client can open it in
   an external editor. It returns `{ ok: true, filePath }` on success or
   `{ ok: false, error }` if the filesystem operation fails.
+- `CoreRuntimeApi` (`core-runtime-api.ts`) owns only RPC dispatch plus
+  workspace/session/settings handling to stay under the 500-line implementation
+  file cap. Provider adapter registration and provider readiness event
+  publishing are a separate cohesive responsibility, split into
+  `CoreProviderLifecycle` (`core-provider-lifecycle.ts`); the per-provider
+  adapter instantiation switch itself is a plain function in
+  `core-provider-adapter-registration.ts`. `CoreRuntimeApi` holds a
+  `providerLifecycle` instance and delegates to it instead of registering
+  adapters or handling readiness itself.
 
 ## Owned Paths
 

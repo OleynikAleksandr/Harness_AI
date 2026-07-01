@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const PLAN_PATH = ".harness/plans/todo-plan.md";
@@ -293,7 +293,7 @@ if (invokedDirectly) {
       validatePlan();
       console.log("Plan validation: OK");
     } else if (command === "validate-commit-message") {
-      validateCommitMessage(join(process.cwd(), args[0] ?? ""));
+      validateCommitMessage(resolve(args[0] ?? ""));
     } else if (command === "commit") {
       commit(args.join(" ").trim());
     } else if (command === "archive") {

@@ -10,10 +10,15 @@ Owns session metadata, next-session mode truth, append-only JSONL history, provi
 - `session-request-handler`
 - `provider-session-binding`
 - `session-event-stream`
-- `session-history-store`
-- `turn-lifecycle`
 - `session-snapshot-projector`
 - `session-reasoning-display`
+
+`session-history-store` and `turn-lifecycle` were scaffolded as `module.md`-only
+placeholders early in the project and never implemented; they were removed
+from the product tree (2026-07-01) rather than kept as unimplemented debt.
+Append-only JSONL history writing and running/idle/failure turn state
+currently live inside `session-request-handler`. Re-add dedicated modules here
+if that responsibility is split out again.
 
 ## Facade Rule
 

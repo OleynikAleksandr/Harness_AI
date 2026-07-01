@@ -2,14 +2,16 @@
 
 ## Boundary
 
-Owns workspace registry, product tree storage, skeleton materialization, and file-link contracts.
+Owns the workspace registry: known workspaces and active workspace selection.
+
+Product tree storage, skeleton materialization, and file-link contracts were
+scaffolded as `module.md`-only placeholders early in the project and never
+implemented; they were removed from the product tree (2026-07-01) rather than
+kept as unimplemented debt. Re-add them here if that work is picked up again.
 
 ## Owned Modules
 
 - `workspace-registry`
-- `product-tree-store`
-- `workspace-skeleton-materializer`
-- `workspace-link-contract`
 
 ## Facade Rule
 

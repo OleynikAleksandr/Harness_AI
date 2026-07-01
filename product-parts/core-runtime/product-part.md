@@ -12,9 +12,15 @@ contracts, not through direct module imports.
 - `runtime-process`
 - `workspace-architecture`
 - `session-runtime`
-- `development-orchestrator`
-- `intent-normalization`
 - `settings-and-localization`
+
+`development-orchestrator` and `intent-normalization` were scaffolded as
+`module.md`-only cluster placeholders early in the project and never
+implemented; they were removed from the product tree (2026-07-01) rather than
+kept as unimplemented debt. Plan-first lifecycle and quality gates run today
+through `scripts/*.mjs` and `.husky/**` (see `AGENTS.md`), not a dedicated
+Core Runtime cluster. Re-add a cluster here if either responsibility moves
+into `product-parts/**` as real module code.
 
 ## Responsibilities
 
@@ -23,7 +29,7 @@ contracts, not through direct module imports.
 - Own provider adapter registration and provider session binding.
 - Expose Core RPC and event-stream contracts consumed by Application Shell.
 - Own provider CLI/version tooling and local-model discovery requests.
-- Run plan-first development orchestration and quality gates.
+- Run plan-first development orchestration and quality gates (via `scripts/*.mjs` and `.husky/**`).
 - Coordinate providers through Provider Runtime facades.
 - Normalize visible provider reasoning before it reaches UI snapshots.
 - Promote provider session ids emitted by provider runtimes so Core keeps the authoritative binding for later turns.

@@ -8,7 +8,6 @@ The machine source of truth is `.harness/product-tree/product-tree.json`. This M
 - Every Product Part contains Clusters; every Cluster contains Modules.
 - Every module exposes one public facade boundary when implementation starts.
 - CodeAI Hub is reference material only. Do not copy modules wholesale.
-- The Intent Normalization cluster is scaffolded for MVP architecture, but it is not wired into the session turn path until direct provider sessions work.
 
 ## Application Shell
 
@@ -50,9 +49,6 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 ### Workspace Architecture
 
 - `workspace-registry`: known workspaces and active workspace selection.
-- `product-tree-store`: product-tree JSON and Markdown projection.
-- `workspace-skeleton-materializer`: creates filesystem structure from the approved product tree.
-- `workspace-link-contract`: emits file-link targets for Application Shell.
 
 ### Session Runtime
 
@@ -60,23 +56,8 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `session-request-handler`: Core-owned create/resume/send/stop routing, provider dispatch, and next-session mode truth for session actions.
 - `provider-session-binding`: Core session to provider session id and binding state.
 - `session-event-stream`: provider-neutral Core session events for Application Shell projections.
-- `session-history-store`: append-only JSONL history.
-- `turn-lifecycle`: running/idle/failure state, Stop/Continue boundaries.
 - `session-snapshot-projector`: read model for the Electron session UI.
 - `session-reasoning-display`: projects provider-visible reasoning/thinking into Core dialog messages.
-
-### Development Orchestrator
-
-- `plan-orchestrator`: plan-first lifecycle and recovery state.
-- `git-transaction-manager`: git init, automatic commits, clean-tree checks.
-- `task-scope-guard`: Product Part / Cluster / Module ownership and file-scope checks.
-- `quality-gate-runner`: post-skeleton quality commands and hooks.
-
-### Intent Normalization
-
-- `intent-envelope-contract`: normalized request schema.
-- `normalizer-provider-runner`: calls a chosen provider/model for normalization.
-- `execution-envelope-validator`: validates normalized output before executor dispatch.
 
 ### Settings And Localization
 
@@ -115,7 +96,6 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 
 - `provider-home-manager`: isolated provider home layout.
 - `provider-auth-store`: API keys/auth references outside tracked workspace files.
-- `provider-runtime-files`: runtime caches/logs ignored from workspace truth.
 
 ### Provider Events And Translation
 

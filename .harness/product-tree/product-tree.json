@@ -129,21 +129,6 @@
               "id": "workspace-registry",
               "name": "Workspace Registry",
               "purpose": "Known workspaces and active workspace selection."
-            },
-            {
-              "id": "product-tree-store",
-              "name": "Product Tree Store",
-              "purpose": "Read and write product-tree JSON plus Markdown projection."
-            },
-            {
-              "id": "workspace-skeleton-materializer",
-              "name": "Workspace Skeleton Materializer",
-              "purpose": "Create filesystem structure from the approved product tree."
-            },
-            {
-              "id": "workspace-link-contract",
-              "name": "Workspace Link Contract",
-              "purpose": "Emit file-link targets for the Application Shell."
             }
           ]
         },
@@ -173,16 +158,6 @@
               "purpose": "Provider-neutral Core session events for Application Shell projections."
             },
             {
-              "id": "session-history-store",
-              "name": "Session History Store",
-              "purpose": "Append-only JSONL session history."
-            },
-            {
-              "id": "turn-lifecycle",
-              "name": "Turn Lifecycle",
-              "purpose": "Running/idle/failure state and Stop/Continue boundaries."
-            },
-            {
               "id": "session-snapshot-projector",
               "name": "Session Snapshot Projector",
               "purpose": "Read model for the Electron session UI."
@@ -191,56 +166,6 @@
               "id": "session-reasoning-display",
               "name": "Session Reasoning Display",
               "purpose": "Project provider-visible reasoning/thinking into Core dialog messages."
-            }
-          ]
-        },
-        {
-          "id": "development-orchestrator",
-          "name": "Development Orchestrator",
-          "purpose": "Plan-first lifecycle, commits, scope guards, and quality gates.",
-          "modules": [
-            {
-              "id": "plan-orchestrator",
-              "name": "Plan Orchestrator",
-              "purpose": "Plan-first lifecycle and recovery state."
-            },
-            {
-              "id": "git-transaction-manager",
-              "name": "Git Transaction Manager",
-              "purpose": "Git init, automatic commits, and clean-tree checks."
-            },
-            {
-              "id": "task-scope-guard",
-              "name": "Task Scope Guard",
-              "purpose": "Product Part / Cluster / Module ownership and file-scope checks."
-            },
-            {
-              "id": "quality-gate-runner",
-              "name": "Quality Gate Runner",
-              "purpose": "Post-skeleton quality commands and hooks."
-            }
-          ]
-        },
-        {
-          "id": "intent-normalization",
-          "name": "Intent Normalization",
-          "purpose": "Normalized request envelopes for future executor dispatch.",
-          "mvpStatus": "planned-not-wired",
-          "modules": [
-            {
-              "id": "intent-envelope-contract",
-              "name": "Intent Envelope Contract",
-              "purpose": "Normalized request schema."
-            },
-            {
-              "id": "normalizer-provider-runner",
-              "name": "Normalizer Provider Runner",
-              "purpose": "Call a chosen provider/model for normalization."
-            },
-            {
-              "id": "execution-envelope-validator",
-              "name": "Execution Envelope Validator",
-              "purpose": "Validate normalized output before executor dispatch."
             }
           ]
         },
@@ -379,11 +304,6 @@
               "id": "provider-auth-store",
               "name": "Provider Auth Store",
               "purpose": "API keys and auth references outside tracked workspace files."
-            },
-            {
-              "id": "provider-runtime-files",
-              "name": "Provider Runtime Files",
-              "purpose": "Runtime caches/logs ignored from workspace truth."
             }
           ]
         },

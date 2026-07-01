@@ -8,7 +8,13 @@ Owns isolated provider homes, API key/auth references, and ignored runtime files
 
 - `provider-home-manager`
 - `provider-auth-store`
-- `provider-runtime-files`
+
+`provider-runtime-files` was scaffolded as a `module.md`-only placeholder early
+in the project and never implemented; it was removed from the product tree
+(2026-07-01) rather than kept as unimplemented debt. Isolating provider
+runtime caches/logs inside each provider home is covered by
+`provider-home-manager`'s home layout ownership. Re-add a dedicated module here
+if that responsibility is split out again.
 
 ## Facade Rule
 

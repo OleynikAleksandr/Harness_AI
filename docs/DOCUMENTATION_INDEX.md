@@ -132,6 +132,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild evidence for fixing the Settings "Open glossary
   file" action to create and open the real Core-owned do-not-translate
   glossary file instead of a nonexistent workspace path.
+- `docs/evidence/localization-rebuild-translations-package-2026-07-01.md` —
+  packaged application rebuild evidence for the Settings "Rebuild
+  translations" action that forces retranslation ignoring the localization
+  bundle cache, plus the related `CoreRuntimeApi` provider lifecycle split.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

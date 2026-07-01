@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app for rebuild-translations action",
+  "currentTaskId": "harness-ai.phase5.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -177,6 +177,6 @@
 
 ### Stream: Package And Retest
 
-20. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for rebuild-translations action`).
-21. [TODO] Git Commit: `chore(package): rebuild packaged app for rebuild-translations action` (hash: TBD)
-22. [TODO] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none).
+20. [DONE] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for rebuild-translations action`). Result: Completed in commit `chore(package): rebuild packaged app for rebuild-translations action`.
+21. [DONE] Git Commit: `chore(package): rebuild packaged app for rebuild-translations action` (hash: self)
+22. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none).

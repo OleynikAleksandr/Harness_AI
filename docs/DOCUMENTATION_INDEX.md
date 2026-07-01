@@ -128,6 +128,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/localization-bundle-cache-engine-key-package-2026-07-01.md` —
   packaged application rebuild evidence for invalidating the localization
   bundle cache when the translation engine changes.
+- `docs/evidence/localization-glossary-open-file-package-2026-07-01.md` —
+  packaged application rebuild evidence for fixing the Settings "Open glossary
+  file" action to create and open the real Core-owned do-not-translate
+  glossary file instead of a nonexistent workspace path.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

@@ -8,8 +8,8 @@
   "planId": "openrouter-translation-engines-2026-07-01",
   "branch": "claude/silly-tesla-92349d",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task4",
-  "expectedCommitMessage": "feat(provider-settings-ui): surface configured OpenRouter translation models in General Settings",
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app for OpenRouter translation engine verification",
   "debt": null
 }
 ```
@@ -124,13 +124,13 @@
 7. [DONE] `harness-ai.phase1.stream1.task3` Extend the live reasoning-overlay translation path so `reasoningEngineId` resolution can reach the configured OpenRouter reasoning translation model, building the engine set per call instead of at singleton construction time. While wiring this, relocated `resolveOpenRouterTranslationEnginesConfig` from `core-runtime-process` (a `runtime-process` cluster module) to `settings-store-facade.ts` (`settings-and-localization` cluster) — `session-request-handler` already depends on `settings-and-localization` for settings/reasoning-overlay, and having it depend on `runtime-process` instead would be the first reverse-direction cluster dependency in Core Runtime (today only `runtime-process` depends on `session-runtime`, never the other way) (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-dynamic-translation.ts`, `product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, plus `module.md` updates for `settings-store`, `reasoning-translation-overlay`, and `session-request-handler`; expected commit: `feat(reasoning-translation-overlay): route live reasoning translation through configured OpenRouter engine`). Result: Completed in commit `feat(reasoning-translation-overlay): route live reasoning translation through configured OpenRouter engine`.
 8. [DONE] Git Commit: `feat(reasoning-translation-overlay): route live reasoning translation through configured OpenRouter engine` (hash: self)
 
-9. [IN_PROGRESS] `harness-ai.phase1.stream1.task4` Add the OpenRouter option (slug-labeled, hidden while its profile model is the unset placeholder) to the General Settings `UI Translation Engine` and `Reasoning Translation Engine` dropdowns (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `feat(provider-settings-ui): surface configured OpenRouter translation models in General Settings`).
-10. [TODO] Git Commit: `feat(provider-settings-ui): surface configured OpenRouter translation models in General Settings` (hash: TBD)
+9. [DONE] `harness-ai.phase1.stream1.task4` Add the OpenRouter option (slug-labeled, hidden while its profile model is the unset placeholder) to the General Settings `UI Translation Engine` and `Reasoning Translation Engine` dropdowns (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `feat(provider-settings-ui): surface configured OpenRouter translation models in General Settings`). Result: Completed in commit `feat(provider-settings-ui): surface configured OpenRouter translation models in General Settings`.
+10. [DONE] Git Commit: `feat(provider-settings-ui): surface configured OpenRouter translation models in General Settings` (hash: self)
 
 ## Phase 2 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
 
 ### Stream: Package And Retest
 
-11. [TODO] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification`).
+11. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification`).
 12. [TODO] Git Commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification` (hash: TBD)
 13. [TODO] `harness-ai.phase2.stream1.task2` User retests OpenRouter-backed UI/Reasoning Translation Engine selection in the packaged app (scope: user workflow; expected commit: none).

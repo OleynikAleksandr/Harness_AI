@@ -42,10 +42,18 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - The Localization UI Translation Engine select reads and writes Core-owned
   `general.localization.uiEngineId`; the legacy `engineId` alias is only kept in
   sync for settings normalization compatibility.
-- Localization translation engine selects show only engines registered in the
-  current Harness runtime. OpenRouter/Codex/Claude localization engines are not
-  displayed until their provider-backed translation engines exist in
-  `ProviderTranslationEnginesFacade`.
+- The UI Translation Engine and Reasoning Translation Engine selects always
+  offer `Google GTX Free`. Each select additionally offers an
+  `OpenRouter (<model slug>)` option, sourced from
+  `providers.openRouter.translationProfiles.{uiTranslation,reasoningTranslation}.model`,
+  once that profile has a real model selected in the OpenRouter Profiles cards
+  (`settings-tab-content.tsx`); while a profile still holds the unset
+  placeholder `openrouter-default`, its select shows only Google GTX Free. The
+  option label shows the raw model slug, not a fetched display name. Selecting
+  `openrouter-ui-translation` / `openrouter-reasoning-translation` routes that
+  category's Core translation calls through
+  `createProviderTranslationEngines`' matching OpenRouter engine (see
+  `provider-translation-engines/module.md`).
 - Settings shell copy, provider tab labels, and the first shared provider-card
   labels/helpers resolve through the browser localization provider and approved
   source dictionary ids.

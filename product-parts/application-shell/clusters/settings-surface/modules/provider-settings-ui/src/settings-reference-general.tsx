@@ -24,9 +24,27 @@ const LANGUAGE_OPTIONS = [
   { label: "French (fr)", messageId: "language.fr", value: "fr" },
 ] as const;
 
-const TRANSLATION_ENGINE_OPTIONS = [
-  { label: "Google GTX Free", value: "google-gtx" },
-] as const;
+const GOOGLE_GTX_OPTION = {
+  label: "Google GTX Free",
+  value: "google-gtx",
+} as const;
+const OPENROUTER_UNSET_MODEL = "openrouter-default";
+const OPENROUTER_UI_ENGINE_ID = "openrouter-ui-translation";
+const OPENROUTER_REASONING_ENGINE_ID = "openrouter-reasoning-translation";
+
+function buildTranslationEngineOptions(
+  openRouterModel: string,
+  openRouterEngineId: string
+): readonly { label: string; value: string }[] {
+  const model = openRouterModel.trim();
+  if (!model || model === OPENROUTER_UNSET_MODEL) {
+    return [GOOGLE_GTX_OPTION];
+  }
+  return [
+    GOOGLE_GTX_OPTION,
+    { label: `OpenRouter (${model})`, value: openRouterEngineId },
+  ];
+}
 
 const CATEGORY_FIELDS: readonly {
   description: string;
@@ -99,7 +117,15 @@ export function ReferenceGeneralSettings({
     label: t("ui_labels", option.messageId, option.label),
     value: option.value,
   }));
-  const translationEngineOptions = TRANSLATION_ENGINE_OPTIONS;
+  const translationProfiles = settings.providers.openRouter.translationProfiles;
+  const uiTranslationEngineOptions = buildTranslationEngineOptions(
+    translationProfiles.uiTranslation.model,
+    OPENROUTER_UI_ENGINE_ID
+  );
+  const reasoningTranslationEngineOptions = buildTranslationEngineOptions(
+    translationProfiles.reasoningTranslation.model,
+    OPENROUTER_REASONING_ENGINE_ID
+  );
 
   return (
     <div className="settings-reference-stack">
@@ -166,7 +192,7 @@ export function ReferenceGeneralSettings({
                 next.general.localization.engineId = engineId;
               })
             }
-            options={translationEngineOptions}
+            options={uiTranslationEngineOptions}
             value={localization.uiEngineId}
           />
           <SettingsSelect
@@ -180,7 +206,7 @@ export function ReferenceGeneralSettings({
                 next.general.localization.reasoningEngineId = reasoningEngineId;
               })
             }
-            options={translationEngineOptions}
+            options={reasoningTranslationEngineOptions}
             value={localization.reasoningEngineId}
           />
           <SettingsToggle

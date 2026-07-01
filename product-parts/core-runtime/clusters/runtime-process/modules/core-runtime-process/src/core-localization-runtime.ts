@@ -1,16 +1,14 @@
 import { homedir } from "node:os";
 import path from "node:path";
 import { ProviderTranslationEnginesFacade } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";
-import {
-  createProviderTranslationEngines,
-  type OpenRouterTranslationEnginesConfig,
-} from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-factory.js";
+import { createProviderTranslationEngines } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-factory.js";
 import {
   LocalizationRuntimeFacade,
   type LocalizationRuntimePayload,
   type LocalizationRuntimeSettingsSnapshot,
   UserGlossaryStore,
 } from "../../../../settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js";
+import { resolveOpenRouterTranslationEnginesConfig } from "../../../../settings-and-localization/modules/settings-store/src/settings-openrouter-translation-config.js";
 import type { HarnessSettings } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 
 export async function materializeCoreLocalizationRuntimePayload(
@@ -81,18 +79,6 @@ export function resolveCoreLocalizationRuntimeSettings(
     defaultLanguage: firstText(localization.defaultLanguage) || "en",
     uiEngineId: firstText(localization.uiEngineId, localization.engineId),
     workflowTermsPolicy: localization.workflowTermsPolicy,
-  };
-}
-
-export function resolveOpenRouterTranslationEnginesConfig(
-  settings: HarnessSettings
-): OpenRouterTranslationEnginesConfig {
-  const openRouter = settings.providers.openRouter;
-  return {
-    apiKey: openRouter.apiKey,
-    baseUrl: openRouter.baseUrl,
-    reasoningTranslation: openRouter.translationProfiles.reasoningTranslation,
-    uiTranslation: openRouter.translationProfiles.uiTranslation,
   };
 }
 

@@ -23,6 +23,11 @@ Own global and workspace settings persistence.
   for the UI translation engine.
 - Localization sync impact checks include UI bundle settings only and exclude
   live reasoning language/engine settings.
+- `resolveOpenRouterTranslationEnginesConfig(settings)` maps the persisted
+  OpenRouter connection (`apiKey`/`baseUrl`) and `uiTranslation`/
+  `reasoningTranslation` profiles into the shape Provider Runtime's
+  `createProviderTranslationEngines` factory expects, so every translation call
+  site builds its OpenRouter-backed engines from one settings-owned mapping.
 - Core settings diagnostics append JSONL entries to
   `~/.harness-ai/logs/core/settings-store.jsonl` for settings load, save, reset,
   and localization category snapshots. The logger also creates the

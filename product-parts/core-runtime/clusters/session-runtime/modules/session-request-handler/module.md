@@ -27,7 +27,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Visible reasoning messages are marked pending when the reasoning localization
   policy requires translation, then translated asynchronously through the
   reasoning translation overlay module after the source message has been
-  published.
+  published. The settings snapshot passed to that module includes the current
+  OpenRouter connection and translation profile config, so a saved OpenRouter
+  reasoning translation model is available whenever `reasoningEngineId`
+  selects it.
 - Successful reasoning translations are persisted as sidecar overlays and
   broadcast as `session:message_translation` patch events; source message `text`
   remains the canonical transcript.

@@ -22,6 +22,11 @@ const providerFacadeUrl = `data:text/javascript;base64,${Buffer.from(`
     }
   }
 `).toString("base64")}`;
+const providerFactoryUrl = `data:text/javascript;base64,${Buffer.from(`
+  export function createProviderTranslationEngines() {
+    return [];
+  }
+`).toString("base64")}`;
 const projectorUrl = `data:text/javascript;base64,${Buffer.from(`
   export class ReasoningTranslationOverlayProjector {}
 `).toString("base64")}`;
@@ -35,6 +40,10 @@ const facadeSource = compile("reasoning-translation-overlay-facade.ts")
   .replace(
     'from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";',
     `from "${providerFacadeUrl}";`
+  )
+  .replace(
+    'from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-factory.js";',
+    `from "${providerFactoryUrl}";`
   )
   .replace(
     'from "./reasoning-translation-overlay-projector.js";',

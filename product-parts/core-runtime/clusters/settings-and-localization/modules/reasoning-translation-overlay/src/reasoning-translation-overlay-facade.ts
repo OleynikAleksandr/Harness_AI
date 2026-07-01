@@ -2,6 +2,10 @@ import {
   ProviderTranslationEnginesFacade,
   type ProviderTranslationResult,
 } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";
+import {
+  createProviderTranslationEngines,
+  type OpenRouterTranslationEnginesConfig,
+} from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-factory.js";
 import { ReasoningTranslationOverlayStore } from "./reasoning-translation-overlay-store.js";
 import { createReasoningSourceHash } from "./source-hash.js";
 
@@ -12,6 +16,7 @@ export interface ReasoningTranslationSettingsSnapshot {
     readonly reasoning?: string;
   };
   readonly defaultLanguage: string;
+  readonly openRouter?: OpenRouterTranslationEnginesConfig;
   readonly reasoningEngineId: string;
 }
 
@@ -97,20 +102,32 @@ interface ReasoningTranslationOverlayOptions {
 }
 
 export class ReasoningTranslationOverlayFacade {
+  private readonly explicitTranslationFacade?: Pick<
+    ProviderTranslationEnginesFacade,
+    "translate"
+  >;
   private readonly overlayStore: Pick<
     ReasoningTranslationOverlayStore,
     "appendOverlay"
-  >;
-  private readonly translationFacade: Pick<
-    ProviderTranslationEnginesFacade,
-    "translate"
   >;
 
   constructor(options: ReasoningTranslationOverlayOptions = {}) {
     this.overlayStore =
       options.overlayStore ?? new ReasoningTranslationOverlayStore();
-    this.translationFacade =
-      options.translationFacade ?? new ProviderTranslationEnginesFacade();
+    this.explicitTranslationFacade = options.translationFacade;
+  }
+
+  private resolveTranslationFacade(
+    settings: ReasoningTranslationSettingsSnapshot
+  ): Pick<ProviderTranslationEnginesFacade, "translate"> {
+    if (this.explicitTranslationFacade) {
+      return this.explicitTranslationFacade;
+    }
+    return new ProviderTranslationEnginesFacade({
+      engines: settings.openRouter
+        ? createProviderTranslationEngines(settings.openRouter)
+        : undefined,
+    });
   }
 
   resolvePolicy(
@@ -183,7 +200,8 @@ export class ReasoningTranslationOverlayFacade {
     }
 
     const sourceHash = createReasoningSourceHash(request.sourceText);
-    const result = await this.translationFacade.translate({
+    const translationFacade = this.resolveTranslationFacade(request.settings);
+    const result = await translationFacade.translate({
       category: "reasoning",
       chunkingMode: "disabled",
       engineId: policy.engineId,

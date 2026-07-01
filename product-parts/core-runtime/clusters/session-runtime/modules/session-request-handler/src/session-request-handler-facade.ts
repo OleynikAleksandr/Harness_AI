@@ -4,7 +4,6 @@ import {
 } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
 import { providerRegistryFacade } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { ReasoningTranslationOverlayFacade } from "../../../../settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.js";
-import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import { providerSessionBindingFacade } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import {
@@ -20,6 +19,7 @@ import {
   writeWorkspaceSessionIndex,
 } from "./session-history-store.js";
 import { resolveDisplayMessage } from "./session-live-tail-dedupe.js";
+import { resolveReasoningTranslationSettingsSnapshot } from "./session-reasoning-translation-settings.js";
 import {
   ADAPTER_NOT_REGISTERED,
   createId,
@@ -452,10 +452,9 @@ export class SessionRequestHandlerFacade {
             type: "session:message_translation",
           }),
         sessionId,
-        settings: session
-          ? settingsStoreFacade.getSettings(session.workspacePath).general
-              .localization
-          : null,
+        settings: resolveReasoningTranslationSettingsSnapshot(
+          session?.workspacePath
+        ),
         workspacePath: session?.workspacePath,
       });
       return;

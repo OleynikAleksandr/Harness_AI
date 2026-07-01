@@ -19,11 +19,19 @@ source hash still matches the current message text, and keeps the latest
 translated prefix visible while a growing reasoning message is waiting for its
 next translation.
 
+The translation engine set is rebuilt per translate call from the settings
+snapshot's `openRouter` config (via `createProviderTranslationEngines`) rather
+than fixed once at construction, so a saved OpenRouter reasoning translation
+model takes effect immediately when `reasoningEngineId` selects it — without
+requiring a Core restart. An explicit `translationFacade` passed to the
+constructor (test seam) always takes priority over this per-call resolution.
+
 ## Inputs
 
 - Visible reasoning/thinking text.
-- Settings localization snapshot with reasoning language and reasoning engine
-  selection.
+- Settings localization snapshot with reasoning language, reasoning engine
+  selection, and the OpenRouter connection/profile config needed to resolve a
+  configured OpenRouter reasoning translation engine.
 
 ## Outputs
 

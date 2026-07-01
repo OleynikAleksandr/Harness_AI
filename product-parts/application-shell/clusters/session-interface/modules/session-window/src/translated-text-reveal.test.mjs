@@ -16,6 +16,9 @@ function compile(file) {
 
 const reactUrl = `data:text/javascript;base64,${Buffer.from(`
   export function useEffect() {}
+  export function useRef(initialValue) {
+    return { current: initialValue };
+  }
   export function useState(initialValue) {
     return [initialValue, () => undefined];
   }
@@ -25,7 +28,14 @@ const coalescerUrl = `data:text/javascript;base64,${Buffer.from(`
     return messages;
   }
 `).toString("base64")}`;
-const source = compile("translated-text-reveal.ts")
+const source = `${compile("translated-text-reveal.ts")}
+export {
+  buildTranslatedTextRevealFrame,
+  resolveTranslatedTextRevealBatchSize,
+  resolveTranslatedTextRevealPrefixText,
+  splitTranslatedTextRevealTokens,
+};
+`
   .replace('from "react";', `from "${reactUrl}";`)
   .replace(
     'from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/live-assistant-message-coalescer.js";',
@@ -34,10 +44,54 @@ const source = compile("translated-text-reveal.ts")
 const {
   appendSessionMessageToState,
   applySessionTranslationPatchToState,
+  buildTranslatedTextRevealFrame,
   mergeThinkingMessagesForDisplay,
+  resolveTranslatedTextRevealBatchSize,
+  resolveTranslatedTextRevealPrefixText,
   resolveTranslatedDisplayText,
+  splitTranslatedTextRevealTokens,
 } = await import(
   `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`
+);
+
+const translatedText = "Проверяю текущий план.\n\nИзучаю модуль отображения.";
+const revealTokens = splitTranslatedTextRevealTokens(translatedText);
+assert.equal(revealTokens.join(""), translatedText);
+assert.deepEqual(revealTokens.slice(0, 3), [
+  "Проверяю ",
+  "текущий ",
+  "план.\n\n",
+]);
+assert.equal(buildTranslatedTextRevealFrame(revealTokens, 0), "");
+assert.equal(
+  buildTranslatedTextRevealFrame(revealTokens, 2),
+  "Проверяю текущий "
+);
+assert.equal(buildTranslatedTextRevealFrame(revealTokens, 99), translatedText);
+assert.equal(resolveTranslatedTextRevealBatchSize(1), 1);
+assert.equal(resolveTranslatedTextRevealBatchSize(90), 1);
+assert.equal(resolveTranslatedTextRevealBatchSize(91), 2);
+assert.equal(
+  resolveTranslatedTextRevealPrefixText(
+    "Первый блок.\nВторой блок.",
+    "Первый блок."
+  ),
+  "Первый блок."
+);
+assert.equal(
+  resolveTranslatedTextRevealPrefixText(
+    "Первый блок.\nВторой блок.",
+    "Первый блок. Старый хвост"
+  ),
+  "Первый блок."
+);
+assert.equal(
+  resolveTranslatedTextRevealPrefixText("Первый блок готов.", "Первый блx"),
+  "Первый "
+);
+assert.equal(
+  resolveTranslatedTextRevealPrefixText("Новый перевод.", "Старый перевод."),
+  ""
 );
 
 const sessionId = "session-1";

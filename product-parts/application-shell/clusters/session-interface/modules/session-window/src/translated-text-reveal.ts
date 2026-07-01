@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { coalesceLiveAssistantMessages } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/live-assistant-message-coalescer.js";
 import type { CoreSessionMessage } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import type {
@@ -7,6 +7,10 @@ import type {
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 
 type MessagesBySession = Record<string, SessionMessage[]>;
+const REVEAL_TOKEN_PATTERN = /\S+\s*|\s+/gu;
+const WORD_CHARACTER_PATTERN = /[\p{L}\p{N}_]/u;
+const TARGET_REVEAL_TICKS = 90;
+const THINKING_TRANSLATION_REVEAL_INTERVAL_MS = 18;
 
 export function appendSessionMessageToState(
   current: MessagesBySession,
@@ -79,26 +83,109 @@ export function useTranslatedTextReveal(
   text: string,
   enabled: boolean
 ): string {
-  const [visibleLength, setVisibleLength] = useState(text.length);
+  const [visibleText, setVisibleText] = useState(text);
+  const initializedRef = useRef(false);
+  const visibleTextRef = useRef(text);
+
   useEffect(() => {
+    const commitVisibleText = (nextText: string) => {
+      visibleTextRef.current = nextText;
+      setVisibleText(nextText);
+    };
     if (!(enabled && text)) {
-      setVisibleLength(text.length);
-      return undefined;
+      initializedRef.current = true;
+      commitVisibleText(text);
+      return;
     }
-    setVisibleLength(0);
-    const step = Math.max(4, Math.ceil(text.length / 24));
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      commitVisibleText(text);
+      return;
+    }
+
+    const tokens = splitTranslatedTextRevealTokens(text);
+    const initialText = resolveTranslatedTextRevealPrefixText(
+      text,
+      visibleTextRef.current
+    );
+    let visibleTokenCount = splitTranslatedTextRevealTokens(initialText).length;
+    const step = resolveTranslatedTextRevealBatchSize(tokens.length);
+    commitVisibleText(
+      buildTranslatedTextRevealFrame(tokens, visibleTokenCount)
+    );
+    if (visibleTokenCount >= tokens.length) {
+      commitVisibleText(text);
+      return;
+    }
+
     const timer = window.setInterval(() => {
-      setVisibleLength((current) => {
-        const next = Math.min(text.length, current + step);
-        if (next === text.length) {
-          window.clearInterval(timer);
-        }
-        return next;
-      });
-    }, 18);
+      visibleTokenCount = Math.min(tokens.length, visibleTokenCount + step);
+      commitVisibleText(
+        buildTranslatedTextRevealFrame(tokens, visibleTokenCount)
+      );
+      if (visibleTokenCount >= tokens.length) {
+        window.clearInterval(timer);
+      }
+    }, THINKING_TRANSLATION_REVEAL_INTERVAL_MS);
     return () => window.clearInterval(timer);
   }, [enabled, text]);
-  return text.slice(0, visibleLength);
+  return visibleText;
+}
+
+function splitTranslatedTextRevealTokens(text: string): readonly string[] {
+  return text.match(REVEAL_TOKEN_PATTERN) ?? [];
+}
+
+function resolveTranslatedTextRevealBatchSize(tokenCount: number): number {
+  return Math.max(1, Math.ceil(tokenCount / TARGET_REVEAL_TICKS));
+}
+
+function buildTranslatedTextRevealFrame(
+  tokens: readonly string[],
+  visibleTokenCount: number
+): string {
+  return tokens.slice(0, Math.max(0, visibleTokenCount)).join("");
+}
+
+function resolveTranslatedTextRevealPrefixText(
+  text: string,
+  currentText: string
+): string {
+  if (!(text && currentText)) {
+    return "";
+  }
+  if (text.startsWith(currentText)) {
+    return currentText;
+  }
+  const maxLength = Math.min(text.length, currentText.length);
+  let prefixLength = 0;
+  while (
+    prefixLength < maxLength &&
+    text[prefixLength] === currentText[prefixLength]
+  ) {
+    prefixLength += 1;
+  }
+  return prefixLength > 0 ? trimToRevealBoundary(text, prefixLength) : "";
+}
+
+function trimToRevealBoundary(text: string, prefixLength: number): string {
+  if (prefixLength >= text.length) {
+    return text;
+  }
+  const previous = text[prefixLength - 1];
+  const next = text[prefixLength];
+  if (!(isWordCharacter(previous) && isWordCharacter(next))) {
+    return text.slice(0, prefixLength);
+  }
+  let boundary = prefixLength;
+  while (boundary > 0 && isWordCharacter(text[boundary - 1])) {
+    boundary -= 1;
+  }
+  return text.slice(0, boundary);
+}
+
+function isWordCharacter(value: string | undefined): boolean {
+  return Boolean(value && WORD_CHARACTER_PATTERN.test(value));
 }
 
 function appendUniqueMessage(

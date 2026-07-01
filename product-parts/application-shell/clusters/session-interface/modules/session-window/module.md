@@ -42,7 +42,9 @@ Render the transcript/dialog layout and session chrome.
   renderer while source `text` remains unchanged in state. When a provider
   updates the same reasoning message id with more pending source text, the
   renderer preserves the previous Core-provided `localizedContent` prefix until
-  the next Core translation patch arrives.
+  the next Core translation patch arrives. The translated-text reveal itself is
+  prefix-stable: when localized reasoning grows, it keeps the longest already
+  visible common prefix and animates only the new suffix.
 - The shared `.session-panel` surface (id bar, dialog, input, status) uses the
   reference grey backdrop `rgba(40,41,42,1)` with a single clean `1px solid
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background

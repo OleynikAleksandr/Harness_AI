@@ -136,6 +136,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild evidence for the Settings "Rebuild
   translations" action that forces retranslation ignoring the localization
   bundle cache, plus the related `CoreRuntimeApi` provider lifecycle split.
+- `docs/evidence/localization-glossary-copy-reasoning-terminology-package-2026-07-01.md`
+  — packaged application rebuild evidence for correcting stale CodeAI Hub
+  glossary example terms and rewording "bubble" to "message" in reasoning
+  description copy for cleaner machine translation.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

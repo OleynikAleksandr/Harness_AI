@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app for glossary copy and reasoning terminology fix",
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -208,6 +208,6 @@
 
 ### Stream: Package And Retest
 
-25. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`).
-26. [TODO] Git Commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix` (hash: TBD)
-27. [TODO] `harness-ai.phase7.stream1.task2` User retests: Settings glossary helper text shows the real seeded example terms, and the Reasoning category / Claude / OpenCode thinking descriptions read naturally when translated to Russian (no literal "пузыри") (scope: user workflow; expected commit: none).
+25. [DONE] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`). Result: Completed in commit `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`.
+26. [DONE] Git Commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix` (hash: self)
+27. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` User retests: Settings glossary helper text shows the real seeded example terms, and the Reasoning category / Claude / OpenCode thinking descriptions read naturally when translated to Russian (no literal "пузыри") (scope: user workflow; expected commit: none).

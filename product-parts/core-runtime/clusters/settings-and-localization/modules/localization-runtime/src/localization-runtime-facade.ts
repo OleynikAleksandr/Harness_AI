@@ -132,7 +132,11 @@ export class LocalizationRuntimeFacade {
   }
 }
 
-export { GlossaryProtector, type GlossaryRule } from "./glossary-protector.js";
+export {
+  GLOSSARY_ANY_TARGET_LANGUAGE,
+  GlossaryProtector,
+  type GlossaryRule,
+} from "./glossary-protector.js";
 export {
   LocalizationMaterializer,
   type LocalizationTranslationFacadeContract,

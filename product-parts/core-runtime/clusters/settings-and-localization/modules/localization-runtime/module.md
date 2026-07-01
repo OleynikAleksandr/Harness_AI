@@ -44,7 +44,16 @@ materialization, bootstrap payload reuse, and bundle state.
 - Source dictionary strings for stable message ids.
 - Default source registry backed by bundled English dictionaries.
 - Glossary-protected text and restored translated text.
-- User glossary overrides from `do-not-translate-terms.txt`.
+- User glossary overrides from `do-not-translate-terms.txt`. Each non-comment
+  line is either a plain term (kept untranslated as a `preserve` rule) or
+  `Source Term - Desired translation` (parsed into a `preferred_translation`
+  rule via `UserGlossaryStore`'s `TRANSLATION_SEPARATOR`, `" - "`, split on the
+  first occurrence). User-provided preferred translations use
+  `GLOSSARY_ANY_TARGET_LANGUAGE` (`"*"`) as their `targetLanguage`, so
+  `GlossaryProtector` applies them regardless of which specific non-English
+  language a category is currently translating into, instead of requiring a
+  per-line language tag. The seeded file created by
+  `ensureEditableGlossaryFile()` includes a couple of examples of both forms.
 - Materialized runtime bundles are cached under
   `Localization/catalogs/<category>/<language>.json`, and the browser bootstrap
   payload is cached under `Localization/cache/browser-runtime-bootstrap.json`.

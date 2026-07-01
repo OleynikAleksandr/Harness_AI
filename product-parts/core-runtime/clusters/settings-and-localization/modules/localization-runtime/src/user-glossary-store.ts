@@ -1,8 +1,14 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+export interface UserGlossaryTranslation {
+  readonly sourceTerm: string;
+  readonly translatedTerm: string;
+}
+
 export interface UserGlossaryOverrides {
   readonly preserve: readonly string[];
+  readonly translations: readonly UserGlossaryTranslation[];
 }
 
 interface UserGlossaryStoreOptions {
@@ -12,6 +18,7 @@ interface UserGlossaryStoreOptions {
 const USER_GLOSSARY_FILE_NAME = "do-not-translate-terms.txt";
 const COMMENT_PREFIX = "#";
 const LINE_SPLIT_PATTERN = /\r?\n/u;
+const TRANSLATION_SEPARATOR = " - ";
 const SEEDED_PRESERVE_TERMS = [
   "Harness AI",
   "CodeAI Hub",
@@ -22,9 +29,16 @@ const SEEDED_PRESERVE_TERMS = [
   "TypeScript",
   "Markdown",
 ] as const;
+const SEEDED_TRANSLATIONS = [
+  { sourceTerm: "Pull Request", translatedTerm: "Пул-реквест" },
+  { sourceTerm: "Endpoint", translatedTerm: "Эндпоинт" },
+] as const;
 const HEADER_LINES = [
   "# Harness AI do-not-translate glossary",
-  "# Add one English term per line. Blank lines and # comments are ignored.",
+  "# One entry per line. Blank lines and # comments are ignored.",
+  "# - A term alone stays untranslated, e.g.: Harness AI",
+  '# - "Term - Desired translation" controls exactly how a term is',
+  "#   translated, e.g.: Pull Request - Пул-реквест",
   "",
 ] as const;
 
@@ -49,7 +63,7 @@ export class UserGlossaryStore {
         parseGlossary(await fs.readFile(this.userGlossaryPath, "utf8"))
       );
     } catch {
-      return { preserve: [] };
+      return { preserve: [], translations: [] };
     }
   }
 
@@ -60,7 +74,10 @@ export class UserGlossaryStore {
     } catch {
       await fs.writeFile(
         this.userGlossaryPath,
-        serializeGlossary({ preserve: SEEDED_PRESERVE_TERMS }),
+        serializeGlossary({
+          preserve: SEEDED_PRESERVE_TERMS,
+          translations: SEEDED_TRANSLATIONS,
+        }),
         "utf8"
       );
     }
@@ -84,12 +101,27 @@ export class UserGlossaryStore {
 }
 
 function parseGlossary(raw: string): UserGlossaryOverrides {
-  return {
-    preserve: raw
-      .split(LINE_SPLIT_PATTERN)
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith(COMMENT_PREFIX)),
-  };
+  const preserve: string[] = [];
+  const translations: UserGlossaryTranslation[] = [];
+  for (const rawLine of raw.split(LINE_SPLIT_PATTERN)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith(COMMENT_PREFIX)) {
+      continue;
+    }
+    const separatorIndex = line.indexOf(TRANSLATION_SEPARATOR);
+    if (separatorIndex === -1) {
+      preserve.push(line);
+      continue;
+    }
+    const sourceTerm = line.slice(0, separatorIndex).trim();
+    const translatedTerm = line
+      .slice(separatorIndex + TRANSLATION_SEPARATOR.length)
+      .trim();
+    if (sourceTerm && translatedTerm) {
+      translations.push({ sourceTerm, translatedTerm });
+    }
+  }
+  return { preserve, translations };
 }
 
 function normalizeOverrides(
@@ -99,9 +131,32 @@ function normalizeOverrides(
     preserve: [
       ...new Set(overrides.preserve.map((term) => term.trim())),
     ].filter(Boolean),
+    translations: dedupeTranslations(overrides.translations),
   };
 }
 
+function dedupeTranslations(
+  translations: readonly UserGlossaryTranslation[]
+): UserGlossaryTranslation[] {
+  const bySourceTerm = new Map<string, UserGlossaryTranslation>();
+  for (const entry of translations) {
+    const sourceTerm = entry.sourceTerm.trim();
+    const translatedTerm = entry.translatedTerm.trim();
+    if (sourceTerm && translatedTerm) {
+      bySourceTerm.set(sourceTerm, { sourceTerm, translatedTerm });
+    }
+  }
+  return [...bySourceTerm.values()];
+}
+
 function serializeGlossary(overrides: UserGlossaryOverrides): string {
-  return `${[...HEADER_LINES, ...normalizeOverrides(overrides).preserve].join("\n")}\n`;
+  const normalized = normalizeOverrides(overrides);
+  const lines = [
+    ...normalized.preserve,
+    ...normalized.translations.map(
+      ({ sourceTerm, translatedTerm }) =>
+        `${sourceTerm}${TRANSLATION_SEPARATOR}${translatedTerm}`
+    ),
+  ];
+  return `${[...HEADER_LINES, ...lines].join("\n")}\n`;
 }

@@ -14,6 +14,8 @@ export type GlossaryRule =
       readonly translatedTerm: string;
     };
 
+export const GLOSSARY_ANY_TARGET_LANGUAGE = "*";
+
 export interface ProtectedGlossaryToken {
   readonly marker: string;
   readonly rule: GlossaryRule;
@@ -91,12 +93,16 @@ function matchesTargetLanguage(
 ): boolean {
   return (
     rule.kind !== "preferred_translation" ||
+    rule.targetLanguage === GLOSSARY_ANY_TARGET_LANGUAGE ||
     rule.targetLanguage.toLowerCase() === targetLanguage.toLowerCase()
   );
 }
 
 function restoredValue(rule: GlossaryRule, targetLanguage: string): string {
-  return rule.kind === "preferred_translation" &&
+  if (rule.kind !== "preferred_translation") {
+    return rule.sourceTerm;
+  }
+  return rule.targetLanguage === GLOSSARY_ANY_TARGET_LANGUAGE ||
     rule.targetLanguage.toLowerCase() === targetLanguage.toLowerCase()
     ? rule.translatedTerm
     : rule.sourceTerm;

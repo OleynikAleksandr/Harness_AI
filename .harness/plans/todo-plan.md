@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase8.stream2.task1",
+  "expectedCommitMessage": "feat(localization-runtime): document glossary preferred-translation syntax with examples in Settings copy",
   "debt": null
 }
 ```
@@ -210,4 +210,35 @@
 
 25. [DONE] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`). Result: Completed in commit `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`.
 26. [DONE] Git Commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix` (hash: self)
-27. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` User retests: Settings glossary helper text shows the real seeded example terms, and the Reasoning category / Claude / OpenCode thinking descriptions read naturally when translated to Russian (no literal "пузыри") (scope: user workflow; expected commit: none).
+27. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` User retests: Settings glossary helper text shows the real seeded example terms, and the Reasoning category / Claude / OpenCode thinking descriptions read naturally when translated to Russian (no literal "пузыри") (scope: user workflow; expected commit: none). Note: user moved on to a new request (chat, 2026-07-01) below before confirming this retest; left open/unconfirmed rather than marked DONE.
+
+## Phase 8 - Glossary Preferred-Translation Entries (owner: Codex, updated: 2026-07-01)
+
+> User request (chat, 2026-07-01): let the glossary file also record a
+> desired translation per term (e.g. `English Term - Желаемый перевод`)
+> instead of only supporting "never translate this term at all," seed the
+> standard glossary file with a couple of examples of both forms, and update
+> the Settings glossary explanation text with examples of both forms too.
+> Investigation found `GlossaryProtector`'s `preferred_translation` rule kind
+> (`glossary-protector.ts`) already fully implements masking a term, letting
+> translation run, and restoring a caller-supplied translation instead of the
+> source text — it was just never reachable from the user-editable glossary
+> file, which only ever produced `preserve` rules.
+
+### Stream: Engine And File Format Support
+
+28. [DONE] `harness-ai.phase8.stream1.task1` Add a `GLOSSARY_ANY_TARGET_LANGUAGE` (`"*"`) wildcard to `GlossaryProtector` (`glossary-protector.ts`, re-exported from `localization-runtime-facade.ts`) so a `preferred_translation` rule can apply to whichever non-English language a category is currently translating into, instead of requiring a language tag per glossary line; extend `UserGlossaryStore`'s file parsing/serialization (`user-glossary-store.ts`) to recognize `Source Term - Desired translation` lines (split on the first ` - ` occurrence) into a new `translations` array alongside the existing flat `preserve` list, seed the auto-created file with two translation-pair examples (`Pull Request - Пул-реквест`, `Endpoint - Эндпоинт`) alongside the existing preserve-term examples, and update the in-file header comment to explain both line formats; wire `glossary.translations` into `materializeCoreLocalizationRuntimePayload` (`core-localization-runtime.ts`) as `preferred_translation` `GlossaryRule` entries using the wildcard target language. Kept as one task because the pieces are only functional together — file parsing without the wildcard engine support would silently produce translation rules that never match any configured language (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.ts`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/user-glossary-store.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.ts`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/glossary-protector.test.mjs`, plus `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat(localization-runtime): support preferred-translation entries in the user glossary file`). Result: Completed in commit `feat(localization-runtime): support preferred-translation entries in the user glossary file`.
+29. [DONE] Git Commit: `feat(localization-runtime): support preferred-translation entries in the user glossary file` (hash: self)
+
+### Stream: Settings Copy Examples
+
+30. [IN_PROGRESS] `harness-ai.phase8.stream2.task1` Update `settings.localization.glossaryTerms.description` and `settings.localization.glossary.prefilled` in `source-dictionaries.ts` to show one example of each glossary line format: a plain do-not-translate term, and a `Term - Desired translation` pair (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`, plus `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat(localization-runtime): document glossary preferred-translation syntax with examples in Settings copy`).
+31. [TODO] Git Commit: `feat(localization-runtime): document glossary preferred-translation syntax with examples in Settings copy` (hash: TBD)
+
+## Phase 9 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
+
+### Stream: Package And Retest
+
+32. [TODO] `harness-ai.phase9.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary preferred-translation entries`).
+33. [TODO] Git Commit: `chore(package): rebuild packaged app for glossary preferred-translation entries` (hash: TBD)
+34. [TODO] `harness-ai.phase9.stream1.task2` User retests: add a `Term - Desired translation` line to the glossary, click "Rebuild translations", confirm the running app shows the exact desired translation for that term instead of a generic machine translation (scope: user workflow; expected commit: none).

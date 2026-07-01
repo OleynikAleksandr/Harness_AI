@@ -3,6 +3,7 @@ import path from "node:path";
 import { ProviderTranslationEnginesFacade } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-facade.js";
 import { createProviderTranslationEngines } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/provider-translation-engines/src/provider-translation-engines-factory.js";
 import {
+  GLOSSARY_ANY_TARGET_LANGUAGE,
   LocalizationRuntimeFacade,
   type LocalizationRuntimePayload,
   type LocalizationRuntimeSettingsSnapshot,
@@ -20,12 +21,20 @@ export async function materializeCoreLocalizationRuntimePayload(
     ? await new UserGlossaryStore({
         glossaryDirectory: path.join(localizationRootDirectory, "glossary"),
       }).load()
-    : { preserve: [] };
+    : { preserve: [], translations: [] };
   return new LocalizationRuntimeFacade({
-    glossaryRules: glossary.preserve.map((sourceTerm) => ({
-      kind: "preserve",
-      sourceTerm,
-    })),
+    glossaryRules: [
+      ...glossary.preserve.map((sourceTerm) => ({
+        kind: "preserve" as const,
+        sourceTerm,
+      })),
+      ...glossary.translations.map(({ sourceTerm, translatedTerm }) => ({
+        kind: "preferred_translation" as const,
+        sourceTerm,
+        targetLanguage: GLOSSARY_ANY_TARGET_LANGUAGE,
+        translatedTerm,
+      })),
+    ],
     localizationRootDirectory,
     translationFacade: new ProviderTranslationEnginesFacade({
       engines: createProviderTranslationEngines(

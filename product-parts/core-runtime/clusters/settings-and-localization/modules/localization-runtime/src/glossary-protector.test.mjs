@@ -67,16 +67,52 @@ assert.equal(
   "\u041c\u0435\u043d\u0435\u0434\u0436\u0435\u0440 \u043f\u0440\u043e\u0435\u043a\u0442\u0430"
 );
 
+const anyLanguagePreferred = protector.protect("Endpoint", {
+  category: "ui_helper_text",
+  rules: [
+    {
+      kind: "preferred_translation",
+      sourceTerm: "Endpoint",
+      targetLanguage: protectorModule.GLOSSARY_ANY_TARGET_LANGUAGE,
+      translatedTerm: "Эндпоинт",
+    },
+  ],
+  targetLanguage: "fr",
+});
+assert.equal(
+  protector.restore(
+    anyLanguagePreferred.protectedText,
+    "fr",
+    anyLanguagePreferred.tokens
+  ),
+  "Эндпоинт"
+);
+
 const tempDirectory = await mkdtemp(path.join(tmpdir(), "harness-glossary-"));
 try {
   const store = new UserGlossaryStore({ glossaryDirectory: tempDirectory });
   const glossaryPath = await store.ensureEditableGlossaryFile();
   assert.equal(path.basename(glossaryPath), "do-not-translate-terms.txt");
-  assert.equal((await store.load()).preserve.includes("Harness AI"), true);
-  assert.deepEqual(await store.save({ preserve: [" Codex ", "Codex", ""] }), {
+  const seeded = await store.load();
+  assert.equal(seeded.preserve.includes("Harness AI"), true);
+  assert.deepEqual(
+    seeded.translations.find((entry) => entry.sourceTerm === "Pull Request"),
+    { sourceTerm: "Pull Request", translatedTerm: "Пул-реквест" }
+  );
+  assert.deepEqual(
+    await store.save({
+      preserve: [" Codex ", "Codex", ""],
+      translations: [{ sourceTerm: " API ", translatedTerm: " АПИ " }],
+    }),
+    {
+      preserve: ["Codex"],
+      translations: [{ sourceTerm: "API", translatedTerm: "АПИ" }],
+    }
+  );
+  assert.deepEqual(await store.load(), {
     preserve: ["Codex"],
+    translations: [{ sourceTerm: "API", translatedTerm: "АПИ" }],
   });
-  assert.deepEqual(await store.load(), { preserve: ["Codex"] });
 } finally {
   await rm(tempDirectory, { force: true, recursive: true });
 }

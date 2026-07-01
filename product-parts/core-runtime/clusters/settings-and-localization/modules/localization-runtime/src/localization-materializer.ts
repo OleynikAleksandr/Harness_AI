@@ -86,11 +86,13 @@ export class LocalizationMaterializer {
     sourceFingerprint: string
   ): Promise<LocalizationResolvedRuntimeBundle> {
     const language = resolveLanguage(category, settings);
+    const engineId = settings.uiEngineId.trim() || "google-gtx";
     const dictionary = this.sourceRegistry.resolve(category);
     const cached = await this.readCachedBundle(
       category,
       language,
-      sourceFingerprint
+      sourceFingerprint,
+      engineId
     );
     if (cached) {
       return cached;
@@ -114,7 +116,7 @@ export class LocalizationMaterializer {
       const result = await this.translationFacade.translate({
         category,
         chunkingMode: "disabled",
-        engineId: settings.uiEngineId,
+        engineId,
         sourceLanguage: DEFAULT_LOCALIZATION_SOURCE_LANGUAGE,
         targetLanguage: language,
         text: protectedText.protectedText,
@@ -137,14 +139,15 @@ export class LocalizationMaterializer {
       language,
       source: error ? "source_fallback" : "materialized",
     } satisfies LocalizationResolvedRuntimeBundle;
-    await this.writeCachedBundle(category, bundle, sourceFingerprint);
+    await this.writeCachedBundle(category, bundle, sourceFingerprint, engineId);
     return bundle;
   }
 
   private async readCachedBundle(
     category: LocalizationCategoryId,
     language: string,
-    sourceFingerprint: string
+    sourceFingerprint: string,
+    engineId: string
   ): Promise<LocalizationResolvedRuntimeBundle | null> {
     if (!this.localizationRootDirectory || language === "en") {
       return null;
@@ -153,6 +156,7 @@ export class LocalizationMaterializer {
       const cached = JSON.parse(
         await fs.readFile(this.bundlePath(category, language), "utf8")
       ) as {
+        engineId?: string;
         entries?: Record<string, string>;
         language?: string;
         sourceFingerprint?: string;
@@ -161,6 +165,7 @@ export class LocalizationMaterializer {
       if (
         cached.language === language &&
         cached.sourceFingerprint === sourceFingerprint &&
+        cached.engineId === engineId &&
         cached.source === "materialized" &&
         cached.entries
       ) {
@@ -179,7 +184,8 @@ export class LocalizationMaterializer {
   private async writeCachedBundle(
     category: LocalizationCategoryId,
     bundle: LocalizationResolvedRuntimeBundle,
-    sourceFingerprint: string
+    sourceFingerprint: string,
+    engineId: string
   ): Promise<void> {
     if (
       !this.localizationRootDirectory ||
@@ -192,7 +198,7 @@ export class LocalizationMaterializer {
     await fs.mkdir(path.dirname(bundlePath), { recursive: true });
     await fs.writeFile(
       bundlePath,
-      `${JSON.stringify({ category, sourceFingerprint, ...bundle }, null, 2)}\n`,
+      `${JSON.stringify({ category, engineId, sourceFingerprint, ...bundle }, null, 2)}\n`,
       "utf8"
     );
   }

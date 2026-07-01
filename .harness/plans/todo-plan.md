@@ -8,8 +8,8 @@
   "planId": "openrouter-translation-engines-2026-07-01",
   "branch": "claude/silly-tesla-92349d",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app for localization bundle cache engine-key fix",
   "debt": null
 }
 ```
@@ -133,4 +133,35 @@
 
 11. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification`). Result: Completed in commit `chore(package): rebuild packaged app for OpenRouter translation engine verification`.
 12. [DONE] Git Commit: `chore(package): rebuild packaged app for OpenRouter translation engine verification` (hash: self)
-13. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests OpenRouter-backed UI/Reasoning Translation Engine selection in the packaged app (scope: user workflow; expected commit: none).
+13. [DONE] `harness-ai.phase2.stream1.task2` User retests OpenRouter-backed UI/Reasoning Translation Engine selection in the packaged app (scope: user workflow; expected commit: none). Result: User confirmed the new OpenRouter dropdown option and translation routing work, but found a related caching bug (see Phase 3).
+
+## Phase 3 - Fix: Localization Bundle Cache Ignores Engine Change (owner: Codex, updated: 2026-07-01)
+
+### Stream: Cache Key Fix
+
+> Discovered during the Phase 2 packaged-app retest: the user switched both
+> UI Translation Engine and Reasoning Translation Engine to an OpenRouter
+> model while keeping the same target language, saved, and the Settings
+> localization refresh spinner never appeared — content stayed translated by
+> the previous engine. Root cause (confirmed by reading the code): the
+> per-category disk bundle cache
+> (`Localization/catalogs/<category>/<language>.json`, read/written by
+> `LocalizationMaterializer.readCachedBundle`/`writeCachedBundle`) validates
+> only `language` and the source dictionary `sourceFingerprint` — it never
+> records or checks which `engineId` produced the cached translation. The
+> top-level bootstrap payload cache key does include the full settings
+> snapshot (so it technically misses on an engine change), but
+> `materializeBundle` still consults the per-category disk cache first, which
+> matches on language/fingerprint alone and returns the stale bundle without
+> ever calling `translationFacade.translate()` again.
+
+14. [DONE] `harness-ai.phase3.stream1.task1` Include the resolved `engineId` in the per-category localization bundle cache identity (write it alongside `sourceFingerprint`/`language`, and require it to match on read) so switching the UI Translation Engine while keeping the same target language invalidates the cached bundle and forces re-translation (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.ts`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `fix(localization-runtime): invalidate cached bundle when translation engine changes`). Result: Completed in commit `fix(localization-runtime): invalidate cached bundle when translation engine changes`.
+15. [DONE] Git Commit: `fix(localization-runtime): invalidate cached bundle when translation engine changes` (hash: self)
+
+## Phase 4 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
+
+### Stream: Package And Retest
+
+16. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for localization bundle cache engine-key fix`).
+17. [TODO] Git Commit: `chore(package): rebuild packaged app for localization bundle cache engine-key fix` (hash: TBD)
+18. [TODO] `harness-ai.phase4.stream1.task2` User retests that switching UI/Reasoning Translation Engine while keeping the same target language triggers a fresh translation (spinner appears, content changes) in the packaged app (scope: user workflow; expected commit: none).

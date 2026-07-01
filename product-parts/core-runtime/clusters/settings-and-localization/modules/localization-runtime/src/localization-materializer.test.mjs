@@ -97,6 +97,28 @@ try {
   const cachedPayload = await materializer.materializeRuntimePayload(settings);
   assert.deepEqual(cachedPayload, payload);
   assert.equal(translateCount, 1);
+
+  const settingsWithDifferentEngine = {
+    ...settings,
+    uiEngineId: "openrouter-ui-translation",
+  };
+  const payloadAfterEngineChange = await materializer.materializeRuntimePayload(
+    settingsWithDifferentEngine
+  );
+  assert.equal(
+    translateCount,
+    2,
+    "changing the translation engine for the same target language must trigger a fresh translation instead of reusing the previous engine's cached bundle"
+  );
+  assert.deepEqual(
+    payloadAfterEngineChange.resolvedBundlesByCategory.ui_labels,
+    {
+      entries: { title: "[ru] Harness AI Settings" },
+      error: null,
+      language: "ru",
+      source: "materialized",
+    }
+  );
 } finally {
   await rm(tempDirectory, { force: true, recursive: true });
 }

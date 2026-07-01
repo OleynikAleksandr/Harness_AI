@@ -52,8 +52,10 @@ materialization, bootstrap payload reuse, and bundle state.
   packaged-app browser runtime payloads.
 - Cache reuse is keyed by both the localization settings snapshot and the
   source dictionary fingerprint. Per-category materialized bundles also store
-  that fingerprint, so adding or changing approved source strings invalidates
-  stale cached bundles that lack the new message ids.
+  that fingerprint and the resolved `engineId`, so adding or changing approved
+  source strings, or switching the UI Translation Engine while keeping the same
+  target language, both invalidate stale cached bundles instead of silently
+  reusing content translated by a previous engine.
 - Selective materialization for settings changes that affect UI bundles.
 - Runtime payload with active engine id, available engine catalogs, and
   category-keyed bundle entries.

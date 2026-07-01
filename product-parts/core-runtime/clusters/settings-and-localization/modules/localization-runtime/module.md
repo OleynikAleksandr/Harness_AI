@@ -60,6 +60,14 @@ materialization, bootstrap payload reuse, and bundle state.
 - Runtime payload with active engine id, available engine catalogs, and
   category-keyed bundle entries.
 - Missing key diagnostics.
+- `LocalizationRuntimeFacade.materializeRuntimePayload` and
+  `LocalizationMaterializer.materializeRuntimePayload`/`materializeBundle`
+  accept an optional `force` flag. Glossary content is not part of the cache
+  key (only `settings`/`sourceFingerprint`/`engineId` are), so editing the
+  do-not-translate glossary alone never invalidates an already-materialized
+  bundle; `force: true` skips the cache reads for one materialization pass
+  (still writing the fresh result to cache afterward as normal) so a caller
+  can force a full retranslation on demand.
 
 ## Owned Paths
 

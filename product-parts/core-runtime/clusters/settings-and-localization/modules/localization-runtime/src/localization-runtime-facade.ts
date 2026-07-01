@@ -92,7 +92,8 @@ export class LocalizationRuntimeFacade {
   }
 
   materializeRuntimePayload(
-    settings: LocalizationRuntimeSettingsSnapshot
+    settings: LocalizationRuntimeSettingsSnapshot,
+    force = false
   ): Promise<LocalizationRuntimePayload> {
     return new LocalizationMaterializer({
       activeEngineCatalogs: this.engineCatalogs,
@@ -100,7 +101,7 @@ export class LocalizationRuntimeFacade {
       localizationRootDirectory: this.options.localizationRootDirectory,
       sourceRegistry: this.sourceRegistry,
       translationFacade: this.options.translationFacade,
-    }).materializeRuntimePayload(settings);
+    }).materializeRuntimePayload(settings, force);
   }
 
   materializeRuntimePayloadForSettingsChange(

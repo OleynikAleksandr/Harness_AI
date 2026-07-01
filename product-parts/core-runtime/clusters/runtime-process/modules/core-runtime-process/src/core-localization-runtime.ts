@@ -12,7 +12,8 @@ import { resolveOpenRouterTranslationEnginesConfig } from "../../../../settings-
 import type { HarnessSettings } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 
 export async function materializeCoreLocalizationRuntimePayload(
-  settings: HarnessSettings
+  settings: HarnessSettings,
+  force = false
 ): Promise<LocalizationRuntimePayload> {
   const localizationRootDirectory = resolveCoreLocalizationRootDirectory();
   const glossary = settings.general.localization.glossaryEnabled
@@ -32,7 +33,8 @@ export async function materializeCoreLocalizationRuntimePayload(
       ),
     }),
   }).materializeRuntimePayload(
-    resolveCoreLocalizationRuntimeSettings(settings)
+    resolveCoreLocalizationRuntimeSettings(settings),
+    force
   );
 }
 

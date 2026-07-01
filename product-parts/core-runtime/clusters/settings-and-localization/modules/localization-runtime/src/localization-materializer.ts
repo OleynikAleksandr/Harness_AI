@@ -55,11 +55,12 @@ export class LocalizationMaterializer {
   }
 
   async materializeRuntimePayload(
-    settings: LocalizationRuntimeSettingsSnapshot
+    settings: LocalizationRuntimeSettingsSnapshot,
+    force = false
   ): Promise<LocalizationRuntimePayload> {
     const sourceFingerprint = this.sourceRegistry.fingerprint();
     const cacheKey = JSON.stringify({ settings, sourceFingerprint });
-    const cached = await this.readCachedPayload(cacheKey);
+    const cached = force ? null : await this.readCachedPayload(cacheKey);
     if (cached) {
       return cached;
     }
@@ -71,7 +72,12 @@ export class LocalizationMaterializer {
         await Promise.all(
           LOCALIZATION_CATEGORY_IDS.map(async (category) => [
             category,
-            await this.materializeBundle(category, settings, sourceFingerprint),
+            await this.materializeBundle(
+              category,
+              settings,
+              sourceFingerprint,
+              force
+            ),
           ])
         )
       ) as Record<LocalizationCategoryId, LocalizationResolvedRuntimeBundle>,
@@ -83,17 +89,20 @@ export class LocalizationMaterializer {
   private async materializeBundle(
     category: LocalizationCategoryId,
     settings: LocalizationRuntimeSettingsSnapshot,
-    sourceFingerprint: string
+    sourceFingerprint: string,
+    force: boolean
   ): Promise<LocalizationResolvedRuntimeBundle> {
     const language = resolveLanguage(category, settings);
     const engineId = settings.uiEngineId.trim() || "google-gtx";
     const dictionary = this.sourceRegistry.resolve(category);
-    const cached = await this.readCachedBundle(
-      category,
-      language,
-      sourceFingerprint,
-      engineId
-    );
+    const cached = force
+      ? null
+      : await this.readCachedBundle(
+          category,
+          language,
+          sourceFingerprint,
+          engineId
+        );
     if (cached) {
       return cached;
     }

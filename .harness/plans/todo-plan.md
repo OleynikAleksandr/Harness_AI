@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream2.task1",
+  "expectedCommitMessage": "feat(core-runtime-process): add rebuild-localization Core RPC to force retranslation ignoring cache",
   "debt": null
 }
 ```
@@ -137,3 +137,46 @@
 
 10. [DONE] `harness-ai.phase3.stream1.task1` Split `CoreRuntimeApi` (`core-runtime-api.ts`) by responsibility: keep RPC dispatch (`invoke()`) plus workspace/session/settings handling in `CoreRuntimeApi`, and move provider adapter registration + provider readiness event publishing (previously `registerProviderAdapters`/`registerProviderAdapter`/`publishProviderStatus`/`startProviderLivenessPreflight`/`subscribeProviderReadiness`/`handleProviderReadinessChange`/`syncProviderReadinessWorkspace`, plus the `providerStatusListeners`/`readinessUnsubscribe` state) into a new `CoreProviderLifecycle` class in `core-provider-lifecycle.ts`; the per-provider adapter instantiation switch itself becomes a plain `registerProviderAdapterInstance()` function in a new `core-provider-adapter-registration.ts` (already extracted while investigating the line-count block). `CoreRuntimeApi` now holds a `providerLifecycle` instance and delegates to it. Result: `core-runtime-api.ts` shrank from 499 to 369 lines; `core-provider-lifecycle.ts` is 111 lines and `core-provider-adapter-registration.ts` is 60 lines, both well under the cap. Updated 7 static-source regression tests (`core-runtime-process-facade.test.mjs` plus the claude/kimi/glm-native/glm-opencode/local-models/openrouter provider facade tests) that asserted specific literal code (e.g. `new ClaudeProviderFacade(model, workspacePath)`, `providerRegistryFacade.clearAdapters`, `type: "provider:status"`) existed in `core-runtime-api.ts`, to instead check the file each assertion's target code actually moved to (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-lifecycle.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-adapter-registration.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-facade.test.mjs`, plus the 6 provider facade test files' path-only updates, and `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `refactor(core-runtime-process): split provider adapter lifecycle out of CoreRuntimeApi to stay under the 500-line file cap`). Result: Completed in commit `refactor(core-runtime-process): split provider adapter lifecycle out of CoreRuntimeApi to stay under the 500-line file cap`.
 11. [DONE] Git Commit: `refactor(core-runtime-process): split provider adapter lifecycle out of CoreRuntimeApi to stay under the 500-line file cap` (hash: self)
+
+## Phase 4 - Rebuild Translations Action (owner: Codex, updated: 2026-07-01)
+
+> User request (chat, 2026-07-01): after editing the glossary file and saving
+> it, previously-translated content does not change. Root cause (confirmed in
+> code): `LocalizationMaterializer`'s two disk cache layers
+> (`Localization/cache/browser-runtime-bootstrap.json` and
+> `Localization/catalogs/<category>/<language>.json`) key on
+> `settings`/`sourceFingerprint`/`engineId` only — glossary content is never
+> part of the cache key, so an edited glossary is loaded fresh but the cached
+> translation is returned before it would ever be consulted.
+> User-directed UI (chat, 2026-07-01): add a second button, "Rebuild
+> translations", next to "Open glossary file" in the same row, that forces a
+> full retranslation for the currently configured languages regardless of
+> cache state.
+
+### Stream: Force-Bypass Materialization
+
+12. [DONE] `harness-ai.phase4.stream1.task1` Thread an optional `force` flag through `LocalizationMaterializer.materializeRuntimePayload()`/`materializeBundle()` (when true, skip `readCachedPayload`/`readCachedBundle` but still call `writeCachedPayload`/`writeCachedBundle` as today, so a forced pass always retranslates and then overwrites the stale cache with the fresh result), `LocalizationRuntimeFacade.materializeRuntimePayload()` (forwards the flag), and `materializeCoreLocalizationRuntimePayload()` in `core-localization-runtime.ts` (forwards the flag to the facade call) (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.ts`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-runtime.ts`, plus `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat(localization-runtime): support forced cache-bypass re-materialization for on-demand rebuild`). Result: Completed in commit `feat(localization-runtime): support forced cache-bypass re-materialization for on-demand rebuild`.
+13. [DONE] Git Commit: `feat(localization-runtime): support forced cache-bypass re-materialization for on-demand rebuild` (hash: self)
+
+### Stream: Core RPC And Approved Strings
+
+14. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Add approved English source strings for the new button/status copy (`settings.localization.rebuildTranslations` in `ui_labels`, `settings.localization.rebuilding` and `settings.localization.rebuilt` in `messages_for_the_user`) to `source-dictionaries.ts`; add a new Core RPC `rebuild-localization` — a plain function `rebuildCoreLocalizationRpcResult(workspacePath)` in a new sibling file `core-localization-rebuild-rpc.ts` (kept out of `core-runtime-api.ts` directly, matching the Phase 1/3 pattern, so the dispatcher file stays small) that calls `materializeCoreLocalizationRuntimePayload(settings, { force: true })` for the active workspace and returns `{ ok: true } | { error, ok: false }` — wired into `CoreRuntimeApi.invoke()` via a single `case "rebuild-localization"` (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-rebuild-rpc.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, plus `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat(core-runtime-process): add rebuild-localization Core RPC to force retranslation ignoring cache`).
+15. [TODO] Git Commit: `feat(core-runtime-process): add rebuild-localization Core RPC to force retranslation ignoring cache` (hash: TBD)
+
+### Stream: IPC Bridge And Renderer Types
+
+16. [TODO] `harness-ai.phase4.stream3.task1` Forward the new RPC end-to-end: add `"harness-ai:core:rebuild-localization": "rebuild-localization"` to the `IPC_TO_RPC` map (`core-process-bridge-facade.mjs`), expose `rebuildLocalization: () => ipcRenderer.invoke("harness-ai:core:rebuild-localization")` on `window.harnessCore` (`preload.cjs`), and declare `rebuildLocalization(): Promise<{ ok: true } | { error: string; ok: false }>` on `Window.harnessCore` (`vite-env.d.ts`) (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`, plus `core-process-bridge/module.md` and `app-bootstrap/module.md`; expected commit: `feat(core-process-bridge): forward rebuild-localization RPC through preload and renderer bridge types`).
+17. [TODO] Git Commit: `feat(core-process-bridge): forward rebuild-localization RPC through preload and renderer bridge types` (hash: TBD)
+
+### Stream: Renderer Button
+
+18. [TODO] `harness-ai.phase4.stream4.task1` Add busy/status state and a handler in `settings-surface-facade.tsx` (`rebuildTranslations()`: calls `window.harnessCore.rebuildLocalization()`, then on success calls the existing `onLocalizationRuntimeRefresh()` so the running UI picks up the fresh translations immediately, surfacing errors through the same status mechanism used elsewhere), thread the new props through `settings-tab-content.tsx`, and render a second `SettingsButton` ("Rebuild translations", with a `settings-spinner` + status text while busy) inside the same `.settings-core-row` as "Open glossary file" in `GlossaryCard` (`settings-reference-general.tsx`) (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-reference-general.tsx`, plus `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `feat(provider-settings-ui): add Rebuild translations button next to Open glossary file`).
+19. [TODO] Git Commit: `feat(provider-settings-ui): add Rebuild translations button next to Open glossary file` (hash: TBD)
+
+## Phase 5 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)
+
+### Stream: Package And Retest
+
+20. [TODO] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for rebuild-translations action`).
+21. [TODO] Git Commit: `chore(package): rebuild packaged app for rebuild-translations action` (hash: TBD)
+22. [TODO] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none).

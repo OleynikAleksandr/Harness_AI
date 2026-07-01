@@ -6,7 +6,7 @@
   "schema": "harness-ai-plan-v1",
   "executionScopeStatus": "NONE",
   "planId": null,
-  "branch": "claude/silly-tesla-92349d",
+  "branch": "main",
   "lastRecordedCommit": "self",
   "currentTaskId": null,
   "expectedCommitMessage": null,

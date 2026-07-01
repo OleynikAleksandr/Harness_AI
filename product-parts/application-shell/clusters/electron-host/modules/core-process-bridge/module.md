@@ -33,7 +33,10 @@ modules or own Core truth.
   Core materialized browser bundles instead of falling back to English. It also
   forwards `harness-ai:core:translate-dynamic-text` →
   `translate-dynamic-text` for provider-returned text that must be translated by
-  Core instead of the renderer.
+  Core instead of the renderer, and `harness-ai:core:ensure-glossary-file` →
+  `ensure-glossary-file`, so the Settings glossary "Open glossary file" action
+  resolves the real Core-owned do-not-translate glossary file path (creating it
+  with seeded terms on first use) instead of the renderer guessing a path.
 - Real Core process restart through health and shutdown contracts. `stop()` first
   asks the core to shut down over HTTP, then force-terminates the process by pid
   (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so

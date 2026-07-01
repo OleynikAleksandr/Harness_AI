@@ -8,8 +8,8 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream2.task1",
-  "expectedCommitMessage": "feat(core-process-bridge): forward ensure-glossary-file RPC through preload and renderer bridge types",
+  "currentTaskId": "harness-ai.phase1.stream3.task1",
+  "expectedCommitMessage": "fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path",
   "debt": null
 }
 ```
@@ -108,12 +108,12 @@
 
 ### Stream: IPC Bridge And Renderer Types
 
-3. [IN_PROGRESS] `harness-ai.phase1.stream2.task1` Forward the new RPC end-to-end to the renderer: add `"harness-ai:core:ensure-glossary-file": "ensure-glossary-file"` to the `IPC_TO_RPC` map (`core-process-bridge-facade.mjs`), expose `ensureGlossaryFile: () => ipcRenderer.invoke("harness-ai:core:ensure-glossary-file")` on `window.harnessCore` (`preload.cjs`), and declare `ensureGlossaryFile(): Promise<{ ok: true; filePath: string } | { error: string; ok: false }>` on the `Window.harnessCore` interface (`vite-env.d.ts`) (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`, plus `core-process-bridge/module.md` and `app-bootstrap/module.md`; expected commit: `feat(core-process-bridge): forward ensure-glossary-file RPC through preload and renderer bridge types`).
-4. [TODO] Git Commit: `feat(core-process-bridge): forward ensure-glossary-file RPC through preload and renderer bridge types` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream2.task1` Forward the new RPC end-to-end to the renderer: add `"harness-ai:core:ensure-glossary-file": "ensure-glossary-file"` to the `IPC_TO_RPC` map (`core-process-bridge-facade.mjs`), expose `ensureGlossaryFile: () => ipcRenderer.invoke("harness-ai:core:ensure-glossary-file")` on `window.harnessCore` (`preload.cjs`), and declare `ensureGlossaryFile(): Promise<{ ok: true; filePath: string } | { error: string; ok: false }>` on the `Window.harnessCore` interface (`vite-env.d.ts`) (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`, plus `core-process-bridge/module.md` and `app-bootstrap/module.md`; expected commit: `feat(core-process-bridge): forward ensure-glossary-file RPC through preload and renderer bridge types`). Result: Completed in commit `feat(core-process-bridge): forward ensure-glossary-file RPC through preload and renderer bridge types`.
+4. [DONE] Git Commit: `feat(core-process-bridge): forward ensure-glossary-file RPC through preload and renderer bridge types` (hash: self)
 
 ### Stream: Renderer Button Fix
 
-5. [TODO] `harness-ai.phase1.stream3.task1` Fix `openGlossary()` in `settings-surface-facade.tsx` to call `window.harnessCore.ensureGlossaryFile()` first and open the real returned `filePath` via `vscode://file/<filePath>:1:1` instead of the fabricated workspace-relative path, handling the `{ error, ok: false }` branch without a native alert (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path`).
+5. [IN_PROGRESS] `harness-ai.phase1.stream3.task1` Fix `openGlossary()` in `settings-surface-facade.tsx` to call `window.harnessCore.ensureGlossaryFile()` first and open the real returned `filePath` via `vscode://file/<filePath>:1:1` instead of the fabricated workspace-relative path, handling the `{ error, ok: false }` branch without a native alert (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface-facade.tsx`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path`).
 6. [TODO] Git Commit: `fix(provider-settings-ui): open the real do-not-translate glossary file via Core instead of a nonexistent workspace path` (hash: TBD)
 
 ## Phase 2 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-01)

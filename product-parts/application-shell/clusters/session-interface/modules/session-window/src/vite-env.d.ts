@@ -50,6 +50,9 @@ interface Window {
     deleteSession(
       sessionId: string
     ): Promise<{ ok: true } | { error: string; ok: false }>;
+    ensureGlossaryFile(): Promise<
+      { error: string; ok: false } | { filePath: string; ok: true }
+    >;
     getSessionEvents(
       sessionId: string
     ): Promise<

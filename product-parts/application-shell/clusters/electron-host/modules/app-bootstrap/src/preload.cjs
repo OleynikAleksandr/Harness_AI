@@ -34,6 +34,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:list-sessions", workspaceId),
   listProviders: () => ipcRenderer.invoke("harness-ai:core:list-providers"),
   listWorkspaces: () => ipcRenderer.invoke("harness-ai:core:list-workspaces"),
+  rebuildLocalization: () =>
+    ipcRenderer.invoke("harness-ai:core:rebuild-localization"),
   onEvent: (listener) => {
     const handler = (_event, payload) => listener(payload);
     ipcRenderer.on("harness-ai:core-event", handler);

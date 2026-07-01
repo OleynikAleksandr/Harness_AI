@@ -82,6 +82,7 @@ interface Window {
       activeWorkspaceId: string;
       workspaces: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace[];
     }>;
+    rebuildLocalization(): Promise<{ ok: true } | { error: string; ok: false }>;
     onEvent(
       listener: (
         event:

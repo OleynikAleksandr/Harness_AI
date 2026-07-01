@@ -16,6 +16,7 @@ const IPC_TO_RPC = {
   "harness-ai:core:list-providers": "list-providers",
   "harness-ai:core:list-sessions": "list-sessions",
   "harness-ai:core:list-workspaces": "list-workspaces",
+  "harness-ai:core:rebuild-localization": "rebuild-localization",
   "harness-ai:core:reset-workspace-settings": "reset-workspace-settings",
   "harness-ai:core:save-provider-system-settings":
     "save-provider-system-settings",

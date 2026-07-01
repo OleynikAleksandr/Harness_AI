@@ -23,6 +23,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.localization.glossary": "Glossary protection",
     "settings.localization.glossaryTerms": "Do-not-translate terms",
     "settings.localization.openGlossary": "Open glossary file",
+    "settings.localization.rebuildTranslations": "Rebuild translations",
     "settings.localization.reasoningEngine": "Reasoning Translation Engine",
     "settings.localization.uiEngine": "UI Translation Engine",
     "settings.openRouter.modelSlugSearch": "Model slug search",
@@ -213,6 +214,8 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
       "Glossary protection is disabled. Terms may be translated.",
     "settings.localization.glossary.enabled":
       "Glossary protection is enabled. Terms from the glossary file remain protected during localization.",
+    "settings.localization.rebuilding": "Rebuilding translations...",
+    "settings.localization.rebuilt": "Translations rebuilt.",
     "settings.localization.refreshing.description":
       "Harness AI is saving translated interface resources. Settings will be available again when this finishes.",
     "settings.localization.refreshing.title": "Updating localization",

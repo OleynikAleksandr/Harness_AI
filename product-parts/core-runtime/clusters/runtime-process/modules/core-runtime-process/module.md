@@ -64,6 +64,13 @@ also run here so the Application Shell remains UI/supervisor/client only.
   not already exist, and returns its resolved path so a client can open it in
   an external editor. It returns `{ ok: true, filePath }` on success or
   `{ ok: false, error }` if the filesystem operation fails.
+- The `rebuild-localization` Core RPC forces a full retranslation of every
+  localization category for the active workspace's current settings,
+  bypassing (but still refreshing) the localization bundle cache. This lets a
+  client force fresh output after editing the do-not-translate glossary file
+  directly, since glossary content is not part of the bundle cache key. It
+  returns `{ ok: true }` on success or `{ ok: false, error }` if
+  materialization throws.
 - `CoreRuntimeApi` (`core-runtime-api.ts`) owns only RPC dispatch plus
   workspace/session/settings handling to stay under the 500-line implementation
   file cap. Provider adapter registration and provider readiness event

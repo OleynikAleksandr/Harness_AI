@@ -22,6 +22,7 @@ import {
 } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { translateDynamicCoreText } from "./core-dynamic-translation.js";
 import { ensureCoreGlossaryFileRpcResult } from "./core-glossary-rpc.js";
+import { rebuildCoreLocalizationRpcResult } from "./core-localization-rebuild-rpc.js";
 import { materializeCoreLocalizationRuntimePayload } from "./core-localization-runtime.js";
 import {
   type CoreEventListener,
@@ -108,6 +109,8 @@ export class CoreRuntimeApi {
         );
       case "ensure-glossary-file":
         return ensureCoreGlossaryFileRpcResult();
+      case "rebuild-localization":
+        return rebuildCoreLocalizationRpcResult(this.activeWorkspacePath());
       case "get-local-models":
         return this.getLocalModels();
       case "get-provider-versions":

@@ -33,6 +33,7 @@ import {
   workspaceRegistryFacade,
 } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { translateDynamicCoreText } from "./core-dynamic-translation.js";
+import { ensureCoreGlossaryFileRpcResult } from "./core-glossary-rpc.js";
 import { materializeCoreLocalizationRuntimePayload } from "./core-localization-runtime.js";
 import {
   installLatestGlobalPackage,
@@ -124,6 +125,8 @@ export class CoreRuntimeApi {
         return materializeCoreLocalizationRuntimePayload(
           settingsStoreFacade.getSettings(this.activeWorkspacePath())
         );
+      case "ensure-glossary-file":
+        return ensureCoreGlossaryFileRpcResult();
       case "get-local-models":
         return this.getLocalModels();
       case "get-provider-versions":

@@ -58,6 +58,12 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - The category mapping follows the settings controls that users see in General:
   `uiInterface` feeds `ui_labels`, `userGuidance` feeds `ui_helper_text`, and
   `systemFeedback` feeds `messages_for_the_user`.
+- The `ensure-glossary-file` Core RPC creates the user-editable do-not-translate
+  glossary file (seeded with default preserve terms) under
+  `<Harness home>/Localization/glossary/do-not-translate-terms.txt` if it does
+  not already exist, and returns its resolved path so a client can open it in
+  an external editor. It returns `{ ok: true, filePath }` on success or
+  `{ ok: false, error }` if the filesystem operation fails.
 
 ## Owned Paths
 

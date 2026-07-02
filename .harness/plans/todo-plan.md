@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream3.task1",
-  "expectedCommitMessage": "feat(settings-store): remember last selected profile and auto-normalizer flag per provider",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "feat(claude-provider): apply session profile payload with native preset support",
   "debt": null
 }
 ```
@@ -142,14 +142,14 @@
 
 ### Stream: Settings Memory
 
-38. [IN_PROGRESS] `harness-ai.phase5.stream3.task1` Remember the last selected profile and the AutoNormalizer flag per provider in Core settings (`settings-store`), expose the preselection in the read model, and record the selection at create; no visible AutoNormalizer control until the normalizer exists (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, plus `module.md` files; expected commit: `feat(settings-store): remember last selected profile and auto-normalizer flag per provider`).
-39. [TODO] Git Commit: `feat(settings-store): remember last selected profile and auto-normalizer flag per provider` (hash: TBD)
+38. [DONE] `harness-ai.phase5.stream3.task1` Remember the last selected profile and the AutoNormalizer flag per provider in Core settings (`settings-store`), expose the preselection in the read model, and record the selection at create; no visible AutoNormalizer control until the normalizer exists (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, plus `module.md` files; expected commit: `feat(settings-store): remember last selected profile and auto-normalizer flag per provider`). Result: Completed in commit `feat(settings-store): remember last selected profile and auto-normalizer flag per provider`.
+39. [DONE] Git Commit: `feat(settings-store): remember last selected profile and auto-normalizer flag per provider` (hash: self)
 
 ## Phase 6 - Adapter Application Layers (owner: Codex, updated: 2026-07-02)
 
 ### Stream: Claude
 
-40. [TODO] `harness-ai.phase6.stream1.task1` Claude profile application layer: new `claude-profile-application.ts` mapping payload -> SDK options (managed: `systemPrompt` = payload prompt, `tools` = category-mapped whitelist of Claude-native tool names; native: `systemPrompt`/`tools` presets `claude_code`; absent payload keeps current behavior until switch-over), wire into `buildQueryOptions()`; record the category mapping table in `module.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-profile-application.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-sdk-manager.ts`, plus `module.md`; expected commit: `feat(claude-provider): apply session profile payload with native preset support`).
+40. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Claude profile application layer: new `claude-profile-application.ts` mapping payload -> SDK options (managed: `systemPrompt` = payload prompt, `tools` = category-mapped whitelist of Claude-native tool names; native: `systemPrompt`/`tools` presets `claude_code`; absent payload keeps current behavior until switch-over), wire into `buildQueryOptions()`; record the category mapping table in `module.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-profile-application.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-sdk-manager.ts`, plus `module.md`; expected commit: `feat(claude-provider): apply session profile payload with native preset support`).
 41. [TODO] Git Commit: `feat(claude-provider): apply session profile payload with native preset support` (hash: TBD)
 
 ### Stream: GLM Native

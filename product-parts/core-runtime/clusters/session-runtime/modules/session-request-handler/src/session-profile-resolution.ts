@@ -2,6 +2,7 @@ import type { SessionProfilePayload } from "../../../../../../provider-runtime/c
 import { ProfileCatalogFacade } from "../../../../session-profiles/modules/profile-catalog/src/profile-catalog-facade.js";
 import { ProfileMaterializerFacade } from "../../../../session-profiles/modules/profile-materializer/src/profile-materializer-facade.js";
 import { ProfileStoreFacade } from "../../../../session-profiles/modules/profile-store/src/profile-store-facade.js";
+import { rememberLastSelectedProfile } from "../../../../settings-and-localization/modules/settings-store/src/session-profile-memory.js";
 import type { NextSessionMode } from "./next-session-mode.js";
 import type { AppliedProfileSnapshot } from "./session-request-handler-types.js";
 
@@ -57,6 +58,7 @@ export class SessionProfileResolver implements SessionProfileResolverLike {
       nextSessionMode.invocationMode !== "managed" ||
       !nextSessionMode.managedProfileId
     ) {
+      this.rememberSelection(request.providerId, "native");
       return { appliedProfile: NATIVE_APPLIED_PROFILE, ok: true };
     }
     const resolution = await this.catalog.resolveForSession({
@@ -67,8 +69,10 @@ export class SessionProfileResolver implements SessionProfileResolverLike {
       return { error: resolution.error, ok: false };
     }
     if (resolution.kind === "native") {
+      this.rememberSelection(request.providerId, "native");
       return { appliedProfile: NATIVE_APPLIED_PROFILE, ok: true };
     }
+    this.rememberSelection(request.providerId, resolution.profile.id);
     const payload = this.materializer.materialize(resolution.profile, {
       sessionStartDate: new Date(),
       workspacePath: request.workspacePath,
@@ -84,6 +88,12 @@ export class SessionProfileResolver implements SessionProfileResolverLike {
       },
       ok: true,
     };
+  }
+
+  // Fire-and-forget settings memory: the picker preselection must never be
+  // able to fail a session create.
+  private rememberSelection(providerId: string, profileId: string): void {
+    rememberLastSelectedProfile(providerId, profileId).catch(() => undefined);
   }
 }
 

@@ -183,6 +183,11 @@
               "id": "profile-catalog",
               "name": "Profile Catalog",
               "purpose": "Profile selection truth: catalog read models, virtual Native profile, per-provider applicability, and session-creation resolution with structured errors."
+            },
+            {
+              "id": "profile-materializer",
+              "name": "Profile Materializer",
+              "purpose": "Provider-neutral session profile payload: applied prompt with the system wrapper, effective tooling categories, and applied-content hash."
             }
           ]
         },

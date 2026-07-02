@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream2.task1",
-  "expectedCommitMessage": "feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "feat(profile-authoring): add profile creation from templates with editor paths and validity status",
   "debt": null
 }
 ```
@@ -116,14 +116,14 @@
 
 ### Stream: Materializer
 
-28. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Add the `profile-materializer` module: build the provider-neutral `SessionProfilePayload` (profile workflow prompt body + system wrapper: workspace path, current date, language contract, `AGENTS.md` policy flag + tooling categories); no provider-specific additions here (adapter application layers own those) (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper`).
-29. [TODO] Git Commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper` (hash: TBD)
+28. [DONE] `harness-ai.phase3.stream2.task1` Add the `profile-materializer` module: build the provider-neutral `SessionProfilePayload` (profile workflow prompt body + system wrapper: workspace path, current date, language contract, `AGENTS.md` policy flag + tooling categories); no provider-specific additions here (adapter application layers own those) (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper`). Result: Completed in commit `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper`.
+29. [DONE] Git Commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper` (hash: self)
 
 ## Phase 4 - Cluster Foundation: Authoring (owner: Codex, updated: 2026-07-02)
 
 ### Stream: Authoring Module
 
-30. [TODO] `harness-ai.phase4.stream1.task1` Add the `profile-authoring` module: templates for the three documents (prompt skeleton with action-category guidance, tooling.yaml with all categories, passport), create-profile operation (name -> kebab-case id + passport with optional `provider` for individual profiles; template output valid by construction), document path resolution for external-editor opening, and validity-status exposure via `profile-store` (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status`).
+30. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Add the `profile-authoring` module: templates for the three documents (prompt skeleton with action-category guidance, tooling.yaml with all categories, passport), create-profile operation (name -> kebab-case id + passport with optional `provider` for individual profiles; template output valid by construction), document path resolution for external-editor opening, and validity-status exposure via `profile-store` (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status`).
 31. [TODO] Git Commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status` (hash: TBD)
 
 ## Phase 5 - Contract And Core Wiring (owner: Codex, updated: 2026-07-02)

@@ -63,6 +63,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 - `profile-store`: user-editable session profile documents on disk — Profiles root resolution, document layout, and the shared profile type model.
 - `profile-catalog`: profile selection truth — catalog read models, virtual Native profile, per-provider applicability, and session-creation resolution with structured errors.
+- `profile-materializer`: provider-neutral session profile payload — applied prompt with the system wrapper, effective tooling categories, and applied-content hash.
 
 ### Settings And Localization
 

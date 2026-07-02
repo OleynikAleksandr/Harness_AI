@@ -85,6 +85,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/settings-tabs-fit-package-2026-07-02.md` —
   acceptance-finding fix evidence: content-width Settings tabs fit all nine
   tabs with headroom; packaged app rebuild for retest.
+- `docs/evidence/reasoning-translation-target-language-guard-package-2026-07-02.md`
+  — acceptance-finding fix evidence: already-target-language reasoning text is
+  preserved before provider translation; packaged app rebuild for retest.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

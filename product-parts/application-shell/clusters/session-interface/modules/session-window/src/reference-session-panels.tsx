@@ -29,8 +29,10 @@ export function SessionIdPanel({
       aria-label={t("ui_labels", "session.identifier", "Session identifier")}
       className="session-panel session-id-bar"
     >
-      <span className="session-id-bar__id">{idLabel}</span>
-      <SessionProfileChip session={session} />
+      <div className="session-id-bar__identity">
+        <span className="session-id-bar__id">{idLabel}</span>
+        <SessionProfileChip session={session} />
+      </div>
       <div className="session-id-bar__limits">
         {telemetry.limitRows.map((row) => (
           <LimitRow key={row.label} row={row} />

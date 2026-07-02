@@ -115,6 +115,11 @@ Render the transcript/dialog layout and session chrome.
   show their display name, Native shows "Native", and sessions persisted
   before profiles show a "Legacy" marker.
 
+- The session id bar (`SessionIdPanel`) is a single-row two-column grid: the
+  left identity column stacks the session id and the applied profile chip as
+  two rows (mirroring the two limit rows), and the right column holds the
+  usage limit rows pinned to the right edge, keeping the bar compact.
+
 ## Owned Paths
 
 - `module.md`

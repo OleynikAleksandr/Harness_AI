@@ -47,6 +47,9 @@ export interface ActiveSession {
   readonly resumeSessionId?: string;
   readonly runtimeTurnConfig: ClaudeRuntimeTurnConfig;
   sessionId: string;
+  // Applied session profile state (managed payload or native presets);
+  // absent on legacy sessions that predate session profiles.
+  sessionProfile?: import("../sdk/claude-profile-application.js").ClaudeSessionProfileState;
   structuredOutputSchema?: Record<string, unknown> | null;
   structuredOutputUuids?: Set<string>;
   turnQueue?: ClaudeTurnQueueState;

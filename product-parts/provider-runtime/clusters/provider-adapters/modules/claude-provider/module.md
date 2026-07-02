@@ -41,6 +41,21 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Translation compatibility is currently local to this provider module and preserves the reference contract without moving translation truth into UI.
 - Harness-specific workspace prompt injection is a focused additive helper around the migrated SDK prompt so Claude receives workspace path and `AGENTS.md` without relying on renderer state or native filesystem discovery.
 
+- Session profile application layer (`claude-profile-application.ts`):
+  managed payloads replace the workflow `systemPrompt` and set `tools` to
+  the category-mapped whitelist; native switches both to the `claude_code`
+  presets; legacy sessions (no profile kind) keep the pre-profile hardcoded
+  prompt/whitelist untouched. Harness process policy (permission mode,
+  setting sources, home isolation) is not profile content. Applied details
+  (`mode`, `profileId`, `contentHash`, `toolWhitelist`) return to Core via
+  `ProviderSessionStartResult` for the immutable snapshot.
+- Category mapping (categories only filter Claude's OWN native tools):
+  `file-read` -> Read, Glob, Grep; `file-write` -> Write, Edit; `shell` ->
+  Bash; `web` -> WebSearch, WebFetch; `git`/`tests` -> no dedicated Claude
+  tools (follow the shell category via Bash).
+- `claude-sdk-manager-types.ts` holds the manager option/settings shapes,
+  split out to keep `claude-sdk-manager.ts` under the 500-line cap.
+
 ## Owned Paths
 
 - `module.md`

@@ -1,4 +1,9 @@
 import crypto from "node:crypto";
+import {
+  normalizeProviderSessionStart,
+  type ProviderSessionStartOptions,
+  type ProviderSessionStartOutcome,
+} from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { SDKAuthManager } from "../auth/sdk-auth-manager.js";
 import {
   type ClaudeNativeRequestCaptureOptions,
@@ -89,28 +94,38 @@ export class ClaudeProviderAdapter {
     });
   }
 
-  async createSession(workspacePath?: string): Promise<string> {
-    const sessionId = await this.sdkManager.createSession(workspacePath);
-    const session = this.sdkManager.getSession(sessionId);
+  async createSession(
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
+    const outcome = await this.sdkManager.createSession(
+      workspacePath,
+      startOptions
+    );
+    const { providerSessionId } = normalizeProviderSessionStart(outcome);
+    const session = this.sdkManager.getSession(providerSessionId);
     if (session) {
       this.bindSessionEvents(session);
     }
-    return sessionId;
+    return outcome;
   }
 
   async resumeSession(
     sessionId: string,
-    workspacePath?: string
-  ): Promise<string> {
-    const resumedId = await this.sdkManager.resumeSession(
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
+    const outcome = await this.sdkManager.resumeSession(
       sessionId,
-      workspacePath
+      workspacePath,
+      startOptions
     );
-    const session = this.sdkManager.getSession(resumedId);
+    const { providerSessionId } = normalizeProviderSessionStart(outcome);
+    const session = this.sdkManager.getSession(providerSessionId);
     if (session) {
       this.bindSessionEvents(session);
     }
-    return resumedId;
+    return outcome;
   }
 
   async refreshUsageLimits(params: {

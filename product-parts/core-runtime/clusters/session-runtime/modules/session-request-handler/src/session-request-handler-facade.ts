@@ -372,11 +372,11 @@ export class SessionRequestHandlerFacade {
     }
     try {
       await adapter.initialize?.();
-      // Adapter input comes strictly from the immutable snapshot; profile
-      // files are never reread on create or resume.
+      // Adapter input comes strictly from the immutable snapshot (never
+      // reread); legacy sessions pass no options at all.
       const profilePayload = buildSessionProfilePayload(session.appliedProfile);
-      const startOptions = profilePayload
-        ? { profile: profilePayload }
+      const startOptions = session.appliedProfile
+        ? { profile: profilePayload, profileKind: session.appliedProfile.kind }
         : undefined;
       const startOutcome =
         session.providerSessionId && adapter.resumeSession

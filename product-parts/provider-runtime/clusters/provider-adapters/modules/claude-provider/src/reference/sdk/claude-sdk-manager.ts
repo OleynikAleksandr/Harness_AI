@@ -1,4 +1,8 @@
 import { readFileSync } from "node:fs";
+import type {
+  ProviderSessionStartOptions,
+  ProviderSessionStartOutcome,
+} from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import type { SDKInstaller } from "../installer/sdk-installer.js";
 import type { SDKMessageProcessor } from "../messaging/message-processor.js";
 import {
@@ -15,9 +19,19 @@ import type {
   ModuleReporter,
 } from "../types.js";
 import {
+  applyClaudeSessionProfile,
+  computeClaudeProfileDetails,
+  resolveClaudeSessionProfileState,
+} from "./claude-profile-application.js";
+import {
   buildClaudeCodeRuntimeProfile,
   type ClaudeCodeRuntimeProfile,
 } from "./claude-runtime-profile.js";
+import type {
+  ClaudeQueryOptions,
+  ClaudeSettingsSnapshot,
+  ThinkingSettings,
+} from "./claude-sdk-manager-types.js";
 import { buildClaudeWorkspaceSystemPrompt } from "./claude-workspace-system-prompt.js";
 
 export type QueryFunction = (payload: {
@@ -47,56 +61,6 @@ interface ClaudeManagerDependencies {
   readonly runtimeProfile?: ClaudeCodeRuntimeProfile;
   readonly sessions: SDKSessionManager;
   readonly workspace: ClaudeWorkspaceOptions;
-}
-
-interface ThinkingSettings {
-  readonly effort: "low" | "medium" | "high" | "xhigh" | "max";
-  readonly enabled: boolean;
-}
-
-interface ClaudeSettingsSnapshot {
-  readonly defaultModel?: unknown;
-  readonly providers?: {
-    readonly claude?: {
-      readonly thinking?: {
-        readonly effort?: unknown;
-        readonly enabled?: unknown;
-        readonly maxTokens?: unknown;
-      };
-      readonly defaultModel?: unknown;
-    };
-  };
-  readonly thinking?: {
-    readonly effort?: unknown;
-    readonly enabled?: unknown;
-    readonly maxTokens?: unknown;
-  };
-}
-
-interface ClaudeQueryOptions extends Record<string, unknown> {
-  additionalDirectories: string[];
-  allowDangerouslySkipPermissions: boolean;
-  cwd: string;
-  effort?: "low" | "medium" | "high" | "xhigh" | "max";
-  env: NodeJS.ProcessEnv;
-  includePartialMessages: boolean;
-  model?: string;
-  outputFormat?: {
-    type: "json_schema";
-    schema: Record<string, unknown>;
-  };
-  pathToClaudeCodeExecutable: string;
-  permissionMode: "bypassPermissions";
-  projectPath: string;
-  resume?: string;
-  settingSources: string[];
-  systemPrompt?: string;
-  thinking?: {
-    readonly display?: "summarized" | "omitted";
-    readonly type: "adaptive" | "disabled";
-  };
-  title?: string;
-  tools: string[];
 }
 
 export class ClaudeSDKManager {
@@ -137,22 +101,40 @@ export class ClaudeSDKManager {
     this.initialized = true;
   }
 
-  async createSession(workspacePath?: string): Promise<string> {
+  async createSession(
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
     await this.initialize();
     const actualWorkspacePath =
       workspacePath ?? this.deps.workspace.workspacePath;
-    const { tempId } = this.deps.sessions.createSession(actualWorkspacePath);
-    return tempId;
+    const { session, tempId } =
+      this.deps.sessions.createSession(actualWorkspacePath);
+    const profileState = resolveClaudeSessionProfileState(startOptions);
+    if (!profileState) {
+      return tempId;
+    }
+    session.sessionProfile = profileState;
+    return {
+      appliedProfileApplication: computeClaudeProfileDetails(profileState),
+      providerSessionId: tempId,
+    };
   }
 
   async resumeSession(
     sessionId: string,
-    workspacePath?: string
-  ): Promise<string> {
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
     await this.initialize();
     const actualWorkspacePath =
       workspacePath ?? this.deps.workspace.workspacePath;
     this.deps.sessions.createResumedSession(actualWorkspacePath, sessionId);
+    const profileState = resolveClaudeSessionProfileState(startOptions);
+    const session = this.deps.sessions.getSession(sessionId);
+    if (session && profileState) {
+      session.sessionProfile = profileState;
+    }
     this.proactiveUsageLimitsRefresh(sessionId);
     return sessionId;
   }
@@ -296,6 +278,10 @@ export class ClaudeSDKManager {
       env: this.resolveAuthEnvironment(),
       pathToClaudeCodeExecutable: this.deps.installer.getExecutablePath(),
     };
+    // Session profile application (managed payload or native presets)
+    // replaces the legacy hardcoded prompt/whitelist above; legacy sessions
+    // without profile state keep it untouched.
+    applyClaudeSessionProfile(options, session.sessionProfile);
     if (resolvedModel) {
       options.model = resolvedModel;
     }

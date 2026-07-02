@@ -20,6 +20,13 @@ export interface SessionProfilePayload {
 
 export interface ProviderSessionStartOptions {
   readonly profile?: SessionProfilePayload;
+  /**
+   * Distinguishes an explicit Native selection from a legacy session that
+   * predates session profiles: "native" applies the channel's native
+   * semantics, "managed" applies the payload, absent kind (legacy) keeps
+   * the adapter's pre-profile behavior untouched.
+   */
+  readonly profileKind?: "managed" | "native";
 }
 
 /**

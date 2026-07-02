@@ -188,6 +188,11 @@
               "id": "profile-materializer",
               "name": "Profile Materializer",
               "purpose": "Provider-neutral session profile payload: applied prompt with the system wrapper, effective tooling categories, and applied-content hash."
+            },
+            {
+              "id": "profile-authoring",
+              "name": "Profile Authoring",
+              "purpose": "Profile creation and editing truth: document templates, create-profile operation with derived ids, and editor path resolution."
             }
           ]
         },

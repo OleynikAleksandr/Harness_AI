@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat(profile-authoring): add profile creation from templates with editor paths and validity status",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "feat(provider-adapter-contract): add session profile payload and applied-application result to the adapter contract",
   "debt": null
 }
 ```
@@ -123,14 +123,14 @@
 
 ### Stream: Authoring Module
 
-30. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Add the `profile-authoring` module: templates for the three documents (prompt skeleton with action-category guidance, tooling.yaml with all categories, passport), create-profile operation (name -> kebab-case id + passport with optional `provider` for individual profiles; template output valid by construction), document path resolution for external-editor opening, and validity-status exposure via `profile-store` (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status`).
-31. [TODO] Git Commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status` (hash: TBD)
+30. [DONE] `harness-ai.phase4.stream1.task1` Add the `profile-authoring` module: templates for the three documents (prompt skeleton with action-category guidance, tooling.yaml with all categories, passport), create-profile operation (name -> kebab-case id + passport with optional `provider` for individual profiles; template output valid by construction), document path resolution for external-editor opening, and validity-status exposure via `profile-store` (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status`). Result: Completed in commit `feat(profile-authoring): add profile creation from templates with editor paths and validity status`.
+31. [DONE] Git Commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status` (hash: self)
 
 ## Phase 5 - Contract And Core Wiring (owner: Codex, updated: 2026-07-02)
 
 ### Stream: Adapter Contract
 
-32. [TODO] `harness-ai.phase5.stream1.task1` Extend `provider-adapter-contract` with the optional `SessionProfilePayload` in session-creation/resume options AND an additive result type: `createSession`/`resumeSession` return `string | ProviderSessionStartResult` where `ProviderSessionStartResult = { providerSessionId, appliedProfileApplication? }` carries the actually-applied provider-specific details (Claude tool whitelist, Codex process/tooling profile key, Kimi immutable artifact key/path, GLM tool schema ids) back to Core for the snapshot — Core cannot guess these, especially the Kimi artifact path; existing adapters keep returning plain strings and Core normalizes (absent payload = exact current behavior during transition, later = Native per adapter) (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/*` (facade file), plus `module.md`; expected commit: `feat(provider-adapter-contract): add session profile payload and applied-application result to the adapter contract`).
+32. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Extend `provider-adapter-contract` with the optional `SessionProfilePayload` in session-creation/resume options AND an additive result type: `createSession`/`resumeSession` return `string | ProviderSessionStartResult` where `ProviderSessionStartResult = { providerSessionId, appliedProfileApplication? }` carries the actually-applied provider-specific details (Claude tool whitelist, Codex process/tooling profile key, Kimi immutable artifact key/path, GLM tool schema ids) back to Core for the snapshot — Core cannot guess these, especially the Kimi artifact path; existing adapters keep returning plain strings and Core normalizes (absent payload = exact current behavior during transition, later = Native per adapter) (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/*` (facade file), plus `module.md`; expected commit: `feat(provider-adapter-contract): add session profile payload and applied-application result to the adapter contract`).
 33. [TODO] Git Commit: `feat(provider-adapter-contract): add session profile payload and applied-application result to the adapter contract` (hash: TBD)
 
 ### Stream: Session Request Handler

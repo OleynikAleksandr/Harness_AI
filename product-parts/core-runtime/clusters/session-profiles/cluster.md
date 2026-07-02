@@ -15,10 +15,7 @@ Contract source: `docs/architecture/SessionProfiles.md`.
 - `profile-store`
 - `profile-catalog`
 - `profile-materializer`
-
-The cluster grows to `profile-authoring` as the active plan lands it; module
-ownership is recorded here and in the product tree in the same commit that
-creates each module.
+- `profile-authoring`
 
 ## Facade Rule
 

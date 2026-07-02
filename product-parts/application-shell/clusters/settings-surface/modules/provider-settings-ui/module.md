@@ -61,9 +61,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `Profile Creator` tab to the right of General; `SettingsTabContent` delegates
   that tab's content to the `profile-settings-ui` module facade
   (`ProfileSettingsUiFacade`), so session profile management stays owned by its
-  own module. The `settings.tab.profileCreator` label id enters the source
-  dictionary with the dedicated Profile Creator localization task of the
-  active plan; until then the English fallback label renders.
+  own module. The `settings.tab.profileCreator` label resolves through the
+  approved source dictionary like the other tab labels.
 - Remaining Settings provider helper copy resolves through the same browser
   localization provider, including session continuity helper text, GLM default
   model helper text, OpenCode helper text/model descriptions, Local Models

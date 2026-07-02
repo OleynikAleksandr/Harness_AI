@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task4",
-  "expectedCommitMessage": "feat(localization-runtime): register profile creator settings copy in the source dictionary",
+  "currentTaskId": "harness-ai.phase10.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app for session profiles",
   "debt": null
 }
 ```
@@ -199,13 +199,13 @@
 63. [DONE] Git Commit: `feat(profile-settings-ui): implement new profile creation flow` (hash: self)
 64. [DONE] `harness-ai.phase9.stream1.task3` Implement the profiles list: all profiles with type, applicability and per-profile validity status (human-readable errors), selecting a profile opens its documents in VS Code; Native absent (no files); rename/delete stays files-first in MVP (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-list.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx`, plus `module.md`; expected commit: `feat(profile-settings-ui): list profiles with validity status and editor opening`). Result: Completed in commit `feat(profile-settings-ui): list profiles with validity status and editor opening`.
 65. [DONE] Git Commit: `feat(profile-settings-ui): list profiles with validity status and editor opening` (hash: self)
-73. [IN_PROGRESS] `harness-ai.phase9.stream1.task4` Register the Profile Creator localization ids in the Core source dictionary once the tab's full copy set is known after task1-task3 (tab label `settings.tab.profileCreator`, the `settings.profileCreator.*` intro copy, and the New Profile flow / profile list strings), so the tab follows the configured UI language instead of English fallbacks; the dictionary file stayed out of the task1 skeleton scope to respect the 3-functional-file limit (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`, plus `module.md`; expected commit: `feat(localization-runtime): register profile creator settings copy in the source dictionary`).
-74. [TODO] Git Commit: `feat(localization-runtime): register profile creator settings copy in the source dictionary` (hash: TBD)
+73. [DONE] `harness-ai.phase9.stream1.task4` Register the Profile Creator localization ids in the Core source dictionary once the tab's full copy set is known after task1-task3 (tab label `settings.tab.profileCreator`, the `settings.profileCreator.*` intro copy, and the New Profile flow / profile list strings), so the tab follows the configured UI language instead of English fallbacks; the dictionary file stayed out of the task1 skeleton scope to respect the 3-functional-file limit (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`, plus `module.md`; expected commit: `feat(localization-runtime): register profile creator settings copy in the source dictionary`). Result: Completed in commit `feat(localization-runtime): register profile creator settings copy in the source dictionary`.
+74. [DONE] Git Commit: `feat(localization-runtime): register profile creator settings copy in the source dictionary` (hash: self)
 
 ## Phase 10 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-02)
 
 ### Stream: Package And Retest
 
-66. [TODO] `harness-ai.phase10.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for session profiles`).
+66. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for session profiles`).
 67. [TODO] Git Commit: `chore(package): rebuild packaged app for session profiles` (hash: TBD)
 68. [TODO] `harness-ai.phase10.stream1.task2` User acceptance in the packaged app, including the dedicated breaking-change gate: (a) new-session wizard shows the profile step with Native first and remembered last choice per provider; (b) Native default: Claude/Kimi start with vendor-native behavior when nothing is selected; (c) `codeai-workflow-*` individual profiles reproduce today's managed behavior; (d) universal seed profiles apply on all four providers with category-filtered native tooling; (e) editing a profile affects only new sessions, resume keeps the original applied contract (snapshot), legacy sessions still work; (f) Profile Creator tab: create universal and individual profiles, edit in VS Code, validity status reflects broken files; (g) applied-profile chip visible in the session header; (h) user reviews the seeded draft prompt texts (scope: user workflow; expected commit: none).

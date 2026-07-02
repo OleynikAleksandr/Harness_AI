@@ -51,6 +51,21 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.openRouter": "OpenRouter",
     "settings.provider.sessionContinuity.threshold":
       "Remaining context threshold (%)",
+    "settings.profileCreator.title": "Session Profiles",
+    "settings.profileCreator.newProfile": "New Profile",
+    "settings.profileCreator.type": "Profile type",
+    "settings.profileCreator.type.universal":
+      "Universal (all supported providers)",
+    "settings.profileCreator.type.individual": "Individual (one provider)",
+    "settings.profileCreator.provider": "Provider",
+    "settings.profileCreator.name": "Profile name",
+    "settings.profileCreator.create": "Create",
+    "settings.profileCreator.profiles": "Profiles",
+    "settings.profileCreator.kind.universal": "Universal",
+    "settings.profileCreator.kind.individual": "Individual",
+    "settings.profileCreator.valid": "Valid",
+    "settings.profileCreator.invalid": "Invalid",
+    "settings.profileCreator.edit": "Edit in VS Code",
     "settings.thinking.reasoningInDialog": "Reasoning in dialog",
     "settings.tab.claude": "Claude",
     "settings.tab.codex": "Codex",
@@ -60,6 +75,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.tab.kimi": "Kimi",
     "settings.tab.localModels": "Local Models",
     "settings.tab.openRouter": "OpenRouter",
+    "settings.tab.profileCreator": "Profile Creator",
     "settings.thinking": "Thinking",
     "settings.thinking.displaySync": "Thinking Display Sync",
     "settings.thinking.enabled": "Thinking Enabled",
@@ -189,6 +205,11 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Tests this selected model against concrete provider endpoints.",
     "settings.provider.localModels.empty":
       "No downloaded LM Studio models are currently visible to Core.",
+    "settings.profileCreator.description":
+      "Session profiles define the workflow instructions and tooling categories a new session starts with. Profile documents live in ~/.harness-ai/Profiles and are plain files owned by you.",
+    "settings.profileCreator.namePlaceholder": "e.g. Deep Review",
+    "settings.profileCreator.applicability.universal":
+      "All supported providers",
     "session.input.hint": "Press Enter to send, Shift+Enter for a new line",
     "session.input.placeholder": "Message the active provider.",
     "sidebar.nextSessionMode.description": "Next session starts as Native Raw",
@@ -223,6 +244,12 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
     "settings.localization.refreshing.title": "Updating localization",
     "settings.provider.versions.warning":
       "Warning: updating is at your own risk. New versions may be incompatible. Updating will close active sessions.",
+    "settings.profileCreator.created": "Profile created and opened in VS Code:",
+    "settings.profileCreator.creating": "Creating...",
+    "settings.profileCreator.loading": "Loading profiles...",
+    "settings.profileCreator.empty":
+      "No profiles yet. Create one with New Profile above.",
+    "settings.profileCreator.opening": "Opening...",
     "session.empty": "Select or create a session.",
     "session.id.pending": "ID: pending...",
     "session.id.unavailable": "ID: unavailable",

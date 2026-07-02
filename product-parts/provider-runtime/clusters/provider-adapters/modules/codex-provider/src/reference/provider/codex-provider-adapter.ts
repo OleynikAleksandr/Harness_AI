@@ -1,3 +1,7 @@
+import type {
+  ProviderSessionStartOptions,
+  ProviderSessionStartOutcome,
+} from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { CodexAppServerFacade } from "../app-server/codex-app-server-facade.js";
 import {
   type CodexNativeRequestCaptureOptions,
@@ -29,15 +33,22 @@ export class CodexProviderAdapter {
     return this.facade.initialize();
   }
 
-  createSession(workspacePath?: string): Promise<string> {
+  createSession(
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
     return this.enqueueProviderHomeOperation(() =>
-      this.facade.createSession(workspacePath)
+      this.facade.createSession(workspacePath, startOptions)
     );
   }
 
-  resumeSession(sessionId: string, workspacePath?: string): Promise<string> {
+  resumeSession(
+    sessionId: string,
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
     return this.enqueueProviderHomeOperation(() =>
-      this.facade.resumeSession(sessionId, workspacePath)
+      this.facade.resumeSession(sessionId, workspacePath, startOptions)
     );
   }
 

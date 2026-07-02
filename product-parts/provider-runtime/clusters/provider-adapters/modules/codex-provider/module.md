@@ -51,6 +51,17 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
 - `ensureWorkspaceHome(workspacePath)` materializes workspace Codex auth/config
   through the provider home manager without starting the Codex app-server.
 
+- Session profile application layer (`codex-profile-application.ts`):
+  managed sessions send the frozen snapshot prompt as `baseInstructions` on
+  `thread/start`/`thread/resume` (full replacement of the built-in
+  instructions); native omits it so the vendor CLI runs untouched; legacy
+  sessions pass no options at all. Tooling categories are an MVP no-op:
+  tool availability is fixed by the shared app-server process `--disable`
+  flags, and restarting that shared process per profile would invalidate
+  other sessions' thread bindings — the effective process profile key is
+  recorded in the applied details (`ProviderSessionStartResult`) as
+  groundwork for a future per-profile process pool.
+
 ## Owned Paths
 
 - `module.md`

@@ -1,5 +1,9 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import type {
+  ProviderSessionStartOptions,
+  ProviderSessionStartOutcome,
+} from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { CodexSessionStaleBindingError } from "../provider/codex-session-stale-binding-error.js";
 import {
   CODEX_APPLIED_TURN_CONFIG_KEY,
@@ -13,6 +17,11 @@ import {
   type AppServerSessionState,
   CodexAppServerEventRouter,
 } from "./codex-app-server-event-router.js";
+import {
+  buildCodexThreadProfileParams,
+  computeCodexProfileDetails,
+  resolveCodexSessionProfileState,
+} from "./codex-profile-application.js";
 import { buildCodexReasoningSummaryParams } from "./codex-reasoning-summary-params.js";
 import { CodexAppServerProcess } from "./process/codex-app-server-process.js";
 import { CODEX_DEFAULT_PROCESS_PROFILE_KEY } from "./process/codex-app-server-process-profile.js";
@@ -157,7 +166,11 @@ export class CodexAppServerFacade {
     await this.process.start();
   }
 
-  async createSession(workspacePath?: string): Promise<string> {
+  async createSession(
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
+    const profileState = resolveCodexSessionProfileState(startOptions);
     const response = await this.process.request<Record<string, unknown>>(
       "thread/start",
       {
@@ -169,6 +182,7 @@ export class CodexAppServerFacade {
           this.workspace.defaultSandboxMode ?? CODEX_WORKFLOW_DEFAULT_SANDBOX,
         model: this.workspace.defaultModel,
         persistExtendedHistory: true,
+        ...buildCodexThreadProfileParams(profileState),
       }
     );
     const thread = isRecord(response.thread) ? response.thread : null;
@@ -180,13 +194,24 @@ export class CodexAppServerFacade {
     this.handshakedThreadIds.add(threadId);
     this.eventRouter.emitRuntimeModel(threadId, response.model);
     this.eventRouter.emitCachedUsageLimits(threadId);
-    return threadId;
+    if (!profileState) {
+      return threadId;
+    }
+    return {
+      appliedProfileApplication: computeCodexProfileDetails(
+        profileState,
+        CODEX_DEFAULT_PROCESS_PROFILE_KEY
+      ),
+      providerSessionId: threadId,
+    };
   }
 
   async resumeSession(
     threadId: string,
-    workspacePath?: string
-  ): Promise<string> {
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
+    const profileState = resolveCodexSessionProfileState(startOptions);
     const response = await this.process.request<Record<string, unknown>>(
       "thread/resume",
       {
@@ -199,6 +224,7 @@ export class CodexAppServerFacade {
           this.workspace.defaultSandboxMode ?? CODEX_WORKFLOW_DEFAULT_SANDBOX,
         model: this.workspace.defaultModel,
         persistExtendedHistory: true,
+        ...buildCodexThreadProfileParams(profileState),
       }
     );
     const thread = isRecord(response.thread) ? response.thread : null;

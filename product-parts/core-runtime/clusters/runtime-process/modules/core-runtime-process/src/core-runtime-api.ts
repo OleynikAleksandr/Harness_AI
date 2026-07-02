@@ -12,6 +12,7 @@ import {
   type CoreSession,
   sessionRequestHandlerFacade,
 } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
+import { ReasoningTranslationOverlayStore } from "../../../../settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.js";
 import {
   type HarnessSettings,
   settingsStoreFacade,
@@ -50,6 +51,8 @@ const WORKSPACE_REGISTRY_FILE = join(
 export class CoreRuntimeApi {
   private initialized = false;
   private readonly providerLifecycle = new CoreProviderLifecycle();
+  private readonly reasoningOverlayStore =
+    new ReasoningTranslationOverlayStore();
 
   initialize(): void {
     if (this.initialized) {
@@ -101,6 +104,7 @@ export class CoreRuntimeApi {
           .find((item) => item.id === sessionId);
         const result = sessionRequestHandlerFacade.deleteSession(sessionId);
         sessionEventStreamFacade.deleteSessionEvents(sessionId);
+        this.deleteReasoningTranslationOverlays(session);
         this.deleteProviderSessionArtifacts(session);
         return result;
       }
@@ -208,6 +212,18 @@ export class CoreRuntimeApi {
         session.workspacePath
       )
     ).catch(() => undefined);
+  }
+
+  private deleteReasoningTranslationOverlays(
+    session: CoreSession | undefined
+  ): void {
+    if (!session?.workspacePath) {
+      return;
+    }
+    this.reasoningOverlayStore.deleteSessionOverlays(
+      session.workspacePath,
+      session.id
+    );
   }
 
   private getSessionEvents(sessionId: string): unknown[] {

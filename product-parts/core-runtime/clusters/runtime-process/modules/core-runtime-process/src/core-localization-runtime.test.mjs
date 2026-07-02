@@ -28,3 +28,10 @@ assert.match(
   /new ProviderTranslationEnginesFacade\(\{\s*engines: createProviderTranslationEngines\(/u
 );
 assert.match(apiSource, /materializeCoreLocalizationRuntimePayload\(/u);
+assert.match(apiSource, /ReasoningTranslationOverlayStore/u);
+assert.match(apiSource, /private readonly reasoningOverlayStore/u);
+assert.match(apiSource, /this\.deleteReasoningTranslationOverlays\(session\)/u);
+assert.match(
+  apiSource,
+  /deleteSessionOverlays\(\s*session\.workspacePath,\s*session\.id\s*\)/u
+);

@@ -37,8 +37,10 @@ also run here so the Application Shell remains UI/supervisor/client only.
   stale `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
   stays first on PATH.
 - On `delete-session` RPC, orchestrates session removal: deletes the session's
-  event log and asks the provider adapter to delete its own per-session artifact
-  (e.g. the Codex rollout) so nothing outlives the session record.
+  event log, deletes the Core-owned reasoning translation sidecar under
+  `.harness/sessions/reasoning-translations/`, and asks the provider adapter to
+  delete its own per-session artifact (e.g. the Codex rollout) so nothing
+  outlives the session record.
 - Localization runtime bootstrap payloads are materialized through Core RPC into
   the Harness home `Localization` directory, using Core settings category
   mapping and provider-owned translation engines so browser clients render

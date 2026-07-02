@@ -42,13 +42,23 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Harness-specific workspace prompt injection is a focused additive helper around the migrated SDK prompt so Claude receives workspace path and `AGENTS.md` without relying on renderer state or native filesystem discovery.
 
 - Session profile application layer (`claude-profile-application.ts`):
-  managed payloads replace the workflow `systemPrompt` and set `tools` to
-  the category-mapped whitelist; native switches both to the `claude_code`
-  presets; legacy sessions (no profile kind) keep the pre-profile hardcoded
-  prompt/whitelist untouched. Harness process policy (permission mode,
-  setting sources, home isolation) is not profile content. Applied details
-  (`mode`, `profileId`, `contentHash`, `toolWhitelist`) return to Core via
-  `ProviderSessionStartResult` for the immutable snapshot.
+  managed payloads replace the workflow `systemPrompt`, set `tools` to the
+  category-mapped whitelist and keep SDK isolation (`settingSources: []`)
+  so profile instructions stay the only workflow truth; native switches
+  prompt/tools to the `claude_code` presets AND restores the vendor setting
+  sources `["user", "project", "local"]` per the Native restoration
+  contract (docs/architecture/SessionProfiles.md): the SDK loads workspace
+  `CLAUDE.md` only when `settingSources` includes `project`, so isolation
+  mode is not neutral process policy for Native (acceptance finding
+  2026-07-02 — Native sessions saw neither CLAUDE.md nor the legacy inline
+  AGENTS.md injection, which the preset replaces). The `user` scope reads
+  the isolated provider home, not the OS user home. Permission mode, home
+  isolation and auth stay Harness process policy in both modes; legacy
+  sessions (no profile kind) keep the pre-profile hardcoded
+  prompt/whitelist and isolation untouched. Applied details (`mode`,
+  `profileId`, `contentHash`, `toolWhitelist`, native `settingSources`)
+  return to Core via `ProviderSessionStartResult` for the immutable
+  snapshot.
 - Category mapping (categories only filter Claude's OWN native tools):
   `file-read` -> Read, Glob, Grep; `file-write` -> Write, Edit; `shell` ->
   Bash; `web` -> WebSearch, WebFetch; `git`/`tests` -> no dedicated Claude

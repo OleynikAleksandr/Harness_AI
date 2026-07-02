@@ -24,6 +24,17 @@ export const CLAUDE_TOOL_CATEGORY_MAP: Readonly<
 
 const CLAUDE_CODE_PRESET = { preset: "claude_code", type: "preset" } as const;
 
+/**
+ * Native restoration contract (docs/architecture/SessionProfiles.md): Native
+ * returns the channel to vendor-default behavior as if launched via the
+ * plain vendor CLI. The SDK loads workspace CLAUDE.md only when
+ * settingSources includes "project" (an empty array is SDK isolation mode),
+ * so Native restores the full vendor CLI source set. Provider home
+ * isolation, auth and permission bypass stay Harness process policy — the
+ * "user" scope reads the isolated provider home, not the OS user home.
+ */
+const CLAUDE_VENDOR_SETTING_SOURCES = ["user", "project", "local"] as const;
+
 export interface ClaudeSessionProfileState {
   readonly kind: "managed" | "native";
   readonly payload?: SessionProfilePayload;
@@ -64,12 +75,19 @@ export function mapClaudeToolCategories(
 /**
  * Mutates the prepared SDK query options according to the session's applied
  * profile state and returns the actually-applied details for the Core
- * snapshot. Managed replaces the workflow prompt and the tool whitelist;
- * native switches both to the claude_code presets (Harness process policy —
- * permission mode, setting sources, home isolation — stays untouched).
+ * snapshot. Managed replaces the workflow prompt and the tool whitelist and
+ * keeps the SDK isolation mode (`settingSources: []`) so profile
+ * instructions stay the only workflow truth; native switches prompt/tools
+ * to the claude_code presets AND restores the vendor setting sources so
+ * CLAUDE.md discovery behaves like the plain vendor CLI. Permission mode
+ * and home isolation stay untouched Harness process policy in both modes.
  */
 export function applyClaudeSessionProfile(
-  options: { systemPrompt?: unknown; tools?: unknown },
+  options: {
+    settingSources?: unknown;
+    systemPrompt?: unknown;
+    tools?: unknown;
+  },
   state?: ClaudeSessionProfileState
 ): ProviderProfileApplicationDetails | undefined {
   if (!state) {
@@ -78,8 +96,10 @@ export function applyClaudeSessionProfile(
   if (state.kind === "native") {
     options.systemPrompt = { ...CLAUDE_CODE_PRESET };
     options.tools = { ...CLAUDE_CODE_PRESET };
+    options.settingSources = [...CLAUDE_VENDOR_SETTING_SOURCES];
     return {
       mode: "native",
+      settingSources: [...CLAUDE_VENDOR_SETTING_SOURCES],
       systemPrompt: "claude_code preset",
       tools: "claude_code preset",
     };

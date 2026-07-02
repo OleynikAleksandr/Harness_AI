@@ -270,8 +270,9 @@ export class ClaudeSDKManager {
       additionalDirectories: [session.workspacePath],
       includePartialMessages: true,
       projectPath: this.resolveProjectPath(),
-      // Keep CodeAI Hub-managed Claude turns in SDK isolation mode so
-      // CLAUDE.md/settings discovery cannot walk parent directories from cwd.
+      // Managed/legacy turns stay in SDK isolation mode so CLAUDE.md/settings
+      // discovery cannot compete with profile instructions; the native branch
+      // of applyClaudeSessionProfile below restores the vendor source set.
       settingSources: [...runtimeProfile.settingSources],
       systemPrompt: buildClaudeWorkspaceSystemPrompt(session.workspacePath),
       tools: [...runtimeProfile.toolNames],

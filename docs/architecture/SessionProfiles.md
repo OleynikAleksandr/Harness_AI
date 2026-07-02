@@ -306,12 +306,35 @@ workflow-текста под канальные особенности (силь
 
 ## Семантика Native-профиля (по провайдерам)
 
-«Native» = дефолтное поведение канала без вмешательства Harness:
+«Native» = дефолтное поведение канала без вмешательства Harness.
 
-- **Claude**: `systemPrompt: { type: 'preset', preset: 'claude_code' }` и
+**Контракт восстановления Native.** Выбор Native обязан возвращать
+поведение провайдера в первозданный vendor-вид — как если бы канал
+запустили напрямую через vendor CLI/SDK с настройками по умолчанию. Любое
+отклонение адаптера от vendor-дефолтов (флаги, опции SDK, фильтры) при
+Native либо восстанавливается до vendor-значения, либо явно документируется
+в `module.md` адаптера как процессная политика Harness. Процессной
+политикой считаются только вещи, без которых запуск внутри Harness
+невозможен: изоляция provider home, авторизация и permission bypass (в GUI
+некому отвечать на интерактивные разрешения CLI). Урок acceptance
+(2026-07-02): у Claude изоляционный `settingSources: []` ошибочно числился
+процессной политикой и отключал загрузку workspace `CLAUDE.md` — по
+контракту SDK загрузка `CLAUDE.md` требует источника `project`, а пресет
+`claude_code` заодно заменяет и старую inline-инжекцию `AGENTS.md`, так что
+Native не видел ни того, ни другого. Применённые Native-настройки каждого
+адаптера фиксируются в applied snapshot.
+
+Per provider:
+
+- **Claude**: `systemPrompt: { type: 'preset', preset: 'claude_code' }`,
   `tools: { type: 'preset', preset: 'claude_code' }` (полный нативный набор
-  инструментов). Процессные решения Harness (permission mode, setting
-  sources, изоляция provider home) остаются продуктовой политикой, а не
+  инструментов) и `settingSources: ["user", "project", "local"]` —
+  vendor-набор источников файловых настроек, включающий загрузку workspace
+  `CLAUDE.md` (SDK: «Must include 'project' to load CLAUDE.md files»;
+  пустой массив — режим изоляции, он остаётся только для managed/legacy;
+  источник `user` читает изолированный provider home, а не домашний каталог
+  пользователя ОС). Процессные решения Harness (permission mode, изоляция
+  provider home, авторизация) остаются продуктовой политикой, а не
   контентом профиля.
 - **Codex**: не передавать `baseInstructions`/`developerInstructions`;
   запускать app-server с дефолтным (без `--disable`) набором аргументов.

@@ -40,6 +40,22 @@ liveness preflight without treating that global home as a workspace root.
   `session/resume`, which only knows the bare provider session id. This keeps
   resume-after-Stop working with the Core-stored id.
 
+- Session profile binding verification (2026-07-02, task
+  harness-ai.phase6.stream4.task1): the managed agent materialized into
+  `<provider home>/codeai-managed-agent/` (`agent.yaml` +
+  `system_prompt_path: ./system.md`) is NOT provably bound to the spawned
+  CLI — `buildKimiCliEnvironment` launches plain `kimi acp` (no agent flag),
+  the environment carries only `KIMI_MODEL_*`/`KIMI_CLI_NO_AUTO_UPDATE`, and
+  the ACP session cwd is the workspace/provider home, not the agent
+  directory. Because applying a profile that provably does not reach the
+  model would be a silent substitution, managed session profiles for Kimi
+  are DEFERRED: `profile-catalog` excludes `kimi` from
+  `PROFILE_SUPPORTED_PROVIDER_IDS` (native-only in the picker), the adapter
+  rejects managed start options defensively, and the follow-up stage must
+  first verify a real binding channel (agent flag/env/config discovery in a
+  newer CLI) before immutable content-hash-keyed per-profile artifacts land
+  (docs/architecture/SessionProfiles.md).
+
 ## Owned Paths
 
 - `module.md`

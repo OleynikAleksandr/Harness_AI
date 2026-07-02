@@ -102,10 +102,16 @@ try {
   assert.ok(codexIds.includes("review"));
   assert.ok(!codexIds.includes("codeai-workflow-claude"));
 
-  // Unsupported providers only get Native.
+  // Unsupported providers only get Native. Kimi is deferred (agent binding
+  // unverified), so it is native-only in the MVP too.
   const openrouterEntries = await catalog.listProfilesForProvider("openrouter");
   assert.deepEqual(
     openrouterEntries.map((entry) => entry.id),
+    [NATIVE_SESSION_PROFILE_ID]
+  );
+  const kimiEntries = await catalog.listProfilesForProvider("kimi");
+  assert.deepEqual(
+    kimiEntries.map((entry) => entry.id),
     [NATIVE_SESSION_PROFILE_ID]
   );
 
@@ -148,11 +154,18 @@ try {
   assert.match(brokenResolution.error, /cannot be applied/u);
 
   const inapplicable = await catalog.resolveForSession({
-    profileId: "codeai-workflow-kimi",
+    profileId: "codeai-workflow-glm-native",
     providerId: "claude",
   });
   assert.equal(inapplicable.ok, false);
   assert.match(inapplicable.error, /not applicable/u);
+
+  const kimiManaged = await catalog.resolveForSession({
+    profileId: "review",
+    providerId: "kimi",
+  });
+  assert.equal(kimiManaged.ok, false);
+  assert.match(kimiManaged.error, /does not support managed session profiles/u);
 
   const missing = await catalog.resolveForSession({
     profileId: "does-not-exist",

@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream4.task1",
-  "expectedCommitMessage": "docs(kimi-provider): record kimi agent binding verification for per-profile materialization",
+  "currentTaskId": "harness-ai.phase6.stream4.task2",
+  "expectedCommitMessage": "feat(kimi-provider): defensively reject managed session profile options until the agent binding is verified",
   "debt": null
 }
 ```
@@ -164,10 +164,10 @@
 
 ### Stream: Kimi
 
-46. [IN_PROGRESS] `harness-ai.phase6.stream4.task1` Verify the Kimi agent binding mechanism first: how the CLI locates `agent.yaml` (cwd/config/env), whether per-profile agent directories are possible, and how parallel sessions with different profiles stay isolated; record verified facts and the chosen materialization design in `module.md` and update `docs/architecture/SessionProfiles.md` if findings change the contract (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `docs(kimi-provider): record kimi agent binding verification for per-profile materialization`).
-47. [TODO] Git Commit: `docs(kimi-provider): record kimi agent binding verification for per-profile materialization` (hash: TBD)
-48. [TODO] `harness-ai.phase6.stream4.task2` Kimi profile application with IMMUTABLE artifacts: materialize agent artifacts (`agent.yaml` + `system.md` + category-mapped Kimi-native tools list) from the payload before `session/new` into a content-hash-keyed directory that is never overwritten (today's code overwrites a fixed directory — that would silently swap the agent contract of older sessions on resume); identical content dedupes to the same directory; return the artifact key/path in `ProviderSessionStartResult` so the snapshot stores it and resume reuses exactly that path; native = launch without the custom managed agent (CLI default agent); GC of unused artifact directories is out of MVP scope; category mapping table in `module.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/provider/kimi-managed-agent-profile.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/provider/kimi-provider-adapter.ts`, plus `module.md`; expected commit: `feat(kimi-provider): materialize immutable content-hash-keyed agent artifacts from session profile payload`).
-49. [TODO] Git Commit: `feat(kimi-provider): materialize immutable content-hash-keyed agent artifacts from session profile payload` (hash: TBD)
+46. [DONE] `harness-ai.phase6.stream4.task1` Verify the Kimi agent binding mechanism first: verification (2026-07-02) found NO provable channel binding the materialized `agent.yaml` to the spawned CLI (plain `kimi acp`, only `KIMI_MODEL_*` env, session cwd is workspace/provider home) — findings change the contract per this task's own clause: managed profiles for Kimi are DEFERRED, `profile-catalog` excludes `kimi` from `PROFILE_SUPPORTED_PROVIDER_IDS` (native-only picker, structured error on managed selection), and the facts are recorded in the kimi module contract, the catalog contract and `docs/architecture/SessionProfiles.md` (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts` + its test, `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/module.md`, `docs/architecture/SessionProfiles.md`, plus `module.md` files; expected commit: `fix(profile-catalog): defer kimi managed profiles pending verified agent binding`). Result: Completed in commit `fix(profile-catalog): defer kimi managed profiles pending verified agent binding`.
+47. [DONE] Git Commit: `fix(profile-catalog): defer kimi managed profiles pending verified agent binding` (hash: self)
+48. [IN_PROGRESS] `harness-ai.phase6.stream4.task2` Kimi adapter defensive guard (immutable content-hash-keyed artifacts are deferred to the follow-up stage together with the binding verification): accept the additive start options on `createSession`/`resumeSession` and reject `profileKind: "managed"` with a structured error so a future catalog/adapter mismatch can never silently substitute instructions; native/legacy keep today's behavior (materialized managed agent) untouched (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/provider/kimi-provider-adapter.ts`, plus `module.md`; expected commit: `feat(kimi-provider): defensively reject managed session profile options until the agent binding is verified`).
+49. [TODO] Git Commit: `feat(kimi-provider): defensively reject managed session profile options until the agent binding is verified` (hash: TBD)
 
 ## Phase 7 - Core RPC, Bridge And Renderer Types (owner: Codex, updated: 2026-07-02)
 

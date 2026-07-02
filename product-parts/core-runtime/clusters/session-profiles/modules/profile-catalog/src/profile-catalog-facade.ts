@@ -7,13 +7,16 @@ export const NATIVE_SESSION_PROFILE_ID = "native";
 
 /**
  * Providers whose adapters apply managed session profiles in the MVP scope.
- * Other providers only offer the virtual Native profile until their
- * follow-up stage lands (docs/architecture/SessionProfiles.md).
+ * Kimi is deferred: verification found no provable channel binding the
+ * materialized agent.yaml to the CLI (no flag, no env, cwd mismatch), and
+ * applying a profile that provably does not reach the model would be a
+ * silent substitution. Other providers only offer the virtual Native
+ * profile until their follow-up stage lands
+ * (docs/architecture/SessionProfiles.md).
  */
 export const PROFILE_SUPPORTED_PROVIDER_IDS = [
   "claude",
   "codex",
-  "kimi",
   "glm-native",
 ] as const;
 

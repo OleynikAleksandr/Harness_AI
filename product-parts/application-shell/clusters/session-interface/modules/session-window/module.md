@@ -103,6 +103,12 @@ Render the transcript/dialog layout and session chrome.
   longer hardcodes `native/raw` (the submitted `nextSessionMode` comes from
   the user's step choice).
 
+- The session header shows the applied profile chip
+  (`SessionProfileChip` in `reference-session-panels.tsx`), driven strictly
+  by `CoreSession.appliedProfile` from the Core snapshot: managed profiles
+  show their display name, Native shows "Native", and sessions persisted
+  before profiles show a "Legacy" marker.
+
 ## Owned Paths
 
 - `module.md`

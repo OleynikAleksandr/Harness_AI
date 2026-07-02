@@ -29,6 +29,7 @@ export function SessionIdPanel({
       className="session-panel session-id-bar"
     >
       <span className="session-id-bar__id">{idLabel}</span>
+      <SessionProfileChip session={session} />
       <div className="session-id-bar__limits">
         {telemetry.limitRows.map((row) => (
           <LimitRow key={row.label} row={row} />
@@ -236,6 +237,28 @@ function LimitRow({ row }: { row: SessionTelemetry["limitRows"][number] }) {
         }
       />
     </div>
+  );
+}
+
+// Applied session profile chip, driven strictly by the Core-owned applied
+// profile snapshot; sessions persisted before profiles (no snapshot) show a
+// legacy marker.
+function SessionProfileChip({ session }: { session: CoreSession | undefined }) {
+  if (!session) {
+    return null;
+  }
+  const applied = session.appliedProfile;
+  return (
+    <span
+      className={`session-profile-chip session-profile-chip--${applied?.kind ?? "legacy"}`}
+      title={
+        applied
+          ? `Session profile: ${applied.profileName}`
+          : "Created before session profiles"
+      }
+    >
+      {applied?.profileName ?? "Legacy"}
+    </span>
   );
 }
 

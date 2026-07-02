@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task3",
-  "expectedCommitMessage": "feat(session-window): show applied session profile chip from the session snapshot",
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": "feat(profile-settings-ui): add Profile Creator settings tab skeleton",
   "debt": null
 }
 ```
@@ -186,14 +186,14 @@
 55. [DONE] Git Commit: `feat(session-window): add profile selection step to the new session flow` (hash: self)
 56. [DONE] `harness-ai.phase8.stream1.task2` Remove the sidebar `Next Session Mode` panel and its dialog (superseded by the profile step); session creation no longer hardcodes `native/raw` in the renderer (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/next-session-mode-panel.tsx` (deleted) + `next-session-mode-runtime.test.mjs`, plus affected `module.md`; expected commit: `feat(session-sidebar): remove next session mode panel and dialog in favor of the profile step`). Result: Completed in commit `feat(session-sidebar): remove next session mode panel and dialog in favor of the profile step`.
 57. [DONE] Git Commit: `feat(session-sidebar): remove next session mode panel and dialog in favor of the profile step` (hash: self)
-58. [IN_PROGRESS] `harness-ai.phase8.stream1.task3` Show the applied profile of the current session as a small chip in the session header, driven by the applied-profile field of the Core session snapshot (`legacy` sessions show nothing or a legacy marker per read model) (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`, plus `module.md`; expected commit: `feat(session-window): show applied session profile chip from the session snapshot`).
-59. [TODO] Git Commit: `feat(session-window): show applied session profile chip from the session snapshot` (hash: TBD)
+58. [DONE] `harness-ai.phase8.stream1.task3` Show the applied profile of the current session as a small chip in the session header, driven by the applied-profile field of the Core session snapshot (`legacy` sessions show nothing or a legacy marker per read model) (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx` (chip lives in the session id bar), `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`, plus `module.md`; expected commit: `feat(session-window): show applied session profile chip from the session snapshot`). Result: Completed in commit `feat(session-window): show applied session profile chip from the session snapshot`.
+59. [DONE] Git Commit: `feat(session-window): show applied session profile chip from the session snapshot` (hash: self)
 
 ## Phase 9 - UI: Profile Creator Settings Tab (owner: Codex, updated: 2026-07-02)
 
 ### Stream: Profile Creator
 
-60. [TODO] `harness-ai.phase9.stream1.task1` Add the `profile-settings-ui` module skeleton with the `Profile Creator` tab to the right of General in Settings (module facade + tab registration in the settings surface) (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, plus `module.md` (new) and `cluster.md`, product tree update; expected commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton`).
+60. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Add the `profile-settings-ui` module skeleton with the `Profile Creator` tab to the right of General in Settings (module facade + tab registration in the settings surface) (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, plus `module.md` (new) and `cluster.md`, product tree update; expected commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton`).
 61. [TODO] Git Commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton` (hash: TBD)
 62. [TODO] `harness-ai.phase9.stream1.task2` Implement the New Profile flow: type choice (universal — no provider question / individual — provider choice), in-app profile name input (no native prompts), `create-session-profile` RPC call, then open the created documents in VS Code via `vscode-link-opener` (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-create-flow.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx`, plus `module.md`; expected commit: `feat(profile-settings-ui): implement new profile creation flow`).
 63. [TODO] Git Commit: `feat(profile-settings-ui): implement new profile creation flow` (hash: TBD)

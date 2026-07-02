@@ -8,8 +8,8 @@
   "planId": "session-profiles-live-refresh-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with live session profile refresh",
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -83,6 +83,6 @@
 
 ### Stream: Package And Retest
 
-7. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/session-profiles-live-refresh-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with live session profile refresh`).
-8. [TODO] Git Commit: `chore(package): rebuild packaged app with live session profile refresh` (hash: TBD)
-9. [TODO] `harness-ai.phase3.stream1.task2` User retests in the packaged app: edit a profile's `profile.yaml` / `system-prompt.md` in VS Code, save, and confirm the Profile Creator list and the new-session profile step refresh without an app restart (scope: user workflow; expected commit: none).
+7. [DONE] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/session-profiles-live-refresh-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with live session profile refresh`). Result: Completed in commit `chore(package): rebuild packaged app with live session profile refresh`.
+8. [DONE] Git Commit: `chore(package): rebuild packaged app with live session profile refresh` (hash: self)
+9. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` User retests in the packaged app: edit a profile's `profile.yaml` / `system-prompt.md` in VS Code, save, and confirm the Profile Creator list and the new-session profile step refresh without an app restart (scope: user workflow; expected commit: none).

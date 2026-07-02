@@ -102,6 +102,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild evidence for the collapsed OpenRouter model
   search: only the selected match card stays visible after a pick, with an
   in-field refresh control that re-runs the search in all three model blocks.
+- `docs/evidence/session-profiles-live-refresh-package-2026-07-02.md` —
+  packaged application rebuild evidence for the live session profile refresh:
+  a Core profile file watcher publishes `session-profiles:updated` events and
+  the Profile Creator list plus the new-session profile step reload without
+  an app restart.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

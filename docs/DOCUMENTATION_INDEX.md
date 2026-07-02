@@ -47,6 +47,13 @@ relevant to the active task.
   provider-scoped profiles, immutable applied profile snapshot,
   `session-profiles` cluster, adapter application strategies, UI surface
   and phase roadmap.
+- `docs/architecture/SessionProfilesV2.md` — session profiles contract
+  revision (Russian): single `profile.md` document with YAML frontmatter,
+  provider tool inventory (Claude SDK `init` capture + probe, GLM adapter
+  export), deny-list "vendor set minus off" application semantics replacing
+  the v1 category whitelist, Profile Creator tool selection UI, open
+  question on Codex/Kimi channels, and the phase roadmap for the next
+  todo-plan.
 
 ## Product Part Documentation
 

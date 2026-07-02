@@ -141,6 +141,40 @@ assert.deepEqual(
   }
 );
 
+let alreadyTargetEngineCalls = 0;
+const alreadyTargetResult = await new ProviderTranslationEnginesFacade({
+  defaultEngineId: "echo",
+  engines: [
+    {
+      id: "echo",
+      translate(request) {
+        alreadyTargetEngineCalls += 1;
+        return translatedEngine.translate(request);
+      },
+    },
+  ],
+}).translate({
+  category: "reasoning",
+  engineId: "echo",
+  sourceLanguage: "en",
+  targetLanguage: "ru",
+  text: "Теперь я вижу полную картину: node находится в `/usr/local/bin/node`.",
+});
+
+assert.equal(alreadyTargetEngineCalls, 0);
+assert.deepEqual(alreadyTargetResult, {
+  engine: "echo",
+  finalText:
+    "Теперь я вижу полную картину: node находится в `/usr/local/bin/node`.",
+  originalText:
+    "Теперь я вижу полную картину: node находится в `/usr/local/bin/node`.",
+  sourceLanguage: "en",
+  status: "translated",
+  targetLanguage: "ru",
+  translatedText:
+    "Теперь я вижу полную картину: node находится в `/usr/local/bin/node`.",
+});
+
 const fallbackResult = await new ProviderTranslationEnginesFacade({
   defaultEngineId: "echo",
   engines: [translatedEngine],

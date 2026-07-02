@@ -2,6 +2,9 @@ import { GoogleGtxTranslationEngine } from "./google-gtx-translation-engine.js";
 import { normalizeTranslationTextFormatting } from "./translation-text-format-normalizer.js";
 
 const DEFAULT_TRANSLATION_ENGINE_ID = "google-gtx";
+const CYRILLIC_LETTER_PATTERN = /\p{Script=Cyrillic}/gu;
+const LATIN_LETTER_PATTERN = /\p{Script=Latin}/gu;
+const RUSSIAN_TARGET_LANGUAGE_CODES = new Set(["ru", "ru-ru", "russian"]);
 
 export type ProviderTranslationStatus = "translated" | "fallback" | "skipped";
 export type ProviderTranslationCategory = "document" | "generic" | "reasoning";
@@ -72,6 +75,11 @@ export class ProviderTranslationEnginesFacade {
     const normalized = normalizeRequest(request);
     if (!normalized) {
       return createSkippedResult(request);
+    }
+    if (
+      isTextAlreadyInTargetLanguage(normalized.text, normalized.targetLanguage)
+    ) {
+      return createAlreadyTargetLanguageResult(normalized);
     }
 
     const explicitEngineRequested = hasText(request.engineId);
@@ -163,6 +171,20 @@ function createFallbackResult(
   };
 }
 
+function createAlreadyTargetLanguageResult(
+  request: ProviderTranslationRequest
+): ProviderTranslationResult {
+  return {
+    engine: request.engineId?.trim() || "target-language-guard",
+    finalText: request.text,
+    originalText: request.text,
+    sourceLanguage: request.sourceLanguage,
+    status: "translated",
+    targetLanguage: request.targetLanguage,
+    translatedText: request.text,
+  };
+}
+
 function normalizeTranslatedResult(
   result: ProviderTranslationResult
 ): ProviderTranslationResult {
@@ -182,4 +204,20 @@ function normalizeTranslatedResult(
 
 function hasText(value: string | undefined): boolean {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function isTextAlreadyInTargetLanguage(
+  text: string,
+  targetLanguage: string
+): boolean {
+  const normalizedTargetLanguage = targetLanguage.trim().toLowerCase();
+  if (!RUSSIAN_TARGET_LANGUAGE_CODES.has(normalizedTargetLanguage)) {
+    return false;
+  }
+  const cyrillicLetters = text.match(CYRILLIC_LETTER_PATTERN)?.length ?? 0;
+  if (cyrillicLetters < 3) {
+    return false;
+  }
+  const latinLetters = text.match(LATIN_LETTER_PATTERN)?.length ?? 0;
+  return cyrillicLetters / Math.max(cyrillicLetters + latinLetters, 1) >= 0.3;
 }

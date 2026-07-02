@@ -5,6 +5,12 @@
 Own the provider-neutral translation facade, engine registry, formatting
 normalization, and provider-backed UI/reasoning translation engines.
 
+The provider-neutral facade preserves text that is already in the requested
+target language before it calls any configured model-backed engine. This keeps
+reasoning translation stable when a provider emits some thinking text directly
+in the UI language: the result is treated as ready translated content and the
+source text is returned unchanged.
+
 The built-in `google-gtx` engine owns the unauthenticated Google GTX transport
 adapter and response parser. It uses GET for short requests, POST form transport
 for longer payloads, and returns fallback results instead of throwing on
@@ -16,6 +22,11 @@ assistant reply as the translated text, with the same fail-closed fallback
 behavior as `google-gtx` on transport, auth, or empty-response failures. It
 never performs tool calls or session/agentic behavior — it is a pure
 request/response translation transport.
+
+The OpenRouter system instruction repeats the same target-language preservation
+rule for every selected model: if the input is already in the target language,
+the model must return it unchanged and must not translate it into another
+language.
 
 `provider-translation-engines-factory.ts` builds the registered engine set
 (`createProviderTranslationEngines`) from an OpenRouter connection
@@ -45,6 +56,8 @@ itself) and pass the relevant connection/profile config in.
 
 - Translation result with original text, final text, translated text, status,
   engine id, and optional error code.
+- Already-target-language text returned unchanged without invoking a provider
+  engine.
 - Fail-closed fallback with `errorCode: "no_engine"` when an explicit engine id
   is unavailable.
 - Translation engine diagnostics.

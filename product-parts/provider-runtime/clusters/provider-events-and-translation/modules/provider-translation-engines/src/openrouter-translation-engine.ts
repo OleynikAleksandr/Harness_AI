@@ -165,6 +165,8 @@ function buildTranslationSystemPrompt(
 ): string {
   return [
     `You are a translation engine. Translate the user's text from ${sourceLanguage} to ${targetLanguage}.`,
+    `If the user's text is already in ${targetLanguage}, return it unchanged.`,
+    "Do not translate already-target-language text into any other language.",
     "Respond with only the translated text and no explanations, quotes, or additional commentary.",
     "Preserve placeholders, punctuation, formatting markers, and whitespace structure exactly.",
   ].join(" ");

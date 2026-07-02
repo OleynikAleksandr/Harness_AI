@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with provider network capture",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -146,9 +146,9 @@
 
 ### Stream: Package And Capture
 
-43. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with provider network capture`).
-44. [TODO] Git Commit: `chore(package): rebuild packaged app with provider network capture` (hash: TBD)
-45. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+43. [DONE] `harness-ai.phase6.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with provider network capture`). Result: Completed in commit `chore(package): rebuild packaged app with provider network capture`.
+44. [DONE] Git Commit: `chore(package): rebuild packaged app with provider network capture` (hash: self)
+45. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

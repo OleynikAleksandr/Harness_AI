@@ -119,6 +119,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   a Core profile file watcher publishes `session-profiles:updated` events and
   the Profile Creator list plus the new-session profile step reload without
   an app restart.
+- `docs/evidence/provider-network-capture-package-2026-07-02.md` — packaged
+  application rebuild evidence for the Provider Native Request Capture feature:
+  the record-only `provider-network-capture` Core cluster, adapters aligned to
+  native-vendor-default capture, capture RPC/bridge, and the Native Request
+  Capture Settings card, ahead of capturing three native pairs.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

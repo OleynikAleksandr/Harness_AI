@@ -8,8 +8,8 @@
   "planId": "session-profiles-live-refresh-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat(application-shell): refresh session profile lists on profile update events",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app with live session profile refresh",
   "debt": null
 }
 ```
@@ -76,13 +76,13 @@
 
 ### Stream: Profile Surfaces Reload
 
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Reload the profile surfaces on `session-profiles:updated`: the Profile Creator list (`profile-list.tsx`) and the new-session profile step (`session-profile-step.tsx`) subscribe through `window.harnessCore.onEvent` and re-run their existing catalog RPC when the event arrives; the profile step keeps the user's current selection when it is still present and valid after the reload (initial mount still applies the Core-remembered preselection) and falls back to Native otherwise; a static test guards the subscriptions (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-list.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-profile-step.tsx, product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-list.test.mjs` (new), plus `module.md` of `profile-settings-ui` and `session-window`; expected commit: `feat(application-shell): refresh session profile lists on profile update events`).
-6. [TODO] Git Commit: `feat(application-shell): refresh session profile lists on profile update events` (hash: TBD)
+5. [DONE] `harness-ai.phase2.stream1.task1` Reload the profile surfaces on `session-profiles:updated`: the Profile Creator list (`profile-list.tsx`) and the new-session profile step (`session-profile-step.tsx`) subscribe through `window.harnessCore.onEvent` and re-run their existing catalog RPC when the event arrives; the profile step keeps the user's current selection when it is still present and valid after the reload (initial mount still applies the Core-remembered preselection) and falls back to Native otherwise; a static test guards the subscriptions (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-list.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-profile-step.tsx, product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-list.test.mjs` (new), plus `module.md` of `profile-settings-ui` and `session-window`; expected commit: `feat(application-shell): refresh session profile lists on profile update events`). Result: Completed in commit `feat(application-shell): refresh session profile lists on profile update events`.
+6. [DONE] Git Commit: `feat(application-shell): refresh session profile lists on profile update events` (hash: self)
 
 ## Phase 3 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-02)
 
 ### Stream: Package And Retest
 
-7. [TODO] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/session-profiles-live-refresh-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with live session profile refresh`).
+7. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/session-profiles-live-refresh-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with live session profile refresh`).
 8. [TODO] Git Commit: `chore(package): rebuild packaged app with live session profile refresh` (hash: TBD)
 9. [TODO] `harness-ai.phase3.stream1.task2` User retests in the packaged app: edit a profile's `profile.yaml` / `system-prompt.md` in VS Code, save, and confirm the Profile Creator list and the new-session profile step refresh without an app restart (scope: user workflow; expected commit: none).

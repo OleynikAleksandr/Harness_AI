@@ -1,9 +1,19 @@
 import { ArrowLeft, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SessionProfileCatalogEntry } from "../../../../../../core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 
 const NATIVE_PROFILE_ID = "native";
+
+// Core announces profile file changes on disk with this event type; the step
+// reloads the catalog so an edit in VS Code shows up without an app restart.
+function isSessionProfilesUpdatedEvent(event: unknown): boolean {
+  return (
+    typeof event === "object" &&
+    event !== null &&
+    (event as { type?: unknown }).type === "session-profiles:updated"
+  );
+}
 
 /**
  * Second step of the new-session flow: the session profile picker. The list,
@@ -29,40 +39,61 @@ export function SessionProfileStep({
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
+  const loadProfiles = useCallback(
+    (preserveSelection: boolean) => {
+      let cancelled = false;
+      window.harnessCore
+        ?.listSessionProfiles({ providerId: provider.id })
+        .then((result) => {
+          if (cancelled || !result) {
+            return;
+          }
+          if (!result.ok) {
+            setError(result.error);
+            setProfiles([]);
+            return;
+          }
+          setProfiles(result.profiles);
+          const remembered =
+            result.lastSelectedProfileByProvider[provider.id] ??
+            NATIVE_PROFILE_ID;
+          const rememberedEntry = result.profiles.find(
+            (entry) => entry.id === remembered && entry.valid
+          );
+          const fallbackId = rememberedEntry
+            ? rememberedEntry.id
+            : NATIVE_PROFILE_ID;
+          setSelectedProfileId((current) =>
+            preserveSelection &&
+            result.profiles.some((entry) => entry.id === current && entry.valid)
+              ? current
+              : fallbackId
+          );
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setError("Core runtime bridge is unavailable.");
+            setProfiles([]);
+          }
+        });
+      return () => {
+        cancelled = true;
+      };
+    },
+    [provider.id]
+  );
+
+  useEffect(() => loadProfiles(false), [loadProfiles]);
+
   useEffect(() => {
-    let cancelled = false;
-    window.harnessCore
-      ?.listSessionProfiles({ providerId: provider.id })
-      .then((result) => {
-        if (cancelled || !result) {
-          return;
-        }
-        if (!result.ok) {
-          setError(result.error);
-          setProfiles([]);
-          return;
-        }
-        setProfiles(result.profiles);
-        const remembered =
-          result.lastSelectedProfileByProvider[provider.id] ??
-          NATIVE_PROFILE_ID;
-        const rememberedEntry = result.profiles.find(
-          (entry) => entry.id === remembered && entry.valid
-        );
-        setSelectedProfileId(
-          rememberedEntry ? rememberedEntry.id : NATIVE_PROFILE_ID
-        );
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError("Core runtime bridge is unavailable.");
-          setProfiles([]);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [provider.id]);
+    const unsubscribe = window.harnessCore?.onEvent((event) => {
+      if (isSessionProfilesUpdatedEvent(event)) {
+        // A reload after a file edit keeps the user's still-valid selection.
+        loadProfiles(true);
+      }
+    });
+    return unsubscribe;
+  }, [loadProfiles]);
 
   const selectedProfile = profiles?.find(
     (entry) => entry.id === selectedProfileId

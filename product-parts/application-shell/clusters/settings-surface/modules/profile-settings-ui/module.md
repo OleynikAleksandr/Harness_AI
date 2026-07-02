@@ -48,6 +48,12 @@ Render the `Profile Creator` Settings tab for session profile management.
   and rename/delete stays files-first in the MVP (no list controls for it).
   Creating a profile bumps the facade's refresh key, remounting the list so
   it reloads from Core.
+- Live refresh: the list subscribes to Core events through
+  `window.harnessCore.onEvent` and re-runs the catalog RPC when a
+  `session-profiles:updated` event arrives (Core's profile file watcher), so
+  saving a profile file in VS Code updates the visible name/description and
+  validity without an app restart. The event only triggers a reload; the
+  catalog data itself always comes from Core.
 - Copy resolves through the shared browser localization provider
   (`settings.profileCreator.*` message ids with English fallbacks).
 

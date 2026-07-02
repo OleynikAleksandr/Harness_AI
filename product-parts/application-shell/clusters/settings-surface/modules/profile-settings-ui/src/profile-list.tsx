@@ -1,9 +1,19 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SessionProfileCatalogEntry } from "../../../../../../core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
 /** Passport and tooling first; the prompt lands as the active editor tab. */
 const PROFILE_DOCUMENTS = ["passport", "tooling", "prompt"] as const;
+
+// Core announces profile file changes on disk with this event type; the list
+// reloads through the same catalog RPC so Core stays the only truth source.
+function isSessionProfilesUpdatedEvent(event: unknown): boolean {
+  return (
+    typeof event === "object" &&
+    event !== null &&
+    (event as { type?: unknown }).type === "session-profiles:updated"
+  );
+}
 
 export function ProfileList() {
   const { t } = useBrowserLocalization();
@@ -16,7 +26,7 @@ export function ProfileList() {
   const [error, setError] = useState("");
   const [openingId, setOpeningId] = useState<null | string>(null);
 
-  useEffect(() => {
+  const loadProfiles = useCallback(() => {
     let cancelled = false;
     window.harnessCore
       ?.listSessionProfiles()
@@ -42,6 +52,17 @@ export function ProfileList() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => loadProfiles(), [loadProfiles]);
+
+  useEffect(() => {
+    const unsubscribe = window.harnessCore?.onEvent((event) => {
+      if (isSessionProfilesUpdatedEvent(event)) {
+        loadProfiles();
+      }
+    });
+    return unsubscribe;
+  }, [loadProfiles]);
 
   useEffect(() => {
     let cancelled = false;

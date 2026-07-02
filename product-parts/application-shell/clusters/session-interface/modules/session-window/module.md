@@ -103,6 +103,11 @@ Render the transcript/dialog layout and session chrome.
   Core rejections (broken profile) render inside the step. The renderer
   never derives profile truth. Core event routing helpers live in
   `session-window-core-events.ts` (split out for the 500-line cap).
+  While the step is open it also listens for `session-profiles:updated`
+  Core events (profile file watcher) and re-runs the catalog RPC, keeping
+  the user's still-valid current selection and falling back to Native
+  otherwise, so profile edits saved in VS Code show up without an app
+  restart.
 
 - The legacy `Next Session Mode` panel/dialog is removed: the profile step
   of the new-session wizard owns the selection surface, and the renderer no

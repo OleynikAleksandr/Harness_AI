@@ -130,6 +130,12 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 ## Settings Surface Styling
 
 - `settings-surface.css` defines scoped `--ss-*` design tokens on `.settings-backdrop`; the global `--pm-*` tokens in `session-window.css` are left unchanged, so this restyle is contained to the settings dialog and shared by every provider tab through the common classes.
+- The tab strip uses content-width tabs (`flex: 0 1 auto`, `min-width: 64px`,
+  `white-space: nowrap`, 10px horizontal padding, 11px font, 6px gap) instead
+  of a fixed flex-basis: nine tabs previously overflowed the 960px dialog and
+  cut off the `Profile Creator` tab (acceptance finding 2026-07-02, screenshot).
+  All nine tabs now fit with headroom for at least one future tab; a long tail
+  of new tabs still degrades gracefully through the strip's `overflow-x: auto`.
 - Neutral graphite palette with three elevation levels: dialog/content (`--ss-bg`) is the darkest surface, the section block `.settings-card` (`--ss-block`) sits one step lighter, and the model/version cards `.settings-model-row` / `.settings-version-row` (`--ss-card`) are lighter still. Card borders (`--ss-card-border`) are value-matched to the field borders so they read with the same weight on their respective surfaces.
 - Selection is teal by tone, not by brightness: the selected model (`.settings-model-row.active` / `.settings-option-row.active`) and the active provider tab (`.settings-tab.active`) use a muted teal fill (`--ss-sel`) at the same lightness as the neutral cards plus a thin muted teal border (`--ss-sel-border`); the bright accent dot stays as the radio indicator.
 - Reasoning fields (`.settings-reasoning-trigger`) and text fields are in-tone with their row — one step lighter than the card (`--ss-field`) — and switch to a teal-tinted fill (`--ss-field-sel`) on the active model, instead of the previous near-black field. Toggle rows are borderless rows inside the block rather than separate framed boxes.

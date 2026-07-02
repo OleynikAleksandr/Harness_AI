@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task1",
-  "expectedCommitMessage": "feat(profile-settings-ui): add Profile Creator settings tab skeleton",
+  "currentTaskId": "harness-ai.phase9.stream1.task2",
+  "expectedCommitMessage": "feat(profile-settings-ui): implement new profile creation flow",
   "debt": null
 }
 ```
@@ -193,12 +193,14 @@
 
 ### Stream: Profile Creator
 
-60. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Add the `profile-settings-ui` module skeleton with the `Profile Creator` tab to the right of General in Settings (module facade + tab registration in the settings surface) (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, plus `module.md` (new) and `cluster.md`, product tree update; expected commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton`).
-61. [TODO] Git Commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton` (hash: TBD)
-62. [TODO] `harness-ai.phase9.stream1.task2` Implement the New Profile flow: type choice (universal — no provider question / individual — provider choice), in-app profile name input (no native prompts), `create-session-profile` RPC call, then open the created documents in VS Code via `vscode-link-opener` (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-create-flow.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx`, plus `module.md`; expected commit: `feat(profile-settings-ui): implement new profile creation flow`).
+60. [DONE] `harness-ai.phase9.stream1.task1` Add the `profile-settings-ui` module skeleton with the `Profile Creator` tab to the right of General in Settings (module facade + tab registration in the settings surface) (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, plus `module.md` (new) and `cluster.md`, product tree update; expected commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton`). Result: Completed in commit `feat(profile-settings-ui): add Profile Creator settings tab skeleton`.
+61. [DONE] Git Commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton` (hash: self)
+62. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` Implement the New Profile flow: type choice (universal — no provider question / individual — provider choice), in-app profile name input (no native prompts), `create-session-profile` RPC call, then open the created documents in VS Code via `vscode-link-opener` (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-create-flow.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx`, plus `module.md`; expected commit: `feat(profile-settings-ui): implement new profile creation flow`).
 63. [TODO] Git Commit: `feat(profile-settings-ui): implement new profile creation flow` (hash: TBD)
 64. [TODO] `harness-ai.phase9.stream1.task3` Implement the profiles list: all profiles with type, applicability and per-profile validity status (human-readable errors), selecting a profile opens its documents in VS Code; Native absent (no files); rename/delete stays files-first in MVP (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-list.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx`, plus `module.md`; expected commit: `feat(profile-settings-ui): list profiles with validity status and editor opening`).
 65. [TODO] Git Commit: `feat(profile-settings-ui): list profiles with validity status and editor opening` (hash: TBD)
+73. [TODO] `harness-ai.phase9.stream1.task4` Register the Profile Creator localization ids in the Core source dictionary once the tab's full copy set is known after task1-task3 (tab label `settings.tab.profileCreator`, the `settings.profileCreator.*` intro copy, and the New Profile flow / profile list strings), so the tab follows the configured UI language instead of English fallbacks; the dictionary file stayed out of the task1 skeleton scope to respect the 3-functional-file limit (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`, plus `module.md`; expected commit: `feat(localization-runtime): register profile creator settings copy in the source dictionary`).
+74. [TODO] Git Commit: `feat(localization-runtime): register profile creator settings copy in the source dictionary` (hash: TBD)
 
 ## Phase 10 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-02)
 

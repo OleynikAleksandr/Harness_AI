@@ -57,6 +57,13 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Settings shell copy, provider tab labels, and the first shared provider-card
   labels/helpers resolve through the browser localization provider and approved
   source dictionary ids.
+- The tab strip (`SETTINGS_TABS` in `settings-model-options.ts`) ends with the
+  `Profile Creator` tab to the right of General; `SettingsTabContent` delegates
+  that tab's content to the `profile-settings-ui` module facade
+  (`ProfileSettingsUiFacade`), so session profile management stays owned by its
+  own module. The `settings.tab.profileCreator` label id enters the source
+  dictionary with the dedicated Profile Creator localization task of the
+  active plan; until then the English fallback label renders.
 - Remaining Settings provider helper copy resolves through the same browser
   localization provider, including session continuity helper text, GLM default
   model helper text, OpenCode helper text/model descriptions, Local Models

@@ -33,6 +33,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 - `provider-settings-ui`: provider cards, auth/model/reasoning controls submitted through Core contracts.
 - `localization-settings-ui`: UI language and reasoning translation controls submitted through Core contracts.
 - `recovery-controls-ui`: Core restart/recovery action surface backed by a real Core process stop/start lifecycle.
+- `profile-settings-ui`: Profile Creator settings tab for session profile management.
 
 ### Browser Localization
 

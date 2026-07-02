@@ -8,7 +8,8 @@ export type SettingsTabId =
   | "glmOpenCode"
   | "localModels"
   | "openRouter"
-  | "general";
+  | "general"
+  | "profileCreator";
 
 export const SETTINGS_TABS: ReadonlyArray<{
   id: SettingsTabId;
@@ -22,6 +23,7 @@ export const SETTINGS_TABS: ReadonlyArray<{
   { id: "localModels", label: "Local Models" },
   { id: "openRouter", label: "OpenRouter" },
   { id: "general", label: "General" },
+  { id: "profileCreator", label: "Profile Creator" },
 ];
 
 export const PROVIDER_MODEL_OPTIONS = {

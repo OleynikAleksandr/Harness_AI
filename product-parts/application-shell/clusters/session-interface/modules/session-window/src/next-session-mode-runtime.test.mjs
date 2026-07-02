@@ -9,10 +9,29 @@ const panelSource = readFileSync(
   new URL("./next-session-mode-panel.tsx", import.meta.url),
   "utf8"
 );
+const stepSource = readFileSync(
+  new URL("./session-profile-step.tsx", import.meta.url),
+  "utf8"
+);
 
+// The new-session flow submits the profile choice through nextSessionMode:
+// native stays the raw baseline, a managed selection carries the profile id.
 assert.match(
   windowSource,
-  /nextSessionMode: \{ invocationMode: "native", requestMode: "raw" \}/u
+  /\? \{ invocationMode: "native", requestMode: "raw" \}/u
 );
+assert.match(windowSource, /invocationMode: "managed",/u);
+assert.match(windowSource, /managedProfileId: profileId,/u);
+assert.match(windowSource, /SessionProfileStep/u);
+
+// The profile step is Core-read-model driven: list + preselection from Core.
+assert.match(
+  stepSource,
+  /listSessionProfiles\(\{ providerId: provider\.id \}\)/u
+);
+assert.match(stepSource, /lastSelectedProfileByProvider\[provider\.id\]/u);
+
+// The legacy sidebar panel still renders preview-only labels until its
+// removal task lands.
 assert.match(panelSource, /const ACTIVE_MODE = "Native · Raw"/u);
 assert.match(panelSource, /<small>Preview<\/small>/u);

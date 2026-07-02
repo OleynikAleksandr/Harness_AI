@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { SessionCoreEvent } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import {
   type SessionMessage,
@@ -21,12 +20,15 @@ import {
   ReferenceStatusPanel,
   SessionIdPanel,
 } from "./reference-session-panels.js";
+import { SessionProfileStep } from "./session-profile-step.js";
+import {
+  appendAssistantNotice,
+  applyCoreEvent,
+  isProviderStatusEvent,
+  noop,
+} from "./session-window-core-events.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
 import "./session-window.css";
-import {
-  appendSessionMessageToState,
-  applySessionTranslationPatchToState,
-} from "./translated-text-reveal.js";
 
 export function SessionWindowFacade() {
   const initialSnapshot = useMemo(
@@ -49,6 +51,8 @@ export function SessionWindowFacade() {
   );
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
+  const [profileStepProvider, setProfileStepProvider] =
+    useState<ProviderDescriptor | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNextSessionModeOpen, setIsNextSessionModeOpen] = useState(false);
   const [settingsSnapshot, setSettingsSnapshot] =
@@ -221,16 +225,34 @@ export function SessionWindowFacade() {
     await window.harnessCore?.stopTurn(sessionId);
   }
 
-  async function createSession(provider: ProviderDescriptor) {
+  function chooseProviderForNewSession(provider: ProviderDescriptor) {
     if (provider.readinessStatus !== "ready") {
       return;
     }
+    // Wizard step 2: the profile choice is mandatory by flow structure; Core
+    // still guarantees the Native fallback when no selection arrives.
+    setIsProviderPickerOpen(false);
+    setProfileStepProvider(provider);
+  }
+
+  async function createSession(
+    provider: ProviderDescriptor,
+    profileId: string
+  ): Promise<string | null> {
     const snapshot =
       settingsSnapshot ?? (await refreshSettingsSnapshot(activeWorkspace.path));
     const model = getProviderModel(provider.id, snapshot);
     const result = await window.harnessCore?.createSession({
       model,
-      nextSessionMode: { invocationMode: "native", requestMode: "raw" },
+      nextSessionMode:
+        profileId === "native"
+          ? { invocationMode: "native", requestMode: "raw" }
+          : {
+              invocationMode: "managed",
+              managedProfileId: profileId,
+              managedProfileSelection: "user",
+              requestMode: "raw",
+            },
       providerId: provider.id,
       providerName: provider.name,
       title: `${provider.name} session`,
@@ -238,10 +260,10 @@ export function SessionWindowFacade() {
       workspacePath: activeWorkspace.path,
     });
     if (!result) {
-      return;
+      return "Core runtime bridge is unavailable.";
     }
     if (!result.ok) {
-      return;
+      return result.error;
     }
     const session = result.session;
     setSessions((current) => [session, ...current]);
@@ -250,7 +272,8 @@ export function SessionWindowFacade() {
       [session.id]: [],
     }));
     setActiveSessionId(session.id);
-    setIsProviderPickerOpen(false);
+    setProfileStepProvider(null);
+    return null;
   }
 
   async function selectWorkspace(workspaceId: string) {
@@ -357,10 +380,23 @@ export function SessionWindowFacade() {
           />
         )}
 
+        {profileStepProvider ? (
+          <SessionProfileStep
+            onBack={() => {
+              setProfileStepProvider(null);
+              openProviderPicker();
+            }}
+            onClose={() => setProfileStepProvider(null)}
+            onStart={(profileId) =>
+              createSession(profileStepProvider, profileId)
+            }
+            provider={profileStepProvider}
+          />
+        ) : null}
         {isProviderPickerOpen ? (
           <ProviderPicker
             onClose={() => setIsProviderPickerOpen(false)}
-            onSelect={createSession}
+            onSelect={chooseProviderForNewSession}
             providers={providerOptions}
             settings={settingsSnapshot}
           />
@@ -380,94 +416,4 @@ export function SessionWindowFacade() {
       </div>
     </BrowserLocalizationProvider>
   );
-}
-
-function isProviderStatusEvent(event: unknown): event is ProviderStatusEvent {
-  return (
-    typeof event === "object" &&
-    event !== null &&
-    (event as { type?: unknown }).type === "provider:status"
-  );
-}
-
-function applyCoreEvent(params: {
-  event: SessionCoreEvent;
-  setMessagesBySession: React.Dispatch<
-    React.SetStateAction<Record<string, SessionMessage[]>>
-  >;
-  setRunningSessionId: React.Dispatch<React.SetStateAction<string | null>>;
-  setTelemetryBySession: React.Dispatch<
-    React.SetStateAction<Record<string, SessionTelemetry>>
-  >;
-}) {
-  const {
-    event,
-    setMessagesBySession,
-    setRunningSessionId,
-    setTelemetryBySession,
-  } = params;
-  if (event.type === "session:message") {
-    setMessagesBySession((current) =>
-      appendSessionMessageToState(current, event.payload)
-    );
-    return;
-  }
-  if (event.type === "session:message_translation") {
-    setMessagesBySession((current) =>
-      applySessionTranslationPatchToState(current, event.payload)
-    );
-    return;
-  }
-  if (event.type === "session:error") {
-    appendAssistantNotice(
-      event.payload.sessionId,
-      `Provider setup needed: ${event.payload.error}`,
-      setMessagesBySession
-    );
-    return;
-  }
-  if (event.type === "session:turn-state") {
-    setRunningSessionId((current) => {
-      if (event.payload.state === "running") {
-        return event.payload.sessionId;
-      }
-      if (current === event.payload.sessionId) {
-        return null;
-      }
-      return current;
-    });
-    return;
-  }
-  if (event.type === "session:telemetry") {
-    setTelemetryBySession((current) => ({
-      ...current,
-      [event.payload.sessionId]: event.payload.telemetry,
-    }));
-  }
-}
-
-function appendAssistantNotice(
-  sessionId: string,
-  text: string,
-  setMessagesBySession: React.Dispatch<
-    React.SetStateAction<Record<string, SessionMessage[]>>
-  >
-) {
-  const timestamp = new Date().toISOString();
-  setMessagesBySession((current) => ({
-    ...current,
-    [sessionId]: [
-      ...(current[sessionId] ?? []),
-      {
-        id: `notice-${timestamp}`,
-        role: "assistant",
-        text,
-        timestamp,
-      },
-    ],
-  }));
-}
-
-function noop() {
-  return undefined;
 }

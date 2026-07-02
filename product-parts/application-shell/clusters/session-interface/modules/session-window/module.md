@@ -89,6 +89,15 @@ Render the transcript/dialog layout and session chrome.
   reflects the live catalog (provider renames, Restart Core) instead of the list
   cached at renderer startup.
 
+- New-session wizard step 2 (`session-profile-step.tsx`): after the
+  provider card, the profile picker lists Core-provided applicable profiles
+  (Native first, invalid entries disabled), preselects the Core-remembered
+  last choice per provider, and submits the selection through the existing
+  `createSession` `nextSessionMode` (`invocationMode`/`managedProfileId`);
+  Core rejections (broken profile) render inside the step. The renderer
+  never derives profile truth. Core event routing helpers live in
+  `session-window-core-events.ts` (split out for the 500-line cap).
+
 ## Owned Paths
 
 - `module.md`

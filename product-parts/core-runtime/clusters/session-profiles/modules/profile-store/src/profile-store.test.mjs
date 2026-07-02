@@ -37,16 +37,21 @@ const buildDirectory = await mkdtemp(
 const profilesRoot = await mkdtemp(path.join(tmpdir(), "harness-profiles-"));
 
 try {
-  await writeFile(
-    path.join(buildDirectory, "profile-document-parser.js"),
-    compile("profile-document-parser.ts"),
-    "utf8"
-  );
-  await writeFile(
-    path.join(buildDirectory, "profile-store-facade.js"),
-    compile("profile-store-facade.ts"),
-    "utf8"
-  );
+  await mkdir(path.join(buildDirectory, "seed"), { recursive: true });
+  for (const file of [
+    "profile-document-parser.ts",
+    "profile-store-facade.ts",
+    "seed/codeai-workflow-kimi-baseline.ts",
+    "seed/codeai-workflow-seed-prompts.ts",
+    "seed/universal-seed-prompts.ts",
+    "seed/seed-profiles.ts",
+  ]) {
+    await writeFile(
+      path.join(buildDirectory, file.replace(/\.ts$/u, ".js")),
+      compile(file),
+      "utf8"
+    );
+  }
   const { ProfileStoreFacade, SESSION_PROFILE_TOOLING_CATEGORIES } =
     await import(
       pathToFileURL(path.join(buildDirectory, "profile-store-facade.js")).href
@@ -143,6 +148,65 @@ try {
   const emptyScan = await missingRootStore.listProfiles();
   assert.deepEqual(emptyScan.profiles, []);
   assert.deepEqual(emptyScan.invalid, []);
+
+  // Seeding: first access populates the standard set, all valid.
+  const seededRoot = await mkdtemp(path.join(tmpdir(), "harness-seeded-"));
+  try {
+    const seededStore = new ProfileStoreFacade({
+      profilesRootDirectory: seededRoot,
+    });
+    assert.equal(await seededStore.ensureSeededProfiles(), true);
+    const seededScan = await seededStore.listProfiles();
+    assert.deepEqual(seededScan.invalid, []);
+    assert.deepEqual(
+      seededScan.profiles.map((profile) => profile.id),
+      [
+        "architecture-spec",
+        "codeai-workflow-claude",
+        "codeai-workflow-glm-native",
+        "codeai-workflow-kimi",
+        "plan-document",
+        "review",
+        "todo-plan-deterministic",
+      ]
+    );
+    const kimiSeed = seededScan.profiles.find(
+      (profile) => profile.id === "codeai-workflow-kimi"
+    );
+    assert.equal(kimiSeed.scope, "individual");
+    assert.equal(kimiSeed.passport.provider, "kimi");
+    assert.ok(kimiSeed.promptBody.length > 20_000);
+    assert.match(kimiSeed.promptBody, /CodeAI Hub Kimi Runtime Addendum/u);
+    const reviewSeed = seededScan.profiles.find(
+      (profile) => profile.id === "review"
+    );
+    assert.equal(reviewSeed.scope, "universal");
+    assert.equal(reviewSeed.tooling.categories["file-write"], false);
+    assert.equal(reviewSeed.tooling.categories.tests, true);
+
+    // Re-seeding never overwrites user files and does not resurrect deletions.
+    await writeFile(
+      path.join(seededRoot, "review", "system-prompt.md"),
+      "User edited.\n",
+      "utf8"
+    );
+    await rm(path.join(seededRoot, "plan-document"), {
+      force: true,
+      recursive: true,
+    });
+    assert.equal(await seededStore.ensureSeededProfiles(), false);
+    const rescanned = await seededStore.listProfiles();
+    assert.equal(
+      rescanned.profiles.find((profile) => profile.id === "review").promptBody,
+      "User edited.\n"
+    );
+    assert.equal(
+      rescanned.profiles.some((profile) => profile.id === "plan-document"),
+      false
+    );
+  } finally {
+    await rm(seededRoot, { force: true, recursive: true });
+  }
 
   console.log("profile-store tests: OK");
 } finally {

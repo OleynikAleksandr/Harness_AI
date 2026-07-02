@@ -12,9 +12,17 @@ tooling category vocabulary v1).
 
 The module scans the profiles root, parses and validates the three documents
 of every profile directory (`profile-document-parser.ts`, backed by the
-`yaml` package), and returns valid profiles separately from human-readable
-validation failures. First-access seeding is the next micro task of the
-active plan for this module.
+`yaml` package), returns valid profiles separately from human-readable
+validation failures, and seeds the standard profile set on first access
+(`src/seed/**`): four universal drafts (`plan-document`,
+`todo-plan-deterministic`, `review`, `architecture-spec`) plus the three
+individual migration profiles (`codeai-workflow-claude` from the hardcoded
+Claude workflow prompt, `codeai-workflow-kimi` from the managed-agent
+`system.md` content including the gzip-embedded Codex-native baseline copy,
+`codeai-workflow-glm-native` from the static part of the built-in GLM
+instruction). Seeding runs only when the root contains no profile
+directories at all; user files are never overwritten and deleting a single
+seeded profile does not resurrect it.
 
 ## Public Facade
 

@@ -10,6 +10,7 @@ import {
   type SessionProfileScope,
   type SessionProfileTooling,
 } from "./profile-document-parser.js";
+import { SEED_SESSION_PROFILES } from "./seed/seed-profiles.js";
 
 export {
   resolveSessionProfileScope,
@@ -90,6 +91,27 @@ export class ProfileStoreFacade {
         SESSION_PROFILE_TOOLING_FILE_NAME
       ),
     };
+  }
+
+  /**
+   * Seeds the standard profile set exactly once: only when the profiles root
+   * has no profile directories at all (first access, or a user-initiated
+   * factory reset by deleting the root). Existing user files are never
+   * touched, and deleting an individual seeded profile does not resurrect it.
+   */
+  async ensureSeededProfiles(): Promise<boolean> {
+    const existing = await this.listProfileDirectoryIds();
+    if (existing.length > 0) {
+      return false;
+    }
+    for (const seed of SEED_SESSION_PROFILES) {
+      const documents = this.resolveDocumentPaths(seed.id);
+      await fs.mkdir(documents.profileDirectory, { recursive: true });
+      await fs.writeFile(documents.passportPath, seed.passportYaml, "utf8");
+      await fs.writeFile(documents.promptPath, seed.promptBody, "utf8");
+      await fs.writeFile(documents.toolingPath, seed.toolingYaml, "utf8");
+    }
+    return true;
   }
 
   async listProfiles(): Promise<SessionProfileScanResult> {

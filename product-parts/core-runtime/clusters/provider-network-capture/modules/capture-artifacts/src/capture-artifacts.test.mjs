@@ -113,6 +113,39 @@ try {
   assert.match(markdown, /You are Claude\./u);
   assert.match(markdown, /Sent upstream: false/u);
 
+  // Kimi wire-only: no HTTP request, but envelope + diagnostic context make a
+  // complete artifact.
+  const kimiWriter = await NativeRequestCaptureWriter.create({
+    captureId: "cap-kimi",
+    clock,
+    outputDir,
+    providerId: "kimi",
+    selectedModelId: "kimi-k2.7-code",
+  });
+  await kimiWriter.recordAppliedInputEnvelope({
+    kind: "kimi",
+    wireJsonlPath: "/home/kimi/wire.jsonl",
+    selectedModelId: "kimi-k2.7-code",
+  });
+  await kimiWriter.recordDiagnosticContext({
+    kind: "kimi_wire_capture",
+    payload: { promptLength: 42 },
+  });
+  await kimiWriter.complete("captured");
+
+  const kimiJsonl = await readFile(kimiWriter.artifacts.jsonlPath, "utf8");
+  assert.match(kimiJsonl, /"type":"applied_input_envelope"/u);
+  assert.match(kimiJsonl, /"type":"provider_diagnostic_context"/u);
+  const kimiMarkdown = await readFile(
+    kimiWriter.artifacts.markdownPath,
+    "utf8"
+  );
+  assert.match(kimiMarkdown, /# Kimi Native Request Capture/u);
+  assert.match(kimiMarkdown, /## Applied Input Envelope/u);
+  assert.match(kimiMarkdown, /wire\.jsonl/u);
+  assert.match(kimiMarkdown, /kimi_wire_capture/u);
+  assert.match(kimiMarkdown, /No HTTP request intercepted/u);
+
   console.log("capture-artifacts tests: OK");
 } finally {
   await rm(buildDir, { force: true, recursive: true });

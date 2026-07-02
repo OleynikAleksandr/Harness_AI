@@ -38,10 +38,19 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   `Sent upstream: false`.
 - `NativeRequestCaptureWriter`: creates the paired
   `<timestamp>-<provider>-native-request.{jsonl,md}` artifacts, appends
-  `capture_start` / `request_captured` / `section_extract` / `capture_end`
+  `capture_start` / `request_captured` / `section_extract` /
+  `applied_input_envelope` / `provider_diagnostic_context` / `capture_end`
   JSONL records, and rewrites the markdown twin after each record. Every
   captured request is redacted before it is persisted; the raw request body
   is kept (it is the diagnostic payload) but auth headers are not.
+- `recordAppliedInputEnvelope(envelope)` and `recordDiagnosticContext(record)`
+  let a provider adapter report what it applied and provider-specific
+  diagnostics. This is what makes the Kimi wire-only artifact complete: Kimi
+  intercepts no HTTP request, so its artifact is the applied-input-envelope
+  (including `wireJsonlPath`) plus diagnostic context, rendered in the
+  `Applied Input Envelope` and `Diagnostic Context` markdown sections. The
+  summary states "No HTTP request intercepted" for the envelope-only case
+  without regressing the Claude/Codex captured-request output.
 
 ## Owned Paths
 

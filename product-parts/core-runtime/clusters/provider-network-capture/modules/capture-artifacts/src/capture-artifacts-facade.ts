@@ -111,8 +111,19 @@ export function extractCaptureSections(
   return sections;
 }
 
+export type NativeCaptureAppliedInputEnvelope = Readonly<
+  Record<string, unknown>
+>;
+
+export interface NativeCaptureDiagnosticRecord {
+  readonly kind: string;
+  readonly payload: unknown;
+}
+
 export interface NativeCaptureMarkdownOptions {
+  readonly appliedInputEnvelope: NativeCaptureAppliedInputEnvelope | null;
   readonly capturedRequests: readonly CapturedNativeRequest[];
+  readonly diagnosticRecords: readonly NativeCaptureDiagnosticRecord[];
   readonly failureReason: NativeCaptureFailureReason | null;
   readonly generatedAt: string;
   readonly providerId: NativeCaptureProviderId;
@@ -155,6 +166,14 @@ export function buildNativeRequestCaptureMarkdown(
     "",
     fencedJson(findSection(sections, "messages")?.payload ?? null),
     "",
+    "## Applied Input Envelope",
+    "",
+    fencedJson(options.appliedInputEnvelope),
+    "",
+    "## Diagnostic Context",
+    "",
+    fencedJson(options.diagnosticRecords),
+    "",
     "## Notes",
     "",
     "- Sensitive local diagnostic artifact. Do not upload or share.",
@@ -173,6 +192,8 @@ export class NativeRequestCaptureWriter {
   private readonly providerId: NativeCaptureProviderId;
   private readonly selectedModelId: string | null;
   private readonly capturedRequests: CapturedNativeRequest[] = [];
+  private readonly diagnosticRecords: NativeCaptureDiagnosticRecord[] = [];
+  private appliedInputEnvelope: NativeCaptureAppliedInputEnvelope | null = null;
   private recordCount = 0;
   private failureReason: NativeCaptureFailureReason | null = null;
 
@@ -233,6 +254,38 @@ export class NativeRequestCaptureWriter {
     await this.writeMarkdown();
   }
 
+  // Records what the adapter actually applied for the capture turn (proxy or
+  // wire-only). This is what makes the Kimi wire-only artifact meaningful even
+  // though no HTTP request is intercepted for it.
+  async recordAppliedInputEnvelope(
+    envelope: NativeCaptureAppliedInputEnvelope
+  ): Promise<void> {
+    this.appliedInputEnvelope = envelope;
+    await this.appendRecord({
+      type: "applied_input_envelope",
+      captureId: this.captureId,
+      providerId: this.providerId,
+      envelope,
+      sentUpstream: false,
+    });
+    await this.writeMarkdown();
+  }
+
+  async recordDiagnosticContext(
+    record: NativeCaptureDiagnosticRecord
+  ): Promise<void> {
+    this.diagnosticRecords.push(record);
+    await this.appendRecord({
+      type: "provider_diagnostic_context",
+      captureId: this.captureId,
+      providerId: this.providerId,
+      kind: record.kind,
+      payload: record.payload,
+      sentUpstream: false,
+    });
+    await this.writeMarkdown();
+  }
+
   async complete(
     status: "captured" | "failed" | "timeout",
     reason: NativeCaptureFailureReason | null = null
@@ -261,7 +314,9 @@ export class NativeRequestCaptureWriter {
 
   private async writeMarkdown(): Promise<void> {
     const markdown = buildNativeRequestCaptureMarkdown({
+      appliedInputEnvelope: this.appliedInputEnvelope,
       capturedRequests: this.capturedRequests,
+      diagnosticRecords: this.diagnosticRecords,
       failureReason: this.failureReason,
       generatedAt: this.clock().toISOString(),
       providerId: this.providerId,
@@ -287,9 +342,12 @@ function buildSummary(
   options: NativeCaptureMarkdownOptions
 ): string {
   if (!request) {
+    const lead = options.appliedInputEnvelope
+      ? "No HTTP request intercepted (wire-only or envelope-only capture)."
+      : "No matching provider model request captured yet.";
     const failure = options.failureReason
       ? `Failure reason: ${options.failureReason}.`
-      : "No matching provider model request captured yet.";
+      : lead;
     return [failure, `JSONL records: ${options.recordCount}.`].join("\n");
   }
   return [

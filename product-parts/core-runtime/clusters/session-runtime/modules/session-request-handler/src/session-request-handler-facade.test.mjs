@@ -24,6 +24,28 @@ assert.match(source, /type: "session:message_translation"/u);
 assert.match(source, /usageContextTelemetryFacade\.applyProviderEvent\(/u);
 // Provider session starts are normalized through the additive contract.
 assert.match(source, /normalizeProviderSessionStart\(startOutcome\)/u);
+
+// The applied profile snapshot is captured at create (Native default until
+// managed resolution activates) and adapter details are recorded once.
+assert.match(source, /appliedProfile: \{\s*kind: "native"/u);
+assert.match(source, /private recordAppliedProfileApplication\(/u);
+assert.match(source, /session\.appliedProfile\.appliedProfileApplication/u);
+
+const typesSource = readFileSync(
+  new URL("./session-request-handler-types.ts", import.meta.url),
+  "utf8"
+);
+assert.match(typesSource, /export interface AppliedProfileSnapshot/u);
+assert.match(typesSource, /appliedProfile\?: AppliedProfileSnapshot/u);
+
+const historySource = readFileSync(
+  new URL("./session-history-store.ts", import.meta.url),
+  "utf8"
+);
+assert.match(
+  historySource,
+  /isAppliedProfileSnapshot\(value\.appliedProfile\)/u
+);
 // Provider session id is persisted on both initial binding and promotion.
 assert.match(source, /private rememberProviderSessionId\(/u);
 assert.match(

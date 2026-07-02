@@ -52,6 +52,16 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   `createSession`/`resumeSession` outcomes are normalized via
   `normalizeProviderSessionStart` before binding.
 
+- The immutable applied profile snapshot (`AppliedProfileSnapshot` on
+  `CoreSession.appliedProfile`) is captured exactly once at session create
+  (Native default until managed resolution activates), persisted through the
+  workspace session index (`session-history-store.ts` validates it on read),
+  and enriched exactly once with the adapter's
+  `appliedProfileApplication` details on the first bind. Resume rebuilds
+  adapter input from the snapshot and never rereads `~/.harness-ai/Profiles/**`;
+  sessions persisted before this feature have no snapshot and keep legacy
+  no-payload behavior.
+
 ## Owned Paths
 
 - `module.md`

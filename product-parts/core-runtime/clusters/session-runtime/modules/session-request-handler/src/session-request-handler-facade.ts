@@ -70,6 +70,13 @@ export class SessionRequestHandlerFacade {
   createSession(request: CreateCoreSessionRequest): CoreSessionActionResult {
     const now = new Date().toISOString();
     const session: CoreSession = {
+      // The applied profile snapshot is captured exactly once at create;
+      // managed resolution replaces this Native default when it activates.
+      appliedProfile: {
+        kind: "native",
+        profileId: "native",
+        profileName: "Native",
+      },
       createdAt: now,
       id: createId(`session-${request.providerId}`),
       model: request.model,
@@ -297,6 +304,30 @@ export class SessionRequestHandlerFacade {
     });
   }
 
+  // Provider-specific application details enter the snapshot exactly once,
+  // on the first bind of a freshly created session; resume never rewrites an
+  // already-recorded application (the snapshot is immutable).
+  private recordAppliedProfileApplication(
+    sessionId: string,
+    appliedProfileApplication?: Readonly<Record<string, unknown>>
+  ): void {
+    const session = this.sessions.get(sessionId);
+    if (
+      !(session?.appliedProfile && appliedProfileApplication) ||
+      session.appliedProfile.appliedProfileApplication
+    ) {
+      return;
+    }
+    this.sessions.set(sessionId, {
+      ...session,
+      appliedProfile: {
+        ...session.appliedProfile,
+        appliedProfileApplication,
+      },
+    });
+    this.persistSessionIndex(session.workspacePath);
+  }
+
   private persistSessionIndex(workspacePath?: string): void {
     if (!workspacePath) {
       return;
@@ -352,7 +383,12 @@ export class SessionRequestHandlerFacade {
               session.workspacePath
             )
           : await adapter.createSession(session.workspacePath);
-      const { providerSessionId } = normalizeProviderSessionStart(startOutcome);
+      const { appliedProfileApplication, providerSessionId } =
+        normalizeProviderSessionStart(startOutcome);
+      this.recordAppliedProfileApplication(
+        session.id,
+        appliedProfileApplication
+      );
       const unsubscribe = adapter.subscribe(providerSessionId, (event) =>
         this.handleProviderEvent(session.id, event)
       );

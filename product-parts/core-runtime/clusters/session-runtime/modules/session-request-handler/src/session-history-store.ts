@@ -43,7 +43,30 @@ function isCoreSession(value: unknown): value is CoreSession {
     typeof value.createdAt === "string" &&
     typeof value.updatedAt === "string" &&
     (value.providerSessionId === undefined ||
-      typeof value.providerSessionId === "string")
+      typeof value.providerSessionId === "string") &&
+    isAppliedProfileSnapshot(value.appliedProfile)
+  );
+}
+
+// Sessions persisted before session profiles have no appliedProfile (legacy);
+// a malformed snapshot invalidates the entry instead of resurrecting it with
+// different instructions than the user chose.
+function isAppliedProfileSnapshot(value: unknown): boolean {
+  if (value === undefined) {
+    return true;
+  }
+  return (
+    isRecord(value) &&
+    (value.kind === "managed" || value.kind === "native") &&
+    typeof value.profileId === "string" &&
+    typeof value.profileName === "string" &&
+    (value.prompt === undefined || typeof value.prompt === "string") &&
+    (value.contentHash === undefined ||
+      typeof value.contentHash === "string") &&
+    (value.toolingCategories === undefined ||
+      isRecord(value.toolingCategories)) &&
+    (value.appliedProfileApplication === undefined ||
+      isRecord(value.appliedProfileApplication))
   );
 }
 

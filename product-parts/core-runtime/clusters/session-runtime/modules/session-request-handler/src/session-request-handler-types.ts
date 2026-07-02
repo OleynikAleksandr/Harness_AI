@@ -4,7 +4,28 @@ import type { ProviderSessionBinding } from "../../provider-session-binding/src/
 import type { SessionCoreEvent } from "../../session-event-stream/src/session-event-stream-facade.js";
 import type { NextSessionMode } from "./next-session-mode.js";
 
+/**
+ * Immutable applied profile snapshot captured exactly once at session create
+ * (docs/architecture/SessionProfiles.md). Resume rebuilds adapter input from
+ * this snapshot and never rereads user-editable profile files. Sessions
+ * persisted before this feature have no snapshot and resolve to legacy
+ * no-payload behavior.
+ */
+export interface AppliedProfileSnapshot {
+  // Provider-specific application details returned by the adapter
+  // (ProviderSessionStartResult); recorded once on the first bind.
+  appliedProfileApplication?: Readonly<Record<string, unknown>>;
+  readonly contentHash?: string;
+  readonly kind: "managed" | "native";
+  readonly profileId: string;
+  readonly profileName: string;
+  readonly prompt?: string;
+  readonly toolingCategories?: Readonly<Record<string, boolean>>;
+}
+
 export interface CoreSession {
+  // Absent on sessions created before session profiles existed (= legacy).
+  appliedProfile?: AppliedProfileSnapshot;
   createdAt: string;
   id: string;
   model: string;

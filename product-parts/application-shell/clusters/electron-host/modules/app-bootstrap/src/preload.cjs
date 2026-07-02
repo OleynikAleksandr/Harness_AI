@@ -16,6 +16,12 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:delete-session", sessionId),
   ensureGlossaryFile: () =>
     ipcRenderer.invoke("harness-ai:core:ensure-glossary-file"),
+  listSessionProfiles: (request) =>
+    ipcRenderer.invoke("harness-ai:core:list-session-profiles", request),
+  createSessionProfile: (request) =>
+    ipcRenderer.invoke("harness-ai:core:create-session-profile", request),
+  openSessionProfileFile: (request) =>
+    ipcRenderer.invoke("harness-ai:core:open-session-profile-file", request),
   getSessionEvents: (sessionId) =>
     ipcRenderer.invoke("harness-ai:core:get-session-events", sessionId),
   getSettings: (workspacePath) =>

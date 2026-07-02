@@ -53,6 +53,12 @@ modules or own Core truth.
   stream is reconnected after a successful restart and after a failed restart
   attempt.
 
+- Session profile RPC forwarding: `harness-ai:core:list-session-profiles`,
+  `harness-ai:core:create-session-profile` and
+  `harness-ai:core:open-session-profile-file` map to the Core
+  `list-session-profiles`/`create-session-profile`/`open-session-profile-file`
+  methods in `IPC_TO_RPC`.
+
 ## Owned Paths
 
 - `module.md`

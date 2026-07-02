@@ -28,6 +28,11 @@ Own Electron lifecycle, window creation, and local application startup.
   next process reloads the packaged `app.asar` and starts a fresh Core runtime
   from disk.
 
+- `window.harnessCore` exposes `listSessionProfiles(request?)`,
+  `createSessionProfile(request)` and `openSessionProfileFile(request)`
+  (session profile picker/authoring surface), typed in the session window
+  `vite-env.d.ts`.
+
 ## Owned Paths
 
 - `module.md`

@@ -53,6 +53,27 @@ interface Window {
     ensureGlossaryFile(): Promise<
       { error: string; ok: false } | { filePath: string; ok: true }
     >;
+    listSessionProfiles(request?: { providerId?: string }): Promise<
+      | {
+          autoNormalizerByProvider: Readonly<Record<string, boolean>>;
+          lastSelectedProfileByProvider: Readonly<Record<string, string>>;
+          ok: true;
+          profiles: readonly import("../../../../../../core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.js").SessionProfileCatalogEntry[];
+        }
+      | { error: string; ok: false }
+    >;
+    createSessionProfile(request: { name: string; provider?: string }): Promise<
+      | {
+          documents: import("../../../../../../core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.js").SessionProfileDocumentPaths;
+          id: string;
+          ok: true;
+        }
+      | { error: string; ok: false }
+    >;
+    openSessionProfileFile(request: {
+      document?: "passport" | "prompt" | "tooling";
+      profileId: string;
+    }): Promise<{ error: string; ok: false } | { filePath: string; ok: true }>;
     getSessionEvents(
       sessionId: string
     ): Promise<

@@ -5,6 +5,9 @@ const IPC_TO_RPC = {
   "harness-ai:core:create-session": "create-session",
   "harness-ai:core:delete-session": "delete-session",
   "harness-ai:core:ensure-glossary-file": "ensure-glossary-file",
+  "harness-ai:core:list-session-profiles": "list-session-profiles",
+  "harness-ai:core:create-session-profile": "create-session-profile",
+  "harness-ai:core:open-session-profile-file": "open-session-profile-file",
   "harness-ai:core:get-localization-runtime-payload":
     "get-localization-runtime-payload",
   "harness-ai:core:get-local-models": "get-local-models",

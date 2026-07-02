@@ -41,6 +41,10 @@ relevant to the active task.
   settings parity contract.
 - `docs/architecture/ReferenceCoreRuntimeBoundary.md` — out-of-process Core,
   Application Shell boundary, regression preservation and guard contract.
+- `docs/architecture/SessionProfiles.md` — runtime-selectable session
+  profiles plan: per-provider system prompt + tooling documents, storage
+  layout, `session-profiles` cluster, adapter application strategies and
+  phase roadmap.
 
 ## Product Part Documentation
 

@@ -52,6 +52,12 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.openRouter": "OpenRouter",
     "settings.provider.sessionContinuity.threshold":
       "Remaining context threshold (%)",
+    "settings.nativeCapture.title": "Native Request Capture",
+    "settings.nativeCapture.provider": "Provider",
+    "settings.nativeCapture.model": "Model",
+    "settings.nativeCapture.capture": "Capture",
+    "settings.nativeCapture.markdownPath": "Markdown artifact",
+    "settings.nativeCapture.jsonlPath": "JSONL artifact",
     "settings.profileCreator.title": "Session Profiles",
     "settings.profileCreator.newProfile": "New Profile",
     "settings.profileCreator.type": "Profile type",
@@ -116,6 +122,8 @@ const UI_LABELS_SOURCE_DICTIONARY = {
 const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
   category: "ui_helper_text",
   entries: {
+    "settings.nativeCapture.description":
+      "Capture a provider's native request locally for reference. Runs a diagnostic probe through a capture-and-abort proxy, records the vendor-default system prompt and tools, and never sends the request upstream. Diagnostic dev tool.",
     "settings.localization.description":
       "Choose UI languages and translation engines.",
     "settings.coreControls.description":
@@ -223,6 +231,9 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
   entries: {
     "core.bridge.unavailable": "Core runtime bridge is unavailable.",
     "provider.setup.needed": "Provider setup needed: {error}",
+    "settings.nativeCapture.capturing": "Capturing...",
+    "settings.nativeCapture.failed": "Capture failed: {error}",
+    "settings.nativeCapture.done": "Capture complete. Artifacts written below.",
     "settings.coreControls.restarting": "Restarting app...",
     "settings.resetting": "Resetting...",
     "settings.saving": "Saving...",

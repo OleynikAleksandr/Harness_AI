@@ -39,6 +39,11 @@ materialization, bootstrap payload reuse, and bundle state.
   (`settings.openRouter.searchRefresh`) is part of the approved `ui_labels`
   dictionary; it names the icon button that re-runs the model slug search and
   reopens the collapsed match list.
+- The Native Request Capture card copy is part of the approved dictionaries:
+  `ui_labels` (`settings.nativeCapture.title`/`.provider`/`.model`/`.capture`/
+  `.markdownPath`/`.jsonlPath`), `ui_helper_text`
+  (`settings.nativeCapture.description`), and `messages_for_the_user`
+  (`settings.nativeCapture.capturing`/`.failed`/`.done`).
 - Settings localization refresh blocker copy is part of the approved
   `messages_for_the_user` dictionary so the blocking save feedback itself can
   be localized.

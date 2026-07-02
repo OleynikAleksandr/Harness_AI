@@ -208,6 +208,47 @@ try {
     await rm(seededRoot, { force: true, recursive: true });
   }
 
+  // Watching: file changes under the root arrive as one debounced
+  // notification, and unsubscribe stops further notifications.
+  const watchedRoot = await mkdtemp(path.join(tmpdir(), "harness-watch-"));
+  try {
+    const watchedStore = new ProfileStoreFacade({
+      profilesRootDirectory: path.join(watchedRoot, "Profiles"),
+    });
+    let notifications = 0;
+    const unsubscribe = watchedStore.watchProfiles(() => {
+      notifications += 1;
+    });
+    await writeProfile(path.join(watchedRoot, "Profiles"), "watched", {
+      "profile.yaml": "name: Watched\n",
+      "system-prompt.md": "Prompt.\n",
+      "tooling.yaml": "categories: {}\n",
+    });
+    const deadline = Date.now() + 3000;
+    while (notifications === 0 && Date.now() < deadline) {
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
+    }
+    assert.equal(notifications, 1);
+    unsubscribe();
+    await writeFile(
+      path.join(watchedRoot, "Profiles", "watched", "system-prompt.md"),
+      "Changed after unsubscribe.\n",
+      "utf8"
+    );
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
+    assert.equal(notifications, 1);
+
+    // An unwatchable root is best-effort: no throw, unsubscribe is a no-op.
+    await writeFile(path.join(watchedRoot, "blocker"), "not a dir\n", "utf8");
+    const brokenStore = new ProfileStoreFacade({
+      profilesRootDirectory: path.join(watchedRoot, "blocker", "Profiles"),
+    });
+    const brokenUnsubscribe = brokenStore.watchProfiles(() => undefined);
+    brokenUnsubscribe();
+  } finally {
+    await rm(watchedRoot, { force: true, recursive: true });
+  }
+
   console.log("profile-store tests: OK");
 } finally {
   await rm(buildDirectory, { force: true, recursive: true });

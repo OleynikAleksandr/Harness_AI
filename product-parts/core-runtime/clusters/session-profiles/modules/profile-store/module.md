@@ -54,6 +54,13 @@ seeded profile does not resurrect it.
   (the `yaml` package parses YAML 1.2, where bare `on`/`off` are strings);
   categories omitted from `tooling.yaml` default to `on` — unknown keys are
   errors so typos cannot silently disable a category.
+- Profile change notifications: `watchProfiles(listener)` creates the
+  profiles root when missing, starts a recursive `fs.watch` over it, and
+  collapses bursts of file events (an editor save is several writes/renames)
+  into one debounced notification so consumers rescan the catalog once per
+  save. Watching is best-effort — an unwatchable root never crashes Core —
+  and the returned unsubscribe closes the watcher and drops any pending
+  notification.
 
 ## Owned Paths
 

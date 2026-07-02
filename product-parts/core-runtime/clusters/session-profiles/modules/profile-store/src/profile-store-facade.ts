@@ -1,4 +1,9 @@
-import { promises as fs } from "node:fs";
+import {
+  type FSWatcher,
+  promises as fs,
+  mkdirSync,
+  watch as watchDirectory,
+} from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import {
@@ -25,6 +30,12 @@ export const SESSION_PROFILE_PASSPORT_FILE_NAME = "profile.yaml";
 export const SESSION_PROFILE_PROMPT_FILE_NAME = "system-prompt.md";
 export const SESSION_PROFILE_TOOLING_FILE_NAME = "tooling.yaml";
 export const SESSION_PROFILES_ROOT_DIRECTORY_NAME = "Profiles";
+
+/**
+ * Bursts of file events (editor save = several writes/renames) collapse into
+ * one notification so consumers rescan the catalog once per save.
+ */
+const PROFILE_WATCH_DEBOUNCE_MS = 300;
 
 export interface SessionProfileDocumentPaths {
   readonly passportPath: string;
@@ -175,6 +186,44 @@ export class ProfileStoreFacade {
         scope: resolveSessionProfileScope(passportResult.passport),
         tooling: toolingResult.tooling,
       },
+    };
+  }
+
+  /**
+   * Watches the profiles root for file changes (best-effort: an unwatchable
+   * root never crashes Core). The root is created first so the watcher works
+   * before first-access seeding. Returns an unsubscribe that closes the
+   * watcher and drops any pending debounced notification.
+   */
+  watchProfiles(listener: () => void): () => void {
+    let debounceTimer: NodeJS.Timeout | null = null;
+    let watcher: FSWatcher | null = null;
+    try {
+      mkdirSync(this.profilesRootDirectory, { recursive: true });
+      watcher = watchDirectory(
+        this.profilesRootDirectory,
+        { recursive: true },
+        () => {
+          if (debounceTimer) {
+            clearTimeout(debounceTimer);
+          }
+          debounceTimer = setTimeout(() => {
+            debounceTimer = null;
+            listener();
+          }, PROFILE_WATCH_DEBOUNCE_MS);
+        }
+      );
+      watcher.on("error", () => undefined);
+    } catch {
+      watcher = null;
+    }
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
+      }
+      watcher?.close();
+      watcher = null;
     };
   }
 

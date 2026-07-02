@@ -1,4 +1,5 @@
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { ProfileCreateFlow } from "./profile-create-flow.js";
 
 export function ProfileSettingsUiFacade() {
   const { t } = useBrowserLocalization();
@@ -22,6 +23,7 @@ export function ProfileSettingsUiFacade() {
           )}
         </p>
       </section>
+      <ProfileCreateFlow />
     </div>
   );
 }

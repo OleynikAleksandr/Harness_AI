@@ -62,6 +62,20 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
   recorded in the applied details (`ProviderSessionStartResult`) as
   groundwork for a future per-profile process pool.
 
+- Native request capture (`codex-native-request-capture-service.ts`,
+  reached through the adapter's `captureNativeRequest`): a record-only
+  diagnostic path that starts an isolated temporary Codex app-server (the
+  long-lived app-server env is never mutated) and captures the vendor-default
+  request — no Harness workflow `baseInstructions`/`config` injection — so the
+  captured request is Codex's native instructions and tool set. It injects the
+  diagnostic proxy env (`HTTPS_PROXY`/`ALL_PROXY` + `NODE_EXTRA_CA_CERTS`/
+  `SSL_CERT_FILE`/`REQUESTS_CA_BUNDLE`), records the applied-input-envelope and
+  app-server diagnostic context, and stops the temporary process afterward. The
+  managed-vs-vanilla comparison and the translation-capture scenario were
+  removed (with the now-dead `codex-workflow-instruction-profile.ts` and
+  `codex-native-translation-capture-profile.ts`); only recording remains
+  (`docs/architecture/SessionProfilesV2.md`, decision 5).
+
 ## Owned Paths
 
 - `module.md`

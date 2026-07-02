@@ -8,8 +8,8 @@
   "planId": "session-id-bar-compact-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with compact session id bar",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -65,6 +65,6 @@
 
 ### Stream: Package And Retest
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/session-id-bar-compact-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with compact session id bar`).
-4. [TODO] Git Commit: `chore(package): rebuild packaged app with compact session id bar` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` User retests the compact session id bar in the packaged app (scope: user workflow; expected commit: none).
+3. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/session-id-bar-compact-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with compact session id bar`). Result: Completed in commit `chore(package): rebuild packaged app with compact session id bar`.
+4. [DONE] Git Commit: `chore(package): rebuild packaged app with compact session id bar` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the compact session id bar in the packaged app (scope: user workflow; expected commit: none).

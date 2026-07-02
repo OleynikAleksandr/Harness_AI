@@ -94,6 +94,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/reasoning-sidecar-cleanup-package-2026-07-02.md` —
   acceptance-finding fix evidence: session delete removes reasoning
   translation sidecar JSONL files; packaged app rebuild for retest.
+- `docs/evidence/session-id-bar-compact-package-2026-07-02.md` — packaged
+  application rebuild evidence for the compact session id bar: stacked
+  id + profile chip identity column on the left, limit rows pinned to the
+  right edge.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

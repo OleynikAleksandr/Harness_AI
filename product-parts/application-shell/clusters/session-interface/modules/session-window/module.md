@@ -98,6 +98,11 @@ Render the transcript/dialog layout and session chrome.
   never derives profile truth. Core event routing helpers live in
   `session-window-core-events.ts` (split out for the 500-line cap).
 
+- The legacy `Next Session Mode` panel/dialog is removed: the profile step
+  of the new-session wizard owns the selection surface, and the renderer no
+  longer hardcodes `native/raw` (the submitted `nextSessionMode` comes from
+  the user's step choice).
+
 ## Owned Paths
 
 - `module.md`

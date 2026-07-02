@@ -23,6 +23,9 @@ Own workspace switcher, selected-workspace session list, next-session mode entry
 - Sidebar, workspace menu, session context menu, and Settings entry copy
   resolved through the shared browser localization provider.
 
+- The `Next Session Mode` sidebar button is removed; session profile
+  selection lives in the new-session wizard (session-window profile step).
+
 ## Owned Paths
 
 - `module.md`

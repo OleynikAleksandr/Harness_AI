@@ -5,10 +5,6 @@ const windowSource = readFileSync(
   new URL("./session-window-facade.tsx", import.meta.url),
   "utf8"
 );
-const panelSource = readFileSync(
-  new URL("./next-session-mode-panel.tsx", import.meta.url),
-  "utf8"
-);
 const stepSource = readFileSync(
   new URL("./session-profile-step.tsx", import.meta.url),
   "utf8"
@@ -31,7 +27,6 @@ assert.match(
 );
 assert.match(stepSource, /lastSelectedProfileByProvider\[provider\.id\]/u);
 
-// The legacy sidebar panel still renders preview-only labels until its
-// removal task lands.
-assert.match(panelSource, /const ACTIVE_MODE = "Native · Raw"/u);
-assert.match(panelSource, /<small>Preview<\/small>/u);
+// The legacy Next Session Mode panel/dialog is gone: the profile step owns
+// the selection surface.
+assert.doesNotMatch(windowSource, /NextSessionModePanel/u);

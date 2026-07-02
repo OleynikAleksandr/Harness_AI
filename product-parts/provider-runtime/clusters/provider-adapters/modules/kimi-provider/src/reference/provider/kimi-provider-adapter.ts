@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { ProviderSessionStartOptions } from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { normalizeKimiWireRequest } from "../messaging/kimi-request-failure-normalizer.js";
 import { KimiSessionLifecycle } from "../session/kimi-session-lifecycle.js";
 import { KimiWireProcessBridge } from "../wire/kimi-wire-process.js";
@@ -14,6 +15,7 @@ import {
   materializeKimiManagedAgentProfile,
 } from "./kimi-managed-agent-profile.js";
 import { KimiNativeTokenUsageReader } from "./kimi-native-token-usage-reader.js";
+import { rejectManagedKimiProfile } from "./kimi-profile-application.js";
 import {
   KimiSessionEventRouter,
   readKimiRuntimeSessionId,
@@ -26,54 +28,20 @@ import {
 
 const KIMI_PROVIDER_ID = "kimiCode" as const;
 
-export type SessionListener = (payload: KimiSessionEvent) => void;
+export type {
+  KimiModuleOptions,
+  KimiSessionEvent,
+  KimiWorkspaceOptions,
+  ModuleReporter,
+  SessionListener,
+} from "./kimi-provider-types.js";
 
-export interface ModuleReporter {
-  readonly error?: (
-    message: string,
-    error?: unknown,
-    metadata?: Record<string, unknown>
-  ) => void;
-  readonly info?: (message: string, metadata?: Record<string, unknown>) => void;
-  readonly warn?: (message: string, metadata?: Record<string, unknown>) => void;
-}
-
-export interface KimiWorkspaceOptions {
-  readonly configPath?: string;
-  readonly defaultModel?: string;
-  readonly providerHomePath?: string;
-  readonly thinkingEnabled?: boolean;
-  readonly workspacePath?: string;
-}
-
-export interface KimiModuleOptions {
-  readonly reporter?: ModuleReporter;
-  readonly workspace: KimiWorkspaceOptions;
-}
-
-export interface KimiSessionEvent {
-  readonly payload?: unknown;
-  readonly postTurnTokenUsageUnavailable?: true;
-  readonly type: string;
-}
-interface KimiNativeRequestCaptureOptions {
-  readonly captureId: string;
-  readonly recordAppliedInputEnvelope?: (envelope: {
-    readonly kind: "kimi";
-    readonly providerHomePath: string | null;
-    readonly selectedModelId: string | null;
-    readonly userConfigPath: string | null;
-    readonly wireJsonlPath: string | null;
-  }) => Promise<void> | void;
-  readonly recordDiagnosticContext?: (record: {
-    readonly kind: string;
-    readonly payload: unknown;
-  }) => Promise<void> | void;
-  readonly scenarioId?: string | null;
-  readonly selectedModelId?: string | null;
-  readonly workflowPrompt?: string | null;
-  readonly workspacePath: string;
-}
+import type {
+  KimiModuleOptions,
+  KimiNativeRequestCaptureOptions,
+  KimiSessionEvent,
+  SessionListener,
+} from "./kimi-provider-types.js";
 
 export class KimiProviderAdapter {
   private readonly listeners = new Map<string, Set<SessionListener>>();
@@ -105,8 +73,12 @@ export class KimiProviderAdapter {
     this.initialized = true;
   }
 
-  async createSession(workspacePath?: string): Promise<string> {
+  async createSession(
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<string> {
     this.assertInitialized();
+    rejectManagedKimiProfile(startOptions);
     const override = this.workspaceOverride.resolve(
       this.resolveRuntimeWorkspacePath(workspacePath)
     );
@@ -119,8 +91,13 @@ export class KimiProviderAdapter {
     return sessionId;
   }
 
-  async resumeSession(sessionId: string): Promise<string> {
+  async resumeSession(
+    sessionId: string,
+    _workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<string> {
     this.assertInitialized();
+    rejectManagedKimiProfile(startOptions);
     const providerSessionId =
       await this.requireSessionLifecycle().resume(sessionId);
     this.workspaceOverride.markRuntimeStarted();

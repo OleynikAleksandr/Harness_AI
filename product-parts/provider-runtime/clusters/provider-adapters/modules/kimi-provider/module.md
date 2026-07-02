@@ -56,6 +56,14 @@ liveness preflight without treating that global home as a workspace root.
   newer CLI) before immutable content-hash-keyed per-profile artifacts land
   (docs/architecture/SessionProfiles.md).
 
+- Session profile defensive guard (`kimi-profile-application.ts`):
+  `createSession`/`resumeSession` accept the additive start options and
+  reject `profileKind: "managed"` with a structured error (no silent
+  substitution while the agent binding stays unverified); native/legacy
+  keep today's materialized managed-agent behavior untouched.
+- `kimi-provider-types.ts` holds the adapter option/event shapes, split out
+  to keep `kimi-provider-adapter.ts` under the 500-line cap.
+
 ## Owned Paths
 
 - `module.md`

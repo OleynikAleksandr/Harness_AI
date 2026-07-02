@@ -37,21 +37,35 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
   kimi: [{ host: "api.moonshot.ai", pathIncludes: "/v1/chat/completions" }],
 };
 
-// Context handed to the provider adapter so it can drive its own client
-// through the diagnostic proxy. Env injection is provider knowledge and lives
-// in the adapters; the orchestrator stays provider-neutral.
+// Context handed to the provider adapter so it can drive its own client. Its
+// shape matches the provider adapter contract's `ProviderNativeCaptureOptions`
+// so the RPC callback is `(ctx) => adapter.captureNativeRequest(ctx)`. Env
+// injection is provider knowledge and lives in the adapters; the orchestrator
+// stays provider-neutral. For the Kimi wire-only path the proxy fields carry
+// placeholder values.
 export interface ProviderCaptureContext {
+  readonly captureId: string;
   readonly certificateEnv: Readonly<Record<string, string>>;
-  readonly model: string | null;
+  readonly certificatePath: string;
   readonly probePrompt: string;
   readonly providerId: NativeCaptureProviderId;
   readonly proxyUrl: string;
-  readonly workspacePath: string | null;
+  readonly recordAppliedInputEnvelope: (
+    envelope: Readonly<Record<string, unknown>>
+  ) => Promise<void>;
+  readonly recordDiagnosticContext: (record: {
+    readonly kind: string;
+    readonly payload: unknown;
+  }) => Promise<void>;
+  readonly selectedModelId: string | null;
+  readonly workspacePath: string;
 }
 
 export type RunProviderCapture = (
   context: ProviderCaptureContext
 ) => Promise<void>;
+
+const KIMI_WIRE_PROXY_URL = "wire://kimi";
 
 export interface NativeCaptureCommand {
   readonly model?: string | null;
@@ -75,6 +89,7 @@ export interface NativeCaptureCommandResult {
 
 interface CertificateStoreLike {
   prepareHostCredentials(hostname: string): Promise<{
+    readonly caCertPath: string;
     readonly credentials: NativeCaptureTlsCredentials;
     readonly envHints: Readonly<Record<string, string>>;
   }>;
@@ -117,16 +132,30 @@ export class NativeCaptureOrchestrator {
   async capture(
     command: NativeCaptureCommand
   ): Promise<NativeCaptureCommandResult> {
-    const targetRules =
-      command.targetRules ?? DEFAULT_CAPTURE_TARGET_RULES[command.providerId];
-    const firstHost = targetRules[0]?.host;
+    const captureId = this.captureIdFactory();
     const writer = await NativeRequestCaptureWriter.create({
-      captureId: this.captureIdFactory(),
+      captureId,
       clock: this.clock,
       outputDir: command.outputDir ?? this.outputDir,
       providerId: command.providerId,
       selectedModelId: command.model ?? null,
     });
+    if (command.providerId === "kimi") {
+      return await this.captureWireOnly({ captureId, command, writer });
+    }
+    return await this.captureViaProxy({ captureId, command, writer });
+  }
+
+  // Claude/Codex: run the provider client through the capture-and-abort proxy.
+  private async captureViaProxy(params: {
+    readonly captureId: string;
+    readonly command: NativeCaptureCommand;
+    readonly writer: NativeRequestCaptureWriter;
+  }): Promise<NativeCaptureCommandResult> {
+    const { command, writer } = params;
+    const targetRules =
+      command.targetRules ?? DEFAULT_CAPTURE_TARGET_RULES[command.providerId];
+    const firstHost = targetRules[0]?.host;
     if (!firstHost) {
       await writer.complete("failed", "target_not_seen");
       return failure(command, writer, "target_not_seen");
@@ -144,10 +173,10 @@ export class NativeCaptureOrchestrator {
     const handle = await proxy.start();
     try {
       return await this.runCapture({
+        captureId: params.captureId,
         bundle,
         command,
         handle,
-        targetRules,
         writer,
       });
     } finally {
@@ -155,13 +184,65 @@ export class NativeCaptureOrchestrator {
     }
   }
 
+  // Kimi: wire-only, no proxy. The Kimi ACP runtime writes a wire log; the
+  // adapter records the applied-input-envelope and diagnostic context.
+  private async captureWireOnly(params: {
+    readonly captureId: string;
+    readonly command: NativeCaptureCommand;
+    readonly writer: NativeRequestCaptureWriter;
+  }): Promise<NativeCaptureCommandResult> {
+    const { command, writer } = params;
+    try {
+      await command.runProviderCapture(
+        this.buildContext({
+          captureId: params.captureId,
+          certificateEnv: {},
+          certificatePath: "",
+          command,
+          proxyUrl: KIMI_WIRE_PROXY_URL,
+          writer,
+        })
+      );
+      await writer.complete("captured");
+      return success(command, writer);
+    } catch (error) {
+      await writer.complete("failed", "runtime_failed");
+      return failure(command, writer, "runtime_failed", error);
+    }
+  }
+
+  private buildContext(params: {
+    readonly captureId: string;
+    readonly certificateEnv: Readonly<Record<string, string>>;
+    readonly certificatePath: string;
+    readonly command: NativeCaptureCommand;
+    readonly proxyUrl: string;
+    readonly writer: NativeRequestCaptureWriter;
+  }): ProviderCaptureContext {
+    const { command, writer } = params;
+    return {
+      captureId: params.captureId,
+      certificateEnv: params.certificateEnv,
+      certificatePath: params.certificatePath,
+      probePrompt: DIAGNOSTIC_PROBE_PROMPT,
+      providerId: command.providerId,
+      proxyUrl: params.proxyUrl,
+      recordAppliedInputEnvelope: (envelope) =>
+        writer.recordAppliedInputEnvelope(envelope),
+      recordDiagnosticContext: (record) =>
+        writer.recordDiagnosticContext(record),
+      selectedModelId: command.model ?? null,
+      workspacePath: command.workspacePath ?? "",
+    };
+  }
+
   private async runCapture(params: {
     readonly bundle: Awaited<
       ReturnType<CertificateStoreLike["prepareHostCredentials"]>
     >;
+    readonly captureId: string;
     readonly command: NativeCaptureCommand;
     readonly handle: NativeCaptureProxyHandle;
-    readonly targetRules: readonly NativeCaptureTargetRule[];
     readonly writer: NativeRequestCaptureWriter;
   }): Promise<NativeCaptureCommandResult> {
     const { command, handle, writer } = params;
@@ -169,14 +250,16 @@ export class NativeCaptureOrchestrator {
       .waitForCapture()
       .then((result) => ({ kind: "proxy" as const, result }));
     const providerRun = command
-      .runProviderCapture({
-        certificateEnv: params.bundle.envHints,
-        model: command.model ?? null,
-        probePrompt: DIAGNOSTIC_PROBE_PROMPT,
-        providerId: command.providerId,
-        proxyUrl: handle.proxyUrl,
-        workspacePath: command.workspacePath ?? null,
-      })
+      .runProviderCapture(
+        this.buildContext({
+          captureId: params.captureId,
+          certificateEnv: params.bundle.envHints,
+          certificatePath: params.bundle.caCertPath,
+          command,
+          proxyUrl: handle.proxyUrl,
+          writer,
+        })
+      )
       .then(() => ({ kind: "provider_done" as const }))
       .catch((error: unknown) => ({ kind: "provider_failed" as const, error }));
 

@@ -58,6 +58,7 @@ try {
   const fakeCertStore = {
     prepareHostCredentials: () =>
       Promise.resolve({
+        caCertPath: "/tmp/ca.pem",
         credentials: {
           ca: Buffer.from("CA"),
           cert: Buffer.from("CERT"),
@@ -112,11 +113,15 @@ try {
   assert.equal(okResult.ok, true);
   assert.equal(okResult.reason, null);
   assert.equal(capturedContext.proxyUrl, "http://127.0.0.1:12345");
+  assert.equal(capturedContext.certificatePath, "/tmp/ca.pem");
+  assert.equal(capturedContext.selectedModelId, "claude-opus-4-8");
+  assert.equal(capturedContext.captureId, "cap-1");
   assert.equal(
     capturedContext.certificateEnv.NODE_EXTRA_CA_CERTS,
     "/tmp/ca.pem"
   );
   assert.match(capturedContext.probePrompt, /must not be sent upstream/u);
+  assert.equal(typeof capturedContext.recordAppliedInputEnvelope, "function");
   const markdown = await readFile(okResult.markdownPath, "utf8");
   assert.ok(!markdown.includes("sk-secret"));
   assert.match(markdown, /You are Claude\./u);
@@ -145,14 +150,14 @@ try {
   assert.equal(timeoutResult.ok, false);
   assert.equal(timeoutResult.reason, "timeout");
 
-  // Missing target rule: fails fast with target_not_seen, still writes artifacts.
+  // Missing target rule (proxy provider): fails fast with target_not_seen.
   const noTargetResult = await new NativeCaptureOrchestrator({
     captureIdFactory: () => "cap-3",
     certificateStore: fakeCertStore,
     clock,
     proxyFactory: okProxyFactory,
   }).capture({
-    providerId: "kimi",
+    providerId: "codex",
     outputDir,
     targetRules: [],
     runProviderCapture: () => Promise.resolve(),
@@ -160,6 +165,46 @@ try {
   assert.equal(noTargetResult.ok, false);
   assert.equal(noTargetResult.reason, "target_not_seen");
   assert.ok(noTargetResult.jsonlPath);
+
+  // Kimi wire-only: no proxy, no certificate store; the adapter records the
+  // envelope and the capture succeeds.
+  let wireContext = null;
+  let certStoreCalls = 0;
+  const wireResult = await new NativeCaptureOrchestrator({
+    captureIdFactory: () => "cap-kimi",
+    certificateStore: {
+      prepareHostCredentials: () => {
+        certStoreCalls += 1;
+        return Promise.resolve({
+          caCertPath: "/tmp/ca.pem",
+          credentials: {},
+          envHints: {},
+        });
+      },
+    },
+    clock,
+    proxyFactory: () => {
+      throw new Error("Kimi wire-only must not start a proxy");
+    },
+  }).capture({
+    providerId: "kimi",
+    model: "kimi-k2.7-code",
+    outputDir,
+    runProviderCapture: (context) => {
+      wireContext = context;
+      return context.recordAppliedInputEnvelope({
+        kind: "kimi",
+        wireJsonlPath: "/home/kimi/wire.jsonl",
+      });
+    },
+  });
+  assert.equal(wireResult.ok, true);
+  assert.equal(certStoreCalls, 0);
+  assert.equal(wireContext.proxyUrl, "wire://kimi");
+  assert.equal(wireContext.certificatePath, "");
+  const wireMarkdown = await readFile(wireResult.markdownPath, "utf8");
+  assert.match(wireMarkdown, /wire\.jsonl/u);
+  assert.match(wireMarkdown, /No HTTP request intercepted/u);
 
   console.log("capture-orchestrator tests: OK");
 } finally {

@@ -33,6 +33,10 @@ liveness preflight without treating that global home as a workspace root.
 - `ensureWorkspaceHome(workspacePath)` materializes the isolated OpenCode
   runtime home/config/data directories and auth file for the workspace without
   starting OpenCode.
+- Native request capture is out of scope for GLM OpenCode: only Claude, Codex
+  and Kimi implement the shared `captureNativeRequest` contract method
+  (`docs/architecture/SessionProfilesV2.md`, decision 5). The provider does
+  not implement it, so Core treats capture for it as `provider_not_supported`.
 
 ## Owned Paths
 

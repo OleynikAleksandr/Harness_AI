@@ -208,31 +208,6 @@ export class GlmOpenCodeProviderAdapter {
     this.listeners.delete(sessionId);
   }
 
-  captureNativeRequest(options: {
-    readonly recordAppliedInputEnvelope?: (envelope: {
-      readonly kind: "glm-opencode";
-      readonly modelSelector: string;
-      readonly userConfigPath: string;
-    }) => Promise<void> | void;
-    readonly selectedModelId?: string | null;
-  }): Promise<void> {
-    const profile = buildGlmOpenCodeRuntimeProfile({
-      configPath: this.options.workspace.configPath,
-      defaultModel:
-        options.selectedModelId ?? this.options.workspace.defaultModel,
-      providerHomePath: this.options.workspace.providerHomePath,
-      settingsPath: this.options.workspace.settingsPath,
-      workspacePath: this.options.workspace.workspacePath,
-    });
-    return Promise.resolve(
-      options.recordAppliedInputEnvelope?.({
-        kind: "glm-opencode",
-        modelSelector: profile.modelSelector,
-        userConfigPath: profile.configPath,
-      })
-    );
-  }
-
   refreshUsageLimits(params: {
     readonly broadcast: (event: unknown) => void;
     readonly providerSessionId: string;

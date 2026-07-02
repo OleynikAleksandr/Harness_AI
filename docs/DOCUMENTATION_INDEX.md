@@ -91,6 +91,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/session-dialog-autoscroll-package-2026-07-02.md` —
   acceptance-finding fix evidence: session dialog autoscroll stays pinned to
   the lowest visible bubble bottom; packaged app rebuild for retest.
+- `docs/evidence/reasoning-sidecar-cleanup-package-2026-07-02.md` —
+  acceptance-finding fix evidence: session delete removes reasoning
+  translation sidecar JSONL files; packaged app rebuild for retest.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

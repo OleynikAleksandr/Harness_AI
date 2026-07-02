@@ -299,6 +299,38 @@
   resize: vertical;
 }
 
+/* Model slug search input with the inline refresh control on the right */
+.settings-model-search {
+  position: relative;
+}
+
+.settings-field .settings-model-search input {
+  padding-right: 36px;
+}
+
+.settings-model-search-refresh {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--pm-text-muted, #767d86);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  transform: translateY(-50%);
+}
+
+.settings-model-search-refresh:hover {
+  color: var(--pm-accent-strong, #5fe3ba);
+  background: rgba(66, 201, 162, 0.12);
+}
+
 .settings-list {
   display: flex;
   flex-direction: column;

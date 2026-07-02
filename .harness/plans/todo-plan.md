@@ -8,8 +8,8 @@
   "planId": "session-id-bar-compact-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task2",
-  "expectedCommitMessage": "feat(provider-settings-ui): collapse openrouter model matches after selection with search refresh",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app with collapsed openrouter model matches",
   "debt": null
 }
 ```
@@ -75,13 +75,13 @@
 
 6. [DONE] `harness-ai.phase3.stream1.task1` User request (chat, 2026-07-02, screenshot): after a model is picked in the OpenRouter `Model slug search` blocks, the remaining match cards confuse the user and must collapse to only the selected card; a small refresh control inside the search field reopens the full match list. This task adds the approved English `ui_labels` dictionary entry for the refresh control (`settings.openRouter.searchRefresh`) so the new UI copy ships through the localization runtime like every other settings label (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat(localization-runtime): add openrouter search refresh label to approved dictionaries`). Result: Completed in commit `feat(localization-runtime): add openrouter search refresh label to approved dictionaries`.
 7. [DONE] Git Commit: `feat(localization-runtime): add openrouter search refresh label to approved dictionaries` (hash: self)
-8. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Collapse the OpenRouter model match list after selection in `OpenRouterModelEndpointPicker` (used by all three blocks: provider default model, UI Translation Model, Reasoning Translation Model): when a model is selected or the picker opens with a stored model, only the selected card renders; typing in the search field expands the list again; a refresh icon button inside the right edge of the search field re-runs the search and expands the full match list (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.test.mjs` (new), plus `module.md`; expected commit: `feat(provider-settings-ui): collapse openrouter model matches after selection with search refresh`).
-9. [TODO] Git Commit: `feat(provider-settings-ui): collapse openrouter model matches after selection with search refresh` (hash: TBD)
+8. [DONE] `harness-ai.phase3.stream1.task2` Collapse the OpenRouter model match list after selection in `OpenRouterModelEndpointPicker` (used by all three blocks: provider default model, UI Translation Model, Reasoning Translation Model): when a model is selected or the picker opens with a stored model, only the selected card renders; typing in the search field expands the list again; a refresh icon button inside the right edge of the search field re-runs the search and expands the full match list; the picker's internal `OpenRouterModelRow` and `useTranslatedOpenRouterDescriptions` move to a new `openrouter-model-row.tsx` so the card file stays under the 500-line cap (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-model-row.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/openrouter-settings-card.test.mjs` (new), plus `module.md`; expected commit: `feat(provider-settings-ui): collapse openrouter model matches after selection with search refresh`). Result: Completed in commit `feat(provider-settings-ui): collapse openrouter model matches after selection with search refresh`.
+9. [DONE] Git Commit: `feat(provider-settings-ui): collapse openrouter model matches after selection with search refresh` (hash: self)
 
 ## Phase 4 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-02)
 
 ### Stream: Package And Retest
 
-10. [TODO] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/openrouter-model-search-collapse-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with collapsed openrouter model matches`).
+10. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/openrouter-model-search-collapse-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with collapsed openrouter model matches`).
 11. [TODO] Git Commit: `chore(package): rebuild packaged app with collapsed openrouter model matches` (hash: TBD)
 12. [TODO] `harness-ai.phase4.stream1.task2` User retests the collapsed OpenRouter model search in the packaged app across all three model blocks (scope: user workflow; expected commit: none).

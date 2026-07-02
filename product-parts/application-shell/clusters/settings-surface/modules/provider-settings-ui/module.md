@@ -72,6 +72,17 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   added to static dictionaries. They are sent to Core through
   `translateDynamicText`, which uses the Reasoning Translation Engine target and
   returns translated text for the visible model rows.
+- The OpenRouter model slug search (`OpenRouterModelEndpointPicker` in
+  `openrouter-settings-card.tsx`, used by the provider default model block and
+  both OpenRouter Profiles translation model blocks) collapses its match list
+  to only the selected card once a model is picked or when the picker opens
+  with a stored model. Typing in the search field expands the list again, and
+  a refresh icon button inside the right edge of the field
+  (`settings.openRouter.searchRefresh` label) re-runs the search and reopens
+  the full match list. Collapsing is presentation-only renderer state; the
+  selected model itself stays in Core-owned settings. The model row renderer
+  and the dynamic description translation hook live in
+  `openrouter-model-row.tsx` (split out for the 500-line cap).
 - Claude default-model helper copy, thinking descriptions, model descriptions,
   and new-session note resolve through the browser localization provider instead
   of hardcoded Russian text, so Claude follows the same UI Helper Text language

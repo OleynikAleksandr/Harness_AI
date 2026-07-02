@@ -6,6 +6,10 @@ import {
   testOpenRouterEndpointLatency,
 } from "./openrouter-endpoint-latency.js";
 import {
+  OpenRouterModelRow,
+  useTranslatedOpenRouterDescriptions,
+} from "./openrouter-model-row.js";
+import {
   loadOpenRouterModelEndpoints,
   type OpenRouterEndpointResult,
   type OpenRouterModelSearchResult,
@@ -93,8 +97,19 @@ export function OpenRouterModelEndpointPicker({
   value: string;
 }) {
   const { t } = useBrowserLocalization();
-  const [query, setQuery] = useState(value);
+  // The nonce lets the refresh control re-run the same slug search: bumping it
+  // changes the request identity without changing the query text.
+  const [searchRequest, setSearchRequest] = useState(() => ({
+    nonce: 0,
+    text: value,
+  }));
   const [models, setModels] = useState<OpenRouterModelSearchResult[]>([]);
+  // Presentation-only state: once a model is picked (or the picker opens with
+  // a stored model), the other match cards are hidden until the user types a
+  // new query or presses the refresh control in the search field.
+  const [resultsCollapsed, setResultsCollapsed] = useState(() =>
+    Boolean(value.trim())
+  );
   const translatedDescriptions = useTranslatedOpenRouterDescriptions(models);
   const [endpoints, setEndpoints] = useState<OpenRouterEndpointResult[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
@@ -106,11 +121,15 @@ export function OpenRouterModelEndpointPicker({
   >([]);
 
   useEffect(() => {
-    setQuery(value);
+    setSearchRequest((previous) =>
+      previous.text === value
+        ? previous
+        : { nonce: previous.nonce, text: value }
+    );
   }, [value]);
 
   useEffect(() => {
-    const trimmedQuery = query.trim();
+    const trimmedQuery = searchRequest.text.trim();
     if (!trimmedQuery) {
       setModels([]);
       return;
@@ -142,7 +161,7 @@ export function OpenRouterModelEndpointPicker({
     return () => {
       cancelled = true;
     };
-  }, [apiKey, baseUrl, query]);
+  }, [apiKey, baseUrl, searchRequest]);
 
   useEffect(() => {
     if (!value.includes("/")) {
@@ -221,16 +240,70 @@ export function OpenRouterModelEndpointPicker({
     setLatencyLoading(false);
   };
 
+  const refreshLabel = t(
+    "ui_labels",
+    "settings.openRouter.searchRefresh",
+    "Refresh model matches"
+  );
+  const visibleModels = resultsCollapsed
+    ? models.filter((model) => model.id === value)
+    : models;
+
   return (
     <div className="settings-reference-stack tight">
       <label className="settings-field">
         <span>{label}</span>
-        <input
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="google/gemini-3.1-flash-lite"
-          type="text"
-          value={query}
-        />
+        <div className="settings-model-search">
+          <input
+            onChange={(event) => {
+              const text = event.target.value;
+              setSearchRequest((previous) => ({
+                nonce: previous.nonce,
+                text,
+              }));
+              setResultsCollapsed(false);
+            }}
+            placeholder="google/gemini-3.1-flash-lite"
+            type="text"
+            value={searchRequest.text}
+          />
+          <button
+            aria-label={refreshLabel}
+            className="settings-model-search-refresh"
+            onClick={() => {
+              setResultsCollapsed(false);
+              setSearchRequest((previous) => ({
+                nonce: previous.nonce + 1,
+                text: previous.text,
+              }));
+            }}
+            title={refreshLabel}
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="14"
+              viewBox="0 0 16 16"
+              width="14"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M13.5 8a5.5 5.5 0 1 1-1.61-3.89"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeWidth="1.6"
+              />
+              <path
+                d="M13.7 1.8v2.6h-2.6"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.6"
+              />
+            </svg>
+          </button>
+        </div>
       </label>
       <div className="settings-list">
         {modelsLoading ? (
@@ -242,16 +315,17 @@ export function OpenRouterModelEndpointPicker({
             )}
           </p>
         ) : null}
-        {models.map((model) => (
+        {visibleModels.map((model) => (
           <OpenRouterModelRow
             key={model.id}
             model={model}
-            onSelect={() =>
+            onSelect={() => {
+              setResultsCollapsed(true);
               onChange({
                 endpointTag: DEFAULT_ENDPOINT_TAG,
                 model: model.id,
-              })
-            }
+              });
+            }}
             selected={model.id === value}
             translatedDescription={translatedDescriptions[model.id]}
           />
@@ -418,74 +492,4 @@ function selectFastestResult(
         (left, right) => (left.latencyMs ?? 0) - (right.latencyMs ?? 0)
       )[0] ?? null
   );
-}
-
-function OpenRouterModelRow({
-  model,
-  onSelect,
-  selected,
-  translatedDescription,
-}: {
-  model: OpenRouterModelSearchResult;
-  onSelect: () => void;
-  selected: boolean;
-  translatedDescription?: string;
-}) {
-  const description = translatedDescription ?? model.description;
-  return (
-    <button
-      aria-pressed={selected}
-      className={selected ? "active settings-model-row" : "settings-model-row"}
-      onClick={onSelect}
-      type="button"
-    >
-      <span className="settings-model-title">{model.name}</span>
-      <span className="settings-model-id">{model.id}</span>
-      {description ? (
-        <p className="settings-model-description">{description}</p>
-      ) : null}
-    </button>
-  );
-}
-
-function useTranslatedOpenRouterDescriptions(
-  models: readonly OpenRouterModelSearchResult[]
-): Record<string, string> {
-  const [translated, setTranslated] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const descriptions = models.filter((model) => model.description.trim());
-    if (descriptions.length === 0) {
-      setTranslated({});
-      return;
-    }
-    let cancelled = false;
-    Promise.all(
-      descriptions.map(async (model) => {
-        const result = await window.harnessCore?.translateDynamicText({
-          category: "reasoning",
-          text: model.description,
-        });
-        return [
-          model.id,
-          result?.ok ? result.text : model.description,
-        ] as const;
-      })
-    )
-      .then((entries) => {
-        if (!cancelled) {
-          setTranslated(Object.fromEntries(entries));
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setTranslated({});
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [models]);
-
-  return translated;
 }

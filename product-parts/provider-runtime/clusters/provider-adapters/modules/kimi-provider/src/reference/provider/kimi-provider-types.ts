@@ -44,7 +44,6 @@ export interface KimiNativeRequestCaptureOptions {
     readonly kind: string;
     readonly payload: unknown;
   }) => Promise<void> | void;
-  readonly scenarioId?: string | null;
   readonly selectedModelId?: string | null;
   readonly workflowPrompt?: string | null;
   readonly workspacePath: string;

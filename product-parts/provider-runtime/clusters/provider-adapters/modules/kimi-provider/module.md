@@ -63,6 +63,14 @@ liveness preflight without treating that global home as a workspace root.
   keep today's materialized managed-agent behavior untouched.
 - `kimi-provider-types.ts` holds the adapter option/event shapes, split out
   to keep `kimi-provider-adapter.ts` under the 500-line cap.
+- Native request capture (`captureNativeRequest`) is wire-only: Kimi's ACP
+  runtime writes a `wire.jsonl` in the provider home, so capture does NOT use
+  the MITM proxy. The adapter records an applied-input-envelope (provider
+  home path, selected model, user config path, `wireJsonlPath`) and a
+  `kimi_wire_capture` diagnostic context; the native request is read from the
+  wire log the Kimi subprocess writes. Record-only: the comparison
+  `scenarioId` was removed (`docs/architecture/SessionProfilesV2.md`,
+  decision 5).
 
 ## Owned Paths
 

@@ -218,7 +218,6 @@ export class KimiProviderAdapter {
       payload: {
         captureId: options.captureId,
         promptLength: options.workflowPrompt?.length ?? 0,
-        scenarioId: options.scenarioId ?? null,
         selectedModelId,
         userConfigPath: runtimeHome.userConfigPath,
         wireJsonlPath,

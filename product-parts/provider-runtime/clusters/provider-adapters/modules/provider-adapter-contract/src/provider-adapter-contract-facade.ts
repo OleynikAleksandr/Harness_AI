@@ -64,7 +64,43 @@ export interface ProviderUsageLimitsRefreshRequest {
   workspacePath: string;
 }
 
+// Provider-tagged applied-input-envelope recorded during native request
+// capture. Only `kind` is typed at this boundary; each adapter passes its own
+// concrete envelope (extra fields serialized as-is by the capture writer).
+export interface ProviderNativeCaptureAppliedInputEnvelope {
+  readonly kind: "claude" | "codex" | "kimi";
+}
+
+// Record-only native request capture options (no managed-vs-vanilla
+// comparison). The Core capture cluster owns the diagnostic proxy and
+// certificates and passes their env; the adapter points its own client at the
+// proxy, runs the probe, and lets the proxy capture the vendor-default
+// request. For the Kimi wire-only path Core passes placeholder proxy values
+// (the Kimi ACP runtime writes a wire log instead of using the proxy).
+export interface ProviderNativeCaptureOptions {
+  readonly captureId: string;
+  readonly certificateEnv: Readonly<Record<string, string>>;
+  readonly certificatePath: string;
+  readonly probePrompt: string;
+  readonly proxyUrl: string;
+  readonly recordAppliedInputEnvelope?: (
+    envelope: ProviderNativeCaptureAppliedInputEnvelope
+  ) => Promise<void> | void;
+  readonly recordDiagnosticContext?: (record: {
+    readonly kind: string;
+    readonly payload: unknown;
+  }) => Promise<void> | void;
+  readonly selectedModelId?: string | null;
+  readonly workflowPrompt?: string | null;
+  readonly workspacePath: string;
+}
+
 export interface ProviderAdapter {
+  // Record-only diagnostic native request capture. Optional: providers
+  // without a capture path (GLM Native/OpenCode, Local Models, OpenRouter)
+  // leave it unimplemented, and Core treats a missing method as
+  // `provider_not_supported`.
+  captureNativeRequest?(options: ProviderNativeCaptureOptions): Promise<void>;
   closeSession(sessionId: string): Promise<void>;
   createSession(
     workspacePath?: string,

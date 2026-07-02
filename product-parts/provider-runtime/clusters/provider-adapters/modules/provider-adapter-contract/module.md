@@ -41,6 +41,18 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
 - Optional `ensureWorkspaceHome(workspacePath)` boundary so Core can ask each
   provider to prepare workspace home/auth without starting the provider CLI/SDK;
   providers without workspace home work leave it unimplemented.
+- Optional `captureNativeRequest(options: ProviderNativeCaptureOptions)`
+  boundary for record-only diagnostic native request capture: the Core
+  capture cluster owns the proxy and diagnostic certificates and passes
+  `proxyUrl`, `certificateEnv`, `certificatePath`, selected `model`,
+  `probePrompt`, `workspacePath` and optional `recordAppliedInputEnvelope`/
+  `recordDiagnosticContext` callbacks; the adapter points its own client at
+  the proxy and records the vendor-default request. For the Kimi wire-only
+  path Core passes placeholder proxy values. The
+  `ProviderNativeCaptureAppliedInputEnvelope` boundary types only `kind`
+  (`claude`/`codex`/`kimi`); each adapter passes its own concrete envelope.
+  Claude/Codex/Kimi implement the method; GLM and other providers leave it
+  unimplemented and Core treats a missing method as `provider_not_supported`.
 - Turn stop reuses `closeSession(providerSessionId)`: closing the provider session
   interrupts the in-flight turn (Claude `interrupt`, Kimi `cancel`). Core then
   resumes the conversation through `resumeSession` on the next message, so no

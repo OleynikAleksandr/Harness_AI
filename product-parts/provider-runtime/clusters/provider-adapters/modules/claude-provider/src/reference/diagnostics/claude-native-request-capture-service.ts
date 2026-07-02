@@ -1,16 +1,9 @@
 import type { SDKInstaller } from "../installer/sdk-installer.js";
-import { resolveClaudeProviderProjectDir } from "../sdk/claude-provider-home.js";
 import type { ClaudeSDKAuthProvider } from "../sdk/claude-sdk-manager.js";
-import {
-  CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT,
-  CODEAI_CLAUDE_WORKFLOW_TOOLS,
-} from "../sdk/claude-workflow-system-prompt.js";
 import type { ClaudeStreamMessage, ClaudeWorkspaceOptions } from "../types.js";
 
 export interface ClaudeNativeRequestCaptureOptions {
-  readonly appliedTurnConfig?: ClaudeNativeRequestCaptureAppliedTurnConfig | null;
   readonly captureId: string;
-  readonly captureMode?: "managed" | "vanilla" | null;
   readonly certificateEnv: Readonly<Record<string, string>>;
   readonly certificatePath: string;
   readonly probePrompt: string;
@@ -21,15 +14,6 @@ export interface ClaudeNativeRequestCaptureOptions {
   readonly selectedModelId?: string | null;
   readonly workflowPrompt?: string | null;
   readonly workspacePath: string;
-}
-
-interface ClaudeNativeRequestCaptureAppliedTurnConfig {
-  readonly modelId?: string;
-  readonly providerId: string;
-  readonly reasoningEffort?: string;
-  readonly source: "settings_snapshot" | "switch_request";
-  readonly thinkingDisplaySyncEnabled?: boolean;
-  readonly thinkingEnabled?: boolean;
 }
 
 interface ClaudeNativeRequestCaptureAppliedInputEnvelope {
@@ -49,19 +33,16 @@ interface ClaudeNativeRequestCaptureAuthProvider extends ClaudeSDKAuthProvider {
   }): Promise<void>;
 }
 
-interface ClaudeCaptureThinkingOptions {
-  readonly effort?: string;
-  readonly thinking: {
-    readonly display?: "summarized" | "omitted";
-    readonly type: "adaptive" | "disabled";
-  };
-}
-
 type QueryFunction = (payload: {
   readonly options: Record<string, unknown>;
   readonly prompt: string;
 }) => AsyncIterableIterator<ClaudeStreamMessage>;
 
+// Record-only native capture: runs the diagnostic probe through the Agent SDK
+// with the vendor-default request (no Harness system prompt, tool whitelist or
+// settingSources override), so the captured request is the vendor's native
+// system prompt and full native tool set. The managed-vs-vanilla comparison
+// path was removed; only recording remains.
 export class ClaudeNativeRequestCaptureService {
   readonly #authManager: ClaudeNativeRequestCaptureAuthProvider;
   readonly #installer: SDKInstaller;
@@ -106,8 +87,7 @@ export class ClaudeNativeRequestCaptureService {
   private buildQueryOptions(
     options: ClaudeNativeRequestCaptureOptions
   ): Record<string, unknown> {
-    const thinkingOptions = resolveThinkingOptions(options.appliedTurnConfig);
-    const baseOptions: Record<string, unknown> = {
+    return {
       cwd: options.workspacePath,
       env: {
         ...this.#authManager.getAuthEnvironment(),
@@ -123,51 +103,15 @@ export class ClaudeNativeRequestCaptureService {
           options.certificateEnv.SSL_CERT_FILE ?? options.certificatePath,
       },
       includePartialMessages: false,
-      model: resolveModelId(options) ?? this.#workspace.defaultModel,
+      model:
+        readNonEmptyString(options.selectedModelId) ??
+        this.#workspace.defaultModel,
       pathToClaudeCodeExecutable: this.#installer.getExecutablePath(),
       persistSession: false,
-      thinking: thinkingOptions.thinking,
-      ...(thinkingOptions.effort ? { effort: thinkingOptions.effort } : {}),
-    };
-    if (options.captureMode === "vanilla") {
-      return baseOptions;
-    }
-    return {
-      ...baseOptions,
-      additionalDirectories: [options.workspacePath],
-      allowDangerouslySkipPermissions: true,
-      permissionMode: "bypassPermissions",
-      projectPath: resolveClaudeProviderProjectDir(
-        this.#workspace.claudeProjectSlug
-      ),
-      settingSources: [],
-      systemPrompt: CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT,
-      tools: [...CODEAI_CLAUDE_WORKFLOW_TOOLS],
+      thinking: { type: "disabled" },
     };
   }
 }
-
-const resolveModelId = (
-  options: ClaudeNativeRequestCaptureOptions
-): string | undefined =>
-  readNonEmptyString(options.appliedTurnConfig?.modelId) ??
-  readNonEmptyString(options.selectedModelId);
-
-const resolveThinkingOptions = (
-  appliedTurnConfig?: ClaudeNativeRequestCaptureAppliedTurnConfig | null
-): ClaudeCaptureThinkingOptions => {
-  if (appliedTurnConfig?.thinkingEnabled) {
-    const display: "summarized" | "omitted" =
-      appliedTurnConfig.thinkingDisplaySyncEnabled === false
-        ? "omitted"
-        : "summarized";
-    return {
-      thinking: { type: "adaptive", display },
-      effort: readNonEmptyString(appliedTurnConfig.reasoningEffort) ?? "medium",
-    };
-  }
-  return { thinking: { type: "disabled" } };
-};
 
 const readNonEmptyString = (value: unknown): string | undefined =>
   typeof value === "string" && value.trim().length > 0

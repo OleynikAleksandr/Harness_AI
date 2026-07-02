@@ -42,9 +42,11 @@ relevant to the active task.
 - `docs/architecture/ReferenceCoreRuntimeBoundary.md` — out-of-process Core,
   Application Shell boundary, regression preservation and guard contract.
 - `docs/architecture/SessionProfiles.md` — runtime-selectable session
-  profiles plan: per-provider system prompt + tooling documents, storage
-  layout, `session-profiles` cluster, adapter application strategies and
-  phase roadmap.
+  profiles plan: universal profile document set (passport with optional
+  `provider` field + prompt + tooling categories) plus individual
+  provider-scoped profiles, immutable applied profile snapshot,
+  `session-profiles` cluster, adapter application strategies, UI surface
+  and phase roadmap.
 
 ## Product Part Documentation
 

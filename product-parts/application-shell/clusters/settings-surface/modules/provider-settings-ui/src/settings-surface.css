@@ -427,7 +427,7 @@
   );
   font-size: 12px;
   font-weight: 300;
-  /* ponytail: this menu renders in a document.body portal, outside
+  /* note: this menu renders in a document.body portal, outside
      .settings-backdrop, so --ss-* tokens never resolve here. Use literal
      popup-elevation values a few steps lighter than the model cards (#232527),
      with a lighter border, so the menu stands off the surface below it. */

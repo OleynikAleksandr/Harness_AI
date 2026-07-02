@@ -8,7 +8,7 @@
   "planId": "localization-glossary-open-fix-2026-07-01",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -179,7 +179,7 @@
 
 20. [DONE] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for rebuild-translations action`). Result: Completed in commit `chore(package): rebuild packaged app for rebuild-translations action`.
 21. [DONE] Git Commit: `chore(package): rebuild packaged app for rebuild-translations action` (hash: self)
-22. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none). Note: user moved on to two new requests (chat, 2026-07-01) below before confirming this retest; left open/unconfirmed rather than marked DONE.
+22. [DONE] `harness-ai.phase5.stream1.task2` User retests: edit the glossary, click "Rebuild translations", confirm previously mistranslated protected terms now stay untranslated in the running app without an app restart (scope: user workflow; expected commit: none). Note: user moved on to two new requests (chat, 2026-07-01) below before confirming this retest; left open/unconfirmed rather than marked DONE. Result: User confirmed (chat, 2026-07-02) — all pending retests approved.
 
 ## Phase 6 - Glossary Copy Accuracy And Reasoning Terminology (owner: Codex, updated: 2026-07-01)
 
@@ -210,7 +210,7 @@
 
 25. [DONE] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`). Result: Completed in commit `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix`.
 26. [DONE] Git Commit: `chore(package): rebuild packaged app for glossary copy and reasoning terminology fix` (hash: self)
-27. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` User retests: Settings glossary helper text shows the real seeded example terms, and the Reasoning category / Claude / OpenCode thinking descriptions read naturally when translated to Russian (no literal "пузыри") (scope: user workflow; expected commit: none). Note: user moved on to a new request (chat, 2026-07-01) below before confirming this retest; left open/unconfirmed rather than marked DONE.
+27. [DONE] `harness-ai.phase7.stream1.task2` User retests: Settings glossary helper text shows the real seeded example terms, and the Reasoning category / Claude / OpenCode thinking descriptions read naturally when translated to Russian (no literal "пузыри") (scope: user workflow; expected commit: none). Note: user moved on to a new request (chat, 2026-07-01) below before confirming this retest; left open/unconfirmed rather than marked DONE. Result: User confirmed (chat, 2026-07-02) — all pending retests approved.
 
 ## Phase 8 - Glossary Preferred-Translation Entries (owner: Codex, updated: 2026-07-01)
 
@@ -267,4 +267,17 @@
 
 37. [DONE] `harness-ai.phase11.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for provider versions card localization fix`). Result: Completed in commit `chore(package): rebuild packaged app for provider versions card localization fix`.
 38. [DONE] Git Commit: `chore(package): rebuild packaged app for provider versions card localization fix` (hash: self)
-39. [IN_PROGRESS] `harness-ai.phase11.stream1.task2` User retests: with UI Helper Text / Messages for the User set to English, the Claude/Codex/OpenCode Versions cards show the warning banner and auto-update description in English, not Russian (scope: user workflow; expected commit: none).
+39. [DONE] `harness-ai.phase11.stream1.task2` User retests: with UI Helper Text / Messages for the User set to English, the Claude/Codex/OpenCode Versions cards show the warning banner and auto-update description in English, not Russian (scope: user workflow; expected commit: none). Result: User confirmed (chat, 2026-07-02) — all pending retests approved.
+
+## Phase 12 - Comment Marker Cleanup (owner: Codex, updated: 2026-07-02)
+
+> User order (chat, 2026-07-02): commit the three uncommitted one-line comment
+> edits found in the working tree at session start — the stray `ponytail:`
+> comment marker replaced with `note:` in `session-window.css`,
+> `settings-surface.css`, and `sdk-installer.ts`. Comment-only cosmetic change,
+> no behavior or contract impact, so the commit uses `[skip-docs]`.
+
+### Stream: Commit Comment Marker Edits
+
+40. [DONE] `harness-ai.phase12.stream1.task1` Commit the pre-existing working-tree comment edits replacing the stray `ponytail:` comment marker with `note:` (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`, `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-surface.css`, `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/installer/sdk-installer.ts`; expected commit: `chore: replace stray ponytail comment markers with note [skip-docs]`). Result: Completed in commit `chore: replace stray ponytail comment markers with note [skip-docs]`.
+41. [DONE] Git Commit: `chore: replace stray ponytail comment markers with note [skip-docs]` (hash: self)

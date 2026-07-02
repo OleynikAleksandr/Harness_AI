@@ -1026,7 +1026,7 @@ strong {
   color: #adb2ba;
   word-break: break-word;
   overflow-wrap: anywhere;
-  /* ponytail: content is plain text (no markdown engine), so pre-wrap preserves
+  /* note: content is plain text (no markdown engine), so pre-wrap preserves
      the newlines the reference gets from rendered <p> blocks. */
   white-space: pre-wrap;
 }

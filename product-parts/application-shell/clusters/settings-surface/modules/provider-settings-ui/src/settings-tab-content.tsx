@@ -4,6 +4,7 @@ import { ProfileSettingsUiFacade } from "../../profile-settings-ui/src/profile-s
 import { ClaudeDefaultModelCard } from "./claude-default-model-card.js";
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
+import { NativeCaptureCard } from "./native-capture-card.js";
 import { OpenCodeSettingsCard } from "./opencode-settings-card.js";
 import {
   OpenRouterModelEndpointPicker,
@@ -75,17 +76,20 @@ export function SettingsTabContent({
 
   if (activeTab === "general") {
     return (
-      <ReferenceGeneralSettings
-        coreRestartBusy={coreRestartBusy}
-        coreRestartStatus={coreRestartStatus}
-        onOpenGlossary={onOpenGlossary}
-        onRebuildTranslations={onRebuildTranslations}
-        onRestartCore={onRestartCore}
-        rebuildTranslationsBusy={rebuildTranslationsBusy}
-        rebuildTranslationsStatus={rebuildTranslationsStatus}
-        settings={settings}
-        update={update}
-      />
+      <div className="settings-reference-stack">
+        <ReferenceGeneralSettings
+          coreRestartBusy={coreRestartBusy}
+          coreRestartStatus={coreRestartStatus}
+          onOpenGlossary={onOpenGlossary}
+          onRebuildTranslations={onRebuildTranslations}
+          onRestartCore={onRestartCore}
+          rebuildTranslationsBusy={rebuildTranslationsBusy}
+          rebuildTranslationsStatus={rebuildTranslationsStatus}
+          settings={settings}
+          update={update}
+        />
+        <NativeCaptureCard />
+      </div>
     );
   }
 

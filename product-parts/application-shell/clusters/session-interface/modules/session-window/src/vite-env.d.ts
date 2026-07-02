@@ -74,6 +74,22 @@ interface Window {
       document?: "passport" | "prompt" | "tooling";
       profileId: string;
     }): Promise<{ error: string; ok: false } | { filePath: string; ok: true }>;
+    captureNativeRequest(request: {
+      model?: string;
+      providerId: string;
+    }): Promise<{
+      error: string | null;
+      jsonlPath: string | null;
+      markdownPath: string | null;
+      ok: boolean;
+    }>;
+    listCapturableModels(): Promise<{
+      ok: true;
+      providers: {
+        id: string;
+        models: { id: string; label: string }[];
+      }[];
+    }>;
     getSessionEvents(
       sessionId: string
     ): Promise<

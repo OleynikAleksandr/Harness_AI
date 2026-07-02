@@ -8,6 +8,8 @@ const IPC_TO_RPC = {
   "harness-ai:core:list-session-profiles": "list-session-profiles",
   "harness-ai:core:create-session-profile": "create-session-profile",
   "harness-ai:core:open-session-profile-file": "open-session-profile-file",
+  "harness-ai:core:capture-native-request": "capture-native-request",
+  "harness-ai:core:list-capturable-models": "list-capturable-models",
   "harness-ai:core:get-localization-runtime-payload":
     "get-localization-runtime-payload",
   "harness-ai:core:get-local-models": "get-local-models",

@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task2",
-  "expectedCommitMessage": "feat(electron-host): bridge native request capture command",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "feat(localization-runtime): add native request capture card labels",
   "debt": null
 }
 ```
@@ -130,14 +130,14 @@
 
 35. [DONE] `harness-ai.phase4.stream1.task1` Add the Core RPC surface: `capture-native-request` (looks up the provider adapter, delegates to the capture orchestrator with `runProviderCapture: (ctx) => adapter.captureNativeRequest(ctx)`, returns `{ ok, markdownPath, jsonlPath, error }`) and `list-capturable-models` (per-provider model list from `provider-descriptor`), wired into the Core runtime API dispatch (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat(core-runtime-process): add native request capture rpc`). Result: Completed in commit `feat(core-runtime-process): add native request capture rpc`.
 36. [DONE] Git Commit: `feat(core-runtime-process): add native request capture rpc` (hash: self)
-37. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` Bridge the capture command to the renderer: add the IPC channels and `window.harnessCore` methods (`captureNativeRequest`, `listCapturableModels`) in the Electron core-process bridge and preload, plus the renderer type declarations (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat(electron-host): bridge native request capture command`).
-38. [TODO] Git Commit: `feat(electron-host): bridge native request capture command` (hash: TBD)
+37. [DONE] `harness-ai.phase4.stream1.task2` Bridge the capture command to the renderer: add the IPC channels and `window.harnessCore` methods (`captureNativeRequest`, `listCapturableModels`) in the Electron core-process bridge and preload, plus the renderer type declarations (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat(electron-host): bridge native request capture command`). Result: Completed in commit `feat(electron-host): bridge native request capture command`.
+38. [DONE] Git Commit: `feat(electron-host): bridge native request capture command` (hash: self)
 
 ## Phase 5 - Capture UI (owner: Codex, updated: 2026-07-02)
 
 ### Stream: Settings Capture Card
 
-39. [TODO] `harness-ai.phase5.stream1.task1` Add the approved English `ui_labels`/`ui_helper_text`/`messages_for_the_user` dictionary entries for the Native Request Capture card (title, description, provider/model labels, capture button, capturing/failed states, artifact path labels) so the UI copy ships through the localization runtime (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat(localization-runtime): add native request capture card labels`).
+39. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Add the approved English `ui_labels`/`ui_helper_text`/`messages_for_the_user` dictionary entries for the Native Request Capture card (title, description, provider/model labels, capture button, capturing/failed states, artifact path labels) so the UI copy ships through the localization runtime (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat(localization-runtime): add native request capture card labels`).
 40. [TODO] Git Commit: `feat(localization-runtime): add native request capture card labels` (hash: TBD)
 41. [TODO] `harness-ai.phase5.stream1.task2` Add the `Native Request Capture` card to Settings -> General: provider selector + model selector (populated from `listCapturableModels`), a Capture button per run, capturing/failed status, and the resulting `.md`/`.jsonl` artifact paths; the renderer only submits the Core capture command and renders the Core-returned result (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/native-capture-card.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx, product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`; expected commit: `feat(provider-settings-ui): add native request capture settings card`).
 42. [TODO] Git Commit: `feat(provider-settings-ui): add native request capture settings card` (hash: TBD)

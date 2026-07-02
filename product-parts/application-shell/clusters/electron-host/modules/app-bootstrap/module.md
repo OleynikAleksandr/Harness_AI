@@ -32,6 +32,10 @@ Own Electron lifecycle, window creation, and local application startup.
   `createSessionProfile(request)` and `openSessionProfileFile(request)`
   (session profile picker/authoring surface), typed in the session window
   `vite-env.d.ts`.
+- `window.harnessCore` also exposes `captureNativeRequest(request)` and
+  `listCapturableModels()` for the Native Request Capture Settings card,
+  bridged to the Core `capture-native-request` / `list-capturable-models`
+  methods through the core-process bridge and typed in `vite-env.d.ts`.
 
 ## Owned Paths
 

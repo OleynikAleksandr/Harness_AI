@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:create-session-profile", request),
   openSessionProfileFile: (request) =>
     ipcRenderer.invoke("harness-ai:core:open-session-profile-file", request),
+  captureNativeRequest: (request) =>
+    ipcRenderer.invoke("harness-ai:core:capture-native-request", request),
+  listCapturableModels: () =>
+    ipcRenderer.invoke("harness-ai:core:list-capturable-models"),
   getSessionEvents: (sessionId) =>
     ipcRenderer.invoke("harness-ai:core:get-session-events", sessionId),
   getSettings: (workspacePath) =>

@@ -45,6 +45,12 @@ Render the transcript/dialog layout and session chrome.
   the next Core translation patch arrives. The translated-text reveal itself is
   prefix-stable: when localized reasoning grows, it keeps the longest already
   visible common prefix and animates only the new suffix.
+- The dialog autoscroll mirrors the CodeAI Hub reference bottom-lock behavior:
+  while the user has not intentionally scrolled away, the scroll target is the
+  bottom boundary of the lowest visible message bubble plus enough reserve for
+  the bubble shadow. A `ResizeObserver` watches visible bubbles and repins when
+  an earlier thinking bubble grows after a later assistant bubble already
+  exists.
 - The shared `.session-panel` surface (id bar, dialog, input, status) uses the
   reference grey backdrop `rgba(40,41,42,1)` with a single clean `1px solid
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background

@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type {
   SessionMessage,
@@ -7,6 +7,7 @@ import type {
 import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { useSessionDialogAutoscroll } from "./session-dialog-autoscroll.js";
 import { SessionInputTextarea } from "./session-input-textarea.js";
 import {
   mergeThinkingMessagesForDisplay,
@@ -49,13 +50,23 @@ export function DialogPanel({
   providerName: string | undefined;
 }) {
   const { t } = useBrowserLocalization();
+  const displayMessages = useMemo(
+    () => mergeThinkingMessagesForDisplay(messages),
+    [messages]
+  );
+  const { onScroll, scrollContainerRef } =
+    useSessionDialogAutoscroll(displayMessages);
   return (
     <section
       aria-label={t("ui_labels", "session.transcript", "Transcript")}
       className="session-dialog session-panel"
     >
-      <div className="session-dialog__scroll">
-        {messages.length === 0 ? (
+      <div
+        className="session-dialog__scroll"
+        onScroll={onScroll}
+        ref={scrollContainerRef}
+      >
+        {displayMessages.length === 0 ? (
           <p className="session-dialog__empty">
             {t(
               "messages_for_the_user",
@@ -64,7 +75,7 @@ export function DialogPanel({
             )}
           </p>
         ) : (
-          mergeThinkingMessagesForDisplay(messages).map((message) => (
+          displayMessages.map((message) => (
             <MessageBubble
               key={message.id}
               message={message}

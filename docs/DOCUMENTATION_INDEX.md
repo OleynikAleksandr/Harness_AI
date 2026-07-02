@@ -98,6 +98,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   application rebuild evidence for the compact session id bar: stacked
   id + profile chip identity column on the left, limit rows pinned to the
   right edge.
+- `docs/evidence/openrouter-model-search-collapse-package-2026-07-02.md` —
+  packaged application rebuild evidence for the collapsed OpenRouter model
+  search: only the selected match card stays visible after a pick, with an
+  in-field refresh control that re-runs the search in all three model blocks.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

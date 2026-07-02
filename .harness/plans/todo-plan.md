@@ -8,8 +8,8 @@
   "planId": "session-id-bar-compact-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with collapsed openrouter model matches",
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -82,6 +82,6 @@
 
 ### Stream: Package And Retest
 
-10. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/openrouter-model-search-collapse-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with collapsed openrouter model matches`).
-11. [TODO] Git Commit: `chore(package): rebuild packaged app with collapsed openrouter model matches` (hash: TBD)
-12. [TODO] `harness-ai.phase4.stream1.task2` User retests the collapsed OpenRouter model search in the packaged app across all three model blocks (scope: user workflow; expected commit: none).
+10. [DONE] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/openrouter-model-search-collapse-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with collapsed openrouter model matches`). Result: Completed in commit `chore(package): rebuild packaged app with collapsed openrouter model matches`.
+11. [DONE] Git Commit: `chore(package): rebuild packaged app with collapsed openrouter model matches` (hash: self)
+12. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` User retests the collapsed OpenRouter model search in the packaged app across all three model blocks (scope: user workflow; expected commit: none).

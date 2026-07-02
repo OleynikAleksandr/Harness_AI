@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "feat(core-runtime-process): add session profile RPCs for list, create and open file",
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": "feat(core-process-bridge): forward session profile RPCs through preload and renderer types",
   "debt": null
 }
 ```
@@ -173,9 +173,9 @@
 
 ### Stream: Core RPC
 
-50. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Add session profile Core RPCs following the `ensure-glossary-file` four-layer pattern: `list-session-profiles` (catalog read model incl. validity + preselection, triggers seeding), `create-session-profile` (name + type + optional providerId -> created document paths), `open-session-profile-file` (ensure + absolute path) as a new sibling `core-session-profile-rpc.ts` wired into `CoreRuntimeApi.invoke()` (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-session-profile-rpc.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, plus `module.md`; expected commit: `feat(core-runtime-process): add session profile RPCs for list, create and open file`).
-51. [TODO] Git Commit: `feat(core-runtime-process): add session profile RPCs for list, create and open file` (hash: TBD)
-52. [TODO] `harness-ai.phase7.stream1.task2` Forward the three RPCs end-to-end: `IPC_TO_RPC` entries (`core-process-bridge-facade.mjs`), `window.harnessCore` methods (`preload.cjs`), and `Window.harnessCore` type declarations (`vite-env.d.ts`) (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`, plus `core-process-bridge/module.md` and `app-bootstrap/module.md`; expected commit: `feat(core-process-bridge): forward session profile RPCs through preload and renderer types`).
+50. [DONE] `harness-ai.phase7.stream1.task1` Add session profile Core RPCs following the `ensure-glossary-file` four-layer pattern: `list-session-profiles` (catalog read model incl. validity + preselection, triggers seeding), `create-session-profile` (name + type + optional providerId -> created document paths), `open-session-profile-file` (ensure + absolute path) as a new sibling `core-session-profile-rpc.ts` wired into `CoreRuntimeApi.invoke()` (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-session-profile-rpc.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, plus `module.md`; expected commit: `feat(core-runtime-process): add session profile RPCs for list, create and open file`). Result: Completed in commit `feat(core-runtime-process): add session profile RPCs for list, create and open file`.
+51. [DONE] Git Commit: `feat(core-runtime-process): add session profile RPCs for list, create and open file` (hash: self)
+52. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Forward the three RPCs end-to-end: `IPC_TO_RPC` entries (`core-process-bridge-facade.mjs`), `window.harnessCore` methods (`preload.cjs`), and `Window.harnessCore` type declarations (`vite-env.d.ts`) (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`, plus `core-process-bridge/module.md` and `app-bootstrap/module.md`; expected commit: `feat(core-process-bridge): forward session profile RPCs through preload and renderer types`).
 53. [TODO] Git Commit: `feat(core-process-bridge): forward session profile RPCs through preload and renderer types` (hash: TBD)
 
 ## Phase 8 - UI: Session Creation Wizard (owner: Codex, updated: 2026-07-02)

@@ -36,6 +36,11 @@ import {
   resolveProviderPackage,
   updateProviderCli,
 } from "./core-provider-tools.js";
+import {
+  createSessionProfileRpcResult,
+  listSessionProfilesRpcResult,
+  openSessionProfileFileRpcResult,
+} from "./core-session-profile-rpc.js";
 
 const WORKSPACE_REGISTRY_FILE = join(
   process.env.HARNESS_AI_HOME || join(homedir(), ".harness-ai"),
@@ -111,6 +116,12 @@ export class CoreRuntimeApi {
         return ensureCoreGlossaryFileRpcResult();
       case "rebuild-localization":
         return rebuildCoreLocalizationRpcResult(this.activeWorkspacePath());
+      case "list-session-profiles":
+        return listSessionProfilesRpcResult(payload);
+      case "create-session-profile":
+        return createSessionProfileRpcResult(payload);
+      case "open-session-profile-file":
+        return openSessionProfileFileRpcResult(payload);
       case "get-local-models":
         return this.getLocalModels();
       case "get-provider-versions":

@@ -81,6 +81,14 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
 
+- Session profile RPCs (`core-session-profile-rpc.ts`, the
+  `ensure-glossary-file` four-layer pattern): `list-session-profiles`
+  (catalog read model + per-provider last-selection/AutoNormalizer memory;
+  triggers first-access seeding), `create-session-profile` (templates,
+  universal or individual), `open-session-profile-file` (document path for
+  the external-editor action; Native has no files). All return
+  `{ ok: true, ... } | { error, ok: false }`.
+
 ## Owned Paths
 
 - `module.md`

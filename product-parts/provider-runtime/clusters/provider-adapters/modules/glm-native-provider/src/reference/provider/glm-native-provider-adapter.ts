@@ -1,11 +1,14 @@
 import { randomUUID } from "node:crypto";
+import type {
+  ProviderSessionStartOptions,
+  ProviderSessionStartOutcome,
+} from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   buildGlmFailureMessage,
-  buildGlmHttpError,
-  buildGlmRequestHeaders,
   delay,
   GLM_MAX_REQUEST_ATTEMPTS,
   isRetryableGlmFailure,
+  openGlmResponse,
   readAppliedTurnConfigArtifactLanguage,
   readAppliedTurnConfigChatLanguage,
   readAppliedTurnConfigModel,
@@ -15,12 +18,16 @@ import {
 } from "./glm-native-adapter-utils.js";
 import {
   buildGlmNativeAssistantToolMessage,
-  buildGlmNativeSystemMessage,
   executeGlmNativeToolCall,
   GLM_NATIVE_MAX_TOOL_STEPS,
-  GLM_NATIVE_WORKFLOW_TOOLS,
   type GlmSessionMessage,
 } from "./glm-native-agent-runtime.js";
+import {
+  buildGlmProfileRequestParts,
+  computeGlmProfileDetails,
+  type GlmSessionProfileState,
+  resolveGlmSessionProfileState,
+} from "./glm-native-profile-application.js";
 import { deleteGlmNativeRolloutArtifacts } from "./glm-native-rollout-cleanup.js";
 import {
   buildGlmRuntimeProfile,
@@ -78,6 +85,7 @@ interface GlmSessionState {
   readonly abortControllers: Set<AbortController>;
   readonly messages: GlmSessionMessage[];
   readonly sessionId: string;
+  sessionProfile?: GlmSessionProfileState;
   readonly workspacePath?: string;
 }
 
@@ -109,28 +117,50 @@ export class GlmProviderAdapter {
     return Promise.resolve();
   }
 
-  createSession(workspacePath?: string): Promise<string> {
+  createSession(
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
     this.assertInitialized();
     const sessionId = `glm-${randomUUID()}`;
+    const sessionProfile = resolveGlmSessionProfileState(startOptions);
     this.sessions.set(sessionId, {
       abortControllers: new Set(),
       messages: [],
       sessionId,
+      ...(sessionProfile ? { sessionProfile } : {}),
       workspacePath: workspacePath ?? this.options.workspace.workspacePath,
     });
     this.listeners.set(sessionId, new Set());
-    return Promise.resolve(sessionId);
+    if (!sessionProfile) {
+      return Promise.resolve(sessionId);
+    }
+    return Promise.resolve({
+      appliedProfileApplication: computeGlmProfileDetails(sessionProfile),
+      providerSessionId: sessionId,
+    });
   }
 
-  resumeSession(sessionId: string, workspacePath?: string): Promise<string> {
+  resumeSession(
+    sessionId: string,
+    workspacePath?: string,
+    startOptions?: ProviderSessionStartOptions
+  ): Promise<ProviderSessionStartOutcome> {
     this.assertInitialized();
+    const sessionProfile = resolveGlmSessionProfileState(startOptions);
     if (!this.sessions.has(sessionId)) {
       this.sessions.set(sessionId, {
         abortControllers: new Set(),
         messages: [],
         sessionId,
+        ...(sessionProfile ? { sessionProfile } : {}),
         workspacePath: workspacePath ?? this.options.workspace.workspacePath,
       });
+    } else if (sessionProfile) {
+      const session = this.sessions.get(sessionId);
+      if (session && !session.sessionProfile) {
+        session.sessionProfile = sessionProfile;
+      }
     }
     return Promise.resolve(sessionId);
   }
@@ -246,6 +276,7 @@ export class GlmProviderAdapter {
         messages: [...options.session.messages, ...turnMessages],
         profile: options.profile,
         sessionId: options.sessionId,
+        sessionProfile: options.session.sessionProfile,
       });
       if (result.toolCalls.length === 0) {
         if (result.content.trim().length > 0) {
@@ -285,12 +316,13 @@ export class GlmProviderAdapter {
     readonly messages: readonly GlmSessionMessage[];
     readonly profile: GlmRuntimeProfile;
     readonly sessionId: string;
+    readonly sessionProfile?: GlmSessionProfileState;
   }) {
     const requestBody = this.buildRequestBody(options);
     for (let attempt = 1; attempt <= GLM_MAX_REQUEST_ATTEMPTS; attempt += 1) {
       let emittedUsefulEvent = false;
       try {
-        const response = await this.openGlmResponseWithRetry({
+        const response = await openGlmResponse({
           abortController: options.abortController,
           attempt,
           logger: options.logger,
@@ -354,13 +386,18 @@ export class GlmProviderAdapter {
   private buildRequestBody(options: {
     readonly messages: readonly GlmSessionMessage[];
     readonly profile: GlmRuntimeProfile;
+    readonly sessionProfile?: GlmSessionProfileState;
   }): Record<string, unknown> {
+    // Profile application: managed sessions get the frozen snapshot prompt
+    // plus the adapter-owned tool contract and the category-filtered schema
+    // subset; native/legacy keep the built-in instruction and full set.
+    const { systemMessage, tools } = buildGlmProfileRequestParts(
+      options.profile,
+      options.sessionProfile
+    );
     const body: Record<string, unknown> = {
       model: options.profile.model,
-      messages: [
-        buildGlmNativeSystemMessage(options.profile),
-        ...options.messages,
-      ],
+      messages: [systemMessage, ...options.messages],
       stream: true,
       stream_options: { include_usage: true },
       thinking: {
@@ -369,49 +406,12 @@ export class GlmProviderAdapter {
       },
       tool_choice: "auto",
       tool_stream: true,
-      tools: GLM_NATIVE_WORKFLOW_TOOLS,
+      tools,
     };
     if (options.profile.thinkingEnabled) {
       body.reasoning_effort = options.profile.reasoningEffort;
     }
     return body;
-  }
-
-  private async openGlmResponseWithRetry(options: {
-    readonly abortController: AbortController;
-    readonly attempt: number;
-    readonly logger: GlmNativeSessionLogger;
-    readonly profile: GlmRuntimeProfile;
-    readonly requestBody: Record<string, unknown>;
-    readonly sessionId: string;
-  }): Promise<Response> {
-    const headers = buildGlmRequestHeaders(
-      options.profile.apiKey,
-      options.sessionId
-    );
-    options.logger.write("http_request", {
-      attempt: options.attempt,
-      body: options.requestBody,
-      headers,
-      url: options.profile.chatCompletionsUrl,
-    });
-    const response = await fetch(options.profile.chatCompletionsUrl, {
-      body: JSON.stringify(options.requestBody),
-      headers,
-      method: "POST",
-      signal: options.abortController.signal,
-    });
-    options.logger.write("http_response", {
-      attempt: options.attempt,
-      headers: Object.fromEntries(response.headers.entries()),
-      ok: response.ok,
-      status: response.status,
-      statusText: response.statusText,
-    });
-    if (!response.ok) {
-      throw await buildGlmHttpError(response);
-    }
-    return response;
   }
 
   private buildProfile(

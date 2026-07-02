@@ -37,6 +37,25 @@ liveness preflight without treating that global home as a workspace root.
   log (`home/sessions/**/<providerSessionId>.jsonl`) for a removed session, leaving
   the shared provider home intact.
 
+- Session profile application layer (`glm-native-profile-application.ts`):
+  managed sessions build the system message from the frozen snapshot payload
+  (same start date, same wrapper — never live data) plus the adapter-owned
+  GLM tool contract for the category-filtered schema subset; native and
+  legacy keep the built-in instruction with the full tool set (GLM Native's
+  native IS the built-in client behavior). Applied details (`mode`,
+  `profileId`, `contentHash`, `toolSchemaIds`) return to Core via
+  `ProviderSessionStartResult`.
+- Category mapping (categories only filter GLM's OWN tool schemas):
+  `file-read` -> read_file, read_file_anchored, grep_files, glob_files,
+  workspace_symbols, go_to_definition, find_references; `file-write` ->
+  write_file, edit_file, edit_file_by_anchor, apply_patch,
+  write_workflow_artifact; `shell` -> exec_command; `web` -> web_search,
+  web_fetch, browser_fetch; `git` -> git_status, git_diff, git_log,
+  git_blame; `tests` -> run_tests.
+- `openGlmResponse` (single HTTP attempt) lives in
+  `glm-native-adapter-utils.ts`, moved out of the adapter for the 500-line
+  cap; the adapter owns the retry loop.
+
 ## Owned Paths
 
 - `module.md`

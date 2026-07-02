@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream2.task1",
-  "expectedCommitMessage": "feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract",
+  "currentTaskId": "harness-ai.phase6.stream3.task1",
+  "expectedCommitMessage": "feat(codex-provider): apply session profile base instructions with native passthrough",
   "debt": null
 }
 ```
@@ -154,12 +154,12 @@
 
 ### Stream: GLM Native
 
-42. [IN_PROGRESS] `harness-ai.phase6.stream2.task1` GLM Native profile application layer: new `glm-native-profile-application.ts` (managed: payload prompt + adapter-owned tool-contract section built for the category-filtered tool schema subset; native: built-in instruction + full 21-tool set), parameterize `buildRequestBody()`/`streamTurn()`; system message is rebuilt each turn from the snapshot payload, not live data; category mapping table in `module.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-profile-application.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-provider-adapter.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-agent-runtime.ts`, plus `module.md`; expected commit: `feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract`).
-43. [TODO] Git Commit: `feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract` (hash: TBD)
+42. [DONE] `harness-ai.phase6.stream2.task1` GLM Native profile application layer: new `glm-native-profile-application.ts` (managed: payload prompt + adapter-owned tool-contract section built for the category-filtered tool schema subset; native: built-in instruction + full 21-tool set), parameterize `buildRequestBody()`/`streamTurn()`; system message is rebuilt each turn from the snapshot payload, not live data; category mapping table in `module.md`; `openGlmResponse` moved to `glm-native-adapter-utils.ts` for the 500-line cap and `GlmNativeToolDefinition` exported from the agent runtime (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-profile-application.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-provider-adapter.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-agent-runtime.ts` + `glm-native-adapter-utils.ts`, plus `module.md`; expected commit: `feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract`). Result: Completed in commit `feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract`.
+43. [DONE] Git Commit: `feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract` (hash: self)
 
 ### Stream: Codex
 
-44. [TODO] `harness-ai.phase6.stream3.task1` Codex profile application: pass `baseInstructions` from the payload into `thread/start`/`thread/resume` (managed) or omit it (native = default no-`--disable` process args), tooling categories are an MVP no-op with the effective process-profile key recorded for the snapshot; `module.md` records the no-op decision and the future process-pool path (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-app-server-process-profile.ts`, plus `module.md`; expected commit: `feat(codex-provider): apply session profile base instructions with native passthrough`).
+44. [IN_PROGRESS] `harness-ai.phase6.stream3.task1` Codex profile application: pass `baseInstructions` from the payload into `thread/start`/`thread/resume` (managed) or omit it (native = default no-`--disable` process args), tooling categories are an MVP no-op with the effective process-profile key recorded for the snapshot; `module.md` records the no-op decision and the future process-pool path (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-app-server-process-profile.ts`, plus `module.md`; expected commit: `feat(codex-provider): apply session profile base instructions with native passthrough`).
 45. [TODO] Git Commit: `feat(codex-provider): apply session profile base instructions with native passthrough` (hash: TBD)
 
 ### Stream: Kimi

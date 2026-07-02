@@ -11,7 +11,7 @@ const WORKFLOW_ARTIFACT_TOOL_NAME = "write_workflow_artifact";
 
 export const GLM_NATIVE_MAX_TOOL_STEPS = 64;
 
-interface GlmNativeToolDefinition {
+export interface GlmNativeToolDefinition {
   readonly function: {
     readonly description: string;
     readonly name: string;

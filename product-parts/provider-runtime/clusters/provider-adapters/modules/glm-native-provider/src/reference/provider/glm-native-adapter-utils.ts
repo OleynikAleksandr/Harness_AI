@@ -1,3 +1,6 @@
+import type { GlmRuntimeProfile } from "./glm-native-runtime-profile.js";
+import type { GlmNativeSessionLogger } from "./glm-native-session-log.js";
+
 export interface GlmRequestFailure extends Error {
   code?: string;
   retryAfterMs?: number;
@@ -115,7 +118,7 @@ export const buildGlmFailureMessage = (error: unknown): string => {
 export const delay = (milliseconds: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
 
-export const buildGlmRequestHeaders = (
+const buildGlmRequestHeaders = (
   apiKey: string | null,
   sessionId: string
 ): Record<string, string> => {
@@ -147,7 +150,7 @@ const readRetryAfterMs = (headers: Headers): number | null => {
     : null;
 };
 
-export const buildGlmHttpError = async (
+const buildGlmHttpError = async (
   response: Response
 ): Promise<GlmRequestFailure> => {
   const text = await response.text().catch(() => "");
@@ -191,3 +194,41 @@ export const isRetryableGlmFailure = (error: unknown): boolean => {
   const code = readString(failure.code) ?? readString(cause?.code);
   return Boolean(code && RETRYABLE_ERROR_CODES.has(code));
 };
+
+// Opens one GLM chat-completions HTTP attempt; the adapter owns retries.
+export async function openGlmResponse(options: {
+  readonly abortController: AbortController;
+  readonly attempt: number;
+  readonly logger: GlmNativeSessionLogger;
+  readonly profile: GlmRuntimeProfile;
+  readonly requestBody: Record<string, unknown>;
+  readonly sessionId: string;
+}): Promise<Response> {
+  const headers = buildGlmRequestHeaders(
+    options.profile.apiKey,
+    options.sessionId
+  );
+  options.logger.write("http_request", {
+    attempt: options.attempt,
+    body: options.requestBody,
+    headers,
+    url: options.profile.chatCompletionsUrl,
+  });
+  const response = await fetch(options.profile.chatCompletionsUrl, {
+    body: JSON.stringify(options.requestBody),
+    headers,
+    method: "POST",
+    signal: options.abortController.signal,
+  });
+  options.logger.write("http_response", {
+    attempt: options.attempt,
+    headers: Object.fromEntries(response.headers.entries()),
+    ok: response.ok,
+    status: response.status,
+    statusText: response.statusText,
+  });
+  if (!response.ok) {
+    throw await buildGlmHttpError(response);
+  }
+  return response;
+}

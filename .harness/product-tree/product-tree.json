@@ -210,6 +210,11 @@
               "id": "capture-artifacts",
               "name": "Capture Artifacts",
               "purpose": "Capture type model, credential-header redaction, provider-neutral section extraction, and the JSONL + readable markdown artifact writer."
+            },
+            {
+              "id": "capture-certificates",
+              "name": "Capture Certificates",
+              "purpose": "Diagnostic CA and per-host leaf certificates for the capture proxy's TLS termination, plus the env hints that make a provider client trust the CA for the capture run only."
             }
           ]
         },

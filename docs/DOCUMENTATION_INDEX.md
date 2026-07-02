@@ -76,6 +76,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,
   provider migration, UI fixes, runtime behavior, smoke checks and retests.
+- `docs/evidence/session-profiles-package-2026-07-02.md` — packaged
+  application rebuild evidence for the session profiles scope ahead of user
+  acceptance.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app for session profiles",
+  "currentTaskId": "harness-ai.phase10.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -206,6 +206,6 @@
 
 ### Stream: Package And Retest
 
-66. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for session profiles`).
-67. [TODO] Git Commit: `chore(package): rebuild packaged app for session profiles` (hash: TBD)
-68. [TODO] `harness-ai.phase10.stream1.task2` User acceptance in the packaged app, including the dedicated breaking-change gate: (a) new-session wizard shows the profile step with Native first and remembered last choice per provider; (b) Native default: Claude/Kimi start with vendor-native behavior when nothing is selected; (c) `codeai-workflow-*` individual profiles reproduce today's managed behavior; (d) universal seed profiles apply on all four providers with category-filtered native tooling; (e) editing a profile affects only new sessions, resume keeps the original applied contract (snapshot), legacy sessions still work; (f) Profile Creator tab: create universal and individual profiles, edit in VS Code, validity status reflects broken files; (g) applied-profile chip visible in the session header; (h) user reviews the seeded draft prompt texts (scope: user workflow; expected commit: none).
+66. [DONE] `harness-ai.phase10.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for session profiles`). Result: Completed in commit `chore(package): rebuild packaged app for session profiles`.
+67. [DONE] Git Commit: `chore(package): rebuild packaged app for session profiles` (hash: self)
+68. [IN_PROGRESS] `harness-ai.phase10.stream1.task2` User acceptance in the packaged app, including the dedicated breaking-change gate: (a) new-session wizard shows the profile step with Native first and remembered last choice per provider; (b) Native default: Claude/Kimi start with vendor-native behavior when nothing is selected; (c) `codeai-workflow-*` individual profiles reproduce today's managed behavior; (d) universal seed profiles apply on all four providers with category-filtered native tooling; (e) editing a profile affects only new sessions, resume keeps the original applied contract (snapshot), legacy sessions still work; (f) Profile Creator tab: create universal and individual profiles, edit in VS Code, validity status reflects broken files; (g) applied-profile chip visible in the session header; (h) user reviews the seeded draft prompt texts (scope: user workflow; expected commit: none).

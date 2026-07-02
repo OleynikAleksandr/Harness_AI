@@ -1,143 +1,149 @@
-# Session Profiles
+# Профили сессий (Session Profiles)
 
-## Decision
+## Решение
 
-Harness AI will let the user select a **session profile** before a session
-starts. A profile packages the two things that today are hardcoded per
-provider — the **system prompt** and the **system tooling** — into
-user-editable documents that Core Runtime loads from disk at session start,
-without rebuilding the app.
+Harness AI позволит пользователю выбирать **профиль сессии** до старта
+сессии. Профиль упаковывает две вещи, которые сегодня захардкожены для
+каждого провайдера — **системный промпт** и **системный туллинг** — в
+редактируемые пользователем документы, которые Core Runtime загружает с
+диска при старте сессии, без пересборки приложения.
 
-- Profiles are owned by a **new Core Runtime cluster** (`session-profiles`).
-- Profile content lives in **user-space files** under
-  `~/.harness-ai/Profiles/**` (`HARNESS_AI_HOME`), because profiles apply to
-  every workspace.
-- Every provider gets its **own pair of documents per profile** (system
-  prompt + tooling), because prompt/tooling application mechanics differ per
-  provider.
-- A virtual **Native profile** always exists, is always first, and is the
-  fallback when no profile is selected: it means "do not interfere with the
-  channel's default behavior".
-- Core enforces profile resolution at session creation. UI only submits the
-  user's selection and renders Core-provided catalog data (per the Core
-  Authority rules in `AGENTS.md` and `docs/architecture/NextSessionMode.md`).
+- Профилями владеет **новый кластер Core Runtime** (`session-profiles`).
+- Контент профилей живёт в **пользовательских файлах** под
+  `~/.harness-ai/Profiles/**` (`HARNESS_AI_HOME`), потому что профили
+  применяются в любом workspace.
+- У каждого провайдера — **своя пара документов на профиль** (системный
+  промпт + туллинг), потому что механика применения промпта/туллинга у
+  провайдеров разная.
+- Виртуальный **Native-профиль** существует всегда, всегда стоит первым и
+  является fallback, когда профиль не выбран: он означает «не вмешиваться в
+  дефолтное поведение канала».
+- Разрешение профиля применяет Core при создании сессии. UI только передаёт
+  выбор пользователя и отображает данные каталога, полученные из Core (по
+  правилам Core Authority из `AGENTS.md` и
+  `docs/architecture/NextSessionMode.md`).
 
-Motivation: the user should be able to start each session with only the
-instructions and tools relevant to the task at hand (plan documents, todo
-plans, reviews, specifications, ...). Less irrelevant instruction text and
-fewer irrelevant tool schemas per request means less noise for the model and
-fewer wasted tokens.
+Мотивация: пользователь должен иметь возможность начинать каждую сессию
+только с теми инструкциями и инструментами, которые релевантны его задаче
+(плановые документы, todo-планы, ревью, спецификации, ...). Меньше
+нерелевантного текста инструкций и лишних схем инструментов в запросе —
+меньше шума для модели и меньше потраченных токенов.
 
-Agreed with the user in chat on 2026-07-02. UI surface design is explicitly
-deferred to a separate discussion after this document is approved.
+Согласовано с пользователем в чате 2026-07-02. Дизайн UI-поверхности явно
+отложен в отдельное обсуждение после утверждения этого документа.
 
-## Audited Provider Capabilities (2026-07-02)
+## Аудит возможностей провайдеров (2026-07-02)
 
-The four providers in scope were audited in code and against their installed
-binaries/SDKs. Line numbers are as of the audit date and may drift.
+Четыре провайдера в scope проверены по коду и по установленным бинарям/SDK.
+Номера строк актуальны на дату аудита и могут дрейфовать.
 
-| Provider | Channel | System prompt override | Tooling override | Application point |
+| Провайдер | Канал | Подмена системного промпта | Подмена туллинга | Точка применения |
 | --- | --- | --- | --- | --- |
-| Claude | `@anthropic-ai/claude-agent-sdk` 0.3.195 (in-process) | Full replace (`systemPrompt: string`) or preset `claude_code` + `append` | `tools: string[]` whitelist (`[]` disables all), `disallowedTools`, tools preset | SDK query options per session |
-| Codex | `codex app-server` subprocess, codex-cli 0.142.5, JSON-RPC | Full replace via `thread/start` `baseInstructions` (plus `developerInstructions`, `config`) | Process-level only: `--disable <feature>` flags at app-server spawn; no per-thread tool params | `thread/start` params + per-profile process launch |
-| Kimi | `kimi acp` subprocess, kimi 0.18.0, ACP JSON-RPC | Full replace via materialized agent file: `agent.yaml` → `system_prompt_path: ./system.md` | Explicit `tools:` list of Kimi-native tool ids in `agent.yaml` | Agent files materialized on disk before `session/new` |
-| GLM Native | Our own HTTP client (`fetch` → `api.z.ai` `/chat/completions`, SSE) | Full control: we compose the system message ourselves | Full control: we send our own tool schemas (21 tools) and execute them locally | Our request builder per turn |
+| Claude | `@anthropic-ai/claude-agent-sdk` 0.3.195 (in-process) | Полная замена (`systemPrompt: string`) или пресет `claude_code` + `append` | Whitelist `tools: string[]` (`[]` отключает все), `disallowedTools`, пресет тулзов | Опции SDK-запроса на сессию |
+| Codex | Подпроцесс `codex app-server`, codex-cli 0.142.5, JSON-RPC | Полная замена через `thread/start` `baseInstructions` (плюс `developerInstructions`, `config`) | Только на уровне процесса: флаги `--disable <feature>` при запуске app-server; per-thread параметров тулзов нет | Параметры `thread/start` + запуск процесса под профиль |
+| Kimi | Подпроцесс `kimi acp`, kimi 0.18.0, ACP JSON-RPC | Полная замена через материализованный agent-файл: `agent.yaml` -> `system_prompt_path: ./system.md` | Явный список `tools:` нативных идентификаторов Kimi в `agent.yaml` | Материализация agent-файлов на диске перед `session/new` |
+| GLM Native | Наш собственный HTTP-клиент (`fetch` -> `api.z.ai` `/chat/completions`, SSE) | Полный контроль: системное сообщение собираем мы сами | Полный контроль: шлём собственные схемы инструментов (21 шт.) и исполняем их локально | Наш сборщик запроса на каждый ход |
 
-Key audited facts (for implementers):
+Ключевые факты аудита (для реализаторов):
 
-- **Claude** — `claude-sdk-manager.ts` `buildQueryOptions()` (lines 268-321)
-  already passes a custom `systemPrompt` string
-  (`buildClaudeWorkspaceSystemPrompt()`: hardcoded workflow prompt + workspace
-  path + workspace `AGENTS.md`) and `tools: [...runtimeProfile.toolNames]`
-  where `toolNames` is the hardcoded whitelist
-  `CODEAI_CLAUDE_WORKFLOW_TOOLS = ["Read", "Write", "Edit", "WebSearch"]`
-  (`claude-runtime-profile.ts` lines 24-33). The SDK type
-  (`sdk.d.ts` lines 1300-1359, 1942-1947) confirms:
-  `systemPrompt?: string | string[] | { type: 'preset'; preset: 'claude_code';
-  append?; excludeDynamicSections? }` and `tools?: string[] | { type:
-  'preset'; preset: 'claude_code' }` plus `allowedTools` / `disallowedTools` /
-  `mcpServers` / `settingSources`. Conclusion: today's "Claude" is already a
-  hardcoded managed profile, not native Claude Code.
-- **Codex** — the adapter spawns `codex app-server` with per-purpose process
-  profiles (`codex-app-server-process-profile.ts`: default `["app-server"]`;
-  workflow adds `--disable multi_agent --disable computer_use ...`). The main
-  session path (`codex-app-server-facade.ts` line 161 `thread/start`) sends
-  only `{cwd, approvalPolicy, sandbox, model, persistExtendedHistory}` — it
-  does NOT populate `baseInstructions`, but the protocol accepts it, and the
-  diagnostic/translation path already sends it
-  (`codex-native-request-capture-service.ts` lines 212-237 with
-  `codex-workflow-instruction-profile.ts` / `codex-translation-prompt-profile.ts`).
-  There is no per-thread tool selection in the protocol: tool availability is
-  fixed by `--disable` flags at process spawn.
-- **Kimi** — the adapter runs `kimi acp` (`kimi-managed-agent-profile.ts`
-  line 416) and ACP itself has no prompt/tool fields (`session/new` params:
-  `{cwd, mcpServers}`; `session/set_config_option` supports only `model` and
-  `thinking` — `kimi-session-lifecycle.ts`). Instead the adapter ALREADY
-  materializes a managed agent before start:
-  `~/.harness-ai/providers/kimi/home/codeai-managed-agent/agent.yaml` with
-  `system_prompt_path: ./system.md` (an ~82KB workflow prompt) and an explicit
-  `tools:` list of Kimi-native ids (`kimi_cli.tools.file:ReadFile`, `...:Glob`,
-  `...:Grep`, `...:WriteFile`, `...:StrReplaceFile`, `kimi_cli.tools.shell:Shell`).
-  Profiles plug into exactly this mechanism: regenerate the agent documents
-  per profile before `session/new`. The precise binding mechanism (how the
-  CLI locates `agent.yaml` — cwd, config, or env) must be re-verified as the
-  first Kimi implementation step; parallel sessions with different profiles
-  will need per-profile agent directories.
-- **GLM Native** — our own client end to end: no subprocess;
-  `glm-native-provider-adapter.ts` `buildRequestBody()` (lines 354-378) is the
-  single injection point — line 361 injects
-  `buildGlmNativeSystemMessage(profile)` (system instruction built per turn in
-  `glm-native-agent-runtime.ts` lines 250-286: role line, env block with
-  model/workspace/date, language contract, behavior rules, workspace
-  `AGENTS.md`) and line 372 sends `tools: GLM_NATIVE_WORKFLOW_TOOLS` (21 tool
-  schemas defined in `glm-native-agent-runtime.ts` lines 30-222 /
-  `glm-native-expanded-tool-definitions.ts`, executed locally by our agentic
-  loop, up to 64 tool steps per turn). No prompt caching/hashing exists — the
-  system message is rebuilt every turn.
+- **Claude** — `claude-sdk-manager.ts` `buildQueryOptions()` (строки 268-321)
+  уже сегодня передаёт кастомную строку `systemPrompt`
+  (`buildClaudeWorkspaceSystemPrompt()`: захардкоженный workflow-промпт +
+  путь workspace + workspace `AGENTS.md`) и
+  `tools: [...runtimeProfile.toolNames]`, где `toolNames` — захардкоженный
+  whitelist `CODEAI_CLAUDE_WORKFLOW_TOOLS = ["Read", "Write", "Edit",
+  "WebSearch"]` (`claude-runtime-profile.ts`, строки 24-33). Типы SDK
+  (`sdk.d.ts`, строки 1300-1359, 1942-1947) подтверждают:
+  `systemPrompt?: string | string[] | { type: 'preset'; preset:
+  'claude_code'; append?; excludeDynamicSections? }` и
+  `tools?: string[] | { type: 'preset'; preset: 'claude_code' }`, плюс
+  `allowedTools` / `disallowedTools` / `mcpServers` / `settingSources`.
+  Вывод: сегодняшний «Claude» — это уже захардкоженный managed-профиль, а не
+  нативный Claude Code.
+- **Codex** — адаптер запускает `codex app-server` с процесс-профилями под
+  назначение (`codex-app-server-process-profile.ts`: дефолт
+  `["app-server"]`; workflow добавляет `--disable multi_agent --disable
+  computer_use ...`). Основной путь сессии (`codex-app-server-facade.ts`,
+  строка 161, `thread/start`) шлёт только `{cwd, approvalPolicy, sandbox,
+  model, persistExtendedHistory}` — поле `baseInstructions` НЕ заполняется,
+  хотя протокол его принимает, а диагностический/переводческий путь уже его
+  шлёт (`codex-native-request-capture-service.ts`, строки 212-237, с
+  `codex-workflow-instruction-profile.ts` /
+  `codex-translation-prompt-profile.ts`). Выбора инструментов per-thread в
+  протоколе нет: доступность инструментов фиксируется флагами `--disable`
+  при запуске процесса.
+- **Kimi** — адаптер запускает `kimi acp` (`kimi-managed-agent-profile.ts`,
+  строка 416), а сам ACP не имеет полей промпта/тулзов (параметры
+  `session/new`: `{cwd, mcpServers}`; `session/set_config_option`
+  поддерживает только `model` и `thinking` — `kimi-session-lifecycle.ts`).
+  Вместо этого адаптер УЖЕ материализует managed-агента перед стартом:
+  `~/.harness-ai/providers/kimi/home/codeai-managed-agent/agent.yaml` с
+  `system_prompt_path: ./system.md` (workflow-промпт ~82KB) и явным списком
+  `tools:` нативных идентификаторов Kimi (`kimi_cli.tools.file:ReadFile`,
+  `...:Glob`, `...:Grep`, `...:WriteFile`, `...:StrReplaceFile`,
+  `kimi_cli.tools.shell:Shell`). Профили встраиваются ровно в этот механизм:
+  перегенерировать документы агента под профиль перед `session/new`. Точный
+  механизм привязки (как CLI находит `agent.yaml` — cwd, конфиг или env)
+  нужно перепроверить первым шагом реализации Kimi; параллельным сессиям с
+  разными профилями понадобятся отдельные каталоги агентов на профиль.
+- **GLM Native** — наш клиент от и до: без подпроцесса;
+  `glm-native-provider-adapter.ts` `buildRequestBody()` (строки 354-378) —
+  единственная точка инъекции: строка 361 вставляет
+  `buildGlmNativeSystemMessage(profile)` (системная инструкция собирается на
+  каждый ход в `glm-native-agent-runtime.ts`, строки 250-286: строка роли,
+  env-блок с моделью/workspace/датой, языковой контракт, правила поведения,
+  workspace `AGENTS.md`), а строка 372 шлёт
+  `tools: GLM_NATIVE_WORKFLOW_TOOLS` (21 схема инструментов, определены в
+  `glm-native-agent-runtime.ts`, строки 30-222 /
+  `glm-native-expanded-tool-definitions.ts`, исполняются локально нашим
+  агентским циклом, до 64 шагов инструментов за ход). Кэша/хэширования
+  промпта нет — системное сообщение пересобирается каждый ход.
 
-Existing seam to reuse: `NextSessionMode`
-(`session-request-handler/src/next-session-mode.ts`) already defines
+Существующий шов для переиспользования: `NextSessionMode`
+(`session-request-handler/src/next-session-mode.ts`) уже определяет
 `invocationMode: "native" | "managed"`, `managedProfileId?`,
-`managedProfileSelection?` — currently hard-resolved to `Native · Raw` and
-hardcoded by the renderer (`session-window-facade.tsx` line ~233). Provider
-Registry already exposes `ProviderInvocationProfile` descriptors
-(`native-raw`, `managed-auto-normalizer`) as display-only metadata. This
-feature activates that seam instead of inventing a parallel one.
+`managedProfileSelection?` — сейчас жёстко резолвится в `Native · Raw` и
+хардкодится рендерером (`session-window-facade.tsx`, строка ~233). Provider
+Registry уже отдаёт дескрипторы `ProviderInvocationProfile` (`native-raw`,
+`managed-auto-normalizer`) как display-only метаданные. Эта фича активирует
+существующий шов, а не изобретает параллельный.
 
-## Profile Model
+## Модель профиля
 
-A **profile** is a top-level concept (directory) identified by a kebab-case
-id. It has:
+**Профиль** — концепт верхнего уровня (каталог), идентифицируемый
+kebab-case id. У него есть:
 
-- one **passport** (`profile.yaml`): display name and description for the UI;
-- one **document pair per provider**: `system-prompt.md` (the full system
-  prompt body) and `tooling.yaml` (tooling category switches).
+- один **паспорт** (`profile.yaml`): отображаемое имя и описание для UI;
+- одна **пара документов на провайдера**: `system-prompt.md` (полное тело
+  системного промпта) и `tooling.yaml` (переключатели категорий туллинга).
 
-Rules:
+Правила:
 
-- Missing `<profile>/<providerId>/` pair ⇒ the profile is **not offered** for
-  that provider. No cross-provider fallback, no content synthesis.
-- The **Native profile is virtual**: it has no directory on disk. It is always
-  present, always listed first, and means "channel default, no interference".
-- Profiles are **fixed for the lifetime of a session**. Changing profile means
-  starting a new session (matches Codex/Kimi mechanics where prompt/tooling
-  are fixed at process/session start).
-- Files are read from disk at session start — **no cache**, no rebuild step.
-  Editing a file affects the next session.
-- Seeding follows the `UserGlossaryStore` precedent
-  (`localization-runtime/src/user-glossary-store.ts`): on first access Core
-  creates the standard profile set with seeded content; after that the files
-  belong to the user and are never overwritten by Harness.
+- Нет пары `<профиль>/<providerId>/` ⇒ профиль **не предлагается** для этого
+  провайдера. Никакого кросс-провайдерного fallback, никакого синтеза
+  контента.
+- **Native-профиль виртуален**: у него нет каталога на диске. Он всегда
+  присутствует, всегда первый в списке и означает «дефолт канала, без
+  вмешательства».
+- Профиль **фиксируется на всё время жизни сессии**. Смена профиля = старт
+  новой сессии (соответствует механике Codex/Kimi, где промпт/туллинг
+  фиксируются при старте процесса/сессии).
+- Файлы читаются с диска при старте сессии — **без кэша**, без шага
+  пересборки. Правка файла действует со следующей сессии.
+- Сидирование по прецеденту `UserGlossaryStore`
+  (`localization-runtime/src/user-glossary-store.ts`): при первом обращении
+  Core создаёт стандартный набор профилей с seed-контентом; дальше файлы
+  принадлежат пользователю и Harness их никогда не перезаписывает.
 
-## Storage Layout
+## Схема хранения
 
 ```
-~/.harness-ai/Profiles/                  <- HARNESS_AI_HOME userspace root
+~/.harness-ai/Profiles/                  <- юзерспейс-корень HARNESS_AI_HOME
   plan-document/
-    profile.yaml                         <- passport (one per profile)
+    profile.yaml                         <- паспорт (один на профиль)
     claude/
-      system-prompt.md                   <- whole body = the system prompt
-      tooling.yaml                       <- tooling category switches
+      system-prompt.md                   <- всё тело файла = системный промпт
+      tooling.yaml                       <- переключатели категорий туллинга
     codex/
       system-prompt.md
       tooling.yaml
@@ -152,20 +158,20 @@ Rules:
   architecture-spec/ ...
 ```
 
-`profile.yaml` (passport):
+`profile.yaml` (паспорт):
 
 ```yaml
-# Session profile passport. Shown in the profile picker.
+# Паспорт профиля сессии. Отображается в списке выбора профиля.
 name: Plan Document
 description: Build a structured planning document for a feature or scope.
 ```
 
-`tooling.yaml` (per provider pair):
+`tooling.yaml` (в паре каждого провайдера):
 
 ```yaml
-# Tooling categories for this profile/provider pair.
-# on  = the adapter enables its native tools of this category
-# off = the adapter removes/disables them
+# Категории туллинга этой пары профиль/провайдер.
+# on  = адаптер включает свои нативные инструменты этой категории
+# off = адаптер убирает/отключает их
 categories:
   file-read: on
   file-write: on
@@ -175,247 +181,258 @@ categories:
   tests: off
 ```
 
-`system-prompt.md`: plain Markdown; the entire file body is the profile's
-system prompt. No frontmatter, no service sections.
+`system-prompt.md`: чистый Markdown; всё тело файла — системный промпт
+профиля. Без frontmatter, без служебных секций.
 
-Format decisions (agreed 2026-07-02): YAML for passport and tooling (this
-introduces a YAML parser as a new runtime dependency — the repo currently only
-writes YAML strings for the Kimi agent file, never parses any); Markdown for
-the prompt body. Directory grouping is profile → providers (one passport per
-profile, applicability by presence of provider subdirectories).
+Решения по форматам (согласовано 2026-07-02): YAML для паспорта и туллинга
+(это вводит YAML-парсер как новую runtime-зависимость — сейчас репозиторий
+только пишет YAML-строки для agent-файла Kimi и ничего не парсит); Markdown
+для тела промпта. Группировка каталогов: профиль → провайдеры (один паспорт
+на профиль, применимость — по наличию подкаталогов провайдеров).
 
-## Tooling Category Vocabulary
+## Словарь категорий туллинга
 
-Profiles speak provider-neutral **categories**; each adapter maps categories
-to its native mechanism. Native tool names never appear in profile documents
-(a future extension may add per-provider overrides, out of MVP scope).
+Профили говорят на провайдер-нейтральных **категориях**; каждый адаптер
+мапит категории на свой нативный механизм. Нативные имена инструментов
+никогда не появляются в документах профилей (будущее расширение может
+добавить per-provider переопределения — вне scope MVP).
 
-Vocabulary v1: `file-read`, `file-write`, `shell`, `web`, `git`, `tests`.
+Словарь v1: `file-read`, `file-write`, `shell`, `web`, `git`, `tests`.
 
-Honest applicability matrix (what each adapter can actually do):
+Честная матрица применимости (что каждый адаптер реально может):
 
-| Category | Claude (tools whitelist) | Codex (`--disable` flags) | Kimi (`agent.yaml` tools) | GLM Native (our schemas) |
+| Категория | Claude (whitelist `tools`) | Codex (флаги `--disable`) | Kimi (`tools` в `agent.yaml`) | GLM Native (наши схемы) |
 | --- | --- | --- | --- | --- |
-| file-read | Read, Glob, Grep | not controllable | ReadFile, ReadMediaFile, Glob, Grep | read_file, read_file_anchored, grep_files, glob_files |
-| file-write | Write, Edit | not controllable | WriteFile, StrReplaceFile | write_file, edit_file, edit_file_by_anchor, apply_patch |
-| shell | Bash | not controllable | Shell | exec_command |
-| web | WebSearch, WebFetch | maps to feature flags (verify exact ids, e.g. `tool_search`) | (none today — n/a) | web_search, web_fetch, browser_fetch |
-| git | via shell (no distinct tools) | not controllable | via Shell | git_status, git_diff, git_log, git_blame |
-| tests | via shell | not controllable | via Shell | run_tests |
+| file-read | Read, Glob, Grep | не управляется | ReadFile, ReadMediaFile, Glob, Grep | read_file, read_file_anchored, grep_files, glob_files |
+| file-write | Write, Edit | не управляется | WriteFile, StrReplaceFile | write_file, edit_file, edit_file_by_anchor, apply_patch |
+| shell | Bash | не управляется | Shell | exec_command |
+| web | WebSearch, WebFetch | мапится на фиче-флаги (уточнить точные id, напр. `tool_search`) | (сегодня нет — n/a) | web_search, web_fetch, browser_fetch |
+| git | через shell (отдельных инструментов нет) | не управляется | через Shell | git_status, git_diff, git_log, git_blame |
+| tests | через shell | не управляется | через Shell | run_tests |
 
-Matrix rules:
+Правила матрицы:
 
-- A category an adapter cannot control is applied as a **no-op** and the
-  adapter reports its effective tooling in its session log; the final
-  per-adapter mapping tables live in each adapter's `module.md` and are
-  fixed during implementation (the exact Claude tool-name list and Codex flag
-  ids must be verified against the installed versions).
-- Categories that only exist via `shell` (git/tests on Claude/Kimi) follow the
-  `shell` switch there; GLM Native can honor them independently.
-- Codex additionally keeps its existing purpose-specific `--disable` sets; a
-  profile's categories translate into the closest process profile, and the
-  app-server instance is (re)launched per tooling profile (agreed
-  2026-07-02: acceptable cost; the prompt part stays per-thread and needs no
-  process restart).
+- Категория, которую адаптер не может контролировать, применяется как
+  **no-op**, и адаптер фиксирует эффективный туллинг в своём session log;
+  финальные таблицы маппинга живут в `module.md` каждого адаптера и
+  фиксируются при реализации (точный список имён инструментов Claude и id
+  флагов Codex нужно сверить с установленными версиями).
+- Категории, существующие только через `shell` (git/tests у Claude/Kimi),
+  следуют за переключателем `shell`; GLM Native может учитывать их
+  независимо.
+- Codex дополнительно сохраняет существующие целевые наборы `--disable`;
+  категории профиля транслируются в ближайший процесс-профиль, и инстанс
+  app-server (пере)запускается под туллинг-профиль (согласовано 2026-07-02:
+  приемлемая цена; промптовая часть остаётся per-thread и перезапуска не
+  требует).
 
-## Layered System Prompt
+## Слоёный системный промпт
 
-A profile's `system-prompt.md` replaces only the **workflow layer**. Core's
-materializer always adds a thin **system framing layer** so profiles never
-have to duplicate technical context:
+`system-prompt.md` профиля заменяет только **workflow-слой**. Materializer в
+Core всегда добавляет тонкий **слой системной обвязки**, чтобы профили
+никогда не дублировали технический контекст:
 
-- workspace path (and workspace `AGENTS.md` contents where the channel does
-  not already inject it natively);
-- current date;
-- localization/language contract (chat and artifact language), same data the
-  adapters use today;
-- for **GLM Native only**: the tool-contract section that teaches the model
-  how to drive our local agentic loop. A fully arbitrary prompt without this
-  section would silently degrade tool calling, so the materializer owns it,
-  not the profile author.
+- путь workspace (и содержимое workspace `AGENTS.md` там, где канал не
+  инъектирует его нативно сам);
+- текущая дата;
+- локализационный/языковой контракт (язык чата и артефактов) — те же данные,
+  что адаптеры используют сегодня;
+- **только для GLM Native**: секция tool-контракта, которая учит модель
+  управлять нашим локальным агентским циклом. Полностью произвольный промпт
+  без этой секции молча деградировал бы вызовы инструментов, поэтому ей
+  владеет materializer, а не автор профиля.
 
-Prompt mode is **replace-only** in v1 (every audited channel supports full
-replace; Claude's preset+`append` stays available to a future profile field
-without breaking the format).
+Режим промпта в v1 — **только полная замена** (каждый канал по аудиту
+поддерживает полную замену; `append` к пресету Claude остаётся доступным
+будущему полю профиля без слома формата).
 
-## Native Profile Semantics (per provider)
+## Семантика Native-профиля (по провайдерам)
 
-"Native" = the channel's default behavior with no Harness interference:
+«Native» = дефолтное поведение канала без вмешательства Harness:
 
-- **Claude**: `systemPrompt: { type: 'preset', preset: 'claude_code' }` and
-  `tools: { type: 'preset', preset: 'claude_code' }` (full native toolset).
-  Harness process-level decisions (permission mode, setting sources, provider
-  home isolation) remain product policy, not profile content.
-- **Codex**: omit `baseInstructions`/`developerInstructions`; launch the
-  app-server with the default (no `--disable`) argument profile.
-- **Kimi**: do not materialize a managed agent; let the CLI use its built-in
-  default agent (verify the exact "no custom agent" launch path during
-  implementation).
-- **GLM Native**: our built-in system instruction and the full 21-tool set —
-  by definition, since no external default exists for our own client.
+- **Claude**: `systemPrompt: { type: 'preset', preset: 'claude_code' }` и
+  `tools: { type: 'preset', preset: 'claude_code' }` (полный нативный набор
+  инструментов). Процессные решения Harness (permission mode, setting
+  sources, изоляция provider home) остаются продуктовой политикой, а не
+  контентом профиля.
+- **Codex**: не передавать `baseInstructions`/`developerInstructions`;
+  запускать app-server с дефолтным (без `--disable`) набором аргументов.
+- **Kimi**: не материализовать managed-агента; CLI использует свой
+  встроенный дефолтный агент (точный путь запуска «без кастомного агента»
+  проверить при реализации).
+- **GLM Native**: наша встроенная системная инструкция и полный набор из 21
+  инструмента — по определению, поскольку внешнего дефолта для нашего
+  собственного клиента не существует.
 
-Note: for Claude and Kimi, Native is a **behavior change vs today** (today
-they always run the hardcoded CodeAI workflow prompt/tool whitelist). The
-current hardcoded content becomes seed material for managed profiles instead
-of being silently lost.
+Примечание: для Claude и Kimi Native — это **изменение поведения
+относительно сегодняшнего** (сейчас они всегда работают на захардкоженном
+CodeAI workflow-промпте/whitelist). Текущий захардкоженный контент
+становится seed-материалом managed-профилей, а не теряется молча.
 
-## New Cluster: `session-profiles` (Core Runtime)
+## Новый кластер: `session-profiles` (Core Runtime)
 
-`product-parts/core-runtime/clusters/session-profiles/` with three modules,
-each behind its facade:
+`product-parts/core-runtime/clusters/session-profiles/`, три модуля, каждый
+за своим фасадом:
 
-1. **`profile-store`** — disk truth. Resolves the `Profiles/` root inside the
-   harness home (same home-resolution approach as
-   `resolveCoreLocalizationRootDirectory()`), scans profile directories,
-   parses passport/tooling/prompt files, validates with human-readable errors
-   (unknown category, missing file, YAML syntax), seeds the standard profile
-   set on first access, exposes file paths for editor opening. Owns the YAML
-   dependency.
-2. **`profile-catalog`** — selection truth. Builds the catalog read model for
-   UI (passports + per-provider applicability), always injects the virtual
-   Native profile first, resolves `(profileId, providerId)` → document pair,
-   resolves "no selection" → Native, and defines the error contract for a
-   selected-but-broken profile (see Session Start Contract).
-3. **`profile-materializer`** — payload truth. Turns a resolved document pair
-   into the provider-neutral `SessionProfilePayload`: prompt body + system
-   framing layer (workspace, date, language, AGENTS.md policy flag, GLM tool
-   contract) + tooling categories. Adapters receive this payload; they never
-   read profile files themselves.
+1. **`profile-store`** — правда диска. Резолвит корень `Profiles/` внутри
+   harness home (тот же подход к резолву home, что и у
+   `resolveCoreLocalizationRootDirectory()`), сканирует каталоги профилей,
+   парсит паспорт/туллинг/промпт, валидирует с человекочитаемыми ошибками
+   (неизвестная категория, отсутствующий файл, синтаксис YAML), сидирует
+   стандартный набор профилей при первом обращении, отдаёт пути файлов для
+   открытия в редакторе. Владеет YAML-зависимостью.
+2. **`profile-catalog`** — правда выбора. Строит каталог (read model) для UI
+   (паспорта + применимость по провайдерам), всегда добавляет виртуальный
+   Native первым, резолвит `(profileId, providerId)` → пару документов,
+   резолвит «нет выбора» → Native и определяет контракт ошибки для
+   выбранного-но-битого профиля (см. «Контракт старта сессии»).
+3. **`profile-materializer`** — правда payload. Превращает разрешённую пару
+   документов в провайдер-нейтральный `SessionProfilePayload`: тело промпта
+   + слой системной обвязки (workspace, дата, язык, политика `AGENTS.md`,
+   tool-контракт GLM) + категории туллинга. Адаптеры получают этот payload;
+   сами файлы профилей они никогда не читают.
 
-Category→native-tool mapping lives in the **adapters** (Provider Runtime),
-not in this cluster: tool names are provider knowledge. Core speaks
-categories only.
+Маппинг «категория → нативные инструменты» живёт в **адаптерах**
+(Provider Runtime), а не в этом кластере: имена инструментов — знание
+провайдера. Core говорит только категориями.
 
-## Session Start Contract
+## Контракт старта сессии
 
-- The renderer submits the user's selection through the existing
-  `NextSessionMode` field `managedProfileId` (`invocationMode: "managed"`)
-  or `invocationMode: "native"`. No new UI-side truth.
-- `session-request-handler` stops hard-resolving `Native · Raw`: it resolves
-  the received mode through `profile-catalog`, obtains a
-  `SessionProfilePayload` from `profile-materializer`, stores the applied
-  profile id/name on the Core session (event/read-model visibility), and
-  passes the payload into the adapter via the extended
-  `provider-adapter-contract` (`createSession`/`resumeSession` options).
-- **No selection ⇒ Native.** The session always can start; Native is the
-  guaranteed fallback. (UI will make selection an explicit step, but Core
-  never deadlocks on a missing selection.)
-- **Selected but broken ⇒ error, not silent fallback.** If the selected
-  profile fails to load/parse/resolve for the session's provider, Core
-  rejects session creation with a structured error for the UI. Silently
-  starting with different instructions than the user chose is worse than
-  failing visibly.
-- Resumed sessions keep their original profile binding; if its files are now
-  broken, resume follows the same error contract.
+- Рендерер передаёт выбор пользователя через существующее поле
+  `NextSessionMode` `managedProfileId` (`invocationMode: "managed"`) или
+  `invocationMode: "native"`. Никакой новой правды на стороне UI.
+- `session-request-handler` перестаёт жёстко резолвить `Native · Raw`: он
+  резолвит полученный режим через `profile-catalog`, получает
+  `SessionProfilePayload` из `profile-materializer`, сохраняет применённый
+  id/имя профиля на Core-сессии (видимость в событиях/read model) и передаёт
+  payload в адаптер через расширенный `provider-adapter-contract` (опции
+  `createSession`/`resumeSession`).
+- **Нет выбора ⇒ Native.** Сессия всегда может стартовать; Native —
+  гарантированный fallback. (UI сделает выбор явным шагом, но Core никогда
+  не блокируется на отсутствии выбора.)
+- **Выбран, но битый ⇒ ошибка, а не тихий fallback.** Если выбранный профиль
+  не удаётся загрузить/распарсить/разрешить для провайдера сессии, Core
+  отклоняет создание сессии со структурированной ошибкой для UI. Молча
+  стартовать с другими инструкциями, чем выбрал пользователь, хуже, чем
+  видимо упасть.
+- Возобновляемые сессии сохраняют исходную привязку профиля; если её файлы
+  теперь битые, resume следует тому же контракту ошибки.
 
-## Adapter Application Strategies
+## Стратегии применения в адаптерах
 
-Contract: `provider-adapter-contract` gains an optional
-`SessionProfilePayload` in session-creation options. Absent payload ⇒ exact
-current behavior (transition safety) until each adapter's Native semantics
-land; then absent payload = Native.
+Контракт: `provider-adapter-contract` получает опциональный
+`SessionProfilePayload` в опциях создания сессии. Отсутствие payload ⇒ ровно
+текущее поведение (безопасность перехода), пока не приземлится
+Native-семантика каждого адаптера; затем отсутствие payload = Native.
 
-- **Claude**: `buildQueryOptions()` accepts the payload: managed ⇒
-  `systemPrompt = payload.prompt`, `tools = mapCategories(payload.categories)`;
-  native ⇒ both presets. The hardcoded
-  `CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT` / `CODEAI_CLAUDE_WORKFLOW_TOOLS`
-  stop being reachable defaults and their content moves into seed profiles.
-- **GLM Native**: `buildRequestBody()`/`streamTurn()` accept prompt text and
-  a filtered tool-schema subset; native ⇒ built-in instruction + full set.
-- **Codex**: `thread/start`/`thread/resume` gain `baseInstructions` from the
-  payload (managed) or omit it (native); tooling categories select the
-  app-server process profile (spawn args), reusing the existing process
-  profile mechanism.
-- **Kimi**: materialize a per-profile agent directory (agent.yaml +
-  system.md + tools list) before `session/new`; native ⇒ default agent.
-  First step: verify agent-directory binding and parallel-session isolation.
+- **Claude**: `buildQueryOptions()` принимает payload: managed ⇒
+  `systemPrompt = payload.prompt`,
+  `tools = mapCategories(payload.categories)`; native ⇒ оба пресета.
+  Захардкоженные `CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT` /
+  `CODEAI_CLAUDE_WORKFLOW_TOOLS` перестают быть достижимыми дефолтами, их
+  контент переезжает в seed-профили.
+- **GLM Native**: `buildRequestBody()`/`streamTurn()` принимают текст
+  промпта и отфильтрованное подмножество схем инструментов; native ⇒
+  встроенная инструкция + полный набор.
+- **Codex**: `thread/start`/`thread/resume` получают `baseInstructions` из
+  payload (managed) или не получают его (native); категории туллинга
+  выбирают процесс-профиль app-server (аргументы запуска), переиспользуя
+  существующий механизм процесс-профилей.
+- **Kimi**: материализация каталога агента на профиль (`agent.yaml` +
+  `system.md` + список tools) перед `session/new`; native ⇒ дефолтный агент.
+  Первый шаг: верифицировать привязку каталога агента и изоляцию
+  параллельных сессий.
 
-## Core RPC Surface (MVP)
+## RPC-поверхность Core (MVP)
 
-Follows the exact four-layer shape proven by `ensure-glossary-file`
-(`core-runtime-api.ts` dispatch → `IPC_TO_RPC` in
-`core-process-bridge-facade.mjs` → `preload.cjs` → `vite-env.d.ts` types):
+Следует ровно четырёхслойной схеме, проверенной на `ensure-glossary-file`
+(диспетчер `core-runtime-api.ts` → `IPC_TO_RPC` в
+`core-process-bridge-facade.mjs` → `preload.cjs` → типы `vite-env.d.ts`):
 
-- `list-session-profiles` → catalog read model for the picker (triggers
-  seeding on first call): profiles with name/description/applicable
-  providers, Native first.
-- `open-session-profile-file` → ensure + return absolute path of a given
-  profile document for the "edit in VS Code" action (same UX as the glossary
-  button).
-- Session creation RPC: no new method — `createSession` already carries
-  `nextSessionMode`; Core-side resolution changes as described above.
+- `list-session-profiles` → каталог (read model) для пикера (при первом
+  вызове триггерит сидирование): профили с именем/описанием/применимыми
+  провайдерами, Native первым.
+- `open-session-profile-file` → ensure + вернуть абсолютный путь конкретного
+  документа профиля для действия «редактировать в VS Code» (тот же UX, что
+  у кнопки глоссария).
+- RPC создания сессии: нового метода нет — `createSession` уже несёт
+  `nextSessionMode`; меняется только Core-резолюция, как описано выше.
 
-Session snapshot/read model gains the applied profile id/name so the UI can
-display what a session is running with.
+Снапшот/рид-модель сессии получает применённый id/имя профиля, чтобы UI мог
+показать, с каким профилем работает сессия.
 
-## Seed Profiles
+## Seed-профили
 
-Created on first access; content authored in English during implementation
-and reviewed by the user (the files are user-owned afterwards):
+Создаются при первом обращении; контент пишется на английском при реализации
+и ревьюится пользователем (после этого файлы принадлежат пользователю):
 
-1. `plan-document` — build a structured planning document.
-2. `todo-plan-deterministic` — produce a deterministic machine-managed todo
-   plan.
-3. `review` — code/architecture review.
-4. `architecture-spec` — specifications for product parts / clusters /
-   modules (one profile; the differences between spec levels are request
-   content, not different tooling).
+1. `plan-document` — построение структурированного планового документа.
+2. `todo-plan-deterministic` — детерминированный machine-managed todo-план.
+3. `review` — ревью кода/архитектуры.
+4. `architecture-spec` — спецификации product parts / clusters / modules
+   (один профиль; разница между уровнями спецификаций — содержание запроса,
+   а не другой туллинг).
 
-Plus the virtual `native` entry (not on disk). Each seed profile ships pairs
-for all four providers; the current hardcoded Claude workflow prompt and the
-Kimi `system.md` content are the raw material for the seeds.
+Плюс виртуальная запись `native` (не на диске). Каждый seed-профиль
+поставляется парами для всех четырёх провайдеров; сырьё для сидов — текущий
+захардкоженный workflow-промпт Claude и содержимое `system.md` Kimi.
 
-## Out of Scope (this cycle)
+## Вне scope (этого цикла)
 
-- **UI surface** — separate discussion after this document is approved
-  (picker layout, mandatory-selection UX, profile editing entry points).
-- Workspace-level profile overrides (`<workspace>/.harness/settings/**`).
-- Custom/MCP tool injection through profiles; per-provider native tool-name
-  overrides in `tooling.yaml`; prompt `append` mode.
-- Mid-session profile switching.
-- OpenRouter / Local Models / GLM OpenCode profile support ("a separate
-  conversation" per user, 2026-07-02).
+- **UI-поверхность** — отдельное обсуждение после утверждения документа
+  (макет пикера, UX обязательного выбора, точки входа в редактирование
+  профилей).
+- Workspace-уровень переопределений профилей
+  (`<workspace>/.harness/settings/**`).
+- Инъекция кастомных/MCP-инструментов через профили; per-provider
+  переопределения нативных имён инструментов в `tooling.yaml`; режим
+  `append` промпта.
+- Смена профиля посреди сессии.
+- Поддержка профилей для OpenRouter / Local Models / GLM OpenCode
+  («отдельный разговор», пользователь, 2026-07-02).
 
-## Risks And Constraints
+## Риски и ограничения
 
-- **Codex tooling granularity is coarse** (feature flags, not tools) and
-  partially unverifiable until implementation; the matrix marks most
-  categories "not controllable". Restarting the app-server per tooling
-  profile is the accepted cost.
-- **Kimi agent binding mechanism is unverified** (how the CLI locates
-  `agent.yaml`); implementation starts with that verification, and parallel
-  sessions need per-profile agent directories.
-- **GLM Native custom prompts must keep the tool contract** — owned by the
-  materializer's framing layer, not by profile authors.
-- **Native for Claude/Kimi changes today's default behavior**; the switch
-  happens only when profile resolution lands, and the old content survives as
-  seeds.
-- New YAML dependency: package choice (e.g. `yaml`) happens at
-  implementation; parser usage stays inside `profile-store`.
-- 500-line implementation file cap: adapters get separate
-  `*-profile-application` files rather than growing existing managers.
-- Audited line numbers in this document drift with refactors; treat them as
-  audit evidence, not live references.
+- **Гранулярность туллинга Codex грубая** (фиче-флаги, а не инструменты) и
+  частично неверифицируема до реализации; матрица помечает большинство
+  категорий как «не управляется». Перезапуск app-server под туллинг-профиль
+  — принятая цена.
+- **Механизм привязки агента Kimi не верифицирован** (как CLI находит
+  `agent.yaml`); реализация начинается с этой верификации, параллельным
+  сессиям нужны каталоги агентов на профиль.
+- **Кастомные промпты GLM Native обязаны сохранять tool-контракт** — им
+  владеет слой обвязки materializer, а не авторы профилей.
+- **Native для Claude/Kimi меняет сегодняшнее дефолтное поведение**;
+  переключение происходит только с приземлением резолюции профилей, старый
+  контент выживает в сидах.
+- Новая YAML-зависимость: выбор пакета (например `yaml`) — при реализации;
+  использование парсера остаётся внутри `profile-store`.
+- Лимит 500 строк на файл реализации: адаптеры получают отдельные файлы
+  `*-profile-application`, а не растят существующие менеджеры.
+- Номера строк аудита в этом документе дрейфуют при рефакторингах; это
+  свидетельства аудита, а не живые ссылки.
 
-## Implementation Phase Roadmap (input for the future todo-plan)
+## Дорожная карта фаз реализации (вход для будущего todo-plan)
 
-Order matters; each phase is commit-sized micro-tasks (≤3 functional files)
-in the eventual todo-plan:
+Порядок важен; каждая фаза — commit-sized микро-задачи (не более 3
+функциональных файлов) в будущем todo-plan:
 
-- **Phase A — cluster foundation**: `profile-store` (resolve/scan/parse/
-  validate/seed + YAML dep), then `profile-catalog` (read model, Native,
-  resolution, error contract), then `profile-materializer` (payload +
-  framing). Product tree + cluster/module docs in the same commits.
-- **Phase B — contract and Core wiring**: extend
-  `provider-adapter-contract` with `SessionProfilePayload`; activate
-  `NextSessionMode` managed resolution in `session-request-handler`; applied
-  profile in session state/read model; structured error contract.
-- **Phase C — adapters, one per stream**: Claude → GLM Native → Codex →
-  Kimi (Kimi starts with the binding verification task). Each adapter's
-  `module.md` gets its category-mapping table.
-- **Phase D — RPC/bridge/types**: `list-session-profiles`,
-  `open-session-profile-file`, snapshot field, following the
-  `ensure-glossary-file` four-layer pattern.
-- **Phase E — UI**: deferred; planned after the separate UI discussion.
-- **Phase F — package & user acceptance**: `npm run package:mac`
-  (user-confirmed) + evidence document.
+- **Фаза A — фундамент кластера**: `profile-store`
+  (резолв/скан/парсинг/валидация/сидирование + YAML-зависимость), затем
+  `profile-catalog` (read model, Native, резолюция, контракт ошибок), затем
+  `profile-materializer` (payload + обвязка). Product tree + документы
+  кластера/модулей в тех же коммитах.
+- **Фаза B — контракт и проводка Core**: расширить
+  `provider-adapter-contract` полем `SessionProfilePayload`; активировать
+  managed-резолюцию `NextSessionMode` в `session-request-handler`;
+  применённый профиль в состоянии/рид-модели сессии; структурированный
+  контракт ошибок.
+- **Фаза C — адаптеры, по одному на stream**: Claude → GLM Native → Codex →
+  Kimi (Kimi начинается с задачи верификации привязки). `module.md` каждого
+  адаптера получает таблицу маппинга категорий.
+- **Фаза D — RPC/мост/типы**: `list-session-profiles`,
+  `open-session-profile-file`, поле снапшота — по четырёхслойному паттерну
+  `ensure-glossary-file`.
+- **Фаза E — UI**: отложено; планируется после отдельного обсуждения UI.
+- **Фаза F — упаковка и приёмка пользователем**: `npm run package:mac` (по
+  подтверждению пользователя) + evidence-документ.

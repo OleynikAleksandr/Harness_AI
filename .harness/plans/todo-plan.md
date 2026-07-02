@@ -8,7 +8,7 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -66,3 +66,5 @@
 1. [DONE] `harness-ai.phase1.stream1.task1` Write `docs/architecture/SessionProfiles.md` — the detailed planning document for runtime-selectable session profiles (audited provider capabilities with mechanisms per provider, profile model, `~/.harness-ai/Profiles/**` storage layout with `profile.yaml` passport + per-provider `system-prompt.md`/`tooling.yaml` pairs, tooling category vocabulary and applicability matrix, layered system prompt, Native semantics per provider, new Core `session-profiles` cluster with `profile-store`/`profile-catalog`/`profile-materializer` modules, session start contract over `NextSessionMode.managedProfileId`, adapter application strategies, MVP RPC surface, seed profiles, risks, and the implementation phase roadmap) and register it in `docs/DOCUMENTATION_INDEX.md`; bootstrap this plan in the same commit (scope: `docs/architecture/SessionProfiles.md` (new), `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(architecture): add session profiles planning document for runtime prompt and tooling profiles`). Result: Completed in commit `docs(architecture): add session profiles planning document for runtime prompt and tooling profiles`.
 2. [DONE] Git Commit: `docs(architecture): add session profiles planning document for runtime prompt and tooling profiles` (hash: self)
 3. [IN_PROGRESS] `harness-ai.phase1.stream1.task2` User reviews and approves `docs/architecture/SessionProfiles.md`; after approval the user separately discusses the UI surface, and only then implementation phases are added to the plan (scope: user workflow; expected commit: none).
+4. [DONE] `harness-ai.phase1.stream1.task3` Review feedback from task2 (chat, 2026-07-02): rewrite `docs/architecture/SessionProfiles.md` in Russian so the user can read it, keeping file paths, code identifiers, API/option names, provider tool ids and YAML/tree examples in their original form (scope: `docs/architecture/SessionProfiles.md`; expected commit: `docs(architecture): translate session profiles planning document into Russian`). Result: Completed in commit `docs(architecture): translate session profiles planning document into Russian`.
+5. [DONE] Git Commit: `docs(architecture): translate session profiles planning document into Russian` (hash: self)

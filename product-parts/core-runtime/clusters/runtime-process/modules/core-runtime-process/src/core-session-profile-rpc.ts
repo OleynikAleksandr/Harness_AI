@@ -9,9 +9,20 @@ import {
 } from "../../../../session-profiles/modules/profile-store/src/profile-store-facade.js";
 import { readSessionProfileMemory } from "../../../../settings-and-localization/modules/settings-store/src/session-profile-memory.js";
 
-const profileStore = new ProfileStoreFacade();
-const profileCatalog = new ProfileCatalogFacade({ profileStore });
-const profileAuthoring = new ProfileAuthoringFacade({ profileStore });
+/**
+ * Core event type announcing that profile files changed on disk; the renderer
+ * profile surfaces reload the catalog when it arrives.
+ */
+export const SESSION_PROFILES_UPDATED_EVENT_TYPE = "session-profiles:updated";
+
+/** Shared store: the RPC surface and the profile file watcher use one root. */
+export const sessionProfileStore = new ProfileStoreFacade();
+const profileCatalog = new ProfileCatalogFacade({
+  profileStore: sessionProfileStore,
+});
+const profileAuthoring = new ProfileAuthoringFacade({
+  profileStore: sessionProfileStore,
+});
 
 /**
  * Catalog read model for the picker and the Profile Creator tab. Listing
@@ -53,7 +64,7 @@ export async function createSessionProfileRpcResult(
   | { error: string; ok: false }
 > {
   try {
-    await profileStore.ensureSeededProfiles();
+    await sessionProfileStore.ensureSeededProfiles();
     const provider = readPayloadString(payload, "provider");
     const result = await profileAuthoring.createProfile({
       name: readPayloadString(payload, "name") ?? "",
@@ -84,7 +95,7 @@ export async function openSessionProfileFileRpcResult(
         ok: false,
       };
     }
-    await profileStore.ensureSeededProfiles();
+    await sessionProfileStore.ensureSeededProfiles();
     const documents = profileAuthoring.resolveDocumentPaths(profileId);
     const filePath = pickProfileDocument(
       documents,

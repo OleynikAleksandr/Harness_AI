@@ -41,6 +41,8 @@ import {
   createSessionProfileRpcResult,
   listSessionProfilesRpcResult,
   openSessionProfileFileRpcResult,
+  SESSION_PROFILES_UPDATED_EVENT_TYPE,
+  sessionProfileStore,
 } from "./core-session-profile-rpc.js";
 
 const WORKSPACE_REGISTRY_FILE = join(
@@ -71,9 +73,13 @@ export class CoreRuntimeApi {
     const unsubscribeSession = sessionEventStreamFacade.subscribe(listener);
     const unsubscribeProviderStatus =
       this.providerLifecycle.addStatusListener(listener);
+    const unsubscribeProfiles = sessionProfileStore.watchProfiles(() => {
+      listener({ type: SESSION_PROFILES_UPDATED_EVENT_TYPE });
+    });
     return () => {
       unsubscribeSession();
       unsubscribeProviderStatus();
+      unsubscribeProfiles();
     };
   }
 

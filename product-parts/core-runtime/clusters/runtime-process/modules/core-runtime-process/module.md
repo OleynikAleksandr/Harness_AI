@@ -91,6 +91,15 @@ also run here so the Application Shell remains UI/supervisor/client only.
   the external-editor action; Native has no files). All return
   `{ ok: true, ... } | { error, ok: false }`.
 
+- Session profile change events: `CoreRuntimeApi.subscribe()` also subscribes
+  the shared session profile store's `watchProfiles` (the same
+  `sessionProfileStore` instance the profile RPCs use, exported from
+  `core-session-profile-rpc.ts`) and forwards each debounced file-change
+  notification as a `{ type: "session-profiles:updated" }` core event through
+  the same SSE event stream as session and provider-status events, so the
+  renderer profile surfaces can reload the catalog after the user edits
+  profile files on disk.
+
 ## Owned Paths
 
 - `module.md`

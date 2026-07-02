@@ -16,8 +16,9 @@ Render the `Profile Creator` Settings tab for session profile management.
   effort tables from `settings-normalization`).
 - Provider display names from the `listProviders()` bridge RPC (Core/provider
   registry truth); ids fall back to themselves while names load.
-- The profile catalog read model (`list-session-profiles`) arrives together
-  with the profile list task of the active plan.
+- The profile catalog read model from the `listSessionProfiles()` bridge RPC
+  (passports, universal/individual kind, validity status with human-readable
+  issues); listing triggers first-access seeding in Core.
 
 ## Outputs
 
@@ -35,8 +36,18 @@ Render the `Profile Creator` Settings tab for session profile management.
   active editor tab). Core owns id derivation, duplicate detection and
   template contents; the form only disables Create on an empty name and
   shows Core's human-readable errors in the card status line.
-- The profiles list (validity status, open-in-editor) lands as the next
-  plan task; until then the tab intentionally shows no list controls.
+- Profiles list (`profile-list.tsx`): every stored profile with its kind
+  (Universal/Individual), applicability (all supported providers / the
+  provider's display name) and per-profile validity status — a Valid/Invalid
+  chip plus Core's human-readable issue texts under the row. "Edit in VS
+  Code" resolves each document path through the `openSessionProfileFile`
+  bridge RPC (passport, tooling, then prompt so the prompt is the active
+  editor tab) and opens `vscode://file/` links handled by the Electron host
+  `vscode-link-opener`. Invalid profiles stay openable — that is how they
+  get fixed. The virtual Native profile is filtered out (it has no files),
+  and rename/delete stays files-first in the MVP (no list controls for it).
+  Creating a profile bumps the facade's refresh key, remounting the list so
+  it reloads from Core.
 - Copy resolves through the shared browser localization provider
   (`settings.profileCreator.*` message ids with English fallbacks).
 

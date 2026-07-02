@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProfileCreateFlow } from "./profile-create-flow.js";
+import { ProfileList } from "./profile-list.js";
 
 export function ProfileSettingsUiFacade() {
   const { t } = useBrowserLocalization();
+  const [refreshToken, setRefreshToken] = useState(0);
   return (
     <div className="settings-reference-stack">
       <section className="settings-card">
@@ -23,7 +26,10 @@ export function ProfileSettingsUiFacade() {
           )}
         </p>
       </section>
-      <ProfileCreateFlow />
+      <ProfileCreateFlow
+        onCreated={() => setRefreshToken((current) => current + 1)}
+      />
+      <ProfileList key={refreshToken} />
     </div>
   );
 }

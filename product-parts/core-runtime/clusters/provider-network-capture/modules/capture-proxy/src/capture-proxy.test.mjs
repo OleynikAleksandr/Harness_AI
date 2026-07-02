@@ -1,0 +1,167 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import net from "node:net";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import tls from "node:tls";
+import { pathToFileURL } from "node:url";
+import ts from "typescript";
+
+function compile(file) {
+  return ts.transpileModule(
+    readFileSync(new URL(`./${file}`, import.meta.url), "utf8"),
+    {
+      compilerOptions: {
+        module: ts.ModuleKind.ES2022,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }
+  ).outputText;
+}
+
+const TARGET_IGNORED_PATTERN = /502 Harness AI capture target ignored/u;
+const CONNECTION_ESTABLISHED_PATTERN = /200 Connection Established/u;
+
+function readOnce(socket) {
+  return new Promise((resolve, reject) => {
+    socket.once("data", (chunk) => resolve(chunk.toString("utf8")));
+    socket.once("error", reject);
+  });
+}
+
+const buildDir = await mkdtemp(path.join(tmpdir(), "capture-proxy-build-"));
+
+try {
+  writeFileSync(
+    path.join(buildDir, "capture-proxy-facade.js"),
+    compile("capture-proxy-facade.ts"),
+    "utf8"
+  );
+  const { NativeRequestCaptureProxy } = await import(
+    pathToFileURL(path.join(buildDir, "capture-proxy-facade.js")).href
+  );
+
+  // Case 1: non-target CONNECT is ignored and never asks for TLS credentials.
+  const ignoreEvents = [];
+  const ignoreProxy = new NativeRequestCaptureProxy({
+    providerId: "claude",
+    targetRules: [{ host: "api.anthropic.com" }],
+    timeoutMs: 40,
+    onEvent: (event) => ignoreEvents.push(event),
+    resolveTlsCredentials: () => {
+      throw new Error("non-target must not request TLS credentials");
+    },
+  });
+  const ignoreHandle = await ignoreProxy.start();
+  const ignoreSocket = net.connect(ignoreHandle.port, "127.0.0.1");
+  ignoreSocket.write(
+    "CONNECT example.com:443 HTTP/1.1\r\nHost: example.com\r\n\r\n"
+  );
+  const ignoreResponse = await readOnce(ignoreSocket);
+  const ignoreResult = await ignoreHandle.waitForCapture();
+  await ignoreHandle.stop();
+  ignoreSocket.destroy();
+
+  assert.match(ignoreResponse, TARGET_IGNORED_PATTERN);
+  assert.equal(ignoreResult.status, "timeout");
+  assert.ok(ignoreEvents.some((e) => e.type === "proxy_connect"));
+  const ignored = ignoreEvents.find((e) => e.type === "request_ignored");
+  assert.equal(ignored.reason, "target_not_configured");
+  assert.equal(ignored.target, "example.com:443");
+
+  // Case 2: full capture-and-abort of a real HTTPS POST via TLS termination.
+  const keyPath = path.join(buildDir, "host.key.pem");
+  const certPath = path.join(buildDir, "host.cert.pem");
+  execFileSync(
+    "openssl",
+    [
+      "req",
+      "-x509",
+      "-newkey",
+      "rsa:2048",
+      "-nodes",
+      "-keyout",
+      keyPath,
+      "-out",
+      certPath,
+      "-days",
+      "1",
+      "-subj",
+      "/CN=api.anthropic.com",
+      "-addext",
+      "subjectAltName=DNS:api.anthropic.com",
+    ],
+    { stdio: ["ignore", "ignore", "ignore"] }
+  );
+  const credentials = {
+    cert: readFileSync(certPath),
+    key: readFileSync(keyPath),
+  };
+
+  const proxy = new NativeRequestCaptureProxy({
+    providerId: "claude",
+    targetRules: [{ host: "api.anthropic.com", pathIncludes: "/v1/messages" }],
+    timeoutMs: 5000,
+    resolveTlsCredentials: () => credentials,
+  });
+  const handle = await proxy.start();
+
+  const tunnel = net.connect(handle.port, "127.0.0.1");
+  await new Promise((resolve, reject) => {
+    tunnel.once("error", reject);
+    tunnel.write(
+      "CONNECT api.anthropic.com:443 HTTP/1.1\r\nHost: api.anthropic.com:443\r\n\r\n"
+    );
+    tunnel.once("data", (chunk) => {
+      assert.match(chunk.toString("utf8"), CONNECTION_ESTABLISHED_PATTERN);
+      resolve();
+    });
+  });
+
+  const tlsSocket = tls.connect({
+    socket: tunnel,
+    servername: "api.anthropic.com",
+    rejectUnauthorized: false,
+  });
+  await new Promise((resolve, reject) => {
+    tlsSocket.once("secureConnect", resolve);
+    tlsSocket.once("error", reject);
+  });
+
+  const requestBody = JSON.stringify({
+    model: "claude-opus-4-8",
+    system: "You are Claude.",
+    tools: [{ name: "Read" }],
+    messages: [{ role: "user", content: "hi" }],
+  });
+  tlsSocket.write(
+    [
+      "POST /v1/messages HTTP/1.1",
+      "Host: api.anthropic.com",
+      "Authorization: Bearer sk-secret",
+      "Content-Type: application/json",
+      `Content-Length: ${Buffer.byteLength(requestBody)}`,
+      "",
+      requestBody,
+    ].join("\r\n")
+  );
+
+  const result = await handle.waitForCapture();
+  await handle.stop();
+  tlsSocket.destroy();
+
+  assert.equal(result.status, "captured");
+  assert.equal(result.request.method, "POST");
+  assert.equal(result.request.path, "/v1/messages");
+  assert.equal(result.request.target, "api.anthropic.com:443");
+  assert.equal(result.request.body.system, "You are Claude.");
+  assert.equal(result.request.body.tools.length, 1);
+  // The proxy hands the raw request to the writer; redaction happens there.
+  assert.equal(result.request.headers.authorization, "Bearer sk-secret");
+
+  console.log("capture-proxy tests: OK");
+} finally {
+  await rm(buildDir, { force: true, recursive: true });
+}

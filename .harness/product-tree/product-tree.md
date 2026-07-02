@@ -71,6 +71,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 - `capture-artifacts`: capture type model, credential-header redaction, provider-neutral section extraction (system prompt / tool schemas / messages), and the JSONL + readable markdown artifact writer for native request capture.
 - `capture-certificates`: diagnostic CA and per-host leaf certificates for the capture proxy's TLS termination, plus the env hints that make a provider client trust the CA for the capture run only.
+- `capture-proxy`: capture-and-abort MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint from background traffic, and aborts before any upstream forward.
 
 ### Settings And Localization
 

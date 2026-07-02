@@ -215,6 +215,11 @@
               "id": "capture-certificates",
               "name": "Capture Certificates",
               "purpose": "Diagnostic CA and per-host leaf certificates for the capture proxy's TLS termination, plus the env hints that make a provider client trust the CA for the capture run only."
+            },
+            {
+              "id": "capture-proxy",
+              "name": "Capture Proxy",
+              "purpose": "Capture-and-abort MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint, and aborts before any upstream forward."
             }
           ]
         },

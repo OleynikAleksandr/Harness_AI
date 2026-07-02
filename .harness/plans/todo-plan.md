@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "feat(profile-store): bootstrap session-profiles cluster with profile store module and yaml dependency",
   "debt": null
 }
 ```
@@ -32,10 +32,14 @@
   - `docs/architecture/SessionProfiles.md`
   - `docs/architecture/NextSessionMode.md`
   - `docs/architecture/CodeAIHubProviderRuntimeAlignment.md`
-- **Scope shape:** this cycle delivers the planning document only. The
-  implementation phases (cluster, contract, adapters, RPC) and the separately
-  discussed UI surface will be planned as follow-up tasks in this plan (or a
-  successor plan) only after the user approves the planning document.
+- **Scope shape:** Phase 1 delivered and refined the planning document
+  through user review rounds. Phases 2-10 implement it end to end (cluster
+  modules, contract and Core wiring, four adapters, RPC/bridge/types, UI
+  wizard and Profile Creator tab, packaging and user acceptance) following
+  the roadmap in `docs/architecture/SessionProfiles.md`. Seed prompt texts
+  are authored as drafts during implementation and reviewed by the user at
+  acceptance. The remaining providers (OpenRouter, Local Models, GLM
+  OpenCode) are a documented follow-up stage after this scope.
 
 ## Execution Rules
 
@@ -80,3 +84,117 @@
 15. [DONE] Git Commit: `docs(architecture): extend native coverage to all providers and explain the two-layer realtime profile application` (hash: self)
 16. [DONE] `harness-ai.phase1.stream1.task9` User rationale (chat, 2026-07-02, apply_patch example — Codex is fine-tuned on its own tools, other models are not): record the native-ecosystem principle explicitly — custom profiles are built on top of each channel's native structure, never against it; tooling categories only enable/disable subsets of the channel's OWN native tool set and never inject foreign tools (file-write: on = apply_patch for Codex, Write/Edit for Claude, StrReplaceFile for Kimi); a custom profile replaces only the workflow text while native tool schemas/descriptions, provider-specific adapter additions and process policies stay native; individual profiles exist precisely for channel-specific wording nuances (scope: `docs/architecture/SessionProfiles.md`; expected commit: `docs(architecture): record the native-ecosystem principle for custom profiles`). Result: Completed in commit `docs(architecture): record the native-ecosystem principle for custom profiles`.
 17. [DONE] Git Commit: `docs(architecture): record the native-ecosystem principle for custom profiles` (hash: self)
+18. [DONE] `harness-ai.phase1.stream1.task10` Expand this plan with implementation phases 2-10 derived from the `docs/architecture/SessionProfiles.md` roadmap (cluster modules, contract and Core wiring, adapters, RPC/bridge/types, UI, packaging and user acceptance), so the plan carries the full implementation scope including the packaged-app build and the user's acceptance tests (scope: `.harness/plans/todo-plan.md`; expected commit: `chore(plan): expand session profiles plan with implementation phases through packaging and acceptance`). Result: Completed in commit `chore(plan): expand session profiles plan with implementation phases through packaging and acceptance`.
+19. [DONE] Git Commit: `chore(plan): expand session profiles plan with implementation phases through packaging and acceptance` (hash: self)
+
+## Phase 2 - Cluster Foundation: Profile Store (owner: Codex, updated: 2026-07-02)
+
+### Stream: Profile Store Module
+
+20. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Bootstrap the `session-profiles` cluster and the `profile-store` module skeleton: new `cluster.md` and `module.md`, `profile-store-facade.ts` with harness-home `Profiles/` root resolution (same home-resolution approach as `resolveCoreLocalizationRootDirectory()`) and the profile/document type model (passport with optional `provider`, prompt body, tooling categories), plus the `yaml` package as a new runtime dependency; register the cluster in the product tree (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts` (new), `package.json` + `package-lock.json`, `.harness/product-tree/product-tree.json` + `.harness/product-tree/product-tree.md`, plus `cluster.md` (new) and `module.md` (new); expected commit: `feat(profile-store): bootstrap session-profiles cluster with profile store module and yaml dependency`).
+21. [TODO] Git Commit: `feat(profile-store): bootstrap session-profiles cluster with profile store module and yaml dependency` (hash: TBD)
+22. [TODO] `harness-ai.phase2.stream1.task2` Implement scanning, parsing and validation: `profile-document-parser.ts` (new; YAML passport/tooling parsing, universal vs individual detection via the `provider` field, category vocabulary v1 `file-read`/`file-write`/`shell`/`web`/`git`/`tests`, human-readable errors for missing files/YAML syntax/unknown categories), directory scanning and profile loading in `profile-store-facade.ts`, and static tests (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-document-parser.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs` (new), plus `module.md`; expected commit: `feat(profile-store): parse and validate profile documents with human-readable errors`).
+23. [TODO] Git Commit: `feat(profile-store): parse and validate profile documents with human-readable errors` (hash: TBD)
+24. [TODO] `harness-ai.phase2.stream1.task3` Implement first-access seeding (UserGlossaryStore pattern, never overwrite user files): seed resources for the four universal profiles (`plan-document`, `todo-plan-deterministic`, `review`, `architecture-spec` — draft English prompt texts authored here, user reviews at acceptance) and the three individual migration profiles (`codeai-workflow-claude` from the hardcoded Claude workflow prompt, `codeai-workflow-kimi` from the managed-agent `system.md` content, `codeai-workflow-glm-native` from the built-in GLM instruction), stored as resource files inside the module and copied on seed (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/seed/**` (new resources), `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs`, plus `module.md`; expected commit: `feat(profile-store): seed standard universal and codeai-workflow migration profiles on first access`).
+25. [TODO] Git Commit: `feat(profile-store): seed standard universal and codeai-workflow migration profiles on first access` (hash: TBD)
+
+## Phase 3 - Cluster Foundation: Catalog And Materializer (owner: Codex, updated: 2026-07-02)
+
+### Stream: Catalog
+
+26. [TODO] `harness-ai.phase3.stream1.task1` Add the `profile-catalog` module: catalog read model for UI (passports + universal/individual type + per-provider applicability + validity status), virtual Native always first, `(profileId, providerId)` resolution to an applicable profile, "no selection => Native" resolution, and the structured selected-but-broken error contract (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-catalog): add catalog read model with native-first resolution and error contract`).
+27. [TODO] Git Commit: `feat(profile-catalog): add catalog read model with native-first resolution and error contract` (hash: TBD)
+
+### Stream: Materializer
+
+28. [TODO] `harness-ai.phase3.stream2.task1` Add the `profile-materializer` module: build the provider-neutral `SessionProfilePayload` (profile workflow prompt body + system wrapper: workspace path, current date, language contract, `AGENTS.md` policy flag + tooling categories); no provider-specific additions here (adapter application layers own those) (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper`).
+29. [TODO] Git Commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper` (hash: TBD)
+
+## Phase 4 - Cluster Foundation: Authoring (owner: Codex, updated: 2026-07-02)
+
+### Stream: Authoring Module
+
+30. [TODO] `harness-ai.phase4.stream1.task1` Add the `profile-authoring` module: templates for the three documents (prompt skeleton with action-category guidance, tooling.yaml with all categories, passport), create-profile operation (name -> kebab-case id + passport with optional `provider` for individual profiles; template output valid by construction), document path resolution for external-editor opening, and validity-status exposure via `profile-store` (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status`).
+31. [TODO] Git Commit: `feat(profile-authoring): add profile creation from templates with editor paths and validity status` (hash: TBD)
+
+## Phase 5 - Contract And Core Wiring (owner: Codex, updated: 2026-07-02)
+
+### Stream: Adapter Contract
+
+32. [TODO] `harness-ai.phase5.stream1.task1` Extend `provider-adapter-contract` with the optional `SessionProfilePayload` in session-creation/resume options (absent payload = exact current behavior during transition, later = Native per adapter) (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/*` (facade file), plus `module.md`; expected commit: `feat(provider-adapter-contract): add optional session profile payload to session creation options`).
+33. [TODO] Git Commit: `feat(provider-adapter-contract): add optional session profile payload to session creation options` (hash: TBD)
+
+### Stream: Session Request Handler
+
+34. [TODO] `harness-ai.phase5.stream2.task1` Activate managed profile resolution in `session-request-handler`: stop hard-resolving `Native · Raw` in `next-session-mode.ts`, resolve the received mode through `profile-catalog` + `profile-materializer` at create, pass the payload to the adapter, reject create with the structured error when a selected profile is broken (`requestMode` stays `raw` until the normalizer exists) (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/next-session-mode.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, plus `module.md`; expected commit: `feat(session-request-handler): resolve managed session profiles at create with structured errors`).
+35. [TODO] Git Commit: `feat(session-request-handler): resolve managed session profiles at create with structured errors` (hash: TBD)
+36. [TODO] `harness-ai.phase5.stream2.task2` Persist the immutable applied profile snapshot as session identity/evidence (full applied contract: profileId, providerId, display name, materialized prompt including the wrapper, effective tooling categories, provider application details, content hash/version), survive Core restart with the session, resume strictly from the snapshot (never reread `Profiles/**`), legacy sessions without a snapshot resolve to no-payload behavior marked `legacy`, and project the applied profile into the session read model/snapshot for UI (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/session-registry-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts`, plus affected `module.md` files; expected commit: `feat(session-runtime): persist immutable applied profile snapshot and resume sessions from it`).
+37. [TODO] Git Commit: `feat(session-runtime): persist immutable applied profile snapshot and resume sessions from it` (hash: TBD)
+
+### Stream: Settings Memory
+
+38. [TODO] `harness-ai.phase5.stream3.task1` Remember the last selected profile and the AutoNormalizer flag per provider in Core settings (`settings-store`), expose the preselection in the read model, and record the selection at create; no visible AutoNormalizer control until the normalizer exists (scope: `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, plus `module.md` files; expected commit: `feat(settings-store): remember last selected profile and auto-normalizer flag per provider`).
+39. [TODO] Git Commit: `feat(settings-store): remember last selected profile and auto-normalizer flag per provider` (hash: TBD)
+
+## Phase 6 - Adapter Application Layers (owner: Codex, updated: 2026-07-02)
+
+### Stream: Claude
+
+40. [TODO] `harness-ai.phase6.stream1.task1` Claude profile application layer: new `claude-profile-application.ts` mapping payload -> SDK options (managed: `systemPrompt` = payload prompt, `tools` = category-mapped whitelist of Claude-native tool names; native: `systemPrompt`/`tools` presets `claude_code`; absent payload keeps current behavior until switch-over), wire into `buildQueryOptions()`; record the category mapping table in `module.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-profile-application.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/sdk/claude-sdk-manager.ts`, plus `module.md`; expected commit: `feat(claude-provider): apply session profile payload with native preset support`).
+41. [TODO] Git Commit: `feat(claude-provider): apply session profile payload with native preset support` (hash: TBD)
+
+### Stream: GLM Native
+
+42. [TODO] `harness-ai.phase6.stream2.task1` GLM Native profile application layer: new `glm-native-profile-application.ts` (managed: payload prompt + adapter-owned tool-contract section built for the category-filtered tool schema subset; native: built-in instruction + full 21-tool set), parameterize `buildRequestBody()`/`streamTurn()`; system message is rebuilt each turn from the snapshot payload, not live data; category mapping table in `module.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-profile-application.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-provider-adapter.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/reference/provider/glm-native-agent-runtime.ts`, plus `module.md`; expected commit: `feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract`).
+43. [TODO] Git Commit: `feat(glm-native-provider): apply session profile payload with filtered tool schemas and adapter-owned tool contract` (hash: TBD)
+
+### Stream: Codex
+
+44. [TODO] `harness-ai.phase6.stream3.task1` Codex profile application: pass `baseInstructions` from the payload into `thread/start`/`thread/resume` (managed) or omit it (native = default no-`--disable` process args), tooling categories are an MVP no-op with the effective process-profile key recorded for the snapshot; `module.md` records the no-op decision and the future process-pool path (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-app-server-process-profile.ts`, plus `module.md`; expected commit: `feat(codex-provider): apply session profile base instructions with native passthrough`).
+45. [TODO] Git Commit: `feat(codex-provider): apply session profile base instructions with native passthrough` (hash: TBD)
+
+### Stream: Kimi
+
+46. [TODO] `harness-ai.phase6.stream4.task1` Verify the Kimi agent binding mechanism first: how the CLI locates `agent.yaml` (cwd/config/env), whether per-profile agent directories are possible, and how parallel sessions with different profiles stay isolated; record verified facts and the chosen materialization design in `module.md` and update `docs/architecture/SessionProfiles.md` if findings change the contract (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `docs(kimi-provider): record kimi agent binding verification for per-profile materialization`).
+47. [TODO] Git Commit: `docs(kimi-provider): record kimi agent binding verification for per-profile materialization` (hash: TBD)
+48. [TODO] `harness-ai.phase6.stream4.task2` Kimi profile application: materialize per-profile agent artifacts (`agent.yaml` + `system.md` + category-mapped Kimi-native tools list) from the payload before `session/new` per the verified binding design; native = launch without the custom managed agent (CLI default agent); category mapping table in `module.md` (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/provider/kimi-managed-agent-profile.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/provider/kimi-provider-adapter.ts`, plus `module.md`; expected commit: `feat(kimi-provider): materialize per-profile agent artifacts from session profile payload`).
+49. [TODO] Git Commit: `feat(kimi-provider): materialize per-profile agent artifacts from session profile payload` (hash: TBD)
+
+## Phase 7 - Core RPC, Bridge And Renderer Types (owner: Codex, updated: 2026-07-02)
+
+### Stream: Core RPC
+
+50. [TODO] `harness-ai.phase7.stream1.task1` Add session profile Core RPCs following the `ensure-glossary-file` four-layer pattern: `list-session-profiles` (catalog read model incl. validity + preselection, triggers seeding), `create-session-profile` (name + type + optional providerId -> created document paths), `open-session-profile-file` (ensure + absolute path) as a new sibling `core-session-profile-rpc.ts` wired into `CoreRuntimeApi.invoke()` (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-session-profile-rpc.ts` (new), `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, plus `module.md`; expected commit: `feat(core-runtime-process): add session profile RPCs for list, create and open file`).
+51. [TODO] Git Commit: `feat(core-runtime-process): add session profile RPCs for list, create and open file` (hash: TBD)
+52. [TODO] `harness-ai.phase7.stream1.task2` Forward the three RPCs end-to-end: `IPC_TO_RPC` entries (`core-process-bridge-facade.mjs`), `window.harnessCore` methods (`preload.cjs`), and `Window.harnessCore` type declarations (`vite-env.d.ts`) (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`, plus `core-process-bridge/module.md` and `app-bootstrap/module.md`; expected commit: `feat(core-process-bridge): forward session profile RPCs through preload and renderer types`).
+53. [TODO] Git Commit: `feat(core-process-bridge): forward session profile RPCs through preload and renderer types` (hash: TBD)
+
+## Phase 8 - UI: Session Creation Wizard (owner: Codex, updated: 2026-07-02)
+
+### Stream: Profile Step
+
+54. [TODO] `harness-ai.phase8.stream1.task1` Add the profile selection step to the new-session flow: after the provider card is chosen, show the profile step (dropdown: Native first, then applicable universal + individual profiles from `list-session-profiles`; preselection from Core-provided last choice; providers without profile support show Native only) and submit the choice via the existing `nextSessionMode` (`invocationMode`/`managedProfileId`) in `createSession` (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-profile-step.tsx` (new), `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`, plus `module.md`; expected commit: `feat(session-window): add profile selection step to the new session flow`).
+55. [TODO] Git Commit: `feat(session-window): add profile selection step to the new session flow` (hash: TBD)
+56. [TODO] `harness-ai.phase8.stream1.task2` Remove the sidebar `Next Session Mode` panel and its dialog (superseded by the profile step); session creation no longer hardcodes `native/raw` in the renderer (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/*` (panel), `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, plus affected `module.md`; expected commit: `feat(session-sidebar): remove next session mode panel and dialog in favor of the profile step`).
+57. [TODO] Git Commit: `feat(session-sidebar): remove next session mode panel and dialog in favor of the profile step` (hash: TBD)
+58. [TODO] `harness-ai.phase8.stream1.task3` Show the applied profile of the current session as a small chip in the session header, driven by the applied-profile field of the Core session snapshot (`legacy` sessions show nothing or a legacy marker per read model) (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`, plus `module.md`; expected commit: `feat(session-window): show applied session profile chip from the session snapshot`).
+59. [TODO] Git Commit: `feat(session-window): show applied session profile chip from the session snapshot` (hash: TBD)
+
+## Phase 9 - UI: Profile Creator Settings Tab (owner: Codex, updated: 2026-07-02)
+
+### Stream: Profile Creator
+
+60. [TODO] `harness-ai.phase9.stream1.task1` Add the `profile-settings-ui` module skeleton with the `Profile Creator` tab to the right of General in Settings (module facade + tab registration in the settings surface) (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/settings-tab-content.tsx`, plus `module.md` (new) and `cluster.md`, product tree update; expected commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton`).
+61. [TODO] Git Commit: `feat(profile-settings-ui): add Profile Creator settings tab skeleton` (hash: TBD)
+62. [TODO] `harness-ai.phase9.stream1.task2` Implement the New Profile flow: type choice (universal — no provider question / individual — provider choice), in-app profile name input (no native prompts), `create-session-profile` RPC call, then open the created documents in VS Code via `vscode-link-opener` (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-create-flow.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx`, plus `module.md`; expected commit: `feat(profile-settings-ui): implement new profile creation flow`).
+63. [TODO] Git Commit: `feat(profile-settings-ui): implement new profile creation flow` (hash: TBD)
+64. [TODO] `harness-ai.phase9.stream1.task3` Implement the profiles list: all profiles with type, applicability and per-profile validity status (human-readable errors), selecting a profile opens its documents in VS Code; Native absent (no files); rename/delete stays files-first in MVP (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-list.tsx` (new), `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/profile-settings-ui-facade.tsx`, plus `module.md`; expected commit: `feat(profile-settings-ui): list profiles with validity status and editor opening`).
+65. [TODO] Git Commit: `feat(profile-settings-ui): list profiles with validity status and editor opening` (hash: TBD)
+
+## Phase 10 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-02)
+
+### Stream: Package And Retest
+
+66. [TODO] `harness-ai.phase10.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app for session profiles`).
+67. [TODO] Git Commit: `chore(package): rebuild packaged app for session profiles` (hash: TBD)
+68. [TODO] `harness-ai.phase10.stream1.task2` User acceptance in the packaged app, including the dedicated breaking-change gate: (a) new-session wizard shows the profile step with Native first and remembered last choice per provider; (b) Native default: Claude/Kimi start with vendor-native behavior when nothing is selected; (c) `codeai-workflow-*` individual profiles reproduce today's managed behavior; (d) universal seed profiles apply on all four providers with category-filtered native tooling; (e) editing a profile affects only new sessions, resume keeps the original applied contract (snapshot), legacy sessions still work; (f) Profile Creator tab: create universal and individual profiles, edit in VS Code, validity status reflects broken files; (g) applied-profile chip visible in the session header; (h) user reviews the seeded draft prompt texts (scope: user workflow; expected commit: none).

@@ -27,6 +27,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.localization.reasoningEngine": "Reasoning Translation Engine",
     "settings.localization.uiEngine": "UI Translation Engine",
     "settings.openRouter.modelSlugSearch": "Model slug search",
+    "settings.openRouter.searchRefresh": "Refresh model matches",
     "settings.openRouter.endpoint": "Endpoint",
     "settings.openRouter.endpointAutomatic": "OpenRouter - automatic",
     "settings.openRouter.latency": "OpenRouter Endpoint Latency",

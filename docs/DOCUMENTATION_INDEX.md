@@ -51,12 +51,14 @@ relevant to the active task.
   revision (Russian): single `profile.md` document with YAML frontmatter,
   provider tool inventory (Claude SDK `init` capture + probe, GLM adapter
   export), deny-list "vendor set minus off" application semantics replacing
-  the v1 category whitelist, Profile Creator tool selection UI, a native
-  request capture module ported from the CodeAI-Hub "Provider Native
-  Request Capture" architecture (capture-and-abort CONNECT proxy, Settings
-  card, readable prompt/tool reference dumps; Kimi as a new part), open
-  questions on prompt universality research and Codex/Kimi application
-  channels, and the phase roadmap for the next todo-plan.
+  the v1 category whitelist, Profile Creator tool selection UI, a standalone
+  `provider-network-capture` Core cluster ported from the CodeAI-Hub
+  "Provider Native Request Capture" architecture (capture-and-abort CONNECT
+  proxy, per-(provider, model) capture, Settings card, readable prompt/tool
+  reference dumps for Claude/Codex/Kimi), the reordered roadmap that builds
+  capture first (Phase R is gated on capturing at least three native pairs),
+  open questions on prompt research methodology and Codex/Kimi tooling
+  application channels.
 
 ## Product Part Documentation
 

@@ -50,9 +50,7 @@ export interface ProviderCaptureContext {
   readonly probePrompt: string;
   readonly providerId: NativeCaptureProviderId;
   readonly proxyUrl: string;
-  readonly recordAppliedInputEnvelope: (
-    envelope: Readonly<Record<string, unknown>>
-  ) => Promise<void>;
+  readonly recordAppliedInputEnvelope: (envelope: unknown) => Promise<void>;
   readonly recordDiagnosticContext: (record: {
     readonly kind: string;
     readonly payload: unknown;

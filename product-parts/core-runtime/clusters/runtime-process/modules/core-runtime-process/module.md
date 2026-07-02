@@ -100,6 +100,19 @@ also run here so the Application Shell remains UI/supervisor/client only.
   renderer profile surfaces can reload the catalog after the user edits
   profile files on disk.
 
+- Native request capture RPCs (`core-native-capture-rpc.ts`):
+  `capture-native-request` builds a dedicated adapter instance via
+  `buildProviderAdapterInstance` (so an active session's registered adapter is
+  never clobbered), best-effort bootstraps it (`ensureWorkspaceHome` +
+  `initialize`), and drives it through the `provider-network-capture` cluster's
+  `NativeCaptureOrchestrator` (record-only, vendor-default request), returning
+  `{ ok, markdownPath, jsonlPath, error }`. `list-capturable-models` returns the
+  per-provider capturable model catalog from `provider-descriptor`. Only
+  Claude/Codex/Kimi are capture providers; other providers return
+  `provider_not_supported`. The adapter builder is factored out of
+  `core-provider-adapter-registration.ts` and reused by the shared registry
+  wiring.
+
 ## Owned Paths
 
 - `module.md`

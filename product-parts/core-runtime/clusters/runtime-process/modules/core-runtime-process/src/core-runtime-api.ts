@@ -26,6 +26,10 @@ import { ensureCoreGlossaryFileRpcResult } from "./core-glossary-rpc.js";
 import { rebuildCoreLocalizationRpcResult } from "./core-localization-rebuild-rpc.js";
 import { materializeCoreLocalizationRuntimePayload } from "./core-localization-runtime.js";
 import {
+  captureNativeRequestRpcResult,
+  listCapturableModelsRpcResult,
+} from "./core-native-capture-rpc.js";
+import {
   type CoreEventListener,
   CoreProviderLifecycle,
   PROVIDER_IDS,
@@ -132,6 +136,13 @@ export class CoreRuntimeApi {
         return createSessionProfileRpcResult(payload);
       case "open-session-profile-file":
         return openSessionProfileFileRpcResult(payload);
+      case "capture-native-request":
+        return captureNativeRequestRpcResult(
+          payload,
+          this.activeWorkspacePath()
+        );
+      case "list-capturable-models":
+        return listCapturableModelsRpcResult();
       case "get-local-models":
         return this.getLocalModels();
       case "get-provider-versions":

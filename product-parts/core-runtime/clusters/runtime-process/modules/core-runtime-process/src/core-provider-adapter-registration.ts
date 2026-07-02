@@ -5,56 +5,51 @@ import { GlmOpenCodeProviderFacade } from "../../../../../../provider-runtime/cl
 import { KimiProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
 import { LocalModelsProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-provider/src/local-models-provider-facade.js";
 import { OpenRouterProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/openrouter-provider/src/openrouter-provider-facade.js";
+import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderId,
   providerRegistryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+
+// Builds a fresh adapter instance without registering it. Used both by the
+// shared registry wiring and by dedicated diagnostic runs (native request
+// capture) that must not clobber an active session's registered adapter.
+export function buildProviderAdapterInstance(
+  providerId: ProviderId,
+  model: string,
+  workspacePath: string
+): ProviderAdapter | null {
+  switch (providerId) {
+    case "claude":
+      return new ClaudeProviderFacade(model, workspacePath);
+    case "codex":
+      return new CodexProviderFacade({ defaultModel: model, workspacePath });
+    case "kimi":
+      return new KimiProviderFacade(model, workspacePath);
+    case "glm-native":
+      return new GlmNativeProviderFacade(model, workspacePath);
+    case "glm-opencode":
+      return new GlmOpenCodeProviderFacade(model, workspacePath);
+    case "openrouter":
+      return new OpenRouterProviderFacade(model ?? undefined);
+    case "local-models":
+      return new LocalModelsProviderFacade(model ?? undefined);
+    default:
+      return null;
+  }
+}
 
 export function registerProviderAdapterInstance(
   providerId: ProviderId,
   model: string,
   workspacePath: string
 ): void {
-  if (providerId === "claude") {
-    providerRegistryFacade.registerAdapter(
-      providerId,
-      new ClaudeProviderFacade(model, workspacePath)
-    );
-  }
-  if (providerId === "codex") {
-    providerRegistryFacade.registerAdapter(
-      providerId,
-      new CodexProviderFacade({ defaultModel: model, workspacePath })
-    );
-  }
-  if (providerId === "kimi") {
-    providerRegistryFacade.registerAdapter(
-      providerId,
-      new KimiProviderFacade(model, workspacePath)
-    );
-  }
-  if (providerId === "glm-native") {
-    providerRegistryFacade.registerAdapter(
-      providerId,
-      new GlmNativeProviderFacade(model, workspacePath)
-    );
-  }
-  if (providerId === "glm-opencode") {
-    providerRegistryFacade.registerAdapter(
-      providerId,
-      new GlmOpenCodeProviderFacade(model, workspacePath)
-    );
-  }
-  if (providerId === "openrouter") {
-    providerRegistryFacade.registerAdapter(
-      providerId,
-      new OpenRouterProviderFacade(model ?? undefined)
-    );
-  }
-  if (providerId === "local-models") {
-    providerRegistryFacade.registerAdapter(
-      providerId,
-      new LocalModelsProviderFacade(model ?? undefined)
-    );
+  const adapter = buildProviderAdapterInstance(
+    providerId,
+    model,
+    workspacePath
+  );
+  if (adapter) {
+    providerRegistryFacade.registerAdapter(providerId, adapter);
   }
 }

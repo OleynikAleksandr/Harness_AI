@@ -111,9 +111,8 @@ export function extractCaptureSections(
   return sections;
 }
 
-export type NativeCaptureAppliedInputEnvelope = Readonly<
-  Record<string, unknown>
->;
+// Opaque provider-supplied envelope; recorded and serialized as-is.
+export type NativeCaptureAppliedInputEnvelope = unknown;
 
 export interface NativeCaptureDiagnosticRecord {
   readonly kind: string;

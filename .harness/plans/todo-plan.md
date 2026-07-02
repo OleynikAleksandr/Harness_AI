@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat(core-runtime-process): add native request capture rpc",
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": "feat(electron-host): bridge native request capture command",
   "debt": null
 }
 ```
@@ -128,9 +128,9 @@
 
 ### Stream: RPC And Electron Bridge
 
-35. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Add the Core RPC surface: `capture-native-request` (looks up the provider adapter, delegates to the capture orchestrator with `runProviderCapture: (ctx) => adapter.captureNativeRequest(ctx)`, returns `{ ok, markdownPath, jsonlPath, error }`) and `list-capturable-models` (per-provider model list from `provider-descriptor`), wired into the Core runtime API dispatch (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat(core-runtime-process): add native request capture rpc`).
-36. [TODO] Git Commit: `feat(core-runtime-process): add native request capture rpc` (hash: TBD)
-37. [TODO] `harness-ai.phase4.stream1.task2` Bridge the capture command to the renderer: add the IPC channels and `window.harnessCore` methods (`captureNativeRequest`, `listCapturableModels`) in the Electron core-process bridge and preload, plus the renderer type declarations (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat(electron-host): bridge native request capture command`).
+35. [DONE] `harness-ai.phase4.stream1.task1` Add the Core RPC surface: `capture-native-request` (looks up the provider adapter, delegates to the capture orchestrator with `runProviderCapture: (ctx) => adapter.captureNativeRequest(ctx)`, returns `{ ok, markdownPath, jsonlPath, error }`) and `list-capturable-models` (per-provider model list from `provider-descriptor`), wired into the Core runtime API dispatch (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `feat(core-runtime-process): add native request capture rpc`). Result: Completed in commit `feat(core-runtime-process): add native request capture rpc`.
+36. [DONE] Git Commit: `feat(core-runtime-process): add native request capture rpc` (hash: self)
+37. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` Bridge the capture command to the renderer: add the IPC channels and `window.harnessCore` methods (`captureNativeRequest`, `listCapturableModels`) in the Electron core-process bridge and preload, plus the renderer type declarations (scope: `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts`; expected commit: `feat(electron-host): bridge native request capture command`).
 38. [TODO] Git Commit: `feat(electron-host): bridge native request capture command` (hash: TBD)
 
 ## Phase 5 - Capture UI (owner: Codex, updated: 2026-07-02)

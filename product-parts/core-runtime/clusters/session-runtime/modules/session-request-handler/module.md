@@ -43,6 +43,15 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - `stopTurn(sessionId)` matches the reference Stop: it unsubscribes the binding, calls `adapter.closeSession(providerSessionId)` (which interrupts the in-flight turn — Claude `interrupt`, Kimi `cancel`), invalidates the runtime binding, and flips turn-state to idle. The persisted `providerSessionId` stays on the session.
 - Turn dispatch is oneshot + resume: `sendMessage` rebinds when the runtime binding is missing (after a Stop or a Core restart), and `bindProviderSession` resumes by the persisted `providerSessionId` through `adapter.resumeSession` when one exists, otherwise creates a fresh provider session. So a stopped conversation continues from the prior turn on the next message.
 
+- Provider event routing lives in `session-provider-event-router.ts`
+  (`routeProviderEvent` + `ProviderEventRouterContext`): telemetry
+  application, provider session id promotion, reasoning display projection,
+  and turn-state transitions moved out of the facade to keep it under the
+  500-line cap; the facade supplies a thin callback context.
+- Provider session starts flow through the additive adapter contract:
+  `createSession`/`resumeSession` outcomes are normalized via
+  `normalizeProviderSessionStart` before binding.
+
 ## Owned Paths
 
 - `module.md`

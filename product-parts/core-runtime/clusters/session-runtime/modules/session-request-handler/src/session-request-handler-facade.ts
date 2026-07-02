@@ -1,3 +1,4 @@
+import { normalizeProviderSessionStart } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderUsageTelemetry,
   usageContextTelemetryFacade,
@@ -10,21 +11,20 @@ import {
   type CoreSessionMessage,
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
-import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
 import { resolveNextSessionMode } from "./next-session-mode.js";
-import { readPromotedProviderSessionId } from "./provider-session-id-promotion.js";
 import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import {
   readWorkspaceSessionIndex,
   writeWorkspaceSessionIndex,
 } from "./session-history-store.js";
 import { resolveDisplayMessage } from "./session-live-tail-dedupe.js";
-import { resolveReasoningTranslationSettingsSnapshot } from "./session-reasoning-translation-settings.js";
+import {
+  type ProviderEventRouterContext,
+  routeProviderEvent,
+} from "./session-provider-event-router.js";
 import {
   ADAPTER_NOT_REGISTERED,
   createId,
-  isRecord,
-  readString,
   resolveBindingUnavailableMessage,
   stringifyError,
 } from "./session-request-handler-runtime-utils.js";
@@ -345,13 +345,14 @@ export class SessionRequestHandlerFacade {
     }
     try {
       await adapter.initialize?.();
-      const providerSessionId =
+      const startOutcome =
         session.providerSessionId && adapter.resumeSession
           ? await adapter.resumeSession(
               session.providerSessionId,
               session.workspacePath
             )
           : await adapter.createSession(session.workspacePath);
+      const { providerSessionId } = normalizeProviderSessionStart(startOutcome);
       const unsubscribe = adapter.subscribe(providerSessionId, (event) =>
         this.handleProviderEvent(session.id, event)
       );
@@ -406,79 +407,40 @@ export class SessionRequestHandlerFacade {
   }
 
   private handleProviderEvent(sessionId: string, event: unknown): void {
-    if (!isRecord(event)) {
-      return;
-    }
-    this.updateTelemetry(sessionId, (current) =>
-      usageContextTelemetryFacade.applyProviderEvent(current, event)
-    );
-    if (typeof event.type !== "string") {
-      return;
-    }
-    const promotedProviderSessionId = readPromotedProviderSessionId(event);
-    if (promotedProviderSessionId) {
-      const session = this.sessions.get(sessionId);
-      const binding = this.runtimeBindings.get(sessionId);
-      if (
-        session &&
-        binding &&
-        binding.providerSessionId !== promotedProviderSessionId
-      ) {
-        this.runtimeBindings.set(sessionId, {
-          ...binding,
-          providerSessionId: promotedProviderSessionId,
-        });
+    routeProviderEvent(this.providerEventRouterContext(), sessionId, event);
+  }
+
+  private providerEventRouterContext(): ProviderEventRouterContext {
+    return {
+      getBinding: (sessionId) => this.runtimeBindings.get(sessionId),
+      getSession: (sessionId) => this.sessions.get(sessionId),
+      markBindingReady: (sessionId, providerId, providerSessionId) =>
         this.publishBinding(
-          this.bindingFacade.markReady(
-            sessionId,
-            session.providerId,
-            promotedProviderSessionId
-          )
-        );
-      }
-      return;
-    }
-    const displayMessages =
-      sessionReasoningDisplayFacade.projectProviderEvent(event);
-    if (displayMessages.length > 0) {
-      const session = this.sessions.get(sessionId);
-      this.reasoningTranslation.publishDisplayMessages({
-        displayMessages,
-        publishMessage: (message) => this.publishMessage(message),
-        publishPatch: (payload) =>
-          this.eventStream.publish({
-            payload,
-            timestamp: new Date().toISOString(),
-            type: "session:message_translation",
-          }),
-        sessionId,
-        settings: resolveReasoningTranslationSettingsSnapshot(
-          session?.workspacePath
+          this.bindingFacade.markReady(sessionId, providerId, providerSessionId)
         ),
-        workspacePath: session?.workspacePath,
-      });
-      return;
-    }
-    if (event.type === "turn_started") {
-      this.publishTurnState(sessionId, "running");
-      return;
-    }
-    if (event.type === "turn_completed") {
-      this.publishTurnState(sessionId, "idle");
-      this.refreshUsageLimits(sessionId).catch(() => undefined);
-      return;
-    }
-    if (event.type === "turn_failed") {
-      this.publishTurnState(sessionId, "idle");
-      return;
-    }
-    if (event.type === "stream_error") {
-      this.publishTurnState(sessionId, "idle");
-      this.publishError(
-        sessionId,
-        readString(event.message) ?? "Provider turn failed"
-      );
-    }
+      publishError: (sessionId, error) => this.publishError(sessionId, error),
+      publishMessage: (message) => this.publishMessage(message),
+      publishTranslationPatch: (payload) =>
+        this.eventStream.publish({
+          payload,
+          timestamp: new Date().toISOString(),
+          type: "session:message_translation",
+        }),
+      publishTurnState: (sessionId, state) =>
+        this.publishTurnState(sessionId, state),
+      reasoningTranslation: this.reasoningTranslation,
+      refreshUsageLimits: (sessionId) =>
+        this.refreshUsageLimits(sessionId).catch(() => undefined),
+      setBinding: (sessionId, binding) =>
+        this.runtimeBindings.set(sessionId, binding),
+      updateTelemetry: (sessionId, event) =>
+        this.updateTelemetry(sessionId, (current) =>
+          usageContextTelemetryFacade.applyProviderEvent(
+            current,
+            event as Record<string, unknown>
+          )
+        ),
+    };
   }
   async refreshUsageLimits(sessionId: string): Promise<void> {
     const session = this.sessions.get(sessionId);

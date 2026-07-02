@@ -67,6 +67,10 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `profile-materializer`: provider-neutral session profile payload — applied prompt with the system wrapper, effective tooling categories, and applied-content hash.
 - `profile-authoring`: profile creation and editing truth — document templates, create-profile operation with derived ids, and editor path resolution.
 
+### Provider Network Capture
+
+- `capture-artifacts`: capture type model, credential-header redaction, provider-neutral section extraction (system prompt / tool schemas / messages), and the JSONL + readable markdown artifact writer for native request capture.
+
 ### Settings And Localization
 
 - `settings-store`: global/workspace settings persistence.

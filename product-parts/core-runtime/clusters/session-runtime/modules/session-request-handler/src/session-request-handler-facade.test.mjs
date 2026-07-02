@@ -25,11 +25,21 @@ assert.match(source, /usageContextTelemetryFacade\.applyProviderEvent\(/u);
 // Provider session starts are normalized through the additive contract.
 assert.match(source, /normalizeProviderSessionStart\(startOutcome\)/u);
 
-// The applied profile snapshot is captured at create (Native default until
-// managed resolution activates) and adapter details are recorded once.
-assert.match(source, /appliedProfile: \{\s*kind: "native"/u);
+// The applied profile snapshot is captured at create via the resolver
+// (Native fallback lives in session-profile-resolution.ts) and adapter
+// details are recorded once.
+assert.match(source, /appliedProfile: resolution\.appliedProfile/u);
+const resolutionSource = readFileSync(
+  new URL("./session-profile-resolution.ts", import.meta.url),
+  "utf8"
+);
+assert.match(resolutionSource, /kind: "native"/u);
+assert.match(resolutionSource, /never rereads profile files/u);
 assert.match(source, /private recordAppliedProfileApplication\(/u);
-assert.match(source, /session\.appliedProfile\.appliedProfileApplication/u);
+assert.match(
+  resolutionSource,
+  /session\.appliedProfile\.appliedProfileApplication/u
+);
 
 const typesSource = readFileSync(
   new URL("./session-request-handler-types.ts", import.meta.url),
@@ -52,8 +62,20 @@ assert.match(
   source,
   /binding\?\.providerSessionId \?\? session\.providerSessionId/u
 );
-assert.match(source, /deleteSessionArtifacts\?\.\(/u);
+assert.match(source, /closeAndCleanupProviderSession\(\{/u);
 assert.doesNotMatch(source, /event\.tag === "thinking"/u);
+
+const utilsSource = readFileSync(
+  new URL("./session-request-handler-runtime-utils.ts", import.meta.url),
+  "utf8"
+);
+assert.match(utilsSource, /deleteSessionArtifacts\?\.\(/u);
+
+// Managed resolution activates at create through the profile resolver and
+// the adapter receives the snapshot-built payload.
+assert.match(source, /this\.profileResolver\.resolveAppliedProfile\(/u);
+assert.match(source, /buildSessionProfilePayload\(session\.appliedProfile\)/u);
+assert.match(source, /async createSession\(/u);
 
 // The router owns reasoning projection, promotion, and turn-state routing.
 assert.match(

@@ -19,11 +19,18 @@ import {
 } from "./session-history-store.js";
 import { resolveDisplayMessage } from "./session-live-tail-dedupe.js";
 import {
+  buildSessionProfilePayload,
+  SessionProfileResolver,
+  type SessionProfileResolverLike,
+  withRecordedProfileApplication,
+} from "./session-profile-resolution.js";
+import {
   type ProviderEventRouterContext,
   routeProviderEvent,
 } from "./session-provider-event-router.js";
 import {
   ADAPTER_NOT_REGISTERED,
+  closeAndCleanupProviderSession,
   createId,
   resolveBindingUnavailableMessage,
   stringifyError,
@@ -62,25 +69,33 @@ export class SessionRequestHandlerFacade {
     getSession: (sessionId) => this.sessions.get(sessionId),
     publishIdle: (sessionId) => this.publishTurnState(sessionId, "idle"),
   });
+  private readonly profileResolver: SessionProfileResolverLike;
   constructor(deps: SessionRequestHandlerDependencies = {}) {
     this.bindingFacade = deps.bindingFacade ?? providerSessionBindingFacade;
     this.eventStream = deps.eventStream ?? sessionEventStreamFacade;
     this.providerRegistry = deps.providerRegistry ?? providerRegistryFacade;
+    this.profileResolver = deps.profileResolver ?? new SessionProfileResolver();
   }
-  createSession(request: CreateCoreSessionRequest): CoreSessionActionResult {
+  async createSession(
+    request: CreateCoreSessionRequest
+  ): Promise<CoreSessionActionResult> {
+    const nextSessionMode = resolveNextSessionMode(request.nextSessionMode);
+    // Snapshot is captured exactly once at create; broken selection rejects.
+    const resolution = await this.profileResolver.resolveAppliedProfile({
+      nextSessionMode,
+      providerId: request.providerId,
+      workspacePath: request.workspacePath,
+    });
+    if (!resolution.ok) {
+      return { error: resolution.error, ok: false };
+    }
     const now = new Date().toISOString();
     const session: CoreSession = {
-      // The applied profile snapshot is captured exactly once at create;
-      // managed resolution replaces this Native default when it activates.
-      appliedProfile: {
-        kind: "native",
-        profileId: "native",
-        profileName: "Native",
-      },
+      appliedProfile: resolution.appliedProfile,
       createdAt: now,
       id: createId(`session-${request.providerId}`),
       model: request.model,
-      nextSessionMode: resolveNextSessionMode(request.nextSessionMode),
+      nextSessionMode,
       providerId: request.providerId,
       providerName: request.providerName,
       title: request.title ?? `${request.providerName} session`,
@@ -156,24 +171,15 @@ export class SessionRequestHandlerFacade {
       return { error: "Session not found", ok: false };
     }
     const binding = this.runtimeBindings.get(sessionId);
-    const providerSessionId =
-      binding?.providerSessionId ?? session.providerSessionId;
-    const adapter =
-      binding?.adapter ?? this.providerRegistry.getAdapter(session.providerId);
-    binding?.unsubscribe();
-    (binding
-      ? binding.adapter.closeSession(binding.providerSessionId)
-      : Promise.resolve()
-    )
-      .then(() => {
-        if (session.workspacePath && providerSessionId) {
-          return adapter?.deleteSessionArtifacts?.(
-            providerSessionId,
-            session.workspacePath
-          );
-        }
-      })
-      .catch(() => undefined);
+    closeAndCleanupProviderSession({
+      adapter:
+        binding?.adapter ??
+        this.providerRegistry.getAdapter(session.providerId),
+      binding,
+      providerSessionId:
+        binding?.providerSessionId ?? session.providerSessionId,
+      workspacePath: session.workspacePath,
+    });
     this.runtimeBindings.delete(sessionId);
     this.messagesBySession.delete(sessionId);
     this.telemetryBySession.delete(sessionId);
@@ -304,28 +310,18 @@ export class SessionRequestHandlerFacade {
     });
   }
 
-  // Provider-specific application details enter the snapshot exactly once,
-  // on the first bind of a freshly created session; resume never rewrites an
-  // already-recorded application (the snapshot is immutable).
   private recordAppliedProfileApplication(
     sessionId: string,
     appliedProfileApplication?: Readonly<Record<string, unknown>>
   ): void {
-    const session = this.sessions.get(sessionId);
-    if (
-      !(session?.appliedProfile && appliedProfileApplication) ||
-      session.appliedProfile.appliedProfileApplication
-    ) {
-      return;
+    const updated = withRecordedProfileApplication(
+      this.sessions.get(sessionId),
+      appliedProfileApplication
+    );
+    if (updated) {
+      this.sessions.set(sessionId, updated);
+      this.persistSessionIndex(updated.workspacePath);
     }
-    this.sessions.set(sessionId, {
-      ...session,
-      appliedProfile: {
-        ...session.appliedProfile,
-        appliedProfileApplication,
-      },
-    });
-    this.persistSessionIndex(session.workspacePath);
   }
 
   private persistSessionIndex(workspacePath?: string): void {
@@ -376,13 +372,20 @@ export class SessionRequestHandlerFacade {
     }
     try {
       await adapter.initialize?.();
+      // Adapter input comes strictly from the immutable snapshot; profile
+      // files are never reread on create or resume.
+      const profilePayload = buildSessionProfilePayload(session.appliedProfile);
+      const startOptions = profilePayload
+        ? { profile: profilePayload }
+        : undefined;
       const startOutcome =
         session.providerSessionId && adapter.resumeSession
           ? await adapter.resumeSession(
               session.providerSessionId,
-              session.workspacePath
+              session.workspacePath,
+              startOptions
             )
-          : await adapter.createSession(session.workspacePath);
+          : await adapter.createSession(session.workspacePath, startOptions);
       const { appliedProfileApplication, providerSessionId } =
         normalizeProviderSessionStart(startOutcome);
       this.recordAppliedProfileApplication(

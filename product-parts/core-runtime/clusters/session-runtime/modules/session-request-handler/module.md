@@ -62,6 +62,17 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   sessions persisted before this feature have no snapshot and keep legacy
   no-payload behavior.
 
+- Managed profile resolution is active at create: `next-session-mode.ts`
+  resolves a managed selection only with a concrete profile id (requestMode
+  stays `raw` until the normalizer exists), `session-profile-resolution.ts`
+  (`SessionProfileResolver`) resolves it through `profile-catalog` +
+  `profile-materializer` into the frozen snapshot, a broken selection
+  rejects `createSession` with a structured error (no silent fallback), and
+  `buildSessionProfilePayload` rebuilds the adapter payload strictly from
+  the snapshot for both create and resume. `createSession` is async because
+  resolution reads profile documents from disk. The applied profile reaches
+  the UI read model as `CoreSession.appliedProfile` in session RPC payloads.
+
 ## Owned Paths
 
 - `module.md`

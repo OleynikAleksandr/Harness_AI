@@ -65,6 +65,7 @@ export type DeleteSessionResult = { ok: true } | { error: string; ok: false };
 export interface SessionRequestHandlerDependencies {
   bindingFacade?: ProviderSessionBindingFacadeLike;
   eventStream?: SessionEventStreamLike;
+  profileResolver?: import("./session-profile-resolution.js").SessionProfileResolverLike;
   providerRegistry?: ProviderRegistryLike;
 }
 

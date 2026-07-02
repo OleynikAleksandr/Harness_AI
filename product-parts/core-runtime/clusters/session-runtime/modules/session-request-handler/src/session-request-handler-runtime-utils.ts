@@ -28,3 +28,29 @@ export function readString(value: unknown): string | null {
     ? value.trim()
     : null;
 }
+
+// Fire-and-forget provider-side cleanup for a removed session: close the
+// bound provider session (if any), then delete provider-owned artifacts.
+export function closeAndCleanupProviderSession(options: {
+  adapter?:
+    | import("../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js").ProviderAdapter
+    | null;
+  binding?: import("./session-request-handler-types.js").ProviderRuntimeBinding;
+  providerSessionId?: string;
+  workspacePath?: string;
+}): void {
+  options.binding?.unsubscribe();
+  (options.binding
+    ? options.binding.adapter.closeSession(options.binding.providerSessionId)
+    : Promise.resolve()
+  )
+    .then(() => {
+      if (options.workspacePath && options.providerSessionId) {
+        return options.adapter?.deleteSessionArtifacts?.(
+          options.providerSessionId,
+          options.workspacePath
+        );
+      }
+    })
+    .catch(() => undefined);
+}

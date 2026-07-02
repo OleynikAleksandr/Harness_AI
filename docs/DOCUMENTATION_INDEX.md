@@ -51,9 +51,11 @@ relevant to the active task.
   revision (Russian): single `profile.md` document with YAML frontmatter,
   provider tool inventory (Claude SDK `init` capture + probe, GLM adapter
   export), deny-list "vendor set minus off" application semantics replacing
-  the v1 category whitelist, Profile Creator tool selection UI, open
-  question on Codex/Kimi channels, and the phase roadmap for the next
-  todo-plan.
+  the v1 category whitelist, Profile Creator tool selection UI, an in-house
+  dev-time native capture module (claude-tap as the mechanics reference)
+  for provider system prompt/tool reference dumps, open questions on prompt
+  universality research and Codex/Kimi application channels, and the phase
+  roadmap for the next todo-plan.
 
 ## Product Part Documentation
 

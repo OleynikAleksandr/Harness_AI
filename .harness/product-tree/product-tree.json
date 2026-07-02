@@ -170,6 +170,18 @@
           ]
         },
         {
+          "id": "session-profiles",
+          "name": "Session Profiles",
+          "purpose": "Runtime-selectable session profile truth: user-editable profile documents, catalog/selection with the virtual Native profile, provider-neutral payload materialization, and profile authoring.",
+          "modules": [
+            {
+              "id": "profile-store",
+              "name": "Profile Store",
+              "purpose": "User-editable session profile documents on disk: Profiles root resolution, document layout, and the shared profile type model."
+            }
+          ]
+        },
+        {
           "id": "settings-and-localization",
           "name": "Settings And Localization",
           "purpose": "Settings persistence, UI localization runtime materialization, and visible reasoning translation overlay state.",

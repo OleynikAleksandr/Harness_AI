@@ -59,6 +59,10 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `session-snapshot-projector`: read model for the Electron session UI.
 - `session-reasoning-display`: projects provider-visible reasoning/thinking into Core dialog messages.
 
+### Session Profiles
+
+- `profile-store`: user-editable session profile documents on disk — Profiles root resolution, document layout, and the shared profile type model.
+
 ### Settings And Localization
 
 - `settings-store`: global/workspace settings persistence.

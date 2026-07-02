@@ -178,6 +178,11 @@
               "id": "profile-store",
               "name": "Profile Store",
               "purpose": "User-editable session profile documents on disk: Profiles root resolution, document layout, and the shared profile type model."
+            },
+            {
+              "id": "profile-catalog",
+              "name": "Profile Catalog",
+              "purpose": "Profile selection truth: catalog read models, virtual Native profile, per-provider applicability, and session-creation resolution with structured errors."
             }
           ]
         },

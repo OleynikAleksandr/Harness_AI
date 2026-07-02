@@ -13,11 +13,11 @@ Contract source: `docs/architecture/SessionProfiles.md`.
 ## Owned Modules
 
 - `profile-store`
+- `profile-catalog`
 
-The cluster grows to `profile-catalog`, `profile-materializer` and
-`profile-authoring` as the active plan lands them; module ownership is
-recorded here and in the product tree in the same commit that creates each
-module.
+The cluster grows to `profile-materializer` and `profile-authoring` as the
+active plan lands them; module ownership is recorded here and in the product
+tree in the same commit that creates each module.
 
 ## Facade Rule
 

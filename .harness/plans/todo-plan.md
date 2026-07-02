@@ -8,8 +8,8 @@
   "planId": "session-profiles-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "feat(profile-catalog): add catalog read model with native-first resolution and error contract",
+  "currentTaskId": "harness-ai.phase3.stream2.task1",
+  "expectedCommitMessage": "feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper",
   "debt": null
 }
 ```
@@ -111,12 +111,12 @@
 
 ### Stream: Catalog
 
-26. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Add the `profile-catalog` module: catalog read model for UI (passports + universal/individual type + per-provider applicability + validity status), virtual Native always first, `(profileId, providerId)` resolution to an applicable profile, "no selection => Native" resolution, and the structured selected-but-broken error contract (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-catalog): add catalog read model with native-first resolution and error contract`).
-27. [TODO] Git Commit: `feat(profile-catalog): add catalog read model with native-first resolution and error contract` (hash: TBD)
+26. [DONE] `harness-ai.phase3.stream1.task1` Add the `profile-catalog` module: catalog read model for UI (passports + universal/individual type + per-provider applicability + validity status), virtual Native always first, `(profileId, providerId)` resolution to an applicable profile, "no selection => Native" resolution, and the structured selected-but-broken error contract (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-catalog): add catalog read model with native-first resolution and error contract`). Result: Completed in commit `feat(profile-catalog): add catalog read model with native-first resolution and error contract`.
+27. [DONE] Git Commit: `feat(profile-catalog): add catalog read model with native-first resolution and error contract` (hash: self)
 
 ### Stream: Materializer
 
-28. [TODO] `harness-ai.phase3.stream2.task1` Add the `profile-materializer` module: build the provider-neutral `SessionProfilePayload` (profile workflow prompt body + system wrapper: workspace path, current date, language contract, `AGENTS.md` policy flag + tooling categories); no provider-specific additions here (adapter application layers own those) (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper`).
+28. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Add the `profile-materializer` module: build the provider-neutral `SessionProfilePayload` (profile workflow prompt body + system wrapper: workspace path, current date, language contract, `AGENTS.md` policy flag + tooling categories); no provider-specific additions here (adapter application layers own those) (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts` (new), `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` (new), plus `module.md` (new) and `cluster.md`; expected commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper`).
 29. [TODO] Git Commit: `feat(profile-materializer): materialize provider-neutral session profile payload with system wrapper` (hash: TBD)
 
 ## Phase 4 - Cluster Foundation: Authoring (owner: Codex, updated: 2026-07-02)

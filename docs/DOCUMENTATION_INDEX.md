@@ -124,6 +124,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   the record-only `provider-network-capture` Core cluster, adapters aligned to
   native-vendor-default capture, capture RPC/bridge, and the Native Request
   Capture Settings card, ahead of capturing three native pairs.
+- `docs/evidence/provider-network-capture-package-2026-07-03.md` — packaged
+  application rebuild evidence for the Codex capture fixes: the
+  `codex:native-capture` app-server profile forcing the HTTP responses
+  transport, body-content target matching (probe prompt + tool count) with
+  `capture_proxy_event` diagnostics, and `account-id` header redaction,
+  ahead of the user re-capturing the Codex native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

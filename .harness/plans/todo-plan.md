@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6b.stream1.task14",
+  "expectedCommitMessage": "feat(capture-proxy): forward matched requests to upstream",
   "debt": null
 }
 ```
@@ -221,7 +221,40 @@
 62. [DONE] Git Commit: `fix(capture-proxy): read chunked request bodies` (hash: self)
 63. [DONE] `harness-ai.phase6.stream1.task12` Package the app with the chunked request-body fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-codex-chunked.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex chunked body fix`) Result: Completed in commit `chore(package): rebuild packaged app with codex chunked body fix`.
 64. [DONE] Git Commit: `chore(package): rebuild packaged app with codex chunked body fix` (hash: self)
-65. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+## Phase 6.5 - Forward Capture Rearchitecture (owner: Codex + User, updated: 2026-07-03)
+
+> Pivot (2026-07-03, user-approved): capture-and-abort is fundamentally
+> incompatible with Codex 0.142.5, which forces an un-disableable WebSocket
+> transport for `/responses` (empirically: `--disable responses_websockets`
+> no longer switches transport; `-c model_providers.openai.supports_websockets`
+> is rejected as a reserved built-in). The request body lives in WS frames sent
+> AFTER the upgrade handshake, which requires a real server — so abort can never
+> see it. Diagnostic scripts proved a forward-transit alternative works: the
+> proxy forwards the WS upgrade to the real chatgpt.com (stripping
+> `Sec-WebSocket-Extensions` so no permessage-deflate), decodes the first client
+> text frame `{"type":"response.create","instructions","tools","input"}`, and
+> extracts system/tools/messages. claude-tap has NO native WS capture (their
+> TODO) — its forward architecture is the model, the deflate-strip trick is ours.
+> User decisions (2026-07-03): (a) pivot Codex to forward + WS-decode; (b) the
+> probe request reaching the server is acceptable (abort right after the frame
+> minimizes spend); (c) unify all three providers on the forward proxy. This
+> changes SessionProfilesV2 decision 5.
+
+### Stream: Forward Proxy And Provider Unification
+
+65. [DONE] `harness-ai.phase6b.stream1.task13` Document the forward-transit pivot: rewrite SessionProfilesV2 decision 5 (capture-and-abort -> forward-transit with request/response recording), replace the Codex HTTP-transport note with the empirically-confirmed WebSocket-mandatory finding and the forward WS-decode solution (strip `Sec-WebSocket-Extensions`, decode the `response.create` frame), update the roadmap and the application-channel note, and lay out this Phase 6.5 (scope: `docs/architecture/SessionProfilesV2.md, .harness/plans/todo-plan.md`; expected commit: `docs(architecture): pivot capture to forward ws-decode transit`) Result: Completed in commit `docs(architecture): pivot capture to forward ws-decode transit`.
+66. [DONE] Git Commit: `docs(architecture): pivot capture to forward ws-decode transit` (hash: self)
+67. [IN_PROGRESS] `harness-ai.phase6b.stream1.task14` Add HTTP forward transit to the capture proxy: rework the proxy so a matched target request is forwarded to the real upstream over a TLS client connection instead of aborted — read the client request (head + body), open an upstream TLS socket to the rule host, write the request, relay the response back to the client, and resolve the captured request to the writer; keep the target-rule filter; force `ALPNProtocols: ['http/1.1']` on the client-facing TLS so HTTP providers stay HTTP/1.1, with a unit test that forwards a fake upstream (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, plus capture-proxy module.md`; expected commit: `feat(capture-proxy): forward matched requests to upstream`)
+68. [TODO] Git Commit: `feat(capture-proxy): forward matched requests to upstream` (hash: TBD)
+69. [TODO] `harness-ai.phase6b.stream1.task15` Add WebSocket upgrade forwarding and frame decode: when a matched request is a WS upgrade, complete the `101` with the real upstream while stripping `Sec-WebSocket-Extensions` (so the server does not negotiate permessage-deflate), decode the first client text frame (unmask, handle 7/16/64-bit lengths), and treat its payload as the captured request body; a new sibling `capture-proxy-ws.ts` holds the frame codec to stay under the 500-line gate, with a unit test decoding a masked frame (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-ws.ts` (new), `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs` plus capture-proxy module.md; expected commit: `feat(capture-proxy): forward websocket upgrade and decode request frame`)
+70. [TODO] Git Commit: `feat(capture-proxy): forward websocket upgrade and decode request frame` (hash: TBD)
+71. [TODO] `harness-ai.phase6b.stream1.task16` Switch the orchestrator to the forward model and retire the WS-disable profile: drop the capture-and-abort assumptions from the orchestrator result handling, remove the now-useless `codex:native-capture` app-server profile (WS could never be disabled) so Codex capture runs the default app-server, and point the Codex target rule at the `response.create` WS payload; update the orchestrator and Codex adapter unit expectations (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-app-server-process-profile.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/diagnostics/codex-native-request-capture-service.ts` plus the affected module.md files; expected commit: `refactor(provider-network-capture): forward-model orchestration and drop ws-disable profile`)
+72. [TODO] Git Commit: `refactor(provider-network-capture): forward-model orchestration and drop ws-disable profile` (hash: TBD)
+73. [TODO] `harness-ai.phase6b.stream1.task17` Extract the Codex WS `response.create` sections: teach the artifact section extractor to read `{type:"response.create", instructions, tools, input}` (instructions -> system, tools -> tools, input -> messages) so the Codex forward-WS dump renders the full pair, with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, plus capture-artifacts module.md`; expected commit: `feat(capture-artifacts): extract codex response.create sections`)
+74. [TODO] Git Commit: `feat(capture-artifacts): extract codex response.create sections` (hash: TBD)
+75. [TODO] `harness-ai.phase6b.stream1.task18` Package the app with the forward capture rearchitecture for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-forward.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with forward capture`)
+76. [TODO] Git Commit: `chore(package): rebuild packaged app with forward capture` (hash: TBD)
+77. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

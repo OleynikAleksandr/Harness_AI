@@ -174,14 +174,25 @@
   остаётся внешним кросс-чеком, но основой служит наш проверенный в бою
   вариант: дампы 2026-04-24 (`Claude_System_Tools_*`,
   `codex-native-*`) сделаны именно им.
-- **Модель съёма — capture-and-abort**: локальный CONNECT-прокси
-  (127.0.0.1) с диагностическим CA терминирует TLS, читает полный запрос,
-  пишет артефакты и возвращает синтетическую ошибку. **Запрос не уходит
-  вендору вообще** — не тратятся токены, контекст не покидает машину;
-  ответ сервера не нужен (весь материал в запросе: `body.system`,
-  `body.tools`, `body.messages`). Детерминированный probe-промпт помечает
-  запрос как диагностический; фильтр целей отделяет модельный запрос
-  (`api.anthropic.com`, `chatgpt.com/backend-api/codex/...`) от фоновых.
+- **Модель съёма — forward-транзит с записью запроса** (пересмотр
+  2026-07-03; прежний capture-and-abort оказался несовместим с обязательным
+  WebSocket-транспортом Codex, см. ниже): локальный CONNECT-прокси
+  (127.0.0.1) с диагностическим CA терминирует TLS клиента и **форвардит
+  запрос на реальный upstream**, записывая запрос (и, где дёшево, ответ).
+  Для HTTP-провайдеров (Claude, Kimi) читается тело запроса напрямую; для
+  Codex WS-транспорта прокси завершает `101`-upgrade с реальным сервером,
+  при пересылке upgrade-запроса **вырезает `Sec-WebSocket-Extensions`**
+  (сервер не согласует `permessage-deflate` → клиентские фреймы приходят
+  несжатым текстом), декодирует первый клиентский text-фрейм
+  `{"type":"response.create","instructions":..,"tools":..,"input":..}` и
+  извлекает `instructions` (system), `tools`, `input` (messages), затем
+  обрывает поток. **Trade-off vs прежний capture-and-abort:** запрос теперь
+  ДОХОДИТ до вендора (upgrade завершается, probe-turn стартует) — это цена
+  за захват WS-транспорта, иначе недоступного; probe-turn короткий, обрыв
+  сразу после захвата фрейма минимизирует генерацию и стоимость.
+  Детерминированный probe-промпт помечает запрос как диагностический; фильтр
+  целей отделяет модельный запрос (`api.anthropic.com`,
+  `chatgpt.com/backend-api/codex/...`) от фоновых.
 - **Подключение клиентов** (спайк reference подтвердил): Claude — env
   SDK-процесса `HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS` (Node TLS); Codex —
   изолированный временный app-server c `HTTPS_PROXY` + `SSL_CERT_FILE`
@@ -191,21 +202,24 @@
   новая часть Harness AI).
   GLM Native съёма не требует: его системное сообщение и схемы
   инструментов собирает наш собственный адаптер.
-- **Codex: только HTTP-транспорт при съёме** (обнаружено на первом захвате
-  2026-07-03): Codex CLI 0.142.x включает экспериментальный
-  WebSocket-транспорт Responses API (`responses_websockets`,
-  `openai-beta: responses_websockets=2026-02-06`) — payload запроса уходит
-  в WS-фреймах после `101 Switching Protocols`, и capture-and-abort видит
-  только бестелый `GET`-upgrade (первый дамп записал фоновый
-  `memory_consolidation` prewarm без system/tools). Поэтому capture-профиль
-  app-server (`codex:native-capture`) отключает фичи `responses_websockets`
-  и `responses_websockets_v2` через `--disable <feature>` (эквивалент
-  `-c features.<name>=false`; имена валидируются CLI) — CLI откатывается на
-  обычный HTTP `POST`, и прокси читает полное тело. Боевой app-server эти
-  флаги не получает. Системный промпт при этом дублируется в rollout-логе
-  (`base_instructions`) и попадает в дамп как diagnostic context, но схемы
-  инструментов существуют только в теле запроса — без HTTP-отката пара
-  неполна.
+- **Codex: WebSocket-транспорт обязателен и неотключаем** (эмпирически
+  установлено 2026-07-03 диагностическими прогонами против реального
+  app-server 0.142.5): Codex форсит WebSocket для `/backend-api/codex/responses`
+  (`openai-beta: responses_websockets=2026-02-06`, `Upgrade: websocket`), и
+  отключить его нельзя — `--disable responses_websockets`/`_v2` **не
+  переключает** транспорт (работало на старых версиях, на которые опирается
+  claude-tap; на 0.142.5 мертво), а `-c model_providers.openai.supports_websockets=false`
+  отклоняется (`openai` — зарезервированный built-in id). Payload едет в
+  WS-фреймах после `101`, поэтому capture-and-abort в принципе не может его
+  прочитать (обрыв рвёт соединение до фреймов). Решение — forward-транзит с
+  декодированием WS-фрейма (см. модель съёма выше): подтверждено рабочим —
+  извлечён полный Codex system prompt + tools из первого клиентского
+  text-фрейма. Важно: claude-tap нативного WS-захвата НЕ имеет (их незакрытый
+  TODO), так что готового решения оттуда нет; взят его forward-подход плюс наш
+  трюк со срезанием `Sec-WebSocket-Extensions`. Системный промпт дополнительно
+  дублируется в rollout-логе (`base_instructions`) как diagnostic context, но
+  схемы инструментов существуют только в теле запроса — без чтения WS-фрейма
+  пара неполна.
 - **Артефакты**: пары `<timestamp>-<provider>-native-request.{jsonl,md}`
   в Harness home logs; JSONL с записями `request_captured` /
   `section_extract` (system, tools, messages), markdown — читаемый дамп с
@@ -246,8 +260,9 @@
   провайдера промпт и тулинг подбираются отдельно под каждую задачу.
   Решение принимает пользователь по результатам исследования.
 - **Codex / Kimi: каналы применения.** Канал **получения** native-эталонов
-  закрыт решением 5 (capture-and-abort по архитектуре CodeAI-Hub; для Kimi
-  — новая часть с preflight-риском доверия к CA). Открытым
+  закрыт решением 5 (forward-транзит с записью запроса; для Codex —
+  декодирование WS-фрейма, для Kimi — новая часть с preflight-риском доверия
+  к CA). Открытым
   остаётся канал **применения** кастомного тулинга: у Codex нет per-thread
   управления инструментами (только процессные флаги `--disable`, см. аудит
   v1), у Kimi канал `agent.yaml -> tools:` существует, но был отложен из-за
@@ -265,8 +280,9 @@ deny-list, Profile Creator) следует за capture.
 1. **Phase 1 — планировочный документ**: этот документ + ревью пользователя
    (текущая фаза, закрывается расширением плана фазами ниже).
 2. **Phase 2 — capture-кластер (Core)**: новый `provider-network-capture` —
-   диагностический CA store, capture-and-abort CONNECT-прокси, writer
-   (JSONL + читаемый markdown, redaction, извлечение секций), оркестратор.
+   диагностический CA store, CONNECT-прокси, writer (JSONL + читаемый
+   markdown, redaction, извлечение секций), оркестратор. Прокси пересмотрен
+   в Phase 6.5 с capture-and-abort на forward-транзит + WS-decode (2026-07-03).
 3. **Phase 3 — capture-адаптеры провайдеров**: `captureNativeRequest` в
    контракте адаптера с выбором `(provider, model)`; реализации Claude
    (env SDK), Codex (временный app-server), Kimi (временный `kimi acp`).

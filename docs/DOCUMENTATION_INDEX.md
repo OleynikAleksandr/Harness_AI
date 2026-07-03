@@ -59,6 +59,14 @@ relevant to the active task.
   capture first (Phase R is gated on capturing at least three native pairs),
   open questions on prompt research methodology and Codex/Kimi tooling
   application channels.
+- `docs/architecture/NativePromptComposition.md` — native prompt anatomy
+  (Russian): how a provider request is assembled (system prompt + tools +
+  messages), the two system-prompt layers (static cacheable wrapper vs live
+  per-session context), prompt caching, the per-provider breakdown from the
+  accepted dumps (Claude/Codex/Kimi), the B2 native model (frozen wrapper in
+  the Profiles folder + shared live-context generator), the Claude Memory
+  ballast decision, and the per-provider application ceilings (Phase 7 —
+  Native Profile Unification).
 
 ## Product Part Documentation
 

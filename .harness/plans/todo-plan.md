@@ -8,7 +8,7 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -490,7 +490,45 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 105. [DONE] Git Commit: `fix(capture-proxy): select codex probe frame by tool count` (hash: self)
 106. [DONE] `harness-ai.phase6e.stream1.task35` Package the app with the Kimi/Codex capture extraction fixes for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-extraction-fixes.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with capture extraction fixes`) Result: Completed in commit `chore(package): rebuild packaged app with capture extraction fixes`.
 107. [DONE] Git Commit: `chore(package): rebuild packaged app with capture extraction fixes` (hash: self)
-108. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+108. [DONE] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none). Result: Accepted 2026-07-03 — all three re-captured on the 18:47 build (dumps 17-02-50 claude-opus cli 10 inline tools, 17-03-16 codex gpt-5.5 17 tools, 17-03-26 kimi 23 tools), each with the native system prompt + tool schemas + probe and redacted credentials; verified correct.
+
+## Phase 7 - Native Profile Unification (owner: Codex + User, updated: 2026-07-03)
+
+> Direction agreed with the user (chat, 2026-07-03) after the three native
+> pairs were accepted. Goal: for ALL THREE providers, the Native profile (and
+> any custom profile) sends a system prompt + tooling that is OUR managed
+> snapshot — frozen from a tested vendor version so later SDK/CLI updates do
+> not change it (user requirement). Key decisions:
+> - **B2 (static wrapper frozen, live context):** the system prompt splits into
+>   (1) the static WRAPPER — identity, behavior rules, tool list; the part the
+>   vendor changes on updates — which we freeze into the profile, and (2) the
+>   live per-session CONTEXT — working dir, date, git status, memory/scratchpad
+>   paths — which is generated fresh every session for EVERY profile (native
+>   and managed alike), never stored in the profile. Freezing the context would
+>   put a stale workspace/date into every session (a bug), so only the wrapper
+>   is frozen.
+> - **Unify via the Profiles folder:** Native becomes ordinary profiles under
+>   `~/.harness-ai/Profiles/native-<provider>/` (profile.yaml + system-prompt.md
+>   wrapper + tooling.yaml), read through the same path as managed profiles.
+> - **"Update Native Profile" button** in Settings -> General next to the
+>   Native Request Capture card: a Core command that takes the latest dump per
+>   provider, splits wrapper/context, and rewrites the native profile files.
+> - **Per-provider application ceilings (honest):** Claude — full prompt+tools
+>   control (`systemPrompt` string/array + `tools` list). Codex — prompt via
+>   `baseInstructions`, but tooling is app-server process-flags (17 tools fixed,
+>   no per-thread trim). Kimi — the agent.yaml substitution channel is NOT
+>   proven to bind, so synthetic Kimi native is BLOCKED until the channel is
+>   fixed and proven (user-directed order: fix Kimi first).
+> - **Ballast candidate:** the Claude `# Memory` section (~2.2k tok, auto-memory
+>   instructions + path) is a candidate to DROP from the wrapper — with our
+>   orchestrated harness (plan as recovery owner, a commit per microtask) the
+>   file-based auto-memory is redundant, so it is "on-all-occasions" ballast
+>   rather than a load-bearing block. Decided per-section during authoring.
+
+### Stream: Architecture Documentation
+
+109. [DONE] `harness-ai.phase7.stream1.task36` Document the native prompt anatomy and composition: add `docs/architecture/NativePromptComposition.md` describing how a provider request is assembled (system prompt + tools + messages), the two system-prompt layers (static cacheable wrapper vs live per-session context), prompt caching (the static prefix is cached within one session so later turns are cheaper; the dynamic suffix is not), the per-provider breakdown from the accepted dumps (Claude 4 blocks incl. cli identity + Environment ~1k / Memory ~2.2k / Scratchpad dynamic; Codex; Kimi OpenAI shape), the B2 native model (frozen wrapper from the Profiles folder + live context generator shared by all profiles), the ballast decision on the Claude Memory section, and the per-provider application ceilings; register it in the index and cross-link from SessionProfilesV2 decision 5 (scope: `docs/architecture/NativePromptComposition.md` (new), `docs/DOCUMENTATION_INDEX.md`, `docs/architecture/SessionProfilesV2.md`; expected commit: `docs(architecture): document native prompt composition and caching`) Result: Completed in commit `docs(architecture): document native prompt composition and caching`.
+110. [DONE] Git Commit: `docs(architecture): document native prompt composition and caching` (hash: self)
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

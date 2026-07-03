@@ -37,6 +37,12 @@ without the WebSocket transport (HTTP/SSE capture only for the MVP).
   keeps waiting — background prewarm turns on the target endpoint do not
   end the capture. The matched request is answered with a synthetic 502
   ("Native Request Captured") and never proxied to the vendor.
+- A request that matched the rule host+path but was rejected on the body
+  carries a `detail` on its `request_ignored` event
+  (`NativeCaptureIgnoredRequestDetail`: `bodyBytes`, `hasContentLength`,
+  `probeMatched`, `toolCount`, `topLevelKeys`). It is structural metadata
+  only — never header or body values — so it is safe to persist in the
+  diagnostic artifact and explains why a target request was not captured.
 - The proxy hands the raw captured request (including headers) to the
   caller; credential redaction happens in the artifact writer, not here.
 

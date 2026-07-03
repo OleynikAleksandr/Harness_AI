@@ -25,9 +25,21 @@ export interface NativeCaptureTargetRule {
   readonly port?: number;
 }
 
+// Structural metadata about a body-rejected request that matched the rule's
+// host+path. Values (headers, body text) are never included — only shapes and
+// counts — so it stays safe to persist in the diagnostic artifact.
+export interface NativeCaptureIgnoredRequestDetail {
+  readonly bodyBytes: number;
+  readonly hasContentLength: boolean;
+  readonly probeMatched: boolean;
+  readonly toolCount: number;
+  readonly topLevelKeys: readonly string[];
+}
+
 export type NativeCaptureProxyEvent =
   | { readonly target: string; readonly type: "proxy_connect" }
   | {
+      readonly detail?: NativeCaptureIgnoredRequestDetail;
       readonly reason: string;
       readonly target: string;
       readonly type: "request_ignored";
@@ -197,7 +209,7 @@ export class NativeRequestCaptureProxy {
       }
       const mismatch = resolveRuleMismatch(parsed, rule);
       if (mismatch) {
-        this.emitIgnored(target, mismatch);
+        this.emitIgnored(target, mismatch.reason, mismatch.detail);
         tlsSocket.end();
         return;
       }
@@ -261,8 +273,16 @@ export class NativeRequestCaptureProxy {
     this.options.onEvent?.(event);
   }
 
-  private emitIgnored(target: string, reason: string): void {
-    this.emit({ type: "request_ignored", target, reason });
+  private emitIgnored(
+    target: string,
+    reason: string,
+    detail?: NativeCaptureIgnoredRequestDetail
+  ): void {
+    this.emit(
+      detail
+        ? { type: "request_ignored", target, reason, detail }
+        : { type: "request_ignored", target, reason }
+    );
   }
 
   private findConnectRule(target: string): NativeCaptureTargetRule | null {
@@ -370,28 +390,60 @@ function parseBody(bodyText: string): unknown {
   }
 }
 
+interface RuleMismatch {
+  readonly detail?: NativeCaptureIgnoredRequestDetail;
+  readonly reason: string;
+}
+
 function resolveRuleMismatch(
   request: ParsedHttpRequest,
   rule: NativeCaptureTargetRule
-): string | null {
+): RuleMismatch | null {
   if (rule.pathIncludes && !request.path.includes(rule.pathIncludes)) {
-    return "request_path_not_matched";
+    return { reason: "request_path_not_matched" };
   }
+  // Host+path matched: any body rejection from here carries a diagnostic
+  // detail so the artifact shows why the target request was not captured.
   if (rule.bodyIncludes && !request.bodyText.includes(rule.bodyIncludes)) {
-    return "request_body_not_matched";
+    return {
+      reason: "request_body_not_matched",
+      detail: buildIgnoredRequestDetail(request, rule),
+    };
   }
   if (
     typeof rule.minimumToolCount === "number" &&
     countRequestTools(request.body) < rule.minimumToolCount
   ) {
-    return "request_body_not_matched";
+    return {
+      reason: "request_body_not_matched",
+      detail: buildIgnoredRequestDetail(request, rule),
+    };
   }
   return null;
+}
+
+function buildIgnoredRequestDetail(
+  request: ParsedHttpRequest,
+  rule: NativeCaptureTargetRule
+): NativeCaptureIgnoredRequestDetail {
+  return {
+    bodyBytes: Buffer.byteLength(request.bodyText, "utf8"),
+    hasContentLength: "content-length" in request.headers,
+    probeMatched: rule.bodyIncludes
+      ? request.bodyText.includes(rule.bodyIncludes)
+      : true,
+    toolCount: countRequestTools(request.body),
+    topLevelKeys: isJsonObject(request.body) ? Object.keys(request.body) : [],
+  };
 }
 
 function countRequestTools(body: unknown): number {
   const tools = (body as { readonly tools?: unknown } | null)?.tools;
   return Array.isArray(tools) ? tools.length : 0;
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function buildCapturedResponse(): string {

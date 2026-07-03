@@ -245,6 +245,13 @@ try {
       event.reason === "request_body_not_matched"
   );
   assert.ok(bodyIgnored, "expected the prewarm request to be ignored");
+  // The ignored matched-path request carries structural diagnostics (no
+  // header/body values) so the artifact shows why it was rejected.
+  assert.ok(bodyIgnored.detail, "expected diagnostic detail on the ignore");
+  assert.equal(bodyIgnored.detail.probeMatched, false);
+  assert.equal(bodyIgnored.detail.hasContentLength, true);
+  assert.ok(bodyIgnored.detail.bodyBytes > 0);
+  assert.deepEqual(bodyIgnored.detail.topLevelKeys, ["model", "input"]);
 
   console.log("capture-proxy tests: OK");
 } finally {

@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6.stream1.task9",
+  "expectedCommitMessage": "fix(capture-orchestrator): match codex probe by prompt only",
   "debt": null
 }
 ```
@@ -176,7 +176,32 @@
 52. [DONE] Git Commit: `fix(capture-artifacts): redact account id headers` (hash: self)
 53. [DONE] `harness-ai.phase6.stream1.task7` Package the app with the capture transport/filter/redaction fixes for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex capture transport fix`) Result: Completed in commit `chore(package): rebuild packaged app with codex capture transport fix`.
 54. [DONE] Git Commit: `chore(package): rebuild packaged app with codex capture transport fix` (hash: self)
-55. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+> Discovery (2026-07-03, second Codex capture — `target_not_seen`): the
+> `codex:native-capture` HTTP transport worked (proxy now sees path-level
+> requests, not a bodiless WS upgrade), and the probe turn reached
+> `chatgpt.com/backend-api/codex/responses` — the artifact shows `3×
+> request_body_not_matched` on that endpoint (Codex retries after the proxy
+> ends each rejected connection) plus background `request_path_not_matched`.
+> So the probe request arrives WITH a body but the Codex body rule rejects it.
+> The combined `request_body_not_matched` reason hides which check failed
+> (`minimumToolCount: 1` vs `bodyIncludes`) and rejected bodies are not
+> written, so the exact cause is invisible. The system prompt still lands in
+> the rollout `base_instructions` (21335 chars); only the tool schemas (body
+> only) are missing. Fix chosen with the user: drop the `minimumToolCount`
+> AND-condition (suspected false reject — Codex Responses API likely nests
+> tools outside top-level `body.tools`), keeping the specific `bodyIncludes`
+> probe matcher; and record a safe diagnostic detail on body-rejected
+> matched-path requests so the true cause is visible next time. Plan state
+> repair note: the open user-capture task `task2` returned to [TODO] below and
+> the fix tasks were inserted before it.
+
+55. [DONE] `harness-ai.phase6.stream1.task8` Diagnose body-rejected target requests in the capture proxy: when a request matches the rule host+path but fails the body checks, attach a safe `detail` to the `request_ignored` event (`bodyBytes`, `hasContentLength`, `probeMatched`, `toolCount`, `topLevelKeys` — structural metadata only, never header/body values) so the artifact's `capture_proxy_event` records reveal why the Codex probe body was rejected (chunked/no-content-length empty body vs tool-count vs probe text), with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, plus capture-proxy module.md`; expected commit: `feat(capture-proxy): diagnose body-rejected target requests`) Result: Completed in commit `feat(capture-proxy): diagnose body-rejected target requests`.
+56. [DONE] Git Commit: `feat(capture-proxy): diagnose body-rejected target requests` (hash: self)
+57. [IN_PROGRESS] `harness-ai.phase6.stream1.task9` Relax the Codex capture body filter to the probe matcher only: drop `minimumToolCount: 1` from the Codex default target rule (Codex Responses API nests tools outside top-level `body.tools`, so requiring it falsely rejected the probe turn) and keep `bodyIncludes` (the diagnostic probe prompt) as the sole body discriminator against background prewarm turns, updating the orchestrator unit test accordingly (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, plus capture-orchestrator module.md`; expected commit: `fix(capture-orchestrator): match codex probe by prompt only`)
+58. [TODO] Git Commit: `fix(capture-orchestrator): match codex probe by prompt only` (hash: TBD)
+59. [TODO] `harness-ai.phase6.stream1.task10` Package the app with the Codex body-filter fix and proxy diagnostics for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-codex-filter.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex body-filter fix`)
+60. [TODO] Git Commit: `chore(package): rebuild packaged app with codex body-filter fix` (hash: TBD)
+61. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

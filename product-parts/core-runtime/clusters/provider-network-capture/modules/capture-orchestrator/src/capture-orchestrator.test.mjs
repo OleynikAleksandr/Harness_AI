@@ -57,17 +57,13 @@ try {
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].host, "chatgpt.com");
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.kimi[0].host, "api.moonshot.ai");
 
-  // The Codex rule filters background prewarm turns that share the endpoint by
-  // the probe prompt only; minimumToolCount is intentionally absent because the
-  // Codex Responses API nests tools outside the counted top-level `body.tools`.
+  // The Codex rule is host+path only: the WebSocket upgrade on that path is
+  // routed to the WS capture, so no HTTP-body matcher (bodyIncludes) applies.
   assert.equal(
-    DEFAULT_CAPTURE_TARGET_RULES.codex[0].minimumToolCount,
-    undefined
+    DEFAULT_CAPTURE_TARGET_RULES.codex[0].pathIncludes,
+    "/backend-api/codex/responses"
   );
-  assert.match(
-    DEFAULT_CAPTURE_TARGET_RULES.codex[0].bodyIncludes,
-    /capture probe/u
-  );
+  assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].bodyIncludes, undefined);
 
   const fakeCertStore = {
     prepareHostCredentials: () =>

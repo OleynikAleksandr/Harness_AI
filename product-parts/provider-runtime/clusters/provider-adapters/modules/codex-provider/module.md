@@ -68,19 +68,19 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
   long-lived app-server env is never mutated) and captures the vendor-default
   request — no Harness workflow `baseInstructions`/`config` injection — so the
   captured request is Codex's native instructions and tool set. The temporary
-  app-server runs the `codex:native-capture` process profile, which disables
-  the experimental `responses_websockets`/`responses_websockets_v2` transport
-  (`--disable <feature>`): with websockets on, the request payload travels in
-  WS frames after the upgrade handshake and the HTTP-only capture-and-abort
-  proxy would record a bodiless `GET` upgrade instead of the full `POST` body.
-  It injects the diagnostic proxy env (`HTTPS_PROXY`/`ALL_PROXY` +
+  app-server runs the default process profile. Codex 0.142.x forces the
+  WebSocket responses transport and it cannot be disabled
+  (`--disable responses_websockets` no longer switches it; the earlier
+  `codex:native-capture` profile was removed), so the forward-transit capture
+  proxy completes the WebSocket upgrade with the vendor and decodes the request
+  from the `response.create` frame (`docs/architecture/SessionProfilesV2.md`,
+  decision 5). It injects the diagnostic proxy env (`HTTPS_PROXY`/`ALL_PROXY` +
   `NODE_EXTRA_CA_CERTS`/`SSL_CERT_FILE`/`REQUESTS_CA_BUNDLE`), records the
   applied-input-envelope and app-server diagnostic context, and stops the
   temporary process afterward. The managed-vs-vanilla comparison and the
   translation-capture scenario were removed (with the now-dead
   `codex-workflow-instruction-profile.ts` and
-  `codex-native-translation-capture-profile.ts`); only recording remains
-  (`docs/architecture/SessionProfilesV2.md`, decision 5).
+  `codex-native-translation-capture-profile.ts`); only recording remains.
 
 ## Owned Paths
 

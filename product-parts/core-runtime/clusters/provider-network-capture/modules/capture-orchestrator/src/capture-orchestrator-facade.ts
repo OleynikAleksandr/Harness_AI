@@ -32,18 +32,14 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
       minimumToolCount: 1,
     },
   ],
-  // Codex 0.142.x posts many requests to the same `/responses` endpoint —
-  // background `memory_consolidation` prewarm turns share the URL with the
-  // probe. `bodyIncludes` (the probe prompt lives in the turn input) keeps the
-  // capture waiting for the real probe request. No `minimumToolCount`: the
-  // Codex Responses API nests the tool set outside the top-level `body.tools`
-  // this proxy counts, so requiring it falsely rejected the probe turn.
+  // Codex 0.142.x uses a WebSocket transport for `/responses` (see
+  // SessionProfilesV2 decision 5). The proxy routes the upgrade on this path to
+  // its WS capture and decodes the `response.create` frame — the request
+  // payload is in the frame, not an HTTP body, so no `bodyIncludes` here. The
+  // first `response.create` frame carries the native system prompt + tools even
+  // for a background prewarm turn, which is exactly the reference we want.
   codex: [
-    {
-      host: "chatgpt.com",
-      pathIncludes: "/backend-api/codex/responses",
-      bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
-    },
+    { host: "chatgpt.com", pathIncludes: "/backend-api/codex/responses" },
   ],
   kimi: [{ host: "api.moonshot.ai", pathIncludes: "/v1/chat/completions" }],
 };

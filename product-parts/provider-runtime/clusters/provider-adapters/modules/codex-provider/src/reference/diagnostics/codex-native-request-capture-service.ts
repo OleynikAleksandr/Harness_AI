@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { buildCodexReasoningSummaryParams } from "../app-server/codex-reasoning-summary-params.js";
 import { CodexAppServerProcess } from "../app-server/process/codex-app-server-process.js";
 import {
-  CODEX_NATIVE_CAPTURE_PROCESS_PROFILE_KEY,
+  CODEX_DEFAULT_PROCESS_PROFILE_KEY,
   type CodexAppServerProcessProfileKey,
 } from "../app-server/process/codex-app-server-process-profile.js";
 import type {
@@ -80,9 +80,9 @@ interface CodexDiagnosticThread {
 // and captures the vendor-default request (no Harness workflow baseInstructions
 // or config injection). The managed-vs-vanilla comparison and the translation
 // scenario were removed; only recording remains. The app-server runs the
-// `codex:native-capture` process profile, which disables the websocket
-// responses transport so the request body stays visible to the HTTP-only
-// capture proxy.
+// default process profile — Codex 0.142.x forces the WebSocket responses
+// transport (it cannot be disabled), and the forward-transit capture proxy
+// decodes the request from the WebSocket frame.
 export class CodexNativeRequestCaptureService {
   readonly #processFactory: CodexProcessFactory;
   readonly #reporter?: ModuleReporter;
@@ -111,7 +111,7 @@ export class CodexNativeRequestCaptureService {
   async captureNativeRequest(
     options: CodexNativeRequestCaptureOptions
   ): Promise<void> {
-    const processProfileKey = CODEX_NATIVE_CAPTURE_PROCESS_PROFILE_KEY;
+    const processProfileKey = CODEX_DEFAULT_PROCESS_PROFILE_KEY;
     const process = this.#processFactory({
       environment: this.#buildEnvironment(options),
       processProfileKey,

@@ -34,12 +34,11 @@ injection (pointing a provider client at the local proxy) is passed in as a
 - `DEFAULT_CAPTURE_TARGET_RULES`: per-provider target model endpoints
   (Claude `api.anthropic.com` `/v1/messages`, Codex `chatgpt.com`
   `/backend-api/codex/responses` — used by the Claude/Codex proxy path). The
-  Codex rule adds `bodyIncludes` (the diagnostic probe prompt) because Codex
-  fires background `memory_consolidation` prewarm turns to the same endpoint;
-  without it the capture would record a prewarm request instead of the probe.
-  It intentionally omits `minimumToolCount`: the Codex Responses API nests the
-  tool set outside the top-level `body.tools` the proxy counts, so requiring it
-  falsely rejected the probe turn.
+  Codex rule is host+path only: Codex uses a WebSocket transport for
+  `/responses`, so the proxy routes the upgrade on that path to its WS capture
+  and decodes the `response.create` frame (the payload is in the frame, not an
+  HTTP body). The first `response.create` frame carries the native system
+  prompt + tools even for a background prewarm turn.
 - `ProviderCaptureContext`: what the orchestrator hands the adapter callback.
   Its shape matches the provider adapter contract's
   `ProviderNativeCaptureOptions` so the RPC callback is

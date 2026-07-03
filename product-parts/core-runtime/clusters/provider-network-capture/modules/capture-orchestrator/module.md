@@ -33,12 +33,15 @@ injection (pointing a provider client at the local proxy) is passed in as a
 
 - `DEFAULT_CAPTURE_TARGET_RULES`: per-provider target model endpoints
   (Claude `api.anthropic.com` `/v1/messages`, Codex `chatgpt.com`
-  `/backend-api/codex/responses` — used by the Claude/Codex proxy path). The
-  Codex rule is host+path only: Codex uses a WebSocket transport for
-  `/responses`, so the proxy routes the upgrade on that path to its WS capture
-  and decodes the `response.create` frame (the payload is in the frame, not an
-  HTTP body). The first `response.create` frame carries the native system
-  prompt + tools even for a background prewarm turn.
+  `/backend-api/codex/responses`, Kimi `api.kimi.com` `/chat/completions`).
+  Codex uses a WebSocket transport for `/responses`, so the proxy routes the
+  upgrade on that path to its WS capture and decodes the `response.create`
+  frame (the payload is in the frame, not an HTTP body). The Codex rule carries
+  `bodyIncludes` (the probe prompt) AND `minimumToolCount: 1`: the background
+  memory-consolidation prewarm consolidates our probe session so it also
+  contains the probe text, and only its empty `tools` array distinguishes it
+  from the probe turn (full native tool set) — the tool-count filter selects
+  our turn's frame.
 - `ProviderCaptureContext`: what the orchestrator hands the adapter callback.
   Its shape matches the provider adapter contract's
   `ProviderNativeCaptureOptions` so the RPC callback is

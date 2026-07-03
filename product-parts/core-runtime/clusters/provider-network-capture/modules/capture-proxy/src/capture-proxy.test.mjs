@@ -253,12 +253,15 @@ try {
 
   // Case 3: a WebSocket upgrade on the target path is completed with the
   // upstream (deflate stripped). Codex reuses one connection for a prewarm
-  // frame plus the real turn, so the proxy must decode both and capture the
-  // frame carrying the probe prompt (our turn), not the first prewarm frame.
+  // frame plus the real turn. The memory-consolidation prewarm consolidates
+  // OUR probe session, so it ALSO contains the probe text — only its empty
+  // `tools` array distinguishes it. `minimumToolCount: 1` selects the probe
+  // turn (full tool set), not the first prewarm frame.
   const wsRule = {
     host: "api.anthropic.com",
     pathIncludes: "/v1/messages",
     bodyIncludes: "Harness AI capture probe",
+    minimumToolCount: 1,
   };
   const wsProxy = buildProxy(wsRule);
   const wsHandle = await wsProxy.start();
@@ -278,12 +281,16 @@ try {
   );
   // Send the request frames once the upstream 101 has been relayed back.
   await new Promise((resolve) => wsClient.once("data", resolve));
+  // The prewarm frame CONTAINS the probe text (it consolidates our session)
+  // but has no tools — it must be skipped by the tool-count filter.
   const prewarmFrame = JSON.stringify({
     type: "response.create",
-    model: "gpt-5.4",
-    instructions: "PREWARM",
-    tools: [{ name: "exec_command" }],
-    input: [{ type: "text", text: "memory consolidation" }],
+    model: "gpt-5.4-mini",
+    instructions: "Memory Writing Agent",
+    tools: [],
+    input: [
+      { type: "text", text: "Harness AI capture probe turn (consolidated)" },
+    ],
   });
   const probeFrame = JSON.stringify({
     type: "response.create",

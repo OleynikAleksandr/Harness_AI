@@ -36,15 +36,18 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
   // Codex 0.142.x uses a WebSocket transport for `/responses` (see
   // SessionProfilesV2 decision 5). The proxy routes the upgrade on this path to
   // its WS capture and decodes the `response.create` frame. Codex reuses one WS
-  // connection for background `memory_consolidation` prewarm turns (trimmed
-  // tool set, sometimes a different model) plus the real turn, so `bodyIncludes`
-  // (the probe prompt) selects OUR turn's frame — the one with the full native
-  // tool set — rather than the first prewarm frame.
+  // connection for background `memory_consolidation` prewarm turns plus the
+  // real turn. `bodyIncludes` (the probe prompt) alone is NOT enough: the
+  // memory-consolidation turn consolidates our probe session, so the probe
+  // text leaks into its `input` too — `minimumToolCount: 1` disambiguates
+  // (the prewarm frame has `tools: []`, the probe turn carries the full native
+  // tool set), so the WS capture selects OUR turn's frame.
   codex: [
     {
       host: "chatgpt.com",
       pathIncludes: "/backend-api/codex/responses",
       bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
+      minimumToolCount: 1,
     },
   ],
   // Kimi ignores proxy env, so its capture runs through the reverse bridge

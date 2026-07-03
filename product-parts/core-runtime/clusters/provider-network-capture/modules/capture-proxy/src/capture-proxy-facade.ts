@@ -281,6 +281,7 @@ export class NativeRequestCaptureProxy {
             clientSocket: tlsSocket,
             frameIncludes: rule.bodyIncludes,
             headText,
+            minimumTools: rule.minimumToolCount,
             now: () => new Date().toISOString(),
             onCapture: (request) => this.completeCaptured(request),
             target,

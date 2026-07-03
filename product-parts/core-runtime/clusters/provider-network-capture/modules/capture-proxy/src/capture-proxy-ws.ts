@@ -116,11 +116,22 @@ function safeJson(text: string): unknown {
   }
 }
 
+// Top-level `tools` count of a decoded `response.create` frame (0 for a
+// memory-consolidation prewarm, the full native set for the probe turn).
+function countFrameTools(body: unknown): number {
+  if (typeof body !== "object" || body === null) {
+    return 0;
+  }
+  const tools = (body as { readonly tools?: unknown }).tools;
+  return Array.isArray(tools) ? tools.length : 0;
+}
+
 export interface WebSocketCaptureParams {
   readonly afterHead: Buffer;
   readonly clientSocket: net.Socket;
   readonly frameIncludes?: string;
   readonly headText: string;
+  readonly minimumTools?: number;
   readonly now: () => string;
   readonly onCapture: (request: CapturedNativeRequest) => void;
   readonly target: string;
@@ -130,10 +141,14 @@ export interface WebSocketCaptureParams {
 // Completes the WS upgrade with the real upstream (deflate stripped), relays
 // client->server bytes, and captures the request frame. Codex reuses one WS
 // connection for several `response.create` frames (background prewarm turns
-// plus the real turn), so every complete frame is decoded and the one whose
-// payload contains `frameIncludes` (the probe prompt — our turn, with the full
-// native tool set) is captured; without a filter the first data frame is taken.
-// Upstream->client relay is owned by the caller.
+// plus the real turn), so every complete frame is decoded and the one that
+// passes the filters is captured; without any filter the first data frame is
+// taken. `frameIncludes` requires the probe prompt in the payload, but the
+// background `memory_consolidation` turn consolidates OUR probe session, so
+// the probe text also leaks into its `input` — `minimumTools` disambiguates:
+// the probe turn carries the full native `tools` array (17) while the
+// memory-consolidation frame has `tools: []`. Upstream->client relay is owned
+// by the caller.
 export function runWebSocketCapture(params: WebSocketCaptureParams): void {
   params.upstream.write(`${stripDeflateExtension(params.headText)}${HEAD_END}`);
   let buffer = Buffer.alloc(0);
@@ -159,9 +174,16 @@ export function runWebSocketCapture(params: WebSocketCaptureParams): void {
       if (params.frameIncludes && !text.includes(params.frameIncludes)) {
         continue;
       }
+      const parsed = safeJson(text);
+      if (
+        typeof params.minimumTools === "number" &&
+        countFrameTools(parsed) < params.minimumTools
+      ) {
+        continue;
+      }
       captured = true;
       params.onCapture({
-        body: safeJson(text),
+        body: parsed,
         bodyText: text,
         headers: parseHeadHeaders(params.headText),
         method: "WS",

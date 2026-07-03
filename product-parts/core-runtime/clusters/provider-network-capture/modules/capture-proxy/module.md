@@ -57,11 +57,16 @@ HTTP reader for clients that ignore proxy env.
   `Sec-WebSocket-Extensions` stripped (no permessage-deflate → plain frames).
   Codex reuses one WS connection for several `response.create` frames
   (background `memory_consolidation` prewarm turns plus the real turn), so every
-  complete frame is decoded and the one whose payload contains the rule's
-  `bodyIncludes` probe prompt is captured (`method: "WS"`, its payload is the
-  Codex `response.create` body with the full native tool set); the others are
-  forwarded. Without `bodyIncludes` the first data frame is taken. This is how
-  Codex's mandatory WebSocket transport is captured.
+  complete frame is decoded and the one that passes the filters is captured
+  (`method: "WS"`, its payload is the Codex `response.create` body with the
+  full native tool set); the others are forwarded. The rule's `bodyIncludes`
+  requires the probe prompt in the frame, and `minimumToolCount` (threaded from
+  the rule as `minimumTools`) requires that many top-level `tools` — needed
+  because the memory-consolidation prewarm consolidates our probe session, so
+  the probe text also leaks into its `input`; only its empty `tools` array
+  distinguishes it from the probe turn (17 tools). Without any filter the first
+  data frame is taken. This is how Codex's mandatory WebSocket transport is
+  captured.
 - A request that matched the rule host+path but was rejected on the body
   carries a `detail` on its `request_ignored` event
   (`NativeCaptureIgnoredRequestDetail`: `bodyBytes`, `hasContentLength`,

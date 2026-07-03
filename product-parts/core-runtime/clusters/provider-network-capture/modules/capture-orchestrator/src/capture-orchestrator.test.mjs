@@ -77,6 +77,9 @@ try {
     DEFAULT_CAPTURE_TARGET_RULES.codex[0].bodyIncludes,
     /capture probe/u
   );
+  // The probe/prewarm both carry the probe text; the tool-count filter selects
+  // the probe turn's frame (the memory-consolidation prewarm has no tools).
+  assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].minimumToolCount, 1);
 
   const fakeCertStore = {
     prepareHostCredentials: () =>

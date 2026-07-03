@@ -15,8 +15,10 @@ const DEFAULT_HTTPS_PORT = 443;
 const DECIMAL_RADIX = 10;
 
 // A target model endpoint to capture; background traffic (Datadog, GitHub,
-// auth checks) that does not match every set field is ignored, not captured.
+// auth checks, prewarm turns on the same endpoint) that does not match every
+// set field is ignored, not captured — the proxy keeps waiting.
 export interface NativeCaptureTargetRule {
+  readonly bodyIncludes?: string;
   readonly host: string;
   readonly minimumToolCount?: number;
   readonly pathIncludes?: string;
@@ -374,6 +376,9 @@ function resolveRuleMismatch(
 ): string | null {
   if (rule.pathIncludes && !request.path.includes(rule.pathIncludes)) {
     return "request_path_not_matched";
+  }
+  if (rule.bodyIncludes && !request.bodyText.includes(rule.bodyIncludes)) {
+    return "request_body_not_matched";
   }
   if (
     typeof rule.minimumToolCount === "number" &&

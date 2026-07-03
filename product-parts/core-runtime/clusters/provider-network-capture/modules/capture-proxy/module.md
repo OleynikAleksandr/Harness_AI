@@ -19,7 +19,7 @@ without the WebSocket transport (HTTP/SSE capture only for the MVP).
 ## Inputs
 
 - `NativeCaptureProxyOptions`: provider id, target rules
-  (`{ host, port?, pathIncludes?, minimumToolCount? }`), a
+  (`{ host, port?, pathIncludes?, bodyIncludes?, minimumToolCount? }`), a
   `resolveTlsCredentials({ hostname })` callback (from the certificate
   store), an optional `onEvent` observer, and an optional `timeoutMs`
   (default 30s).
@@ -32,8 +32,10 @@ without the WebSocket transport (HTTP/SSE capture only for the MVP).
   or `failed`/`timeout` with a reason), and `stop()`.
 - Only CONNECT targets matching a rule get TLS terminated; non-target
   CONNECTs and requests that fail the rule's `pathIncludes` /
-  `minimumToolCount` are answered with a local 502 and emitted as
-  `request_ignored`. The matched request is answered with a synthetic 502
+  `bodyIncludes` / `minimumToolCount` are answered with a local 502 (or a
+  closed connection) and emitted as `request_ignored` while the capture
+  keeps waiting — background prewarm turns on the target endpoint do not
+  end the capture. The matched request is answered with a synthetic 502
   ("Native Request Captured") and never proxied to the vendor.
 - The proxy hands the raw captured request (including headers) to the
   caller; credential redaction happens in the artifact writer, not here.

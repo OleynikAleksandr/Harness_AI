@@ -161,6 +161,91 @@ try {
   // The proxy hands the raw request to the writer; redaction happens there.
   assert.equal(result.request.headers.authorization, "Bearer sk-secret");
 
+  // Case 3: bodyIncludes ignores a non-probe request (background prewarm on
+  // the same endpoint) without ending the capture, then records the request
+  // that carries the probe text.
+  async function openTlsTunnel(proxyHandle) {
+    const tunnelSocket = net.connect(proxyHandle.port, "127.0.0.1");
+    await new Promise((resolve, reject) => {
+      tunnelSocket.once("error", reject);
+      tunnelSocket.write(
+        "CONNECT api.anthropic.com:443 HTTP/1.1\r\nHost: api.anthropic.com:443\r\n\r\n"
+      );
+      tunnelSocket.once("data", (chunk) => {
+        assert.match(chunk.toString("utf8"), CONNECTION_ESTABLISHED_PATTERN);
+        resolve();
+      });
+    });
+    const secureSocket = tls.connect({
+      socket: tunnelSocket,
+      servername: "api.anthropic.com",
+      rejectUnauthorized: false,
+    });
+    await new Promise((resolve, reject) => {
+      secureSocket.once("secureConnect", resolve);
+      secureSocket.once("error", reject);
+    });
+    return secureSocket;
+  }
+
+  function writeJsonPost(socket, payload) {
+    const body = JSON.stringify(payload);
+    socket.write(
+      [
+        "POST /v1/messages HTTP/1.1",
+        "Host: api.anthropic.com",
+        "Content-Type: application/json",
+        `Content-Length: ${Buffer.byteLength(body)}`,
+        "",
+        body,
+      ].join("\r\n")
+    );
+  }
+
+  const probeEvents = [];
+  const probeProxy = new NativeRequestCaptureProxy({
+    providerId: "codex",
+    targetRules: [
+      {
+        host: "api.anthropic.com",
+        pathIncludes: "/v1/messages",
+        bodyIncludes: "Harness AI capture probe",
+      },
+    ],
+    timeoutMs: 5000,
+    onEvent: (event) => probeEvents.push(event),
+    resolveTlsCredentials: () => credentials,
+  });
+  const probeHandle = await probeProxy.start();
+
+  const prewarmSocket = await openTlsTunnel(probeHandle);
+  writeJsonPost(prewarmSocket, {
+    model: "gpt-5.5",
+    input: [{ type: "text", text: "background prewarm turn" }],
+  });
+  await new Promise((resolve) => prewarmSocket.once("close", resolve));
+
+  const probeSocket = await openTlsTunnel(probeHandle);
+  writeJsonPost(probeSocket, {
+    model: "gpt-5.5",
+    instructions: "You are Codex.",
+    tools: [{ name: "shell" }],
+    input: [{ type: "text", text: "Harness AI capture probe turn" }],
+  });
+  const probeResult = await probeHandle.waitForCapture();
+  await probeHandle.stop();
+  prewarmSocket.destroy();
+  probeSocket.destroy();
+
+  assert.equal(probeResult.status, "captured");
+  assert.equal(probeResult.request.body.instructions, "You are Codex.");
+  const bodyIgnored = probeEvents.find(
+    (event) =>
+      event.type === "request_ignored" &&
+      event.reason === "request_body_not_matched"
+  );
+  assert.ok(bodyIgnored, "expected the prewarm request to be ignored");
+
   console.log("capture-proxy tests: OK");
 } finally {
   await rm(buildDir, { force: true, recursive: true });

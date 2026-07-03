@@ -220,6 +220,27 @@
   дублируется в rollout-логе (`base_instructions`) как diagnostic context, но
   схемы инструментов существуют только в теле запроса — без чтения WS-фрейма
   пара неполна.
+- **Codex: слои инструментов (что реально попадает в эталон)** (эмпирически
+  2026-07-03): нативный **inline-набор в `response.create` — 17 инструментов**
+  (`exec_command`, `write_stdin`, `list_mcp_resources`,
+  `list_mcp_resource_templates`, `read_mcp_resource`, `update_plan`,
+  `request_user_input`, `list_available_plugins_to_install`,
+  `request_plugin_install`, `apply_patch`, `view_image`, `get_goal`,
+  `create_goal`, `update_goal`, `tool_search`, `web_search`,
+  `image_generation`). Это полный inline-контракт запроса — то, что модель
+  получает в системном запросе. **Feature-флаги app-server НЕ добавляют
+  инструменты**: включение `--enable browser_use/computer_use/in_app_browser/
+  apps/multi_agent/memory_tool` оставляет тот же набор из 17. Инструменты
+  `browser_use`/`computer_use` и tools MCP-серверов (playwright, node_repl/
+  cua_node из `config.toml`) живут в **отдельном слое**: они приходят от
+  MCP-серверов (медленный старт, у `node_repl` `startup_timeout_sec = 120`)
+  и грузятся **отложенно** (`AlwaysDeferMcpTools`) через `tool_search`, а не
+  объявляются inline в `/responses`. Схемы этих отложенных/MCP-инструментов —
+  это отдельная механика захвата (перехват `tools/list` MCP-серверов или
+  `tool_search` выдачи), не `response.create` фрейм. Для эталона профилей
+  базовый inline-набор из 17 достаточен; deferred/MCP слой — опциональное
+  расширение, если понадобятся его схемы. У Codex НЕТ инструмента `WebFetch`
+  (это инструмент Claude-стека); веб у Codex — `web_search` (в inline-наборе).
 - **Артефакты**: пары `<timestamp>-<provider>-native-request.{jsonl,md}`
   в Harness home logs; JSONL с записями `request_captured` /
   `section_extract` (system, tools, messages), markdown — читаемый дамп с

@@ -162,6 +162,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   tools are a deferred layer) and puts the selected model id in the artifact
   filenames (`<timestamp>-<provider>-<model>-native-request.{jsonl,md}`), ahead
   of the Claude/Kimi re-capture on the forward build.
+- `docs/evidence/provider-network-capture-package-2026-07-03-claude-preset.md`
+  — seventh 2026-07-03 packaged rebuild: the Claude capture recorded only the
+  minimal Agent SDK default (9 tools, 146-char system) instead of the full
+  Claude Code CLI; the capture service now applies the same claude_code presets
+  as the live Native adapter (`applyClaudeSessionProfile`, kind native), ahead
+  of the user re-capturing the Claude native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

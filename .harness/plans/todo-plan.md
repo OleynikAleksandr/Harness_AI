@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6b.stream1.task26",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with claude native preset capture",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -39,6 +39,61 @@
 - Keep the context pack short. Use `docs/DOCUMENTATION_INDEX.md` to choose the
   few documents relevant to this scope; do not paste a full Markdown inventory
   into every plan.
+
+## Capture Investigation Recovery Summary (Phase 6.5, updated 2026-07-03)
+
+Zero-context recovery: read this section + the Phase 6.5 `> Discovery` notes +
+`docs/architecture/SessionProfilesV2.md` decision 5. Feature = Provider Native
+Request Capture: capture each vendor's real native request (system prompt + tool
+schemas) as a reference dump for building session profiles (Phase R input).
+Core cluster `core-runtime/.../provider-network-capture` (capture-artifacts,
+capture-certificates, capture-proxy, capture-orchestrator); provider capture
+services under each adapter's `diagnostics/`. Artifacts:
+`~/.harness-ai/logs/native-request-capture/<ts>-<provider>-<model>-native-request.{jsonl,md}`.
+
+ARCHITECTURE (pivoted 2026-07-03): the proxy is **forward transit**, NOT
+capture-and-abort. It MITM-terminates TLS for a target host, forwards the
+request to the real vendor, relays the response, and captures the first request
+matching a target rule; non-target hosts are blind TCP tunnels. Forces
+`ALPNProtocols: ['http/1.1']`. The request DOES reach the vendor (accepted
+trade-off). `capture-proxy` module = facade + `capture-proxy-http.ts` (HTTP
+request reader incl. chunked) + `capture-proxy-ws.ts` (WS upgrade forward +
+masked-frame decode). Why the pivot: Codex 0.142.5 forces an un-disableable
+WebSocket transport for `/responses` (`--disable responses_websockets` is dead;
+`-c model_providers.openai.supports_websockets=false` rejected — `openai` is a
+reserved built-in), so the payload only exists in WS frames after a real
+upgrade — abort could never see it. claude-tap has NO native WS capture (their
+TODO); its forward model is the reference, the `Sec-WebSocket-Extensions`
+deflate-strip trick (→ plain frames) is ours.
+
+PER-PROVIDER FINDINGS:
+- **Codex** (WS transport). Confirmed working (dump 11-22-00): forward the WS
+  upgrade, strip `Sec-WebSocket-Extensions`, decode EVERY frame on the reused
+  connection, capture the one whose payload contains the probe prompt
+  (`bodyIncludes` on the Codex rule) — NOT the first frame, which is a
+  `memory_consolidation` prewarm (gpt-5.4, 8 trimmed tools). The probe turn is
+  gpt-5.5 with the full 17-tool inline set. Codex tool LAYERS: 17 inline tools
+  in `response.create` is the full inline contract; app-server feature flags
+  (`--enable browser_use/...`) add NO tools; browser/computer/MCP tools are a
+  deferred layer (`tool_search` + `AlwaysDeferMcpTools`, MCP servers start slow)
+  outside `/responses`. Codex has NO `WebFetch`; web = `web_search`.
+- **Claude** (HTTP POST `/v1/messages`). Fix committed `bebb359f`: capture must
+  apply the SAME Native profile the live adapter sends — the claude_code presets
+  via `applyClaudeSessionProfile(queryOptions, {kind:"native"})`
+  (`systemPrompt`/`tools` = `{type:"preset", preset:"claude_code"}`,
+  `settingSources: ["user","project","local"]`). Without it the SDK sends its
+  minimal default (9 tools, 146-char system, `cc_entrypoint=sdk-ts`), which is
+  NOT the Claude Code CLI reference. Our Claude adapter uses `@anthropic-ai/
+  claude-agent-sdk`, not the `claude` CLI; Native = full Claude Code CLI. NOT
+  yet re-captured on this build.
+- **Kimi** (wire-only, no proxy). Orchestrator `captureWireOnly` branch. NOT yet
+  re-captured on the forward build.
+
+STATE: Codex pair complete. Claude fix packaged (app.asar 16:14, task26) but
+NOT re-captured; Kimi NOT re-captured. task2 stays open until the user confirms
+all three native pairs. Do NOT close scope (user-directed only). Diagnostic
+scripts in the session scratchpad (`diag-codex*.mjs`, `diag-ws-*.mjs`) are the
+reusable proof method (spin our proxy + real vendor CLI, log ALPN/frames).
 
 ## Execution Rules
 
@@ -314,9 +369,9 @@
 
 88. [DONE] `harness-ai.phase6b.stream1.task25` Capture the native Claude Code CLI reference instead of the minimal Agent SDK default: apply the live Native profile's claude_code presets in the Claude capture service — reuse `applyClaudeSessionProfile({...}, {kind:"native"})` (or set `systemPrompt`/`tools` to `{type:"preset", preset:"claude_code"}` and `settingSources` to `["user","project","local"]`) in `buildQueryOptions` so the captured request is the full Claude Code system prompt + native tool set (WebFetch, WebSearch, Glob, Grep, TodoWrite, ...), matching what the Native profile sends live; update the service comment and module.md (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-native-request-capture-service.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, docs/architecture/SessionProfilesV2.md`; expected commit: `fix(claude-provider): capture the native claude_code preset request`) Result: Completed in commit `fix(claude-provider): capture the native claude_code preset request`.
 89. [DONE] Git Commit: `fix(claude-provider): capture the native claude_code preset request` (hash: self)
-90. [IN_PROGRESS] `harness-ai.phase6b.stream1.task26` Package the app with the Claude native-preset capture fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-claude-preset.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with claude native preset capture`)
-91. [TODO] Git Commit: `chore(package): rebuild packaged app with claude native preset capture` (hash: TBD)
-92. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+90. [DONE] `harness-ai.phase6b.stream1.task26` Package the app with the Claude native-preset capture fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-claude-preset.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with claude native preset capture`) Result: Completed in commit `chore(package): rebuild packaged app with claude native preset capture`.
+91. [DONE] Git Commit: `chore(package): rebuild packaged app with claude native preset capture` (hash: self)
+92. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

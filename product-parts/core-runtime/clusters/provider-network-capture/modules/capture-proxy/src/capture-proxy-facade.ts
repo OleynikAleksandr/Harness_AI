@@ -7,9 +7,12 @@ import type {
   NativeCaptureProviderId,
 } from "../../capture-artifacts/src/capture-artifacts-facade.js";
 import type { NativeCaptureTlsCredentials } from "../../capture-certificates/src/capture-certificates-facade.js";
+import {
+  type ParsedHttpRequest,
+  parseHttpRequest,
+} from "./capture-proxy-http.js";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
-const HTTP_HEADER_SEPARATOR = "\r\n\r\n";
 const LOCAL_PROXY_HOST = "127.0.0.1";
 const DEFAULT_HTTPS_PORT = 443;
 const DECIMAL_RADIX = 10;
@@ -31,6 +34,7 @@ export interface NativeCaptureTargetRule {
 export interface NativeCaptureIgnoredRequestDetail {
   readonly bodyBytes: number;
   readonly hasContentLength: boolean;
+  readonly hasTransferEncoding: boolean;
   readonly probeMatched: boolean;
   readonly toolCount: number;
   readonly topLevelKeys: readonly string[];
@@ -67,14 +71,6 @@ interface NativeCaptureProxyOptions {
   }) => NativeCaptureTlsCredentials | Promise<NativeCaptureTlsCredentials>;
   readonly targetRules: readonly NativeCaptureTargetRule[];
   readonly timeoutMs?: number;
-}
-
-interface ParsedHttpRequest {
-  readonly body: unknown;
-  readonly bodyText: string;
-  readonly headers: Readonly<Record<string, string>>;
-  readonly method: string;
-  readonly path: string;
 }
 
 interface PendingCapture {
@@ -332,64 +328,6 @@ function parseConnectTarget(target: string): {
   return { hostname, port: Number.isFinite(port) ? port : DEFAULT_HTTPS_PORT };
 }
 
-function parseHttpRequest(buffer: Buffer): ParsedHttpRequest | null {
-  const headerEnd = buffer.indexOf(HTTP_HEADER_SEPARATOR);
-  if (headerEnd < 0) {
-    return null;
-  }
-  const headerText = buffer.subarray(0, headerEnd).toString("utf8");
-  const [requestLine = "", ...headerLines] = headerText.split("\r\n");
-  const [method = "", requestPath = ""] = requestLine.split(" ");
-  const headers = parseHeaders(headerLines);
-  const contentLength = Number.parseInt(
-    headers["content-length"] ?? "0",
-    DECIMAL_RADIX
-  );
-  const safeContentLength = Number.isFinite(contentLength) ? contentLength : 0;
-  const bodyStart = headerEnd + HTTP_HEADER_SEPARATOR.length;
-  const bodyEnd = bodyStart + safeContentLength;
-  if (buffer.length < bodyEnd) {
-    return null;
-  }
-  const bodyText = buffer.subarray(bodyStart, bodyEnd).toString("utf8");
-  return {
-    body: parseBody(bodyText),
-    bodyText,
-    headers,
-    method,
-    path: requestPath,
-  };
-}
-
-function parseHeaders(
-  headerLines: readonly string[]
-): Readonly<Record<string, string>> {
-  const headers: Record<string, string> = {};
-  for (const line of headerLines) {
-    const separator = line.indexOf(":");
-    if (separator < 0) {
-      continue;
-    }
-    const name = line.slice(0, separator).trim().toLowerCase();
-    const value = line.slice(separator + 1).trim();
-    if (name) {
-      headers[name] = value;
-    }
-  }
-  return headers;
-}
-
-function parseBody(bodyText: string): unknown {
-  if (!bodyText.trim()) {
-    return null;
-  }
-  try {
-    return JSON.parse(bodyText) as unknown;
-  } catch {
-    return bodyText;
-  }
-}
-
 interface RuleMismatch {
   readonly detail?: NativeCaptureIgnoredRequestDetail;
   readonly reason: string;
@@ -429,6 +367,7 @@ function buildIgnoredRequestDetail(
   return {
     bodyBytes: Buffer.byteLength(request.bodyText, "utf8"),
     hasContentLength: "content-length" in request.headers,
+    hasTransferEncoding: "transfer-encoding" in request.headers,
     probeMatched: rule.bodyIncludes
       ? request.bodyText.includes(rule.bodyIncludes)
       : true,

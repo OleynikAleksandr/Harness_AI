@@ -4,17 +4,21 @@
 
 Own the capture-and-abort MITM proxy: a local CONNECT proxy bound to
 `127.0.0.1` that terminates TLS with a diagnostic certificate, reads the
-provider client's full HTTP request head and body, filters the target model
-endpoint from background traffic, records the first matching request, and
-aborts with a synthetic error before any byte is forwarded upstream. No
-captured request reaches the vendor.
+provider client's full HTTP request head and body (both `Content-Length` and
+`Transfer-Encoding: chunked` bodies — Codex streams its responses POST
+chunked with no `Content-Length`), filters the target model endpoint from
+background traffic, records the first matching request, and aborts with a
+synthetic error before any byte is forwarded upstream. No captured request
+reaches the vendor.
 
 Behavior ported from the CodeAI-Hub `native-request-capture-proxy` module,
 without the WebSocket transport (HTTP/SSE capture only for the MVP).
 
 ## Public Facade
 
-`capture-proxy-facade.ts`
+`capture-proxy-facade.ts`. The HTTP request reader (request-line, headers, and
+`Content-Length` / chunked body decoding into a `ParsedHttpRequest`) lives in
+the sibling `capture-proxy-http.ts`, used by the facade.
 
 ## Inputs
 
@@ -40,9 +44,10 @@ without the WebSocket transport (HTTP/SSE capture only for the MVP).
 - A request that matched the rule host+path but was rejected on the body
   carries a `detail` on its `request_ignored` event
   (`NativeCaptureIgnoredRequestDetail`: `bodyBytes`, `hasContentLength`,
-  `probeMatched`, `toolCount`, `topLevelKeys`). It is structural metadata
-  only — never header or body values — so it is safe to persist in the
-  diagnostic artifact and explains why a target request was not captured.
+  `hasTransferEncoding`, `probeMatched`, `toolCount`, `topLevelKeys`). It is
+  structural metadata only — never header or body values — so it is safe to
+  persist in the diagnostic artifact and explains why a target request was not
+  captured.
 - The proxy hands the raw captured request (including headers) to the
   caller; credential redaction happens in the artifact writer, not here.
 

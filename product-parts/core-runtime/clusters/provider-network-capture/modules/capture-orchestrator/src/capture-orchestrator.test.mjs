@@ -11,6 +11,7 @@ import ts from "typescript";
 const FACADES = [
   ["capture-artifacts", "capture-artifacts-facade"],
   ["capture-certificates", "capture-certificates-facade"],
+  ["capture-proxy", "capture-proxy-http"],
   ["capture-proxy", "capture-proxy-facade"],
   ["capture-orchestrator", "capture-orchestrator-facade"],
 ];

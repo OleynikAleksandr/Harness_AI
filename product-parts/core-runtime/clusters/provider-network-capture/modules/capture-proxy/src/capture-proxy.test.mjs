@@ -34,6 +34,13 @@ function readOnce(socket) {
 const buildDir = await mkdtemp(path.join(tmpdir(), "capture-proxy-build-"));
 
 try {
+  // The facade imports its HTTP parser from a sibling module file, so compile
+  // both into the build dir for the relative import to resolve.
+  writeFileSync(
+    path.join(buildDir, "capture-proxy-http.js"),
+    compile("capture-proxy-http.ts"),
+    "utf8"
+  );
   writeFileSync(
     path.join(buildDir, "capture-proxy-facade.js"),
     compile("capture-proxy-facade.ts"),
@@ -252,6 +259,55 @@ try {
   assert.equal(bodyIgnored.detail.hasContentLength, true);
   assert.ok(bodyIgnored.detail.bodyBytes > 0);
   assert.deepEqual(bodyIgnored.detail.topLevelKeys, ["model", "input"]);
+
+  // Case 4: a chunked probe POST (Transfer-Encoding: chunked, no
+  // Content-Length, arriving in two writes) is reassembled and captured. This
+  // is the Codex responses transport that a Content-Length-only reader missed.
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const toChunk = (text) =>
+    `${Buffer.byteLength(text).toString(16)}\r\n${text}\r\n`;
+
+  const chunkedProxy = new NativeRequestCaptureProxy({
+    providerId: "codex",
+    targetRules: [
+      {
+        host: "api.anthropic.com",
+        pathIncludes: "/v1/messages",
+        bodyIncludes: "Harness AI capture probe",
+      },
+    ],
+    timeoutMs: 5000,
+    resolveTlsCredentials: () => credentials,
+  });
+  const chunkedHandle = await chunkedProxy.start();
+  const chunkedSocket = await openTlsTunnel(chunkedHandle);
+
+  const chunkedBody = JSON.stringify({
+    model: "gpt-5.5",
+    instructions: "You are Codex.",
+    tools: [{ name: "shell" }],
+    input: [{ type: "text", text: "Harness AI capture probe turn" }],
+  });
+  const splitAt = Math.floor(chunkedBody.length / 2);
+  const chunkedHead = [
+    "POST /v1/messages HTTP/1.1",
+    "Host: api.anthropic.com",
+    "Transfer-Encoding: chunked",
+    "Content-Type: application/json",
+    "",
+    "",
+  ].join("\r\n");
+  chunkedSocket.write(chunkedHead + toChunk(chunkedBody.slice(0, splitAt)));
+  await delay(20);
+  chunkedSocket.write(`${toChunk(chunkedBody.slice(splitAt))}0\r\n\r\n`);
+
+  const chunkedResult = await chunkedHandle.waitForCapture();
+  await chunkedHandle.stop();
+  chunkedSocket.destroy();
+
+  assert.equal(chunkedResult.status, "captured");
+  assert.equal(chunkedResult.request.body.instructions, "You are Codex.");
+  assert.equal(chunkedResult.request.body.tools.length, 1);
 
   console.log("capture-proxy tests: OK");
 } finally {

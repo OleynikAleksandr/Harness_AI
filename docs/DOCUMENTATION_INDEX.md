@@ -168,6 +168,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   Claude Code CLI; the capture service now applies the same claude_code presets
   as the live Native adapter (`applyClaudeSessionProfile`, kind native), ahead
   of the user re-capturing the Claude native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-interactive-cli.md`
+  — eighth 2026-07-03 packaged rebuild: the claude binary assembles its prompt
+  by entry mode and the SDK transport can never yield the CLI reference, so
+  the Claude capture now drives the provider binary interactively in a real
+  pty (`claude-interactive-cli-runner.ts`, python3 `pty.fork` driver, 120s
+  capture timeout), ahead of the user re-capturing the Claude native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

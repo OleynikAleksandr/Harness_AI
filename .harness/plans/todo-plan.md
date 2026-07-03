@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6c.stream1.task28",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with interactive cli capture",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -409,9 +409,9 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 
 92. [DONE] `harness-ai.phase6c.stream1.task27` Capture the interactive Claude CLI native request instead of the SDK-assembled one: add `claude-interactive-cli-runner.ts` (diagnostics/) that resolves the system `python3` (clear preflight error when missing), pre-accepts the workspace trust dialog in the provider-home `.claude.json`, launches the provider claude binary in a real pty via an inline python `pty.fork` driver (boot wait -> type probe -> submit -> drain -> self-terminate), and switch `claude-native-request-capture-service.ts` from `sdkModule.query` to this runner (keep auth/proxy/certificate env wiring and the applied-input-envelope record, now describing the interactive run), with a unit test for the runner's pure helpers (trust upsert, python argv build), and raise the capture timeout for the Claude command in the Core capture RPC (the interactive pty cycle — binary boot, probe typing, submit — does not fit the 30s proxy default) (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-interactive-cli-runner.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-native-request-capture-service.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-interactive-cli-runner.test.mjs` (new), plus claude-provider `module.md`, core-runtime-process `module.md`, `docs/architecture/SessionProfilesV2.md` (decision 5: interactive CLI is the Native reference; Native-base goal frame) and `.harness/plans/todo-plan.md`; expected commit: `feat(claude-provider): capture interactive cli native request`) Result: Completed in commit `feat(claude-provider): capture interactive cli native request`.
 93. [DONE] Git Commit: `feat(claude-provider): capture interactive cli native request` (hash: self)
-94. [IN_PROGRESS] `harness-ai.phase6c.stream1.task28` Package the app with the interactive Claude CLI capture for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-interactive-cli.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with interactive cli capture`)
-95. [TODO] Git Commit: `chore(package): rebuild packaged app with interactive cli capture` (hash: TBD)
-96. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+94. [DONE] `harness-ai.phase6c.stream1.task28` Package the app with the interactive Claude CLI capture for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-interactive-cli.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with interactive cli capture`) Result: Completed in commit `chore(package): rebuild packaged app with interactive cli capture`.
+95. [DONE] Git Commit: `chore(package): rebuild packaged app with interactive cli capture` (hash: self)
+96. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

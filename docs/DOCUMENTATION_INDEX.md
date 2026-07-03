@@ -174,6 +174,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   the Claude capture now drives the provider binary interactively in a real
   pty (`claude-interactive-cli-runner.ts`, python3 `pty.fork` driver, 120s
   capture timeout), ahead of the user re-capturing the Claude native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-kimi-reverse.md`
+  — ninth 2026-07-03 packaged rebuild: the Kimi capture was a stub (fake
+  `captured`, wire-only path with no payload); replaced with a real
+  reverse-forward bridge (`NativeCaptureReverseBridge`) plus a Kimi capture
+  service that clones `~/.kimi-code`, rewrites the provider base_url to the
+  bridge and runs `kimi acp` with the default agent, ahead of the user
+  re-capturing the Kimi native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

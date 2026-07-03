@@ -1,5 +1,7 @@
+import { homedir } from "node:os";
 import path from "node:path";
 import type { ProviderSessionStartOptions } from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { KimiNativeRequestCaptureService } from "../diagnostics/kimi-native-request-capture-service.js";
 import { normalizeKimiWireRequest } from "../messaging/kimi-request-failure-normalizer.js";
 import { KimiSessionLifecycle } from "../session/kimi-session-lifecycle.js";
 import { KimiWireProcessBridge } from "../wire/kimi-wire-process.js";
@@ -202,28 +204,36 @@ export class KimiProviderAdapter {
     options: KimiNativeRequestCaptureOptions
   ): Promise<void> {
     this.assertInitialized();
-    const runtimeHome = this.requireRuntimeHome();
-    const wireJsonlPath = path.join(runtimeHome.providerHomePath, "wire.jsonl");
     const selectedModelId =
       options.selectedModelId ?? this.options.workspace.defaultModel ?? null;
-    await options.recordAppliedInputEnvelope?.({
-      kind: "kimi",
-      providerHomePath: runtimeHome.providerHomePath,
-      selectedModelId,
-      userConfigPath: runtimeHome.userConfigPath,
-      wireJsonlPath,
-    });
+    const sourceConfigDir = this.resolveSourceKimiConfigDir();
     await options.recordDiagnosticContext?.({
-      kind: "kimi_wire_capture",
+      kind: "kimi_acp_capture",
       payload: {
         captureId: options.captureId,
-        promptLength: options.workflowPrompt?.length ?? 0,
+        mode: "acp_default_agent",
         selectedModelId,
-        userConfigPath: runtimeHome.userConfigPath,
-        wireJsonlPath,
+        sourceConfigDir,
         workspacePath: options.workspacePath,
       },
     });
+    const service = new KimiNativeRequestCaptureService({
+      baseEnv: process.env,
+      kimiCommand: this.cliEnvironment?.command ?? "kimi",
+      sourceConfigDir,
+    });
+    await service.captureNativeRequest({ ...options, selectedModelId });
+  }
+
+  // The real user kimi config dir (`~/.kimi-code`) the capture clones from —
+  // the managed provider-home holds the CodeAI managed agent, not the vendor
+  // default, so capture must start from the user's own config + credentials.
+  private resolveSourceKimiConfigDir(): string {
+    const configPath = this.options.workspace.configPath?.trim();
+    if (configPath) {
+      return path.dirname(configPath);
+    }
+    return path.join(homedir(), ".kimi-code");
   }
 
   async closeSession(sessionId: string): Promise<void> {

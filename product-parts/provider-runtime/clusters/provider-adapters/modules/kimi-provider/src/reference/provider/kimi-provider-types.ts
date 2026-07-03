@@ -33,12 +33,19 @@ export interface KimiSessionEvent {
 }
 export interface KimiNativeRequestCaptureOptions {
   readonly captureId: string;
+  // Reverse-bridge and certificate fields from the shared capture contract.
+  // Kimi uses only `proxyUrl` (the reverse bridge base URL its base_url is
+  // pointed at); the certificate fields are empty (no diagnostic CA).
+  readonly certificateEnv?: Readonly<Record<string, string>>;
+  readonly certificatePath?: string;
+  readonly probePrompt: string;
+  readonly proxyUrl: string;
   readonly recordAppliedInputEnvelope?: (envelope: {
+    readonly bridgeUrl: string;
     readonly kind: "kimi";
-    readonly providerHomePath: string | null;
+    readonly mode: "acp_default_agent";
     readonly selectedModelId: string | null;
-    readonly userConfigPath: string | null;
-    readonly wireJsonlPath: string | null;
+    readonly sourceConfigDir: string | null;
   }) => Promise<void> | void;
   readonly recordDiagnosticContext?: (record: {
     readonly kind: string;

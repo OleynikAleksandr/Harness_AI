@@ -63,14 +63,25 @@ liveness preflight without treating that global home as a workspace root.
   keep today's materialized managed-agent behavior untouched.
 - `kimi-provider-types.ts` holds the adapter option/event shapes, split out
   to keep `kimi-provider-adapter.ts` under the 500-line cap.
-- Native request capture (`captureNativeRequest`) is wire-only: Kimi's ACP
-  runtime writes a `wire.jsonl` in the provider home, so capture does NOT use
-  the MITM proxy. The adapter records an applied-input-envelope (provider
-  home path, selected model, user config path, `wireJsonlPath`) and a
-  `kimi_wire_capture` diagnostic context; the native request is read from the
-  wire log the Kimi subprocess writes. Record-only: the comparison
-  `scenarioId` was removed (`docs/architecture/SessionProfilesV2.md`,
-  decision 5).
+- Native request capture (`captureNativeRequest`) records the ORIGINAL Kimi
+  CLI wrapping through the reverse-forward bridge, delegating to
+  `diagnostics/kimi-native-request-capture-service.ts`. The kimi binary
+  ignores proxy env, so the service clones the user's `~/.kimi-code`
+  (`config.toml` + `credentials` + `device_id`) into a temp home, rewrites
+  every `[providers.*]` `base_url` to the bridge URL (preserving the path, via
+  the pure `kimi-capture-config-rewrite.ts` helper), and runs `kimi acp` with
+  the DEFAULT agent (NOT the managed CodeAI agent) through
+  `KimiWireProcessBridge`/`KimiWireRouter`: `initialize` -> `session/new` ->
+  optional `session/set_config_option(model)` -> `session/prompt(probe)`. The
+  kimi binary's first LLM request to the bridge carries the native system
+  prompt + tool schemas; the bridge forwards it to `api.kimi.com` and records
+  it. The temp home is removed after the run. The earlier wire-only capture
+  was a stub (it recorded only a `wire.jsonl` path that nothing writes and
+  completed a fake `captured`); the ACP wire leg carries no native prompt/
+  tools — those live only in the LLM HTTPS request
+  (`docs/architecture/SessionProfilesV2.md`, decision 5). NOTE (Phase R): the
+  LIVE managed sessions still run the `codeai-managed-agent` (a Codex-derived
+  system prompt), not the vendor base — flagged for the prompt research.
 
 ## Owned Paths
 

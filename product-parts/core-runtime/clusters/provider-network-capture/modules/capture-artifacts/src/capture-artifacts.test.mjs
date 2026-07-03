@@ -41,11 +41,13 @@ try {
   const redacted = redactCaptureHeaders({
     authorization: "Bearer sk-secret",
     "x-api-key": "abc",
+    "chatgpt-account-id": "91968ff3-47b4-4231-81b8-8c07e18e5a04",
     "content-type": "application/json",
     "x-stainless-os": "MacOS",
   });
   assert.equal(redacted.authorization, REDACTED_CAPTURE_HEADER_VALUE);
   assert.equal(redacted["x-api-key"], REDACTED_CAPTURE_HEADER_VALUE);
+  assert.equal(redacted["chatgpt-account-id"], REDACTED_CAPTURE_HEADER_VALUE);
   assert.equal(redacted["content-type"], "application/json");
   assert.equal(redacted["x-stainless-os"], "MacOS");
 

@@ -46,7 +46,7 @@ interface NativeCaptureWriterOptions {
 }
 
 const CREDENTIAL_HEADER_PATTERN =
-  /(^authorization$|^cookie$|^set-cookie$|api-key|token|secret|session|credential|oauth)/iu;
+  /(^authorization$|^cookie$|^set-cookie$|api-key|token|secret|session|credential|oauth|account-id)/iu;
 const STAINLESS_HEADER_PATTERN = /^x-stainless-/iu;
 const STAINLESS_CREDENTIAL_VALUE_PATTERN =
   /(bearer|token|secret|credential|oauth|session)/iu;

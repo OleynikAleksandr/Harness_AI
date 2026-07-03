@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task6",
-  "expectedCommitMessage": "fix(capture-artifacts): redact account id headers",
+  "currentTaskId": "harness-ai.phase6.stream1.task7",
+  "expectedCommitMessage": "chore(package): rebuild packaged app with codex capture transport fix",
   "debt": null
 }
 ```
@@ -172,9 +172,9 @@
 48. [DONE] Git Commit: `feat(capture-proxy): match target requests by body content` (hash: self)
 49. [DONE] `harness-ai.phase6.stream1.task5` Harden the Codex capture target rule and surface proxy noise: require `minimumToolCount: 1` plus `bodyIncludes` (the diagnostic probe prompt) on the Codex default rule so background prewarm/memory-consolidation requests to the same endpoint are ignored instead of ending the capture, and forward capture proxy events (`proxy_connect`/`request_ignored`) into the artifact writer as `proxy_event` diagnostic context records, with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, plus capture-orchestrator module.md`; expected commit: `feat(capture-orchestrator): filter codex probe request and log proxy events`) Result: Completed in commit `feat(capture-orchestrator): filter codex probe request and log proxy events`.
 50. [DONE] Git Commit: `feat(capture-orchestrator): filter codex probe request and log proxy events` (hash: self)
-51. [IN_PROGRESS] `harness-ai.phase6.stream1.task6` Extend credential-header redaction to account identifiers: the captured Codex request exposed `chatgpt-account-id` in the artifact headers, so add an `account-id` pattern to the capture header redaction regex with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, plus capture-artifacts module.md`; expected commit: `fix(capture-artifacts): redact account id headers`)
-52. [TODO] Git Commit: `fix(capture-artifacts): redact account id headers` (hash: TBD)
-53. [TODO] `harness-ai.phase6.stream1.task7` Package the app with the capture transport/filter/redaction fixes for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex capture transport fix`)
+51. [DONE] `harness-ai.phase6.stream1.task6` Extend credential-header redaction to account identifiers: the captured Codex request exposed `chatgpt-account-id` in the artifact headers, so add an `account-id` pattern to the capture header redaction regex with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, plus capture-artifacts module.md`; expected commit: `fix(capture-artifacts): redact account id headers`) Result: Completed in commit `fix(capture-artifacts): redact account id headers`.
+52. [DONE] Git Commit: `fix(capture-artifacts): redact account id headers` (hash: self)
+53. [IN_PROGRESS] `harness-ai.phase6.stream1.task7` Package the app with the capture transport/filter/redaction fixes for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex capture transport fix`)
 54. [TODO] Git Commit: `chore(package): rebuild packaged app with codex capture transport fix` (hash: TBD)
 55. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 

@@ -27,8 +27,9 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
 
 - `redactCaptureHeaders(headers)`: masks credential-bearing headers
   (`authorization`, `cookie`, `api-key`, `token`, `secret`, `session`,
-  `credential`, `oauth`, and credential-valued `x-stainless-*`) with
-  `[REDACTED]` before anything is written to disk.
+  `credential`, `oauth`, `account-id` (e.g. Codex's `chatgpt-account-id`),
+  and credential-valued `x-stainless-*`) with `[REDACTED]` before anything is
+  written to disk.
 - `extractCaptureSections(body)`: normalizes Anthropic (`system`, `messages`)
   and OpenAI/Codex (`instructions`, `input`) field names onto one
   `system` / `tools` / `messages` section shape.

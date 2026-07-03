@@ -34,15 +34,15 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
   ],
   // Codex 0.142.x posts many requests to the same `/responses` endpoint —
   // background `memory_consolidation` prewarm turns share the URL with the
-  // probe. `bodyIncludes` (the probe prompt lives in the turn input) and
-  // `minimumToolCount` keep the capture waiting for the real probe request
-  // that actually carries the native tool set.
+  // probe. `bodyIncludes` (the probe prompt lives in the turn input) keeps the
+  // capture waiting for the real probe request. No `minimumToolCount`: the
+  // Codex Responses API nests the tool set outside the top-level `body.tools`
+  // this proxy counts, so requiring it falsely rejected the probe turn.
   codex: [
     {
       host: "chatgpt.com",
       pathIncludes: "/backend-api/codex/responses",
       bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
-      minimumToolCount: 1,
     },
   ],
   kimi: [{ host: "api.moonshot.ai", pathIncludes: "/v1/chat/completions" }],

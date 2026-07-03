@@ -55,9 +55,13 @@ try {
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].host, "chatgpt.com");
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.kimi[0].host, "api.moonshot.ai");
 
-  // The Codex rule filters background prewarm turns that share the endpoint:
-  // it requires the probe prompt in the body and at least one tool.
-  assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].minimumToolCount, 1);
+  // The Codex rule filters background prewarm turns that share the endpoint by
+  // the probe prompt only; minimumToolCount is intentionally absent because the
+  // Codex Responses API nests tools outside the counted top-level `body.tools`.
+  assert.equal(
+    DEFAULT_CAPTURE_TARGET_RULES.codex[0].minimumToolCount,
+    undefined
+  );
   assert.match(
     DEFAULT_CAPTURE_TARGET_RULES.codex[0].bodyIncludes,
     /capture probe/u

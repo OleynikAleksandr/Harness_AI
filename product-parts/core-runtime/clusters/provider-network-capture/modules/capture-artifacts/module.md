@@ -32,7 +32,10 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   written to disk.
 - `extractCaptureSections(body)`: normalizes Anthropic (`system`, `messages`)
   and OpenAI/Codex (`instructions`, `input`) field names onto one
-  `system` / `tools` / `messages` section shape.
+  `system` / `tools` / `messages` section shape. The Codex WebSocket
+  `response.create` frame carries `instructions`/`tools`/`input` at the top
+  level (its `type` field is ignored), so the same mapping extracts a full
+  pair from it.
 - `buildNativeRequestCaptureMarkdown(options)`: the readable dump with
   provider, selected model, summary, redacted headers, and the extracted
   system prompt / tool declarations / messages sections. Always states

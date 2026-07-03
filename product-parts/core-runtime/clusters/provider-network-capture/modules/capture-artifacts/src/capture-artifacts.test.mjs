@@ -66,6 +66,28 @@ try {
   assert.equal(codex.find((s) => s.section === "system").content, "CODEX SYS");
   assert.equal(codex.find((s) => s.section === "messages").payload.length, 1);
 
+  // The Codex WebSocket `response.create` frame extracts a full pair: the
+  // `type` field is ignored, instructions/tools/input map to the sections.
+  const responseCreate = extractCaptureSections({
+    type: "response.create",
+    model: "gpt-5.5",
+    instructions: "You are Codex.",
+    tools: [{ name: "shell" }, { name: "apply_patch" }],
+    input: [{ type: "text", text: "hi" }],
+  });
+  assert.equal(
+    responseCreate.find((s) => s.section === "system").content,
+    "You are Codex."
+  );
+  assert.equal(
+    responseCreate.find((s) => s.section === "tools").payload.length,
+    2
+  );
+  assert.equal(
+    responseCreate.find((s) => s.section === "messages").payload.length,
+    1
+  );
+
   // Writer: fixed clock so artifact paths and content are deterministic.
   const clock = () => new Date("2026-07-02T18:00:00.000Z");
   const writer = await NativeRequestCaptureWriter.create({

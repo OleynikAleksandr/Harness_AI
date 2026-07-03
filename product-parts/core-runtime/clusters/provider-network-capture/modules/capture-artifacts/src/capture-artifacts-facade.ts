@@ -68,6 +68,9 @@ export function redactCaptureHeaders(
 
 // Providers name the fields differently (Anthropic `system`/`messages`,
 // OpenAI/Codex `instructions`/`input`), so map both onto one section shape.
+// The Codex WebSocket `response.create` frame carries `instructions`, `tools`,
+// and `input` at the top level (its `type` field is ignored), so the same
+// mapping extracts a full pair from it.
 export function extractCaptureSections(
   body: unknown
 ): readonly NativeCaptureSection[] {

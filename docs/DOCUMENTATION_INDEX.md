@@ -130,6 +130,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   transport, body-content target matching (probe prompt + tool count) with
   `capture_proxy_event` diagnostics, and `account-id` header redaction,
   ahead of the user re-capturing the Codex native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-codex-filter.md`
+  — second 2026-07-03 packaged rebuild after the transport fix: the Codex body
+  rule drops `minimumToolCount` (Codex nests tools outside top-level
+  `body.tools`), keeping the probe-prompt matcher, plus safe structural
+  diagnostics on body-rejected target requests, ahead of the user re-capturing
+  the Codex native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

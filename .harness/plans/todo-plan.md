@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task10",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with codex body-filter fix",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -199,9 +199,9 @@
 56. [DONE] Git Commit: `feat(capture-proxy): diagnose body-rejected target requests` (hash: self)
 57. [DONE] `harness-ai.phase6.stream1.task9` Relax the Codex capture body filter to the probe matcher only: drop `minimumToolCount: 1` from the Codex default target rule (Codex Responses API nests tools outside top-level `body.tools`, so requiring it falsely rejected the probe turn) and keep `bodyIncludes` (the diagnostic probe prompt) as the sole body discriminator against background prewarm turns, updating the orchestrator unit test accordingly (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, plus capture-orchestrator module.md`; expected commit: `fix(capture-orchestrator): match codex probe by prompt only`) Result: Completed in commit `fix(capture-orchestrator): match codex probe by prompt only`.
 58. [DONE] Git Commit: `fix(capture-orchestrator): match codex probe by prompt only` (hash: self)
-59. [IN_PROGRESS] `harness-ai.phase6.stream1.task10` Package the app with the Codex body-filter fix and proxy diagnostics for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-codex-filter.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex body-filter fix`)
-60. [TODO] Git Commit: `chore(package): rebuild packaged app with codex body-filter fix` (hash: TBD)
-61. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+59. [DONE] `harness-ai.phase6.stream1.task10` Package the app with the Codex body-filter fix and proxy diagnostics for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-codex-filter.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex body-filter fix`) Result: Completed in commit `chore(package): rebuild packaged app with codex body-filter fix`.
+60. [DONE] Git Commit: `chore(package): rebuild packaged app with codex body-filter fix` (hash: self)
+61. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

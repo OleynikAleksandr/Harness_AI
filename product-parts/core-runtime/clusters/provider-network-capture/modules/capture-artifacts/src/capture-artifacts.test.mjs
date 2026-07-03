@@ -88,6 +88,23 @@ try {
     1
   );
 
+  // Kimi (OpenAI chat shape): no top-level system; the system prompt is the
+  // first `role: "system"` message, and the messages section keeps the array.
+  const kimi = extractCaptureSections({
+    model: "kimi-for-coding",
+    messages: [
+      { role: "system", content: "You are Kimi Code CLI." },
+      { role: "user", content: "probe" },
+    ],
+    tools: [{ function: { name: "Bash" } }],
+  });
+  assert.equal(
+    kimi.find((s) => s.section === "system").content,
+    "You are Kimi Code CLI."
+  );
+  assert.equal(kimi.find((s) => s.section === "tools").payload.length, 1);
+  assert.equal(kimi.find((s) => s.section === "messages").payload.length, 2);
+
   // Writer: fixed clock so artifact paths and content are deterministic.
   const clock = () => new Date("2026-07-02T18:00:00.000Z");
   const writer = await NativeRequestCaptureWriter.create({

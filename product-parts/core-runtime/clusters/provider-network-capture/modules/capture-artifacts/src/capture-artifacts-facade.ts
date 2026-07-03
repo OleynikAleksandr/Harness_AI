@@ -78,10 +78,10 @@ export function redactCaptureHeaders(
 }
 
 // Providers name the fields differently (Anthropic `system`/`messages`,
-// OpenAI/Codex `instructions`/`input`), so map both onto one section shape.
-// The Codex WebSocket `response.create` frame carries `instructions`, `tools`,
-// and `input` at the top level (its `type` field is ignored), so the same
-// mapping extracts a full pair from it.
+// OpenAI/Codex `instructions`/`input`, Kimi OpenAI-chat `messages[role=system]`),
+// so map them onto one section shape. The Codex WebSocket `response.create`
+// frame carries `instructions`, `tools`, and `input` at the top level (its
+// `type` field is ignored), so the same mapping extracts a full pair from it.
 export function extractCaptureSections(
   body: unknown
 ): readonly NativeCaptureSection[] {
@@ -101,6 +101,17 @@ export function extractCaptureSections(
       section: "system",
       content: body.instructions,
     });
+  } else {
+    // Kimi (OpenAI chat shape) has no top-level system field; the system
+    // prompt is the first `role: "system"` message.
+    const systemMessage = findSystemMessageContent(body.messages);
+    if (systemMessage !== undefined) {
+      sections.push({
+        type: "section_extract",
+        section: "system",
+        content: systemMessage,
+      });
+    }
   }
   if ("tools" in body) {
     sections.push({
@@ -379,6 +390,18 @@ function findSection(
   section: NativeCaptureSectionName
 ): NativeCaptureSection | null {
   return sections.find((record) => record.section === section) ?? null;
+}
+
+// The `content` of the first `role: "system"` chat message, or undefined when
+// there is none (used for the OpenAI/Kimi shape that has no top-level system).
+function findSystemMessageContent(messages: unknown): unknown {
+  if (!Array.isArray(messages)) {
+    return;
+  }
+  const systemMessage = messages.find(
+    (message) => isRecord(message) && message.role === "system"
+  );
+  return isRecord(systemMessage) ? systemMessage.content : undefined;
 }
 
 function fencedJson(value: unknown): string {

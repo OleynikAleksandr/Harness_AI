@@ -30,12 +30,14 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   `credential`, `oauth`, `account-id` (e.g. Codex's `chatgpt-account-id`),
   and credential-valued `x-stainless-*`) with `[REDACTED]` before anything is
   written to disk.
-- `extractCaptureSections(body)`: normalizes Anthropic (`system`, `messages`)
-  and OpenAI/Codex (`instructions`, `input`) field names onto one
-  `system` / `tools` / `messages` section shape. The Codex WebSocket
-  `response.create` frame carries `instructions`/`tools`/`input` at the top
-  level (its `type` field is ignored), so the same mapping extracts a full
-  pair from it.
+- `extractCaptureSections(body)`: normalizes Anthropic (`system`, `messages`),
+  OpenAI/Codex (`instructions`, `input`) and Kimi OpenAI-chat
+  (`messages[role=system]`) field names onto one `system` / `tools` /
+  `messages` section shape. The Codex WebSocket `response.create` frame carries
+  `instructions`/`tools`/`input` at the top level (its `type` field is
+  ignored), so the same mapping extracts a full pair from it. Kimi has no
+  top-level system field, so the first `role: "system"` chat message's content
+  becomes the system section (the messages section still keeps the full array).
 - `buildNativeRequestCaptureMarkdown(options)`: the readable dump with
   provider, selected model, summary, redacted headers, and the extracted
   system prompt / tool declarations / messages sections. Always states

@@ -64,6 +64,13 @@ export interface NativeCaptureProxyHandle {
 }
 
 interface NativeCaptureProxyOptions {
+  // Opens the upstream connection a target request is forwarded to. Defaults to
+  // a real TLS socket to the rule host; injectable so tests point at a fake
+  // upstream without DNS or the network.
+  readonly createUpstream?: (params: {
+    readonly host: string;
+    readonly port: number;
+  }) => net.Socket;
   readonly onEvent?: (event: NativeCaptureProxyEvent) => void;
   readonly providerId: NativeCaptureProviderId;
   readonly resolveTlsCredentials: (params: {
@@ -79,10 +86,12 @@ interface PendingCapture {
   readonly timeout: NodeJS.Timeout;
 }
 
-// Local CONNECT proxy that terminates TLS with a diagnostic certificate,
-// reads the provider's full HTTP request, records the first matching model
-// request, and aborts with a synthetic error before anything is forwarded
-// upstream (capture-and-abort). No captured request reaches the vendor.
+// Local CONNECT proxy that MITM-terminates TLS for target hosts, forwards the
+// request to the real upstream, relays the response back, and records the first
+// request matching a target rule (forward transit). Non-target hosts are blind
+// TCP tunnels so the driven client keeps working. The request DOES reach the
+// vendor — this is required to capture Codex's mandatory WebSocket transport,
+// whose payload only exists in frames sent after a real upgrade handshake.
 export class NativeRequestCaptureProxy {
   private readonly options: NativeCaptureProxyOptions;
   private readonly sockets = new Set<net.Socket>();
@@ -166,13 +175,14 @@ export class NativeRequestCaptureProxy {
     const target = request.url ?? "";
     this.trackSocket(socket);
     this.emit({ type: "proxy_connect", target });
+    const { hostname, port } = parseConnectTarget(target);
     const rule = this.findConnectRule(target);
     if (!rule) {
-      this.emitIgnored(target, "target_not_configured");
-      socket.end("HTTP/1.1 502 Harness AI capture target ignored\r\n\r\n");
+      // Non-target host: blind TCP tunnel so background traffic (auth, models,
+      // other providers) still reaches its real server and the client works.
+      this.blindTunnel(socket, hostname, port, head);
       return;
     }
-    const { hostname } = parseConnectTarget(target);
     const credentials = await this.resolveCredentials(hostname);
     if (!credentials) {
       socket.end("HTTP/1.1 502 TLS credentials unavailable\r\n\r\n");
@@ -186,40 +196,88 @@ export class NativeRequestCaptureProxy {
     const tlsSocket = new tls.TLSSocket(socket, {
       isServer: true,
       secureContext: tls.createSecureContext(credentials),
+      // Force HTTP/1.1 so HTTP providers stay parseable and the WS upgrade is a
+      // plain HTTP/1.1 request; without this the client may pick h2.
+      ALPNProtocols: ["http/1.1"],
     });
     this.trackSocket(tlsSocket);
-    this.readTlsRequest(tlsSocket, target, rule);
+    this.forwardAndInspect(tlsSocket, target, rule, hostname, port);
   }
 
-  private readTlsRequest(
+  private blindTunnel(
+    clientSocket: net.Socket,
+    hostname: string,
+    port: number,
+    head: Buffer
+  ): void {
+    const upstream = net.connect(port, hostname, () => {
+      clientSocket.write("HTTP/1.1 200 Connection Established\r\n\r\n");
+      if (head.length > 0) {
+        upstream.write(head);
+      }
+      clientSocket.pipe(upstream);
+      upstream.pipe(clientSocket);
+    });
+    this.trackSocket(upstream);
+    upstream.on("error", () => clientSocket.destroy());
+    clientSocket.on("error", () => upstream.destroy());
+  }
+
+  // MITM forward transit: forward every client byte to the real upstream, relay
+  // the response back, and capture the first request that matches the rule. The
+  // connection is not aborted — the request reaches the vendor.
+  private forwardAndInspect(
     tlsSocket: tls.TLSSocket,
     target: string,
-    rule: NativeCaptureTargetRule
+    rule: NativeCaptureTargetRule,
+    hostname: string,
+    port: number
   ): void {
+    const upstream = this.connectUpstream(hostname, port);
+    this.trackSocket(upstream);
     const chunks: Buffer[] = [];
-    const handleHttpData = (chunk: Buffer) => {
+    let inspected = false;
+    tlsSocket.on("data", (chunk: Buffer) => {
+      upstream.write(chunk);
+      if (inspected) {
+        return;
+      }
       chunks.push(chunk);
       const parsed = parseHttpRequest(Buffer.concat(chunks));
       if (!parsed) {
         return;
       }
+      inspected = true;
       const mismatch = resolveRuleMismatch(parsed, rule);
       if (mismatch) {
         this.emitIgnored(target, mismatch.reason, mismatch.detail);
-        tlsSocket.end();
         return;
       }
-      const request: CapturedNativeRequest = {
+      this.completeCaptured({
         ...parsed,
         target,
         timestamp: new Date().toISOString(),
-      };
-      tlsSocket.end(buildCapturedResponse());
-      this.completeCaptured(request);
-    };
-    tlsSocket.on("data", handleHttpData);
+      });
+    });
+    upstream.on("data", (chunk: Buffer) => tlsSocket.write(chunk));
+    upstream.on("error", () => tlsSocket.destroy());
+    upstream.on("close", () => tlsSocket.destroy());
     tlsSocket.on("error", () => {
       this.emitIgnored(target, "tls_socket_error");
+      upstream.destroy();
+    });
+    tlsSocket.on("close", () => upstream.destroy());
+  }
+
+  private connectUpstream(hostname: string, port: number): net.Socket {
+    if (this.options.createUpstream) {
+      return this.options.createUpstream({ host: hostname, port });
+    }
+    return tls.connect({
+      host: hostname,
+      port,
+      servername: hostname,
+      ALPNProtocols: ["http/1.1"],
     });
   }
 
@@ -383,16 +441,4 @@ function countRequestTools(body: unknown): number {
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function buildCapturedResponse(): string {
-  const body = "Harness AI captured this diagnostic request locally.\n";
-  return [
-    "HTTP/1.1 502 Harness AI Native Request Captured",
-    "Content-Type: text/plain; charset=utf-8",
-    `Content-Length: ${Buffer.byteLength(body)}`,
-    "Connection: close",
-    "",
-    body,
-  ].join("\r\n");
 }

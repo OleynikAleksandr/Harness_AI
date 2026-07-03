@@ -2,17 +2,21 @@
 
 ## Responsibility
 
-Own the capture-and-abort MITM proxy: a local CONNECT proxy bound to
-`127.0.0.1` that terminates TLS with a diagnostic certificate, reads the
-provider client's full HTTP request head and body (both `Content-Length` and
-`Transfer-Encoding: chunked` bodies — Codex streams its responses POST
-chunked with no `Content-Length`), filters the target model endpoint from
-background traffic, records the first matching request, and aborts with a
-synthetic error before any byte is forwarded upstream. No captured request
-reaches the vendor.
+Own the forward-transit MITM proxy: a local CONNECT proxy bound to
+`127.0.0.1`. For a target host it terminates TLS with a diagnostic
+certificate, forwards every client byte to the real upstream, relays the
+response back, and records the first request matching a target rule
+(`Content-Length` and `Transfer-Encoding: chunked` bodies are both parsed).
+Non-target hosts are blind TCP tunnels so background traffic (auth, models,
+other providers) still reaches its real server and the driven client keeps
+working.
 
-Behavior ported from the CodeAI-Hub `native-request-capture-proxy` module,
-without the WebSocket transport (HTTP/SSE capture only for the MVP).
+The request DOES reach the vendor. This replaced the earlier
+capture-and-abort model (2026-07-03) because Codex 0.142.5 forces an
+un-disableable WebSocket transport whose request payload only exists in frames
+sent after a real upgrade handshake — abort could never see it. The WebSocket
+upgrade forwarding and frame decode are added in a sibling module file (Phase
+6.5 task15).
 
 ## Public Facade
 
@@ -25,8 +29,10 @@ the sibling `capture-proxy-http.ts`, used by the facade.
 - `NativeCaptureProxyOptions`: provider id, target rules
   (`{ host, port?, pathIncludes?, bodyIncludes?, minimumToolCount? }`), a
   `resolveTlsCredentials({ hostname })` callback (from the certificate
-  store), an optional `onEvent` observer, and an optional `timeoutMs`
-  (default 30s).
+  store), an optional `onEvent` observer, an optional `timeoutMs`
+  (default 30s), and an optional `createUpstream({ host, port })` factory
+  (defaults to a real TLS socket to the rule host; injected in tests to point
+  at a fake upstream).
 
 ## Outputs
 
@@ -34,13 +40,13 @@ the sibling `capture-proxy-http.ts`, used by the facade.
   handle with `port`, `proxyUrl` (for the provider client's `HTTPS_PROXY`),
   `waitForCapture()` (resolves `captured` with the `CapturedNativeRequest`,
   or `failed`/`timeout` with a reason), and `stop()`.
-- Only CONNECT targets matching a rule get TLS terminated; non-target
-  CONNECTs and requests that fail the rule's `pathIncludes` /
-  `bodyIncludes` / `minimumToolCount` are answered with a local 502 (or a
-  closed connection) and emitted as `request_ignored` while the capture
-  keeps waiting — background prewarm turns on the target endpoint do not
-  end the capture. The matched request is answered with a synthetic 502
-  ("Native Request Captured") and never proxied to the vendor.
+- Only CONNECT targets matching a rule host get TLS-terminated and forwarded
+  to the real upstream; non-target CONNECTs are blind TCP tunnels. A forwarded
+  request that fails the rule's `pathIncludes` / `bodyIncludes` /
+  `minimumToolCount` is still relayed to the vendor but emitted as
+  `request_ignored` (not captured) while the capture keeps waiting — a
+  background prewarm turn on the target endpoint does not end the capture. The
+  first fully-matching request is captured and the capture resolves.
 - A request that matched the rule host+path but was rejected on the body
   carries a `detail` on its `request_ignored` event
   (`NativeCaptureIgnoredRequestDetail`: `bodyBytes`, `hasContentLength`,

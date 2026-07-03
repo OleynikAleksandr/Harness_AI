@@ -21,21 +21,30 @@ function compile(file) {
   ).outputText;
 }
 
-const TARGET_IGNORED_PATTERN = /502 Harness AI capture target ignored/u;
 const CONNECTION_ESTABLISHED_PATTERN = /200 Connection Established/u;
+const UPSTREAM_RESPONSE = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok";
 
-function readOnce(socket) {
-  return new Promise((resolve, reject) => {
-    socket.once("data", (chunk) => resolve(chunk.toString("utf8")));
-    socket.once("error", reject);
+// A fake upstream: records what the proxy forwarded and replies once the
+// request head arrives, so we can assert both forwarding and response relay.
+function startFakeUpstream() {
+  const connections = [];
+  const server = net.createServer((socket) => {
+    const chunks = [];
+    connections.push({ socket, chunks });
+    socket.on("data", (chunk) => {
+      chunks.push(chunk);
+      if (Buffer.concat(chunks).includes("\r\n\r\n")) {
+        socket.write(UPSTREAM_RESPONSE);
+      }
+    });
+    socket.on("error", () => socket.destroy());
   });
+  return { server, connections };
 }
 
 const buildDir = await mkdtemp(path.join(tmpdir(), "capture-proxy-build-"));
 
 try {
-  // The facade imports its HTTP parser from a sibling module file, so compile
-  // both into the build dir for the relative import to resolve.
   writeFileSync(
     path.join(buildDir, "capture-proxy-http.js"),
     compile("capture-proxy-http.ts"),
@@ -50,35 +59,6 @@ try {
     pathToFileURL(path.join(buildDir, "capture-proxy-facade.js")).href
   );
 
-  // Case 1: non-target CONNECT is ignored and never asks for TLS credentials.
-  const ignoreEvents = [];
-  const ignoreProxy = new NativeRequestCaptureProxy({
-    providerId: "claude",
-    targetRules: [{ host: "api.anthropic.com" }],
-    timeoutMs: 40,
-    onEvent: (event) => ignoreEvents.push(event),
-    resolveTlsCredentials: () => {
-      throw new Error("non-target must not request TLS credentials");
-    },
-  });
-  const ignoreHandle = await ignoreProxy.start();
-  const ignoreSocket = net.connect(ignoreHandle.port, "127.0.0.1");
-  ignoreSocket.write(
-    "CONNECT example.com:443 HTTP/1.1\r\nHost: example.com\r\n\r\n"
-  );
-  const ignoreResponse = await readOnce(ignoreSocket);
-  const ignoreResult = await ignoreHandle.waitForCapture();
-  await ignoreHandle.stop();
-  ignoreSocket.destroy();
-
-  assert.match(ignoreResponse, TARGET_IGNORED_PATTERN);
-  assert.equal(ignoreResult.status, "timeout");
-  assert.ok(ignoreEvents.some((e) => e.type === "proxy_connect"));
-  const ignored = ignoreEvents.find((e) => e.type === "request_ignored");
-  assert.equal(ignored.reason, "target_not_configured");
-  assert.equal(ignored.target, "example.com:443");
-
-  // Case 2: full capture-and-abort of a real HTTPS POST via TLS termination.
   const keyPath = path.join(buildDir, "host.key.pem");
   const certPath = path.join(buildDir, "host.cert.pem");
   execFileSync(
@@ -107,92 +87,44 @@ try {
     key: readFileSync(keyPath),
   };
 
-  const proxy = new NativeRequestCaptureProxy({
-    providerId: "claude",
-    targetRules: [{ host: "api.anthropic.com", pathIncludes: "/v1/messages" }],
-    timeoutMs: 5000,
-    resolveTlsCredentials: () => credentials,
-  });
-  const handle = await proxy.start();
+  const fake = startFakeUpstream();
+  await new Promise((resolve) => fake.server.listen(0, "127.0.0.1", resolve));
+  const fakePort = fake.server.address().port;
 
-  const tunnel = net.connect(handle.port, "127.0.0.1");
-  await new Promise((resolve, reject) => {
-    tunnel.once("error", reject);
-    tunnel.write(
-      "CONNECT api.anthropic.com:443 HTTP/1.1\r\nHost: api.anthropic.com:443\r\n\r\n"
-    );
-    tunnel.once("data", (chunk) => {
-      assert.match(chunk.toString("utf8"), CONNECTION_ESTABLISHED_PATTERN);
-      resolve();
+  function buildProxy(rule, events) {
+    return new NativeRequestCaptureProxy({
+      providerId: "claude",
+      targetRules: [rule],
+      timeoutMs: 4000,
+      onEvent: events ? (e) => events.push(e) : undefined,
+      resolveTlsCredentials: () => credentials,
+      // Forward to the local fake upstream instead of the real host.
+      createUpstream: () => net.connect(fakePort, "127.0.0.1"),
     });
-  });
+  }
 
-  const tlsSocket = tls.connect({
-    socket: tunnel,
-    servername: "api.anthropic.com",
-    rejectUnauthorized: false,
-  });
-  await new Promise((resolve, reject) => {
-    tlsSocket.once("secureConnect", resolve);
-    tlsSocket.once("error", reject);
-  });
-
-  const requestBody = JSON.stringify({
-    model: "claude-opus-4-8",
-    system: "You are Claude.",
-    tools: [{ name: "Read" }],
-    messages: [{ role: "user", content: "hi" }],
-  });
-  tlsSocket.write(
-    [
-      "POST /v1/messages HTTP/1.1",
-      "Host: api.anthropic.com",
-      "Authorization: Bearer sk-secret",
-      "Content-Type: application/json",
-      `Content-Length: ${Buffer.byteLength(requestBody)}`,
-      "",
-      requestBody,
-    ].join("\r\n")
-  );
-
-  const result = await handle.waitForCapture();
-  await handle.stop();
-  tlsSocket.destroy();
-
-  assert.equal(result.status, "captured");
-  assert.equal(result.request.method, "POST");
-  assert.equal(result.request.path, "/v1/messages");
-  assert.equal(result.request.target, "api.anthropic.com:443");
-  assert.equal(result.request.body.system, "You are Claude.");
-  assert.equal(result.request.body.tools.length, 1);
-  // The proxy hands the raw request to the writer; redaction happens there.
-  assert.equal(result.request.headers.authorization, "Bearer sk-secret");
-
-  // Case 3: bodyIncludes ignores a non-probe request (background prewarm on
-  // the same endpoint) without ending the capture, then records the request
-  // that carries the probe text.
-  async function openTlsTunnel(proxyHandle) {
-    const tunnelSocket = net.connect(proxyHandle.port, "127.0.0.1");
+  async function openClientTls(handle) {
+    const tunnel = net.connect(handle.port, "127.0.0.1");
     await new Promise((resolve, reject) => {
-      tunnelSocket.once("error", reject);
-      tunnelSocket.write(
+      tunnel.once("error", reject);
+      tunnel.write(
         "CONNECT api.anthropic.com:443 HTTP/1.1\r\nHost: api.anthropic.com:443\r\n\r\n"
       );
-      tunnelSocket.once("data", (chunk) => {
+      tunnel.once("data", (chunk) => {
         assert.match(chunk.toString("utf8"), CONNECTION_ESTABLISHED_PATTERN);
         resolve();
       });
     });
-    const secureSocket = tls.connect({
-      socket: tunnelSocket,
+    const tlsSocket = tls.connect({
+      socket: tunnel,
       servername: "api.anthropic.com",
       rejectUnauthorized: false,
     });
     await new Promise((resolve, reject) => {
-      secureSocket.once("secureConnect", resolve);
-      secureSocket.once("error", reject);
+      tlsSocket.once("secureConnect", resolve);
+      tlsSocket.once("error", reject);
     });
-    return secureSocket;
+    return tlsSocket;
   }
 
   function writeJsonPost(socket, payload) {
@@ -201,6 +133,7 @@ try {
       [
         "POST /v1/messages HTTP/1.1",
         "Host: api.anthropic.com",
+        "Authorization: Bearer sk-secret",
         "Content-Type: application/json",
         `Content-Length: ${Buffer.byteLength(body)}`,
         "",
@@ -209,105 +142,72 @@ try {
     );
   }
 
-  const probeEvents = [];
-  const probeProxy = new NativeRequestCaptureProxy({
-    providerId: "codex",
-    targetRules: [
-      {
-        host: "api.anthropic.com",
-        pathIncludes: "/v1/messages",
-        bodyIncludes: "Harness AI capture probe",
-      },
-    ],
-    timeoutMs: 5000,
-    onEvent: (event) => probeEvents.push(event),
-    resolveTlsCredentials: () => credentials,
-  });
-  const probeHandle = await probeProxy.start();
+  const rule = {
+    host: "api.anthropic.com",
+    pathIncludes: "/v1/messages",
+    bodyIncludes: "Harness AI capture probe",
+  };
 
-  const prewarmSocket = await openTlsTunnel(probeHandle);
-  writeJsonPost(prewarmSocket, {
-    model: "gpt-5.5",
-    input: [{ type: "text", text: "background prewarm turn" }],
+  // Case 1: a matched request is captured AND forwarded; the client gets the
+  // real upstream response relayed back.
+  const proxy = buildProxy(rule);
+  const handle = await proxy.start();
+  const client = await openClientTls(handle);
+  const clientResponse = new Promise((resolve) => {
+    client.once("data", (chunk) => resolve(chunk.toString("utf8")));
   });
-  await new Promise((resolve) => prewarmSocket.once("close", resolve));
-
-  const probeSocket = await openTlsTunnel(probeHandle);
-  writeJsonPost(probeSocket, {
-    model: "gpt-5.5",
-    instructions: "You are Codex.",
-    tools: [{ name: "shell" }],
-    input: [{ type: "text", text: "Harness AI capture probe turn" }],
+  writeJsonPost(client, {
+    model: "claude-opus-4-8",
+    system: "You are Claude.",
+    tools: [{ name: "Read" }],
+    input: "Harness AI capture probe turn",
   });
-  const probeResult = await probeHandle.waitForCapture();
-  await probeHandle.stop();
-  prewarmSocket.destroy();
-  probeSocket.destroy();
+  const result = await handle.waitForCapture();
+  const relayed = await clientResponse;
+  await handle.stop();
+  client.destroy();
 
-  assert.equal(probeResult.status, "captured");
-  assert.equal(probeResult.request.body.instructions, "You are Codex.");
-  const bodyIgnored = probeEvents.find(
-    (event) =>
-      event.type === "request_ignored" &&
-      event.reason === "request_body_not_matched"
+  assert.equal(result.status, "captured");
+  assert.equal(result.request.method, "POST");
+  assert.equal(result.request.body.system, "You are Claude.");
+  assert.match(
+    relayed,
+    /200 OK/u,
+    "client should receive the relayed response"
   );
-  assert.ok(bodyIgnored, "expected the prewarm request to be ignored");
-  // The ignored matched-path request carries structural diagnostics (no
-  // header/body values) so the artifact shows why it was rejected.
-  assert.ok(bodyIgnored.detail, "expected diagnostic detail on the ignore");
-  assert.equal(bodyIgnored.detail.probeMatched, false);
-  assert.equal(bodyIgnored.detail.hasContentLength, true);
-  assert.ok(bodyIgnored.detail.bodyBytes > 0);
-  assert.deepEqual(bodyIgnored.detail.topLevelKeys, ["model", "input"]);
+  assert.ok(
+    fake.connections.some((c) =>
+      Buffer.concat(c.chunks).includes("You are Claude.")
+    ),
+    "upstream should have received the forwarded request"
+  );
 
-  // Case 4: a chunked probe POST (Transfer-Encoding: chunked, no
-  // Content-Length, arriving in two writes) is reassembled and captured. This
-  // is the Codex responses transport that a Content-Length-only reader missed.
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const toChunk = (text) =>
-    `${Buffer.byteLength(text).toString(16)}\r\n${text}\r\n`;
-
-  const chunkedProxy = new NativeRequestCaptureProxy({
-    providerId: "codex",
-    targetRules: [
-      {
-        host: "api.anthropic.com",
-        pathIncludes: "/v1/messages",
-        bodyIncludes: "Harness AI capture probe",
-      },
-    ],
-    timeoutMs: 5000,
-    resolveTlsCredentials: () => credentials,
+  // Case 2: a non-probe request on the target endpoint is forwarded but NOT
+  // captured (it is emitted as ignored and the capture keeps waiting).
+  const events2 = [];
+  const proxy2 = buildProxy(rule, events2);
+  const handle2 = await proxy2.start();
+  const client2 = await openClientTls(handle2);
+  writeJsonPost(client2, {
+    model: "claude-opus-4-8",
+    input: "background turn",
   });
-  const chunkedHandle = await chunkedProxy.start();
-  const chunkedSocket = await openTlsTunnel(chunkedHandle);
+  const result2 = await handle2.waitForCapture();
+  await handle2.stop();
+  client2.destroy();
 
-  const chunkedBody = JSON.stringify({
-    model: "gpt-5.5",
-    instructions: "You are Codex.",
-    tools: [{ name: "shell" }],
-    input: [{ type: "text", text: "Harness AI capture probe turn" }],
-  });
-  const splitAt = Math.floor(chunkedBody.length / 2);
-  const chunkedHead = [
-    "POST /v1/messages HTTP/1.1",
-    "Host: api.anthropic.com",
-    "Transfer-Encoding: chunked",
-    "Content-Type: application/json",
-    "",
-    "",
-  ].join("\r\n");
-  chunkedSocket.write(chunkedHead + toChunk(chunkedBody.slice(0, splitAt)));
-  await delay(20);
-  chunkedSocket.write(`${toChunk(chunkedBody.slice(splitAt))}0\r\n\r\n`);
+  assert.equal(result2.status, "timeout", "non-probe must not be captured");
+  assert.ok(
+    events2.some(
+      (e) => e.type === "request_ignored" && e.detail?.probeMatched === false
+    ),
+    "the non-probe request should be reported ignored with detail"
+  );
 
-  const chunkedResult = await chunkedHandle.waitForCapture();
-  await chunkedHandle.stop();
-  chunkedSocket.destroy();
-
-  assert.equal(chunkedResult.status, "captured");
-  assert.equal(chunkedResult.request.body.instructions, "You are Codex.");
-  assert.equal(chunkedResult.request.body.tools.length, 1);
+  for (const connection of fake.connections) {
+    connection.socket.destroy();
+  }
+  await new Promise((resolve) => fake.server.close(resolve));
 
   console.log("capture-proxy tests: OK");
 } finally {

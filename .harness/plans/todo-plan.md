@@ -516,9 +516,9 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 > - **Per-provider application ceilings (honest):** Claude — full prompt+tools
 >   control (`systemPrompt` string/array + `tools` list). Codex — prompt via
 >   `baseInstructions`, but tooling is app-server process-flags (17 tools fixed,
->   no per-thread trim). Kimi — the agent.yaml substitution channel is NOT
->   proven to bind, so synthetic Kimi native is BLOCKED until the channel is
->   fixed and proven (user-directed order: fix Kimi first).
+>   no per-thread trim). Kimi — NO native channel to replace the main system
+>   prompt (proven 2026-07-03, see the rewriting-bridge note below); the only
+>   proven way is to rewrite the outbound HTTP request on our proxy.
 > - **Ballast candidate:** the Claude `# Memory` section (~2.2k tok, auto-memory
 >   instructions + path) is a candidate to DROP from the wrapper — with our
 >   orchestrated harness (plan as recovery owner, a commit per microtask) the
@@ -529,6 +529,74 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 
 109. [DONE] `harness-ai.phase7.stream1.task36` Document the native prompt anatomy and composition: add `docs/architecture/NativePromptComposition.md` describing how a provider request is assembled (system prompt + tools + messages), the two system-prompt layers (static cacheable wrapper vs live per-session context), prompt caching (the static prefix is cached within one session so later turns are cheaper; the dynamic suffix is not), the per-provider breakdown from the accepted dumps (Claude 4 blocks incl. cli identity + Environment ~1k / Memory ~2.2k / Scratchpad dynamic; Codex; Kimi OpenAI shape), the B2 native model (frozen wrapper from the Profiles folder + live context generator shared by all profiles), the ballast decision on the Claude Memory section, and the per-provider application ceilings; register it in the index and cross-link from SessionProfilesV2 decision 5 (scope: `docs/architecture/NativePromptComposition.md` (new), `docs/DOCUMENTATION_INDEX.md`, `docs/architecture/SessionProfilesV2.md`; expected commit: `docs(architecture): document native prompt composition and caching`) Result: Completed in commit `docs(architecture): document native prompt composition and caching`.
 110. [DONE] Git Commit: `docs(architecture): document native prompt composition and caching` (hash: self)
+
+### Stream: Kimi Channel Research (DONE) And The Rewriting-Bridge Proposal (OPEN FOR DISCUSSION)
+
+> KIMI CHANNEL RESEARCH RESULT (2026-07-03, read-only, user-directed "fix Kimi
+> first"). Zero-context recovery: this note + `docs/architecture/
+> NativePromptComposition.md` + the memory `native-profile-unification.md`
+> fully restore the discussion; the diagnostic scripts lived in the session
+> scratchpad (gone next session), so the method is described here in full.
+>
+> **Finding — kimi-code 0.18.0 has NO supported channel to replace the MAIN
+> system prompt + tools.** Evidence: (1) the agent profiles agent/coder/
+> explore/plan are BAKED INTO THE BINARY from bundle sources
+> (`profile/default/*.yaml`, loaded via `loadAgentProfilesFromSources(paths,
+> PROFILE_SOURCES)` where PROFILE_SOURCES is the in-binary content registry);
+> (2) `config.profileName` only selects among those built-ins; (3)
+> `discoverAgentsFromDisk(sessionDir)` populates SUBagents (the Agent tool),
+> not the main prompt; (4) empirically a marker agent planted in
+> `<home>/.kimi-code/agents/<name>.yaml` (both `name.yaml` and
+> `name/agent.yaml`, inline `systemPrompt:` form) with ACP `session/new`
+> passing `agent`/`agentName` did NOT reach the model — all 27 requests kept
+> the default `You are Kimi Code CLI` + 23 native tools. This is exactly why
+> the CodeAI-Hub managed `agent.yaml` never bound (2026-07-02 "not proven").
+>
+> **Proven solution — rewrite the outbound HTTP request on our proxy.** kimi
+> posts an OpenAI-shape `POST /coding/v1/chat/completions` to the provider
+> `base_url` in `config.toml`; we already route that base_url through our
+> reverse bridge (the Kimi capture path, `capture-proxy-reverse.ts`). A
+> REWRITING bridge parses the JSON body, replaces `messages[role=system]`
+> with our synthetic wrapper and `body.tools` with our tool list, then forwards
+> the rewritten request to the real `api.kimi.com` and relays the response.
+> PROVEN empirically (zero tokens, terminal stub instead of the vendor): with
+> kimi on the DEFAULT agent, the model side received system
+> `"SYNTHETIC_NATIVE_KIMI_WRAPPER_7c1e ..."` and tools `["HarnessSyntheticTool"]`
+> — OUR values, not the native 23. So a managed/native synthetic wrapper for
+> Kimi is achievable regardless of kimi's lack of a substitution channel.
+>
+> **PROPOSAL (open for discussion next session):** run live Kimi sessions
+> through a PERSISTENT rewriting bridge (not just diagnostic capture). The
+> bridge applies the selected profile (native or managed) by substituting
+> system + tools in every `/chat/completions` on the way to api.kimi.com; the
+> live per-session context (Working Environment / date / AGENTS.md / Skills)
+> is left as kimi builds it, or is itself rewritten — TBD. This is the SAME
+> mechanism as capture, extended from record-only to record-and-rewrite.
+>
+> **Open questions to settle before planning implementation:**
+> - Architecture home: does the persistent bridge live in the
+>   `provider-network-capture` cluster (reuse `capture-proxy-reverse.ts`) or a
+>   new live-transport module? Capture is diagnostic; a live rewrite path is
+>   product runtime — likely a sibling module, not the diagnostic one.
+> - Streaming: live responses are SSE/streamed; the bridge must relay the
+>   vendor stream faithfully (capture only needed the request, not a clean
+>   streamed response). This is the main new engineering vs capture.
+> - TLS/trust and lifecycle: the bridge terminates the kimi->bridge hop
+>   (plain http to 127.0.0.1) and opens its own TLS to api.kimi.com; it must
+>   start/stop with the Kimi session and survive reconnects.
+> - Wrapper vs context split on the wire: we replace `system` wholesale — do we
+>   inject only the frozen wrapper (and let kimi's own context stay), or also
+>   rebuild the live context? Ties back to the B2 model.
+> - Alternative to weigh: DON'T rewrite Kimi — keep Kimi native on its real
+>   built-in wrapper (it is already the vendor default) and apply synthetic
+>   profiles only to Claude/Codex. Trade-off: loses "all three managed by us"
+>   uniformity (user's C requirement) but avoids a persistent live proxy.
+> - Failure mode: if the bridge is down, does the Kimi session fail closed
+>   (no unmanaged fallback) or fall back to native? Fail-closed keeps the
+>   managed guarantee honest.
+
+111. [DONE] `harness-ai.phase7.stream1.task37` Record the Kimi channel research result and the rewriting-bridge proposal as an open discussion item in the plan (this stream + the updated per-provider ceiling line), so a zero-context next session fully restores the discussion; no code, plan-only (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): record kimi rewriting-bridge proposal for discussion`) Result: Completed in commit `docs(plan): record kimi rewriting-bridge proposal for discussion`.
+112. [DONE] Git Commit: `docs(plan): record kimi rewriting-bridge proposal for discussion` (hash: self)
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

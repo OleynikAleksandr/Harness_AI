@@ -151,7 +151,7 @@ export class NativeCaptureOrchestrator {
     return await this.captureViaProxy({ captureId, command, writer });
   }
 
-  // Claude/Codex: run the provider client through the capture-and-abort proxy.
+  // Claude/Codex: run the provider client through the forward-transit proxy.
   private async captureViaProxy(params: {
     readonly captureId: string;
     readonly command: NativeCaptureCommand;

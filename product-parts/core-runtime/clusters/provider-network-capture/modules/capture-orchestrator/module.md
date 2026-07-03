@@ -49,7 +49,7 @@ injection (pointing a provider client at the local proxy) is passed in as a
 - `NativeCaptureOrchestrator.capture(command)`: mints one capture id, creates
   the writer, then dispatches by provider. Claude/Codex take the proxy path
   (`captureViaProxy`): prepare the diagnostic certificate, start the
-  capture-and-abort proxy, race the provider run against the capture, write
+  forward-transit proxy, race the provider run against the capture, write
   the (redacted) captured request on success. Proxy events (`proxy_connect`/
   `request_ignored`) are collected during the run and flushed once into the
   writer as `capture_proxy_event` diagnostic-context records, so an ignored

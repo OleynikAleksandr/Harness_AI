@@ -144,8 +144,8 @@ export function buildNativeRequestCaptureMarkdown(
     "",
     `Provider: ${options.providerId}`,
     `Selected model: ${options.selectedModelId ?? "(provider default)"}`,
-    "Sent upstream: false",
-    "Capture mode: MITM capture-and-abort",
+    "Sent upstream: true",
+    "Capture mode: MITM forward transit",
     `Generated at: ${options.generatedAt}`,
     "",
     "## Summary",
@@ -227,7 +227,7 @@ export class NativeRequestCaptureWriter {
       providerId: options.providerId,
       releaseVersion: options.releaseVersion ?? null,
       selectedModelId: options.selectedModelId ?? null,
-      sentUpstream: false,
+      sentUpstream: true,
       timestamp: now.toISOString(),
     });
     return writer;
@@ -248,7 +248,7 @@ export class NativeRequestCaptureWriter {
       captureId: this.captureId,
       providerId: this.providerId,
       request: sanitized,
-      sentUpstream: false,
+      sentUpstream: true,
     });
     for (const section of extractCaptureSections(request.body)) {
       await this.appendRecord({ captureId: this.captureId, ...section });
@@ -268,7 +268,7 @@ export class NativeRequestCaptureWriter {
       captureId: this.captureId,
       providerId: this.providerId,
       envelope,
-      sentUpstream: false,
+      sentUpstream: true,
     });
     await this.writeMarkdown();
   }
@@ -283,7 +283,7 @@ export class NativeRequestCaptureWriter {
       providerId: this.providerId,
       kind: record.kind,
       payload: record.payload,
-      sentUpstream: false,
+      sentUpstream: true,
     });
     await this.writeMarkdown();
   }
@@ -298,7 +298,7 @@ export class NativeRequestCaptureWriter {
       captureId: this.captureId,
       providerId: this.providerId,
       reason,
-      sentUpstream: false,
+      sentUpstream: true,
       status,
       timestamp: this.clock().toISOString(),
     });

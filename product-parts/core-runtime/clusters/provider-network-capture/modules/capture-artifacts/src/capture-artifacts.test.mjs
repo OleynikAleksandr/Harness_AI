@@ -135,7 +135,7 @@ try {
   assert.match(markdown, /# Claude Native Request Capture/u);
   assert.match(markdown, /Selected model: claude-opus-4-8/u);
   assert.match(markdown, /You are Claude\./u);
-  assert.match(markdown, /Sent upstream: false/u);
+  assert.match(markdown, /Sent upstream: true/u);
 
   // Kimi wire-only: no HTTP request, but envelope + diagnostic context make a
   // complete artifact.

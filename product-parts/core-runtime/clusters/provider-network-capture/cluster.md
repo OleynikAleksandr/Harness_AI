@@ -19,9 +19,10 @@ architecture (`Plans/Archive/Provider_Native_Request_Capture_Architecture.md`).
 
 ## Facade Rule
 
-The cluster owns the capture-and-abort proxy, the diagnostic certificate
-store, the artifact writer, and capture orchestration. It never forwards a
-captured request to the vendor. Provider-specific environment injection
+The cluster owns the forward-transit capture proxy, the diagnostic certificate
+store, the artifact writer, and capture orchestration. The proxy forwards a
+matched request to the real vendor and relays the response (required to capture
+Codex's mandatory WebSocket transport). Provider-specific environment injection
 (pointing a provider client at the local proxy) lives in the provider
 adapters (Provider Runtime); this cluster stays provider-neutral and receives
 the captured request from the proxy. Renderer/client code only submits the

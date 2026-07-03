@@ -4,6 +4,10 @@ import { NativeCaptureOrchestrator } from "../../../../provider-network-capture/
 import { buildProviderAdapterInstance } from "./core-provider-adapter-registration.js";
 
 const CAPTURE_PROVIDER_IDS = new Set(["claude", "codex", "kimi"]);
+// The Claude capture drives the provider binary interactively in a pty
+// (boot the UI, type the probe, submit), which does not fit the 30s proxy
+// default that suits the direct Codex/Kimi clients.
+const CLAUDE_INTERACTIVE_CAPTURE_TIMEOUT_MS = 120_000;
 const orchestrator = new NativeCaptureOrchestrator();
 
 export interface CaptureNativeRequestRpcResult {
@@ -55,6 +59,9 @@ export async function captureNativeRequestRpcResult(
     providerId: providerId as "claude" | "codex" | "kimi",
     runProviderCapture: (context) => capture(context),
     workspacePath,
+    ...(providerId === "claude"
+      ? { timeoutMs: CLAUDE_INTERACTIVE_CAPTURE_TIMEOUT_MS }
+      : {}),
   });
   return {
     error: result.error,

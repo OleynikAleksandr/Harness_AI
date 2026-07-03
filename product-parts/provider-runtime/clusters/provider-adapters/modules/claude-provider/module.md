@@ -67,20 +67,26 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   split out to keep `claude-sdk-manager.ts` under the 500-line cap.
 - Native request capture (`claude-native-request-capture-service.ts`,
   reached through the adapter's `captureNativeRequest`): a record-only
-  diagnostic path that runs the probe through the Agent SDK and applies the
-  **same Native profile the live adapter sends** — it calls
-  `applyClaudeSessionProfile(queryOptions, { kind: "native" })`, which sets the
-  claude_code `systemPrompt`/`tools` presets and the vendor setting sources
-  (`["user","project","local"]`). Without those presets the SDK emits its
-  minimal default (a short SDK system prompt and a reduced tool set), which is
-  not the Claude Code CLI reference; with them the captured request is the full
-  Claude Code system prompt + native tool set (Read/Write/Edit/Bash/Glob/Grep/
-  WebFetch/WebSearch/TodoWrite/...). It injects the diagnostic proxy env
-  (`HTTPS_PROXY`/`ALL_PROXY` + `NODE_EXTRA_CA_CERTS`/`SSL_CERT_FILE`/
-  `REQUESTS_CA_BUNDLE`) and drains the stream until the capture proxy forwards
-  and the response completes. The managed-vs-vanilla comparison and applied
-  turn config were removed; only recording remains
-  (`docs/architecture/SessionProfilesV2.md`, decision 5).
+  diagnostic path that records the **original interactive CLI wrapping**. The
+  claude binary assembles its system prompt and inline tool set by entry mode
+  (SDK stream-json transport -> SDK identity + 9 inline tools, even with the
+  claude_code presets; `-p` print mode -> SDK identity + 26 tools; interactive
+  TTY -> "You are Claude Code, Anthropic's official CLI for Claude." + the
+  full inline tool set + the agents system message) and no SDK query option
+  switches that mode, so the service does NOT go through `sdkModule.query`:
+  it drives the provider binary interactively in a real pty via
+  `claude-interactive-cli-runner.ts` — system `python3` `pty.fork` driver
+  (preflight error when python3 is missing), onboarding/trust pre-acceptance
+  upsert into the provider-home `.claude.json` (written ONLY when a
+  prerequisite is missing: that file is a symlink to the user's live Claude
+  config via the auth home-bridge), boot wait -> type probe -> submit ->
+  drain -> self-terminate on a timer (the capture orchestrator never kills
+  the provider process; the forward proxy capture wins the race). The run inherits the provider auth env (`HOME` -> provider home,
+  `CLAUDE_USE_CLI_AUTH`) plus the diagnostic proxy env (`HTTPS_PROXY`/
+  `ALL_PROXY` + `NODE_EXTRA_CA_CERTS`/`SSL_CERT_FILE`/`REQUESTS_CA_BUNDLE`).
+  The managed-vs-vanilla comparison and applied turn config were removed;
+  only recording remains (`docs/architecture/SessionProfilesV2.md`,
+  decision 5).
 
 ## Owned Paths
 

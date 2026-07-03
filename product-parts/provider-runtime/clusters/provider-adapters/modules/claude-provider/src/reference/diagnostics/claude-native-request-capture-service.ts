@@ -1,7 +1,7 @@
 import type { SDKInstaller } from "../installer/sdk-installer.js";
-import { applyClaudeSessionProfile } from "../sdk/claude-profile-application.js";
 import type { ClaudeSDKAuthProvider } from "../sdk/claude-sdk-manager.js";
-import type { ClaudeStreamMessage, ClaudeWorkspaceOptions } from "../types.js";
+import type { ClaudeWorkspaceOptions } from "../types.js";
+import { runClaudeInteractiveCli } from "./claude-interactive-cli-runner.js";
 
 export interface ClaudeNativeRequestCaptureOptions {
   readonly captureId: string;
@@ -18,13 +18,11 @@ export interface ClaudeNativeRequestCaptureOptions {
 }
 
 interface ClaudeNativeRequestCaptureAppliedInputEnvelope {
-  readonly allowDangerouslySkipPermissions: boolean | null;
-  readonly cwd: string | null;
-  readonly hasSystemPrompt: boolean;
+  readonly binaryPath: string;
+  readonly cwd: string;
   readonly kind: "claude";
-  readonly permissionMode: string | null;
-  readonly settingSources: readonly string[] | null;
-  readonly toolCount: number;
+  readonly mode: "interactive_cli";
+  readonly model: string | null;
 }
 
 interface ClaudeNativeRequestCaptureAuthProvider extends ClaudeSDKAuthProvider {
@@ -34,18 +32,15 @@ interface ClaudeNativeRequestCaptureAuthProvider extends ClaudeSDKAuthProvider {
   }): Promise<void>;
 }
 
-type QueryFunction = (payload: {
-  readonly options: Record<string, unknown>;
-  readonly prompt: string;
-}) => AsyncIterableIterator<ClaudeStreamMessage>;
-
-// Record-only native capture: runs the diagnostic probe through the Agent SDK
-// and applies the same Native profile the live adapter sends — the claude_code
-// `systemPrompt`/`tools` presets plus the vendor setting sources (via
-// `applyClaudeSessionProfile`). This captures the full Claude Code CLI
-// reference (its system prompt and native tool set: Read/Write/Edit/Bash/Glob/
-// Grep/WebFetch/WebSearch/TodoWrite/...), not the SDK's minimal default. The
-// managed-vs-vanilla comparison path was removed; only recording remains.
+// Record-only native capture of the ORIGINAL interactive CLI wrapping. The
+// claude binary assembles its system prompt and inline tool set by entry
+// mode, and the SDK stream-json transport (even with the claude_code
+// presets) yields the SDK identity and a reduced inline tool set — NOT the
+// Claude Code CLI reference. So the capture drives the provider binary in a
+// real pty (interactive TTY mode) through the forward capture proxy and lets
+// the proxy record the request the interactive CLI actually sends: the
+// "You are Claude Code..." system prompt, the full inline tool set and the
+// service messages. See claude-interactive-cli-runner.ts for the pty driver.
 export class ClaudeNativeRequestCaptureService {
   readonly #authManager: ClaudeNativeRequestCaptureAuthProvider;
   readonly #installer: SDKInstaller;
@@ -71,56 +66,42 @@ export class ClaudeNativeRequestCaptureService {
       executablePath,
       workspacePath: options.workspacePath,
     });
-    const sdkModule = await this.#installer.loadModule<{
-      readonly query: QueryFunction;
-    }>();
-    const queryOptions = this.buildQueryOptions(options);
-    await options.recordAppliedInputEnvelope?.(
-      buildAppliedInputEnvelope(queryOptions)
-    );
-    const iterator = sdkModule.query({
-      prompt: resolveCapturePrompt(options),
-      options: queryOptions,
+    const modelId =
+      readNonEmptyString(options.selectedModelId) ??
+      readNonEmptyString(this.#workspace.defaultModel) ??
+      null;
+    await options.recordAppliedInputEnvelope?.({
+      binaryPath: executablePath,
+      cwd: options.workspacePath,
+      kind: "claude",
+      mode: "interactive_cli",
+      model: modelId,
     });
-    for await (const _message of iterator) {
-      // Drain until the capture proxy aborts the diagnostic request.
-    }
+    await runClaudeInteractiveCli({
+      binaryPath: executablePath,
+      env: this.buildInteractiveEnv(options),
+      modelId,
+      probePrompt: resolveCapturePrompt(options),
+      workspacePath: options.workspacePath,
+    });
   }
 
-  private buildQueryOptions(
+  private buildInteractiveEnv(
     options: ClaudeNativeRequestCaptureOptions
-  ): Record<string, unknown> {
-    const queryOptions: Record<string, unknown> = {
-      cwd: options.workspacePath,
-      env: {
-        ...this.#authManager.getAuthEnvironment(),
-        ...options.certificateEnv,
-        ALL_PROXY: options.proxyUrl,
-        HTTP_PROXY: options.proxyUrl,
-        HTTPS_PROXY: options.proxyUrl,
-        NODE_EXTRA_CA_CERTS:
-          options.certificateEnv.NODE_EXTRA_CA_CERTS ?? options.certificatePath,
-        REQUESTS_CA_BUNDLE:
-          options.certificateEnv.REQUESTS_CA_BUNDLE ?? options.certificatePath,
-        SSL_CERT_FILE:
-          options.certificateEnv.SSL_CERT_FILE ?? options.certificatePath,
-      },
-      includePartialMessages: false,
-      model:
-        readNonEmptyString(options.selectedModelId) ??
-        this.#workspace.defaultModel,
-      pathToClaudeCodeExecutable: this.#installer.getExecutablePath(),
-      persistSession: false,
-      thinking: { type: "disabled" },
+  ): Readonly<Record<string, string | undefined>> {
+    return {
+      ...this.#authManager.getAuthEnvironment(),
+      ...options.certificateEnv,
+      ALL_PROXY: options.proxyUrl,
+      HTTP_PROXY: options.proxyUrl,
+      HTTPS_PROXY: options.proxyUrl,
+      NODE_EXTRA_CA_CERTS:
+        options.certificateEnv.NODE_EXTRA_CA_CERTS ?? options.certificatePath,
+      REQUESTS_CA_BUNDLE:
+        options.certificateEnv.REQUESTS_CA_BUNDLE ?? options.certificatePath,
+      SSL_CERT_FILE:
+        options.certificateEnv.SSL_CERT_FILE ?? options.certificatePath,
     };
-    // Apply the same native profile the live adapter sends: without the
-    // claude_code presets the SDK emits its minimal default (a short SDK
-    // system prompt and a reduced tool set), which is not the Claude Code CLI
-    // reference. `applyClaudeSessionProfile` (kind `native`) sets the
-    // claude_code `systemPrompt`/`tools` presets and the vendor setting
-    // sources, so the captured request matches what the Native profile sends.
-    applyClaudeSessionProfile(queryOptions, { kind: "native" });
-    return queryOptions;
   }
 }
 
@@ -132,31 +113,3 @@ const readNonEmptyString = (value: unknown): string | undefined =>
 const resolveCapturePrompt = (
   options: ClaudeNativeRequestCaptureOptions
 ): string => readNonEmptyString(options.workflowPrompt) ?? options.probePrompt;
-
-const buildAppliedInputEnvelope = (
-  queryOptions: Record<string, unknown>
-): ClaudeNativeRequestCaptureAppliedInputEnvelope => ({
-  allowDangerouslySkipPermissions: readBooleanOrNull(
-    queryOptions.allowDangerouslySkipPermissions
-  ),
-  cwd: readStringOrNull(queryOptions.cwd),
-  hasSystemPrompt: readNonEmptyString(queryOptions.systemPrompt) !== undefined,
-  kind: "claude",
-  permissionMode: readStringOrNull(queryOptions.permissionMode),
-  settingSources: readStringArrayOrNull(queryOptions.settingSources),
-  toolCount: Array.isArray(queryOptions.tools) ? queryOptions.tools.length : 0,
-});
-
-const readBooleanOrNull = (value: unknown): boolean | null =>
-  typeof value === "boolean" ? value : null;
-
-const readStringOrNull = (value: unknown): string | null =>
-  readNonEmptyString(value) ?? null;
-
-const readStringArrayOrNull = (value: unknown): readonly string[] | null =>
-  Array.isArray(value)
-    ? value.flatMap((entry) => {
-        const item = readNonEmptyString(entry);
-        return item ? [item] : [];
-      })
-    : null;

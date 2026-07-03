@@ -193,13 +193,13 @@
   Детерминированный probe-промпт помечает запрос как диагностический; фильтр
   целей отделяет модельный запрос (`api.anthropic.com`,
   `chatgpt.com/backend-api/codex/...`) от фоновых.
-- **Подключение клиентов** (спайк reference подтвердил): Claude — env
-  SDK-процесса `HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS` (Node TLS); Codex —
-  изолированный временный app-server c `HTTPS_PROXY` + `SSL_CERT_FILE`
-  (Rust TLS), рабочий app-server не мутируется; **Kimi — полноправный
-  провайдер scope** по тому же паттерну (временный `kimi acp`-подпроцесс;
-  preflight доверия к CA — отдельный риск, в reference Kimi не было, это
-  новая часть Harness AI).
+- **Подключение клиентов**: Claude — интерактивный запуск провайдер-бинаря
+  в pty (см. Claude-блок ниже) с env `HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS`
+  (Node TLS); Codex — изолированный временный app-server c `HTTPS_PROXY` +
+  `SSL_CERT_FILE` (Rust TLS), рабочий app-server не мутируется; **Kimi —
+  полноправный провайдер scope** по тому же паттерну (временный
+  `kimi acp`-подпроцесс; preflight доверия к CA — отдельный риск, в
+  reference Kimi не было, это новая часть Harness AI).
   GLM Native съёма не требует: его системное сообщение и схемы
   инструментов собирает наш собственный адаптер.
 - **Codex: WebSocket-транспорт обязателен и неотключаем** (эмпирически
@@ -241,26 +241,46 @@
   базовый inline-набор из 17 достаточен; deferred/MCP слой — опциональное
   расширение, если понадобятся его схемы. У Codex НЕТ инструмента `WebFetch`
   (это инструмент Claude-стека); веб у Codex — `web_search` (в inline-наборе).
-- **Claude: Native = полный Claude Code CLI, не минимальный Agent SDK**
-  (установлено 2026-07-03 при первом Claude-захвате): наш Claude-адаптер ходит
-  через Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`), а не через `claude`
-  CLI напрямую. Если вызвать `query()` **без** опций, SDK шлёт свой минимальный
-  дефолт: короткий system prompt («You are a Claude agent, built on Anthropic's
-  Claude Agent SDK», `cc_entrypoint=sdk-ts`) и урезанный набор тулов (9:
-  Agent/Bash/Edit/Read/Write/Skill/Workflow/ToolSearch/ScheduleWakeup), без
-  WebFetch/WebSearch/Glob/Grep/TodoWrite. Полный Claude Code CLI-эталон
-  включается флагами SDK (подтверждено по `sdk.d.ts`):
-  `systemPrompt: {type:"preset", preset:"claude_code"}` («Use Claude Code's
-  default system prompt»), `tools: {type:"preset", preset:"claude_code"}` («Use
-  all default Claude Code tools»), `settingSources: ["user","project","local"]`
-  (загрузка CLAUDE.md как у vanilla CLI). Боевой Native-профиль это уже делает
-  (`applyClaudeSessionProfile`, kind `native`), поэтому Native baseline
-  Harness = полный Claude Code CLI. Capture обязан применять **тот же** native
-  preset (переиспользует `applyClaudeSessionProfile`), иначе дамп отражает
-  минимальный SDK-дефолт, а не реальный Native. Примечание SDK: в native-сборках
-  поиск может идти через Bash `find`/`grep` вместо выделенных `Grep`/`Glob` —
-  их стоит явно перечислять в `tools`/`allowedTools`, если нужны как отдельные
-  инструменты.
+- **Рамка цели (зафиксирована пользователем 2026-07-03): Native = оригинальная
+  CLI-обвязка провайдера.** Система запускает каждого провайдера изначально с
+  его родной обвязкой (системный промпт + системный тулинг + служебные
+  сообщения) — считаем, что родные клиенты лучше всего подобраны под свои
+  модели. Все остальные профайлы готовятся **редактированием Native-базы**:
+  выбрасывается только универсальный балласт («на все случаи жизни»),
+  всё важное для любого запроса сохраняется. Claude Agent SDK и Codex
+  app-server выбраны как **канал управления** — только они позволяют менять
+  системный промпт, тулинг и прочие опции, — но база остаётся базой
+  клиента-провайдера, иначе теряется основа.
+- **Claude: промпт собирается ПО РЕЖИМУ входа бинаря; Native-эталон — только
+  интерактивный CLI** (эмпирическая матрица 2026-07-03, прогоны против
+  локальной заглушки `ANTHROPIC_BASE_URL` на нашем провайдер-бинаре 2.1.195 и
+  глобальном CLI пользователя 2.1.199): SDK не имеет своего сетевого стека —
+  `query()` спавнит тот же самый бинарь `claude` (платформенный пакет
+  `claude-agent-sdk-darwin-arm64`, user-agent `claude-cli/…`), но бинарь
+  собирает системный промпт и inline-набор инструментов по режиму входа, и
+  никакая опция SDK это не переключает: **SDK stream-json транспорт**
+  (`cc_entrypoint=sdk-ts`, даже с пресетами `claude_code`) → SDK-identity
+  («You are a Claude agent, built on Anthropic's Claude Agent SDK») + 9
+  inline-тулов (~9.4k tok); **print-режим `-p`** → SDK-identity + 26 тулов;
+  **интерактивный TTY (pty)** → «You are Claude Code, Anthropic's official
+  CLI for Claude.» + полный inline-набор (29–30 тулов, ~23k tok: +
+  AskUserQuestion, EnterPlanMode/ExitPlanMode, WebFetch, WebSearch, Task*,
+  Cron*, Monitor, …) + служебное system-сообщение с каталогом агентов. Живой
+  `/context` пользователя показывает System prompt ~4.1k tok — это базис
+  ~1.5k + окруженческие секции (gitStatus, язык, настройки), появляющиеся в
+  реальной сессии. Прежний вывод «пресеты claude_code дают полный CLI» —
+  опровергнут: пресеты меняют только контент внутри SDK-режима сборки.
+  Поэтому **capture запускает провайдер-бинарь интерактивно в настоящем pty**
+  (`claude-interactive-cli-runner.ts`: драйвер на системном `python3`
+  `pty.fork` — `script(1)` не доставляет piped stdin в pty, `expect` без
+  активного дренажа блокируется на выводе Ink; boot-ожидание → ввод probe →
+  submit → дренаж → самозавершение по таймеру), с авторизацией провайдер-home
+  (`HOME`, `CLAUDE_USE_CLI_AUTH`) и предварительным акцептом
+  onboarding/trust-диалога в `.claude.json`; таймаут capture-команды Claude
+  поднят до 120s (pty-цикл не влезает в 30s дефолт прокси). Live
+  Native-профиль сессий пока остаётся на SDK-пресетах `claude_code`
+  (канал управления); приближение живого промпта к CLI-эталону — предмет
+  Phase R на базе снятых эталонов.
 - **Артефакты**: пары `<timestamp>-<provider>-<model>-native-request.{jsonl,md}`
   в Harness home logs; JSONL с записями `request_captured` /
   `section_extract` (system, tools, messages), markdown — читаемый дамп с

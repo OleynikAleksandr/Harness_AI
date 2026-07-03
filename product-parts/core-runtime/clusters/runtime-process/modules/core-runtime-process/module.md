@@ -106,12 +106,15 @@ also run here so the Application Shell remains UI/supervisor/client only.
   never clobbered), best-effort bootstraps it (`ensureWorkspaceHome` +
   `initialize`), and drives it through the `provider-network-capture` cluster's
   `NativeCaptureOrchestrator` (record-only, vendor-default request), returning
-  `{ ok, markdownPath, jsonlPath, error }`. `list-capturable-models` returns the
-  per-provider capturable model catalog from `provider-descriptor`. Only
-  Claude/Codex/Kimi are capture providers; other providers return
-  `provider_not_supported`. The adapter builder is factored out of
-  `core-provider-adapter-registration.ts` and reused by the shared registry
-  wiring.
+  `{ ok, markdownPath, jsonlPath, error }`. The Claude command passes a raised
+  `timeoutMs` (120s): its capture drives the provider binary interactively in
+  a pty (boot the UI, type the probe, submit), which does not fit the 30s
+  proxy default that suits the direct Codex/Kimi clients.
+  `list-capturable-models` returns the per-provider capturable model catalog
+  from `provider-descriptor`. Only Claude/Codex/Kimi are capture providers;
+  other providers return `provider_not_supported`. The adapter builder is
+  factored out of `core-provider-adapter-registration.ts` and reused by the
+  shared registry wiring.
 
 ## Owned Paths
 

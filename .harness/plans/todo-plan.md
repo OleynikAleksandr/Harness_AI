@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6c.stream1.task28",
+  "expectedCommitMessage": "chore(package): rebuild packaged app with interactive cli capture",
   "debt": null
 }
 ```
@@ -77,23 +77,27 @@ PER-PROVIDER FINDINGS:
   (`--enable browser_use/...`) add NO tools; browser/computer/MCP tools are a
   deferred layer (`tool_search` + `AlwaysDeferMcpTools`, MCP servers start slow)
   outside `/responses`. Codex has NO `WebFetch`; web = `web_search`.
-- **Claude** (HTTP POST `/v1/messages`). Fix committed `bebb359f`: capture must
-  apply the SAME Native profile the live adapter sends — the claude_code presets
-  via `applyClaudeSessionProfile(queryOptions, {kind:"native"})`
-  (`systemPrompt`/`tools` = `{type:"preset", preset:"claude_code"}`,
-  `settingSources: ["user","project","local"]`). Without it the SDK sends its
-  minimal default (9 tools, 146-char system, `cc_entrypoint=sdk-ts`), which is
-  NOT the Claude Code CLI reference. Our Claude adapter uses `@anthropic-ai/
-  claude-agent-sdk`, not the `claude` CLI; Native = full Claude Code CLI. NOT
-  yet re-captured on this build.
+- **Claude** (HTTP POST `/v1/messages`). The claude_code-preset SDK dump
+  (bebb359f, captured 2026-07-03T14-18-55) is NOT the CLI reference: the binary
+  assembles the prompt BY ENTRY MODE (SDK `sdk-ts` -> SDK identity + 9 inline
+  tools; `-p` -> 26 tools; interactive pty -> "You are Claude Code..." + 29-30
+  tools ~23k tok) and no SDK option switches it. Native = the ORIGINAL
+  interactive CLI wrapping (user frame 2026-07-03), so Phase 6.6 pivots Claude
+  capture to an interactive pty run of the provider binary (python3 `pty.fork`
+  driver, provider-home auth, trust pre-acceptance, self-terminating timer).
+  See the Phase 6.6 discovery note for the full empirical matrix.
 - **Kimi** (wire-only, no proxy). Orchestrator `captureWireOnly` branch. NOT yet
   re-captured on the forward build.
 
-STATE: Codex pair complete. Claude fix packaged (app.asar 16:14, task26) but
-NOT re-captured; Kimi NOT re-captured. task2 stays open until the user confirms
-all three native pairs. Do NOT close scope (user-directed only). Diagnostic
-scripts in the session scratchpad (`diag-codex*.mjs`, `diag-ws-*.mjs`) are the
-reusable proof method (spin our proxy + real vendor CLI, log ALPN/frames).
+STATE: Codex pair complete (artifact currently missing from the log dir —
+ask the user where it was moved before re-capturing). Claude: SDK-preset dump
+exists (2026-07-03T14-18-55, claude-opus) but is superseded by the Phase 6.6
+interactive-CLI pivot; re-capture after task27/28. Kimi NOT re-captured on the
+forward build. task2 stays open until the user confirms all three native
+pairs. Do NOT close scope (user-directed only). Diagnostic scripts live in the
+session scratchpad (`diag-claude-cli-stub.mjs`, `diag-claude-pty.py`,
+`analyze-body.py`; earlier `diag-codex*.mjs`) — the reusable proof method:
+local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 
 ## Execution Rules
 
@@ -371,7 +375,43 @@ reusable proof method (spin our proxy + real vendor CLI, log ALPN/frames).
 89. [DONE] Git Commit: `fix(claude-provider): capture the native claude_code preset request` (hash: self)
 90. [DONE] `harness-ai.phase6b.stream1.task26` Package the app with the Claude native-preset capture fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-claude-preset.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with claude native preset capture`) Result: Completed in commit `chore(package): rebuild packaged app with claude native preset capture`.
 91. [DONE] Git Commit: `chore(package): rebuild packaged app with claude native preset capture` (hash: self)
-92. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+
+## Phase 6.6 - Claude Interactive CLI Capture (owner: Codex + User, updated: 2026-07-03)
+
+> Discovery (2026-07-03, mode-dependent prompt assembly): the SDK has no own
+> network stack — `query()` spawns the SAME `claude` binary (platform package
+> `claude-agent-sdk-darwin-arm64`, user-agent `claude-cli/2.1.195`), but the
+> binary assembles the system prompt and inline tool set BY ENTRY MODE and no
+> SDK option switches it: SDK transport (`sdk-ts`, claude_code presets) ->
+> SDK identity + 9 inline tools (~9.4k tok); `-p` print mode -> SDK identity +
+> 26 tools; interactive TTY (pty) -> "You are Claude Code, Anthropic's official
+> CLI for Claude." + 29-30 tools (~23k tok) + the agents system message. The
+> user's live `/context` shows System prompt 4.1k tok = the 1.5k vendor-default
+> base + environment-dependent sections (gitStatus, language, settings).
+> Verified empirically against a local stub with both our provider binary
+> (2.1.195) and the user's global CLI (2.1.199); the reference project
+> (CodeAI-Hub `Claude_Module`) uses the same SDK path and never had a CLI-true
+> native reference. User goal frame (2026-07-03): Native = the provider's
+> ORIGINAL CLI wrapping (system prompt + system tooling + service messages);
+> the Agent SDK / Codex app-server remain the control channel because they let
+> us change everything, but the base stays the vendor client; derived profiles
+> are built by editing the Native base (dropping only universal ballast). The
+> proven capture method: run the provider binary in a real pty (python3
+> `pty.fork` helper; `script(1)` fails with piped stdin, `expect` blocks
+> without active pty drain), type the probe, submit, self-terminate on a timer
+> (the orchestrator never kills the provider process — the race winner is the
+> proxy capture). Production run: provider-home auth env (`HOME` -> provider
+> home with OAuth state, `CLAUDE_USE_CLI_AUTH`) + our forward proxy
+> (`HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS`) + a trust-dialog pre-acceptance for
+> the probe workspace in the provider-home `.claude.json`.
+
+### Stream: Interactive Pty Capture
+
+92. [DONE] `harness-ai.phase6c.stream1.task27` Capture the interactive Claude CLI native request instead of the SDK-assembled one: add `claude-interactive-cli-runner.ts` (diagnostics/) that resolves the system `python3` (clear preflight error when missing), pre-accepts the workspace trust dialog in the provider-home `.claude.json`, launches the provider claude binary in a real pty via an inline python `pty.fork` driver (boot wait -> type probe -> submit -> drain -> self-terminate), and switch `claude-native-request-capture-service.ts` from `sdkModule.query` to this runner (keep auth/proxy/certificate env wiring and the applied-input-envelope record, now describing the interactive run), with a unit test for the runner's pure helpers (trust upsert, python argv build), and raise the capture timeout for the Claude command in the Core capture RPC (the interactive pty cycle — binary boot, probe typing, submit — does not fit the 30s proxy default) (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-interactive-cli-runner.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-native-request-capture-service.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-interactive-cli-runner.test.mjs` (new), plus claude-provider `module.md`, core-runtime-process `module.md`, `docs/architecture/SessionProfilesV2.md` (decision 5: interactive CLI is the Native reference; Native-base goal frame) and `.harness/plans/todo-plan.md`; expected commit: `feat(claude-provider): capture interactive cli native request`) Result: Completed in commit `feat(claude-provider): capture interactive cli native request`.
+93. [DONE] Git Commit: `feat(claude-provider): capture interactive cli native request` (hash: self)
+94. [IN_PROGRESS] `harness-ai.phase6c.stream1.task28` Package the app with the interactive Claude CLI capture for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-interactive-cli.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with interactive cli capture`)
+95. [TODO] Git Commit: `chore(package): rebuild packaged app with interactive cli capture` (hash: TBD)
+96. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

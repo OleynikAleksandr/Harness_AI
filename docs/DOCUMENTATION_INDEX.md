@@ -142,6 +142,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   with no `Content-Length`, which the diagnostics pinned as the capture
   failure), with the HTTP reader split into `capture-proxy-http.ts`, ahead of
   the user re-capturing the Codex native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-forward.md` —
+  fourth 2026-07-03 packaged rebuild, the forward-transit rearchitecture
+  (Phase 6.5): diagnostics proved Codex 0.142.5 forces an un-disableable
+  WebSocket transport, so the proxy now forwards the request to the real vendor
+  and decodes the Codex `response.create` WS frame (deflate stripped); the
+  `codex:native-capture` profile was removed and the dump reads `Sent upstream:
+  true`, ahead of the user re-capturing the Codex native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

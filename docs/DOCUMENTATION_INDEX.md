@@ -181,6 +181,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   service that clones `~/.kimi-code`, rewrites the provider base_url to the
   bridge and runs `kimi acp` with the default agent, ahead of the user
   re-capturing the Kimi native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-extraction-fixes.md`
+  — tenth 2026-07-03 packaged rebuild: two extraction fixes after the user
+  re-captured all three — the Kimi markdown `Extracted System Prompt` rendered
+  null (extractor now reads `messages[role=system]`), and the Codex capture
+  grabbed the memory-consolidation prewarm instead of the probe turn (WS
+  capture now filters `response.create` frames by `minimumToolCount`, since the
+  prewarm has empty tools), ahead of the user re-capturing Kimi and Codex.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

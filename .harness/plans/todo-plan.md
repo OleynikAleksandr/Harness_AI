@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6e.stream1.task35",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with capture extraction fixes",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -488,9 +488,9 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 103. [DONE] Git Commit: `fix(capture-artifacts): extract kimi system message` (hash: self)
 104. [DONE] `harness-ai.phase6e.stream1.task34` Select the Codex probe frame by tool count, not just probe text (plan explicitly allows the >3-file scope — one filter threaded from the rule to the WS capture): add an optional `minimumTools` to `runWebSocketCapture` that skips a `response.create` frame whose top-level `tools` array is shorter than the threshold (the `memory_consolidation` prewarm has `tools: []`, the probe turn has 17), thread `rule.minimumToolCount` into it from `forwardAndInspect`/`inspectClientRequest`, and set `minimumToolCount: 1` on the Codex default target rule; unit test decodes a prewarm frame that CONTAINS the probe text but has empty tools plus a probe frame with tools, and asserts the probe frame is captured (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-ws.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs`, plus capture-proxy `module.md`, capture-orchestrator `module.md` and `docs/architecture/SessionProfilesV2.md`; expected commit: `fix(capture-proxy): select codex probe frame by tool count`) Result: Completed in commit `fix(capture-proxy): select codex probe frame by tool count`.
 105. [DONE] Git Commit: `fix(capture-proxy): select codex probe frame by tool count` (hash: self)
-106. [IN_PROGRESS] `harness-ai.phase6e.stream1.task35` Package the app with the Kimi/Codex capture extraction fixes for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-extraction-fixes.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with capture extraction fixes`)
-107. [TODO] Git Commit: `chore(package): rebuild packaged app with capture extraction fixes` (hash: TBD)
-108. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+106. [DONE] `harness-ai.phase6e.stream1.task35` Package the app with the Kimi/Codex capture extraction fixes for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-extraction-fixes.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with capture extraction fixes`) Result: Completed in commit `chore(package): rebuild packaged app with capture extraction fixes`.
+107. [DONE] Git Commit: `chore(package): rebuild packaged app with capture extraction fixes` (hash: self)
+108. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

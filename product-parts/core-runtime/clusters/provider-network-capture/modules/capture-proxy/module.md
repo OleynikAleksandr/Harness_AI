@@ -51,10 +51,14 @@ capture runner — live in `capture-proxy-ws.ts`. Both are used by the facade.
   first fully-matching request is captured and the capture resolves.
 - A WebSocket upgrade (`Upgrade: websocket`) on the target path is routed to
   the WS capture: the upgrade is completed with the real upstream with
-  `Sec-WebSocket-Extensions` stripped (no permessage-deflate → plain frames),
-  and the first client text frame is decoded and captured as the request
-  (`method: "WS"`, its payload is the Codex `response.create` body). This is
-  how Codex's mandatory WebSocket transport is captured.
+  `Sec-WebSocket-Extensions` stripped (no permessage-deflate → plain frames).
+  Codex reuses one WS connection for several `response.create` frames
+  (background `memory_consolidation` prewarm turns plus the real turn), so every
+  complete frame is decoded and the one whose payload contains the rule's
+  `bodyIncludes` probe prompt is captured (`method: "WS"`, its payload is the
+  Codex `response.create` body with the full native tool set); the others are
+  forwarded. Without `bodyIncludes` the first data frame is taken. This is how
+  Codex's mandatory WebSocket transport is captured.
 - A request that matched the rule host+path but was rejected on the body
   carries a `detail` on its `request_ignored` event
   (`NativeCaptureIgnoredRequestDetail`: `bodyBytes`, `hasContentLength`,

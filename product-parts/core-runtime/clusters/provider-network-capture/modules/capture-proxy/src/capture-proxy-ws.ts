@@ -50,6 +50,7 @@ export function parseHeadHeaders(
 interface DecodedWsFrame {
   readonly opcode: number;
   readonly payload: Buffer;
+  readonly total: number;
 }
 
 // Decode one (client->server, so masked) WebSocket frame. Returns null while
@@ -100,7 +101,7 @@ function decodeWsFrame(buffer: Buffer): DecodedWsFrame | null {
     }
     payload = unmasked;
   }
-  return { opcode, payload };
+  return { opcode, payload, total: offset + length };
 }
 
 function requestPath(headText: string): string {
@@ -118,6 +119,7 @@ function safeJson(text: string): unknown {
 export interface WebSocketCaptureParams {
   readonly afterHead: Buffer;
   readonly clientSocket: net.Socket;
+  readonly frameIncludes?: string;
   readonly headText: string;
   readonly now: () => string;
   readonly onCapture: (request: CapturedNativeRequest) => void;
@@ -126,46 +128,54 @@ export interface WebSocketCaptureParams {
 }
 
 // Completes the WS upgrade with the real upstream (deflate stripped), relays
-// client->server bytes, and captures the first client text frame — the Codex
-// `response.create` request carrying system prompt + tools. Upstream->client
-// relay is owned by the caller.
+// client->server bytes, and captures the request frame. Codex reuses one WS
+// connection for several `response.create` frames (background prewarm turns
+// plus the real turn), so every complete frame is decoded and the one whose
+// payload contains `frameIncludes` (the probe prompt — our turn, with the full
+// native tool set) is captured; without a filter the first data frame is taken.
+// Upstream->client relay is owned by the caller.
 export function runWebSocketCapture(params: WebSocketCaptureParams): void {
   params.upstream.write(`${stripDeflateExtension(params.headText)}${HEAD_END}`);
-  const chunks: Buffer[] = [];
+  let buffer = Buffer.alloc(0);
   if (params.afterHead.length > 0) {
     params.upstream.write(params.afterHead);
-    chunks.push(params.afterHead);
+    buffer = Buffer.concat([params.afterHead]);
   }
   let captured = false;
   const inspect = () => {
-    if (captured) {
-      return;
+    while (!captured) {
+      const frame = decodeWsFrame(buffer);
+      if (!frame) {
+        return;
+      }
+      buffer = buffer.subarray(frame.total);
+      if (
+        (frame.opcode !== OPCODE_TEXT && frame.opcode !== OPCODE_BINARY) ||
+        frame.payload.length < MIN_DATA_FRAME_BYTES
+      ) {
+        continue;
+      }
+      const text = frame.payload.toString("utf8");
+      if (params.frameIncludes && !text.includes(params.frameIncludes)) {
+        continue;
+      }
+      captured = true;
+      params.onCapture({
+        body: safeJson(text),
+        bodyText: text,
+        headers: parseHeadHeaders(params.headText),
+        method: "WS",
+        path: requestPath(params.headText),
+        target: params.target,
+        timestamp: params.now(),
+      });
     }
-    const frame = decodeWsFrame(Buffer.concat(chunks));
-    if (
-      !frame ||
-      (frame.opcode !== OPCODE_TEXT && frame.opcode !== OPCODE_BINARY) ||
-      frame.payload.length < MIN_DATA_FRAME_BYTES
-    ) {
-      return;
-    }
-    captured = true;
-    const text = frame.payload.toString("utf8");
-    params.onCapture({
-      body: safeJson(text),
-      bodyText: text,
-      headers: parseHeadHeaders(params.headText),
-      method: "WS",
-      path: requestPath(params.headText),
-      target: params.target,
-      timestamp: params.now(),
-    });
   };
   inspect();
   params.clientSocket.on("data", (chunk: Buffer) => {
     params.upstream.write(chunk);
     if (!captured) {
-      chunks.push(chunk);
+      buffer = Buffer.concat([buffer, chunk]);
       inspect();
     }
   });

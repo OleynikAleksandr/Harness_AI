@@ -279,6 +279,7 @@ export class NativeRequestCaptureProxy {
           runWebSocketCapture({
             afterHead: buffer.subarray(headEnd + HTTP_HEAD_SEPARATOR.length),
             clientSocket: tlsSocket,
+            frameIncludes: rule.bodyIncludes,
             headText,
             now: () => new Date().toISOString(),
             onCapture: (request) => this.completeCaptured(request),

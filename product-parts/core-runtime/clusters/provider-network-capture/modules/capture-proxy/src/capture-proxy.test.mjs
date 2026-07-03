@@ -244,9 +244,14 @@ try {
   );
 
   // Case 3: a WebSocket upgrade on the target path is completed with the
-  // upstream (deflate stripped) and the first client text frame is decoded and
-  // captured — this is the Codex responses transport.
-  const wsRule = { host: "api.anthropic.com", pathIncludes: "/v1/messages" };
+  // upstream (deflate stripped). Codex reuses one connection for a prewarm
+  // frame plus the real turn, so the proxy must decode both and capture the
+  // frame carrying the probe prompt (our turn), not the first prewarm frame.
+  const wsRule = {
+    host: "api.anthropic.com",
+    pathIncludes: "/v1/messages",
+    bodyIncludes: "Harness AI capture probe",
+  };
   const wsProxy = buildProxy(wsRule);
   const wsHandle = await wsProxy.start();
   const wsClient = await openClientTls(wsHandle);
@@ -263,23 +268,41 @@ try {
       "",
     ].join("\r\n")
   );
-  // Send the request frame once the upstream 101 has been relayed back.
+  // Send the request frames once the upstream 101 has been relayed back.
   await new Promise((resolve) => wsClient.once("data", resolve));
-  const framePayload = JSON.stringify({
+  const prewarmFrame = JSON.stringify({
     type: "response.create",
+    model: "gpt-5.4",
+    instructions: "PREWARM",
+    tools: [{ name: "exec_command" }],
+    input: [{ type: "text", text: "memory consolidation" }],
+  });
+  const probeFrame = JSON.stringify({
+    type: "response.create",
+    model: "gpt-5.5",
     instructions: "You are Codex.",
-    tools: [{ name: "shell" }],
+    tools: [{ name: "shell" }, { name: "apply_patch" }, { name: "web_search" }],
     input: [{ type: "text", text: "Harness AI capture probe turn" }],
   });
-  wsClient.write(buildMaskedTextFrame(framePayload));
+  // Both frames arrive on the same connection; the prewarm one comes first.
+  wsClient.write(
+    Buffer.concat([
+      buildMaskedTextFrame(prewarmFrame),
+      buildMaskedTextFrame(probeFrame),
+    ])
+  );
   const wsResult = await wsHandle.waitForCapture();
   await wsHandle.stop();
   wsClient.destroy();
 
   assert.equal(wsResult.status, "captured");
   assert.equal(wsResult.request.method, "WS");
-  assert.equal(wsResult.request.body.instructions, "You are Codex.");
-  assert.equal(wsResult.request.body.tools.length, 1);
+  assert.equal(
+    wsResult.request.body.instructions,
+    "You are Codex.",
+    "the probe-turn frame must be captured, not the prewarm frame"
+  );
+  assert.equal(wsResult.request.body.tools.length, 3);
   const wsUpstream = fake.connections.find((c) =>
     Buffer.concat(c.chunks).includes("Upgrade: websocket")
   );

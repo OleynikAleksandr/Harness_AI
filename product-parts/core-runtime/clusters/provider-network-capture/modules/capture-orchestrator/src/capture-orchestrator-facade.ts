@@ -34,12 +34,17 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
   ],
   // Codex 0.142.x uses a WebSocket transport for `/responses` (see
   // SessionProfilesV2 decision 5). The proxy routes the upgrade on this path to
-  // its WS capture and decodes the `response.create` frame — the request
-  // payload is in the frame, not an HTTP body, so no `bodyIncludes` here. The
-  // first `response.create` frame carries the native system prompt + tools even
-  // for a background prewarm turn, which is exactly the reference we want.
+  // its WS capture and decodes the `response.create` frame. Codex reuses one WS
+  // connection for background `memory_consolidation` prewarm turns (trimmed
+  // tool set, sometimes a different model) plus the real turn, so `bodyIncludes`
+  // (the probe prompt) selects OUR turn's frame — the one with the full native
+  // tool set — rather than the first prewarm frame.
   codex: [
-    { host: "chatgpt.com", pathIncludes: "/backend-api/codex/responses" },
+    {
+      host: "chatgpt.com",
+      pathIncludes: "/backend-api/codex/responses",
+      bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
+    },
   ],
   kimi: [{ host: "api.moonshot.ai", pathIncludes: "/v1/chat/completions" }],
 };

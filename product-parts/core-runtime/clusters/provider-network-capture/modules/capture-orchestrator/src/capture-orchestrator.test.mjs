@@ -57,13 +57,17 @@ try {
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].host, "chatgpt.com");
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.kimi[0].host, "api.moonshot.ai");
 
-  // The Codex rule is host+path only: the WebSocket upgrade on that path is
-  // routed to the WS capture, so no HTTP-body matcher (bodyIncludes) applies.
+  // The Codex rule carries `bodyIncludes` (the probe prompt): the WS route uses
+  // it to select our turn's frame among the prewarm frames on the reused
+  // connection, not to match an HTTP body.
   assert.equal(
     DEFAULT_CAPTURE_TARGET_RULES.codex[0].pathIncludes,
     "/backend-api/codex/responses"
   );
-  assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].bodyIncludes, undefined);
+  assert.match(
+    DEFAULT_CAPTURE_TARGET_RULES.codex[0].bodyIncludes,
+    /capture probe/u
+  );
 
   const fakeCertStore = {
     prepareHostCredentials: () =>

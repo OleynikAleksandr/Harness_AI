@@ -55,6 +55,14 @@ try {
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].host, "chatgpt.com");
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.kimi[0].host, "api.moonshot.ai");
 
+  // The Codex rule filters background prewarm turns that share the endpoint:
+  // it requires the probe prompt in the body and at least one tool.
+  assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].minimumToolCount, 1);
+  assert.match(
+    DEFAULT_CAPTURE_TARGET_RULES.codex[0].bodyIncludes,
+    /capture probe/u
+  );
+
   const fakeCertStore = {
     prepareHostCredentials: () =>
       Promise.resolve({
@@ -125,6 +133,47 @@ try {
   const markdown = await readFile(okResult.markdownPath, "utf8");
   assert.ok(!markdown.includes("sk-secret"));
   assert.match(markdown, /You are Claude\./u);
+
+  // Proxy events are forwarded into the artifact diagnostic context so an
+  // ignored prewarm request is visible in the dump.
+  const eventProxyFactory = (proxyOptions) => ({
+    start: () =>
+      Promise.resolve({
+        port: 999,
+        proxyUrl: "http://127.0.0.1:999",
+        stop: () => Promise.resolve(),
+        waitForCapture: () => {
+          proxyOptions.onEvent?.({
+            type: "proxy_connect",
+            target: "chatgpt.com:443",
+          });
+          proxyOptions.onEvent?.({
+            type: "request_ignored",
+            target: "chatgpt.com:443",
+            reason: "request_body_not_matched",
+          });
+          return Promise.resolve({
+            status: "captured",
+            request: capturedRequest,
+          });
+        },
+      }),
+  });
+  const eventResult = await new NativeCaptureOrchestrator({
+    captureIdFactory: () => "cap-evt",
+    certificateStore: fakeCertStore,
+    clock,
+    proxyFactory: eventProxyFactory,
+  }).capture({
+    providerId: "codex",
+    model: "gpt-5.5",
+    outputDir,
+    runProviderCapture: () => Promise.resolve(),
+  });
+  assert.equal(eventResult.ok, true);
+  const eventMarkdown = await readFile(eventResult.markdownPath, "utf8");
+  assert.match(eventMarkdown, /capture_proxy_event/u);
+  assert.match(eventMarkdown, /request_body_not_matched/u);
 
   // Timeout path: the proxy times out and the provider run also fails.
   const timeoutProxyFactory = () => ({

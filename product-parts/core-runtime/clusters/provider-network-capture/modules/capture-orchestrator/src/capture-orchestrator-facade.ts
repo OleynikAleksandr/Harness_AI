@@ -11,6 +11,7 @@ import {
   type NativeCaptureTlsCredentials,
 } from "../../capture-certificates/src/capture-certificates-facade.js";
 import {
+  type NativeCaptureProxyEvent,
   type NativeCaptureProxyHandle,
   type NativeCaptureTargetRule,
   NativeRequestCaptureProxy,
@@ -31,8 +32,18 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
       minimumToolCount: 1,
     },
   ],
+  // Codex 0.142.x posts many requests to the same `/responses` endpoint —
+  // background `memory_consolidation` prewarm turns share the URL with the
+  // probe. `bodyIncludes` (the probe prompt lives in the turn input) and
+  // `minimumToolCount` keep the capture waiting for the real probe request
+  // that actually carries the native tool set.
   codex: [
-    { host: "chatgpt.com", pathIncludes: "/backend-api/codex/responses" },
+    {
+      host: "chatgpt.com",
+      pathIncludes: "/backend-api/codex/responses",
+      bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
+      minimumToolCount: 1,
+    },
   ],
   kimi: [{ host: "api.moonshot.ai", pathIncludes: "/v1/chat/completions" }],
 };
@@ -160,10 +171,16 @@ export class NativeCaptureOrchestrator {
     }
     const bundle =
       await this.certificateStore.prepareHostCredentials(firstHost);
+    // Proxy events (connect / ignored-request) are recorded into the artifact
+    // as diagnostic context so the user can see, for example, a prewarm turn
+    // being ignored while the capture waits for the probe. They are flushed
+    // once after the capture resolves to keep JSONL/markdown writes serialized.
+    const proxyEvents: NativeCaptureProxyEvent[] = [];
     const proxy = this.proxyFactory({
       providerId: command.providerId,
       targetRules,
       timeoutMs: command.timeoutMs,
+      onEvent: (event) => proxyEvents.push(event),
       resolveTlsCredentials: async ({ hostname }) =>
         (await this.certificateStore.prepareHostCredentials(hostname))
           .credentials,
@@ -175,6 +192,7 @@ export class NativeCaptureOrchestrator {
         bundle,
         command,
         handle,
+        proxyEvents,
         writer,
       });
     } finally {
@@ -241,6 +259,7 @@ export class NativeCaptureOrchestrator {
     readonly captureId: string;
     readonly command: NativeCaptureCommand;
     readonly handle: NativeCaptureProxyHandle;
+    readonly proxyEvents: readonly NativeCaptureProxyEvent[];
     readonly writer: NativeRequestCaptureWriter;
   }): Promise<NativeCaptureCommandResult> {
     const { command, handle, writer } = params;
@@ -264,6 +283,7 @@ export class NativeCaptureOrchestrator {
     const first = await Promise.race([proxyRun, providerRun]);
     const outcome =
       first.kind === "proxy" ? first : await this.awaitProxy(handle, first);
+    await this.recordProxyEvents(writer, params.proxyEvents);
     if (outcome.kind === "proxy" && outcome.result.status === "captured") {
       await writer.writeCapturedRequest(outcome.result.request);
       await writer.complete("captured");
@@ -279,6 +299,18 @@ export class NativeCaptureOrchestrator {
         : "target_not_seen";
     await writer.complete(reason === "timeout" ? "timeout" : "failed", reason);
     return failure(command, writer, reason);
+  }
+
+  private async recordProxyEvents(
+    writer: NativeRequestCaptureWriter,
+    events: readonly NativeCaptureProxyEvent[]
+  ): Promise<void> {
+    for (const event of events) {
+      await writer.recordDiagnosticContext({
+        kind: "capture_proxy_event",
+        payload: event,
+      });
+    }
   }
 
   // The provider finished (or failed) before a capture: still wait for the

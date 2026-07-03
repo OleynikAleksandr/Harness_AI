@@ -156,6 +156,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   every frame and captures the one whose payload contains the probe prompt (our
   turn, full ~17-tool native set), ahead of the user re-capturing the Codex
   native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-model-filename.md`
+  — sixth 2026-07-03 packaged rebuild: records the Codex tool-layer findings in
+  the architecture doc (17 inline tools, feature flags add none, browser/MCP
+  tools are a deferred layer) and puts the selected model id in the artifact
+  filenames (`<timestamp>-<provider>-<model>-native-request.{jsonl,md}`), ahead
+  of the Claude/Kimi re-capture on the forward build.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

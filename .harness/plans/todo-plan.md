@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6b.stream1.task24",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with model in artifact filenames",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -291,9 +291,9 @@
 83. [DONE] Git Commit: `docs(architecture): record codex tool layers and mcp/browser findings` (hash: self)
 84. [DONE] `harness-ai.phase6b.stream1.task23` Put the selected model in the capture artifact filenames so dumps are distinguishable: extend the writer stem to `<timestamp>-<provider>-<model>-native-request.{jsonl,md}` (sanitize the model id to filename-safe chars; omit the model segment when no model was selected), with a unit test, and update the artifact filename format in the architecture doc (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, capture-artifacts module.md, docs/architecture/SessionProfilesV2.md`; expected commit: `feat(capture-artifacts): include model id in artifact filenames`) Result: Completed in commit `feat(capture-artifacts): include model id in artifact filenames`.
 85. [DONE] Git Commit: `feat(capture-artifacts): include model id in artifact filenames` (hash: self)
-86. [IN_PROGRESS] `harness-ai.phase6b.stream1.task24` Package the app with the model-in-filename change for the Claude/Kimi re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-model-filename.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with model in artifact filenames`)
-87. [TODO] Git Commit: `chore(package): rebuild packaged app with model in artifact filenames` (hash: TBD)
-88. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+86. [DONE] `harness-ai.phase6b.stream1.task24` Package the app with the model-in-filename change for the Claude/Kimi re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-model-filename.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with model in artifact filenames`) Result: Completed in commit `chore(package): rebuild packaged app with model in artifact filenames`.
+87. [DONE] Git Commit: `chore(package): rebuild packaged app with model in artifact filenames` (hash: self)
+88. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

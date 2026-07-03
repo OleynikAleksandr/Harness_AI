@@ -22,24 +22,58 @@ function compile(file) {
 }
 
 const CONNECTION_ESTABLISHED_PATTERN = /200 Connection Established/u;
+const UPGRADE_WEBSOCKET_PATTERN = /upgrade:\s*websocket/iu;
 const UPSTREAM_RESPONSE = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok";
+const UPSTREAM_WS_ACCEPT =
+  "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n";
 
 // A fake upstream: records what the proxy forwarded and replies once the
-// request head arrives, so we can assert both forwarding and response relay.
+// request head arrives — 101 for a WebSocket upgrade, else 200 — so we can
+// assert forwarding, response relay, and the deflate-strip rewrite.
 function startFakeUpstream() {
   const connections = [];
   const server = net.createServer((socket) => {
     const chunks = [];
-    connections.push({ socket, chunks });
+    const connection = { socket, chunks };
+    connections.push(connection);
+    let replied = false;
     socket.on("data", (chunk) => {
       chunks.push(chunk);
-      if (Buffer.concat(chunks).includes("\r\n\r\n")) {
-        socket.write(UPSTREAM_RESPONSE);
+      const buffer = Buffer.concat(chunks);
+      if (!replied && buffer.includes("\r\n\r\n")) {
+        replied = true;
+        const isUpgrade = UPGRADE_WEBSOCKET_PATTERN.test(
+          buffer.toString("utf8")
+        );
+        socket.write(isUpgrade ? UPSTREAM_WS_ACCEPT : UPSTREAM_RESPONSE);
       }
     });
     socket.on("error", () => socket.destroy());
   });
   return { server, connections };
+}
+
+// Build a masked client->server WebSocket text frame (mask bit is mandatory
+// for client frames).
+function buildMaskedTextFrame(text) {
+  const payload = Buffer.from(text, "utf8");
+  const mask = Buffer.from([0x11, 0x22, 0x33, 0x44]);
+  const masked = Buffer.alloc(payload.length);
+  for (let i = 0; i < payload.length; i++) {
+    // biome-ignore lint/suspicious/noBitwiseOperators: WS mask XOR
+    masked[i] = payload[i] ^ mask[i % 4];
+  }
+  let header;
+  if (payload.length < 126) {
+    // biome-ignore lint/suspicious/noBitwiseOperators: WS mask-bit + length
+    header = Buffer.from([0x81, 0x80 | payload.length]);
+  } else {
+    const len = Buffer.alloc(2);
+    len.writeUInt16BE(payload.length);
+    // biome-ignore lint/suspicious/noBitwiseOperators: WS mask-bit + length
+    header = Buffer.concat([Buffer.from([0x81, 0x80 | 126]), len]);
+  }
+  return Buffer.concat([header, mask, masked]);
 }
 
 const buildDir = await mkdtemp(path.join(tmpdir(), "capture-proxy-build-"));
@@ -48,6 +82,11 @@ try {
   writeFileSync(
     path.join(buildDir, "capture-proxy-http.js"),
     compile("capture-proxy-http.ts"),
+    "utf8"
+  );
+  writeFileSync(
+    path.join(buildDir, "capture-proxy-ws.js"),
+    compile("capture-proxy-ws.ts"),
     "utf8"
   );
   writeFileSync(
@@ -202,6 +241,55 @@ try {
       (e) => e.type === "request_ignored" && e.detail?.probeMatched === false
     ),
     "the non-probe request should be reported ignored with detail"
+  );
+
+  // Case 3: a WebSocket upgrade on the target path is completed with the
+  // upstream (deflate stripped) and the first client text frame is decoded and
+  // captured — this is the Codex responses transport.
+  const wsRule = { host: "api.anthropic.com", pathIncludes: "/v1/messages" };
+  const wsProxy = buildProxy(wsRule);
+  const wsHandle = await wsProxy.start();
+  const wsClient = await openClientTls(wsHandle);
+  wsClient.write(
+    [
+      "GET /v1/messages HTTP/1.1",
+      "Host: api.anthropic.com",
+      "Connection: Upgrade",
+      "Upgrade: websocket",
+      "Sec-WebSocket-Version: 13",
+      "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==",
+      "Sec-WebSocket-Extensions: permessage-deflate",
+      "",
+      "",
+    ].join("\r\n")
+  );
+  // Send the request frame once the upstream 101 has been relayed back.
+  await new Promise((resolve) => wsClient.once("data", resolve));
+  const framePayload = JSON.stringify({
+    type: "response.create",
+    instructions: "You are Codex.",
+    tools: [{ name: "shell" }],
+    input: [{ type: "text", text: "Harness AI capture probe turn" }],
+  });
+  wsClient.write(buildMaskedTextFrame(framePayload));
+  const wsResult = await wsHandle.waitForCapture();
+  await wsHandle.stop();
+  wsClient.destroy();
+
+  assert.equal(wsResult.status, "captured");
+  assert.equal(wsResult.request.method, "WS");
+  assert.equal(wsResult.request.body.instructions, "You are Codex.");
+  assert.equal(wsResult.request.body.tools.length, 1);
+  const wsUpstream = fake.connections.find((c) =>
+    Buffer.concat(c.chunks).includes("Upgrade: websocket")
+  );
+  assert.ok(wsUpstream, "the WS upgrade should have been forwarded upstream");
+  assert.ok(
+    !Buffer.concat(wsUpstream.chunks)
+      .toString("utf8")
+      .toLowerCase()
+      .includes("sec-websocket-extensions"),
+    "permessage-deflate must be stripped from the forwarded upgrade"
   );
 
   for (const connection of fake.connections) {

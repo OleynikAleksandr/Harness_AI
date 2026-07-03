@@ -11,11 +11,17 @@ import {
   type ParsedHttpRequest,
   parseHttpRequest,
 } from "./capture-proxy-http.js";
+import {
+  isWebSocketUpgrade,
+  parseHeadHeaders,
+  runWebSocketCapture,
+} from "./capture-proxy-ws.js";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const LOCAL_PROXY_HOST = "127.0.0.1";
 const DEFAULT_HTTPS_PORT = 443;
 const DECIMAL_RADIX = 10;
+const HTTP_HEAD_SEPARATOR = "\r\n\r\n";
 
 // A target model endpoint to capture; background traffic (Datadog, GitHub,
 // auth checks, prewarm turns on the same endpoint) that does not match every
@@ -223,9 +229,10 @@ export class NativeRequestCaptureProxy {
     clientSocket.on("error", () => upstream.destroy());
   }
 
-  // MITM forward transit: forward every client byte to the real upstream, relay
-  // the response back, and capture the first request that matches the rule. The
-  // connection is not aborted — the request reaches the vendor.
+  // MITM forward transit: relay the response back always, and route the first
+  // client request. A WebSocket upgrade on the target path is handed to the WS
+  // capture (decode the request frame); an HTTP request is forwarded byte-for-
+  // byte and captured if it matches. The request reaches the vendor.
   private forwardAndInspect(
     tlsSocket: tls.TLSSocket,
     target: string,
@@ -235,15 +242,61 @@ export class NativeRequestCaptureProxy {
   ): void {
     const upstream = this.connectUpstream(hostname, port);
     this.trackSocket(upstream);
+    upstream.on("data", (chunk: Buffer) => tlsSocket.write(chunk));
+    upstream.on("error", () => tlsSocket.destroy());
+    upstream.on("close", () => tlsSocket.destroy());
+    tlsSocket.on("error", () => {
+      this.emitIgnored(target, "tls_socket_error");
+      upstream.destroy();
+    });
+    tlsSocket.on("close", () => upstream.destroy());
+    this.inspectClientRequest(tlsSocket, upstream, target, rule);
+  }
+
+  private inspectClientRequest(
+    tlsSocket: tls.TLSSocket,
+    upstream: net.Socket,
+    target: string,
+    rule: NativeCaptureTargetRule
+  ): void {
     const chunks: Buffer[] = [];
+    let mode: "detect" | "http" = "detect";
+    let forwarded = 0;
     let inspected = false;
-    tlsSocket.on("data", (chunk: Buffer) => {
-      upstream.write(chunk);
+    const onClientData = (chunk: Buffer) => {
+      chunks.push(chunk);
+      const buffer = Buffer.concat(chunks);
+      if (mode === "detect") {
+        const headEnd = buffer.indexOf(HTTP_HEAD_SEPARATOR);
+        if (headEnd < 0) {
+          return; // wait for the full head before routing; do not forward yet
+        }
+        const headText = buffer.subarray(0, headEnd).toString("utf8");
+        const path = headText.split("\r\n")[0]?.split(" ")[1] ?? "";
+        const pathOk = !rule.pathIncludes || path.includes(rule.pathIncludes);
+        if (isWebSocketUpgrade(parseHeadHeaders(headText)) && pathOk) {
+          tlsSocket.off("data", onClientData);
+          runWebSocketCapture({
+            afterHead: buffer.subarray(headEnd + HTTP_HEAD_SEPARATOR.length),
+            clientSocket: tlsSocket,
+            headText,
+            now: () => new Date().toISOString(),
+            onCapture: (request) => this.completeCaptured(request),
+            target,
+            upstream,
+          });
+          return;
+        }
+        mode = "http";
+      }
+      if (buffer.length > forwarded) {
+        upstream.write(buffer.subarray(forwarded));
+        forwarded = buffer.length;
+      }
       if (inspected) {
         return;
       }
-      chunks.push(chunk);
-      const parsed = parseHttpRequest(Buffer.concat(chunks));
+      const parsed = parseHttpRequest(buffer);
       if (!parsed) {
         return;
       }
@@ -258,15 +311,8 @@ export class NativeRequestCaptureProxy {
         target,
         timestamp: new Date().toISOString(),
       });
-    });
-    upstream.on("data", (chunk: Buffer) => tlsSocket.write(chunk));
-    upstream.on("error", () => tlsSocket.destroy());
-    upstream.on("close", () => tlsSocket.destroy());
-    tlsSocket.on("error", () => {
-      this.emitIgnored(target, "tls_socket_error");
-      upstream.destroy();
-    });
-    tlsSocket.on("close", () => upstream.destroy());
+    };
+    tlsSocket.on("data", onClientData);
   }
 
   private connectUpstream(hostname: string, port: number): net.Socket {

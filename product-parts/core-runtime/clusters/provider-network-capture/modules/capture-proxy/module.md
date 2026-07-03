@@ -22,7 +22,9 @@ upgrade forwarding and frame decode are added in a sibling module file (Phase
 
 `capture-proxy-facade.ts`. The HTTP request reader (request-line, headers, and
 `Content-Length` / chunked body decoding into a `ParsedHttpRequest`) lives in
-the sibling `capture-proxy-http.ts`, used by the facade.
+the sibling `capture-proxy-http.ts`. The WebSocket helpers — upgrade detection,
+`Sec-WebSocket-Extensions` strip, masked-frame decode, and the client-frame
+capture runner — live in `capture-proxy-ws.ts`. Both are used by the facade.
 
 ## Inputs
 
@@ -47,6 +49,12 @@ the sibling `capture-proxy-http.ts`, used by the facade.
   `request_ignored` (not captured) while the capture keeps waiting — a
   background prewarm turn on the target endpoint does not end the capture. The
   first fully-matching request is captured and the capture resolves.
+- A WebSocket upgrade (`Upgrade: websocket`) on the target path is routed to
+  the WS capture: the upgrade is completed with the real upstream with
+  `Sec-WebSocket-Extensions` stripped (no permessage-deflate → plain frames),
+  and the first client text frame is decoded and captured as the request
+  (`method: "WS"`, its payload is the Codex `response.create` body). This is
+  how Codex's mandatory WebSocket transport is captured.
 - A request that matched the rule host+path but was rejected on the body
   carries a `detail` on its `request_ignored` event
   (`NativeCaptureIgnoredRequestDetail`: `bodyBytes`, `hasContentLength`,

@@ -8,7 +8,7 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
+  "currentTaskId": "harness-ai.phase7.stream2.task38",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -494,11 +494,22 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 
 ## Phase 7 - Native Profile Unification (owner: Codex + User, updated: 2026-07-03)
 
-> Direction agreed with the user (chat, 2026-07-03) after the three native
-> pairs were accepted. Goal: for ALL THREE providers, the Native profile (and
-> any custom profile) sends a system prompt + tooling that is OUR managed
-> snapshot — frozen from a tested vendor version so later SDK/CLI updates do
-> not change it (user requirement). Key decisions:
+> STATUS (2026-07-03): the items below are PROPOSALS UNDER DISCUSSION, NOT
+> accepted decisions. The user has explicitly NOT signed off yet. Phase 7
+> implementation (profile store, button, per-adapter application, Kimi bridge)
+> MUST NOT start until each proposal is discussed and accepted — the first
+> Phase 7 step is a discussion gate (task38), and this note is rewritten to
+> record which items the user accepts as they are settled.
+>
+> What the user HAS confirmed so far (direction, not mechanism): (a) the goal —
+> for ALL THREE providers the Native (and any custom) profile should send a
+> system prompt + tooling that is OUR managed snapshot, frozen from a tested
+> vendor version so later SDK/CLI updates do not change it; (b) fix Kimi FIRST;
+> (c) the live per-session CONTEXT is generated dynamically every session and
+> is NOT part of the frozen static wrapper. Everything below is HOW to deliver
+> that and is still open.
+>
+> Proposals under discussion (each needs explicit user sign-off):
 > - **B2 (static wrapper frozen, live context):** the system prompt splits into
 >   (1) the static WRAPPER — identity, behavior rules, tool list; the part the
 >   vendor changes on updates — which we freeze into the profile, and (2) the
@@ -597,6 +608,12 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 
 111. [DONE] `harness-ai.phase7.stream1.task37` Record the Kimi channel research result and the rewriting-bridge proposal as an open discussion item in the plan (this stream + the updated per-provider ceiling line), so a zero-context next session fully restores the discussion; no code, plan-only (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): record kimi rewriting-bridge proposal for discussion`) Result: Completed in commit `docs(plan): record kimi rewriting-bridge proposal for discussion`.
 112. [DONE] Git Commit: `docs(plan): record kimi rewriting-bridge proposal for discussion` (hash: self)
+
+### Stream: Proposal Discussion Gate (blocks all Phase 7 implementation)
+
+> Git Commit: `docs(plan): reframe phase 7 items as proposals with a discussion gate` (hash: self) — the reframe that OPENED this gate; task38 itself stays IN_PROGRESS across the discussion and is not advanced by this commit.
+
+113. [IN_PROGRESS] `harness-ai.phase7.stream2.task38` Discuss the Phase 7 proposals with the user and get explicit per-item sign-off BEFORE any implementation. Items to settle (all currently PROPOSED, not accepted): (1) B2 wrapper/context split as the native model; (2) storing native as ordinary profiles under `~/.harness-ai/Profiles/native-<provider>/` read via the same parser as managed; (3) the "Update Native Profile" button (dump -> wrapper/context splitter -> profile files); (4) the Kimi rewriting-bridge proposal (persistent record-and-rewrite proxy for live Kimi) INCLUDING its open questions — bridge home, streaming relay, TLS/lifecycle, wrapper-vs-context on the wire, the "don't rewrite Kimi" alternative, fail-closed behavior; (5) per-provider ceilings (Claude full, Codex prompt-only tooling, Kimi via bridge); (6) the ballast decision to drop the Claude `# Memory` section. As each item is accepted or changed, rewrite the Phase 7 discovery note to record the decision; only AFTER sign-off expand the implementation microtasks (Kimi first, per user order). This task stays open across the discussion; it is a gate, not a code change (scope: discussion + plan note updates as decisions land; expected commit: none until a decision changes the note, then `docs(plan): record phase 7 decisions`).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

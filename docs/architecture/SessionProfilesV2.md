@@ -191,6 +191,21 @@
   новая часть Harness AI).
   GLM Native съёма не требует: его системное сообщение и схемы
   инструментов собирает наш собственный адаптер.
+- **Codex: только HTTP-транспорт при съёме** (обнаружено на первом захвате
+  2026-07-03): Codex CLI 0.142.x включает экспериментальный
+  WebSocket-транспорт Responses API (`responses_websockets`,
+  `openai-beta: responses_websockets=2026-02-06`) — payload запроса уходит
+  в WS-фреймах после `101 Switching Protocols`, и capture-and-abort видит
+  только бестелый `GET`-upgrade (первый дамп записал фоновый
+  `memory_consolidation` prewarm без system/tools). Поэтому capture-профиль
+  app-server (`codex:native-capture`) отключает фичи `responses_websockets`
+  и `responses_websockets_v2` через `--disable <feature>` (эквивалент
+  `-c features.<name>=false`; имена валидируются CLI) — CLI откатывается на
+  обычный HTTP `POST`, и прокси читает полное тело. Боевой app-server эти
+  флаги не получает. Системный промпт при этом дублируется в rollout-логе
+  (`base_instructions`) и попадает в дамп как diagnostic context, но схемы
+  инструментов существуют только в теле запроса — без HTTP-отката пара
+  неполна.
 - **Артефакты**: пары `<timestamp>-<provider>-native-request.{jsonl,md}`
   в Harness home logs; JSONL с записями `request_captured` /
   `section_extract` (system, tools, messages), markdown — читаемый дамп с

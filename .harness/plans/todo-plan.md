@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6.stream1.task4",
+  "expectedCommitMessage": "feat(capture-proxy): match target requests by body content",
   "debt": null
 }
 ```
@@ -148,7 +148,35 @@
 
 43. [DONE] `harness-ai.phase6.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-02.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with provider network capture`). Result: Completed in commit `chore(package): rebuild packaged app with provider network capture`.
 44. [DONE] Git Commit: `chore(package): rebuild packaged app with provider network capture` (hash: self)
-45. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+> Discovery (2026-07-03, Codex capture review): the packaged-app Codex capture
+> recorded a bodiless `GET /backend-api/codex/responses` WebSocket upgrade —
+> Codex CLI 0.142.5 ships the `responses_websockets` experimental transport, so
+> the request payload (system + tools + messages) travels in WS frames that
+> capture-and-abort never sees; worse, the recorded request was a background
+> `memory_consolidation` prewarm (`x-codex-turn-metadata.request_kind=prewarm`),
+> not the probe turn, because the Codex target rule has no body checks. The
+> system prompt still landed via the rollout diagnostic context
+> (`base_instructions`), but tool schemas are missing, so the Codex pair is
+> incomplete. Binary/CLI research confirmed `codex app-server --disable
+> <feature>` (equivalent to `-c features.<name>=false`) covers
+> `responses_websockets`/`responses_websockets_v2`. `chatgpt-account-id` also
+> escaped header redaction. User agreed (2026-07-03) to fix transport +
+> filtering + redaction, repackage, and re-capture. Plan state repair note: the
+> open user-capture task `task2` returned to [TODO] below and the fix tasks
+> were inserted before it so the machine-managed flow resumes the capture
+> after these commits.
+
+45. [DONE] `harness-ai.phase6.stream1.task3` Force vendor-default HTTP transport for Codex capture: add a dedicated `codex:native-capture` app-server process profile that disables the `responses_websockets` and `responses_websockets_v2` features via repeatable `--disable` args and switch the Codex native request capture service to that profile, so the probe turn posts the full request body (system instructions + tool schemas) through the capture-and-abort proxy instead of a bodiless WebSocket upgrade; record the WebSocket-transport discovery in the v2 planning document (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-app-server-process-profile.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/diagnostics/codex-native-request-capture-service.ts, plus codex-provider module.md, docs/architecture/SessionProfilesV2.md and .harness/plans/todo-plan.md`; expected commit: `fix(codex-provider): force http transport for native capture`) Result: Completed in commit `fix(codex-provider): force http transport for native capture`.
+46. [DONE] Git Commit: `fix(codex-provider): force http transport for native capture` (hash: self)
+47. [IN_PROGRESS] `harness-ai.phase6.stream1.task4` Teach the capture proxy to match target requests by body content: add the optional `bodyIncludes` field to `NativeCaptureTargetRule` and reject non-matching requests in `resolveRuleMismatch` as `request_body_not_matched` (the connection ends, the capture keeps waiting for the real probe request), with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, plus capture-proxy module.md`; expected commit: `feat(capture-proxy): match target requests by body content`)
+48. [TODO] Git Commit: `feat(capture-proxy): match target requests by body content` (hash: TBD)
+49. [TODO] `harness-ai.phase6.stream1.task5` Harden the Codex capture target rule and surface proxy noise: require `minimumToolCount: 1` plus `bodyIncludes` (the diagnostic probe prompt) on the Codex default rule so background prewarm/memory-consolidation requests to the same endpoint are ignored instead of ending the capture, and forward capture proxy events (`proxy_connect`/`request_ignored`) into the artifact writer as `proxy_event` diagnostic context records, with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, plus capture-orchestrator module.md`; expected commit: `feat(capture-orchestrator): filter codex probe request and log proxy events`)
+50. [TODO] Git Commit: `feat(capture-orchestrator): filter codex probe request and log proxy events` (hash: TBD)
+51. [TODO] `harness-ai.phase6.stream1.task6` Extend credential-header redaction to account identifiers: the captured Codex request exposed `chatgpt-account-id` in the artifact headers, so add an `account-id` pattern to the capture header redaction regex with a unit test (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, plus capture-artifacts module.md`; expected commit: `fix(capture-artifacts): redact account id headers`)
+52. [TODO] Git Commit: `fix(capture-artifacts): redact account id headers` (hash: TBD)
+53. [TODO] `harness-ai.phase6.stream1.task7` Package the app with the capture transport/filter/redaction fixes for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex capture transport fix`)
+54. [TODO] Git Commit: `chore(package): rebuild packaged app with codex capture transport fix` (hash: TBD)
+55. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

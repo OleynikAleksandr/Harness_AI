@@ -12,10 +12,11 @@ import {
 } from "../../capture-certificates/src/capture-certificates-facade.js";
 import {
   type NativeCaptureProxyEvent,
-  type NativeCaptureProxyHandle,
+  type NativeCaptureProxyResult,
   type NativeCaptureTargetRule,
   NativeRequestCaptureProxy,
 } from "../../capture-proxy/src/capture-proxy-facade.js";
+import { NativeCaptureReverseBridge } from "../../capture-proxy/src/capture-proxy-reverse.js";
 
 const DIAGNOSTIC_PROBE_PROMPT =
   "Harness AI native request capture probe. This request must not be sent upstream.";
@@ -46,15 +47,26 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
       bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
     },
   ],
-  kimi: [{ host: "api.moonshot.ai", pathIncludes: "/v1/chat/completions" }],
+  // Kimi ignores proxy env, so its capture runs through the reverse bridge
+  // (SessionProfilesV2 decision 5): the kimi client posts to the bridge base
+  // URL and the bridge forwards to `api.kimi.com`. `pathIncludes` matches the
+  // real endpoint path (`/coding/v1/chat/completions`) and `bodyIncludes`
+  // selects the probe turn.
+  kimi: [
+    {
+      host: "api.kimi.com",
+      pathIncludes: "/chat/completions",
+      bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
+    },
+  ],
 };
 
 // Context handed to the provider adapter so it can drive its own client. Its
 // shape matches the provider adapter contract's `ProviderNativeCaptureOptions`
 // so the RPC callback is `(ctx) => adapter.captureNativeRequest(ctx)`. Env
 // injection is provider knowledge and lives in the adapters; the orchestrator
-// stays provider-neutral. For the Kimi wire-only path the proxy fields carry
-// placeholder values.
+// stays provider-neutral. For the Kimi reverse-bridge path the certificate
+// fields are empty and `proxyUrl` is the bridge base URL.
 export interface ProviderCaptureContext {
   readonly captureId: string;
   readonly certificateEnv: Readonly<Record<string, string>>;
@@ -75,7 +87,11 @@ export type RunProviderCapture = (
   context: ProviderCaptureContext
 ) => Promise<void>;
 
-const KIMI_WIRE_PROXY_URL = "wire://kimi";
+// A started capture transit (forward proxy or reverse bridge) exposes the same
+// completion promise; the orchestrator only awaits the captured request.
+interface CaptureHandleLike {
+  waitForCapture(): Promise<NativeCaptureProxyResult>;
+}
 
 export interface NativeCaptureCommand {
   readonly model?: string | null;
@@ -109,12 +125,17 @@ type ProxyFactory = (
   options: ConstructorParameters<typeof NativeRequestCaptureProxy>[0]
 ) => Pick<NativeRequestCaptureProxy, "start">;
 
+type ReverseBridgeFactory = (
+  options: ConstructorParameters<typeof NativeCaptureReverseBridge>[0]
+) => Pick<NativeCaptureReverseBridge, "start">;
+
 interface NativeCaptureOrchestratorOptions {
   readonly captureIdFactory?: () => string;
   readonly certificateStore?: CertificateStoreLike;
   readonly clock?: () => Date;
   readonly outputDir?: string;
   readonly proxyFactory?: ProxyFactory;
+  readonly reverseBridgeFactory?: ReverseBridgeFactory;
 }
 
 // Command-level facade: validates the (provider, model) request, mints a
@@ -127,6 +148,7 @@ export class NativeCaptureOrchestrator {
   private readonly clock: () => Date;
   private readonly outputDir: string;
   private readonly proxyFactory: ProxyFactory;
+  private readonly reverseBridgeFactory: ReverseBridgeFactory;
 
   constructor(options: NativeCaptureOrchestratorOptions = {}) {
     this.captureIdFactory = options.captureIdFactory ?? randomUUID;
@@ -137,6 +159,9 @@ export class NativeCaptureOrchestrator {
     this.proxyFactory =
       options.proxyFactory ??
       ((proxyOptions) => new NativeRequestCaptureProxy(proxyOptions));
+    this.reverseBridgeFactory =
+      options.reverseBridgeFactory ??
+      ((bridgeOptions) => new NativeCaptureReverseBridge(bridgeOptions));
   }
 
   async capture(
@@ -151,7 +176,7 @@ export class NativeCaptureOrchestrator {
       selectedModelId: command.model ?? null,
     });
     if (command.providerId === "kimi") {
-      return await this.captureWireOnly({ captureId, command, writer });
+      return await this.captureViaReverse({ captureId, command, writer });
     }
     return await this.captureViaProxy({ captureId, command, writer });
   }
@@ -190,10 +215,12 @@ export class NativeCaptureOrchestrator {
     try {
       return await this.runCapture({
         captureId: params.captureId,
-        bundle,
+        certificateEnv: bundle.envHints,
+        certificatePath: bundle.caCertPath,
         command,
         handle,
         proxyEvents,
+        proxyUrl: handle.proxyUrl,
         writer,
       });
     } finally {
@@ -201,30 +228,43 @@ export class NativeCaptureOrchestrator {
     }
   }
 
-  // Kimi: wire-only, no proxy. The Kimi ACP runtime writes a wire log; the
-  // adapter records the applied-input-envelope and diagnostic context.
-  private async captureWireOnly(params: {
+  // Kimi: reverse-forward bridge (the kimi binary ignores proxy env). The
+  // client posts to the bridge base URL and the bridge forwards to the real
+  // `api.kimi.com` upstream. No diagnostic CA is needed (plain HTTP listener).
+  private async captureViaReverse(params: {
     readonly captureId: string;
     readonly command: NativeCaptureCommand;
     readonly writer: NativeRequestCaptureWriter;
   }): Promise<NativeCaptureCommandResult> {
     const { command, writer } = params;
+    const rule = (command.targetRules ??
+      DEFAULT_CAPTURE_TARGET_RULES[command.providerId])[0];
+    if (!rule) {
+      await writer.complete("failed", "target_not_seen");
+      return failure(command, writer, "target_not_seen");
+    }
+    const proxyEvents: NativeCaptureProxyEvent[] = [];
+    const bridge = this.reverseBridgeFactory({
+      onEvent: (event) => proxyEvents.push(event),
+      providerId: command.providerId,
+      rule,
+      timeoutMs: command.timeoutMs,
+      upstreamHost: rule.host,
+    });
+    const handle = await bridge.start();
     try {
-      await command.runProviderCapture(
-        this.buildContext({
-          captureId: params.captureId,
-          certificateEnv: {},
-          certificatePath: "",
-          command,
-          proxyUrl: KIMI_WIRE_PROXY_URL,
-          writer,
-        })
-      );
-      await writer.complete("captured");
-      return success(command, writer);
-    } catch (error) {
-      await writer.complete("failed", "runtime_failed");
-      return failure(command, writer, "runtime_failed", error);
+      return await this.runCapture({
+        captureId: params.captureId,
+        certificateEnv: {},
+        certificatePath: "",
+        command,
+        handle,
+        proxyEvents,
+        proxyUrl: handle.baseUrl,
+        writer,
+      });
+    } finally {
+      await handle.stop();
     }
   }
 
@@ -254,13 +294,13 @@ export class NativeCaptureOrchestrator {
   }
 
   private async runCapture(params: {
-    readonly bundle: Awaited<
-      ReturnType<CertificateStoreLike["prepareHostCredentials"]>
-    >;
     readonly captureId: string;
+    readonly certificateEnv: Readonly<Record<string, string>>;
+    readonly certificatePath: string;
     readonly command: NativeCaptureCommand;
-    readonly handle: NativeCaptureProxyHandle;
+    readonly handle: CaptureHandleLike;
     readonly proxyEvents: readonly NativeCaptureProxyEvent[];
+    readonly proxyUrl: string;
     readonly writer: NativeRequestCaptureWriter;
   }): Promise<NativeCaptureCommandResult> {
     const { command, handle, writer } = params;
@@ -271,10 +311,10 @@ export class NativeCaptureOrchestrator {
       .runProviderCapture(
         this.buildContext({
           captureId: params.captureId,
-          certificateEnv: params.bundle.envHints,
-          certificatePath: params.bundle.caCertPath,
+          certificateEnv: params.certificateEnv,
+          certificatePath: params.certificatePath,
           command,
-          proxyUrl: handle.proxyUrl,
+          proxyUrl: params.proxyUrl,
           writer,
         })
       )
@@ -317,7 +357,7 @@ export class NativeCaptureOrchestrator {
   // The provider finished (or failed) before a capture: still wait for the
   // proxy so a request already in flight is recorded before we give up.
   private async awaitProxy(
-    handle: NativeCaptureProxyHandle,
+    handle: CaptureHandleLike,
     providerOutcome:
       | { readonly kind: "provider_done" }
       | { readonly error: unknown; readonly kind: "provider_failed" }
@@ -325,7 +365,7 @@ export class NativeCaptureOrchestrator {
     | {
         readonly kind: "proxy";
         readonly result: Awaited<
-          ReturnType<NativeCaptureProxyHandle["waitForCapture"]>
+          ReturnType<CaptureHandleLike["waitForCapture"]>
         >;
       }
     | { readonly error: unknown; readonly kind: "provider_failed" }

@@ -433,12 +433,12 @@ function parseConnectTarget(target: string): {
   return { hostname, port: Number.isFinite(port) ? port : DEFAULT_HTTPS_PORT };
 }
 
-interface RuleMismatch {
+export interface RuleMismatch {
   readonly detail?: NativeCaptureIgnoredRequestDetail;
   readonly reason: string;
 }
 
-function resolveRuleMismatch(
+export function resolveRuleMismatch(
   request: ParsedHttpRequest,
   rule: NativeCaptureTargetRule
 ): RuleMismatch | null {

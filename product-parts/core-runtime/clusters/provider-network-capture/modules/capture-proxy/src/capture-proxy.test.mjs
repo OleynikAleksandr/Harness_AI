@@ -94,8 +94,16 @@ try {
     compile("capture-proxy-facade.ts"),
     "utf8"
   );
+  writeFileSync(
+    path.join(buildDir, "capture-proxy-reverse.js"),
+    compile("capture-proxy-reverse.ts"),
+    "utf8"
+  );
   const { NativeRequestCaptureProxy } = await import(
     pathToFileURL(path.join(buildDir, "capture-proxy-facade.js")).href
+  );
+  const { NativeCaptureReverseBridge } = await import(
+    pathToFileURL(path.join(buildDir, "capture-proxy-reverse.js")).href
   );
 
   const keyPath = path.join(buildDir, "host.key.pem");
@@ -313,6 +321,74 @@ try {
       .toLowerCase()
       .includes("sec-websocket-extensions"),
     "permessage-deflate must be stripped from the forwarded upgrade"
+  );
+
+  // Case 4: the reverse-forward bridge (for clients that ignore proxy env,
+  // e.g. the kimi binary). The client posts directly to the bridge base URL;
+  // the bridge captures the matched request, rewrites Host to the vendor,
+  // forwards it to the real upstream, and relays the response back.
+  const reverseRule = {
+    host: "api.kimi.com",
+    pathIncludes: "/chat/completions",
+    bodyIncludes: "Harness AI capture probe",
+  };
+  const reverseBridge = new NativeCaptureReverseBridge({
+    providerId: "kimi",
+    rule: reverseRule,
+    timeoutMs: 4000,
+    upstreamHost: "api.kimi.com",
+    createUpstream: () => net.connect(fakePort, "127.0.0.1"),
+  });
+  const reverseHandle = await reverseBridge.start();
+  assert.match(reverseHandle.baseUrl, /^http:\/\/127\.0\.0\.1:\d+$/u);
+  const reverseClient = net.connect(reverseHandle.port, "127.0.0.1");
+  await new Promise((resolve) => reverseClient.once("connect", resolve));
+  const reverseResponse = new Promise((resolve) => {
+    reverseClient.once("data", (chunk) => resolve(chunk.toString("utf8")));
+  });
+  const reverseBody = JSON.stringify({
+    model: "kimi-for-coding",
+    messages: [
+      { role: "system", content: "You are Kimi Code CLI." },
+      { role: "user", content: "Harness AI capture probe turn" },
+    ],
+    tools: [{ function: { name: "Bash" } }],
+  });
+  reverseClient.write(
+    [
+      "POST /coding/v1/chat/completions HTTP/1.1",
+      "Host: 127.0.0.1",
+      "Authorization: Bearer sk-kimi-secret",
+      "Content-Type: application/json",
+      `Content-Length: ${Buffer.byteLength(reverseBody)}`,
+      "",
+      reverseBody,
+    ].join("\r\n")
+  );
+  const reverseResult = await reverseHandle.waitForCapture();
+  const reverseRelayed = await reverseResponse;
+  await reverseHandle.stop();
+  reverseClient.destroy();
+
+  assert.equal(reverseResult.status, "captured");
+  assert.equal(reverseResult.request.path, "/coding/v1/chat/completions");
+  assert.equal(
+    reverseResult.request.body.messages[0].content,
+    "You are Kimi Code CLI."
+  );
+  assert.match(
+    reverseRelayed,
+    /200 OK/u,
+    "client should get the relayed reply"
+  );
+  const reverseUpstream = fake.connections.find((c) =>
+    Buffer.concat(c.chunks).includes("You are Kimi Code CLI.")
+  );
+  assert.ok(reverseUpstream, "upstream should receive the forwarded request");
+  assert.match(
+    Buffer.concat(reverseUpstream.chunks).toString("utf8"),
+    /host: api\.kimi\.com/u,
+    "the Host header must be rewritten to the vendor"
   );
 
   for (const connection of fake.connections) {

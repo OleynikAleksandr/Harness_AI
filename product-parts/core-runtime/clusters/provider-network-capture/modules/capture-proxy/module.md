@@ -25,6 +25,9 @@ upgrade forwarding and frame decode are added in a sibling module file (Phase
 the sibling `capture-proxy-http.ts`. The WebSocket helpers — upgrade detection,
 `Sec-WebSocket-Extensions` strip, masked-frame decode, and the client-frame
 capture runner — live in `capture-proxy-ws.ts`. Both are used by the facade.
+The reverse-forward bridge (`capture-proxy-reverse.ts`, `NativeCaptureReverseBridge`)
+is a second entry point that reuses the facade's `resolveRuleMismatch` and the
+HTTP reader for clients that ignore proxy env.
 
 ## Inputs
 
@@ -68,6 +71,16 @@ capture runner — live in `capture-proxy-ws.ts`. Both are used by the facade.
   captured.
 - The proxy hands the raw captured request (including headers) to the
   caller; credential redaction happens in the artifact writer, not here.
+- `NativeCaptureReverseBridge.start()`: a plain 127.0.0.1 HTTP listener (NOT a
+  CONNECT proxy) the driven client points its API `base_url` at directly. The
+  handle carries `baseUrl`/`port`, `waitForCapture()` and `stop()`. Each
+  request is buffered, matched against the single target rule
+  (`pathIncludes` + `bodyIncludes`, via the shared `resolveRuleMismatch`),
+  forwarded 1:1 to the real TLS upstream with only the Host header rewritten
+  (hop-by-hop headers dropped, chunked body re-framed with an exact
+  `Content-Length`), and the response is relayed back. This transits a client
+  that ignores `HTTP(S)_PROXY` (the kimi Mach-O binary) — the request reaches
+  the vendor. Same injectable `createUpstream` for tests.
 
 ## Owned Paths
 

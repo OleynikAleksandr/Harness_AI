@@ -197,9 +197,11 @@
   в pty (см. Claude-блок ниже) с env `HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS`
   (Node TLS); Codex — изолированный временный app-server c `HTTPS_PROXY` +
   `SSL_CERT_FILE` (Rust TLS), рабочий app-server не мутируется; **Kimi —
-  полноправный провайдер scope** по тому же паттерну (временный
-  `kimi acp`-подпроцесс; preflight доверия к CA — отдельный риск, в
-  reference Kimi не было, это новая часть Harness AI).
+  полноправный провайдер scope**, но через **reverse-forward мост**, а не
+  CONNECT-прокси (см. Kimi-блок ниже): бинарь kimi (Mach-O) игнорирует
+  proxy-env, поэтому CA/прокси не нужны — endpoint задаётся в `config.toml`
+  (`base_url`), и мы направляем его на локальный мост, который форвардит на
+  реальный `api.kimi.com`.
   GLM Native съёма не требует: его системное сообщение и схемы
   инструментов собирает наш собственный адаптер.
 - **Codex: WebSocket-транспорт обязателен и неотключаем** (эмпирически
@@ -281,6 +283,35 @@
   Native-профиль сессий пока остаётся на SDK-пресетах `claude_code`
   (канал управления); приближение живого промпта к CLI-эталону — предмет
   Phase R на базе снятых эталонов.
+- **Kimi: съём через reverse-forward мост, ACP с дефолтным агентом**
+  (установлено 2026-07-03): прежний Kimi-«захват» был заглушкой — записывал
+  только пути (`wire.jsonl`, который никто не пишет) и оркестратор завершал
+  прогон `captured` с нулевым содержимым (ложный успех). «Wire» — это наш
+  ACP JSON-RPC (клиент↔агент), в нём НЕТ нативного system prompt / схем
+  инструментов: они только в HTTPS-запросе бинаря kimi к LLM-эндпоинту.
+  Эмпирическая матрица (локальная base_url-заглушка на клоне `.kimi-code`,
+  ноль токенов, kimi-code 0.18.0): интерактивный TTY, `-p` print и
+  `kimi acp` с ДЕФОЛТНЫМ агентом шлют ИДЕНТИЧНУЮ нативную обвязку — system
+  «You are Kimi Code CLI...» 14755 символов (~3.7k tok) + 23 нативных
+  инструмента (~14.5k tok: Agent, AgentSwarm, AskUserQuestion, Bash,
+  CreateGoal, Cron*, Edit, EnterPlanMode/ExitPlanMode, FetchURL, Glob, Grep,
+  Read, Skill, Task*, TodoList, WebSearch, Write); print добавляет лишь
+  auto-permission system-reminder; ACP == интерактиву байт-в-байт после
+  нормализации timestamp. Значит pty не нужен — ACP-канал с дефолтным агентом
+  и ЕСТЬ нативная обвязка. Но бинарь kimi (Mach-O) ИГНОРИРУЕТ proxy-env
+  (`HTTP(S)_PROXY`/`ALL_PROXY`/`NODE_USE_ENV_PROXY` не действуют), поэтому
+  вариант B (запрос доходит до вендора через наш транзит) реализован как
+  **reverse-forward мост**: локальный HTTP-listener на 127.0.0.1, куда
+  указывает `base_url` во ВРЕМЕННОМ клоне `~/.kimi-code` (config.toml +
+  credentials + device_id; живой конфиг не мутируется); мост записывает
+  совпавший запрос и форвардит его 1:1 на реальный `api.kimi.com` (TLS),
+  переписывая только Host, релеит ответ. Эндпоинт — `api.kimi.com` +
+  `/coding/v1/chat/completions` (не `api.moonshot.ai`, как было в устаревшем
+  правиле). **Находка для Phase R:** живые Kimi-сессии сейчас запускают
+  `kimi acp` с managed-агентом `codeai-managed-agent`, чей system.md — это
+  CODEX-промпт из reference-проекта (`CODEX_NATIVE_SYSTEM_INSTRUCTIONS` +
+  аддендум CodeAI, 7 инструментов), а не родная база Kimi — прямое нарушение
+  рамки «Native = клиент-провайдер», отдельный вопрос к Phase R.
 - **Артефакты**: пары `<timestamp>-<provider>-<model>-native-request.{jsonl,md}`
   в Harness home logs; JSONL с записями `request_captured` /
   `section_extract` (system, tools, messages), markdown — читаемый дамп с

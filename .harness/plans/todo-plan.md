@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6d.stream1.task30",
+  "expectedCommitMessage": "feat(kimi-provider): capture native request via acp default agent",
   "debt": null
 }
 ```
@@ -411,7 +411,55 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 93. [DONE] Git Commit: `feat(claude-provider): capture interactive cli native request` (hash: self)
 94. [DONE] `harness-ai.phase6c.stream1.task28` Package the app with the interactive Claude CLI capture for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-interactive-cli.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with interactive cli capture`) Result: Completed in commit `chore(package): rebuild packaged app with interactive cli capture`.
 95. [DONE] Git Commit: `chore(package): rebuild packaged app with interactive cli capture` (hash: self)
-96. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+## Phase 6.7 - Kimi Native Capture Via Reverse Bridge (owner: Codex + User, updated: 2026-07-03)
+
+> Discovery (2026-07-03, Kimi capture audit): the Kimi `captureNativeRequest`
+> is a stub — it records only PATHS (a `wire.jsonl` that nothing ever writes;
+> the provider home contains no such file) and the orchestrator's
+> `captureWireOnly` branch then completes the run as `captured` with zero
+> payload — a fake success. "Wire" is our ACP JSON-RPC leg (client<->agent),
+> which by definition carries NO native system prompt / tool schemas — those
+> only exist in the kimi binary's HTTPS request to the LLM endpoint. The
+> orchestrator's Kimi rule is also stale: `api.moonshot.ai` +
+> `/v1/chat/completions`, while the real endpoint (user config.toml,
+> kimi-code 0.18.0) is `api.kimi.com` + `/coding/v1/chat/completions`. LIVE
+> finding flagged for Phase R: our live Kimi sessions run `kimi acp` with the
+> `codeai-managed-agent` whose system.md is the CODEX prompt from the
+> reference project (`CODEX_NATIVE_SYSTEM_INSTRUCTIONS` + CodeAI addendum,
+> 7 tools) — the vendor base is nowhere in the live path, contradicting the
+> Native-base goal frame. Empirical matrix (local base_url stub on a cloned
+> `.kimi-code` home, zero tokens): interactive TTY, `-p` print and
+> `kimi acp` with the DEFAULT agent all send the IDENTICAL native wrapping —
+> system "You are Kimi Code CLI..." 14755 chars (~3.7k tok) + 23 native tools
+> (~14.5k tok: Agent, AgentSwarm, AskUserQuestion, Bash, CreateGoal, Cron*,
+> Edit, EnterPlanMode/ExitPlanMode, FetchURL, Glob, Grep, Read, Skill, Task*,
+> TodoList, WebSearch, Write); print only adds an auto-permission
+> system-reminder; ACP == interactive byte-for-byte after timestamp
+> normalization. So no pty is needed — the ACP channel with the default agent
+> IS the native wrapping. BUT the kimi Mach-O binary IGNORES proxy env
+> (HTTP(S)_PROXY/ALL_PROXY to a dead port still hit the stub; `NODE_USE_ENV_PROXY`
+> ignored too), so the user-chosen variant B (request reaches the vendor
+> through our transit) is implemented as a local REVERSE-FORWARD BRIDGE: a
+> 127.0.0.1 HTTP listener that records the matched request and forwards it 1:1
+> to the real upstream (`api.kimi.com`, TLS), relaying the response; the kimi
+> capture process gets a TEMP CLONE of the user's `~/.kimi-code` (config.toml
+> base_url pointed at the bridge keeping the original path, plus credentials/
+> device_id) so the live config is never mutated. Note (plan structure): the
+> bridge file and its orchestrator consumer ship in ONE commit because the
+> knip gate rejects a new source file with no importer; the plan therefore
+> pairs them in task29 rather than as two commits. Diagnostic scripts:
+> `diag-kimi-acp.mjs` (minimal ACP client: initialize -> session/new ->
+> session/prompt) plus the shared stub/pty scripts in the session scratchpad.
+
+### Stream: Reverse Bridge And ACP Capture
+
+96. [DONE] `harness-ai.phase6d.stream1.task29` Add the reverse-forward bridge and wire the Kimi orchestration onto it in one commit (bridge + consumer together to satisfy the knip no-unused-file gate; plan explicitly allows the >3-file scope): new `capture-proxy-reverse.ts` (`NativeCaptureReverseBridge` — 127.0.0.1 HTTP listener that buffers each request, forwards it 1:1 to the TLS upstream with only the Host header rewritten, relays the response, and resolves `waitForCapture()` on the first `pathIncludes`+`bodyIncludes` match; reuses the facade's exported `resolveRuleMismatch` and the HTTP reader), and in the orchestrator drop `captureWireOnly`/`KIMI_WIRE_PROXY_URL`, route `providerId === "kimi"` through a `#captureViaReverse` path (upstream `api.kimi.com`, null certificate fields, bridge base URL passed as the context `proxyUrl`) and fix the stale Kimi target rule to `api.kimi.com` + `/chat/completions` + `bodyIncludes` probe; unit tests for both (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-reverse.ts` (new), `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs`, plus capture-proxy `module.md`, capture-orchestrator `module.md`, the cluster `cluster.md` and `docs/architecture/SessionProfilesV2.md`; expected commit: `feat(provider-network-capture): kimi native capture via reverse bridge`) Result: Completed in commit `feat(provider-network-capture): kimi native capture via reverse bridge`.
+97. [DONE] Git Commit: `feat(provider-network-capture): kimi native capture via reverse bridge` (hash: self)
+98. [IN_PROGRESS] `harness-ai.phase6d.stream1.task30` Implement the real Kimi native capture in the adapter (plan explicitly splits this beyond 3 files): new `kimi-native-request-capture-service.ts` that clones the user's `~/.kimi-code` (config.toml + credentials + device_id) into a temp home, rewrites the default provider's `base_url` to the bridge URL preserving the original URL path, spawns a temporary `kimi acp` process with the DEFAULT agent (no `--agent`) via `KimiWireProcessBridge`/`KimiWireRouter`, runs initialize -> session/new (workspace cwd) -> session/set_config_option(model) -> session/prompt(probe), then stops the process and removes the temp clone; extend `KimiNativeRequestCaptureOptions` to the shared capture contract (probePrompt/proxyUrl/certificate fields) and switch the adapter's `captureNativeRequest` to the service with an envelope describing the ACP-default-agent reverse run, with a unit test for the config-rewrite helper (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/diagnostics/kimi-native-request-capture-service.ts` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/diagnostics/kimi-native-request-capture-service.test.mjs` (new), `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/provider/kimi-provider-adapter.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/reference/provider/kimi-provider-types.ts`, plus kimi-provider `module.md` and `docs/architecture/SessionProfilesV2.md` (decision 5 Kimi channel + live managed-agent finding); expected commit: `feat(kimi-provider): capture native request via acp default agent`)
+99. [TODO] Git Commit: `feat(kimi-provider): capture native request via acp default agent` (hash: TBD)
+100. [TODO] `harness-ai.phase6d.stream1.task31` Package the app with the Kimi reverse-bridge capture for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-kimi-reverse.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with kimi reverse capture`)
+101. [TODO] Git Commit: `chore(package): rebuild packaged app with kimi reverse capture` (hash: TBD)
+102. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

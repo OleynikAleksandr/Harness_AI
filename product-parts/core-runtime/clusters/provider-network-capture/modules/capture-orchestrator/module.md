@@ -53,11 +53,16 @@ injection (pointing a provider client at the local proxy) is passed in as a
   the (redacted) captured request on success. Proxy events (`proxy_connect`/
   `request_ignored`) are collected during the run and flushed once into the
   writer as `capture_proxy_event` diagnostic-context records, so an ignored
-  prewarm request is visible in the dump. Kimi takes the wire-only path
-  (`captureWireOnly`): no certificate store, no proxy — it runs the adapter
-  directly with placeholder proxy values (`proxyUrl: "wire://kimi"`,
-  empty cert env) and completes `captured`/`failed` from the adapter result.
-  Returns `{ ok, providerId, model, markdownPath, jsonlPath, error, reason }`.
+  prewarm request is visible in the dump. Kimi takes the reverse-bridge path
+  (`captureViaReverse`): the kimi binary ignores proxy env, so instead of a
+  CONNECT proxy the orchestrator starts a `NativeCaptureReverseBridge`
+  (upstream `api.kimi.com`, no diagnostic CA — empty cert fields, the bridge
+  base URL passed as the context `proxyUrl`), and reuses the SAME
+  `runCapture` race (provider run vs `waitForCapture`) as the proxy path via
+  the shared `CaptureHandleLike` interface. Both paths share `runCapture`,
+  which now takes explicit `certificateEnv`/`certificatePath`/`proxyUrl`
+  instead of a certificate bundle. Returns `{ ok, providerId, model,
+  markdownPath, jsonlPath, error, reason }`.
 
 ## Owned Paths
 

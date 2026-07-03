@@ -1,4 +1,5 @@
 import type { SDKInstaller } from "../installer/sdk-installer.js";
+import { applyClaudeSessionProfile } from "../sdk/claude-profile-application.js";
 import type { ClaudeSDKAuthProvider } from "../sdk/claude-sdk-manager.js";
 import type { ClaudeStreamMessage, ClaudeWorkspaceOptions } from "../types.js";
 
@@ -39,10 +40,12 @@ type QueryFunction = (payload: {
 }) => AsyncIterableIterator<ClaudeStreamMessage>;
 
 // Record-only native capture: runs the diagnostic probe through the Agent SDK
-// with the vendor-default request (no Harness system prompt, tool whitelist or
-// settingSources override), so the captured request is the vendor's native
-// system prompt and full native tool set. The managed-vs-vanilla comparison
-// path was removed; only recording remains.
+// and applies the same Native profile the live adapter sends — the claude_code
+// `systemPrompt`/`tools` presets plus the vendor setting sources (via
+// `applyClaudeSessionProfile`). This captures the full Claude Code CLI
+// reference (its system prompt and native tool set: Read/Write/Edit/Bash/Glob/
+// Grep/WebFetch/WebSearch/TodoWrite/...), not the SDK's minimal default. The
+// managed-vs-vanilla comparison path was removed; only recording remains.
 export class ClaudeNativeRequestCaptureService {
   readonly #authManager: ClaudeNativeRequestCaptureAuthProvider;
   readonly #installer: SDKInstaller;
@@ -87,7 +90,7 @@ export class ClaudeNativeRequestCaptureService {
   private buildQueryOptions(
     options: ClaudeNativeRequestCaptureOptions
   ): Record<string, unknown> {
-    return {
+    const queryOptions: Record<string, unknown> = {
       cwd: options.workspacePath,
       env: {
         ...this.#authManager.getAuthEnvironment(),
@@ -110,6 +113,14 @@ export class ClaudeNativeRequestCaptureService {
       persistSession: false,
       thinking: { type: "disabled" },
     };
+    // Apply the same native profile the live adapter sends: without the
+    // claude_code presets the SDK emits its minimal default (a short SDK
+    // system prompt and a reduced tool set), which is not the Claude Code CLI
+    // reference. `applyClaudeSessionProfile` (kind `native`) sets the
+    // claude_code `systemPrompt`/`tools` presets and the vendor setting
+    // sources, so the captured request matches what the Native profile sends.
+    applyClaudeSessionProfile(queryOptions, { kind: "native" });
+    return queryOptions;
   }
 }
 

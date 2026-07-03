@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6b.stream1.task26",
+  "expectedCommitMessage": "chore(package): rebuild packaged app with claude native preset capture",
   "debt": null
 }
 ```
@@ -293,7 +293,30 @@
 85. [DONE] Git Commit: `feat(capture-artifacts): include model id in artifact filenames` (hash: self)
 86. [DONE] `harness-ai.phase6b.stream1.task24` Package the app with the model-in-filename change for the Claude/Kimi re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-model-filename.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with model in artifact filenames`) Result: Completed in commit `chore(package): rebuild packaged app with model in artifact filenames`.
 87. [DONE] Git Commit: `chore(package): rebuild packaged app with model in artifact filenames` (hash: self)
-88. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+> Discovery (2026-07-03, first Claude forward capture reviewed): the Claude
+> dump captured only 9 tools (Agent, Bash, Edit, Read, Write, Skill, Workflow,
+> ToolSearch, ScheduleWakeup) and a 146-char system prompt ("You are a Claude
+> agent, built on Anthropic's Claude Agent SDK", `cc_entrypoint=sdk-ts`) — the
+> minimal Agent SDK default, NOT the full Claude Code CLI (no WebFetch,
+> WebSearch, Glob, Grep, TodoWrite, no large system prompt). Root cause: the
+> Claude capture service's `buildQueryOptions` sends the vanilla SDK query with
+> no `systemPrompt`/`tools`/`settingSources`, so the SDK uses its minimal
+> defaults. But the LIVE Claude adapter's Native profile
+> (`applyClaudeSessionProfile`, kind `native`) applies the claude_code presets:
+> `systemPrompt: {type:"preset", preset:"claude_code"}`, `tools:
+> {type:"preset", preset:"claude_code"}`, `settingSources:
+> ["user","project","local"]` — verified against the installed SDK's `sdk.d.ts`
+> (preset = "Use Claude Code's default system prompt" / "Use all default Claude
+> Code tools"). So capture does NOT reflect what the Native profile actually
+> sends. User decision (2026-07-03): the Native baseline must send the full
+> Claude Code CLI reference; fix capture to apply the same native preset as the
+> live adapter (reuse `applyClaudeSessionProfile`).
+
+88. [DONE] `harness-ai.phase6b.stream1.task25` Capture the native Claude Code CLI reference instead of the minimal Agent SDK default: apply the live Native profile's claude_code presets in the Claude capture service — reuse `applyClaudeSessionProfile({...}, {kind:"native"})` (or set `systemPrompt`/`tools` to `{type:"preset", preset:"claude_code"}` and `settingSources` to `["user","project","local"]`) in `buildQueryOptions` so the captured request is the full Claude Code system prompt + native tool set (WebFetch, WebSearch, Glob, Grep, TodoWrite, ...), matching what the Native profile sends live; update the service comment and module.md (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-native-request-capture-service.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, docs/architecture/SessionProfilesV2.md`; expected commit: `fix(claude-provider): capture the native claude_code preset request`) Result: Completed in commit `fix(claude-provider): capture the native claude_code preset request`.
+89. [DONE] Git Commit: `fix(claude-provider): capture the native claude_code preset request` (hash: self)
+90. [IN_PROGRESS] `harness-ai.phase6b.stream1.task26` Package the app with the Claude native-preset capture fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-claude-preset.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with claude native preset capture`)
+91. [TODO] Git Commit: `chore(package): rebuild packaged app with claude native preset capture` (hash: TBD)
+92. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

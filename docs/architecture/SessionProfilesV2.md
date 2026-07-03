@@ -241,6 +241,26 @@
   базовый inline-набор из 17 достаточен; deferred/MCP слой — опциональное
   расширение, если понадобятся его схемы. У Codex НЕТ инструмента `WebFetch`
   (это инструмент Claude-стека); веб у Codex — `web_search` (в inline-наборе).
+- **Claude: Native = полный Claude Code CLI, не минимальный Agent SDK**
+  (установлено 2026-07-03 при первом Claude-захвате): наш Claude-адаптер ходит
+  через Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`), а не через `claude`
+  CLI напрямую. Если вызвать `query()` **без** опций, SDK шлёт свой минимальный
+  дефолт: короткий system prompt («You are a Claude agent, built on Anthropic's
+  Claude Agent SDK», `cc_entrypoint=sdk-ts`) и урезанный набор тулов (9:
+  Agent/Bash/Edit/Read/Write/Skill/Workflow/ToolSearch/ScheduleWakeup), без
+  WebFetch/WebSearch/Glob/Grep/TodoWrite. Полный Claude Code CLI-эталон
+  включается флагами SDK (подтверждено по `sdk.d.ts`):
+  `systemPrompt: {type:"preset", preset:"claude_code"}` («Use Claude Code's
+  default system prompt»), `tools: {type:"preset", preset:"claude_code"}` («Use
+  all default Claude Code tools»), `settingSources: ["user","project","local"]`
+  (загрузка CLAUDE.md как у vanilla CLI). Боевой Native-профиль это уже делает
+  (`applyClaudeSessionProfile`, kind `native`), поэтому Native baseline
+  Harness = полный Claude Code CLI. Capture обязан применять **тот же** native
+  preset (переиспользует `applyClaudeSessionProfile`), иначе дамп отражает
+  минимальный SDK-дефолт, а не реальный Native. Примечание SDK: в native-сборках
+  поиск может идти через Bash `find`/`grep` вместо выделенных `Grep`/`Glob` —
+  их стоит явно перечислять в `tools`/`allowedTools`, если нужны как отдельные
+  инструменты.
 - **Артефакты**: пары `<timestamp>-<provider>-<model>-native-request.{jsonl,md}`
   в Harness home logs; JSONL с записями `request_captured` /
   `section_extract` (system, tools, messages), markdown — читаемый дамп с

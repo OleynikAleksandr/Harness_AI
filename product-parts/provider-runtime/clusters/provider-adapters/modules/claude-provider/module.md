@@ -67,14 +67,19 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   split out to keep `claude-sdk-manager.ts` under the 500-line cap.
 - Native request capture (`claude-native-request-capture-service.ts`,
   reached through the adapter's `captureNativeRequest`): a record-only
-  diagnostic path that runs the probe through the Agent SDK with the
-  vendor-default request — no Harness `systemPrompt`, no `tools` whitelist,
-  no `settingSources` override — so the captured request is the vendor's
-  native system prompt and full native tool set. It injects the diagnostic
-  proxy env (`HTTPS_PROXY`/`ALL_PROXY` + `NODE_EXTRA_CA_CERTS`/
-  `SSL_CERT_FILE`/`REQUESTS_CA_BUNDLE`) and drains the stream until the
-  capture proxy aborts. The managed-vs-vanilla comparison and applied turn
-  config were removed; only recording remains
+  diagnostic path that runs the probe through the Agent SDK and applies the
+  **same Native profile the live adapter sends** — it calls
+  `applyClaudeSessionProfile(queryOptions, { kind: "native" })`, which sets the
+  claude_code `systemPrompt`/`tools` presets and the vendor setting sources
+  (`["user","project","local"]`). Without those presets the SDK emits its
+  minimal default (a short SDK system prompt and a reduced tool set), which is
+  not the Claude Code CLI reference; with them the captured request is the full
+  Claude Code system prompt + native tool set (Read/Write/Edit/Bash/Glob/Grep/
+  WebFetch/WebSearch/TodoWrite/...). It injects the diagnostic proxy env
+  (`HTTPS_PROXY`/`ALL_PROXY` + `NODE_EXTRA_CA_CERTS`/`SSL_CERT_FILE`/
+  `REQUESTS_CA_BUNDLE`) and drains the stream until the capture proxy forwards
+  and the response completes. The managed-vs-vanilla comparison and applied
+  turn config were removed; only recording remains
   (`docs/architecture/SessionProfilesV2.md`, decision 5).
 
 ## Owned Paths

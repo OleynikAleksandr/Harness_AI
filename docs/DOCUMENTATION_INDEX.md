@@ -136,6 +136,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   `body.tools`), keeping the probe-prompt matcher, plus safe structural
   diagnostics on body-rejected target requests, ahead of the user re-capturing
   the Codex native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-codex-chunked.md`
+  — third 2026-07-03 packaged rebuild: the proxy request reader now decodes
+  `Transfer-Encoding: chunked` bodies (Codex streams the responses POST chunked
+  with no `Content-Length`, which the diagnostics pinned as the capture
+  failure), with the HTTP reader split into `capture-proxy-http.ts`, ahead of
+  the user re-capturing the Codex native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

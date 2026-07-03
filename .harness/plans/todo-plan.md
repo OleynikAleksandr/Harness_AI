@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task12",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with codex chunked body fix",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -219,9 +219,9 @@
 
 61. [DONE] `harness-ai.phase6.stream1.task11` Read chunked request bodies in the capture proxy: teach the request reader to decode a `Transfer-Encoding: chunked` body (accumulate until the terminal `0\r\n` chunk, returning null while incomplete so `handleHttpData` keeps waiting) instead of treating a missing `Content-Length` as an empty body, and add `hasTransferEncoding` to the ignored-request diagnostic detail; the HTTP request reader is extracted into a new sibling `capture-proxy-http.ts` to stay under the 500-line file gate, and a unit test captures a chunked probe POST arriving in two writes (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-http.ts` (new), `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs` (compile the new file) plus capture-proxy `module.md`; expected commit: `fix(capture-proxy): read chunked request bodies`) Result: Completed in commit `fix(capture-proxy): read chunked request bodies`.
 62. [DONE] Git Commit: `fix(capture-proxy): read chunked request bodies` (hash: self)
-63. [IN_PROGRESS] `harness-ai.phase6.stream1.task12` Package the app with the chunked request-body fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-codex-chunked.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex chunked body fix`)
-64. [TODO] Git Commit: `chore(package): rebuild packaged app with codex chunked body fix` (hash: TBD)
-65. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+63. [DONE] `harness-ai.phase6.stream1.task12` Package the app with the chunked request-body fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-codex-chunked.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex chunked body fix`) Result: Completed in commit `chore(package): rebuild packaged app with codex chunked body fix`.
+64. [DONE] Git Commit: `chore(package): rebuild packaged app with codex chunked body fix` (hash: self)
+65. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

@@ -8,8 +8,8 @@
   "planId": "session-profiles-v2-plan-document-2026-07-02",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6b.stream1.task21",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with probe-turn ws capture",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -274,9 +274,9 @@
 
 78. [DONE] `harness-ai.phase6b.stream1.task20` Capture the probe-turn WebSocket frame, not the first prewarm frame: make `decodeWsFrame` report the consumed byte length and have `runWebSocketCapture` decode every complete frame on the connection (Codex reuses one WS connection for prewarm + real turns), capturing the first `response.create` frame whose payload contains the rule's `bodyIncludes` probe prompt while forwarding the rest; restore `bodyIncludes` (the diagnostic probe prompt) on the Codex target rule and thread it into the WS route; unit test decodes two frames and captures the probe one (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-ws.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts` plus capture-proxy `module.md`, capture-proxy `capture-proxy.test.mjs` and capture-orchestrator `capture-orchestrator.test.mjs`; expected commit: `fix(capture-proxy): capture the probe turn websocket frame`) Result: Completed in commit `fix(capture-proxy): capture the probe turn websocket frame`.
 79. [DONE] Git Commit: `fix(capture-proxy): capture the probe turn websocket frame` (hash: self)
-80. [IN_PROGRESS] `harness-ai.phase6b.stream1.task21` Package the app with the probe-turn WS-frame fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-probe-turn.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with probe-turn ws capture`)
-81. [TODO] Git Commit: `chore(package): rebuild packaged app with probe-turn ws capture` (hash: TBD)
-82. [TODO] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
+80. [DONE] `harness-ai.phase6b.stream1.task21` Package the app with the probe-turn WS-frame fix for user re-capture (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/provider-network-capture-package-2026-07-03-probe-turn.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with probe-turn ws capture`) Result: Completed in commit `chore(package): rebuild packaged app with probe-turn ws capture`.
+81. [DONE] Git Commit: `chore(package): rebuild packaged app with probe-turn ws capture` (hash: self)
+82. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User captures at least three native pairs (Claude, Codex, Kimi) in the packaged app via the Native Request Capture card and confirms each `.md`/`.jsonl` artifact contains the vendor-default system prompt and tool schemas; these pairs are the input to Phase R (scope: user workflow; expected commit: none).
 
 ## Phase R - Prompt Research (deferred, owner: Codex + User, updated: 2026-07-02)
 

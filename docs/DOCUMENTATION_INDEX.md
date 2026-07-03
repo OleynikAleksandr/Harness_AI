@@ -149,6 +149,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   and decodes the Codex `response.create` WS frame (deflate stripped); the
   `codex:native-capture` profile was removed and the dump reads `Sent upstream:
   true`, ahead of the user re-capturing the Codex native pair.
+- `docs/evidence/provider-network-capture-package-2026-07-03-probe-turn.md` —
+  fifth 2026-07-03 packaged rebuild: the first Codex forward capture recorded a
+  background `memory_consolidation` prewarm frame (8 tools, gpt-5.4) because
+  Codex reuses one WS connection for prewarm + real turns; the proxy now decodes
+  every frame and captures the one whose payload contains the probe prompt (our
+  turn, full ~17-tool native set), ahead of the user re-capturing the Codex
+  native pair.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

@@ -241,7 +241,7 @@
   базовый inline-набор из 17 достаточен; deferred/MCP слой — опциональное
   расширение, если понадобятся его схемы. У Codex НЕТ инструмента `WebFetch`
   (это инструмент Claude-стека); веб у Codex — `web_search` (в inline-наборе).
-- **Артефакты**: пары `<timestamp>-<provider>-native-request.{jsonl,md}`
+- **Артефакты**: пары `<timestamp>-<provider>-<model>-native-request.{jsonl,md}`
   в Harness home logs; JSONL с записями `request_captured` /
   `section_extract` (system, tools, messages), markdown — читаемый дамп с
   извлечёнными секциями (формат эталонов CodeAI-Hub). Credential-заголовки

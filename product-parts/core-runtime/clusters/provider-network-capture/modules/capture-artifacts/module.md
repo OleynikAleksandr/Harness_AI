@@ -41,7 +41,9 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   system prompt / tool declarations / messages sections. Always states
   `Sent upstream: false`.
 - `NativeRequestCaptureWriter`: creates the paired
-  `<timestamp>-<provider>-native-request.{jsonl,md}` artifacts, appends
+  `<timestamp>-<provider>-<model>-native-request.{jsonl,md}` artifacts (the
+  model segment is the sanitized selected model id, omitted when no model was
+  selected, so dumps for different models are distinguishable), appends
   `capture_start` / `request_captured` / `section_extract` /
   `applied_input_envelope` / `provider_diagnostic_context` / `capture_end`
   JSONL records, and rewrites the markdown twin after each record. Every

@@ -51,8 +51,19 @@ const STAINLESS_HEADER_PATTERN = /^x-stainless-/iu;
 const STAINLESS_CREDENTIAL_VALUE_PATTERN =
   /(bearer|token|secret|credential|oauth|session)/iu;
 const ARTIFACT_STEM_TIME_PATTERN = /[:.]/gu;
+const ARTIFACT_MODEL_UNSAFE_PATTERN = /[^a-zA-Z0-9._-]+/gu;
 
 export const REDACTED_CAPTURE_HEADER_VALUE = "[REDACTED]";
+
+// A filename-safe segment for the selected model, or "" when no model was
+// chosen, so dumps for different models are distinguishable on disk.
+function modelFilenameSegment(modelId: string | null | undefined): string {
+  const trimmed = modelId?.trim();
+  if (!trimmed) {
+    return "";
+  }
+  return `-${trimmed.replace(ARTIFACT_MODEL_UNSAFE_PATTERN, "-")}`;
+}
 
 export function redactCaptureHeaders(
   headers: Readonly<Record<string, string>>
@@ -215,7 +226,11 @@ export class NativeRequestCaptureWriter {
   ): Promise<NativeRequestCaptureWriter> {
     await fs.mkdir(options.outputDir, { recursive: true });
     const now = options.clock?.() ?? new Date();
-    const stem = `${now.toISOString().replace(ARTIFACT_STEM_TIME_PATTERN, "-")}-${options.providerId}-native-request`;
+    const timestamp = now
+      .toISOString()
+      .replace(ARTIFACT_STEM_TIME_PATTERN, "-");
+    const model = modelFilenameSegment(options.selectedModelId);
+    const stem = `${timestamp}-${options.providerId}${model}-native-request`;
     const artifacts: NativeCaptureArtifacts = {
       jsonlPath: path.join(options.outputDir, `${stem}.jsonl`),
       markdownPath: path.join(options.outputDir, `${stem}.md`),

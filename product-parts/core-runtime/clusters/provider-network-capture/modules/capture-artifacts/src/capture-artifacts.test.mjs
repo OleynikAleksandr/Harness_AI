@@ -97,8 +97,37 @@ try {
     providerId: "claude",
     selectedModelId: "claude-opus-4-8",
   });
-  assert.match(writer.artifacts.jsonlPath, /claude-native-request\.jsonl$/u);
-  assert.match(writer.artifacts.markdownPath, /claude-native-request\.md$/u);
+  // The selected model id is part of the filename so dumps are distinguishable.
+  assert.match(
+    writer.artifacts.jsonlPath,
+    /claude-claude-opus-4-8-native-request\.jsonl$/u
+  );
+  assert.match(
+    writer.artifacts.markdownPath,
+    /claude-claude-opus-4-8-native-request\.md$/u
+  );
+
+  // No selected model: the filename has no model segment.
+  const noModel = await NativeRequestCaptureWriter.create({
+    captureId: "cap-nomodel",
+    clock: () => new Date("2026-07-02T18:00:01.000Z"),
+    outputDir,
+    providerId: "codex",
+    selectedModelId: null,
+  });
+  assert.match(noModel.artifacts.jsonlPath, /-codex-native-request\.jsonl$/u);
+  // Unsafe characters in the model id are sanitized to filename-safe chars.
+  const unsafeModel = await NativeRequestCaptureWriter.create({
+    captureId: "cap-unsafe",
+    clock: () => new Date("2026-07-02T18:00:02.000Z"),
+    outputDir,
+    providerId: "kimi",
+    selectedModelId: "vendor/model name:1",
+  });
+  assert.match(
+    unsafeModel.artifacts.jsonlPath,
+    /-kimi-vendor-model-name-1-native-request\.jsonl$/u
+  );
 
   await writer.writeCapturedRequest({
     body: {

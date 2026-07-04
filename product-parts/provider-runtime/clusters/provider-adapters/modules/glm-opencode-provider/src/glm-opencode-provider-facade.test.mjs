@@ -36,10 +36,7 @@ assert.match(runtimeProfileSource, /\.harness-ai/u);
 assert.match(runtimeProfileSource, /HARNESS_GLM_OPENCODE_COMMAND/u);
 assert.match(turnStreamSource, /title: "harness-ai"/u);
 assert.doesNotMatch(runtimeProfileSource, /"\.codeai-hub"|~\/\.codeai-hub/u);
-assert.match(
-  coreRuntimeSource,
-  /new GlmOpenCodeProviderFacade\(model, workspacePath\)/u
-);
+assert.doesNotMatch(coreRuntimeSource, /GlmOpenCodeProviderFacade/u);
 
 for (const relativePath of [
   "reference/provider/glm-opencode-provider-adapter.ts",

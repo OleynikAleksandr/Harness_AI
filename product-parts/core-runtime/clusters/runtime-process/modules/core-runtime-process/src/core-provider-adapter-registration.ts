@@ -2,7 +2,6 @@ import { ClaudeProviderFacade } from "../../../../../../provider-runtime/cluster
 import { CodexProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import { GlmClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-client-provider/src/glm-client-provider-facade.js";
 import { GlmNativeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/glm-native-provider-facade.js";
-import { GlmOpenCodeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/src/glm-opencode-provider-facade.js";
 import { KimiClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
 import { KimiProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
 import { LocalModelsProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-provider/src/local-models-provider-facade.js";
@@ -39,8 +38,6 @@ export function buildProviderAdapterInstance(
       return new GlmClientProviderFacade(workspacePath);
     case "glm-native":
       return new GlmNativeProviderFacade(model, workspacePath);
-    case "glm-opencode":
-      return new GlmOpenCodeProviderFacade(model, workspacePath);
     case "openrouter":
       return new OpenRouterProviderFacade(model ?? undefined);
     case "local-models":

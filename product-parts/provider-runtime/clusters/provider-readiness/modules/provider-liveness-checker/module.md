@@ -22,6 +22,8 @@ Own provider liveness preflight helpers.
 - Global provider home path.
 - Env-isolated adapter initialization runner.
 - Raw liveness status written into the readiness registry.
+- Provider-home preflight builds only active provider-home adapters; the embedded
+  OpenCode runtime is unbound from liveness checks during the GLM migration.
 
 ## Owned Paths
 

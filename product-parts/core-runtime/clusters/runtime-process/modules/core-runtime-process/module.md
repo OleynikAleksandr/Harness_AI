@@ -82,12 +82,13 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `core-provider-adapter-registration.ts`. `CoreRuntimeApi` holds a
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
-- `PROVIDER_IDS` includes the internal universal-client endpoints
-  `kimi-client` and `glm-client`: their adapters register at startup and RPC
-  provider-id validation accepts them, so Core session routing can start and
-  route them before/after visibility switches. Kimi pins its single public
-  `kimi-for-coding` model; GLM resolves its selected model and reasoning effort
-  from Core settings per turn while the adapter pins only the GLM dialect.
+- `PROVIDER_IDS` includes the universal-client endpoints `kimi-client` and
+  `glm-client`: their adapters register at startup and RPC provider-id
+  validation accepts them. Kimi pins its single public `kimi-for-coding` model;
+  GLM resolves its selected model and reasoning effort from Core settings per
+  turn while the adapter pins only the GLM dialect. `glm-opencode` is no longer
+  registered or started by Core runtime lifecycle; old OpenCode sessions are not
+  preserved across updates during this development migration.
 
 - Session profile RPCs (`core-session-profile-rpc.ts`, the
   `ensure-glossary-file` four-layer pattern): `list-session-profiles`

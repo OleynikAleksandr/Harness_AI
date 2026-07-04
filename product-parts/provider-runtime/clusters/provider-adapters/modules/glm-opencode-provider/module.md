@@ -12,8 +12,9 @@ module.
 Provider home storage is Harness-owned: workspace sessions use
 `<workspace>/.harness/runtime/providers/glm-opencode/home`, and non-workspace
 fallbacks use `~/.harness-ai/providers/glm-opencode/home`.
-The facade accepts an explicit `providerHomePath` for Core-owned global-home
-liveness preflight without treating that global home as a workspace root.
+The facade still accepts an explicit `providerHomePath`, but Phase 3 has unbound
+this embedded OpenCode runtime from Core adapter registration and liveness
+preflight. The module remains only until the planned removal task deletes it.
 
 ## Public Facade
 

@@ -18,15 +18,11 @@ export const PROVIDER_IDS: ProviderId[] = [
   "claude",
   "codex",
   "kimi",
-  // Internal universal-client Kimi endpoint: registered and routable by id
-  // (RPC provider-id validation reads this list) while the visible picker
-  // still hides it until the visibility switch.
+  // Universal-client endpoints stay registered and routable by id; RPC
+  // provider-id validation reads this list.
   "kimi-client",
-  // Internal universal-client GLM endpoint: routable by id before the visible
-  // GLM switch.
   "glm-client",
   "glm-native",
-  "glm-opencode",
   "openrouter",
   "local-models",
 ];

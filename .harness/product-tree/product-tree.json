@@ -237,6 +237,11 @@
               "id": "client-contract",
               "name": "Client Contract",
               "purpose": "Shared client contract types: turn request / messages / tool-calls, tool descriptor with a source abstraction (built-in now, MCP/skill reserved), per-provider dialect capability profile, client output-event and error model, and tool-name namespacing."
+            },
+            {
+              "id": "dialect-streaming",
+              "name": "Dialect Streaming",
+              "purpose": "Consolidated SSE + dialect layer: read data: frames, parse each OpenAI-shape chat.completions chunk into a normalized delta, accumulate tool calls by index, and normalize the provider thinking forms (reasoning_content / reasoning / think tags) onto one channel."
             }
           ]
         },

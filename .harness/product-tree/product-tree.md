@@ -77,6 +77,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 ### Universal Client
 
 - `client-contract`: shared client contract types — turn request / messages / tool-calls, tool descriptor with a source abstraction (built-in now, MCP/skill reserved), per-provider dialect capability profile, client output-event and error model, and tool-name namespacing. Core-owned universal client for the OpenAI-shape provider four (Kimi/GLM/Local/OpenRouter); MCP/skills/subagents are reserved extension points, not MVP.
+- `dialect-streaming`: consolidated SSE + dialect layer — read `data:` frames, parse each OpenAI-shape chat.completions chunk into a normalized delta (content / thinking / tool-call deltas / usage / model / finish), accumulate tool calls by index, and normalize the provider thinking forms (`reasoning_content` / `reasoning` / `<think>` tags) onto one channel. Merges the three ported reference SSE readers.
 
 ### Settings And Localization
 

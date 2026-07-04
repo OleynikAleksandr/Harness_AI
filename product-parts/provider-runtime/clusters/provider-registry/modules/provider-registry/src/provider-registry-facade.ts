@@ -10,6 +10,7 @@ export type ProviderId =
   | "codex"
   | "kimi"
   | "kimi-client"
+  | "glm-client"
   | "glm-native"
   | "glm-opencode"
   | "openrouter"
@@ -83,6 +84,13 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     moduleId: "kimi-client-provider",
     status: "needs-settings",
     visibility: "visible",
+  },
+  {
+    id: "glm-client",
+    name: "GLM",
+    moduleId: "glm-client-provider",
+    status: "needs-settings",
+    visibility: "internal",
   },
   {
     id: "glm-native",
@@ -185,16 +193,16 @@ export class ProviderRegistryFacade {
     );
     // Universal-client endpoints carry their Core-owned model catalog; the
     // renderer shows this instead of deriving a model from settings.
-    const clientModel = providerDescriptorFacade.getClientModels(
-      provider.id
-    )[0];
+    const clientModels = providerDescriptorFacade.getClientModels(provider.id);
+    const singleClientModel =
+      clientModels.length === 1 ? clientModels[0] : null;
     return {
       ...provider,
       adapterStatus: this.adapters.has(provider.id)
         ? "registered"
         : "unregistered",
       capabilities: providerDescriptorFacade.getCapabilities(provider.id),
-      ...(clientModel ? { defaultModelId: clientModel.id } : {}),
+      ...(singleClientModel ? { defaultModelId: singleClientModel.id } : {}),
       ...readiness,
     };
   }

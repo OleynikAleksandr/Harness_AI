@@ -206,6 +206,7 @@ const PROVIDER_KEY_BY_ID: Record<
   codex: "codex",
   kimi: "kimi",
   "kimi-client": "kimiClient",
+  "glm-client": "glmClient",
   "glm-native": "glmNative",
   "glm-opencode": "glmOpenCode",
   openrouter: "openRouter",

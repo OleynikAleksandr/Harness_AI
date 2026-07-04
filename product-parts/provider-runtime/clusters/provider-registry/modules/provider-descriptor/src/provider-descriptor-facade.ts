@@ -39,6 +39,13 @@ export interface ProviderModelDescriptor {
 const CLIENT_PROVIDER_MODELS: Readonly<
   Record<string, readonly ProviderModelDescriptor[]>
 > = {
+  "glm-client": [
+    { id: "glm-5.2", label: "GLM 5.2" },
+    { id: "glm-5.1", label: "GLM 5.1" },
+    { id: "glm-5-turbo", label: "GLM 5 Turbo" },
+    { id: "glm-4.7", label: "GLM 4.7" },
+    { id: "glm-4.6", label: "GLM 4.6" },
+  ],
   "kimi-client": [{ id: "kimi-for-coding", label: "Kimi For Coding" }],
 };
 
@@ -70,6 +77,7 @@ const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
   "openrouter",
   "local-models",
   // Universal-client endpoint: key-only auth from Core settings, no provider home.
+  "glm-client",
   "kimi-client",
 ]);
 

@@ -30,8 +30,9 @@ Own provider catalog, availability, and provider invocation profile descriptors.
   picker at once.
 - Core-owned default model id: descriptors of universal-client endpoints
   carry `defaultModelId` from the provider-descriptor client model catalog
-  (`kimi-client` → `kimi-for-coding`); the renderer shows it instead of
-  deriving a model from the settings snapshot.
+  only for single-model catalogs (`kimi-client` → `kimi-for-coding`); multi-
+  model client endpoints such as internal `glm-client` omit `defaultModelId`
+  and resolve the selected model through settings.
 - Enabled/disabled provider state.
 - Provider readiness status/message for the Core-selected readiness workspace,
   using the provider-readiness registry combine function.

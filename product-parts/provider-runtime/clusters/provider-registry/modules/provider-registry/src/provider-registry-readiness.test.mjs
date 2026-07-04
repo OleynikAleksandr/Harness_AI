@@ -12,7 +12,7 @@ const source = readFileSync(
   )
   .replace(
     /import \{[\s\S]*?providerDescriptorFacade,[\s\S]*?\} from "\.\.\/\.\.\/provider-descriptor\/src\/provider-descriptor-facade\.js";\n/u,
-    'const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }), getClientModels: (providerId) => (providerId === "kimi-client" ? [{ id: "kimi-for-coding", label: "Kimi For Coding" }] : []) };\n'
+    'const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }), getClientModels: (providerId) => (providerId === "kimi-client" ? [{ id: "kimi-for-coding", label: "Kimi For Coding" }] : providerId === "glm-client" ? [{ id: "glm-5.2", label: "GLM 5.2" }, { id: "glm-5.1", label: "GLM 5.1" }] : []) };\n'
   )
   .replace(
     /import \{ providerReadinessRegistryFacade \}[\s\S]*?provider-readiness-registry-facade\.js";\n/u,
@@ -57,3 +57,9 @@ assert.equal(kimiClient.defaultModelId, "kimi-for-coding");
 const kimiAcp = registry.getProvider("kimi");
 assert.equal(kimiAcp.visibility, "internal");
 assert.equal(kimiAcp.defaultModelId, undefined);
+
+const glmClient = registry.getProvider("glm-client");
+assert.equal(glmClient.visibility, "internal");
+assert.equal(glmClient.name, "GLM");
+assert.equal(glmClient.moduleId, "glm-client-provider");
+assert.equal(glmClient.defaultModelId, undefined);

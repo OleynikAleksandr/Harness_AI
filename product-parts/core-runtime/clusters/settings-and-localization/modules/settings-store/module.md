@@ -53,7 +53,8 @@ Own global and workspace settings persistence.
   profile), persists in the system settings projection, defaults to `glm-5.2`
   with `max` reasoning, and normalization validates the model against the
   Core-owned GLM client catalog (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
-  `glm-4.7`, `glm-4.6`).
+  `glm-4.7`, `glm-4.6`). The provider-key map binds `glm-client` to this
+  section once the internal provider id is introduced.
 
 ## Reasoning Effort Contract
 

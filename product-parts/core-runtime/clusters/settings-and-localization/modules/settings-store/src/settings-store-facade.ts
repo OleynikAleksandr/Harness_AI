@@ -61,6 +61,9 @@ export interface HarnessSettings {
       thinkingEnabled: boolean;
     };
     kimiClient: ProviderClientKeySettings;
+    glmClient: ProviderClientKeySettings & {
+      reasoningEffort: ReasoningEffort;
+    };
     glmNative: ProviderConnectionSettings & {
       reasoningEffort: ReasoningEffort;
       thinkingEnabled: boolean;
@@ -158,6 +161,11 @@ const DEFAULT_SETTINGS: HarnessSettings = {
     kimiClient: {
       apiKey: "",
       defaultModel: "kimi-for-coding",
+    },
+    glmClient: {
+      apiKey: "",
+      defaultModel: "glm-5.2",
+      reasoningEffort: "max",
     },
     glmNative: {
       ...connectionProvider("glm-5.2", "https://open.bigmodel.cn/api/paas/v4"),

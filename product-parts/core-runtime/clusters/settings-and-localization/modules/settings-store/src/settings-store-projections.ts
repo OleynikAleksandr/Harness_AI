@@ -23,6 +23,11 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
         apiKey: settings.providers.kimiClient.apiKey,
         defaultModel: settings.providers.kimiClient.defaultModel,
       },
+      glmClient: {
+        apiKey: settings.providers.glmClient.apiKey,
+        defaultModel: settings.providers.glmClient.defaultModel,
+        reasoningEffort: settings.providers.glmClient.reasoningEffort,
+      },
       glmNative: pickConnection(settings.providers.glmNative),
       glmOpenCode: {
         ...pickConnection(settings.providers.glmOpenCode),

@@ -24,9 +24,16 @@ assert.match(source, /supportsCodexReasoningSummary/u);
 assert.match(source, /CODEX_MODELS_WITHOUT_REASONING_SUMMARY/u);
 assert.match(source, /resolveCodexReasoningEffort/u);
 assert.match(source, /return null/u);
+assert.match(source, /GLM_CLIENT_MODEL_IDS/u);
+assert.match(source, /next\.providers\.glmClient\.defaultModel = "glm-5\.2"/u);
+assert.match(source, /next\.providers\.glmClient\.reasoningEffort = "max"/u);
 assert.match(
   source,
   /next\.providers\.codex\.reasoningByModel = Object\.fromEntries/u
+);
+assert.match(
+  facadeSource,
+  /glmClient: \{\n\s+apiKey: "",\n\s+defaultModel: "glm-5\.2",\n\s+reasoningEffort: "max",\n\s+\}/u
 );
 assert.match(facadeSource, /uiEngineId: "google-gtx"/u);
 assert.match(facadeSource, /getLocalizationTranslationEngines/u);

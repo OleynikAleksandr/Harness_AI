@@ -47,6 +47,13 @@ Own global and workspace settings persistence.
   (`providers/kimi-client/settings.json`) on save like the other key-based
   providers, and reads back through the auth overlay, so
   `getApiKey("kimi-client")` and the Settings UI see one value.
+- The `glm-client` provider has its dedicated `providers.glmClient` section
+  for the universal-client GLM endpoint: `apiKey`, `defaultModel`, and
+  `reasoningEffort`. It is key-only (`baseUrl` is owned by the GLM dialect
+  profile), persists in the system settings projection, defaults to `glm-5.2`
+  with `max` reasoning, and normalization validates the model against the
+  Core-owned GLM client catalog (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
+  `glm-4.7`, `glm-4.6`).
 
 ## Reasoning Effort Contract
 

@@ -54,6 +54,13 @@ const KIMI_MODEL_IDS = ["kimi-k2.7-code", "kimi-k2.7-code-highspeed"];
 // The universal-client Kimi endpoint has a single public model id; the vendor
 // rotates the backend behind it, so the setting is pinned.
 const KIMI_CLIENT_MODEL_ID = "kimi-for-coding";
+const GLM_CLIENT_MODEL_IDS = [
+  "glm-5.2",
+  "glm-5.1",
+  "glm-5-turbo",
+  "glm-4.7",
+  "glm-4.6",
+];
 const GLM_OPENCODE_MODEL_IDS = [
   "zai-coding-plan/glm-5.2",
   "kimi-for-coding/k2p7",
@@ -100,6 +107,14 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
     next.providers.kimi.defaultModel = "kimi-k2.7-code";
   }
   next.providers.kimiClient.defaultModel = KIMI_CLIENT_MODEL_ID;
+  if (!GLM_CLIENT_MODEL_IDS.includes(next.providers.glmClient.defaultModel)) {
+    next.providers.glmClient.defaultModel = "glm-5.2";
+  }
+  if (
+    !CLAUDE_THINKING_EFFORTS.includes(next.providers.glmClient.reasoningEffort)
+  ) {
+    next.providers.glmClient.reasoningEffort = "max";
+  }
   if (
     !GLM_OPENCODE_MODEL_IDS.includes(next.providers.glmOpenCode.defaultModel)
   ) {

@@ -33,7 +33,7 @@ export function ProviderPicker({
 
         <div className="provider-grid">
           {providers.map((provider) => {
-            const model = getProviderModel(provider.id, settings);
+            const model = resolveProviderModel(provider, settings);
             const isReady = provider.readinessStatus === "ready";
             return (
               <button
@@ -76,7 +76,16 @@ function readinessLabel(provider: ProviderDescriptor): string {
   return provider.readinessMessage ?? "Provider setup failed.";
 }
 
-export function getProviderModel(
+// The provider descriptor's Core-owned model id (universal-client endpoints)
+// wins; the settings-snapshot lookup covers the vendor-channel providers.
+export function resolveProviderModel(
+  provider: ProviderDescriptor,
+  settings: HarnessSettings | null | undefined
+): string {
+  return provider.defaultModelId ?? getProviderModel(provider.id, settings);
+}
+
+function getProviderModel(
   providerId: ProviderDescriptor["id"],
   settings: HarnessSettings | null | undefined
 ): string {

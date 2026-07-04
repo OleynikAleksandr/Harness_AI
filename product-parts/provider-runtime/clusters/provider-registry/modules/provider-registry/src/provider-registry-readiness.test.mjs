@@ -12,7 +12,7 @@ const source = readFileSync(
   )
   .replace(
     /import \{[\s\S]*?providerDescriptorFacade,[\s\S]*?\} from "\.\.\/\.\.\/provider-descriptor\/src\/provider-descriptor-facade\.js";\n/u,
-    "const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }) };\n"
+    'const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }), getClientModels: (providerId) => (providerId === "kimi-client" ? [{ id: "kimi-for-coding", label: "Kimi For Coding" }] : []) };\n'
   )
   .replace(
     /import \{ providerReadinessRegistryFacade \}[\s\S]*?provider-readiness-registry-facade\.js";\n/u,
@@ -37,17 +37,23 @@ registry.setReadinessWorkspace("workspace-a");
 assert.equal(registry.getProvider("codex").readinessStatus, "ready");
 assert.equal(registry.getProvider("claude").readinessStatus, "checking");
 
-// Internal providers stay out of the visible picker but resolve by id.
+// Visibility switch applied: the visible Kimi is the universal-client
+// endpoint; the ACP kimi stays internal but resolves by id for existing
+// sessions. Never two Kimi entries in the picker at once.
+const visible = registry.listProviders();
 assert.equal(
-  registry.listProviders().some((provider) => provider.id === "kimi-client"),
-  false
-);
-assert.equal(
-  registry
-    .listProviders()
-    .every((provider) => provider.visibility === "visible"),
+  visible.every((provider) => provider.visibility === "visible"),
   true
 );
+assert.equal(visible.filter((provider) => provider.name === "Kimi").length, 1);
+assert.equal(
+  visible.some((provider) => provider.id === "kimi"),
+  false
+);
 const kimiClient = registry.getProvider("kimi-client");
-assert.equal(kimiClient.visibility, "internal");
+assert.equal(kimiClient.visibility, "visible");
 assert.equal(kimiClient.moduleId, "kimi-client-provider");
+assert.equal(kimiClient.defaultModelId, "kimi-for-coding");
+const kimiAcp = registry.getProvider("kimi");
+assert.equal(kimiAcp.visibility, "internal");
+assert.equal(kimiAcp.defaultModelId, undefined);

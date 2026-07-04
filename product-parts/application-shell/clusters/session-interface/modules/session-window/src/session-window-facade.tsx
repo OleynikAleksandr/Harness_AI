@@ -12,7 +12,7 @@ import type { ProviderDescriptor } from "../../../../../../provider-runtime/clus
 import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
-import { getProviderModel, ProviderPicker } from "./provider-picker.js";
+import { ProviderPicker, resolveProviderModel } from "./provider-picker.js";
 import {
   DialogPanel,
   ReferenceInputPanel,
@@ -239,7 +239,7 @@ export function SessionWindowFacade() {
   ): Promise<string | null> {
     const snapshot =
       settingsSnapshot ?? (await refreshSettingsSnapshot(activeWorkspace.path));
-    const model = getProviderModel(provider.id, snapshot);
+    const model = resolveProviderModel(provider, snapshot);
     const result = await window.harnessCore?.createSession({
       model,
       nextSessionMode:

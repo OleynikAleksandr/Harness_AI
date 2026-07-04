@@ -22,6 +22,9 @@ export type ProviderVisibility = "internal" | "visible";
 export interface ProviderDescriptor {
   adapterStatus: "registered" | "unregistered";
   capabilities: ProviderCapabilities;
+  // Present when the provider's model catalog is Core-owned (universal-client
+  // endpoints); the renderer shows it instead of deriving from settings.
+  defaultModelId?: string;
   id: ProviderId;
   moduleId: string;
   name: string;
@@ -40,7 +43,11 @@ export interface ProviderInvocationProfile {
 
 type ProviderBaseDescriptor = Omit<
   ProviderDescriptor,
-  "adapterStatus" | "capabilities" | "readinessMessage" | "readinessStatus"
+  | "adapterStatus"
+  | "capabilities"
+  | "defaultModelId"
+  | "readinessMessage"
+  | "readinessStatus"
 >;
 
 const PROVIDERS: ProviderBaseDescriptor[] = [
@@ -59,21 +66,23 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "visible",
   },
   {
+    // ACP Kimi after the visibility switch: retained for existing sessions
+    // (registered, resolvable by id) but hidden from the picker — no new ACP
+    // Kimi sessions start. Full retirement is a Phase 5 open item.
     id: "kimi",
     name: "Kimi",
     moduleId: "kimi-provider",
     status: "needs-settings",
-    visibility: "visible",
+    visibility: "internal",
   },
   {
-    // Universal-client Kimi endpoint. Internal while the ACP kimi provider
-    // serves the visible picker; the visibility switch flips the visible
-    // kimi to this endpoint. Never two Kimi entries in the picker at once.
+    // The visible Kimi: the universal-client endpoint (visibility switch
+    // applied). Never two Kimi entries in the picker at once.
     id: "kimi-client",
     name: "Kimi",
     moduleId: "kimi-client-provider",
     status: "needs-settings",
-    visibility: "internal",
+    visibility: "visible",
   },
   {
     id: "glm-native",
@@ -174,12 +183,18 @@ export class ProviderRegistryFacade {
       provider.id,
       this.readinessWorkspaceId
     );
+    // Universal-client endpoints carry their Core-owned model catalog; the
+    // renderer shows this instead of deriving a model from settings.
+    const clientModel = providerDescriptorFacade.getClientModels(
+      provider.id
+    )[0];
     return {
       ...provider,
       adapterStatus: this.adapters.has(provider.id)
         ? "registered"
         : "unregistered",
       capabilities: providerDescriptorFacade.getCapabilities(provider.id),
+      ...(clientModel ? { defaultModelId: clientModel.id } : {}),
       ...readiness,
     };
   }

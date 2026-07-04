@@ -94,6 +94,11 @@ Render the transcript/dialog layout and session chrome.
 - Opening the provider picker re-queries `listProviders` from Core, so the card
   reflects the live catalog (provider renames, Restart Core) instead of the list
   cached at renderer startup.
+- Provider card model labels resolve through `resolveProviderModel`: a
+  Core-owned `defaultModelId` on the provider descriptor (universal-client
+  endpoints, e.g. the visible Kimi → `kimi-for-coding`) wins over the
+  settings-snapshot lookup; the renderer never invents a model id. The same
+  resolution feeds the `model` field of `createSession`.
 
 - New-session wizard step 2 (`session-profile-step.tsx`): after the
   provider card, the profile picker lists Core-provided applicable profiles

@@ -4,6 +4,12 @@
 
 Harness-packaged Kimi provider migrated from CodeAI-Hub.
 
+Status after the Phase 2 visibility switch: this ACP provider is INTERNAL —
+hidden from the provider picker, retained and registered for existing `kimi`
+sessions only. New Kimi sessions start on the `kimi-client-provider`
+universal-client endpoint. Full retirement of this module is a Phase 5 open
+item ("kimi-provider afterlife").
+
 The module owns the Harness facade and the embedded reference Kimi ACP
 implementation. The facade only binds Harness workspace paths, provider home
 state, selected model and thinking default; lifecycle, managed agent profile,

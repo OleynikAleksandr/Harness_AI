@@ -23,10 +23,15 @@ Own provider catalog, availability, and provider invocation profile descriptors.
   `visibility: "visible" | "internal"`. `listProviders()` returns only
   visible providers (the picker snapshot); internal providers stay
   resolvable through `getProvider`/`getAdapter` for Core session routing.
-  The `kimi-client` universal-client endpoint is registered internal while
-  the ACP `kimi` provider serves the visible picker; the Phase 2 visibility
-  switch flips the visible Kimi to the client endpoint — never two Kimi
-  entries in the picker at once.
+  The Phase 2 visibility switch is APPLIED: the visible Kimi is the
+  `kimi-client` universal-client endpoint, and the ACP `kimi` provider is
+  internal — retained for existing sessions, no new ACP Kimi sessions start,
+  full retirement is a Phase 5 open item. Never two Kimi entries in the
+  picker at once.
+- Core-owned default model id: descriptors of universal-client endpoints
+  carry `defaultModelId` from the provider-descriptor client model catalog
+  (`kimi-client` → `kimi-for-coding`); the renderer shows it instead of
+  deriving a model from the settings snapshot.
 - Enabled/disabled provider state.
 - Provider readiness status/message for the Core-selected readiness workspace,
   using the provider-readiness registry combine function.

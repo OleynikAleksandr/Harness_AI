@@ -494,55 +494,96 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 
 ## Phase 7 - Native Profile Unification (owner: Codex + User, updated: 2026-07-03)
 
-> STATUS (2026-07-03): the items below are PROPOSALS UNDER DISCUSSION, NOT
-> accepted decisions. The user has explicitly NOT signed off yet. Phase 7
-> implementation (profile store, button, per-adapter application, Kimi bridge)
-> MUST NOT start until each proposal is discussed and accepted — the first
-> Phase 7 step is a discussion gate (task38), and this note is rewritten to
-> record which items the user accepts as they are settled.
+> DECISIONS (2026-07-04, task38 discussion round 2). The 2026-07-03 proposals
+> were discussed per item; this note now records the outcomes. Original
+> proposal texts live in git history. Per the user's direct order (2026-07-04)
+> this scope CLOSES once these decisions are recorded: the universal-client
+> work is a substantially new scope, so the implementation moves to the NEW
+> plan `universal-client-2026-07-04` (first task: the client capability-set +
+> OSS-foundation research). The archive runs with `--force` per that order —
+> the gate task38 is intentionally left open by the archive, not completed.
+> The OPEN items below transfer to the new scope's planning.
 >
-> What the user HAS confirmed so far (direction, not mechanism): (a) the goal —
-> for ALL THREE providers the Native (and any custom) profile should send a
-> system prompt + tooling that is OUR managed snapshot, frozen from a tested
-> vendor version so later SDK/CLI updates do not change it; (b) fix Kimi FIRST;
-> (c) the live per-session CONTEXT is generated dynamically every session and
-> is NOT part of the frozen static wrapper. Everything below is HOW to deliver
-> that and is still open.
+> ACCEPTED:
+> - **Synthetic Native everywhere (B2 final form):** for ALL providers the
+>   Native profile sends OUR frozen managed snapshot (static wrapper + tool
+>   list), never the live SDK/CLI default; the live per-session context is
+>   generated fresh every session for every profile; snapshots change ONLY by
+>   user will (refresh from Native Request Capture dumps for Claude/Codex),
+>   never silently via vendor software updates.
+> - **Claude/Codex channels unchanged:** Claude Agent SDK (native wrapper from
+>   the accepted interactive-CLI dump sent as an explicit `systemPrompt`
+>   string + `tools` list), Codex app-server (`baseInstructions`; 17-tool set
+>   fixed by process flags). Zed-style ACP adapters rejected as crutches (they
+>   sit on the SDK and inherit the SDK guise).
+> - **In-house UNIVERSAL CLIENT (not OpenCode) for OpenAI-shape providers:**
+>   one Core-owned client core (agent loop, tool execution, SSE streaming,
+>   permissions) + thin provider endpoint modules for Kimi, GLM, Local Models
+>   (new provider), OpenRouter (new provider), and any future OpenAI-shape
+>   vendor. Rationale vs an OpenCode core: double dependency (providers AND
+>   the OpenCode roadmap), redundancy (we need ~10% of that combine), and
+>   foreign-engine "Codex moments". OpenCode becomes the SECOND reference
+>   project (MIT; behavior is ported, code is never copied). Research fact
+>   (2026-07-04, HEAD clone): OpenCode's per-model prompt bridges
+>   (anthropic/gpt/codex/kimi.txt via `SystemPrompt.provider`) are fully
+>   displaced by a custom `agent.prompt` (`session/llm/request.ts:60`), tools
+>   filter per-agent, and their `<env>` block is the live-context analog —
+>   this confirms the B2 model, and our GLM profile already uses
+>   `agent.prompt` displacement in production today.
+> - **GLM migration:** GLM keeps running on the embedded OpenCode runtime
+>   until the universal client is ready, then migrates onto it and the
+>   embedded OpenCode runtime is removed from the product.
+> - **Key-only onboarding for the client four:** provider setup = paste an
+>   API key (Local Models = base URL), nothing is downloaded or installed;
+>   keys live in Core settings; per-provider help explains where to get the
+>   key.
+> - **Kimi access channel = Kimi Code SUBSCRIPTION only** (no pay-per-token
+>   platform channel in the product); the provider help documents that single
+>   path. The subscription materializes an `api_key` after `kimi login` (our
+>   code already reads it from config.toml), so the auth gate narrows to
+>   technical validation: does `api.kimi.com/coding/v1` accept that key from
+>   OUR client (headers/user-agent), is the key long-lived, and how do the
+>   5h/weekly subscription limits report on it.
+> - **Order: Kimi FIRST on the client core** (user choice 2026-07-04) — the
+>   core is proven on the live target; the Kimi auth-gate validation is the
+>   first step of the implementation phase.
+> - **Native for the client four = our reference wrapper + the client's tool
+>   set** (GLM category — no vendor client exists to copy); the captured Kimi
+>   vendor dump remains Phase R reference material, not a working profile.
 >
-> Proposals under discussion (each needs explicit user sign-off):
-> - **B2 (static wrapper frozen, live context):** the system prompt splits into
->   (1) the static WRAPPER — identity, behavior rules, tool list; the part the
->   vendor changes on updates — which we freeze into the profile, and (2) the
->   live per-session CONTEXT — working dir, date, git status, memory/scratchpad
->   paths — which is generated fresh every session for EVERY profile (native
->   and managed alike), never stored in the profile. Freezing the context would
->   put a stale workspace/date into every session (a bug), so only the wrapper
->   is frozen.
-> - **Unify via the Profiles folder:** Native becomes ordinary profiles under
->   `~/.harness-ai/Profiles/native-<provider>/` (profile.yaml + system-prompt.md
->   wrapper + tooling.yaml), read through the same path as managed profiles.
-> - **"Update Native Profile" button** in Settings -> General next to the
->   Native Request Capture card: a Core command that takes the latest dump per
->   provider, splits wrapper/context, and rewrites the native profile files.
-> - **Per-provider application ceilings (honest):** Claude — full prompt+tools
->   control (`systemPrompt` string/array + `tools` list). Codex — prompt via
->   `baseInstructions`, but tooling is app-server process-flags (17 tools fixed,
->   no per-thread trim). Kimi — NO native channel to replace the main system
->   prompt (proven 2026-07-03, see the rewriting-bridge note below); the only
->   proven way is to rewrite the outbound HTTP request on our proxy.
-> - **Ballast candidate:** the Claude `# Memory` section (~2.2k tok, auto-memory
->   instructions + path) is a candidate to DROP from the wrapper — with our
->   orchestrated harness (plan as recovery owner, a commit per microtask) the
->   file-based auto-memory is redundant, so it is "on-all-occasions" ballast
->   rather than a load-bearing block. Decided per-section during authoring.
+> REJECTED:
+> - **Kimi rewriting-bridge** (persistent record-and-rewrite proxy for live
+>   Kimi) — rejected 2026-07-04 together with its open questions; superseded
+>   by the universal client. The research stream below stays as history: the
+>   no-substitution-channel finding and the wire-substitution proof remain
+>   valid facts about kimi-code 0.18.0.
+> - **Kimi live ACP channel** — retires when the universal client lands (the
+>   kimi binary leaves the live path; `kimi login` remains only as the way
+>   the user obtains the subscription key, documented in help).
+>
+> OPEN (settled later; does not block implementation planning):
+> - Native profile storage layout (`~/.harness-ai/Profiles/native-<provider>/`)
+>   — "native is an ordinary profile" is accepted; the exact file layout is
+>   fixed when the profile-store work is planned.
+> - "Update Native Profile" mechanism — user-willed refresh is accepted;
+>   UI/command specifics at planning.
+> - Claude `# Memory` ballast (~2.2k tok) — per-section decision at wrapper
+>   authoring.
+> - kimi-provider module afterlife after the migration (usage-limits reader
+>   reuse, ACP wire modules removal) — at migration planning.
 
 ### Stream: Architecture Documentation
 
 109. [DONE] `harness-ai.phase7.stream1.task36` Document the native prompt anatomy and composition: add `docs/architecture/NativePromptComposition.md` describing how a provider request is assembled (system prompt + tools + messages), the two system-prompt layers (static cacheable wrapper vs live per-session context), prompt caching (the static prefix is cached within one session so later turns are cheaper; the dynamic suffix is not), the per-provider breakdown from the accepted dumps (Claude 4 blocks incl. cli identity + Environment ~1k / Memory ~2.2k / Scratchpad dynamic; Codex; Kimi OpenAI shape), the B2 native model (frozen wrapper from the Profiles folder + live context generator shared by all profiles), the ballast decision on the Claude Memory section, and the per-provider application ceilings; register it in the index and cross-link from SessionProfilesV2 decision 5 (scope: `docs/architecture/NativePromptComposition.md` (new), `docs/DOCUMENTATION_INDEX.md`, `docs/architecture/SessionProfilesV2.md`; expected commit: `docs(architecture): document native prompt composition and caching`) Result: Completed in commit `docs(architecture): document native prompt composition and caching`.
 110. [DONE] Git Commit: `docs(architecture): document native prompt composition and caching` (hash: self)
 
-### Stream: Kimi Channel Research (DONE) And The Rewriting-Bridge Proposal (OPEN FOR DISCUSSION)
+### Stream: Kimi Channel Research (DONE) And The Rewriting-Bridge Proposal (REJECTED 2026-07-04)
 
+> OUTCOME (2026-07-04): the user REJECTED the persistent rewriting bridge;
+> live Kimi moves to the in-house universal client (see the DECISIONS block
+> above). The research facts below remain valid history about kimi-code
+> 0.18.0 and are the evidence base for retiring the Kimi ACP live channel.
+>
 > KIMI CHANNEL RESEARCH RESULT (2026-07-03, read-only, user-directed "fix Kimi
 > first"). Zero-context recovery: this note + `docs/architecture/
 > NativePromptComposition.md` + the memory `native-profile-unification.md`
@@ -612,6 +653,8 @@ local stub via `ANTHROPIC_BASE_URL` or our proxy + the real vendor binary.
 ### Stream: Proposal Discussion Gate (blocks all Phase 7 implementation)
 
 > Git Commit: `docs(plan): reframe phase 7 items as proposals with a discussion gate` (hash: self) — the reframe that OPENED this gate; task38 itself stays IN_PROGRESS across the discussion and is not advanced by this commit.
+>
+> Git Commit: `docs(plan): record phase 7 decisions` (hash: self) — records the 2026-07-04 decision package (synthetic native everywhere, in-house universal client instead of the Kimi bridge/OpenCode core, key-only onboarding, Kimi Code subscription channel, Kimi-first order); per the user's direct order (2026-07-04) the scope closes right after this commit (`npm run plan:archive -- --force`) and the implementation moves to the new scope `universal-client-2026-07-04`.
 
 113. [IN_PROGRESS] `harness-ai.phase7.stream2.task38` Discuss the Phase 7 proposals with the user and get explicit per-item sign-off BEFORE any implementation. Items to settle (all currently PROPOSED, not accepted): (1) B2 wrapper/context split as the native model; (2) storing native as ordinary profiles under `~/.harness-ai/Profiles/native-<provider>/` read via the same parser as managed; (3) the "Update Native Profile" button (dump -> wrapper/context splitter -> profile files); (4) the Kimi rewriting-bridge proposal (persistent record-and-rewrite proxy for live Kimi) INCLUDING its open questions — bridge home, streaming relay, TLS/lifecycle, wrapper-vs-context on the wire, the "don't rewrite Kimi" alternative, fail-closed behavior; (5) per-provider ceilings (Claude full, Codex prompt-only tooling, Kimi via bridge); (6) the ballast decision to drop the Claude `# Memory` section. As each item is accepted or changed, rewrite the Phase 7 discovery note to record the decision; only AFTER sign-off expand the implementation microtasks (Kimi first, per user order). This task stays open across the discussion; it is a gate, not a code change (scope: discussion + plan note updates as decisions land; expected commit: none until a decision changes the note, then `docs(plan): record phase 7 decisions`).
 

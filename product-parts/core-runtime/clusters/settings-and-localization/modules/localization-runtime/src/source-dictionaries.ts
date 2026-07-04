@@ -198,10 +198,22 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "When the remaining context window drops to or below this percentage, Harness AI can automatically wrap up the current session and start a new one. Default: 30%.",
     "settings.provider.glm.defaultModel.description":
       "Choose the GLM model used when new sessions start.",
+    "settings.provider.glmClient.defaultModel.description":
+      "Choose the GLM model used by the universal client when new sessions start.",
     "settings.provider.glmClient.description":
       "Runs GLM on the Harness universal client with a Z.ai Coding Plan subscription key. Nothing is downloaded or installed.",
     "settings.provider.glmClient.apiKey.description":
       "Paste the Z.ai Coding Plan API key used for GLM coding access. Harness stores it in Core settings for the universal client and also accepts GLM_API_KEY or ZAI_API_KEY from the environment.",
+    "settings.provider.glmClient.model.glm-4.6.description":
+      "GLM 4.6 coding model on the Z.ai endpoint.",
+    "settings.provider.glmClient.model.glm-4.7.description":
+      "GLM 4.7 coding model on the Z.ai endpoint.",
+    "settings.provider.glmClient.model.glm-5-turbo.description":
+      "Lower-latency GLM coding model.",
+    "settings.provider.glmClient.model.glm-5.1.description":
+      "Previous-generation GLM coding model for compatibility checks.",
+    "settings.provider.glmClient.model.glm-5.2.description":
+      "Default GLM coding model for the Z.ai Coding Plan endpoint.",
     "settings.provider.localModels.description":
       "Select the default LM Studio model used for new Local Models sessions.",
     "settings.provider.openCode.description":

@@ -2,8 +2,8 @@
 // onboarding — the base URL and the model catalog are Core-owned, so the tab
 // section holds exactly one secret field plus the provider-help copy. Each
 // client provider's Settings tab mounts one, parameterized by its
-// localization message prefix; Kimi today, the other client providers follow
-// as they join the universal client.
+// localization message prefix; each client provider ships a thin preset wrapper
+// as it joins the universal client.
 
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import {
@@ -26,6 +26,31 @@ const KIMI_CLIENT_FALLBACKS: ClientApiKeyCardFallbacks = {
   title: "Kimi For Coding API Key",
 };
 
+const GLM_CLIENT_FALLBACKS: ClientApiKeyCardFallbacks = {
+  description:
+    "Runs GLM on the Harness universal client with a Z.ai Coding Plan subscription key. Nothing is downloaded or installed.",
+  keyDescription:
+    "Paste the Z.ai Coding Plan API key used for GLM coding access. Harness stores it in Core settings for the universal client and also accepts GLM_API_KEY or ZAI_API_KEY from the environment.",
+  title: "Z.ai Coding Plan API Key",
+};
+
+export function GlmClientApiKeyCard({
+  apiKey,
+  onChange,
+}: {
+  apiKey: string;
+  onChange: (apiKey: string) => void;
+}) {
+  return (
+    <ClientApiKeyCard
+      apiKey={apiKey}
+      fallbacks={GLM_CLIENT_FALLBACKS}
+      messagePrefix="settings.provider.glmClient"
+      onChange={onChange}
+    />
+  );
+}
+
 export function KimiClientApiKeyCard({
   apiKey,
   onChange,
@@ -43,8 +68,6 @@ export function KimiClientApiKeyCard({
   );
 }
 
-// Not exported yet: each client provider ships a thin preset wrapper (like
-// KimiClientApiKeyCard) as it joins the universal client.
 function ClientApiKeyCard({
   apiKey,
   fallbacks,

@@ -84,6 +84,35 @@ export const PROVIDER_MODEL_OPTIONS = {
       label: "Kimi K2.7 Code High Speed",
     },
   ],
+  glmClient: [
+    {
+      description:
+        "Default GLM coding model for the Z.ai Coding Plan endpoint.",
+      id: "glm-5.2",
+      label: "GLM 5.2",
+    },
+    {
+      description:
+        "Previous-generation GLM coding model for compatibility checks.",
+      id: "glm-5.1",
+      label: "GLM 5.1",
+    },
+    {
+      description: "Lower-latency GLM coding model.",
+      id: "glm-5-turbo",
+      label: "GLM 5 Turbo",
+    },
+    {
+      description: "GLM 4.7 coding model on the Z.ai endpoint.",
+      id: "glm-4.7",
+      label: "GLM 4.7",
+    },
+    {
+      description: "GLM 4.6 coding model on the Z.ai endpoint.",
+      id: "glm-4.6",
+      label: "GLM 4.6",
+    },
+  ],
   glmNative: ["glm-5.2"],
   glmOpenCode: [
     {

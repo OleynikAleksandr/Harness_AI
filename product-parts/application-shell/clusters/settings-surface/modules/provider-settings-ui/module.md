@@ -21,11 +21,14 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   card for client endpoint providers — one password field bound to the
   provider's `providers.*.apiKey` settings entry plus the provider-help copy,
   localized by message prefix. Every provider connected to the universal
-  client mounts one in its Settings tab; today the Kimi tab binds it to
-  `providers.kimiClient.apiKey` (prefix `settings.provider.kimiClient`,
-  card title `settings.provider.kimiClient.apiKey`) through the exported
-  `KimiClientApiKeyCard` preset wrapper, shown above the ACP model card. The
-  renderer only edits the settings snapshot; key storage truth stays
+  client mounts one in its Settings tab; today the Kimi tab binds
+  `KimiClientApiKeyCard` to `providers.kimiClient.apiKey` (prefix
+  `settings.provider.kimiClient`, card title
+  `settings.provider.kimiClient.apiKey`) above the ACP model card, and the GLM
+  tab binds `GlmClientApiKeyCard` to `providers.glmClient.apiKey` (prefix
+  `settings.provider.glmClient`, card title
+  `settings.provider.glmClient.apiKey`) above the remaining native GLM block.
+  The renderer only edits the settings snapshot; key storage truth stays
   Core-owned (settings store persistence + auth-store sync).
 - Shared provider-tab card helpers (`DefaultModelCard`,
   `ConnectionProviderSettings`, `localizeModelOptions`) live in
@@ -116,6 +119,12 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   localization provider.
 - Kimi default-model row descriptions resolve through the browser localization
   provider; the card description and note already use the same boundary.
+- The GLM tab includes a universal-client default-model card bound to
+  `providers.glmClient.defaultModel` and populated from
+  `PROVIDER_MODEL_OPTIONS.glmClient` (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
+  `glm-4.7`, `glm-4.6`). Its helper copy and model descriptions resolve through
+  the browser localization provider. The older `glmNative` connection card stays
+  mounted below it until the Phase 3 visibility switch retires the native path.
 - When the dialog opens, and after a successful settings save or workspace
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are

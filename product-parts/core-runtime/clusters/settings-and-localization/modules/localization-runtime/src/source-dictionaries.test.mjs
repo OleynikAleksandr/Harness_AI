@@ -59,3 +59,10 @@ assert.match(
   ),
   /Z\.ai Coding Plan/u
 );
+assert.match(
+  registry.getMessage(
+    "ui_helper_text",
+    "settings.provider.glmClient.model.glm-5.2.description"
+  ),
+  /Z\.ai Coding Plan/u
+);

@@ -48,7 +48,10 @@ materialization, bootstrap payload reuse, and bundle state.
   `settings.provider.glmClient.apiKey.description`) is part of the approved
   `ui_helper_text` dictionary, and the API-key card title
   (`settings.provider.glmClient.apiKey`, "Z.ai Coding Plan API Key") is part of
-  the approved `ui_labels` dictionary.
+  the approved `ui_labels` dictionary. The GLM client default-model helper and
+  model descriptions (`settings.provider.glmClient.defaultModel.description`,
+  `settings.provider.glmClient.model.*.description`) are approved
+  `ui_helper_text` source strings for the Settings model rows.
 - The OpenRouter model search refresh control label
   (`settings.openRouter.searchRefresh`) is part of the approved `ui_labels`
   dictionary; it names the icon button that re-runs the model slug search and

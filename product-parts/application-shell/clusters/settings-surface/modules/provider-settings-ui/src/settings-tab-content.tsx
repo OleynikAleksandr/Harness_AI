@@ -2,7 +2,10 @@ import type { HarnessSettings } from "../../../../../../core-runtime/clusters/se
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProfileSettingsUiFacade } from "../../profile-settings-ui/src/profile-settings-ui-facade.js";
 import { ClaudeDefaultModelCard } from "./claude-default-model-card.js";
-import { KimiClientApiKeyCard } from "./client-api-key-card.js";
+import {
+  GlmClientApiKeyCard,
+  KimiClientApiKeyCard,
+} from "./client-api-key-card.js";
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
 import { NativeCaptureCard } from "./native-capture-card.js";
@@ -243,18 +246,51 @@ export function SettingsTabContent({
   if (activeTab === "glmNative") {
     const provider = settings.providers.glmNative;
     return (
-      <ConnectionProviderSettings
-        apiKey={provider.apiKey}
-        baseUrl={provider.baseUrl}
-        model={provider.defaultModel}
-        modelOptions={PROVIDER_MODEL_OPTIONS.glmNative}
-        onChange={(patch) =>
-          update((next) => {
-            Object.assign(next.providers.glmNative, patch);
-          })
-        }
-        title={t("ui_labels", "settings.provider.glm", "GLM")}
-      />
+      <div className="settings-reference-stack">
+        <GlmClientApiKeyCard
+          apiKey={settings.providers.glmClient.apiKey}
+          onChange={(value) =>
+            update((next) => {
+              next.providers.glmClient.apiKey = value;
+            })
+          }
+        />
+        <DefaultModelCard
+          description={t(
+            "ui_helper_text",
+            "settings.provider.glmClient.defaultModel.description",
+            "Choose the GLM model used by the universal client when new sessions start."
+          )}
+          onChange={(defaultModel) =>
+            update((next) => {
+              next.providers.glmClient.defaultModel = defaultModel;
+            })
+          }
+          options={localizeModelOptions(
+            t,
+            "settings.provider.glmClient.model",
+            PROVIDER_MODEL_OPTIONS.glmClient
+          )}
+          title={t(
+            "ui_labels",
+            "settings.provider.glm.defaultModel",
+            "GLM Default model"
+          )}
+          value={settings.providers.glmClient.defaultModel}
+        />
+        <ConnectionProviderSettings
+          apiKey={provider.apiKey}
+          baseUrl={provider.baseUrl}
+          model={provider.defaultModel}
+          modelOptions={PROVIDER_MODEL_OPTIONS.glmNative}
+          onChange={(patch) =>
+            update((next) => {
+              Object.assign(next.providers.glmNative, patch);
+            })
+          }
+          title={t("ui_labels", "settings.provider.glm", "GLM")}
+        />
+      </div>
     );
   }
 

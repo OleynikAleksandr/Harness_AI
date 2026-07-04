@@ -104,8 +104,6 @@ function getProviderModel(
       return settings.providers.glmClient.defaultModel;
     case "glm-native":
       return settings.providers.glmNative.defaultModel;
-    case "glm-opencode":
-      return settings.providers.glmOpenCode.defaultModel;
     case "openrouter":
       return settings.providers.openRouter.defaultModel;
     case "local-models":

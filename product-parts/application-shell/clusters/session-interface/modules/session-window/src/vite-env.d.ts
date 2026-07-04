@@ -35,7 +35,6 @@ interface ProviderVersionsSnapshot {
   checkedAt: string;
   claude: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
   codex: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
-  glmOpenCode?: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
 }
 
 interface Window {
@@ -186,7 +185,7 @@ interface Window {
       | { error: string; ok: false; text: string }
     >;
     updateProviderVersion(request: {
-      provider: "claude" | "codex" | "glmOpenCode";
+      provider: "claude" | "codex";
       target: "cli" | "sdk";
     }): Promise<
       | { ok: true; versions: ProviderVersionsSnapshot }

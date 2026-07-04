@@ -32,8 +32,8 @@ Render the transcript/dialog layout and session chrome.
   font in the dialog zone only (project-wide Space Grotesk is unchanged).
 - Provider tint is derived from the Core-owned `session.providerId`; the renderer
   only maps that id to a CSS modifier and never classifies provider truth.
-  Providers without a reference tint (glm-native, glm-opencode, openrouter,
-  local-models) use the neutral assistant background.
+  Providers without a reference tint (glm-native, openrouter, local-models) use
+  the neutral assistant background.
 - A thinking bubble is `role === "thinking"` or an assistant message tagged
   `thinking`. Bubbles render plain text (no markdown engine) and thinking plates
   stay expanded (no collapse toggle).

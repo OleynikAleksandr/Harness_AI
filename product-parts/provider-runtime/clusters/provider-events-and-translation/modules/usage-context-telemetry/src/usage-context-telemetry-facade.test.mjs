@@ -72,14 +72,6 @@ const glmNative = usageContextTelemetryFacade.createTelemetry({
 assert.equal(glmNative.providerScopeKey, "glm-native:global");
 assert.equal(glmNative.limitRows[0].text, "5h unavailable");
 
-const glmOpenCode = usageContextTelemetryFacade.createTelemetry({
-  model: "glm-5.2",
-  provider: "OpenCode",
-  providerId: "glm-opencode",
-});
-assert.equal(glmOpenCode.providerScopeKey, "glm-opencode:global");
-assert.equal(glmOpenCode.limitRows[0].text, "5h unavailable");
-
 const openRouter = usageContextTelemetryFacade.createTelemetry({
   model: "google/gemini-3.1-flash-lite",
   provider: "OpenRouter",

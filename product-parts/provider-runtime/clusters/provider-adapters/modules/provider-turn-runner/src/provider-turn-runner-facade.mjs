@@ -11,7 +11,6 @@ const CLI_PATH_ENTRIES = [
   join(homedir(), ".npm-global/bin"),
   join(homedir(), ".local/bin"),
   join(homedir(), ".kimi-code/bin"),
-  join(homedir(), ".opencode/bin"),
   "/opt/homebrew/bin",
   "/usr/local/bin",
   "/usr/bin",
@@ -43,13 +42,6 @@ const CLI_PROVIDERS = {
     commands: ["kimi", join(homedir(), ".kimi-code/bin/kimi")],
     args: (request) =>
       withOptionalModel(["--prompt", request.prompt], request.model),
-  },
-  "glm-opencode": {
-    commands: ["opencode", join(homedir(), ".opencode/bin/opencode")],
-    args: (request) =>
-      ["run"].concat(
-        withOptionalModel(["--prompt", request.prompt], request.model)
-      ),
   },
 };
 

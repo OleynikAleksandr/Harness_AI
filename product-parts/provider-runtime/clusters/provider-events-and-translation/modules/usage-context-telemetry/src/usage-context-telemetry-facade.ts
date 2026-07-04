@@ -334,7 +334,6 @@ function hasProviderUsageScope(providerId: string): boolean {
   return (
     providerId === "kimi" ||
     providerId === "glm-native" ||
-    providerId === "glm-opencode" ||
     providerId === "openrouter"
   );
 }

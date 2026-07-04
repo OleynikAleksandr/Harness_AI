@@ -242,6 +242,11 @@
               "id": "dialect-streaming",
               "name": "Dialect Streaming",
               "purpose": "Consolidated SSE + dialect layer: read data: frames, parse each OpenAI-shape chat.completions chunk into a normalized delta, accumulate tool calls by index, and normalize the provider thinking forms (reasoning_content / reasoning / think tags) onto one channel."
+            },
+            {
+              "id": "tool-registry",
+              "name": "Tool Registry",
+              "purpose": "Tool registry with a source abstraction: aggregate tool descriptors from sources (built-in now; MCP/skills reserved), route a tool call to its owning source, and expose a pass-through permission boundary (full-auto in MVP)."
             }
           ]
         },

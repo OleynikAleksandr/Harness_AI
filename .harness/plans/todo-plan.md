@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream2.task1",
-  "expectedCommitMessage": "feat(universal-client): bootstrap cluster and client contract",
+  "currentTaskId": "harness-ai.phase2.stream2.task2",
+  "expectedCommitMessage": "feat(universal-client): consolidated sse and dialect streaming",
   "debt": null
 }
 ```
@@ -165,9 +165,9 @@
 
 ### Stream: Client Core Consolidation (Core-Runtime cluster `universal-client`)
 
-7. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Bootstrap the `universal-client` cluster and its `client-contract` module: register cluster/module in the product tree, add `cluster.md` + `module.md`, and define the client contract types — `ClientTurnRequest`, `ToolDescriptor` (name + JSON Schema + executor ref), `ToolSource` (built-in now; MCP/skill later), `DialectProfile`, `ClientTurnEvent` — with a unit test (bootstrap touches >3 files, plan allows) (scope: `.harness/product-tree/product-tree.json`, `.harness/product-tree/product-tree.md`, `product-parts/core-runtime/clusters/universal-client/cluster.md`, `product-parts/core-runtime/clusters/universal-client/modules/client-contract/module.md`, `.../client-contract/src/client-contract-facade.ts`, `.../client-contract/src/client-contract.test.mjs`; expected commit: `feat(universal-client): bootstrap cluster and client contract`).
-8. [TODO] Git Commit: `feat(universal-client): bootstrap cluster and client contract` (hash: TBD)
-9. [TODO] `harness-ai.phase2.stream2.task2` Add the `dialect-streaming` module: consolidate the three reference SSE readers (`open-router-sse-reader`, `glm-native-sse-parser`, `local-models-sse-reader`) into one core SSE parser (data-frames, `[DONE]`, delta.content + thinking + tool_calls accumulation by index, usage from any chunk) plus the declarative `DialectProfile` capability model and the four-thinking-forms normalization; unit test (scope: `.../modules/dialect-streaming/module.md`, `.../dialect-streaming/src/dialect-streaming-facade.ts`, `.../dialect-streaming/src/dialect-streaming.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): consolidated sse and dialect streaming`).
+7. [DONE] `harness-ai.phase2.stream2.task1` Bootstrap the `universal-client` cluster and its `client-contract` module: register cluster/module in the product tree, add `cluster.md` + `module.md`, and define the client contract types — `ClientTurnRequest`, `ToolDescriptor` (name + JSON Schema + executor ref), `ToolSource` (built-in now; MCP/skill later), `DialectProfile`, `ClientTurnEvent` — with a unit test (bootstrap touches >3 files, plan allows) (scope: `.harness/product-tree/product-tree.json`, `.harness/product-tree/product-tree.md`, `product-parts/core-runtime/clusters/universal-client/cluster.md`, `product-parts/core-runtime/clusters/universal-client/modules/client-contract/module.md`, `.../client-contract/src/client-contract-facade.ts`, `.../client-contract/src/client-contract.test.mjs`; expected commit: `feat(universal-client): bootstrap cluster and client contract`). Result: Completed in commit `feat(universal-client): bootstrap cluster and client contract`.
+8. [DONE] Git Commit: `feat(universal-client): bootstrap cluster and client contract` (hash: self)
+9. [IN_PROGRESS] `harness-ai.phase2.stream2.task2` Add the `dialect-streaming` module: consolidate the three reference SSE readers (`open-router-sse-reader`, `glm-native-sse-parser`, `local-models-sse-reader`) into one core SSE parser (data-frames, `[DONE]`, delta.content + thinking + tool_calls accumulation by index, usage from any chunk) plus the declarative `DialectProfile` capability model and the four-thinking-forms normalization; unit test (scope: `.../modules/dialect-streaming/module.md`, `.../dialect-streaming/src/dialect-streaming-facade.ts`, `.../dialect-streaming/src/dialect-streaming.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): consolidated sse and dialect streaming`).
 10. [TODO] Git Commit: `feat(universal-client): consolidated sse and dialect streaming` (hash: TBD)
 11. [TODO] `harness-ai.phase2.stream2.task3` Add the `tool-registry` module: registry with a source abstraction (built-in source now, MCP/skill registration point reserved), tool-descriptor schema, namespacing, and a pass-through permission boundary (MVP full-auto, no ruleset); unit test (scope: `.../modules/tool-registry/module.md`, `.../tool-registry/src/tool-registry-facade.ts`, `.../tool-registry/src/tool-registry.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): tool registry with source abstraction`).
 12. [TODO] Git Commit: `feat(universal-client): tool registry with source abstraction` (hash: TBD)

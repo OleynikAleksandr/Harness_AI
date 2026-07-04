@@ -74,6 +74,10 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `capture-proxy`: capture-and-abort MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint from background traffic, and aborts before any upstream forward.
 - `capture-orchestrator`: command-level orchestration of native request capture — wires the certificate store, capture proxy and artifact writer, invokes the provider adapter capture through the proxy, and returns the artifact paths.
 
+### Universal Client
+
+- `client-contract`: shared client contract types — turn request / messages / tool-calls, tool descriptor with a source abstraction (built-in now, MCP/skill reserved), per-provider dialect capability profile, client output-event and error model, and tool-name namespacing. Core-owned universal client for the OpenAI-shape provider four (Kimi/GLM/Local/OpenRouter); MCP/skills/subagents are reserved extension points, not MVP.
+
 ### Settings And Localization
 
 - `settings-store`: global/workspace settings persistence.

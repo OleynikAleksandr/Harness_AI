@@ -229,6 +229,18 @@
           ]
         },
         {
+          "id": "universal-client",
+          "name": "Universal Client",
+          "purpose": "Core-owned universal client for OpenAI-shape providers (Kimi, GLM, Local Models, OpenRouter): the agent loop, tool registry and built-in tool execution, SSE + dialect streaming, and provider output-event mapping. Provider endpoints are thin Provider-Runtime modules on this core; MCP/skills/subagents are reserved extension points, not MVP.",
+          "modules": [
+            {
+              "id": "client-contract",
+              "name": "Client Contract",
+              "purpose": "Shared client contract types: turn request / messages / tool-calls, tool descriptor with a source abstraction (built-in now, MCP/skill reserved), per-provider dialect capability profile, client output-event and error model, and tool-name namespacing."
+            }
+          ]
+        },
+        {
           "id": "settings-and-localization",
           "name": "Settings And Localization",
           "purpose": "Settings persistence, UI localization runtime materialization, and visible reasoning translation overlay state.",

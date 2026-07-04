@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task2",
-  "expectedCommitMessage": "docs(architecture): universal client capability set and oss foundation research",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -26,6 +26,8 @@
 - **Read this context before implementation:**
   - `docs/DOCUMENTATION_INDEX.md`
   - `.harness/product-tree/product-tree.md`
+  - `docs/architecture/UniversalClient.md` (the client: capability set, OSS
+    foundation roles, user decisions)
   - `docs/architecture/NativePromptComposition.md`
   - `docs/architecture/SessionProfilesV2.md`
   - `.harness/plans/archive/session-profiles-v2-plan-document-2026-07-02.md`
@@ -36,14 +38,20 @@
 
 ## Scope Summary (decision package 2026-07-04)
 
-- **In-house UNIVERSAL CLIENT** for OpenAI-shape providers: one Core-owned
-  client core (agent loop, tool execution, SSE streaming, permissions) + thin
-  provider endpoint modules for Kimi, GLM, Local Models (new provider),
-  OpenRouter (new provider), and any future OpenAI-shape vendor. NOT built on
-  OpenCode: rejected for double dependency (providers AND the OpenCode
-  roadmap), redundancy, and foreign-engine "Codex moments". OpenCode is the
-  SECOND reference project (MIT; behavior is ported, code is never copied);
-  CodeAI-Hub remains the first.
+- **In-house UNIVERSAL CLIENT — our OWN client for EVERY provider except
+  Claude and Codex** (those two keep their native vendor channels: Claude
+  Agent SDK / Codex app-server). The client four today: Kimi, GLM, Local
+  Models (new provider), OpenRouter (new provider); any future OpenAI-shape
+  vendor joins as a thin endpoint module on the same core. We write ONE
+  Core-owned client core (agent loop, tool execution, SSE streaming,
+  permissions, event normalization) and take FOREIGN OSS PROJECTS AS THE
+  BASE/REFERENCE — OpenCode (MIT, the second reference project) and the
+  others surveyed by the Phase 1 research — so we do not re-develop what
+  they already solved. Architecture document of the client:
+  `docs/architecture/UniversalClient.md`. Embedding OpenCode as the runtime
+  core was REJECTED: double dependency (providers AND the OpenCode roadmap),
+  redundancy, foreign-engine "Codex moments"; behavior is ported, code is
+  never copied. CodeAI-Hub remains the first reference project.
 - **Order: Kimi FIRST on the client core.** The Kimi auth gate (does
   `api.kimi.com/coding/v1` accept the subscription `api_key` from OUR client;
   key lifetime; 5h/weekly limit reporting) is the first implementation-phase
@@ -94,7 +102,34 @@
 > native application, packaging + acceptance) are laid out with the user ONLY
 > after the research task below lands and its decisions are signed off.
 
+> Discovery (2026-07-04, research session — COMPLETE, decisions recorded):
+> the task2 deliverable `docs/architecture/UniversalClient.md` is written and
+> registered in `docs/DOCUMENTATION_INDEX.md`; its section 6 is now ACCEPTED
+> (7 recorded decisions), refined via a document review from another agent.
+> The doc is ready to commit; the only remaining step of task2 is the commit
+> itself (`npm run plan:commit -- "docs(architecture): universal client
+> capability set and oss foundation research"`), pending the user's go.
+> Recorded decisions (section 6): (1) foundation — our ported CodeAI-Hub
+> runtime = code base, OpenCode = behavior/extensibility reference (its
+> Vercel-AI-SDK RUNTIME dependency rejected; its protocol/dialect code studied
+> only as reference — we write our own thin SSE+dialect layer), pi/Continue-
+> adapters/Cline/Codex/Goose/kimi-cli = targeted; (2) Kimi first; (3) modular
+> extensibility as a BOUNDARY only — MCP/skills/subagents are future modules,
+> not built or designed in MVP; (4) permissions MVP = FULL AUTO / pass-through
+> (no ask/allow-deny/sandbox/approval UI — one-turn coding unusable without
+> auto); (5) compaction deferred; (6) Kimi endpoint accepted as proven (works
+> in OpenCode by API key, user-verified — the earlier UA-allowlist risk was
+> WRONG and removed), first task lifts/validates the wire form against an
+> acceptance checklist; (7) tool progress NOT in MVP. Key findings: code
+> foundation already in the repo (CodeAI-Hub runtime in openrouter/local-
+> models/glm-native `src/reference/**`), so the core is a consolidation, not
+> from-scratch; Harness has NO MCP/skills/subagents today (client only makes
+> its ARCHITECTURE ready to add them later as modules); the client reuses Core
+> contracts (profiles, event stream, telemetry, adapter contract, auth store,
+> provider registry). NEXT STEP: commit task2, then lay out the implementation
+> phases (Kimi first).
+
 1. [DONE] `harness-ai.phase1.stream1.task1` Bootstrap the universal-client scope plan (plan-only, closes with this same commit): carry the 2026-07-04 decision package from the archived plan into this scope (Context Pack + Scope Summary) and lay out the Phase 1 research task ordered by the user (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): bootstrap universal client scope`). Result: Completed in commit `docs(plan): bootstrap universal client scope`.
 2. [DONE] Git Commit: `docs(plan): bootstrap universal client scope` (hash: self)
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task2` Research (user order, 2026-07-04): decide (a) the capability/parameter set our universal client must have — agent loop, MVP tool set and tool execution semantics, request parameters, streaming/SSE handling, permissions model, key-based auth, model catalog, context/limit handling (compaction deferred or not), event normalization into Harness provider events — and (b) which open-source projects we take as the foundation/reference so we do not re-develop what others already solved: survey candidates (OpenCode — established second reference; plus e.g. Cline, Goose, Aider, Continue, gptme and similar agent clients) for architecture, tool implementations, provider dialect handling and licensing; deliverable is a new architecture document with the capability set, the OSS survey table, a recommendation and the recorded user decision (scope: `docs/architecture/UniversalClient.md` (new), `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(architecture): universal client capability set and oss foundation research`).
-4. [TODO] Git Commit: `docs(architecture): universal client capability set and oss foundation research` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream1.task2` Research (user order, 2026-07-04) for OUR OWN universal client — our own client for every provider except Claude and Codex (Kimi, GLM, Local Models, OpenRouter, future OpenAI-shape vendors), built by taking foreign OSS projects as the base/reference (OpenCode and the others found by the survey) so we do not re-develop what they already solved. FLEXIBILITY BAR (user requirement 2026-07-04): parity with the "grown-up" clients — the client must be able to connect MCP servers, understand skills, spawn subagents, plan mode, etc., like Codex and Claude Code; extensibility is designed into the CORE from day one (tool registry + MCP/skill/subagent hosts as first-class concepts, not a hardcoded fixed tool set), even if layers ship in stages. The OSS foundations are studied for THEIR extensibility architecture too, and existing Harness Core capabilities (MCP/skills/orchestration) are mapped so the client reuses rather than duplicates. Decide and record WITH THE USER: (a) the client capability/parameter set — agent loop, tool registry and execution semantics, extensibility (MCP host, skills, subagents), request parameters and per-provider dialect profiles, SSE streaming and thinking normalization, permissions model, key-based auth (per-provider key), model catalog, context/limit handling, event normalization into Harness provider events; (b) the OSS foundation roles — the survey table with licenses, which project is the CODE base, which are behavior/extensibility/targeted references. Deliverable: `docs/architecture/UniversalClient.md` with the capability set, the survey, the recommendation and the RECORDED USER DECISION in its section 6 — the task does not close and the commit does not happen while section 6 is PENDING (scope: `docs/architecture/UniversalClient.md` (new), `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(architecture): universal client capability set and oss foundation research`). Result: Completed in commit `docs(architecture): universal client capability set and oss foundation research`.
+4. [DONE] Git Commit: `docs(architecture): universal client capability set and oss foundation research` (hash: self)

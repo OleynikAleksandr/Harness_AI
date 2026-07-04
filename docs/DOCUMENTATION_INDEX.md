@@ -67,6 +67,20 @@ relevant to the active task.
   the Profiles folder + shared live-context generator), the Claude Memory
   ballast decision, and the per-provider application ceilings (Phase 7 —
   Native Profile Unification).
+- `docs/architecture/UniversalClient.md` — in-house universal client for
+  OpenAI-shape providers (Russian, Phase 1 research of the
+  universal-client-2026-07-04 scope): the capability set (agent loop, tool
+  registry with a source abstraction and the built-in tool layer, request
+  parameters and dialect capability profiles, SSE streaming with four
+  thinking forms, full-auto permissions MVP, key-based auth incl. the Kimi
+  For Coding key channel and auth-gate wire-form check, model catalog,
+  context/limits with deferred compaction, event normalization without tool
+  progress in MVP), modular extensibility (MCP/skills/subagents as future
+  modules) and ownership placement, the OSS survey table (pi, OpenCode,
+  Cline, Codex CLI, Goose, Continue and others with licenses), the
+  foundation recommendation (CodeAI-Hub reference runtime as the code base,
+  OpenCode as the behavior/extensibility reference, its Vercel-AI-SDK runtime
+  dependency rejected) and the recorded user decisions.
 
 ## Product Part Documentation
 

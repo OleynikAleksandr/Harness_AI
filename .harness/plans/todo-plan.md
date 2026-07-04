@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream3.task4",
-  "expectedCommitMessage": "feat(core-runtime): route sessions to kimi universal client",
+  "currentTaskId": "harness-ai.phase2.stream3.task5",
+  "expectedCommitMessage": "feat(core-runtime): switch visible kimi to universal client",
   "debt": null
 }
 ```
@@ -200,9 +200,9 @@
 26. [DONE] Git Commit: `feat(core-runtime): kimi client key storage and help` (hash: self)
 27. [DONE] `harness-ai.phase2.stream3.task3a` Return the final turn history from the client core agent loop (inserted 2026-07-04 while starting task4: the loop builds the full in-turn history — assistant messages and tool results — but returns void, so an endpoint adapter cannot carry complete multi-turn session history; rebuilding it from display events would silently drop tool exchanges): `runClientTurn` resolves with the final in-turn message history; additive change, existing callers may ignore the return value; unit test (scope: `.../client-core/src/client-core-facade.ts`, `.../client-core/src/client-core.test.mjs`, `.../client-core/module.md`; expected commit: `feat(universal-client): return final turn history from agent loop`). Result: Completed in commit `feat(universal-client): return final turn history from agent loop`.
 28. [DONE] Git Commit: `feat(universal-client): return final turn history from agent loop` (hash: self)
-29. [IN_PROGRESS] `harness-ai.phase2.stream3.task4` Wire Core session routing / adapter construction for the Kimi client provider: Core session start constructs the `kimi-client-provider` facade and routes turns/events; add the Electron bridge/preload channel only if the renderer needs a new one (scope: core session routing facade + `module.md`, electron bridge/preload only if required (≤3 functional files); expected commit: `feat(core-runtime): route sessions to kimi universal client`).
-30. [TODO] Git Commit: `feat(core-runtime): route sessions to kimi universal client` (hash: TBD)
-31. [TODO] `harness-ai.phase2.stream3.task5` Visibility switch (migration applied): make the visible `kimi` provider in Settings/Start New Session resolve to the client endpoint and REMOVE the ACP `kimi-provider` from the visible picker (ACP code retained, no new ACP sessions); update descriptor visibility + affected docs (scope: provider-descriptor/registry visibility + affected `module.md` (≤3 functional files); expected commit: `feat(core-runtime): switch visible kimi to universal client`).
+29. [DONE] `harness-ai.phase2.stream3.task4` Wire Core session routing / adapter construction for the Kimi client provider: Core session start constructs the `kimi-client-provider` facade and routes turns/events; add the Electron bridge/preload channel only if the renderer needs a new one (scope: core session routing facade + `module.md`, electron bridge/preload only if required (≤3 functional files); expected commit: `feat(core-runtime): route sessions to kimi universal client`). Result: Completed in commit `feat(core-runtime): route sessions to kimi universal client`.
+30. [DONE] Git Commit: `feat(core-runtime): route sessions to kimi universal client` (hash: self)
+31. [IN_PROGRESS] `harness-ai.phase2.stream3.task5` Visibility switch (migration applied): make the visible `kimi` provider in Settings/Start New Session resolve to the client endpoint and REMOVE the ACP `kimi-provider` from the visible picker (ACP code retained, no new ACP sessions); update descriptor visibility + affected docs (scope: provider-descriptor/registry visibility + affected `module.md` (≤3 functional files); expected commit: `feat(core-runtime): switch visible kimi to universal client`).
 32. [TODO] Git Commit: `feat(core-runtime): switch visible kimi to universal client` (hash: TBD)
 33. [TODO] `harness-ai.phase2.stream3.task6` Package the app so the user can run the live auth-gate validation of task7 (`npm run package:mac`, user-confirmed); record the package evidence (scope: `docs/evidence/universal-client-kimi-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client kimi`).
 34. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client kimi` (hash: TBD)

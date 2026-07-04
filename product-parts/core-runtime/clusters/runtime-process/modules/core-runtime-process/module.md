@@ -82,14 +82,12 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `core-provider-adapter-registration.ts`. `CoreRuntimeApi` holds a
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
-- `PROVIDER_IDS` includes the internal `kimi-client` universal-client
-  endpoint: its adapter (`KimiClientProviderFacade`) registers at startup and
-  RPC provider-id validation accepts it, so Core session routing can start
-  and route `kimi-client` sessions while the visible picker still hides the
-  provider (the visibility switch later resolves the visible Kimi to this
-  endpoint). The adapter builder intentionally does not pass the settings
-  model to it: `kimi-for-coding` is the single public client model and the
-  settings model bridge still aliases the ACP kimi section.
+- `PROVIDER_IDS` includes the internal universal-client endpoints
+  `kimi-client` and `glm-client`: their adapters register at startup and RPC
+  provider-id validation accepts them, so Core session routing can start and
+  route them before/after visibility switches. Kimi pins its single public
+  `kimi-for-coding` model; GLM resolves its selected model and reasoning effort
+  from Core settings per turn while the adapter pins only the GLM dialect.
 
 - Session profile RPCs (`core-session-profile-rpc.ts`, the
   `ensure-glossary-file` four-layer pattern): `list-session-profiles`

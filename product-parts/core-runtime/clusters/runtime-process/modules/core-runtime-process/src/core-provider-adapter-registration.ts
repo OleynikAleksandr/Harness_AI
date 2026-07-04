@@ -1,5 +1,6 @@
 import { ClaudeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { CodexProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
+import { GlmClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-client-provider/src/glm-client-provider-facade.js";
 import { GlmNativeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/glm-native-provider-facade.js";
 import { GlmOpenCodeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/src/glm-opencode-provider-facade.js";
 import { KimiClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
@@ -32,6 +33,10 @@ export function buildProviderAdapterInstance(
       // the single public id); the settings model bridge still aliases the
       // ACP kimi section, so the selected model is intentionally not passed.
       return new KimiClientProviderFacade(workspacePath);
+    case "glm-client":
+      // Multi-model GLM resolves the selected model and reasoning effort from
+      // Core settings per turn; the adapter pins only the GLM dialect.
+      return new GlmClientProviderFacade(workspacePath);
     case "glm-native":
       return new GlmNativeProviderFacade(model, workspacePath);
     case "glm-opencode":

@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream4.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with universal client glm",
+  "currentTaskId": "harness-ai.phase3.stream4.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -307,9 +307,9 @@
 
 ### Stream: Package And Acceptance
 
-82. [IN_PROGRESS] `harness-ai.phase3.stream4.task1` Package the app for the GLM migration acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (review P1: the packaging gate requires a fresh explicit go — nothing is inherited from the phase materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-glm-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client glm`).
-83. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client glm` (hash: TBD)
-84. [TODO] `harness-ai.phase3.stream4.task2` User runs a live GLM session on the packaged universal client and validates the acceptance checklist: NEW visible GLM session runs on `glm-client` (Z.ai endpoint, key onboarding via the GLM tab card, model selection, streaming text, tool_calls, thinking/reasoning behavior incl. reasoning_effort, error behavior on bad key); OpenCode tab gone from Settings; no OpenCode entry in the picker (existing-session checks DROPPED per the 2026-07-04 user decision — the user kills all sessions on every update); confirms the migration (scope: user workflow; expected commit: none).
+82. [DONE] `harness-ai.phase3.stream4.task1` Package the app for the GLM migration acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (review P1: the packaging gate requires a fresh explicit go — nothing is inherited from the phase materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-glm-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client glm`). Result: Completed in commit `chore(package): rebuild packaged app with universal client glm`.
+83. [DONE] Git Commit: `chore(package): rebuild packaged app with universal client glm` (hash: self)
+84. [IN_PROGRESS] `harness-ai.phase3.stream4.task2` User runs a live GLM session on the packaged universal client and validates the acceptance checklist: NEW visible GLM session runs on `glm-client` (Z.ai endpoint, key onboarding via the GLM tab card, model selection, streaming text, tool_calls, thinking/reasoning behavior incl. reasoning_effort, error behavior on bad key); OpenCode tab gone from Settings; no OpenCode entry in the picker (existing-session checks DROPPED per the 2026-07-04 user decision — the user kills all sessions on every update); confirms the migration (scope: user workflow; expected commit: none).
 85. [TODO] `harness-ai.phase3.stream4.task3` Record the GLM migration EVIDENCE from the task2 live run: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md` (endpoint/wire facts, acceptance verdict without legacy-session checks per the 2026-07-04 user decision, OpenCode-removal confirmation) (scope: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record glm migration results`).
 86. [TODO] Git Commit: `docs(evidence): record glm migration results` (hash: TBD)
 

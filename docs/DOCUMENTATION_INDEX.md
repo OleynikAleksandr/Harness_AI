@@ -221,6 +221,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   subscription key from our universal client in a real session; wire facts
   (endpoint, model id, auth header, thinking form) recorded from the shipped
   code.
+- `docs/evidence/universal-client-glm-package-2026-07-04.md` — packaged
+  application rebuild for the Phase 3 GLM migration acceptance: the visible
+  GLM provider is `glm-client` on the Core universal client, GLM client
+  settings carry API key/model storage, embedded `glm-opencode` production
+  runtime support is removed, and the user can restart
+  `release/mac-arm64/Harness AI.app` for live validation.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

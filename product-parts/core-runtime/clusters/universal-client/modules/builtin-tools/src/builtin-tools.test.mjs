@@ -23,7 +23,9 @@ try {
     "builtin-tools-shared.ts",
     "builtin-tools-process.ts",
     "builtin-tools-patch.ts",
+    "builtin-tools-truncate.ts",
     "builtin-tools-file-exec-search.ts",
+    "builtin-tools-web.ts",
     "builtin-tools-facade.ts",
   ]) {
     writeFileSync(
@@ -42,8 +44,9 @@ try {
   // The source exposes the 7 file/exec/search descriptors under "builtin".
   assert.equal(source.source, "builtin");
   const names = source.list().map((d) => d.name);
-  assert.equal(source.list().length, 7);
+  assert.equal(source.list().length, 9);
   assert.ok(names.includes("read_file") && names.includes("apply_patch"));
+  assert.ok(names.includes("web_fetch") && names.includes("web_search"));
 
   // write_file then read_file round-trips content.
   const wrote = await source.execute(
@@ -105,6 +108,15 @@ try {
     ctx
   );
   assert.equal(newFile.output.trimEnd(), "line one");
+
+  // Output truncation caps and marks long output.
+  const { truncateOutput } = await import(
+    pathToFileURL(path.join(buildDir, "builtin-tools-truncate.js")).href
+  );
+  assert.equal(truncateOutput("abc", 10).truncated, false);
+  const cut = truncateOutput("abcdefghij", 3);
+  assert.equal(cut.truncated, true);
+  assert.match(cut.output, /^abc\n\.\.\.\[truncated\]/);
 
   console.log("builtin-tools tests passed");
 } finally {

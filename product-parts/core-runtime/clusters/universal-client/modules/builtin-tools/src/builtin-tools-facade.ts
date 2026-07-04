@@ -10,6 +10,7 @@ import {
   FILE_EXEC_SEARCH_DESCRIPTORS,
 } from "./builtin-tools-file-exec-search.js";
 import { parseToolArguments } from "./builtin-tools-shared.js";
+import { executeWebTool, WEB_DESCRIPTORS } from "./builtin-tools-web.js";
 
 const errorText = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
@@ -22,18 +23,18 @@ export const createBuiltinToolSource = (): ToolSourceProvider => ({
     } catch (error) {
       return { isError: true, output: errorText(error) };
     }
+    // Each part returns null for tools it does not own, so they chain.
+    const handler =
+      executeFileExecSearchTool(qualifiedName, args, context) ??
+      executeWebTool(qualifiedName, args, context);
+    if (!handler) {
+      return {
+        isError: true,
+        output: `Unknown built-in tool: ${qualifiedName}`,
+      };
+    }
     try {
-      const result = await executeFileExecSearchTool(
-        qualifiedName,
-        args,
-        context
-      );
-      return (
-        result ?? {
-          isError: true,
-          output: `Unknown built-in tool: ${qualifiedName}`,
-        }
-      );
+      return await handler;
     } catch (error) {
       return {
         isError: true,
@@ -41,6 +42,6 @@ export const createBuiltinToolSource = (): ToolSourceProvider => ({
       };
     }
   },
-  list: () => [...FILE_EXEC_SEARCH_DESCRIPTORS],
+  list: () => [...FILE_EXEC_SEARCH_DESCRIPTORS, ...WEB_DESCRIPTORS],
   source: "builtin",
 });

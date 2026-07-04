@@ -4,9 +4,9 @@
 
 Own the universal client's built-in tool source: the descriptors (name +
 JSON Schema) and executors for the MVP tool set, registered into the tool
-registry as the `builtin` source. Part 1 (this commit) covers file/exec/search:
-`read_file`, `write_file`, `edit_file`, `apply_patch`, `exec_command`,
-`grep_files`, `glob_files`. Part 2 adds `web_search` / `web_fetch` and shared
+registry as the `builtin` source. It covers the MVP tool set: file/exec/search
+(`read_file`, `write_file`, `edit_file`, `apply_patch`, `exec_command`,
+`grep_files`, `glob_files`) plus web (`web_search`, `web_fetch`) and shared
 output truncation. Executors validate paths against the workspace root, run
 processes with a timeout and output cap, and return the registry's
 `ToolExecutionResult`; any failure becomes a tool error (reported to the model,
@@ -38,6 +38,11 @@ Contract source: `docs/architecture/UniversalClient.md` (section 3.2).
   output-char cap.
 - `builtin-tools-patch.ts`: `applyBuiltinPatch` for the Codex-style
   `*** Begin Patch` envelope.
+- `builtin-tools-web.ts`: `WEB_DESCRIPTORS` and `executeWebTool` (`web_fetch`
+  readable-text extraction; `web_search` via DuckDuckGo HTML).
+- `builtin-tools-truncate.ts`: `truncateOutput` caps a result at a char budget
+  with an inline `...[truncated]` marker (the OpenCode-style on-disk full-output
+  pointer is a future addition, not required for the client four).
 
 ## Owned Paths
 

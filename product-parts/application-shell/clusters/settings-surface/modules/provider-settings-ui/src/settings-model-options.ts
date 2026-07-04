@@ -111,7 +111,6 @@ export const PROVIDER_MODEL_OPTIONS = {
       label: "GLM 4.6",
     },
   ],
-  glmNative: ["glm-5.2"],
 } as const;
 
 export const REASONING_EFFORT_OPTIONS: ReadonlyArray<{

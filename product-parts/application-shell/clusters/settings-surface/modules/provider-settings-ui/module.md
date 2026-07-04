@@ -27,11 +27,11 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `settings.provider.kimiClient.apiKey`) above the ACP model card, and the GLM
   tab binds `GlmClientApiKeyCard` to `providers.glmClient.apiKey` (prefix
   `settings.provider.glmClient`, card title
-  `settings.provider.glmClient.apiKey`) above the remaining native GLM block.
-  The renderer only edits the settings snapshot; key storage truth stays
+  `settings.provider.glmClient.apiKey`) above the universal-client GLM model
+  selector. The retired native GLM connection/default-model block is not
+  rendered in Settings. The renderer only edits the settings snapshot; key storage truth stays
   Core-owned (settings store persistence + auth-store sync).
-- Shared provider-tab card helpers (`DefaultModelCard`,
-  `ConnectionProviderSettings`, `localizeModelOptions`) live in
+- Shared provider-tab card helpers (`DefaultModelCard`, `localizeModelOptions`) live in
   `settings-provider-cards.tsx`, split from `settings-tab-content.tsx` for
   the 500-line cap.
 - OpenCode no longer has a Settings tab/card or version/update card in Phase 3.
@@ -123,9 +123,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `providers.glmClient.defaultModel` and populated from
   `PROVIDER_MODEL_OPTIONS.glmClient` (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). Its helper copy and model descriptions resolve through
-  the browser localization provider. The older `glmNative` connection card stays
-  mounted below it as an internal legacy/settings bridge until its later
-  afterlife removal.
+  the browser localization provider. The older `glmNative` connection/default-
+  model card is not mounted on the visible GLM Settings tab; `glmNative`
+  remains internal runtime debt only.
 - When the dialog opens, and after a successful settings save or workspace
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are

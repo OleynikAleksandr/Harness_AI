@@ -25,7 +25,6 @@ import {
   type SettingsTabId,
 } from "./settings-model-options.js";
 import {
-  ConnectionProviderSettings,
   DefaultModelCard,
   localizeModelOptions,
 } from "./settings-provider-cards.js";
@@ -243,7 +242,6 @@ export function SettingsTabContent({
   }
 
   if (activeTab === "glmNative") {
-    const provider = settings.providers.glmNative;
     return (
       <div className="settings-reference-stack">
         <GlmClientApiKeyCard
@@ -272,22 +270,10 @@ export function SettingsTabContent({
           )}
           title={t(
             "ui_labels",
-            "settings.provider.glm.defaultModel",
+            "settings.provider.glmClient.defaultModel",
             "GLM Default model"
           )}
           value={settings.providers.glmClient.defaultModel}
-        />
-        <ConnectionProviderSettings
-          apiKey={provider.apiKey}
-          baseUrl={provider.baseUrl}
-          model={provider.defaultModel}
-          modelOptions={PROVIDER_MODEL_OPTIONS.glmNative}
-          onChange={(patch) =>
-            update((next) => {
-              Object.assign(next.providers.glmNative, patch);
-            })
-          }
-          title={t("ui_labels", "settings.provider.glm", "GLM")}
         />
       </div>
     );

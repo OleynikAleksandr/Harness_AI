@@ -39,8 +39,8 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.claude.sessionContinuity": "Claude Session Continuity",
     "settings.provider.codex.sessionContinuity": "Codex Session Continuity",
     "settings.provider.glm": "GLM",
-    "settings.provider.glm.defaultModel": "GLM Default model",
     "settings.provider.glmClient.apiKey": "Z.ai Coding Plan API Key",
+    "settings.provider.glmClient.defaultModel": "GLM Default model",
     "settings.provider.apiKey": "API Key",
     "settings.provider.baseUrl": "Base URL",
     "settings.provider.defaultModel": "Default Model",
@@ -191,8 +191,6 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Paste a Kimi For Coding API key from the Kimi Code Console at kimi.com. A Kimi Code subscription allows up to 5 keys; each key is shown only once when created.",
     "settings.provider.sessionContinuity.description":
       "When the remaining context window drops to or below this percentage, Harness AI can automatically wrap up the current session and start a new one. Default: 30%.",
-    "settings.provider.glm.defaultModel.description":
-      "Choose the GLM model used when new sessions start.",
     "settings.provider.glmClient.defaultModel.description":
       "Choose the GLM model used by the universal client when new sessions start.",
     "settings.provider.glmClient.description":

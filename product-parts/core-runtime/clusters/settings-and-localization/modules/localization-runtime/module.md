@@ -47,8 +47,9 @@ materialization, bootstrap payload reuse, and bundle state.
 - GLM universal-client provider help
   (`settings.provider.glmClient.description`,
   `settings.provider.glmClient.apiKey.description`) is part of the approved
-  `ui_helper_text` dictionary, and the API-key card title
-  (`settings.provider.glmClient.apiKey`, "Z.ai Coding Plan API Key") is part of
+  `ui_helper_text` dictionary, and the API-key/default-model card titles
+  (`settings.provider.glmClient.apiKey`, "Z.ai Coding Plan API Key";
+  `settings.provider.glmClient.defaultModel`, "GLM Default model") are part of
   the approved `ui_labels` dictionary. The GLM client default-model helper and
   model descriptions (`settings.provider.glmClient.defaultModel.description`,
   `settings.provider.glmClient.model.*.description`) are approved

@@ -97,8 +97,10 @@ Render the transcript/dialog layout and session chrome.
 - Provider card model labels resolve through `resolveProviderModel`: a
   Core-owned `defaultModelId` on the provider descriptor (universal-client
   endpoints, e.g. the visible Kimi → `kimi-for-coding`) wins over the
-  settings-snapshot lookup; the renderer never invents a model id. The same
-  resolution feeds the `model` field of `createSession`.
+  settings-snapshot lookup; multi-model client endpoints such as the visible GLM
+  use the Core settings snapshot (`providers.glmClient.defaultModel`). The
+  renderer never invents a model id. The same resolution feeds the `model` field
+  of `createSession`.
 
 - New-session wizard step 2 (`session-profile-step.tsx`): after the
   provider card, the profile picker lists Core-provided applicable profiles

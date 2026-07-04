@@ -86,25 +86,27 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "visible",
   },
   {
+    // The visible GLM: the universal-client endpoint. The old native GLM
+    // provider and OpenCode bridge stay internal until their removal tasks.
     id: "glm-client",
     name: "GLM",
     moduleId: "glm-client-provider",
     status: "needs-settings",
-    visibility: "internal",
+    visibility: "visible",
   },
   {
     id: "glm-native",
     name: "GLM Native",
     moduleId: "glm-native-provider",
     status: "needs-settings",
-    visibility: "visible",
+    visibility: "internal",
   },
   {
     id: "glm-opencode",
     name: "OpenCode",
     moduleId: "glm-opencode-provider",
     status: "needs-settings",
-    visibility: "visible",
+    visibility: "internal",
   },
   {
     id: "openrouter",

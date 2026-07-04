@@ -76,8 +76,9 @@ function readinessLabel(provider: ProviderDescriptor): string {
   return provider.readinessMessage ?? "Provider setup failed.";
 }
 
-// The provider descriptor's Core-owned model id (universal-client endpoints)
-// wins; the settings-snapshot lookup covers the vendor-channel providers.
+// The provider descriptor's Core-owned model id wins for single-model
+// universal-client endpoints; settings-snapshot lookup covers vendor-channel
+// providers and multi-model client endpoints such as GLM.
 export function resolveProviderModel(
   provider: ProviderDescriptor,
   settings: HarnessSettings | null | undefined
@@ -99,6 +100,8 @@ function getProviderModel(
       return settings.providers.codex.defaultModel;
     case "kimi":
       return settings.providers.kimi.defaultModel;
+    case "glm-client":
+      return settings.providers.glmClient.defaultModel;
     case "glm-native":
       return settings.providers.glmNative.defaultModel;
     case "glm-opencode":

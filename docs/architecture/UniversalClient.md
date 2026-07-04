@@ -31,8 +31,10 @@ OSS-клиентов и API-доков провайдеров (2026-07-04). По
   permissions, нормализация событий. Тонкие endpoint-модули поверх ядра:
   Kimi, GLM, Local Models, OpenRouter и любой будущий OpenAI-shape вендор.
 - Порядок: Kimi ПЕРВЫМ на ядре; Kimi auth gate — первая проверка
-  имплементационной фазы. GLM работает на embedded OpenCode до готовности
-  клиента, затем мигрирует, и embedded OpenCode runtime удаляется.
+  имплементационной фазы. Phase 3 visibility switch применён: видимый GLM
+  теперь `glm-client` на универсальном клиенте; `glm-native` и `glm-opencode`
+  скрыты как legacy/internal, а embedded OpenCode runtime удаляется отдельным
+  removal stream этой фазы.
 - Key-only onboarding: у КАЖДОГО провайдера СВОЙ отдельный ключ (ключ
   OpenRouter, ключ GLM, ключ Kimi For Coding — разные, каждый берётся в
   своём кабинете); одинаков только СПОСОБ ввода (форма «вставь ключ»), не

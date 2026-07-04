@@ -59,7 +59,18 @@ assert.equal(kimiAcp.visibility, "internal");
 assert.equal(kimiAcp.defaultModelId, undefined);
 
 const glmClient = registry.getProvider("glm-client");
-assert.equal(glmClient.visibility, "internal");
+assert.equal(visible.filter((provider) => provider.name === "GLM").length, 1);
+assert.equal(
+  visible.some((provider) => provider.id === "glm-native"),
+  false
+);
+assert.equal(
+  visible.some((provider) => provider.id === "glm-opencode"),
+  false
+);
+assert.equal(glmClient.visibility, "visible");
 assert.equal(glmClient.name, "GLM");
 assert.equal(glmClient.moduleId, "glm-client-provider");
 assert.equal(glmClient.defaultModelId, undefined);
+assert.equal(registry.getProvider("glm-native").visibility, "internal");
+assert.equal(registry.getProvider("glm-opencode").visibility, "internal");

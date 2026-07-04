@@ -10,6 +10,8 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `claude-provider`
 - `codex-provider`
 - `kimi-provider`
+- `kimi-client-provider`
+- `glm-client-provider`
 - `glm-native-provider`
 - `glm-opencode-provider`
 - `openrouter-provider`

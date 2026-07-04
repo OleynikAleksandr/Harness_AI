@@ -359,6 +359,11 @@
               "purpose": "Thin Kimi endpoint for the Core universal client: Kimi dialect specifics (api.kimi.com/coding/v1, kimi-for-coding, reasoning_content) and the ClientTurnRequest builder the Core agent loop runs."
             },
             {
+              "id": "glm-client-provider",
+              "name": "GLM Client Provider",
+              "purpose": "Thin GLM endpoint for the Core universal client: Z.ai coding dialect specifics (api.z.ai/api/coding/paas/v4, Accept-Language, reasoning_content, GLM extraBody params) and the ClientTurnRequest builder the Core agent loop runs."
+            },
+            {
               "id": "glm-native-provider",
               "name": "GLM Native Provider",
               "purpose": "GLM native provider adapter."

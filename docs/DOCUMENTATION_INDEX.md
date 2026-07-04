@@ -210,6 +210,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   grabbed the memory-consolidation prewarm instead of the probe turn (WS
   capture now filters `response.create` frames by `minimumToolCount`, since the
   prewarm has empty tools), ahead of the user re-capturing Kimi and Codex.
+- `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
+  application rebuild for the Phase 2 Kimi auth-gate live validation: the
+  visible Kimi runs on the universal client (`kimi-client` endpoint,
+  `kimi-for-coding`), the ACP Kimi is internal, and the Kimi Settings tab
+  carries the "Kimi For Coding API Key" card for the subscription key.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

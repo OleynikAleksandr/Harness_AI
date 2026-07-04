@@ -312,6 +312,7 @@ function connectionProvider(
 function providerAuthOverlay(): SettingsPatch {
   return {
     providers: {
+      glmClient: providerSettingsOverlay("glm-client"),
       glmNative: providerSettingsOverlay("glm-native"),
       glmOpenCode: providerSettingsOverlay("glm-opencode"),
       kimiClient: providerSettingsOverlay("kimi-client"),
@@ -335,6 +336,10 @@ function providerSettingsOverlay(
 }
 
 function syncProviderAuthFiles(settings: HarnessSettings): void {
+  providerAuthStoreFacade.saveProviderSettings(
+    "glm-client",
+    settings.providers.glmClient
+  );
   providerAuthStoreFacade.saveProviderSettings(
     "glm-native",
     settings.providers.glmNative

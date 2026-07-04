@@ -54,7 +54,9 @@ Own global and workspace settings persistence.
   with `max` reasoning, and normalization validates the model against the
   Core-owned GLM client catalog (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). The provider-key map binds `glm-client` to this
-  section once the internal provider id is introduced.
+  section once the internal provider id is introduced; save/load syncs the API
+  key through `providers/glm-client/settings.json` like the other key-based
+  providers.
 
 ## Reasoning Effort Contract
 

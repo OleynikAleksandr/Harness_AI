@@ -52,3 +52,10 @@ assert.match(
   ),
   /Kimi Code Console/u
 );
+assert.match(
+  registry.getMessage(
+    "ui_helper_text",
+    "settings.provider.glmClient.apiKey.description"
+  ),
+  /Z\.ai Coding Plan/u
+);

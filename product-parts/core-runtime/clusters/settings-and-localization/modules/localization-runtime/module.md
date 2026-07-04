@@ -43,6 +43,12 @@ materialization, bootstrap payload reuse, and bundle state.
   helper copy are part of the approved dictionaries so selecting Russian for UI
   Helper Text or Messages for the User covers those provider tabs without
   renderer-local string derivation.
+- GLM universal-client provider help
+  (`settings.provider.glmClient.description`,
+  `settings.provider.glmClient.apiKey.description`) is part of the approved
+  `ui_helper_text` dictionary, and the API-key card title
+  (`settings.provider.glmClient.apiKey`, "Z.ai Coding Plan API Key") is part of
+  the approved `ui_labels` dictionary.
 - The OpenRouter model search refresh control label
   (`settings.openRouter.searchRefresh`) is part of the approved `ui_labels`
   dictionary; it names the icon button that re-runs the model slug search and

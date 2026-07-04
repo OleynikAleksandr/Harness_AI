@@ -31,6 +31,12 @@ materialization, bootstrap payload reuse, and bundle state.
   approved `ui_helper_text` dictionary.
 - Kimi provider settings helper copy and model descriptions are part of the
   approved `ui_helper_text` dictionary.
+- Kimi universal-client provider help
+  (`settings.provider.kimiClient.description`,
+  `settings.provider.kimiClient.apiKey.description`) is part of the approved
+  `ui_helper_text` dictionary: it explains the subscription-key onboarding and
+  where the Kimi For Coding key comes from (Kimi Code Console, up to 5 keys,
+  each shown once at creation).
 - GLM, OpenCode, Local Models, OpenRouter and session continuity Settings
   helper copy are part of the approved dictionaries so selecting Russian for UI
   Helper Text or Messages for the User covers those provider tabs without

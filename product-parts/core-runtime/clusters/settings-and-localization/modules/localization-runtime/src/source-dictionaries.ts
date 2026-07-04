@@ -188,6 +188,10 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Kimi K2.7 Code model exposed through Kimi Code ACP.",
     "settings.provider.kimi.model.kimi-k2.7-code-highspeed.description":
       "Lower-latency Kimi K2.7 coding model exposed through ACP.",
+    "settings.provider.kimiClient.description":
+      "Runs Kimi Code on the Harness universal client with a subscription API key. Nothing is downloaded or installed.",
+    "settings.provider.kimiClient.apiKey.description":
+      "Paste a Kimi For Coding API key from the Kimi Code Console at kimi.com. A Kimi Code subscription allows up to 5 keys; each key is shown only once when created.",
     "settings.provider.sessionContinuity.description":
       "When the remaining context window drops to or below this percentage, Harness AI can automatically wrap up the current session and start a new one. Default: 30%.",
     "settings.provider.glm.defaultModel.description":

@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream3.task3",
-  "expectedCommitMessage": "feat(core-runtime): kimi client key storage and help",
+  "currentTaskId": "harness-ai.phase2.stream3.task4",
+  "expectedCommitMessage": "feat(core-runtime): route sessions to kimi universal client",
   "debt": null
 }
 ```
@@ -196,9 +196,9 @@
 22. [DONE] Git Commit: `feat(kimi-client-provider): kimi endpoint on universal client` (hash: self)
 23. [DONE] `harness-ai.phase2.stream3.task2` Bind the Kimi client provider descriptor + registry, kept INTERNAL/hidden: add the `kimi-for-coding` descriptor and bind the provider in the registry but NOT in the visible picker yet (live ACP Kimi keeps serving during development); update module docs (scope: provider-descriptor facade + `module.md`, provider-registry facade + `module.md`; expected commit: `feat(core-runtime): bind kimi client provider descriptor (internal)`). Scope clarification (2026-07-04, during implementation): extending the `ProviderId` union forces the exhaustive `PROVIDER_KEY_BY_ID` map in the settings-store facade to gain a `kimi-client` entry; it is added as a type-completeness bridge aliasing the `kimi` section (nothing reads it) and the dedicated settings entry stays in task3 — settings-store facade + `module.md` join this task's scope (3 functional files total, within the limit). Result: Completed in commit `feat(core-runtime): bind kimi client provider descriptor (internal)`.
 24. [DONE] Git Commit: `feat(core-runtime): bind kimi client provider descriptor (internal)` (hash: self)
-25. [IN_PROGRESS] `harness-ai.phase2.stream3.task3` Add Kimi client key storage + help/localization: subscription-key settings entry for the client Kimi and the provider-help strings (where to get the Kimi For Coding key) through the localization runtime (scope: settings/auth-store facade + `module.md`, `localization-runtime` source-dictionaries + `module.md`; expected commit: `feat(core-runtime): kimi client key storage and help`).
-26. [TODO] Git Commit: `feat(core-runtime): kimi client key storage and help` (hash: TBD)
-27. [TODO] `harness-ai.phase2.stream3.task4` Wire Core session routing / adapter construction for the Kimi client provider: Core session start constructs the `kimi-client-provider` facade and routes turns/events; add the Electron bridge/preload channel only if the renderer needs a new one (scope: core session routing facade + `module.md`, electron bridge/preload only if required (≤3 functional files); expected commit: `feat(core-runtime): route sessions to kimi universal client`).
+25. [DONE] `harness-ai.phase2.stream3.task3` Add Kimi client key storage + help/localization: subscription-key settings entry for the client Kimi and the provider-help strings (where to get the Kimi For Coding key) through the localization runtime (scope: settings/auth-store facade + `module.md`, `localization-runtime` source-dictionaries + `module.md`; expected commit: `feat(core-runtime): kimi client key storage and help`). Result: Completed in commit `feat(core-runtime): kimi client key storage and help`.
+26. [DONE] Git Commit: `feat(core-runtime): kimi client key storage and help` (hash: self)
+27. [IN_PROGRESS] `harness-ai.phase2.stream3.task4` Wire Core session routing / adapter construction for the Kimi client provider: Core session start constructs the `kimi-client-provider` facade and routes turns/events; add the Electron bridge/preload channel only if the renderer needs a new one (scope: core session routing facade + `module.md`, electron bridge/preload only if required (≤3 functional files); expected commit: `feat(core-runtime): route sessions to kimi universal client`).
 28. [TODO] Git Commit: `feat(core-runtime): route sessions to kimi universal client` (hash: TBD)
 29. [TODO] `harness-ai.phase2.stream3.task5` Visibility switch (migration applied): make the visible `kimi` provider in Settings/Start New Session resolve to the client endpoint and REMOVE the ACP `kimi-provider` from the visible picker (ACP code retained, no new ACP sessions); update descriptor visibility + affected docs (scope: provider-descriptor/registry visibility + affected `module.md` (≤3 functional files); expected commit: `feat(core-runtime): switch visible kimi to universal client`).
 30. [TODO] Git Commit: `feat(core-runtime): switch visible kimi to universal client` (hash: TBD)

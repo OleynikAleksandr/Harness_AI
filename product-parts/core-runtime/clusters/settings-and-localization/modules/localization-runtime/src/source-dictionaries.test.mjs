@@ -45,3 +45,10 @@ assert.equal(
   registry.getMessage("messages_for_the_user", "core.bridge.unavailable"),
   "Core runtime bridge is unavailable."
 );
+assert.match(
+  registry.getMessage(
+    "ui_helper_text",
+    "settings.provider.kimiClient.apiKey.description"
+  ),
+  /Kimi Code Console/u
+);

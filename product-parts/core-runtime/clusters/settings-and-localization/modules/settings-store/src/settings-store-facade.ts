@@ -181,8 +181,9 @@ const PROVIDER_KEY_BY_ID: Record<
   claude: "claude",
   codex: "codex",
   kimi: "kimi",
-  // Type-completeness bridge only: the internal kimi-client provider gets its
-  // own settings entry with the client key task; nothing reads it until then.
+  // Type-completeness bridge only: the internal kimi-client provider keeps
+  // its subscription key in the provider-auth-store; this model-section alias
+  // stays unread until the visibility switch settles client model selection.
   "kimi-client": "kimi",
   "glm-native": "glmNative",
   "glm-opencode": "glmOpenCode",

@@ -14,6 +14,9 @@ export interface ProviderSystemSettings {
 
 const PROVIDER_SETTING_ALIASES: Partial<Record<ProviderId, string[]>> = {
   "glm-native": ["glmNative", "glm-native", "glm"],
+  // Universal-client Kimi endpoint: the Kimi Code subscription key lives in
+  // Core settings; the canonical source is a key pasted from Kimi Code Console.
+  "kimi-client": ["kimiClient", "kimi-client"],
   "local-models": ["localModels", "local-models", "local"],
   openrouter: ["openRouter", "openrouter"],
 };
@@ -30,6 +33,7 @@ export class ProviderAuthStoreFacade {
     const env = process.env;
     const keys: Partial<Record<ProviderId, string[]>> = {
       "glm-native": ["GLM_API_KEY", "ZAI_API_KEY"],
+      "kimi-client": ["KIMI_API_KEY"],
       "local-models": ["HARNESS_AI_LOCAL_API_KEY", "LMSTUDIO_API_KEY"],
       openrouter: ["OPENROUTER_API_KEY"],
     };

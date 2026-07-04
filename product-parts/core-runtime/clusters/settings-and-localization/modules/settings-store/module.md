@@ -33,11 +33,20 @@ Own global and workspace settings persistence.
   and localization category snapshots. The logger also creates the
   `logs/core`, `logs/interface`, and `logs/providers` roots and does not record
   provider secrets.
-- The internal `kimi-client` provider id has no model settings section of its
-  own: its subscription key lives in the provider-auth-store, and
-  `PROVIDER_KEY_BY_ID` aliases the id to the `kimi` section as a
-  type-completeness bridge only (nothing reads it) until the visibility
-  switch settles client model selection.
+- Persistence projections (which slice of the merged settings goes into the
+  system settings file vs the workspace settings file) live in
+  `settings-store-projections.ts`, split from the facade for the 500-line
+  implementation cap; the facade imports `systemSettingsFrom` /
+  `workspaceSettingsFrom` from it.
+- The `kimi-client` provider has its dedicated `providers.kimiClient` section
+  (`ProviderClientKeySettings`: `apiKey` + `defaultModel`), the key-storage
+  shape for universal-client endpoints — key-only onboarding, no `baseUrl`
+  (the dialect profile owns it), and `defaultModel` pinned by normalization
+  to the single public `kimi-for-coding` id. The section persists into the
+  system settings file, syncs into the provider-auth-store file
+  (`providers/kimi-client/settings.json`) on save like the other key-based
+  providers, and reads back through the auth overlay, so
+  `getApiKey("kimi-client")` and the Settings UI see one value.
 
 ## Reasoning Effort Contract
 

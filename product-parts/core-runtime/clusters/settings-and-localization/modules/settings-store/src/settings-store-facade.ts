@@ -8,6 +8,10 @@ import {
   systemSettingsPath,
   workspaceSettingsPath,
 } from "./settings-store-logger.js";
+import {
+  systemSettingsFrom,
+  workspaceSettingsFrom,
+} from "./settings-store-projections.js";
 
 export type LocalizationWorkflowTermsPolicy = "keep_english" | "translate";
 export type ReasoningEffort =
@@ -56,6 +60,7 @@ export interface HarnessSettings {
     kimi: ProviderCommonSettings & {
       thinkingEnabled: boolean;
     };
+    kimiClient: ProviderClientKeySettings;
     glmNative: ProviderConnectionSettings & {
       reasoningEffort: ReasoningEffort;
       thinkingEnabled: boolean;
@@ -78,21 +83,28 @@ export interface HarnessSettings {
   };
 }
 
-type SettingsPatch = DeepPartial<HarnessSettings>;
+export type SettingsPatch = DeepPartial<HarnessSettings>;
 type DeepPartial<T> = T extends object
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : T;
 
-interface ProviderCommonSettings {
+export interface ProviderCommonSettings {
   autoUpdate: { enabled: boolean };
   defaultModel: string;
   sessionContinuity: { remainingPercentThreshold: number };
   thinkingDisplaySyncEnabled: boolean;
 }
 
-interface ProviderConnectionSettings {
+export interface ProviderConnectionSettings {
   apiKey: string;
   baseUrl: string;
+  defaultModel: string;
+}
+
+// Universal-client endpoint providers: key-only onboarding, the base URL is
+// Core-owned (dialect profile), and the model catalog is Core-owned too.
+interface ProviderClientKeySettings {
+  apiKey: string;
   defaultModel: string;
 }
 
@@ -143,6 +155,10 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       ...commonProvider("kimi-k2.7-code"),
       thinkingEnabled: true,
     },
+    kimiClient: {
+      apiKey: "",
+      defaultModel: "kimi-for-coding",
+    },
     glmNative: {
       ...connectionProvider("glm-5.2", "https://open.bigmodel.cn/api/paas/v4"),
       reasoningEffort: "max",
@@ -181,10 +197,7 @@ const PROVIDER_KEY_BY_ID: Record<
   claude: "claude",
   codex: "codex",
   kimi: "kimi",
-  // Type-completeness bridge only: the internal kimi-client provider keeps
-  // its subscription key in the provider-auth-store; this model-section alias
-  // stays unread until the visibility switch settles client model selection.
-  "kimi-client": "kimi",
+  "kimi-client": "kimiClient",
   "glm-native": "glmNative",
   "glm-opencode": "glmOpenCode",
   openrouter: "openRouter",
@@ -287,92 +300,12 @@ function connectionProvider(
   };
 }
 
-function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
-  return {
-    general: {
-      coreControls: settings.general.coreControls,
-      localization: settings.general.localization,
-    },
-    providers: {
-      claude: { autoUpdate: settings.providers.claude.autoUpdate },
-      codex: { autoUpdate: settings.providers.codex.autoUpdate },
-      kimi: { autoUpdate: settings.providers.kimi.autoUpdate },
-      glmNative: pickConnection(settings.providers.glmNative),
-      glmOpenCode: {
-        ...pickConnection(settings.providers.glmOpenCode),
-        configPath: settings.providers.glmOpenCode.configPath,
-      },
-      localModels: {},
-      openRouter: {
-        ...pickConnection(settings.providers.openRouter),
-        endpointTag: settings.providers.openRouter.endpointTag,
-        translationProfiles: settings.providers.openRouter.translationProfiles,
-      },
-    },
-  };
-}
-
-function workspaceSettingsFrom(settings: HarnessSettings): SettingsPatch {
-  return {
-    providers: {
-      claude: {
-        ...workspaceCommon(settings.providers.claude),
-        thinking: settings.providers.claude.thinking,
-        thinkingByModel: settings.providers.claude.thinkingByModel,
-      },
-      codex: {
-        ...workspaceCommon(settings.providers.codex),
-        reasoningByModel: settings.providers.codex.reasoningByModel,
-        reasoningSummaryEnabled:
-          settings.providers.codex.reasoningSummaryEnabled,
-      },
-      kimi: {
-        ...workspaceCommon(settings.providers.kimi),
-        thinkingEnabled: settings.providers.kimi.thinkingEnabled,
-      },
-      glmNative: {
-        defaultModel: settings.providers.glmNative.defaultModel,
-        reasoningEffort: settings.providers.glmNative.reasoningEffort,
-        thinkingDisplaySyncEnabled:
-          settings.providers.glmNative.thinkingDisplaySyncEnabled,
-        thinkingEnabled: settings.providers.glmNative.thinkingEnabled,
-      },
-      glmOpenCode: {
-        defaultModel: settings.providers.glmOpenCode.defaultModel,
-        thinkingDisplaySyncEnabled:
-          settings.providers.glmOpenCode.thinkingDisplaySyncEnabled,
-      },
-      localModels: settings.providers.localModels,
-      openRouter: { defaultModel: settings.providers.openRouter.defaultModel },
-    },
-  };
-}
-
-function workspaceCommon(
-  provider: ProviderCommonSettings
-): Partial<ProviderCommonSettings> {
-  return {
-    defaultModel: provider.defaultModel,
-    sessionContinuity: provider.sessionContinuity,
-    thinkingDisplaySyncEnabled: provider.thinkingDisplaySyncEnabled,
-  };
-}
-
-function pickConnection(
-  provider: ProviderConnectionSettings
-): ProviderConnectionSettings {
-  return {
-    apiKey: provider.apiKey,
-    baseUrl: provider.baseUrl,
-    defaultModel: provider.defaultModel,
-  };
-}
-
 function providerAuthOverlay(): SettingsPatch {
   return {
     providers: {
       glmNative: providerSettingsOverlay("glm-native"),
       glmOpenCode: providerSettingsOverlay("glm-opencode"),
+      kimiClient: providerSettingsOverlay("kimi-client"),
       localModels: providerSettingsOverlay("local-models"),
       openRouter: providerSettingsOverlay("openrouter"),
     },
@@ -400,6 +333,10 @@ function syncProviderAuthFiles(settings: HarnessSettings): void {
   providerAuthStoreFacade.saveProviderSettings(
     "glm-opencode",
     settings.providers.glmOpenCode
+  );
+  providerAuthStoreFacade.saveProviderSettings(
+    "kimi-client",
+    settings.providers.kimiClient
   );
   providerAuthStoreFacade.saveProviderSettings(
     "local-models",

@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream3.task6",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with universal client kimi",
+  "currentTaskId": "harness-ai.phase2.stream3.task5b",
+  "expectedCommitMessage": "feat(settings-ui): kimi client api key card",
   "debt": null
 }
 ```
@@ -204,11 +204,15 @@
 30. [DONE] Git Commit: `feat(core-runtime): route sessions to kimi universal client` (hash: self)
 31. [DONE] `harness-ai.phase2.stream3.task5` Visibility switch (migration applied): make the visible `kimi` provider in Settings/Start New Session resolve to the client endpoint and REMOVE the ACP `kimi-provider` from the visible picker (ACP code retained, no new ACP sessions); update descriptor visibility + affected docs (scope: provider-descriptor/registry visibility + affected `module.md` (≤3 functional files); expected commit: `feat(core-runtime): switch visible kimi to universal client`). Result: Completed in commit `feat(core-runtime): switch visible kimi to universal client`.
 32. [DONE] Git Commit: `feat(core-runtime): switch visible kimi to universal client` (hash: self)
-33. [IN_PROGRESS] `harness-ai.phase2.stream3.task6` Package the app so the user can run the live auth-gate validation of task7 (`npm run package:mac`, user-confirmed); record the package evidence (scope: `docs/evidence/universal-client-kimi-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client kimi`).
-34. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client kimi` (hash: TBD)
-35. [TODO] `harness-ai.phase2.stream3.task7` User runs a live Kimi session on the packaged universal client (task6 build) and validates the auth-gate acceptance checklist (endpoint/base URL, headers, model id, streaming text, tool_calls, reasoning/thinking, usage/limit reporting, error-body behavior on quota/auth failure); confirms the client is usable (scope: user workflow; expected commit: none).
-36. [TODO] `harness-ai.phase2.stream3.task8` Record the Kimi auth-gate EVIDENCE as a tracked recovery artifact from the task7 live run: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md` capturing endpoint/base URL, headers shape, model id, streaming text, tool_calls, thinking/reasoning behavior, usage/limits, and auth/quota error bodies (scope: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record kimi auth-gate results`).
-37. [TODO] Git Commit: `docs(evidence): record kimi auth-gate results` (hash: TBD)
+33. [DONE] `harness-ai.phase2.stream3.task5a` Kimi client settings section (user order 2026-07-04: an API-key field must exist in the Settings tab of every provider connected to the universal client — Kimi now, before the package build): add the typed `kimiClient` providers section (`apiKey`, `defaultModel` pinned to `kimi-for-coding`) to the settings store — defaults, system-settings persistence, auth-file sync and auth overlay like the other key-based providers — and retarget `PROVIDER_KEY_BY_ID` from the `kimi` bridge alias to the dedicated section; normalization pins the model id (scope: settings-store facade, settings-normalization, settings-store `module.md`; expected commit: `feat(core-runtime): kimi client settings section`). Result: Completed in commit `feat(core-runtime): kimi client settings section`.
+34. [DONE] Git Commit: `feat(core-runtime): kimi client settings section` (hash: self)
+35. [IN_PROGRESS] `harness-ai.phase2.stream3.task5b` Kimi client API key card in Settings (user order 2026-07-04): a reusable client API-key card component for universal-client providers (title/description/help strings parameterized per provider), mounted in the Kimi Settings tab bound to `providers.kimiClient.apiKey`, using the task3 provider-help strings; add the card title label to the approved dictionaries (scope: provider-settings-ui client-api-key card (new) + settings-tab-content, localization-runtime source-dictionaries, affected `module.md`; expected commit: `feat(settings-ui): kimi client api key card`).
+36. [TODO] Git Commit: `feat(settings-ui): kimi client api key card` (hash: TBD)
+37. [TODO] `harness-ai.phase2.stream3.task6` Package the app so the user can run the live auth-gate validation of task7 (`npm run package:mac`, user-confirmed 2026-07-04: build AFTER the API-key card lands); record the package evidence (scope: `docs/evidence/universal-client-kimi-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client kimi`).
+38. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client kimi` (hash: TBD)
+39. [TODO] `harness-ai.phase2.stream3.task7` User runs a live Kimi session on the packaged universal client (task6 build) and validates the auth-gate acceptance checklist (endpoint/base URL, headers, model id, streaming text, tool_calls, reasoning/thinking, usage/limit reporting, error-body behavior on quota/auth failure); confirms the client is usable (scope: user workflow; expected commit: none).
+40. [TODO] `harness-ai.phase2.stream3.task8` Record the Kimi auth-gate EVIDENCE as a tracked recovery artifact from the task7 live run: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md` capturing endpoint/base URL, headers shape, model id, streaming text, tool_calls, thinking/reasoning behavior, usage/limits, and auth/quota error bodies (scope: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record kimi auth-gate results`).
+41. [TODO] Git Commit: `docs(evidence): record kimi auth-gate results` (hash: TBD)
 
 ## Phase 3 - GLM Migration (milestones, refined on approach; owner: Codex + User)
 

@@ -51,6 +51,9 @@ export const CODEX_REASONING_EFFORTS_BY_MODEL: Record<
 };
 const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
 const KIMI_MODEL_IDS = ["kimi-k2.7-code", "kimi-k2.7-code-highspeed"];
+// The universal-client Kimi endpoint has a single public model id; the vendor
+// rotates the backend behind it, so the setting is pinned.
+const KIMI_CLIENT_MODEL_ID = "kimi-for-coding";
 const GLM_OPENCODE_MODEL_IDS = [
   "zai-coding-plan/glm-5.2",
   "kimi-for-coding/k2p7",
@@ -96,6 +99,7 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   if (!KIMI_MODEL_IDS.includes(next.providers.kimi.defaultModel)) {
     next.providers.kimi.defaultModel = "kimi-k2.7-code";
   }
+  next.providers.kimiClient.defaultModel = KIMI_CLIENT_MODEL_ID;
   if (
     !GLM_OPENCODE_MODEL_IDS.includes(next.providers.glmOpenCode.defaultModel)
   ) {

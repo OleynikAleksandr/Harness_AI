@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream3.task8",
-  "expectedCommitMessage": "chore(localization): remove opencode settings strings",
+  "currentTaskId": "harness-ai.phase3.stream3.task9",
+  "expectedCommitMessage": "chore(provider-runtime): remove embedded opencode runtime module",
   "debt": null
 }
 ```
@@ -300,9 +300,9 @@
 75. [DONE] Git Commit: `feat(core-runtime): remove opencode session and telemetry entries` (hash: self)
 76. [DONE] `harness-ai.phase3.stream3.task7` Remove the `glm-opencode` provider id: drop it from the `ProviderId` union + the registry `PROVIDERS` entry (and the "OpenCode" display-name note), delete the `PROVIDER_KEY_BY_ID` bridge line and the auth-store alias/env entries; registry test updated (scope: provider-registry facade (+ test), settings-store facade, provider-auth-store facade + `module.md`s; expected commit: `feat(core-runtime): remove glm-opencode provider id`). Result: Completed in commit `feat(core-runtime): remove glm-opencode provider id`.
 77. [DONE] Git Commit: `feat(core-runtime): remove glm-opencode provider id` (hash: self)
-78. [IN_PROGRESS] `harness-ai.phase3.stream3.task8` Remove the OpenCode localization strings (`settings.tab.glmOpenCode`, `settings.provider.openCode.*`) from the approved dictionaries (scope: localization-runtime source-dictionaries + `module.md`; expected commit: `chore(localization): remove opencode settings strings`).
-79. [TODO] Git Commit: `chore(localization): remove opencode settings strings` (hash: TBD)
-80. [TODO] `harness-ai.phase3.stream3.task9` Delete the embedded OpenCode runtime module and its dependency: remove `modules/glm-opencode-provider/**`, drop `@opencode-ai/sdk` (and any opencode-only entries) from `package.json`, update the provider-adapters `cluster.md`, product tree json+md, `docs/DOCUMENTATION_INDEX.md`, and the ARCHITECTURE TRUTH (review P1): `docs/architecture/UniversalClient.md` (embedded-OpenCode statements now historical) and `docs/architecture/CodeAIHubProviderRuntimeAlignment.md` (GLM OpenCode section marked removed/retired). SWEEP SCOPE (review P2): the final `glm-opencode`/`glmOpenCode`/`opencode` sweep covers PRODUCTION/RUNTIME references and CURRENT docs only — archived plans (`.harness/plans/archive/**`) and evidence history (`docs/evidence/**`) are NOT rewritten; OpenCode stays a legitimate REFERENCE project in research/architecture history (plan allows: module deletion + package.json + knip.json if needed, plus docs) (scope: module deletion, package.json (+ knip.json if required), cluster/product-tree/architecture/docs-index; expected commit: `chore(provider-runtime): remove embedded opencode runtime module`).
+78. [DONE] `harness-ai.phase3.stream3.task8` Remove the OpenCode localization strings (`settings.tab.glmOpenCode`, `settings.provider.openCode.*`) from the approved dictionaries (scope: localization-runtime source-dictionaries + `module.md`; expected commit: `chore(localization): remove opencode settings strings`). Result: Completed in commit `chore(localization): remove opencode settings strings`.
+79. [DONE] Git Commit: `chore(localization): remove opencode settings strings` (hash: self)
+80. [IN_PROGRESS] `harness-ai.phase3.stream3.task9` Delete the embedded OpenCode runtime module and its dependency: remove `modules/glm-opencode-provider/**`, drop `@opencode-ai/sdk` (and any opencode-only entries) from `package.json`, update the provider-adapters `cluster.md`, product tree json+md, `docs/DOCUMENTATION_INDEX.md`, and the ARCHITECTURE TRUTH (review P1): `docs/architecture/UniversalClient.md` (embedded-OpenCode statements now historical) and `docs/architecture/CodeAIHubProviderRuntimeAlignment.md` (GLM OpenCode section marked removed/retired). SWEEP SCOPE (review P2): the final `glm-opencode`/`glmOpenCode`/`opencode` sweep covers PRODUCTION/RUNTIME references and CURRENT docs only — archived plans (`.harness/plans/archive/**`) and evidence history (`docs/evidence/**`) are NOT rewritten; OpenCode stays a legitimate REFERENCE project in research/architecture history (plan allows: module deletion + package.json + knip.json if needed, plus docs) (scope: module deletion, package.json (+ knip.json if required), cluster/product-tree/architecture/docs-index; expected commit: `chore(provider-runtime): remove embedded opencode runtime module`).
 81. [TODO] Git Commit: `chore(provider-runtime): remove embedded opencode runtime module` (hash: TBD)
 
 ### Stream: Package And Acceptance

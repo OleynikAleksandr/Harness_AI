@@ -47,10 +47,6 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.kimi.defaultModel": "Kimi Default model",
     "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
     "settings.provider.localModels": "Local Models",
-    "settings.provider.openCode": "OpenCode",
-    "settings.provider.openCode.config": "Config",
-    "settings.provider.openCode.defaultModel": "Default model",
-    "settings.provider.openCode.optionalApiKey": "Optional Z.AI API key",
     "settings.provider.openRouter": "OpenRouter",
     "settings.provider.sessionContinuity.threshold":
       "Remaining context threshold (%)",
@@ -80,7 +76,6 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.tab.codex": "Codex",
     "settings.tab.general": "General",
     "settings.tab.glmNative": "GLM",
-    "settings.tab.glmOpenCode": "OpenCode",
     "settings.tab.kimi": "Kimi",
     "settings.tab.localModels": "Local Models",
     "settings.tab.openRouter": "OpenRouter",
@@ -216,19 +211,6 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Default GLM coding model for the Z.ai Coding Plan endpoint.",
     "settings.provider.localModels.description":
       "Select the default LM Studio model used for new Local Models sessions.",
-    "settings.provider.openCode.description":
-      "Runs models already configured in OpenCode. Tested selectors: zai-coding-plan/glm-5.2 and kimi-for-coding/k2p7.",
-    "settings.provider.openCode.auth.placeholder":
-      "Optional; OpenCode auth is used first",
-    "settings.provider.openCode.home.note":
-      "Uses isolated home at .harness/runtime/providers/glm-opencode/home.",
-    "settings.provider.openCode.defaultModel.description": "Default model",
-    "settings.provider.openCode.model.glm-5.2.description":
-      "Z.AI Coding Plan selector",
-    "settings.provider.openCode.model.kimi-for-coding/k2p7.description":
-      "Kimi for Coding selector",
-    "settings.provider.openCode.reasoning.dialog.description":
-      "Show OpenCode reasoning as a normal assistant message in the dialog.",
     "settings.provider.openRouter.description":
       "Uses OpenRouter chat completions with an exact model slug.",
     "settings.openRouter.defaultRouting.description": "default routing",

@@ -32,10 +32,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   not written to session history JSONL.
 - Provider version snapshots, provider update results and local-model lists.
   CLI update targets run the provider's own self-update command (`claude update`,
-  `codex update`, `opencode upgrade`) so the active install is updated wherever it
-  lives; SDK targets use `npm install -g <pkg>@latest`. This avoids updating a
-  stale `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
-  stays first on PATH.
+  `codex update`) so the active install is updated wherever it lives; SDK targets
+  use `npm install -g <pkg>@latest`. This avoids updating a stale
+  `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
+  stays first on PATH. OpenCode version/update handling is removed with the
+  embedded runtime migration.
 - On `delete-session` RPC, orchestrates session removal: deletes the session's
   event log, deletes the Core-owned reasoning translation sidecar under
   `.harness/sessions/reasoning-translations/`, and asks the provider adapter to

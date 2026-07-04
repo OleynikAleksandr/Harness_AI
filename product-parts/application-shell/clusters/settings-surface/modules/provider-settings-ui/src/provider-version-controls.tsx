@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
-export type UpdatableProviderId = "claude" | "codex" | "glmOpenCode";
+export type UpdatableProviderId = "claude" | "codex";
 export type VersionTarget = "cli" | "sdk";
 
 export interface ProviderVersionEntry {
@@ -15,7 +15,6 @@ export interface ProviderVersionsSnapshot {
   checkedAt: string;
   claude: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
   codex: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
-  glmOpenCode?: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
 }
 
 export function ProviderVersionsCard({
@@ -33,18 +32,13 @@ export function ProviderVersionsCard({
   loading: boolean;
   onAutoUpdateChange: (enabled: boolean) => void;
   onUpdate: (provider: UpdatableProviderId, target: VersionTarget) => void;
-  provider: "claude" | "codex" | "glmOpenCode";
+  provider: "claude" | "codex";
   snapshot: null | ProviderVersionsSnapshot;
   updatingTargets: readonly string[];
 }) {
   const { t } = useBrowserLocalization();
   const [pendingTarget, setPendingTarget] = useState<null | string>(null);
-  let title = "OpenCode Versions";
-  if (provider === "claude") {
-    title = "Claude Versions";
-  } else if (provider === "codex") {
-    title = "Codex Versions";
-  }
+  const title = provider === "claude" ? "Claude Versions" : "Codex Versions";
   const rows = versionRows(provider, snapshot);
   const handleUpdate = (target: VersionTarget) => {
     const key = `${provider}:${target}`;
@@ -73,18 +67,16 @@ export function ProviderVersionsCard({
           "Warning: updating is at your own risk. New versions may be incompatible. Updating will close active sessions."
         )}
       </div>
-      {provider === "glmOpenCode" ? null : (
-        <SettingsToggle
-          checked={autoUpdate}
-          description={t(
-            "ui_helper_text",
-            "settings.provider.versions.autoUpdate.description",
-            "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below."
-          )}
-          label={`Auto-update ${provider === "claude" ? "Claude" : "Codex"}`}
-          onChange={onAutoUpdateChange}
-        />
-      )}
+      <SettingsToggle
+        checked={autoUpdate}
+        description={t(
+          "ui_helper_text",
+          "settings.provider.versions.autoUpdate.description",
+          "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below."
+        )}
+        label={`Auto-update ${provider === "claude" ? "Claude" : "Codex"}`}
+        onChange={onAutoUpdateChange}
+      />
       {error ? <p className="settings-version-status">{error}</p> : null}
       {pendingTarget ? (
         <p className="settings-version-status">
@@ -177,27 +169,11 @@ function VersionRow({
 }
 
 function versionRows(
-  provider: "claude" | "codex" | "glmOpenCode",
+  provider: "claude" | "codex",
   snapshot: null | ProviderVersionsSnapshot
 ) {
   if (!snapshot) {
     return [];
-  }
-  if (provider === "glmOpenCode" && snapshot.glmOpenCode) {
-    return [
-      {
-        currentVersion: snapshot.glmOpenCode.cli.currentVersion,
-        label: "OpenCode CLI",
-        latestVersion: snapshot.glmOpenCode.cli.latestVersion,
-        target: "cli" as const,
-      },
-      {
-        currentVersion: snapshot.glmOpenCode.sdk.currentVersion,
-        label: "OpenCode SDK",
-        latestVersion: snapshot.glmOpenCode.sdk.latestVersion,
-        target: "sdk" as const,
-      },
-    ];
   }
   const providerSnapshot =
     provider === "claude" ? snapshot.claude : snapshot.codex;

@@ -1,7 +1,5 @@
 import { exec } from "node:child_process";
-import { readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
@@ -11,7 +9,6 @@ const TOOL_PATH_ENTRIES = [
   join(process.env.HOME ?? "", ".local", "bin"),
   join(process.env.HOME ?? "", ".npm-global", "bin"),
   join(process.env.HOME ?? "", ".bun", "bin"),
-  join(process.env.HOME ?? "", ".opencode", "bin"),
   "/opt/homebrew/bin",
   "/usr/local/bin",
   "/usr/bin",
@@ -26,30 +23,17 @@ const PROVIDER_PACKAGE_MAP = {
     cli: "@openai/codex",
     sdk: "@openai/codex-sdk",
   },
-  glmOpenCode: {
-    cli: "opencode-ai",
-    sdk: "@opencode-ai/sdk",
-  },
 } as const;
 const PROVIDER_CLI_VERSION_COMMANDS = {
   claude:
     process.platform === "win32" ? "claude.cmd --version" : "claude --version",
   codex:
     process.platform === "win32" ? "codex.cmd --version" : "codex --version",
-  glmOpenCode:
-    process.platform === "win32"
-      ? "opencode.cmd --version"
-      : "opencode --version",
 } as const;
 const PROVIDER_CLI_UPDATE_COMMANDS = {
   claude: process.platform === "win32" ? "claude.cmd update" : "claude update",
   codex: process.platform === "win32" ? "codex.cmd update" : "codex update",
-  glmOpenCode:
-    process.platform === "win32" ? "opencode.cmd upgrade" : "opencode upgrade",
 } as const;
-const BUNDLED_PACKAGE_RESOLVERS: Record<string, () => string> = {
-  "@opencode-ai/sdk": () => import.meta.resolve("@opencode-ai/sdk"),
-};
 const VERSION_PATTERN = /\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/u;
 
 type ProviderVersionKey = keyof typeof PROVIDER_PACKAGE_MAP;
@@ -73,20 +57,16 @@ export async function loadLocalModels(): Promise<string[]> {
 }
 
 export async function loadProviderVersions(): Promise<unknown> {
-  const [claudeCli, claudeSdk, codexCli, codexSdk, openCodeCli, openCodeSdk] =
-    await Promise.all([
-      readCliPackageVersion("claude"),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
-      readCliPackageVersion("codex"),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
-      readCliPackageVersion("glmOpenCode"),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.glmOpenCode.sdk),
-    ]);
+  const [claudeCli, claudeSdk, codexCli, codexSdk] = await Promise.all([
+    readCliPackageVersion("claude"),
+    readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+    readCliPackageVersion("codex"),
+    readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
+  ]);
   return {
     checkedAt: new Date().toISOString(),
     claude: { cli: claudeCli, sdk: claudeSdk },
     codex: { cli: codexCli, sdk: codexSdk },
-    glmOpenCode: { cli: openCodeCli, sdk: openCodeSdk },
   };
 }
 
@@ -135,13 +115,12 @@ async function readCliPackageVersion(providerId: ProviderVersionKey) {
 }
 
 async function readPackageVersion(packageName: string) {
-  const [globalVersion, bundledVersion, latestVersion] = await Promise.all([
+  const [globalVersion, latestVersion] = await Promise.all([
     readInstalledVersion(packageName),
-    readBundledPackageVersion(packageName),
     readLatestVersion(packageName),
   ]);
   return {
-    currentVersion: globalVersion ?? bundledVersion,
+    currentVersion: globalVersion,
     latestVersion,
     packageName,
   };
@@ -218,41 +197,6 @@ function extractInstalledVersion(
   } catch {
     return null;
   }
-}
-
-async function readBundledPackageVersion(
-  packageName: string
-): Promise<string | null> {
-  const resolvePackage = BUNDLED_PACKAGE_RESOLVERS[packageName];
-  if (!resolvePackage) {
-    return null;
-  }
-  try {
-    let directory = dirname(fileURLToPath(resolvePackage()));
-    for (let depth = 0; depth < 8; depth += 1) {
-      const packageJsonPath = join(directory, "package.json");
-      let parsed: { name?: string; version?: string } | null = null;
-      try {
-        parsed = JSON.parse(await readFile(packageJsonPath, "utf8")) as {
-          name?: string;
-          version?: string;
-        };
-      } catch {
-        parsed = null;
-      }
-      if (parsed?.name === packageName) {
-        return parsed.version ?? null;
-      }
-      const nextDirectory = dirname(directory);
-      if (nextDirectory === directory) {
-        return null;
-      }
-      directory = nextDirectory;
-    }
-  } catch {
-    return null;
-  }
-  return null;
 }
 
 function buildExecEnv(): NodeJS.ProcessEnv {

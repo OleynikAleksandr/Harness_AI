@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream3.task3",
-  "expectedCommitMessage": "feat(core-runtime): remove opencode version update path",
+  "currentTaskId": "harness-ai.phase3.stream3.task4",
+  "expectedCommitMessage": "feat(session-ui): remove opencode renderer settings reads",
   "debt": null
 }
 ```
@@ -290,9 +290,9 @@
 65. [DONE] Git Commit: `feat(core-runtime): unbind embedded opencode runtime` (hash: self)
 66. [DONE] `harness-ai.phase3.stream3.task2` Remove the OpenCode Settings tab surface: drop the `glmOpenCode` tab from `SETTINGS_TABS` + its `settings-tab-content` branch and delete `opencode-settings-card.tsx` (scope: settings-tab-content, settings-model-options, delete opencode-settings-card + provider-settings-ui `module.md`; expected commit: `feat(settings-ui): remove opencode settings tab`). Result: Completed in commit `feat(settings-ui): remove opencode settings tab`.
 67. [DONE] Git Commit: `feat(settings-ui): remove opencode settings tab` (hash: self)
-68. [IN_PROGRESS] `harness-ai.phase3.stream3.task3` Remove the OpenCode version-update path: `core-provider-tools` PROVIDER_PACKAGE_MAP `glmOpenCode` entry (+ `.opencode/bin` PATH entry), narrow `UpdatableProviderId`, and drop the OpenCode wiring from the settings versions surface (scope: core-provider-tools, provider-version-controls, settings-surface-facade + `module.md`s; expected commit: `feat(core-runtime): remove opencode version update path`).
-69. [TODO] Git Commit: `feat(core-runtime): remove opencode version update path` (hash: TBD)
-70. [TODO] `harness-ai.phase3.stream3.task4` Remove renderer reads of the OpenCode settings: `provider-picker` `getProviderModel` case and the `vite-env.d.ts` renderer settings mirror (+ any remaining session-window read found at task start) (scope: provider-picker, vite-env.d.ts (+ session-window only if required) + session-window `module.md`; expected commit: `feat(session-ui): remove opencode renderer settings reads`).
+68. [DONE] `harness-ai.phase3.stream3.task3` Remove the OpenCode version-update path: `core-provider-tools` PROVIDER_PACKAGE_MAP `glmOpenCode` entry (+ `.opencode/bin` PATH entry), narrow `UpdatableProviderId`, and drop the OpenCode wiring from the settings versions surface (scope: core-provider-tools, provider-version-controls, settings-surface-facade + `module.md`s; expected commit: `feat(core-runtime): remove opencode version update path`). Result: Completed in commit `feat(core-runtime): remove opencode version update path`.
+69. [DONE] Git Commit: `feat(core-runtime): remove opencode version update path` (hash: self)
+70. [IN_PROGRESS] `harness-ai.phase3.stream3.task4` Remove renderer reads of the OpenCode settings: `provider-picker` `getProviderModel` case and the `vite-env.d.ts` renderer settings mirror (+ any remaining session-window read found at task start) (scope: provider-picker, vite-env.d.ts (+ session-window only if required) + session-window `module.md`; expected commit: `feat(session-ui): remove opencode renderer settings reads`).
 71. [TODO] Git Commit: `feat(session-ui): remove opencode renderer settings reads` (hash: TBD)
 72. [TODO] `harness-ai.phase3.stream3.task5` Remove the OpenCode settings schema: drop `providers.glmOpenCode` from `HarnessSettings`/defaults/persistence/auth-sync/overlay and the glmOpenCode normalization rules; `PROVIDER_KEY_BY_ID` keeps a one-commit bridge `glm-opencode -> glmNative` until the id leaves the union (accepted kimi-client bridge pattern). LEGACY TOLERANCE (review P2): existing user settings files may still carry a `glmOpenCode` section — `mergeSettings` already ignores unknown sections structurally and the save projections drop them on the next save; the task verifies load NEVER fails on a legacy key (unit check in the settings-store test if one exists, otherwise asserted via the normalization test) (scope: settings-store facade, settings-store projections, settings-normalization + settings-store `module.md`; expected commit: `feat(core-runtime): remove opencode settings schema`).
 73. [TODO] Git Commit: `feat(core-runtime): remove opencode settings schema` (hash: TBD)

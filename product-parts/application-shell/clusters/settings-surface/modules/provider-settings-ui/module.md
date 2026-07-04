@@ -34,8 +34,7 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `ConnectionProviderSettings`, `localizeModelOptions`) live in
   `settings-provider-cards.tsx`, split from `settings-tab-content.tsx` for
   the 500-line cap.
-- OpenCode no longer has a Settings tab/card in Phase 3; remaining
-  `glmOpenCode` version/update wiring is removed by its own follow-up task.
+- OpenCode no longer has a Settings tab/card or version/update card in Phase 3.
 - Full app restart intent from the App Controls card. The App Controls card is
   the first card in the General tab (above Localization), and its copy makes
   clear that the Electron host and Core runtime both reload from disk. The
@@ -167,8 +166,7 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   Both were previously hardcoded Russian strings that showed up regardless of
   the configured UI language, including in an otherwise-English session; they
   now follow the same UI Helper Text / Messages for the User language
-  selection as the rest of Settings, in every Claude/Codex/OpenCode Versions
-  card.
+  selection as the rest of Settings, in every Claude/Codex Versions card.
 
 ## Settings Surface Styling
 

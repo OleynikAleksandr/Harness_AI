@@ -278,7 +278,7 @@ export function ProviderSettingsUiFacade({
   };
 
   const updateProvider = async (
-    provider: "claude" | "codex" | "glmOpenCode",
+    provider: "claude" | "codex",
     target: "cli" | "sdk"
   ) => {
     if (!window.harnessCore) {

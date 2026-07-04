@@ -39,6 +39,28 @@ New visible GLM path:
 - macOS code signing was skipped because signing identity is configured as
   null; this remains an unsigned local build.
 
+## Follow-up Settings Cleanup Build
+
+The first live packaged check passed the GLM universal-client session behavior
+but found one residual Settings defect: the visible GLM tab still showed the
+retired native GLM connection/default-model block (`GLM Connection` plus the
+single `glm-5.2` model row) below the new universal-client controls.
+
+The follow-up build carries commit
+`fix(settings-ui): remove legacy glm native settings block`.
+
+- `npm run package:mac` completed, exit 0.
+- `package:stop-old` stopped an existing packaged Harness AI process
+  (`27087`) before rebuilding.
+- `npm run build` completed inside the package command:
+  `typecheck`, `build:runtime`, and Vite renderer production build passed.
+- Electron Builder packaged `darwin/arm64` into `release/mac-arm64`.
+- `release/mac-arm64/Harness AI.app` exists.
+- `release/mac-arm64/Harness AI.app/Contents/Resources/app.asar` was rebuilt
+  at `2026-07-04 22:24:28` (30284766 bytes).
+- macOS code signing was skipped because signing identity is configured as
+  null; this remains an unsigned local build.
+
 ## Manual Validation Handoff
 
 Restart the packaged app before testing. A running instance keeps executing

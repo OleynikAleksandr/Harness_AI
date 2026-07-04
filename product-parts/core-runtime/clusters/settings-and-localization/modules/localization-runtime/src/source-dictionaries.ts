@@ -44,6 +44,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.baseUrl": "Base URL",
     "settings.provider.defaultModel": "Default Model",
     "settings.provider.kimi.defaultModel": "Kimi Default model",
+    "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
     "settings.provider.localModels": "Local Models",
     "settings.provider.openCode": "OpenCode",
     "settings.provider.openCode.config": "Config",

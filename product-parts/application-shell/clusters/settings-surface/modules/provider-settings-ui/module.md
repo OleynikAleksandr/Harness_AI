@@ -17,6 +17,20 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 
 - Provider settings update intents.
 - Auth/configuration action intents.
+- Universal-client API-key section (`client-api-key-card.tsx`): a reusable
+  card for client endpoint providers — one password field bound to the
+  provider's `providers.*.apiKey` settings entry plus the provider-help copy,
+  localized by message prefix. Every provider connected to the universal
+  client mounts one in its Settings tab; today the Kimi tab binds it to
+  `providers.kimiClient.apiKey` (prefix `settings.provider.kimiClient`,
+  card title `settings.provider.kimiClient.apiKey`) through the exported
+  `KimiClientApiKeyCard` preset wrapper, shown above the ACP model card. The
+  renderer only edits the settings snapshot; key storage truth stays
+  Core-owned (settings store persistence + auth-store sync).
+- Shared provider-tab card helpers (`DefaultModelCard`,
+  `ConnectionProviderSettings`, `localizeModelOptions`) live in
+  `settings-provider-cards.tsx`, split from `settings-tab-content.tsx` for
+  the 500-line cap.
 - Harness-owned provider path labels; the OpenCode card points users to `.harness/runtime/providers/glm-opencode/home`.
 - Full app restart intent from the App Controls card. The App Controls card is
   the first card in the General tab (above Localization), and its copy makes

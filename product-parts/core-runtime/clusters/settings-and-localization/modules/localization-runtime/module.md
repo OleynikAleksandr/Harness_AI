@@ -36,7 +36,9 @@ materialization, bootstrap payload reuse, and bundle state.
   `settings.provider.kimiClient.apiKey.description`) is part of the approved
   `ui_helper_text` dictionary: it explains the subscription-key onboarding and
   where the Kimi For Coding key comes from (Kimi Code Console, up to 5 keys,
-  each shown once at creation).
+  each shown once at creation). The API-key card title
+  (`settings.provider.kimiClient.apiKey`, "Kimi For Coding API Key") is part
+  of the approved `ui_labels` dictionary.
 - GLM, OpenCode, Local Models, OpenRouter and session continuity Settings
   helper copy are part of the approved dictionaries so selecting Russian for UI
   Helper Text or Messages for the User covers those provider tabs without

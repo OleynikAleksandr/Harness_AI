@@ -71,6 +71,7 @@ export const runClientTurn = async (
         onThinking: (text) => onEvent({ kind: "thinking_delta", text }),
         tools: request.tools,
         ...(request.apiKey ? { apiKey: request.apiKey } : {}),
+        ...(request.extraBody ? { extraBody: request.extraBody } : {}),
         ...(request.signal ? { signal: request.signal } : {}),
       });
       history.push({

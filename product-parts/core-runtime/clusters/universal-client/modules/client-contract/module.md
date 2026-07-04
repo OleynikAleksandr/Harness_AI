@@ -21,8 +21,9 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.2, 3.3,
 ## Inputs
 
 - Endpoint modules construct a `ClientTurnRequest` (model, message history,
-  available `ToolDescriptor`s, the provider `DialectProfile`, optional api key
-  and abort signal).
+  available `ToolDescriptor`s, the provider `DialectProfile`, optional api key,
+  optional provider-specific `extraBody`, and abort signal). `extraBody` is only
+  for provider-specific additions; core-owned OpenAI fields are reserved.
 - The tool registry and future extension sources construct `ToolDescriptor`s
   with a `ToolSource` (`builtin` now; `mcp` / `skill` reserved for future
   modules).
@@ -38,7 +39,9 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.2, 3.3,
   `reasoning_details` / `think_tags` / `none`) and `ToolChoiceSupport`
   (`auto_only` / `full` / `unsupported`): the declarative per-provider
   capabilities the core degrades request parameters by.
-- `ClientTurnRequest`: the full turn input for the core loop.
+- `ClientTurnRequest`: the full turn input for the core loop, including
+  optional provider-specific `extraBody` additions that cannot override
+  core-owned request body fields.
 - `ClientTurnEvent` / `ClientTurnEventKind` and `ClientErrorReason`: the
   client's output-event and error taxonomy (`auth_failed` / `rate_limited` /
   `quota_exhausted` / `context_overflow` / `network` / `provider_error` /

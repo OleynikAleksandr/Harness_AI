@@ -25,6 +25,15 @@ const MAX_RETRIES = 4;
 const BASE_BACKOFF_MS = 2000;
 const TRAILING_SLASH_PATTERN = /\/$/u;
 const CONTEXT_ERROR_PATTERN = /context|token/iu;
+const RESERVED_EXTRA_BODY_KEYS = new Set([
+  "messages",
+  "model",
+  "parallel_tool_calls",
+  "stream",
+  "stream_options",
+  "tool_choice",
+  "tools",
+]);
 
 // A typed loop error carrying the normalized reason (mapped to turn_failed).
 // retryAfterMs is set from a Retry-After header on retryable responses.
@@ -72,12 +81,27 @@ const toWireTool = (tool: ToolDescriptor): Record<string, unknown> => ({
   type: "function",
 });
 
+const filterExtraBody = (
+  extraBody?: Readonly<Record<string, unknown>>
+): Record<string, unknown> => {
+  if (!extraBody) {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(extraBody).filter(
+      ([key]) => !RESERVED_EXTRA_BODY_KEYS.has(key)
+    )
+  );
+};
+
 const buildRequestBody = (
   model: string,
   messages: readonly ClientMessage[],
   tools: readonly ToolDescriptor[],
-  dialect: DialectProfile
+  dialect: DialectProfile,
+  extraBody?: Readonly<Record<string, unknown>>
 ): Record<string, unknown> => ({
+  ...filterExtraBody(extraBody),
   messages: messages.map(toWireMessage),
   model,
   stream: true,
@@ -174,6 +198,7 @@ const streamResponse = async (
 export interface ModelCallParams {
   readonly apiKey?: string;
   readonly dialect: DialectProfile;
+  readonly extraBody?: Readonly<Record<string, unknown>>;
   readonly messages: readonly ClientMessage[];
   readonly model: string;
   readonly onContent: (chunk: string) => void;
@@ -225,7 +250,8 @@ export const callModel = async (
       params.model,
       params.messages,
       params.tools,
-      params.dialect
+      params.dialect,
+      params.extraBody
     )
   );
   let lastError = new ClientTurnError("network", "No attempt made.");

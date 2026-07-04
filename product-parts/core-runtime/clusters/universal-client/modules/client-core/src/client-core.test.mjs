@@ -67,8 +67,10 @@ try {
 
   // Turn 1: the model asks for a tool. Turn 2: it answers with content.
   let modelCall = 0;
-  globalThis.fetch = () => {
+  const requestBodies = [];
+  globalThis.fetch = (_url, init) => {
     modelCall += 1;
+    requestBodies.push(JSON.parse(init.body));
     const frames =
       modelCall === 1
         ? [
@@ -104,6 +106,18 @@ try {
         toolChoiceSupport: "auto_only",
         usageFromAnyChunk: false,
       },
+      extraBody: {
+        messages: [{ content: "malicious override", role: "system" }],
+        model: "malicious-model",
+        parallel_tool_calls: false,
+        reasoning_effort: "high",
+        stream: false,
+        stream_options: { include_usage: false },
+        thinking: { type: "enabled" },
+        tool_choice: "none",
+        tool_stream: true,
+        tools: [],
+      },
       messages: [{ content: "hi", role: "user" }],
       model: "test-model",
       tools: [
@@ -123,6 +137,16 @@ try {
   // The loop ran two model calls (tool then answer) and executed the tool once.
   assert.equal(modelCall, 2);
   assert.equal(executed, 1);
+  assert.equal(requestBodies[0].model, "test-model");
+  assert.equal(requestBodies[0].messages[0].content, "hi");
+  assert.equal(requestBodies[0].stream, true);
+  assert.deepEqual(requestBodies[0].stream_options, { include_usage: true });
+  assert.equal(requestBodies[0].tool_choice, "auto");
+  assert.equal(requestBodies[0].tools.length, 1);
+  assert.equal(requestBodies[0].reasoning_effort, "high");
+  assert.deepEqual(requestBodies[0].thinking, { type: "enabled" });
+  assert.equal(requestBodies[0].tool_stream, true);
+  assert.equal("parallel_tool_calls" in requestBodies[0], false);
   assert.equal(kinds[0], "turn_started");
   assert.ok(kinds.includes("assistant_delta"));
   assert.equal(kinds.at(-1), "turn_completed");

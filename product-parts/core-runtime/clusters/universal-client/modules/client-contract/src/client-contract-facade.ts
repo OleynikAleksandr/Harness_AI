@@ -67,6 +67,9 @@ export interface DialectProfile {
 export interface ClientTurnRequest {
   readonly apiKey?: string;
   readonly dialect: DialectProfile;
+  // Provider-specific request body additions. Core-owned OpenAI fields are
+  // reserved and cannot be overridden by endpoint modules.
+  readonly extraBody?: Readonly<Record<string, unknown>>;
   readonly messages: readonly ClientMessage[];
   readonly model: string;
   readonly signal?: AbortSignal;

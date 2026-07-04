@@ -24,8 +24,9 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.1, 3.3, 3.4)
 ## Inputs
 
 - `RunClientTurnParams`: a `ClientTurnRequest` (model, message history, tools,
-  dialect, optional api key and abort signal), the `ToolRegistry`, the
-  workspace path, an `onEvent` sink, and an optional step ceiling.
+  dialect, optional provider-specific `extraBody`, optional api key and abort
+  signal), the `ToolRegistry`, the workspace path, an `onEvent` sink, and an
+  optional step ceiling.
 
 ## Outputs
 
@@ -39,7 +40,10 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.1, 3.3, 3.4)
   display events.
 - `client-core-http.ts`: `callModel(params)` performs one streamed model call
   (request build, fetch with retries + Retry-After, dialect-driven stream parse)
-  and returns the assembled content + tool calls; `ClientTurnError` carries the
+  and returns the assembled content + tool calls. Provider-specific `extraBody`
+  keys are merged into the request body, while reserved Core-owned OpenAI fields
+  (`model`, `messages`, `tools`, `stream`, `stream_options`, `tool_choice`,
+  `parallel_tool_calls`) cannot be overridden. `ClientTurnError` carries the
   normalized `ClientErrorReason`.
 - `client-core-events.ts`: `mapClientTurnEvent(event)` maps a `ClientTurnEvent`
   onto the Core `NormalizedProviderEvent` contract for display — streamed

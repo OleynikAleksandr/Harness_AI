@@ -34,7 +34,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `ConnectionProviderSettings`, `localizeModelOptions`) live in
   `settings-provider-cards.tsx`, split from `settings-tab-content.tsx` for
   the 500-line cap.
-- Harness-owned provider path labels; the OpenCode card points users to `.harness/runtime/providers/glm-opencode/home`.
+- OpenCode no longer has a Settings tab/card in Phase 3; remaining
+  `glmOpenCode` version/update wiring is removed by its own follow-up task.
 - Full app restart intent from the App Controls card. The App Controls card is
   the first card in the General tab (above Localization), and its copy makes
   clear that the Electron host and Core runtime both reload from disk. The
@@ -82,9 +83,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   approved source dictionary like the other tab labels.
 - Remaining Settings provider helper copy resolves through the same browser
   localization provider, including session continuity helper text, GLM default
-  model helper text, OpenCode helper text/model descriptions, Local Models
-  helper/empty-state text, OpenRouter helper text, endpoint latency helper copy,
-  and the initial Restart App status message.
+  model helper text, Local Models helper/empty-state text, OpenRouter helper
+  text, endpoint latency helper copy, and the initial Restart App status
+  message.
 - Dynamic OpenRouter model descriptions returned by OpenRouter search are not
   added to static dictionaries. They are sent to Core through
   `translateDynamicText`, which uses the Reasoning Translation Engine target and
@@ -124,7 +125,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `PROVIDER_MODEL_OPTIONS.glmClient` (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). Its helper copy and model descriptions resolve through
   the browser localization provider. The older `glmNative` connection card stays
-  mounted below it until the Phase 3 visibility switch retires the native path.
+  mounted below it as an internal legacy/settings bridge until its later
+  afterlife removal.
 - When the dialog opens, and after a successful settings save or workspace
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are

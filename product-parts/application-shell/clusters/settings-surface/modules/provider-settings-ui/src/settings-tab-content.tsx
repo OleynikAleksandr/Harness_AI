@@ -9,7 +9,6 @@ import {
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
 import { NativeCaptureCard } from "./native-capture-card.js";
-import { OpenCodeSettingsCard } from "./opencode-settings-card.js";
 import {
   OpenRouterModelEndpointPicker,
   OpenRouterSettingsCard,
@@ -289,32 +288,6 @@ export function SettingsTabContent({
             })
           }
           title={t("ui_labels", "settings.provider.glm", "GLM")}
-        />
-      </div>
-    );
-  }
-
-  if (activeTab === "glmOpenCode") {
-    const provider = settings.providers.glmOpenCode;
-    return (
-      <div className="settings-reference-stack">
-        <OpenCodeSettingsCard
-          onSettingsChange={(nextSettings) =>
-            update((next) => {
-              next.providers.glmOpenCode = nextSettings;
-            })
-          }
-          settings={provider}
-        />
-        <ProviderVersionsCard
-          autoUpdate={false}
-          error={versionError}
-          loading={versionLoading}
-          onAutoUpdateChange={() => undefined}
-          onUpdate={onUpdateProvider}
-          provider="glmOpenCode"
-          snapshot={versions}
-          updatingTargets={versionUpdatingTargets}
         />
       </div>
     );

@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase2.stream2.task1",
+  "expectedCommitMessage": "feat(universal-client): bootstrap cluster and client contract",
   "debt": null
 }
 ```
@@ -131,5 +131,107 @@
 
 1. [DONE] `harness-ai.phase1.stream1.task1` Bootstrap the universal-client scope plan (plan-only, closes with this same commit): carry the 2026-07-04 decision package from the archived plan into this scope (Context Pack + Scope Summary) and lay out the Phase 1 research task ordered by the user (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): bootstrap universal client scope`). Result: Completed in commit `docs(plan): bootstrap universal client scope`.
 2. [DONE] Git Commit: `docs(plan): bootstrap universal client scope` (hash: self)
-3. [DONE] `harness-ai.phase1.stream1.task2` Research (user order, 2026-07-04) for OUR OWN universal client — our own client for every provider except Claude and Codex (Kimi, GLM, Local Models, OpenRouter, future OpenAI-shape vendors), built by taking foreign OSS projects as the base/reference (OpenCode and the others found by the survey) so we do not re-develop what they already solved. FLEXIBILITY BAR (user requirement 2026-07-04): parity with the "grown-up" clients — the client must be able to connect MCP servers, understand skills, spawn subagents, plan mode, etc., like Codex and Claude Code; extensibility is designed into the CORE from day one (tool registry + MCP/skill/subagent hosts as first-class concepts, not a hardcoded fixed tool set), even if layers ship in stages. The OSS foundations are studied for THEIR extensibility architecture too, and existing Harness Core capabilities (MCP/skills/orchestration) are mapped so the client reuses rather than duplicates. Decide and record WITH THE USER: (a) the client capability/parameter set — agent loop, tool registry and execution semantics, extensibility (MCP host, skills, subagents), request parameters and per-provider dialect profiles, SSE streaming and thinking normalization, permissions model, key-based auth (per-provider key), model catalog, context/limit handling, event normalization into Harness provider events; (b) the OSS foundation roles — the survey table with licenses, which project is the CODE base, which are behavior/extensibility/targeted references. Deliverable: `docs/architecture/UniversalClient.md` with the capability set, the survey, the recommendation and the RECORDED USER DECISION in its section 6 — the task does not close and the commit does not happen while section 6 is PENDING (scope: `docs/architecture/UniversalClient.md` (new), `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(architecture): universal client capability set and oss foundation research`). Result: Completed in commit `docs(architecture): universal client capability set and oss foundation research`.
+3. [DONE] `harness-ai.phase1.stream1.task2` Research (user order, 2026-07-04) for OUR OWN universal client — our own client for every provider except Claude and Codex (Kimi, GLM, Local Models, OpenRouter, future OpenAI-shape vendors), built by taking foreign OSS projects as the base/reference (OpenCode and the others found by the survey) so we do not re-develop what they already solved. FLEXIBILITY BAR (user requirement 2026-07-04): parity with the "grown-up" clients — the client must be able to connect MCP servers, understand skills, spawn subagents, plan mode, etc., like Codex and Claude Code; extensibility is designed into the CORE from day one (tool registry + MCP/skill/subagent hosts as first-class concepts, not a hardcoded fixed tool set), even if layers ship in stages. The OSS foundations are studied for THEIR extensibility architecture too, and existing Harness Core capabilities (MCP/skills/orchestration) are mapped so the client reuses rather than duplicates. Decide and record WITH THE USER: (a) the client capability/parameter set — agent loop, tool registry and execution semantics, extensibility (MCP host, skills, subagents), request parameters and per-provider dialect profiles, SSE streaming and thinking normalization, permissions model, key-based auth (per-provider key), model catalog, context/limit handling, event normalization into Harness provider events; (b) the OSS foundation roles — the survey table with licenses, which project is the CODE base, which are behavior/extensibility/targeted references. Deliverable: `docs/architecture/UniversalClient.md` with the capability set, the survey, the recommendation and the RECORDED USER DECISION in its section 6 — the task does not close and the commit does not happen while section 6 is PENDING (scope: `docs/architecture/UniversalClient.md` (new), `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(architecture): universal client capability set and oss foundation research`). Result: Completed in commit `docs(architecture): universal client capability set and oss foundation research`. Result clarification (2026-07-04, plan review): the FLEXIBILITY-BAR wording in this task line ("MCP/skill/subagent hosts as first-class concepts") was NARROWED by the accepted section-6 decision — MVP reserves EXTENSION BOUNDARIES only (tool-registry source abstraction + a reserved registration point); MCP/skills/subagents are FUTURE MODULES, not MVP hosts (see the Phase 2 scope contract and `UniversalClient.md` sections 3.10 / 6).
 4. [DONE] Git Commit: `docs(architecture): universal client capability set and oss foundation research` (hash: self)
+
+## Phase 2 - Universal Client Core And Kimi (owner: Codex + User, updated: 2026-07-04)
+
+> Scope contract: the client CORE lives in a new Core-Runtime cluster
+> `universal-client` (agent loop, tool registry, built-in tool executors,
+> SSE+dialect streaming, event normalization — Core Authority, doc section
+> 3.11); the KIMI endpoint is a thin Provider-Runtime module on top of the
+> core. The core is a CONSOLIDATION of the ported reference runtime
+> (openrouter/glm-native/local-models `src/reference/**`, ~9.2k lines with
+> heavy duplication), not a from-scratch build. MVP contract: full-auto
+> permissions (no ask/sandbox), no MCP/skills/subagents (extension points
+> only), no tool progress in UI, compaction deferred — per
+> `docs/architecture/UniversalClient.md` section 6. Module/file names below
+> are PROPOSALS for the user's review; exact file splits are finalized at
+> each task's start under the 500-line and ≤3-functional-files rules.
+>
+> Terminology note (user clarification 2026-07-04): "event normalization"
+> here means mapping the PROVIDER OUTPUT stream (SSE chunks) into the existing
+> `NormalizedProviderEvent` contract for display — a mechanical output→event
+> mapping, NOT an agent and NOT any processing of the user's INPUT prompt. A
+> user-INPUT normalization agent (a cheap agent that compacts the user request
+> into a machine-readable form, may ask the user clarifying questions, and may
+> even pick the session profile) is a SEPARATE future concept, OUT OF this
+> client's scope — recorded here only so the two are never conflated.
+
+### Stream: Implementation Plan Breakdown (this task)
+
+5. [DONE] `harness-ai.phase2.stream1.task1` Break down the universal-client implementation phases into microtasks per the approved structure and give them to the user for review before execution starts (plan-only): Phase 2 (core + Kimi) as detailed microtasks below, Phases 3-5 as milestones refined on approach (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): break down universal client implementation phases`). Result: Completed in commit `docs(plan): break down universal client implementation phases`.
+6. [DONE] Git Commit: `docs(plan): break down universal client implementation phases` (hash: self)
+
+### Stream: Client Core Consolidation (Core-Runtime cluster `universal-client`)
+
+7. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Bootstrap the `universal-client` cluster and its `client-contract` module: register cluster/module in the product tree, add `cluster.md` + `module.md`, and define the client contract types — `ClientTurnRequest`, `ToolDescriptor` (name + JSON Schema + executor ref), `ToolSource` (built-in now; MCP/skill later), `DialectProfile`, `ClientTurnEvent` — with a unit test (bootstrap touches >3 files, plan allows) (scope: `.harness/product-tree/product-tree.json`, `.harness/product-tree/product-tree.md`, `product-parts/core-runtime/clusters/universal-client/cluster.md`, `product-parts/core-runtime/clusters/universal-client/modules/client-contract/module.md`, `.../client-contract/src/client-contract-facade.ts`, `.../client-contract/src/client-contract.test.mjs`; expected commit: `feat(universal-client): bootstrap cluster and client contract`).
+8. [TODO] Git Commit: `feat(universal-client): bootstrap cluster and client contract` (hash: TBD)
+9. [TODO] `harness-ai.phase2.stream2.task2` Add the `dialect-streaming` module: consolidate the three reference SSE readers (`open-router-sse-reader`, `glm-native-sse-parser`, `local-models-sse-reader`) into one core SSE parser (data-frames, `[DONE]`, delta.content + thinking + tool_calls accumulation by index, usage from any chunk) plus the declarative `DialectProfile` capability model and the four-thinking-forms normalization; unit test (scope: `.../modules/dialect-streaming/module.md`, `.../dialect-streaming/src/dialect-streaming-facade.ts`, `.../dialect-streaming/src/dialect-streaming.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): consolidated sse and dialect streaming`).
+10. [TODO] Git Commit: `feat(universal-client): consolidated sse and dialect streaming` (hash: TBD)
+11. [TODO] `harness-ai.phase2.stream2.task3` Add the `tool-registry` module: registry with a source abstraction (built-in source now, MCP/skill registration point reserved), tool-descriptor schema, namespacing, and a pass-through permission boundary (MVP full-auto, no ruleset); unit test (scope: `.../modules/tool-registry/module.md`, `.../tool-registry/src/tool-registry-facade.ts`, `.../tool-registry/src/tool-registry.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): tool registry with source abstraction`).
+12. [TODO] Git Commit: `feat(universal-client): tool registry with source abstraction` (hash: TBD)
+13. [TODO] `harness-ai.phase2.stream2.task4` Add the `builtin-tools` module, part 1 (file + exec + search): consolidate `read_file`/`write_file`/`edit_file`/`apply_patch`/`exec_command`/`grep_files`/`glob_files` from the reference `glm-native-tool-executors` + patch/file-edit executors, with workspace-path validation and output limits; register descriptors into the registry; unit test (plan allows the consolidation file-count) (scope: `.../modules/builtin-tools/module.md`, `.../builtin-tools/src/builtin-tools-file-exec-search.ts`, `.../builtin-tools/src/builtin-tools.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): built-in file, exec and search tools`).
+14. [TODO] Git Commit: `feat(universal-client): built-in file, exec and search tools` (hash: TBD)
+15. [TODO] `harness-ai.phase2.stream2.task5` Add `builtin-tools` part 2 (web + output truncation): `web_search`/`web_fetch` with `max_chars`, and shared output truncation (`truncated` marker + on-disk full-output pointer, OpenCode pattern); update the module doc; unit test (scope: `.../builtin-tools/src/builtin-tools-web.ts`, `.../builtin-tools/src/builtin-tools-truncate.ts`, `.../builtin-tools/src/builtin-tools.test.mjs`, `.../modules/builtin-tools/module.md`; expected commit: `feat(universal-client): built-in web tools and output truncation`).
+16. [TODO] Git Commit: `feat(universal-client): built-in web tools and output truncation` (hash: TBD)
+17. [TODO] `harness-ai.phase2.stream2.task6` Add the `client-core` module (agent loop): turn cycle (request → SSE stream → tool execution → follow-up with `role:"tool"` → repeat until no tool_calls), parallel tool_calls, Core-owned in-session history, doom-loop detection (3 identical calls), retries with backoff + Retry-After (retry 429/5xx, not overflow/auth), AbortController cancel, full-auto execution; unit test (scope: `.../modules/client-core/module.md`, `.../client-core/src/client-core-facade.ts`, `.../client-core/src/client-core.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): agent loop with retries and doom-loop`).
+18. [TODO] Git Commit: `feat(universal-client): agent loop with retries and doom-loop` (hash: TBD)
+19. [TODO] `harness-ai.phase2.stream2.task7` Emit provider OUTPUT events (mechanical stream→contract mapping, NOT user-input normalization — see the terminology note): map the provider output stream into the existing `NormalizedProviderEvent` contract from the core (`turn_started` → `dialog_message` live/thinking → `turn_completed`/`turn_failed`, `stream_error`), map the error taxonomy (`auth_failed`/`rate_limited`/`quota_exhausted`/`context_overflow`/`network`/`provider_error`/`aborted`), no tool-progress events; unit test (scope: `.../client-core/src/client-core-events.ts`, `.../client-core/src/client-core.test.mjs`, `.../client-core/module.md`; expected commit: `feat(universal-client): emit provider output events`).
+20. [TODO] Git Commit: `feat(universal-client): emit provider output events` (hash: TBD)
+
+### Stream: Kimi Endpoint And Live Acceptance (Provider-Runtime)
+
+> Kimi rollout / migration decision (Phase 2, PROPOSED for user review): the
+> new `kimi-client-provider` becomes the SINGLE visible `kimi` provider in
+> Settings and Start New Session. During development it stays INTERNAL/hidden
+> (the live ACP `kimi-provider` keeps serving) until the visibility-switch task
+> (task5), which flips the visible `kimi` to the client endpoint and REMOVES
+> the ACP `kimi-provider` from the provider picker — its code stays in the
+> tree, no new ACP sessions start. NEVER two Kimi entries at once. Full
+> retirement/removal of the ACP `kimi-provider` module is the Phase 5
+> "afterlife" open item, not Phase 2.
+
+21. [TODO] `harness-ai.phase2.stream3.task1` Add the `kimi-client-provider` module: a thin Provider-Runtime endpoint on the universal-client core — base_url `api.kimi.com/coding/v1`, subscription-key auth from Core settings, Kimi `DialectProfile` (reasoning_content thinking, tool_choice behavior), model `kimi-for-coding`; facade delegates the turn to `client-core`; unit test (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`, `.../kimi-client-provider/src/kimi-client-provider-facade.ts`, `.../kimi-client-provider/src/kimi-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(kimi-client-provider): kimi endpoint on universal client`).
+22. [TODO] Git Commit: `feat(kimi-client-provider): kimi endpoint on universal client` (hash: TBD)
+23. [TODO] `harness-ai.phase2.stream3.task2` Bind the Kimi client provider descriptor + registry, kept INTERNAL/hidden: add the `kimi-for-coding` descriptor and bind the provider in the registry but NOT in the visible picker yet (live ACP Kimi keeps serving during development); update module docs (scope: provider-descriptor facade + `module.md`, provider-registry facade + `module.md`; expected commit: `feat(core-runtime): bind kimi client provider descriptor (internal)`).
+24. [TODO] Git Commit: `feat(core-runtime): bind kimi client provider descriptor (internal)` (hash: TBD)
+25. [TODO] `harness-ai.phase2.stream3.task3` Add Kimi client key storage + help/localization: subscription-key settings entry for the client Kimi and the provider-help strings (where to get the Kimi For Coding key) through the localization runtime (scope: settings/auth-store facade + `module.md`, `localization-runtime` source-dictionaries + `module.md`; expected commit: `feat(core-runtime): kimi client key storage and help`).
+26. [TODO] Git Commit: `feat(core-runtime): kimi client key storage and help` (hash: TBD)
+27. [TODO] `harness-ai.phase2.stream3.task4` Wire Core session routing / adapter construction for the Kimi client provider: Core session start constructs the `kimi-client-provider` facade and routes turns/events; add the Electron bridge/preload channel only if the renderer needs a new one (scope: core session routing facade + `module.md`, electron bridge/preload only if required (≤3 functional files); expected commit: `feat(core-runtime): route sessions to kimi universal client`).
+28. [TODO] Git Commit: `feat(core-runtime): route sessions to kimi universal client` (hash: TBD)
+29. [TODO] `harness-ai.phase2.stream3.task5` Visibility switch (migration applied): make the visible `kimi` provider in Settings/Start New Session resolve to the client endpoint and REMOVE the ACP `kimi-provider` from the visible picker (ACP code retained, no new ACP sessions); update descriptor visibility + affected docs (scope: provider-descriptor/registry visibility + affected `module.md` (≤3 functional files); expected commit: `feat(core-runtime): switch visible kimi to universal client`).
+30. [TODO] Git Commit: `feat(core-runtime): switch visible kimi to universal client` (hash: TBD)
+31. [TODO] `harness-ai.phase2.stream3.task6` Package the app so the user can run the live auth-gate validation of task7 (`npm run package:mac`, user-confirmed); record the package evidence (scope: `docs/evidence/universal-client-kimi-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client kimi`).
+32. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client kimi` (hash: TBD)
+33. [TODO] `harness-ai.phase2.stream3.task7` User runs a live Kimi session on the packaged universal client (task6 build) and validates the auth-gate acceptance checklist (endpoint/base URL, headers, model id, streaming text, tool_calls, reasoning/thinking, usage/limit reporting, error-body behavior on quota/auth failure); confirms the client is usable (scope: user workflow; expected commit: none).
+34. [TODO] `harness-ai.phase2.stream3.task8` Record the Kimi auth-gate EVIDENCE as a tracked recovery artifact from the task7 live run: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md` capturing endpoint/base URL, headers shape, model id, streaming text, tool_calls, thinking/reasoning behavior, usage/limits, and auth/quota error bodies (scope: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record kimi auth-gate results`).
+35. [TODO] Git Commit: `docs(evidence): record kimi auth-gate results` (hash: TBD)
+
+## Phase 3 - GLM Migration (milestones, refined on approach; owner: Codex + User)
+
+> Detailed microtasks are laid out with the user when Phase 2 lands. Milestones:
+> (a) `glm-client-provider` endpoint module on the core (GLM DialectProfile:
+> thinking/reasoning_effort/tool_stream, Z.ai base_url `api.z.ai/api/coding/paas/v4`);
+> (b) switch live GLM from the embedded OpenCode runtime to the universal client;
+> (c) remove the embedded OpenCode runtime (`glm-opencode-provider`) and the
+> `@opencode-ai/sdk` dependency; (d) package + user acceptance.
+
+## Phase 4 - Local Models And OpenRouter Providers (milestones; owner: Codex + User)
+
+> Milestones: (a) `local-models-client-provider` endpoint (base-URL onboarding,
+> `/v1/models`, context-length detection Ollama/LM Studio/llama.cpp, no-auth);
+> (b) `openrouter-client-provider` endpoint (key, `/api/v1/models`,
+> reasoning_details, usage-always); (c) Settings UI + provider help for both
+> (key / base URL, per Core localization); (d) package + user acceptance.
+
+## Phase 5 - Synthetic Native Profiles (milestones; owner: Codex + User)
+
+> Milestones: (a) native profile store for the client four (our reference
+> wrapper + client tool set, B2 model) read via the same parser as managed;
+> (b) apply the profile in each endpoint module (systemPrompt from the frozen
+> wrapper + live-context generator); (c) Claude/Codex synthetic native from the
+> accepted capture dumps + the "Update Native Profile" command/UI; (d) shared
+> live-context generator; (e) package + user acceptance. Carries the archived
+> open items (profile storage layout, Update-Native mechanism, Claude `# Memory`
+> ballast, kimi-provider ACP module afterlife).

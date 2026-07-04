@@ -16,9 +16,8 @@ Own provider catalog, availability, and provider invocation profile descriptors.
 
 ## Outputs
 
-- Provider catalog snapshot. The `glm-opencode` provider keeps its id during the
-  removal stream but is internal, so it no longer appears in the new-session
-  picker.
+- Provider catalog snapshot. The `glm-opencode` provider id has been removed
+  during the GLM migration; it no longer appears in the catalog or picker.
 - Provider visibility: every catalog entry carries
   `visibility: "visible" | "internal"`. `listProviders()` returns only
   visible providers (the picker snapshot); internal providers stay
@@ -28,8 +27,8 @@ Own provider catalog, availability, and provider invocation profile descriptors.
   internal — retained for existing sessions, no new ACP Kimi sessions start,
   full retirement is a Phase 5 open item. Never two Kimi entries in the
   picker at once. The Phase 3 GLM visibility switch is also APPLIED: the visible
-  GLM is the `glm-client` universal-client endpoint, while `glm-native` and
-  `glm-opencode` are internal.
+  GLM is the `glm-client` universal-client endpoint, while `glm-native` is
+  internal.
 - Core-owned default model id: descriptors of universal-client endpoints
   carry `defaultModelId` from the provider-descriptor client model catalog
   only for single-model catalogs (`kimi-client` → `kimi-for-coding`); multi-

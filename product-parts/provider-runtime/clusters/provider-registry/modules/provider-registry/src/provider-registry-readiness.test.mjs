@@ -64,13 +64,9 @@ assert.equal(
   visible.some((provider) => provider.id === "glm-native"),
   false
 );
-assert.equal(
-  visible.some((provider) => provider.id === "glm-opencode"),
-  false
-);
 assert.equal(glmClient.visibility, "visible");
 assert.equal(glmClient.name, "GLM");
 assert.equal(glmClient.moduleId, "glm-client-provider");
 assert.equal(glmClient.defaultModelId, undefined);
 assert.equal(registry.getProvider("glm-native").visibility, "internal");
-assert.equal(registry.getProvider("glm-opencode").visibility, "internal");
+assert.throws(() => registry.getProvider("glm-opencode"), /Unknown provider/u);

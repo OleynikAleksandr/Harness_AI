@@ -37,7 +37,7 @@ assert.match(
 );
 assert.doesNotMatch(source, /glmOpenCode/u);
 assert.doesNotMatch(facadeSource, /glmOpenCode: \{/u);
-assert.match(facadeSource, /"glm-opencode": "glmNative"/u);
+assert.doesNotMatch(facadeSource, /"glm-opencode"/u);
 assert.match(facadeSource, /uiEngineId: "google-gtx"/u);
 assert.match(facadeSource, /getLocalizationTranslationEngines/u);
 assert.match(facadeSource, /shouldSyncLocalization/u);

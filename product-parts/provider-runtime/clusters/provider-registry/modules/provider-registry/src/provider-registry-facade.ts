@@ -12,7 +12,6 @@ export type ProviderId =
   | "kimi-client"
   | "glm-client"
   | "glm-native"
-  | "glm-opencode"
   | "openrouter"
   | "local-models";
 
@@ -87,7 +86,7 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
   },
   {
     // The visible GLM: the universal-client endpoint. The old native GLM
-    // provider and OpenCode bridge stay internal until their removal tasks.
+    // provider stays internal until its afterlife removal task.
     id: "glm-client",
     name: "GLM",
     moduleId: "glm-client-provider",
@@ -98,13 +97,6 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     id: "glm-native",
     name: "GLM Native",
     moduleId: "glm-native-provider",
-    status: "needs-settings",
-    visibility: "internal",
-  },
-  {
-    id: "glm-opencode",
-    name: "OpenCode",
-    moduleId: "glm-opencode-provider",
     status: "needs-settings",
     visibility: "internal",
   },

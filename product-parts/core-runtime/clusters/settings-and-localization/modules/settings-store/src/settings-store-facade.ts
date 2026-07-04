@@ -197,7 +197,6 @@ const PROVIDER_KEY_BY_ID: Record<
   "kimi-client": "kimiClient",
   "glm-client": "glmClient",
   "glm-native": "glmNative",
-  "glm-opencode": "glmNative",
   openrouter: "openRouter",
   "local-models": "localModels",
 };

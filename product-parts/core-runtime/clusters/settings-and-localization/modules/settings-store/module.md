@@ -61,9 +61,7 @@ Own global and workspace settings persistence.
 - The retired `providers.glmOpenCode` settings section is removed from the typed
   settings schema, defaults, projections, auth overlay/sync, and normalization.
   Legacy settings files may still contain that object; it is ignored by typed
-  consumers and dropped from persisted projections on the next save. The
-  temporary `glm-opencode` provider-id bridge maps to `glmNative` until the
-  provider id itself is removed.
+  consumers and dropped from persisted projections on the next save.
 
 ## Reasoning Effort Contract
 

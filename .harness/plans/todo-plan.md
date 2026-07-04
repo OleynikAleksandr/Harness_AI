@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase3.stream2.task1",
+  "expectedCommitMessage": "feat(universal-client): per-turn extra body params",
   "debt": null
 }
 ```
@@ -214,14 +214,91 @@
 40. [DONE] `harness-ai.phase2.stream3.task8` Record the Kimi auth-gate EVIDENCE as a tracked recovery artifact from the task7 live run: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md` capturing endpoint/base URL, headers shape, model id, streaming text, tool_calls, thinking/reasoning behavior, usage/limits, and auth/quota error bodies (scope: `docs/evidence/universal-client-kimi-auth-gate-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record kimi auth-gate results`). Result: Completed in commit `docs(evidence): record kimi auth-gate results`.
 41. [DONE] Git Commit: `docs(evidence): record kimi auth-gate results` (hash: self)
 
-## Phase 3 - GLM Migration (milestones, refined on approach; owner: Codex + User)
+## Phase 3 - GLM Migration (owner: Codex + User, materialized: 2026-07-04)
 
-> Detailed microtasks are laid out with the user when Phase 2 lands. Milestones:
-> (a) `glm-client-provider` endpoint module on the core (GLM DialectProfile:
-> thinking/reasoning_effort/tool_stream, Z.ai base_url `api.z.ai/api/coding/paas/v4`);
-> (b) switch live GLM from the embedded OpenCode runtime to the universal client;
-> (c) remove the embedded OpenCode runtime (`glm-opencode-provider`) and the
-> `@opencode-ai/sdk` dependency; (d) package + user acceptance.
+> Scope contract (user order 2026-07-04: materialize Phase 3): move the
+> visible GLM onto the universal client and REMOVE the embedded OpenCode
+> runtime. Shape mirrors the accepted Kimi rollout: a new thin
+> Provider-Runtime endpoint `glm-client-provider` on the Core client core
+> (GLM DialectProfile: Z.ai base_url `api.z.ai/api/coding/paas/v4`,
+> `Accept-Language: en-US,en` header, `reasoning_content` thinking,
+> `tool_choice` auto-only, usage in the final chunk; request body carries GLM
+> thinking params `thinking: {type}` + `reasoning_effort` + `tool_stream` via
+> a new per-turn extraBody contract), key-only onboarding (the Z.ai Coding
+> Plan subscription key; `providers.glmClient` section + the reusable client
+> API-key card per the user's standing order), a Core-owned multi-model
+> catalog (glm-5.2 default, glm-5.1, glm-5-turbo, glm-4.7, glm-4.6 — fixed by
+> us, no official coding-plan list), then the visibility switch: the visible
+> GLM = `glm-client` (name "GLM"), `glm-native` goes INTERNAL (retained for
+> existing sessions; its full retirement joins the Phase 5 afterlife open
+> item next to the ACP kimi), and `glm-opencode` leaves the picker and is
+> REMOVED end-to-end (module, `@opencode-ai/sdk` + opencode CLI update path,
+> Settings tab/schema, localization, telemetry/session entries, provider id).
+> Existing glm-opencode sessions stop binding after the unbind task (history
+> stays readable; sends fail with adapter-not-registered) — accepted cost of
+> the removal decision. Session profiles are untouched in this phase
+> (PROFILE_SUPPORTED_PROVIDER_IDS keeps `glm-native`; client-four profiles
+> are Phase 5). Removal is ordered so every commit compiles: consumers first
+> (routing, UI, renderer reads), then the settings schema (with a one-commit
+> `PROVIDER_KEY_BY_ID` bridge like the accepted kimi-client pattern), then
+> session/telemetry literals, then the `glm-opencode` provider id, then the
+> module + dependency deletion. Module/file names below are PROPOSALS; exact
+> file splits are finalized at each task's start under the 500-line and
+> ≤3-functional-files rules (mechanical cap/removal splits may join a task's
+> scope with a recorded clarification, as accepted in Phase 2).
+
+### Stream: Phase Breakdown (this task)
+
+42. [DONE] `harness-ai.phase3.stream1.task1` Materialize Phase 3 into the microtasks below per the user's direct order 2026-07-04 (plan-only, closes with this same commit) (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): break down glm migration phase`). Result: Completed in commit `docs(plan): break down glm migration phase`.
+43. [DONE] Git Commit: `docs(plan): break down glm migration phase` (hash: self)
+
+### Stream: GLM Client Endpoint And Switch
+
+44. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Per-turn extra body params in the client core (additive contract change GLM needs): `ClientTurnRequest.extraBody?: Readonly<Record<string, unknown>>` in `client-contract`, merged into the OpenAI-shape request by `client-core-http` `buildRequestBody`; unit tests (scope: `.../client-contract/src/client-contract-facade.ts`, `.../client-core/src/client-core-http.ts`, tests + affected `module.md`; expected commit: `feat(universal-client): per-turn extra body params`).
+45. [TODO] Git Commit: `feat(universal-client): per-turn extra body params` (hash: TBD)
+46. [TODO] `harness-ai.phase3.stream2.task2` Add the `glm-client-provider` module on the kimi-client pattern: `GLM_DIALECT` (Z.ai base_url, Accept-Language header, reasoning_content, auto_only, usage final chunk), the Core-owned model list, `buildGlmTurnRequest` (extraBody: `thinking: {type: "enabled"}`, `reasoning_effort` from settings, `tool_stream: true`), and the `GlmClientProviderFacade` ProviderAdapter (in-memory sessions, final-history carry-over, `NormalizedProviderEvent` emission + `stream_error` on failure, Stop-keeps-history, missing-key fails with the provider-help message); unit test; product tree (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-client-provider/module.md`, `.../src/glm-client-provider-facade.ts`, `.../src/glm-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(glm-client-provider): glm endpoint on universal client`).
+47. [TODO] Git Commit: `feat(glm-client-provider): glm endpoint on universal client` (hash: TBD)
+48. [TODO] `harness-ai.phase3.stream2.task3` Add the `providers.glmClient` settings section (`apiKey`, `defaultModel` validated against the client GLM catalog with glm-5.2 fallback, `reasoningEffort` defaulting to max like glmNative): defaults, system persistence, auth-file sync, auth overlay; NO `PROVIDER_KEY_BY_ID` entry yet (the id joins the union in task4) (scope: settings-store facade, settings-store projections, settings-normalization + `module.md`; expected commit: `feat(core-runtime): glm client settings section`).
+49. [TODO] Git Commit: `feat(core-runtime): glm client settings section` (hash: TBD)
+50. [TODO] `harness-ai.phase3.stream2.task4` Bind the GLM client provider descriptor + registry, INTERNAL: `ProviderId` union += `glm-client`, `PROVIDER_KEY_BY_ID` += `glm-client -> glmClient`, descriptor `CLIENT_PROVIDER_MODELS` += the GLM catalog and `HTTP_COMPATIBLE_PROVIDER_IDS` += `glm-client`, registry `PROVIDERS` += internal entry (name "GLM", moduleId `glm-client-provider`); registry `enrichDescriptor` sets `defaultModelId` only for SINGLE-model client catalogs (multi-model GLM resolves through settings like the vendor providers); registry test (scope: provider-descriptor facade, provider-registry facade (+ its test), settings-store facade (one map line) + `module.md`s; expected commit: `feat(core-runtime): bind glm client provider descriptor (internal)`).
+51. [TODO] Git Commit: `feat(core-runtime): bind glm client provider descriptor (internal)` (hash: TBD)
+52. [TODO] `harness-ai.phase3.stream2.task5` GLM client key storage + help: auth-store aliases `glmClient`/`glm-client` with the existing `GLM_API_KEY`/`ZAI_API_KEY` env fallbacks (same Z.ai Coding Plan key as glm-native), and the `settings.provider.glmClient.*` provider-help strings (where the Z.ai Coding Plan key comes from) in the approved dictionaries (scope: provider-auth-store facade, localization-runtime source-dictionaries + `module.md`s; expected commit: `feat(core-runtime): glm client key storage and help`).
+53. [TODO] Git Commit: `feat(core-runtime): glm client key storage and help` (hash: TBD)
+54. [TODO] `harness-ai.phase3.stream2.task6` Route Core sessions to the GLM client: `buildProviderAdapterInstance` case `glm-client` (model intentionally passed — the client GLM is multi-model, the adapter pins the dialect not the model) and `PROVIDER_IDS` += `glm-client` (RPC id validation + startup registration; liveness passes via the HTTP branch) (scope: core-provider-adapter-registration, core-provider-lifecycle + `module.md`; expected commit: `feat(core-runtime): route sessions to glm universal client`).
+55. [TODO] Git Commit: `feat(core-runtime): route sessions to glm universal client` (hash: TBD)
+56. [TODO] `harness-ai.phase3.stream2.task7` GLM client Settings UI: `GlmClientApiKeyCard` preset on the reusable client API-key card (user's standing order: every client provider gets one), mounted in the GLM tab above the glm-native block, plus the client GLM default-model selection (`PROVIDER_MODEL_OPTIONS.glmClient` catalog + ModelRows bound to `providers.glmClient.defaultModel`); card title label + model descriptions in the approved dictionaries if new ids are needed (scope: client-api-key-card, settings-tab-content, settings-model-options (+ source-dictionaries only if labels are added — split finalized at task start); expected commit: `feat(settings-ui): glm client api key card and models`).
+57. [TODO] Git Commit: `feat(settings-ui): glm client api key card and models` (hash: TBD)
+58. [TODO] `harness-ai.phase3.stream2.task8` Visibility switch (migration applied): `glm-client` -> visible (the single visible "GLM"), `glm-native` -> internal (retained for existing sessions, no new sessions; retirement joins the Phase 5 afterlife item), `glm-opencode` -> internal (leaves the picker ahead of its removal); renderer model resolve gains the `glm-client` settings case (`getProviderModel` -> `providers.glmClient.defaultModel`); registry test updated (scope: provider-registry facade (+ test), provider-picker + affected `module.md`s; expected commit: `feat(core-runtime): switch visible glm to universal client`).
+59. [TODO] Git Commit: `feat(core-runtime): switch visible glm to universal client` (hash: TBD)
+
+### Stream: Embedded OpenCode Runtime Removal
+
+60. [TODO] `harness-ai.phase3.stream3.task1` Unbind the OpenCode runtime from Core routing: `PROVIDER_IDS` -= `glm-opencode`, remove the `buildProviderAdapterInstance` case and the liveness `createHomeAdapter` case; existing glm-opencode sessions stop binding (history readable, sends fail adapter-not-registered — accepted) (scope: core-provider-lifecycle, core-provider-adapter-registration, provider-liveness-checker + `module.md`s; expected commit: `feat(core-runtime): unbind embedded opencode runtime`).
+61. [TODO] Git Commit: `feat(core-runtime): unbind embedded opencode runtime` (hash: TBD)
+62. [TODO] `harness-ai.phase3.stream3.task2` Remove the OpenCode Settings tab surface: drop the `glmOpenCode` tab from `SETTINGS_TABS` + its `settings-tab-content` branch and delete `opencode-settings-card.tsx` (scope: settings-tab-content, settings-model-options, delete opencode-settings-card + `module.md`; expected commit: `feat(settings-ui): remove opencode settings tab`).
+63. [TODO] Git Commit: `feat(settings-ui): remove opencode settings tab` (hash: TBD)
+64. [TODO] `harness-ai.phase3.stream3.task3` Remove the OpenCode version-update path: `core-provider-tools` PROVIDER_PACKAGE_MAP `glmOpenCode` entry (+ `.opencode/bin` PATH entry), narrow `UpdatableProviderId`, and drop the OpenCode wiring from the settings versions surface (scope: core-provider-tools, provider-version-controls, settings-surface-facade + `module.md`s; expected commit: `feat(core-runtime): remove opencode version update path`).
+65. [TODO] Git Commit: `feat(core-runtime): remove opencode version update path` (hash: TBD)
+66. [TODO] `harness-ai.phase3.stream3.task4` Remove renderer reads of the OpenCode settings: `provider-picker` `getProviderModel` case and the `vite-env.d.ts` renderer settings mirror (+ any remaining session-window read found at task start) (scope: provider-picker, vite-env.d.ts (+ session-window only if required) + `module.md`; expected commit: `feat(session-ui): remove opencode renderer settings reads`).
+67. [TODO] Git Commit: `feat(session-ui): remove opencode renderer settings reads` (hash: TBD)
+68. [TODO] `harness-ai.phase3.stream3.task5` Remove the OpenCode settings schema: drop `providers.glmOpenCode` from `HarnessSettings`/defaults/persistence/auth-sync/overlay and the glmOpenCode normalization rules; `PROVIDER_KEY_BY_ID` keeps a one-commit bridge `glm-opencode -> glmNative` until the id leaves the union (accepted kimi-client bridge pattern) (scope: settings-store facade, settings-store projections, settings-normalization + `module.md`; expected commit: `feat(core-runtime): remove opencode settings schema`).
+69. [TODO] Git Commit: `feat(core-runtime): remove opencode settings schema` (hash: TBD)
+70. [TODO] `harness-ai.phase3.stream3.task6` Remove OpenCode session/telemetry literals ahead of the id removal: the glm-opencode branches in `provider-turn-options`, `usage-context-telemetry` and `provider-turn-runner` (scope: provider-turn-options, usage-context-telemetry facade, provider-turn-runner facade + `module.md`s; expected commit: `feat(core-runtime): remove opencode session and telemetry entries`).
+71. [TODO] Git Commit: `feat(core-runtime): remove opencode session and telemetry entries` (hash: TBD)
+72. [TODO] `harness-ai.phase3.stream3.task7` Remove the `glm-opencode` provider id: drop it from the `ProviderId` union + the registry `PROVIDERS` entry (and the "OpenCode" display-name note), delete the `PROVIDER_KEY_BY_ID` bridge line and the auth-store alias/env entries; registry test updated (scope: provider-registry facade (+ test), settings-store facade, provider-auth-store facade + `module.md`s; expected commit: `feat(core-runtime): remove glm-opencode provider id`).
+73. [TODO] Git Commit: `feat(core-runtime): remove glm-opencode provider id` (hash: TBD)
+74. [TODO] `harness-ai.phase3.stream3.task8` Remove the OpenCode localization strings (`settings.tab.glmOpenCode`, `settings.provider.openCode.*`) from the approved dictionaries (scope: localization-runtime source-dictionaries + `module.md`; expected commit: `chore(localization): remove opencode settings strings`).
+75. [TODO] Git Commit: `chore(localization): remove opencode settings strings` (hash: TBD)
+76. [TODO] `harness-ai.phase3.stream3.task9` Delete the embedded OpenCode runtime module and its dependency: remove `modules/glm-opencode-provider/**`, drop `@opencode-ai/sdk` (and any opencode-only entries) from `package.json`, update the provider-adapters `cluster.md`, product tree json+md and `docs/DOCUMENTATION_INDEX.md`; final repo-wide sweep for `glm-opencode`/`glmOpenCode`/`opencode` residues (plan allows: module deletion + package.json + knip.json if needed, plus docs) (scope: module deletion, package.json (+ knip.json if required), cluster/product-tree/docs; expected commit: `chore(provider-runtime): remove embedded opencode runtime module`).
+77. [TODO] Git Commit: `chore(provider-runtime): remove embedded opencode runtime module` (hash: TBD)
+
+### Stream: Package And Acceptance
+
+78. [TODO] `harness-ai.phase3.stream4.task1` Package the app for the GLM migration acceptance (`npm run package:mac`; the phase materialization order already carries the user's confirmation to build after the phase lands — re-confirm only if the user asks); record the package evidence (scope: `docs/evidence/universal-client-glm-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client glm`).
+79. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client glm` (hash: TBD)
+80. [TODO] `harness-ai.phase3.stream4.task2` User runs a live GLM session on the packaged universal client and validates the acceptance checklist (Z.ai endpoint, key onboarding via the GLM tab card, model selection, streaming text, tool_calls, thinking/reasoning behavior incl. reasoning_effort, error behavior on bad key; plus: OpenCode tab gone, no OpenCode entry in the picker, existing GLM Native sessions still readable); confirms the migration (scope: user workflow; expected commit: none).
+81. [TODO] `harness-ai.phase3.stream4.task3` Record the GLM migration EVIDENCE from the task2 live run: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md` (endpoint/wire facts, acceptance verdict, OpenCode-removal confirmation) (scope: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record glm migration results`).
+82. [TODO] Git Commit: `docs(evidence): record glm migration results` (hash: TBD)
 
 ## Phase 4 - Local Models And OpenRouter Providers (milestones; owner: Codex + User)
 

@@ -69,10 +69,6 @@ export interface HarnessSettings {
       thinkingEnabled: boolean;
       thinkingDisplaySyncEnabled: boolean;
     };
-    glmOpenCode: ProviderConnectionSettings & {
-      configPath: string;
-      thinkingDisplaySyncEnabled: boolean;
-    };
     localModels: {
       defaultModel: string;
     };
@@ -117,8 +113,6 @@ interface OpenRouterTranslationProfile {
 }
 
 const DEFAULT_LANGUAGE = "en";
-const DEFAULT_GLM_OPENCODE_CONFIG_PATH =
-  "~/.harness-ai/providers/opencode/config.json";
 const DEFAULT_SETTINGS: HarnessSettings = {
   general: {
     coreControls: { allowRestart: true },
@@ -173,11 +167,6 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       thinkingDisplaySyncEnabled: true,
       thinkingEnabled: true,
     },
-    glmOpenCode: {
-      ...connectionProvider("zai-coding-plan/glm-5.2", ""),
-      configPath: DEFAULT_GLM_OPENCODE_CONFIG_PATH,
-      thinkingDisplaySyncEnabled: true,
-    },
     localModels: {
       defaultModel: "local-model",
     },
@@ -208,7 +197,7 @@ const PROVIDER_KEY_BY_ID: Record<
   "kimi-client": "kimiClient",
   "glm-client": "glmClient",
   "glm-native": "glmNative",
-  "glm-opencode": "glmOpenCode",
+  "glm-opencode": "glmNative",
   openrouter: "openRouter",
   "local-models": "localModels",
 };
@@ -314,7 +303,6 @@ function providerAuthOverlay(): SettingsPatch {
     providers: {
       glmClient: providerSettingsOverlay("glm-client"),
       glmNative: providerSettingsOverlay("glm-native"),
-      glmOpenCode: providerSettingsOverlay("glm-opencode"),
       kimiClient: providerSettingsOverlay("kimi-client"),
       localModels: providerSettingsOverlay("local-models"),
       openRouter: providerSettingsOverlay("openrouter"),
@@ -343,10 +331,6 @@ function syncProviderAuthFiles(settings: HarnessSettings): void {
   providerAuthStoreFacade.saveProviderSettings(
     "glm-native",
     settings.providers.glmNative
-  );
-  providerAuthStoreFacade.saveProviderSettings(
-    "glm-opencode",
-    settings.providers.glmOpenCode
   );
   providerAuthStoreFacade.saveProviderSettings(
     "kimi-client",

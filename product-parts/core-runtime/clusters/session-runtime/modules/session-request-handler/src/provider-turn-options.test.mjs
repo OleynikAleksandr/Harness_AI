@@ -18,7 +18,8 @@ assert.match(
 assert.match(source, /session\.providerId === "kimi"/u);
 assert.match(source, /session\.providerId === "glm-native"/u);
 assert.match(source, /reasoningEffort: glmNative\.reasoningEffort/u);
-assert.match(source, /session\.providerId === "glm-opencode"/u);
+assert.doesNotMatch(source, /glm-opencode/u);
+assert.doesNotMatch(source, /glmOpenCode/u);
 assert.match(source, /session\.providerId === "openrouter"/u);
 assert.match(
   source,

@@ -17,7 +17,8 @@ Own global and workspace settings persistence.
 
 - Settings snapshot.
 - Persisted settings update.
-- Provider default paths normalized to Harness namespaces, including OpenCode config under `~/.harness-ai/providers/opencode/config.json`.
+- Provider default paths normalized to Harness namespaces for active settings
+  sections.
 - Localization translation engine ids resolved as `uiEngineId` and
   `reasoningEngineId`; legacy `engineId` is kept as a UI compatibility alias
   for the UI translation engine.
@@ -57,6 +58,12 @@ Own global and workspace settings persistence.
   section once the internal provider id is introduced; save/load syncs the API
   key through `providers/glm-client/settings.json` like the other key-based
   providers.
+- The retired `providers.glmOpenCode` settings section is removed from the typed
+  settings schema, defaults, projections, auth overlay/sync, and normalization.
+  Legacy settings files may still contain that object; it is ignored by typed
+  consumers and dropped from persisted projections on the next save. The
+  temporary `glm-opencode` provider-id bridge maps to `glmNative` until the
+  provider id itself is removed.
 
 ## Reasoning Effort Contract
 

@@ -34,13 +34,6 @@ export function buildProviderTurnOptions(
       thinkingEnabled: glmNative.thinkingEnabled,
     };
   }
-  if (session.providerId === "glm-opencode") {
-    return {
-      model: session.model,
-      thinkingDisplaySyncEnabled:
-        settings.providers.glmOpenCode.thinkingDisplaySyncEnabled,
-    };
-  }
   if (session.providerId === "openrouter") {
     return {
       endpointTag: settings.providers.openRouter.endpointTag,

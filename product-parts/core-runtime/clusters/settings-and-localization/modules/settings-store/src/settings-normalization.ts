@@ -61,13 +61,6 @@ const GLM_CLIENT_MODEL_IDS = [
   "glm-4.7",
   "glm-4.6",
 ];
-const GLM_OPENCODE_MODEL_IDS = [
-  "zai-coding-plan/glm-5.2",
-  "kimi-for-coding/k2p7",
-];
-const DEFAULT_GLM_OPENCODE_CONFIG_PATH =
-  "~/.harness-ai/providers/opencode/config.json";
-
 export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   const next = structuredClone(settings);
   if (!CLAUDE_MODEL_ALIASES.includes(next.providers.claude.defaultModel)) {
@@ -114,14 +107,6 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
     !CLAUDE_THINKING_EFFORTS.includes(next.providers.glmClient.reasoningEffort)
   ) {
     next.providers.glmClient.reasoningEffort = "max";
-  }
-  if (
-    !GLM_OPENCODE_MODEL_IDS.includes(next.providers.glmOpenCode.defaultModel)
-  ) {
-    next.providers.glmOpenCode.defaultModel = "zai-coding-plan/glm-5.2";
-  }
-  if (!next.providers.glmOpenCode.configPath.trim()) {
-    next.providers.glmOpenCode.configPath = DEFAULT_GLM_OPENCODE_CONFIG_PATH;
   }
   return next;
 }

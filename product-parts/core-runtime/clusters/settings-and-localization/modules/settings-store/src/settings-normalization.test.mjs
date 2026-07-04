@@ -35,6 +35,9 @@ assert.match(
   facadeSource,
   /glmClient: \{\n\s+apiKey: "",\n\s+defaultModel: "glm-5\.2",\n\s+reasoningEffort: "max",\n\s+\}/u
 );
+assert.doesNotMatch(source, /glmOpenCode/u);
+assert.doesNotMatch(facadeSource, /glmOpenCode: \{/u);
+assert.match(facadeSource, /"glm-opencode": "glmNative"/u);
 assert.match(facadeSource, /uiEngineId: "google-gtx"/u);
 assert.match(facadeSource, /getLocalizationTranslationEngines/u);
 assert.match(facadeSource, /shouldSyncLocalization/u);

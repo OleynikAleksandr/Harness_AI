@@ -16,6 +16,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Optional next-session mode input, currently resolved by Core to the native raw baseline.
 - Turn options from Core-owned settings/model binding.
 - Core-owned provider settings used to derive applied turn options for all providers: model selection, Claude/Kimi/GLM thinking toggles, GLM reasoning effort, OpenRouter endpoint tag, and Codex reasoning effort/summary enablement. Codex effort is resolved through the settings-store Codex capability contract.
+- OpenCode turn options are no longer built after the GLM migration removed the
+  `providers.glmOpenCode` settings schema; old OpenCode sessions are not kept
+  compatible during this development-only migration.
 - Provider session id promotion events emitted by migrated provider runtimes, including Claude `sessionIdChanged` and reference-compatible `realSessionId` events.
 
 ## Outputs

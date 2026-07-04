@@ -247,6 +247,11 @@
               "id": "tool-registry",
               "name": "Tool Registry",
               "purpose": "Tool registry with a source abstraction: aggregate tool descriptors from sources (built-in now; MCP/skills reserved), route a tool call to its owning source, and expose a pass-through permission boundary (full-auto in MVP)."
+            },
+            {
+              "id": "builtin-tools",
+              "name": "Built-in Tools",
+              "purpose": "The built-in tool source: descriptors + executors for the MVP tool set (read_file, write_file, edit_file, apply_patch, exec_command, grep_files, glob_files; web tools in part 2), with workspace-path validation and process timeouts. Ported from the reference glm-native tool executors."
             }
           ]
         },

@@ -8,7 +8,7 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream4.task5",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -314,9 +314,9 @@
 86. [DONE] Git Commit: `fix(settings-ui): remove legacy glm native settings block` (hash: self)
 87. [DONE] `harness-ai.phase3.stream4.task4` Package the app after the GLM Settings cleanup for the user's rerun: `npm run package:mac`; record package evidence update in the existing GLM package evidence or a follow-up dated evidence file as appropriate (scope: `docs/evidence/**`, `docs/DOCUMENTATION_INDEX.md` if a new evidence file is created, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app after glm settings cleanup`). Result: Completed in commit `chore(package): rebuild packaged app after glm settings cleanup`.
 88. [DONE] Git Commit: `chore(package): rebuild packaged app after glm settings cleanup` (hash: self)
-89. [IN_PROGRESS] `harness-ai.phase3.stream4.task5` User reruns the packaged GLM app and confirms the residual Settings defect is gone: GLM tab shows only the universal-client GLM API key/model controls, no old native `GLM Connection`/single `glm-5.2` block, and the GLM session behavior remains accepted (scope: user workflow; expected commit: none).
-90. [TODO] `harness-ai.phase3.stream4.task6` Record the GLM migration EVIDENCE from the accepted live run: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md` (endpoint/wire facts, acceptance verdict without legacy-session checks per the 2026-07-04 user decision, OpenCode-removal confirmation, Settings cleanup confirmation) (scope: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record glm migration results`).
-91. [TODO] Git Commit: `docs(evidence): record glm migration results` (hash: TBD)
+89. [DONE] `harness-ai.phase3.stream4.task5` User reruns the packaged GLM app and confirms the residual Settings defect is gone: GLM tab shows only the universal-client GLM API key/model controls, no old native `GLM Connection`/single `glm-5.2` block, and the GLM session behavior remains accepted (scope: user workflow; expected commit: none). Result: User accepted the follow-up packaged app on 2026-07-04: "Все работает можно фазу закрывать".
+90. [DONE] `harness-ai.phase3.stream4.task6` Record the GLM migration EVIDENCE from the accepted live run: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md` (endpoint/wire facts, acceptance verdict without legacy-session checks per the 2026-07-04 user decision, OpenCode-removal confirmation, Settings cleanup confirmation) (scope: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record glm migration results`). Result: Completed in commit `docs(evidence): record glm migration results`.
+91. [DONE] Git Commit: `docs(evidence): record glm migration results` (hash: self)
 
 ## Phase 4 - Local Models And OpenRouter Providers (milestones; owner: Codex + User)
 

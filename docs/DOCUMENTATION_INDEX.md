@@ -227,6 +227,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   settings carry API key/model storage, embedded `glm-opencode` production
   runtime support is removed, and the user can restart
   `release/mac-arm64/Harness AI.app` for live validation.
+- `docs/evidence/universal-client-glm-migration-2026-07-04.md` — the Phase 3
+  GLM migration result: PASSED/ACCEPTED by the user's live packaged-app runs;
+  the visible GLM provider is `glm-client`, OpenCode is absent from Settings
+  and picker, the residual native GLM Settings block was removed in the
+  follow-up build, and legacy-session continuity checks were intentionally
+  dropped per the 2026-07-04 user decision.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

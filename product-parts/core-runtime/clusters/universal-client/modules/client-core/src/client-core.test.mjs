@@ -51,6 +51,11 @@ try {
     "utf8"
   );
   writeFileSync(
+    path.join(buildDir, "client-core/src/client-core-events.js"),
+    compile("./client-core-events.ts", import.meta.url),
+    "utf8"
+  );
+  writeFileSync(
     path.join(buildDir, "client-core/src/client-core-facade.js"),
     compile("./client-core-facade.ts", import.meta.url),
     "utf8"

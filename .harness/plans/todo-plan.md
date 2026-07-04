@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream2.task7",
-  "expectedCommitMessage": "feat(universal-client): emit provider output events",
+  "currentTaskId": "harness-ai.phase2.stream3.task1",
+  "expectedCommitMessage": "feat(kimi-client-provider): kimi endpoint on universal client",
   "debt": null
 }
 ```
@@ -177,8 +177,8 @@
 16. [DONE] Git Commit: `feat(universal-client): built-in web tools and output truncation` (hash: self)
 17. [DONE] `harness-ai.phase2.stream2.task6` Add the `client-core` module (agent loop): turn cycle (request → SSE stream → tool execution → follow-up with `role:"tool"` → repeat until no tool_calls), parallel tool_calls, Core-owned in-session history, doom-loop detection (3 identical calls), retries with backoff + Retry-After (retry 429/5xx, not overflow/auth), AbortController cancel, full-auto execution; unit test (scope: `.../modules/client-core/module.md`, `.../client-core/src/client-core-facade.ts`, `.../client-core/src/client-core.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): agent loop with retries and doom-loop`). Result: Completed in commit `feat(universal-client): agent loop with retries and doom-loop`.
 18. [DONE] Git Commit: `feat(universal-client): agent loop with retries and doom-loop` (hash: self)
-19. [IN_PROGRESS] `harness-ai.phase2.stream2.task7` Emit provider OUTPUT events (mechanical stream→contract mapping, NOT user-input normalization — see the terminology note): map the provider output stream into the existing `NormalizedProviderEvent` contract from the core (`turn_started` → `dialog_message` live/thinking → `turn_completed`/`turn_failed`, `stream_error`), map the error taxonomy (`auth_failed`/`rate_limited`/`quota_exhausted`/`context_overflow`/`network`/`provider_error`/`aborted`), no tool-progress events; unit test (scope: `.../client-core/src/client-core-events.ts`, `.../client-core/src/client-core.test.mjs`, `.../client-core/module.md`; expected commit: `feat(universal-client): emit provider output events`).
-20. [TODO] Git Commit: `feat(universal-client): emit provider output events` (hash: TBD)
+19. [DONE] `harness-ai.phase2.stream2.task7` Emit provider OUTPUT events (mechanical stream→contract mapping, NOT user-input normalization — see the terminology note): map the provider output stream into the existing `NormalizedProviderEvent` contract from the core (`turn_started` → `dialog_message` live/thinking → `turn_completed`/`turn_failed`, `stream_error`), map the error taxonomy (`auth_failed`/`rate_limited`/`quota_exhausted`/`context_overflow`/`network`/`provider_error`/`aborted`), no tool-progress events; unit test (scope: `.../client-core/src/client-core-events.ts`, `.../client-core/src/client-core.test.mjs`, `.../client-core/module.md`; expected commit: `feat(universal-client): emit provider output events`). Result: Completed in commit `feat(universal-client): emit provider output events`.
+20. [DONE] Git Commit: `feat(universal-client): emit provider output events` (hash: self)
 
 ### Stream: Kimi Endpoint And Live Acceptance (Provider-Runtime)
 
@@ -192,7 +192,7 @@
 > retirement/removal of the ACP `kimi-provider` module is the Phase 5
 > "afterlife" open item, not Phase 2.
 
-21. [TODO] `harness-ai.phase2.stream3.task1` Add the `kimi-client-provider` module: a thin Provider-Runtime endpoint on the universal-client core — base_url `api.kimi.com/coding/v1`, subscription-key auth from Core settings, Kimi `DialectProfile` (reasoning_content thinking, tool_choice behavior), model `kimi-for-coding`; facade delegates the turn to `client-core`; unit test (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`, `.../kimi-client-provider/src/kimi-client-provider-facade.ts`, `.../kimi-client-provider/src/kimi-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(kimi-client-provider): kimi endpoint on universal client`).
+21. [IN_PROGRESS] `harness-ai.phase2.stream3.task1` Add the `kimi-client-provider` module: a thin Provider-Runtime endpoint on the universal-client core — base_url `api.kimi.com/coding/v1`, subscription-key auth from Core settings, Kimi `DialectProfile` (reasoning_content thinking, tool_choice behavior), model `kimi-for-coding`; facade delegates the turn to `client-core`; unit test (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`, `.../kimi-client-provider/src/kimi-client-provider-facade.ts`, `.../kimi-client-provider/src/kimi-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(kimi-client-provider): kimi endpoint on universal client`).
 22. [TODO] Git Commit: `feat(kimi-client-provider): kimi endpoint on universal client` (hash: TBD)
 23. [TODO] `harness-ai.phase2.stream3.task2` Bind the Kimi client provider descriptor + registry, kept INTERNAL/hidden: add the `kimi-for-coding` descriptor and bind the provider in the registry but NOT in the visible picker yet (live ACP Kimi keeps serving during development); update module docs (scope: provider-descriptor facade + `module.md`, provider-registry facade + `module.md`; expected commit: `feat(core-runtime): bind kimi client provider descriptor (internal)`).
 24. [TODO] Git Commit: `feat(core-runtime): bind kimi client provider descriptor (internal)` (hash: TBD)

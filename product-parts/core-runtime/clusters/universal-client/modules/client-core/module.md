@@ -37,6 +37,11 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.1, 3.3, 3.4)
   (request build, fetch with retries + Retry-After, dialect-driven stream parse)
   and returns the assembled content + tool calls; `ClientTurnError` carries the
   normalized `ClientErrorReason`.
+- `client-core-events.ts`: `mapClientTurnEvent(event)` maps a `ClientTurnEvent`
+  onto the Core `NormalizedProviderEvent` contract for display — streamed
+  content/thinking become live/thinking `dialog_message`s,
+  turn_started/completed/failed pass through. A mechanical output->event
+  mapping, NOT user-input normalization.
 
 ## Owned Paths
 

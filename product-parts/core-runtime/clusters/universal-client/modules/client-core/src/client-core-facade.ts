@@ -14,6 +14,8 @@ import type {
 import type { ToolRegistry } from "../../tool-registry/src/tool-registry-facade.js";
 import { ClientTurnError, callModel } from "./client-core-http.js";
 
+export { mapClientTurnEvent } from "./client-core-events.js";
+
 const MAX_STEPS = 64;
 const DOOM_LOOP_REPEATS = 3;
 

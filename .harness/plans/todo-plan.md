@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream3.task1",
-  "expectedCommitMessage": "feat(kimi-client-provider): kimi endpoint on universal client",
+  "currentTaskId": "harness-ai.phase2.stream3.task2",
+  "expectedCommitMessage": "feat(core-runtime): bind kimi client provider descriptor (internal)",
   "debt": null
 }
 ```
@@ -192,9 +192,9 @@
 > retirement/removal of the ACP `kimi-provider` module is the Phase 5
 > "afterlife" open item, not Phase 2.
 
-21. [IN_PROGRESS] `harness-ai.phase2.stream3.task1` Add the `kimi-client-provider` module: a thin Provider-Runtime endpoint on the universal-client core — base_url `api.kimi.com/coding/v1`, subscription-key auth from Core settings, Kimi `DialectProfile` (reasoning_content thinking, tool_choice behavior), model `kimi-for-coding`; facade delegates the turn to `client-core`; unit test (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`, `.../kimi-client-provider/src/kimi-client-provider-facade.ts`, `.../kimi-client-provider/src/kimi-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(kimi-client-provider): kimi endpoint on universal client`).
-22. [TODO] Git Commit: `feat(kimi-client-provider): kimi endpoint on universal client` (hash: TBD)
-23. [TODO] `harness-ai.phase2.stream3.task2` Bind the Kimi client provider descriptor + registry, kept INTERNAL/hidden: add the `kimi-for-coding` descriptor and bind the provider in the registry but NOT in the visible picker yet (live ACP Kimi keeps serving during development); update module docs (scope: provider-descriptor facade + `module.md`, provider-registry facade + `module.md`; expected commit: `feat(core-runtime): bind kimi client provider descriptor (internal)`).
+21. [DONE] `harness-ai.phase2.stream3.task1` Add the `kimi-client-provider` module: a thin Provider-Runtime endpoint on the universal-client core — base_url `api.kimi.com/coding/v1`, subscription-key auth from Core settings, Kimi `DialectProfile` (reasoning_content thinking, tool_choice behavior), model `kimi-for-coding`; facade delegates the turn to `client-core`; unit test (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`, `.../kimi-client-provider/src/kimi-client-provider-facade.ts`, `.../kimi-client-provider/src/kimi-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(kimi-client-provider): kimi endpoint on universal client`). Result: Completed in commit `feat(kimi-client-provider): kimi endpoint on universal client`.
+22. [DONE] Git Commit: `feat(kimi-client-provider): kimi endpoint on universal client` (hash: self)
+23. [IN_PROGRESS] `harness-ai.phase2.stream3.task2` Bind the Kimi client provider descriptor + registry, kept INTERNAL/hidden: add the `kimi-for-coding` descriptor and bind the provider in the registry but NOT in the visible picker yet (live ACP Kimi keeps serving during development); update module docs (scope: provider-descriptor facade + `module.md`, provider-registry facade + `module.md`; expected commit: `feat(core-runtime): bind kimi client provider descriptor (internal)`).
 24. [TODO] Git Commit: `feat(core-runtime): bind kimi client provider descriptor (internal)` (hash: TBD)
 25. [TODO] `harness-ai.phase2.stream3.task3` Add Kimi client key storage + help/localization: subscription-key settings entry for the client Kimi and the provider-help strings (where to get the Kimi For Coding key) through the localization runtime (scope: settings/auth-store facade + `module.md`, `localization-runtime` source-dictionaries + `module.md`; expected commit: `feat(core-runtime): kimi client key storage and help`).
 26. [TODO] Git Commit: `feat(core-runtime): kimi client key storage and help` (hash: TBD)

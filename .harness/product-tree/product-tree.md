@@ -109,6 +109,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 - `claude-provider`: Claude provider adapter.
 - `codex-provider`: Codex provider adapter.
 - `kimi-provider`: Kimi provider adapter.
+- `kimi-client-provider`: thin Kimi endpoint for the Core universal client — Kimi dialect specifics (`api.kimi.com/coding/v1`, `kimi-for-coding`, `reasoning_content`) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `glm-native-provider`: GLM native provider adapter.
 - `glm-opencode-provider`: GLM OpenCode provider adapter.
 - `openrouter-provider`: OpenRouter provider adapter.

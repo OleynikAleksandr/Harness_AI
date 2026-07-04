@@ -354,6 +354,11 @@
               "purpose": "Kimi provider adapter."
             },
             {
+              "id": "kimi-client-provider",
+              "name": "Kimi Client Provider",
+              "purpose": "Thin Kimi endpoint for the Core universal client: Kimi dialect specifics (api.kimi.com/coding/v1, kimi-for-coding, reasoning_content) and the ClientTurnRequest builder the Core agent loop runs."
+            },
+            {
               "id": "glm-native-provider",
               "name": "GLM Native Provider",
               "purpose": "GLM native provider adapter."

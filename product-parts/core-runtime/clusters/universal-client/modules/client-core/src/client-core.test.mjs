@@ -93,7 +93,7 @@ try {
   };
 
   const events = [];
-  await runClientTurn({
+  const finalHistory = await runClientTurn({
     onEvent: (event) => events.push(event),
     registry,
     request: {
@@ -127,6 +127,16 @@ try {
   assert.ok(kinds.includes("assistant_delta"));
   assert.equal(kinds.at(-1), "turn_completed");
   assert.equal(events.find((e) => e.kind === "assistant_delta").text, "done");
+
+  // The loop resolves with the full in-turn history: user, assistant tool
+  // call, tool result, final assistant answer.
+  assert.deepEqual(
+    finalHistory.map((message) => message.role),
+    ["user", "assistant", "tool", "assistant"]
+  );
+  assert.equal(finalHistory[1].toolCalls.length, 1);
+  assert.equal(finalHistory[2].toolCallId, "c1");
+  assert.equal(finalHistory.at(-1).content, "done");
 
   console.log("client-core tests passed");
 } finally {

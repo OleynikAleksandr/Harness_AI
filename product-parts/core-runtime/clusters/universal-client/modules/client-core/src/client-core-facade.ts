@@ -48,9 +48,14 @@ const executeToolCalls = (
     })
   );
 
+// Resolves with the final in-turn message history: the request messages plus
+// the assistant and tool messages appended during the turn (on failure, the
+// history up to the failure point). Endpoint adapters carry it as the session
+// history for the next turn; rebuilding it from display events would silently
+// drop tool exchanges.
 export const runClientTurn = async (
   params: RunClientTurnParams
-): Promise<void> => {
+): Promise<readonly ClientMessage[]> => {
   const { onEvent, registry, request, workspacePath } = params;
   const maxSteps = params.maxSteps ?? MAX_STEPS;
   const history: ClientMessage[] = [...request.messages];
@@ -75,7 +80,7 @@ export const runClientTurn = async (
       });
       if (result.toolCalls.length === 0) {
         onEvent({ kind: "turn_completed" });
-        return;
+        return history;
       }
       const signature = toolCallSignature(result.toolCalls);
       recentSignatures.push(signature);
@@ -111,4 +116,5 @@ export const runClientTurn = async (
       text: error instanceof Error ? error.message : String(error),
     });
   }
+  return history;
 };

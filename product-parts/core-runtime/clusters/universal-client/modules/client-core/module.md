@@ -32,7 +32,11 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.1, 3.3, 3.4)
 - `runClientTurn(params)`: drives the loop and emits `ClientTurnEvent`s
   (`turn_started` -> `assistant_delta` / `thinking_delta` -> `turn_completed`
   or `turn_failed`). Executes tool calls through the registry and threads the
-  results back into history.
+  results back into history. Resolves with the final in-turn message history
+  (request messages plus the assistant/tool messages appended during the turn;
+  on failure, the history up to the failure point) so endpoint adapters can
+  carry complete multi-turn session history without re-deriving it from
+  display events.
 - `client-core-http.ts`: `callModel(params)` performs one streamed model call
   (request build, fetch with retries + Retry-After, dialect-driven stream parse)
   and returns the assembled content + tool calls; `ClientTurnError` carries the

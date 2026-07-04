@@ -298,7 +298,7 @@ readiness registry, liveness checker, and workspace provisioner modules.
   language.
 - `docs/evidence/provider-versions-card-localization-package-2026-07-01.md` —
   packaged application rebuild evidence for localizing two hardcoded Russian
-  strings in the Claude/Codex/OpenCode Versions cards.
+  strings in the provider Versions cards that existed in that evidence slice.
 
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is

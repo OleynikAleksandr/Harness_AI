@@ -8,9 +8,11 @@ CodeAI Hub remains reference material only. Harness AI owns a new implementation
 
 ## Included In MVP
 
-- Provider tabs: Claude, Codex, Kimi, GLM, OpenCode, Local Models, OpenRouter, General.
+- Provider tabs: Claude, Codex, Kimi, GLM, Local Models, OpenRouter, General.
 - Provider defaults: selected model, provider update preference where applicable, thinking/reasoning display controls, and session-continuity thresholds for Claude/Codex.
-- Provider-owned connection settings: GLM Native API key/base URL/model, OpenRouter API key/base URL/model/endpoint tag, GLM OpenCode API key/config path/model, Local Models default model.
+- Provider-owned connection settings: GLM universal-client key/model plus the
+  remaining GLM Native legacy bridge, OpenRouter API key/base URL/model/endpoint
+  tag, and Local Models default model.
 - General settings: Core restart control and localization configuration for UI and reasoning translation.
 - Localization parity is split by runtime criticality: UI/interface/helper copy
   uses materialized browser runtime bundles, while visible reasoning/thinking

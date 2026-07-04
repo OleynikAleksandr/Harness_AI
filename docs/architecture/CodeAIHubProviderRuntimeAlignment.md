@@ -184,20 +184,24 @@ Required behavior:
 - Preserve native runtime profile, agent runtime instructions, expanded tools, file edit/patch executors, workspace tools, process/session log, SSE parser, stream reader, request config, thinking/reasoning controls, and usage limits.
 - Keep tool execution and patch behavior provider-owned, not UI-owned.
 
-### GLM OpenCode
+### GLM OpenCode (removed)
 
 Reference source:
 
 - `CodeAI-Hub/packages/GLM_OpenCode_Module/src/provider/**`
 
-Harness target:
+Former Harness target:
 
 - `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-opencode-provider/**`
 
-Required behavior:
+Status:
 
-- Preserve OpenCode runner/server process, SDK loader, runtime profile, SSE processor, turn stream, stream helpers, and output normalizer.
-- Preserve thinking output normalization and provider-owned process lifecycle.
+- Removed in the Universal Client GLM migration (2026-07-04). The visible GLM
+  provider now runs through `glm-client-provider` on the Core universal client,
+  and the embedded OpenCode runtime/module/dependency are no longer production
+  targets.
+- OpenCode remains a historical/reference project for behavior and extensibility
+  research; its embedded runtime is not retained in Harness production code.
 
 ### OpenRouter And Local Models
 

@@ -97,7 +97,7 @@ export interface ProviderNativeCaptureOptions {
 
 export interface ProviderAdapter {
   // Record-only diagnostic native request capture. Optional: providers
-  // without a capture path (GLM Native/OpenCode, Local Models, OpenRouter)
+  // without a capture path (GLM Native, Local Models, OpenRouter)
   // leave it unimplemented, and Core treats a missing method as
   // `provider_not_supported`.
   captureNativeRequest?(options: ProviderNativeCaptureOptions): Promise<void>;

@@ -369,11 +369,6 @@
               "purpose": "GLM native provider adapter."
             },
             {
-              "id": "glm-opencode-provider",
-              "name": "GLM OpenCode Provider",
-              "purpose": "GLM OpenCode provider adapter."
-            },
-            {
               "id": "openrouter-provider",
               "name": "OpenRouter Provider",
               "purpose": "OpenRouter provider adapter."

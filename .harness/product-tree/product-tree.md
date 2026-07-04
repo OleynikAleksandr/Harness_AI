@@ -112,7 +112,6 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 - `kimi-client-provider`: thin Kimi endpoint for the Core universal client — Kimi dialect specifics (`api.kimi.com/coding/v1`, `kimi-for-coding`, `reasoning_content`) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `glm-client-provider`: thin GLM endpoint for the Core universal client — Z.ai coding dialect specifics (`api.z.ai/api/coding/paas/v4`, `Accept-Language`, `reasoning_content`, GLM `extraBody` params) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `glm-native-provider`: GLM native provider adapter.
-- `glm-opencode-provider`: GLM OpenCode provider adapter.
 - `openrouter-provider`: OpenRouter provider adapter.
 - `local-models-provider`: local model provider adapter.
 - `provider-turn-runner`: deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring; Application Shell must not extend it.

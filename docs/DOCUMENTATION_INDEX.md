@@ -215,6 +215,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   visible Kimi runs on the universal client (`kimi-client` endpoint,
   `kimi-for-coding`), the ACP Kimi is internal, and the Kimi Settings tab
   carries the "Kimi For Coding API Key" card for the subscription key.
+- `docs/evidence/universal-client-kimi-auth-gate-2026-07-04.md` — the Phase 2
+  Kimi auth-gate result: PASSED/ACCEPTED by the user's live run on the
+  packaged build — the Kimi Code subscription channel accepts the pasted
+  subscription key from our universal client in a real session; wire facts
+  (endpoint, model id, auth header, thinking form) recorded from the shipped
+  code.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

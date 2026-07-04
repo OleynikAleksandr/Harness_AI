@@ -194,8 +194,10 @@ snake_case):
 - Thinking-параметры per provider: GLM `thinking: {type}` +
   `reasoning_effort` (glm-5.2) + `tool_stream: true` (стрим аргументов,
   glm-4.6+); OpenRouter `reasoning: {effort | max_tokens, exclude}`; Ollama
-  `reasoning_effort`; Kimi — конвенция Moonshot `reasoning_content`
-  (для kimi-for-coding UNVERIFIED, проверяется на auth gate).
+  `reasoning_effort`; Kimi — конвенция Moonshot `reasoning_content` (наш
+  клиент собран на этой форме; live-прогон auth gate 2026-07-04 принят
+  пользователем — см.
+  `docs/evidence/universal-client-kimi-auth-gate-2026-07-04.md`).
 - Заголовки: `Authorization: Bearer <key>`; честный User-Agent Harness AI;
   OpenRouter — `HTTP-Referer`/`X-Title`; GLM — `Accept-Language: en-US,en`.
 - Особенности путей: Z.ai coding — `api.z.ai/api/coding/paas/v4` (без `/v1`);
@@ -274,8 +276,9 @@ snake_case):
 
 - Core-owned каталог в `provider-descriptor`; UI ничего не выдумывает.
 - Kimi: единственный публичный id `kimi-for-coding` (контекст 262 144,
-  выход 32 768; бэкенд-модель ротируется вендором). `GET /models` на канале
-  UNVERIFIED — проверяется на auth gate.
+  выход 32 768; бэкенд-модель ротируется вендором). Auth gate 2026-07-04
+  пройден на статическом Core-каталоге БЕЗ обращения к `GET /models`;
+  endpoint `GET /models` остаётся UNVERIFIED и для MVP не нужен.
 - GLM: статический enum из доки (glm-5.2 default, glm-5.1, glm-5-turbo,
   glm-4.7*, glm-4.6...); официального списка «моделей coding-плана» нет —
   фиксируем перечень сами, правим по фактам.

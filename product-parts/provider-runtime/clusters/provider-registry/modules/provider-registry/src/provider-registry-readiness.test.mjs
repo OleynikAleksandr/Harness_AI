@@ -36,3 +36,18 @@ registry.setReadinessWorkspace("workspace-a");
 
 assert.equal(registry.getProvider("codex").readinessStatus, "ready");
 assert.equal(registry.getProvider("claude").readinessStatus, "checking");
+
+// Internal providers stay out of the visible picker but resolve by id.
+assert.equal(
+  registry.listProviders().some((provider) => provider.id === "kimi-client"),
+  false
+);
+assert.equal(
+  registry
+    .listProviders()
+    .every((provider) => provider.visibility === "visible"),
+  true
+);
+const kimiClient = registry.getProvider("kimi-client");
+assert.equal(kimiClient.visibility, "internal");
+assert.equal(kimiClient.moduleId, "kimi-client-provider");

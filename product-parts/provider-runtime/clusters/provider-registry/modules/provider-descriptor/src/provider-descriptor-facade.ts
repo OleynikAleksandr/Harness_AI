@@ -28,6 +28,20 @@ export interface CapturableModel {
   readonly label: string;
 }
 
+export interface ProviderModelDescriptor {
+  readonly id: string;
+  readonly label: string;
+}
+
+// Model catalog for universal-client endpoint providers. Kimi Code exposes a
+// single public coding model id and rotates the backend behind it. The
+// kimi-client provider stays internal until the Phase 2 visibility switch.
+const CLIENT_PROVIDER_MODELS: Readonly<
+  Record<string, readonly ProviderModelDescriptor[]>
+> = {
+  "kimi-client": [{ id: "kimi-for-coding", label: "Kimi For Coding" }],
+};
+
 // Models offered in the Native Request Capture UI, per capture provider.
 // Different models can carry different system prompts, so capture is chosen
 // per model. Ids mirror the provider model catalog; GLM Native needs no
@@ -52,9 +66,16 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
     ],
   };
 
+const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
+  "openrouter",
+  "local-models",
+  // Universal-client endpoint: key-only auth from Core settings, no provider home.
+  "kimi-client",
+]);
+
 export class ProviderDescriptorFacade {
   getCapabilities(providerId: string): ProviderCapabilities {
-    if (providerId === "openrouter" || providerId === "local-models") {
+    if (HTTP_COMPATIBLE_PROVIDER_IDS.has(providerId)) {
       return HTTP_COMPATIBLE_CAPABILITIES;
     }
     return DEFAULT_CAPABILITIES;
@@ -66,6 +87,10 @@ export class ProviderDescriptorFacade {
 
   getCaptureProviderIds(): readonly string[] {
     return Object.keys(CAPTURABLE_MODELS);
+  }
+
+  getClientModels(providerId: string): readonly ProviderModelDescriptor[] {
+    return CLIENT_PROVIDER_MODELS[providerId] ?? [];
   }
 }
 

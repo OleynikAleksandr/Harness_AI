@@ -33,6 +33,10 @@ Own global and workspace settings persistence.
   and localization category snapshots. The logger also creates the
   `logs/core`, `logs/interface`, and `logs/providers` roots and does not record
   provider secrets.
+- The internal `kimi-client` provider id has no settings section of its own
+  yet: `PROVIDER_KEY_BY_ID` aliases it to the `kimi` section as a
+  type-completeness bridge only (nothing reads it) until the Kimi client key
+  storage task adds the dedicated entry.
 
 ## Reasoning Effort Contract
 

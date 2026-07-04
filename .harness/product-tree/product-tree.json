@@ -252,6 +252,11 @@
               "id": "builtin-tools",
               "name": "Built-in Tools",
               "purpose": "The built-in tool source: descriptors + executors for the MVP tool set (read_file, write_file, edit_file, apply_patch, exec_command, grep_files, glob_files; web tools in part 2), with workspace-path validation and process timeouts. Ported from the reference glm-native tool executors."
+            },
+            {
+              "id": "client-core",
+              "name": "Client Core",
+              "purpose": "The agent loop: build the chat.completions request from history + tools + dialect, stream it, execute tool calls full-auto through the registry and feed results back until the model stops, with a step ceiling, doom-loop detection, and retries + Retry-After. Emits ClientTurnEvents."
             }
           ]
         },

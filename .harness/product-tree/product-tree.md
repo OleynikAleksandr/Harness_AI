@@ -80,6 +80,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `dialect-streaming`: consolidated SSE + dialect layer — read `data:` frames, parse each OpenAI-shape chat.completions chunk into a normalized delta (content / thinking / tool-call deltas / usage / model / finish), accumulate tool calls by index, and normalize the provider thinking forms (`reasoning_content` / `reasoning` / `<think>` tags) onto one channel. Merges the three ported reference SSE readers.
 - `tool-registry`: tool registry with a source abstraction — aggregate tool descriptors from sources (built-in now; MCP/skills reserved registration points, not MVP), route a tool call to its owning source, and expose a pass-through permission boundary (full-auto in MVP, no ruleset).
 - `builtin-tools`: the built-in tool source — descriptors + executors for the MVP tool set (`read_file`, `write_file`, `edit_file`, `apply_patch`, `exec_command`, `grep_files`, `glob_files`; `web_search`/`web_fetch` in part 2), with workspace-path validation, process timeouts and output caps. Ported from the reference glm-native tool executors.
+- `client-core`: the agent loop — build the `chat.completions` request from history + tools + dialect, stream it via `dialect-streaming`, execute tool calls full-auto through the registry and feed results back until the model stops asking, with a 64-step ceiling, doom-loop detection, and retries + Retry-After. Emits `ClientTurnEvent`s; `callModel` does one streamed model call.
 
 ### Settings And Localization
 

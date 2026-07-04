@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream2.task6",
-  "expectedCommitMessage": "feat(universal-client): agent loop with retries and doom-loop",
+  "currentTaskId": "harness-ai.phase2.stream2.task7",
+  "expectedCommitMessage": "feat(universal-client): emit provider output events",
   "debt": null
 }
 ```
@@ -175,9 +175,9 @@
 14. [DONE] Git Commit: `feat(universal-client): built-in file, exec and search tools` (hash: self)
 15. [DONE] `harness-ai.phase2.stream2.task5` Add `builtin-tools` part 2 (web + output truncation): `web_search`/`web_fetch` with `max_chars`, and shared output truncation (`truncated` marker + on-disk full-output pointer, OpenCode pattern); update the module doc; unit test (scope: `.../builtin-tools/src/builtin-tools-web.ts`, `.../builtin-tools/src/builtin-tools-truncate.ts`, `.../builtin-tools/src/builtin-tools.test.mjs`, `.../modules/builtin-tools/module.md`; expected commit: `feat(universal-client): built-in web tools and output truncation`). Result: Completed in commit `feat(universal-client): built-in web tools and output truncation`.
 16. [DONE] Git Commit: `feat(universal-client): built-in web tools and output truncation` (hash: self)
-17. [IN_PROGRESS] `harness-ai.phase2.stream2.task6` Add the `client-core` module (agent loop): turn cycle (request → SSE stream → tool execution → follow-up with `role:"tool"` → repeat until no tool_calls), parallel tool_calls, Core-owned in-session history, doom-loop detection (3 identical calls), retries with backoff + Retry-After (retry 429/5xx, not overflow/auth), AbortController cancel, full-auto execution; unit test (scope: `.../modules/client-core/module.md`, `.../client-core/src/client-core-facade.ts`, `.../client-core/src/client-core.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): agent loop with retries and doom-loop`).
-18. [TODO] Git Commit: `feat(universal-client): agent loop with retries and doom-loop` (hash: TBD)
-19. [TODO] `harness-ai.phase2.stream2.task7` Emit provider OUTPUT events (mechanical stream→contract mapping, NOT user-input normalization — see the terminology note): map the provider output stream into the existing `NormalizedProviderEvent` contract from the core (`turn_started` → `dialog_message` live/thinking → `turn_completed`/`turn_failed`, `stream_error`), map the error taxonomy (`auth_failed`/`rate_limited`/`quota_exhausted`/`context_overflow`/`network`/`provider_error`/`aborted`), no tool-progress events; unit test (scope: `.../client-core/src/client-core-events.ts`, `.../client-core/src/client-core.test.mjs`, `.../client-core/module.md`; expected commit: `feat(universal-client): emit provider output events`).
+17. [DONE] `harness-ai.phase2.stream2.task6` Add the `client-core` module (agent loop): turn cycle (request → SSE stream → tool execution → follow-up with `role:"tool"` → repeat until no tool_calls), parallel tool_calls, Core-owned in-session history, doom-loop detection (3 identical calls), retries with backoff + Retry-After (retry 429/5xx, not overflow/auth), AbortController cancel, full-auto execution; unit test (scope: `.../modules/client-core/module.md`, `.../client-core/src/client-core-facade.ts`, `.../client-core/src/client-core.test.mjs`, product-tree json+md; expected commit: `feat(universal-client): agent loop with retries and doom-loop`). Result: Completed in commit `feat(universal-client): agent loop with retries and doom-loop`.
+18. [DONE] Git Commit: `feat(universal-client): agent loop with retries and doom-loop` (hash: self)
+19. [IN_PROGRESS] `harness-ai.phase2.stream2.task7` Emit provider OUTPUT events (mechanical stream→contract mapping, NOT user-input normalization — see the terminology note): map the provider output stream into the existing `NormalizedProviderEvent` contract from the core (`turn_started` → `dialog_message` live/thinking → `turn_completed`/`turn_failed`, `stream_error`), map the error taxonomy (`auth_failed`/`rate_limited`/`quota_exhausted`/`context_overflow`/`network`/`provider_error`/`aborted`), no tool-progress events; unit test (scope: `.../client-core/src/client-core-events.ts`, `.../client-core/src/client-core.test.mjs`, `.../client-core/module.md`; expected commit: `feat(universal-client): emit provider output events`).
 20. [TODO] Git Commit: `feat(universal-client): emit provider output events` (hash: TBD)
 
 ### Stream: Kimi Endpoint And Live Acceptance (Provider-Runtime)

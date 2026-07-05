@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream7.task2",
+  "expectedCommitMessage": "feat(core-runtime): unbind legacy provider adapters",
   "debt": null
 }
 ```
@@ -484,6 +484,56 @@
 151. [DONE] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, per-model context management results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`). Result: Completed in commit `docs(evidence): record openrouter and local models migration results`.
 152. [DONE] Git Commit: `docs(evidence): record openrouter and local models migration results` (hash: self)
 
+### Stream: Legacy Provider Afterlife Cleanup (user order 2026-07-05)
+
+> User order (2026-07-05, right after the Phase 4 acceptance): audit the
+> legacy per-provider modules and CLEAN OUT the dead code and dead references
+> left behind by the universal-client migration. Audit result (2026-07-05):
+> the four retired modules are still in the tree as INTERNAL registrations —
+> `glm-native-provider` (4096 lines), `openrouter-provider` (3120 lines),
+> `local-models-provider` (2256 lines), `kimi-provider` (3393 lines) — wired
+> into Core routing (`buildProviderAdapterInstance` cases, lifecycle
+> `PROVIDER_IDS`, liveness adapter branches), registry internal entries, the
+> `ProviderId` union, `PROVIDER_KEY_BY_ID`, auth-store legacy-id aliases, the
+> settings schema (`providers.glmNative`), session/telemetry branches
+> (`provider-turn-options`, `usage-context-telemetry`), renderer branches
+> (`provider-picker`, `reference-session-panels`) and the product tree. The
+> Phase 3 `glm-opencode` removal is CLEAN — only negative test assertions and
+> OSS-reference comments mention it. DECISIONS: (1) `kimi-provider` (ACP) is
+> NOT dead and STAYS — the accepted Provider Native Request Capture feature
+> builds it (`CAPTURE_PROVIDER_IDS` includes `kimi`) to record the NATIVE
+> Kimi CLI traffic that Phase 5 synthetic-native consumes; its retirement
+> remains a Phase 5 item tied to the capture decision, so every `kimi` id
+> branch stays. (2) The other three legacy modules are removed END-TO-END
+> including their `src/reference/**` corpus — the universal client already
+> consumed it as the code foundation, no cross-imports exist (audited), git
+> history keeps the corpus. (3) Session profiles are untouched
+> (`PROFILE_SUPPORTED_PROVIDER_IDS` keeps `glm-native`, seed profiles keep
+> `kimi`/`glm-native` — free-string typed, compile-safe after the union
+> shrink; re-targeting profiles onto the client four is the Phase 5 profile
+> milestone). (4) The `glmNative` Settings tab id is a live relic (the tab
+> has served `providers.glmClient` since the Phase 3 switch) and is renamed
+> to `glmClient`. Removal is ordered consumers-first so every commit
+> compiles; mechanical removal splits may join a task's scope with a
+> recorded clarification (accepted Phase 3 pattern).
+
+153. [DONE] `harness-ai.phase4.stream7.task1` Materialize the legacy provider cleanup stream per the user's direct order 2026-07-05 (plan-only, closes with this same commit): record the audit findings and decisions above, lay out the removal microtasks below, and narrow the Phase 5 afterlife milestone to the ACP `kimi-provider` only (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): materialize legacy provider cleanup`). Result: Completed in commit `docs(plan): materialize legacy provider cleanup`.
+154. [DONE] Git Commit: `docs(plan): materialize legacy provider cleanup` (hash: self)
+155. [IN_PROGRESS] `harness-ai.phase4.stream7.task2` Unbind the three dead legacy adapters from Core routing and liveness (the `kimi` ACP branches stay per the capture decision): `buildProviderAdapterInstance` drops the `glm-native`/`openrouter`/`local-models` cases and their facade imports, lifecycle `PROVIDER_IDS` drops the three ids (no startup registration, no liveness sweep), and the liveness checker drops its `glm-native` adapter branch + facade import (scope: core-provider-adapter-registration, core-provider-lifecycle, provider-liveness-checker + affected `module.md`s; expected commit: `feat(core-runtime): unbind legacy provider adapters`).
+156. [TODO] Git Commit: `feat(core-runtime): unbind legacy provider adapters` (hash: TBD)
+157. [TODO] `harness-ai.phase4.stream7.task3` Remove the dead legacy session/telemetry branches (`kimi` branches stay): `provider-turn-options` drops the `glm-native` and `openrouter` branches (+ its test assertions), `usage-context-telemetry` drops `glm-native`/`openrouter` from `hasProviderUsageScope` while `hasFiveHourWindow` keeps the `glm-` prefix (it serves the live `glm-client`) (scope: provider-turn-options (+ test), usage-context-telemetry facade + affected `module.md`s; expected commit: `feat(core-runtime): remove legacy session and telemetry branches`).
+158. [TODO] Git Commit: `feat(core-runtime): remove legacy session and telemetry branches` (hash: TBD)
+159. [TODO] `harness-ai.phase4.stream7.task4` Remove the dead legacy renderer branches (`kimi` stays): `provider-picker` `getProviderModel` drops the `glm-native`/`openrouter`/`local-models` cases (incl. the last `providers.glmNative` read), `reference-session-panels` drops its `openrouter` branch (scope: provider-picker, reference-session-panels + session-window `module.md`; expected commit: `feat(session-ui): remove legacy provider renderer branches`).
+160. [TODO] Git Commit: `feat(session-ui): remove legacy provider renderer branches` (hash: TBD)
+161. [TODO] `harness-ai.phase4.stream7.task5` Remove the legacy settings/auth bindings: drop the dead `providers.glmNative` section (schema/defaults/projections/normalization; legacy-tolerance — stored files with the section load fine, save projections drop it, per the accepted Phase 3 pattern), drop the `glm-native`/`openrouter`/`local-models` lines from `PROVIDER_KEY_BY_ID`, retarget the settings auth overlay onto the client ids (`local-models-client`/`openrouter-client` — same shared sections), and drop the three legacy-id alias/env entries from the auth store (the client ids keep the same file aliases and env fallbacks); removal split allowed (scope: settings-store facade, settings-store projections, settings-normalization (+ test), provider-auth-store facade + affected `module.md`s; expected commit: `feat(core-runtime): remove legacy provider settings bindings`).
+162. [TODO] Git Commit: `feat(core-runtime): remove legacy provider settings bindings` (hash: TBD)
+163. [TODO] `harness-ai.phase4.stream7.task6` Remove the three legacy provider ids: `ProviderId` union -= `glm-native`/`openrouter`/`local-models`, registry `PROVIDERS` -= the three internal entries (+ registry test), descriptor `HTTP_COMPATIBLE_PROVIDER_IDS` -= the legacy `openrouter`/`local-models` entries (scope: provider-registry facade (+ test), provider-descriptor facade + affected `module.md`s; expected commit: `feat(core-runtime): remove legacy provider ids`).
+164. [TODO] Git Commit: `feat(core-runtime): remove legacy provider ids` (hash: TBD)
+165. [TODO] `harness-ai.phase4.stream7.task7` Delete the three retired legacy modules end-to-end: remove `glm-native-provider`, `openrouter-provider` and `local-models-provider` module directories (module.md + src incl. the consumed `src/reference/**` corpus), drop their product-tree entries (json + readable projection), update the provider-adapters `cluster.md`, fix the `provider-usage-limit-ownership` source assertions (the `glm-native` reference path leaves; `kimi-provider` stays), and align the current architecture docs that still describe the retired modules as present (`docs/architecture/UniversalClient.md`, `docs/architecture/CodeAIHubProviderRuntimeAlignment.md`, `docs/architecture/SessionProfiles.md`); removal file-count allowed by this plan line (scope: three module directories (delete), product-tree json+md, provider-adapters cluster.md, provider-usage-limit-ownership.test.mjs, three architecture docs; expected commit: `feat(provider-runtime): remove retired legacy provider modules`).
+166. [TODO] Git Commit: `feat(provider-runtime): remove retired legacy provider modules` (hash: TBD)
+167. [TODO] `harness-ai.phase4.stream7.task8` Rename the relic `glmNative` Settings tab id to `glmClient` (the tab has served the client GLM since Phase 3): `SETTINGS_TABS` id + `ProviderTabId` union member, the `settings-tab-content` branch, and the `settings.tab.glmNative` dictionary key becomes `settings.tab.glmClient` (scope: settings-model-options, settings-tab-content, source-dictionaries + affected `module.md`s; expected commit: `feat(settings-ui): rename glm settings tab id to client`).
+168. [TODO] Git Commit: `feat(settings-ui): rename glm settings tab id to client` (hash: TBD)
+
 ## Phase 5 - Synthetic Native Profiles (milestones; owner: Codex + User)
 
 > Milestones: (a) native profile store for the client four (our reference
@@ -493,8 +543,10 @@
 > accepted capture dumps + the "Update Native Profile" command/UI; (d) shared
 > live-context generator; (e) package + user acceptance. Carries the archived
 > open items (profile storage layout, Update-Native mechanism, Claude `# Memory`
-> ballast) and the afterlife removals: the ACP `kimi-provider`, the retired
-> `glm-native-provider`, and — after the Phase 4 switch — the retired
-> `openrouter-provider`/`local-models-provider` legacy modules (the
-> disposition of their `src/reference/**` corpus is decided there; the
-> universal client consumed it as the code foundation).
+> ballast) and the remaining afterlife item: the ACP `kimi-provider` ONLY —
+> it stays as the live adapter behind the accepted Kimi native capture until
+> Phase 5 settles the capture channel. The retired `glm-native-provider`,
+> `openrouter-provider` and `local-models-provider` modules (incl. their
+> consumed `src/reference/**` corpus) were REMOVED by the Phase 4 stream7
+> cleanup (user order 2026-07-05). Session profile re-targeting onto the
+> client four (`PROFILE_SUPPORTED_PROVIDER_IDS`, seed profiles) lands here.

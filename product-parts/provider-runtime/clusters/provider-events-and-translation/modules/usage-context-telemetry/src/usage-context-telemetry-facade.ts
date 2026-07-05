@@ -62,7 +62,10 @@ interface ProviderBindingLike {
 }
 
 const DEFAULT_TOKEN_LIMIT = 200_000;
-const KIMI_TOKEN_LIMIT = 262_144;
+// Token limit for five-hour-window subscription providers (the GLM coding
+// plan; the ACP Kimi that first needed it left with the kimi-provider
+// retirement, 2026-07-05).
+const FIVE_HOUR_WINDOW_TOKEN_LIMIT = 262_144;
 
 export class UsageContextTelemetryFacade {
   createTelemetry(request: CreateTelemetryRequest): ProviderUsageTelemetry {
@@ -313,27 +316,25 @@ function pendingLimitState(providerId: string): "loading" | "unavailable" {
 }
 
 function providerScopeKey(providerId: string): string | null {
+  // Only the native vendor channels carry a provider-scoped usage limit; the
+  // retired glm-native/openrouter/ACP-kimi provider scopes left with the
+  // 2026-07-05 cleanups.
   if (providerId === "claude" || providerId === "codex") {
-    return `${providerId}:global`;
-  }
-  if (hasProviderUsageScope(providerId)) {
     return `${providerId}:global`;
   }
   return null;
 }
 
 function defaultTokenLimit(providerId: string): number {
-  return hasFiveHourWindow(providerId) ? KIMI_TOKEN_LIMIT : DEFAULT_TOKEN_LIMIT;
+  return hasFiveHourWindow(providerId)
+    ? FIVE_HOUR_WINDOW_TOKEN_LIMIT
+    : DEFAULT_TOKEN_LIMIT;
 }
 
 function hasFiveHourWindow(providerId: string): boolean {
-  return providerId === "kimi" || providerId.startsWith("glm-");
-}
-
-function hasProviderUsageScope(providerId: string): boolean {
-  // The ACP kimi stays alive behind the native capture feature; the retired
-  // glm-native/openrouter scopes left with the 2026-07-05 legacy cleanup.
-  return providerId === "kimi";
+  // The live GLM coding-plan endpoint (`glm-client`) keeps the five-hour
+  // window; the ACP `kimi` match left with the kimi-provider retirement.
+  return providerId.startsWith("glm-");
 }
 
 function buildResetLabel(value: string): string {

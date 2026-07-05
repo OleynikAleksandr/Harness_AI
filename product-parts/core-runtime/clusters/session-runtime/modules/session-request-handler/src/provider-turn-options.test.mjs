@@ -15,13 +15,16 @@ assert.match(
   source,
   /thinkingByModel\[session\.model\] \?\? claude\.thinking\.effort/u
 );
-assert.match(source, /session\.providerId === "kimi"/u);
 assert.doesNotMatch(source, /glm-opencode/u);
 assert.doesNotMatch(source, /glmOpenCode/u);
-// Retired legacy branches (2026-07-05 cleanup): the universal-client
-// endpoints resolve their own settings per turn inside the adapters.
+// Only the native vendor channels (Claude/Codex) derive turn options here.
+// The retired legacy `glm-native`/`openrouter` branches (2026-07-05 legacy
+// cleanup) and the ACP `kimi` branch (kimi-provider retirement, same day)
+// left — the universal-client endpoints resolve their own settings per turn
+// inside the adapters.
 assert.doesNotMatch(source, /"glm-native"/u);
 assert.doesNotMatch(source, /"openrouter"/u);
+assert.doesNotMatch(source, /session\.providerId === "kimi"/u);
 assert.match(
   source,
   /resolveCodexReasoningEffort\(\s*session\.model,\s*codex\.reasoningByModel\[session\.model\]\s*\)/u

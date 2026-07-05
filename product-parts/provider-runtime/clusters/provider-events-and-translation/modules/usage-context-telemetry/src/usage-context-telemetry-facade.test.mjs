@@ -41,16 +41,21 @@ const withTokensNoLimit = usageContextTelemetryFacade.applyProviderEvent(
 assert.equal(withTokensNoLimit.tokenUsage.limit, 200_000);
 assert.equal(withTokensNoLimit.tokenDisplay.value, "1,000 (99%)");
 
-const kimi = usageContextTelemetryFacade.createTelemetry({
-  model: "kimi-k2.7-code",
-  provider: "Kimi",
-  providerId: "kimi",
+// The universal-client GLM (`glm-client`) keeps the five-hour-window limit
+// and labels via the `glm-` prefix. The ACP Kimi that first needed this path
+// left with the kimi-provider retirement (2026-07-05 user order); retired ids
+// no longer contribute a provider usage scope, so client telemetry stays
+// session-scoped (scope key null).
+const glmClient = usageContextTelemetryFacade.createTelemetry({
+  model: "glm-5.2",
+  provider: "GLM",
+  providerId: "glm-client",
 });
-assert.equal(kimi.providerScopeKey, "kimi:global");
-assert.equal(kimi.tokenUsage.limit, 262_144);
-assert.equal(kimi.limitRows[0].text, "5h unavailable");
+assert.equal(glmClient.providerScopeKey, null);
+assert.equal(glmClient.tokenUsage.limit, 262_144);
+assert.equal(glmClient.limitRows[0].text, "5h unavailable");
 
-const withLimits = usageContextTelemetryFacade.applyProviderEvent(kimi, {
+const withLimits = usageContextTelemetryFacade.applyProviderEvent(glmClient, {
   data: {
     usageLimits: {
       currentSession: { percentUsed: 9, resetsAt: "2026-05-19T12:50:12.630Z" },
@@ -63,17 +68,6 @@ const withLimits = usageContextTelemetryFacade.applyProviderEvent(kimi, {
 assert.equal(withLimits.limitRows[0].text.includes("5h 9%"), true);
 assert.equal(withLimits.limitRows[1].text, "Weekly 13%");
 assert.equal(withLimits.limitRows[2].text, "Parallel 0%");
-
-// The universal-client GLM keeps the five-hour-window labels via the glm-
-// prefix; retired legacy ids no longer contribute a provider usage scope
-// (2026-07-05 cleanup), so client telemetry stays session-scoped.
-const glmClient = usageContextTelemetryFacade.createTelemetry({
-  model: "glm-5.2",
-  provider: "GLM",
-  providerId: "glm-client",
-});
-assert.equal(glmClient.providerScopeKey, null);
-assert.equal(glmClient.limitRows[0].text, "5h unavailable");
 
 const openRouter = usageContextTelemetryFacade.createTelemetry({
   model: "google/gemini-3.1-flash-lite",

@@ -17,14 +17,6 @@ export function buildProviderTurnOptions(
       thinkingEnabled: claude.thinking.enabled,
     };
   }
-  if (session.providerId === "kimi") {
-    const kimi = settings.providers.kimi;
-    return {
-      model: session.model,
-      thinkingDisplaySyncEnabled: kimi.thinkingDisplaySyncEnabled,
-      thinkingEnabled: kimi.thinkingEnabled,
-    };
-  }
   if (session.providerId !== "codex") {
     return { model: session.model };
   }

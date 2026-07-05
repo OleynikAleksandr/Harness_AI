@@ -21,10 +21,13 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   card for client endpoint providers — one password field bound to the
   provider's `providers.*.apiKey` settings entry plus the provider-help copy,
   localized by message prefix. Every provider connected to the universal
-  client mounts one in its Settings tab; today the Kimi tab binds
-  `KimiClientApiKeyCard` to `providers.kimiClient.apiKey` (prefix
+  client mounts one in its Settings tab; today the Kimi tab holds ONLY the
+  `KimiClientApiKeyCard` bound to `providers.kimiClient.apiKey` (prefix
   `settings.provider.kimiClient`, card title
-  `settings.provider.kimiClient.apiKey`) above the ACP model card, and the GLM
+  `settings.provider.kimiClient.apiKey`) — the visible Kimi (`kimi-client`)
+  pins the single `kimi-for-coding` model, so no model card is needed, and
+  the ACP default-model card + thinking toggles left with the kimi-provider
+  retirement (2026-07-05 user order). The GLM
   tab binds `GlmClientApiKeyCard` to `providers.glmClient.apiKey` (prefix
   `settings.provider.glmClient`, card title
   `settings.provider.glmClient.apiKey`) above the universal-client GLM model

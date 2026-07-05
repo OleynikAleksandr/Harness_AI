@@ -44,7 +44,6 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.apiKey": "API Key",
     "settings.provider.baseUrl": "Base URL",
     "settings.provider.defaultModel": "Default Model",
-    "settings.provider.kimi.defaultModel": "Kimi Default model",
     "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
     "settings.provider.localModels": "Local Models",
     "settings.provider.localModelsClient.connection": "Local Models Server",
@@ -183,14 +182,6 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Changes apply when creating a new Codex session.",
     "settings.provider.codex.reasoningSummary.description":
       "Show Codex reasoning summaries in the dialog when the model provides them.",
-    "settings.provider.kimi.defaultModel.description":
-      "Choose the Kimi model used when new sessions start.",
-    "settings.provider.kimi.defaultModel.note":
-      "Uses the installed Kimi Code CLI through ACP.",
-    "settings.provider.kimi.model.kimi-k2.7-code.description":
-      "Kimi K2.7 Code model exposed through Kimi Code ACP.",
-    "settings.provider.kimi.model.kimi-k2.7-code-highspeed.description":
-      "Lower-latency Kimi K2.7 coding model exposed through ACP.",
     "settings.provider.kimiClient.description":
       "Runs Kimi Code on the Harness universal client with a subscription API key. Nothing is downloaded or installed.",
     "settings.provider.kimiClient.apiKey.description":

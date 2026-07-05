@@ -32,7 +32,7 @@ import {
   DefaultModelCard,
   localizeModelOptions,
 } from "./settings-provider-cards.js";
-import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
+import { SettingsCard } from "./settings-reference-controls.js";
 import { ReferenceGeneralSettings } from "./settings-reference-general.js";
 
 interface SettingsTabContentProps {
@@ -178,7 +178,10 @@ export function SettingsTabContent({
   }
 
   if (activeTab === "kimi") {
-    const provider = settings.providers.kimi;
+    // The visible Kimi is the universal-client endpoint (`kimi-client`): it
+    // pins the single public `kimi-for-coding` model, so the tab carries only
+    // the client key card. The ACP default-model card and thinking toggles
+    // left with the kimi-provider retirement (2026-07-05 user order).
     return (
       <div className="settings-reference-stack">
         <KimiClientApiKeyCard
@@ -189,62 +192,6 @@ export function SettingsTabContent({
             })
           }
         />
-        <DefaultModelCard
-          description={t(
-            "ui_helper_text",
-            "settings.provider.kimi.defaultModel.description",
-            "Choose the Kimi model used when new sessions start."
-          )}
-          note={t(
-            "ui_helper_text",
-            "settings.provider.kimi.defaultModel.note",
-            "Uses the installed Kimi Code CLI through ACP."
-          )}
-          onChange={(defaultModel) =>
-            update((next) => {
-              next.providers.kimi.defaultModel = defaultModel;
-            })
-          }
-          options={localizeModelOptions(
-            t,
-            "settings.provider.kimi.model",
-            PROVIDER_MODEL_OPTIONS.kimi
-          )}
-          title={t(
-            "ui_labels",
-            "settings.provider.kimi.defaultModel",
-            "Kimi Default model"
-          )}
-          value={provider.defaultModel}
-        />
-        <SettingsCard title={t("ui_labels", "settings.thinking", "Thinking")}>
-          <SettingsToggle
-            checked={provider.thinkingEnabled}
-            label={t(
-              "ui_labels",
-              "settings.thinking.enabled",
-              "Thinking Enabled"
-            )}
-            onChange={(enabled) =>
-              update((next) => {
-                next.providers.kimi.thinkingEnabled = enabled;
-              })
-            }
-          />
-          <SettingsToggle
-            checked={provider.thinkingDisplaySyncEnabled}
-            label={t(
-              "ui_labels",
-              "settings.thinking.displaySync",
-              "Thinking Display Sync"
-            )}
-            onChange={(enabled) =>
-              update((next) => {
-                next.providers.kimi.thinkingDisplaySyncEnabled = enabled;
-              })
-            }
-          />
-        </SettingsCard>
       </div>
     );
   }

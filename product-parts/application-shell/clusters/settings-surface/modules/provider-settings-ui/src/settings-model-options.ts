@@ -70,18 +70,6 @@ export const PROVIDER_MODEL_OPTIONS = {
       label: "GPT-5.5",
     },
   ],
-  kimi: [
-    {
-      description: "Kimi K2.7 Code model exposed through Kimi Code ACP.",
-      id: "kimi-k2.7-code",
-      label: "Kimi K2.7 Code",
-    },
-    {
-      description: "Lower-latency Kimi K2.7 coding model exposed through ACP.",
-      id: "kimi-k2.7-code-highspeed",
-      label: "Kimi K2.7 Code High Speed",
-    },
-  ],
   glmClient: [
     {
       description:

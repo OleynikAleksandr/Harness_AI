@@ -29,8 +29,10 @@ materialization, bootstrap payload reuse, and bundle state.
   id so localized bundles do not preserve stale Anthropic release numbers.
 - Codex provider settings helper copy and model descriptions are part of the
   approved `ui_helper_text` dictionary.
-- Kimi provider settings helper copy and model descriptions are part of the
-  approved `ui_helper_text` dictionary.
+- The ACP Kimi provider settings helper copy and model descriptions
+  (`settings.provider.kimi.*`) left the approved dictionaries with the
+  kimi-provider retirement (2026-07-05 user order); only the universal-client
+  Kimi help below remains.
 - Kimi universal-client provider help
   (`settings.provider.kimiClient.description`,
   `settings.provider.kimiClient.apiKey.description`) is part of the approved

@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream5.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream6.task2",
+  "expectedCommitMessage": "feat(core-runtime): drop local models api key setting",
   "debt": null
 }
 ```
@@ -375,6 +375,32 @@
 > start under the 500-line and ≤3-functional-files rules (mechanical
 > cap/removal splits may join a task's scope with a recorded clarification,
 > as accepted in Phases 2-3).
+> USER REVIEW FIX #2 (2026-07-05, Local Models, after the first packaged
+> build): (a) the optional API key field is REMOVED end-to-end (LM Studio's
+> local server has no authentication at all and no place to set a key; the
+> llama.cpp `--api-key`/reverse-proxy niche stays covered by the silent
+> `HARNESS_AI_LOCAL_API_KEY`/`LMSTUDIO_API_KEY` env fallbacks in the auth
+> store). (b) The global Context Length Override is REPLACED by PER-MODEL
+> context management driven by the REAL LM Studio API (researched
+> 2026-07-05): LM Studio 0.4.0+ ships a native v1 REST API —
+> `GET /api/v1/models` returns per-model `max_context_length` plus
+> `loaded_instances[].config.context_length`, `POST /api/v1/models/load`
+> accepts `{model, context_length, echo_load_config}` and
+> `POST /api/v1/models/unload` releases an instance — so Harness CAN load a
+> model with a chosen window remotely, exactly as the user suggested.
+> Settings store a `contextLengthByModel` map (0/absent = server default);
+> the Settings model list shows max/loaded context per model with an edit
+> control that reloads the model through the management API; inference stays
+> on the OpenAI-shape `/v1/chat/completions` (the universal client), the
+> management calls are a separate Core-owned HTTP channel; older LM Studio
+> versions and Ollama/llama.cpp degrade to detection-only (their servers set
+> the window at launch). (c) LM Studio AUTOSTART, unconditional per the
+> user's direct order (an idle LM Studio holds no models in memory): on Core
+> startup, if the configured local server does not answer, Harness spawns
+> `lms server start` (the CLI ships with LM Studio at `~/.lmstudio/bin/lms`;
+> PATH fallback) or falls back to opening the LM Studio app in the
+> background, then re-runs the local-models liveness; machines without LM
+> Studio skip silently.
 
 ### Stream: Phase Breakdown (this task)
 
@@ -426,9 +452,33 @@
 
 126. [DONE] `harness-ai.phase4.stream5.task1` Package the app for the Phase 4 acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (the packaging gate requires a fresh explicit go — nothing is inherited from the materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-openrouter-local-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client openrouter and local models`). Result: Completed in commit `chore(package): rebuild packaged app with universal client openrouter and local models`.
 127. [DONE] Git Commit: `chore(package): rebuild packaged app with universal client openrouter and local models` (hash: self)
-128. [IN_PROGRESS] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — base-URL onboarding in Settings, live model list from the configured server, context-length detect/override reflected in usage telemetry, streaming text + tool_calls + thinking on a local server; OpenRouter — the UNCHANGED Settings tab drives the client endpoint (2026-07-05 review fix: key, Base URL, model slug search, endpoint picker + latency panel all keep working, incl. a non-default endpoint tag routing the session), streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none).
-129. [TODO] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, context-length detection results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`).
-130. [TODO] Git Commit: `docs(evidence): record openrouter and local models migration results` (hash: TBD)
+
+### Stream: Local Models Refinement (user review 2026-07-05)
+
+128. [DONE] `harness-ai.phase4.stream6.task1` Materialize the Local Models review follow-ups per the user's direct orders 2026-07-05 (plan-only, closes with this same commit): record USER REVIEW FIX #2 in the scope contract (API key removed, per-model context management on the researched LM Studio v1 REST API, unconditional LM Studio autostart) and lay out the microtasks below; the acceptance checklist is updated accordingly (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): materialize local models review follow-ups`). Result: Completed in commit `docs(plan): materialize local models review follow-ups`.
+129. [DONE] Git Commit: `docs(plan): materialize local models review follow-ups` (hash: self)
+130. [IN_PROGRESS] `harness-ai.phase4.stream6.task2` Remove the Local Models API key end-to-end (user order: LM Studio has no server auth and no place to set a key): drop `apiKey` from the `providers.localModels` schema/defaults/system projection, drop the API Key field from the connection card and its tab binding, and remove the `settings.provider.localModelsClient.apiKey.description` dictionary string; the adapter keeps sending a Bearer token ONLY when the silent `HARNESS_AI_LOCAL_API_KEY`/`LMSTUDIO_API_KEY` env fallbacks provide one (plan allows the removal file-count: settings-store facade + projections, client-api-key-card, settings-tab-content, source-dictionaries + affected `module.md`s) (scope: settings-store facade, settings-store projections, client-api-key-card, settings-tab-content, source-dictionaries + affected `module.md`s; expected commit: `feat(core-runtime): drop local models api key setting`).
+131. [TODO] Git Commit: `feat(core-runtime): drop local models api key setting` (hash: TBD)
+132. [TODO] `harness-ai.phase4.stream6.task3` LM Studio management API in the endpoint module (new `local-models-management.ts`): `listLocalModelEntries` (v1 `GET /api/v1/models` → `{key, displayName, maxContextLength, loadedContextLength|null, supportsTools}` from `max_context_length`/`loaded_instances[].config.context_length`/`capabilities.trained_for_tool_use`, falling back to v0 `/api/v0/models` and finally to plain `/v1/models` ids for Ollama/llama.cpp), `loadLocalModel` (`POST /api/v1/models/load` `{model, context_length, echo_load_config: true}`), `unloadLocalModel` (`POST /api/v1/models/unload`), and `ensureLocalModelContext(model, desired)` (no-op when the loaded instance already matches; otherwise unload+load); unit test (scope: `.../local-models-client-provider/src/local-models-management.ts` (new), `.../src/local-models-management.test.mjs` (new) + `module.md`; expected commit: `feat(local-models-client-provider): lm studio management api`).
+133. [TODO] Git Commit: `feat(local-models-client-provider): lm studio management api` (hash: TBD)
+134. [TODO] `harness-ai.phase4.stream6.task4` Replace the global `contextLength` with the per-model map: `providers.localModels.contextLengthByModel: Record<string, number>` (0/absent = server default; normalization keeps non-negative integers and drops junk; legacy `contextLength` keys in stored files are ignored structurally and dropped on the next save), system projection carries the map (scope: settings-store facade, settings-store projections, settings-normalization (+ its test) + settings-store `module.md`; expected commit: `feat(core-runtime): per-model local context settings`).
+135. [TODO] Git Commit: `feat(core-runtime): per-model local context settings` (hash: TBD)
+136. [TODO] `harness-ai.phase4.stream6.task5` Structured local-models RPC layer: `get-local-models` returns `{models: string[] (legacy ids), entries: LocalModelEntry[]}` via the management list, and a new `set-local-model-context` RPC validates the payload, persists `contextLengthByModel[model]` through the settings store and applies it immediately with `ensureLocalModelContext` (reload semantics), returning the refreshed entries (scope: core-provider-tools, core-runtime-api + core-runtime-process `module.md`; expected commit: `feat(core-runtime): structured local models catalog and context rpc`).
+137. [TODO] Git Commit: `feat(core-runtime): structured local models catalog and context rpc` (hash: TBD)
+138. [TODO] `harness-ai.phase4.stream6.task6` Apply the per-model context on session turns: before each turn the adapter runs `ensureLocalModelContext(model, contextLengthByModel[model])` (LM Studio reloads only when the wish differs; Ollama/llama.cpp no-op), and the telemetry window resolution becomes desired-per-model → loaded instance (v1) → the existing v0/Ollama/llama.cpp probes; unit test updated (scope: local-models-client-provider facade, local-models-context-length + tests + `module.md`; expected commit: `feat(local-models-client-provider): apply per-model context on session turns`).
+139. [TODO] Git Commit: `feat(local-models-client-provider): apply per-model context on session turns` (hash: TBD)
+140. [TODO] `harness-ai.phase4.stream6.task7` Local Models Settings UI on the structured catalog: the connection card keeps ONLY Base URL, the model list shows each model's max/loaded context (structured entries from `get-local-models`), and the selected model gains a context control (numeric field, 0 = server default) that calls `set-local-model-context` and refreshes the list — the Harness counterpart of the LM Studio load slider (an actual remote reload, not a bookkeeping override); dictionary labels join as a recorded split if needed (scope: client-api-key-card (connection variant), local-models-settings-card, settings-surface-facade/settings-tab-content wiring + provider-settings-ui `module.md`; if dictionary labels are added, source-dictionaries + localization-runtime `module.md` join; expected commit: `feat(settings-ui): local models per-model context controls`).
+141. [TODO] Git Commit: `feat(settings-ui): local models per-model context controls` (hash: TBD)
+142. [TODO] `harness-ai.phase4.stream6.task8` Unconditional LM Studio autostart on Core startup (user order 2026-07-05; an idle LM Studio holds no models): fire-and-forget `ensureLocalModelsServer()` — ping the configured base URL (`{v1}/models`, short timeout); when silent, spawn `lms server start` (`~/.lmstudio/bin/lms`, PATH fallback) or open the LM Studio app in the background as the last resort, poll readiness briefly, then re-run the `local-models-client` liveness so the picker sees the models; machines without LM Studio skip silently (log only); unit test with injected exec/fetch (scope: `.../core-runtime-process/src/core-local-server-autostart.ts` (new) + its test, core-provider-lifecycle (startup call) + core-runtime-process `module.md`; expected commit: `feat(core-runtime): autostart lm studio server in background`).
+143. [TODO] Git Commit: `feat(core-runtime): autostart lm studio server in background` (hash: TBD)
+144. [TODO] `harness-ai.phase4.stream6.task9` Package the app with the Local Models refinement for the user's acceptance rerun (`npm run package:mac`; the user's 2026-07-05 orders explicitly requested the rebuilt package); update the package evidence (scope: `docs/evidence/universal-client-openrouter-local-package-2026-07-05.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with local models refinement`).
+145. [TODO] Git Commit: `chore(package): rebuild packaged app with local models refinement` (hash: TBD)
+
+### Stream: Acceptance And Evidence
+
+146. [TODO] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — Base-URL-only connection card (no API key field), model list shows max/loaded context per model, changing the selected model's context reloads it in LM Studio (v1 management API) and the telemetry window follows, LM Studio autostarts in the background when Harness launches with the server down, streaming text + tool_calls + thinking on a local server; OpenRouter — the UNCHANGED Settings tab drives the client endpoint (2026-07-05 review fix: key, Base URL, model slug search, endpoint picker + latency panel all keep working, incl. a non-default endpoint tag routing the session), streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none).
+147. [TODO] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, per-model context management results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`).
+148. [TODO] Git Commit: `docs(evidence): record openrouter and local models migration results` (hash: TBD)
 
 ## Phase 5 - Synthetic Native Profiles (milestones; owner: Codex + User)
 

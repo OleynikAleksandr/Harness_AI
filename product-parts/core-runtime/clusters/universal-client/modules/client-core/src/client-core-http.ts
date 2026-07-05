@@ -15,6 +15,7 @@ import {
   applyStreamDelta,
   createReasoningFlusher,
   createStreamAccumulator,
+  materializeReasoningDetails,
   materializeToolCalls,
   parseChatCompletionChunk,
   readSseDataFrames,
@@ -50,6 +51,9 @@ export class ClientTurnError extends Error {
 export interface ModelCallResult {
   readonly content: string;
   readonly finishReason?: string;
+  // OpenRouter structured reasoning blocks for the assistant message; only
+  // reasoning_details dialects ever stream them.
+  readonly reasoningDetails?: readonly Readonly<Record<string, unknown>>[];
   readonly toolCalls: readonly ClientToolCall[];
   readonly usage?: StreamUsage;
 }
@@ -60,6 +64,11 @@ const isTerminal = (reason: ClientErrorReason): boolean =>
 const toWireMessage = (message: ClientMessage): Record<string, unknown> => ({
   content: message.content,
   role: message.role,
+  // Per-dialect history policy embodied by presence: only assistant messages
+  // built on a reasoning_details dialect carry the field, returned unchanged.
+  ...(message.reasoningDetails
+    ? { reasoning_details: message.reasoningDetails }
+    : {}),
   ...(message.toolCallId ? { tool_call_id: message.toolCallId } : {}),
   ...(message.toolCalls
     ? {
@@ -185,12 +194,14 @@ const streamResponse = async (
   if (accumulator.finishReason === "model_context_window_exceeded") {
     throw new ClientTurnError("context_overflow", "Context window exceeded.");
   }
+  const reasoningDetails = materializeReasoningDetails(accumulator);
   return {
     content: accumulator.textParts.join(""),
     toolCalls: materializeToolCalls(accumulator),
     ...(accumulator.finishReason
       ? { finishReason: accumulator.finishReason }
       : {}),
+    ...(reasoningDetails ? { reasoningDetails } : {}),
     ...(accumulator.usage ? { usage: accumulator.usage } : {}),
   };
 };

@@ -45,6 +45,14 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.1, 3.3, 3.4)
   (`model`, `messages`, `tools`, `stream`, `stream_options`, `tool_choice`,
   `parallel_tool_calls`) cannot be overridden. `ClientTurnError` carries the
   normalized `ClientErrorReason`.
+- reasoning_details history policy (UniversalClient.md section 3.1): on a
+  `reasoning_details` dialect (OpenRouter) `callModel` returns the accumulated
+  structured blocks, the loop stores them as `reasoningDetails` on the in-turn
+  assistant message, and `toWireMessage` serializes them back as
+  `reasoning_details` UNCHANGED in follow-up requests. Presence embodies the
+  per-dialect policy: reasoning_content dialects never set the field, so their
+  history strips thinking exactly as before. The field is message-owned wire
+  truth, not an `extraBody` key, so the reserved-key boundary is untouched.
 - `client-core-events.ts`: `mapClientTurnEvent(event)` maps a `ClientTurnEvent`
   onto the Core `NormalizedProviderEvent` contract for display — streamed
   content/thinking become live/thinking `dialog_message`s,

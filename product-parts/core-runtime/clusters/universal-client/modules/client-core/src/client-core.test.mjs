@@ -162,6 +162,67 @@ try {
   assert.equal(finalHistory[2].toolCallId, "c1");
   assert.equal(finalHistory.at(-1).content, "done");
 
+  // reasoning_details dialect: blocks accumulate onto the assistant message
+  // and return UNCHANGED in the follow-up request history; reasoning_content
+  // dialects never write the wire field.
+  let orCall = 0;
+  const orBodies = [];
+  globalThis.fetch = (_url, init) => {
+    orCall += 1;
+    orBodies.push(JSON.parse(init.body));
+    const frames =
+      orCall === 1
+        ? [
+            'data: {"choices":[{"delta":{"reasoning":"th","reasoning_details":[{"type":"reasoning.text","text":"th","index":0}]}}]}\n\n',
+            'data: {"choices":[{"delta":{"reasoning_details":[{"type":"reasoning.text","text":"ink","index":0}],"tool_calls":[{"index":0,"id":"r1","function":{"name":"echo","arguments":"{}"}}]}}]}\n\n',
+            "data: [DONE]\n\n",
+          ]
+        : [
+            'data: {"choices":[{"delta":{"content":"or done"}}]}\n\n',
+            "data: [DONE]\n\n",
+          ];
+    return Promise.resolve(sseResponse(frames));
+  };
+  const orHistory = await runClientTurn({
+    onEvent: () => undefined,
+    registry,
+    request: {
+      dialect: {
+        baseUrl: "https://openrouter.ai/api/v1",
+        providerId: "openrouter-client",
+        thinkingForm: "reasoning_details",
+        toolChoiceSupport: "full",
+        usageFromAnyChunk: true,
+      },
+      messages: [{ content: "hi", role: "user" }],
+      model: "openai/gpt-x",
+      tools: [
+        {
+          description: "echo",
+          name: "echo",
+          parametersSchema: {},
+          qualifiedName: "echo",
+          source: "builtin",
+        },
+      ],
+    },
+    workspacePath: "/ws",
+  });
+  assert.deepEqual(orHistory[1].reasoningDetails, [
+    { index: 0, text: "think", type: "reasoning.text" },
+  ]);
+  const followUpAssistant = orBodies[1].messages.find(
+    (message) => message.role === "assistant"
+  );
+  assert.deepEqual(followUpAssistant.reasoning_details, [
+    { index: 0, text: "think", type: "reasoning.text" },
+  ]);
+  assert.equal(
+    requestBodies[1].messages.some((message) => "reasoning_details" in message),
+    false
+  );
+  assert.equal(orHistory.at(-1).content, "or done");
+
   console.log("client-core tests passed");
 } finally {
   globalThis.fetch = realFetch;

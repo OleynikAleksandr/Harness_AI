@@ -12,7 +12,11 @@ import type {
   ClientTurnRequest,
 } from "../../client-contract/src/client-contract-facade.js";
 import type { ToolRegistry } from "../../tool-registry/src/tool-registry-facade.js";
-import { ClientTurnError, callModel } from "./client-core-http.js";
+import {
+  ClientTurnError,
+  callModel,
+  type ModelCallResult,
+} from "./client-core-http.js";
 
 export { mapClientTurnEvent } from "./client-core-events.js";
 
@@ -29,6 +33,18 @@ export interface RunClientTurnParams {
 
 const toolCallSignature = (calls: readonly ClientToolCall[]): string =>
   JSON.stringify(calls.map((call) => [call.name, call.argumentsJson]));
+
+// The in-turn assistant message. reasoning_details dialects (OpenRouter)
+// return their structured reasoning unchanged in follow-up requests through
+// the history; other dialects never set the field.
+const toAssistantMessage = (result: ModelCallResult): ClientMessage => ({
+  content: result.content,
+  role: "assistant",
+  ...(result.reasoningDetails
+    ? { reasoningDetails: result.reasoningDetails }
+    : {}),
+  ...(result.toolCalls.length > 0 ? { toolCalls: result.toolCalls } : {}),
+});
 
 // Execute one step's tool calls in parallel and return their tool result
 // messages (a tool error is already an output string, never a throw).
@@ -74,11 +90,7 @@ export const runClientTurn = async (
         ...(request.extraBody ? { extraBody: request.extraBody } : {}),
         ...(request.signal ? { signal: request.signal } : {}),
       });
-      history.push({
-        content: result.content,
-        role: "assistant",
-        ...(result.toolCalls.length > 0 ? { toolCalls: result.toolCalls } : {}),
-      });
+      history.push(toAssistantMessage(result));
       if (result.toolCalls.length === 0) {
         onEvent({ kind: "turn_completed" });
         return history;

@@ -62,6 +62,14 @@ Own global and workspace settings persistence.
   settings schema, defaults, projections, auth overlay/sync, and normalization.
   Legacy settings files may still contain that object; it is ignored by typed
   consumers and dropped from persisted projections on the next save.
+- The `providers.localModels` section carries the universal-client Local
+  Models connection: `baseUrl` (default `http://127.0.0.1:1234`; normalization
+  keeps http(s) URLs only and trims trailing slashes), optional `apiKey`
+  (empty by default — most local servers run no-auth), `contextLength`
+  (non-negative integer; `0` keeps context-window auto-detection), and the
+  existing `defaultModel`. Connection fields persist in the system settings
+  projection and sync through the provider-auth-store like the other
+  key-based providers; `defaultModel` stays in the workspace projection.
 
 ## Reasoning Effort Contract
 

@@ -108,7 +108,34 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   ) {
     next.providers.glmClient.reasoningEffort = "max";
   }
+  next.providers.localModels.baseUrl = normalizeLocalBaseUrl(
+    next.providers.localModels.baseUrl
+  );
+  next.providers.localModels.contextLength = normalizeContextLength(
+    next.providers.localModels.contextLength
+  );
   return next;
+}
+
+const LOCAL_MODELS_DEFAULT_BASE_URL = "http://127.0.0.1:1234";
+const TRAILING_SLASHES_PATTERN = /\/+$/u;
+const HTTP_URL_PATTERN = /^https?:\/\/.+/u;
+
+// Local Models base URL: keep http(s) URLs only and drop trailing slashes so
+// endpoint paths concatenate cleanly; anything else falls back to the default.
+function normalizeLocalBaseUrl(value: unknown): string {
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  const withoutSlashes = trimmed.replace(TRAILING_SLASHES_PATTERN, "");
+  return HTTP_URL_PATTERN.test(withoutSlashes)
+    ? withoutSlashes
+    : LOCAL_MODELS_DEFAULT_BASE_URL;
+}
+
+// Context length override: a non-negative integer where 0 keeps auto-detect.
+function normalizeContextLength(value: unknown): number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0
+    ? value
+    : 0;
 }
 
 export function resolveCodexReasoningEffort(

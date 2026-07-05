@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream2.task1",
-  "expectedCommitMessage": "feat(core-runtime): extend local models settings for universal client",
+  "currentTaskId": "harness-ai.phase4.stream2.task2",
+  "expectedCommitMessage": "feat(core-runtime): bind local models client provider descriptor (internal)",
   "debt": null
 }
 ```
@@ -385,9 +385,9 @@
 
 ### Stream: Local Models Client Endpoint
 
-96. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Extend the `providers.localModels` settings section additively for the universal client: `baseUrl` (default `http://127.0.0.1:1234`, normalization trims trailing slashes and keeps http(s) URLs), optional `apiKey` (default empty — local servers usually run no-auth), `contextLength` (integer >= 0, 0 = auto-detect) — defaults, system persistence, projections and normalization; `defaultModel` stays as-is (scope: settings-store facade, settings-store projections, settings-normalization + settings-store `module.md`; expected commit: `feat(core-runtime): extend local models settings for universal client`).
-97. [TODO] Git Commit: `feat(core-runtime): extend local models settings for universal client` (hash: TBD)
-98. [TODO] `harness-ai.phase4.stream2.task2` Bind the Local Models client provider descriptor + registry, INTERNAL: `ProviderId` union += `local-models-client`, `PROVIDER_KEY_BY_ID` += `local-models-client -> localModels` (shared section per the scope contract), `HTTP_COMPATIBLE_PROVIDER_IDS` += `local-models-client`, registry `PROVIDERS` += internal entry (name "Local Models", moduleId `local-models-client-provider`); `CLIENT_PROVIDER_MODELS` intentionally gains NO entry (live catalog); registry test (scope: provider-registry facade (+ its test), provider-descriptor facade, settings-store facade (one map line) + affected `module.md`s; expected commit: `feat(core-runtime): bind local models client provider descriptor (internal)`).
+96. [DONE] `harness-ai.phase4.stream2.task1` Extend the `providers.localModels` settings section additively for the universal client: `baseUrl` (default `http://127.0.0.1:1234`, normalization trims trailing slashes and keeps http(s) URLs), optional `apiKey` (default empty — local servers usually run no-auth), `contextLength` (integer >= 0, 0 = auto-detect) — defaults, system persistence, projections and normalization; `defaultModel` stays as-is (scope: settings-store facade, settings-store projections, settings-normalization + settings-store `module.md`; expected commit: `feat(core-runtime): extend local models settings for universal client`). Result: Completed in commit `feat(core-runtime): extend local models settings for universal client`.
+97. [DONE] Git Commit: `feat(core-runtime): extend local models settings for universal client` (hash: self)
+98. [IN_PROGRESS] `harness-ai.phase4.stream2.task2` Bind the Local Models client provider descriptor + registry, INTERNAL: `ProviderId` union += `local-models-client`, `PROVIDER_KEY_BY_ID` += `local-models-client -> localModels` (shared section per the scope contract), `HTTP_COMPATIBLE_PROVIDER_IDS` += `local-models-client`, registry `PROVIDERS` += internal entry (name "Local Models", moduleId `local-models-client-provider`); `CLIENT_PROVIDER_MODELS` intentionally gains NO entry (live catalog); registry test (scope: provider-registry facade (+ its test), provider-descriptor facade, settings-store facade (one map line) + affected `module.md`s; expected commit: `feat(core-runtime): bind local models client provider descriptor (internal)`).
 99. [TODO] Git Commit: `feat(core-runtime): bind local models client provider descriptor (internal)` (hash: TBD)
 100. [TODO] `harness-ai.phase4.stream2.task3` Local Models client auth alias + help: auth-store aliases `local-models-client` -> the `localModels` file aliases with the existing `HARNESS_AI_LOCAL_API_KEY`/`LMSTUDIO_API_KEY` and `HARNESS_AI_LOCAL_MODELS_BASE_URL`/`LMSTUDIO_BASE_URL` env fallbacks (same local server as the legacy id), and the `settings.provider.localModelsClient.*` provider-help strings (base URL of the local OpenAI-compatible server — Ollama / LM Studio / llama.cpp; key optional) in the approved dictionaries (scope: provider-auth-store facade + `module.md`, localization-runtime source-dictionaries + `module.md`; expected commit: `feat(core-runtime): local models client auth alias and help`).
 101. [TODO] Git Commit: `feat(core-runtime): local models client auth alias and help` (hash: TBD)

@@ -69,7 +69,14 @@ export interface HarnessSettings {
       thinkingEnabled: boolean;
       thinkingDisplaySyncEnabled: boolean;
     };
+    // Universal-client Local Models endpoint: the base URL points at the
+    // user's local OpenAI-compatible server, the key is optional (most local
+    // servers run no-auth), and contextLength overrides window auto-detection
+    // when greater than zero.
     localModels: {
+      apiKey: string;
+      baseUrl: string;
+      contextLength: number;
       defaultModel: string;
     };
     openRouter: ProviderConnectionSettings & {
@@ -168,6 +175,9 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       thinkingEnabled: true,
     },
     localModels: {
+      apiKey: "",
+      baseUrl: "http://127.0.0.1:1234",
+      contextLength: 0,
       defaultModel: "local-model",
     },
     openRouter: {

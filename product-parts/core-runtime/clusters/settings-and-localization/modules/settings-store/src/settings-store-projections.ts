@@ -29,7 +29,11 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
         reasoningEffort: settings.providers.glmClient.reasoningEffort,
       },
       glmNative: pickConnection(settings.providers.glmNative),
-      localModels: {},
+      localModels: {
+        apiKey: settings.providers.localModels.apiKey,
+        baseUrl: settings.providers.localModels.baseUrl,
+        contextLength: settings.providers.localModels.contextLength,
+      },
       openRouter: {
         ...pickConnection(settings.providers.openRouter),
         endpointTag: settings.providers.openRouter.endpointTag,
@@ -66,7 +70,9 @@ export function workspaceSettingsFrom(
           settings.providers.glmNative.thinkingDisplaySyncEnabled,
         thinkingEnabled: settings.providers.glmNative.thinkingEnabled,
       },
-      localModels: settings.providers.localModels,
+      localModels: {
+        defaultModel: settings.providers.localModels.defaultModel,
+      },
       openRouter: { defaultModel: settings.providers.openRouter.defaultModel },
     },
   };

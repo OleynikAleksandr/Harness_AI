@@ -35,6 +35,16 @@ assert.match(
   facadeSource,
   /glmClient: \{\n\s+apiKey: "",\n\s+defaultModel: "glm-5\.2",\n\s+reasoningEffort: "max",\n\s+\}/u
 );
+assert.match(source, /normalizeLocalBaseUrl/u);
+assert.match(source, /normalizeContextLength/u);
+assert.match(
+  source,
+  /LOCAL_MODELS_DEFAULT_BASE_URL = "http:\/\/127\.0\.0\.1:1234"/u
+);
+assert.match(
+  facadeSource,
+  /localModels: \{\n\s+apiKey: "",\n\s+baseUrl: "http:\/\/127\.0\.0\.1:1234",\n\s+contextLength: 0,\n\s+defaultModel: "local-model",\n\s+\}/u
+);
 assert.doesNotMatch(source, /glmOpenCode/u);
 assert.doesNotMatch(facadeSource, /glmOpenCode: \{/u);
 assert.doesNotMatch(facadeSource, /"glm-opencode"/u);

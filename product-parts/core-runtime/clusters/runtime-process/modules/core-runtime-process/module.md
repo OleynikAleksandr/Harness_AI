@@ -87,13 +87,15 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
 - `PROVIDER_IDS` includes the universal-client endpoints `kimi-client`,
-  `glm-client` and `local-models-client`: their adapters register at startup
-  and RPC provider-id validation accepts them. Kimi pins its single public
-  `kimi-for-coding` model; GLM resolves its selected model and reasoning
-  effort from Core settings per turn while the adapter pins only the GLM
-  dialect; Local Models resolves its selected model and server connection
-  (base URL + optional key) from Core settings per turn while the adapter
-  pins only the local dialect. `glm-opencode` is no longer registered or
+  `glm-client`, `local-models-client` and `openrouter-client`: their adapters
+  register at startup and RPC provider-id validation accepts them. Kimi pins
+  its single public `kimi-for-coding` model; GLM resolves its selected model
+  and reasoning effort from Core settings per turn while the adapter pins
+  only the GLM dialect; Local Models resolves its selected model and server
+  connection (base URL + optional key) from Core settings per turn while the
+  adapter pins only the local dialect; OpenRouter resolves its selected
+  model, base URL and endpoint tag from the shared `openRouter` settings
+  section per turn while the adapter pins only the OpenRouter dialect. `glm-opencode` is no longer registered or
   started by Core runtime lifecycle; old OpenCode sessions are not preserved
   across updates during this development migration.
 

@@ -24,6 +24,7 @@ export const PROVIDER_IDS: ProviderId[] = [
   "glm-client",
   "glm-native",
   "openrouter",
+  "openrouter-client",
   "local-models",
   "local-models-client",
 ];

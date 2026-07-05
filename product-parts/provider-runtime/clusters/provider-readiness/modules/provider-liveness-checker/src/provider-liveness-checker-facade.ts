@@ -86,7 +86,7 @@ export class ProviderLivenessCheckerFacade {
   }
 
   private async checkApiProvider(providerId: ProviderId): Promise<void> {
-    if (providerId === "openrouter") {
+    if (providerId === "openrouter" || providerId === "openrouter-client") {
       if (!this.deps.authStore.getApiKey(providerId)) {
         throw new Error("Add an OpenRouter API key in Provider Settings.");
       }

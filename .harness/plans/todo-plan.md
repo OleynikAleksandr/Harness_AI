@@ -583,3 +583,8 @@
 > (user orders 2026-07-05). The Kimi synthetic-native material is the
 > accepted 2026-07-03 capture dumps. Session profile re-targeting onto the
 > client four (`PROFILE_SUPPORTED_PROVIDER_IDS`, seed profiles) lands here.
+
+### Stream: Retired Provider Profile Binding Cleanup
+
+183. [DONE] `harness-ai.phase5.stream1.task1` Remove active session-profile bindings to retired provider ids found by the dead-code/dead-link audit: `PROFILE_SUPPORTED_PROVIDER_IDS` must no longer include deleted provider ids, seeded profiles must not create selectable individual profiles for removed `kimi`/`glm-native` providers, and current docs must describe those Kimi/GLM Native prompts as historical Phase 5 material rather than live channels (scope: profile-catalog facade + tests + `module.md`, profile-store seed profiles/prompts + tests + `module.md`, `docs/architecture/SessionProfiles.md`, `docs/architecture/SessionProfilesV2.md`, `.harness/plans/todo-plan.md`; expected commit: `fix(session-profiles): remove retired provider profile bindings`). Result: Completed in commit `fix(session-profiles): remove retired provider profile bindings`.
+184. [DONE] Git Commit: `fix(session-profiles): remove retired provider profile bindings` (hash: self)

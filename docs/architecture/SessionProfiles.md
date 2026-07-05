@@ -38,15 +38,19 @@ Harness AI позволит пользователю выбирать **проф
 
 ## Аудит возможностей провайдеров (2026-07-02)
 
-Четыре провайдера в scope проверены по коду и по установленным бинарям/SDK.
-Номера строк актуальны на дату аудита и могут дрейфовать.
+Изначальный аудит 2026-07-02 проверял Claude, Codex, Kimi ACP и GLM Native.
+После universal-client migration и legacy cleanup 2026-07-05 актуальные
+каналы Kimi/GLM — `kimi-client` и `glm-client`; строки по Kimi ACP и GLM
+Native ниже оставлены только как исторический материал для Phase 5
+synthetic-native. Номера строк актуальны на дату исходного аудита и могут
+дрейфовать.
 
 | Провайдер | Канал | Подмена системного промпта | Подмена туллинга | Точка применения |
 | --- | --- | --- | --- | --- |
 | Claude | `@anthropic-ai/claude-agent-sdk` 0.3.195 (in-process) | Полная замена (`systemPrompt: string`) или пресет `claude_code` + `append` | Whitelist `tools: string[]` (`[]` отключает все), `disallowedTools`, пресет тулзов | Опции SDK-запроса на сессию |
 | Codex | Подпроцесс `codex app-server`, codex-cli 0.142.5, JSON-RPC | Полная замена через `thread/start` `baseInstructions` (плюс `developerInstructions`, `config`) | Только на уровне процесса: флаги `--disable <feature>` при запуске app-server; per-thread параметров тулзов нет | Параметры `thread/start` + запуск процесса под профиль |
-| Kimi | Подпроцесс `kimi acp`, kimi 0.18.0, ACP JSON-RPC | Полная замена через материализованный agent-файл: `agent.yaml` -> `system_prompt_path: ./system.md` | Явный список `tools:` нативных идентификаторов Kimi в `agent.yaml` | Материализация agent-файлов на диске перед `session/new` |
-| GLM Native | Наш собственный HTTP-клиент (`fetch` -> `api.z.ai` `/chat/completions`, SSE) | Полный контроль: системное сообщение собираем мы сами | Полный контроль: шлём собственные схемы инструментов (21 шт.) и исполняем их локально | Наш сборщик запроса на каждый ход |
+| Kimi (historical ACP) | Удалённый подпроцесс `kimi acp`, kimi 0.18.0, ACP JSON-RPC | Историческая гипотеза: замена через материализованный agent-файл `agent.yaml` -> `system_prompt_path: ./system.md`; верификация позже показала, что binding недоказуем | Исторически: явный список `tools:` нативных идентификаторов Kimi в `agent.yaml` | Удалено вместе с `kimi-provider`; живой Kimi — `kimi-client`, profile application входит в Phase 5 |
+| GLM Native (historical) | Удалённый Harness HTTP-клиент (`fetch` -> `api.z.ai` `/chat/completions`, SSE) | Исторически: системное сообщение собирали мы сами | Исторически: собственные схемы инструментов и локальное исполнение | Удалено вместе с `glm-native-provider`; живой GLM — `glm-client`, profile application входит в Phase 5 |
 
 Ключевые факты аудита (для реализаторов):
 
@@ -187,8 +191,6 @@ kebab-case id. У него есть ровно три документа:
     profile.yaml
     system-prompt.md
     tooling.yaml
-  codeai-workflow-kimi/ ...
-  codeai-workflow-glm-native/ ...
 ```
 
 `profile.yaml` (паспорт):
@@ -635,13 +637,11 @@ Seed-профили — стандартный стартовый набор, к
 4. `architecture-spec` (универсальный) — спецификации product parts /
    clusters / modules (один профиль; разница между уровнями спецификаций —
    содержание запроса, а не другой туллинг).
-5. `codeai-workflow-claude`, `codeai-workflow-kimi`,
-   `codeai-workflow-glm-native` (индивидуальные) — сегодняшнее
-   managed-поведение с точными текущими текстами: захардкоженный
-   workflow-промпт Claude, содержимое `system.md` Kimi и встроенные правила
-   GLM соответственно. Тексты трёх каналов сегодня разные, поэтому
-   миграционные сиды индивидуальные (байт-в-байт точность, каждый виден
-   только своему провайдеру), а не один синтезированный универсальный.
+5. `codeai-workflow-claude` (индивидуальный) — активное managed-поведение
+   Claude с точным workflow-промптом. Старые `codeai-workflow-kimi` и
+   `codeai-workflow-glm-native` больше не сидируются, потому что их provider
+   ids (`kimi`, `glm-native`) удалены; Kimi/GLM client-four profiles
+   переопределяются в Phase 5 synthetic-native через новые live ids.
 
 Плюс виртуальная запись `native` (не на диске).
 
@@ -724,9 +724,11 @@ Seed-профили — стандартный стартовый набор, к
   snapshot и legacy-контракт для сессий без snapshot; структурированный
   контракт ошибок; запоминание последнего выбранного профиля и
   AutoNormalizer-флага per provider в Core settings (settings-store).
-- **Фаза C — адаптеры, по одному на stream**: Claude → GLM Native → Codex →
-  Kimi (Kimi начинается с задачи верификации привязки). `module.md` каждого
-  адаптера получает таблицу маппинга категорий.
+- **Фаза C — адаптеры, по одному на stream**: Claude → Codex → client-four
+  synthetic-native (`kimi-client`, `glm-client`, `openrouter-client`,
+  `local-models-client`). `module.md` каждого адаптера получает таблицу
+  маппинга категорий; старые GLM Native/Kimi ACP привязки не
+  реанимируются.
 - **Фаза D — RPC/мост/типы**: `list-session-profiles`,
   `create-session-profile`, `open-session-profile-file`, поле снапшота — по
   четырёхслойному паттерну `ensure-glossary-file`.
@@ -737,8 +739,7 @@ Seed-профили — стандартный стартовый набор, к
   `settings-surface`).
 - **Фаза F — упаковка и приёмка пользователем**: `npm run package:mac` (по
   подтверждению пользователя) + evidence-документ; отдельный acceptance gate
-  на breaking-переход дефолта Claude/Kimi на Native (проверка
-  Native-поведения, профилей `codeai-workflow-*` и legacy-resume).
+  на synthetic-native application и Native-поведение live provider ids.
 - **Следующий этап (после MVP)** — профили для остальных провайдеров:
   Harness-defined native для OpenRouter и Local Models (кандидаты промпта и
   туллинга пишутся при реализации, тестируются и выбираются совместно с

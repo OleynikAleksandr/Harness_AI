@@ -34,7 +34,6 @@ try {
   const storeFiles = [
     "profile-document-parser.ts",
     "profile-store-facade.ts",
-    "seed/codeai-workflow-kimi-baseline.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
@@ -96,20 +95,22 @@ try {
   assert.ok(claudeIds.includes("review"));
   assert.ok(claudeIds.includes("codeai-workflow-claude"));
   assert.ok(!claudeIds.includes("codeai-workflow-kimi"));
+  assert.ok(!claudeIds.includes("codeai-workflow-glm-native"));
 
   const codexEntries = await catalog.listProfilesForProvider("codex");
   const codexIds = codexEntries.map((entry) => entry.id);
   assert.ok(codexIds.includes("review"));
   assert.ok(!codexIds.includes("codeai-workflow-claude"));
 
-  // Unsupported providers only get Native. Kimi is deferred (agent binding
-  // unverified), so it is native-only in the MVP too.
-  const openrouterEntries = await catalog.listProfilesForProvider("openrouter");
+  // Universal-client providers only get Native until Phase 5 wires their
+  // synthetic-native wrapper/profile application layer.
+  const openrouterEntries =
+    await catalog.listProfilesForProvider("openrouter-client");
   assert.deepEqual(
     openrouterEntries.map((entry) => entry.id),
     [NATIVE_SESSION_PROFILE_ID]
   );
-  const kimiEntries = await catalog.listProfilesForProvider("kimi");
+  const kimiEntries = await catalog.listProfilesForProvider("kimi-client");
   assert.deepEqual(
     kimiEntries.map((entry) => entry.id),
     [NATIVE_SESSION_PROFILE_ID]
@@ -132,14 +133,14 @@ try {
   assert.deepEqual(noSelection, { kind: "native", ok: true });
   const explicitNative = await catalog.resolveForSession({
     profileId: "native",
-    providerId: "openrouter",
+    providerId: "openrouter-client",
   });
   assert.deepEqual(explicitNative, { kind: "native", ok: true });
 
   // Managed resolution returns the loaded profile.
   const managed = await catalog.resolveForSession({
     profileId: "review",
-    providerId: "glm-native",
+    providerId: "codex",
   });
   assert.equal(managed.ok, true);
   assert.equal(managed.kind, "managed");
@@ -154,15 +155,15 @@ try {
   assert.match(brokenResolution.error, /cannot be applied/u);
 
   const inapplicable = await catalog.resolveForSession({
-    profileId: "codeai-workflow-glm-native",
-    providerId: "claude",
+    profileId: "codeai-workflow-claude",
+    providerId: "codex",
   });
   assert.equal(inapplicable.ok, false);
   assert.match(inapplicable.error, /not applicable/u);
 
   const kimiManaged = await catalog.resolveForSession({
     profileId: "review",
-    providerId: "kimi",
+    providerId: "kimi-client",
   });
   assert.equal(kimiManaged.ok, false);
   assert.match(kimiManaged.error, /does not support managed session profiles/u);
@@ -176,7 +177,7 @@ try {
 
   const unsupported = await catalog.resolveForSession({
     profileId: "review",
-    providerId: "openrouter",
+    providerId: "openrouter-client",
   });
   assert.equal(unsupported.ok, false);
   assert.match(unsupported.error, /does not support managed session profiles/u);

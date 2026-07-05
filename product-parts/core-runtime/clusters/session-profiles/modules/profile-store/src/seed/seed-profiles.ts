@@ -1,9 +1,5 @@
 import type { SessionProfileToolingCategory } from "../profile-document-parser.js";
-import {
-  CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT,
-  CODEAI_WORKFLOW_GLM_NATIVE_SEED_PROMPT,
-  CODEAI_WORKFLOW_KIMI_SEED_PROMPT,
-} from "./codeai-workflow-seed-prompts.js";
+import { CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT } from "./codeai-workflow-seed-prompts.js";
 import {
   ARCHITECTURE_SPEC_SEED_PROMPT,
   PLAN_DOCUMENT_SEED_PROMPT,
@@ -102,38 +98,6 @@ const SEED_DEFINITIONS: readonly SeedDefinition[] = [
     name: "CodeAI Workflow (Claude)",
     promptBody: CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT,
     provider: "claude",
-  },
-  {
-    categories: {
-      "file-read": true,
-      "file-write": true,
-      git: false,
-      shell: true,
-      tests: false,
-      web: false,
-    },
-    description:
-      "Today's managed CodeAI workflow behavior for Kimi, preserved as a selectable profile.",
-    id: "codeai-workflow-kimi",
-    name: "CodeAI Workflow (Kimi)",
-    promptBody: CODEAI_WORKFLOW_KIMI_SEED_PROMPT,
-    provider: "kimi",
-  },
-  {
-    categories: {
-      "file-read": true,
-      "file-write": true,
-      git: true,
-      shell: true,
-      tests: true,
-      web: true,
-    },
-    description:
-      "Today's built-in GLM Native workflow behavior, preserved as a selectable profile.",
-    id: "codeai-workflow-glm-native",
-    name: "CodeAI Workflow (GLM Native)",
-    promptBody: CODEAI_WORKFLOW_GLM_NATIVE_SEED_PROMPT,
-    provider: "glm-native",
   },
 ];
 

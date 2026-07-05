@@ -41,7 +41,6 @@ try {
   for (const file of [
     "profile-document-parser.ts",
     "profile-store-facade.ts",
-    "seed/codeai-workflow-kimi-baseline.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
@@ -163,20 +162,16 @@ try {
       [
         "architecture-spec",
         "codeai-workflow-claude",
-        "codeai-workflow-glm-native",
-        "codeai-workflow-kimi",
         "plan-document",
         "review",
         "todo-plan-deterministic",
       ]
     );
-    const kimiSeed = seededScan.profiles.find(
-      (profile) => profile.id === "codeai-workflow-kimi"
+    const claudeSeed = seededScan.profiles.find(
+      (profile) => profile.id === "codeai-workflow-claude"
     );
-    assert.equal(kimiSeed.scope, "individual");
-    assert.equal(kimiSeed.passport.provider, "kimi");
-    assert.ok(kimiSeed.promptBody.length > 20_000);
-    assert.match(kimiSeed.promptBody, /CodeAI Hub Kimi Runtime Addendum/u);
+    assert.equal(claudeSeed.scope, "individual");
+    assert.equal(claudeSeed.passport.provider, "claude");
     const reviewSeed = seededScan.profiles.find(
       (profile) => profile.id === "review"
     );

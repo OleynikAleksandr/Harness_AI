@@ -85,11 +85,12 @@
     инвентаря Core поднимает лёгкую native-сессию SDK, читает `init` и
     закрывает её, чтобы выборка была доступна в Profile Creator ещё до
     первой пользовательской сессии.
-- **GLM Native**: перечень статический — инструменты объявляет наш адаптер
-  (`glm-native-agent-runtime.ts`); инвентарь экспортируется из адаптера.
-- **Codex / Kimi**: канал получения — открытый вопрос (см. ниже); до его
-  решения managed-профили Codex остаются prompt-only, Kimi — native-only,
-  как зафиксировано в v1.
+- **GLM client / Kimi client / OpenRouter / Local Models**: после
+  universal-client migration старые GLM Native и Kimi ACP адаптеры удалены;
+  инвентарь и synthetic-native application для client-four входят в Phase 5
+  и строятся вокруг live `*-client` ids, а не retired ids.
+- **Codex**: канал получения инструментов остаётся отдельным native-путём;
+  managed-профили Codex остаются prompt-only до dedicated application layer.
 - Кэш инвентаря — локальный runtime state в Harness home (не tracked),
   ключ — `<providerId>@<версия>`.
 - RPC для UI: `get-provider-tool-inventory` → `{ version, tools[] }` на
@@ -397,8 +398,10 @@ deny-list, Profile Creator) следует за capture.
    markdown, redaction, извлечение секций), оркестратор. Прокси пересмотрен
    в Phase 6.5 с capture-and-abort на forward-транзит + WS-decode (2026-07-03).
 3. **Phase 3 — capture-адаптеры провайдеров**: `captureNativeRequest` в
-   контракте адаптера с выбором `(provider, model)`; реализации Claude
-   (env SDK), Codex (временный app-server), Kimi (временный `kimi acp`).
+   контракте адаптера с выбором `(provider, model)`; после удаления Kimi ACP
+   2026-07-05 живые реализации capture остаются только для Claude (env SDK)
+   и Codex (временный app-server). Материал Kimi для Phase 5 берётся из
+   принятых дампов 2026-07-03.
 4. **Phase 4 — RPC и мост**: Core RPC `capture-native-request` +
    перечень моделей провайдера; Electron bridge + preload.
 5. **Phase 5 — capture UI**: карточка `Native Request Capture` в Settings —

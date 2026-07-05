@@ -34,7 +34,6 @@ try {
   const storeFiles = [
     "profile-document-parser.ts",
     "profile-store-facade.ts",
-    "seed/codeai-workflow-kimi-baseline.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",

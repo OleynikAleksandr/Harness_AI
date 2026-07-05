@@ -29,9 +29,10 @@ fallback".
   provider), then invalid directories with their human-readable issues.
 - `listProfilesForProvider(providerId)` — picker read model: Native first
   plus applicable universal/individual entries; unsupported providers
-  (outside `PROFILE_SUPPORTED_PROVIDER_IDS`: claude, codex, glm-native)
-  receive only Native; kimi is deferred because its managed-agent binding
-  is unverified (see the kimi-provider module contract).
+  (outside `PROFILE_SUPPORTED_PROVIDER_IDS`: claude, codex) receive only
+  Native. Universal-client providers remain Native-only until Phase 5 wires
+  their synthetic-native wrapper/profile application layer; retired ids such
+  as `kimi` and `glm-native` are not supported targets.
 - `resolveForSession({ profileId?, providerId })` —
   `{ ok: true, kind: "native" }` for no/native selection;
   `{ ok: true, kind: "managed", profile }` for an applicable valid profile;

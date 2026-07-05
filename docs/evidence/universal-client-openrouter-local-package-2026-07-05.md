@@ -78,6 +78,25 @@ REBUILT with them (`npm run package:mac`, exit 0, `app.asar` refreshed
   re-runs the local-models liveness; machines without LM Studio skip
   silently.
 
+## Reload-Timeout Fix Rebuild (same day, acceptance finding)
+
+The user's live retest hit a reload failure: setting a custom context window
+started the model load and LM Studio then logged "Model has not started
+loading/has been unloaded" (`google/gemma-4-26b-a4b-qat`). Root cause: the
+management channel aborted `POST /api/v1/models/load` with its generic 5s
+timeout while the 26B model was still loading — the connection drop cancels
+the load inside LM Studio. Fixed and REBUILT (`npm run package:mac`, exit 0,
+`app.asar` refreshed 2026-07-05, third run):
+
+- `loadLocalModel` now runs on its own `LOAD_TIMEOUT_MS` (600s — the load
+  call holds the connection open until the model is in memory) and
+  `unloadLocalModel` on `UNLOAD_TIMEOUT_MS` (60s); the generic 5s timeout
+  stays for catalog reads only.
+- The `set-local-model-context` RPC reports an honest controlled error when
+  the reload did not complete (wish stays persisted and re-applies on the
+  next session start) and still returns the refreshed catalog; the Settings
+  UI surfaces the message and swaps the list in.
+
 ## Verification Status
 
 - This document records the BUILD evidence only. The live acceptance

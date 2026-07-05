@@ -8,7 +8,6 @@ import {
 export type ProviderId =
   | "claude"
   | "codex"
-  | "kimi"
   | "kimi-client"
   | "glm-client"
   | "openrouter-client"
@@ -65,18 +64,8 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "visible",
   },
   {
-    // ACP Kimi after the visibility switch: retained for existing sessions
-    // (registered, resolvable by id) but hidden from the picker — no new ACP
-    // Kimi sessions start. Full retirement is a Phase 5 open item.
-    id: "kimi",
-    name: "Kimi",
-    moduleId: "kimi-provider",
-    status: "needs-settings",
-    visibility: "internal",
-  },
-  {
-    // The visible Kimi: the universal-client endpoint (visibility switch
-    // applied). Never two Kimi entries in the picker at once.
+    // The visible Kimi: the universal-client endpoint (the retired ACP
+    // kimi-provider module was removed by the 2026-07-05 user order).
     id: "kimi-client",
     name: "Kimi",
     moduleId: "kimi-client-provider",

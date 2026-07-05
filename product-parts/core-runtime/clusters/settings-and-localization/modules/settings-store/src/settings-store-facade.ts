@@ -57,9 +57,6 @@ export interface HarnessSettings {
       reasoningByModel: Record<string, ReasoningEffort>;
       reasoningSummaryEnabled: boolean;
     };
-    kimi: ProviderCommonSettings & {
-      thinkingEnabled: boolean;
-    };
     kimiClient: ProviderClientKeySettings;
     glmClient: ProviderClientKeySettings & {
       reasoningEffort: ReasoningEffort;
@@ -150,10 +147,6 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       reasoningByModel: { "gpt-5.4-mini": "medium" },
       reasoningSummaryEnabled: true,
     },
-    kimi: {
-      ...commonProvider("kimi-k2.7-code"),
-      thinkingEnabled: true,
-    },
     kimiClient: {
       apiKey: "",
       defaultModel: "kimi-for-coding",
@@ -191,7 +184,6 @@ const PROVIDER_KEY_BY_ID: Record<
 > = {
   claude: "claude",
   codex: "codex",
-  kimi: "kimi",
   "kimi-client": "kimiClient",
   "glm-client": "glmClient",
   // The universal-client endpoint shares the openRouter section: ONE key

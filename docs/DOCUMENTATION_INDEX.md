@@ -55,7 +55,9 @@ relevant to the active task.
   `provider-network-capture` Core cluster ported from the CodeAI-Hub
   "Provider Native Request Capture" architecture (capture-and-abort CONNECT
   proxy, per-(provider, model) capture, Settings card, readable prompt/tool
-  reference dumps for Claude/Codex/Kimi), the reordered roadmap that builds
+  reference dumps — capture now serves Claude/Codex only after the Kimi
+  channel was retired 2026-07-05, though the accepted 2026-07-03 Kimi dump
+  remains Phase R material), the reordered roadmap that builds
   capture first (Phase R is gated on capturing at least three native pairs),
   open questions on prompt research methodology and Codex/Kimi tooling
   application channels.

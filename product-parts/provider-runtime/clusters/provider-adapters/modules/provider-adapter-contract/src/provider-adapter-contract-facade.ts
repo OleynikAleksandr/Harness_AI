@@ -68,11 +68,9 @@ export interface ProviderUsageLimitsRefreshRequest {
 // capture. Only `kind` is typed at this boundary; each adapter passes its own
 // concrete envelope (extra fields serialized as-is by the capture writer).
 export interface ProviderNativeCaptureAppliedInputEnvelope {
-  // `kimi` stays in the union until the ACP kimi-provider module is deleted
-  // (the atomic module-removal commit): the kimi facade implements this
-  // contract with a `kind: "kimi"` envelope, so narrowing it here without
-  // removing the module breaks the adapter's assignability.
-  readonly kind: "claude" | "codex" | "kimi";
+  // Capture serves the two native vendor channels; the ACP Kimi `kind: "kimi"`
+  // envelope left with the kimi-provider module deletion (2026-07-05).
+  readonly kind: "claude" | "codex";
 }
 
 // Record-only native request capture options (no managed-vs-vanilla

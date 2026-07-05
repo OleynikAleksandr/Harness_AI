@@ -76,7 +76,12 @@ Harness AI позволит пользователю выбирать **проф
   `codex-translation-prompt-profile.ts`). Выбора инструментов per-thread в
   протоколе нет: доступность инструментов фиксируется флагами `--disable`
   при запуске процесса.
-- **Kimi** — адаптер запускает `kimi acp` (`kimi-managed-agent-profile.ts`,
+- **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
+  прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
+  универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;
+  описание ниже сохранено как историческая проектная запись для Phase 5, где
+  профили перенацеливаются на клиентскую четвёрку; исходники — в git-истории)
+  — адаптер запускал `kimi acp` (`kimi-managed-agent-profile.ts`,
   строка 416), а сам ACP не имеет полей промпта/тулзов (параметры
   `session/new`: `{cwd, mcpServers}`; `session/set_config_option`
   поддерживает только `model` и `thinking` — `kimi-session-lifecycle.ts`).

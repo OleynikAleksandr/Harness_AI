@@ -37,26 +37,20 @@ registry.setReadinessWorkspace("workspace-a");
 assert.equal(registry.getProvider("codex").readinessStatus, "ready");
 assert.equal(registry.getProvider("claude").readinessStatus, "checking");
 
-// Visibility switch applied: the visible Kimi is the universal-client
-// endpoint; the ACP kimi stays internal but resolves by id for existing
-// sessions. Never two Kimi entries in the picker at once.
+// The visible Kimi is the universal-client endpoint; the ACP kimi id/module
+// was removed by the kimi-provider retirement (2026-07-05 user order), so no
+// registry entry resolves for it anymore.
 const visible = registry.listProviders();
 assert.equal(
   visible.every((provider) => provider.visibility === "visible"),
   true
 );
 assert.equal(visible.filter((provider) => provider.name === "Kimi").length, 1);
-assert.equal(
-  visible.some((provider) => provider.id === "kimi"),
-  false
-);
 const kimiClient = registry.getProvider("kimi-client");
 assert.equal(kimiClient.visibility, "visible");
 assert.equal(kimiClient.moduleId, "kimi-client-provider");
 assert.equal(kimiClient.defaultModelId, "kimi-for-coding");
-const kimiAcp = registry.getProvider("kimi");
-assert.equal(kimiAcp.visibility, "internal");
-assert.equal(kimiAcp.defaultModelId, undefined);
+assert.throws(() => registry.getProvider("kimi"), /Unknown provider/u);
 
 const glmClient = registry.getProvider("glm-client");
 assert.equal(visible.filter((provider) => provider.name === "GLM").length, 1);

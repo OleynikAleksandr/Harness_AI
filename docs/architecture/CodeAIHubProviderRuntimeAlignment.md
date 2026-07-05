@@ -150,7 +150,7 @@ Required behavior:
   final item arrives.
 - Preserve Codex capability and Spark summary gating from the reference module.
 
-### Kimi
+### Kimi (removed)
 
 Reference source:
 
@@ -160,14 +160,19 @@ Reference source:
 - `CodeAI-Hub/packages/Kimi_Module/src/messaging/**`
 - `CodeAI-Hub/packages/Kimi_Module/src/types/**`
 
-Harness target:
+Former Harness target:
 
 - `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-provider/**`
 
-Required behavior:
+Status:
 
-- Replace the generic CLI parser path with Kimi wire process/router, session lifecycle, managed profile, workspace override state, token/usage readers, and event normalizer.
-- Preserve thinking handling from Kimi native events, including ACP and stream JSON shapes covered by reference tests.
+- Removed by the kimi-provider retirement (2026-07-05 user order). The visible
+  Kimi runs through `kimi-client-provider` on the Core universal client
+  (subscription-key `api.kimi.com/coding/v1` endpoint, `kimi-for-coding`
+  model); the ACP `kimi acp` subprocess adapter and its Kimi native-capture
+  channel were removed end-to-end, and the ported reference sources stay in
+  git history. The accepted 2026-07-03 Kimi capture dumps remain the
+  synthetic-native material for Phase R.
 
 ### GLM Native (removed)
 

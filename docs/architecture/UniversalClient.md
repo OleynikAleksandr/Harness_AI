@@ -42,9 +42,12 @@ OSS-клиентов и API-доков провайдеров (2026-07-04). По
   `openrouter-client-provider` и `local-models-client-provider`; legacy
   reference-адаптеры (`openrouter-provider`, `local-models-provider`,
   `glm-native-provider`) УДАЛЕНЫ из дерева вместе с поглощённым
-  reference-корпусом (legacy cleanup 2026-07-05 по приказу пользователя;
-  ACP `kimi-provider` остаётся живым адаптером за фичей native capture —
-  его retirement закрывается в Phase 5). OpenRouter Settings-таб сохранён КАК
+  reference-корпусом (legacy cleanup 2026-07-05 по приказу пользователя).
+  ACP `kimi-provider` ТАКЖЕ УДАЛЁН (прямой приказ пользователя 2026-07-05,
+  вместе с его Kimi-capture каналом) — видимый Kimi живёт только на
+  `kimi-client`; capture обслуживает лишь Claude/Codex, материал по Kimi для
+  Phase R — принятые дампы 2026-07-03. Afterlife-удалений больше не осталось.
+  OpenRouter Settings-таб сохранён КАК
   ЕСТЬ (ревью-фикс пользователя 2026-07-05): endpoint уважает каждое поле
   карты per turn — `apiKey`, `baseUrl`, `defaultModel` (slug search),
   `endpointTag` (не-default тег маршрутизирует ход телом запроса

@@ -16,17 +16,17 @@ assert.equal(
   false
 );
 
-// The retired glm-native module (and its usage-limits reader) was removed by
-// the 2026-07-05 legacy cleanup; the ACP kimi reader stays with the module
-// kept alive behind the native capture feature.
+// Only the two native vendor channels keep a usage-limits reader. The retired
+// glm-native reader left with the 2026-07-05 legacy cleanup, and the ACP kimi
+// reader left with the kimi-provider retirement (same day).
 for (const readerPath of [
   "claude-provider/src/claude-usage-limits-reader.ts",
   "codex-provider/src/reference/app-server/codex-app-server-usage-limits.ts",
-  "kimi-provider/src/reference/provider/kimi-usage-limits-reader.ts",
 ]) {
   assert.equal(existsSync(resolve(modulesRoot, readerPath)), true, readerPath);
 }
 assert.equal(existsSync(resolve(modulesRoot, "glm-native-provider")), false);
+assert.equal(existsSync(resolve(modulesRoot, "kimi-provider")), false);
 
 const claudeFacade = readFileSync(
   resolve(modulesRoot, "claude-provider/src/claude-provider-facade.ts"),

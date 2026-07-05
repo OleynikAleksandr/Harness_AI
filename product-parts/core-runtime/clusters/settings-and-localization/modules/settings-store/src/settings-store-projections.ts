@@ -18,7 +18,6 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
     providers: {
       claude: { autoUpdate: settings.providers.claude.autoUpdate },
       codex: { autoUpdate: settings.providers.codex.autoUpdate },
-      kimi: { autoUpdate: settings.providers.kimi.autoUpdate },
       kimiClient: {
         apiKey: settings.providers.kimiClient.apiKey,
         defaultModel: settings.providers.kimiClient.defaultModel,
@@ -57,10 +56,6 @@ export function workspaceSettingsFrom(
         reasoningByModel: settings.providers.codex.reasoningByModel,
         reasoningSummaryEnabled:
           settings.providers.codex.reasoningSummaryEnabled,
-      },
-      kimi: {
-        ...workspaceCommon(settings.providers.kimi),
-        thinkingEnabled: settings.providers.kimi.thinkingEnabled,
       },
       localModels: {
         defaultModel: settings.providers.localModels.defaultModel,

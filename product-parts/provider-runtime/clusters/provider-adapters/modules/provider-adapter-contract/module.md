@@ -49,12 +49,10 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
   `recordDiagnosticContext` callbacks; the adapter points its own client at
   the proxy and records the vendor-default request. The
   `ProviderNativeCaptureAppliedInputEnvelope` boundary types only `kind`
-  (`claude`/`codex`/`kimi` — `kimi` leaves the union with the atomic
-  kimi-provider module deletion, since that module implements the contract);
-  each adapter passes its own concrete envelope. Claude/Codex implement the
-  method; the ACP Kimi implementation is removed end-to-end with its module
-  (2026-07-05 user order). Other providers leave it unimplemented and Core
-  treats a missing method as `provider_not_supported`.
+  (`claude`/`codex`); each adapter passes its own concrete envelope.
+  Claude/Codex implement the method (the ACP Kimi implementation was removed
+  end-to-end with its module, 2026-07-05 user order); other providers leave it
+  unimplemented and Core treats a missing method as `provider_not_supported`.
 - Turn stop reuses `closeSession(providerSessionId)`: closing the provider session
   interrupts the in-flight turn (Claude `interrupt`, Kimi `cancel`). Core then
   resumes the conversation through `resumeSession` on the next message, so no

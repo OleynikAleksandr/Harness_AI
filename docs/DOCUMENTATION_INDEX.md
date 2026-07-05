@@ -233,6 +233,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   and picker, the residual native GLM Settings block was removed in the
   follow-up build, and legacy-session continuity checks were intentionally
   dropped per the 2026-07-04 user decision.
+- `docs/evidence/universal-client-openrouter-local-package-2026-07-05.md` —
+  packaged application rebuild for the Phase 4 acceptance: the visible
+  OpenRouter and Local Models run on the universal client
+  (`openrouter-client` / `local-models-client`), the OpenRouter Settings tab
+  is preserved as-is with every field honored per turn, Local Models gains
+  the connection card + configured-URL catalog + context-length detection,
+  and the legacy reference adapters are internal.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

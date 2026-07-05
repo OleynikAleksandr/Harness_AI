@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream5.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with universal client openrouter and local models",
+  "currentTaskId": "harness-ai.phase4.stream5.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -424,9 +424,9 @@
 
 ### Stream: Package And Acceptance
 
-126. [IN_PROGRESS] `harness-ai.phase4.stream5.task1` Package the app for the Phase 4 acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (the packaging gate requires a fresh explicit go — nothing is inherited from the materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-openrouter-local-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client openrouter and local models`).
-127. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client openrouter and local models` (hash: TBD)
-128. [TODO] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — base-URL onboarding in Settings, live model list from the configured server, context-length detect/override reflected in usage telemetry, streaming text + tool_calls + thinking on a local server; OpenRouter — the UNCHANGED Settings tab drives the client endpoint (2026-07-05 review fix: key, Base URL, model slug search, endpoint picker + latency panel all keep working, incl. a non-default endpoint tag routing the session), streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none).
+126. [DONE] `harness-ai.phase4.stream5.task1` Package the app for the Phase 4 acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (the packaging gate requires a fresh explicit go — nothing is inherited from the materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-openrouter-local-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client openrouter and local models`). Result: Completed in commit `chore(package): rebuild packaged app with universal client openrouter and local models`.
+127. [DONE] Git Commit: `chore(package): rebuild packaged app with universal client openrouter and local models` (hash: self)
+128. [IN_PROGRESS] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — base-URL onboarding in Settings, live model list from the configured server, context-length detect/override reflected in usage telemetry, streaming text + tool_calls + thinking on a local server; OpenRouter — the UNCHANGED Settings tab drives the client endpoint (2026-07-05 review fix: key, Base URL, model slug search, endpoint picker + latency panel all keep working, incl. a non-default endpoint tag routing the session), streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none).
 129. [TODO] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, context-length detection results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`).
 130. [TODO] Git Commit: `docs(evidence): record openrouter and local models migration results` (hash: TBD)
 

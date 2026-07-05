@@ -28,10 +28,11 @@ Own provider catalog, availability, and provider invocation profile descriptors.
   full retirement is a Phase 5 open item. Never two Kimi entries in the
   picker at once. The Phase 3 GLM visibility switch is also APPLIED: the visible
   GLM is the `glm-client` universal-client endpoint, while `glm-native` is
-  internal. The Phase 4 `local-models-client` universal-client endpoint is
-  bound INTERNAL ahead of its visibility switch; the legacy `local-models`
-  reference adapter still owns the visible entry. Never two Local Models
-  entries in the picker at once.
+  internal. The Phase 4 `local-models-client` and `openrouter-client`
+  universal-client endpoints are bound INTERNAL ahead of their visibility
+  switch; the legacy `local-models`/`openrouter` reference adapters still own
+  the visible entries. Never two Local Models or two OpenRouter entries in
+  the picker at once.
 - Core-owned default model id: descriptors of universal-client endpoints
   carry `defaultModelId` from the provider-descriptor client model catalog
   only for single-model catalogs (`kimi-client` → `kimi-for-coding`); multi-

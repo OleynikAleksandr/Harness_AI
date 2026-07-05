@@ -13,6 +13,7 @@ export type ProviderId =
   | "glm-client"
   | "glm-native"
   | "openrouter"
+  | "openrouter-client"
   | "local-models"
   | "local-models-client";
 
@@ -107,6 +108,16 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     moduleId: "openrouter-provider",
     status: "needs-settings",
     visibility: "visible",
+  },
+  {
+    // The universal-client OpenRouter endpoint, INTERNAL until the Phase 4
+    // visibility switch; the legacy reference adapter serves the visible
+    // entry meanwhile. Never two OpenRouter entries in the picker at once.
+    id: "openrouter-client",
+    name: "OpenRouter",
+    moduleId: "openrouter-client-provider",
+    status: "needs-settings",
+    visibility: "internal",
   },
   {
     id: "local-models",

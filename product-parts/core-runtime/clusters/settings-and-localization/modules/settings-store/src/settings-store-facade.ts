@@ -208,6 +208,9 @@ const PROVIDER_KEY_BY_ID: Record<
   "glm-client": "glmClient",
   "glm-native": "glmNative",
   openrouter: "openRouter",
+  // The universal-client endpoint shares the openRouter section: ONE key
+  // serves coding sessions and the localization translation engine.
+  "openrouter-client": "openRouter",
   "local-models": "localModels",
   // The universal-client endpoint shares the localModels section: the same
   // local server connection serves the legacy and the client provider ids.

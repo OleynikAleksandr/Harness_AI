@@ -81,6 +81,8 @@ const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
   "kimi-client",
   // Universal-client endpoint: base URL + optional key from Core settings.
   "local-models-client",
+  // Universal-client endpoint: the shared OpenRouter key from Core settings.
+  "openrouter-client",
 ]);
 
 export class ProviderDescriptorFacade {

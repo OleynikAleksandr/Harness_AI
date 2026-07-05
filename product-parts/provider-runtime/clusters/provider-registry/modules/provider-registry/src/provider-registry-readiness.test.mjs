@@ -86,3 +86,18 @@ assert.equal(
   visible.filter((provider) => provider.name === "Local Models").length,
   1
 );
+
+// Same pre-switch state for the universal-client OpenRouter endpoint: bound
+// internal, no static defaultModelId (live slug catalog), single visible entry.
+const openRouterClient = registry.getProvider("openrouter-client");
+assert.equal(openRouterClient.visibility, "internal");
+assert.equal(openRouterClient.moduleId, "openrouter-client-provider");
+assert.equal(openRouterClient.defaultModelId, undefined);
+assert.equal(
+  visible.some((provider) => provider.id === "openrouter-client"),
+  false
+);
+assert.equal(
+  visible.filter((provider) => provider.name === "OpenRouter").length,
+  1
+);

@@ -18,9 +18,10 @@ Own model/reasoning capabilities and UI metadata for providers.
 - Renderer-safe provider descriptor.
 - Capability lookup result. HTTP-compatible providers (`openrouter`,
   `local-models`, and the universal-client `kimi-client` / `glm-client` /
-  `local-models-client` endpoints) report `requiresProviderHome: false`: they
-  run on key-only auth (Local Models: base URL + optional key) from Core
-  settings and never provision a provider home.
+  `local-models-client` / `openrouter-client` endpoints) report
+  `requiresProviderHome: false`: they run on key-only auth (Local Models:
+  base URL + optional key) from Core settings and never provision a provider
+  home.
 - Capturable model catalog for the Native Request Capture UI:
   `getCapturableModels(providerId)` returns `{ id, label }` entries per
   capture provider (Claude, Codex, Kimi — GLM Native needs no capture and is
@@ -37,6 +38,9 @@ Own model/reasoning capabilities and UI metadata for providers.
   `local-models-client` intentionally has NO static entry: its catalog is
   live (`GET {baseUrl}/v1/models` on the configured local server), so the
   selected model comes from settings and the model list from the RPC flow.
+  `openrouter-client` has NO static entry either: its catalog is the live
+  OpenRouter model-slug search in Settings, and the session model comes from
+  `providers.openRouter.defaultModel`.
 
 ## Owned Paths
 

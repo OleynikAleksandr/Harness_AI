@@ -249,7 +249,7 @@ export function SettingsTabContent({
     );
   }
 
-  if (activeTab === "glmNative") {
+  if (activeTab === "glmClient") {
     return (
       <div className="settings-reference-stack">
         <GlmClientApiKeyCard

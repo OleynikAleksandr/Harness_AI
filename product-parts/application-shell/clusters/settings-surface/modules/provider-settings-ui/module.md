@@ -146,9 +146,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `providers.glmClient.defaultModel` and populated from
   `PROVIDER_MODEL_OPTIONS.glmClient` (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). Its helper copy and model descriptions resolve through
-  the browser localization provider. The older `glmNative` connection/default-
-  model card is not mounted on the visible GLM Settings tab; `glmNative`
-  remains internal runtime debt only.
+  the browser localization provider. The tab id is `glmClient`
+  (`settings.tab.glmClient` label key) — the relic `glmNative` id was renamed
+  by the 2026-07-05 legacy cleanup after the `glm-native` module/settings
+  removal; no native-GLM card exists anymore.
 - When the dialog opens, and after a successful settings save or workspace
   settings reset, the facade calls the parent-provided localization runtime
   refresh callback so newly materialized bundles are visible even when there are

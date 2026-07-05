@@ -81,7 +81,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.tab.claude": "Claude",
     "settings.tab.codex": "Codex",
     "settings.tab.general": "General",
-    "settings.tab.glmNative": "GLM",
+    "settings.tab.glmClient": "GLM",
     "settings.tab.kimi": "Kimi",
     "settings.tab.localModels": "Local Models",
     "settings.tab.openRouter": "OpenRouter",

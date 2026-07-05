@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream7.task8",
-  "expectedCommitMessage": "feat(settings-ui): rename glm settings tab id to client",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -529,8 +529,8 @@
 162. [DONE] Git Commit: `feat(core-runtime): remove legacy provider settings bindings` (hash: self)
 163. [DONE] `harness-ai.phase4.stream7.task6` Remove the three legacy provider ids AND the retired module directories in one commit: `ProviderId` union -= `glm-native`/`openrouter`/`local-models`, registry `PROVIDERS` -= the three internal entries (+ registry test rewritten to Unknown-provider assertions), descriptor `HTTP_COMPATIBLE_PROVIDER_IDS` -= the legacy entries, `PROVIDER_KEY_BY_ID` bridge lines leave with the union (the map is exhaustive over it), delete the `glm-native-provider`/`openrouter-provider`/`local-models-provider` module directories (module.md + src incl. the consumed `src/reference/**` corpus), drop their product-tree entries (json + readable projection), update the provider-adapters `cluster.md`, fix the `provider-usage-limit-ownership` source assertions (`glm-native` reference path leaves; `kimi-provider` stays), and align the current architecture docs (`docs/architecture/UniversalClient.md`, `docs/architecture/CodeAIHubProviderRuntimeAlignment.md`, `docs/architecture/SessionProfiles.md`); removal file-count allowed by this plan line. MERGE NOTE (2026-07-05, during implementation): the former task7 collapsed into this task — the retired facades call the auth store with their own legacy ids, so the union shrink and the module deletion are ONE atomic compile unit (typecheck fails on any split), and the docs-sync rule requires the doc alignment in the same commit. ORPHAN FINDING joining this commit: the `provider-turn-runner` module ("Legacy Direct Provider Turn Runner", deprecated-debt module.md) has ZERO callers across the tree — the orphaned module directory and its product-tree entry are removed too, and `docs/architecture/CodeAIHubProviderRuntimeAlignment.md` records its migration as complete (scope: provider-registry facade (+ readiness test), provider-descriptor facade, settings-store facade, four module directories (delete), product-tree json+md, provider-adapters cluster.md, provider-usage-limit-ownership.test.mjs, three architecture docs + affected `module.md`s; expected commit: `feat(core-runtime): remove legacy provider ids`). Result: Completed in commit `feat(core-runtime): remove legacy provider ids`.
 164. [DONE] Git Commit: `feat(core-runtime): remove legacy provider ids` (hash: self)
-165. [IN_PROGRESS] `harness-ai.phase4.stream7.task8` Rename the relic `glmNative` Settings tab id to `glmClient` (the tab has served the client GLM since Phase 3): `SETTINGS_TABS` id + `ProviderTabId` union member, the `settings-tab-content` branch, and the `settings.tab.glmNative` dictionary key becomes `settings.tab.glmClient` (scope: settings-model-options, settings-tab-content, source-dictionaries + affected `module.md`s; expected commit: `feat(settings-ui): rename glm settings tab id to client`).
-166. [TODO] Git Commit: `feat(settings-ui): rename glm settings tab id to client` (hash: TBD)
+165. [DONE] `harness-ai.phase4.stream7.task8` Rename the relic `glmNative` Settings tab id to `glmClient` (the tab has served the client GLM since Phase 3): `SETTINGS_TABS` id + `ProviderTabId` union member, the `settings-tab-content` branch, and the `settings.tab.glmNative` dictionary key becomes `settings.tab.glmClient` (scope: settings-model-options, settings-tab-content, source-dictionaries + affected `module.md`s; expected commit: `feat(settings-ui): rename glm settings tab id to client`). Result: Completed in commit `feat(settings-ui): rename glm settings tab id to client`.
+166. [DONE] Git Commit: `feat(settings-ui): rename glm settings tab id to client` (hash: self)
 
 ## Phase 5 - Synthetic Native Profiles (milestones; owner: Codex + User)
 

@@ -4,7 +4,7 @@ export type SettingsTabId =
   | "claude"
   | "codex"
   | "kimi"
-  | "glmNative"
+  | "glmClient"
   | "localModels"
   | "openRouter"
   | "general"
@@ -17,7 +17,7 @@ export const SETTINGS_TABS: ReadonlyArray<{
   { id: "claude", label: "Claude" },
   { id: "codex", label: "Codex" },
   { id: "kimi", label: "Kimi" },
-  { id: "glmNative", label: "GLM" },
+  { id: "glmClient", label: "GLM" },
   { id: "localModels", label: "Local Models" },
   { id: "openRouter", label: "OpenRouter" },
   { id: "general", label: "General" },

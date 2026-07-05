@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream7.task10",
+  "expectedCommitMessage": "feat(core-runtime): drop kimi from native capture",
   "debt": null
 }
 ```
@@ -516,6 +516,21 @@
 > to `glmClient`. Removal is ordered consumers-first so every commit
 > compiles; mechanical removal splits may join a task's scope with a
 > recorded clarification (accepted Phase 3 pattern).
+>
+> DECISION UPDATE (2026-07-05, later direct user order): decision (1) is
+> OVERRIDDEN — the ACP `kimi-provider` is REMOVED TOO, and Kimi leaves the
+> native capture feature ("kimi-provider (ACP) — тоже удаляй и убирай его из
+> Capture"). Capture serves Claude/Codex only from here on; the Kimi
+> synthetic-native material is the ALREADY ACCEPTED capture dumps of
+> 2026-07-03 (no new Kimi captures can be recorded after this removal — the
+> capture channel drove the native Kimi CLI, which has no other harness
+> path). The kimi-only reverse-forward capture bridge
+> (`capture-proxy-reverse.ts`, built because the kimi Mach-O binary ignores
+> proxy env) goes with it. The visible Kimi (`kimi-client`) keeps its
+> Settings key card, its session tint (retargeted to the live id) and the
+> five-hour-window telemetry labels where they follow the live ids. Tasks
+> 9-15 below execute this order consumers-first (capture → settings UI →
+> renderer → routing → session/telemetry → ids+schema+module deletion).
 
 153. [DONE] `harness-ai.phase4.stream7.task1` Materialize the legacy provider cleanup stream per the user's direct order 2026-07-05 (plan-only, closes with this same commit): record the audit findings and decisions above, lay out the removal microtasks below, and narrow the Phase 5 afterlife milestone to the ACP `kimi-provider` only (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): materialize legacy provider cleanup`). Result: Completed in commit `docs(plan): materialize legacy provider cleanup`.
 154. [DONE] Git Commit: `docs(plan): materialize legacy provider cleanup` (hash: self)
@@ -531,6 +546,20 @@
 164. [DONE] Git Commit: `feat(core-runtime): remove legacy provider ids` (hash: self)
 165. [DONE] `harness-ai.phase4.stream7.task8` Rename the relic `glmNative` Settings tab id to `glmClient` (the tab has served the client GLM since Phase 3): `SETTINGS_TABS` id + `ProviderTabId` union member, the `settings-tab-content` branch, and the `settings.tab.glmNative` dictionary key becomes `settings.tab.glmClient` (scope: settings-model-options, settings-tab-content, source-dictionaries + affected `module.md`s; expected commit: `feat(settings-ui): rename glm settings tab id to client`). Result: Completed in commit `feat(settings-ui): rename glm settings tab id to client`.
 166. [DONE] Git Commit: `feat(settings-ui): rename glm settings tab id to client` (hash: self)
+167. [DONE] `harness-ai.phase4.stream7.task9` Materialize the ACP kimi retirement per the user's direct order 2026-07-05 (plan-only, closes with this same commit): record the DECISION UPDATE above (kimi-provider removed too, Kimi leaves capture — Claude/Codex-only capture; accepted 2026-07-03 dumps stay the Kimi synthetic-native material) and lay out tasks 10-15; the Phase 5 milestone drops its afterlife item entirely (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): materialize acp kimi retirement`). Result: Completed in commit `docs(plan): materialize acp kimi retirement`.
+168. [DONE] Git Commit: `docs(plan): materialize acp kimi retirement` (hash: self)
+169. [IN_PROGRESS] `harness-ai.phase4.stream7.task10` Drop Kimi from the native capture feature: `CAPTURE_PROVIDER_IDS` -= `kimi` (+ the RPC provider-id cast narrows to `"claude" | "codex"`), `capture-artifacts` `NativeCaptureProviderId` narrows, the orchestrator loses its `kimi` target rules and the `captureViaReverse` branch/method, the kimi-only reverse-forward bridge file (`capture-proxy-reverse.ts`) is deleted, the adapter-contract capture `kind` narrows, and `CAPTURABLE_MODELS` loses its `kimi` entry (provider-descriptor); capture tests updated; removal file-count allowed by this plan line (scope: core-native-capture-rpc (+ test), capture-orchestrator facade (+ test), capture-artifacts facade (+ test), capture-proxy-reverse (delete, + capture-proxy test), provider-adapter-contract facade, provider-descriptor facade + affected `module.md`s; expected commit: `feat(core-runtime): drop kimi from native capture`).
+170. [TODO] Git Commit: `feat(core-runtime): drop kimi from native capture` (hash: TBD)
+171. [TODO] `harness-ai.phase4.stream7.task11` Remove the ACP Kimi Settings controls (the Kimi tab keeps the universal-client `KimiClientApiKeyCard` only): the ACP default-model card and the ACP thinking toggles leave `settings-tab-content` (`providers.kimi.*` writes), `PROVIDER_MODEL_OPTIONS.kimi` leaves `settings-model-options`, and the `settings.provider.kimi.*` ACP dictionary strings leave the approved dictionaries (scope: settings-tab-content, settings-model-options, source-dictionaries + affected `module.md`s; expected commit: `feat(settings-ui): remove acp kimi settings controls`).
+172. [TODO] Git Commit: `feat(settings-ui): remove acp kimi settings controls` (hash: TBD)
+173. [TODO] `harness-ai.phase4.stream7.task12` Retire the ACP kimi renderer branches: `provider-picker` `getProviderModel` drops the `kimi` case (the visible Kimi resolves through the Core-owned `defaultModelId`), and the session-panel provider tint retargets `kimi` -> `kimi-client` so the live Kimi sessions keep the Kimi tint (no-dead-feature counterpart, the accepted endpoint-tag pattern); panel test updated (scope: provider-picker, reference-session-panels (+ test) + session-window `module.md`; expected commit: `feat(session-ui): retire acp kimi renderer branches`).
+174. [TODO] Git Commit: `feat(session-ui): retire acp kimi renderer branches` (hash: TBD)
+175. [TODO] `harness-ai.phase4.stream7.task13` Unbind the ACP kimi adapter from Core routing and liveness: `buildProviderAdapterInstance` drops the `kimi` case and the facade import, lifecycle `PROVIDER_IDS` drops `kimi`, and the liveness checker drops its `kimi` provider-home branch + facade import (Claude/Codex keep the provider-home preflight) (scope: core-provider-adapter-registration, core-provider-lifecycle, provider-liveness-checker + affected `module.md`s; expected commit: `feat(core-runtime): unbind acp kimi adapter`).
+176. [TODO] Git Commit: `feat(core-runtime): unbind acp kimi adapter` (hash: TBD)
+177. [TODO] `harness-ai.phase4.stream7.task14` Remove the ACP kimi session/telemetry branches: `provider-turn-options` drops the `kimi` branch (+ test), and `usage-context-telemetry` drops `kimi` from `hasFiveHourWindow` (the `glm-` prefix keeps serving `glm-client`) and retires `hasProviderUsageScope` (no provider-scoped usage ids remain — provider scope keys stay for `claude`/`codex` only), renaming the `KIMI_TOKEN_LIMIT` constant to its five-hour-window meaning; telemetry test updated (scope: provider-turn-options (+ test), usage-context-telemetry facade (+ test) + affected `module.md`s; expected commit: `feat(core-runtime): remove acp kimi session and telemetry branches`).
+178. [TODO] Git Commit: `feat(core-runtime): remove acp kimi session and telemetry branches` (hash: TBD)
+179. [TODO] `harness-ai.phase4.stream7.task15` Remove the ACP `kimi` provider id, settings schema and module in one commit (the union shrink and the module deletion are one atomic compile unit — the accepted task6 pattern): `ProviderId` union -= `kimi`, registry `PROVIDERS` -= the internal `kimi` entry (+ readiness test drops the ACP assertions), `PROVIDER_KEY_BY_ID` -= `kimi`, the `providers.kimi` settings section leaves the schema/defaults/projections/normalization (`KIMI_MODEL_IDS` rule; legacy-tolerance per the accepted pattern — stored files load fine, projections drop the section), delete the `kimi-provider` module directory (module.md + src incl. `src/reference/**` and the in-module `kimi-capture-config-rewrite` diagnostics), drop its product-tree entry (json + readable projection), update the provider-adapters `cluster.md`, fix the `provider-usage-limit-ownership` assertions (the kimi reader path leaves), and align the current architecture docs (`docs/architecture/UniversalClient.md`, `docs/architecture/SessionProfilesV2.md` capture passage, `docs/architecture/SessionProfiles.md` Kimi passage, `docs/architecture/CodeAIHubProviderRuntimeAlignment.md` Kimi section); removal file-count allowed by this plan line (scope: provider-registry facade (+ readiness test), settings-store facade + projections, settings-normalization (+ test if asserted), kimi-provider module directory (delete), product-tree json+md, provider-adapters cluster.md, provider-usage-limit-ownership.test.mjs, four architecture docs + affected `module.md`s; expected commit: `feat(provider-runtime): remove acp kimi provider module`).
+180. [TODO] Git Commit: `feat(provider-runtime): remove acp kimi provider module` (hash: TBD)
 
 ## Phase 5 - Synthetic Native Profiles (milestones; owner: Codex + User)
 
@@ -541,10 +570,11 @@
 > accepted capture dumps + the "Update Native Profile" command/UI; (d) shared
 > live-context generator; (e) package + user acceptance. Carries the archived
 > open items (profile storage layout, Update-Native mechanism, Claude `# Memory`
-> ballast) and the remaining afterlife item: the ACP `kimi-provider` ONLY —
-> it stays as the live adapter behind the accepted Kimi native capture until
-> Phase 5 settles the capture channel. The retired `glm-native-provider`,
-> `openrouter-provider` and `local-models-provider` modules (incl. their
-> consumed `src/reference/**` corpus) were REMOVED by the Phase 4 stream7
-> cleanup (user order 2026-07-05). Session profile re-targeting onto the
+> ballast); NO afterlife removals remain — the retired `glm-native-provider`,
+> `openrouter-provider`, `local-models-provider` modules (incl. their
+> consumed `src/reference/**` corpus), the orphaned `provider-turn-runner`
+> AND the ACP `kimi-provider` (with its Kimi capture channel — capture is
+> Claude/Codex-only now) were ALL removed by the Phase 4 stream7 cleanup
+> (user orders 2026-07-05). The Kimi synthetic-native material is the
+> accepted 2026-07-03 capture dumps. Session profile re-targeting onto the
 > client four (`PROFILE_SUPPORTED_PROVIDER_IDS`, seed profiles) lands here.

@@ -36,6 +36,13 @@ Own API key and auth references while keeping secrets outside tracked workspace 
   and `HARNESS_AI_LOCAL_MODELS_BASE_URL`/`LMSTUDIO_BASE_URL` base-URL
   fallbacks. The key is optional (local servers usually run no-auth); no
   provider home is provisioned.
+- OpenRouter universal-client key resolution: the internal
+  `openrouter-client` provider reads the SAME shared OpenRouter connection as
+  the legacy id — `openRouter`/`openrouter` file aliases with the
+  `OPENROUTER_API_KEY` / `OPENROUTER_BASE_URL` env fallbacks. One key serves
+  coding sessions AND the localization translation engine; the OpenRouter
+  Settings tab is preserved as-is (2026-07-05 user review fix), so no new
+  Settings copy accompanies this alias.
 
 ## Owned Paths
 

@@ -23,6 +23,9 @@ const PROVIDER_SETTING_ALIASES: Partial<Record<ProviderId, string[]>> = {
   // the legacy id, so the file aliases and env fallbacks match.
   "local-models-client": ["localModels", "local-models", "local"],
   openrouter: ["openRouter", "openrouter"],
+  // Universal-client OpenRouter endpoint: the SAME shared OpenRouter
+  // connection (one key serves sessions and the translation engine).
+  "openrouter-client": ["openRouter", "openrouter"],
 };
 
 export class ProviderAuthStoreFacade {
@@ -42,6 +45,7 @@ export class ProviderAuthStoreFacade {
       "local-models": ["HARNESS_AI_LOCAL_API_KEY", "LMSTUDIO_API_KEY"],
       "local-models-client": ["HARNESS_AI_LOCAL_API_KEY", "LMSTUDIO_API_KEY"],
       openrouter: ["OPENROUTER_API_KEY"],
+      "openrouter-client": ["OPENROUTER_API_KEY"],
     };
     const settings = this.getProviderSettings(providerId);
     const fromSettings = firstText(settings.apiKey);
@@ -67,6 +71,7 @@ export class ProviderAuthStoreFacade {
         "LMSTUDIO_BASE_URL",
       ],
       openrouter: ["OPENROUTER_BASE_URL"],
+      "openrouter-client": ["OPENROUTER_BASE_URL"],
     };
     const settings = this.getProviderSettings(providerId);
     const fromSettings = firstText(settings.baseUrl);

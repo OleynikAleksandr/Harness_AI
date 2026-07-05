@@ -16,7 +16,7 @@ const source = readFileSync(
   )
   .replace(
     /import \{ settingsStoreFacade \}[^\n]*\n/u,
-    "const settingsStoreFacade = { getSettings: () => ({ providers: { localModels: { baseUrl: globalThis.__localClientTestSettingsBaseUrl ?? 'http://127.0.0.1:1234', contextLength: 0, defaultModel: globalThis.__localClientTestModel ?? 'qwen-coder' } } }) };\n"
+    "const settingsStoreFacade = { getSettings: () => ({ providers: { localModels: { baseUrl: globalThis.__localClientTestSettingsBaseUrl ?? 'http://127.0.0.1:1234', contextLengthByModel: globalThis.__localClientTestContextByModel ?? {}, defaultModel: globalThis.__localClientTestModel ?? 'qwen-coder' } } }) };\n"
   )
   .replace(
     /import \{ createBuiltinToolSource \}[^\n]*\n/u,

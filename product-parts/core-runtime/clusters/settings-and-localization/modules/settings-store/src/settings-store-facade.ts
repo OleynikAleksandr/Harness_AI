@@ -71,11 +71,12 @@ export interface HarnessSettings {
     };
     // Universal-client Local Models endpoint: the base URL points at the
     // user's local OpenAI-compatible server (LM Studio's server has no auth;
-    // the llama.cpp/proxy key niche stays on silent env fallbacks), and
-    // contextLength overrides window auto-detection when greater than zero.
+    // the llama.cpp/proxy key niche stays on silent env fallbacks).
+    // contextLengthByModel is the per-model window wish (0/absent = server
+    // default) applied through the LM Studio v1 management API.
     localModels: {
       baseUrl: string;
-      contextLength: number;
+      contextLengthByModel: Record<string, number>;
       defaultModel: string;
     };
     openRouter: ProviderConnectionSettings & {
@@ -175,7 +176,7 @@ const DEFAULT_SETTINGS: HarnessSettings = {
     },
     localModels: {
       baseUrl: "http://127.0.0.1:1234",
-      contextLength: 0,
+      contextLengthByModel: {},
       defaultModel: "local-model",
     },
     openRouter: {

@@ -153,10 +153,13 @@ export class LocalModelsClientProviderFacade implements ProviderAdapter {
     }
     // The key is optional: most local servers run no-auth.
     const apiKey = providerAuthStoreFacade.getApiKey("local-models-client");
+    const model = settings.providers.localModels.defaultModel;
     await this.publishContextWindow(session, {
       baseUrl,
-      contextLength: settings.providers.localModels.contextLength,
-      model: settings.providers.localModels.defaultModel,
+      // Per-model wish from the settings map; 0/absent keeps auto-detection.
+      contextLength:
+        settings.providers.localModels.contextLengthByModel[model] ?? 0,
+      model,
     });
     session.abort?.abort();
     const abort = new AbortController();

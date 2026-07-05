@@ -111,9 +111,10 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   next.providers.localModels.baseUrl = normalizeLocalBaseUrl(
     next.providers.localModels.baseUrl
   );
-  next.providers.localModels.contextLength = normalizeContextLength(
-    next.providers.localModels.contextLength
-  );
+  next.providers.localModels.contextLengthByModel =
+    normalizeContextLengthByModel(
+      next.providers.localModels.contextLengthByModel
+    );
   return next;
 }
 
@@ -131,11 +132,20 @@ function normalizeLocalBaseUrl(value: unknown): string {
     : LOCAL_MODELS_DEFAULT_BASE_URL;
 }
 
-// Context length override: a non-negative integer where 0 keeps auto-detect.
-function normalizeContextLength(value: unknown): number {
-  return typeof value === "number" && Number.isInteger(value) && value >= 0
-    ? value
-    : 0;
+// Per-model context wishes: keep non-negative integer entries only (0 =
+// server default); junk values and non-record shapes reset structurally.
+function normalizeContextLengthByModel(value: unknown): Record<string, number> {
+  if (!isRecord(value)) {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      ([, contextLength]) =>
+        typeof contextLength === "number" &&
+        Number.isInteger(contextLength) &&
+        contextLength >= 0
+    )
+  ) as Record<string, number>;
 }
 
 export function resolveCodexReasoningEffort(

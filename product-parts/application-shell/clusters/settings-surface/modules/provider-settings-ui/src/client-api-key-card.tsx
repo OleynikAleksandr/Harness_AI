@@ -68,36 +68,20 @@ export function KimiClientApiKeyCard({
   );
 }
 
-const CONTEXT_LENGTH_DIGITS_PATTERN = /^\d+$/u;
-
-// Free-text context input: digits become the override, anything else keeps
-// auto-detection (0).
-const parseContextLength = (value: string): number => {
-  const trimmed = value.trim();
-  if (!CONTEXT_LENGTH_DIGITS_PATTERN.test(trimmed)) {
-    return 0;
-  }
-  const parsed = Number.parseInt(trimmed, 10);
-  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 0;
-};
-
 export interface LocalModelsConnectionPatch {
   readonly baseUrl?: string;
-  readonly contextLength?: number;
 }
 
 // Connection variant of the client card family for local universal-client
-// providers: a base URL and a context-length override. No API key field —
-// LM Studio's local server has no authentication (user review fix
-// 2026-07-05); the llama.cpp/proxy niche stays on silent env fallbacks. The
+// providers: Base URL ONLY. No API key field (LM Studio's local server has
+// no authentication — user review fix 2026-07-05) and no global context
+// override (the context wish is per model, edited in the model list). The
 // Local Models tab mounts it above the live model list.
 export function LocalModelsClientConnectionCard({
   baseUrl,
-  contextLength,
   onChange,
 }: {
   baseUrl: string;
-  contextLength: number;
   onChange: (patch: LocalModelsConnectionPatch) => void;
 }) {
   const { t } = useBrowserLocalization();
@@ -127,25 +111,6 @@ export function LocalModelsClientConnectionCard({
           "ui_helper_text",
           "settings.provider.localModelsClient.baseUrl.description",
           "Base URL of the local OpenAI-compatible server — the server root (http://127.0.0.1:1234) or its /v1 prefix; both are accepted. Harness also reads HARNESS_AI_LOCAL_MODELS_BASE_URL or LMSTUDIO_BASE_URL from the environment."
-        )}
-      </p>
-      <SettingsTextField
-        label={t(
-          "ui_labels",
-          "settings.provider.localModelsClient.contextLength",
-          "Context Length Override"
-        )}
-        onChange={(value) =>
-          onChange({ contextLength: parseContextLength(value) })
-        }
-        placeholder="0"
-        value={contextLength === 0 ? "" : String(contextLength)}
-      />
-      <p className="settings-note">
-        {t(
-          "ui_helper_text",
-          "settings.provider.localModelsClient.contextLength.description",
-          "Manual context window override in tokens. 0 keeps auto-detection (Ollama, LM Studio and llama.cpp report their loaded context)."
         )}
       </p>
     </SettingsCard>

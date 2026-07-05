@@ -31,7 +31,8 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
       glmNative: pickConnection(settings.providers.glmNative),
       localModels: {
         baseUrl: settings.providers.localModels.baseUrl,
-        contextLength: settings.providers.localModels.contextLength,
+        contextLengthByModel:
+          settings.providers.localModels.contextLengthByModel,
       },
       openRouter: {
         ...pickConnection(settings.providers.openRouter),

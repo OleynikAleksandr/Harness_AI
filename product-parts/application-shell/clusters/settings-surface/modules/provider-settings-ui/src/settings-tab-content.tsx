@@ -286,14 +286,10 @@ export function SettingsTabContent({
       <div className="settings-reference-stack">
         <LocalModelsClientConnectionCard
           baseUrl={provider.baseUrl}
-          contextLength={provider.contextLength}
           onChange={(patch) =>
             update((next) => {
               if (patch.baseUrl !== undefined) {
                 next.providers.localModels.baseUrl = patch.baseUrl;
-              }
-              if (patch.contextLength !== undefined) {
-                next.providers.localModels.contextLength = patch.contextLength;
               }
             })
           }

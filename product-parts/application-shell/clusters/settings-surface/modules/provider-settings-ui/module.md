@@ -33,16 +33,16 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   Core-owned (settings store persistence + auth-store sync).
 - Local Models connection card (`LocalModelsClientConnectionCard`, the
   connection variant of the client card family in `client-api-key-card.tsx`):
-  Base URL (server root or `/v1` prefix) and a context-length override
-  (digits set the window; anything else keeps `0` = auto-detect) bound to
-  `providers.localModels.{baseUrl,contextLength}` (card title
+  Base URL ONLY (server root or `/v1` prefix) bound to
+  `providers.localModels.baseUrl` (card title
   `settings.provider.localModelsClient.connection`, helper copy under the
   `settings.provider.localModelsClient.*` prefix). There is NO API key field
   (2026-07-05 user review fix — LM Studio's local server has no auth; env
-  fallbacks cover the llama.cpp/proxy niche silently). The Local Models tab
-  mounts it above the existing live model list card
-  (`LocalModelsSettingsCard`), which keeps feeding the default-model choice
-  from the `get-local-models` RPC.
+  fallbacks cover the llama.cpp/proxy niche silently) and NO global context
+  override — the context wish is PER MODEL (`contextLengthByModel`), edited
+  in the model list. The Local Models tab mounts the card above the model
+  list card (`LocalModelsSettingsCard`), which keeps feeding the
+  default-model choice from the `get-local-models` RPC.
 - Shared provider-tab card helpers (`DefaultModelCard`, `localizeModelOptions`) live in
   `settings-provider-cards.tsx`, split from `settings-tab-content.tsx` for
   the 500-line cap.

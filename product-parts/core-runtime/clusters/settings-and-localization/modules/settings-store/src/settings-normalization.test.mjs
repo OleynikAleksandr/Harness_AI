@@ -36,14 +36,14 @@ assert.match(
   /glmClient: \{\n\s+apiKey: "",\n\s+defaultModel: "glm-5\.2",\n\s+reasoningEffort: "max",\n\s+\}/u
 );
 assert.match(source, /normalizeLocalBaseUrl/u);
-assert.match(source, /normalizeContextLength/u);
+assert.match(source, /normalizeContextLengthByModel/u);
 assert.match(
   source,
   /LOCAL_MODELS_DEFAULT_BASE_URL = "http:\/\/127\.0\.0\.1:1234"/u
 );
 assert.match(
   facadeSource,
-  /localModels: \{\n\s+baseUrl: "http:\/\/127\.0\.0\.1:1234",\n\s+contextLength: 0,\n\s+defaultModel: "local-model",\n\s+\}/u
+  /localModels: \{\n\s+baseUrl: "http:\/\/127\.0\.0\.1:1234",\n\s+contextLengthByModel: \{\},\n\s+defaultModel: "local-model",\n\s+\}/u
 );
 // The API key field is removed (user review fix 2026-07-05); only env
 // fallbacks in the auth store may still supply a Bearer token.

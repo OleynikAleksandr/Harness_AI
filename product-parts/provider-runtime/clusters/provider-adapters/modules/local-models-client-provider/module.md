@@ -73,11 +73,11 @@ normalization.
   `GET /api/v0/models` — `loaded_context_length` beats `max_context_length`;
   Ollama `POST /api/show` — the family-prefixed `*.context_length` key;
   llama.cpp `GET /props` — `default_generation_settings.n_ctx`) with the
-  settings `contextLength` override as the last word. A detected window is
-  published as a `system` `NormalizedProviderEvent` carrying
-  `data.tokenUsage.limit`, which the existing session telemetry channel
-  (`applyProviderEvent`) applies as the context-window limit; when nothing
-  answers, the telemetry default stays.
+  per-model settings wish (`contextLengthByModel[model]`) as the last word.
+  A detected window is published as a `system` `NormalizedProviderEvent`
+  carrying `data.tokenUsage.limit`, which the existing session telemetry
+  channel (`applyProviderEvent`) applies as the context-window limit; when
+  nothing answers, the telemetry default stays.
 
 ## Owned Paths
 

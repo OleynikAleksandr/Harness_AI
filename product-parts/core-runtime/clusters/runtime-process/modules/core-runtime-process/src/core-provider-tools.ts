@@ -1,6 +1,7 @@
 import { exec } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { listLocalModels } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
 
 const execAsync = promisify(exec);
 const NPM_COMMAND = process.platform === "win32" ? "npm.cmd" : "npm";
@@ -39,21 +40,11 @@ const VERSION_PATTERN = /\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/u;
 type ProviderVersionKey = keyof typeof PROVIDER_PACKAGE_MAP;
 type ProviderUpdateTarget = keyof (typeof PROVIDER_PACKAGE_MAP)["claude"];
 
+// The live Local Models catalog now comes from the configured base URL
+// (Core settings + env fallbacks) owned by the universal-client endpoint
+// module; the old hardcoded LM-Studio URL is gone.
 export async function loadLocalModels(): Promise<string[]> {
-  const response = await fetch("http://127.0.0.1:1234/v1/models");
-  if (!response.ok) {
-    return [];
-  }
-  const payload = (await response.json()) as { data?: unknown[] };
-  return Array.isArray(payload.data)
-    ? payload.data
-        .map((model) =>
-          typeof (model as { id?: unknown })?.id === "string"
-            ? ((model as { id: string }).id ?? null)
-            : null
-        )
-        .filter((modelId): modelId is string => Boolean(modelId))
-    : [];
+  return await listLocalModels();
 }
 
 export async function loadProviderVersions(): Promise<unknown> {

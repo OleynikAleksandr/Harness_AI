@@ -45,6 +45,11 @@ normalization.
 - In-memory session state with final-history carry-over from
   `runClientTurn`; Stop aborts the in-flight turn and keeps history so the
   next send resumes the conversation.
+- Live model catalog (`listLocalModels`): `GET {v1 base}/models` ids from the
+  CONFIGURED server (auth-store base URL with env fallbacks, else the merged
+  settings default) — one loader serving the Core `get-local-models` RPC and
+  the liveness preflight; the old hardcoded LM-Studio URL is gone from
+  production paths (Core Authority fix).
 - Context-length detection (`local-models-context-length.ts`): OpenAI-shape
   `/v1/models` reports no context window, so one probe per session asks the
   provider-specific endpoints against the server ROOT (LM Studio

@@ -76,6 +76,34 @@ export const buildLocalModelsTurnRequest = (
   ...(input.signal ? { signal: input.signal } : {}),
 });
 
+// Live model catalog from the configured local server (GET {v1}/models).
+// Serves both the Settings RPC and the liveness preflight, replacing the old
+// hardcoded LM-Studio URL (Core Authority fix): the base URL comes from the
+// auth store (settings file + env fallbacks) or the merged settings default.
+export const listLocalModels = async (): Promise<string[]> => {
+  const baseUrl =
+    providerAuthStoreFacade.getBaseUrl("local-models-client") ??
+    settingsStoreFacade.getSettings().providers.localModels.baseUrl;
+  const v1BaseUrl = resolveLocalModelsV1BaseUrl(baseUrl);
+  if (!v1BaseUrl) {
+    return [];
+  }
+  const response = await fetch(`${v1BaseUrl}/models`);
+  if (!response.ok) {
+    return [];
+  }
+  const payload = (await response.json()) as { data?: unknown[] };
+  return Array.isArray(payload.data)
+    ? payload.data
+        .map((model) =>
+          typeof (model as { id?: unknown })?.id === "string"
+            ? (model as { id: string }).id
+            : null
+        )
+        .filter((modelId): modelId is string => Boolean(modelId))
+    : [];
+};
+
 const BASE_URL_MISSING_MESSAGE =
   "Local Models server base URL is missing. Set it in Provider Settings.";
 

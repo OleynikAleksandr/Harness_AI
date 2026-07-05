@@ -2,6 +2,7 @@ import { ClaudeProviderFacade } from "../../../../provider-adapters/modules/clau
 import { CodexProviderFacade } from "../../../../provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import { GlmNativeProviderFacade } from "../../../../provider-adapters/modules/glm-native-provider/src/glm-native-provider-facade.js";
 import { KimiProviderFacade } from "../../../../provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
+import { listLocalModels } from "../../../../provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
 import type { ProviderAdapter } from "../../../../provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import { providerDescriptorFacade } from "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
@@ -48,7 +49,9 @@ export class ProviderLivenessCheckerFacade {
         ((providerId) => providerDescriptorFacade.getCapabilities(providerId)),
       globalHomeAdapterFactory:
         deps.globalHomeAdapterFactory ?? globalHomeAdapterFactoryFacade,
-      loadLocalModels: deps.loadLocalModels ?? loadLocalModels,
+      // The live catalog reads the CONFIGURED base URL (settings + env
+      // fallbacks) from the universal-client endpoint module.
+      loadLocalModels: deps.loadLocalModels ?? listLocalModels,
       readinessRegistry:
         deps.readinessRegistry ?? providerReadinessRegistryFacade,
     };
@@ -90,10 +93,12 @@ export class ProviderLivenessCheckerFacade {
       return;
     }
     if (
-      providerId === "local-models" &&
+      (providerId === "local-models" || providerId === "local-models-client") &&
       (await this.deps.loadLocalModels()).length === 0
     ) {
-      throw new Error("Start LM Studio local server and load a model.");
+      throw new Error(
+        "Start the local model server (LM Studio, Ollama or llama.cpp) at the configured base URL and load a model."
+      );
     }
   }
 }
@@ -122,23 +127,6 @@ function createHomeAdapter(
     default:
       throw new Error(`Provider does not use a provider home: ${providerId}`);
   }
-}
-
-async function loadLocalModels(): Promise<string[]> {
-  const response = await fetch("http://127.0.0.1:1234/v1/models");
-  if (!response.ok) {
-    return [];
-  }
-  const payload = (await response.json()) as { data?: unknown[] };
-  return Array.isArray(payload.data)
-    ? payload.data
-        .map((model) =>
-          typeof (model as { id?: unknown })?.id === "string"
-            ? (model as { id: string }).id
-            : null
-        )
-        .filter((modelId): modelId is string => Boolean(modelId))
-    : [];
 }
 
 function livenessFailureMessage(

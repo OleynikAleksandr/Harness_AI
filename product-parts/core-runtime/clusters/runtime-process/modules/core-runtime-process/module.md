@@ -31,6 +31,9 @@ also run here so the Application Shell remains UI/supervisor/client only.
   readiness changes for the active workspace; these are streamed to clients but
   not written to session history JSONL.
 - Provider version snapshots, provider update results and local-model lists.
+  The `get-local-models` RPC delegates to the `local-models-client-provider`
+  `listLocalModels` loader, so the list comes from the CONFIGURED base URL
+  (Core settings + env fallbacks) instead of a hardcoded LM-Studio URL.
   CLI update targets run the provider's own self-update command (`claude update`,
   `codex update`) so the active install is updated wherever it lives; SDK targets
   use `npm install -g <pkg>@latest`. This avoids updating a stale

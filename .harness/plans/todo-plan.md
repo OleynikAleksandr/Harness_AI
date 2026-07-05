@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream2.task7",
-  "expectedCommitMessage": "feat(core-runtime): local models catalog from configured base url",
+  "currentTaskId": "harness-ai.phase4.stream2.task8",
+  "expectedCommitMessage": "feat(settings-ui): local models client connection card",
   "debt": null
 }
 ```
@@ -397,9 +397,9 @@
 105. [DONE] Git Commit: `feat(local-models-client-provider): context length detection` (hash: self)
 106. [DONE] `harness-ai.phase4.stream2.task6` Route Core sessions to the Local Models client: `buildProviderAdapterInstance` case `local-models-client` (model resolved from Core settings per turn like GLM) and `PROVIDER_IDS` += `local-models-client` (RPC id validation + startup registration) (scope: core-provider-adapter-registration, core-provider-lifecycle + core-runtime-process `module.md`; expected commit: `feat(core-runtime): route sessions to local models universal client`). Result: Completed in commit `feat(core-runtime): route sessions to local models universal client`.
 107. [DONE] Git Commit: `feat(core-runtime): route sessions to local models universal client` (hash: self)
-108. [IN_PROGRESS] `harness-ai.phase4.stream2.task7` Local Models live catalog + liveness from the CONFIGURED base URL (Core Authority fix — the hardcoded `http://127.0.0.1:1234` LM-Studio URL leaves production paths): `loadLocalModels` (core-provider-tools) reads `providers.localModels.baseUrl` from the settings snapshot, and the liveness checker validates `local-models-client` via the model list from the configured URL (its private `loadLocalModels` duplicate is retargeted/removed too) (scope: core-provider-tools, provider-liveness-checker facade + affected `module.md`s; expected commit: `feat(core-runtime): local models catalog from configured base url`).
-109. [TODO] Git Commit: `feat(core-runtime): local models catalog from configured base url` (hash: TBD)
-110. [TODO] `harness-ai.phase4.stream2.task8` Local Models client Settings UI: extend the reusable client card family with a base-URL + optional-key connection variant (user's standing order: every universal-client provider gets its onboarding card), mount it in the Local Models tab bound to `providers.localModels.{baseUrl,apiKey,contextLength}`, keep the default-model selection fed by the live `get-local-models` list (existing RPC flow), using the task3 help strings (scope: client-api-key-card (connection variant), local-models-settings-card, settings-tab-content + provider-settings-ui `module.md`; if dictionary labels are added, source-dictionaries + localization-runtime `module.md` join as a recorded split; expected commit: `feat(settings-ui): local models client connection card`).
+108. [DONE] `harness-ai.phase4.stream2.task7` Local Models live catalog + liveness from the CONFIGURED base URL (Core Authority fix — the hardcoded `http://127.0.0.1:1234` LM-Studio URL leaves production paths): `loadLocalModels` (core-provider-tools) reads `providers.localModels.baseUrl` from the settings snapshot, and the liveness checker validates `local-models-client` via the model list from the configured URL (its private `loadLocalModels` duplicate is retargeted/removed too) (scope: core-provider-tools, provider-liveness-checker facade + affected `module.md`s; expected commit: `feat(core-runtime): local models catalog from configured base url`). Result: Completed in commit `feat(core-runtime): local models catalog from configured base url`.
+109. [DONE] Git Commit: `feat(core-runtime): local models catalog from configured base url` (hash: self)
+110. [IN_PROGRESS] `harness-ai.phase4.stream2.task8` Local Models client Settings UI: extend the reusable client card family with a base-URL + optional-key connection variant (user's standing order: every universal-client provider gets its onboarding card), mount it in the Local Models tab bound to `providers.localModels.{baseUrl,apiKey,contextLength}`, keep the default-model selection fed by the live `get-local-models` list (existing RPC flow), using the task3 help strings (scope: client-api-key-card (connection variant), local-models-settings-card, settings-tab-content + provider-settings-ui `module.md`; if dictionary labels are added, source-dictionaries + localization-runtime `module.md` join as a recorded split; expected commit: `feat(settings-ui): local models client connection card`).
 111. [TODO] Git Commit: `feat(settings-ui): local models client connection card` (hash: TBD)
 
 ### Stream: OpenRouter Client Endpoint

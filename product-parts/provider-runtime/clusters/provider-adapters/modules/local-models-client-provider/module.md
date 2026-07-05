@@ -53,6 +53,20 @@ normalization.
   settings default) — one loader serving the Core `get-local-models` RPC and
   the liveness preflight; the old hardcoded LM-Studio URL is gone from
   production paths (Core Authority fix).
+- LM Studio management channel (`local-models-management.ts`, researched
+  2026-07-05; requires LM Studio 0.4.0+): `listLocalModelEntries` returns the
+  structured catalog — LM Studio v1 `GET /api/v1/models` (per-model
+  `max_context_length`, `loaded_instances[].config.context_length`,
+  `capabilities.trained_for_tool_use`; embeddings skipped) with fallbacks to
+  v0 `/api/v0/models` and plain `/v1/models` ids (Ollama/llama.cpp —
+  detection-only). `loadLocalModel` (`POST /api/v1/models/load` with
+  `{model, context_length, echo_load_config}`), `unloadLocalModel`
+  (`POST /api/v1/models/unload` with `{instance_id}`) and
+  `ensureLocalModelContext(model, desired)` implement the Harness
+  counterpart of the LM Studio load slider: no-op when the running instance
+  already matches, reload (unload + load) when it differs, null when the
+  server has no management surface. Inference stays on the OpenAI-shape
+  `/v1/chat/completions`; this is a separate Core-owned management channel.
 - Context-length detection (`local-models-context-length.ts`): OpenAI-shape
   `/v1/models` reports no context window, so one probe per session asks the
   provider-specific endpoints against the server ROOT (LM Studio

@@ -247,6 +247,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   is preserved as-is with every field honored per turn, Local Models gains
   the connection card + configured-URL catalog + context-length detection,
   and the legacy reference adapters are internal.
+- `docs/evidence/universal-client-openrouter-local-migration-2026-07-05.md` —
+  the Phase 4 migration result: ACCEPTED by the user's live packaged-app runs;
+  OpenRouter and Local Models work on the universal client (wire facts for
+  both endpoints, per-model LM Studio context management incl. the
+  reload-timeout acceptance finding and its fix, reasoning_details returned
+  unchanged through history, translation-engine coexistence on the shared
+  OpenRouter key), completing the client four on our own client.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

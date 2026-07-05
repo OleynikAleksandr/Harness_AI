@@ -8,7 +8,7 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream5.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -480,9 +480,9 @@
 
 ### Stream: Acceptance And Evidence
 
-150. [IN_PROGRESS] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — Base-URL-only connection card (no API key field), model list shows max/loaded context per model, changing the selected model's context reloads it in LM Studio (v1 management API) and the telemetry window follows, LM Studio autostarts in the background when Harness launches with the server down, streaming text + tool_calls + thinking on a local server; OpenRouter — the UNCHANGED Settings tab drives the client endpoint (2026-07-05 review fix: key, Base URL, model slug search, endpoint picker + latency panel all keep working, incl. a non-default endpoint tag routing the session), streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none).
-151. [TODO] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, per-model context management results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`).
-152. [TODO] Git Commit: `docs(evidence): record openrouter and local models migration results` (hash: TBD)
+150. [DONE] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — Base-URL-only connection card (no API key field), model list shows max/loaded context per model, changing the selected model's context reloads it in LM Studio (v1 management API) and the telemetry window follows, LM Studio autostarts in the background when Harness launches with the server down, streaming text + tool_calls + thinking on a local server; OpenRouter — the UNCHANGED Settings tab drives the client endpoint (2026-07-05 review fix: key, Base URL, model slug search, endpoint picker + latency panel all keep working, incl. a non-default endpoint tag routing the session), streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none). Result: ACCEPTED by the user 2026-07-05 — live sessions on the packaged build (third rebuild, after the reload-timeout fix of stream6.task10) work through the universal client: Local Models now run with a custom per-model context window (the first retest's reload failure is fixed) and OpenRouter sessions work; the user's verdict: "теперь локальные модели нормально работают ... Модели через OpenRouter тоже работают нормально" (no blocking findings reported).
+151. [DONE] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, per-model context management results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`). Result: Completed in commit `docs(evidence): record openrouter and local models migration results`.
+152. [DONE] Git Commit: `docs(evidence): record openrouter and local models migration results` (hash: self)
 
 ## Phase 5 - Synthetic Native Profiles (milestones; owner: Codex + User)
 

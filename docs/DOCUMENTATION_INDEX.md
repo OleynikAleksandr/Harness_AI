@@ -256,6 +256,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   reload-timeout acceptance finding and its fix, reasoning_details returned
   unchanged through history, translation-engine coexistence on the shared
   OpenRouter key), completing the client four on our own client.
+- `docs/evidence/universal-client-legacy-cleanup-package-2026-07-05.md` —
+  packaged application rebuild for the user's acceptance of the two
+  2026-07-05 cleanups: the legacy provider modules
+  (glm-native/openrouter/local-models/turn-runner) and the ACP kimi-provider
+  are removed end-to-end, Kimi is dropped from native capture (Claude/Codex
+  only), and the visible six-provider set is unchanged; `release/**` is an
+  untracked local build artifact.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

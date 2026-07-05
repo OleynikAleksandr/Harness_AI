@@ -1,7 +1,13 @@
 import { exec } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { listLocalModels } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
+import {
+  ensureLocalModelContext,
+  type LocalModelEntry,
+  listLocalModelEntries,
+} from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/src/local-models-management.js";
+import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
+import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 
 const execAsync = promisify(exec);
 const NPM_COMMAND = process.platform === "win32" ? "npm.cmd" : "npm";
@@ -40,11 +46,32 @@ const VERSION_PATTERN = /\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/u;
 type ProviderVersionKey = keyof typeof PROVIDER_PACKAGE_MAP;
 type ProviderUpdateTarget = keyof (typeof PROVIDER_PACKAGE_MAP)["claude"];
 
-// The live Local Models catalog now comes from the configured base URL
-// (Core settings + env fallbacks) owned by the universal-client endpoint
-// module; the old hardcoded LM-Studio URL is gone.
-export async function loadLocalModels(): Promise<string[]> {
-  return await listLocalModels();
+// The live Local Models catalog comes from the CONFIGURED base URL (Core
+// settings + env fallbacks); the structured entries carry per-model
+// max/loaded context and tool capability from the LM Studio management API.
+const configuredLocalModelsBaseUrl = (): string =>
+  providerAuthStoreFacade.getBaseUrl("local-models-client") ??
+  settingsStoreFacade.getSettings().providers.localModels.baseUrl;
+
+export async function loadLocalModelEntries(): Promise<LocalModelEntry[]> {
+  return await listLocalModelEntries({
+    baseUrl: configuredLocalModelsBaseUrl(),
+  });
+}
+
+// Apply a per-model context wish through the management API (reload
+// semantics; 0 leaves the running instance alone) and return the refreshed
+// catalog for the Settings UI.
+export async function applyLocalModelContext(
+  model: string,
+  contextLength: number
+): Promise<LocalModelEntry[]> {
+  await ensureLocalModelContext({
+    baseUrl: configuredLocalModelsBaseUrl(),
+    desiredContextLength: contextLength,
+    model,
+  });
+  return await loadLocalModelEntries();
 }
 
 export async function loadProviderVersions(): Promise<unknown> {

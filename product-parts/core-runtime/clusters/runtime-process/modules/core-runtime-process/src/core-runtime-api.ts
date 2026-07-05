@@ -35,8 +35,9 @@ import {
   PROVIDER_IDS,
 } from "./core-provider-lifecycle.js";
 import {
+  applyLocalModelContext,
   installLatestGlobalPackage,
-  loadLocalModels,
+  loadLocalModelEntries,
   loadProviderVersions,
   resolveProviderPackage,
   updateProviderCli,
@@ -145,6 +146,8 @@ export class CoreRuntimeApi {
         return listCapturableModelsRpcResult();
       case "get-local-models":
         return this.getLocalModels();
+      case "set-local-model-context":
+        return this.setLocalModelContext(payload);
       case "get-provider-versions":
         return this.getProviderVersions();
       case "get-provider-system-settings":
@@ -251,12 +254,57 @@ export class CoreRuntimeApi {
   }
 
   private async getLocalModels(): Promise<{
+    entries?: unknown[];
     error?: string;
     models?: string[];
     ok: boolean;
   }> {
     try {
-      return { models: await loadLocalModels(), ok: true };
+      const entries = await loadLocalModelEntries();
+      return {
+        entries,
+        models: entries.map((entry) => entry.key),
+        ok: true,
+      };
+    } catch (error) {
+      return { error: describeError(error), ok: false };
+    }
+  }
+
+  // Persist the per-model context wish and apply it immediately through the
+  // LM Studio management API (reload semantics; 0 clears the wish and leaves
+  // the running instance alone), returning the refreshed catalog.
+  private async setLocalModelContext(payload: unknown): Promise<{
+    entries?: unknown[];
+    error?: string;
+    ok: boolean;
+  }> {
+    const record = readRecord(payload);
+    const model = typeof record?.model === "string" ? record.model : "";
+    const contextLength = record?.contextLength;
+    if (
+      !model ||
+      typeof contextLength !== "number" ||
+      !Number.isInteger(contextLength) ||
+      contextLength < 0
+    ) {
+      return { error: "Invalid set-local-model-context payload.", ok: false };
+    }
+    try {
+      const workspacePath = this.activeWorkspacePath();
+      const next = structuredClone(
+        settingsStoreFacade.getSettings(workspacePath)
+      );
+      if (contextLength === 0) {
+        delete next.providers.localModels.contextLengthByModel[model];
+      } else {
+        next.providers.localModels.contextLengthByModel[model] = contextLength;
+      }
+      settingsStoreFacade.saveSettings(next, workspacePath);
+      return {
+        entries: await applyLocalModelContext(model, contextLength),
+        ok: true,
+      };
     } catch (error) {
       return { error: describeError(error), ok: false };
     }

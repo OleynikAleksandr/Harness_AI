@@ -16,6 +16,10 @@ export interface ClientToolCall {
 
 export interface ClientMessage {
   readonly content: string;
+  // OpenRouter structured reasoning blocks (`reasoning_details`), accumulated
+  // from the stream and returned UNCHANGED on assistant messages in follow-up
+  // requests for reasoning_details dialects (UniversalClient.md section 3.1).
+  readonly reasoningDetails?: readonly Readonly<Record<string, unknown>>[];
   readonly role: ClientMessageRole;
   // Present on role: "tool" results, linking back to the call id.
   readonly toolCallId?: string;

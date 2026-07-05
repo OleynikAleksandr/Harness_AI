@@ -32,6 +32,10 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.2, 3.3,
 
 - `ClientMessage` / `ClientMessageRole` / `ClientToolCall`: the OpenAI-shape
   conversation model (system / user / assistant-with-tool-calls / tool result).
+  Assistant messages optionally carry `reasoningDetails` — the OpenRouter
+  structured `reasoning_details` blocks accumulated from the stream and
+  returned UNCHANGED in follow-up requests for `reasoning_details` dialects
+  (UniversalClient.md section 3.1); other dialects never set the field.
 - `ToolSource` and `ToolDescriptor`: a tool is a name + description + JSON
   Schema parameters + source + `qualifiedName`. Only `builtin` executes in MVP;
   `mcp` / `skill` are reserved registration sources (future modules, doc 3.10).

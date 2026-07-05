@@ -45,6 +45,16 @@ try {
   // Skill tools get their own namespace.
   assert.equal(qualifyToolName("skill", "search"), "skill:search");
 
+  // Assistant messages can carry OpenRouter reasoning_details unchanged.
+  const contractSource = readFileSync(
+    new URL("./client-contract-facade.ts", import.meta.url),
+    "utf8"
+  );
+  assert.match(
+    contractSource,
+    /reasoningDetails\?: readonly Readonly<Record<string, unknown>>\[\]/u
+  );
+
   console.log("client-contract tests passed");
 } finally {
   await rm(buildDir, { recursive: true, force: true });

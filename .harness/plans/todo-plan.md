@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream3.task1",
-  "expectedCommitMessage": "feat(universal-client): accumulate openrouter reasoning details",
+  "currentTaskId": "harness-ai.phase4.stream3.task2",
+  "expectedCommitMessage": "feat(universal-client): return reasoning details through turn history",
   "debt": null
 }
 ```
@@ -404,9 +404,9 @@
 
 ### Stream: OpenRouter Client Endpoint
 
-112. [IN_PROGRESS] `harness-ai.phase4.stream3.task1` Accumulate OpenRouter structured reasoning details in the client core stream: dialect-streaming collects `delta.reasoning_details[]` entries across chunks (alongside the existing `reasoning` display text) and returns them with the final assistant message; `client-contract` gains the optional `reasoningDetails` field on the assistant `ClientMessage`; unit test (scope: client-contract facade, dialect-streaming facade, tests + affected `module.md`s; expected commit: `feat(universal-client): accumulate openrouter reasoning details`).
-113. [TODO] Git Commit: `feat(universal-client): accumulate openrouter reasoning details` (hash: TBD)
-114. [TODO] `harness-ai.phase4.stream3.task2` Return reasoning details through the turn history: the agent loop stores `reasoningDetails` on in-turn assistant messages and `buildRequestBody` serializes them back as `reasoning_details` unchanged for dialects whose thinkingForm is `reasoning_details` (strip stays the behavior for reasoning_content providers — per-dialect history policy, architecture doc section 3.1); no conflict with the extraBody reserved-key boundary; unit test (scope: client-core facade, client-core-http, tests + `module.md`; expected commit: `feat(universal-client): return reasoning details through turn history`).
+112. [DONE] `harness-ai.phase4.stream3.task1` Accumulate OpenRouter structured reasoning details in the client core stream: dialect-streaming collects `delta.reasoning_details[]` entries across chunks (alongside the existing `reasoning` display text) and returns them with the final assistant message; `client-contract` gains the optional `reasoningDetails` field on the assistant `ClientMessage`; unit test (scope: client-contract facade, dialect-streaming facade, tests + affected `module.md`s; expected commit: `feat(universal-client): accumulate openrouter reasoning details`). Result: Completed in commit `feat(universal-client): accumulate openrouter reasoning details`.
+113. [DONE] Git Commit: `feat(universal-client): accumulate openrouter reasoning details` (hash: self)
+114. [IN_PROGRESS] `harness-ai.phase4.stream3.task2` Return reasoning details through the turn history: the agent loop stores `reasoningDetails` on in-turn assistant messages and `buildRequestBody` serializes them back as `reasoning_details` unchanged for dialects whose thinkingForm is `reasoning_details` (strip stays the behavior for reasoning_content providers — per-dialect history policy, architecture doc section 3.1); no conflict with the extraBody reserved-key boundary; unit test (scope: client-core facade, client-core-http, tests + `module.md`; expected commit: `feat(universal-client): return reasoning details through turn history`).
 115. [TODO] Git Commit: `feat(universal-client): return reasoning details through turn history` (hash: TBD)
 116. [TODO] `harness-ai.phase4.stream3.task3` Bind the OpenRouter client provider descriptor + registry, INTERNAL: `ProviderId` union += `openrouter-client`, `PROVIDER_KEY_BY_ID` += `openrouter-client -> openRouter` (shared section — the single OpenRouter key serves sessions AND the translation engine), `HTTP_COMPATIBLE_PROVIDER_IDS` += `openrouter-client`, registry `PROVIDERS` += internal entry (name "OpenRouter", moduleId `openrouter-client-provider`); no `CLIENT_PROVIDER_MODELS` entry (live catalog); registry test (scope: provider-registry facade (+ its test), provider-descriptor facade, settings-store facade (one map line) + affected `module.md`s; expected commit: `feat(core-runtime): bind openrouter client provider descriptor (internal)`).
 117. [TODO] Git Commit: `feat(core-runtime): bind openrouter client provider descriptor (internal)` (hash: TBD)

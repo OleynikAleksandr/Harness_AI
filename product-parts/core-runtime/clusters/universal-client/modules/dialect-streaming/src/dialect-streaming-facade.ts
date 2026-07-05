@@ -78,6 +78,9 @@ export interface ParsedStreamDelta {
   readonly content?: string;
   readonly finishReason?: string;
   readonly model?: string;
+  // Raw OpenRouter structured reasoning blocks, only for the
+  // reasoning_details dialect; merged by index in the accumulator.
+  readonly reasoningDetails?: readonly Record<string, unknown>[];
   readonly thinking?: string;
   readonly toolCallDeltas?: readonly ToolCallDelta[];
   readonly usage?: StreamUsage;
@@ -159,6 +162,11 @@ const extractThinking = (
   return undefined;
 };
 
+const parseReasoningDetails = (
+  value: unknown
+): readonly Record<string, unknown>[] =>
+  Array.isArray(value) ? value.filter(isRecord) : [];
+
 // Parse one OpenAI-shape chat.completions SSE payload into a normalized delta.
 // Returns null for `[DONE]`, blanks, and unparseable frames (tolerant).
 export const parseChatCompletionChunk = (
@@ -185,6 +193,10 @@ export const parseChatCompletionChunk = (
   const thinking = delta
     ? extractThinking(delta, dialect.thinkingForm)
     : undefined;
+  const reasoningDetails =
+    delta && dialect.thinkingForm === "reasoning_details"
+      ? parseReasoningDetails(delta.reasoning_details)
+      : [];
   const toolCallDeltas = parseToolCallDeltas(delta?.tool_calls);
   const usage = parseUsage(parsed.usage);
   const model = readNonEmptyString(parsed.model);
@@ -192,7 +204,14 @@ export const parseChatCompletionChunk = (
     ? readNonEmptyString(firstChoice.finish_reason)
     : undefined;
   if (
-    !(content || thinking || toolCallDeltas.length > 0 || usage || finishReason)
+    !(
+      content ||
+      thinking ||
+      reasoningDetails.length > 0 ||
+      toolCallDeltas.length > 0 ||
+      usage ||
+      finishReason
+    )
   ) {
     return null;
   }
@@ -200,6 +219,7 @@ export const parseChatCompletionChunk = (
     ...(content ? { content } : {}),
     ...(finishReason ? { finishReason } : {}),
     ...(model ? { model } : {}),
+    ...(reasoningDetails.length > 0 ? { reasoningDetails } : {}),
     ...(thinking ? { thinking } : {}),
     ...(toolCallDeltas.length > 0 ? { toolCallDeltas } : {}),
     ...(usage ? { usage } : {}),
@@ -215,15 +235,44 @@ interface MutableToolCall {
 export interface StreamAccumulator {
   finishReason?: string;
   model?: string;
+  readonly reasoningDetailsByIndex: Map<number, Record<string, unknown>>;
   readonly textParts: string[];
   readonly toolCallsByIndex: Map<number, MutableToolCall>;
   usage?: StreamUsage;
 }
 
 export const createStreamAccumulator = (): StreamAccumulator => ({
+  reasoningDetailsByIndex: new Map(),
   textParts: [],
   toolCallsByIndex: new Map(),
 });
+
+// Streamed reasoning blocks split their text across chunks: string payload
+// fields concatenate, every other field keeps the latest value.
+const REASONING_DETAIL_TEXT_FIELDS: readonly string[] = [
+  "data",
+  "summary",
+  "text",
+];
+
+const mergeReasoningDetail = (
+  current: Record<string, unknown>,
+  incoming: Record<string, unknown>
+): Record<string, unknown> => {
+  const merged = { ...current };
+  for (const [key, value] of Object.entries(incoming)) {
+    if (
+      REASONING_DETAIL_TEXT_FIELDS.includes(key) &&
+      typeof value === "string"
+    ) {
+      const previous = merged[key];
+      merged[key] = (typeof previous === "string" ? previous : "") + value;
+    } else if (value !== undefined && value !== null) {
+      merged[key] = value;
+    }
+  }
+  return merged;
+};
 
 // Fold a parsed delta into the accumulator (tool-call args concatenated by
 // index; id/name arrive on the first delta for that index).
@@ -253,6 +302,27 @@ export const applyStreamDelta = (
       name: call.name ?? current.name,
     });
   }
+  for (const detail of delta.reasoningDetails ?? []) {
+    const index = readNonNegative(detail.index) ?? 0;
+    const current = accumulator.reasoningDetailsByIndex.get(index);
+    accumulator.reasoningDetailsByIndex.set(
+      index,
+      current ? mergeReasoningDetail(current, detail) : { ...detail }
+    );
+  }
+};
+
+// Ordered reasoning blocks for the final assistant message; undefined keeps
+// the message shape unchanged for dialects without reasoning_details.
+export const materializeReasoningDetails = (
+  accumulator: StreamAccumulator
+): readonly Readonly<Record<string, unknown>>[] | undefined => {
+  if (accumulator.reasoningDetailsByIndex.size === 0) {
+    return undefined;
+  }
+  return Array.from(accumulator.reasoningDetailsByIndex.entries())
+    .sort(([left], [right]) => left - right)
+    .map(([, detail]) => detail);
 };
 
 // Sorted, named-only tool calls in the client contract shape.

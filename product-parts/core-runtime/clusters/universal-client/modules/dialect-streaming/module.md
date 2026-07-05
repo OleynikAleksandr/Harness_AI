@@ -37,6 +37,13 @@ Contract source: `docs/architecture/UniversalClient.md` (sections 3.3, 3.4).
   `materializeToolCalls`: fold deltas into text parts, tool calls by index
   (args concatenated, id/name from the first delta) and usage/model/finish,
   then produce sorted, named-only `ClientToolCall`s.
+- OpenRouter structured reasoning: for `thinkingForm: "reasoning_details"`
+  the parser also captures raw `delta.reasoning_details[]` entries; the
+  accumulator merges them by `index` (text-like fields `text`/`summary`/
+  `data` concatenate, other fields keep the latest value) and
+  `materializeReasoningDetails` returns the ordered blocks for the final
+  assistant message (undefined when the dialect streamed none). The display
+  text keeps flowing through the `reasoning` thinking channel unchanged.
 - `createReasoningFlusher(onThinking)`: buffers reasoning and flushes only on a
   size/sentence boundary so thinking is not emitted "letter per line"; the loop
   flushes explicitly when content starts or the stream ends.

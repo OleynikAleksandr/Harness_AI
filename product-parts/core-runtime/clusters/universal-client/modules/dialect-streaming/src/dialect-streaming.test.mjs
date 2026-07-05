@@ -99,6 +99,57 @@ try {
   assert.equal(second.output, "done");
   assert.equal(second.thinking, "ning");
 
+  // OpenRouter reasoning_details accumulate by index across chunks: text-like
+  // fields concatenate, other fields keep the latest value, order is by index.
+  const openRouterDialect = {
+    baseUrl: "https://openrouter.ai/api/v1",
+    providerId: "openrouter-client",
+    thinkingForm: "reasoning_details",
+    toolChoiceSupport: "full",
+    usageFromAnyChunk: true,
+  };
+  const detailsAccumulator = mod.createStreamAccumulator();
+  const firstDetails = mod.parseChatCompletionChunk(
+    '{"choices":[{"delta":{"reasoning":"thinking...","reasoning_details":[{"type":"reasoning.text","text":"pla","index":0,"format":"openrouter-v1"}]}}]}',
+    openRouterDialect
+  );
+  assert.equal(firstDetails.thinking, "thinking...");
+  mod.applyStreamDelta(detailsAccumulator, firstDetails);
+  mod.applyStreamDelta(
+    detailsAccumulator,
+    mod.parseChatCompletionChunk(
+      '{"choices":[{"delta":{"reasoning_details":[{"type":"reasoning.text","text":"n done","index":0},{"type":"reasoning.encrypted","data":"abc","index":1}]}}]}',
+      openRouterDialect
+    )
+  );
+  const details = mod.materializeReasoningDetails(detailsAccumulator);
+  assert.equal(details.length, 2);
+  assert.deepEqual(details[0], {
+    format: "openrouter-v1",
+    index: 0,
+    text: "plan done",
+    type: "reasoning.text",
+  });
+  assert.deepEqual(details[1], {
+    data: "abc",
+    index: 1,
+    type: "reasoning.encrypted",
+  });
+
+  // Other dialects ignore reasoning_details entirely, and an untouched
+  // accumulator materializes undefined.
+  assert.equal(
+    mod.parseChatCompletionChunk(
+      '{"choices":[{"delta":{"reasoning_details":[{"type":"reasoning.text","text":"x"}]}}]}',
+      glmDialect
+    ),
+    null
+  );
+  assert.equal(
+    mod.materializeReasoningDetails(mod.createStreamAccumulator()),
+    undefined
+  );
+
   console.log("dialect-streaming tests passed");
 } finally {
   await rm(buildDir, { recursive: true, force: true });

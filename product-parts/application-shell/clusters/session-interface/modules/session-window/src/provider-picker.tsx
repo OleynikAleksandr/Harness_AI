@@ -98,8 +98,6 @@ function getProviderModel(
       return settings.providers.claude.defaultModel;
     case "codex":
       return settings.providers.codex.defaultModel;
-    case "kimi":
-      return settings.providers.kimi.defaultModel;
     case "glm-client":
       return settings.providers.glmClient.defaultModel;
     case "openrouter-client":

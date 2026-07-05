@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream7.task12",
-  "expectedCommitMessage": "feat(session-ui): retire acp kimi renderer branches",
+  "currentTaskId": "harness-ai.phase4.stream7.task13",
+  "expectedCommitMessage": "feat(core-runtime): unbind acp kimi adapter",
   "debt": null
 }
 ```
@@ -552,9 +552,9 @@
 170. [DONE] Git Commit: `feat(core-runtime): drop kimi from native capture` (hash: self)
 171. [DONE] `harness-ai.phase4.stream7.task11` Remove the ACP Kimi Settings controls (the Kimi tab keeps the universal-client `KimiClientApiKeyCard` only): the ACP default-model card and the ACP thinking toggles leave `settings-tab-content` (`providers.kimi.*` writes), `PROVIDER_MODEL_OPTIONS.kimi` leaves `settings-model-options`, and the `settings.provider.kimi.*` ACP dictionary strings leave the approved dictionaries (scope: settings-tab-content, settings-model-options, source-dictionaries + affected `module.md`s; expected commit: `feat(settings-ui): remove acp kimi settings controls`). Result: Completed in commit `feat(settings-ui): remove acp kimi settings controls`.
 172. [DONE] Git Commit: `feat(settings-ui): remove acp kimi settings controls` (hash: self)
-173. [IN_PROGRESS] `harness-ai.phase4.stream7.task12` Retire the ACP kimi renderer branches: `provider-picker` `getProviderModel` drops the `kimi` case (the visible Kimi resolves through the Core-owned `defaultModelId`), and the session-panel provider tint retargets `kimi` -> `kimi-client` so the live Kimi sessions keep the Kimi tint (no-dead-feature counterpart, the accepted endpoint-tag pattern); panel test updated (scope: provider-picker, reference-session-panels (+ test) + session-window `module.md`; expected commit: `feat(session-ui): retire acp kimi renderer branches`).
-174. [TODO] Git Commit: `feat(session-ui): retire acp kimi renderer branches` (hash: TBD)
-175. [TODO] `harness-ai.phase4.stream7.task13` Unbind the ACP kimi adapter from Core routing and liveness: `buildProviderAdapterInstance` drops the `kimi` case and the facade import, lifecycle `PROVIDER_IDS` drops `kimi`, and the liveness checker drops its `kimi` provider-home branch + facade import (Claude/Codex keep the provider-home preflight) (scope: core-provider-adapter-registration, core-provider-lifecycle, provider-liveness-checker + affected `module.md`s; expected commit: `feat(core-runtime): unbind acp kimi adapter`).
+173. [DONE] `harness-ai.phase4.stream7.task12` Retire the ACP kimi renderer branches: `provider-picker` `getProviderModel` drops the `kimi` case (the visible Kimi resolves through the Core-owned `defaultModelId`), and the session-panel provider tint retargets `kimi` -> `kimi-client` so the live Kimi sessions keep the Kimi tint (no-dead-feature counterpart, the accepted endpoint-tag pattern); panel test updated (scope: provider-picker, reference-session-panels (+ test) + session-window `module.md`; expected commit: `feat(session-ui): retire acp kimi renderer branches`). Result: Completed in commit `feat(session-ui): retire acp kimi renderer branches`.
+174. [DONE] Git Commit: `feat(session-ui): retire acp kimi renderer branches` (hash: self)
+175. [IN_PROGRESS] `harness-ai.phase4.stream7.task13` Unbind the ACP kimi adapter from Core routing and liveness: `buildProviderAdapterInstance` drops the `kimi` case and the facade import, lifecycle `PROVIDER_IDS` drops `kimi`, and the liveness checker drops its `kimi` provider-home branch + facade import (Claude/Codex keep the provider-home preflight) (scope: core-provider-adapter-registration, core-provider-lifecycle, provider-liveness-checker + affected `module.md`s; expected commit: `feat(core-runtime): unbind acp kimi adapter`).
 176. [TODO] Git Commit: `feat(core-runtime): unbind acp kimi adapter` (hash: TBD)
 177. [TODO] `harness-ai.phase4.stream7.task14` Remove the ACP kimi session/telemetry branches: `provider-turn-options` drops the `kimi` branch (+ test), and `usage-context-telemetry` drops `kimi` from `hasFiveHourWindow` (the `glm-` prefix keeps serving `glm-client`) and retires `hasProviderUsageScope` (no provider-scoped usage ids remain — provider scope keys stay for `claude`/`codex` only), renaming the `KIMI_TOKEN_LIMIT` constant to its five-hour-window meaning; telemetry test updated (scope: provider-turn-options (+ test), usage-context-telemetry facade (+ test) + affected `module.md`s; expected commit: `feat(core-runtime): remove acp kimi session and telemetry branches`).
 178. [TODO] Git Commit: `feat(core-runtime): remove acp kimi session and telemetry branches` (hash: TBD)

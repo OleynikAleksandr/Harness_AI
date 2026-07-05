@@ -32,8 +32,10 @@ Render the transcript/dialog layout and session chrome.
   font in the dialog zone only (project-wide Space Grotesk is unchanged).
 - Provider tint is derived from the Core-owned `session.providerId`; the renderer
   only maps that id to a CSS modifier and never classifies provider truth.
-  Providers without a reference tint (the universal-client endpoints other
-  than Kimi) use the neutral assistant background.
+  The Kimi tint follows the universal-client `kimi-client` id (the ACP `kimi`
+  id left with the kimi-provider retirement, 2026-07-05). Providers without a
+  reference tint (the other universal-client endpoints) use the neutral
+  assistant background.
 - A thinking bubble is `role === "thinking"` or an assistant message tagged
   `thinking`. Bubbles render plain text (no markdown engine) and thinking plates
   stay expanded (no collapse toggle).
@@ -104,8 +106,10 @@ Render the transcript/dialog layout and session chrome.
   `local-models-client` resolve through the shared settings sections
   (`providers.openRouter.defaultModel` / `providers.localModels.defaultModel`);
   the retired legacy `glm-native`/`openrouter`/`local-models` model cases left
-  `getProviderModel` with the 2026-07-05 legacy cleanup, and the session-panel
-  endpoint-tag badge follows the live `openrouter-client` sessions.
+  `getProviderModel` with the 2026-07-05 legacy cleanup, and the ACP `kimi`
+  case left with the kimi-provider retirement (the visible Kimi resolves
+  through the Core-owned `defaultModelId`). The session-panel endpoint-tag
+  badge follows the live `openrouter-client` sessions.
 
 - New-session wizard step 2 (`session-profile-step.tsx`): after the
   provider card, the profile picker lists Core-provided applicable profiles

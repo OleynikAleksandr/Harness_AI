@@ -344,12 +344,14 @@ function isThinkingMessage(message: SessionMessage): boolean {
 function resolveProviderTint(
   providerId: string | undefined
 ): "claude" | "codex" | "kimi" | null {
-  if (
-    providerId === "claude" ||
-    providerId === "codex" ||
-    providerId === "kimi"
-  ) {
+  if (providerId === "claude" || providerId === "codex") {
     return providerId;
+  }
+  // The visible Kimi is the universal-client `kimi-client` endpoint (the ACP
+  // `kimi` id left with the kimi-provider retirement, 2026-07-05); its live
+  // sessions keep the Kimi tint.
+  if (providerId === "kimi-client") {
+    return "kimi";
   }
   return null;
 }

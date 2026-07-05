@@ -14,9 +14,12 @@ assert.doesNotMatch(
 );
 
 // Dialog bubble class mapping: provider tint + thinking branches stay intact.
+// The visible Kimi tint follows the universal-client `kimi-client` id (the
+// ACP `kimi` id left with the kimi-provider retirement, 2026-07-05).
 assert.match(source, /providerId === "claude"/u);
 assert.match(source, /providerId === "codex"/u);
-assert.match(source, /providerId === "kimi"/u);
+assert.match(source, /providerId === "kimi-client"/u);
+assert.doesNotMatch(source, /providerId === "kimi"\b/u);
 assert.match(
   source,
   /session-dialog__message--assistant session-dialog__message--assistant-\$\{tint\}/u

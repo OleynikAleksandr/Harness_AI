@@ -15,6 +15,7 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `glm-native-provider`
 - `openrouter-provider`
 - `local-models-provider`
+- `local-models-client-provider`
 - `provider-turn-runner` (deprecated direct dispatch debt until Core-owned dispatch replaces current UI wiring)
 
 ## Facade Rule

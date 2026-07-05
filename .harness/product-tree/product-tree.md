@@ -114,6 +114,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 - `glm-native-provider`: GLM native provider adapter.
 - `openrouter-provider`: OpenRouter provider adapter.
 - `local-models-provider`: local model provider adapter.
+- `local-models-client-provider`: thin Local Models endpoint for the Core universal client — local-server dialect specifics (per-turn base URL from Core settings resolved to a `/v1` request base, optional Bearer key, `reasoning_content` thinking, no `tool_choice`) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `provider-turn-runner`: deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring; Application Shell must not extend it.
 
 ### Provider Home And Auth

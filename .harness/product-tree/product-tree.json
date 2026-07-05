@@ -379,6 +379,11 @@
               "purpose": "Local model provider adapter."
             },
             {
+              "id": "local-models-client-provider",
+              "name": "Local Models Client Provider",
+              "purpose": "Thin Local Models endpoint for the Core universal client: local-server dialect specifics (per-turn base URL from Core settings resolved to a /v1 request base, optional Bearer key, reasoning_content thinking, no tool_choice) and the ClientTurnRequest builder the Core agent loop runs."
+            },
+            {
               "id": "provider-turn-runner",
               "name": "Legacy Direct Provider Turn Runner",
               "purpose": "Deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring.",

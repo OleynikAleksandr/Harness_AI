@@ -197,7 +197,18 @@ interface Window {
           }[];
           ok: true;
         }
-      | { error: string; ok: false }
+      | {
+          entries?: {
+            displayName: string;
+            key: string;
+            loadedContextLength: number | null;
+            loadedInstanceId: string | null;
+            maxContextLength: number | null;
+            supportsTools: boolean | null;
+          }[];
+          error: string;
+          ok: false;
+        }
     >;
     stopTurn(sessionId: string): Promise<
       | {

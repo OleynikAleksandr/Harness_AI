@@ -106,6 +106,11 @@ export function ProviderSettingsUiFacade({
           setLocalModelEntries(result.entries);
           setStatus("Local model context applied.");
         } else {
+          // The controlled reload error still carries the refreshed catalog
+          // (the model may have ended up unloaded).
+          if (result.entries) {
+            setLocalModelEntries(result.entries);
+          }
           setStatus(result.error);
         }
       })

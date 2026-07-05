@@ -301,10 +301,21 @@ export class CoreRuntimeApi {
         next.providers.localModels.contextLengthByModel[model] = contextLength;
       }
       settingsStoreFacade.saveSettings(next, workspacePath);
-      return {
-        entries: await applyLocalModelContext(model, contextLength),
-        ok: true,
-      };
+      const { applied, entries } = await applyLocalModelContext(
+        model,
+        contextLength
+      );
+      if (contextLength > 0 && applied === null) {
+        // The wish is persisted either way; the reload itself did not finish
+        // (server down, old LM Studio, or the load failed — see its log).
+        return {
+          entries,
+          error:
+            "Model reload did not complete (see the LM Studio server log). The context wish is saved and will be applied on the next session start.",
+          ok: false,
+        };
+      }
+      return { entries, ok: true };
     } catch (error) {
       return { error: describeError(error), ok: false };
     }

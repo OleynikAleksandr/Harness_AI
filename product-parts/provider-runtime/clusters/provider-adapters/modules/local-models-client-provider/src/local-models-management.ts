@@ -9,6 +9,12 @@
 // versions degrade to the plain /v1/models id list (detection-only).
 
 const DEFAULT_TIMEOUT_MS = 5000;
+// POST /api/v1/models/load holds the connection OPEN until the model is in
+// memory — tens of seconds for large models. Aborting it cancels the load in
+// LM Studio ("Model has not started loading/has been unloaded"), so the load
+// call gets its own long budget; unload is quick but not instant.
+const LOAD_TIMEOUT_MS = 600_000;
+const UNLOAD_TIMEOUT_MS = 60_000;
 const TRAILING_SLASHES_PATTERN = /\/+$/u;
 const V1_SUFFIX_PATTERN = /\/v1$/u;
 
@@ -216,7 +222,7 @@ export const loadLocalModel = async (
       model: input.model,
       ...(contextLength ? { context_length: contextLength } : {}),
     },
-    input
+    { ...input, timeoutMs: input.timeoutMs ?? LOAD_TIMEOUT_MS }
   ).catch(() => null);
   if (!isRecord(payload)) {
     return null;
@@ -238,7 +244,7 @@ export const unloadLocalModel = async (
   const payload = await postJson(
     `${root}/api/v1/models/unload`,
     { instance_id: input.instanceId },
-    input
+    { ...input, timeoutMs: input.timeoutMs ?? UNLOAD_TIMEOUT_MS }
   ).catch(() => null);
   return isRecord(payload);
 };

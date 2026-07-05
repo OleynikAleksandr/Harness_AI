@@ -244,6 +244,19 @@ try {
     null
   );
 
+  // Load/unload carry their own long budgets: aborting a load mid-flight
+  // cancels it inside LM Studio, so the generic 5s timeout must never apply.
+  assert.match(source, /LOAD_TIMEOUT_MS = 600_000/u);
+  assert.match(source, /UNLOAD_TIMEOUT_MS = 60_000/u);
+  assert.match(
+    source,
+    /models\/load`,[\s\S]*?timeoutMs: input\.timeoutMs \?\? LOAD_TIMEOUT_MS/u
+  );
+  assert.match(
+    source,
+    /models\/unload`,[\s\S]*?timeoutMs: input\.timeoutMs \?\? UNLOAD_TIMEOUT_MS/u
+  );
+
   console.log("local-models-management tests passed");
 } finally {
   await rm(buildDir, { recursive: true, force: true });

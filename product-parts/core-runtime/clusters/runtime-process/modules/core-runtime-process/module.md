@@ -39,7 +39,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   validates `{model, contextLength}` (non-negative integer; 0 clears the
   wish), persists `providers.localModels.contextLengthByModel` through the
   settings store, applies the wish immediately via `applyLocalModelContext`
-  (LM Studio reload semantics) and returns the refreshed entries.
+  (LM Studio reload semantics) and returns the refreshed entries. When the
+  reload does not complete (server down, old LM Studio, load failure), the
+  RPC returns a CONTROLLED error with the refreshed entries — the wish stays
+  persisted and re-applies on the next session start; the renderer surfaces
+  the message and still swaps in the returned catalog.
   CLI update targets run the provider's own self-update command (`claude update`,
   `codex update`) so the active install is updated wherever it lives; SDK targets
   use `npm install -g <pkg>@latest`. This avoids updating a stale

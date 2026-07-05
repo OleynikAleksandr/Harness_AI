@@ -60,18 +60,19 @@ export async function loadLocalModelEntries(): Promise<LocalModelEntry[]> {
 }
 
 // Apply a per-model context wish through the management API (reload
-// semantics; 0 leaves the running instance alone) and return the refreshed
-// catalog for the Settings UI.
+// semantics; 0 leaves the running instance alone) and return the applied
+// window (null when the reload did not complete) plus the refreshed catalog
+// for the Settings UI.
 export async function applyLocalModelContext(
   model: string,
   contextLength: number
-): Promise<LocalModelEntry[]> {
-  await ensureLocalModelContext({
+): Promise<{ applied: number | null; entries: LocalModelEntry[] }> {
+  const applied = await ensureLocalModelContext({
     baseUrl: configuredLocalModelsBaseUrl(),
     desiredContextLength: contextLength,
     model,
   });
-  return await loadLocalModelEntries();
+  return { applied, entries: await loadLocalModelEntries() };
 }
 
 export async function loadProviderVersions(): Promise<unknown> {

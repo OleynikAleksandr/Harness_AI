@@ -67,6 +67,12 @@ normalization.
   already matches, reload (unload + load) when it differs, null when the
   server has no management surface. Inference stays on the OpenAI-shape
   `/v1/chat/completions`; this is a separate Core-owned management channel.
+  Timeouts (2026-07-05 acceptance-finding fix): `POST /api/v1/models/load`
+  holds the connection open until the model is in memory, and aborting it
+  cancels the load inside LM Studio ("Model has not started loading/has
+  been unloaded"), so load runs on its own `LOAD_TIMEOUT_MS` (600s) and
+  unload on `UNLOAD_TIMEOUT_MS` (60s) instead of the generic 5s catalog
+  timeout.
 - Session context flow (once per session, ahead of the first turn): the
   adapter applies the per-model wish `contextLengthByModel[model]` through
   `ensureLocalModelContext` (LM Studio reloads only when the running

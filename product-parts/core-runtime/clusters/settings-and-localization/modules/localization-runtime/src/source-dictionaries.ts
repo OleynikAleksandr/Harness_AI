@@ -47,6 +47,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.kimi.defaultModel": "Kimi Default model",
     "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
     "settings.provider.localModels": "Local Models",
+    "settings.provider.localModelsClient.connection": "Local Models Server",
     "settings.provider.openRouter": "OpenRouter",
     "settings.provider.sessionContinuity.threshold":
       "Remaining context threshold (%)",
@@ -209,6 +210,14 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Default GLM coding model for the Z.ai Coding Plan endpoint.",
     "settings.provider.localModels.description":
       "Select the default LM Studio model used for new Local Models sessions.",
+    "settings.provider.localModelsClient.description":
+      "Runs local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp) on the Harness universal client. Nothing is downloaded or installed.",
+    "settings.provider.localModelsClient.baseUrl.description":
+      "Base URL of the local OpenAI-compatible server — the server root (http://127.0.0.1:1234) or its /v1 prefix; both are accepted. Harness also reads HARNESS_AI_LOCAL_MODELS_BASE_URL or LMSTUDIO_BASE_URL from the environment.",
+    "settings.provider.localModelsClient.apiKey.description":
+      "Optional API key sent as a Bearer token. Most local servers run without authentication — leave empty unless your server requires one.",
+    "settings.provider.localModelsClient.contextLength.description":
+      "Manual context window override in tokens. 0 keeps auto-detection (Ollama, LM Studio and llama.cpp report their loaded context).",
     "settings.provider.openRouter.description":
       "Uses OpenRouter chat completions with an exact model slug.",
     "settings.openRouter.defaultRouting.description": "default routing",

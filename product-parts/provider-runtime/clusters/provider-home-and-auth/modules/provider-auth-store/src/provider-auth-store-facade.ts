@@ -19,6 +19,9 @@ const PROVIDER_SETTING_ALIASES: Partial<Record<ProviderId, string[]>> = {
   "glm-client": ["glmClient", "glm-client"],
   "kimi-client": ["kimiClient", "kimi-client"],
   "local-models": ["localModels", "local-models", "local"],
+  // Universal-client Local Models endpoint: same local server connection as
+  // the legacy id, so the file aliases and env fallbacks match.
+  "local-models-client": ["localModels", "local-models", "local"],
   openrouter: ["openRouter", "openrouter"],
 };
 
@@ -37,6 +40,7 @@ export class ProviderAuthStoreFacade {
       "glm-client": ["GLM_API_KEY", "ZAI_API_KEY"],
       "kimi-client": ["KIMI_API_KEY"],
       "local-models": ["HARNESS_AI_LOCAL_API_KEY", "LMSTUDIO_API_KEY"],
+      "local-models-client": ["HARNESS_AI_LOCAL_API_KEY", "LMSTUDIO_API_KEY"],
       openrouter: ["OPENROUTER_API_KEY"],
     };
     const settings = this.getProviderSettings(providerId);
@@ -58,6 +62,10 @@ export class ProviderAuthStoreFacade {
     const urls: Partial<Record<ProviderId, string[]>> = {
       "glm-native": ["GLM_BASE_URL", "ZAI_BASE_URL"],
       "local-models": ["HARNESS_AI_LOCAL_MODELS_BASE_URL", "LMSTUDIO_BASE_URL"],
+      "local-models-client": [
+        "HARNESS_AI_LOCAL_MODELS_BASE_URL",
+        "LMSTUDIO_BASE_URL",
+      ],
       openrouter: ["OPENROUTER_BASE_URL"],
     };
     const settings = this.getProviderSettings(providerId);

@@ -54,6 +54,14 @@ materialization, bootstrap payload reuse, and bundle state.
   model descriptions (`settings.provider.glmClient.defaultModel.description`,
   `settings.provider.glmClient.model.*.description`) are approved
   `ui_helper_text` source strings for the Settings model rows.
+- Local Models universal-client provider help is part of the approved
+  dictionaries: the connection card title
+  (`settings.provider.localModelsClient.connection`, "Local Models Server")
+  in `ui_labels`, and the card copy
+  (`settings.provider.localModelsClient.description`,
+  `.baseUrl.description` — server root or `/v1` prefix both accepted,
+  `.apiKey.description` — optional Bearer key, `.contextLength.description` —
+  manual window override, 0 = auto-detect) in `ui_helper_text`.
 - The OpenRouter model search refresh control label
   (`settings.openRouter.searchRefresh`) is part of the approved `ui_labels`
   dictionary; it names the icon button that re-runs the model slug search and

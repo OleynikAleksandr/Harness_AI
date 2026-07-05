@@ -263,6 +263,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   are removed end-to-end, Kimi is dropped from native capture (Claude/Codex
   only), and the visible six-provider set is unchanged; `release/**` is an
   untracked local build artifact.
+- `docs/evidence/session-profiles-retired-bindings-package-2026-07-05.md` —
+  packaged application rebuild after the session-profile cleanup that removed
+  active bindings to retired provider ids (`kimi`, `glm-native`) from
+  `PROFILE_SUPPORTED_PROVIDER_IDS` and the standard seed-profile set.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

@@ -60,29 +60,23 @@ assert.equal(kimiAcp.defaultModelId, undefined);
 
 const glmClient = registry.getProvider("glm-client");
 assert.equal(visible.filter((provider) => provider.name === "GLM").length, 1);
-assert.equal(
-  visible.some((provider) => provider.id === "glm-native"),
-  false
-);
 assert.equal(glmClient.visibility, "visible");
 assert.equal(glmClient.name, "GLM");
 assert.equal(glmClient.moduleId, "glm-client-provider");
 assert.equal(glmClient.defaultModelId, undefined);
-assert.equal(registry.getProvider("glm-native").visibility, "internal");
+// Retired legacy ids are fully removed (2026-07-05 cleanup): no registry
+// entry resolves for them anymore.
 assert.throws(() => registry.getProvider("glm-opencode"), /Unknown provider/u);
+assert.throws(() => registry.getProvider("glm-native"), /Unknown provider/u);
+assert.throws(() => registry.getProvider("openrouter"), /Unknown provider/u);
+assert.throws(() => registry.getProvider("local-models"), /Unknown provider/u);
 
 // Phase 4 visibility switch applied: the visible Local Models is the
-// universal-client endpoint (no static defaultModelId — live catalog), the
-// legacy reference adapter is internal but still resolvable by id.
+// universal-client endpoint (no static defaultModelId — live catalog).
 const localModelsClient = registry.getProvider("local-models-client");
 assert.equal(localModelsClient.visibility, "visible");
 assert.equal(localModelsClient.moduleId, "local-models-client-provider");
 assert.equal(localModelsClient.defaultModelId, undefined);
-assert.equal(registry.getProvider("local-models").visibility, "internal");
-assert.equal(
-  visible.some((provider) => provider.id === "local-models"),
-  false
-);
 assert.equal(
   visible.filter((provider) => provider.name === "Local Models").length,
   1
@@ -94,11 +88,6 @@ const openRouterClient = registry.getProvider("openrouter-client");
 assert.equal(openRouterClient.visibility, "visible");
 assert.equal(openRouterClient.moduleId, "openrouter-client-provider");
 assert.equal(openRouterClient.defaultModelId, undefined);
-assert.equal(registry.getProvider("openrouter").visibility, "internal");
-assert.equal(
-  visible.some((provider) => provider.id === "openrouter"),
-  false
-);
 assert.equal(
   visible.filter((provider) => provider.name === "OpenRouter").length,
   1

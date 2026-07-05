@@ -9,15 +9,18 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `provider-adapter-contract`
 - `claude-provider`
 - `codex-provider`
-- `kimi-provider`
+- `kimi-provider` (ACP; kept alive as the adapter behind the native request
+  capture feature — its retirement is the remaining Phase 5 afterlife item)
 - `kimi-client-provider`
 - `glm-client-provider`
-- `glm-native-provider`
-- `openrouter-provider`
 - `openrouter-client-provider`
-- `local-models-provider`
 - `local-models-client-provider`
-- `provider-turn-runner` (deprecated direct dispatch debt until Core-owned dispatch replaces current UI wiring)
+
+The retired `glm-native-provider`, `openrouter-provider` and
+`local-models-provider` modules (incl. their consumed `src/reference/**`
+corpus) and the orphaned `provider-turn-runner` direct-dispatch debt module
+were REMOVED by the 2026-07-05 legacy cleanup; the universal client is the
+single client path for the client four.
 
 ## Facade Rule
 

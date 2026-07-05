@@ -20,8 +20,10 @@ OpenRouter (и любой будущий OpenAI-shape вендор — тонк�
 6 фиксирует решение пользователя.
 
 Источники фактов: локальный разбор reference-стека Harness (перенесённый
-CodeAI-Hub рантайм в `openrouter-provider`/`local-models-provider`/
-`glm-native-provider`), разбор HEAD-клона OpenCode (MIT), веб-survey
+CodeAI-Hub рантайм, живший на момент исследования в `src/reference/**`
+модулей `openrouter-provider`/`local-models-provider`/`glm-native-provider`;
+после консолидации в ядро эти модули удалены чисткой 2026-07-05, исходники
+остаются в git-истории), разбор HEAD-клона OpenCode (MIT), веб-survey
 OSS-клиентов и API-доков провайдеров (2026-07-04). Пометки UNVERIFIED
 означают отсутствие публичного подтверждения.
 
@@ -38,9 +40,11 @@ OSS-клиентов и API-доков провайдеров (2026-07-04). По
 - Phase 4 visibility switch применён: ВСЯ клиентская четвёрка живёт на
   универсальном клиенте. Видимые OpenRouter и Local Models — endpoint-модули
   `openrouter-client-provider` и `local-models-client-provider`; legacy
-  reference-адаптеры (`openrouter-provider`, `local-models-provider`) скрыты
-  как internal (их модули и reference-корпус остаются в дереве — судьба
-  решается afterlife-пунктом Phase 5). OpenRouter Settings-таб сохранён КАК
+  reference-адаптеры (`openrouter-provider`, `local-models-provider`,
+  `glm-native-provider`) УДАЛЕНЫ из дерева вместе с поглощённым
+  reference-корпусом (legacy cleanup 2026-07-05 по приказу пользователя;
+  ACP `kimi-provider` остаётся живым адаптером за фичей native capture —
+  его retirement закрывается в Phase 5). OpenRouter Settings-таб сохранён КАК
   ЕСТЬ (ревью-фикс пользователя 2026-07-05): endpoint уважает каждое поле
   карты per turn — `apiKey`, `baseUrl`, `defaultModel` (slug search),
   `endpointTag` (не-default тег маршрутизирует ход телом запроса
@@ -60,9 +64,12 @@ OSS-клиентов и API-доков провайдеров (2026-07-04). По
 - Native-профиль клиентской четвёрки = наш reference wrapper + tool set
   клиента (модель B2: замороженная обвязка + живой контекст,
   `docs/architecture/NativePromptComposition.md`).
-- Фундамент уже в репозитории: боевой CodeAI-Hub-рантайм перенесён в
+- Фундамент был уже в репозитории: боевой CodeAI-Hub-рантайм жил в
   `src/reference/**` модулей `openrouter-provider`, `local-models-provider`,
-  `glm-native-provider` — агентный цикл, инструменты, SSE-парсеры.
+  `glm-native-provider` — агентный цикл, инструменты, SSE-парсеры. Ядро
+  универсального клиента консолидировало это поведение; сами reference-модули
+  удалены чисткой 2026-07-05 (пути ниже по тексту — историческая привязка
+  исследования, код доступен в git-истории).
 - **Планка гибкости (требование пользователя 2026-07-04): МОДУЛЬНАЯ
   расширяемость, не готовые фичи в MVP.** MCP, skills, субагентов в MVP НЕ
   делаем. Но клиент строится так, чтобы любой из этих функционалов

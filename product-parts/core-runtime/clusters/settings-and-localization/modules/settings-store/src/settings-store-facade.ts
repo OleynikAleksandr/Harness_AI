@@ -194,17 +194,11 @@ const PROVIDER_KEY_BY_ID: Record<
   kimi: "kimi",
   "kimi-client": "kimiClient",
   "glm-client": "glmClient",
-  // One-commit bridge until the retired ids leave the ProviderId union: the
-  // legacy sections are gone, the ids alias the live sections (nothing reads
-  // them — no new sessions start on retired ids).
-  "glm-native": "glmClient",
-  openrouter: "openRouter",
   // The universal-client endpoint shares the openRouter section: ONE key
   // serves coding sessions and the localization translation engine.
   "openrouter-client": "openRouter",
-  "local-models": "localModels",
-  // The universal-client endpoint shares the localModels section: the same
-  // local server connection serves the legacy and the client provider ids.
+  // The universal-client endpoint owns the localModels section (the shared
+  // local server connection).
   "local-models-client": "localModels",
 };
 

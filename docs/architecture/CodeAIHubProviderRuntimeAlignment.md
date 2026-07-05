@@ -2,7 +2,7 @@
 
 ## Decision
 
-Harness AI must follow the CodeAI Hub provider/runtime reference flow. The current direct `provider-turn-runner` path and the simplified provider wrappers are not valid foundations for MVP provider execution because they bypass the Core-owned and provider-owned layers that Harness AI needs for:
+Harness AI must follow the CodeAI Hub provider/runtime reference flow. The former direct `provider-turn-runner` path and the simplified provider wrappers were not valid foundations for MVP provider execution (the orphaned `provider-turn-runner` module was removed by the 2026-07-05 legacy cleanup) because they bypassed the Core-owned and provider-owned layers that Harness AI needs for:
 
 - session JSONL history and translation overlays;
 - realtime thinking/reasoning translation;
@@ -61,7 +61,7 @@ and broadcasts `session:message_translation` patches. The renderer applies
 
 ## Module Direction
 
-The next product-tree update should replace the role of `provider-turn-runner` with explicit modules:
+The product tree replaced the role of `provider-turn-runner` with explicit modules (complete — the orphaned runner module itself was deleted by the 2026-07-05 legacy cleanup):
 
 - Core Runtime / Session Runtime:
   - `session-request-handler`
@@ -169,20 +169,23 @@ Required behavior:
 - Replace the generic CLI parser path with Kimi wire process/router, session lifecycle, managed profile, workspace override state, token/usage readers, and event normalizer.
 - Preserve thinking handling from Kimi native events, including ACP and stream JSON shapes covered by reference tests.
 
-### GLM Native
+### GLM Native (removed)
 
 Reference source:
 
 - `CodeAI-Hub/packages/GLM_Module/src/provider/**`
 
-Harness target:
+Former Harness target:
 
 - `product-parts/provider-runtime/clusters/provider-adapters/modules/glm-native-provider/**`
 
-Required behavior:
+Status:
 
-- Preserve native runtime profile, agent runtime instructions, expanded tools, file edit/patch executors, workspace tools, process/session log, SSE parser, stream reader, request config, thinking/reasoning controls, and usage limits.
-- Keep tool execution and patch behavior provider-owned, not UI-owned.
+- Removed by the legacy provider cleanup (2026-07-05). The visible GLM runs
+  through `glm-client-provider` on the Core universal client; the ported
+  reference runtime (agent loop, tools, SSE parser) was consolidated into the
+  `universal-client` Core cluster before the module deletion, and the sources
+  stay available in git history.
 
 ### GLM OpenCode (removed)
 
@@ -203,20 +206,24 @@ Status:
 - OpenCode remains a historical/reference project for behavior and extensibility
   research; its embedded runtime is not retained in Harness production code.
 
-### OpenRouter And Local Models
+### OpenRouter And Local Models (removed)
 
 Reference source:
 
 - OpenRouter settings/search/endpoint behavior in CodeAI Hub settings and workflow services.
 - `CodeAI-Hub/packages/core/src/local-models/**`
 
-Harness target:
+Former Harness targets:
 
 - `product-parts/provider-runtime/clusters/provider-adapters/modules/openrouter-provider/**`
 - `product-parts/provider-runtime/clusters/provider-adapters/modules/local-models-provider/**`
 
-Required behavior:
+Status:
 
-- Preserve OpenRouter endpoint/model selection contracts and request-body behavior used by reference settings/runtime flows.
-- Preserve local models CLI/facade/provider adapter/runtime load manager/warmup/SSE reader behavior.
-- Preserve local reasoning stream buffering so `reasoning.delta` frames are coalesced into readable `thinking` messages.
+- Removed by the legacy provider cleanup (2026-07-05). The visible OpenRouter
+  and Local Models run through `openrouter-client-provider` /
+  `local-models-client-provider` on the Core universal client (Phase 4
+  migration, user-accepted 2026-07-05); the behavior contracts listed here
+  (endpoint/model selection, request-body wire form, reasoning stream
+  coalescing, context-length handling) live on in the universal client and
+  its endpoint modules, and the ported reference sources stay in git history.

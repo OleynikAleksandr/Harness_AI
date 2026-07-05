@@ -74,8 +74,6 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
   };
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
-  "openrouter",
-  "local-models",
   // Universal-client endpoint: key-only auth from Core settings, no provider home.
   "glm-client",
   "kimi-client",

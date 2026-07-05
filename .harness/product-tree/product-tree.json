@@ -364,35 +364,14 @@
               "purpose": "Thin GLM endpoint for the Core universal client: Z.ai coding dialect specifics (api.z.ai/api/coding/paas/v4, Accept-Language, reasoning_content, GLM extraBody params) and the ClientTurnRequest builder the Core agent loop runs."
             },
             {
-              "id": "glm-native-provider",
-              "name": "GLM Native Provider",
-              "purpose": "GLM native provider adapter."
-            },
-            {
-              "id": "openrouter-provider",
-              "name": "OpenRouter Provider",
-              "purpose": "OpenRouter provider adapter."
-            },
-            {
               "id": "openrouter-client-provider",
               "name": "OpenRouter Client Provider",
               "purpose": "Thin OpenRouter endpoint for the Core universal client: OpenRouter dialect specifics (reasoning_details thinking, usage in any chunk, per-turn apiKey/baseUrl/defaultModel/endpointTag from the shared openRouter settings section) and the ClientTurnRequest builder the Core agent loop runs."
             },
             {
-              "id": "local-models-provider",
-              "name": "Local Models Provider",
-              "purpose": "Local model provider adapter."
-            },
-            {
               "id": "local-models-client-provider",
               "name": "Local Models Client Provider",
               "purpose": "Thin Local Models endpoint for the Core universal client: local-server dialect specifics (per-turn base URL from Core settings resolved to a /v1 request base, optional Bearer key, reasoning_content thinking, no tool_choice) and the ClientTurnRequest builder the Core agent loop runs."
-            },
-            {
-              "id": "provider-turn-runner",
-              "name": "Legacy Direct Provider Turn Runner",
-              "purpose": "Deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring.",
-              "mvpStatus": "deprecated-to-delete"
             }
           ]
         },

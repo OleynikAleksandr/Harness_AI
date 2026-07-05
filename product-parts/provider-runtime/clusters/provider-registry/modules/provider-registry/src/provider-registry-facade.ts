@@ -11,10 +11,7 @@ export type ProviderId =
   | "kimi"
   | "kimi-client"
   | "glm-client"
-  | "glm-native"
-  | "openrouter"
   | "openrouter-client"
-  | "local-models"
   | "local-models-client";
 
 // Internal providers are bound in the registry (descriptor, adapter slot)
@@ -87,8 +84,8 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "visible",
   },
   {
-    // The visible GLM: the universal-client endpoint. The old native GLM
-    // provider stays internal until its afterlife removal task.
+    // The visible GLM: the universal-client endpoint (the retired native GLM
+    // module was removed by the 2026-07-05 legacy cleanup).
     id: "glm-client",
     name: "GLM",
     moduleId: "glm-client-provider",
@@ -96,40 +93,13 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "visible",
   },
   {
-    id: "glm-native",
-    name: "GLM Native",
-    moduleId: "glm-native-provider",
-    status: "needs-settings",
-    visibility: "internal",
-  },
-  {
-    // Retired legacy reference adapter after the Phase 4 visibility switch:
-    // registered and resolvable by id, hidden from the picker — no new
-    // sessions start on it. Module disposition is a Phase 5 afterlife item.
-    id: "openrouter",
-    name: "OpenRouter",
-    moduleId: "openrouter-provider",
-    status: "needs-settings",
-    visibility: "internal",
-  },
-  {
     // The visible OpenRouter: the universal-client endpoint (Phase 4
-    // visibility switch applied). Never two OpenRouter entries at once.
+    // visibility switch applied).
     id: "openrouter-client",
     name: "OpenRouter",
     moduleId: "openrouter-client-provider",
     status: "needs-settings",
     visibility: "visible",
-  },
-  {
-    // Retired legacy reference adapter after the Phase 4 visibility switch:
-    // registered and resolvable by id, hidden from the picker — no new
-    // sessions start on it. Module disposition is a Phase 5 afterlife item.
-    id: "local-models",
-    name: "Local Models",
-    moduleId: "local-models-provider",
-    status: "available",
-    visibility: "internal",
   },
   {
     // The visible Local Models: the universal-client endpoint (Phase 4

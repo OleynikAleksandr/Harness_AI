@@ -16,15 +16,12 @@ assert.match(
   /thinkingByModel\[session\.model\] \?\? claude\.thinking\.effort/u
 );
 assert.match(source, /session\.providerId === "kimi"/u);
-assert.match(source, /session\.providerId === "glm-native"/u);
-assert.match(source, /reasoningEffort: glmNative\.reasoningEffort/u);
 assert.doesNotMatch(source, /glm-opencode/u);
 assert.doesNotMatch(source, /glmOpenCode/u);
-assert.match(source, /session\.providerId === "openrouter"/u);
-assert.match(
-  source,
-  /endpointTag: settings\.providers\.openRouter\.endpointTag/u
-);
+// Retired legacy branches (2026-07-05 cleanup): the universal-client
+// endpoints resolve their own settings per turn inside the adapters.
+assert.doesNotMatch(source, /"glm-native"/u);
+assert.doesNotMatch(source, /"openrouter"/u);
 assert.match(
   source,
   /resolveCodexReasoningEffort\(\s*session\.model,\s*codex\.reasoningByModel\[session\.model\]\s*\)/u

@@ -331,11 +331,9 @@ function hasFiveHourWindow(providerId: string): boolean {
 }
 
 function hasProviderUsageScope(providerId: string): boolean {
-  return (
-    providerId === "kimi" ||
-    providerId === "glm-native" ||
-    providerId === "openrouter"
-  );
+  // The ACP kimi stays alive behind the native capture feature; the retired
+  // glm-native/openrouter scopes left with the 2026-07-05 legacy cleanup.
+  return providerId === "kimi";
 }
 
 function buildResetLabel(value: string): string {

@@ -25,21 +25,6 @@ export function buildProviderTurnOptions(
       thinkingEnabled: kimi.thinkingEnabled,
     };
   }
-  if (session.providerId === "glm-native") {
-    const glmNative = settings.providers.glmNative;
-    return {
-      model: session.model,
-      reasoningEffort: glmNative.reasoningEffort,
-      thinkingDisplaySyncEnabled: glmNative.thinkingDisplaySyncEnabled,
-      thinkingEnabled: glmNative.thinkingEnabled,
-    };
-  }
-  if (session.providerId === "openrouter") {
-    return {
-      endpointTag: settings.providers.openRouter.endpointTag,
-      model: session.model,
-    };
-  }
   if (session.providerId !== "codex") {
     return { model: session.model };
   }

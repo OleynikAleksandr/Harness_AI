@@ -64,20 +64,23 @@ assert.equal(withLimits.limitRows[0].text.includes("5h 9%"), true);
 assert.equal(withLimits.limitRows[1].text, "Weekly 13%");
 assert.equal(withLimits.limitRows[2].text, "Parallel 0%");
 
-const glmNative = usageContextTelemetryFacade.createTelemetry({
+// The universal-client GLM keeps the five-hour-window labels via the glm-
+// prefix; retired legacy ids no longer contribute a provider usage scope
+// (2026-07-05 cleanup), so client telemetry stays session-scoped.
+const glmClient = usageContextTelemetryFacade.createTelemetry({
   model: "glm-5.2",
-  provider: "GLM Native",
-  providerId: "glm-native",
+  provider: "GLM",
+  providerId: "glm-client",
 });
-assert.equal(glmNative.providerScopeKey, "glm-native:global");
-assert.equal(glmNative.limitRows[0].text, "5h unavailable");
+assert.equal(glmClient.providerScopeKey, null);
+assert.equal(glmClient.limitRows[0].text, "5h unavailable");
 
 const openRouter = usageContextTelemetryFacade.createTelemetry({
   model: "google/gemini-3.1-flash-lite",
   provider: "OpenRouter",
-  providerId: "openrouter",
+  providerId: "openrouter-client",
 });
-assert.equal(openRouter.providerScopeKey, "openrouter:global");
+assert.equal(openRouter.providerScopeKey, null);
 assert.equal(openRouter.limitRows[0].text, "Session unavailable");
 assert.equal(openRouter.limitRows[1].text, "Weekly unavailable");
 

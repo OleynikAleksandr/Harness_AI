@@ -49,6 +49,10 @@ const source = readFileSync(
   .replace(
     /import \{\n\s*createToolRegistry,\n\s*type ToolRegistry,\n\} from[^\n]*\n/u,
     'const createToolRegistry = () => { const sources = []; return { execute: () => Promise.resolve({ output: "" }), listDescriptors: () => sources.flatMap((s) => s.list()), registerSource: (s) => sources.push(s) }; };\n'
+  )
+  .replace(
+    /import \{ detectLocalModelsContextLength \}[^\n]*\n/u,
+    "const detectLocalModelsContextLength = () => Promise.resolve(globalThis.__localClientTestWindow ?? null);\n"
   );
 
 const compiled = ts.transpileModule(source, {
@@ -179,7 +183,28 @@ try {
   );
   assert.match(noUrlEvents[1].message, /base URL is missing/u);
 
+  // A detected context window rides one "system" telemetry event per session
+  // (tokenUsage.limit) ahead of the first turn, and never repeats.
   globalThis.__localClientTestSettingsBaseUrl = "http://127.0.0.1:1234";
+  globalThis.__localClientTestWindow = 8192;
+  const windowSession = await adapter.createSession();
+  const windowEvents = [];
+  adapter.subscribe(windowSession, (event) => windowEvents.push(event));
+  await adapter.sendMessage(windowSession, "hi");
+  assert.deepEqual(
+    windowEvents.map((event) => event.type),
+    ["system", "turn_started", "dialog_message", "turn_completed"]
+  );
+  assert.deepEqual(windowEvents[0].data, {
+    tokenUsage: { limit: 8192, used: 0 },
+  });
+  await adapter.sendMessage(windowSession, "again");
+  assert.equal(
+    windowEvents.filter((event) => event.type === "system").length,
+    1
+  );
+  globalThis.__localClientTestWindow = undefined;
+
   globalThis.__localClientTestFail = true;
   const failSession = await adapter.createSession();
   const failEvents = [];
@@ -199,5 +224,6 @@ try {
   globalThis.__localClientTestModel = undefined;
   globalThis.__localClientTestSettingsBaseUrl = undefined;
   globalThis.__localClientTestTurns = undefined;
+  globalThis.__localClientTestWindow = undefined;
   await rm(buildDir, { recursive: true, force: true });
 }

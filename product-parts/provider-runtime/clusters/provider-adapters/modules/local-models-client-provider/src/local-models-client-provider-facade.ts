@@ -28,6 +28,7 @@ import type {
   ProviderAdapter,
   ProviderEventListener,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { detectLocalModelsContextLength } from "./local-models-context-length.js";
 
 const TRAILING_SLASHES_PATTERN = /\/+$/u;
 const V1_SUFFIX_PATTERN = /\/v1$/u;
@@ -80,6 +81,9 @@ const BASE_URL_MISSING_MESSAGE =
 
 interface LocalModelsClientSessionState {
   abort: AbortController | null;
+  // One context-window probe per session; the result rides a "system"
+  // telemetry event (tokenUsage.limit) instead of a dialog message.
+  contextWindowChecked: boolean;
   readonly listeners: Set<ProviderEventListener>;
   messages: readonly ClientMessage[];
   readonly workspacePath: string;
@@ -121,6 +125,11 @@ export class LocalModelsClientProviderFacade implements ProviderAdapter {
     }
     // The key is optional: most local servers run no-auth.
     const apiKey = providerAuthStoreFacade.getApiKey("local-models-client");
+    await this.publishContextWindow(session, {
+      baseUrl,
+      contextLength: settings.providers.localModels.contextLength,
+      model: settings.providers.localModels.defaultModel,
+    });
     session.abort?.abort();
     const abort = new AbortController();
     session.abort = abort;
@@ -169,6 +178,7 @@ export class LocalModelsClientProviderFacade implements ProviderAdapter {
     if (!this.sessions.has(sessionId)) {
       this.sessions.set(sessionId, {
         abort: null,
+        contextWindowChecked: false,
         listeners: new Set(),
         messages: [],
         workspacePath: workspacePath ?? this.defaultWorkspacePath,
@@ -200,6 +210,33 @@ export class LocalModelsClientProviderFacade implements ProviderAdapter {
         uuid: randomUUID(),
       });
     }
+  }
+
+  // Detect the context window once per session (settings override wins) and
+  // publish it as tokenUsage.limit so the session usage telemetry reflects
+  // the real local window instead of the provider default.
+  private async publishContextWindow(
+    session: LocalModelsClientSessionState,
+    input: { baseUrl: string; contextLength: number; model: string }
+  ): Promise<void> {
+    if (session.contextWindowChecked) {
+      return;
+    }
+    session.contextWindowChecked = true;
+    const limit = await detectLocalModelsContextLength({
+      baseUrl: input.baseUrl,
+      contextLengthOverride: input.contextLength,
+      model: input.model,
+    }).catch(() => null);
+    if (!limit) {
+      return;
+    }
+    this.emit(session, {
+      data: { tokenUsage: { limit, used: 0 } },
+      timestamp: new Date().toISOString(),
+      type: "system",
+      uuid: randomUUID(),
+    });
   }
 
   private emitBaseUrlMissing(session: LocalModelsClientSessionState): void {

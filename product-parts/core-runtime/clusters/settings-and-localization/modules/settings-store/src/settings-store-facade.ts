@@ -64,11 +64,6 @@ export interface HarnessSettings {
     glmClient: ProviderClientKeySettings & {
       reasoningEffort: ReasoningEffort;
     };
-    glmNative: ProviderConnectionSettings & {
-      reasoningEffort: ReasoningEffort;
-      thinkingEnabled: boolean;
-      thinkingDisplaySyncEnabled: boolean;
-    };
     // Universal-client Local Models endpoint: the base URL points at the
     // user's local OpenAI-compatible server (LM Studio's server has no auth;
     // the llama.cpp/proxy key niche stays on silent env fallbacks).
@@ -168,12 +163,6 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       defaultModel: "glm-5.2",
       reasoningEffort: "max",
     },
-    glmNative: {
-      ...connectionProvider("glm-5.2", "https://open.bigmodel.cn/api/paas/v4"),
-      reasoningEffort: "max",
-      thinkingDisplaySyncEnabled: true,
-      thinkingEnabled: true,
-    },
     localModels: {
       baseUrl: "http://127.0.0.1:1234",
       contextLengthByModel: {},
@@ -205,7 +194,10 @@ const PROVIDER_KEY_BY_ID: Record<
   kimi: "kimi",
   "kimi-client": "kimiClient",
   "glm-client": "glmClient",
-  "glm-native": "glmNative",
+  // One-commit bridge until the retired ids leave the ProviderId union: the
+  // legacy sections are gone, the ids alias the live sections (nothing reads
+  // them — no new sessions start on retired ids).
+  "glm-native": "glmClient",
   openrouter: "openRouter",
   // The universal-client endpoint shares the openRouter section: ONE key
   // serves coding sessions and the localization translation engine.
@@ -316,10 +308,9 @@ function providerAuthOverlay(): SettingsPatch {
   return {
     providers: {
       glmClient: providerSettingsOverlay("glm-client"),
-      glmNative: providerSettingsOverlay("glm-native"),
       kimiClient: providerSettingsOverlay("kimi-client"),
-      localModels: providerSettingsOverlay("local-models"),
-      openRouter: providerSettingsOverlay("openrouter"),
+      localModels: providerSettingsOverlay("local-models-client"),
+      openRouter: providerSettingsOverlay("openrouter-client"),
     },
   };
 }
@@ -343,19 +334,15 @@ function syncProviderAuthFiles(settings: HarnessSettings): void {
     settings.providers.glmClient
   );
   providerAuthStoreFacade.saveProviderSettings(
-    "glm-native",
-    settings.providers.glmNative
-  );
-  providerAuthStoreFacade.saveProviderSettings(
     "kimi-client",
     settings.providers.kimiClient
   );
   providerAuthStoreFacade.saveProviderSettings(
-    "local-models",
+    "local-models-client",
     settings.providers.localModels
   );
   providerAuthStoreFacade.saveProviderSettings(
-    "openrouter",
+    "openrouter-client",
     settings.providers.openRouter
   );
 }

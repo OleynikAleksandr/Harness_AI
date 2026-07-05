@@ -51,6 +51,14 @@ assert.doesNotMatch(facadeSource, /localModels: \{\n\s+apiKey/u);
 assert.doesNotMatch(source, /glmOpenCode/u);
 assert.doesNotMatch(facadeSource, /glmOpenCode: \{/u);
 assert.doesNotMatch(facadeSource, /"glm-opencode"/u);
+// The retired glm-native section left the schema with the 2026-07-05 legacy
+// cleanup; stored files with the section load fine (unknown keys are ignored
+// structurally) and the save projections drop it on the next save.
+assert.doesNotMatch(source, /glmNative/u);
+assert.doesNotMatch(
+  facadeSource,
+  /glmNative: \{\n\s+\.\.\.connectionProvider/u
+);
 assert.match(facadeSource, /uiEngineId: "google-gtx"/u);
 assert.match(facadeSource, /getLocalizationTranslationEngines/u);
 assert.match(facadeSource, /shouldSyncLocalization/u);

@@ -58,10 +58,19 @@ Own global and workspace settings persistence.
   section once the internal provider id is introduced; save/load syncs the API
   key through `providers/glm-client/settings.json` like the other key-based
   providers.
-- The retired `providers.glmOpenCode` settings section is removed from the typed
-  settings schema, defaults, projections, auth overlay/sync, and normalization.
-  Legacy settings files may still contain that object; it is ignored by typed
-  consumers and dropped from persisted projections on the next save.
+- The retired `providers.glmOpenCode` and `providers.glmNative` settings
+  sections are removed from the typed settings schema, defaults, projections,
+  auth overlay/sync, and normalization (`glmNative` left with the 2026-07-05
+  legacy cleanup). Legacy settings files may still contain those objects; they
+  are ignored by typed consumers and dropped from persisted projections on the
+  next save.
+- The auth overlay and auth-file sync run on the universal-client ids
+  (`glm-client`, `kimi-client`, `local-models-client`, `openrouter-client`);
+  the auth store maps the last two onto the same legacy-named file aliases,
+  so existing auth files keep working. `PROVIDER_KEY_BY_ID` keeps one-commit
+  bridge lines for the retired `glm-native`/`openrouter`/`local-models` ids
+  until they leave the `ProviderId` union (the map is exhaustive over the
+  union; nothing reads the bridged entries).
 - The `providers.localModels` section carries the universal-client Local
   Models connection: `baseUrl` (default `http://127.0.0.1:1234`; normalization
   keeps http(s) URLs only and trims trailing slashes),

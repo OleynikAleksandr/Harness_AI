@@ -28,7 +28,6 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
         defaultModel: settings.providers.glmClient.defaultModel,
         reasoningEffort: settings.providers.glmClient.reasoningEffort,
       },
-      glmNative: pickConnection(settings.providers.glmNative),
       localModels: {
         baseUrl: settings.providers.localModels.baseUrl,
         contextLengthByModel:
@@ -62,13 +61,6 @@ export function workspaceSettingsFrom(
       kimi: {
         ...workspaceCommon(settings.providers.kimi),
         thinkingEnabled: settings.providers.kimi.thinkingEnabled,
-      },
-      glmNative: {
-        defaultModel: settings.providers.glmNative.defaultModel,
-        reasoningEffort: settings.providers.glmNative.reasoningEffort,
-        thinkingDisplaySyncEnabled:
-          settings.providers.glmNative.thinkingDisplaySyncEnabled,
-        thinkingEnabled: settings.providers.glmNative.thinkingEnabled,
       },
       localModels: {
         defaultModel: settings.providers.localModels.defaultModel,

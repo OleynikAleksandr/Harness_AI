@@ -82,21 +82,20 @@ const parseContextLength = (value: string): number => {
 };
 
 export interface LocalModelsConnectionPatch {
-  readonly apiKey?: string;
   readonly baseUrl?: string;
   readonly contextLength?: number;
 }
 
 // Connection variant of the client card family for local universal-client
-// providers: a base URL, an OPTIONAL key and a context-length override. The
+// providers: a base URL and a context-length override. No API key field —
+// LM Studio's local server has no authentication (user review fix
+// 2026-07-05); the llama.cpp/proxy niche stays on silent env fallbacks. The
 // Local Models tab mounts it above the live model list.
 export function LocalModelsClientConnectionCard({
-  apiKey,
   baseUrl,
   contextLength,
   onChange,
 }: {
-  apiKey: string;
   baseUrl: string;
   contextLength: number;
   onChange: (patch: LocalModelsConnectionPatch) => void;
@@ -128,19 +127,6 @@ export function LocalModelsClientConnectionCard({
           "ui_helper_text",
           "settings.provider.localModelsClient.baseUrl.description",
           "Base URL of the local OpenAI-compatible server — the server root (http://127.0.0.1:1234) or its /v1 prefix; both are accepted. Harness also reads HARNESS_AI_LOCAL_MODELS_BASE_URL or LMSTUDIO_BASE_URL from the environment."
-        )}
-      </p>
-      <SettingsTextField
-        label={t("ui_labels", "settings.provider.apiKey", "API Key")}
-        onChange={(value) => onChange({ apiKey: value })}
-        password
-        value={apiKey}
-      />
-      <p className="settings-note">
-        {t(
-          "ui_helper_text",
-          "settings.provider.localModelsClient.apiKey.description",
-          "Optional API key sent as a Bearer token. Most local servers run without authentication — leave empty unless your server requires one."
         )}
       </p>
       <SettingsTextField

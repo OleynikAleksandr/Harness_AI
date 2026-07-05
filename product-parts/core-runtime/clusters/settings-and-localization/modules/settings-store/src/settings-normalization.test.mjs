@@ -43,8 +43,11 @@ assert.match(
 );
 assert.match(
   facadeSource,
-  /localModels: \{\n\s+apiKey: "",\n\s+baseUrl: "http:\/\/127\.0\.0\.1:1234",\n\s+contextLength: 0,\n\s+defaultModel: "local-model",\n\s+\}/u
+  /localModels: \{\n\s+baseUrl: "http:\/\/127\.0\.0\.1:1234",\n\s+contextLength: 0,\n\s+defaultModel: "local-model",\n\s+\}/u
 );
+// The API key field is removed (user review fix 2026-07-05); only env
+// fallbacks in the auth store may still supply a Bearer token.
+assert.doesNotMatch(facadeSource, /localModels: \{\n\s+apiKey/u);
 assert.doesNotMatch(source, /glmOpenCode/u);
 assert.doesNotMatch(facadeSource, /glmOpenCode: \{/u);
 assert.doesNotMatch(facadeSource, /"glm-opencode"/u);

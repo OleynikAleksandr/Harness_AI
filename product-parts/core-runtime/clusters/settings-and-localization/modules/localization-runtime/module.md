@@ -62,8 +62,9 @@ materialization, bootstrap payload reuse, and bundle state.
   Override") in `ui_labels`, and the card copy
   (`settings.provider.localModelsClient.description`,
   `.baseUrl.description` — server root or `/v1` prefix both accepted,
-  `.apiKey.description` — optional Bearer key, `.contextLength.description` —
-  manual window override, 0 = auto-detect) in `ui_helper_text`.
+  `.contextLength.description` — manual window override, 0 = auto-detect) in
+  `ui_helper_text`. The `.apiKey.description` string was removed together
+  with the API key field (2026-07-05 user review fix).
 - The OpenRouter model search refresh control label
   (`settings.openRouter.searchRefresh`) is part of the approved `ui_labels`
   dictionary; it names the icon button that re-runs the model slug search and

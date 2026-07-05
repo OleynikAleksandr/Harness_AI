@@ -64,12 +64,15 @@ Own global and workspace settings persistence.
   consumers and dropped from persisted projections on the next save.
 - The `providers.localModels` section carries the universal-client Local
   Models connection: `baseUrl` (default `http://127.0.0.1:1234`; normalization
-  keeps http(s) URLs only and trims trailing slashes), optional `apiKey`
-  (empty by default — most local servers run no-auth), `contextLength`
+  keeps http(s) URLs only and trims trailing slashes), `contextLength`
   (non-negative integer; `0` keeps context-window auto-detection), and the
-  existing `defaultModel`. Connection fields persist in the system settings
-  projection and sync through the provider-auth-store like the other
-  key-based providers; `defaultModel` stays in the workspace projection.
+  existing `defaultModel`. There is NO `apiKey` field (2026-07-05 user review
+  fix: LM Studio's local server has no authentication; the llama.cpp/proxy
+  niche stays on the auth-store env fallbacks — a legacy `apiKey` key in
+  stored files is ignored structurally and dropped on the next save).
+  Connection fields persist in the system settings projection and sync
+  through the provider-auth-store; `defaultModel` stays in the workspace
+  projection.
 
 ## Reasoning Effort Contract
 

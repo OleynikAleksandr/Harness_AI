@@ -70,11 +70,10 @@ export interface HarnessSettings {
       thinkingDisplaySyncEnabled: boolean;
     };
     // Universal-client Local Models endpoint: the base URL points at the
-    // user's local OpenAI-compatible server, the key is optional (most local
-    // servers run no-auth), and contextLength overrides window auto-detection
-    // when greater than zero.
+    // user's local OpenAI-compatible server (LM Studio's server has no auth;
+    // the llama.cpp/proxy key niche stays on silent env fallbacks), and
+    // contextLength overrides window auto-detection when greater than zero.
     localModels: {
-      apiKey: string;
       baseUrl: string;
       contextLength: number;
       defaultModel: string;
@@ -175,7 +174,6 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       thinkingEnabled: true,
     },
     localModels: {
-      apiKey: "",
       baseUrl: "http://127.0.0.1:1234",
       contextLength: 0,
       defaultModel: "local-model",

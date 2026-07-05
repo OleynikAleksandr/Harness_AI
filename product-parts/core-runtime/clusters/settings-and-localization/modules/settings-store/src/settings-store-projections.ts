@@ -30,7 +30,6 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
       },
       glmNative: pickConnection(settings.providers.glmNative),
       localModels: {
-        apiKey: settings.providers.localModels.apiKey,
         baseUrl: settings.providers.localModels.baseUrl,
         contextLength: settings.providers.localModels.contextLength,
       },

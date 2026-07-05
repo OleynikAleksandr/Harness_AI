@@ -216,8 +216,6 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Runs local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp) on the Harness universal client. Nothing is downloaded or installed.",
     "settings.provider.localModelsClient.baseUrl.description":
       "Base URL of the local OpenAI-compatible server — the server root (http://127.0.0.1:1234) or its /v1 prefix; both are accepted. Harness also reads HARNESS_AI_LOCAL_MODELS_BASE_URL or LMSTUDIO_BASE_URL from the environment.",
-    "settings.provider.localModelsClient.apiKey.description":
-      "Optional API key sent as a Bearer token. Most local servers run without authentication — leave empty unless your server requires one.",
     "settings.provider.localModelsClient.contextLength.description":
       "Manual context window override in tokens. 0 keeps auto-detection (Ollama, LM Studio and llama.cpp report their loaded context).",
     "settings.provider.openRouter.description":

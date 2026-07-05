@@ -36,8 +36,11 @@ normalization.
   concern for the core `think_tags` splitter if a live model needs it), and
   `toolChoiceSupport: "unsupported"` so the core never sends `tool_choice`
   (Ollama rejects the parameter; auto is every server's default).
-- Optional Bearer auth: most local servers run no-auth, so a missing key is
-  normal and the request simply carries no Authorization header.
+- Bearer auth comes ONLY from the silent auth-store env fallbacks
+  (`HARNESS_AI_LOCAL_API_KEY`/`LMSTUDIO_API_KEY`): there is no settings/UI
+  key field (2026-07-05 user review fix — LM Studio's local server has no
+  authentication), a missing key is the norm and the request simply carries
+  no Authorization header.
 - A missing/empty base URL from every source fails the turn with the English
   adapter literal ("Local Models server base URL is missing...") without
   firing a request; localized onboarding copy lives in the Settings provider

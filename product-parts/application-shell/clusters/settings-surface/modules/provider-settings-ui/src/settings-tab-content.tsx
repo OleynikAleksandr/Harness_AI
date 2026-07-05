@@ -285,14 +285,10 @@ export function SettingsTabContent({
     return (
       <div className="settings-reference-stack">
         <LocalModelsClientConnectionCard
-          apiKey={provider.apiKey}
           baseUrl={provider.baseUrl}
           contextLength={provider.contextLength}
           onChange={(patch) =>
             update((next) => {
-              if (patch.apiKey !== undefined) {
-                next.providers.localModels.apiKey = patch.apiKey;
-              }
               if (patch.baseUrl !== undefined) {
                 next.providers.localModels.baseUrl = patch.baseUrl;
               }

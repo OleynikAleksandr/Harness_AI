@@ -29,10 +29,10 @@ assert.match(managedProfileSource, /"\.harness-ai"/u);
 assert.match(managedProfileSource, /"\.harness"/u);
 assert.doesNotMatch(managedProfileSource, /"\.codeai-hub"/u);
 assert.match(source, /thinkingEnabled: true/u);
-assert.match(
-  coreRuntimeSource,
-  /new KimiProviderFacade\(model, workspacePath\)/u
-);
+// Retired ACP adapter (2026-07-05 user order): Core routing no longer builds
+// this module; the directory awaits its removal in the atomic id/module
+// deletion task.
+assert.doesNotMatch(coreRuntimeSource, /KimiProviderFacade/u);
 
 for (const relativePath of [
   "reference/provider/kimi-provider-adapter.ts",

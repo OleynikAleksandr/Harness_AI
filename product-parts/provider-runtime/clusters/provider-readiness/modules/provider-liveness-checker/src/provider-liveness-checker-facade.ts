@@ -1,6 +1,5 @@
 import { ClaudeProviderFacade } from "../../../../provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { CodexProviderFacade } from "../../../../provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
-import { KimiProviderFacade } from "../../../../provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
 import { listLocalModels } from "../../../../provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
 import type { ProviderAdapter } from "../../../../provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
@@ -115,8 +114,6 @@ function createHomeAdapter(
       );
     case "codex":
       return new CodexProviderFacade({ providerHomePath });
-    case "kimi":
-      return new KimiProviderFacade(undefined, process.cwd(), providerHomePath);
     default:
       throw new Error(`Provider does not use a provider home: ${providerId}`);
   }

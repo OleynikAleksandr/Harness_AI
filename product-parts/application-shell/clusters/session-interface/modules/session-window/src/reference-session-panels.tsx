@@ -424,7 +424,7 @@ function resolveReasoningLabel(
       ? `(${settings.providers.claude.thinkingByModel[session.model] ?? settings.providers.claude.thinking.effort})`
       : "(off)";
   }
-  if (session.providerId === "openrouter") {
+  if (session.providerId === "openrouter-client") {
     return settings.providers.openRouter.endpointTag
       ? `(${settings.providers.openRouter.endpointTag})`
       : null;

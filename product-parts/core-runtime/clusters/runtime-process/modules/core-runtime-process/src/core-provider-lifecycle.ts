@@ -10,6 +10,7 @@ import {
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { workspaceRegistryFacade } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
+import { ensureLocalModelsServer } from "./core-local-server-autostart.js";
 import { registerProviderAdapterInstance } from "./core-provider-adapter-registration.js";
 
 export type CoreEventListener = (event: unknown) => void;
@@ -60,6 +61,19 @@ export class CoreProviderLifecycle {
     providerLivenessCheckerFacade
       .checkProviders(PROVIDER_IDS)
       .catch(() => undefined);
+    // Unconditional LM Studio autostart (user order 2026-07-05): launch the
+    // local server in the background when it is down and re-run its liveness
+    // once it answers; machines without LM Studio skip silently.
+    ensureLocalModelsServer({
+      onReady: () => {
+        providerLivenessCheckerFacade
+          .checkProvider("local-models-client")
+          .catch(() => undefined);
+      },
+      resolveBaseUrl: () =>
+        providerAuthStoreFacade.getBaseUrl("local-models-client") ??
+        settingsStoreFacade.getSettings().providers.localModels.baseUrl,
+    }).catch(() => undefined);
   }
 
   subscribeReadiness(): void {

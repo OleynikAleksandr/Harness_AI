@@ -101,7 +101,17 @@ also run here so the Application Shell remains UI/supervisor/client only.
   connection (base URL + optional key) from Core settings per turn while the
   adapter pins only the local dialect; OpenRouter resolves its selected
   model, base URL and endpoint tag from the shared `openRouter` settings
-  section per turn while the adapter pins only the OpenRouter dialect. `glm-opencode` is no longer registered or
+  section per turn while the adapter pins only the OpenRouter dialect.
+- LM Studio autostart (`core-local-server-autostart.ts`, unconditional per
+  the 2026-07-05 user order): `startLivenessPreflight` fires
+  `ensureLocalModelsServer()` — ping the CONFIGURED base URL
+  (`{v1}/models`, short timeout); when silent, launch the LM Studio service
+  via the bundled `~/.lmstudio/bin/lms server start` (PATH `lms` next, the
+  macOS background app launch `open -g -a "LM Studio"` as the last resort),
+  poll readiness briefly and re-run the `local-models-client` liveness so
+  the picker sees the models. Machines without LM Studio skip silently (an
+  idle LM Studio holds no models in memory); the routine never throws.
+  `glm-opencode` is no longer registered or
   started by Core runtime lifecycle; old OpenCode sessions are not preserved
   across updates during this development migration.
 

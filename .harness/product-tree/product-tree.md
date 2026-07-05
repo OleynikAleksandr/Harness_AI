@@ -113,6 +113,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 - `glm-client-provider`: thin GLM endpoint for the Core universal client — Z.ai coding dialect specifics (`api.z.ai/api/coding/paas/v4`, `Accept-Language`, `reasoning_content`, GLM `extraBody` params) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `glm-native-provider`: GLM native provider adapter.
 - `openrouter-provider`: OpenRouter provider adapter.
+- `openrouter-client-provider`: thin OpenRouter endpoint for the Core universal client — OpenRouter dialect specifics (`reasoning_details` thinking, usage in any chunk, per-turn `apiKey`/`baseUrl`/`defaultModel`/`endpointTag` from the shared `openRouter` settings section) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `local-models-provider`: local model provider adapter.
 - `local-models-client-provider`: thin Local Models endpoint for the Core universal client — local-server dialect specifics (per-turn base URL from Core settings resolved to a `/v1` request base, optional Bearer key, `reasoning_content` thinking, no `tool_choice`) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `provider-turn-runner`: deprecated direct dispatch debt retained only until Core-owned provider dispatch replaces existing UI wiring; Application Shell must not extend it.

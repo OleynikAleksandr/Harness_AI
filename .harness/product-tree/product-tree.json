@@ -374,6 +374,11 @@
               "purpose": "OpenRouter provider adapter."
             },
             {
+              "id": "openrouter-client-provider",
+              "name": "OpenRouter Client Provider",
+              "purpose": "Thin OpenRouter endpoint for the Core universal client: OpenRouter dialect specifics (reasoning_details thinking, usage in any chunk, per-turn apiKey/baseUrl/defaultModel/endpointTag from the shared openRouter settings section) and the ClientTurnRequest builder the Core agent loop runs."
+            },
+            {
               "id": "local-models-provider",
               "name": "Local Models Provider",
               "purpose": "Local model provider adapter."

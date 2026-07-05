@@ -22,14 +22,17 @@ Own provider liveness preflight helpers.
 - Global provider home path.
 - Env-isolated adapter initialization runner.
 - Raw liveness status written into the readiness registry.
-- Provider-home preflight builds only active provider-home adapters; the embedded
-  OpenCode runtime is unbound from liveness checks during the GLM migration.
-- API-provider checks: `openrouter` and the universal-client
-  `openrouter-client` require a stored key; `local-models` and the
-  universal-client `local-models-client` require a non-empty live model
-  list fetched from the CONFIGURED base URL — the default catalog loader is
-  `listLocalModels` from the `local-models-client-provider` module (settings +
-  env fallbacks), replacing the old hardcoded LM-Studio URL.
+- Provider-home preflight builds only active provider-home adapters
+  (`claude`, `codex` and the ACP `kimi` kept alive for native capture); the
+  embedded OpenCode runtime and the retired `glm-native` adapter are unbound
+  from liveness checks (GLM migration, then the 2026-07-05 legacy cleanup).
+- API-provider checks: the universal-client `openrouter-client` requires a
+  stored key; the universal-client `local-models-client` requires a
+  non-empty live model list fetched from the CONFIGURED base URL — the
+  default catalog loader is `listLocalModels` from the
+  `local-models-client-provider` module (settings + env fallbacks),
+  replacing the old hardcoded LM-Studio URL. The retired legacy
+  `openrouter`/`local-models` ids left these checks with the legacy cleanup.
 
 ## Owned Paths
 

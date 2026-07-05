@@ -18,10 +18,9 @@ const coreRuntimeSource = readFileSync(
 
 assert.match(source, /extends LocalModelsProviderAdapter/u);
 assert.match(source, /CODEAI_LMSTUDIO_DEFAULT_MODEL/u);
-assert.match(
-  coreRuntimeSource,
-  /new LocalModelsProviderFacade\(model \?\? undefined\)/u
-);
+// Retired legacy adapter (2026-07-05 cleanup): Core routing no longer builds
+// this module; the directory awaits its removal task.
+assert.doesNotMatch(coreRuntimeSource, /new LocalModelsProviderFacade\(/u);
 
 for (const relativePath of [
   "reference/local-models-provider-adapter.ts",

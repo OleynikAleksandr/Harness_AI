@@ -20,7 +20,8 @@ const { ProviderLivenessCheckerFacade } = await import(moduleUrl);
 const changes = [];
 const checker = new ProviderLivenessCheckerFacade({
   authStore: {
-    getApiKey: (providerId) => (providerId === "openrouter" ? "key" : null),
+    getApiKey: (providerId) =>
+      providerId === "openrouter-client" ? "key" : null,
   },
   createHomeAdapter: () => ({
     closeSession: () => Promise.resolve(),
@@ -49,18 +50,18 @@ const checker = new ProviderLivenessCheckerFacade({
 });
 
 await checker.checkProvider("codex");
-await checker.checkProvider("openrouter");
-await checker.checkProvider("local-models");
+await checker.checkProvider("openrouter-client");
+await checker.checkProvider("local-models-client");
 
 assert.deepEqual(
   changes.map(({ providerId, status }) => `${providerId}:${status}`),
   [
     "codex:checking",
     "codex:ready",
-    "openrouter:checking",
-    "openrouter:ready",
-    "local-models:checking",
-    "local-models:ready",
+    "openrouter-client:checking",
+    "openrouter-client:ready",
+    "local-models-client:checking",
+    "local-models-client:ready",
   ]
 );
 
@@ -76,10 +77,10 @@ await new ProviderLivenessCheckerFacade({
       failures.push({ message, providerId, status });
     },
   },
-}).checkProvider("openrouter");
+}).checkProvider("openrouter-client");
 
 assert.deepEqual(failures.at(-1), {
   message: "Add an OpenRouter API key in Provider Settings.",
-  providerId: "openrouter",
+  providerId: "openrouter-client",
   status: "failed",
 });

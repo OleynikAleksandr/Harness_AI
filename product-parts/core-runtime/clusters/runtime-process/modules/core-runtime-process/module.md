@@ -106,6 +106,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   adapter pins only the local dialect; OpenRouter resolves its selected
   model, base URL and endpoint tag from the shared `openRouter` settings
   section per turn while the adapter pins only the OpenRouter dialect.
+  The retired legacy `glm-native`/`openrouter`/`local-models` adapters left
+  `PROVIDER_IDS` and `buildProviderAdapterInstance` with the 2026-07-05
+  legacy cleanup; the ACP `kimi` stays registered as the live adapter behind
+  the native request capture feature (its retirement is the remaining
+  Phase 5 afterlife item).
 - LM Studio autostart (`core-local-server-autostart.ts`, unconditional per
   the 2026-07-05 user order): `startLivenessPreflight` fires
   `ensureLocalModelsServer()` — ping the CONFIGURED base URL

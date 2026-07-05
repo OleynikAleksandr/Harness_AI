@@ -23,10 +23,7 @@ export const PROVIDER_IDS: ProviderId[] = [
   // provider-id validation reads this list.
   "kimi-client",
   "glm-client",
-  "glm-native",
-  "openrouter",
   "openrouter-client",
-  "local-models",
   "local-models-client",
 ];
 

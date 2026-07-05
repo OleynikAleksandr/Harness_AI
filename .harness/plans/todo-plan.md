@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream7.task2",
-  "expectedCommitMessage": "feat(core-runtime): unbind legacy provider adapters",
+  "currentTaskId": "harness-ai.phase4.stream7.task3",
+  "expectedCommitMessage": "feat(core-runtime): remove legacy session and telemetry branches",
   "debt": null
 }
 ```
@@ -519,9 +519,9 @@
 
 153. [DONE] `harness-ai.phase4.stream7.task1` Materialize the legacy provider cleanup stream per the user's direct order 2026-07-05 (plan-only, closes with this same commit): record the audit findings and decisions above, lay out the removal microtasks below, and narrow the Phase 5 afterlife milestone to the ACP `kimi-provider` only (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): materialize legacy provider cleanup`). Result: Completed in commit `docs(plan): materialize legacy provider cleanup`.
 154. [DONE] Git Commit: `docs(plan): materialize legacy provider cleanup` (hash: self)
-155. [IN_PROGRESS] `harness-ai.phase4.stream7.task2` Unbind the three dead legacy adapters from Core routing and liveness (the `kimi` ACP branches stay per the capture decision): `buildProviderAdapterInstance` drops the `glm-native`/`openrouter`/`local-models` cases and their facade imports, lifecycle `PROVIDER_IDS` drops the three ids (no startup registration, no liveness sweep), and the liveness checker drops its `glm-native` adapter branch + facade import (scope: core-provider-adapter-registration, core-provider-lifecycle, provider-liveness-checker + affected `module.md`s; expected commit: `feat(core-runtime): unbind legacy provider adapters`).
-156. [TODO] Git Commit: `feat(core-runtime): unbind legacy provider adapters` (hash: TBD)
-157. [TODO] `harness-ai.phase4.stream7.task3` Remove the dead legacy session/telemetry branches (`kimi` branches stay): `provider-turn-options` drops the `glm-native` and `openrouter` branches (+ its test assertions), `usage-context-telemetry` drops `glm-native`/`openrouter` from `hasProviderUsageScope` while `hasFiveHourWindow` keeps the `glm-` prefix (it serves the live `glm-client`) (scope: provider-turn-options (+ test), usage-context-telemetry facade + affected `module.md`s; expected commit: `feat(core-runtime): remove legacy session and telemetry branches`).
+155. [DONE] `harness-ai.phase4.stream7.task2` Unbind the three dead legacy adapters from Core routing and liveness (the `kimi` ACP branches stay per the capture decision): `buildProviderAdapterInstance` drops the `glm-native`/`openrouter`/`local-models` cases and their facade imports, lifecycle `PROVIDER_IDS` drops the three ids (no startup registration, no liveness sweep), and the liveness checker drops its `glm-native` adapter branch + facade import (scope: core-provider-adapter-registration, core-provider-lifecycle, provider-liveness-checker + affected `module.md`s; expected commit: `feat(core-runtime): unbind legacy provider adapters`). Scope clarification (2026-07-05, during implementation): the liveness checker's `checkApiProvider` also compared the legacy `openrouter`/`local-models` id literals — those comparisons would break compilation at the task6 union shrink, so the same-file mechanical cleanup joins this task (the client-id checks stay). Result: Completed in commit `feat(core-runtime): unbind legacy provider adapters`.
+156. [DONE] Git Commit: `feat(core-runtime): unbind legacy provider adapters` (hash: self)
+157. [IN_PROGRESS] `harness-ai.phase4.stream7.task3` Remove the dead legacy session/telemetry branches (`kimi` branches stay): `provider-turn-options` drops the `glm-native` and `openrouter` branches (+ its test assertions), `usage-context-telemetry` drops `glm-native`/`openrouter` from `hasProviderUsageScope` while `hasFiveHourWindow` keeps the `glm-` prefix (it serves the live `glm-client`) (scope: provider-turn-options (+ test), usage-context-telemetry facade + affected `module.md`s; expected commit: `feat(core-runtime): remove legacy session and telemetry branches`).
 158. [TODO] Git Commit: `feat(core-runtime): remove legacy session and telemetry branches` (hash: TBD)
 159. [TODO] `harness-ai.phase4.stream7.task4` Remove the dead legacy renderer branches (`kimi` stays): `provider-picker` `getProviderModel` drops the `glm-native`/`openrouter`/`local-models` cases (incl. the last `providers.glmNative` read), `reference-session-panels` drops its `openrouter` branch (scope: provider-picker, reference-session-panels + session-window `module.md`; expected commit: `feat(session-ui): remove legacy provider renderer branches`).
 160. [TODO] Git Commit: `feat(session-ui): remove legacy provider renderer branches` (hash: TBD)

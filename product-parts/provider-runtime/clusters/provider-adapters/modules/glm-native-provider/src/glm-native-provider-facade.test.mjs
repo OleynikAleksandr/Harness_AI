@@ -32,10 +32,9 @@ assert.match(source, /settingsPath: workspaceSettingsPath\(workspacePath\)/u);
 assert.match(runtimeProfileSource, /"\.harness-ai"/u);
 assert.match(runtimeProfileSource, /HARNESS_GLOBAL_SETTINGS_PATH/u);
 assert.doesNotMatch(runtimeProfileSource, /"\.codeai-hub"|~\/\.codeai-hub/u);
-assert.match(
-  coreRuntimeSource,
-  /new GlmNativeProviderFacade\(model, workspacePath\)/u
-);
+// Retired legacy adapter (2026-07-05 cleanup): Core routing no longer builds
+// this module; the directory awaits its removal task.
+assert.doesNotMatch(coreRuntimeSource, /GlmNativeProviderFacade/u);
 
 for (const relativePath of [
   "reference/provider/glm-native-provider-adapter.ts",

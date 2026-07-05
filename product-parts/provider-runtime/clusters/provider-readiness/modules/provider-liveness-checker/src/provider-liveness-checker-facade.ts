@@ -1,6 +1,5 @@
 import { ClaudeProviderFacade } from "../../../../provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { CodexProviderFacade } from "../../../../provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
-import { GlmNativeProviderFacade } from "../../../../provider-adapters/modules/glm-native-provider/src/glm-native-provider-facade.js";
 import { KimiProviderFacade } from "../../../../provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
 import { listLocalModels } from "../../../../provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
 import type { ProviderAdapter } from "../../../../provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
@@ -86,14 +85,14 @@ export class ProviderLivenessCheckerFacade {
   }
 
   private async checkApiProvider(providerId: ProviderId): Promise<void> {
-    if (providerId === "openrouter" || providerId === "openrouter-client") {
+    if (providerId === "openrouter-client") {
       if (!this.deps.authStore.getApiKey(providerId)) {
         throw new Error("Add an OpenRouter API key in Provider Settings.");
       }
       return;
     }
     if (
-      (providerId === "local-models" || providerId === "local-models-client") &&
+      providerId === "local-models-client" &&
       (await this.deps.loadLocalModels()).length === 0
     ) {
       throw new Error(
@@ -118,12 +117,6 @@ function createHomeAdapter(
       return new CodexProviderFacade({ providerHomePath });
     case "kimi":
       return new KimiProviderFacade(undefined, process.cwd(), providerHomePath);
-    case "glm-native":
-      return new GlmNativeProviderFacade(
-        undefined,
-        process.cwd(),
-        providerHomePath
-      );
     default:
       throw new Error(`Provider does not use a provider home: ${providerId}`);
   }

@@ -53,6 +53,14 @@ const source = readFileSync(
   .replace(
     /import \{ detectLocalModelsContextLength \}[^\n]*\n/u,
     "const detectLocalModelsContextLength = () => Promise.resolve(globalThis.__localClientTestWindow ?? null);\n"
+  )
+  .replace(
+    /import \{\n\s*ensureLocalModelContext,\n\s*listLocalModelEntries,\n\} from[^\n]*\n/u,
+    [
+      "const ensureLocalModelContext = (input) => { globalThis.__localClientTestEnsures.push(input); return Promise.resolve(globalThis.__localClientTestApplied ?? null); };",
+      "const listLocalModelEntries = () => Promise.resolve(globalThis.__localClientTestEntries ?? []);",
+      "",
+    ].join("\n")
   );
 
 const compiled = ts.transpileModule(source, {
@@ -120,7 +128,11 @@ try {
   assert.equal(keyedRequest.apiKey, "sk-local");
 
   globalThis.__localClientTestApiKey = null;
+  globalThis.__localClientTestApplied = null;
   globalThis.__localClientTestBaseUrl = null;
+  globalThis.__localClientTestContextByModel = {};
+  globalThis.__localClientTestEnsures = [];
+  globalThis.__localClientTestEntries = [];
   globalThis.__localClientTestSettingsBaseUrl = "http://127.0.0.1:1234";
   globalThis.__localClientTestModel = "qwen-coder";
   globalThis.__localClientTestTurns = [];
@@ -184,7 +196,8 @@ try {
   assert.match(noUrlEvents[1].message, /base URL is missing/u);
 
   // A detected context window rides one "system" telemetry event per session
-  // (tokenUsage.limit) ahead of the first turn, and never repeats.
+  // (tokenUsage.limit) ahead of the first turn, and never repeats. With no
+  // per-model wish the management API is not asked to reload anything.
   globalThis.__localClientTestSettingsBaseUrl = "http://127.0.0.1:1234";
   globalThis.__localClientTestWindow = 8192;
   const windowSession = await adapter.createSession();
@@ -198,12 +211,54 @@ try {
   assert.deepEqual(windowEvents[0].data, {
     tokenUsage: { limit: 8192, used: 0 },
   });
+  assert.equal(globalThis.__localClientTestEnsures.length, 0);
   await adapter.sendMessage(windowSession, "again");
   assert.equal(
     windowEvents.filter((event) => event.type === "system").length,
     1
   );
   globalThis.__localClientTestWindow = undefined;
+
+  // A per-model wish is applied through the management API (reload
+  // semantics) and its applied window becomes the telemetry limit.
+  globalThis.__localClientTestContextByModel = { "qwen-coder": 32_768 };
+  globalThis.__localClientTestApplied = 32_768;
+  const wishSession = await adapter.createSession();
+  const wishEvents = [];
+  adapter.subscribe(wishSession, (event) => wishEvents.push(event));
+  await adapter.sendMessage(wishSession, "hi");
+  assert.equal(globalThis.__localClientTestEnsures.length, 1);
+  assert.equal(globalThis.__localClientTestEnsures[0].model, "qwen-coder");
+  assert.equal(
+    globalThis.__localClientTestEnsures[0].desiredContextLength,
+    32_768
+  );
+  assert.deepEqual(wishEvents[0].data, {
+    tokenUsage: { limit: 32_768, used: 0 },
+  });
+  globalThis.__localClientTestContextByModel = {};
+  globalThis.__localClientTestApplied = null;
+  globalThis.__localClientTestEnsures = [];
+
+  // Without a wish the loaded v1 instance window feeds the telemetry.
+  globalThis.__localClientTestEntries = [
+    {
+      displayName: "Qwen Coder",
+      key: "qwen-coder",
+      loadedContextLength: 16_384,
+      loadedInstanceId: "qwen-coder",
+      maxContextLength: 262_144,
+      supportsTools: true,
+    },
+  ];
+  const loadedSession = await adapter.createSession();
+  const loadedEvents = [];
+  adapter.subscribe(loadedSession, (event) => loadedEvents.push(event));
+  await adapter.sendMessage(loadedSession, "hi");
+  assert.deepEqual(loadedEvents[0].data, {
+    tokenUsage: { limit: 16_384, used: 0 },
+  });
+  globalThis.__localClientTestEntries = [];
 
   globalThis.__localClientTestFail = true;
   const failSession = await adapter.createSession();
@@ -219,7 +274,11 @@ try {
   console.log("local-models-client-provider tests passed");
 } finally {
   globalThis.__localClientTestApiKey = undefined;
+  globalThis.__localClientTestApplied = undefined;
   globalThis.__localClientTestBaseUrl = undefined;
+  globalThis.__localClientTestContextByModel = undefined;
+  globalThis.__localClientTestEnsures = undefined;
+  globalThis.__localClientTestEntries = undefined;
   globalThis.__localClientTestFail = undefined;
   globalThis.__localClientTestModel = undefined;
   globalThis.__localClientTestSettingsBaseUrl = undefined;

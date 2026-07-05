@@ -29,6 +29,10 @@ import type {
   ProviderEventListener,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { detectLocalModelsContextLength } from "./local-models-context-length.js";
+import {
+  ensureLocalModelContext,
+  listLocalModelEntries,
+} from "./local-models-management.js";
 
 const TRAILING_SLASHES_PATTERN = /\/+$/u;
 const V1_SUFFIX_PATTERN = /\/v1$/u;
@@ -243,9 +247,11 @@ export class LocalModelsClientProviderFacade implements ProviderAdapter {
     }
   }
 
-  // Detect the context window once per session (settings override wins) and
-  // publish it as tokenUsage.limit so the session usage telemetry reflects
-  // the real local window instead of the provider default.
+  // Once per session: apply the per-model context wish through the LM Studio
+  // management API (reload only when the running instance differs), then
+  // publish the effective window as tokenUsage.limit. Resolution order:
+  // applied wish -> loaded instance (v1 catalog) -> the v0/Ollama/llama.cpp
+  // probes; when nothing answers, the telemetry default stays.
   private async publishContextWindow(
     session: LocalModelsClientSessionState,
     input: { baseUrl: string; contextLength: number; model: string }
@@ -254,11 +260,31 @@ export class LocalModelsClientProviderFacade implements ProviderAdapter {
       return;
     }
     session.contextWindowChecked = true;
-    const limit = await detectLocalModelsContextLength({
-      baseUrl: input.baseUrl,
-      contextLengthOverride: input.contextLength,
-      model: input.model,
-    }).catch(() => null);
+    const applied =
+      input.contextLength > 0
+        ? await ensureLocalModelContext({
+            baseUrl: input.baseUrl,
+            desiredContextLength: input.contextLength,
+            model: input.model,
+          }).catch(() => null)
+        : null;
+    const loaded = applied
+      ? null
+      : await listLocalModelEntries({ baseUrl: input.baseUrl })
+          .then(
+            (entries) =>
+              entries.find((entry) => entry.key === input.model)
+                ?.loadedContextLength ?? null
+          )
+          .catch(() => null);
+    const limit =
+      applied ??
+      loaded ??
+      (await detectLocalModelsContextLength({
+        baseUrl: input.baseUrl,
+        contextLengthOverride: 0,
+        model: input.model,
+      }).catch(() => null));
     if (!limit) {
       return;
     }

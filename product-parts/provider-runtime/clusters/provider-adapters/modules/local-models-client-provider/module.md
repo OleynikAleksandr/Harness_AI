@@ -67,17 +67,22 @@ normalization.
   already matches, reload (unload + load) when it differs, null when the
   server has no management surface. Inference stays on the OpenAI-shape
   `/v1/chat/completions`; this is a separate Core-owned management channel.
-- Context-length detection (`local-models-context-length.ts`): OpenAI-shape
-  `/v1/models` reports no context window, so one probe per session asks the
-  provider-specific endpoints against the server ROOT (LM Studio
-  `GET /api/v0/models` — `loaded_context_length` beats `max_context_length`;
-  Ollama `POST /api/show` — the family-prefixed `*.context_length` key;
-  llama.cpp `GET /props` — `default_generation_settings.n_ctx`) with the
-  per-model settings wish (`contextLengthByModel[model]`) as the last word.
-  A detected window is published as a `system` `NormalizedProviderEvent`
-  carrying `data.tokenUsage.limit`, which the existing session telemetry
-  channel (`applyProviderEvent`) applies as the context-window limit; when
-  nothing answers, the telemetry default stays.
+- Session context flow (once per session, ahead of the first turn): the
+  adapter applies the per-model wish `contextLengthByModel[model]` through
+  `ensureLocalModelContext` (LM Studio reloads only when the running
+  instance differs; plain servers no-op), then publishes the effective
+  window as a `system` `NormalizedProviderEvent` carrying
+  `data.tokenUsage.limit` (picked up by the session telemetry channel,
+  `applyProviderEvent`). Resolution order: applied wish → loaded v1
+  instance window (`listLocalModelEntries`) → the detection probes below;
+  when nothing answers, the telemetry default stays.
+- Context-length detection (`local-models-context-length.ts`, the probe
+  fallback): OpenAI-shape `/v1/models` reports no context window, so the
+  probes ask the provider-specific endpoints against the server ROOT
+  (LM Studio `GET /api/v0/models` — `loaded_context_length` beats
+  `max_context_length`; Ollama `POST /api/show` — the family-prefixed
+  `*.context_length` key; llama.cpp `GET /props` —
+  `default_generation_settings.n_ctx`).
 
 ## Owned Paths
 

@@ -14,7 +14,6 @@ const FACADES = [
   ["capture-proxy", "capture-proxy-http"],
   ["capture-proxy", "capture-proxy-ws"],
   ["capture-proxy", "capture-proxy-facade"],
-  ["capture-proxy", "capture-proxy-reverse"],
   ["capture-orchestrator", "capture-orchestrator-facade"],
 ];
 
@@ -50,21 +49,14 @@ try {
       ).href
     );
 
-  // Default target rules cover the three capture providers.
+  // Default target rules cover the two capture providers (the ACP kimi
+  // capture channel left with the kimi-provider retirement, 2026-07-05).
   assert.equal(
     DEFAULT_CAPTURE_TARGET_RULES.claude[0].host,
     "api.anthropic.com"
   );
   assert.equal(DEFAULT_CAPTURE_TARGET_RULES.codex[0].host, "chatgpt.com");
-  assert.equal(DEFAULT_CAPTURE_TARGET_RULES.kimi[0].host, "api.kimi.com");
-  assert.equal(
-    DEFAULT_CAPTURE_TARGET_RULES.kimi[0].pathIncludes,
-    "/chat/completions"
-  );
-  assert.match(
-    DEFAULT_CAPTURE_TARGET_RULES.kimi[0].bodyIncludes,
-    /capture probe/u
-  );
+  assert.equal(DEFAULT_CAPTURE_TARGET_RULES.kimi, undefined);
 
   // The Codex rule carries `bodyIncludes` (the probe prompt): the WS route uses
   // it to select our turn's frame among the prewarm frames on the reused
@@ -233,70 +225,9 @@ try {
   assert.equal(noTargetResult.reason, "target_not_seen");
   assert.ok(noTargetResult.jsonlPath);
 
-  // Kimi reverse bridge: no forward proxy, no certificate store. The bridge
-  // captures the request the kimi client posts to its base URL; the provider
-  // run resolves after.
-  const kimiRequest = {
-    body: {
-      messages: [{ role: "system", content: "You are Kimi Code CLI." }],
-      tools: [{ function: { name: "Bash" } }],
-    },
-    bodyText: '{"messages":[]}',
-    headers: { authorization: "Bearer sk-kimi-secret" },
-    method: "POST",
-    path: "/coding/v1/chat/completions",
-    target: "api.kimi.com:443",
-    timestamp: "2026-07-02T18:00:00.000Z",
-  };
-  let kimiContext = null;
-  let certStoreCalls = 0;
-  let reverseBridgeOptions = null;
-  const kimiResult = await new NativeCaptureOrchestrator({
-    captureIdFactory: () => "cap-kimi",
-    certificateStore: {
-      prepareHostCredentials: () => {
-        certStoreCalls += 1;
-        return Promise.resolve({
-          caCertPath: "/tmp/ca.pem",
-          credentials: {},
-          envHints: {},
-        });
-      },
-    },
-    clock,
-    proxyFactory: () => {
-      throw new Error("Kimi capture must not start a forward proxy");
-    },
-    reverseBridgeFactory: (options) => {
-      reverseBridgeOptions = options;
-      return {
-        start: () =>
-          Promise.resolve({
-            baseUrl: "http://127.0.0.1:54321",
-            port: 54_321,
-            stop: () => Promise.resolve(),
-            waitForCapture: () =>
-              Promise.resolve({ status: "captured", request: kimiRequest }),
-          }),
-      };
-    },
-  }).capture({
-    providerId: "kimi",
-    model: "kimi-for-coding",
-    outputDir,
-    runProviderCapture: (context) => {
-      kimiContext = context;
-      return context.recordAppliedInputEnvelope({ kind: "kimi" });
-    },
-  });
-  assert.equal(kimiResult.ok, true);
-  assert.equal(certStoreCalls, 0, "reverse bridge needs no diagnostic CA");
-  assert.equal(reverseBridgeOptions.upstreamHost, "api.kimi.com");
-  assert.equal(reverseBridgeOptions.rule.pathIncludes, "/chat/completions");
-  assert.equal(kimiContext.proxyUrl, "http://127.0.0.1:54321");
-  assert.equal(kimiContext.certificatePath, "");
-  const kimiMarkdown = await readFile(kimiResult.markdownPath, "utf8");
-  assert.match(kimiMarkdown, /You are Kimi Code CLI\./u);
+  // The kimi reverse-bridge capture case left with the ACP kimi retirement
+  // (2026-07-05 user order): every capture provider runs through the
+  // forward-transit proxy.
 
   console.log("capture-orchestrator tests: OK");
 } finally {

@@ -16,16 +16,17 @@ Own model/reasoning capabilities and UI metadata for providers.
 ## Outputs
 
 - Renderer-safe provider descriptor.
-- Capability lookup result. HTTP-compatible providers (`openrouter`,
-  `local-models`, and the universal-client `kimi-client` / `glm-client` /
-  `local-models-client` / `openrouter-client` endpoints) report
-  `requiresProviderHome: false`: they run on key-only auth (Local Models:
-  base URL + optional key) from Core settings and never provision a provider
-  home.
+- Capability lookup result. HTTP-compatible providers (the universal-client
+  `kimi-client` / `glm-client` / `local-models-client` / `openrouter-client`
+  endpoints; the retired legacy `openrouter`/`local-models` ids left with the
+  2026-07-05 legacy cleanup) report `requiresProviderHome: false`: they run
+  on key-only auth (Local Models: base URL + optional key) from Core settings
+  and never provision a provider home.
 - Capturable model catalog for the Native Request Capture UI:
   `getCapturableModels(providerId)` returns `{ id, label }` entries per
-  capture provider (Claude, Codex, Kimi — GLM Native needs no capture and is
-  absent), and `getCaptureProviderIds()` lists the providers that offer
+  capture provider (Claude and Codex — the ACP Kimi entry left with the
+  kimi-provider retirement, 2026-07-05; universal-client endpoints need no
+  capture), and `getCaptureProviderIds()` lists the providers that offer
   capture. Model ids mirror the provider model catalog so capture can be
   chosen per model (different models can carry different system prompts).
 - Universal-client endpoint model catalog: `getClientModels(providerId)`

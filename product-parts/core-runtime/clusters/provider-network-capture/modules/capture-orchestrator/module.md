@@ -33,7 +33,8 @@ injection (pointing a provider client at the local proxy) is passed in as a
 
 - `DEFAULT_CAPTURE_TARGET_RULES`: per-provider target model endpoints
   (Claude `api.anthropic.com` `/v1/messages`, Codex `chatgpt.com`
-  `/backend-api/codex/responses`, Kimi `api.kimi.com` `/chat/completions`).
+  `/backend-api/codex/responses`; the ACP Kimi rule left with the
+  kimi-provider retirement, 2026-07-05).
   Codex uses a WebSocket transport for `/responses`, so the proxy routes the
   upgrade on that path to its WS capture and decodes the `response.create`
   frame (the payload is in the frame, not an HTTP body). The Codex rule carries
@@ -50,22 +51,17 @@ injection (pointing a provider client at the local proxy) is passed in as a
   id, selected model, workspace path, and the `recordAppliedInputEnvelope`/
   `recordDiagnosticContext` callbacks wired to the writer.
 - `NativeCaptureOrchestrator.capture(command)`: mints one capture id, creates
-  the writer, then dispatches by provider. Claude/Codex take the proxy path
-  (`captureViaProxy`): prepare the diagnostic certificate, start the
-  forward-transit proxy, race the provider run against the capture, write
-  the (redacted) captured request on success. Proxy events (`proxy_connect`/
-  `request_ignored`) are collected during the run and flushed once into the
-  writer as `capture_proxy_event` diagnostic-context records, so an ignored
-  prewarm request is visible in the dump. Kimi takes the reverse-bridge path
-  (`captureViaReverse`): the kimi binary ignores proxy env, so instead of a
-  CONNECT proxy the orchestrator starts a `NativeCaptureReverseBridge`
-  (upstream `api.kimi.com`, no diagnostic CA — empty cert fields, the bridge
-  base URL passed as the context `proxyUrl`), and reuses the SAME
-  `runCapture` race (provider run vs `waitForCapture`) as the proxy path via
-  the shared `CaptureHandleLike` interface. Both paths share `runCapture`,
-  which now takes explicit `certificateEnv`/`certificatePath`/`proxyUrl`
-  instead of a certificate bundle. Returns `{ ok, providerId, model,
-  markdownPath, jsonlPath, error, reason }`.
+  the writer, and runs the proxy path (`captureViaProxy`): prepare the
+  diagnostic certificate, start the forward-transit proxy, race the provider
+  run against the capture, write the (redacted) captured request on success.
+  Proxy events (`proxy_connect`/`request_ignored`) are collected during the
+  run and flushed once into the writer as `capture_proxy_event`
+  diagnostic-context records, so an ignored prewarm request is visible in the
+  dump. `runCapture` takes explicit
+  `certificateEnv`/`certificatePath`/`proxyUrl` values. The kimi-only
+  reverse-bridge path (`captureViaReverse` + `NativeCaptureReverseBridge`)
+  left with the ACP kimi retirement (2026-07-05 user order). Returns
+  `{ ok, providerId, model, markdownPath, jsonlPath, error, reason }`.
 
 ## Owned Paths
 

@@ -19,12 +19,12 @@ architecture (`Plans/Archive/Provider_Native_Request_Capture_Architecture.md`).
 
 ## Facade Rule
 
-The cluster owns the forward-transit capture proxy, the reverse-forward bridge
-(for clients that ignore proxy env, e.g. the kimi binary), the diagnostic
+The cluster owns the forward-transit capture proxy, the diagnostic
 certificate store, the artifact writer, and capture orchestration. The proxy
-(CONNECT) or bridge (direct base_url) forwards a matched request to the real
-vendor and relays the response (required to capture Codex's mandatory
-WebSocket transport). Provider-specific environment injection (pointing a
+(CONNECT) forwards a matched request to the real vendor and relays the
+response (required to capture Codex's mandatory WebSocket transport). The
+kimi-only reverse-forward bridge left with the ACP kimi retirement
+(2026-07-05); capture serves the Claude/Codex native channels. Provider-specific environment injection (pointing a
 provider client at the local proxy/bridge) lives in the provider adapters
 (Provider Runtime); this cluster stays provider-neutral and receives the
 captured request. Renderer/client code only submits the capture command and

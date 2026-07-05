@@ -88,22 +88,25 @@ try {
     1
   );
 
-  // Kimi (OpenAI chat shape): no top-level system; the system prompt is the
-  // first `role: "system"` message, and the messages section keeps the array.
-  const kimi = extractCaptureSections({
-    model: "kimi-for-coding",
+  // OpenAI chat shape: no top-level system; the system prompt is the first
+  // `role: "system"` message, and the messages section keeps the array.
+  const chatShape = extractCaptureSections({
+    model: "vendor-model",
     messages: [
-      { role: "system", content: "You are Kimi Code CLI." },
+      { role: "system", content: "You are a coding CLI." },
       { role: "user", content: "probe" },
     ],
     tools: [{ function: { name: "Bash" } }],
   });
   assert.equal(
-    kimi.find((s) => s.section === "system").content,
-    "You are Kimi Code CLI."
+    chatShape.find((s) => s.section === "system").content,
+    "You are a coding CLI."
   );
-  assert.equal(kimi.find((s) => s.section === "tools").payload.length, 1);
-  assert.equal(kimi.find((s) => s.section === "messages").payload.length, 2);
+  assert.equal(chatShape.find((s) => s.section === "tools").payload.length, 1);
+  assert.equal(
+    chatShape.find((s) => s.section === "messages").payload.length,
+    2
+  );
 
   // Writer: fixed clock so artifact paths and content are deterministic.
   const clock = () => new Date("2026-07-02T18:00:00.000Z");
@@ -138,12 +141,12 @@ try {
     captureId: "cap-unsafe",
     clock: () => new Date("2026-07-02T18:00:02.000Z"),
     outputDir,
-    providerId: "kimi",
+    providerId: "claude",
     selectedModelId: "vendor/model name:1",
   });
   assert.match(
     unsafeModel.artifacts.jsonlPath,
-    /-kimi-vendor-model-name-1-native-request\.jsonl$/u
+    /-claude-vendor-model-name-1-native-request\.jsonl$/u
   );
 
   await writer.writeCapturedRequest({
@@ -183,38 +186,41 @@ try {
   assert.match(markdown, /You are Claude\./u);
   assert.match(markdown, /Sent upstream: true/u);
 
-  // Kimi wire-only: no HTTP request, but envelope + diagnostic context make a
-  // complete artifact.
-  const kimiWriter = await NativeRequestCaptureWriter.create({
-    captureId: "cap-kimi",
+  // Envelope-only artifact: no HTTP request, but the applied-input envelope +
+  // diagnostic context still make a complete artifact.
+  const envelopeWriter = await NativeRequestCaptureWriter.create({
+    captureId: "cap-envelope",
     clock,
     outputDir,
-    providerId: "kimi",
-    selectedModelId: "kimi-k2.7-code",
+    providerId: "codex",
+    selectedModelId: "gpt-5.4",
   });
-  await kimiWriter.recordAppliedInputEnvelope({
-    kind: "kimi",
-    wireJsonlPath: "/home/kimi/wire.jsonl",
-    selectedModelId: "kimi-k2.7-code",
+  await envelopeWriter.recordAppliedInputEnvelope({
+    kind: "codex",
+    selectedModelId: "gpt-5.4",
+    sourceLogPath: "/home/user/wire.jsonl",
   });
-  await kimiWriter.recordDiagnosticContext({
-    kind: "kimi_wire_capture",
+  await envelopeWriter.recordDiagnosticContext({
+    kind: "wire_capture_note",
     payload: { promptLength: 42 },
   });
-  await kimiWriter.complete("captured");
+  await envelopeWriter.complete("captured");
 
-  const kimiJsonl = await readFile(kimiWriter.artifacts.jsonlPath, "utf8");
-  assert.match(kimiJsonl, /"type":"applied_input_envelope"/u);
-  assert.match(kimiJsonl, /"type":"provider_diagnostic_context"/u);
-  const kimiMarkdown = await readFile(
-    kimiWriter.artifacts.markdownPath,
+  const envelopeJsonl = await readFile(
+    envelopeWriter.artifacts.jsonlPath,
     "utf8"
   );
-  assert.match(kimiMarkdown, /# Kimi Native Request Capture/u);
-  assert.match(kimiMarkdown, /## Applied Input Envelope/u);
-  assert.match(kimiMarkdown, /wire\.jsonl/u);
-  assert.match(kimiMarkdown, /kimi_wire_capture/u);
-  assert.match(kimiMarkdown, /No HTTP request intercepted/u);
+  assert.match(envelopeJsonl, /"type":"applied_input_envelope"/u);
+  assert.match(envelopeJsonl, /"type":"provider_diagnostic_context"/u);
+  const envelopeMarkdown = await readFile(
+    envelopeWriter.artifacts.markdownPath,
+    "utf8"
+  );
+  assert.match(envelopeMarkdown, /# Codex Native Request Capture/u);
+  assert.match(envelopeMarkdown, /## Applied Input Envelope/u);
+  assert.match(envelopeMarkdown, /wire\.jsonl/u);
+  assert.match(envelopeMarkdown, /wire_capture_note/u);
+  assert.match(envelopeMarkdown, /No HTTP request intercepted/u);
 
   console.log("capture-artifacts tests: OK");
 } finally {

@@ -68,6 +68,10 @@ export interface ProviderUsageLimitsRefreshRequest {
 // capture. Only `kind` is typed at this boundary; each adapter passes its own
 // concrete envelope (extra fields serialized as-is by the capture writer).
 export interface ProviderNativeCaptureAppliedInputEnvelope {
+  // `kimi` stays in the union until the ACP kimi-provider module is deleted
+  // (the atomic module-removal commit): the kimi facade implements this
+  // contract with a `kind: "kimi"` envelope, so narrowing it here without
+  // removing the module breaks the adapter's assignability.
   readonly kind: "claude" | "codex" | "kimi";
 }
 
@@ -75,8 +79,7 @@ export interface ProviderNativeCaptureAppliedInputEnvelope {
 // comparison). The Core capture cluster owns the diagnostic proxy and
 // certificates and passes their env; the adapter points its own client at the
 // proxy, runs the probe, and lets the proxy capture the vendor-default
-// request. For the Kimi wire-only path Core passes placeholder proxy values
-// (the Kimi ACP runtime writes a wire log instead of using the proxy).
+// request.
 export interface ProviderNativeCaptureOptions {
   readonly captureId: string;
   readonly certificateEnv: Readonly<Record<string, string>>;

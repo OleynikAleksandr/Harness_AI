@@ -17,8 +17,9 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
 
 ## Inputs
 
-- `NativeCaptureWriterOptions`: capture id, provider id (`claude` | `codex` |
-  `kimi`), output directory, optional selected model id, optional release
+- `NativeCaptureWriterOptions`: capture id, provider id (`claude` | `codex` —
+  the ACP `kimi` capture channel left with the kimi-provider retirement,
+  2026-07-05), output directory, optional selected model id, optional release
   version, optional clock (for deterministic artifacts in tests).
 - `CapturedNativeRequest` values from the capture proxy: method, path,
   target, headers, raw body and body text, timestamp.
@@ -31,13 +32,14 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   and credential-valued `x-stainless-*`) with `[REDACTED]` before anything is
   written to disk.
 - `extractCaptureSections(body)`: normalizes Anthropic (`system`, `messages`),
-  OpenAI/Codex (`instructions`, `input`) and Kimi OpenAI-chat
+  OpenAI/Codex (`instructions`, `input`) and OpenAI-chat
   (`messages[role=system]`) field names onto one `system` / `tools` /
   `messages` section shape. The Codex WebSocket `response.create` frame carries
   `instructions`/`tools`/`input` at the top level (its `type` field is
-  ignored), so the same mapping extracts a full pair from it. Kimi has no
-  top-level system field, so the first `role: "system"` chat message's content
-  becomes the system section (the messages section still keeps the full array).
+  ignored), so the same mapping extracts a full pair from it. The OpenAI-chat
+  form has no top-level system field, so the first `role: "system"` chat
+  message's content becomes the system section (the messages section still
+  keeps the full array).
 - `buildNativeRequestCaptureMarkdown(options)`: the readable dump with
   provider, selected model, summary, redacted headers, and the extracted
   system prompt / tool declarations / messages sections. Always states
@@ -53,12 +55,13 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   is kept (it is the diagnostic payload) but auth headers are not.
 - `recordAppliedInputEnvelope(envelope)` and `recordDiagnosticContext(record)`
   let a provider adapter report what it applied and provider-specific
-  diagnostics. This is what makes the Kimi wire-only artifact complete: Kimi
-  intercepts no HTTP request, so its artifact is the applied-input-envelope
-  (including `wireJsonlPath`) plus diagnostic context, rendered in the
-  `Applied Input Envelope` and `Diagnostic Context` markdown sections. The
-  summary states "No HTTP request intercepted" for the envelope-only case
-  without regressing the Claude/Codex captured-request output.
+  diagnostics, rendered in the `Applied Input Envelope` and
+  `Diagnostic Context` markdown sections. When no HTTP request was
+  intercepted, the summary states "No HTTP request intercepted" for the
+  envelope-only case without regressing the captured-request output. (The
+  wire-only artifact path was introduced for the ACP Kimi capture, which left
+  with the kimi-provider retirement 2026-07-05; the envelope/diagnostic
+  channel itself stays a generic writer capability.)
 
 ## Owned Paths
 

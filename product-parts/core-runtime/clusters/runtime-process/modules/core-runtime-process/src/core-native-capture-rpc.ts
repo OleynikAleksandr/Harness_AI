@@ -3,10 +3,14 @@ import type { ProviderId } from "../../../../../../provider-runtime/clusters/pro
 import { NativeCaptureOrchestrator } from "../../../../provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.js";
 import { buildProviderAdapterInstance } from "./core-provider-adapter-registration.js";
 
-const CAPTURE_PROVIDER_IDS = new Set(["claude", "codex", "kimi"]);
+// Capture serves the native vendor channels only: Claude and Codex. The ACP
+// Kimi capture channel was removed with the kimi-provider retirement
+// (2026-07-05 user order); the accepted Kimi dumps remain the synthetic-
+// native material.
+const CAPTURE_PROVIDER_IDS = new Set(["claude", "codex"]);
 // The Claude capture drives the provider binary interactively in a pty
 // (boot the UI, type the probe, submit), which does not fit the 30s proxy
-// default that suits the direct Codex/Kimi clients.
+// default that suits the direct Codex client.
 const CLAUDE_INTERACTIVE_CAPTURE_TIMEOUT_MS = 120_000;
 const orchestrator = new NativeCaptureOrchestrator();
 
@@ -56,7 +60,7 @@ export async function captureNativeRequestRpcResult(
   }
   const result = await orchestrator.capture({
     model: model ?? null,
-    providerId: providerId as "claude" | "codex" | "kimi",
+    providerId: providerId as "claude" | "codex",
     runProviderCapture: (context) => capture(context),
     workspacePath,
     ...(providerId === "claude"

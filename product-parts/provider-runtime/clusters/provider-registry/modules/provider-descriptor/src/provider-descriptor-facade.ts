@@ -51,8 +51,10 @@ const CLIENT_PROVIDER_MODELS: Readonly<
 
 // Models offered in the Native Request Capture UI, per capture provider.
 // Different models can carry different system prompts, so capture is chosen
-// per model. Ids mirror the provider model catalog; GLM Native needs no
-// capture (our adapter owns its stack) and is intentionally absent.
+// per model. Ids mirror the provider model catalog. Capture covers the two
+// native vendor channels only: the ACP Kimi capture channel left with the
+// kimi-provider retirement (2026-07-05); universal-client endpoints need no
+// capture — our own client owns their requests.
 const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
   {
     claude: [
@@ -66,10 +68,6 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
       { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
       { id: "gpt-5.4", label: "GPT-5.4" },
       { id: "gpt-5.5", label: "GPT-5.5" },
-    ],
-    kimi: [
-      { id: "kimi-k2.7-code", label: "Kimi K2.7 Code" },
-      { id: "kimi-k2.7-code-highspeed", label: "Kimi K2.7 Code High Speed" },
     ],
   };
 

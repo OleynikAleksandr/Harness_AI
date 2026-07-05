@@ -150,10 +150,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `{ ok, markdownPath, jsonlPath, error }`. The Claude command passes a raised
   `timeoutMs` (120s): its capture drives the provider binary interactively in
   a pty (boot the UI, type the probe, submit), which does not fit the 30s
-  proxy default that suits the direct Codex/Kimi clients.
+  proxy default that suits the direct Codex client.
   `list-capturable-models` returns the per-provider capturable model catalog
-  from `provider-descriptor`. Only Claude/Codex/Kimi are capture providers;
-  other providers return `provider_not_supported`. The adapter builder is
+  from `provider-descriptor`. Only Claude/Codex are capture providers (the
+  ACP Kimi capture channel left with the kimi-provider retirement,
+  2026-07-05); other providers return `provider_not_supported`. The adapter builder is
   factored out of `core-provider-adapter-registration.ts` and reused by the
   shared registry wiring.
 

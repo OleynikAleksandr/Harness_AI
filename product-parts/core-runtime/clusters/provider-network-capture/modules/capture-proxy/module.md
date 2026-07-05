@@ -76,16 +76,11 @@ HTTP reader for clients that ignore proxy env.
   captured.
 - The proxy hands the raw captured request (including headers) to the
   caller; credential redaction happens in the artifact writer, not here.
-- `NativeCaptureReverseBridge.start()`: a plain 127.0.0.1 HTTP listener (NOT a
-  CONNECT proxy) the driven client points its API `base_url` at directly. The
-  handle carries `baseUrl`/`port`, `waitForCapture()` and `stop()`. Each
-  request is buffered, matched against the single target rule
-  (`pathIncludes` + `bodyIncludes`, via the shared `resolveRuleMismatch`),
-  forwarded 1:1 to the real TLS upstream with only the Host header rewritten
-  (hop-by-hop headers dropped, chunked body re-framed with an exact
-  `Content-Length`), and the response is relayed back. This transits a client
-  that ignores `HTTP(S)_PROXY` (the kimi Mach-O binary) — the request reaches
-  the vendor. Same injectable `createUpstream` for tests.
+- The kimi-only reverse-forward bridge (`capture-proxy-reverse.ts`,
+  `NativeCaptureReverseBridge` — a plain HTTP listener for the kimi Mach-O
+  binary that ignored proxy env) was removed with the ACP kimi retirement
+  (2026-07-05 user order); every capture provider runs through the
+  forward-transit CONNECT proxy.
 
 ## Owned Paths
 

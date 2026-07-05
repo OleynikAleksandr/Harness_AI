@@ -1,9 +1,11 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-// Providers whose native request Harness AI can capture. GLM Native needs no
-// capture: our own adapter owns its system message and tool schemas.
-export type NativeCaptureProviderId = "claude" | "codex" | "kimi";
+// Providers whose native request Harness AI can capture: the two native
+// vendor channels. The ACP Kimi capture channel left with the kimi-provider
+// retirement (2026-07-05 user order); universal-client endpoints need no
+// capture — our own client owns their requests.
+export type NativeCaptureProviderId = "claude" | "codex";
 
 export type NativeCaptureFailureReason =
   | "provider_not_supported"

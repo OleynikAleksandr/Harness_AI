@@ -48,8 +48,11 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
     "settings.provider.localModels": "Local Models",
     "settings.provider.localModelsClient.connection": "Local Models Server",
-    "settings.provider.localModelsClient.contextLength":
-      "Context Length Override",
+    "settings.provider.localModelsClient.contextLength": "Context Length",
+    "settings.provider.localModelsClient.contextLength.apply": "Apply Context",
+    "settings.provider.localModelsClient.maxContext": "max",
+    "settings.provider.localModelsClient.loadedContext": "loaded",
+    "settings.provider.localModelsClient.tools": "tools",
     "settings.provider.openRouter": "OpenRouter",
     "settings.provider.sessionContinuity.threshold":
       "Remaining context threshold (%)",
@@ -211,20 +214,22 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.provider.glmClient.model.glm-5.2.description":
       "Default GLM coding model for the Z.ai Coding Plan endpoint.",
     "settings.provider.localModels.description":
-      "Select the default LM Studio model used for new Local Models sessions.",
+      "Select the default local model used for new Local Models sessions.",
+    "settings.provider.localModelsClient.contextLength.applying":
+      "Reloading...",
     "settings.provider.localModelsClient.description":
       "Runs local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp) on the Harness universal client. Nothing is downloaded or installed.",
     "settings.provider.localModelsClient.baseUrl.description":
       "Base URL of the local OpenAI-compatible server — the server root (http://127.0.0.1:1234) or its /v1 prefix; both are accepted. Harness also reads HARNESS_AI_LOCAL_MODELS_BASE_URL or LMSTUDIO_BASE_URL from the environment.",
     "settings.provider.localModelsClient.contextLength.description":
-      "Manual context window override in tokens. 0 keeps auto-detection (Ollama, LM Studio and llama.cpp report their loaded context).",
+      "Per-model context window in tokens, applied by reloading the model in LM Studio. 0 or empty keeps the server default.",
     "settings.provider.openRouter.description":
       "Uses OpenRouter chat completions with an exact model slug.",
     "settings.openRouter.defaultRouting.description": "default routing",
     "settings.openRouter.latency.description":
       "Tests this selected model against concrete provider endpoints.",
     "settings.provider.localModels.empty":
-      "No downloaded LM Studio models are currently visible to Core.",
+      "No local models are currently visible to Core. Start the local server and load a model.",
     "settings.profileCreator.description":
       "Session profiles define the workflow instructions and tooling categories a new session starts with. Profile documents live in ~/.harness-ai/Profiles and are plain files owned by you.",
     "settings.profileCreator.namePlaceholder": "e.g. Deep Review",
@@ -255,7 +260,7 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
     "settings.openRouter.latency.testing": "Testing...",
     "settings.openRouter.models.searching": "Searching...",
     "settings.provider.localModels.empty":
-      "No downloaded LM Studio models are currently visible to Core.",
+      "No local models are currently visible to Core. Start the local server and load a model.",
     "settings.localization.glossary.disabled":
       "Glossary protection is disabled. Terms may be translated.",
     "settings.localization.glossary.enabled":

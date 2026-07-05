@@ -69,6 +69,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:select-workspace", workspaceId),
   sendMessage: (request) =>
     ipcRenderer.invoke("harness-ai:core:send-message", request),
+  setLocalModelContext: (request) =>
+    ipcRenderer.invoke("harness-ai:core:set-local-model-context", request),
   stopTurn: (sessionId) =>
     ipcRenderer.invoke("harness-ai:core:stop-turn", sessionId),
   translateDynamicText: (request) =>

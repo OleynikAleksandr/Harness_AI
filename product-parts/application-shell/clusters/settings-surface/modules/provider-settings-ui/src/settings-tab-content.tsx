@@ -8,7 +8,10 @@ import {
   LocalModelsClientConnectionCard,
 } from "./client-api-key-card.js";
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
-import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
+import {
+  type LocalModelEntry,
+  LocalModelsSettingsCard,
+} from "./local-models-settings-card.js";
 import { NativeCaptureCard } from "./native-capture-card.js";
 import {
   OpenRouterModelEndpointPicker,
@@ -36,7 +39,9 @@ interface SettingsTabContentProps {
   activeTab: SettingsTabId;
   coreRestartBusy: boolean;
   coreRestartStatus: string;
-  localModels: readonly string[];
+  localContextBusy: boolean;
+  localModelEntries: readonly LocalModelEntry[];
+  onApplyLocalModelContext: (model: string, contextLength: number) => void;
   onOpenGlossary: () => void;
   onRebuildTranslations: () => void;
   onRestartCore: () => void;
@@ -58,11 +63,13 @@ export function SettingsTabContent({
   activeTab,
   coreRestartBusy,
   coreRestartStatus,
+  localContextBusy,
+  localModelEntries,
+  onApplyLocalModelContext,
   onOpenGlossary,
   onRebuildTranslations,
   onRestartCore,
   onUpdateProvider,
-  localModels,
   rebuildTranslationsBusy,
   rebuildTranslationsStatus,
   settings,
@@ -295,8 +302,10 @@ export function SettingsTabContent({
           }
         />
         <LocalModelsSettingsCard
+          applyBusy={localContextBusy}
           defaultModel={provider.defaultModel}
-          models={localModels}
+          entries={localModelEntries}
+          onApplyContext={onApplyLocalModelContext}
           onDefaultModelChange={(defaultModel) =>
             update((next) => {
               next.providers.localModels.defaultModel = defaultModel;

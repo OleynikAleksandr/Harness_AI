@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import type { LocalModelEntry } from "./local-models-settings-card.js";
 import type { ProviderVersionsSnapshot } from "./provider-version-controls.js";
 import { SETTINGS_TABS, type SettingsTabId } from "./settings-model-options.js";
 import { SettingsTabContent } from "./settings-tab-content.js";
@@ -37,7 +38,10 @@ export function ProviderSettingsUiFacade({
   const [versionUpdatingTargets, setVersionUpdatingTargets] = useState<
     string[]
   >([]);
-  const [localModels, setLocalModels] = useState<string[]>([]);
+  const [localModelEntries, setLocalModelEntries] = useState<LocalModelEntry[]>(
+    []
+  );
+  const [localContextBusy, setLocalContextBusy] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -81,12 +85,41 @@ export function ProviderSettingsUiFacade({
       if (cancelled) {
         return;
       }
-      setLocalModels(result.ok ? result.models : []);
+      setLocalModelEntries(result.ok ? result.entries : []);
     });
     return () => {
       cancelled = true;
     };
   }, [isOpen]);
+
+  // Apply a per-model context wish: Core persists it and reloads the model
+  // through the LM Studio management API, returning the refreshed catalog.
+  const applyLocalModelContext = (model: string, contextLength: number) => {
+    if (!window.harnessCore) {
+      return;
+    }
+    setLocalContextBusy(true);
+    window.harnessCore
+      .setLocalModelContext({ contextLength, model })
+      .then((result) => {
+        if (result.ok) {
+          setLocalModelEntries(result.entries);
+          setStatus("Local model context applied.");
+        } else {
+          setStatus(result.error);
+        }
+      })
+      .catch((error: unknown) => {
+        setStatus(
+          error instanceof Error
+            ? error.message
+            : "Local model context update failed."
+        );
+      })
+      .finally(() => {
+        setLocalContextBusy(false);
+      });
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -354,7 +387,9 @@ export function ProviderSettingsUiFacade({
                     "App restart status will appear here."
                   )
                 }
-                localModels={localModels}
+                localContextBusy={localContextBusy}
+                localModelEntries={localModelEntries}
+                onApplyLocalModelContext={applyLocalModelContext}
                 onOpenGlossary={openGlossary}
                 onRebuildTranslations={rebuildTranslations}
                 onRestartCore={restartApp}

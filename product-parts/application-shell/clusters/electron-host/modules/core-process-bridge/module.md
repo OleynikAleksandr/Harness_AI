@@ -39,7 +39,10 @@ modules or own Core truth.
   with seeded terms on first use) instead of the renderer guessing a path. It
   also forwards `harness-ai:core:rebuild-localization` → `rebuild-localization`,
   so the Settings "Rebuild translations" action can force Core to retranslate
-  every category ignoring the localization bundle cache.
+  every category ignoring the localization bundle cache, and
+  `harness-ai:core:set-local-model-context` → `set-local-model-context`, so
+  the Local Models per-model context control reaches the Core-owned LM Studio
+  management reload.
 - Real Core process restart through health and shutdown contracts. `stop()` first
   asks the core to shut down over HTTP, then force-terminates the process by pid
   (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so

@@ -97,7 +97,19 @@ interface Window {
     getSettings(workspacePath?: string): Promise<HarnessSettings>;
     getLocalizationRuntimePayload(): Promise<LocalizationRuntimePayload>;
     getLocalModels(): Promise<
-      { models: string[]; ok: true } | { error: string; ok: false }
+      | {
+          entries: {
+            displayName: string;
+            key: string;
+            loadedContextLength: number | null;
+            loadedInstanceId: string | null;
+            maxContextLength: number | null;
+            supportsTools: boolean | null;
+          }[];
+          models: string[];
+          ok: true;
+        }
+      | { error: string; ok: false }
     >;
     getProviderSystemSettings(
       providerId: string
@@ -167,6 +179,23 @@ interface Window {
       | {
           ok: true;
           session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
+      | { error: string; ok: false }
+    >;
+    setLocalModelContext(request: {
+      contextLength: number;
+      model: string;
+    }): Promise<
+      | {
+          entries: {
+            displayName: string;
+            key: string;
+            loadedContextLength: number | null;
+            loadedInstanceId: string | null;
+            maxContextLength: number | null;
+            supportsTools: boolean | null;
+          }[];
+          ok: true;
         }
       | { error: string; ok: false }
     >;

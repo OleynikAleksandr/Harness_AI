@@ -41,8 +41,19 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   fallbacks cover the llama.cpp/proxy niche silently) and NO global context
   override — the context wish is PER MODEL (`contextLengthByModel`), edited
   in the model list. The Local Models tab mounts the card above the model
-  list card (`LocalModelsSettingsCard`), which keeps feeding the
-  default-model choice from the `get-local-models` RPC.
+  list card (`LocalModelsSettingsCard`).
+- Local Models model list on the structured catalog
+  (`LocalModelsSettingsCard`): rows come from the `get-local-models` RPC
+  `entries` (display name, max/loaded context, tool capability), the row
+  click keeps choosing `providers.localModels.defaultModel`, and the
+  selected model (when the server reports a management surface —
+  `maxContextLength` present) carries a context control: a numeric field
+  prefilled with the loaded window plus an Apply button that calls the
+  `set-local-model-context` RPC (Core persists `contextLengthByModel` and
+  reloads the model in LM Studio), then swaps in the refreshed catalog.
+  Plain-id servers (Ollama/llama.cpp) show bare rows without the control.
+  The renderer never talks to the local server directly — everything flows
+  through Core RPCs (Core Authority).
 - Shared provider-tab card helpers (`DefaultModelCard`, `localizeModelOptions`) live in
   `settings-provider-cards.tsx`, split from `settings-tab-content.tsx` for
   the 500-line cap.

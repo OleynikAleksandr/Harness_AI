@@ -27,6 +27,7 @@ const IPC_TO_RPC = {
     "save-provider-system-settings",
   "harness-ai:core:save-settings": "save-settings",
   "harness-ai:core:select-workspace": "select-workspace",
+  "harness-ai:core:set-local-model-context": "set-local-model-context",
   "harness-ai:core:send-message": "send-message",
   "harness-ai:core:stop-turn": "stop-turn",
   "harness-ai:core:translate-dynamic-text": "translate-dynamic-text",

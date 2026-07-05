@@ -56,10 +56,14 @@ materialization, bootstrap payload reuse, and bundle state.
   `ui_helper_text` source strings for the Settings model rows.
 - Local Models universal-client provider help is part of the approved
   dictionaries: the connection card title
-  (`settings.provider.localModelsClient.connection`, "Local Models Server")
-  and the context-override field label
-  (`settings.provider.localModelsClient.contextLength`, "Context Length
-  Override") in `ui_labels`, and the card copy
+  (`settings.provider.localModelsClient.connection`, "Local Models Server"),
+  the per-model context control labels
+  (`settings.provider.localModelsClient.contextLength` "Context Length",
+  `.contextLength.apply` "Apply Context") and the model-row meta labels
+  (`.maxContext` "max", `.loadedContext` "loaded", `.tools` "tools") in
+  `ui_labels`, the reload progress message
+  (`.contextLength.applying`, "Reloading...") in `messages_for_the_user`,
+  and the card copy
   (`settings.provider.localModelsClient.description`,
   `.baseUrl.description` — server root or `/v1` prefix both accepted,
   `.contextLength.description` — manual window override, 0 = auto-detect) in

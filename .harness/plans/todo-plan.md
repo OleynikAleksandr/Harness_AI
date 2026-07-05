@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream2.task1",
+  "expectedCommitMessage": "feat(core-runtime): extend local models settings for universal client",
   "debt": null
 }
 ```
@@ -318,13 +318,107 @@
 90. [DONE] `harness-ai.phase3.stream4.task6` Record the GLM migration EVIDENCE from the accepted live run: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md` (endpoint/wire facts, acceptance verdict without legacy-session checks per the 2026-07-04 user decision, OpenCode-removal confirmation, Settings cleanup confirmation) (scope: `docs/evidence/universal-client-glm-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record glm migration results`). Result: Completed in commit `docs(evidence): record glm migration results`.
 91. [DONE] Git Commit: `docs(evidence): record glm migration results` (hash: self)
 
-## Phase 4 - Local Models And OpenRouter Providers (milestones; owner: Codex + User)
+## Phase 4 - Local Models And OpenRouter On The Universal Client (owner: Codex + User, materialized: 2026-07-05)
 
-> Milestones: (a) `local-models-client-provider` endpoint (base-URL onboarding,
-> `/v1/models`, context-length detection Ollama/LM Studio/llama.cpp, no-auth);
-> (b) `openrouter-client-provider` endpoint (key, `/api/v1/models`,
-> reasoning_details, usage-always); (c) Settings UI + provider help for both
-> (key / base URL, per Core localization); (d) package + user acceptance.
+> Scope contract (user order 2026-07-05: materialize Phase 4): move the two
+> remaining client-four providers onto the universal client following the
+> accepted Kimi/GLM rollout shape (settings -> descriptor/registry bind ->
+> auth+help -> endpoint -> routing -> Settings UI -> visibility switch ->
+> package -> live acceptance -> evidence). Discovery correction against the
+> Scope Summary wording: `openrouter` and `local-models` are NOT absent — they
+> run today as visible providers on the ported CodeAI-Hub reference adapters
+> (modules `openrouter-provider`/`local-models-provider` wrapping
+> `src/reference/**`), so Phase 4 is a MIGRATION like GLM, not a green-field
+> add. Shape decisions recorded for user review:
+> (1) SHARED SETTINGS SECTIONS, no duplicate keys: `openrouter-client` maps to
+> the existing `providers.openRouter` section (the single OpenRouter API key
+> serves BOTH coding sessions and the localization translation engine — one
+> source of truth; `translationProfiles` stay untouched for the translation
+> runtime), and `local-models-client` maps to the existing
+> `providers.localModels` section extended additively with `baseUrl` (default
+> `http://127.0.0.1:1234`) + optional `apiKey` + `contextLength` override
+> (0 = auto-detect). This deliberately diverges from the kimiClient/glmClient
+> new-section pattern: there the old sections belonged to DIFFERENT channels
+> (ACP kimi / native GLM); here the old sections already describe the same
+> vendor endpoints the client will call.
+> (2) LIVE MODEL CATALOGS, not static Core enums: Local Models lists models
+> via the existing `get-local-models` RPC retargeted from the hardcoded
+> LM-Studio URL to the configured base URL (Core Authority fix); OpenRouter
+> reuses the existing Settings model-slug search for the session default
+> model. `CLIENT_PROVIDER_MODELS` gains NO entries for these two providers.
+> (3) CORE ADDITION for OpenRouter (architecture doc sections 3.1/3.4):
+> structured `reasoning_details[]` accumulation in dialect-streaming plus a
+> per-dialect history policy so assistant messages return `reasoning_details`
+> unchanged in follow-up requests; the MVP sends NO `reasoning` request
+> parameter (model defaults apply).
+> (4) Local Models context length (architecture doc section 3.7): OpenAI-shape
+> `/v1/models` reports no context window, so the endpoint probes the
+> provider-specific endpoints (Ollama `POST /api/show`, LM Studio
+> `GET /api/v0/models`, llama.cpp `GET /props`) with the settings
+> `contextLength` override as the last word.
+> (5) At the switch the legacy `openrouter`/`local-models` providers go
+> INTERNAL as retired legacy code (NO session-continuity obligation per the
+> 2026-07-04 user decision); their modules KEEP the reference
+> `src/reference/**` corpus in the tree — module disposition joins the
+> Phase 5 afterlife open item next to ACP kimi and glm-native. Module/file
+> names below are PROPOSALS; exact file splits are finalized at each task's
+> start under the 500-line and ≤3-functional-files rules (mechanical
+> cap/removal splits may join a task's scope with a recorded clarification,
+> as accepted in Phases 2-3).
+
+### Stream: Phase Breakdown (this task)
+
+92. [DONE] `harness-ai.phase4.stream1.task1` Materialize Phase 4 into the microtasks below per the user's direct order 2026-07-05 (plan-only, closes with this same commit): record the shape decisions above for user review and extend the Phase 5 afterlife open item with the retired openrouter/local-models legacy modules (scope: `.harness/plans/todo-plan.md`; expected commit: `docs(plan): break down local models and openrouter phase`). Result: Completed in commit `docs(plan): break down local models and openrouter phase`.
+93. [DONE] Git Commit: `docs(plan): break down local models and openrouter phase` (hash: self)
+
+### Stream: Local Models Client Endpoint
+
+94. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Extend the `providers.localModels` settings section additively for the universal client: `baseUrl` (default `http://127.0.0.1:1234`, normalization trims trailing slashes and keeps http(s) URLs), optional `apiKey` (default empty — local servers usually run no-auth), `contextLength` (integer >= 0, 0 = auto-detect) — defaults, system persistence, projections and normalization; `defaultModel` stays as-is (scope: settings-store facade, settings-store projections, settings-normalization + settings-store `module.md`; expected commit: `feat(core-runtime): extend local models settings for universal client`).
+95. [TODO] Git Commit: `feat(core-runtime): extend local models settings for universal client` (hash: TBD)
+96. [TODO] `harness-ai.phase4.stream2.task2` Bind the Local Models client provider descriptor + registry, INTERNAL: `ProviderId` union += `local-models-client`, `PROVIDER_KEY_BY_ID` += `local-models-client -> localModels` (shared section per the scope contract), `HTTP_COMPATIBLE_PROVIDER_IDS` += `local-models-client`, registry `PROVIDERS` += internal entry (name "Local Models", moduleId `local-models-client-provider`); `CLIENT_PROVIDER_MODELS` intentionally gains NO entry (live catalog); registry test (scope: provider-registry facade (+ its test), provider-descriptor facade, settings-store facade (one map line) + affected `module.md`s; expected commit: `feat(core-runtime): bind local models client provider descriptor (internal)`).
+97. [TODO] Git Commit: `feat(core-runtime): bind local models client provider descriptor (internal)` (hash: TBD)
+98. [TODO] `harness-ai.phase4.stream2.task3` Local Models client auth alias + help: auth-store aliases `local-models-client` -> the `localModels` file aliases with the existing `HARNESS_AI_LOCAL_API_KEY`/`LMSTUDIO_API_KEY` and `HARNESS_AI_LOCAL_MODELS_BASE_URL`/`LMSTUDIO_BASE_URL` env fallbacks (same local server as the legacy id), and the `settings.provider.localModelsClient.*` provider-help strings (base URL of the local OpenAI-compatible server — Ollama / LM Studio / llama.cpp; key optional) in the approved dictionaries (scope: provider-auth-store facade + `module.md`, localization-runtime source-dictionaries + `module.md`; expected commit: `feat(core-runtime): local models client auth alias and help`).
+99. [TODO] Git Commit: `feat(core-runtime): local models client auth alias and help` (hash: TBD)
+100. [TODO] `harness-ai.phase4.stream2.task4` Add the `local-models-client-provider` module on the glm-client pattern: `buildLocalModelsDialect(baseUrl)` (per-turn base URL from Core settings, no vendor headers; tool_choice support and the thinking form finalized at task start against the running servers — the core already normalizes all four thinking forms incl. the `think_tags` splitter), optional Bearer key, `LocalModelsClientProviderFacade` ProviderAdapter (in-memory sessions, final-history carry-over, `NormalizedProviderEvent` emission + `stream_error`, Stop-keeps-history; a missing/invalid base URL fails the turn with an English adapter literal); unit test; product tree (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/module.md`, `.../src/local-models-client-provider-facade.ts`, `.../src/local-models-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(local-models-client-provider): local models endpoint on universal client`).
+101. [TODO] Git Commit: `feat(local-models-client-provider): local models endpoint on universal client` (hash: TBD)
+102. [TODO] `harness-ai.phase4.stream2.task5` Local Models context length detection: probe the provider-specific endpoints for the loaded model (Ollama `POST /api/show`, LM Studio `GET /api/v0/models`, llama.cpp `GET /props`) with the settings `contextLength` override as the last word, and feed the detected window into the session usage telemetry limit (existing `tokenUsage.limit` channel; exact wiring point finalized at task start); unit test (scope: `.../local-models-client-provider/src/local-models-context-length.ts` (new), the telemetry wiring point (<=1 file), tests + `module.md`; expected commit: `feat(local-models-client-provider): context length detection`).
+103. [TODO] Git Commit: `feat(local-models-client-provider): context length detection` (hash: TBD)
+104. [TODO] `harness-ai.phase4.stream2.task6` Route Core sessions to the Local Models client: `buildProviderAdapterInstance` case `local-models-client` (model resolved from Core settings per turn like GLM) and `PROVIDER_IDS` += `local-models-client` (RPC id validation + startup registration) (scope: core-provider-adapter-registration, core-provider-lifecycle + core-runtime-process `module.md`; expected commit: `feat(core-runtime): route sessions to local models universal client`).
+105. [TODO] Git Commit: `feat(core-runtime): route sessions to local models universal client` (hash: TBD)
+106. [TODO] `harness-ai.phase4.stream2.task7` Local Models live catalog + liveness from the CONFIGURED base URL (Core Authority fix — the hardcoded `http://127.0.0.1:1234` LM-Studio URL leaves production paths): `loadLocalModels` (core-provider-tools) reads `providers.localModels.baseUrl` from the settings snapshot, and the liveness checker validates `local-models-client` via the model list from the configured URL (its private `loadLocalModels` duplicate is retargeted/removed too) (scope: core-provider-tools, provider-liveness-checker facade + affected `module.md`s; expected commit: `feat(core-runtime): local models catalog from configured base url`).
+107. [TODO] Git Commit: `feat(core-runtime): local models catalog from configured base url` (hash: TBD)
+108. [TODO] `harness-ai.phase4.stream2.task8` Local Models client Settings UI: extend the reusable client card family with a base-URL + optional-key connection variant (user's standing order: every universal-client provider gets its onboarding card), mount it in the Local Models tab bound to `providers.localModels.{baseUrl,apiKey,contextLength}`, keep the default-model selection fed by the live `get-local-models` list (existing RPC flow), using the task3 help strings (scope: client-api-key-card (connection variant), local-models-settings-card, settings-tab-content + provider-settings-ui `module.md`; if dictionary labels are added, source-dictionaries + localization-runtime `module.md` join as a recorded split; expected commit: `feat(settings-ui): local models client connection card`).
+109. [TODO] Git Commit: `feat(settings-ui): local models client connection card` (hash: TBD)
+
+### Stream: OpenRouter Client Endpoint
+
+110. [TODO] `harness-ai.phase4.stream3.task1` Accumulate OpenRouter structured reasoning details in the client core stream: dialect-streaming collects `delta.reasoning_details[]` entries across chunks (alongside the existing `reasoning` display text) and returns them with the final assistant message; `client-contract` gains the optional `reasoningDetails` field on the assistant `ClientMessage`; unit test (scope: client-contract facade, dialect-streaming facade, tests + affected `module.md`s; expected commit: `feat(universal-client): accumulate openrouter reasoning details`).
+111. [TODO] Git Commit: `feat(universal-client): accumulate openrouter reasoning details` (hash: TBD)
+112. [TODO] `harness-ai.phase4.stream3.task2` Return reasoning details through the turn history: the agent loop stores `reasoningDetails` on in-turn assistant messages and `buildRequestBody` serializes them back as `reasoning_details` unchanged for dialects whose thinkingForm is `reasoning_details` (strip stays the behavior for reasoning_content providers — per-dialect history policy, architecture doc section 3.1); no conflict with the extraBody reserved-key boundary; unit test (scope: client-core facade, client-core-http, tests + `module.md`; expected commit: `feat(universal-client): return reasoning details through turn history`).
+113. [TODO] Git Commit: `feat(universal-client): return reasoning details through turn history` (hash: TBD)
+114. [TODO] `harness-ai.phase4.stream3.task3` Bind the OpenRouter client provider descriptor + registry, INTERNAL: `ProviderId` union += `openrouter-client`, `PROVIDER_KEY_BY_ID` += `openrouter-client -> openRouter` (shared section — the single OpenRouter key serves sessions AND the translation engine), `HTTP_COMPATIBLE_PROVIDER_IDS` += `openrouter-client`, registry `PROVIDERS` += internal entry (name "OpenRouter", moduleId `openrouter-client-provider`); no `CLIENT_PROVIDER_MODELS` entry (live catalog); registry test (scope: provider-registry facade (+ its test), provider-descriptor facade, settings-store facade (one map line) + affected `module.md`s; expected commit: `feat(core-runtime): bind openrouter client provider descriptor (internal)`).
+115. [TODO] Git Commit: `feat(core-runtime): bind openrouter client provider descriptor (internal)` (hash: TBD)
+116. [TODO] `harness-ai.phase4.stream3.task4` OpenRouter client auth alias + help: auth-store aliases `openrouter-client` -> the `openRouter` file aliases with the existing `OPENROUTER_API_KEY` env fallback (same key as the translation engine), and the `settings.provider.openRouterClient.*` provider-help strings (key from the OpenRouter dashboard; one key serves coding sessions and localization translation) in the approved dictionaries (scope: provider-auth-store facade + `module.md`, localization-runtime source-dictionaries + `module.md`; expected commit: `feat(core-runtime): openrouter client auth alias and help`).
+117. [TODO] Git Commit: `feat(core-runtime): openrouter client auth alias and help` (hash: TBD)
+118. [TODO] `harness-ai.phase4.stream3.task5` Add the `openrouter-client-provider` module on the glm-client pattern: `OPENROUTER_DIALECT` (base_url `https://openrouter.ai/api/v1`, headers `HTTP-Referer`/`X-Title` identifying Harness AI, thinkingForm `reasoning_details`, `usageFromAnyChunk: true`, full tool_choice), MVP sends NO `reasoning` request parameter (model defaults; reasoning_details are accepted from the stream and returned via history — tasks 1-2), model = `providers.openRouter.defaultModel` resolved per turn, `OpenRouterClientProviderFacade` ProviderAdapter (in-memory sessions, final-history carry-over, `NormalizedProviderEvent` + `stream_error`, Stop-keeps-history; a missing key fails the turn with an English adapter literal); unit test; product tree (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/openrouter-client-provider/module.md`, `.../src/openrouter-client-provider-facade.ts`, `.../src/openrouter-client-provider.test.mjs`, product-tree json+md; expected commit: `feat(openrouter-client-provider): openrouter endpoint on universal client`).
+119. [TODO] Git Commit: `feat(openrouter-client-provider): openrouter endpoint on universal client` (hash: TBD)
+120. [TODO] `harness-ai.phase4.stream3.task6` Route Core sessions to the OpenRouter client + liveness: `buildProviderAdapterInstance` case `openrouter-client`, `PROVIDER_IDS` += `openrouter-client`, and the liveness checker validates `openrouter-client` by key presence (same rule as the legacy id) (scope: core-provider-adapter-registration, core-provider-lifecycle, provider-liveness-checker + affected `module.md`s; expected commit: `feat(core-runtime): route sessions to openrouter universal client`).
+121. [TODO] Git Commit: `feat(core-runtime): route sessions to openrouter universal client` (hash: TBD)
+122. [TODO] `harness-ai.phase4.stream3.task7` OpenRouter client Settings UI: mount the reusable client API-key card preset (`OpenRouterClientApiKeyCard`) and move the session default-model control onto the existing model-slug search (reuse of `openrouter-model-search`, optionally filtered to tools-capable models — finalized at task start), replacing the legacy Connection-card fields that edit the same shared section (`apiKey`/`defaultModel`; `baseUrl` stops being user-edited — the dialect owns it); translation-profile controls stay untouched (scope: client-api-key-card, openrouter-settings-card, settings-tab-content + provider-settings-ui `module.md`; if dictionary labels are added, source-dictionaries + localization-runtime `module.md` join as a recorded split; expected commit: `feat(settings-ui): openrouter client api key card and model search`).
+123. [TODO] Git Commit: `feat(settings-ui): openrouter client api key card and model search` (hash: TBD)
+
+### Stream: Visibility Switch
+
+124. [TODO] `harness-ai.phase4.stream4.task1` Visibility switch (migration applied): `openrouter-client` and `local-models-client` -> visible (the single visible "OpenRouter" and "Local Models"), legacy `openrouter` and `local-models` -> internal as retired legacy code (NO session-continuity obligation per the 2026-07-04 user decision; module disposition incl. the reference corpus is the Phase 5 afterlife item), renderer `getProviderModel` gains the two new settings cases, and `docs/architecture/UniversalClient.md` records the applied channels (all four client providers now live on the universal client); registry test updated (scope: provider-registry facade (+ test), provider-picker, `docs/architecture/UniversalClient.md` + affected `module.md`s; expected commit: `feat(core-runtime): switch visible openrouter and local models to universal client`).
+125. [TODO] Git Commit: `feat(core-runtime): switch visible openrouter and local models to universal client` (hash: TBD)
+
+### Stream: Package And Acceptance
+
+126. [TODO] `harness-ai.phase4.stream5.task1` Package the app for the Phase 4 acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (the packaging gate requires a fresh explicit go — nothing is inherited from the materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-openrouter-local-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client openrouter and local models`).
+127. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client openrouter and local models` (hash: TBD)
+128. [TODO] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — base-URL onboarding in Settings, live model list from the configured server, context-length detect/override reflected in usage telemetry, streaming text + tool_calls + thinking on a local server; OpenRouter — key onboarding, session model via slug search, streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none).
+129. [TODO] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, context-length detection results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`).
+130. [TODO] Git Commit: `docs(evidence): record openrouter and local models migration results` (hash: TBD)
 
 ## Phase 5 - Synthetic Native Profiles (milestones; owner: Codex + User)
 
@@ -335,4 +429,8 @@
 > accepted capture dumps + the "Update Native Profile" command/UI; (d) shared
 > live-context generator; (e) package + user acceptance. Carries the archived
 > open items (profile storage layout, Update-Native mechanism, Claude `# Memory`
-> ballast, kimi-provider ACP module afterlife).
+> ballast) and the afterlife removals: the ACP `kimi-provider`, the retired
+> `glm-native-provider`, and — after the Phase 4 switch — the retired
+> `openrouter-provider`/`local-models-provider` legacy modules (the
+> disposition of their `src/reference/**` corpus is decided there; the
+> universal client consumed it as the code foundation).

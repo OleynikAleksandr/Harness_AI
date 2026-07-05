@@ -25,6 +25,7 @@ export const PROVIDER_IDS: ProviderId[] = [
   "glm-native",
   "openrouter",
   "local-models",
+  "local-models-client",
 ];
 
 export class CoreProviderLifecycle {

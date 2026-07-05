@@ -4,6 +4,7 @@ import { GlmClientProviderFacade } from "../../../../../../provider-runtime/clus
 import { GlmNativeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-native-provider/src/glm-native-provider-facade.js";
 import { KimiClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
 import { KimiProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-provider/src/kimi-provider-facade.js";
+import { LocalModelsClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
 import { LocalModelsProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-provider/src/local-models-provider-facade.js";
 import { OpenRouterProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/openrouter-provider/src/openrouter-provider-facade.js";
 import type { ProviderAdapter } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
@@ -42,6 +43,11 @@ export function buildProviderAdapterInstance(
       return new OpenRouterProviderFacade(model ?? undefined);
     case "local-models":
       return new LocalModelsProviderFacade(model ?? undefined);
+    case "local-models-client":
+      // The universal-client Local Models endpoint resolves the selected
+      // model and connection from Core settings per turn; the adapter pins
+      // only the local dialect.
+      return new LocalModelsClientProviderFacade(workspacePath);
     default:
       return null;
   }

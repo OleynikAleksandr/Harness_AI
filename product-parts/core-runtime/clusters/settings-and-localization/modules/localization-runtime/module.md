@@ -57,7 +57,9 @@ materialization, bootstrap payload reuse, and bundle state.
 - Local Models universal-client provider help is part of the approved
   dictionaries: the connection card title
   (`settings.provider.localModelsClient.connection`, "Local Models Server")
-  in `ui_labels`, and the card copy
+  and the context-override field label
+  (`settings.provider.localModelsClient.contextLength`, "Context Length
+  Override") in `ui_labels`, and the card copy
   (`settings.provider.localModelsClient.description`,
   `.baseUrl.description` — server root or `/v1` prefix both accepted,
   `.apiKey.description` — optional Bearer key, `.contextLength.description` —

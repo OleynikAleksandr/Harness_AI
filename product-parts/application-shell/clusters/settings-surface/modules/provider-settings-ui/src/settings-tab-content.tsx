@@ -5,6 +5,7 @@ import { ClaudeDefaultModelCard } from "./claude-default-model-card.js";
 import {
   GlmClientApiKeyCard,
   KimiClientApiKeyCard,
+  LocalModelsClientConnectionCard,
 } from "./client-api-key-card.js";
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
 import { LocalModelsSettingsCard } from "./local-models-settings-card.js";
@@ -280,16 +281,37 @@ export function SettingsTabContent({
   }
 
   if (activeTab === "localModels") {
+    const provider = settings.providers.localModels;
     return (
-      <LocalModelsSettingsCard
-        defaultModel={settings.providers.localModels.defaultModel}
-        models={localModels}
-        onDefaultModelChange={(defaultModel) =>
-          update((next) => {
-            next.providers.localModels.defaultModel = defaultModel;
-          })
-        }
-      />
+      <div className="settings-reference-stack">
+        <LocalModelsClientConnectionCard
+          apiKey={provider.apiKey}
+          baseUrl={provider.baseUrl}
+          contextLength={provider.contextLength}
+          onChange={(patch) =>
+            update((next) => {
+              if (patch.apiKey !== undefined) {
+                next.providers.localModels.apiKey = patch.apiKey;
+              }
+              if (patch.baseUrl !== undefined) {
+                next.providers.localModels.baseUrl = patch.baseUrl;
+              }
+              if (patch.contextLength !== undefined) {
+                next.providers.localModels.contextLength = patch.contextLength;
+              }
+            })
+          }
+        />
+        <LocalModelsSettingsCard
+          defaultModel={provider.defaultModel}
+          models={localModels}
+          onDefaultModelChange={(defaultModel) =>
+            update((next) => {
+              next.providers.localModels.defaultModel = defaultModel;
+            })
+          }
+        />
+      </div>
     );
   }
 

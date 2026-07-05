@@ -31,6 +31,16 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   selector. The retired native GLM connection/default-model block is not
   rendered in Settings. The renderer only edits the settings snapshot; key storage truth stays
   Core-owned (settings store persistence + auth-store sync).
+- Local Models connection card (`LocalModelsClientConnectionCard`, the
+  connection variant of the client card family in `client-api-key-card.tsx`):
+  Base URL (server root or `/v1` prefix), OPTIONAL API key, and a
+  context-length override (digits set the window; anything else keeps `0` =
+  auto-detect) bound to `providers.localModels.{baseUrl,apiKey,contextLength}`
+  (card title `settings.provider.localModelsClient.connection`, helper copy
+  under the `settings.provider.localModelsClient.*` prefix). The Local Models
+  tab mounts it above the existing live model list card
+  (`LocalModelsSettingsCard`), which keeps feeding the default-model choice
+  from the `get-local-models` RPC.
 - Shared provider-tab card helpers (`DefaultModelCard`, `localizeModelOptions`) live in
   `settings-provider-cards.tsx`, split from `settings-tab-content.tsx` for
   the 500-line cap.

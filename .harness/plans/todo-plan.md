@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream2.task8",
-  "expectedCommitMessage": "feat(settings-ui): local models client connection card",
+  "currentTaskId": "harness-ai.phase4.stream3.task1",
+  "expectedCommitMessage": "feat(universal-client): accumulate openrouter reasoning details",
   "debt": null
 }
 ```
@@ -399,12 +399,12 @@
 107. [DONE] Git Commit: `feat(core-runtime): route sessions to local models universal client` (hash: self)
 108. [DONE] `harness-ai.phase4.stream2.task7` Local Models live catalog + liveness from the CONFIGURED base URL (Core Authority fix — the hardcoded `http://127.0.0.1:1234` LM-Studio URL leaves production paths): `loadLocalModels` (core-provider-tools) reads `providers.localModels.baseUrl` from the settings snapshot, and the liveness checker validates `local-models-client` via the model list from the configured URL (its private `loadLocalModels` duplicate is retargeted/removed too) (scope: core-provider-tools, provider-liveness-checker facade + affected `module.md`s; expected commit: `feat(core-runtime): local models catalog from configured base url`). Result: Completed in commit `feat(core-runtime): local models catalog from configured base url`.
 109. [DONE] Git Commit: `feat(core-runtime): local models catalog from configured base url` (hash: self)
-110. [IN_PROGRESS] `harness-ai.phase4.stream2.task8` Local Models client Settings UI: extend the reusable client card family with a base-URL + optional-key connection variant (user's standing order: every universal-client provider gets its onboarding card), mount it in the Local Models tab bound to `providers.localModels.{baseUrl,apiKey,contextLength}`, keep the default-model selection fed by the live `get-local-models` list (existing RPC flow), using the task3 help strings (scope: client-api-key-card (connection variant), local-models-settings-card, settings-tab-content + provider-settings-ui `module.md`; if dictionary labels are added, source-dictionaries + localization-runtime `module.md` join as a recorded split; expected commit: `feat(settings-ui): local models client connection card`).
-111. [TODO] Git Commit: `feat(settings-ui): local models client connection card` (hash: TBD)
+110. [DONE] `harness-ai.phase4.stream2.task8` Local Models client Settings UI: extend the reusable client card family with a base-URL + optional-key connection variant (user's standing order: every universal-client provider gets its onboarding card), mount it in the Local Models tab bound to `providers.localModels.{baseUrl,apiKey,contextLength}`, keep the default-model selection fed by the live `get-local-models` list (existing RPC flow), using the task3 help strings (scope: client-api-key-card (connection variant), local-models-settings-card, settings-tab-content + provider-settings-ui `module.md`; if dictionary labels are added, source-dictionaries + localization-runtime `module.md` join as a recorded split; expected commit: `feat(settings-ui): local models client connection card`). Result: Completed in commit `feat(settings-ui): local models client connection card`.
+111. [DONE] Git Commit: `feat(settings-ui): local models client connection card` (hash: self)
 
 ### Stream: OpenRouter Client Endpoint
 
-112. [TODO] `harness-ai.phase4.stream3.task1` Accumulate OpenRouter structured reasoning details in the client core stream: dialect-streaming collects `delta.reasoning_details[]` entries across chunks (alongside the existing `reasoning` display text) and returns them with the final assistant message; `client-contract` gains the optional `reasoningDetails` field on the assistant `ClientMessage`; unit test (scope: client-contract facade, dialect-streaming facade, tests + affected `module.md`s; expected commit: `feat(universal-client): accumulate openrouter reasoning details`).
+112. [IN_PROGRESS] `harness-ai.phase4.stream3.task1` Accumulate OpenRouter structured reasoning details in the client core stream: dialect-streaming collects `delta.reasoning_details[]` entries across chunks (alongside the existing `reasoning` display text) and returns them with the final assistant message; `client-contract` gains the optional `reasoningDetails` field on the assistant `ClientMessage`; unit test (scope: client-contract facade, dialect-streaming facade, tests + affected `module.md`s; expected commit: `feat(universal-client): accumulate openrouter reasoning details`).
 113. [TODO] Git Commit: `feat(universal-client): accumulate openrouter reasoning details` (hash: TBD)
 114. [TODO] `harness-ai.phase4.stream3.task2` Return reasoning details through the turn history: the agent loop stores `reasoningDetails` on in-turn assistant messages and `buildRequestBody` serializes them back as `reasoning_details` unchanged for dialects whose thinkingForm is `reasoning_details` (strip stays the behavior for reasoning_content providers — per-dialect history policy, architecture doc section 3.1); no conflict with the extraBody reserved-key boundary; unit test (scope: client-core facade, client-core-http, tests + `module.md`; expected commit: `feat(universal-client): return reasoning details through turn history`).
 115. [TODO] Git Commit: `feat(universal-client): return reasoning details through turn history` (hash: TBD)

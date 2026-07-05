@@ -68,6 +68,104 @@ export function KimiClientApiKeyCard({
   );
 }
 
+const CONTEXT_LENGTH_DIGITS_PATTERN = /^\d+$/u;
+
+// Free-text context input: digits become the override, anything else keeps
+// auto-detection (0).
+const parseContextLength = (value: string): number => {
+  const trimmed = value.trim();
+  if (!CONTEXT_LENGTH_DIGITS_PATTERN.test(trimmed)) {
+    return 0;
+  }
+  const parsed = Number.parseInt(trimmed, 10);
+  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 0;
+};
+
+export interface LocalModelsConnectionPatch {
+  readonly apiKey?: string;
+  readonly baseUrl?: string;
+  readonly contextLength?: number;
+}
+
+// Connection variant of the client card family for local universal-client
+// providers: a base URL, an OPTIONAL key and a context-length override. The
+// Local Models tab mounts it above the live model list.
+export function LocalModelsClientConnectionCard({
+  apiKey,
+  baseUrl,
+  contextLength,
+  onChange,
+}: {
+  apiKey: string;
+  baseUrl: string;
+  contextLength: number;
+  onChange: (patch: LocalModelsConnectionPatch) => void;
+}) {
+  const { t } = useBrowserLocalization();
+  return (
+    <SettingsCard
+      title={t(
+        "ui_labels",
+        "settings.provider.localModelsClient.connection",
+        "Local Models Server"
+      )}
+    >
+      <p className="settings-description">
+        {t(
+          "ui_helper_text",
+          "settings.provider.localModelsClient.description",
+          "Runs local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp) on the Harness universal client. Nothing is downloaded or installed."
+        )}
+      </p>
+      <SettingsTextField
+        label={t("ui_labels", "settings.provider.baseUrl", "Base URL")}
+        onChange={(value) => onChange({ baseUrl: value })}
+        placeholder="http://127.0.0.1:1234"
+        value={baseUrl}
+      />
+      <p className="settings-note">
+        {t(
+          "ui_helper_text",
+          "settings.provider.localModelsClient.baseUrl.description",
+          "Base URL of the local OpenAI-compatible server — the server root (http://127.0.0.1:1234) or its /v1 prefix; both are accepted. Harness also reads HARNESS_AI_LOCAL_MODELS_BASE_URL or LMSTUDIO_BASE_URL from the environment."
+        )}
+      </p>
+      <SettingsTextField
+        label={t("ui_labels", "settings.provider.apiKey", "API Key")}
+        onChange={(value) => onChange({ apiKey: value })}
+        password
+        value={apiKey}
+      />
+      <p className="settings-note">
+        {t(
+          "ui_helper_text",
+          "settings.provider.localModelsClient.apiKey.description",
+          "Optional API key sent as a Bearer token. Most local servers run without authentication — leave empty unless your server requires one."
+        )}
+      </p>
+      <SettingsTextField
+        label={t(
+          "ui_labels",
+          "settings.provider.localModelsClient.contextLength",
+          "Context Length Override"
+        )}
+        onChange={(value) =>
+          onChange({ contextLength: parseContextLength(value) })
+        }
+        placeholder="0"
+        value={contextLength === 0 ? "" : String(contextLength)}
+      />
+      <p className="settings-note">
+        {t(
+          "ui_helper_text",
+          "settings.provider.localModelsClient.contextLength.description",
+          "Manual context window override in tokens. 0 keeps auto-detection (Ollama, LM Studio and llama.cpp report their loaded context)."
+        )}
+      </p>
+    </SettingsCard>
+  );
+}
+
 function ClientApiKeyCard({
   apiKey,
   fallbacks,

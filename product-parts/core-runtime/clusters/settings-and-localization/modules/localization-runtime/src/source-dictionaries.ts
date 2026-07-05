@@ -48,6 +48,8 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
     "settings.provider.localModels": "Local Models",
     "settings.provider.localModelsClient.connection": "Local Models Server",
+    "settings.provider.localModelsClient.contextLength":
+      "Context Length Override",
     "settings.provider.openRouter": "OpenRouter",
     "settings.provider.sessionContinuity.threshold":
       "Remaining context threshold (%)",

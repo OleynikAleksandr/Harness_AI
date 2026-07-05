@@ -79,6 +79,8 @@ const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
   // Universal-client endpoint: key-only auth from Core settings, no provider home.
   "glm-client",
   "kimi-client",
+  // Universal-client endpoint: base URL + optional key from Core settings.
+  "local-models-client",
 ]);
 
 export class ProviderDescriptorFacade {

@@ -209,6 +209,9 @@ const PROVIDER_KEY_BY_ID: Record<
   "glm-native": "glmNative",
   openrouter: "openRouter",
   "local-models": "localModels",
+  // The universal-client endpoint shares the localModels section: the same
+  // local server connection serves the legacy and the client provider ids.
+  "local-models-client": "localModels",
 };
 
 export class SettingsStoreFacade {

@@ -70,3 +70,19 @@ assert.equal(glmClient.moduleId, "glm-client-provider");
 assert.equal(glmClient.defaultModelId, undefined);
 assert.equal(registry.getProvider("glm-native").visibility, "internal");
 assert.throws(() => registry.getProvider("glm-opencode"), /Unknown provider/u);
+
+// Phase 4 pre-switch state: the universal-client Local Models endpoint is
+// bound but internal; the legacy reference adapter still owns the visible
+// entry. The client entry carries no static defaultModelId (live catalog).
+const localModelsClient = registry.getProvider("local-models-client");
+assert.equal(localModelsClient.visibility, "internal");
+assert.equal(localModelsClient.moduleId, "local-models-client-provider");
+assert.equal(localModelsClient.defaultModelId, undefined);
+assert.equal(
+  visible.some((provider) => provider.id === "local-models-client"),
+  false
+);
+assert.equal(
+  visible.filter((provider) => provider.name === "Local Models").length,
+  1
+);

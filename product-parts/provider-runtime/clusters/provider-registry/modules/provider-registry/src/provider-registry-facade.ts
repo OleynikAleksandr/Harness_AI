@@ -13,7 +13,8 @@ export type ProviderId =
   | "glm-client"
   | "glm-native"
   | "openrouter"
-  | "local-models";
+  | "local-models"
+  | "local-models-client";
 
 // Internal providers are bound in the registry (descriptor, adapter slot)
 // but hidden from the visible picker until their visibility switch task.
@@ -113,6 +114,16 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     moduleId: "local-models-provider",
     status: "available",
     visibility: "visible",
+  },
+  {
+    // The universal-client Local Models endpoint, INTERNAL until the Phase 4
+    // visibility switch; the legacy reference adapter serves the visible
+    // entry meanwhile. Never two Local Models entries in the picker at once.
+    id: "local-models-client",
+    name: "Local Models",
+    moduleId: "local-models-client-provider",
+    status: "available",
+    visibility: "internal",
   },
 ];
 

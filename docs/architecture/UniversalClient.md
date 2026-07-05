@@ -35,6 +35,22 @@ OSS-клиентов и API-доков провайдеров (2026-07-04). По
   теперь `glm-client` на универсальном клиенте; `glm-native` скрыт как
   legacy/internal, а embedded OpenCode runtime (`glm-opencode-provider` и
   `@opencode-ai/sdk`) удалён из production runtime этой фазы.
+- Phase 4 visibility switch применён: ВСЯ клиентская четвёрка живёт на
+  универсальном клиенте. Видимые OpenRouter и Local Models — endpoint-модули
+  `openrouter-client-provider` и `local-models-client-provider`; legacy
+  reference-адаптеры (`openrouter-provider`, `local-models-provider`) скрыты
+  как internal (их модули и reference-корпус остаются в дереве — судьба
+  решается afterlife-пунктом Phase 5). OpenRouter Settings-таб сохранён КАК
+  ЕСТЬ (ревью-фикс пользователя 2026-07-05): endpoint уважает каждое поле
+  карты per turn — `apiKey`, `baseUrl`, `defaultModel` (slug search),
+  `endpointTag` (не-default тег маршрутизирует ход телом запроса
+  `provider: {allow_fallbacks: false, order: [tag]}`); один ключ OpenRouter
+  обслуживает и coding-сессии, и движок перевода локализации. Local Models
+  получил connection-карту (base URL + опциональный ключ + override длины
+  контекста), живой каталог `GET {v1}/models` с настроенного URL (хардкод
+  LM-Studio-URL ушёл из production-путей) и детект окна контекста
+  (Ollama `/api/show`, LM Studio `/api/v0/models`, llama.cpp `/props`;
+  override — последнее слово).
 - Key-only onboarding: у КАЖДОГО провайдера СВОЙ отдельный ключ (ключ
   OpenRouter, ключ GLM, ключ Kimi For Coding — разные, каждый берётся в
   своём кабинете); одинаков только СПОСОБ ввода (форма «вставь ключ»), не

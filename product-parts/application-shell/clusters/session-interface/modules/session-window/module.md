@@ -100,7 +100,10 @@ Render the transcript/dialog layout and session chrome.
   settings-snapshot lookup; multi-model client endpoints such as the visible GLM
   use the Core settings snapshot (`providers.glmClient.defaultModel`). The
   renderer never invents a model id. The same resolution feeds the `model` field
-  of `createSession`.
+  of `createSession`. After the Phase 4 switch the visible `openrouter-client`
+  and `local-models-client` resolve through the same shared settings sections
+  as their legacy ids (`providers.openRouter.defaultModel` /
+  `providers.localModels.defaultModel`).
 
 - New-session wizard step 2 (`session-profile-step.tsx`): after the
   provider card, the profile picker lists Core-provided applicable profiles

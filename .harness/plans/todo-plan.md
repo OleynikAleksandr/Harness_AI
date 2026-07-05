@@ -8,8 +8,8 @@
   "planId": "universal-client-2026-07-04",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream4.task1",
-  "expectedCommitMessage": "feat(core-runtime): switch visible openrouter and local models to universal client",
+  "currentTaskId": "harness-ai.phase4.stream5.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app with universal client openrouter and local models",
   "debt": null
 }
 ```
@@ -419,12 +419,12 @@
 
 ### Stream: Visibility Switch
 
-124. [IN_PROGRESS] `harness-ai.phase4.stream4.task1` Visibility switch (migration applied): `openrouter-client` and `local-models-client` -> visible (the single visible "OpenRouter" and "Local Models"), legacy `openrouter` and `local-models` -> internal as retired legacy code (NO session-continuity obligation per the 2026-07-04 user decision; module disposition incl. the reference corpus is the Phase 5 afterlife item), renderer `getProviderModel` gains the two new settings cases, and `docs/architecture/UniversalClient.md` records the applied channels (all four client providers now live on the universal client); registry test updated (scope: provider-registry facade (+ test), provider-picker, `docs/architecture/UniversalClient.md` + affected `module.md`s; expected commit: `feat(core-runtime): switch visible openrouter and local models to universal client`).
-125. [TODO] Git Commit: `feat(core-runtime): switch visible openrouter and local models to universal client` (hash: TBD)
+124. [DONE] `harness-ai.phase4.stream4.task1` Visibility switch (migration applied): `openrouter-client` and `local-models-client` -> visible (the single visible "OpenRouter" and "Local Models"), legacy `openrouter` and `local-models` -> internal as retired legacy code (NO session-continuity obligation per the 2026-07-04 user decision; module disposition incl. the reference corpus is the Phase 5 afterlife item), renderer `getProviderModel` gains the two new settings cases, and `docs/architecture/UniversalClient.md` records the applied channels (all four client providers now live on the universal client); registry test updated (scope: provider-registry facade (+ test), provider-picker, `docs/architecture/UniversalClient.md` + affected `module.md`s; expected commit: `feat(core-runtime): switch visible openrouter and local models to universal client`). Result: Completed in commit `feat(core-runtime): switch visible openrouter and local models to universal client`.
+125. [DONE] Git Commit: `feat(core-runtime): switch visible openrouter and local models to universal client` (hash: self)
 
 ### Stream: Package And Acceptance
 
-126. [TODO] `harness-ai.phase4.stream5.task1` Package the app for the Phase 4 acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (the packaging gate requires a fresh explicit go — nothing is inherited from the materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-openrouter-local-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client openrouter and local models`).
+126. [IN_PROGRESS] `harness-ai.phase4.stream5.task1` Package the app for the Phase 4 acceptance: ASK THE USER FOR EXPLICIT PACKAGE CONFIRMATION FIRST (the packaging gate requires a fresh explicit go — nothing is inherited from the materialization order), then `npm run package:mac`; record the package evidence (scope: `docs/evidence/universal-client-openrouter-local-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with universal client openrouter and local models`).
 127. [TODO] Git Commit: `chore(package): rebuild packaged app with universal client openrouter and local models` (hash: TBD)
 128. [TODO] `harness-ai.phase4.stream5.task2` User runs live sessions on the packaged build and validates the acceptance checklist: Local Models — base-URL onboarding in Settings, live model list from the configured server, context-length detect/override reflected in usage telemetry, streaming text + tool_calls + thinking on a local server; OpenRouter — the UNCHANGED Settings tab drives the client endpoint (2026-07-05 review fix: key, Base URL, model slug search, endpoint picker + latency panel all keep working, incl. a non-default endpoint tag routing the session), streaming text + tool_calls, reasoning_details behavior on a reasoning model, usage reporting; the localization translation engine keeps working on the same OpenRouter key; the visible picker shows only the client endpoints (scope: user workflow; expected commit: none).
 129. [TODO] `harness-ai.phase4.stream5.task3` Record the Phase 4 EVIDENCE from the accepted live run: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md` (endpoint/wire facts for both providers, context-length detection results, reasoning_details verdict, acceptance verdict, translation-engine coexistence) (scope: `docs/evidence/universal-client-openrouter-local-migration-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record openrouter and local models migration results`).

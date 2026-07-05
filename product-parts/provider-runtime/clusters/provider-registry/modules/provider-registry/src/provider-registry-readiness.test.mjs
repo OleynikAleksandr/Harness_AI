@@ -71,15 +71,16 @@ assert.equal(glmClient.defaultModelId, undefined);
 assert.equal(registry.getProvider("glm-native").visibility, "internal");
 assert.throws(() => registry.getProvider("glm-opencode"), /Unknown provider/u);
 
-// Phase 4 pre-switch state: the universal-client Local Models endpoint is
-// bound but internal; the legacy reference adapter still owns the visible
-// entry. The client entry carries no static defaultModelId (live catalog).
+// Phase 4 visibility switch applied: the visible Local Models is the
+// universal-client endpoint (no static defaultModelId — live catalog), the
+// legacy reference adapter is internal but still resolvable by id.
 const localModelsClient = registry.getProvider("local-models-client");
-assert.equal(localModelsClient.visibility, "internal");
+assert.equal(localModelsClient.visibility, "visible");
 assert.equal(localModelsClient.moduleId, "local-models-client-provider");
 assert.equal(localModelsClient.defaultModelId, undefined);
+assert.equal(registry.getProvider("local-models").visibility, "internal");
 assert.equal(
-  visible.some((provider) => provider.id === "local-models-client"),
+  visible.some((provider) => provider.id === "local-models"),
   false
 );
 assert.equal(
@@ -87,14 +88,15 @@ assert.equal(
   1
 );
 
-// Same pre-switch state for the universal-client OpenRouter endpoint: bound
-// internal, no static defaultModelId (live slug catalog), single visible entry.
+// Same applied switch for OpenRouter: the client endpoint owns the single
+// visible entry (live slug catalog, no static defaultModelId).
 const openRouterClient = registry.getProvider("openrouter-client");
-assert.equal(openRouterClient.visibility, "internal");
+assert.equal(openRouterClient.visibility, "visible");
 assert.equal(openRouterClient.moduleId, "openrouter-client-provider");
 assert.equal(openRouterClient.defaultModelId, undefined);
+assert.equal(registry.getProvider("openrouter").visibility, "internal");
 assert.equal(
-  visible.some((provider) => provider.id === "openrouter-client"),
+  visible.some((provider) => provider.id === "openrouter"),
   false
 );
 assert.equal(

@@ -103,38 +103,42 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "internal",
   },
   {
+    // Retired legacy reference adapter after the Phase 4 visibility switch:
+    // registered and resolvable by id, hidden from the picker — no new
+    // sessions start on it. Module disposition is a Phase 5 afterlife item.
     id: "openrouter",
     name: "OpenRouter",
     moduleId: "openrouter-provider",
     status: "needs-settings",
-    visibility: "visible",
+    visibility: "internal",
   },
   {
-    // The universal-client OpenRouter endpoint, INTERNAL until the Phase 4
-    // visibility switch; the legacy reference adapter serves the visible
-    // entry meanwhile. Never two OpenRouter entries in the picker at once.
+    // The visible OpenRouter: the universal-client endpoint (Phase 4
+    // visibility switch applied). Never two OpenRouter entries at once.
     id: "openrouter-client",
     name: "OpenRouter",
     moduleId: "openrouter-client-provider",
     status: "needs-settings",
-    visibility: "internal",
+    visibility: "visible",
   },
   {
+    // Retired legacy reference adapter after the Phase 4 visibility switch:
+    // registered and resolvable by id, hidden from the picker — no new
+    // sessions start on it. Module disposition is a Phase 5 afterlife item.
     id: "local-models",
     name: "Local Models",
     moduleId: "local-models-provider",
     status: "available",
-    visibility: "visible",
+    visibility: "internal",
   },
   {
-    // The universal-client Local Models endpoint, INTERNAL until the Phase 4
-    // visibility switch; the legacy reference adapter serves the visible
-    // entry meanwhile. Never two Local Models entries in the picker at once.
+    // The visible Local Models: the universal-client endpoint (Phase 4
+    // visibility switch applied). Never two Local Models entries at once.
     id: "local-models-client",
     name: "Local Models",
     moduleId: "local-models-client-provider",
     status: "available",
-    visibility: "internal",
+    visibility: "visible",
   },
 ];
 

@@ -53,6 +53,31 @@ universal client:
   plan validation, Ultracite, architecture, lint, knip, typecheck, tests —
   85 test files green at the package commit).
 
+## Refinement Rebuild (same day, user review round 2)
+
+The user reviewed the first packaged build's Local Models tab and ordered
+three follow-ups (plan stream `harness-ai.phase4.stream6`); the app was
+REBUILT with them (`npm run package:mac`, exit 0, `app.asar` refreshed
+2026-07-05, second run):
+
+- The API key field is REMOVED end-to-end (LM Studio's local server has no
+  authentication; the llama.cpp/proxy niche stays on the silent
+  `HARNESS_AI_LOCAL_API_KEY`/`LMSTUDIO_API_KEY` env fallbacks).
+- Per-model context management on the REAL LM Studio v1 REST API (researched
+  2026-07-05, LM Studio 0.4.0+): the model list shows each model's max/loaded
+  context and tool capability (`GET /api/v1/models`), the selected model
+  carries a Context Length control whose Apply reloads the model remotely
+  (`POST /api/v1/models/unload` + `/load` with `context_length`), the wish
+  persists per model (`providers.localModels.contextLengthByModel`) and is
+  re-applied on session turns; the telemetry window follows applied wish →
+  loaded instance → probes. The global Context Length Override is gone.
+  Ollama/llama.cpp and older LM Studio degrade to detection-only rows.
+- Unconditional LM Studio autostart: on Core startup, when the configured
+  server is silent, Harness launches `~/.lmstudio/bin/lms server start`
+  (PATH `lms`, then `open -g -a "LM Studio"` on macOS), polls readiness and
+  re-runs the local-models liveness; machines without LM Studio skip
+  silently.
+
 ## Verification Status
 
 - This document records the BUILD evidence only. The live acceptance

@@ -117,11 +117,14 @@ Messages — это рантайм-поток конкретной сессии,
   `codex-synthetic-native` — individual Codex profile, собранный из принятого
   native request capture
   `2026-07-05T05-12-51-502Z-codex-gpt-5.5-native-request.jsonl`. В его
-  `system-prompt.md` лежат captured Codex instructions, captured tool
-  declarations как prompt-visible reference text, и полный материализованный
-  `AGENTS.md` workspace. Он нужен для ручной проверки: если файл `AGENTS.md`
-  удалить из workspace после выбора профиля, агент всё равно должен получить
-  эти инструкции из frozen `baseInstructions`.
+  `system-prompt.md` первым байтом идёт captured Codex instructions; сразу
+  после него, внутри того же frozen `baseInstructions` prefix, лежит полный
+  материализованный workspace `AGENTS.md`; captured tool declarations идут
+  только после этого как prompt-visible reference text. Он нужен для ручной
+  проверки: если файл `AGENTS.md` удалить из workspace после выбора профиля,
+  агент всё равно должен получить эти инструкции из frozen `baseInstructions`,
+  а cache telemetry не должна сводиться только к byte-for-byte native system
+  prompt.
 - **Kimi** — канал подмены (agent.yaml → `system_prompt_path` + `tools:`) **не
   доказан** (verification 2026-07-02: нет подтверждённой привязки materialized
   agent.yaml к спавненному CLI). Синтетический Kimi native заблокирован, пока

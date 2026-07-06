@@ -179,10 +179,21 @@ try {
     );
     assert.equal(codexSeed.scope, "individual");
     assert.equal(codexSeed.passport.provider, "codex");
+    assert.equal(
+      codexSeed.promptBody.startsWith("You are Codex, a coding agent"),
+      true
+    );
     assert.match(codexSeed.promptBody, /## Materialized Workspace AGENTS\.md/u);
     assert.match(
       codexSeed.promptBody,
       /## Captured Codex Native Tool Declarations/u
+    );
+    assert.equal(
+      codexSeed.promptBody.indexOf("## Materialized Workspace AGENTS.md") <
+        codexSeed.promptBody.indexOf(
+          "## Captured Codex Native Tool Declarations"
+        ),
+      true
     );
     const reviewSeed = seededScan.profiles.find(
       (profile) => profile.id === "review"

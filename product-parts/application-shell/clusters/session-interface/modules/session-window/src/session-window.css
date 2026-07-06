@@ -1402,7 +1402,7 @@ strong {
 }
 
 .session-status--codex-rollback-probe {
-  grid-template-columns: auto auto auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto auto minmax(0, 1fr) auto auto auto;
 }
 
 .session-status-chip,
@@ -1431,7 +1431,6 @@ strong {
 }
 
 .session-status-button--rollback {
-  grid-column: 6;
   justify-content: center;
 }
 
@@ -1448,21 +1447,15 @@ strong {
 }
 
 .session-status-chip--turns,
+.session-status-chip--cache,
 .session-status-chip--limits {
   justify-content: flex-start;
   min-width: 0;
   color: #9ca3a7;
 }
 
-.session-status--codex-rollback-probe .session-status-chip--turns {
-  grid-column: 4;
-}
-
-.session-status--codex-rollback-probe .session-status-chip--limits {
-  grid-column: 5;
-}
-
 .session-status-chip--turns strong,
+.session-status-chip--cache strong,
 .session-status-chip--limits strong {
   margin-left: 10px;
   overflow: hidden;

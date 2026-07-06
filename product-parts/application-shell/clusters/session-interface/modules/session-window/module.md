@@ -21,7 +21,8 @@ Render the transcript/dialog layout and session chrome.
   the shared browser localization provider with fallback strings.
 - For Codex sessions only, the session status panel renders the display-only
   visible turn count from the current transcript (`role === "user"`)
-  immediately before the Codex-only Rollback button. Provider-reported
+  immediately before the Codex-only Rollback button, between the
+  Tokens/optional Cache telemetry and Rollback. Provider-reported
   `cacheDisplay` renders beside the Core-owned token telemetry when available.
   The Codex-only Rollback button preserves the first two visible Codex user
   turns as the warmup/cache-anchor pair and sends only `visibleTurns - 2` as

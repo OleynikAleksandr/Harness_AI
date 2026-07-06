@@ -24,6 +24,10 @@ prompt byte-for-byte, appends only a normal `AGENTS.md instructions` wrapper
 containing the workspace instructions, and does not include Harness diagnostic
 headings, captured/tool JSON code fences, or synthetic-profile explanatory
 text. Real Codex tools remain app-server structured tools, not prompt text.
+The same storage invariant applies to every profile directory:
+`system-prompt.md` is provider-facing prompt payload, while provenance,
+diagnostics, seed notes, and Harness metadata belong in `profile.yaml`, docs,
+evidence, or sidecar artifacts, not inside prompt text.
 Retired Kimi ACP and GLM Native provider ids are no longer seeded as selectable
 profiles; their historical prompt material belongs to the Phase 5
 synthetic-native design records, not active profile-store runtime code.

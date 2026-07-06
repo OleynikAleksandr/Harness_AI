@@ -52,16 +52,18 @@ Messages — это рантайм-поток конкретной сессии,
 (замороженная обвязка) — это кэшируемый префикс; генератор контекста добавляет
 живой суффикс за границей.
 
-### Инвариант формата native-профиля
+### Инвариант формата provider-facing профилей
 
-Формат provider-native системного профиля — часть контракта, а не косметика.
-Если мы меняем содержимое native-профиля, мы должны сохранять форму, порядок,
-маркеры и wrapper-структуру того канала, который реально использует провайдер.
-Нельзя добавлять внутрь provider-facing system profile наши служебные заголовки,
-лейблы, пояснения, fenced JSON/code blocks, diagnostic sections или provenance
-текст вроде `Synthetic`, `Captured`, `Materialized`, `prompt-visible reference`
-и т.п. Даже если такие метки полезны человеку, для модели и provider cache это
-новые токены в статичном префиксе, которые меняют byte-level форму профиля.
+Общий контракт описан в `docs/architecture/SessionProfiles.md`: формат
+provider-facing prompt является частью контракта для всех session profiles, не
+только для Native. Если мы меняем содержимое профиля, мы должны сохранять форму,
+порядок, маркеры и wrapper-структуру того канала или managed-профиля, который
+реально использует провайдер. Нельзя добавлять внутрь provider-facing system
+profile наши служебные заголовки, лейблы, пояснения, fenced JSON/code blocks,
+diagnostic sections или provenance текст вроде `Synthetic`, `Captured`,
+`Materialized`, `prompt-visible reference` и т.п. Даже если такие метки полезны
+человеку, для модели и provider cache это новые токены в статичном префиксе,
+которые меняют byte-level форму профиля.
 
 Практический результат Codex rollback/cache probe 2026-07-06: когда
 `codex-synthetic-native` содержал Harness diagnostic headings и captured-tools
@@ -72,7 +74,9 @@ byte-for-byte native system prompt. После удаления не-native ма
 `AGENTS.md instructions for ...` wrapper кэш после rollback восстановился как
 ожидалось (`cached=20,864` на anchor snapshot и `cached=24,448` на первом новом
 ходе). Вывод: для cache-friendly synthetic/native профилей нельзя менять
-формат, даже если мы сознательно меняем содержимое.
+формат, даже если мы сознательно меняем содержимое; тот же принцип применяется
+к managed, universal и individual профилям, чтобы не смешивать prompt payload с
+Harness metadata/debug text.
 
 ## 4. Разбор по провайдерам (из принятых дампов)
 

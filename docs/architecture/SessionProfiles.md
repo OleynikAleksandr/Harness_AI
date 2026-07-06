@@ -175,6 +175,39 @@ kebab-case id. У него есть ровно три документа:
   Core создаёт стандартный набор профилей с seed-контентом; дальше файлы
   принадлежат пользователю и Harness их никогда не перезаписывает.
 
+### Инвариант формата provider-facing профиля
+
+`system-prompt.md` любого профиля — это не заметка для человека, а тело prompt
+payload, которое Core затем доставляет провайдеру. Поэтому формат
+provider-facing prompt является частью контракта для всех профилей, не только
+для Native:
+
+- **Native / synthetic-native** сохраняют форму, порядок, маркеры и wrapper
+  целевого provider-native канала. Менять можно содержимое внутри этой формы,
+  но нельзя добавлять Harness-заголовки, provenance labels, diagnostic sections,
+  fenced JSON/code blocks или пояснения вроде `Synthetic`, `Captured`,
+  `Materialized`, `prompt-visible reference`.
+- **Managed / universal / individual** профили тоже не получают служебные
+  Harness-обёртки внутри `system-prompt.md`. Если профиль должен быть
+  provider-agnostic, его prompt body остаётся чистым workflow-текстом; адаптер
+  применяет нужную provider-specific стратегию вне пользовательского prompt
+  файла.
+- **Провайдерные tool contracts и structured tools** не сериализуются в prompt
+  как debug/reference material, если реальный канал ожидает их отдельным
+  структурным слоем. Для Codex это app-server tool registry; для других каналов
+  аналогичный контракт живёт в adapter/application layer.
+- **Метаданные, происхождение и диагностика** живут в `profile.yaml`
+  (`description`), архитектурных документах, evidence или sidecar-артефактах,
+  но не в provider-facing prompt text.
+
+Практическая причина: провайдеры и их cache/static-prefix распознавание смотрят
+на фактическую форму payload. Даже полезная человеку метка внутри prompt меняет
+статичный префикс и может сломать cache reuse, routing или семантику
+native/managed применения. Это было подтверждено Codex rollback/cache probe
+2026-07-06: не-native Harness markers внутри `codex-synthetic-native` дали
+резко меньший cache после rollback, а возврат к native-like форме восстановил
+ожидаемый cache anchor.
+
 ## Схема хранения
 
 ```
@@ -642,10 +675,11 @@ Seed-профили — стандартный стартовый набор, к
    ids (`kimi`, `glm-native`) удалены; Kimi/GLM client-four profiles
    переопределяются в Phase 5 synthetic-native через новые live ids.
 6. `codex-synthetic-native` (индивидуальный) — ручной Codex probe из принятого
-   native request capture 2026-07-05: captured Codex system prompt, captured
-   tool declarations как текст профиля, и полный материализованный workspace
-   `AGENTS.md`. Выбирается как обычный Codex profile и применяется через
-   `baseInstructions`; реальный Codex tool registry остаётся app-server-native.
+   native request capture 2026-07-05: captured Codex system prompt и полный
+   материализованный workspace `AGENTS.md` внутри native-like prompt формы.
+   Выбирается как обычный Codex profile и применяется через `baseInstructions`;
+   реальный Codex tool registry остаётся app-server-native, а captured tool
+   declarations не кладутся в prompt как reference/debug text.
 
 Плюс виртуальная запись `native` (не на диске).
 

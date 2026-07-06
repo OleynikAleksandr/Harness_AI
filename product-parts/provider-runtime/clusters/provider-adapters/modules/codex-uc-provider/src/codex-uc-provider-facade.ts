@@ -318,11 +318,12 @@ export class CodexUcProviderFacade implements ProviderAdapter {
     if (typeof inputTokens !== "number") {
       return;
     }
+    const cached = readCachedInputTokens(usage);
     this.emit(session, {
       data: {
         kind: "token_usage",
         tokenUsage: {
-          cached: usage?.input_tokens_details?.cached_tokens ?? 0,
+          ...(cached === null ? {} : { cached }),
           limit: DEFAULT_CONTEXT_LIMIT,
           used: inputTokens,
         },
@@ -425,6 +426,23 @@ function isUserInputItem(item: ResponsesInputItem): item is {
   readonly role: "user";
 } {
   return "role" in item && item.role === "user";
+}
+
+function readCachedInputTokens(
+  usage: ResponsesUsage | undefined
+): number | null {
+  const value =
+    readNumber(usage?.input_tokens_details?.cached_tokens) ??
+    readNumber(usage?.input_tokens_details?.cached_input_tokens) ??
+    readNumber(usage?.prompt_tokens_details?.cached_tokens) ??
+    readNumber(usage?.prompt_tokens_details?.cached_input_tokens) ??
+    readNumber(usage?.cached_tokens) ??
+    readNumber(usage?.cached_input_tokens);
+  return value === null || value < 0 ? null : value;
+}
+
+function readNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 export const codexUcProviderFacade = new CodexUcProviderFacade();

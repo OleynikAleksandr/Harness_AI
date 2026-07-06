@@ -26,8 +26,17 @@ export interface ResponsesParsedStream {
 }
 
 export interface ResponsesUsage {
+  readonly cached_input_tokens?: number;
+  readonly cached_tokens?: number;
   readonly input_tokens?: number;
-  readonly input_tokens_details?: { readonly cached_tokens?: number };
+  readonly input_tokens_details?: {
+    readonly cached_input_tokens?: number;
+    readonly cached_tokens?: number;
+  };
+  readonly prompt_tokens_details?: {
+    readonly cached_input_tokens?: number;
+    readonly cached_tokens?: number;
+  };
   readonly total_tokens?: number;
 }
 

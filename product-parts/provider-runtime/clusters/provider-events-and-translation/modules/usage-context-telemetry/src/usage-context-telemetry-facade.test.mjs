@@ -32,7 +32,7 @@ const codexUc = usageContextTelemetryFacade.createTelemetry({
   providerId: "codex-uc",
 });
 assert.equal(codexUc.providerScopeKey, "codex:global");
-assert.equal(codexUc.cacheDisplay?.value, "0");
+assert.equal(codexUc.cacheDisplay, null);
 assert.equal(codexUc.limitRows[0].text, "Session ...");
 assert.equal(codexUc.limitRows[1].text, "Weekly ...");
 

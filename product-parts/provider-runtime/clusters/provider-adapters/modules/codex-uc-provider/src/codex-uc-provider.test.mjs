@@ -81,7 +81,7 @@ function sse(event, data) {
 function responseText(step) {
   const usage = {
     input_tokens: 1000 + step,
-    input_tokens_details: { cached_tokens: step === 3 ? 768 : 0 },
+    ...(step === 3 ? { input_tokens_details: { cached_tokens: 768 } } : {}),
   };
   if (step === 1) {
     return (
@@ -239,6 +239,8 @@ try {
     assert.equal(events[4].role, "thinking");
     assert.equal(events[4].content, "thinking");
     assert.equal(events[5].role, "assistant");
+    assert.equal("cached" in events[1].data.tokenUsage, false);
+    assert.equal("cached" in events[2].data.tokenUsage, false);
     assert.equal(events[3].data.usageLimits.currentSession.percentUsed, 9);
     assert.equal(
       events[3].data.usageLimits.currentWeekAllModels.percentUsed,

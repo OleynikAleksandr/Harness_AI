@@ -38,8 +38,10 @@ not resend the removed tail.
 
 - Normalized provider events for Core session display.
 - Function tool execution through the Harness universal-client tool registry.
-- Token/cache telemetry from Responses `usage.input_tokens` and
-  `usage.input_tokens_details.cached_tokens`.
+- Token/cache telemetry from Responses `usage.input_tokens` and known cached
+  token aliases (`input_tokens_details.cached_tokens`,
+  `cached_input_tokens`, etc.). Missing cache fields stay unknown; the adapter
+  never forces unknown cache telemetry to `0`.
 - Reasoning telemetry from direct Responses reasoning stream deltas/items,
   emitted as Core-visible `thinking` dialog messages.
 - Usage-limit telemetry through the proven Codex account-limits bridge

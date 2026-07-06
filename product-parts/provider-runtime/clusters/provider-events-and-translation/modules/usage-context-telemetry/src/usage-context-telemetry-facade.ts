@@ -363,7 +363,7 @@ function providerScopeKey(providerId: string): string | null {
 }
 
 function defaultCachedTokenCount(providerId: string): number | null {
-  return isCodexFamilyProvider(providerId) ? 0 : null;
+  return providerId === "codex" ? 0 : null;
 }
 
 function defaultTokenLimit(providerId: string): number {

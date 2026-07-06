@@ -84,9 +84,11 @@ synthetic-native. Номера строк актуальны на дату ис�
   Responses-compatible backend с `store:false`; managed/synthetic profile
   snapshot применяется как request `instructions`, а tool surface формируется
   Harness function tools вместо app-server native tools. Cache telemetry берётся
-  из `usage.input_tokens_details.cached_tokens` и означает provider-reported
-  cached input read; `0` после первого turn является честным значением от
-  Responses route, а не доказательством отсутствия server-side cache write.
+  из known Responses usage aliases (`input_tokens_details.cached_tokens`,
+  `cached_input_tokens`, etc.) и означает provider-reported cached input read;
+  если cache field отсутствует, Harness оставляет значение неизвестным и не
+  превращает его в `0`. `0` показывается только когда Responses route явно
+  прислал ноль.
   Reasoning telemetry берётся из direct Responses reasoning stream
   deltas/items и отдаётся в Core как `thinking` messages. Usage-limit telemetry
   берётся через проверенный Codex account-limits bridge

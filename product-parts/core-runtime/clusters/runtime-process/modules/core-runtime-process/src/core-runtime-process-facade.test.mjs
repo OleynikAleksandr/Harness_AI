@@ -41,4 +41,6 @@ assert.doesNotMatch(
   /sessionEventStreamFacade\.publish\(\{\s+payload:\s+\{\s+providerId/u
 );
 assert.match(apiSource, /sessionRequestHandlerFacade\.createSession/u);
+assert.match(apiSource, /"rollback-session-turns"/u);
+assert.match(apiSource, /sessionRequestHandlerFacade\.rollbackSessionTurns/u);
 assert.match(entrySource, /api: coreRuntimeApi/u);

@@ -60,6 +60,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ),
   resetWorkspaceSettings: () =>
     ipcRenderer.invoke("harness-ai:core:reset-workspace-settings"),
+  rollbackSessionTurns: (request) =>
+    ipcRenderer.invoke("harness-ai:core:rollback-session-turns", request),
   pickWorkspaceFolder: () =>
     ipcRenderer.invoke("harness-ai:core:pick-workspace-folder"),
   restartCore: () => ipcRenderer.invoke("harness-ai:core:restart"),

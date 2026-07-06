@@ -164,6 +164,10 @@ export class CoreRuntimeApi {
         return this.updateProviderVersion(payload);
       case "restart-adapters":
         return this.restartAdapters();
+      case "rollback-session-turns":
+        return sessionRequestHandlerFacade.rollbackSessionTurns(
+          payload as never
+        );
       case "send-message":
         return sessionRequestHandlerFacade.sendMessage(payload as never);
       case "stop-turn":

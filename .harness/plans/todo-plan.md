@@ -8,8 +8,8 @@
   "planId": "codex-rollback-2026-07-06",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream4.task1",
-  "expectedCommitMessage": "feat(core-runtime): expose codex rollback rpc",
+  "currentTaskId": "harness-ai.phase6.stream5.task1",
+  "expectedCommitMessage": "feat(session-ui): enable codex rollback button",
   "debt": null
 }
 ```
@@ -84,12 +84,12 @@
 
 ### Stream: Core RPC Bridge
 
-7. [IN_PROGRESS] `harness-ai.phase6.stream4.task1` Expose the Core Codex rollback intent through the Electron/Core RPC boundary as a raw user intent (`sessionId`, `numTurns`), preserving Core as authority. Atomic bridge exception: the channel must compile across runtime API, bridge, preload and renderer typing in one commit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts` + affected module docs; expected commit: `feat(core-runtime): expose codex rollback rpc`).
-8. [TODO] Git Commit: `feat(core-runtime): expose codex rollback rpc` (hash: TBD)
+7. [DONE] `harness-ai.phase6.stream4.task1` Expose the Core Codex rollback intent through the Electron/Core RPC boundary as a raw user intent (`sessionId`, `numTurns`), preserving Core as authority. Atomic bridge exception: the channel must compile across runtime API, bridge, preload and renderer typing in one commit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-facade.test.mjs`, `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts` + affected module docs; expected commit: `feat(core-runtime): expose codex rollback rpc`). Result: Completed in commit `feat(core-runtime): expose codex rollback rpc`.
+8. [DONE] Git Commit: `feat(core-runtime): expose codex rollback rpc` (hash: self)
 
 ### Stream: Codex Session UI Enablement
 
-9. [TODO] `harness-ai.phase6.stream5.task1` Enable the existing Codex-only `Rollback` button in the Session status panel: derive default `numTurns` from the visible Codex turn count, call the Core rollback RPC, keep the button hidden for non-Codex sessions, and surface controlled success/failure feedback without `window.alert`/`prompt`/`confirm` (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `feat(session-ui): enable codex rollback button`).
+9. [IN_PROGRESS] `harness-ai.phase6.stream5.task1` Enable the existing Codex-only `Rollback` button in the Session status panel: derive default `numTurns` from the visible Codex turn count, call the Core rollback RPC, keep the button hidden for non-Codex sessions, and surface controlled success/failure feedback without `window.alert`/`prompt`/`confirm` (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `feat(session-ui): enable codex rollback button`).
 10. [TODO] Git Commit: `feat(session-ui): enable codex rollback button` (hash: TBD)
 
 ## Phase 7 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-06)

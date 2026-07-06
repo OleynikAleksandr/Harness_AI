@@ -36,6 +36,9 @@ Own Electron lifecycle, window creation, and local application startup.
   `listCapturableModels()` for the Native Request Capture Settings card,
   bridged to the Core `capture-native-request` / `list-capturable-models`
   methods through the core-process bridge and typed in `vite-env.d.ts`.
+- `window.harnessCore.rollbackSessionTurns({ sessionId, numTurns })` exposes
+  only the raw Codex rollback intent to the renderer; Core owns provider
+  validation, strategy and transcript refresh.
 
 ## Owned Paths
 

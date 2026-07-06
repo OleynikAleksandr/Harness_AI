@@ -148,6 +148,16 @@ interface Window {
     resetWorkspaceSettings(): Promise<
       { ok: true; settings: HarnessSettings } | { error: string; ok: false }
     >;
+    rollbackSessionTurns(request: {
+      numTurns: number;
+      sessionId: string;
+    }): Promise<
+      | {
+          ok: true;
+          session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
+      | { error: string; ok: false }
+    >;
     pickWorkspaceFolder(): Promise<
       | {
           ok: true;

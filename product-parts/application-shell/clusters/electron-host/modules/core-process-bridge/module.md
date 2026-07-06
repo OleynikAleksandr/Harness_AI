@@ -42,7 +42,9 @@ modules or own Core truth.
   every category ignoring the localization bundle cache, and
   `harness-ai:core:set-local-model-context` → `set-local-model-context`, so
   the Local Models per-model context control reaches the Core-owned LM Studio
-  management reload.
+  management reload. Codex rollback uses the same transport-only pattern:
+  `harness-ai:core:rollback-session-turns` → `rollback-session-turns`, passing
+  only the raw `sessionId`/`numTurns` intent to Core.
 - Real Core process restart through health and shutdown contracts. `stop()` first
   asks the core to shut down over HTTP, then force-terminates the process by pid
   (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so

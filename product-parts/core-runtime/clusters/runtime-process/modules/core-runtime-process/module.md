@@ -55,6 +55,9 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `.harness/sessions/reasoning-translations/`, and asks the provider adapter to
   delete its own per-session artifact (e.g. the Codex rollout) so nothing
   outlives the session record.
+- The `rollback-session-turns` RPC forwards the raw Codex rollback intent
+  (`sessionId`, `numTurns`) to Session Runtime. Runtime Process does not inspect
+  provider history, derive turn counts, or choose rollback strategy.
 - Localization runtime bootstrap payloads are materialized through Core RPC into
   the Harness home `Localization` directory, using Core settings category
   mapping and provider-owned translation engines so browser clients render

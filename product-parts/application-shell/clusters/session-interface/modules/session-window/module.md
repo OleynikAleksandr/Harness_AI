@@ -19,9 +19,11 @@ Render the transcript/dialog layout and session chrome.
 - Core-owned localization runtime payload from the Electron preload bridge.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
-- The session status panel renders the display-only visible turn count from the
-  current transcript (`role === "user"`) immediately before the Core-owned
-  token telemetry; it is a manual rollback probe counter, not provider truth.
+- For Codex sessions only, the session status panel renders the display-only
+  visible turn count from the current transcript (`role === "user"`)
+  immediately before the Core-owned token telemetry; it is a manual rollback
+  probe counter, not provider truth. Non-Codex sessions keep the standard
+  token-only status layout.
 - The session window owns refresh of the browser localization runtime payload
   and passes that refresh callback to Settings, so save/reset can show newly
   materialized localized copy without reopening the app shell.
@@ -90,9 +92,10 @@ Render the transcript/dialog layout and session chrome.
 - Rendered chat session surface.
 - Session-level UI actions sent to Core, including the running-turn Stop that
   calls Core `stopTurn` with the active session id.
-- Disabled Rollback probe control in the status panel. It is intentionally
-  visible for the next manual provider-validation stage but does not dispatch a
-  Core/provider rollback request until the provider contract is implemented.
+- Disabled Rollback probe control in the Codex status panel. It is
+  intentionally visible only for the verified Codex rollback path and does not
+  dispatch a Core/provider rollback request until the Codex contract is
+  implemented.
 - Next-session mode panel display; session creation submits the native raw baseline and regression tests guard that preview choices do not change runtime input.
 - New-session provider cards display Ready / Checking provider... / Preparing
   workspace... / Failed from Core readiness values; non-ready cards are disabled.

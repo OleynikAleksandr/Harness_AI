@@ -452,57 +452,52 @@ Persisted rollout JSONL остаётся audit log: строки удалённ�
 pruned projection. Источник истины для model-visible history — app-server
 projection, а не ручное удаление строк из JSONL.
 
-## Следующая стадия: ручная проверка на провайдерах Harness
+## Следующая стадия: ручная проверка Codex в Harness
 
-Автоматизация откладывается. Сначала нужно вручную проверить, что UI/метрики
-дают достаточно доказательств для каждого класса provider runtime.
+Автоматизация откладывается. Следующая стадия ограничена только Codex, потому
+что именно для Codex app-server уже подтверждён `thread/rollback` и сохранение
+cache-anchor prefix после удаления dynamic turns.
 
-Минимальный UI-зонд:
+Минимальный UI-зонд для Codex-сессии:
 
 - в status panel сессии показать `Turns` слева от `Tokens`;
 - справа в той же панели показать кнопку `Rollback`;
 - кнопка на этой стадии НЕ вызывает provider rollback автоматически;
 - счётчик turns нужен как операторский ориентир для `numTurns`;
-- оператор вручную запускает provider/app-server rollback или внешний
-  эксперимент и сверяет, как меняются `Turns`, `Tokens`, cached input и
-  provider-visible history.
+- для не-Codex провайдеров этот UI-зонд не показывается;
+- оператор вручную запускает Codex app-server rollback и сверяет, как меняются
+  `Turns`, `Tokens`, cached input и provider-visible history.
 
-Порядок ручной проверки:
+Порядок ручной проверки Codex:
 
-1. **Codex native app-server.**
-   - Создать cache-anchor turn.
-   - Добавить 1-2 больших dynamic turns.
-   - Снять `thread/read includeTurns=true` и `thread/tokenUsage/updated`.
-   - Выполнить `thread/rollback numTurns=N`.
-   - Снять `thread/read` и следующий probe turn.
-   - Принять только если `lastInput` падает до anchor-tail размера, а
-     `lastCached` остаётся высоким.
-2. **Claude native.**
-   - Проверить, есть ли эквивалент rollback/rewind на уровне SDK/CLI.
-   - Если Claude может откатывать files/history отдельно, разделить:
-     model-visible history rollback и file rollback.
-   - Если такого API нет, зафиксировать fallback: новая сессия с тем же
-     compiled static bundle и коротким dynamic context.
-3. **Universal-client providers (Kimi, GLM, OpenRouter, Local Models).**
-   - Сейчас у клиента нет first-class rollback history API.
-   - Проверить, достаточно ли Core-owned in-session history можно pruned
-     локально до отправки следующего request.
-   - Для Local Models отдельно считать, что prompt cache может отсутствовать
-     или отличаться от OpenAI/Codex API; context-window benefit и price
-     benefit проверяются отдельно.
+1. Создать Codex cache-anchor turn.
+2. Добавить 1-2 больших dynamic turns.
+3. Снять `thread/read includeTurns=true` и `thread/tokenUsage/updated`.
+4. Выполнить `thread/rollback numTurns=N`.
+5. Снять `thread/read` и следующий probe turn.
+6. Принять только если `lastInput` падает до anchor-tail размера, а
+   `lastCached` остаётся высоким.
 
-Acceptance для перехода к автоматизации:
+Что НЕ входит в текущую стадию:
+
+- Claude rollback/rewind contract;
+- universal-client local history pruning for Kimi, GLM, OpenRouter and Local
+  Models;
+- provider-neutral rollback abstraction;
+- renderer-side enablement of the Rollback button.
+
+Acceptance для перехода к автоматизации Codex:
 
 - UI показывает turns count без вывода provider truth в renderer: число должно
-  приходить из Core/session snapshot или из Core-normalized telemetry.
+  приходить из Core/session snapshot или из Core-normalized telemetry, и только
+  для Codex-сессии.
 - Rollback action идёт в Core как raw user intent:
   `sessionId + numTurns + providerSessionId`, не как renderer-side JSON-RPC.
-- Core выбирает provider-specific strategy:
-  Codex `thread/rollback`, Claude fallback/rewind capability, universal-client
-  local history pruning.
+- Core выбирает Codex strategy: `thread/rollback`.
 - После rollback Core публикует обновлённый session snapshot и telemetry.
 - Evidence фиксирует до/после: `turns`, `lastInput`, `lastCached`,
-  `modelContextWindow`, provider id, model id и точный rollback strategy.
+  `modelContextWindow`, provider id `codex`, model id и точный rollback
+  strategy.
 
 ## Официальные источники
 

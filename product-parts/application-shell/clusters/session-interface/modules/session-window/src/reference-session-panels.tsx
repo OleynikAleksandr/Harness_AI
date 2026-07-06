@@ -216,14 +216,18 @@ export function ReferenceStatusPanel({
 }) {
   const { t } = useBrowserLocalization();
   const reasoning = resolveReasoningLabel(session, settings);
-  const turnCount = resolveVisibleTurnCount(messages);
-  const rollbackProbeLabel = t(
-    "ui_labels",
-    "session.status.rollbackProbe",
-    "Rollback turns (manual probe)"
-  );
+  const showCodexRollbackProbe = session?.providerId === "codex";
+  const turnCount = showCodexRollbackProbe
+    ? resolveVisibleTurnCount(messages)
+    : 0;
   return (
-    <section className="session-status session-panel">
+    <section
+      className={
+        showCodexRollbackProbe
+          ? "session-status session-status--codex-rollback-probe session-panel"
+          : "session-status session-panel"
+      }
+    >
       <span className="session-status-chip session-status-chip--label">
         {t("ui_labels", "session.status.model", "Model:")}
       </span>
@@ -233,25 +237,27 @@ export function ReferenceStatusPanel({
           {reasoning}
         </span>
       ) : null}
-      <span className="session-status-chip session-status-chip--turns">
-        <span>{t("ui_labels", "session.status.turns", "Turns:")}</span>
-        <strong>{turnCount}</strong>
-      </span>
+      {showCodexRollbackProbe ? (
+        <span className="session-status-chip session-status-chip--turns">
+          <span>{t("ui_labels", "session.status.turns", "Turns:")}</span>
+          <strong>{turnCount}</strong>
+        </span>
+      ) : null}
       <span className="session-status-chip session-status-chip--limits">
         <span>{t("ui_labels", "session.status.tokens", "Tokens:")}</span>
         <strong title={telemetry.tokenDisplay.title}>
           {telemetry.tokenDisplay.value}
         </strong>
       </span>
-      <button
-        aria-label={rollbackProbeLabel}
-        className="session-status-button session-status-button--rollback"
-        disabled
-        title={rollbackProbeLabel}
-        type="button"
-      >
-        {t("ui_labels", "session.status.rollback", "Rollback")}
-      </button>
+      {showCodexRollbackProbe ? (
+        <button
+          className="session-status-button session-status-button--rollback"
+          disabled
+          type="button"
+        >
+          {t("ui_labels", "session.status.rollback", "Rollback")}
+        </button>
+      ) : null}
     </section>
   );
 }

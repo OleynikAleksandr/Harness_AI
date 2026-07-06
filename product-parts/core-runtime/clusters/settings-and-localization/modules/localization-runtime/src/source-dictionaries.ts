@@ -116,7 +116,6 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "session.sidebar.workspaces": "Workspaces",
     "session.status.model": "Model:",
     "session.status.rollback": "Rollback",
-    "session.status.rollbackProbe": "Rollback turns (manual probe)",
     "session.status.tokens": "Tokens:",
     "session.status.turns": "Turns:",
     "session.transcript": "Transcript",

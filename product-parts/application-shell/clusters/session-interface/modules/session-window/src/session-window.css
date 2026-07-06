@@ -1394,11 +1394,15 @@ strong {
 
 .session-status {
   display: grid;
-  grid-template-columns: auto auto auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto auto minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   min-height: 56px;
   padding: 10px 14px;
+}
+
+.session-status--codex-rollback-probe {
+  grid-template-columns: auto auto auto auto minmax(0, 1fr) auto;
 }
 
 .session-status-chip,
@@ -1443,19 +1447,19 @@ strong {
   color: #8d9295;
 }
 
-.session-status-chip--turns {
-  grid-column: 4;
-}
-
-.session-status-chip--limits {
-  grid-column: 5;
-}
-
 .session-status-chip--turns,
 .session-status-chip--limits {
   justify-content: flex-start;
   min-width: 0;
   color: #9ca3a7;
+}
+
+.session-status--codex-rollback-probe .session-status-chip--turns {
+  grid-column: 4;
+}
+
+.session-status--codex-rollback-probe .session-status-chip--limits {
+  grid-column: 5;
 }
 
 .session-status-chip--turns strong,
@@ -1488,9 +1492,9 @@ strong {
     grid-template-columns: 1fr;
   }
 
-  .session-status-chip--turns,
-  .session-status-chip--limits,
-  .session-status-button--rollback {
+  .session-status--codex-rollback-probe .session-status-chip--turns,
+  .session-status--codex-rollback-probe .session-status-chip--limits,
+  .session-status--codex-rollback-probe .session-status-button--rollback {
     grid-column: auto;
   }
 

@@ -52,6 +52,28 @@ Messages — это рантайм-поток конкретной сессии,
 (замороженная обвязка) — это кэшируемый префикс; генератор контекста добавляет
 живой суффикс за границей.
 
+### Инвариант формата native-профиля
+
+Формат provider-native системного профиля — часть контракта, а не косметика.
+Если мы меняем содержимое native-профиля, мы должны сохранять форму, порядок,
+маркеры и wrapper-структуру того канала, который реально использует провайдер.
+Нельзя добавлять внутрь provider-facing system profile наши служебные заголовки,
+лейблы, пояснения, fenced JSON/code blocks, diagnostic sections или provenance
+текст вроде `Synthetic`, `Captured`, `Materialized`, `prompt-visible reference`
+и т.п. Даже если такие метки полезны человеку, для модели и provider cache это
+новые токены в статичном префиксе, которые меняют byte-level форму профиля.
+
+Практический результат Codex rollback/cache probe 2026-07-06: когда
+`codex-synthetic-native` содержал Harness diagnostic headings и captured-tools
+JSON внутри `baseInstructions`, первый ход после rollback показывал только
+`cached=4,992`, то есть provider распознавал как стабильный префикс в основном
+byte-for-byte native system prompt. После удаления не-native маркеров и
+оставления формы `captured Codex system prompt` + обычный
+`AGENTS.md instructions for ...` wrapper кэш после rollback восстановился как
+ожидалось (`cached=20,864` на anchor snapshot и `cached=24,448` на первом новом
+ходе). Вывод: для cache-friendly synthetic/native профилей нельзя менять
+формат, даже если мы сознательно меняем содержимое.
+
 ## 4. Разбор по провайдерам (из принятых дампов)
 
 ### Claude (system ~11.5k символов / ~2.9k tok, 10 inline-тулов)
@@ -127,7 +149,9 @@ Messages — это рантайм-поток конкретной сессии,
   probe нужен для ручной проверки: если файл `AGENTS.md` удалить из workspace
   после выбора профиля, агент всё равно должен получить эти инструкции из
   frozen `baseInstructions`, а cache telemetry не должна ломаться из-за наших
-  не-native маркеров.
+  не-native маркеров. Любая будущая правка этого профиля должна менять только
+  содержимое внутри native-like оболочки, но не добавлять новые Harness-метки,
+  секции или форматные wrappers.
 - **Kimi** — канал подмены (agent.yaml → `system_prompt_path` + `tools:`) **не
   доказан** (verification 2026-07-02: нет подтверждённой привязки materialized
   agent.yaml к спавненному CLI). Синтетический Kimi native заблокирован, пока

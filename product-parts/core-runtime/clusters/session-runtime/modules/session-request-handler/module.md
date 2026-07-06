@@ -13,8 +13,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Workspace id/path.
 - Session id or provider selection.
 - Raw user message payload.
-- Raw Codex rollback intent (`sessionId`, `numTurns`) from Core RPC/UI; this is
-  accepted only for Codex sessions and only while the session is idle.
+- Raw Codex-family rollback intent (`sessionId`, `numTurns`) from Core RPC/UI;
+  this is accepted only for Codex/CodexUC sessions and only while the session
+  is idle.
 - Optional next-session mode input, currently resolved by Core to the native raw baseline.
 - Turn options from Core-owned settings/model binding.
 - Core-owned provider settings used to derive applied turn options for the native-channel providers: model selection, Claude thinking toggles, and Codex reasoning effort/summary enablement (resolved through the settings-store Codex capability contract). Universal-client endpoints resolve their own settings per turn inside their adapters.
@@ -50,13 +51,16 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Deleting a Core session calls the provider adapter's optional `deleteSessionArtifacts(providerSessionId, workspacePath)` hook after closing the live binding, using the live provider session id or the persisted `providerSessionId` fallback.
 - `stopTurn(sessionId)` matches the reference Stop: it unsubscribes the binding, calls `adapter.closeSession(providerSessionId)` (which interrupts the in-flight turn — Claude `interrupt`, Kimi `cancel`), invalidates the runtime binding, and flips turn-state to idle. The persisted `providerSessionId` stays on the session.
 - Turn dispatch is oneshot + resume: `sendMessage` rebinds when the runtime binding is missing (after a Stop or a Core restart), and `bindProviderSession` resumes by the persisted `providerSessionId` through `adapter.resumeSession` when one exists, otherwise creates a fresh provider session. So a stopped conversation continues from the prior turn on the next message.
-- `rollbackSessionTurns({ sessionId, numTurns })` is Core-owned and Codex-only:
-  it validates the active session, rejects non-Codex/running sessions, resumes
-  the provider binding when needed, calls the adapter's optional
-  `rollbackSessionTurns`, prunes the Core-visible transcript from the Nth last
-  user turn, restores token/cache telemetry to the snapshot immediately before
-  the removed tail, and publishes `session:messages-replaced` plus idle
-  telemetry. The same facade accepts the manual anchor policy
+- `rollbackSessionTurns({ sessionId, numTurns })` is Core-owned and
+  Codex-family-only: it validates the active session, rejects non-Codex-family
+  / running sessions, resumes the provider binding when needed, calls the
+  adapter's optional `rollbackSessionTurns`, prunes the Core-visible transcript
+  from the Nth last user turn, restores token/cache telemetry to the snapshot
+  immediately before the removed tail, and publishes
+  `session:messages-replaced` plus idle telemetry. Native Codex implements this
+  through app-server `thread/rollback`; CodexUC implements it by pruning its
+  local Responses input history because that route uses `store:false` and
+  resends the local input list. The same facade accepts the manual anchor policy
   `preserveFirstUserTurns: 2`; Core derives `numTurns` from the event-stream
   transcript projection so UI buttons, todo-plan orchestration and future
   automation do not duplicate rollback-depth logic. Provider-neutral rollback

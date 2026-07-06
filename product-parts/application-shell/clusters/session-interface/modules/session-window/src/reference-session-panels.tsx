@@ -216,7 +216,7 @@ export function ReferenceStatusPanel({
 }) {
   const { t } = useBrowserLocalization();
   const reasoning = resolveReasoningLabel(session, settings);
-  const showCodexRollbackProbe = session?.providerId === "codex";
+  const showCodexRollbackProbe = isCodexFamilyProvider(session?.providerId);
   const turnCount = showCodexRollbackProbe
     ? messages.filter((message) => message.role === "user").length
     : 0;
@@ -377,8 +377,11 @@ function isThinkingMessage(message: SessionMessage): boolean {
 function resolveProviderTint(
   providerId: string | undefined
 ): "claude" | "codex" | "kimi" | null {
-  if (providerId === "claude" || providerId === "codex") {
+  if (providerId === "claude") {
     return providerId;
+  }
+  if (isCodexFamilyProvider(providerId)) {
+    return "codex";
   }
   // The visible Kimi is the universal-client `kimi-client` endpoint (the ACP
   // `kimi` id left with the kimi-provider retirement, 2026-07-05); its live
@@ -443,7 +446,7 @@ function resolveReasoningLabel(
   if (!(session && settings)) {
     return null;
   }
-  if (session.providerId === "codex" || session.providerId === "codex-uc") {
+  if (isCodexFamilyProvider(session.providerId)) {
     const effort = resolveCodexReasoningEffort(
       session.model,
       settings.providers.codex.reasoningByModel[session.model]
@@ -462,6 +465,8 @@ function resolveReasoningLabel(
   }
   return null;
 }
+const isCodexFamilyProvider = (providerId: string | undefined): boolean =>
+  providerId === "codex" || providerId === "codex-uc";
 function shortenId(id: string): string {
   return `${id.slice(0, 8)}...`;
 }

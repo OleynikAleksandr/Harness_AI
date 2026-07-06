@@ -158,7 +158,17 @@ try {
       body.tools.map((tool) => tool.name),
       ["read_file", "write_file"]
     );
-    return new Response(responseText(fetchCount), { status: 200 });
+    return new Response(responseText(fetchCount), {
+      headers:
+        fetchCount === 3
+          ? {
+              "x-codex-session-used-percent": "9",
+              "x-codex-weekly-limit": "100",
+              "x-codex-weekly-remaining": "39",
+            }
+          : undefined,
+      status: 200,
+    });
   };
 
   try {
@@ -198,12 +208,31 @@ try {
         "turn_started",
         "stream_event",
         "stream_event",
+        "stream_event",
         "dialog_message",
         "stream_event",
         "turn_completed",
       ]
     );
-    assert.equal(events[4].data.tokenUsage.cached, 768);
+    assert.equal(events[3].data.usageLimits.currentSession.percentUsed, 9);
+    assert.equal(
+      events[3].data.usageLimits.currentWeekAllModels.percentUsed,
+      61
+    );
+    assert.equal(events[5].data.tokenUsage.cached, 768);
+
+    const rollback = await adapter.rollbackSessionTurns(
+      outcome.providerSessionId,
+      1
+    );
+    assert.equal(rollback.turns, 1);
+    await adapter.sendMessage(outcome.providerSessionId, "after rollback", {
+      model: "gpt-5.5",
+      reasoningEffort: "low",
+    });
+    assert.deepEqual(globalThis.__codexUcLastBody.input, [
+      { content: "after rollback", role: "user" },
+    ]);
   } finally {
     globalThis.fetch = originalFetch;
     await rm(workspace, { recursive: true, force: true });

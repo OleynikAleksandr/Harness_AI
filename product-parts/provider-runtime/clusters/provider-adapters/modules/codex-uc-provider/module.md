@@ -16,10 +16,12 @@ Core immutable session profile snapshot: managed profiles become the request
 instruction because this route has no app-server native prompt assembly.
 
 Unlike `codex-provider`, this module does not start `codex app-server`, does
-not receive the app-server built-in tool surface, does not support
-`thread/rollback`, and does not use server-side `store:true` response state.
-It keeps its own in-memory Responses input history per Harness session and
-replays that history on each turn with `store:false`.
+not receive the app-server built-in tool surface, does not use app-server
+`thread/rollback`, and does not use server-side `store:true` response state. It
+keeps its own in-memory Responses input history per Harness session and replays
+that history on each turn with `store:false`; its rollback capability prunes
+that local input history from the requested user turn so subsequent requests do
+not resend the removed tail.
 
 ## Public Facade
 
@@ -38,6 +40,10 @@ replays that history on each turn with `store:false`.
 - Function tool execution through the Harness universal-client tool registry.
 - Token/cache telemetry from Responses `usage.input_tokens` and
   `usage.input_tokens_details.cached_tokens`.
+- Best-effort usage-limit telemetry from direct Responses response headers when
+  the backend provides Codex session/weekly limit percentages or
+  limit/remaining pairs; otherwise Core displays the Codex-family limit rows as
+  pending rather than fabricating values.
 - Provider profile application details recording the selected route,
   profile id and experimental `store:false` state model.
 

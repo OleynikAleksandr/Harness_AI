@@ -22,9 +22,19 @@ const codex = usageContextTelemetryFacade.createTelemetry({
 });
 assert.equal(codex.providerScopeKey, "codex:global");
 assert.equal(codex.tokenDisplay.value, "0 (100%)");
-assert.equal(codex.cacheDisplay, null);
+assert.equal(codex.cacheDisplay?.value, "0");
 assert.equal(codex.limitRows[0].text, "Session ...");
 assert.equal(codex.limitRows[1].text, "Weekly ...");
+
+const codexUc = usageContextTelemetryFacade.createTelemetry({
+  model: "gpt-5.4-mini",
+  provider: "CodexUC",
+  providerId: "codex-uc",
+});
+assert.equal(codexUc.providerScopeKey, "codex:global");
+assert.equal(codexUc.cacheDisplay?.value, "0");
+assert.equal(codexUc.limitRows[0].text, "Session ...");
+assert.equal(codexUc.limitRows[1].text, "Weekly ...");
 
 const withTokens = usageContextTelemetryFacade.applyProviderEvent(codex, {
   data: {

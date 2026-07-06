@@ -13,6 +13,7 @@ import type {
   ProviderAdapter,
   ProviderEventListener,
   ProviderProfileApplicationDetails,
+  ProviderRollbackResult,
   ProviderSessionStartOptions,
   ProviderSessionStartOutcome,
   ProviderTurnOptions,
@@ -152,6 +153,22 @@ export class CodexUcProviderFacade implements ProviderAdapter {
     return Promise.resolve();
   }
 
+  rollbackSessionTurns(
+    sessionId: string,
+    numTurns: number
+  ): Promise<ProviderRollbackResult> {
+    if (!Number.isSafeInteger(numTurns) || numTurns <= 0) {
+      throw new Error("codex-uc rollback numTurns must be a positive integer");
+    }
+    const session = this.requireSession(sessionId);
+    session.messages.splice(
+      0,
+      session.messages.length,
+      ...rollbackResponsesInputItems(session.messages, numTurns)
+    );
+    return Promise.resolve({ providerSessionId: sessionId, turns: numTurns });
+  }
+
   deleteSessionArtifacts(providerSessionId: string): void {
     this.sessions.delete(providerSessionId);
   }
@@ -250,6 +267,7 @@ export class CodexUcProviderFacade implements ProviderAdapter {
     if (!response.ok) {
       throw new Error(`CodexUC request failed (${response.status}): ${text}`);
     }
+    this.emitUsageLimits(session, readUsageLimitsFromHeaders(response.headers));
     return parseResponsesStream(text, (delta) =>
       this.emit(session, dialogMessage(delta))
     );
@@ -293,6 +311,26 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       timestamp: nowIso(),
       type: "stream_event",
       uuid: randomUUID(),
+    });
+  }
+
+  private emitUsageLimits(
+    session: CodexUcSessionState,
+    usageLimits: CodexUcUsageLimits | null
+  ): void {
+    if (!usageLimits) {
+      return;
+    }
+    this.emit(session, {
+      data: {
+        kind: "usage_limits",
+        providerScopeKey: "codex",
+        source: "responses_headers",
+        usageLimits,
+      },
+      timestamp: nowIso(),
+      type: "stream_event",
+      uuid: `${randomUUID()}::usage_limits`,
     });
   }
 
@@ -341,6 +379,120 @@ function event(type: "turn_completed" | "turn_failed" | "turn_started") {
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+interface CodexUcUsageLimitBucket {
+  readonly percentUsed: number;
+  readonly resetsAt?: string | null;
+}
+
+interface CodexUcUsageLimits {
+  readonly currentSession?: CodexUcUsageLimitBucket | null;
+  readonly currentWeekAllModels?: CodexUcUsageLimitBucket | null;
+}
+
+function rollbackResponsesInputItems(
+  items: readonly ResponsesInputItem[],
+  numTurns: number
+): ResponsesInputItem[] {
+  let remainingTurns = numTurns;
+  for (let index = items.length - 1; index >= 0; index -= 1) {
+    if (!isUserInputItem(items[index])) {
+      continue;
+    }
+    remainingTurns -= 1;
+    if (remainingTurns === 0) {
+      return items.slice(0, index);
+    }
+  }
+  return [];
+}
+
+function isUserInputItem(item: ResponsesInputItem): item is {
+  readonly content: string;
+  readonly role: "user";
+} {
+  return "role" in item && item.role === "user";
+}
+
+function readUsageLimitsFromHeaders(
+  headers: Headers
+): CodexUcUsageLimits | null {
+  const currentSession = readHeaderBucket(headers, "session");
+  const currentWeekAllModels = readHeaderBucket(headers, "weekly");
+  return currentSession || currentWeekAllModels
+    ? { currentSession, currentWeekAllModels }
+    : null;
+}
+
+function readHeaderBucket(
+  headers: Headers,
+  scope: "session" | "weekly"
+): CodexUcUsageLimitBucket | null {
+  const percentUsed = readHeaderNumber(
+    headers,
+    `x-codex-${scope}-used-percent`,
+    `x-chatgpt-${scope}-used-percent`,
+    `x-oai-${scope}-used-percent`
+  );
+  if (percentUsed !== null) {
+    return {
+      percentUsed: clampPercent(Math.round(percentUsed)),
+      resetsAt: readHeaderValue(
+        headers,
+        `x-codex-${scope}-resets-at`,
+        `x-chatgpt-${scope}-resets-at`,
+        `x-oai-${scope}-resets-at`
+      ),
+    };
+  }
+  const limit = readHeaderNumber(
+    headers,
+    `x-codex-${scope}-limit`,
+    `x-chatgpt-${scope}-limit`,
+    `x-oai-${scope}-limit`
+  );
+  const remaining = readHeaderNumber(
+    headers,
+    `x-codex-${scope}-remaining`,
+    `x-chatgpt-${scope}-remaining`,
+    `x-oai-${scope}-remaining`
+  );
+  if (!(limit !== null && remaining !== null && limit > 0)) {
+    return null;
+  }
+  return {
+    percentUsed: clampPercent(Math.round(((limit - remaining) / limit) * 100)),
+    resetsAt: readHeaderValue(
+      headers,
+      `x-codex-${scope}-reset`,
+      `x-chatgpt-${scope}-reset`,
+      `x-oai-${scope}-reset`
+    ),
+  };
+}
+
+function readHeaderNumber(headers: Headers, ...names: string[]): number | null {
+  const value = readHeaderValue(headers, ...names);
+  if (value === null) {
+    return null;
+  }
+  const numeric = Number.parseFloat(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
+function readHeaderValue(headers: Headers, ...names: string[]): string | null {
+  for (const name of names) {
+    const value = headers.get(name);
+    if (value?.trim()) {
+      return value.trim();
+    }
+  }
+  return null;
+}
+
+function clampPercent(value: number): number {
+  return Math.max(0, Math.min(100, value));
 }
 
 export const codexUcProviderFacade = new CodexUcProviderFacade();

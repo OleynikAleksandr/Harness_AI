@@ -19,17 +19,18 @@ Render the transcript/dialog layout and session chrome.
 - Core-owned localization runtime payload from the Electron preload bridge.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
-- For Codex sessions only, the session status panel renders the display-only
-  visible turn count from the current transcript (`role === "user"`)
-  immediately before the Codex-only Rollback button, between the
+- For Codex-family sessions (`codex` and `codex-uc`), the session status panel
+  renders the display-only visible turn count from the current transcript
+  (`role === "user"`) immediately before the Codex-family Rollback button,
+  between the
   Tokens/optional Cache telemetry and Rollback. Provider-reported
   `cacheDisplay` renders beside the Core-owned token telemetry when available.
-  The Codex-only Rollback button preserves the first two visible Codex user
+  The Codex-family Rollback button preserves the first two visible user
   turns as the warmup/cache-anchor pair by sending Core the
   `preserveFirstUserTurns: 2` policy while the session is idle; Core derives
   `numTurns`, validates provider id/binding/turn count, and restores transcript
-  plus token/cache telemetry to the anchor snapshot. Non-Codex sessions keep
-  the standard token-only status layout.
+  plus token/cache telemetry to the anchor snapshot. Non-Codex-family sessions
+  keep the standard token-only status layout.
 - The session window owns refresh of the browser localization runtime payload
   and passes that refresh callback to Settings, so save/reset can show newly
   materialized localized copy without reopening the app shell.
@@ -98,8 +99,8 @@ Render the transcript/dialog layout and session chrome.
 - Rendered chat session surface.
 - Session-level UI actions sent to Core, including the running-turn Stop that
   calls Core `stopTurn` with the active session id.
-- Enabled Rollback control in the Codex status panel. It dispatches only the
-  raw `{ sessionId, preserveFirstUserTurns: 2 }` intent to Core, keeps
+- Enabled Rollback control in the Codex-family status panel. It dispatches only
+  the raw `{ sessionId, preserveFirstUserTurns: 2 }` intent to Core, keeps
   renderer code out of rollback-depth calculation, shows controlled transcript
   notices for success/failure, and applies Core `session:messages-replaced`
   events to refresh the visible transcript after rollback.

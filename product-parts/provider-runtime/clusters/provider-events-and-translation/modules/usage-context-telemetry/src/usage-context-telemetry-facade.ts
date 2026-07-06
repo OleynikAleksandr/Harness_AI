@@ -75,7 +75,7 @@ const FIVE_HOUR_WINDOW_TOKEN_LIMIT = 262_144;
 export class UsageContextTelemetryFacade {
   createTelemetry(request: CreateTelemetryRequest): ProviderUsageTelemetry {
     const tokenUsage = {
-      cached: null,
+      cached: defaultCachedTokenCount(request.providerId),
       limit: defaultTokenLimit(request.providerId),
       used: 0,
     };
@@ -343,7 +343,7 @@ function fallbackLabels(providerId: string): ProviderUsageLimitLabels {
 }
 
 function pendingLimitState(providerId: string): "loading" | "unavailable" {
-  if (providerId === "claude" || providerId === "codex") {
+  if (providerId === "claude" || isCodexFamilyProvider(providerId)) {
     return "loading";
   }
   return "unavailable";
@@ -353,10 +353,17 @@ function providerScopeKey(providerId: string): string | null {
   // Only the native vendor channels carry a provider-scoped usage limit; the
   // retired glm-native/openrouter/ACP-kimi provider scopes left with the
   // 2026-07-05 cleanups.
-  if (providerId === "claude" || providerId === "codex") {
-    return `${providerId}:global`;
+  if (providerId === "claude") {
+    return "claude:global";
+  }
+  if (isCodexFamilyProvider(providerId)) {
+    return "codex:global";
   }
   return null;
+}
+
+function defaultCachedTokenCount(providerId: string): number | null {
+  return isCodexFamilyProvider(providerId) ? 0 : null;
 }
 
 function defaultTokenLimit(providerId: string): number {
@@ -369,6 +376,10 @@ function hasFiveHourWindow(providerId: string): boolean {
   // The live GLM coding-plan endpoint (`glm-client`) keeps the five-hour
   // window; the ACP `kimi` match left with the kimi-provider retirement.
   return providerId.startsWith("glm-");
+}
+
+function isCodexFamilyProvider(providerId: string): boolean {
+  return providerId === "codex" || providerId === "codex-uc";
 }
 
 function buildResetLabel(value: string): string {

@@ -21,6 +21,7 @@ assert.match(source, /session\.status\.cache/u);
 assert.match(source, /turnCount > 2/u);
 assert.match(source, /onRollbackTurns\?\.\(\)/u);
 assert.match(source, /telemetry\.status === "idle"/u);
+assert.match(source, /isCodexFamilyProvider\(session\?\.providerId\)/u);
 assert.match(facadeSource, /rollbackSessionTurns\(\{/u);
 assert.match(facadeSource, /preserveFirstUserTurns: 2/u);
 assert.match(facadeSource, /first 2-turn anchor/u);

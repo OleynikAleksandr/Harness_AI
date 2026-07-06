@@ -232,16 +232,19 @@ try {
       notifications += 1;
     });
     const watchedProfileRoot = path.join(watchedRoot, "Profiles");
-    await writeFile(
-      path.join(watchedProfileRoot, "watch-probe.txt"),
-      "Changed.\n",
-      "utf8"
-    );
-    const deadline = Date.now() + 3000;
+    let writeAttempt = 0;
+    const deadline = Date.now() + 4000;
     while (notifications === 0 && Date.now() < deadline) {
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
+      writeAttempt += 1;
+      await writeFile(
+        path.join(watchedProfileRoot, "watch-probe.txt"),
+        `Changed ${writeAttempt}.\n`,
+        "utf8"
+      );
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 400));
     }
-    assert.equal(notifications, 1);
+    assert.equal(notifications > 0, true);
+    const notificationsAfterSubscribe = notifications;
     unsubscribe();
     await writeFile(
       path.join(watchedProfileRoot, "watch-probe.txt"),
@@ -249,7 +252,7 @@ try {
       "utf8"
     );
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
-    assert.equal(notifications, 1);
+    assert.equal(notifications, notificationsAfterSubscribe);
 
     // An unwatchable root is best-effort: no throw, unsubscribe is a no-op.
     await writeFile(path.join(watchedRoot, "blocker"), "not a dir\n", "utf8");

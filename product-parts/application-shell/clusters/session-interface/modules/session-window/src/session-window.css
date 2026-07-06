@@ -1394,7 +1394,7 @@ strong {
 
 .session-status {
   display: grid;
-  grid-template-columns: auto auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto auto auto minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   min-height: 56px;
@@ -1426,16 +1426,39 @@ strong {
   color: #c2cac6;
 }
 
+.session-status-button--rollback {
+  grid-column: 6;
+  justify-content: center;
+}
+
+.session-status-button--rollback:disabled {
+  color: #9ca3a7;
+  cursor: not-allowed;
+  background: #292a2b;
+  border-color: #42494d;
+  opacity: 0.72;
+}
+
 .session-status-chip--label {
   color: #8d9295;
 }
 
+.session-status-chip--turns {
+  grid-column: 4;
+}
+
+.session-status-chip--limits {
+  grid-column: 5;
+}
+
+.session-status-chip--turns,
 .session-status-chip--limits {
   justify-content: flex-start;
   min-width: 0;
   color: #9ca3a7;
 }
 
+.session-status-chip--turns strong,
 .session-status-chip--limits strong {
   margin-left: 10px;
   overflow: hidden;
@@ -1463,6 +1486,12 @@ strong {
   .session-status,
   .session-input__row {
     grid-template-columns: 1fr;
+  }
+
+  .session-status-chip--turns,
+  .session-status-chip--limits,
+  .session-status-button--rollback {
+    grid-column: auto;
   }
 
   .session-dialog__scroll {

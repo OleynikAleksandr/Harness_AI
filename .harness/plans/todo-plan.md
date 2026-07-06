@@ -590,3 +590,19 @@
 184. [DONE] Git Commit: `fix(session-profiles): remove retired provider profile bindings` (hash: self)
 185. [DONE] `harness-ai.phase5.stream1.task2` Package the app after the retired-provider profile binding cleanup per the user's direct order 2026-07-05 ("Собери новое приложение"): run `npm run build`, then `npm run package:mac`, verify `release/mac-arm64/Harness AI.app` exists, and record package evidence (scope: `docs/evidence/session-profiles-retired-bindings-package-2026-07-05.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app after session profile cleanup`). Result: Completed in commit `chore(package): rebuild packaged app after session profile cleanup`.
 186. [DONE] Git Commit: `chore(package): rebuild packaged app after session profile cleanup` (hash: self)
+
+## Phase 6 - Codex Cache Anchor Rollback Probe (owner: Codex + User, materialized: 2026-07-06)
+
+> Scope contract: carry the manual Codex app-server cache-anchor/rollback
+> experiment into tracked architecture documentation and add only the minimal
+> visible session UI needed for the next manual validation round. This phase
+> does NOT automate provider rollback yet. The UI shows a turn-count probe
+> next to the token counter and a right-edge Rollback button as a visible
+> manual-test control; Core/provider RPC wiring and real rollback dispatch are
+> deferred until the provider-by-provider validation proves the interaction
+> shape.
+
+### Stream: Documentation And Manual UI Probe
+
+187. [DONE] `harness-ai.phase6.stream1.task1` Move `codex_cache_anchor_thread.md` into `docs/architecture/`, extend it with the 2026-07-06 app-server experiment results and next-stage manual provider-validation checklist, then add the minimal Session status-panel probe UI: a `Turns` counter immediately before `Tokens` and a right-edge `Rollback` button without provider automation (scope: `docs/architecture/CodexCacheAnchorThread.md`, `docs/DOCUMENTATION_INDEX.md`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css`, `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts`, `product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md`; expected commit: `feat(session-ui): add codex rollback probe controls`). Result: Completed in commit `feat(session-ui): add codex rollback probe controls`.
+188. [DONE] Git Commit: `feat(session-ui): add codex rollback probe controls` (hash: self)

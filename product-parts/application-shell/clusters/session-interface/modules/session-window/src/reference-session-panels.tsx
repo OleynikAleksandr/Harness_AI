@@ -204,16 +204,24 @@ export function ReferenceInputPanel({
 }
 
 export function ReferenceStatusPanel({
+  messages,
   session,
   settings,
   telemetry,
 }: {
+  messages: readonly SessionMessage[];
   session: CoreSession | undefined;
   settings: HarnessSettings | null;
   telemetry: SessionTelemetry;
 }) {
   const { t } = useBrowserLocalization();
   const reasoning = resolveReasoningLabel(session, settings);
+  const turnCount = resolveVisibleTurnCount(messages);
+  const rollbackProbeLabel = t(
+    "ui_labels",
+    "session.status.rollbackProbe",
+    "Rollback turns (manual probe)"
+  );
   return (
     <section className="session-status session-panel">
       <span className="session-status-chip session-status-chip--label">
@@ -225,14 +233,31 @@ export function ReferenceStatusPanel({
           {reasoning}
         </span>
       ) : null}
+      <span className="session-status-chip session-status-chip--turns">
+        <span>{t("ui_labels", "session.status.turns", "Turns:")}</span>
+        <strong>{turnCount}</strong>
+      </span>
       <span className="session-status-chip session-status-chip--limits">
         <span>{t("ui_labels", "session.status.tokens", "Tokens:")}</span>
         <strong title={telemetry.tokenDisplay.title}>
           {telemetry.tokenDisplay.value}
         </strong>
       </span>
+      <button
+        aria-label={rollbackProbeLabel}
+        className="session-status-button session-status-button--rollback"
+        disabled
+        title={rollbackProbeLabel}
+        type="button"
+      >
+        {t("ui_labels", "session.status.rollback", "Rollback")}
+      </button>
     </section>
   );
+}
+
+function resolveVisibleTurnCount(messages: readonly SessionMessage[]): number {
+  return messages.filter((message) => message.role === "user").length;
 }
 
 function LimitRow({ row }: { row: SessionTelemetry["limitRows"][number] }) {

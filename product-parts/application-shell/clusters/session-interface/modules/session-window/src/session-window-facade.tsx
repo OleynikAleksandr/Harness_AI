@@ -365,6 +365,7 @@ export function SessionWindowFacade() {
               session={activeSession}
             />
             <ReferenceStatusPanel
+              messages={messages}
               session={activeSession}
               settings={settingsSnapshot}
               telemetry={telemetry}

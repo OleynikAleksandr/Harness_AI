@@ -76,6 +76,11 @@ relevant to the active task.
   Harness workflow profiles, tool bundles, provider ceilings, and the
   benchmark model for calibrating Claude/Codex before applying the same
   matrix to universal-client providers.
+- `docs/architecture/CodexCacheAnchorThread.md` — Codex app-server
+  cache-anchor and `thread/rollback` research (Russian): the 2026-07-06
+  rollback metrics, why `last_token_usage` and `thread/read includeTurns=true`
+  are the reliable inspection points, and the manual provider-validation
+  checklist for the Harness session rollback probe before any automation.
 - `docs/architecture/UniversalClient.md` — in-house universal client for
   OpenAI-shape providers (Russian, Phase 1 research of the
   universal-client-2026-07-04 scope): the capability set (agent loop, tool

@@ -13,6 +13,8 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Workspace id/path.
 - Session id or provider selection.
 - Raw user message payload.
+- Raw Codex rollback intent (`sessionId`, `numTurns`) from Core RPC/UI; this is
+  accepted only for Codex sessions and only while the session is idle.
 - Optional next-session mode input, currently resolved by Core to the native raw baseline.
 - Turn options from Core-owned settings/model binding.
 - Core-owned provider settings used to derive applied turn options for the native-channel providers: model selection, Claude thinking toggles, and Codex reasoning effort/summary enablement (resolved through the settings-store Codex capability contract). Universal-client endpoints resolve their own settings per turn inside their adapters.
@@ -48,6 +50,12 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Deleting a Core session calls the provider adapter's optional `deleteSessionArtifacts(providerSessionId, workspacePath)` hook after closing the live binding, using the live provider session id or the persisted `providerSessionId` fallback.
 - `stopTurn(sessionId)` matches the reference Stop: it unsubscribes the binding, calls `adapter.closeSession(providerSessionId)` (which interrupts the in-flight turn — Claude `interrupt`, Kimi `cancel`), invalidates the runtime binding, and flips turn-state to idle. The persisted `providerSessionId` stays on the session.
 - Turn dispatch is oneshot + resume: `sendMessage` rebinds when the runtime binding is missing (after a Stop or a Core restart), and `bindProviderSession` resumes by the persisted `providerSessionId` through `adapter.resumeSession` when one exists, otherwise creates a fresh provider session. So a stopped conversation continues from the prior turn on the next message.
+- `rollbackSessionTurns({ sessionId, numTurns })` is Core-owned and Codex-only:
+  it validates the active session, rejects non-Codex/running sessions, resumes
+  the provider binding when needed, calls the adapter's optional
+  `rollbackSessionTurns`, prunes the Core-visible transcript from the Nth last
+  user turn, and publishes `session:messages-replaced` plus idle telemetry.
+  Provider-neutral rollback remains out of scope.
 
 - Provider event routing lives in `session-provider-event-router.ts`
   (`routeProviderEvent` + `ProviderEventRouterContext`): telemetry
@@ -67,6 +75,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   adapter input from the snapshot and never rereads `~/.harness-ai/Profiles/**`;
   sessions persisted before this feature have no snapshot and keep legacy
   no-payload behavior.
+- Session restore helpers live in `session-history-restore.ts`; Codex rollback
+  validation/pruning lives in `session-rollback.ts` so the facade stays under
+  the 500-line module limit while keeping Core as the workflow authority.
 
 - Managed profile resolution is active at create: `next-session-mode.ts`
   resolves a managed selection only with a concrete profile id (requestMode

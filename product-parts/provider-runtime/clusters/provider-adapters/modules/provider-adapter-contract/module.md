@@ -35,6 +35,10 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
   modules rather than shared wrapper parsers.
 - Usage-limit refresh boundary only; provider-specific usage-limit readers live
   inside their provider modules.
+- Optional `rollbackSessionTurns(providerSessionId, numTurns)` boundary for
+  provider-owned history pruning. The current implementation target is Codex
+  app-server `thread/rollback`; providers without a verified rollback contract
+  leave it unimplemented and Core rejects rollback for them.
 - Optional `deleteSessionArtifacts(providerSessionId, workspacePath)` boundary so a
   removed session can clean up provider-owned per-session files; providers without
   such files leave it unimplemented.

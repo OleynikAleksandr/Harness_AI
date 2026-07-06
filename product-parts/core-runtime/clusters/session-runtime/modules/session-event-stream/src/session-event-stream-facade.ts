@@ -45,6 +45,11 @@ export type SessionCoreEvent =
       type: "session:message";
     }
   | {
+      payload: { messages: CoreSessionMessage[]; sessionId: string };
+      timestamp: string;
+      type: "session:messages-replaced";
+    }
+  | {
       payload: CoreSessionMessageTranslationPatch;
       timestamp: string;
       type: "session:message_translation";

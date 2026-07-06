@@ -18,6 +18,9 @@ Expose provider-neutral Core session events to Application Shell projections. Pr
 
 - Renderer-safe session event payloads.
 - Core read-model messages with provider `tag` markers preserved.
+- `session:messages-replaced` events that replace the renderer transcript for a
+  Core-owned rollback/prune operation while preserving the append-only event log
+  as audit history.
 - Core message translation metadata: `translationState`, `localizedContent`,
   and `session:message_translation` patch events.
 - Consecutive assistant messages tagged `live` coalesced for session replay/readback.

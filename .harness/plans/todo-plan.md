@@ -8,8 +8,8 @@
   "planId": "codex-rollback-2026-07-06",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream3.task1",
-  "expectedCommitMessage": "feat(session-runtime): add codex rollback intent",
+  "currentTaskId": "harness-ai.phase6.stream4.task1",
+  "expectedCommitMessage": "feat(core-runtime): expose codex rollback rpc",
   "debt": null
 }
 ```
@@ -79,12 +79,12 @@
 
 ### Stream: Core Session Rollback Intent
 
-5. [IN_PROGRESS] `harness-ai.phase6.stream3.task1` Add a Core-owned session rollback intent for Codex sessions only: validate `sessionId`, provider id and `numTurns`, reject non-Codex sessions, call the provider rollback capability, and refresh session snapshot/telemetry without renderer-side provider truth; include focused tests for Codex accepted and non-Codex rejected paths (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md`; expected commit: `feat(session-runtime): add codex rollback intent`).
-6. [TODO] Git Commit: `feat(session-runtime): add codex rollback intent` (hash: TBD)
+5. [DONE] `harness-ai.phase6.stream3.task1` Add a Core-owned session rollback intent for Codex sessions only: validate `sessionId`, provider id and `numTurns`, reject non-Codex sessions, call the provider rollback capability, and refresh session snapshot/telemetry without renderer-side provider truth; include focused tests for Codex accepted and non-Codex rejected paths. Scope clarification: the live read model is the session event stream, not `session-snapshot-projector`, so rollback publishes `session:messages-replaced`; the optional adapter rollback method joins the shared provider-adapter contract for type-safe Core dispatch (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-rollback.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-restore.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs`, `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts`, affected `module.md`s, `.harness/plans/todo-plan.md`; expected commit: `feat(session-runtime): add codex rollback intent`). Result: Completed in commit `feat(session-runtime): add codex rollback intent`.
+6. [DONE] Git Commit: `feat(session-runtime): add codex rollback intent` (hash: self)
 
 ### Stream: Core RPC Bridge
 
-7. [TODO] `harness-ai.phase6.stream4.task1` Expose the Core Codex rollback intent through the Electron/Core RPC boundary as a raw user intent (`sessionId`, `numTurns`), preserving Core as authority. Atomic bridge exception: the channel must compile across runtime API, bridge, preload and renderer typing in one commit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts` + affected module docs; expected commit: `feat(core-runtime): expose codex rollback rpc`).
+7. [IN_PROGRESS] `harness-ai.phase6.stream4.task1` Expose the Core Codex rollback intent through the Electron/Core RPC boundary as a raw user intent (`sessionId`, `numTurns`), preserving Core as authority. Atomic bridge exception: the channel must compile across runtime API, bridge, preload and renderer typing in one commit (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts`, `product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs`, `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts` + affected module docs; expected commit: `feat(core-runtime): expose codex rollback rpc`).
 8. [TODO] Git Commit: `feat(core-runtime): expose codex rollback rpc` (hash: TBD)
 
 ### Stream: Codex Session UI Enablement

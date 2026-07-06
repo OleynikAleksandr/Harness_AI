@@ -14,9 +14,10 @@ import {
 import { resolveNextSessionMode } from "./next-session-mode.js";
 import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import {
-  readWorkspaceSessionIndex,
+  restoreSessionHistory as restoreHistory,
+  restoreTelemetryHistory as restoreTelemetry,
   writeWorkspaceSessionIndex,
-} from "./session-history-store.js";
+} from "./session-history-restore.js";
 import { resolveDisplayMessage } from "./session-live-tail-dedupe.js";
 import {
   buildSessionProfilePayload,
@@ -43,10 +44,12 @@ import type {
   ProviderRegistryLike,
   ProviderRuntimeBinding,
   ProviderSessionBindingFacadeLike,
+  RollbackCoreSessionRequest,
   SendCoreMessageRequest,
   SessionEventStreamLike,
   SessionRequestHandlerDependencies,
 } from "./session-request-handler-types.js";
+import { SessionRollback } from "./session-rollback.js";
 import { SessionTurnStop } from "./session-turn-stop.js";
 
 export type { CoreSession } from "./session-request-handler-types.js";
@@ -68,6 +71,21 @@ export class SessionRequestHandlerFacade {
     getBinding: (sessionId) => this.runtimeBindings.get(sessionId),
     getSession: (sessionId) => this.sessions.get(sessionId),
     publishIdle: (sessionId) => this.publishTurnState(sessionId, "idle"),
+  });
+  private readonly rollback = new SessionRollback({
+    bindProviderSession: (session) => this.bindProviderSession(session),
+    getMessages: (sessionId) => this.messagesBySession.get(sessionId) ?? [],
+    getRuntimeBinding: (sessionId) => this.runtimeBindings.get(sessionId),
+    getSession: (sessionId) => this.sessions.get(sessionId),
+    getTelemetryStatus: (sessionId) =>
+      this.telemetryBySession.get(sessionId)?.status,
+    publishError: (sessionId, error) => this.publishError(sessionId, error),
+    publishEvent: (event) => this.eventStream.publish(event),
+    publishTurnState: (sessionId, state) =>
+      this.publishTurnState(sessionId, state),
+    setMessages: (sessionId, messages) =>
+      this.messagesBySession.set(sessionId, messages),
+    stringifyError,
   });
   private readonly profileResolver: SessionProfileResolverLike;
   constructor(deps: SessionRequestHandlerDependencies = {}) {
@@ -131,7 +149,6 @@ export class SessionRequestHandlerFacade {
     });
     return { ok: true, session };
   }
-
   sendMessage(request: SendCoreMessageRequest): CoreSessionActionResult {
     const session = this.sessions.get(request.sessionId);
     if (!session) {
@@ -141,7 +158,6 @@ export class SessionRequestHandlerFacade {
     if (!text) {
       return { error: "Message is empty", ok: false };
     }
-
     const now = new Date().toISOString();
     const updatedSession = { ...session, updatedAt: now };
     this.sessions.set(session.id, updatedSession);
@@ -164,6 +180,11 @@ export class SessionRequestHandlerFacade {
   }
   stopTurn(sessionId: string): CoreSessionActionResult {
     return this.turnStop.stop(sessionId);
+  }
+  rollbackSessionTurns(
+    request: RollbackCoreSessionRequest
+  ): Promise<CoreSessionActionResult> {
+    return this.rollback.rollback(request);
   }
   deleteSession(sessionId: string): DeleteSessionResult {
     const session = this.sessions.get(sessionId);
@@ -195,35 +216,23 @@ export class SessionRequestHandlerFacade {
     return filtered.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   restoreSessionHistory(workspaces: { path: string }[]): CoreSession[] {
-    const restoredSessions = workspaces.flatMap((workspace) =>
-      readWorkspaceSessionIndex(workspace.path)
-    );
-    for (const session of restoredSessions) {
-      this.sessions.set(session.id, session);
-      this.messagesBySession.set(
-        session.id,
-        this.readRememberedMessages(session.id)
-      );
-      this.telemetryBySession.set(
-        session.id,
-        usageContextTelemetryFacade.createTelemetry({
-          model: session.model,
-          provider: session.providerName,
-          providerId: session.providerId,
-          status: "idle",
-        })
-      );
-    }
+    restoreHistory({
+      eventStream: this.eventStream,
+      messagesBySession: this.messagesBySession,
+      sessions: this.sessions,
+      telemetryBySession: this.telemetryBySession,
+      workspaces,
+    });
     return this.listSessions();
   }
   restoreTelemetryHistory(
     telemetryBySession: ReadonlyMap<string, ProviderUsageTelemetry>
   ): void {
-    for (const [sessionId, telemetry] of telemetryBySession) {
-      if (this.sessions.has(sessionId)) {
-        this.telemetryBySession.set(sessionId, telemetry);
-      }
-    }
+    restoreTelemetry({
+      sessions: this.sessions,
+      telemetryBySession: this.telemetryBySession,
+      telemetryHistory: telemetryBySession,
+    });
   }
   resumeRestoredSessions(): void {
     for (const session of this.sessions.values()) {
@@ -253,15 +262,6 @@ export class SessionRequestHandlerFacade {
     const messages = this.messagesBySession.get(message.sessionId) ?? [];
     messages.push(message);
     this.messagesBySession.set(message.sessionId, messages);
-  }
-
-  private readRememberedMessages(sessionId: string): CoreSessionMessage[] {
-    return (
-      this.eventStream
-        .listEvents?.(sessionId)
-        .filter((event) => event.type === "session:message")
-        .map((event) => event.payload) ?? []
-    );
   }
 
   private publishBinding(binding: ProviderSessionBinding): void {

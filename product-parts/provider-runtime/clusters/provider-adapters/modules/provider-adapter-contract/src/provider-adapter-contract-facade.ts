@@ -64,6 +64,11 @@ export interface ProviderUsageLimitsRefreshRequest {
   workspacePath: string;
 }
 
+export interface ProviderRollbackResult {
+  providerSessionId: string;
+  turns: number;
+}
+
 // Provider-tagged applied-input-envelope recorded during native request
 // capture. Only `kind` is typed at this boundary; each adapter passes its own
 // concrete envelope (extra fields serialized as-is by the capture writer).
@@ -124,6 +129,10 @@ export interface ProviderAdapter {
     workspacePath?: string,
     options?: ProviderSessionStartOptions
   ): Promise<ProviderSessionStartOutcome>;
+  rollbackSessionTurns?(
+    sessionId: string,
+    numTurns: number
+  ): Promise<ProviderRollbackResult>;
   sendMessage(
     sessionId: string,
     content: string,

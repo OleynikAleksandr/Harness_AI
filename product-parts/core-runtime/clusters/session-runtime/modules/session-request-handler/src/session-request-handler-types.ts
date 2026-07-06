@@ -56,6 +56,11 @@ export interface SendCoreMessageRequest {
   text: string;
 }
 
+export interface RollbackCoreSessionRequest {
+  numTurns: number;
+  sessionId: string;
+}
+
 export type CoreSessionActionResult =
   | { ok: true; session: CoreSession }
   | { error: string; ok: false };

@@ -9,6 +9,10 @@ const routerSource = readFileSync(
   new URL("./session-provider-event-router.ts", import.meta.url),
   "utf8"
 );
+const rollbackSource = readFileSync(
+  new URL("./session-rollback.ts", import.meta.url),
+  "utf8"
+);
 
 // The facade delegates provider event routing to the dedicated router file.
 assert.match(source, /from "\.\/session-provider-event-router\.js"/u);
@@ -19,6 +23,8 @@ assert.match(
 assert.match(source, /from "\.\/session-live-tail-dedupe\.js"/u);
 assert.match(source, /buildProviderTurnOptions\(session\)/u);
 assert.match(source, /async refreshUsageLimits\(sessionId: string\)/u);
+assert.match(source, /rollbackSessionTurns\(/u);
+assert.match(source, /new SessionRollback/u);
 assert.match(source, /ReasoningTranslationOverlayFacade/u);
 assert.match(source, /type: "session:message_translation"/u);
 assert.match(source, /usageContextTelemetryFacade\.applyProviderEvent\(/u);
@@ -46,6 +52,7 @@ const typesSource = readFileSync(
   "utf8"
 );
 assert.match(typesSource, /export interface AppliedProfileSnapshot/u);
+assert.match(typesSource, /export interface RollbackCoreSessionRequest/u);
 assert.match(typesSource, /appliedProfile\?: AppliedProfileSnapshot/u);
 
 const historySource = readFileSync(
@@ -70,6 +77,18 @@ const utilsSource = readFileSync(
   "utf8"
 );
 assert.match(utilsSource, /deleteSessionArtifacts\?\.\(/u);
+
+const adapterContractSource = readFileSync(
+  new URL(
+    "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts",
+    import.meta.url
+  ),
+  "utf8"
+);
+assert.match(adapterContractSource, /rollbackSessionTurns\?\(/u);
+assert.match(rollbackSource, /session\.providerId !== "codex"/u);
+assert.match(rollbackSource, /Cannot rollback while a turn is running/u);
+assert.match(rollbackSource, /type: "session:messages-replaced"/u);
 
 // Managed resolution activates at create through the profile resolver and
 // the adapter receives the snapshot-built payload.

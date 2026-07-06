@@ -113,7 +113,15 @@ Messages — это рантайм-поток конкретной сессии,
 - **Codex** — промпт управляем полностью (`baseInstructions`), тулинг — нет: 17
   инструментов зашиты в app-server и включаются process-флагами, per-thread
   «выключить тул» недоступно. Список тулов фиксируем в профиле как эталон, но не
-  урезаем в кастомных профилях.
+  урезаем в кастомных профилях. Практический probe 2026-07-06:
+  `codex-synthetic-native` — individual Codex profile, собранный из принятого
+  native request capture
+  `2026-07-05T05-12-51-502Z-codex-gpt-5.5-native-request.jsonl`. В его
+  `system-prompt.md` лежат captured Codex instructions, captured tool
+  declarations как prompt-visible reference text, и полный материализованный
+  `AGENTS.md` workspace. Он нужен для ручной проверки: если файл `AGENTS.md`
+  удалить из workspace после выбора профиля, агент всё равно должен получить
+  эти инструкции из frozen `baseInstructions`.
 - **Kimi** — канал подмены (agent.yaml → `system_prompt_path` + `tools:`) **не
   доказан** (verification 2026-07-02: нет подтверждённой привязки materialized
   agent.yaml к спавненному CLI). Синтетический Kimi native заблокирован, пока

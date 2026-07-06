@@ -72,14 +72,13 @@ synthetic-native. Номера строк актуальны на дату ис�
   назначение (`codex-app-server-process-profile.ts`: дефолт
   `["app-server"]`; workflow добавляет `--disable multi_agent --disable
   computer_use ...`). Основной путь сессии (`codex-app-server-facade.ts`,
-  строка 161, `thread/start`) шлёт только `{cwd, approvalPolicy, sandbox,
-  model, persistExtendedHistory}` — поле `baseInstructions` НЕ заполняется,
-  хотя протокол его принимает, а диагностический/переводческий путь уже его
-  шлёт (`codex-native-request-capture-service.ts`, строки 212-237, с
-  `codex-workflow-instruction-profile.ts` /
-  `codex-translation-prompt-profile.ts`). Выбора инструментов per-thread в
-  протоколе нет: доступность инструментов фиксируется флагами `--disable`
-  при запуске процесса.
+  `thread/start`) для raw Native шлёт только `{cwd, approvalPolicy, sandbox,
+  model, persistExtendedHistory}` — поле `baseInstructions` НЕ заполняется.
+  Когда выбран managed/synthetic profile, тот же путь добавляет frozen prompt
+  payload в `baseInstructions`; так работает `codex-synthetic-native`, собранный
+  из принятого native capture + материализованного `AGENTS.md`. Выбора
+  инструментов per-thread в протоколе нет: доступность инструментов фиксируется
+  флагами `--disable` при запуске процесса.
 - **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
   прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
   универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;
@@ -642,6 +641,11 @@ Seed-профили — стандартный стартовый набор, к
    `codeai-workflow-glm-native` больше не сидируются, потому что их provider
    ids (`kimi`, `glm-native`) удалены; Kimi/GLM client-four profiles
    переопределяются в Phase 5 synthetic-native через новые live ids.
+6. `codex-synthetic-native` (индивидуальный) — ручной Codex probe из принятого
+   native request capture 2026-07-05: captured Codex system prompt, captured
+   tool declarations как текст профиля, и полный материализованный workspace
+   `AGENTS.md`. Выбирается как обычный Codex profile и применяется через
+   `baseInstructions`; реальный Codex tool registry остаётся app-server-native.
 
 Плюс виртуальная запись `native` (не на диске).
 

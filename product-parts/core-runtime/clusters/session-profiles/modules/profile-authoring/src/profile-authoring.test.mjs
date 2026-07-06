@@ -35,6 +35,7 @@ try {
     "profile-document-parser.ts",
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
+    "seed/codex-synthetic-native-seed-prompt.ts",
     "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
   ];

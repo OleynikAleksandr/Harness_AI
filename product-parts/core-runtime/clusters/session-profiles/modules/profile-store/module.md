@@ -15,14 +15,16 @@ of every profile directory (`profile-document-parser.ts`, backed by the
 `yaml` package), returns valid profiles separately from human-readable
 validation failures, and seeds the standard profile set on first access
 (`src/seed/**`): four universal drafts (`plan-document`,
-`todo-plan-deterministic`, `review`, `architecture-spec`) plus the active
-Claude individual migration profile (`codeai-workflow-claude` from the
-hardcoded Claude workflow prompt). Retired Kimi ACP and GLM Native provider
-ids are no longer seeded as selectable profiles; their historical prompt
-material belongs to the Phase 5 synthetic-native design records, not active
-profile-store runtime code. Seeding runs only when the root contains no
-profile directories at all; user files are never overwritten and deleting a
-single seeded profile does not resurrect it.
+`todo-plan-deterministic`, `review`, `architecture-spec`), the active Claude
+individual migration profile (`codeai-workflow-claude` from the hardcoded
+Claude workflow prompt), and the Codex `codex-synthetic-native` probe profile
+materialized from the accepted native request capture plus the workspace
+`AGENTS.md` text. Retired Kimi ACP and GLM Native provider ids are no longer
+seeded as selectable profiles; their historical prompt material belongs to the
+Phase 5 synthetic-native design records, not active profile-store runtime code.
+Seeding runs only when the root contains no profile directories at all; user
+files are never overwritten and deleting a single seeded profile does not
+resurrect it.
 
 ## Public Facade
 

@@ -42,6 +42,7 @@ try {
     "profile-document-parser.ts",
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
+    "seed/codex-synthetic-native-seed-prompt.ts",
     "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
   ]) {
@@ -162,6 +163,7 @@ try {
       [
         "architecture-spec",
         "codeai-workflow-claude",
+        "codex-synthetic-native",
         "plan-document",
         "review",
         "todo-plan-deterministic",
@@ -172,6 +174,16 @@ try {
     );
     assert.equal(claudeSeed.scope, "individual");
     assert.equal(claudeSeed.passport.provider, "claude");
+    const codexSeed = seededScan.profiles.find(
+      (profile) => profile.id === "codex-synthetic-native"
+    );
+    assert.equal(codexSeed.scope, "individual");
+    assert.equal(codexSeed.passport.provider, "codex");
+    assert.match(codexSeed.promptBody, /## Materialized Workspace AGENTS\.md/u);
+    assert.match(
+      codexSeed.promptBody,
+      /## Captured Codex Native Tool Declarations/u
+    );
     const reviewSeed = seededScan.profiles.find(
       (profile) => profile.id === "review"
     );

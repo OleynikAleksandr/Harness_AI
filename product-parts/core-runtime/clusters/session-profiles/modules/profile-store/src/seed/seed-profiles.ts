@@ -1,5 +1,6 @@
 import type { SessionProfileToolingCategory } from "../profile-document-parser.js";
 import { CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT } from "./codeai-workflow-seed-prompts.js";
+import { CODEX_SYNTHETIC_NATIVE_SEED_PROMPT } from "./codex-synthetic-native-seed-prompt.js";
 import {
   ARCHITECTURE_SPEC_SEED_PROMPT,
   PLAN_DOCUMENT_SEED_PROMPT,
@@ -98,6 +99,22 @@ const SEED_DEFINITIONS: readonly SeedDefinition[] = [
     name: "CodeAI Workflow (Claude)",
     promptBody: CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT,
     provider: "claude",
+  },
+  {
+    categories: {
+      "file-read": true,
+      "file-write": true,
+      git: true,
+      shell: true,
+      tests: true,
+      web: true,
+    },
+    description:
+      "Synthetic Codex native wrapper from the accepted native capture plus materialized workspace AGENTS.md.",
+    id: "codex-synthetic-native",
+    name: "Codex Synthetic Native",
+    promptBody: CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
+    provider: "codex",
   },
 ];
 

@@ -32,7 +32,10 @@ fallback".
   (outside `PROFILE_SUPPORTED_PROVIDER_IDS`: claude, codex) receive only
   Native. Universal-client providers remain Native-only until Phase 5 wires
   their synthetic-native wrapper/profile application layer; retired ids such
-  as `kimi` and `glm-native` are not supported targets.
+  as `kimi` and `glm-native` are not supported targets. The bundled
+  `codex-synthetic-native` profile is an individual Codex entry when present in
+  the profile store; selecting it resolves through the same managed payload
+  path as other user-editable profiles.
 - `resolveForSession({ profileId?, providerId })` —
   `{ ok: true, kind: "native" }` for no/native selection;
   `{ ok: true, kind: "managed", profile }` for an applicable valid profile;

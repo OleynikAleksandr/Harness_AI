@@ -21,7 +21,10 @@ provider-home preparation uses the active workspace environment rather than
 global process state.
 Normal Harness sessions start Codex through the native/default app-server
 profile so Codex keeps its own system instructions, native tooling, and
-workspace `AGENTS.md` project-instruction discovery from `cwd`.
+workspace `AGENTS.md` project-instruction discovery from `cwd`. When a Codex
+managed/synthetic profile is selected, the adapter sends that frozen profile
+prompt as `baseInstructions`; the app-server native tool layer still comes from
+the shared process.
 
 ## Public Facade
 
@@ -47,7 +50,8 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
 - Provider-home `config.toml` materialized by the reference provider-home
   process code under Harness runtime paths.
 - Native Codex `thread/start` without workflow `baseInstructions` or
-  `project_doc_max_bytes: 0` override for ordinary workspace sessions.
+  `project_doc_max_bytes: 0` override for ordinary workspace sessions; selected
+  managed/synthetic profiles pass their prompt payload as `baseInstructions`.
 - `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the Codex
   rollout log(s) for a removed session from the workspace provider home, leaving
   the shared provider home otherwise intact.
@@ -59,10 +63,10 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
   remaining provider-visible turn count for Core telemetry refresh.
 
 - Session profile application layer (`codex-profile-application.ts`):
-  managed sessions send the frozen snapshot prompt as `baseInstructions` on
-  `thread/start`/`thread/resume` (full replacement of the built-in
-  instructions); native omits it so the vendor CLI runs untouched; legacy
-  sessions pass no options at all. Tooling categories are an MVP no-op:
+  managed and synthetic-native sessions send the frozen snapshot prompt as
+  `baseInstructions` on `thread/start`/`thread/resume` (full replacement of the
+  built-in instructions); raw Native omits it so the vendor CLI runs untouched;
+  legacy sessions pass no options at all. Tooling categories are an MVP no-op:
   tool availability is fixed by the shared app-server process `--disable`
   flags, and restarting that shared process per profile would invalidate
   other sessions' thread bindings — the effective process profile key is

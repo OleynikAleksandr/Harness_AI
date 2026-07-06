@@ -35,6 +35,7 @@ try {
     "profile-document-parser.ts",
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
+    "seed/codex-synthetic-native-seed-prompt.ts",
     "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
   ];
@@ -100,6 +101,7 @@ try {
   const codexEntries = await catalog.listProfilesForProvider("codex");
   const codexIds = codexEntries.map((entry) => entry.id);
   assert.ok(codexIds.includes("review"));
+  assert.ok(codexIds.includes("codex-synthetic-native"));
   assert.ok(!codexIds.includes("codeai-workflow-claude"));
 
   // Universal-client providers only get Native until Phase 5 wires their
@@ -160,6 +162,14 @@ try {
   });
   assert.equal(inapplicable.ok, false);
   assert.match(inapplicable.error, /not applicable/u);
+
+  const codexSynthetic = await catalog.resolveForSession({
+    profileId: "codex-synthetic-native",
+    providerId: "codex",
+  });
+  assert.equal(codexSynthetic.ok, true);
+  assert.equal(codexSynthetic.kind, "managed");
+  assert.equal(codexSynthetic.profile.passport.provider, "codex");
 
   const kimiManaged = await catalog.resolveForSession({
     profileId: "review",

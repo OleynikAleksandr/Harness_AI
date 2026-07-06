@@ -7,11 +7,17 @@ export const NATIVE_SESSION_PROFILE_ID = "native";
 
 /**
  * Providers whose adapters apply managed session profiles in the MVP scope.
- * The universal-client endpoints stay Native-only until Phase 5 adds their
- * synthetic-native wrapper/profile application layer. Retired ids such as
- * kimi and glm-native are intentionally absent.
+ * CodexUC is Codex-family: it can apply Codex individual profiles through the
+ * OAuth Responses-compatible route. The remaining universal-client endpoints
+ * stay Native-only until Phase 5 adds their synthetic-native wrapper/profile
+ * application layer. Retired ids such as kimi and glm-native are intentionally
+ * absent.
  */
-export const PROFILE_SUPPORTED_PROVIDER_IDS = ["claude", "codex"] as const;
+export const PROFILE_SUPPORTED_PROVIDER_IDS = [
+  "claude",
+  "codex",
+  "codex-uc",
+] as const;
 
 export type SessionProfileCatalogEntryKind =
   | "individual"
@@ -81,7 +87,7 @@ export class ProfileCatalogFacade {
       (entry) =>
         entry.kind === "native" ||
         entry.kind === "universal" ||
-        entry.provider === providerId
+        isProviderProfileApplicable(providerId, entry.provider)
     );
   }
 
@@ -118,7 +124,10 @@ export class ProfileCatalogFacade {
     const profile = result.profile;
     if (
       profile.scope === "individual" &&
-      profile.passport.provider !== request.providerId
+      !isProviderProfileApplicable(
+        request.providerId,
+        profile.passport.provider
+      )
     ) {
       return {
         error: `Session profile "${profileId}" is an individual profile for provider "${profile.passport.provider}" and is not applicable to "${request.providerId}".`,
@@ -133,6 +142,19 @@ export function isProfileSupportedProvider(providerId: string): boolean {
   return (PROFILE_SUPPORTED_PROVIDER_IDS as readonly string[]).includes(
     providerId
   );
+}
+
+function isProviderProfileApplicable(
+  providerId: string,
+  profileProvider: string | undefined
+): boolean {
+  if (!profileProvider) {
+    return false;
+  }
+  if (profileProvider === providerId) {
+    return true;
+  }
+  return providerId === "codex-uc" && profileProvider === "codex";
 }
 
 function toCatalogEntry(profile: SessionProfile): SessionProfileCatalogEntry {

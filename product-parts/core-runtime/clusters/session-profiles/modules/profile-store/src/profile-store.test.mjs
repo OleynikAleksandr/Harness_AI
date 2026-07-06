@@ -231,11 +231,12 @@ try {
     const unsubscribe = watchedStore.watchProfiles(() => {
       notifications += 1;
     });
-    await writeProfile(path.join(watchedRoot, "Profiles"), "watched", {
-      "profile.yaml": "name: Watched\n",
-      "system-prompt.md": "Prompt.\n",
-      "tooling.yaml": "categories: {}\n",
-    });
+    const watchedProfileRoot = path.join(watchedRoot, "Profiles");
+    await writeFile(
+      path.join(watchedProfileRoot, "watch-probe.txt"),
+      "Changed.\n",
+      "utf8"
+    );
     const deadline = Date.now() + 3000;
     while (notifications === 0 && Date.now() < deadline) {
       await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
@@ -243,7 +244,7 @@ try {
     assert.equal(notifications, 1);
     unsubscribe();
     await writeFile(
-      path.join(watchedRoot, "Profiles", "watched", "system-prompt.md"),
+      path.join(watchedProfileRoot, "watch-probe.txt"),
       "Changed after unsubscribe.\n",
       "utf8"
     );

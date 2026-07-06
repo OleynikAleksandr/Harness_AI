@@ -5,11 +5,11 @@
 Own session profile selection truth: the catalog read model for UI surfaces,
 the virtual Native profile (primary profile, always first, never on disk),
 per-provider applicability (universal profiles apply to every
-profile-supported provider; individual profiles only to their passport
-`provider`; unsupported providers get Native only), and the session-creation
+profile-supported provider; individual profiles apply to their passport
+`provider`, with Codex-family `provider: codex` profiles also applicable to
+`codex-uc`; unsupported providers get Native only), and the session-creation
 resolution contract — "no selection => Native" as the guaranteed fallback,
-"selected but broken/inapplicable => structured error, never a silent
-fallback".
+"selected but broken/inapplicable => structured error, never a silent fallback".
 
 ## Public Facade
 
@@ -29,13 +29,13 @@ fallback".
   provider), then invalid directories with their human-readable issues.
 - `listProfilesForProvider(providerId)` — picker read model: Native first
   plus applicable universal/individual entries; unsupported providers
-  (outside `PROFILE_SUPPORTED_PROVIDER_IDS`: claude, codex) receive only
-  Native. Universal-client providers remain Native-only until Phase 5 wires
-  their synthetic-native wrapper/profile application layer; retired ids such
-  as `kimi` and `glm-native` are not supported targets. The bundled
+  (outside `PROFILE_SUPPORTED_PROVIDER_IDS`: claude, codex, codex-uc) receive
+  only Native. Universal-client providers remain Native-only until Phase 5
+  wires their synthetic-native wrapper/profile application layer; retired ids
+  such as `kimi` and `glm-native` are not supported targets. The bundled
   `codex-synthetic-native` profile is an individual Codex entry when present in
-  the profile store; selecting it resolves through the same managed payload
-  path as other user-editable profiles.
+  the profile store; selecting it for either `codex` or `codex-uc` resolves
+  through the same managed payload path as other user-editable profiles.
 - `resolveForSession({ profileId?, providerId })` —
   `{ ok: true, kind: "native" }` for no/native selection;
   `{ ok: true, kind: "managed", profile }` for an applicable valid profile;

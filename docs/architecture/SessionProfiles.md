@@ -84,7 +84,11 @@ synthetic-native. Номера строк актуальны на дату ис�
   Responses-compatible backend с `store:false`; managed/synthetic profile
   snapshot применяется как request `instructions`, а tool surface формируется
   Harness function tools вместо app-server native tools. Cache telemetry берётся
-  из `usage.input_tokens_details.cached_tokens`.
+  из `usage.input_tokens_details.cached_tokens`. Settings-карты у него нет:
+  model/reasoning берутся из существующего Codex settings section, а OAuth auth
+  читается из локального Codex login. В profile catalog он является
+  Codex-family provider: universal profiles и индивидуальные `provider: codex`
+  профили, включая `codex-synthetic-native`, применимы к `codex-uc`.
 - **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
   прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
   универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;

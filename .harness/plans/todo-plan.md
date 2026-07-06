@@ -8,8 +8,8 @@
   "planId": "codex-rollback-2026-07-06",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream3.task2",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with rollback anchor snapshot",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -121,5 +121,5 @@
 23. [DONE] Git Commit: `fix(session-runtime): restore codex rollback anchor snapshot` (hash: self)
 24. [DONE] `harness-ai.phase7.stream2.task5` Add a selectable Codex synthetic native profile seeded from the accepted native request capture plus the current workspace `AGENTS.md` text so user testing can compare a materialized native wrapper after deleting workspace `AGENTS.md` (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/seed/seed-profiles.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/seed/codex-synthetic-native-seed-prompt.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/module.md`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/module.md`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/architecture/NativePromptComposition.md`, `docs/architecture/SessionProfiles.md`, `.harness/plans/todo-plan.md`; expected commit: `feat(session-profiles): seed codex synthetic native profile`). Result: Completed in commit `feat(session-profiles): seed codex synthetic native profile`.
 25. [DONE] Git Commit: `feat(session-profiles): seed codex synthetic native profile` (hash: self)
-26. [IN_PROGRESS] `harness-ai.phase7.stream3.task2` Rebuild the packaged macOS app after the Core rollback anchor-snapshot fix and Codex synthetic-native profile seed (`npm run build`, then `npm run package:mac`), verify `release/mac-arm64/Harness AI.app` and `app.asar`, and update package evidence for user retest (scope: `docs/evidence/codex-rollback-cache-telemetry-package-2026-07-06.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with rollback anchor snapshot`).
-27. [TODO] Git Commit: `chore(package): rebuild packaged app with rollback anchor snapshot` (hash: TBD)
+26. [DONE] `harness-ai.phase7.stream3.task2` Rebuild the packaged macOS app after the Core rollback anchor-snapshot fix and Codex synthetic-native profile seed (`npm run build`, then `npm run package:mac`), verify `release/mac-arm64/Harness AI.app` and `app.asar`, and update package evidence for user retest (scope: `docs/evidence/codex-rollback-cache-telemetry-package-2026-07-06.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with rollback anchor snapshot`). Result: Completed in commit `chore(package): rebuild packaged app with rollback anchor snapshot`.
+27. [DONE] Git Commit: `chore(package): rebuild packaged app with rollback anchor snapshot` (hash: self)

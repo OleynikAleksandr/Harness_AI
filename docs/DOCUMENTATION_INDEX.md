@@ -276,6 +276,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   application rebuild for the standalone Codex rollback scope: Codex provider
   app-server `thread/rollback`, Core-owned Codex rollback intent, Electron/Core
   RPC bridge, and enabled Codex-only Session Rollback control.
+- `docs/evidence/codex-rollback-cache-telemetry-package-2026-07-06.md` —
+  packaged application rebuild after acceptance fixes: Rollback preserves the
+  first two warmup/cache-anchor turns, `Turns` sits next to `Rollback`, and
+  provider-reported cached input tokens render as `Cache` beside `Tokens`.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

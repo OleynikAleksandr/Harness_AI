@@ -108,6 +108,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 - `provider-adapter-contract`: shared create/resume/send/subscribe/close adapter boundary used by Core.
 - `claude-provider`: Claude provider adapter.
 - `codex-provider`: Codex provider adapter.
+- `codex-uc-provider`: Codex OAuth Responses-compatible test provider that uses local Codex OAuth auth, Core profile snapshots and a Harness-controlled function tool surface for lean subscription-backed experiments.
 - `kimi-client-provider`: thin Kimi endpoint for the Core universal client — Kimi dialect specifics (`api.kimi.com/coding/v1`, `kimi-for-coding`, `reasoning_content`) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `glm-client-provider`: thin GLM endpoint for the Core universal client — Z.ai coding dialect specifics (`api.z.ai/api/coding/paas/v4`, `Accept-Language`, `reasoning_content`, GLM `extraBody` params) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `openrouter-client-provider`: thin OpenRouter endpoint for the Core universal client — OpenRouter dialect specifics (`reasoning_details` thinking, usage in any chunk, per-turn `apiKey`/`baseUrl`/`defaultModel`/`endpointTag` from the shared `openRouter` settings section) and the `ClientTurnRequest` builder the Core agent loop runs.

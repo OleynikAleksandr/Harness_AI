@@ -92,6 +92,10 @@ Own global and workspace settings persistence.
 - `CLAUDE_REASONING_EFFORTS_BY_MODEL` (exported from `settings-normalization`, not the `node:fs`-backed facade, so the renderer can import it without bundling persistence) is the source of truth for which efforts each Claude alias exposes: Opus full set + ultracode, Sonnet without xhigh, Haiku none. The settings UI reads this map to filter the per-model selector.
 - `normalizeSettings` validates per-model Claude efforts against the whitelist and falls back to the provider default effort when a stored value is unknown.
 - Codex does not reuse Claude effort ranks. `CODEX_REASONING_EFFORTS_BY_MODEL` and `resolveCodexReasoningEffort` own Codex model capabilities: GPT-5.2, GPT-5.3 Codex Spark, and current GPT-5.4/5.5 models expose `low`, `medium`, `high`, and `xhigh` and default to `medium`. `supportsCodexReasoningSummary` records Codex model summary support separately; Spark keeps reasoning effort control but disables per-turn reasoning summaries.
+  The `codex-uc` test provider shares the existing `providers.codex` model and
+  reasoning settings because it targets the same Codex model family over the
+  Codex OAuth Responses-compatible route; it does not introduce a separate
+  Settings card or auth key.
 
 - Session profile picker memory is settings truth owned here
   (`session-profile-memory.ts`): the last selected profile id and the

@@ -8,6 +8,7 @@ import {
 export type ProviderId =
   | "claude"
   | "codex"
+  | "codex-uc"
   | "kimi-client"
   | "glm-client"
   | "openrouter-client"
@@ -60,6 +61,13 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     id: "codex",
     name: "Codex",
     moduleId: "codex-provider",
+    status: "needs-settings",
+    visibility: "visible",
+  },
+  {
+    id: "codex-uc",
+    name: "CodexUC",
+    moduleId: "codex-uc-provider",
     status: "needs-settings",
     visibility: "visible",
   },

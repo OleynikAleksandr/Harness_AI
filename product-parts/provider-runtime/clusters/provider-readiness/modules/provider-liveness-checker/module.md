@@ -27,8 +27,10 @@ Own provider liveness preflight helpers.
   adapter and the ACP `kimi` adapter are all unbound from liveness checks
   (GLM migration, then the 2026-07-05 legacy cleanup and the kimi-provider
   retirement).
-- API-provider checks: the universal-client `openrouter-client` requires a
-  stored key; the universal-client `local-models-client` requires a
+- API-provider checks: `codex-uc` requires a local Codex OAuth auth file
+  (`~/.codex/auth.json`) with an access token and account id; the
+  universal-client `openrouter-client` requires a stored key; the
+  universal-client `local-models-client` requires a
   non-empty live model list fetched from the CONFIGURED base URL — the
   default catalog loader is `listLocalModels` from the
   `local-models-client-provider` module (settings + env fallbacks),

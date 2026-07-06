@@ -18,6 +18,9 @@ Own provider catalog, availability, and provider invocation profile descriptors.
 
 - Provider catalog snapshot. The `glm-opencode` provider id has been removed
   during the GLM migration; it no longer appears in the catalog or picker.
+  The `codex-uc` catalog entry is visible as `CodexUC`: a test provider for
+  the Codex OAuth Responses-compatible route, distinct from the native
+  `codex` app-server provider.
 - Provider visibility: every catalog entry carries
   `visibility: "visible" | "internal"`. `listProviders()` returns only
   visible providers (the picker snapshot); internal providers stay
@@ -28,16 +31,15 @@ Own provider catalog, availability, and provider invocation profile descriptors.
   full retirement is a Phase 5 open item. Never two Kimi entries in the
   picker at once. The Phase 3 GLM visibility switch is also APPLIED: the visible
   GLM is the `glm-client` universal-client endpoint, while `glm-native` is
-  internal. The Phase 4 `local-models-client` and `openrouter-client`
-  universal-client endpoints are bound INTERNAL ahead of their visibility
-  switch; the legacy `local-models`/`openrouter` reference adapters still own
-  the visible entries. Never two Local Models or two OpenRouter entries in
-  the picker at once.
+  removed. The Phase 4 `local-models-client` and `openrouter-client`
+  universal-client endpoints are visible; the legacy `local-models`/
+  `openrouter` reference adapters are removed. Never two Local Models or two
+  OpenRouter entries in the picker at once.
 - Core-owned default model id: descriptors of universal-client endpoints
   carry `defaultModelId` from the provider-descriptor client model catalog
   only for single-model catalogs (`kimi-client` → `kimi-for-coding`); multi-
-  model client endpoints such as visible `glm-client` omit `defaultModelId` and
-  resolve the selected model through settings.
+  model client endpoints such as visible `glm-client` and `codex-uc` omit
+  `defaultModelId` and resolve the selected model through settings.
 - Enabled/disabled provider state.
 - Provider readiness status/message for the Core-selected readiness workspace,
   using the provider-readiness registry combine function.

@@ -349,6 +349,11 @@
               "purpose": "Codex provider adapter."
             },
             {
+              "id": "codex-uc-provider",
+              "name": "Codex UC Provider",
+              "purpose": "Codex OAuth Responses-compatible test provider that uses local Codex OAuth auth, Core profile snapshots and a Harness-controlled function tool surface for lean subscription-backed experiments."
+            },
+            {
               "id": "kimi-client-provider",
               "name": "Kimi Client Provider",
               "purpose": "Thin Kimi endpoint for the Core universal client: Kimi dialect specifics (api.kimi.com/coding/v1, kimi-for-coding, reasoning_content) and the ClientTurnRequest builder the Core agent loop runs."

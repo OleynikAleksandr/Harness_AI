@@ -16,12 +16,13 @@ Own model/reasoning capabilities and UI metadata for providers.
 ## Outputs
 
 - Renderer-safe provider descriptor.
-- Capability lookup result. HTTP-compatible providers (the universal-client
-  `kimi-client` / `glm-client` / `local-models-client` / `openrouter-client`
-  endpoints; the retired legacy `openrouter`/`local-models` ids left with the
-  2026-07-05 legacy cleanup) report `requiresProviderHome: false`: they run
-  on key-only auth (Local Models: base URL + optional key) from Core settings
-  and never provision a provider home.
+- Capability lookup result. HTTP-compatible providers (`codex-uc`, plus the
+  universal-client `kimi-client` / `glm-client` / `local-models-client` /
+  `openrouter-client` endpoints; the retired legacy `openrouter`/
+  `local-models` ids left with the 2026-07-05 legacy cleanup) report
+  `requiresProviderHome: false`: they run on local OAuth, key-only auth, or
+  base URL + optional key from Core settings and never provision a provider
+  home.
 - Capturable model catalog for the Native Request Capture UI:
   `getCapturableModels(providerId)` returns `{ id, label }` entries per
   capture provider (Claude and Codex — the ACP Kimi entry left with the
@@ -29,10 +30,11 @@ Own model/reasoning capabilities and UI metadata for providers.
   capture), and `getCaptureProviderIds()` lists the providers that offer
   capture. Model ids mirror the provider model catalog so capture can be
   chosen per model (different models can carry different system prompts).
-- Universal-client endpoint model catalog: `getClientModels(providerId)`
+- Client endpoint model catalog: `getClientModels(providerId)`
   returns `ProviderModelDescriptor` (`{ id, label }`) entries; `kimi-client`
   carries the single public Kimi Code model `kimi-for-coding` (the vendor
-  rotates the backend behind that id), while `glm-client` carries the
+  rotates the backend behind that id), `codex-uc` carries the Codex model ids
+  shared with the Codex settings section for picker metadata, and `glm-client` carries the
   Core-owned GLM coding-plan catalog (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). Multi-model client providers resolve their selected
   model from settings rather than registry `defaultModelId`.

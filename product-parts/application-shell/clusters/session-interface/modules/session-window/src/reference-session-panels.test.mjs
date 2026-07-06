@@ -35,6 +35,7 @@ assert.doesNotMatch(
 // ACP `kimi` id left with the kimi-provider retirement, 2026-07-05).
 assert.match(source, /providerId === "claude"/u);
 assert.match(source, /providerId === "codex"/u);
+assert.match(source, /providerId === "codex-uc"/u);
 assert.match(source, /providerId === "kimi-client"/u);
 assert.doesNotMatch(source, /providerId === "kimi"\b/u);
 assert.match(

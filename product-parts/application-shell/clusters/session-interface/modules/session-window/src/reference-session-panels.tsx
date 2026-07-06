@@ -443,7 +443,7 @@ function resolveReasoningLabel(
   if (!(session && settings)) {
     return null;
   }
-  if (session.providerId === "codex") {
+  if (session.providerId === "codex" || session.providerId === "codex-uc") {
     const effort = resolveCodexReasoningEffort(
       session.model,
       settings.providers.codex.reasoningByModel[session.model]

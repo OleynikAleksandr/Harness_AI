@@ -99,21 +99,23 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `core-provider-adapter-registration.ts`. `CoreRuntimeApi` holds a
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
-- `PROVIDER_IDS` includes the universal-client endpoints `kimi-client`,
-  `glm-client`, `local-models-client` and `openrouter-client`: their adapters
-  register at startup and RPC provider-id validation accepts them. Kimi pins
-  its single public `kimi-for-coding` model; GLM resolves its selected model
-  and reasoning effort from Core settings per turn while the adapter pins
-  only the GLM dialect; Local Models resolves its selected model and server
-  connection (base URL + optional key) from Core settings per turn while the
-  adapter pins only the local dialect; OpenRouter resolves its selected
-  model, base URL and endpoint tag from the shared `openRouter` settings
-  section per turn while the adapter pins only the OpenRouter dialect.
+- `PROVIDER_IDS` includes `codex-uc` plus the universal-client endpoints
+  `kimi-client`, `glm-client`, `local-models-client` and `openrouter-client`:
+  their adapters register at startup and RPC provider-id validation accepts
+  them. CodexUC resolves its selected Codex model/reasoning from the existing
+  Codex settings section and uses local Codex OAuth auth; Kimi pins its single
+  public `kimi-for-coding` model; GLM resolves its selected model and reasoning
+  effort from Core settings per turn while the adapter pins only the GLM
+  dialect; Local Models resolves its selected model and server connection
+  (base URL + optional key) from Core settings per turn while the adapter pins
+  only the local dialect; OpenRouter resolves its selected model, base URL and
+  endpoint tag from the shared `openRouter` settings section per turn while
+  the adapter pins only the OpenRouter dialect.
   The retired legacy `glm-native`/`openrouter`/`local-models` adapters left
   `PROVIDER_IDS` and `buildProviderAdapterInstance` with the 2026-07-05
   legacy cleanup, and the ACP `kimi` adapter left with the kimi-provider
-  retirement (same day, user order) — only the native-channel `claude`/`codex`
-  and the client four register now.
+  retirement (same day, user order) — only the native-channel `claude`/`codex`,
+  CodexUC, and the client four register now.
 - LM Studio autostart (`core-local-server-autostart.ts`, unconditional per
   the 2026-07-05 user order): `startLivenessPreflight` fires
   `ensureLocalModelsServer()` — ping the CONFIGURED base URL

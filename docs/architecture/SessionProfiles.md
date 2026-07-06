@@ -79,6 +79,12 @@ synthetic-native. Номера строк актуальны на дату ис�
   из принятого native capture + материализованного `AGENTS.md`. Выбора
   инструментов per-thread в протоколе нет: доступность инструментов фиксируется
   флагами `--disable` при запуске процесса.
+- **CodexUC** — тестовый provider id `codex-uc`, отдельный от native Codex
+  app-server. Он использует локальный Codex OAuth auth и
+  Responses-compatible backend с `store:false`; managed/synthetic profile
+  snapshot применяется как request `instructions`, а tool surface формируется
+  Harness function tools вместо app-server native tools. Cache telemetry берётся
+  из `usage.input_tokens_details.cached_tokens`.
 - **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
   прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
   универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;
@@ -762,11 +768,11 @@ Seed-профили — стандартный стартовый набор, к
   snapshot и legacy-контракт для сессий без snapshot; структурированный
   контракт ошибок; запоминание последнего выбранного профиля и
   AutoNormalizer-флага per provider в Core settings (settings-store).
-- **Фаза C — адаптеры, по одному на stream**: Claude → Codex → client-four
-  synthetic-native (`kimi-client`, `glm-client`, `openrouter-client`,
-  `local-models-client`). `module.md` каждого адаптера получает таблицу
-  маппинга категорий; старые GLM Native/Kimi ACP привязки не
-  реанимируются.
+- **Фаза C — адаптеры, по одному на stream**: Claude → Codex →
+  CodexUC test surface → client-four synthetic-native (`kimi-client`,
+  `glm-client`, `openrouter-client`, `local-models-client`). `module.md`
+  каждого адаптера получает таблицу маппинга категорий; старые GLM Native/Kimi
+  ACP привязки не реанимируются.
 - **Фаза D — RPC/мост/типы**: `list-session-profiles`,
   `create-session-profile`, `open-session-profile-file`, поле снапшота — по
   четырёхслойному паттерну `ensure-glossary-file`.

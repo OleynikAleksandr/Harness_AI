@@ -12,7 +12,7 @@ const source = readFileSync(
   )
   .replace(
     /import \{[\s\S]*?providerDescriptorFacade,[\s\S]*?\} from "\.\.\/\.\.\/provider-descriptor\/src\/provider-descriptor-facade\.js";\n/u,
-    'const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }), getClientModels: (providerId) => (providerId === "kimi-client" ? [{ id: "kimi-for-coding", label: "Kimi For Coding" }] : providerId === "glm-client" ? [{ id: "glm-5.2", label: "GLM 5.2" }, { id: "glm-5.1", label: "GLM 5.1" }] : []) };\n'
+    'const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }), getClientModels: (providerId) => (providerId === "codex-uc" ? [{ id: "gpt-5.5", label: "GPT-5.5" }] : providerId === "kimi-client" ? [{ id: "kimi-for-coding", label: "Kimi For Coding" }] : providerId === "glm-client" ? [{ id: "glm-5.2", label: "GLM 5.2" }, { id: "glm-5.1", label: "GLM 5.1" }] : []) };\n'
   )
   .replace(
     /import \{ providerReadinessRegistryFacade \}[\s\S]*?provider-readiness-registry-facade\.js";\n/u,
@@ -36,6 +36,11 @@ registry.setReadinessWorkspace("workspace-a");
 
 assert.equal(registry.getProvider("codex").readinessStatus, "ready");
 assert.equal(registry.getProvider("claude").readinessStatus, "checking");
+const codexUc = registry.getProvider("codex-uc");
+assert.equal(codexUc.visibility, "visible");
+assert.equal(codexUc.name, "CodexUC");
+assert.equal(codexUc.moduleId, "codex-uc-provider");
+assert.equal(codexUc.defaultModelId, "gpt-5.5");
 
 // The visible Kimi is the universal-client endpoint; the ACP kimi id/module
 // was removed by the kimi-provider retirement (2026-07-05 user order), so no

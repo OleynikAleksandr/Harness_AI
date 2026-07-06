@@ -184,6 +184,7 @@ const PROVIDER_KEY_BY_ID: Record<
 > = {
   claude: "claude",
   codex: "codex",
+  "codex-uc": "codex",
   "kimi-client": "kimiClient",
   "glm-client": "glmClient",
   // The universal-client endpoint shares the openRouter section: ONE key

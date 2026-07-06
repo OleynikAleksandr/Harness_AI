@@ -58,6 +58,11 @@ OSS-клиентов и API-доков провайдеров (2026-07-04). По
   LM-Studio-URL ушёл из production-путей) и детект окна контекста
   (Ollama `/api/show`, LM Studio `/api/v0/models`, llama.cpp `/props`;
   override — последнее слово).
+- CodexUC (`codex-uc-provider`) добавлен позже как отдельный тестовый
+  subscription-backed surface: он использует Codex OAuth
+  Responses-compatible backend, а не OpenAI-shape Chat Completions ядро, но
+  сохраняет тот же Core-owned принцип — Harness формирует prompt/tools,
+  исполняет function tools локально и отображает usage/cache telemetry.
 - Key-only onboarding: у КАЖДОГО провайдера СВОЙ отдельный ключ (ключ
   OpenRouter, ключ GLM, ключ Kimi For Coding — разные, каждый берётся в
   своём кабинете); одинаков только СПОСОБ ввода (форма «вставь ключ»), не
@@ -396,7 +401,12 @@ snake_case):
   разрешающая).
 - **Provider Runtime** владеет тонкими endpoint-модулями: детали auth
   провайдера, model-дескрипторы, provider-specific capability-профили
-  диалекта (раздел 3.3), особенности base_url/заголовков.
+  диалекта (раздел 3.3), особенности base_url/заголовков. CodexUC находится
+  здесь же как отдельный Responses-compatible endpoint module: он не
+  переиспользует Chat Completions `runClientTurn`, потому что Codex OAuth
+  route стримит Responses events (`response.output_item.done`,
+  `function_call_output`, `usage.input_tokens_details.cached_tokens`) и требует
+  `store:false`.
 - **Application Shell** только отображает Core-события и передаёт ввод
   пользователя; не выводит provider truth и не исполняет инструменты.
 

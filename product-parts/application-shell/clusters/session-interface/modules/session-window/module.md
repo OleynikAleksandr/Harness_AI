@@ -117,7 +117,10 @@ Render the transcript/dialog layout and session chrome.
   endpoints, e.g. the visible Kimi → `kimi-for-coding`) wins over the
   settings-snapshot lookup; multi-model client endpoints such as the visible GLM
   use the Core settings snapshot (`providers.glmClient.defaultModel`). The
-  renderer never invents a model id. The same resolution feeds the `model` field
+  renderer never invents a model id. `codex-uc` shares the Codex settings
+  section for model display and reasoning badge because it targets the same
+  Codex model family over the OAuth Responses-compatible route. The same
+  resolution feeds the `model` field
   of `createSession`. The visible `openrouter-client` and
   `local-models-client` resolve through the shared settings sections
   (`providers.openRouter.defaultModel` / `providers.localModels.defaultModel`);

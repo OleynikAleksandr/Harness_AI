@@ -39,6 +39,13 @@ export interface ProviderModelDescriptor {
 const CLIENT_PROVIDER_MODELS: Readonly<
   Record<string, readonly ProviderModelDescriptor[]>
 > = {
+  "codex-uc": [
+    { id: "gpt-5.2", label: "GPT-5.2" },
+    { id: "gpt-5.3-codex-spark", label: "GPT-5.3-Codex-Spark" },
+    { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
+    { id: "gpt-5.4", label: "GPT-5.4" },
+    { id: "gpt-5.5", label: "GPT-5.5" },
+  ],
   "glm-client": [
     { id: "glm-5.2", label: "GLM 5.2" },
     { id: "glm-5.1", label: "GLM 5.1" },
@@ -72,6 +79,9 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
   };
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
+  // Codex OAuth Responses-compatible endpoint: local Codex OAuth auth, no
+  // app-server/provider home.
+  "codex-uc",
   // Universal-client endpoint: key-only auth from Core settings, no provider home.
   "glm-client",
   "kimi-client",

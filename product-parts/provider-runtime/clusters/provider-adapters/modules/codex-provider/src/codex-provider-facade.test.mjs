@@ -33,6 +33,10 @@ assert.match(source, /defaultApprovalMode: "never"/u);
 assert.match(source, /defaultSandboxMode: "danger-full-access"/u);
 assert.match(appServerSource, /CODEX_DEFAULT_PROCESS_PROFILE_KEY/u);
 assert.match(appServerSource, /environment: options\.environment \?\? \{\}/u);
+assert.match(appServerSource, /"thread\/rollback"/u);
+assert.match(appServerSource, /"thread\/read"/u);
+assert.match(appServerSource, /includeTurns: true/u);
+assert.match(appServerSource, /countThreadTurns\(response\.thread\)/u);
 assert.match(appServerProcessSource, /"\.harness-ai"/u);
 assert.match(appServerProcessSource, /"\.harness"/u);
 assert.match(

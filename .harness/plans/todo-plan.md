@@ -8,8 +8,8 @@
   "planId": "codex-rollback-2026-07-06",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream2.task1",
-  "expectedCommitMessage": "feat(codex-provider): expose app-server rollback",
+  "currentTaskId": "harness-ai.phase6.stream3.task1",
+  "expectedCommitMessage": "feat(session-runtime): add codex rollback intent",
   "debt": null
 }
 ```
@@ -74,12 +74,12 @@
 
 ### Stream: Codex Provider Rollback Contract
 
-3. [IN_PROGRESS] `harness-ai.phase6.stream2.task1` Add the Codex provider-runtime rollback capability around app-server `thread/rollback`: expose a Codex-only provider facade method that accepts provider session id + `numTurns`, calls the app-server rollback method, and returns enough provider facts for Core to refresh state; include unit coverage with the existing Codex app-server facade test style (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`; expected commit: `feat(codex-provider): expose app-server rollback`).
-4. [TODO] Git Commit: `feat(codex-provider): expose app-server rollback` (hash: TBD)
+3. [DONE] `harness-ai.phase6.stream2.task1` Add the Codex provider-runtime rollback capability around app-server `thread/rollback`: expose a Codex-only provider facade method that accepts provider session id + `numTurns`, calls the app-server rollback method, and returns enough provider facts for Core to refresh state; include unit coverage with the existing Codex app-server facade test style. Scope clarification: the public `CodexProviderFacade` inherits the method from `CodexProviderAdapter`, so the adapter file joins instead of changing the outer facade wrapper (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/provider/codex-provider-adapter.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `.harness/plans/todo-plan.md`; expected commit: `feat(codex-provider): expose app-server rollback`). Result: Completed in commit `feat(codex-provider): expose app-server rollback`.
+4. [DONE] Git Commit: `feat(codex-provider): expose app-server rollback` (hash: self)
 
 ### Stream: Core Session Rollback Intent
 
-5. [TODO] `harness-ai.phase6.stream3.task1` Add a Core-owned session rollback intent for Codex sessions only: validate `sessionId`, provider id and `numTurns`, reject non-Codex sessions, call the provider rollback capability, and refresh session snapshot/telemetry without renderer-side provider truth; include focused tests for Codex accepted and non-Codex rejected paths (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md`; expected commit: `feat(session-runtime): add codex rollback intent`).
+5. [IN_PROGRESS] `harness-ai.phase6.stream3.task1` Add a Core-owned session rollback intent for Codex sessions only: validate `sessionId`, provider id and `numTurns`, reject non-Codex sessions, call the provider rollback capability, and refresh session snapshot/telemetry without renderer-side provider truth; include focused tests for Codex accepted and non-Codex rejected paths (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts`, `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md`; expected commit: `feat(session-runtime): add codex rollback intent`).
 6. [TODO] Git Commit: `feat(session-runtime): add codex rollback intent` (hash: TBD)
 
 ### Stream: Core RPC Bridge

@@ -50,6 +50,10 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
   the shared provider home otherwise intact.
 - `ensureWorkspaceHome(workspacePath)` materializes workspace Codex auth/config
   through the provider home manager without starting the Codex app-server.
+- `rollbackSessionTurns(providerSessionId, numTurns)` is a Codex-only
+  app-server capability. It validates a positive turn count, calls
+  `thread/rollback`, then reads `thread/read includeTurns=true` and returns the
+  remaining provider-visible turn count for Core telemetry refresh.
 
 - Session profile application layer (`codex-profile-application.ts`):
   managed sessions send the frozen snapshot prompt as `baseInstructions` on

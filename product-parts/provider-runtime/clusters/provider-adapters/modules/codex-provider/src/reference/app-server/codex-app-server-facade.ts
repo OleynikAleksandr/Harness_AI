@@ -38,6 +38,11 @@ interface ReasoningSummarySettingsCacheEntry {
   readonly settingsPath: string;
 }
 
+export interface CodexRollbackResult {
+  readonly providerSessionId: string;
+  readonly turns: number;
+}
+
 let reasoningSummarySettingsCache: ReasoningSummarySettingsCacheEntry | null =
   null;
 
@@ -307,6 +312,33 @@ export class CodexAppServerFacade {
     }
   }
 
+  async rollbackSessionTurns(
+    threadId: string,
+    numTurns: number
+  ): Promise<CodexRollbackResult> {
+    if (!this.handshakedThreadIds.has(threadId)) {
+      throw new CodexSessionStaleBindingError(threadId);
+    }
+    if (!Number.isSafeInteger(numTurns) || numTurns < 1) {
+      throw new Error("codex rollback numTurns must be a positive integer");
+    }
+    await this.process.request("thread/rollback", {
+      threadId,
+      numTurns,
+    });
+    const response = await this.process.request<Record<string, unknown>>(
+      "thread/read",
+      {
+        threadId,
+        includeTurns: true,
+      }
+    );
+    return {
+      providerSessionId: threadId,
+      turns: countThreadTurns(response.thread),
+    };
+  }
+
   subscribe(
     threadId: string,
     listener: (payload: unknown) => void
@@ -356,4 +388,11 @@ export class CodexAppServerFacade {
       listener(payload);
     }
   }
+}
+
+function countThreadTurns(thread: unknown): number {
+  if (!(isRecord(thread) && Array.isArray(thread.turns))) {
+    return 0;
+  }
+  return thread.turns.length;
 }

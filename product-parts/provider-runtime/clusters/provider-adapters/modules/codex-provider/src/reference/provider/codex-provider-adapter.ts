@@ -2,7 +2,10 @@ import type {
   ProviderSessionStartOptions,
   ProviderSessionStartOutcome,
 } from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
-import { CodexAppServerFacade } from "../app-server/codex-app-server-facade.js";
+import {
+  CodexAppServerFacade,
+  type CodexRollbackResult,
+} from "../app-server/codex-app-server-facade.js";
 import {
   type CodexNativeRequestCaptureOptions,
   CodexNativeRequestCaptureService,
@@ -78,6 +81,15 @@ export class CodexProviderAdapter {
   ): Promise<void> {
     return this.enqueueProviderHomeOperation(() =>
       this.facade.sendMessage(sessionId, content, turnOptions)
+    );
+  }
+
+  rollbackSessionTurns(
+    sessionId: string,
+    numTurns: number
+  ): Promise<CodexRollbackResult> {
+    return this.enqueueProviderHomeOperation(() =>
+      this.facade.rollbackSessionTurns(sessionId, numTurns)
     );
   }
 

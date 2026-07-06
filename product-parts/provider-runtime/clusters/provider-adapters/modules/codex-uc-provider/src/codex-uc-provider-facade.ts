@@ -285,11 +285,22 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       throw new Error(`CodexUC request failed (${response.status}): ${text}`);
     }
     this.emitUsageLimits(session, readUsageLimitsFromHeaders(response.headers));
-    return parseResponsesStream(text, {
-      onReasoningDelta: (delta) =>
-        this.emit(session, dialogMessage(delta, "thinking")),
-      onTextDelta: (delta) => this.emit(session, dialogMessage(delta)),
+    const reasoningBuffer = new CodexUcReasoningBuffer();
+    const flushReasoning = (): void => {
+      const content = reasoningBuffer.flush();
+      if (content) {
+        this.emit(session, dialogMessage(content, "thinking"));
+      }
+    };
+    const parsed = parseResponsesStream(text, {
+      onReasoningDelta: (delta) => reasoningBuffer.append(delta),
+      onTextDelta: (delta) => {
+        flushReasoning();
+        this.emit(session, dialogMessage(delta));
+      },
     });
+    flushReasoning();
+    return parsed;
   }
 
   private readAuth(): CodexAuthTokens | null {
@@ -443,6 +454,27 @@ function readCachedInputTokens(
 
 function readNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+class CodexUcReasoningBuffer {
+  private content = "";
+
+  append(delta: string): void {
+    if (this.content && delta.startsWith(this.content)) {
+      this.content = delta;
+      return;
+    }
+    if (this.content.endsWith(delta)) {
+      return;
+    }
+    this.content += delta;
+  }
+
+  flush(): string | null {
+    const content = this.content.trim();
+    this.content = "";
+    return content || null;
+  }
 }
 
 export const codexUcProviderFacade = new CodexUcProviderFacade();

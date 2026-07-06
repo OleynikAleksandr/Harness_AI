@@ -92,7 +92,9 @@ synthetic-native. Номера строк актуальны на дату ис�
   cache field не превращается в новый ноль.
   Visible reasoning запрашивается через `reasoning.summary: "detailed"` вместе
   с выбранным effort; reasoning telemetry берётся из direct Responses reasoning
-  summary/text stream deltas/items и отдаётся в Core как `thinking` messages.
+  summary/text stream deltas/items, буферизуется на границе active Responses
+  call и отдаётся в Core как coalesced `thinking` messages, а не отдельная
+  строка на каждый provider delta.
   Usage-limit telemetry
   берётся через проверенный Codex account-limits bridge
   (`account/rateLimits/read`) с best-effort direct response-header fast path,

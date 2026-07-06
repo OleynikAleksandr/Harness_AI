@@ -44,7 +44,9 @@ not resend the removed tail.
   never forces unknown cache telemetry to `0`.
 - Visible reasoning is requested with `reasoning.summary: "detailed"` plus the
   selected effort. Reasoning telemetry from direct Responses reasoning summary
-  stream deltas/items is emitted as Core-visible `thinking` dialog messages.
+  stream deltas/items is buffered for the active Responses call and emitted as
+  coalesced Core-visible `thinking` dialog messages, not one row per provider
+  delta.
 - Usage-limit telemetry through the proven Codex account-limits bridge
   (`account/rateLimits/read`) plus a best-effort direct response-header fast
   path when the backend provides Codex session/weekly limit percentages or

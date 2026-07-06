@@ -111,7 +111,10 @@ function responseText(step) {
   }
   return (
     sse("response.reasoning_summary.delta", {
-      delta: { text: "thinking" },
+      delta: { text: "thinking " },
+    }) +
+    sse("response.reasoning_summary.delta", {
+      delta: { text: "through" },
     }) +
     sse("response.output_text.delta", { delta: "summary" }) +
     sse("response.output_item.done", {
@@ -243,7 +246,7 @@ try {
       ]
     );
     assert.equal(events[4].role, "thinking");
-    assert.equal(events[4].content, "thinking");
+    assert.equal(events[4].content, "thinking through");
     assert.equal(events[5].role, "assistant");
     assert.equal(events[1].data.tokenUsage.cached, 0);
     assert.equal(events[2].data.tokenUsage.cached, 7400);

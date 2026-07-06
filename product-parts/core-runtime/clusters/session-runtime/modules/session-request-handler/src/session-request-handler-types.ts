@@ -57,7 +57,8 @@ export interface SendCoreMessageRequest {
 }
 
 export interface RollbackCoreSessionRequest {
-  numTurns: number;
+  numTurns?: number;
+  preserveFirstUserTurns?: number;
   sessionId: string;
 }
 

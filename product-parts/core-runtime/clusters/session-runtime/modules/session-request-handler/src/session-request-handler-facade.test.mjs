@@ -25,6 +25,8 @@ assert.match(source, /buildProviderTurnOptions\(session\)/u);
 assert.match(source, /async refreshUsageLimits\(sessionId: string\)/u);
 assert.match(source, /rollbackSessionTurns\(/u);
 assert.match(source, /new SessionRollback/u);
+assert.match(source, /getEvents: \(sessionId\)/u);
+assert.match(source, /restoreTelemetry: \(sessionId, telemetry\)/u);
 assert.match(source, /ReasoningTranslationOverlayFacade/u);
 assert.match(source, /type: "session:message_translation"/u);
 assert.match(source, /usageContextTelemetryFacade\.applyProviderEvent\(/u);
@@ -53,6 +55,7 @@ const typesSource = readFileSync(
 );
 assert.match(typesSource, /export interface AppliedProfileSnapshot/u);
 assert.match(typesSource, /export interface RollbackCoreSessionRequest/u);
+assert.match(typesSource, /preserveFirstUserTurns\?: number/u);
 assert.match(typesSource, /appliedProfile\?: AppliedProfileSnapshot/u);
 
 const historySource = readFileSync(
@@ -88,6 +91,9 @@ const adapterContractSource = readFileSync(
 assert.match(adapterContractSource, /rollbackSessionTurns\?\(/u);
 assert.match(rollbackSource, /session\.providerId !== "codex"/u);
 assert.match(rollbackSource, /Cannot rollback while a turn is running/u);
+assert.match(rollbackSource, /resolveRollbackTurnCount/u);
+assert.match(rollbackSource, /readAnchorTelemetrySnapshot/u);
+assert.match(rollbackSource, /request\.preserveFirstUserTurns/u);
 assert.match(rollbackSource, /type: "session:messages-replaced"/u);
 
 // Managed resolution activates at create through the profile resolver and

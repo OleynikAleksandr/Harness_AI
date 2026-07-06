@@ -1,3 +1,4 @@
+import type { ProviderUsageTelemetry } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
 import type {
   CoreSessionMessage,
   SessionCoreEvent,
@@ -32,6 +33,7 @@ export function rollbackSessionMessages(
 
 export interface SessionRollbackDependencies {
   bindProviderSession(session: CoreSession): Promise<void>;
+  getEvents(sessionId: string): SessionCoreEvent[];
   getMessages(sessionId: string): CoreSessionMessage[];
   getRuntimeBinding(sessionId: string): ProviderRuntimeBinding | undefined;
   getSession(sessionId: string): CoreSession | undefined;
@@ -39,6 +41,7 @@ export interface SessionRollbackDependencies {
   publishError(sessionId: string, error: string): void;
   publishEvent(event: SessionCoreEvent): void;
   publishTurnState(sessionId: string, state: "idle" | "running"): void;
+  restoreTelemetry(sessionId: string, telemetry: ProviderUsageTelemetry): void;
   setMessages(sessionId: string, messages: CoreSessionMessage[]): void;
   stringifyError(error: unknown): string;
 }
@@ -57,9 +60,13 @@ export class SessionRollback {
     if (!session) {
       return { error: "Session not found", ok: false };
     }
-    const error = this.validate(session, request.numTurns);
+    const error = this.validate(session);
     if (error) {
       return { error, ok: false };
+    }
+    const projection = this.resolveProjection(session.id, request);
+    if (!projection.ok) {
+      return { error: projection.error, ok: false };
     }
     const binding = await this.resolveBinding(session);
     if (!binding?.adapter.rollbackSessionTurns) {
@@ -68,23 +75,27 @@ export class SessionRollback {
     try {
       await binding.adapter.rollbackSessionTurns(
         binding.providerSessionId,
-        request.numTurns
+        projection.numTurns
       );
     } catch (caught) {
       const message = this.deps.stringifyError(caught);
       this.deps.publishError(session.id, message);
       return { error: message, ok: false };
     }
-    const messages = rollbackSessionMessages(
-      this.deps.getMessages(session.id),
-      request.numTurns
-    );
-    this.deps.setMessages(session.id, messages);
+    const now = new Date().toISOString();
+    this.deps.setMessages(session.id, projection.messages);
     this.deps.publishEvent({
-      payload: { messages, sessionId: session.id },
-      timestamp: new Date().toISOString(),
+      payload: { messages: projection.messages, sessionId: session.id },
+      timestamp: now,
       type: "session:messages-replaced",
     });
+    if (projection.telemetry) {
+      this.deps.restoreTelemetry(session.id, {
+        ...projection.telemetry,
+        status: "idle",
+        updatedAt: now,
+      });
+    }
     this.deps.publishTurnState(session.id, "idle");
     return { ok: true, session };
   }
@@ -100,16 +111,101 @@ export class SessionRollback {
     return binding;
   }
 
-  private validate(session: CoreSession, numTurns: number): string | null {
+  private resolveProjection(
+    sessionId: string,
+    request: RollbackCoreSessionRequest
+  ):
+    | {
+        messages: CoreSessionMessage[];
+        numTurns: number;
+        ok: true;
+        telemetry: ProviderUsageTelemetry | null;
+      }
+    | { error: string; ok: false } {
+    const events = this.deps.getEvents(sessionId);
+    const currentMessages =
+      readCurrentMessagesFromEvents(events) || this.deps.getMessages(sessionId);
+    const numTurns = resolveRollbackTurnCount(currentMessages, request);
+    if (!isPositiveTurnCount(numTurns)) {
+      return {
+        error: "Rollback turn count must be a positive integer",
+        ok: false,
+      };
+    }
+    const messages = rollbackSessionMessages(currentMessages, numTurns);
+    return {
+      messages,
+      numTurns,
+      ok: true,
+      telemetry: readAnchorTelemetrySnapshot(events, currentMessages, messages),
+    };
+  }
+
+  private validate(session: CoreSession): string | null {
     if (session.providerId !== "codex") {
       return "Rollback is only available for Codex sessions";
-    }
-    if (!isPositiveTurnCount(numTurns)) {
-      return "Rollback turn count must be a positive integer";
     }
     if (this.deps.getTelemetryStatus(session.id) === "running") {
       return "Cannot rollback while a turn is running";
     }
     return null;
   }
+}
+
+function resolveRollbackTurnCount(
+  messages: readonly CoreSessionMessage[],
+  request: RollbackCoreSessionRequest
+): number {
+  if (request.numTurns !== undefined) {
+    return request.numTurns;
+  }
+  if (request.preserveFirstUserTurns === undefined) {
+    return 0;
+  }
+  const preservedTurns = request.preserveFirstUserTurns ?? 0;
+  if (!Number.isSafeInteger(preservedTurns) || preservedTurns < 0) {
+    return 0;
+  }
+  return countUserTurns(messages) - preservedTurns;
+}
+
+function countUserTurns(messages: readonly CoreSessionMessage[]): number {
+  return messages.filter((message) => message.role === "user").length;
+}
+
+function readCurrentMessagesFromEvents(
+  events: readonly SessionCoreEvent[]
+): CoreSessionMessage[] | null {
+  if (events.length === 0) {
+    return null;
+  }
+  let messages: CoreSessionMessage[] = [];
+  for (const event of events) {
+    if (event.type === "session:message") {
+      messages = [...messages, event.payload];
+    } else if (event.type === "session:messages-replaced") {
+      messages = [...event.payload.messages];
+    }
+  }
+  return messages;
+}
+
+function readAnchorTelemetrySnapshot(
+  events: readonly SessionCoreEvent[],
+  currentMessages: readonly CoreSessionMessage[],
+  messages: readonly CoreSessionMessage[]
+): ProviderUsageTelemetry | null {
+  const droppedMessage = currentMessages[messages.length];
+  const beforeTimestamp = droppedMessage?.timestamp;
+  let telemetry: ProviderUsageTelemetry | null = null;
+  for (const event of events) {
+    if (event.type !== "session:telemetry") {
+      continue;
+    }
+    if (beforeTimestamp && event.timestamp >= beforeTimestamp) {
+      break;
+    }
+    telemetry = event.payload.telemetry;
+  }
+  return telemetry;
 }

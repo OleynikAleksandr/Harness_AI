@@ -467,7 +467,10 @@ cache-anchor prefix после удаления dynamic turns.
   provider JSON-RPC;
 - счётчик turns остаётся операторским ориентиром, но дефолт Harness rollback
   сохраняет первые два visible user turns как warmup/cache-anchor pair и
-  отправляет `numTurns = max(Turns - 2, 0)`;
+  отправляет в Core политику `preserveFirstUserTurns: 2`; Core сам выводит
+  `numTurns` из transcript projection;
+- будущая orchestration/todo-plan стадия может вызывать тот же facade с явным
+  `numTurns`, если процесс должен удалить строго заданное количество turns;
 - при `Turns <= 2` кнопка недоступна, чтобы не стереть cache-anchor warmup;
 - для не-Codex провайдеров этот UI-зонд не показывается;
 - оператор сверяет, как меняются `Turns`, `Tokens`, cached input и
@@ -480,7 +483,8 @@ cache-anchor prefix после удаления dynamic turns.
    прогрет и в диалоге осталась начальная договорённость с агентом.
 3. Добавить 1-2 больших dynamic turns.
 4. Снять `thread/read includeTurns=true` и `thread/tokenUsage/updated`.
-5. Нажать Harness `Rollback`; ожидаемый `numTurns` равен `Turns - 2`.
+5. Нажать Harness `Rollback`; UI отправляет `preserveFirstUserTurns: 2`, а
+   Core вызывает provider rollback с вычисленным `numTurns`.
 6. Снять `thread/read` и следующий probe turn.
 7. Принять только если `lastInput` падает до anchor-tail размера, а
    `lastCached` остаётся высоким.
@@ -491,17 +495,20 @@ cache-anchor prefix после удаления dynamic turns.
 - universal-client local history pruning for Kimi, GLM, OpenRouter and Local
   Models;
 - provider-neutral rollback abstraction;
-- configurable rollback depth beyond the current Codex warmup-pair default.
+- provider-neutral configurable rollback policy beyond the current
+  Codex-only facade contract.
 
 Acceptance для перехода к автоматизации Codex:
 
 - UI показывает turns count без вывода provider truth в renderer: число должно
   приходить из Core/session snapshot или из Core-normalized telemetry, и только
   для Codex-сессии.
-- Rollback action идёт в Core как raw user intent:
-  `sessionId + numTurns + providerSessionId`, не как renderer-side JSON-RPC.
+- Rollback action идёт в Core как raw user intent: `sessionId` плюс либо
+  явный `numTurns`, либо policy `preserveFirstUserTurns`; renderer не вычисляет
+  provider rollback depth и не вызывает provider JSON-RPC.
 - Core выбирает Codex strategy: `thread/rollback`.
-- После rollback Core публикует обновлённый session snapshot и telemetry.
+- После rollback Core публикует обновлённый session snapshot и telemetry,
+  восстановленные к anchor snapshot после сохранённых turns.
 - Evidence фиксирует до/после: `turns`, `lastInput`, `lastCached`,
   `modelContextWindow`, provider id `codex`, model id и точный rollback
   strategy.

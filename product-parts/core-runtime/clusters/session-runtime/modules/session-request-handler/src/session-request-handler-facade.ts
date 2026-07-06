@@ -74,6 +74,7 @@ export class SessionRequestHandlerFacade {
   });
   private readonly rollback = new SessionRollback({
     bindProviderSession: (session) => this.bindProviderSession(session),
+    getEvents: (sessionId) => this.eventStream.listEvents?.(sessionId) ?? [],
     getMessages: (sessionId) => this.messagesBySession.get(sessionId) ?? [],
     getRuntimeBinding: (sessionId) => this.runtimeBindings.get(sessionId),
     getSession: (sessionId) => this.sessions.get(sessionId),
@@ -83,6 +84,8 @@ export class SessionRequestHandlerFacade {
     publishEvent: (event) => this.eventStream.publish(event),
     publishTurnState: (sessionId, state) =>
       this.publishTurnState(sessionId, state),
+    restoreTelemetry: (sessionId, telemetry) =>
+      this.setTelemetry(sessionId, telemetry),
     setMessages: (sessionId, messages) =>
       this.messagesBySession.set(sessionId, messages),
     stringifyError,
@@ -419,7 +422,6 @@ export class SessionRequestHandlerFacade {
       this.publishError(session.id, stringifyError(error));
     }
   }
-
   private async dispatchProviderMessage(
     session: CoreSession,
     text: string
@@ -444,11 +446,9 @@ export class SessionRequestHandlerFacade {
       buildProviderTurnOptions(session)
     );
   }
-
   private handleProviderEvent(sessionId: string, event: unknown): void {
     routeProviderEvent(this.providerEventRouterContext(), sessionId, event);
   }
-
   private providerEventRouterContext(): ProviderEventRouterContext {
     return {
       getBinding: (sessionId) => this.runtimeBindings.get(sessionId),

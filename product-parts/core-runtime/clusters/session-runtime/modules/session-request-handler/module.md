@@ -54,8 +54,13 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   it validates the active session, rejects non-Codex/running sessions, resumes
   the provider binding when needed, calls the adapter's optional
   `rollbackSessionTurns`, prunes the Core-visible transcript from the Nth last
-  user turn, and publishes `session:messages-replaced` plus idle telemetry.
-  Provider-neutral rollback remains out of scope.
+  user turn, restores token/cache telemetry to the snapshot immediately before
+  the removed tail, and publishes `session:messages-replaced` plus idle
+  telemetry. The same facade accepts the manual anchor policy
+  `preserveFirstUserTurns: 2`; Core derives `numTurns` from the event-stream
+  transcript projection so UI buttons, todo-plan orchestration and future
+  automation do not duplicate rollback-depth logic. Provider-neutral rollback
+  remains out of scope.
 
 - Provider event routing lives in `session-provider-event-router.ts`
   (`routeProviderEvent` + `ProviderEventRouterContext`): telemetry

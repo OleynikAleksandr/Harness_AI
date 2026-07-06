@@ -208,7 +208,7 @@ export function ReferenceStatusPanel({
   telemetry,
 }: {
   messages: readonly SessionMessage[];
-  onRollbackTurns?: (numTurns: number) => void;
+  onRollbackTurns?: () => void;
   rollbackPending?: boolean;
   session: CoreSession | undefined;
   settings: HarnessSettings | null;
@@ -264,7 +264,7 @@ export function ReferenceStatusPanel({
         <button
           className="session-status-button session-status-button--rollback"
           disabled={!rollbackReady || rollbackPending}
-          onClick={() => onRollbackTurns?.(turnCount - 2)}
+          onClick={() => onRollbackTurns?.()}
           type="button"
         >
           {t("ui_labels", "session.status.rollback", "Rollback")}

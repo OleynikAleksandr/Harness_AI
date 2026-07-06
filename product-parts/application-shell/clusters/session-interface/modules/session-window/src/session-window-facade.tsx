@@ -226,14 +226,11 @@ export function SessionWindowFacade() {
     await window.harnessCore?.stopTurn(sessionId);
   }
 
-  async function rollbackActiveSessionTurns(
-    sessionId: string,
-    numTurns: number
-  ) {
+  async function rollbackActiveSessionTurns(sessionId: string) {
     setRollbackSessionId(sessionId);
     try {
       const result = await window.harnessCore?.rollbackSessionTurns({
-        numTurns,
+        preserveFirstUserTurns: 2,
         sessionId,
       });
       if (!result) {
@@ -246,7 +243,7 @@ export function SessionWindowFacade() {
         await hydrateSession(sessionId);
         appendAssistantNotice(
           sessionId,
-          `Rolled back ${numTurns} Codex turn${numTurns === 1 ? "" : "s"}.`,
+          "Rolled back Codex turns to the first 2-turn anchor.",
           setMessagesBySession
         );
       } else {
@@ -408,8 +405,8 @@ export function SessionWindowFacade() {
             />
             <ReferenceStatusPanel
               messages={messages}
-              onRollbackTurns={(numTurns) =>
-                rollbackActiveSessionTurns(activeSession.id, numTurns)
+              onRollbackTurns={() =>
+                rollbackActiveSessionTurns(activeSession.id)
               }
               rollbackPending={rollbackSessionId === activeSession.id}
               session={activeSession}

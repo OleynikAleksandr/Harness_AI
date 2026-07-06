@@ -149,7 +149,8 @@ interface Window {
       { ok: true; settings: HarnessSettings } | { error: string; ok: false }
     >;
     rollbackSessionTurns(request: {
-      numTurns: number;
+      numTurns?: number;
+      preserveFirstUserTurns?: number;
       sessionId: string;
     }): Promise<
       | {

@@ -9,6 +9,11 @@ export interface ResponsesOutputItem {
   }[];
   readonly name?: string;
   readonly role?: string;
+  readonly summary?: readonly {
+    readonly text?: string;
+    readonly type: string;
+  }[];
+  readonly text?: string;
   readonly type: string;
 }
 
@@ -88,35 +93,139 @@ export const buildCodexUcResponsesRequest = (input: {
 
 export function parseResponsesStream(
   text: string,
-  onDelta: (text: string) => void
+  callbacks: {
+    readonly onReasoningDelta?: (text: string) => void;
+    readonly onTextDelta: (text: string) => void;
+  }
 ): ResponsesParsedStream {
   const outputItems: ResponsesOutputItem[] = [];
   let completed: ResponsesParsedStream["completed"];
   for (const block of text.split("\n\n")) {
-    const lines = block.split("\n");
-    const name = lines.find((line) => line.startsWith("event: "))?.slice(7);
-    const data = lines
-      .filter((line) => line.startsWith("data: "))
-      .map((line) => line.slice(6))
-      .join("\n");
-    if (!(name && data)) {
+    const event = readSseEvent(block);
+    if (!event) {
       continue;
     }
-    const parsed = JSON.parse(data) as Record<string, unknown>;
-    if (name === "response.output_text.delta") {
-      const delta = readString(parsed.delta);
-      if (delta) {
-        onDelta(delta);
-      }
+    const result = handleResponsesEvent(event, callbacks);
+    if (result.outputItem) {
+      outputItems.push(result.outputItem);
     }
-    if (name === "response.output_item.done" && isRecord(parsed.item)) {
-      outputItems.push(parsed.item as unknown as ResponsesOutputItem);
-    }
-    if (name === "response.completed" && isRecord(parsed.response)) {
-      completed = parsed.response as ResponsesParsedStream["completed"];
+    if (result.completed) {
+      completed = result.completed;
     }
   }
   return { completed, outputItems };
+}
+
+function readSseEvent(
+  block: string
+): { data: Record<string, unknown>; name: string } | null {
+  const lines = block.split("\n");
+  const name = lines.find((line) => line.startsWith("event: "))?.slice(7);
+  const data = lines
+    .filter((line) => line.startsWith("data: "))
+    .map((line) => line.slice(6))
+    .join("\n");
+  if (!(name && data)) {
+    return null;
+  }
+  return { data: JSON.parse(data) as Record<string, unknown>, name };
+}
+
+function handleResponsesEvent(
+  event: { data: Record<string, unknown>; name: string },
+  callbacks: {
+    readonly onReasoningDelta?: (text: string) => void;
+    readonly onTextDelta: (text: string) => void;
+  }
+): {
+  completed?: ResponsesParsedStream["completed"];
+  outputItem?: ResponsesOutputItem;
+} {
+  emitDelta(event, callbacks);
+  if (event.name === "response.output_item.done" && isRecord(event.data.item)) {
+    const outputItem = event.data.item as unknown as ResponsesOutputItem;
+    emitReasoningItem(outputItem, callbacks);
+    return { outputItem };
+  }
+  if (event.name === "response.completed" && isRecord(event.data.response)) {
+    return {
+      completed: event.data.response as ResponsesParsedStream["completed"],
+    };
+  }
+  return {};
+}
+
+function emitDelta(
+  event: { data: Record<string, unknown>; name: string },
+  callbacks: {
+    readonly onReasoningDelta?: (text: string) => void;
+    readonly onTextDelta: (text: string) => void;
+  }
+): void {
+  if (isTextDeltaEvent(event.name)) {
+    const delta = readFirstString(event.data.delta, event.data.text);
+    if (delta) {
+      callbacks.onTextDelta(delta);
+    }
+  }
+  if (isReasoningDeltaEvent(event.name)) {
+    const delta = readFirstString(
+      event.data.delta,
+      event.data.text,
+      event.data.summary_text
+    );
+    if (delta) {
+      callbacks.onReasoningDelta?.(delta);
+    }
+  }
+}
+
+function emitReasoningItem(
+  item: ResponsesOutputItem,
+  callbacks: {
+    readonly onReasoningDelta?: (text: string) => void;
+  }
+): void {
+  if (item.type !== "reasoning") {
+    return;
+  }
+  for (const reasoningText of readReasoningItemTexts(item)) {
+    callbacks.onReasoningDelta?.(reasoningText);
+  }
+}
+
+function isTextDeltaEvent(name: string): boolean {
+  return name === "response.output_text.delta";
+}
+
+function isReasoningDeltaEvent(name: string): boolean {
+  return (
+    name === "response.reasoning_text.delta" ||
+    name === "response.reasoning_summary_text.delta" ||
+    name === "response.reasoning.delta" ||
+    (name.includes("reasoning") && name.endsWith(".delta"))
+  );
+}
+
+function readReasoningItemTexts(item: ResponsesOutputItem): string[] {
+  const texts: string[] = [];
+  const itemText = readString(item.text);
+  if (itemText) {
+    texts.push(itemText);
+  }
+  for (const part of item.summary ?? []) {
+    const text = readString(part.text);
+    if (text) {
+      texts.push(text);
+    }
+  }
+  for (const part of item.content ?? []) {
+    const text = readString(part.text);
+    if (text) {
+      texts.push(text);
+    }
+  }
+  return texts;
 }
 
 export function toInputItem(
@@ -174,6 +283,16 @@ function toResponsesTool(tool: ToolDescriptor): ResponsesFunctionTool {
 
 function readString(value: unknown): string | null {
   return typeof value === "string" ? value : null;
+}
+
+function readFirstString(...values: unknown[]): string | null {
+  for (const value of values) {
+    const text = readString(value);
+    if (text) {
+      return text;
+    }
+  }
+  return null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 export type NormalizedProviderEvent =
   | {
       content: string;
-      role: "assistant";
+      role: "assistant" | "thinking";
       tag?: string;
       timestamp: string;
       type: "dialog_message";

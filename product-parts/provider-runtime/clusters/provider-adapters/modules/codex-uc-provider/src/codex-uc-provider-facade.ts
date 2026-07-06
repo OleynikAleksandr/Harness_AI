@@ -17,6 +17,7 @@ import type {
   ProviderSessionStartOptions,
   ProviderSessionStartOutcome,
   ProviderTurnOptions,
+  ProviderUsageLimitsRefreshRequest,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   buildCodexUcResponsesRequest,
@@ -28,6 +29,10 @@ import {
   type ResponsesUsage,
   toInputItem,
 } from "./codex-uc-responses.js";
+import {
+  type CodexUcUsageLimits,
+  readUsageLimitsFromHeaders,
+} from "./codex-uc-usage-limits.js";
 
 export { buildCodexUcResponsesRequest } from "./codex-uc-responses.js";
 
@@ -59,14 +64,22 @@ export class CodexUcProviderFacade implements ProviderAdapter {
   private readonly defaultWorkspacePath: string;
   private readonly registry: ToolRegistry;
   private readonly sessions = new Map<string, CodexUcSessionState>();
+  private readonly usageLimitsAdapter?: Pick<
+    ProviderAdapter,
+    "refreshUsageLimits"
+  >;
 
   constructor(
     workspacePath: string = process.cwd(),
-    options: { readonly authPath?: string } = {}
+    options: {
+      readonly authPath?: string;
+      readonly usageLimitsAdapter?: Pick<ProviderAdapter, "refreshUsageLimits">;
+    } = {}
   ) {
     this.defaultWorkspacePath = workspacePath;
     this.authPath =
       options.authPath ?? path.join(homedir(), ".codex", "auth.json");
+    this.usageLimitsAdapter = options.usageLimitsAdapter;
     this.registry = createToolRegistry();
     this.registry.registerSource(createBuiltinToolSource());
   }
@@ -173,6 +186,10 @@ export class CodexUcProviderFacade implements ProviderAdapter {
     this.sessions.delete(providerSessionId);
   }
 
+  refreshUsageLimits(request: ProviderUsageLimitsRefreshRequest): void {
+    this.usageLimitsAdapter?.refreshUsageLimits?.(request);
+  }
+
   private createSessionState(
     workspacePath?: string,
     options?: ProviderSessionStartOptions
@@ -268,9 +285,11 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       throw new Error(`CodexUC request failed (${response.status}): ${text}`);
     }
     this.emitUsageLimits(session, readUsageLimitsFromHeaders(response.headers));
-    return parseResponsesStream(text, (delta) =>
-      this.emit(session, dialogMessage(delta))
-    );
+    return parseResponsesStream(text, {
+      onReasoningDelta: (delta) =>
+        this.emit(session, dialogMessage(delta, "thinking")),
+      onTextDelta: (delta) => this.emit(session, dialogMessage(delta)),
+    });
   }
 
   private readAuth(): CodexAuthTokens | null {
@@ -362,10 +381,13 @@ export class CodexUcProviderFacade implements ProviderAdapter {
   }
 }
 
-function dialogMessage(content: string): NormalizedProviderEvent {
+function dialogMessage(
+  content: string,
+  role: "assistant" | "thinking" = "assistant"
+): NormalizedProviderEvent {
   return {
     content,
-    role: "assistant",
+    role,
     tag: "live",
     timestamp: nowIso(),
     type: "dialog_message",
@@ -379,16 +401,6 @@ function event(type: "turn_completed" | "turn_failed" | "turn_started") {
 
 function nowIso(): string {
   return new Date().toISOString();
-}
-
-interface CodexUcUsageLimitBucket {
-  readonly percentUsed: number;
-  readonly resetsAt?: string | null;
-}
-
-interface CodexUcUsageLimits {
-  readonly currentSession?: CodexUcUsageLimitBucket | null;
-  readonly currentWeekAllModels?: CodexUcUsageLimitBucket | null;
 }
 
 function rollbackResponsesInputItems(
@@ -413,86 +425,6 @@ function isUserInputItem(item: ResponsesInputItem): item is {
   readonly role: "user";
 } {
   return "role" in item && item.role === "user";
-}
-
-function readUsageLimitsFromHeaders(
-  headers: Headers
-): CodexUcUsageLimits | null {
-  const currentSession = readHeaderBucket(headers, "session");
-  const currentWeekAllModels = readHeaderBucket(headers, "weekly");
-  return currentSession || currentWeekAllModels
-    ? { currentSession, currentWeekAllModels }
-    : null;
-}
-
-function readHeaderBucket(
-  headers: Headers,
-  scope: "session" | "weekly"
-): CodexUcUsageLimitBucket | null {
-  const percentUsed = readHeaderNumber(
-    headers,
-    `x-codex-${scope}-used-percent`,
-    `x-chatgpt-${scope}-used-percent`,
-    `x-oai-${scope}-used-percent`
-  );
-  if (percentUsed !== null) {
-    return {
-      percentUsed: clampPercent(Math.round(percentUsed)),
-      resetsAt: readHeaderValue(
-        headers,
-        `x-codex-${scope}-resets-at`,
-        `x-chatgpt-${scope}-resets-at`,
-        `x-oai-${scope}-resets-at`
-      ),
-    };
-  }
-  const limit = readHeaderNumber(
-    headers,
-    `x-codex-${scope}-limit`,
-    `x-chatgpt-${scope}-limit`,
-    `x-oai-${scope}-limit`
-  );
-  const remaining = readHeaderNumber(
-    headers,
-    `x-codex-${scope}-remaining`,
-    `x-chatgpt-${scope}-remaining`,
-    `x-oai-${scope}-remaining`
-  );
-  if (!(limit !== null && remaining !== null && limit > 0)) {
-    return null;
-  }
-  return {
-    percentUsed: clampPercent(Math.round(((limit - remaining) / limit) * 100)),
-    resetsAt: readHeaderValue(
-      headers,
-      `x-codex-${scope}-reset`,
-      `x-chatgpt-${scope}-reset`,
-      `x-oai-${scope}-reset`
-    ),
-  };
-}
-
-function readHeaderNumber(headers: Headers, ...names: string[]): number | null {
-  const value = readHeaderValue(headers, ...names);
-  if (value === null) {
-    return null;
-  }
-  const numeric = Number.parseFloat(value);
-  return Number.isFinite(numeric) ? numeric : null;
-}
-
-function readHeaderValue(headers: Headers, ...names: string[]): string | null {
-  for (const name of names) {
-    const value = headers.get(name);
-    if (value?.trim()) {
-      return value.trim();
-    }
-  }
-  return null;
-}
-
-function clampPercent(value: number): number {
-  return Math.max(0, Math.min(100, value));
 }
 
 export const codexUcProviderFacade = new CodexUcProviderFacade();

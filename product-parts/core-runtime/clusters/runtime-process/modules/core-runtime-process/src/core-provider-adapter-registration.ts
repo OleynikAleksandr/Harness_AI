@@ -25,7 +25,12 @@ export function buildProviderAdapterInstance(
     case "codex":
       return new CodexProviderFacade({ defaultModel: model, workspacePath });
     case "codex-uc":
-      return new CodexUcProviderFacade(workspacePath);
+      return new CodexUcProviderFacade(workspacePath, {
+        usageLimitsAdapter: new CodexProviderFacade({
+          defaultModel: model,
+          workspacePath,
+        }),
+      });
     case "kimi-client":
       // The universal-client endpoint pins its own model (kimi-for-coding is
       // the single public id), so the selected model is intentionally not

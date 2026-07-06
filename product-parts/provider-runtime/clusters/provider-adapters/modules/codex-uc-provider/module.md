@@ -40,10 +40,13 @@ not resend the removed tail.
 - Function tool execution through the Harness universal-client tool registry.
 - Token/cache telemetry from Responses `usage.input_tokens` and
   `usage.input_tokens_details.cached_tokens`.
-- Best-effort usage-limit telemetry from direct Responses response headers when
-  the backend provides Codex session/weekly limit percentages or
-  limit/remaining pairs; otherwise Core displays the Codex-family limit rows as
-  pending rather than fabricating values.
+- Reasoning telemetry from direct Responses reasoning stream deltas/items,
+  emitted as Core-visible `thinking` dialog messages.
+- Usage-limit telemetry through the proven Codex account-limits bridge
+  (`account/rateLimits/read`) plus a best-effort direct response-header fast
+  path when the backend provides Codex session/weekly limit percentages or
+  limit/remaining pairs. If neither source provides values, Core displays the
+  Codex-family limit rows as pending rather than fabricating values.
 - Provider profile application details recording the selected route,
   profile id and experimental `store:false` state model.
 

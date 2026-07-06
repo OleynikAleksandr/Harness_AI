@@ -48,6 +48,10 @@ const responsesSource = readFileSync(
   new URL("./codex-uc-responses.ts", import.meta.url),
   "utf8"
 );
+const usageLimitsSource = readFileSync(
+  new URL("./codex-uc-usage-limits.ts", import.meta.url),
+  "utf8"
+);
 
 const compiled = ts.transpileModule(source, {
   compilerOptions: {
@@ -56,6 +60,12 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const compiledResponses = ts.transpileModule(responsesSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const compiledUsageLimits = ts.transpileModule(usageLimitsSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
@@ -98,6 +108,7 @@ function responseText(step) {
     );
   }
   return (
+    sse("response.reasoning_text.delta", { delta: "thinking" }) +
     sse("response.output_text.delta", { delta: "summary" }) +
     sse("response.output_item.done", {
       item: {
@@ -115,6 +126,10 @@ try {
   writeFileSync(
     path.join(buildDir, "codex-uc-responses.js"),
     compiledResponses
+  );
+  writeFileSync(
+    path.join(buildDir, "codex-uc-usage-limits.js"),
+    compiledUsageLimits
   );
   const { buildCodexUcResponsesRequest, CodexUcProviderFacade } = await import(
     pathToFileURL(path.join(buildDir, "codex-uc-provider-facade.js")).href
@@ -172,7 +187,13 @@ try {
   };
 
   try {
-    const adapter = new CodexUcProviderFacade(workspace, { authPath });
+    const usageLimitRefreshes = [];
+    const adapter = new CodexUcProviderFacade(workspace, {
+      authPath,
+      usageLimitsAdapter: {
+        refreshUsageLimits: (request) => usageLimitRefreshes.push(request),
+      },
+    });
     const outcome = await adapter.createSession(workspace, {
       profile: {
         contentHash: "hash",
@@ -210,16 +231,27 @@ try {
         "stream_event",
         "stream_event",
         "dialog_message",
+        "dialog_message",
         "stream_event",
         "turn_completed",
       ]
     );
+    assert.equal(events[4].role, "thinking");
+    assert.equal(events[4].content, "thinking");
+    assert.equal(events[5].role, "assistant");
     assert.equal(events[3].data.usageLimits.currentSession.percentUsed, 9);
     assert.equal(
       events[3].data.usageLimits.currentWeekAllModels.percentUsed,
       61
     );
-    assert.equal(events[5].data.tokenUsage.cached, 768);
+    assert.equal(events[6].data.tokenUsage.cached, 768);
+    adapter.refreshUsageLimits({
+      broadcast: () => undefined,
+      providerSessionId: outcome.providerSessionId,
+      runtimeSessionId: "runtime-session",
+      workspacePath: workspace,
+    });
+    assert.equal(usageLimitRefreshes.length, 1);
 
     const rollback = await adapter.rollbackSessionTurns(
       outcome.providerSessionId,

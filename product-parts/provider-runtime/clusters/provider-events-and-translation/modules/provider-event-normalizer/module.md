@@ -15,7 +15,8 @@ Normalize provider stream/event payloads for Core Runtime.
 
 ## Outputs
 
-- Provider-neutral event record.
+- Provider-neutral event record, including `dialog_message` roles
+  `assistant` and `thinking`.
 - Event normalization diagnostics.
 - Codex reasoning summary/text deltas materialized as stable
   `dialog_message` events tagged `thinking`; summary block ids use

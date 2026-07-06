@@ -84,11 +84,17 @@ synthetic-native. Номера строк актуальны на дату ис�
   Responses-compatible backend с `store:false`; managed/synthetic profile
   snapshot применяется как request `instructions`, а tool surface формируется
   Harness function tools вместо app-server native tools. Cache telemetry берётся
-  из `usage.input_tokens_details.cached_tokens`, а usage-limit telemetry —
-  best-effort из direct Responses headers, если backend отдаёт Codex
-  session/weekly limit проценты или пары limit/remaining. Settings-карты у него
-  нет: model/reasoning берутся из существующего Codex settings section, а OAuth
-  auth читается из локального Codex login. В UI и telemetry он является
+  из `usage.input_tokens_details.cached_tokens` и означает provider-reported
+  cached input read; `0` после первого turn является честным значением от
+  Responses route, а не доказательством отсутствия server-side cache write.
+  Reasoning telemetry берётся из direct Responses reasoning stream
+  deltas/items и отдаётся в Core как `thinking` messages. Usage-limit telemetry
+  берётся через проверенный Codex account-limits bridge
+  (`account/rateLimits/read`) с best-effort direct response-header fast path,
+  если backend отдаёт Codex session/weekly limit проценты или пары
+  limit/remaining. Settings-карты у него нет: model/reasoning берутся из
+  существующего Codex settings section, а OAuth auth читается из локального
+  Codex login. В UI и telemetry он является
   Codex-family provider: использует Codex-style reasoning label, cache counter,
   Turns/Rollback controls и общий provider scope `codex:global`; rollback
   реализуется не через app-server `thread/rollback`, а через pruning локальной

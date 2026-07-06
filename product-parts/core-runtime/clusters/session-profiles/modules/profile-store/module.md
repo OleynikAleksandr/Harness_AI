@@ -19,15 +19,17 @@ validation failures, and seeds the standard profile set on first access
 individual migration profile (`codeai-workflow-claude` from the hardcoded
 Claude workflow prompt), and the Codex `codex-synthetic-native` probe profile
 materialized from the accepted native request capture plus the workspace
-`AGENTS.md` text. The Codex synthetic prompt starts with the captured Codex
-system prompt byte-for-byte, appends the materialized `AGENTS.md` instructions
-inside that system-prefix block, and keeps captured tool declarations only
-afterward as prompt-visible reference text. Retired Kimi ACP and GLM Native
-provider ids are no longer seeded as selectable profiles; their historical
-prompt material belongs to the Phase 5 synthetic-native design records, not
-active profile-store runtime code. Seeding runs only when the root contains no
-profile directories at all; user files are never overwritten and deleting a
-single seeded profile does not resurrect it.
+`AGENTS.md` text. The Codex probe prompt starts with the captured Codex system
+prompt byte-for-byte, appends only a normal `AGENTS.md instructions` wrapper
+containing the workspace instructions, and does not include Harness diagnostic
+headings, captured/tool JSON code fences, or synthetic-profile explanatory
+text. Real Codex tools remain app-server structured tools, not prompt text.
+Retired Kimi ACP and GLM Native provider ids are no longer seeded as selectable
+profiles; their historical prompt material belongs to the Phase 5
+synthetic-native design records, not active profile-store runtime code.
+Seeding runs only when the root contains no profile directories at all; user
+files are never overwritten and deleting a single seeded profile does not
+resurrect it.
 
 ## Public Facade
 

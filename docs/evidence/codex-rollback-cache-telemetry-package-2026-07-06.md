@@ -16,13 +16,15 @@ Rebuilt the packaged macOS app after the Codex rollback acceptance fixes:
 - Acceptance layout fix keeps `Turns` immediately to the left of `Rollback`,
   after `Tokens` and optional `Cache`, on the same desktop status-panel row.
 - `codex-synthetic-native` is available as a Codex individual session profile:
-  it materializes the accepted 2026-07-05 Codex native request capture
-  as a system-prefix probe. The corrected profile starts byte-for-byte with the
-  captured Codex system prompt, immediately appends the materialized workspace
-  `AGENTS.md` instructions, and only then includes captured tool declarations as
-  prompt-visible reference text. This is a manual probe for verifying that Codex
-  receives the instructions even if the workspace `AGENTS.md` file is removed
-  after profile selection.
+  it materializes the accepted 2026-07-05 Codex native request capture as a
+  system-prefix probe. The corrected profile starts byte-for-byte with the
+  captured Codex system prompt, immediately appends a normal `AGENTS.md
+  instructions for ...` wrapper with the workspace instructions, and contains no
+  Harness diagnostic headings, captured/tool JSON code fences, or synthetic
+  profile explanatory text. Real Codex tools remain the app-server structured
+  tool layer. This is a manual probe for verifying that Codex receives the
+  instructions even if the workspace `AGENTS.md` file is removed after profile
+  selection.
 
 ## Commands
 
@@ -69,4 +71,8 @@ Verified artifact timestamp:
 - Confirm `Cache` appears after Codex emits cached input token telemetry.
 - In the Codex profile picker, select `Codex Synthetic Native`; start a session,
   then remove workspace `AGENTS.md` for the test and confirm the agent still
-  follows the materialized workspace instructions from the profile.
+  follows the materialized workspace instructions from the profile. The local
+  user profile file is
+  `/Users/oleksandroliinyk/.harness-ai/Profiles/codex-synthetic-native/system-prompt.md`;
+  for this retest it can be refreshed without rebuilding `app.asar` because the
+  session profile store reads user profile documents from `~/.harness-ai/Profiles`.

@@ -183,18 +183,12 @@ try {
       codexSeed.promptBody.startsWith("You are Codex, a coding agent"),
       true
     );
-    assert.match(codexSeed.promptBody, /## Materialized Workspace AGENTS\.md/u);
-    assert.match(
-      codexSeed.promptBody,
-      /## Captured Codex Native Tool Declarations/u
-    );
-    assert.equal(
-      codexSeed.promptBody.indexOf("## Materialized Workspace AGENTS.md") <
-        codexSeed.promptBody.indexOf(
-          "## Captured Codex Native Tool Declarations"
-        ),
-      true
-    );
+    assert.match(codexSeed.promptBody, /# AGENTS\.md instructions for /u);
+    assert.match(codexSeed.promptBody, /<INSTRUCTIONS>/u);
+    assert.doesNotMatch(codexSeed.promptBody, /Synthetic Native/u);
+    assert.doesNotMatch(codexSeed.promptBody, /Captured Codex/u);
+    assert.doesNotMatch(codexSeed.promptBody, /Materialized Workspace/u);
+    assert.doesNotMatch(codexSeed.promptBody, /```json/u);
     const reviewSeed = seededScan.profiles.find(
       (profile) => profile.id === "review"
     );

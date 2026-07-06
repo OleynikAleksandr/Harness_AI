@@ -138,15 +138,45 @@ export class UsageContextTelemetryFacade {
       providerSessionId: current.providerSessionId,
       status: current.status,
       tokenUsage: tokenUsage
-        ? {
-            ...tokenUsage,
-            limit: tokenUsage.limit || current.tokenUsage.limit,
-          }
+        ? mergeTokenUsage(current, tokenUsage)
         : current.tokenUsage,
       usageLimitLabels: current.usageLimitLabels,
       usageLimits: usageLimits ?? current.usageLimits,
     });
   }
+}
+
+function mergeTokenUsage(
+  current: ProviderUsageTelemetry,
+  next: ProviderTokenUsage
+): ProviderTokenUsage {
+  return {
+    cached: mergeCachedTokenCount({
+      current: current.tokenUsage.cached,
+      next: next.cached,
+      providerId: current.providerId,
+    }),
+    limit: next.limit || current.tokenUsage.limit,
+    used: next.used,
+  };
+}
+
+function mergeCachedTokenCount(options: {
+  current: number | null;
+  next: number | null;
+  providerId: string;
+}): number | null {
+  if (options.next === null) {
+    return options.current;
+  }
+  if (
+    isCodexFamilyProvider(options.providerId) &&
+    (options.current ?? 0) > 0 &&
+    options.next === 0
+  ) {
+    return options.current;
+  }
+  return options.next;
 }
 
 function buildTelemetry(value: {
@@ -363,7 +393,7 @@ function providerScopeKey(providerId: string): string | null {
 }
 
 function defaultCachedTokenCount(providerId: string): number | null {
-  return providerId === "codex" ? 0 : null;
+  return isCodexFamilyProvider(providerId) ? 0 : null;
 }
 
 function defaultTokenLimit(providerId: string): number {

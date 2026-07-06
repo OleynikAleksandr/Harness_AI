@@ -42,8 +42,9 @@ not resend the removed tail.
   token aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.). Missing cache fields stay unknown; the adapter
   never forces unknown cache telemetry to `0`.
-- Reasoning telemetry from direct Responses reasoning stream deltas/items,
-  emitted as Core-visible `thinking` dialog messages.
+- Visible reasoning is requested with `reasoning.summary: "detailed"` plus the
+  selected effort. Reasoning telemetry from direct Responses reasoning summary
+  stream deltas/items is emitted as Core-visible `thinking` dialog messages.
 - Usage-limit telemetry through the proven Codex account-limits bridge
   (`account/rateLimits/read`) plus a best-effort direct response-header fast
   path when the backend provides Codex session/weekly limit percentages or

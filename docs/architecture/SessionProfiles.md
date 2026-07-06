@@ -86,11 +86,14 @@ synthetic-native. Номера строк актуальны на дату ис�
   Harness function tools вместо app-server native tools. Cache telemetry берётся
   из known Responses usage aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.) и означает provider-reported cached input read;
-  если cache field отсутствует, Harness оставляет значение неизвестным и не
-  превращает его в `0`. `0` показывается только когда Responses route явно
-  прислал ноль.
-  Reasoning telemetry берётся из direct Responses reasoning stream
-  deltas/items и отдаётся в Core как `thinking` messages. Usage-limit telemetry
+  CodexUC status panel стартует с `Cache: 0`, положительное значение становится
+  последним известным cache-hit для активной projected session, а поздний
+  `cached: 0` не стирает уже найденный положительный anchor value. Missing
+  cache field не превращается в новый ноль.
+  Visible reasoning запрашивается через `reasoning.summary: "detailed"` вместе
+  с выбранным effort; reasoning telemetry берётся из direct Responses reasoning
+  summary/text stream deltas/items и отдаётся в Core как `thinking` messages.
+  Usage-limit telemetry
   берётся через проверенный Codex account-limits bridge
   (`account/rateLimits/read`) с best-effort direct response-header fast path,
   если backend отдаёт Codex session/weekly limit проценты или пары

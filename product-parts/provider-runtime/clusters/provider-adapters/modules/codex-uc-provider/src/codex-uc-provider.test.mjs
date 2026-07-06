@@ -81,7 +81,9 @@ function sse(event, data) {
 function responseText(step) {
   const usage = {
     input_tokens: 1000 + step,
-    ...(step === 3 ? { input_tokens_details: { cached_tokens: 768 } } : {}),
+    input_tokens_details: {
+      cached_tokens: step === 2 ? 7400 : 0,
+    },
   };
   if (step === 1) {
     return (
@@ -108,7 +110,9 @@ function responseText(step) {
     );
   }
   return (
-    sse("response.reasoning_text.delta", { delta: "thinking" }) +
+    sse("response.reasoning_summary.delta", {
+      delta: { text: "thinking" },
+    }) +
     sse("response.output_text.delta", { delta: "summary" }) +
     sse("response.output_item.done", {
       item: {
@@ -152,6 +156,8 @@ try {
   });
   assert.equal(request.store, false);
   assert.equal(request.stream, true);
+  assert.deepEqual(request.include, ["reasoning.encrypted_content"]);
+  assert.deepEqual(request.reasoning, { effort: "low", summary: "detailed" });
   assert.equal(request.tools[0].name, "read_file");
 
   const workspace = await mkdtemp(path.join(tmpdir(), "codex-uc-ws-"));
@@ -239,14 +245,14 @@ try {
     assert.equal(events[4].role, "thinking");
     assert.equal(events[4].content, "thinking");
     assert.equal(events[5].role, "assistant");
-    assert.equal("cached" in events[1].data.tokenUsage, false);
-    assert.equal("cached" in events[2].data.tokenUsage, false);
+    assert.equal(events[1].data.tokenUsage.cached, 0);
+    assert.equal(events[2].data.tokenUsage.cached, 7400);
     assert.equal(events[3].data.usageLimits.currentSession.percentUsed, 9);
     assert.equal(
       events[3].data.usageLimits.currentWeekAllModels.percentUsed,
       61
     );
-    assert.equal(events[6].data.tokenUsage.cached, 768);
+    assert.equal(events[6].data.tokenUsage.cached, 0);
     adapter.refreshUsageLimits({
       broadcast: () => undefined,
       providerSessionId: outcome.providerSessionId,

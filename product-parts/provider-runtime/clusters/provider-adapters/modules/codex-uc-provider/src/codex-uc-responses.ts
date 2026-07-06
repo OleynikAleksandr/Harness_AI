@@ -62,11 +62,15 @@ export type ResponsesInputItem =
     };
 
 export interface CodexUcResponsesRequest {
+  readonly include: readonly string[];
   readonly input: readonly ResponsesInputItem[];
   readonly instructions: string;
   readonly model: string;
   readonly parallel_tool_calls: false;
-  readonly reasoning?: { readonly effort: string };
+  readonly reasoning?: {
+    readonly effort: string;
+    readonly summary: "detailed";
+  };
   readonly store: false;
   readonly stream: true;
   readonly tool_choice: "auto";
@@ -87,12 +91,13 @@ export const buildCodexUcResponsesRequest = (input: {
   readonly reasoningEffort?: string | null;
   readonly tools: readonly ToolDescriptor[];
 }): CodexUcResponsesRequest => ({
+  include: ["reasoning.encrypted_content"],
   input: input.items,
   instructions: input.instructions,
   model: input.model,
   parallel_tool_calls: false,
   ...(input.reasoningEffort
-    ? { reasoning: { effort: input.reasoningEffort } }
+    ? { reasoning: { effort: input.reasoningEffort, summary: "detailed" } }
     : {}),
   store: false,
   stream: true,
@@ -172,16 +177,19 @@ function emitDelta(
   }
 ): void {
   if (isTextDeltaEvent(event.name)) {
-    const delta = readFirstString(event.data.delta, event.data.text);
+    const delta = readFirstText(event.data.delta, event.data.text);
     if (delta) {
       callbacks.onTextDelta(delta);
     }
   }
   if (isReasoningDeltaEvent(event.name)) {
-    const delta = readFirstString(
+    const delta = readFirstText(
       event.data.delta,
       event.data.text,
-      event.data.summary_text
+      event.data.summary_text,
+      event.data.summary,
+      event.data.part,
+      event.data.content
     );
     if (delta) {
       callbacks.onReasoningDelta?.(delta);
@@ -210,8 +218,11 @@ function isTextDeltaEvent(name: string): boolean {
 function isReasoningDeltaEvent(name: string): boolean {
   return (
     name === "response.reasoning_text.delta" ||
+    name === "response.reasoning_summary.delta" ||
     name === "response.reasoning_summary_text.delta" ||
     name === "response.reasoning.delta" ||
+    name === "response.reasoning_part.added" ||
+    name === "response.reasoning_summary_part.added" ||
     (name.includes("reasoning") && name.endsWith(".delta"))
   );
 }
@@ -294,14 +305,34 @@ function readString(value: unknown): string | null {
   return typeof value === "string" ? value : null;
 }
 
-function readFirstString(...values: unknown[]): string | null {
+function readFirstText(...values: unknown[]): string | null {
   for (const value of values) {
-    const text = readString(value);
+    const text = readText(value);
     if (text) {
       return text;
     }
   }
   return null;
+}
+
+function readText(value: unknown): string | null {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    const joined = value.map(readText).filter(Boolean).join("");
+    return joined || null;
+  }
+  if (!isRecord(value)) {
+    return null;
+  }
+  return readFirstText(
+    value.text,
+    value.output_text,
+    value.summary_text,
+    value.content,
+    value.summary
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

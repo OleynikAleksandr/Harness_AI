@@ -8,8 +8,8 @@
   "planId": "codex-rollback-2026-07-06",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream5.task1",
-  "expectedCommitMessage": "feat(session-ui): enable codex rollback button",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "chore(package): rebuild packaged app with codex rollback",
   "debt": null
 }
 ```
@@ -89,8 +89,8 @@
 
 ### Stream: Codex Session UI Enablement
 
-9. [IN_PROGRESS] `harness-ai.phase6.stream5.task1` Enable the existing Codex-only `Rollback` button in the Session status panel: derive default `numTurns` from the visible Codex turn count, call the Core rollback RPC, keep the button hidden for non-Codex sessions, and surface controlled success/failure feedback without `window.alert`/`prompt`/`confirm` (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `feat(session-ui): enable codex rollback button`).
-10. [TODO] Git Commit: `feat(session-ui): enable codex rollback button` (hash: TBD)
+9. [DONE] `harness-ai.phase6.stream5.task1` Enable the existing Codex-only `Rollback` button in the Session status panel: derive default `numTurns` from the visible Codex turn count, call the Core rollback RPC, keep the button hidden for non-Codex sessions, and surface controlled success/failure feedback without `window.alert`/`prompt`/`confirm`. Scope clarification: UI applies Core-owned `session:messages-replaced` events, so the core-events helper and panel test join this task (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.test.mjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts`, `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`, `.harness/plans/todo-plan.md`; expected commit: `feat(session-ui): enable codex rollback button`). Result: Completed in commit `feat(session-ui): enable codex rollback button`.
+10. [DONE] Git Commit: `feat(session-ui): enable codex rollback button` (hash: self)
 
 ## Phase 7 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-06)
 
@@ -100,6 +100,6 @@
 > the user explicitly confirms a package build. Gates run automatically on every
 > commit, so there is no separate gate-run phase.
 
-11. [TODO] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed), verify `release/mac-arm64/Harness AI.app` exists, and record Codex rollback package evidence (scope: `docs/evidence/codex-rollback-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex rollback`).
+11. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed), verify `release/mac-arm64/Harness AI.app` exists, and record Codex rollback package evidence (scope: `docs/evidence/codex-rollback-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex rollback`).
 12. [TODO] Git Commit: `chore(package): rebuild packaged app with codex rollback` (hash: TBD)
 13. [TODO] `harness-ai.phase7.stream1.task2` User runs a live Codex session in the packaged app and validates the rollback checklist: `Turns` before/after, token window before/after, Codex app-server `thread/read includeTurns=true`, `lastInput`, `lastCached`, and preserved cache-anchor behavior (scope: user workflow; expected commit: none).

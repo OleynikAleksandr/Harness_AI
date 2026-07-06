@@ -41,7 +41,6 @@ export function SessionIdPanel({
     </section>
   );
 }
-
 export function DialogPanel({
   messages,
   providerId,
@@ -90,7 +89,6 @@ export function DialogPanel({
     </section>
   );
 }
-
 export function ReferenceInputPanel({
   disabled,
   onStop,
@@ -202,14 +200,17 @@ export function ReferenceInputPanel({
     </form>
   );
 }
-
 export function ReferenceStatusPanel({
   messages,
+  onRollbackTurns,
+  rollbackPending,
   session,
   settings,
   telemetry,
 }: {
   messages: readonly SessionMessage[];
+  onRollbackTurns?: (numTurns: number) => void;
+  rollbackPending?: boolean;
   session: CoreSession | undefined;
   settings: HarnessSettings | null;
   telemetry: SessionTelemetry;
@@ -218,8 +219,11 @@ export function ReferenceStatusPanel({
   const reasoning = resolveReasoningLabel(session, settings);
   const showCodexRollbackProbe = session?.providerId === "codex";
   const turnCount = showCodexRollbackProbe
-    ? resolveVisibleTurnCount(messages)
+    ? messages.filter((message) => message.role === "user").length
     : 0;
+  const rollbackReady = Boolean(
+    onRollbackTurns && turnCount > 0 && telemetry.status === "idle"
+  );
   return (
     <section
       className={
@@ -252,7 +256,8 @@ export function ReferenceStatusPanel({
       {showCodexRollbackProbe ? (
         <button
           className="session-status-button session-status-button--rollback"
-          disabled
+          disabled={!rollbackReady || rollbackPending}
+          onClick={() => onRollbackTurns?.(turnCount)}
           type="button"
         >
           {t("ui_labels", "session.status.rollback", "Rollback")}
@@ -261,11 +266,6 @@ export function ReferenceStatusPanel({
     </section>
   );
 }
-
-function resolveVisibleTurnCount(messages: readonly SessionMessage[]): number {
-  return messages.filter((message) => message.role === "user").length;
-}
-
 function LimitRow({ row }: { row: SessionTelemetry["limitRows"][number] }) {
   return (
     <div className="session-id-bar__limit-row" title={row.resetLabel ?? ""}>
@@ -283,7 +283,6 @@ function LimitRow({ row }: { row: SessionTelemetry["limitRows"][number] }) {
     </div>
   );
 }
-
 // Applied session profile chip, driven strictly by the Core-owned applied
 // profile snapshot; sessions persisted before profiles (no snapshot) show a
 // legacy marker.

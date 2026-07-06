@@ -5,9 +5,22 @@ const source = readFileSync(
   new URL("./reference-session-panels.tsx", import.meta.url),
   "utf8"
 );
+const facadeSource = readFileSync(
+  new URL("./session-window-facade.tsx", import.meta.url),
+  "utf8"
+);
+const coreEventsSource = readFileSync(
+  new URL("./session-window-core-events.ts", import.meta.url),
+  "utf8"
+);
 
 assert.match(source, /resolveCodexReasoningEffort/u);
 assert.match(source, /return effort \? `\(\$\{effort\}\)` : null/u);
+assert.match(source, /onRollbackTurns\?\.\(turnCount\)/u);
+assert.match(source, /telemetry\.status === "idle"/u);
+assert.match(facadeSource, /rollbackSessionTurns\(\{/u);
+assert.match(facadeSource, /Rolled back \$\{numTurns\} Codex turn/u);
+assert.match(coreEventsSource, /session:messages-replaced/u);
 assert.doesNotMatch(
   source,
   /providers\.codex\.reasoningByModel\[session\.model\] \?\? "medium"/u

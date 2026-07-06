@@ -46,6 +46,13 @@ export function applyCoreEvent(params: {
     );
     return;
   }
+  if (event.type === "session:messages-replaced") {
+    setMessagesBySession((current) => ({
+      ...current,
+      [event.payload.sessionId]: event.payload.messages,
+    }));
+    return;
+  }
   if (event.type === "session:error") {
     appendAssistantNotice(
       event.payload.sessionId,

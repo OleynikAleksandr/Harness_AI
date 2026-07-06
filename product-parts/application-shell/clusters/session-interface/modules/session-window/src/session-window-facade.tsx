@@ -67,6 +67,9 @@ export function SessionWindowFacade() {
   >({
     [initialSnapshot.activeSessionId]: initialSnapshot.telemetry,
   });
+  const [rollbackSessionId, setRollbackSessionId] = useState<string | null>(
+    null
+  );
   const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
@@ -223,6 +226,45 @@ export function SessionWindowFacade() {
     await window.harnessCore?.stopTurn(sessionId);
   }
 
+  async function rollbackActiveSessionTurns(
+    sessionId: string,
+    numTurns: number
+  ) {
+    setRollbackSessionId(sessionId);
+    try {
+      const result = await window.harnessCore?.rollbackSessionTurns({
+        numTurns,
+        sessionId,
+      });
+      if (!result) {
+        appendAssistantNotice(
+          sessionId,
+          "Core runtime bridge is unavailable.",
+          setMessagesBySession
+        );
+      } else if (result.ok) {
+        await hydrateSession(sessionId);
+        appendAssistantNotice(
+          sessionId,
+          `Rolled back ${numTurns} Codex turn${numTurns === 1 ? "" : "s"}.`,
+          setMessagesBySession
+        );
+      } else {
+        appendAssistantNotice(sessionId, result.error, setMessagesBySession);
+      }
+    } catch (error) {
+      appendAssistantNotice(
+        sessionId,
+        error instanceof Error ? error.message : String(error),
+        setMessagesBySession
+      );
+    } finally {
+      setRollbackSessionId((current) =>
+        current === sessionId ? null : current
+      );
+    }
+  }
+
   function chooseProviderForNewSession(provider: ProviderDescriptor) {
     if (provider.readinessStatus !== "ready") {
       return;
@@ -366,6 +408,10 @@ export function SessionWindowFacade() {
             />
             <ReferenceStatusPanel
               messages={messages}
+              onRollbackTurns={(numTurns) =>
+                rollbackActiveSessionTurns(activeSession.id, numTurns)
+              }
+              rollbackPending={rollbackSessionId === activeSession.id}
               session={activeSession}
               settings={settingsSnapshot}
               telemetry={telemetry}

@@ -22,8 +22,9 @@ Render the transcript/dialog layout and session chrome.
 - For Codex sessions only, the session status panel renders the display-only
   visible turn count from the current transcript (`role === "user"`)
   immediately before the Core-owned token telemetry. The Codex-only Rollback
-  button sends that visible count as `numTurns` to the Core
-  `rollbackSessionTurns` RPC only while the session is idle; Core still
+  button preserves the first two visible Codex user turns as the
+  warmup/cache-anchor pair and sends only `visibleTurns - 2` as `numTurns` to
+  the Core `rollbackSessionTurns` RPC while the session is idle; Core still
   validates provider id, binding and turn count. Non-Codex sessions keep the
   standard token-only status layout.
 - The session window owns refresh of the browser localization runtime payload
@@ -95,7 +96,8 @@ Render the transcript/dialog layout and session chrome.
 - Session-level UI actions sent to Core, including the running-turn Stop that
   calls Core `stopTurn` with the active session id.
 - Enabled Rollback control in the Codex status panel. It dispatches only the
-  raw `{ sessionId, numTurns }` intent to Core, shows controlled transcript
+  raw `{ sessionId, numTurns }` intent to Core, keeps the first two visible
+  Codex user turns outside the rollback count, shows controlled transcript
   notices for success/failure, and applies Core `session:messages-replaced`
   events to refresh the visible transcript after rollback.
 - Next-session mode panel display; session creation submits the native raw baseline and regression tests guard that preview choices do not change runtime input.

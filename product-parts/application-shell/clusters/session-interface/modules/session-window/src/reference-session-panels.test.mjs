@@ -16,7 +16,8 @@ const coreEventsSource = readFileSync(
 
 assert.match(source, /resolveCodexReasoningEffort/u);
 assert.match(source, /return effort \? `\(\$\{effort\}\)` : null/u);
-assert.match(source, /onRollbackTurns\?\.\(turnCount\)/u);
+assert.match(source, /turnCount > 2/u);
+assert.match(source, /onRollbackTurns\?\.\(turnCount - 2\)/u);
 assert.match(source, /telemetry\.status === "idle"/u);
 assert.match(facadeSource, /rollbackSessionTurns\(\{/u);
 assert.match(facadeSource, /Rolled back \$\{numTurns\} Codex turn/u);

@@ -8,7 +8,7 @@
   "planId": "codex-rollback-2026-07-06",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -102,4 +102,9 @@
 
 11. [DONE] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed), verify `release/mac-arm64/Harness AI.app` exists, and record Codex rollback package evidence (scope: `docs/evidence/codex-rollback-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex rollback`). Result: Completed in commit `chore(package): rebuild packaged app with codex rollback`.
 12. [DONE] Git Commit: `chore(package): rebuild packaged app with codex rollback` (hash: self)
-13. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` User runs a live Codex session in the packaged app and validates the rollback checklist: `Turns` before/after, token window before/after, Codex app-server `thread/read includeTurns=true`, `lastInput`, `lastCached`, and preserved cache-anchor behavior (scope: user workflow; expected commit: none).
+13. [DONE] `harness-ai.phase7.stream1.task2` User runs a live Codex session in the packaged app and validates the rollback checklist: `Turns` before/after, token window before/after, Codex app-server `thread/read includeTurns=true`, `lastInput`, `lastCached`, and preserved cache-anchor behavior (scope: user workflow; expected commit: none). Result: User acceptance found that the Rollback button sent the full visible user-turn count and could remove the cache-anchor turns.
+
+### Stream: Acceptance Fixes
+
+14. [DONE] `harness-ai.phase7.stream2.task1` Fix the Codex Rollback button default so it preserves the first two visible Codex user-turns as the warmup/cache-anchor pair, disables rollback until at least one later turn exists, and updates the session-window documentation and architecture checklist for the new manual probe contract (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx`, `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.test.mjs`, `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`, `docs/architecture/CodexCacheAnchorThread.md`, `.harness/plans/todo-plan.md`; expected commit: `fix(session-ui): preserve codex rollback warmup turns`). Result: Completed in commit `fix(session-ui): preserve codex rollback warmup turns`.
+15. [DONE] Git Commit: `fix(session-ui): preserve codex rollback warmup turns` (hash: self)

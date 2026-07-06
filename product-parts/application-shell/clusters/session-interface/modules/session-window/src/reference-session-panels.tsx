@@ -222,7 +222,7 @@ export function ReferenceStatusPanel({
     ? messages.filter((message) => message.role === "user").length
     : 0;
   const rollbackReady = Boolean(
-    onRollbackTurns && turnCount > 0 && telemetry.status === "idle"
+    onRollbackTurns && turnCount > 2 && telemetry.status === "idle"
   );
   return (
     <section
@@ -257,7 +257,7 @@ export function ReferenceStatusPanel({
         <button
           className="session-status-button session-status-button--rollback"
           disabled={!rollbackReady || rollbackPending}
-          onClick={() => onRollbackTurns?.(turnCount)}
+          onClick={() => onRollbackTurns?.(turnCount - 2)}
           type="button"
         >
           {t("ui_labels", "session.status.rollback", "Rollback")}

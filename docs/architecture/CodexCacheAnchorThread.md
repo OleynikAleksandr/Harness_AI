@@ -462,20 +462,26 @@ cache-anchor prefix после удаления dynamic turns.
 
 - в status panel сессии показать `Turns` слева от `Tokens`;
 - справа в той же панели показать кнопку `Rollback`;
-- кнопка на этой стадии НЕ вызывает provider rollback автоматически;
-- счётчик turns нужен как операторский ориентир для `numTurns`;
+- кнопка вызывает Core-owned Codex rollback intent, а не прямой renderer-side
+  provider JSON-RPC;
+- счётчик turns остаётся операторским ориентиром, но дефолт Harness rollback
+  сохраняет первые два visible user turns как warmup/cache-anchor pair и
+  отправляет `numTurns = max(Turns - 2, 0)`;
+- при `Turns <= 2` кнопка недоступна, чтобы не стереть cache-anchor warmup;
 - для не-Codex провайдеров этот UI-зонд не показывается;
-- оператор вручную запускает Codex app-server rollback и сверяет, как меняются
-  `Turns`, `Tokens`, cached input и provider-visible history.
+- оператор сверяет, как меняются `Turns`, `Tokens`, cached input и
+  provider-visible history.
 
 Порядок ручной проверки Codex:
 
 1. Создать Codex cache-anchor turn.
-2. Добавить 1-2 больших dynamic turns.
-3. Снять `thread/read includeTurns=true` и `thread/tokenUsage/updated`.
-4. Выполнить `thread/rollback numTurns=N`.
-5. Снять `thread/read` и следующий probe turn.
-6. Принять только если `lastInput` падает до anchor-tail размера, а
+2. Создать второй warmup/probe turn, чтобы статичный prefix был уже наблюдаемо
+   прогрет и в диалоге осталась начальная договорённость с агентом.
+3. Добавить 1-2 больших dynamic turns.
+4. Снять `thread/read includeTurns=true` и `thread/tokenUsage/updated`.
+5. Нажать Harness `Rollback`; ожидаемый `numTurns` равен `Turns - 2`.
+6. Снять `thread/read` и следующий probe turn.
+7. Принять только если `lastInput` падает до anchor-tail размера, а
    `lastCached` остаётся высоким.
 
 Что НЕ входит в текущую стадию:
@@ -484,7 +490,7 @@ cache-anchor prefix после удаления dynamic turns.
 - universal-client local history pruning for Kimi, GLM, OpenRouter and Local
   Models;
 - provider-neutral rollback abstraction;
-- renderer-side enablement of the Rollback button.
+- configurable rollback depth beyond the current Codex warmup-pair default.
 
 Acceptance для перехода к автоматизации Codex:
 

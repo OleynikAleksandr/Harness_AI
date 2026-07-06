@@ -8,8 +8,8 @@
   "planId": "codex-rollback-2026-07-06",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "chore(package): rebuild packaged app with codex rollback",
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -100,6 +100,6 @@
 > the user explicitly confirms a package build. Gates run automatically on every
 > commit, so there is no separate gate-run phase.
 
-11. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed), verify `release/mac-arm64/Harness AI.app` exists, and record Codex rollback package evidence (scope: `docs/evidence/codex-rollback-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex rollback`).
-12. [TODO] Git Commit: `chore(package): rebuild packaged app with codex rollback` (hash: TBD)
-13. [TODO] `harness-ai.phase7.stream1.task2` User runs a live Codex session in the packaged app and validates the rollback checklist: `Turns` before/after, token window before/after, Codex app-server `thread/read includeTurns=true`, `lastInput`, `lastCached`, and preserved cache-anchor behavior (scope: user workflow; expected commit: none).
+11. [DONE] `harness-ai.phase7.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed), verify `release/mac-arm64/Harness AI.app` exists, and record Codex rollback package evidence (scope: `docs/evidence/codex-rollback-package-YYYY-MM-DD.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `chore(package): rebuild packaged app with codex rollback`). Result: Completed in commit `chore(package): rebuild packaged app with codex rollback`.
+12. [DONE] Git Commit: `chore(package): rebuild packaged app with codex rollback` (hash: self)
+13. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` User runs a live Codex session in the packaged app and validates the rollback checklist: `Turns` before/after, token window before/after, Codex app-server `thread/read includeTurns=true`, `lastInput`, `lastCached`, and preserved cache-anchor behavior (scope: user workflow; expected commit: none).

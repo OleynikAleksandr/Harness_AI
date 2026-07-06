@@ -272,6 +272,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild after the session-profile cleanup that removed
   active bindings to retired provider ids (`kimi`, `glm-native`) from
   `PROFILE_SUPPORTED_PROVIDER_IDS` and the standard seed-profile set.
+- `docs/evidence/codex-rollback-package-2026-07-06.md` — packaged
+  application rebuild for the standalone Codex rollback scope: Codex provider
+  app-server `thread/rollback`, Core-owned Codex rollback intent, Electron/Core
+  RPC bridge, and enabled Codex-only Session Rollback control.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

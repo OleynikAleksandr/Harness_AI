@@ -460,8 +460,9 @@ cache-anchor prefix после удаления dynamic turns.
 
 Минимальный UI-зонд для Codex-сессии:
 
-- в status panel сессии показать `Turns` слева от `Tokens`;
-- справа в той же панели показать кнопку `Rollback`;
+- в status panel сессии показать Core-owned `Tokens` и, когда provider его
+  сообщает, `Cache`;
+- справа в той же панели показать `Turns` рядом с кнопкой `Rollback`;
 - кнопка вызывает Core-owned Codex rollback intent, а не прямой renderer-side
   provider JSON-RPC;
 - счётчик turns остаётся операторским ориентиром, но дефолт Harness rollback
@@ -504,6 +505,8 @@ Acceptance для перехода к автоматизации Codex:
 - Evidence фиксирует до/после: `turns`, `lastInput`, `lastCached`,
   `modelContextWindow`, provider id `codex`, model id и точный rollback
   strategy.
+- UI cache display принимает только Core-normalized telemetry; renderer не
+  читает provider-native payload и не вычисляет cached-token truth сам.
 
 ## Официальные источники
 

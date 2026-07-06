@@ -114,6 +114,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "session.role.thinking": "Thinking",
     "session.role.user": "User",
     "session.sidebar.workspaces": "Workspaces",
+    "session.status.cache": "Cache:",
     "session.status.model": "Model:",
     "session.status.rollback": "Rollback",
     "session.status.tokens": "Tokens:",

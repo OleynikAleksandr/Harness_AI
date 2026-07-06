@@ -46,10 +46,10 @@ materialization, bootstrap payload reuse, and bundle state.
   Messages for the User covers those provider tabs without renderer-local string
   derivation. OpenCode Settings strings were removed with the embedded runtime
   migration because the Settings tab/card no longer exists.
-- Session rollback-probe status labels (`session.status.turns`,
-  `session.status.rollback`) are approved `ui_labels` source strings for the
-  visible Codex-only manual validation controls; the button label is present
-  before Core/provider rollback dispatch is automated.
+- Session rollback/cache status labels (`session.status.tokens`,
+  `session.status.cache`, `session.status.turns`, `session.status.rollback`)
+  are approved `ui_labels` source strings for the visible Codex-only validation
+  controls.
 - GLM universal-client provider help
   (`settings.provider.glmClient.description`,
   `settings.provider.glmClient.apiKey.description`) is part of the approved

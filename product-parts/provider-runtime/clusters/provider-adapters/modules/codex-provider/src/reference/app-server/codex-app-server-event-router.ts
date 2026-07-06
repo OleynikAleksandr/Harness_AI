@@ -407,6 +407,11 @@ export class CodexAppServerEventRouter {
     const totalUsage = isRecord(tokenUsage?.total) ? tokenUsage.total : null;
     const used =
       asNumber(lastUsage?.totalTokens) ?? asNumber(totalUsage?.totalTokens);
+    const cachedTokens =
+      asNumber(lastUsage?.cachedInputTokens) ??
+      asNumber(lastUsage?.cached_input_tokens) ??
+      asNumber(lastUsage?.cachedTokens) ??
+      asNumber(lastUsage?.cached_tokens);
     const limit = asNumber(tokenUsage?.modelContextWindow);
     if (!(threadId && used !== null && limit !== null)) {
       return;
@@ -416,11 +421,13 @@ export class CodexAppServerEventRouter {
       provider: PROVIDER,
       threadId,
       tokenUsage: {
+        ...(cachedTokens === null ? {} : { cachedTokens }),
         used,
         limit,
       },
       data: {
         kind: "token_usage",
+        ...(cachedTokens === null ? {} : { cachedTokens }),
         used,
         limit,
       },

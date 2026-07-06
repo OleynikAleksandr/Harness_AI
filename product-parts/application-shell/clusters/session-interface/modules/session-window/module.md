@@ -21,12 +21,13 @@ Render the transcript/dialog layout and session chrome.
   the shared browser localization provider with fallback strings.
 - For Codex sessions only, the session status panel renders the display-only
   visible turn count from the current transcript (`role === "user"`)
-  immediately before the Core-owned token telemetry. The Codex-only Rollback
-  button preserves the first two visible Codex user turns as the
-  warmup/cache-anchor pair and sends only `visibleTurns - 2` as `numTurns` to
-  the Core `rollbackSessionTurns` RPC while the session is idle; Core still
-  validates provider id, binding and turn count. Non-Codex sessions keep the
-  standard token-only status layout.
+  immediately before the Codex-only Rollback button. Provider-reported
+  `cacheDisplay` renders beside the Core-owned token telemetry when available.
+  The Codex-only Rollback button preserves the first two visible Codex user
+  turns as the warmup/cache-anchor pair and sends only `visibleTurns - 2` as
+  `numTurns` to the Core `rollbackSessionTurns` RPC while the session is idle;
+  Core still validates provider id, binding and turn count. Non-Codex sessions
+  keep the standard token-only status layout.
 - The session window owns refresh of the browser localization runtime payload
   and passes that refresh callback to Settings, so save/reset can show newly
   materialized localized copy without reopening the app shell.

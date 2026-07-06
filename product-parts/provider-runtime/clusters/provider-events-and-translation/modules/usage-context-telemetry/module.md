@@ -16,6 +16,9 @@ Own usage limits and context-window signals derived from provider events.
 ## Outputs
 
 - Usage/context telemetry snapshot.
+- Provider-reported cached input token display (`cacheDisplay`) when a
+  normalized token-usage event includes cached token counts; providers without
+  that signal keep the field `null`.
 - Warning/limit state.
 - Provider usage scope keys are limited to the native vendor channels
   (`claude`/`codex`): GLM OpenCode dropped its scope with the GLM migration,

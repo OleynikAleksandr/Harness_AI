@@ -14,7 +14,6 @@ import {
   resolveTranslatedDisplayText,
   useTranslatedTextReveal,
 } from "./translated-text-reveal.js";
-
 export function SessionIdPanel({
   session,
   telemetry,
@@ -241,18 +240,26 @@ export function ReferenceStatusPanel({
           {reasoning}
         </span>
       ) : null}
-      {showCodexRollbackProbe ? (
-        <span className="session-status-chip session-status-chip--turns">
-          <span>{t("ui_labels", "session.status.turns", "Turns:")}</span>
-          <strong>{turnCount}</strong>
-        </span>
-      ) : null}
       <span className="session-status-chip session-status-chip--limits">
         <span>{t("ui_labels", "session.status.tokens", "Tokens:")}</span>
         <strong title={telemetry.tokenDisplay.title}>
           {telemetry.tokenDisplay.value}
         </strong>
       </span>
+      {telemetry.cacheDisplay ? (
+        <span className="session-status-chip session-status-chip--cache">
+          <span>{t("ui_labels", "session.status.cache", "Cache:")}</span>
+          <strong title={telemetry.cacheDisplay.title}>
+            {telemetry.cacheDisplay.value}
+          </strong>
+        </span>
+      ) : null}
+      {showCodexRollbackProbe ? (
+        <span className="session-status-chip session-status-chip--turns">
+          <span>{t("ui_labels", "session.status.turns", "Turns:")}</span>
+          <strong>{turnCount}</strong>
+        </span>
+      ) : null}
       {showCodexRollbackProbe ? (
         <button
           className="session-status-button session-status-button--rollback"
@@ -304,7 +311,6 @@ function SessionProfileChip({ session }: { session: CoreSession | undefined }) {
     </span>
   );
 }
-
 function resolveIdLabel(
   session: CoreSession | undefined,
   telemetry: SessionTelemetry,
@@ -317,7 +323,6 @@ function resolveIdLabel(
     ? t("messages_for_the_user", "session.id.pending", "ID: pending...")
     : t("messages_for_the_user", "session.id.unavailable", "ID: unavailable");
 }
-
 function MessageBubble({
   message,
   providerId,
@@ -363,14 +368,12 @@ function MessageBubble({
     </article>
   );
 }
-
 function isThinkingMessage(message: SessionMessage): boolean {
   return (
     message.role === "thinking" ||
     (message.role === "assistant" && message.tag === "thinking")
   );
 }
-
 function resolveProviderTint(
   providerId: string | undefined
 ): "claude" | "codex" | "kimi" | null {
@@ -385,7 +388,6 @@ function resolveProviderTint(
   }
   return null;
 }
-
 function resolveBubbleClassName(
   message: SessionMessage,
   isThinking: boolean,
@@ -404,7 +406,6 @@ function resolveBubbleClassName(
   }
   return `${base} session-dialog__message--${message.role}`;
 }
-
 function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -417,7 +418,6 @@ function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
     </span>
   );
 }
-
 function resolveMessageRoleLabel(
   role: SessionMessage["role"],
   isThinking: boolean,
@@ -436,7 +436,6 @@ function resolveMessageRoleLabel(
     ? t("ui_labels", "session.role.system", "System")
     : t("ui_labels", "session.role.user", "User");
 }
-
 function resolveReasoningLabel(
   session: CoreSession | undefined,
   settings: HarnessSettings | null
@@ -463,11 +462,9 @@ function resolveReasoningLabel(
   }
   return null;
 }
-
 function shortenId(id: string): string {
   return `${id.slice(0, 8)}...`;
 }
-
 function formatMessageTime(timestamp: string): string {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) {
@@ -478,7 +475,6 @@ function formatMessageTime(timestamp: string): string {
     minute: "2-digit",
   }).format(date);
 }
-
 function formatElapsed(createdAt: string | undefined, now: number): string {
   if (!createdAt) {
     return "00h 00m 00s";

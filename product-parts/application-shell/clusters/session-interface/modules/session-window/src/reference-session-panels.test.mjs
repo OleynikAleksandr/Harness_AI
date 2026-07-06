@@ -16,6 +16,8 @@ const coreEventsSource = readFileSync(
 
 assert.match(source, /resolveCodexReasoningEffort/u);
 assert.match(source, /return effort \? `\(\$\{effort\}\)` : null/u);
+assert.match(source, /telemetry\.cacheDisplay/u);
+assert.match(source, /session\.status\.cache/u);
 assert.match(source, /turnCount > 2/u);
 assert.match(source, /onRollbackTurns\?\.\(turnCount - 2\)/u);
 assert.match(source, /telemetry\.status === "idle"/u);

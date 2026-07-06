@@ -37,6 +37,9 @@ workspace `AGENTS.md` project-instruction discovery from `cwd`.
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- Codex app-server `thread/tokenUsage/updated` events preserve the
+  provider-reported cached input token count when present, so Core telemetry can
+  display cache reuse beside context-window usage.
 - Codex usage-limit telemetry built inside the Codex provider module from
   app-server rate-limit snapshots/events.
 - Turn-level Codex reasoning summaries emitted by the reference app-server

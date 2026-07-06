@@ -1,6 +1,7 @@
 export type ProviderTurnStatus = "idle" | "running" | "stopped";
 
 export interface ProviderTokenUsage {
+  cached: number | null;
   limit: number;
   used: number;
 }
@@ -31,6 +32,10 @@ export interface ProviderLimitRow {
 }
 
 export interface ProviderUsageTelemetry {
+  cacheDisplay: {
+    title: string;
+    value: string;
+  } | null;
   limitRows: ProviderLimitRow[];
   model: string;
   provider: string;
@@ -70,6 +75,7 @@ const FIVE_HOUR_WINDOW_TOKEN_LIMIT = 262_144;
 export class UsageContextTelemetryFacade {
   createTelemetry(request: CreateTelemetryRequest): ProviderUsageTelemetry {
     const tokenUsage = {
+      cached: null,
       limit: defaultTokenLimit(request.providerId),
       used: 0,
     };
@@ -156,6 +162,7 @@ function buildTelemetry(value: {
   const labels = value.usageLimitLabels ?? fallbackLabels(value.providerId);
   return {
     ...value,
+    cacheDisplay: formatCacheUsage(value.tokenUsage),
     limitRows: buildLimitRows({
       labels,
       providerId: value.providerId,
@@ -233,10 +240,11 @@ function readTokenUsage(event: unknown): ProviderTokenUsage | null {
     readNumber(candidate.totalTokens) ??
     readNumber(candidate.total_tokens);
   const limit = readNumber(candidate.limit) ?? 0;
+  const cached = readCachedTokenCount(candidate);
   if (used === null || used < 0) {
     return null;
   }
-  return { used, limit: Math.max(0, limit) };
+  return { cached, used, limit: Math.max(0, limit) };
 }
 
 function readUsageLimits(event: unknown): ProviderUsageLimits | null {
@@ -292,6 +300,32 @@ function formatTokenUsage(tokenUsage: ProviderTokenUsage): {
     title: `Context window: ${usedText} used, ${limitText} limit, ${remaining}% remaining`,
     value: `${usedText} (${remaining}%)`,
   };
+}
+
+function formatCacheUsage(tokenUsage: ProviderTokenUsage): {
+  title: string;
+  value: string;
+} | null {
+  if (tokenUsage.cached === null) {
+    return null;
+  }
+  const cachedText = tokenUsage.cached.toLocaleString();
+  return {
+    title: `Cached input tokens: ${cachedText}`,
+    value: cachedText,
+  };
+}
+
+function readCachedTokenCount(
+  candidate: Record<string, unknown>
+): number | null {
+  const value =
+    readNumber(candidate.cached) ??
+    readNumber(candidate.cachedTokens) ??
+    readNumber(candidate.cached_tokens) ??
+    readNumber(candidate.cachedInputTokens) ??
+    readNumber(candidate.cached_input_tokens);
+  return value === null || value < 0 ? null : value;
 }
 
 function fallbackLabels(providerId: string): ProviderUsageLimitLabels {

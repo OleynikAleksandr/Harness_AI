@@ -22,14 +22,19 @@ const codex = usageContextTelemetryFacade.createTelemetry({
 });
 assert.equal(codex.providerScopeKey, "codex:global");
 assert.equal(codex.tokenDisplay.value, "0 (100%)");
+assert.equal(codex.cacheDisplay, null);
 assert.equal(codex.limitRows[0].text, "Session ...");
 assert.equal(codex.limitRows[1].text, "Weekly ...");
 
 const withTokens = usageContextTelemetryFacade.applyProviderEvent(codex, {
-  data: { kind: "token_usage", tokenUsage: { limit: 200_000, used: 22_328 } },
+  data: {
+    kind: "token_usage",
+    tokenUsage: { cachedTokens: 15_744, limit: 200_000, used: 22_328 },
+  },
   type: "stream_event",
 });
 assert.equal(withTokens.tokenDisplay.value, "22,328 (89%)");
+assert.equal(withTokens.cacheDisplay?.value, "15,744");
 
 const withTokensNoLimit = usageContextTelemetryFacade.applyProviderEvent(
   codex,

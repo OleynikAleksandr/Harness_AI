@@ -146,7 +146,20 @@ try {
     instructions: "i",
     items: [{ content: "u", role: "user" }],
     model: "gpt-5.5",
+    nativeTools: [
+      {
+        description: "Native read",
+        name: "native_read_file",
+        parameters: { type: "object" },
+        type: "function",
+      },
+    ],
     reasoningEffort: "low",
+    requestTemplate: {
+      model: "gpt-5.5",
+      text: { verbosity: "low" },
+      type: "response.create",
+    },
     tools: [
       {
         description: "Read",
@@ -161,7 +174,9 @@ try {
   assert.equal(request.stream, true);
   assert.deepEqual(request.include, ["reasoning.encrypted_content"]);
   assert.deepEqual(request.reasoning, { effort: "low", summary: "detailed" });
-  assert.equal(request.tools[0].name, "read_file");
+  assert.equal(request.type, "response.create");
+  assert.equal(request.text.verbosity, "low");
+  assert.equal(request.tools[0].name, "native_read_file");
 
   const workspace = await mkdtemp(path.join(tmpdir(), "codex-uc-ws-"));
   const authPath = path.join(workspace, "auth.json");
@@ -182,6 +197,8 @@ try {
       body.tools.map((tool) => tool.name),
       ["read_file", "write_file"]
     );
+    assert.equal(body.type, "response.create");
+    assert.equal(body.text.verbosity, "low");
     return new Response(responseText(fetchCount), {
       headers:
         fetchCount === 3
@@ -209,6 +226,24 @@ try {
         profileId: "p",
         profileName: "Profile",
         prompt: "profile prompt",
+        requestTemplate: {
+          text: { verbosity: "low" },
+          type: "response.create",
+        },
+        tools: [
+          {
+            description: "Read",
+            name: "read_file",
+            parameters: { type: "object" },
+            type: "function",
+          },
+          {
+            description: "Write",
+            name: "write_file",
+            parameters: { type: "object" },
+            type: "function",
+          },
+        ],
         toolingCategories: {},
       },
       profileKind: "managed",
@@ -217,6 +252,10 @@ try {
     assert.equal(
       outcome.appliedProfileApplication.route,
       "codex-oauth-responses"
+    );
+    assert.equal(
+      outcome.appliedProfileApplication.toolSurface,
+      "profile-native-tools"
     );
 
     const events = [];

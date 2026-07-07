@@ -69,6 +69,12 @@ try {
     "system-prompt.md": "Managed workflow prompt.\n",
     "tooling.yaml": "categories:\n  web: false\n",
   });
+  await writeProfile(path.join(profilesRoot, "Codex"), "codex-nested", {
+    "profile.yaml":
+      "name: Codex Nested\ndescription: Provider-scoped profile.\nprovider: codex\n",
+    "system-prompt.md": "Nested provider prompt.\n",
+    "tooling.yaml": "categories:\n  shell: true\n",
+  });
   await writeProfile(profilesRoot, "broken-yaml", {
     "profile.yaml": "name: Broken\n",
     "system-prompt.md": "Prompt.\n",
@@ -95,7 +101,7 @@ try {
 
   assert.deepEqual(
     scan.profiles.map((profile) => profile.id),
-    ["codeai-workflow-claude", "review"]
+    ["codeai-workflow-claude", "codex-nested", "review"]
   );
   assert.deepEqual(scan.invalid.map((failure) => failure.id).sort(), [
     "broken-yaml",
@@ -120,6 +126,12 @@ try {
   assert.equal(individual.scope, "individual");
   assert.equal(individual.passport.provider, "claude");
   assert.equal(individual.tooling.categories.web, false);
+  const nested = scan.profiles.find((profile) => profile.id === "codex-nested");
+  assert.equal(nested.passport.provider, "codex");
+  assert.equal(
+    nested.documents.profileDirectory,
+    path.join(profilesRoot, "Codex", "codex-nested")
+  );
 
   const issueText = (id) =>
     scan.invalid.find((failure) => failure.id === id).issues.join(" ");
@@ -164,6 +176,7 @@ try {
         "architecture-spec",
         "codeai-workflow-claude",
         "codex-synthetic-native",
+        "codex-synthetic-native-custom",
         "plan-document",
         "review",
         "todo-plan-deterministic",
@@ -180,15 +193,46 @@ try {
     assert.equal(codexSeed.scope, "individual");
     assert.equal(codexSeed.passport.provider, "codex");
     assert.equal(
+      codexSeed.documents.profileDirectory,
+      path.join(seededRoot, "Codex", "codex-synthetic-native")
+    );
+    assert.equal(
       codexSeed.promptBody.startsWith("You are Codex, a coding agent"),
       true
     );
-    assert.match(codexSeed.promptBody, /# AGENTS\.md instructions for /u);
-    assert.match(codexSeed.promptBody, /<INSTRUCTIONS>/u);
+    assert.doesNotMatch(codexSeed.promptBody, /AGENTS\.md/u);
+    assert.doesNotMatch(codexSeed.promptBody, /<INSTRUCTIONS>/u);
     assert.doesNotMatch(codexSeed.promptBody, /Synthetic Native/u);
     assert.doesNotMatch(codexSeed.promptBody, /Captured Codex/u);
     assert.doesNotMatch(codexSeed.promptBody, /Materialized Workspace/u);
     assert.doesNotMatch(codexSeed.promptBody, /```json/u);
+    assert.equal(codexSeed.nativeRequest.tools.length, 17);
+    assert.equal(
+      codexSeed.nativeRequest.requestTemplate.type,
+      "response.create"
+    );
+    assert.equal(codexSeed.nativeRequest.customInstructions, undefined);
+    const codexCustomSeed = seededScan.profiles.find(
+      (profile) => profile.id === "codex-synthetic-native-custom"
+    );
+    assert.equal(codexCustomSeed.passport.provider, "codex");
+    assert.equal(
+      codexCustomSeed.documents.profileDirectory,
+      path.join(seededRoot, "Codex", "codex-synthetic-native-custom")
+    );
+    assert.equal(
+      codexCustomSeed.promptBody.startsWith("You are Codex, a coding agent"),
+      true
+    );
+    assert.match(
+      codexCustomSeed.nativeRequest.customInstructions,
+      /# Harness AI Agent Instructions/u
+    );
+    assert.doesNotMatch(
+      codexCustomSeed.nativeRequest.customInstructions,
+      /AGENTS\.md instructions for/u
+    );
+    assert.equal(codexCustomSeed.nativeRequest.tools.length, 17);
     const reviewSeed = seededScan.profiles.find(
       (profile) => profile.id === "review"
     );

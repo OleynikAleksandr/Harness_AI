@@ -102,12 +102,14 @@ try {
   const codexIds = codexEntries.map((entry) => entry.id);
   assert.ok(codexIds.includes("review"));
   assert.ok(codexIds.includes("codex-synthetic-native"));
+  assert.ok(codexIds.includes("codex-synthetic-native-custom"));
   assert.ok(!codexIds.includes("codeai-workflow-claude"));
 
   const codexUcEntries = await catalog.listProfilesForProvider("codex-uc");
   const codexUcIds = codexUcEntries.map((entry) => entry.id);
   assert.ok(codexUcIds.includes("review"));
   assert.ok(codexUcIds.includes("codex-synthetic-native"));
+  assert.ok(codexUcIds.includes("codex-synthetic-native-custom"));
   assert.ok(!codexUcIds.includes("codeai-workflow-claude"));
 
   // Universal-client providers only get Native until Phase 5 wires their

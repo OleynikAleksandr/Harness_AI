@@ -62,19 +62,20 @@ export type ResponsesInputItem =
     };
 
 export interface CodexUcResponsesRequest {
-  readonly include: readonly string[];
+  readonly include?: readonly string[];
   readonly input: readonly ResponsesInputItem[];
   readonly instructions: string;
   readonly model: string;
-  readonly parallel_tool_calls: false;
+  readonly parallel_tool_calls?: false;
   readonly reasoning?: {
     readonly effort: string;
     readonly summary: "detailed";
   };
-  readonly store: false;
-  readonly stream: true;
-  readonly tool_choice: "auto";
-  readonly tools: readonly ResponsesFunctionTool[];
+  readonly store?: false;
+  readonly stream?: true;
+  readonly tool_choice?: "auto";
+  readonly tools: readonly Readonly<Record<string, unknown>>[];
+  readonly [key: string]: unknown;
 }
 
 interface ResponsesFunctionTool {
@@ -82,28 +83,39 @@ interface ResponsesFunctionTool {
   readonly name: string;
   readonly parameters: Readonly<Record<string, unknown>>;
   readonly type: "function";
+  readonly [key: string]: unknown;
 }
 
 export const buildCodexUcResponsesRequest = (input: {
   readonly instructions: string;
   readonly items: readonly ResponsesInputItem[];
   readonly model: string;
+  readonly nativeTools?: readonly Readonly<Record<string, unknown>>[];
   readonly reasoningEffort?: string | null;
+  readonly requestTemplate?: Readonly<Record<string, unknown>>;
   readonly tools: readonly ToolDescriptor[];
-}): CodexUcResponsesRequest => ({
-  include: ["reasoning.encrypted_content"],
-  input: input.items,
-  instructions: input.instructions,
-  model: input.model,
-  parallel_tool_calls: false,
-  ...(input.reasoningEffort
-    ? { reasoning: { effort: input.reasoningEffort, summary: "detailed" } }
-    : {}),
-  store: false,
-  stream: true,
-  tool_choice: "auto",
-  tools: input.tools.map(toResponsesTool),
-});
+}): CodexUcResponsesRequest => {
+  const template = input.requestTemplate ?? {};
+  const model =
+    typeof template.model === "string" && template.model.trim()
+      ? template.model
+      : input.model;
+  return {
+    include: ["reasoning.encrypted_content"],
+    parallel_tool_calls: false,
+    ...(input.reasoningEffort
+      ? { reasoning: { effort: input.reasoningEffort, summary: "detailed" } }
+      : {}),
+    store: false,
+    stream: true,
+    tool_choice: "auto",
+    ...template,
+    input: input.items,
+    instructions: input.instructions,
+    model,
+    tools: input.nativeTools ?? input.tools.map(toResponsesTool),
+  };
+};
 
 export function parseResponsesStream(
   text: string,

@@ -80,7 +80,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   (Native default until managed resolution activates), persisted through the
   workspace session index (`session-history-store.ts` validates it on read),
   and enriched exactly once with the adapter's
-  `appliedProfileApplication` details on the first bind. Resume rebuilds
+  `appliedProfileApplication` details on the first bind. The snapshot includes
+  the materialized prompt, tooling categories, content hash, and optional
+  native request sidecars (`requestTemplate`, `tools`) so CodexUC/native-bundle
+  sessions resume with the same provider-facing payload. Resume rebuilds
   adapter input from the snapshot and never rereads `~/.harness-ai/Profiles/**`;
   sessions persisted before this feature have no snapshot and keep legacy
   no-payload behavior.

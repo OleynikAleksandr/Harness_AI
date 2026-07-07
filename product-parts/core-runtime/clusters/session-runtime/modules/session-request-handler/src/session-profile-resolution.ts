@@ -84,6 +84,10 @@ export class SessionProfileResolver implements SessionProfileResolverLike {
         profileId: payload.profileId,
         profileName: payload.profileName,
         prompt: payload.prompt,
+        ...(payload.requestTemplate
+          ? { requestTemplate: payload.requestTemplate }
+          : {}),
+        ...(payload.tools ? { tools: payload.tools } : {}),
         toolingCategories: payload.toolingCategories,
       },
       ok: true,
@@ -143,6 +147,10 @@ export function buildSessionProfilePayload(
     profileId: snapshot.profileId,
     profileName: snapshot.profileName,
     prompt: snapshot.prompt,
+    ...(snapshot.requestTemplate
+      ? { requestTemplate: snapshot.requestTemplate }
+      : {}),
+    ...(snapshot.tools ? { tools: snapshot.tools } : {}),
     toolingCategories: snapshot.toolingCategories,
   };
 }

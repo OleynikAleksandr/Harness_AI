@@ -30,4 +30,7 @@ Responses-compatible Codex OAuth rather than Chat Completions.
 
 Adapters expose the shared provider adapter contract and hide protocol-specific
 process, SDK, stream, request, workspace prompt/project-instruction, session id,
-and usage-limit reader details.
+usage-limit reader, and provider-native request-template/tool payload details.
+They do not read session profile files directly; Core passes immutable applied
+profile payloads, including optional native request sidecars, through the
+shared contract.

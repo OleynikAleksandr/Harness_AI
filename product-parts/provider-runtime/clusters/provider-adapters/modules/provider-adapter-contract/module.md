@@ -24,8 +24,9 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
   profile snapshot; legacy adapters keep returning plain strings.
 - Optional `ProviderSessionStartOptions` on `createSession`/`resumeSession`
   carrying the provider-neutral `SessionProfilePayload` (prompt, tooling
-  categories, profile identity, content hash) materialized by Core; an
-  absent payload keeps the adapter's current behavior
+  categories, profile identity, content hash, and optional native request
+  `requestTemplate`/`tools` sidecars) materialized by Core; an absent payload
+  keeps the adapter's current behavior
   (docs/architecture/SessionProfiles.md).
 - Provider event subscription.
 - Provider lifecycle errors.

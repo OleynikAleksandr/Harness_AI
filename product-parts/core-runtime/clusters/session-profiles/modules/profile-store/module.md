@@ -4,27 +4,29 @@
 
 Own the on-disk truth of user-editable session profiles: the
 `~/.harness-ai/Profiles/**` root resolution (`HARNESS_AI_HOME` aware), the
-profile directory layout (one directory per profile with exactly three
-documents: `profile.yaml` passport, `system-prompt.md` prompt body,
-`tooling.yaml` tooling categories), and the shared profile type model
+profile directory layout (one directory per profile; universal profiles live
+directly under `Profiles/`, provider-scoped profiles may live under a namespace
+such as `Profiles/Codex/<profileId>/` while keeping the same profile id), and
+the shared profile type model
 (universal vs individual scope via the optional passport `provider` field,
 tooling category vocabulary v1).
 
 The module scans the profiles root, parses and validates the three documents
-of every profile directory (`profile-document-parser.ts`, backed by the
-`yaml` package), returns valid profiles separately from human-readable
+of every profile directory (`profile.yaml`, `system-prompt.md`,
+`tooling.yaml`; `profile-document-parser.ts`, backed by the `yaml` package),
+plus optional native request sidecars (`custom-instructions.md`,
+`request-template.json`, `tools.json`), returns valid profiles separately from human-readable
 validation failures, and seeds the standard profile set on first access
 (`src/seed/**`): four universal drafts (`plan-document`,
 `todo-plan-deterministic`, `review`, `architecture-spec`), the active Claude
 individual migration profile (`codeai-workflow-claude` from the hardcoded
-Claude workflow prompt), and the Codex `codex-synthetic-native` probe profile
-materialized from the accepted native request capture plus the workspace
-`AGENTS.md` text. The Codex probe prompt starts with the captured Codex system
-prompt byte-for-byte, appends only a normal `AGENTS.md instructions` wrapper
-containing the workspace instructions, and does not include Harness diagnostic
-headings, captured/tool JSON code fences, or synthetic-profile explanatory
-text. Real Codex tools remain app-server structured tools, not prompt text.
-The same storage invariant applies to every profile directory:
+Claude workflow prompt), and the Codex provider-scoped profiles
+`codex-synthetic-native` and `codex-synthetic-native-custom`. The pure Codex
+profile is an exact baseline from the accepted native request capture:
+captured `body.instructions` in `system-prompt.md`, captured `body.tools` in
+`tools.json`, and static request fields in `request-template.json`. The custom
+variant adds only `custom-instructions.md`; the prompt file remains the exact
+captured baseline. The same storage invariant applies to every profile directory:
 `system-prompt.md` is provider-facing prompt payload, while provenance,
 diagnostics, seed notes, and Harness metadata belong in `profile.yaml`, docs,
 evidence, or sidecar artifacts, not inside prompt text.
@@ -50,13 +52,15 @@ resurrect it.
 
 - Resolved profiles root directory.
 - Resolved per-profile document paths (`profile.yaml`, `system-prompt.md`,
-  `tooling.yaml`).
+  `tooling.yaml`, plus optional `custom-instructions.md`,
+  `request-template.json`, `tools.json`).
 - Shared session profile type model: passport (name, description, optional
   `provider`), tooling category vocabulary v1 (`file-read`, `file-write`,
   `shell`, `web`, `git`, `tests`), profile scope (`universal` |
   `individual`).
 - Scanned profile list: valid `SessionProfile` entries (passport, prompt
-  body, normalized tooling categories, scope, document paths) plus
+  body, normalized tooling categories, optional native request bundle, scope,
+  document paths) plus
   `SessionProfileValidationFailure` entries with human-readable issues
   (missing/unreadable file, invalid YAML, non-mapping top level, missing
   `name`, empty prompt body, unknown tooling category, non-boolean category

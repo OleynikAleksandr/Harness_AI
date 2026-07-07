@@ -1,4 +1,5 @@
 import {
+  type Dirent,
   type FSWatcher,
   promises as fs,
   mkdirSync,
@@ -7,10 +8,12 @@ import {
 import { homedir } from "node:os";
 import path from "node:path";
 import {
+  parseSessionProfileJsonDocument,
   parseSessionProfilePassport,
   parseSessionProfilePromptBody,
   parseSessionProfileTooling,
   resolveSessionProfileScope,
+  type SessionProfileNativeRequestBundle,
   type SessionProfilePassport,
   type SessionProfileScope,
   type SessionProfileTooling,
@@ -27,8 +30,13 @@ export {
 } from "./profile-document-parser.js";
 
 export const SESSION_PROFILE_PASSPORT_FILE_NAME = "profile.yaml";
+export const SESSION_PROFILE_CUSTOM_INSTRUCTIONS_FILE_NAME =
+  "custom-instructions.md";
+export const SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME =
+  "request-template.json";
 export const SESSION_PROFILE_PROMPT_FILE_NAME = "system-prompt.md";
 export const SESSION_PROFILE_TOOLING_FILE_NAME = "tooling.yaml";
+export const SESSION_PROFILE_TOOLS_FILE_NAME = "tools.json";
 export const SESSION_PROFILES_ROOT_DIRECTORY_NAME = "Profiles";
 
 /**
@@ -38,15 +46,19 @@ export const SESSION_PROFILES_ROOT_DIRECTORY_NAME = "Profiles";
 const PROFILE_WATCH_DEBOUNCE_MS = 300;
 
 export interface SessionProfileDocumentPaths {
+  readonly customInstructionsPath: string;
   readonly passportPath: string;
   readonly profileDirectory: string;
   readonly promptPath: string;
+  readonly requestTemplatePath: string;
   readonly toolingPath: string;
+  readonly toolsPath: string;
 }
 
 export interface SessionProfile {
   readonly documents: SessionProfileDocumentPaths;
   readonly id: string;
+  readonly nativeRequest?: SessionProfileNativeRequestBundle;
   readonly passport: SessionProfilePassport;
   readonly promptBody: string;
   readonly scope: SessionProfileScope;
@@ -72,6 +84,18 @@ interface ProfileStoreFacadeOptions {
   readonly profilesRootDirectory?: string;
 }
 
+interface ProfileDirectoryRef {
+  readonly id: string;
+  readonly profileDirectory: string;
+  readonly providerDirectory?: string;
+}
+
+interface MutableSessionProfileNativeRequestBundle {
+  customInstructions?: string;
+  requestTemplate?: Readonly<Record<string, unknown>>;
+  tools?: readonly Readonly<Record<string, unknown>>[];
+}
+
 export function resolveSessionProfilesRootDirectory(): string {
   return path.join(harnessHome(), SESSION_PROFILES_ROOT_DIRECTORY_NAME);
 }
@@ -88,19 +112,44 @@ export class ProfileStoreFacade {
     return this.profilesRootDirectory;
   }
 
-  resolveDocumentPaths(profileId: string): SessionProfileDocumentPaths {
-    const profileDirectory = path.join(this.profilesRootDirectory, profileId);
+  resolveDocumentPaths(
+    profileId: string,
+    options: { readonly providerDirectory?: string } = {}
+  ): SessionProfileDocumentPaths {
+    const profileDirectory = options.providerDirectory
+      ? path.join(
+          this.profilesRootDirectory,
+          options.providerDirectory,
+          profileId
+        )
+      : path.join(this.profilesRootDirectory, profileId);
+    return this.resolveDocumentPathsForDirectory(profileId, profileDirectory);
+  }
+
+  private resolveDocumentPathsForDirectory(
+    _profileId: string,
+    profileDirectory: string
+  ): SessionProfileDocumentPaths {
     return {
+      customInstructionsPath: path.join(
+        profileDirectory,
+        SESSION_PROFILE_CUSTOM_INSTRUCTIONS_FILE_NAME
+      ),
       passportPath: path.join(
         profileDirectory,
         SESSION_PROFILE_PASSPORT_FILE_NAME
       ),
       profileDirectory,
       promptPath: path.join(profileDirectory, SESSION_PROFILE_PROMPT_FILE_NAME),
+      requestTemplatePath: path.join(
+        profileDirectory,
+        SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME
+      ),
       toolingPath: path.join(
         profileDirectory,
         SESSION_PROFILE_TOOLING_FILE_NAME
       ),
+      toolsPath: path.join(profileDirectory, SESSION_PROFILE_TOOLS_FILE_NAME),
     };
   }
 
@@ -116,11 +165,30 @@ export class ProfileStoreFacade {
       return false;
     }
     for (const seed of SEED_SESSION_PROFILES) {
-      const documents = this.resolveDocumentPaths(seed.id);
+      const documents = this.resolveDocumentPaths(seed.id, {
+        providerDirectory: seed.providerDirectory,
+      });
       await fs.mkdir(documents.profileDirectory, { recursive: true });
       await fs.writeFile(documents.passportPath, seed.passportYaml, "utf8");
       await fs.writeFile(documents.promptPath, seed.promptBody, "utf8");
       await fs.writeFile(documents.toolingPath, seed.toolingYaml, "utf8");
+      if (seed.customInstructions !== undefined) {
+        await fs.writeFile(
+          documents.customInstructionsPath,
+          seed.customInstructions,
+          "utf8"
+        );
+      }
+      if (seed.requestTemplateJson !== undefined) {
+        await fs.writeFile(
+          documents.requestTemplatePath,
+          seed.requestTemplateJson,
+          "utf8"
+        );
+      }
+      if (seed.toolsJson !== undefined) {
+        await fs.writeFile(documents.toolsPath, seed.toolsJson, "utf8");
+      }
     }
     return true;
   }
@@ -141,7 +209,13 @@ export class ProfileStoreFacade {
   }
 
   async loadProfile(profileId: string): Promise<SessionProfileLoadResult> {
-    const documents = this.resolveDocumentPaths(profileId);
+    const profileRef = await this.findProfileDirectoryRef(profileId);
+    const documents = profileRef
+      ? this.resolveDocumentPathsForDirectory(
+          profileId,
+          profileRef.profileDirectory
+        )
+      : this.resolveDocumentPaths(profileId);
     const issues: string[] = [];
     const passportText = await readDocument(
       documents.passportPath,
@@ -164,6 +238,7 @@ export class ProfileStoreFacade {
     const passportResult = parseSessionProfilePassport(passportText ?? "");
     const promptResult = parseSessionProfilePromptBody(promptText ?? "");
     const toolingResult = parseSessionProfileTooling(toolingText ?? "");
+    const nativeRequest = await this.loadNativeRequestBundle(documents, issues);
     issues.push(
       ...passportResult.issues,
       ...promptResult.issues,
@@ -181,6 +256,7 @@ export class ProfileStoreFacade {
       profile: {
         documents,
         id: profileId,
+        ...(nativeRequest ? { nativeRequest } : {}),
         passport: passportResult.passport,
         promptBody: promptResult.promptBody,
         scope: resolveSessionProfileScope(passportResult.passport),
@@ -228,17 +304,119 @@ export class ProfileStoreFacade {
   }
 
   private async listProfileDirectoryIds(): Promise<string[]> {
+    const refs = await this.listProfileDirectoryRefs();
+    return refs.map((ref) => ref.id);
+  }
+
+  private async listProfileDirectoryRefs(): Promise<ProfileDirectoryRef[]> {
     try {
       const entries = await fs.readdir(this.profilesRootDirectory, {
         withFileTypes: true,
       });
-      return entries
-        .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
-        .map((entry) => entry.name)
-        .sort((left, right) => left.localeCompare(right));
+      const rootRefs: ProfileDirectoryRef[] = [];
+      const providerRefs: ProfileDirectoryRef[] = [];
+      for (const entry of entries) {
+        if (!(entry.isDirectory() && !entry.name.startsWith("."))) {
+          continue;
+        }
+        const entryDirectory = path.join(
+          this.profilesRootDirectory,
+          entry.name
+        );
+        if (await hasProfilePassport(entryDirectory)) {
+          rootRefs.push({ id: entry.name, profileDirectory: entryDirectory });
+          continue;
+        }
+        const providerEntries = await safeReadDirectory(entryDirectory);
+        for (const providerEntry of providerEntries) {
+          if (
+            !(
+              providerEntry.isDirectory() && !providerEntry.name.startsWith(".")
+            )
+          ) {
+            continue;
+          }
+          const profileDirectory = path.join(
+            entryDirectory,
+            providerEntry.name
+          );
+          if (await hasProfilePassport(profileDirectory)) {
+            providerRefs.push({
+              id: providerEntry.name,
+              profileDirectory,
+              providerDirectory: entry.name,
+            });
+          }
+        }
+      }
+      const refsById = new Map<string, ProfileDirectoryRef>();
+      for (const ref of rootRefs) {
+        refsById.set(ref.id, ref);
+      }
+      for (const ref of providerRefs) {
+        refsById.set(ref.id, ref);
+      }
+      return [...refsById.values()].sort((left, right) =>
+        left.id.localeCompare(right.id)
+      );
     } catch {
       return [];
     }
+  }
+
+  private async findProfileDirectoryRef(
+    profileId: string
+  ): Promise<ProfileDirectoryRef | undefined> {
+    const refs = await this.listProfileDirectoryRefs();
+    return refs.find((ref) => ref.id === profileId);
+  }
+
+  private async loadNativeRequestBundle(
+    documents: SessionProfileDocumentPaths,
+    issues: string[]
+  ): Promise<SessionProfileNativeRequestBundle | undefined> {
+    const [customInstructions, requestTemplateText, toolsText] =
+      await Promise.all([
+        readOptionalDocument(documents.customInstructionsPath),
+        readOptionalDocument(documents.requestTemplatePath),
+        readOptionalDocument(documents.toolsPath),
+      ]);
+    const bundle: MutableSessionProfileNativeRequestBundle = {};
+    if (customInstructions?.trim()) {
+      bundle.customInstructions = customInstructions;
+    }
+    if (requestTemplateText !== undefined) {
+      const parsed = parseSessionProfileJsonDocument(
+        requestTemplateText,
+        SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME
+      );
+      issues.push(...parsed.issues);
+      if (isPlainRecord(parsed.value)) {
+        bundle.requestTemplate = parsed.value;
+      } else if (parsed.value !== undefined) {
+        issues.push(
+          `${SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME}: root value must be an object.`
+        );
+      }
+    }
+    if (toolsText !== undefined) {
+      const parsed = parseSessionProfileJsonDocument(
+        toolsText,
+        SESSION_PROFILE_TOOLS_FILE_NAME
+      );
+      issues.push(...parsed.issues);
+      if (
+        Array.isArray(parsed.value) &&
+        parsed.value.every((item) => isPlainRecord(item))
+      ) {
+        bundle.tools = parsed.value;
+      } else if (parsed.value !== undefined) {
+        issues.push(
+          `${SESSION_PROFILE_TOOLS_FILE_NAME}: root value must be an array of objects.`
+        );
+      }
+    }
+    return Object.keys(bundle).length > 0 ? bundle : undefined;
   }
 }
 
@@ -253,6 +431,39 @@ async function readDocument(
     issues.push(`${fileLabel}: file is missing or unreadable.`);
     return;
   }
+}
+
+async function readOptionalDocument(
+  filePath: string
+): Promise<string | undefined> {
+  try {
+    return await fs.readFile(filePath, "utf8");
+  } catch {
+    return;
+  }
+}
+
+async function safeReadDirectory(directoryPath: string): Promise<Dirent[]> {
+  try {
+    return await fs.readdir(directoryPath, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+}
+
+async function hasProfilePassport(profileDirectory: string): Promise<boolean> {
+  try {
+    await fs.access(
+      path.join(profileDirectory, SESSION_PROFILE_PASSPORT_FILE_NAME)
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function harnessHome(): string {

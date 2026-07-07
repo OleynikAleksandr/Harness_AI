@@ -20,7 +20,9 @@ export interface AppliedProfileSnapshot {
   readonly profileId: string;
   readonly profileName: string;
   readonly prompt?: string;
+  readonly requestTemplate?: Readonly<Record<string, unknown>>;
   readonly toolingCategories?: Readonly<Record<string, boolean>>;
+  readonly tools?: readonly Readonly<Record<string, unknown>>[];
 }
 
 export interface CoreSession {

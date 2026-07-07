@@ -1,6 +1,11 @@
 import type { SessionProfileToolingCategory } from "../profile-document-parser.js";
 import { CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT } from "./codeai-workflow-seed-prompts.js";
-import { CODEX_SYNTHETIC_NATIVE_SEED_PROMPT } from "./codex-synthetic-native-seed-prompt.js";
+import {
+  CODEX_SYNTHETIC_NATIVE_CUSTOM_INSTRUCTIONS,
+  CODEX_SYNTHETIC_NATIVE_REQUEST_TEMPLATE_JSON,
+  CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
+  CODEX_SYNTHETIC_NATIVE_TOOLS_JSON,
+} from "./codex-synthetic-native-seed-prompt.js";
 import {
   ARCHITECTURE_SPEC_SEED_PROMPT,
   PLAN_DOCUMENT_SEED_PROMPT,
@@ -9,19 +14,27 @@ import {
 } from "./universal-seed-prompts.js";
 
 export interface SeedSessionProfile {
+  readonly customInstructions?: string;
   readonly id: string;
   readonly passportYaml: string;
   readonly promptBody: string;
+  readonly providerDirectory?: string;
+  readonly requestTemplateJson?: string;
   readonly toolingYaml: string;
+  readonly toolsJson?: string;
 }
 
 interface SeedDefinition {
   readonly categories: Readonly<Record<SessionProfileToolingCategory, boolean>>;
+  readonly customInstructions?: string;
   readonly description: string;
   readonly id: string;
   readonly name: string;
   readonly promptBody: string;
   readonly provider?: string;
+  readonly providerDirectory?: string;
+  readonly requestTemplateJson?: string;
+  readonly toolsJson?: string;
 }
 
 const SEED_DEFINITIONS: readonly SeedDefinition[] = [
@@ -110,20 +123,59 @@ const SEED_DEFINITIONS: readonly SeedDefinition[] = [
       web: true,
     },
     description:
-      "Synthetic Codex native wrapper from the accepted native capture plus materialized workspace AGENTS.md.",
+      "Exact synthetic Codex native baseline from the accepted native request capture.",
     id: "codex-synthetic-native",
     name: "Codex Synthetic Native",
     promptBody: CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
     provider: "codex",
+    providerDirectory: "Codex",
+    requestTemplateJson: CODEX_SYNTHETIC_NATIVE_REQUEST_TEMPLATE_JSON,
+    toolsJson: CODEX_SYNTHETIC_NATIVE_TOOLS_JSON,
+  },
+  {
+    categories: {
+      "file-read": true,
+      "file-write": true,
+      git: true,
+      shell: true,
+      tests: true,
+      web: true,
+    },
+    customInstructions: CODEX_SYNTHETIC_NATIVE_CUSTOM_INSTRUCTIONS,
+    description:
+      "Synthetic Codex native baseline plus embedded custom instructions.",
+    id: "codex-synthetic-native-custom",
+    name: "Codex Synthetic Native + Custom",
+    promptBody: CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
+    provider: "codex",
+    providerDirectory: "Codex",
+    requestTemplateJson: CODEX_SYNTHETIC_NATIVE_REQUEST_TEMPLATE_JSON,
+    toolsJson: CODEX_SYNTHETIC_NATIVE_TOOLS_JSON,
   },
 ];
 
 export const SEED_SESSION_PROFILES: readonly SeedSessionProfile[] =
   SEED_DEFINITIONS.map((definition) => ({
+    ...(definition.customInstructions === undefined
+      ? {}
+      : {
+          customInstructions: ensureTrailingNewline(
+            definition.customInstructions
+          ),
+        }),
     id: definition.id,
     passportYaml: buildPassportYaml(definition),
     promptBody: ensureTrailingNewline(definition.promptBody),
+    ...(definition.providerDirectory === undefined
+      ? {}
+      : { providerDirectory: definition.providerDirectory }),
+    ...(definition.requestTemplateJson === undefined
+      ? {}
+      : { requestTemplateJson: definition.requestTemplateJson }),
     toolingYaml: buildToolingYaml(definition.categories),
+    ...(definition.toolsJson === undefined
+      ? {}
+      : { toolsJson: definition.toolsJson }),
   }));
 
 function buildPassportYaml(definition: SeedDefinition): string {

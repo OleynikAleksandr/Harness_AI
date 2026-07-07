@@ -6,11 +6,14 @@ Own the provider-neutral session profile payload: assemble the applied
 prompt (profile workflow body + the thin system wrapper: workspace path,
 session start date, chat/artifact language contract, optional workspace
 `AGENTS.md` content) and carry the effective tooling categories plus a
-content hash of the applied material. The payload is provider-neutral by
-contract: provider-specific additions (for example the GLM Native tool
-contract) belong to the adapters' profile application layers. The assembled
-prompt is what the applied profile snapshot freezes at create; it is never
-rebuilt from live data afterwards (`docs/architecture/SessionProfiles.md`).
+content hash of the applied material. For profiles that carry a native request
+bundle, the materializer does not append the Harness session wrapper; it uses
+the profile prompt as provider-facing native instructions, inserts optional
+`custom-instructions.md` text into the native prompt body, and forwards
+`request-template.json`/`tools.json` as structured payload fields. The
+assembled payload is what the applied profile snapshot freezes at create; it
+is never rebuilt from live data afterwards
+(`docs/architecture/SessionProfiles.md`).
 
 ## Public Facade
 
@@ -28,8 +31,10 @@ rebuilt from live data afterwards (`docs/architecture/SessionProfiles.md`).
 
 - `MaterializedSessionProfilePayload`: assembled `prompt`, `profileId`,
   `profileName`, effective `toolingCategories`, and a sha256 `contentHash`
-  over the applied prompt + categories for snapshot diagnostics. Optional
-  wrapper sections are omitted when their context values are absent.
+  over the applied prompt + categories + native request bundle for snapshot
+  diagnostics. Optional wrapper sections are omitted when their context values
+  are absent. Native bundle profiles may also output `requestTemplate` and
+  `tools` for adapters that can send provider-native structured request data.
 
 ## Owned Paths
 

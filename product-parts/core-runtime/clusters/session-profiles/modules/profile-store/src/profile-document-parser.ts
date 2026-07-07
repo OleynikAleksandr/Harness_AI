@@ -24,6 +24,12 @@ export interface SessionProfileTooling {
   readonly categories: Readonly<Record<SessionProfileToolingCategory, boolean>>;
 }
 
+export interface SessionProfileNativeRequestBundle {
+  readonly customInstructions?: string;
+  readonly requestTemplate?: Readonly<Record<string, unknown>>;
+  readonly tools?: readonly Readonly<Record<string, unknown>>[];
+}
+
 export interface SessionProfilePassportParseResult {
   readonly issues: readonly string[];
   readonly passport?: SessionProfilePassport;
@@ -37,6 +43,11 @@ export interface SessionProfileToolingParseResult {
 export interface SessionProfilePromptParseResult {
   readonly issues: readonly string[];
   readonly promptBody?: string;
+}
+
+export interface SessionProfileJsonParseResult {
+  readonly issues: readonly string[];
+  readonly value?: unknown;
 }
 
 const CATEGORY_ON_VALUES = new Set(["on", "true", "yes"]);
@@ -130,6 +141,21 @@ export function parseSessionProfilePromptBody(
     return { issues: ["system-prompt.md: the prompt body is empty."] };
   }
   return { issues: [], promptBody: promptText };
+}
+
+export function parseSessionProfileJsonDocument(
+  jsonText: string,
+  fileName: string
+): SessionProfileJsonParseResult {
+  try {
+    return { issues: [], value: JSON.parse(jsonText) as unknown };
+  } catch (error) {
+    return {
+      issues: [
+        `${fileName}: invalid JSON (${error instanceof Error ? error.message : String(error)}).`,
+      ],
+    };
+  }
 }
 
 function defaultToolingCategories(): Record<

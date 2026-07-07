@@ -22,10 +22,13 @@ const { ProfileMaterializerFacade } = await import(
 
 const profile = {
   documents: {
+    customInstructionsPath: "/tmp/p/custom-instructions.md",
     passportPath: "/tmp/p/profile.yaml",
     profileDirectory: "/tmp/p",
     promptPath: "/tmp/p/system-prompt.md",
+    requestTemplatePath: "/tmp/p/request-template.json",
     toolingPath: "/tmp/p/tooling.yaml",
+    toolsPath: "/tmp/p/tools.json",
   },
   id: "review",
   passport: { description: "Review things.", name: "Review" },
@@ -98,5 +101,52 @@ const edited = materializer.materialize(
   }
 );
 assert.notEqual(edited.contentHash, payload.contentHash);
+
+const nativeProfile = {
+  ...profile,
+  id: "codex-synthetic-native-custom",
+  nativeRequest: {
+    customInstructions: "Custom rule one.\nCustom rule two.\n",
+    requestTemplate: {
+      reasoning: { summary: "detailed" },
+      type: "response.create",
+    },
+    tools: [
+      {
+        description: "Read a file.",
+        name: "read_file",
+        parameters: { type: "object" },
+        type: "function",
+      },
+    ],
+  },
+  passport: {
+    description: "Codex native plus custom.",
+    name: "Codex Synthetic Native + Custom",
+    provider: "codex",
+  },
+  promptBody: "You are Codex.\n\n# General\n\nBase native rules.\n",
+};
+
+const nativePayload = materializer.materialize(nativeProfile, {
+  sessionStartDate: startDate,
+  workspaceInstructions: "Workspace text must not be appended.",
+  workspacePath: "/work/space",
+});
+
+assert.equal(nativePayload.profileId, "codex-synthetic-native-custom");
+assert.equal(nativePayload.requestTemplate.type, "response.create");
+assert.equal(nativePayload.tools.length, 1);
+assert.equal(nativePayload.tools[0].name, "read_file");
+assert.ok(!nativePayload.prompt.includes("# Harness Session Context"));
+assert.ok(!nativePayload.prompt.includes("# Workspace AGENTS.md"));
+assert.ok(
+  !nativePayload.prompt.includes("Workspace text must not be appended.")
+);
+assert.match(nativePayload.prompt, /# General\n\nCustom rule one\./u);
+assert.ok(
+  nativePayload.prompt.indexOf("Custom rule two.") <
+    nativePayload.prompt.indexOf("Base native rules.")
+);
 
 console.log("profile-materializer tests: OK");

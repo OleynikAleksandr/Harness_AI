@@ -67,16 +67,19 @@ diagnostic sections или provenance текст вроде `Synthetic`, `Captur
 
 Практический результат Codex rollback/cache probe 2026-07-06: когда
 `codex-synthetic-native` содержал Harness diagnostic headings и captured-tools
-JSON внутри `baseInstructions`, первый ход после rollback показывал только
-`cached=4,992`, то есть provider распознавал как стабильный префикс в основном
-byte-for-byte native system prompt. После удаления не-native маркеров и
-оставления формы `captured Codex system prompt` + обычный
-`AGENTS.md instructions for ...` wrapper кэш после rollback восстановился как
-ожидалось (`cached=20,864` на anchor snapshot и `cached=24,448` на первом новом
-ходе). Вывод: для cache-friendly synthetic/native профилей нельзя менять
-формат, даже если мы сознательно меняем содержимое; тот же принцип применяется
-к managed, universal и individual профилям, чтобы не смешивать prompt payload с
-Harness metadata/debug text.
+JSON внутри prompt, cache после rollback был резко меньше ожидаемого. После
+возврата к native форме provider начал видеть стабильный prefix корректно.
+Вывод 2026-07-07: `codex-synthetic-native` должен быть exact baseline из
+native capture (`body.instructions` в `system-prompt.md`, `body.tools` в
+`tools.json`, static request fields в `request-template.json`) без custom
+инструкций. Вариант с пользовательскими правилами должен быть отдельным
+профилем (`codex-synthetic-native-custom`): его `custom-instructions.md`
+вставляется внутрь подходящего раздела captured system prompt без имени файла,
+пути, Harness heading или provenance wrapper. Для cache-friendly
+synthetic/native профилей нельзя менять формат, даже если мы сознательно
+меняем содержимое; тот же принцип применяется к managed, universal и
+individual профилям, чтобы не смешивать prompt payload с Harness metadata/debug
+text.
 
 ## 4. Разбор по провайдерам (из принятых дампов)
 
@@ -136,26 +139,23 @@ Harness metadata/debug text.
 
 - **Claude** — полная подмена: `systemPrompt` (string / string[] с
   `DYNAMIC_BOUNDARY`) + `tools` (точный список). Обвязка и тулинг управляемы.
-- **Codex** — промпт управляем полностью (`baseInstructions`), тулинг — нет: 17
-  инструментов зашиты в app-server и включаются process-флагами, per-thread
-  «выключить тул» недоступно. Список тулов фиксируем в профиле как эталон, но не
-  урезаем в кастомных профилях. Практический probe 2026-07-06:
-  `codex-synthetic-native` — individual Codex profile, собранный из принятого
-  native request capture
-  `2026-07-05T05-12-51-502Z-codex-gpt-5.5-native-request.jsonl`. В его
-  `system-prompt.md` первым байтом идёт captured Codex instructions; сразу
-  после него, внутри того же frozen `baseInstructions` prefix, лежит обычный
-  wrapper `AGENTS.md instructions for ...` с полным workspace `AGENTS.md`.
-  Никаких Harness diagnostic headings (`Synthetic`, `Captured`,
-  `Materialized`), JSON code fences или описаний профиля внутри prompt нет.
-  Captured tool declarations не кладутся в `baseInstructions`: реальный тулинг
-  остаётся структурным app-server tool layer, как в native Codex request. Этот
-  probe нужен для ручной проверки: если файл `AGENTS.md` удалить из workspace
-  после выбора профиля, агент всё равно должен получить эти инструкции из
-  frozen `baseInstructions`, а cache telemetry не должна ломаться из-за наших
-  не-native маркеров. Любая будущая правка этого профиля должна менять только
-  содержимое внутри native-like оболочки, но не добавлять новые Harness-метки,
-  секции или форматные wrappers.
+- **Codex** — native app-server путь полностью управляет prompt через
+  `baseInstructions`, но не даёт per-thread подменять 17 app-server tools.
+  CodexUC путь (`codex-oauth-responses`) идёт через наш клиент, поэтому может
+  передавать captured `tools.json` и `request-template.json` структурно.
+  Практический probe 2026-07-07:
+  `codex-synthetic-native` — exact individual Codex profile, собранный из
+  принятого native request capture
+  `2026-07-05T05-12-51-502Z-codex-gpt-5.5-native-request.jsonl`: captured
+  `body.instructions` лежит в `system-prompt.md`, captured `body.tools` лежит
+  в `tools.json`, статичные поля request body лежат в `request-template.json`.
+  В этом baseline нет `AGENTS.md`/workspace custom text. Профиль
+  `codex-synthetic-native-custom` использует тот же baseline и отдельный
+  `custom-instructions.md`; materializer вставляет этот текст в `# General`
+  captured prompt без имени файла, пути, отдельной секции или Harness wrapper.
+  Любая будущая правка этих профилей должна менять только содержимое внутри
+  native формы или структурные native sidecars, но не добавлять Harness-метки,
+  секции, форматные wrappers или JSON code fences в provider-facing prompt.
 - **Kimi** — канал подмены (agent.yaml → `system_prompt_path` + `tools:`) **не
   доказан** (verification 2026-07-02: нет подтверждённой привязки materialized
   agent.yaml к спавненному CLI). Синтетический Kimi native заблокирован, пока
@@ -163,9 +163,10 @@ Harness metadata/debug text.
 
 ## 7. Native-профиль как управляемый снимок
 
-- Native становится обычным профилем в `~/.harness-ai/Profiles/native-<provider>/`
-  (`profile.yaml` + `system-prompt.md` с обвязкой + `tooling.yaml` со списком
-  тулов), читается тем же путём, что и managed-профили.
+- Native/synthetic baseline становится обычным профилем в
+  `~/.harness-ai/Profiles/<Provider>/<profileId>/`. Для Codex текущий эталон:
+  `Profiles/Codex/codex-synthetic-native/` с `profile.yaml`,
+  `system-prompt.md`, `tooling.yaml`, `request-template.json` и `tools.json`.
 - Кнопка **«Обновить Native Profile»** (Settings → General, рядом с Native Request
   Capture) — Core-команда: берёт свежий дамп каждого провайдера, делит
   обвязку/контекст, перезаписывает файлы native-профиля. Так «актуализировать под

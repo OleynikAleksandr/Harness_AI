@@ -11,7 +11,11 @@ Harness AI позволит пользователю выбирать **проф
 - Профилями владеет **новый кластер Core Runtime** (`session-profiles`).
 - Контент профилей живёт в **пользовательских файлах** под
   `~/.harness-ai/Profiles/**` (`HARNESS_AI_HOME`), потому что профили
-  применяются в любом workspace.
+  применяются в любом workspace. Универсальные профили лежат прямо в корне,
+  а профили конкретного провайдера могут лежать в отдельном namespace,
+  например `~/.harness-ai/Profiles/Codex/<profileId>/`; id профиля при этом
+  остаётся `<profileId>`, чтобы сохранённые выборы и сессии не зависели от
+  физического пути.
 - Профиль — **один универсальный комплект документов** (системный промпт +
   туллинг), применяемый ко всем поддерживаемым провайдерам: разные
   контракты доставки провайдеров скрыты в провайдер-нейтральном payload и
@@ -82,8 +86,10 @@ synthetic-native. Номера строк актуальны на дату ис�
 - **CodexUC** — тестовый provider id `codex-uc`, отдельный от native Codex
   app-server. Он использует локальный Codex OAuth auth и
   Responses-compatible backend с `store:false`; managed/synthetic profile
-  snapshot применяется как request `instructions`, а tool surface формируется
-  Harness function tools вместо app-server native tools. Cache telemetry берётся
+  snapshot применяется как request `instructions`. Если профиль содержит
+  native request bundle (`request-template.json` + `tools.json`), CodexUC
+  передаёт эти captured native fields как структурный Responses payload; иначе
+  tool surface формируется Harness function tools. Cache telemetry берётся
   из known Responses usage aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.) и означает provider-reported cached input read;
   CodexUC status panel стартует с `Cache: 0`, положительное значение становится
@@ -107,8 +113,9 @@ synthetic-native. Номера строк актуальны на дату ис�
   реализуется не через app-server `thread/rollback`, а через pruning локальной
   Responses input history, потому что `store:false` маршрут пересылает историю
   сам. В profile catalog он тоже Codex-family provider: universal profiles и
-  индивидуальные `provider: codex` профили, включая `codex-synthetic-native`,
-  применимы к `codex-uc`.
+  индивидуальные `provider: codex` профили, включая
+  `codex-synthetic-native` и `codex-synthetic-native-custom`, применимы к
+  `codex-uc`.
 - **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
   прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
   универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;
@@ -157,13 +164,27 @@ Registry уже отдаёт дескрипторы `ProviderInvocationProfile` 
 ## Модель профиля
 
 **Профиль** — концепт верхнего уровня (каталог), идентифицируемый
-kebab-case id. У него есть ровно три документа:
+kebab-case id. Базово у него есть три документа:
 
 - **паспорт** (`profile.yaml`): отображаемое имя, описание для UI и
   опциональная область применимости (`provider: <id>` для индивидуального
   профиля; отсутствие поля = универсальный профиль);
 - **системный промпт** (`system-prompt.md`): полное тело workflow-промпта;
 - **туллинг** (`tooling.yaml`): переключатели категорий.
+
+Провайдерные native/synthetic профили могут иметь дополнительные структурные
+документы, которые не являются prompt text:
+
+- **custom instructions** (`custom-instructions.md`): чистый текст кастомных
+  инструкций. Materializer вставляет его внутрь наиболее подходящего раздела
+  `system-prompt.md`, без имени файла, пути, provenance wrapper или отдельного
+  Harness-заголовка.
+- **request template** (`request-template.json`): статичные поля captured
+  native request, кроме динамических `instructions`, `input`, `tools`,
+  `prompt_cache_key` и `client_metadata`.
+- **native tools** (`tools.json`): структурный captured tool list exactly as
+  sent by the native/provider client. Эти схемы передаются структурно, а не
+  сериализуются внутрь `system-prompt.md`.
 
 Правила:
 
@@ -253,6 +274,20 @@ native/managed применения. Это было подтверждено Co
     profile.yaml
     system-prompt.md
     tooling.yaml
+  Codex/                                <- provider namespace
+    codex-synthetic-native/             <- индивидуальный (provider: codex)
+      profile.yaml
+      system-prompt.md                  <- exact captured body.instructions
+      tooling.yaml                      <- category metadata/fallback only
+      request-template.json             <- static captured request fields
+      tools.json                        <- exact captured body.tools
+    codex-synthetic-native-custom/
+      profile.yaml
+      system-prompt.md
+      custom-instructions.md            <- inserted into system prompt body
+      tooling.yaml
+      request-template.json
+      tools.json
 ```
 
 `profile.yaml` (паспорт):
@@ -282,12 +317,15 @@ categories:
 `system-prompt.md`: чистый Markdown; всё тело файла — системный промпт
 профиля. Без frontmatter, без служебных секций.
 
-Решения по форматам (согласовано 2026-07-02): YAML для паспорта и туллинга
+Решения по форматам (согласовано 2026-07-02, расширено для Codex native bundle
+2026-07-07): YAML для паспорта и туллинга
 (это вводит YAML-парсер как новую runtime-зависимость — сейчас репозиторий
 только пишет YAML-строки для agent-файла Kimi и ничего не парсит); Markdown
-для тела промпта. Один каталог = один профиль из трёх файлов; применимость
-определяется полем `provider` паспорта (универсальный или индивидуальный),
-подкаталогов провайдеров нет (решение пользователя, 2026-07-02).
+для тела промпта и custom instruction; JSON для структурного native request
+bundle. Один каталог = один профиль; применимость определяется полем
+`provider` паспорта (универсальный или индивидуальный). Провайдерский
+namespace (`Profiles/Codex/...`) является только физической группировкой и не
+входит в id профиля.
 
 ## Словарь категорий туллинга
 
@@ -704,12 +742,17 @@ Seed-профили — стандартный стартовый набор, к
    `codeai-workflow-glm-native` больше не сидируются, потому что их provider
    ids (`kimi`, `glm-native`) удалены; Kimi/GLM client-four profiles
    переопределяются в Phase 5 synthetic-native через новые live ids.
-6. `codex-synthetic-native` (индивидуальный) — ручной Codex probe из принятого
-   native request capture 2026-07-05: captured Codex system prompt и полный
-   материализованный workspace `AGENTS.md` внутри native-like prompt формы.
-   Выбирается как обычный Codex profile и применяется через `baseInstructions`;
-   реальный Codex tool registry остаётся app-server-native, а captured tool
-   declarations не кладутся в prompt как reference/debug text.
+6. `codex-synthetic-native` (индивидуальный, физически
+   `Profiles/Codex/codex-synthetic-native`) — ручной Codex probe из принятого
+   native request capture 2026-07-05: `system-prompt.md` является точной копией
+   captured `body.instructions`, `tools.json` является точной копией captured
+   `body.tools`, а `request-template.json` хранит статичные поля запроса. В
+   этом baseline нет workspace/custom instructions.
+7. `codex-synthetic-native-custom` (индивидуальный, физически
+   `Profiles/Codex/codex-synthetic-native-custom`) — тот же exact native
+   baseline плюс `custom-instructions.md`. Custom text вставляется в
+   `# General` captured system prompt как обычная часть system instructions,
+   без имени `AGENTS.md`, пути, отдельного раздела или Harness wrapper.
 
 Плюс виртуальная запись `native` (не на диске).
 

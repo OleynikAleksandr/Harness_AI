@@ -61,6 +61,9 @@ function isAppliedProfileSnapshot(value: unknown): boolean {
     typeof value.profileId === "string" &&
     typeof value.profileName === "string" &&
     (value.prompt === undefined || typeof value.prompt === "string") &&
+    (value.requestTemplate === undefined || isRecord(value.requestTemplate)) &&
+    (value.tools === undefined ||
+      (Array.isArray(value.tools) && value.tools.every(isRecord))) &&
     (value.contentHash === undefined ||
       typeof value.contentHash === "string") &&
     (value.toolingCategories === undefined ||

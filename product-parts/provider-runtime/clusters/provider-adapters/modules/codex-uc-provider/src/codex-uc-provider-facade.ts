@@ -55,7 +55,9 @@ interface CodexUcSessionState {
   readonly instructions: string;
   readonly listeners: Set<ProviderEventListener>;
   readonly messages: ResponsesInputItem[];
+  readonly nativeTools?: readonly Readonly<Record<string, unknown>>[];
   readonly profileApplication: ProviderProfileApplicationDetails;
+  readonly requestTemplate?: Readonly<Record<string, unknown>>;
   readonly workspacePath: string;
 }
 
@@ -204,12 +206,23 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       instructions: instructions ?? DEFAULT_INSTRUCTIONS,
       listeners: new Set(),
       messages: [],
+      ...(managedProfile && options.profile?.tools
+        ? { nativeTools: options.profile.tools }
+        : {}),
       profileApplication: {
+        ...(managedProfile && options.profile?.requestTemplate
+          ? { requestTemplate: "profile-native-request-template" }
+          : {}),
+        ...(managedProfile && options.profile?.tools
+          ? { toolSurface: "profile-native-tools" }
+          : { toolSurface: "harness-universal-client-builtins" }),
         profileId: options?.profile?.profileId ?? "native",
         route: "codex-oauth-responses",
         store: false,
-        toolSurface: "harness-universal-client-builtins",
       },
+      ...(managedProfile && options.profile?.requestTemplate
+        ? { requestTemplate: options.profile.requestTemplate }
+        : {}),
       workspacePath: workspacePath ?? this.defaultWorkspacePath,
     };
   }
@@ -267,7 +280,9 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       instructions: session.instructions,
       items: session.messages,
       model,
+      nativeTools: session.nativeTools,
       reasoningEffort,
+      requestTemplate: session.requestTemplate,
       tools: this.registry.listDescriptors(),
     });
     const response = await fetch(CODEX_OAUTH_RESPONSES_URL, {

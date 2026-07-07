@@ -96,9 +96,11 @@ synthetic-native. Номера строк актуальны на дату ис�
   из known Responses usage aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.) и означает provider-reported cached input read;
   CodexUC status panel стартует с `Cache: 0`, положительное значение становится
-  последним известным cache-hit для активной projected session, а поздний
-  `cached: 0` не стирает уже найденный положительный anchor value. Missing
-  cache field не превращается в новый ноль.
+  cache-anchor display для активной projected session. Поздние меньшие
+  значения, включая `cached: 0`, не стирают уже найденный положительный anchor
+  value, потому что один пользовательский turn может состоять из нескольких
+  внутренних Responses calls с разными usage shapes. Missing cache field не
+  превращается в новый ноль.
   Visible reasoning запрашивается через `reasoning.summary: "detailed"` вместе
   с выбранным effort; reasoning telemetry берётся из direct Responses reasoning
   summary/text stream deltas/items, буферизуется на границе active Responses

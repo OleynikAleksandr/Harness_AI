@@ -56,6 +56,18 @@ const codexUcZeroAfterHit = usageContextTelemetryFacade.applyProviderEvent(
 );
 assert.equal(codexUcZeroAfterHit.cacheDisplay?.value, "7,440");
 assert.equal(codexUcZeroAfterHit.tokenDisplay.value, "20,000 (90%)");
+const codexUcLowerHitAfterHit = usageContextTelemetryFacade.applyProviderEvent(
+  codexUcCached,
+  {
+    data: {
+      kind: "token_usage",
+      tokenUsage: { cached: 2432, limit: 200_000, used: 20_100 },
+    },
+    type: "stream_event",
+  }
+);
+assert.equal(codexUcLowerHitAfterHit.cacheDisplay?.value, "7,440");
+assert.equal(codexUcLowerHitAfterHit.tokenDisplay.value, "20,100 (90%)");
 
 const withTokens = usageContextTelemetryFacade.applyProviderEvent(codex, {
   data: {

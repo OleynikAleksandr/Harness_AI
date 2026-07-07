@@ -20,10 +20,11 @@ Own usage limits and context-window signals derived from provider events.
   normalized token-usage event includes cached token counts. Native Codex starts
   with `Cache: 0`; CodexUC also starts with `Cache: 0` so the Codex-family
   status panel stays stable from session start. When a Codex-family route has
-  already reported a positive cached-token count, a later `cached: 0` event does
-  not erase that visible value; the display is the last known positive cache
-  hit for the active projected session. Providers without that signal keep the
-  field `null`.
+  already reported a positive cached-token count, later smaller values
+  (including `cached: 0`) do not erase that visible anchor; the display is the
+  maximum positive cache hit seen for the active projected session while the
+  context-window `used` value still follows the latest provider report.
+  Providers without that signal keep the field `null`.
 - Warning/limit state.
 - Provider usage scope keys are limited to native vendor account scopes:
   `claude:global` and the shared Codex account scope `codex:global` used by

@@ -172,7 +172,7 @@ function mergeCachedTokenCount(options: {
   if (
     isCodexFamilyProvider(options.providerId) &&
     (options.current ?? 0) > 0 &&
-    options.next === 0
+    options.next < (options.current ?? 0)
   ) {
     return options.current;
   }

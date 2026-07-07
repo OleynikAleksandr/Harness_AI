@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "docs(evidence): record codex uc feedback package",
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -76,6 +76,6 @@
 
 ### Stream: Package And Retest
 
-8. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Repackage the app for user verification after CodexUC response-feedback diagnostics and record evidence. (scope: `docs/evidence/codex-uc-response-feedback-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc feedback package`).
-9. [TODO] Git Commit: `docs(evidence): record codex uc feedback package` (hash: TBD)
-10. [TODO] `harness-ai.phase4.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned reasoning feedback. (scope: user workflow; expected commit: none).
+8. [DONE] `harness-ai.phase4.stream1.task1` Repackage the app for user verification after CodexUC response-feedback diagnostics and record evidence. (scope: `docs/evidence/codex-uc-response-feedback-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc feedback package`). Result: Completed in commit `docs(evidence): record codex uc feedback package`.
+9. [DONE] Git Commit: `docs(evidence): record codex uc feedback package` (hash: self)
+10. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned reasoning feedback. (scope: user workflow; expected commit: none).

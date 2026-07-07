@@ -284,6 +284,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild evidence for the CodexUC request-body fix:
   Core-selected Codex reasoning effort overrides native-bundle template
   `reasoning.effort` while CodexUC keeps route-owned `summary: "concise"`.
+- `docs/evidence/codex-uc-response-feedback-package-2026-07-07.md` —
+  packaged application rebuild evidence for the CodexUC response-feedback
+  diagnostic: redacted provider feedback logs requested reasoning and backend
+  `response.created` / `response.completed` reasoning metadata when present.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

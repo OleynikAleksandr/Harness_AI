@@ -21,11 +21,13 @@ fields rejected by `/backend-api/codex/responses` (for example top-level
 `type`, which belongs to the captured WebSocket/envelope shape). Native
 currently uses a short Harness-owned fallback instruction because this route
 has no app-server native prompt assembly. The adapter serializes the outgoing
-HTTP body in a cache-optimized order: `model`, `instructions`, structured
-`tools`, a deterministic `prompt_cache_key`, then dynamic `input` and the
-remaining request options. The key is content-addressed from the static
-provider-facing prefix (`model`, `instructions`, structured tools and stable
-request options), not from the changing user/history input, so profile cache
+HTTP body in a cache-optimized order: `model`, final materialized
+`instructions`, structured `tools`, a deterministic `prompt_cache_key`, then
+dynamic `input` and the remaining request options. Profiles do not store
+`prompt_cache_key` in `request-template.json`; the adapter computes it from the
+static provider-facing prefix (`model`, final `instructions`, structured tools
+and stable request options) and inserts it immediately after `tools`. The key
+is not derived from the changing user/history input, so profile cache
 experiments can test one static anchor across multiple turns. The HTTP request
 also carries Codex-style session-affinity headers (`session-id`, `session_id`,
 `x-session-affinity`, `x-client-request-id`) for backend cache routing. The
@@ -50,7 +52,11 @@ from the Settings capture card, the adapter reads
 `custom-instructions.md`, assembles the same native-bundle prompt shape used by
 normal managed sessions, builds the Responses body through
 `buildCodexUcResponsesRequest`, and sends that HTTP POST through the shared
-MITM capture proxy. The artifact records an applied envelope with
+MITM capture proxy. For custom native profiles, `system-prompt.md` remains the
+exact captured baseline and the profile materializer injects
+`custom-instructions.md` into the final `instructions` before this adapter
+computes `prompt_cache_key`; pre-merging custom text into `system-prompt.md`
+would duplicate those instructions. The artifact records an applied envelope with
 `kind: "codex-uc"`, the selected profile id, route
 `codex-oauth-responses`, and `toolSurface: "profile-native-tools"` so cache
 diagnostics can compare app-server Codex and CodexUC without guessing which

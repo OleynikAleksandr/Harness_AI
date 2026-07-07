@@ -94,11 +94,15 @@ synthetic-native. Номера строк актуальны на дату ис�
   текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
   tool surface формируется Harness function tools. При HTTP-сериализации
   CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
-  `prompt_cache_key`, `input`, затем остальные request options; unsupported
-  envelope `type` остаётся в exact sidecar на диске, но не отправляется в HTTP
-  route. `prompt_cache_key` является content-addressed ключом статического
-  provider-facing prefix (`model`, `instructions`, structured `tools` и stable
-  request options), а не session/user-input ключом. HTTP request также несёт
+  `prompt_cache_key`, `input`, затем остальные request options. Профильные
+  файлы не хранят `prompt_cache_key`: adapter вычисляет его на каждый request
+  из уже собранного статического provider-facing prefix и вставляет строго
+  после structured `tools` и перед динамическим `input`. Unsupported envelope
+  `type` остаётся в exact sidecar на диске, но не отправляется в HTTP route.
+  `prompt_cache_key` является content-addressed ключом статического
+  provider-facing prefix (`model`, final materialized `instructions`,
+  structured `tools` и stable request options), а не session/user-input ключом.
+  HTTP request также несёт
   Codex-style cache/session routing headers (`session-id`, `session_id`,
   `x-session-affinity`, `x-client-request-id`). Original native request capture
   остаётся baseline/evidence, но для CodexUC prompt-cache экспериментов
@@ -108,9 +112,16 @@ synthetic-native. Номера строк актуальны на дату ис�
   Native Request Capture для CodexUC является profile-qualified diagnostic:
   карточка Settings передаёт в Core выбранный `profileId` вместе с provider/model,
   adapter читает `~/.harness-ai/Profiles/Codex/<profileId>/system-prompt.md`,
-  `request-template.json`, `tools.json` и optional `custom-instructions.md`,
-  собирает такой же managed native-bundle prompt, как обычная CodexUC session,
-  и отправляет этот HTTP body через общий MITM proxy. Артефакт обязан содержать
+  `request-template.json`, `tools.json` и optional `custom-instructions.md`.
+  Для native-bundle профиля `system-prompt.md` остаётся exact captured
+  `body.instructions`; если рядом есть `custom-instructions.md`, materializer
+  вставляет этот текст в final `instructions` внутри native prompt body, в
+  первую очередь после `# General`, без имени файла, пути или Harness wrapper.
+  Поэтому custom-профиль на диске НЕ должен предварительно сливать custom text
+  в `system-prompt.md`: иначе материализация добавит те же инструкции дважды.
+  Capture собирает такой же managed native-bundle prompt, как обычная CodexUC
+  session, добавляет adapter-owned `prompt_cache_key` после `tools`, и
+  отправляет этот HTTP body через общий MITM proxy. Артефакт обязан содержать
   `applied_input_envelope.kind = "codex-uc"` и выбранный `profileId`; без этого
   cache/captured-body сравнение с app-server Codex неинтерпретируемо.
   Cache telemetry берётся
@@ -777,9 +788,14 @@ Seed-профили — стандартный стартовый набор, к
    этом baseline нет workspace/custom instructions.
 7. `codex-synthetic-native-custom` (индивидуальный, физически
    `Profiles/Codex/codex-synthetic-native-custom`) — тот же exact native
-   baseline плюс `custom-instructions.md`. Custom text вставляется в
-   `# General` captured system prompt как обычная часть system instructions,
-   без имени `AGENTS.md`, пути, отдельного раздела или Harness wrapper.
+   baseline плюс `custom-instructions.md`. На диске `system-prompt.md`
+   остаётся exact captured baseline, а custom text хранится только в sidecar;
+   materializer вставляет sidecar text в final `instructions` после `# General`
+   как обычную часть system instructions, без имени `AGENTS.md`, пути,
+   отдельного раздела или Harness wrapper. Для CodexUC после materialization
+   adapter добавляет `prompt_cache_key` в HTTP payload после `tools` и перед
+   динамическим `input`; profiles не должны хранить этот key в
+   `request-template.json`.
 
 Плюс виртуальная запись `native` (не на диске).
 

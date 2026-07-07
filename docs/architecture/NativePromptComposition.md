@@ -74,8 +74,12 @@ native capture (`body.instructions` в `system-prompt.md`, `body.tools` в
 `tools.json`, static request fields в `request-template.json`) без custom
 инструкций. Вариант с пользовательскими правилами должен быть отдельным
 профилем (`codex-synthetic-native-custom`): его `custom-instructions.md`
-вставляется внутрь подходящего раздела captured system prompt без имени файла,
-пути, Harness heading или provenance wrapper. Для cache-friendly
+остаётся отдельным sidecar на диске, а materializer вставляет этот текст в
+final provider-facing `instructions` внутрь подходящего раздела captured
+system prompt (сейчас после `# General`) без имени файла, пути, Harness
+heading или provenance wrapper. `system-prompt.md` custom-профиля при этом
+остаётся exact baseline; предварительно сливать туда custom text нельзя,
+иначе materializer добавит инструкции повторно. Для cache-friendly
 synthetic/native профилей нельзя менять формат, даже если мы сознательно
 меняем содержимое; тот же принцип применяется к managed, universal и
 individual профилям, чтобы не смешивать prompt payload с Harness metadata/debug
@@ -151,8 +155,14 @@ text.
   в `tools.json`, статичные поля request body лежат в `request-template.json`.
   В этом baseline нет `AGENTS.md`/workspace custom text. Профиль
   `codex-synthetic-native-custom` использует тот же baseline и отдельный
-  `custom-instructions.md`; materializer вставляет этот текст в `# General`
-  captured prompt без имени файла, пути, отдельной секции или Harness wrapper.
+  `custom-instructions.md`; `system-prompt.md` остаётся exact baseline, а
+  materializer вставляет sidecar text в `# General` captured prompt без имени
+  файла, пути, отдельной секции или Harness wrapper. CodexUC не требует, чтобы
+  `request-template.json` содержал `prompt_cache_key`: adapter вычисляет key из
+  static provider-facing prefix (`model`, final `instructions`, structured
+  `tools`, stable options) и сериализует его после `tools` и перед
+  динамическим `input`, чтобы prompt/cache probe видел prompt и tooling как
+  смежный стабильный блок.
   Любая будущая правка этих профилей должна менять только содержимое внутри
   native формы или структурные native sidecars, но не добавлять Harness-метки,
   секции, форматные wrappers или JSON code fences в provider-facing prompt.

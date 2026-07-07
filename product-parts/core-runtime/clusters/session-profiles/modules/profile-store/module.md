@@ -26,7 +26,12 @@ profile is an exact baseline from the accepted native request capture:
 captured `body.instructions` in `system-prompt.md`, captured `body.tools` in
 `tools.json`, and static request fields in `request-template.json`. The custom
 variant adds only `custom-instructions.md`; the prompt file remains the exact
-captured baseline. The same storage invariant applies to every profile directory:
+captured baseline and must not pre-merge the custom text. Native-bundle
+materialization is responsible for inserting the sidecar into the final
+provider-facing `instructions`, and CodexUC is responsible for adding its
+runtime `prompt_cache_key` to the HTTP request after structured `tools`.
+`request-template.json` stores stable captured request fields, not a cached
+runtime key. The same storage invariant applies to every profile directory:
 `system-prompt.md` is provider-facing prompt payload, while provenance,
 diagnostics, seed notes, and Harness metadata belong in `profile.yaml`, docs,
 evidence, or sidecar artifacts, not inside prompt text.

@@ -21,10 +21,11 @@ fields rejected by `/backend-api/codex/responses` (for example top-level
 `type`, which belongs to the captured WebSocket/envelope shape). Native
 currently uses a short Harness-owned fallback instruction because this route
 has no app-server native prompt assembly. The adapter serializes the outgoing
-HTTP body in the captured native order that the HTTP endpoint can accept:
-`model`, `instructions`, dynamic `input`, then structured `tools` and the
-remaining request options. The unsupported native envelope `type` stays on disk
-in the exact sidecar but is omitted from the HTTP request.
+HTTP body in a cache-optimized order: `model`, `instructions`, structured
+`tools`, then dynamic `input` and the remaining request options. The unsupported
+native envelope `type` stays on disk in the exact sidecar but is omitted from
+the HTTP request. This intentionally keeps the provider-facing prompt and tool
+surface adjacent instead of letting changing session history split them.
 
 Unlike `codex-provider`, this module does not start `codex app-server`, does
 not receive the app-server built-in tool surface, does not use app-server

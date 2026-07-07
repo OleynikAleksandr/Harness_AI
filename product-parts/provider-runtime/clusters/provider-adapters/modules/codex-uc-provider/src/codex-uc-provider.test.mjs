@@ -180,17 +180,17 @@ try {
   assert.deepEqual(Object.keys(request).slice(0, 4), [
     "model",
     "instructions",
-    "input",
     "tools",
+    "input",
   ]);
   assert.equal(
     Object.keys(request).indexOf("instructions") <
-      Object.keys(request).indexOf("input"),
+      Object.keys(request).indexOf("tools"),
     true
   );
   assert.equal(
-    Object.keys(request).indexOf("input") <
-      Object.keys(request).indexOf("tools"),
+    Object.keys(request).indexOf("tools") <
+      Object.keys(request).indexOf("input"),
     true
   );
 
@@ -218,8 +218,8 @@ try {
     assert.deepEqual(Object.keys(body).slice(0, 4), [
       "model",
       "instructions",
-      "input",
       "tools",
+      "input",
     ]);
     return new Response(responseText(fetchCount), {
       headers:

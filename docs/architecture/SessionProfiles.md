@@ -93,12 +93,12 @@ synthetic-native. Номера строк актуальны на дату ис�
   сохраняя exact sidecar на диске, но отбрасывая transport-only поля, которые
   текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
   tool surface формируется Harness function tools. При HTTP-сериализации
-  CodexUC держит порядок, снятый с original native request capture и
-  совместимый с HTTP endpoint: `model`, `instructions`, `input`, `tools`, затем
-  остальные request options; unsupported envelope `type` остаётся в exact
-  sidecar на диске, но не отправляется в HTTP route. Это намеренный контракт
-  для prompt-cache экспериментов: системный `instructions` prefix должен
-  оставаться перед меняющимся `input`, иначе backend может распознать меньший
+  CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
+  `input`, затем остальные request options; unsupported envelope `type`
+  остаётся в exact sidecar на диске, но не отправляется в HTTP route. Original
+  native request capture остаётся baseline/evidence, но для CodexUC
+  prompt-cache экспериментов динамический `input` не должен находиться между
+  системным prompt и системным tooling: иначе backend может распознать меньший
   cached prefix даже без tool calls и без reasoning.
   Cache telemetry берётся
   из known Responses usage aliases (`input_tokens_details.cached_tokens`,

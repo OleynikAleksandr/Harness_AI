@@ -202,7 +202,7 @@ function omitCodexUcKnownTemplateFields(
 function toCodexUcReasoning(
   reasoning: Readonly<Record<string, unknown>>
 ): Readonly<Record<string, unknown>> {
-  return { ...reasoning, summary: "concise" };
+  return { ...reasoning, summary: "detailed" };
 }
 
 function stableJson(value: unknown): string {

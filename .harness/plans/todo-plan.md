@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "docs(evidence): record codex uc detailed summary package",
   "debt": null
 }
 ```
@@ -78,4 +78,19 @@
 
 8. [DONE] `harness-ai.phase4.stream1.task1` Repackage the app for user verification after CodexUC response-feedback diagnostics and record evidence. (scope: `docs/evidence/codex-uc-response-feedback-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc feedback package`). Result: Completed in commit `docs(evidence): record codex uc feedback package`.
 9. [DONE] Git Commit: `docs(evidence): record codex uc feedback package` (hash: self)
-10. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned reasoning feedback. (scope: user workflow; expected commit: none).
+10. [DONE] `harness-ai.phase4.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned reasoning feedback. (scope: user workflow; expected commit: none). Result: Backend feedback confirmed `reasoning.effort: "xhigh"` and `reasoning.summary: "concise"` on the live CodexUC route.
+
+## Phase 5 - CodexUC Detailed Summary Mode (owner: Codex, updated: 2026-07-07)
+
+### Stream: Request Body Contract
+
+11. [DONE] `harness-ai.phase5.stream1.task1` Replace the route-owned CodexUC `reasoning.summary: "concise"` normalization with `reasoning.summary: "detailed"` because live backend probes accept `detailed`/`auto` and `concise` yields only low-value visible summary text. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-responses.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex-uc): request detailed reasoning summary`). Result: Completed in commit `fix(codex-uc): request detailed reasoning summary`.
+12. [DONE] Git Commit: `fix(codex-uc): request detailed reasoning summary` (hash: self)
+
+## Phase 6 - Repackage Detailed Summary Build (owner: Codex + User, updated: 2026-07-07)
+
+### Stream: Package And Retest
+
+13. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Repackage the app for user verification after switching CodexUC to backend-accepted detailed reasoning summary mode and record evidence. (scope: `docs/evidence/codex-uc-detailed-summary-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc detailed summary package`).
+14. [TODO] Git Commit: `docs(evidence): record codex uc detailed summary package` (hash: TBD)
+15. [TODO] `harness-ai.phase6.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned `reasoning.summary: "detailed"` feedback. (scope: user workflow; expected commit: none).

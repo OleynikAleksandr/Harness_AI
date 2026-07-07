@@ -219,7 +219,7 @@ try {
   assert.equal(request.store, false);
   assert.equal(request.stream, true);
   assert.deepEqual(request.include, ["reasoning.encrypted_content"]);
-  assert.deepEqual(request.reasoning, { effort: "low", summary: "concise" });
+  assert.deepEqual(request.reasoning, { effort: "low", summary: "detailed" });
   assert.equal(Object.hasOwn(request, "type"), false);
   assert.equal(request.text.verbosity, "low");
   assert.equal(request.tools[0].name, "native_read_file");
@@ -281,7 +281,7 @@ try {
   });
   assert.deepEqual(requestWithTemplateReasoning.reasoning, {
     effort: "low",
-    summary: "concise",
+    summary: "detailed",
   });
   const requestWithTemplateOnlyReasoning = buildCodexUcResponsesRequest({
     instructions: "i",
@@ -300,7 +300,7 @@ try {
   });
   assert.deepEqual(requestWithTemplateOnlyReasoning.reasoning, {
     effort: "high",
-    summary: "concise",
+    summary: "detailed",
   });
   assert.match(
     nativeCaptureSource,

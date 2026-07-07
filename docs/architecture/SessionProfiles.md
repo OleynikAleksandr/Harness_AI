@@ -134,15 +134,17 @@ synthetic-native. Номера строк актуальны на дату ис�
   следующем пользовательском turn означает, что именно этот backend request
   получил меньший cached-input read, а не что весь session cache был удалён.
   Missing cache field не превращается в новый ноль.
-  Visible reasoning запрашивается через `reasoning.summary: "concise"` вместе
+  Visible reasoning запрашивается через `reasoning.summary: "detailed"` вместе
   с Core-selected Codex effort для модели сессии. Если native-bundle
   `request-template.json` тоже содержит `reasoning.effort`, выбранный в Core
   effort переопределяет template effort; template effort остаётся fallback
   только когда Core не передал per-turn effort. Native sidecar остаётся
   byte/profile-exact на диске, но CodexUC HTTP route нормализует исходящий
-  `reasoning.summary` в `concise`, потому что live Codex OAuth
-  Responses проверка вернула читаемые summary именно для `concise`, а
-  `auto`/`detailed` summary events не дали. Reasoning telemetry берётся из
+  `reasoning.summary` в `detailed`, потому что live Codex OAuth
+  Responses проверка подтвердила, что backend принимает `detailed` и
+  возвращает его в `response.created` / `response.completed` feedback.
+  `concise` summary events приходили, но давали слишком мало полезной
+  информации для CodexUC Thinking surface. Reasoning telemetry берётся из
   direct Responses reasoning summary/text stream deltas/items, буферизуется на
   границе active Responses call и отдаётся в Core как coalesced `thinking`
   messages, а не отдельная строка на каждый provider delta. Для acceptance и

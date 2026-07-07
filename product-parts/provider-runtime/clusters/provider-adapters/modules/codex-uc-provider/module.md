@@ -58,7 +58,7 @@ exact captured baseline and the profile materializer injects
   computes `prompt_cache_key`; pre-merging custom text into `system-prompt.md`
   would duplicate those instructions. The adapter preserves native sidecars on
   disk, but normalizes the outgoing CodexUC HTTP `reasoning.summary` to the
-  live-verified `concise` mode. The artifact records an applied envelope with
+  backend-accepted `detailed` mode. The artifact records an applied envelope with
   `kind: "codex-uc"`, the selected profile id, route
 `codex-oauth-responses`, and `toolSurface: "profile-native-tools"` so cache
 diagnostics can compare app-server Codex and CodexUC without guessing which
@@ -87,14 +87,16 @@ static profile was used.
   token aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.). Missing cache fields stay unknown; the adapter
   never forces unknown cache telemetry to `0`.
-- Visible reasoning is requested with `reasoning.summary: "concise"` plus the
+- Visible reasoning is requested with `reasoning.summary: "detailed"` plus the
   Core-selected Codex effort for the session model. If a profile request
   template also carries `reasoning`, the template fields remain static defaults
   but the per-turn selected effort overrides `reasoning.effort`; if Core sends
   no effort, the template effort is kept. Profile request-template `reasoning`
   fields are otherwise preserved except for the route-owned summary mode,
-  because live Codex OAuth Responses testing returned readable summaries for
-  `concise` while `auto`/`detailed` did not. Reasoning telemetry from direct
+  because live Codex OAuth Responses testing confirmed that the backend accepts
+  `detailed` and returns it in `response.created` / `response.completed`
+  feedback; `concise` stream summaries were visible but too low-value for the
+  CodexUC Thinking surface. Reasoning telemetry from direct
   Responses reasoning summary stream deltas/items is buffered for the active
   Responses call and emitted as coalesced Core-visible `thinking` dialog
   messages, not one row per provider delta.

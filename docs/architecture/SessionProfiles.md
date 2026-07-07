@@ -145,7 +145,15 @@ synthetic-native. Номера строк актуальны на дату ис�
   `auto`/`detailed` summary events не дали. Reasoning telemetry берётся из
   direct Responses reasoning summary/text stream deltas/items, буферизуется на
   границе active Responses call и отдаётся в Core как coalesced `thinking`
-  messages, а не отдельная строка на каждый provider delta.
+  messages, а не отдельная строка на каждый provider delta. Для acceptance и
+  отладки CodexUC дополнительно пишет redacted provider-feedback JSONL в
+  `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl`: requested
+  `model`/`reasoning`, HTTP status, response event names и sanitized
+  `response.created` / `response.completed` model/status/reasoning metadata,
+  если backend вернул такие поля. Этот лог не содержит auth, prompt, input
+  history или tool schemas; отсутствие response-side `reasoning` означает, что
+  backend не подтвердил принятую reasoning-конфигурацию в доступном SSE
+  feedback.
   Usage-limit telemetry
   берётся через проверенный Codex account-limits bridge
   (`account/rateLimits/read`) с best-effort direct response-header fast path,

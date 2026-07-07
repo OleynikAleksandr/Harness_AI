@@ -98,6 +98,15 @@ static profile was used.
   Responses reasoning summary stream deltas/items is buffered for the active
   Responses call and emitted as coalesced Core-visible `thinking` dialog
   messages, not one row per provider delta.
+- Redacted response-side reasoning feedback is appended to
+  `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` after each
+  CodexUC HTTP response is read. The record stores the requested
+  `model`/`reasoning`, HTTP status, response event names, and sanitized
+  `response.created` / `response.completed` model/status/reasoning metadata
+  when the backend returns it. It deliberately omits auth, prompt text, input
+  history, and tool schemas; missing response-side `reasoning` means the
+  backend did not provide acceptance metadata in the SSE feedback captured for
+  that turn.
 - Usage-limit telemetry through the proven Codex account-limits bridge
   (`account/rateLimits/read`) plus a best-effort direct response-header fast
   path when the backend provides Codex session/weekly limit percentages or

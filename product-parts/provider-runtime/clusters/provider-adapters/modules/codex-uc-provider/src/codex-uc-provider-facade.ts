@@ -21,6 +21,7 @@ import type {
   ProviderUsageLimitsRefreshRequest,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { captureCodexUcNativeRequest } from "./codex-uc-native-capture.js";
+import { recordCodexUcResponseFeedback } from "./codex-uc-response-feedback.js";
 import {
   buildCodexUcResponsesRequest,
   CodexUcReasoningBuffer,
@@ -323,6 +324,13 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       signal,
     });
     const text = await response.text();
+    recordCodexUcResponseFeedback({
+      profileId: session.profileApplication.profileId,
+      request: body,
+      responseStatus: response.status,
+      responseText: text,
+      sessionId,
+    });
     if (!response.ok) {
       throw new Error(`CodexUC request failed (${response.status}): ${text}`);
     }

@@ -56,6 +56,10 @@ const usageLimitsSource = readFileSync(
   new URL("./codex-uc-usage-limits.ts", import.meta.url),
   "utf8"
 );
+const feedbackSource = readFileSync(
+  new URL("./codex-uc-response-feedback.ts", import.meta.url),
+  "utf8"
+);
 const PROMPT_CACHE_KEY_REGEX = /^pck_[0-9a-f]{24}$/u;
 
 const compiled = ts.transpileModule(source, {
@@ -77,6 +81,12 @@ const compiledNativeCapture = ts.transpileModule(nativeCaptureSource, {
   },
 }).outputText;
 const compiledUsageLimits = ts.transpileModule(usageLimitsSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const compiledFeedback = ts.transpileModule(feedbackSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
@@ -121,6 +131,14 @@ function responseText(step) {
     );
   }
   return (
+    sse("response.created", {
+      response: {
+        id: "r3",
+        model: "gpt-5.5",
+        reasoning: { effort: "low", summary: "concise" },
+        status: "in_progress",
+      },
+    }) +
     sse("response.reasoning_summary.delta", {
       delta: { text: "thinking " },
     }) +
@@ -135,7 +153,15 @@ function responseText(step) {
         type: "message",
       },
     }) +
-    sse("response.completed", { response: { id: "r3", usage } })
+    sse("response.completed", {
+      response: {
+        id: "r3",
+        model: "gpt-5.5",
+        reasoning: { effort: "low", summary: "concise" },
+        status: "completed",
+        usage,
+      },
+    })
   );
 }
 
@@ -152,6 +178,10 @@ try {
   writeFileSync(
     path.join(buildDir, "codex-uc-usage-limits.js"),
     compiledUsageLimits
+  );
+  writeFileSync(
+    path.join(buildDir, "codex-uc-response-feedback.js"),
+    compiledFeedback
   );
   const { buildCodexUcResponsesRequest, CodexUcProviderFacade } = await import(
     pathToFileURL(path.join(buildDir, "codex-uc-provider-facade.js")).href
@@ -291,6 +321,8 @@ try {
 
   globalThis.__codexUcExecuted = [];
   let fetchCount = 0;
+  const previousHarnessHome = process.env.HARNESS_AI_HOME;
+  process.env.HARNESS_AI_HOME = workspace;
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (_url, init) => {
     fetchCount += 1;
@@ -444,6 +476,11 @@ try {
       { content: "after rollback", role: "user" },
     ]);
   } finally {
+    if (previousHarnessHome === undefined) {
+      process.env.HARNESS_AI_HOME = undefined;
+    } else {
+      process.env.HARNESS_AI_HOME = previousHarnessHome;
+    }
     globalThis.fetch = originalFetch;
     await rm(workspace, { recursive: true, force: true });
   }

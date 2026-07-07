@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "docs(evidence): record codex uc feedback package",
   "debt": null
 }
 ```
@@ -63,4 +63,19 @@
 
 3. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence. (scope: `docs/evidence/codex-uc-reasoning-effort-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc reasoning effort package`). Result: Completed in commit `docs(evidence): record codex uc reasoning effort package`.
 4. [DONE] Git Commit: `docs(evidence): record codex uc reasoning effort package` (hash: self)
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests CodexUC in the packaged app and verifies that the selected Codex reasoning effort is reflected in the outgoing CodexUC route. (scope: user workflow; expected commit: none).
+5. [TODO] `harness-ai.phase2.stream1.task2` User retests CodexUC in the packaged app and verifies that the selected Codex reasoning effort is reflected in the outgoing CodexUC route. (scope: user workflow; expected commit: none).
+
+## Phase 3 - CodexUC Native Feedback (owner: Codex, updated: 2026-07-07)
+
+### Stream: Response Feedback Diagnostics
+
+6. [DONE] `harness-ai.phase3.stream1.task1` Record redacted CodexUC response-side feedback so acceptance can distinguish the requested reasoning effort from backend-returned reasoning metadata. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-response-feedback.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-response-feedback.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`; expected commit: `feat(codex-uc): record response reasoning feedback`). Result: Completed in commit `feat(codex-uc): record response reasoning feedback`.
+7. [DONE] Git Commit: `feat(codex-uc): record response reasoning feedback` (hash: self)
+
+## Phase 4 - Repackage Feedback Build (owner: Codex + User, updated: 2026-07-07)
+
+### Stream: Package And Retest
+
+8. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Repackage the app for user verification after CodexUC response-feedback diagnostics and record evidence. (scope: `docs/evidence/codex-uc-response-feedback-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc feedback package`).
+9. [TODO] Git Commit: `docs(evidence): record codex uc feedback package` (hash: TBD)
+10. [TODO] `harness-ai.phase4.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned reasoning feedback. (scope: user workflow; expected commit: none).

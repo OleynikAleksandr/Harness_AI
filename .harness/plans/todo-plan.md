@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "docs(evidence): record codex uc detailed summary package",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -91,6 +91,6 @@
 
 ### Stream: Package And Retest
 
-13. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Repackage the app for user verification after switching CodexUC to backend-accepted detailed reasoning summary mode and record evidence. (scope: `docs/evidence/codex-uc-detailed-summary-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc detailed summary package`).
-14. [TODO] Git Commit: `docs(evidence): record codex uc detailed summary package` (hash: TBD)
-15. [TODO] `harness-ai.phase6.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned `reasoning.summary: "detailed"` feedback. (scope: user workflow; expected commit: none).
+13. [DONE] `harness-ai.phase6.stream1.task1` Repackage the app for user verification after switching CodexUC to backend-accepted detailed reasoning summary mode and record evidence. (scope: `docs/evidence/codex-uc-detailed-summary-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc detailed summary package`). Result: Completed in commit `docs(evidence): record codex uc detailed summary package`.
+14. [DONE] Git Commit: `docs(evidence): record codex uc detailed summary package` (hash: self)
+15. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned `reasoning.summary: "detailed"` feedback. (scope: user workflow; expected commit: none).

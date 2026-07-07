@@ -5,7 +5,7 @@ import path from "node:path";
 // vendor channels. The ACP Kimi capture channel left with the kimi-provider
 // retirement (2026-07-05 user order); universal-client endpoints need no
 // capture — our own client owns their requests.
-export type NativeCaptureProviderId = "claude" | "codex";
+export type NativeCaptureProviderId = "claude" | "codex" | "codex-uc";
 
 export type NativeCaptureFailureReason =
   | "provider_not_supported"

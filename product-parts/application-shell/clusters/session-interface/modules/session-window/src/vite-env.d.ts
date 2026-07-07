@@ -75,6 +75,7 @@ interface Window {
     }): Promise<{ error: string; ok: false } | { filePath: string; ok: true }>;
     captureNativeRequest(request: {
       model?: string;
+      profileId?: string;
       providerId: string;
     }): Promise<{
       error: string | null;

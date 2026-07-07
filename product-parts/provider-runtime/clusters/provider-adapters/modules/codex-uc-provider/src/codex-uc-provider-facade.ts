@@ -12,6 +12,7 @@ import type { NormalizedProviderEvent } from "../../../../provider-events-and-tr
 import type {
   ProviderAdapter,
   ProviderEventListener,
+  ProviderNativeCaptureOptions,
   ProviderProfileApplicationDetails,
   ProviderRollbackResult,
   ProviderSessionStartOptions,
@@ -19,14 +20,17 @@ import type {
   ProviderTurnOptions,
   ProviderUsageLimitsRefreshRequest,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { captureCodexUcNativeRequest } from "./codex-uc-native-capture.js";
 import {
   buildCodexUcResponsesRequest,
+  CodexUcReasoningBuffer,
   isFunctionCall,
   isInputItem,
   parseResponsesStream,
   type ResponsesInputItem,
   type ResponsesParsedStream,
   type ResponsesUsage,
+  readCachedInputTokens,
   toInputItem,
 } from "./codex-uc-responses.js";
 import {
@@ -190,6 +194,22 @@ export class CodexUcProviderFacade implements ProviderAdapter {
 
   refreshUsageLimits(request: ProviderUsageLimitsRefreshRequest): void {
     this.usageLimitsAdapter?.refreshUsageLimits?.(request);
+  }
+
+  async captureNativeRequest(
+    options: ProviderNativeCaptureOptions
+  ): Promise<void> {
+    const auth = this.readAuth();
+    if (!auth) {
+      throw new Error(AUTH_MISSING_MESSAGE);
+    }
+    const model = options.selectedModelId || DEFAULT_MODEL;
+    await captureCodexUcNativeRequest({
+      auth,
+      defaultTools: this.registry.listDescriptors(),
+      options,
+      reasoningEffort: resolveCodexReasoningEffort(model, undefined),
+    });
   }
 
   private createSessionState(
@@ -452,44 +472,6 @@ function isUserInputItem(item: ResponsesInputItem): item is {
   readonly role: "user";
 } {
   return "role" in item && item.role === "user";
-}
-
-function readCachedInputTokens(
-  usage: ResponsesUsage | undefined
-): number | null {
-  const value =
-    readNumber(usage?.input_tokens_details?.cached_tokens) ??
-    readNumber(usage?.input_tokens_details?.cached_input_tokens) ??
-    readNumber(usage?.prompt_tokens_details?.cached_tokens) ??
-    readNumber(usage?.prompt_tokens_details?.cached_input_tokens) ??
-    readNumber(usage?.cached_tokens) ??
-    readNumber(usage?.cached_input_tokens);
-  return value === null || value < 0 ? null : value;
-}
-
-function readNumber(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-class CodexUcReasoningBuffer {
-  private content = "";
-
-  append(delta: string): void {
-    if (this.content && delta.startsWith(this.content)) {
-      this.content = delta;
-      return;
-    }
-    if (this.content.endsWith(delta)) {
-      return;
-    }
-    this.content += delta;
-  }
-
-  flush(): string | null {
-    const content = this.content.trim();
-    this.content = "";
-    return content || null;
-  }
 }
 
 export const codexUcProviderFacade = new CodexUcProviderFacade();

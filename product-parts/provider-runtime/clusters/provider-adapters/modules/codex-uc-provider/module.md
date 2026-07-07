@@ -35,6 +35,20 @@ that history on each turn with `store:false`; its rollback capability prunes
 that local input history from the requested user turn so subsequent requests do
 not resend the removed tail.
 
+The adapter also implements the diagnostic Native Request Capture boundary for
+CodexUC. Capture is profile-qualified: Core passes an explicit `profileId`
+from the Settings capture card, the adapter reads
+`~/.harness-ai/Profiles/Codex/<profileId>/system-prompt.md`,
+`request-template.json`, `tools.json`, and optional
+`custom-instructions.md`, assembles the same native-bundle prompt shape used by
+normal managed sessions, builds the Responses body through
+`buildCodexUcResponsesRequest`, and sends that HTTP POST through the shared
+MITM capture proxy. The artifact records an applied envelope with
+`kind: "codex-uc"`, the selected profile id, route
+`codex-oauth-responses`, and `toolSurface: "profile-native-tools"` so cache
+diagnostics can compare app-server Codex and CodexUC without guessing which
+static profile was used.
+
 ## Public Facade
 
 `CodexUcProviderFacade`
@@ -47,6 +61,8 @@ not resend the removed tail.
   `tools` fields in addition to the materialized prompt.
 - Per-turn model/reasoning settings from the existing Codex settings section.
 - Local Codex OAuth auth file (`~/.codex/auth.json`).
+- Native Request Capture options: proxy/certificate context, selected model,
+  selected profile id, and diagnostic writer callbacks.
 
 ## Outputs
 
@@ -69,6 +85,9 @@ not resend the removed tail.
 - Provider profile application details recording the selected route,
   profile id, native tool/template source when present, and experimental
   `store:false` state model.
+- CodexUC Native Request Capture artifacts with explicit profile identity,
+  request shape diagnostics (top-level keys, instruction bytes, tool count and
+  tool bytes), redacted auth headers, and the captured HTTP body.
 
 ## Owned Paths
 

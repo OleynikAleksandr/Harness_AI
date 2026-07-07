@@ -75,9 +75,10 @@ export interface ProviderRollbackResult {
 // capture. Only `kind` is typed at this boundary; each adapter passes its own
 // concrete envelope (extra fields serialized as-is by the capture writer).
 export interface ProviderNativeCaptureAppliedInputEnvelope {
-  // Capture serves the two native vendor channels; the ACP Kimi `kind: "kimi"`
-  // envelope left with the kimi-provider module deletion (2026-07-05).
-  readonly kind: "claude" | "codex";
+  // Capture serves native vendor channels plus CodexUC's Harness-built Codex
+  // OAuth Responses request; the ACP Kimi `kind: "kimi"` envelope left with
+  // the kimi-provider module deletion (2026-07-05).
+  readonly kind: "claude" | "codex" | "codex-uc";
 }
 
 // Record-only native request capture options (no managed-vs-vanilla
@@ -90,9 +91,10 @@ export interface ProviderNativeCaptureOptions {
   readonly certificateEnv: Readonly<Record<string, string>>;
   readonly certificatePath: string;
   readonly probePrompt: string;
+  readonly profileId?: string | null;
   readonly proxyUrl: string;
   readonly recordAppliedInputEnvelope?: (
-    envelope: ProviderNativeCaptureAppliedInputEnvelope
+    envelope: unknown
   ) => Promise<void> | void;
   readonly recordDiagnosticContext?: (record: {
     readonly kind: string;

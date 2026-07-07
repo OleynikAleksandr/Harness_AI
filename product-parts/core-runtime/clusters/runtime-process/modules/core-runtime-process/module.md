@@ -151,17 +151,19 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `buildProviderAdapterInstance` (so an active session's registered adapter is
   never clobbered), best-effort bootstraps it (`ensureWorkspaceHome` +
   `initialize`), and drives it through the `provider-network-capture` cluster's
-  `NativeCaptureOrchestrator` (record-only, vendor-default request), returning
-  `{ ok, markdownPath, jsonlPath, error }`. The Claude command passes a raised
+  `NativeCaptureOrchestrator` (record-only request), passing the optional
+  `profileId` through for profile-qualified providers such as CodexUC and
+  returning `{ ok, markdownPath, jsonlPath, error }`. The Claude command passes a raised
   `timeoutMs` (120s): its capture drives the provider binary interactively in
   a pty (boot the UI, type the probe, submit), which does not fit the 30s
   proxy default that suits the direct Codex client.
   `list-capturable-models` returns the per-provider capturable model catalog
-  from `provider-descriptor`. Only Claude/Codex are capture providers (the
-  ACP Kimi capture channel left with the kimi-provider retirement,
-  2026-07-05); other providers return `provider_not_supported`. The adapter builder is
-  factored out of `core-provider-adapter-registration.ts` and reused by the
-  shared registry wiring.
+  from `provider-descriptor`. Claude, Codex app-server, and CodexUC are
+  capture providers (the ACP Kimi capture channel left with the kimi-provider
+  retirement, 2026-07-05); other providers return `provider_not_supported`.
+  The adapter builder is factored out of
+  `core-provider-adapter-registration.ts` and reused by the shared registry
+  wiring.
 
 ## Owned Paths
 

@@ -59,9 +59,10 @@ const CLIENT_PROVIDER_MODELS: Readonly<
 // Models offered in the Native Request Capture UI, per capture provider.
 // Different models can carry different system prompts, so capture is chosen
 // per model. Ids mirror the provider model catalog. Capture covers the two
-// native vendor channels only: the ACP Kimi capture channel left with the
-// kimi-provider retirement (2026-07-05); universal-client endpoints need no
-// capture — our own client owns their requests.
+// native vendor channels plus CodexUC's Harness-built OAuth Responses request:
+// the ACP Kimi capture channel left with the kimi-provider retirement
+// (2026-07-05). CodexUC is included so its client-built request can be compared
+// byte-for-byte against captured app-server Codex requests.
 const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
   {
     claude: [
@@ -76,6 +77,7 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
       { id: "gpt-5.4", label: "GPT-5.4" },
       { id: "gpt-5.5", label: "GPT-5.5" },
     ],
+    "codex-uc": CLIENT_PROVIDER_MODELS["codex-uc"],
   };
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([

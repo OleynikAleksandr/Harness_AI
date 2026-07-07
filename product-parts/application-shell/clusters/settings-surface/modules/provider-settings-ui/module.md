@@ -117,11 +117,13 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   returns translated text for the visible model rows.
 - The Native Request Capture card (`native-capture-card.tsx`) renders below
   General Settings: a provider selector and model selector populated from the
-  Core `listCapturableModels` RPC (`provider-descriptor` catalog), a Capture
-  button, capturing/failed/done status, and the Core-returned `.md`/`.jsonl`
-  artifact paths. The renderer only submits the Core `captureNativeRequest`
-  command and displays the Core-returned result — capture truth (proxy,
-  record-only vendor-default request, artifacts) is Core-owned.
+  Core `listCapturableModels` RPC (`provider-descriptor` catalog), a
+  CodexUC-only profile selector populated from the session profile catalog, a
+  Capture button, capturing/failed/done status, and the Core-returned
+  `.md`/`.jsonl` artifact paths. The renderer only submits the Core
+  `captureNativeRequest` command (`providerId`, `model`, and for CodexUC an
+  explicit `profileId`) and displays the Core-returned result — capture truth
+  (proxy, record-only request, artifacts) is Core-owned.
 - The OpenRouter model slug search (`OpenRouterModelEndpointPicker` in
   `openrouter-settings-card.tsx`, used by the provider default model block and
   both OpenRouter Profiles translation model blocks) collapses its match list

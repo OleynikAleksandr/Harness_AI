@@ -3,11 +3,11 @@ import type { ProviderId } from "../../../../../../provider-runtime/clusters/pro
 import { NativeCaptureOrchestrator } from "../../../../provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.js";
 import { buildProviderAdapterInstance } from "./core-provider-adapter-registration.js";
 
-// Capture serves the native vendor channels only: Claude and Codex. The ACP
-// Kimi capture channel was removed with the kimi-provider retirement
-// (2026-07-05 user order); the accepted Kimi dumps remain the synthetic-
-// native material.
-const CAPTURE_PROVIDER_IDS = new Set(["claude", "codex"]);
+// Capture serves native vendor channels plus CodexUC's Harness-built Codex
+// OAuth Responses request. The ACP Kimi capture channel was removed with the
+// kimi-provider retirement (2026-07-05 user order); the accepted Kimi dumps
+// remain the synthetic-native material.
+const CAPTURE_PROVIDER_IDS = new Set(["claude", "codex", "codex-uc"]);
 // The Claude capture drives the provider binary interactively in a pty
 // (boot the UI, type the probe, submit), which does not fit the 30s proxy
 // default that suits the direct Codex client.
@@ -30,6 +30,7 @@ export async function captureNativeRequestRpcResult(
 ): Promise<CaptureNativeRequestRpcResult> {
   const providerId = readPayloadString(payload, "providerId");
   const model = readPayloadString(payload, "model");
+  const profileId = readPayloadString(payload, "profileId");
   if (!(providerId && CAPTURE_PROVIDER_IDS.has(providerId))) {
     return {
       error: "provider_not_supported",
@@ -60,7 +61,8 @@ export async function captureNativeRequestRpcResult(
   }
   const result = await orchestrator.capture({
     model: model ?? null,
-    providerId: providerId as "claude" | "codex",
+    profileId: profileId ?? null,
+    providerId: providerId as "claude" | "codex" | "codex-uc",
     runProviderCapture: (context) => capture(context),
     workspacePath,
     ...(providerId === "claude"

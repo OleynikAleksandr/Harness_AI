@@ -20,9 +20,9 @@ import {
 const DIAGNOSTIC_PROBE_PROMPT =
   "Harness AI native request capture probe. This request must not be sent upstream.";
 
-// Provider model endpoints to match (Claude/Codex — the native vendor
-// channels; the ACP Kimi capture channel left with the kimi-provider
-// retirement, 2026-07-05 user order).
+// Provider model endpoints to match. Codex app-server uses WebSocket on the
+// Codex Responses path; CodexUC uses the same backend path through Harness'
+// own HTTP client so the two artifacts can be compared.
 export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
   Record<NativeCaptureProviderId, readonly NativeCaptureTargetRule[]>
 > = {
@@ -50,6 +50,14 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
       minimumToolCount: 1,
     },
   ],
+  "codex-uc": [
+    {
+      host: "chatgpt.com",
+      pathIncludes: "/backend-api/codex/responses",
+      bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
+      minimumToolCount: 1,
+    },
+  ],
 };
 
 // Context handed to the provider adapter so it can drive its own client. Its
@@ -62,6 +70,7 @@ export interface ProviderCaptureContext {
   readonly certificateEnv: Readonly<Record<string, string>>;
   readonly certificatePath: string;
   readonly probePrompt: string;
+  readonly profileId?: string | null;
   readonly providerId: NativeCaptureProviderId;
   readonly proxyUrl: string;
   readonly recordAppliedInputEnvelope: (envelope: unknown) => Promise<void>;
@@ -86,6 +95,7 @@ interface CaptureHandleLike {
 export interface NativeCaptureCommand {
   readonly model?: string | null;
   readonly outputDir?: string;
+  readonly profileId?: string | null;
   readonly providerId: NativeCaptureProviderId;
   readonly runProviderCapture: RunProviderCapture;
   readonly targetRules?: readonly NativeCaptureTargetRule[];
@@ -220,6 +230,7 @@ export class NativeCaptureOrchestrator {
       certificateEnv: params.certificateEnv,
       certificatePath: params.certificatePath,
       probePrompt: DIAGNOSTIC_PROBE_PROMPT,
+      profileId: command.profileId ?? null,
       providerId: command.providerId,
       proxyUrl: params.proxyUrl,
       recordAppliedInputEnvelope: (envelope) =>

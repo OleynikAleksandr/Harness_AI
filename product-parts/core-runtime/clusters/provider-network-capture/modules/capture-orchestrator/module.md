@@ -24,17 +24,17 @@ injection (pointing a provider client at the local proxy) is passed in as a
   `captureIdFactory`, `certificateStore`, `proxyFactory`, `clock`, and
   `outputDir` (defaults to `<harness home>/logs/native-request-capture`) —
   all injectable for testing.
-- `NativeCaptureCommand`: provider id, optional model, optional workspace
-  path, optional `targetRules` override (else `DEFAULT_CAPTURE_TARGET_RULES`
-  per provider), optional `timeoutMs`, and the required `runProviderCapture`
-  callback.
+- `NativeCaptureCommand`: provider id, optional model, optional profile id,
+  optional workspace path, optional `targetRules` override (else
+  `DEFAULT_CAPTURE_TARGET_RULES` per provider), optional `timeoutMs`, and the
+  required `runProviderCapture` callback.
 
 ## Outputs
 
 - `DEFAULT_CAPTURE_TARGET_RULES`: per-provider target model endpoints
-  (Claude `api.anthropic.com` `/v1/messages`, Codex `chatgpt.com`
-  `/backend-api/codex/responses`; the ACP Kimi rule left with the
-  kimi-provider retirement, 2026-07-05).
+  (Claude `api.anthropic.com` `/v1/messages`, Codex app-server and CodexUC
+  `chatgpt.com` `/backend-api/codex/responses`; the ACP Kimi rule left with
+  the kimi-provider retirement, 2026-07-05).
   Codex uses a WebSocket transport for `/responses`, so the proxy routes the
   upgrade on that path to its WS capture and decodes the `response.create`
   frame (the payload is in the frame, not an HTTP body). The Codex rule carries
@@ -48,8 +48,9 @@ injection (pointing a provider client at the local proxy) is passed in as a
   `ProviderNativeCaptureOptions` so the RPC callback is
   `(ctx) => adapter.captureNativeRequest(ctx)` — capture id, proxy url,
   certificate env hints, certificate path, diagnostic probe prompt, provider
-  id, selected model, workspace path, and the `recordAppliedInputEnvelope`/
-  `recordDiagnosticContext` callbacks wired to the writer.
+  id, selected model, optional profile id, workspace path, and the
+  `recordAppliedInputEnvelope`/`recordDiagnosticContext` callbacks wired to
+  the writer.
 - `NativeCaptureOrchestrator.capture(command)`: mints one capture id, creates
   the writer, and runs the proxy path (`captureViaProxy`): prepare the
   diagnostic certificate, start the forward-transit proxy, race the provider

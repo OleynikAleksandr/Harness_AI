@@ -337,6 +337,40 @@ export function isFunctionCall(
   );
 }
 
+export function readCachedInputTokens(
+  usage: ResponsesUsage | undefined
+): number | null {
+  const value =
+    readNumber(usage?.input_tokens_details?.cached_tokens) ??
+    readNumber(usage?.input_tokens_details?.cached_input_tokens) ??
+    readNumber(usage?.prompt_tokens_details?.cached_tokens) ??
+    readNumber(usage?.prompt_tokens_details?.cached_input_tokens) ??
+    readNumber(usage?.cached_tokens) ??
+    readNumber(usage?.cached_input_tokens);
+  return value === null || value < 0 ? null : value;
+}
+
+export class CodexUcReasoningBuffer {
+  private content = "";
+
+  append(delta: string): void {
+    if (this.content && delta.startsWith(this.content)) {
+      this.content = delta;
+      return;
+    }
+    if (this.content.endsWith(delta)) {
+      return;
+    }
+    this.content += delta;
+  }
+
+  flush(): string | null {
+    const content = this.content.trim();
+    this.content = "";
+    return content || null;
+  }
+}
+
 function toResponsesTool(tool: ToolDescriptor): ResponsesFunctionTool {
   return {
     description: tool.description,
@@ -348,6 +382,10 @@ function toResponsesTool(tool: ToolDescriptor): ResponsesFunctionTool {
 
 function readString(value: unknown): string | null {
   return typeof value === "string" ? value : null;
+}
+
+function readNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function readFirstText(...values: unknown[]): string | null {

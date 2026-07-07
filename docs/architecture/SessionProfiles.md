@@ -100,6 +100,14 @@ synthetic-native. Номера строк актуальны на дату ис�
   prompt-cache экспериментов динамический `input` не должен находиться между
   системным prompt и системным tooling: иначе backend может распознать меньший
   cached prefix даже без tool calls и без reasoning.
+  Native Request Capture для CodexUC является profile-qualified diagnostic:
+  карточка Settings передаёт в Core выбранный `profileId` вместе с provider/model,
+  adapter читает `~/.harness-ai/Profiles/Codex/<profileId>/system-prompt.md`,
+  `request-template.json`, `tools.json` и optional `custom-instructions.md`,
+  собирает такой же managed native-bundle prompt, как обычная CodexUC session,
+  и отправляет этот HTTP body через общий MITM proxy. Артефакт обязан содержать
+  `applied_input_envelope.kind = "codex-uc"` и выбранный `profileId`; без этого
+  cache/captured-body сравнение с app-server Codex неинтерпретируемо.
   Cache telemetry берётся
   из known Responses usage aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.) и означает provider-reported cached input read;

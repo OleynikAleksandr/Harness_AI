@@ -21,12 +21,14 @@ assert.match(
   rpcSource,
   /runProviderCapture: \(context\) => capture\(context\)/u
 );
-// Capture serves the two native vendor channels; the ACP kimi capture
-// channel left with the kimi-provider retirement (2026-07-05 user order).
+// Capture serves native vendor channels plus the CodexUC diagnostic request;
+// the ACP kimi capture channel left with the kimi-provider retirement
+// (2026-07-05 user order).
 assert.match(
   rpcSource,
-  /CAPTURE_PROVIDER_IDS = new Set\(\["claude", "codex"\]\)/u
+  /CAPTURE_PROVIDER_IDS = new Set\(\["claude", "codex", "codex-uc"\]\)/u
 );
+assert.match(rpcSource, /readPayloadString\(payload, "profileId"\)/u);
 assert.doesNotMatch(rpcSource, /"kimi"/u);
 assert.match(rpcSource, /provider_not_supported/u);
 assert.match(rpcSource, /getCapturableModels/u);

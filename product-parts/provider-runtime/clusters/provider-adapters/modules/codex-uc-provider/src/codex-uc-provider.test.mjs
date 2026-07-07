@@ -48,6 +48,10 @@ const responsesSource = readFileSync(
   new URL("./codex-uc-responses.ts", import.meta.url),
   "utf8"
 );
+const nativeCaptureSource = readFileSync(
+  new URL("./codex-uc-native-capture.ts", import.meta.url),
+  "utf8"
+);
 const usageLimitsSource = readFileSync(
   new URL("./codex-uc-usage-limits.ts", import.meta.url),
   "utf8"
@@ -60,6 +64,12 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const compiledResponses = ts.transpileModule(responsesSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const compiledNativeCapture = ts.transpileModule(nativeCaptureSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
@@ -135,6 +145,10 @@ try {
     compiledResponses
   );
   writeFileSync(
+    path.join(buildDir, "codex-uc-native-capture.js"),
+    compiledNativeCapture
+  );
+  writeFileSync(
     path.join(buildDir, "codex-uc-usage-limits.js"),
     compiledUsageLimits
   );
@@ -193,6 +207,14 @@ try {
       Object.keys(request).indexOf("input"),
     true
   );
+  assert.match(
+    nativeCaptureSource,
+    /input\.options\.profileId \|\| DEFAULT_CAPTURE_PROFILE_ID/u
+  );
+  assert.match(nativeCaptureSource, /Profiles",\s*"Codex",\s*profileId/su);
+  assert.match(nativeCaptureSource, /custom-instructions\.md/u);
+  assert.match(nativeCaptureSource, /mergeCustomInstructions/u);
+  assert.match(nativeCaptureSource, /kind: "codex-uc"/u);
 
   const workspace = await mkdtemp(path.join(tmpdir(), "codex-uc-ws-"));
   const authPath = path.join(workspace, "auth.json");

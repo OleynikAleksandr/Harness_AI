@@ -25,10 +25,13 @@ Own model/reasoning capabilities and UI metadata for providers.
   home.
 - Capturable model catalog for the Native Request Capture UI:
   `getCapturableModels(providerId)` returns `{ id, label }` entries per
-  capture provider (Claude and Codex — the ACP Kimi entry left with the
-  kimi-provider retirement, 2026-07-05; universal-client endpoints need no
-  capture), and `getCaptureProviderIds()` lists the providers that offer
-  capture. Model ids mirror the provider model catalog so capture can be
+  capture provider (Claude, Codex app-server, and CodexUC — the ACP Kimi entry
+  left with the kimi-provider retirement, 2026-07-05), and
+  `getCaptureProviderIds()` lists the providers that offer capture. CodexUC is
+  intentionally included even though Harness owns its client request: it lets
+  the Settings diagnostic capture the exact HTTP body built from a selected
+  Codex session profile and compare it against the native app-server Codex
+  artifact. Model ids mirror the provider model catalog so capture can be
   chosen per model (different models can carry different system prompts).
 - Client endpoint model catalog: `getClientModels(providerId)`
   returns `ProviderModelDescriptor` (`{ id, label }`) entries; `kimi-client`

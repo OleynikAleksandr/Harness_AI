@@ -7,6 +7,11 @@ interface CaptureProvider {
   readonly models: readonly { readonly id: string; readonly label: string }[];
 }
 
+interface CaptureProfile {
+  readonly id: string;
+  readonly name: string;
+}
+
 interface CaptureResult {
   readonly error: string | null;
   readonly jsonlPath: string | null;
@@ -22,6 +27,8 @@ export function NativeCaptureCard() {
   const [providers, setProviders] = useState<readonly CaptureProvider[]>([]);
   const [providerId, setProviderId] = useState("");
   const [model, setModel] = useState("");
+  const [profiles, setProfiles] = useState<readonly CaptureProfile[]>([]);
+  const [profileId, setProfileId] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [result, setResult] = useState<CaptureResult | null>(null);
@@ -47,7 +54,38 @@ export function NativeCaptureCard() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (providerId !== "codex-uc") {
+      setProfiles([]);
+      setProfileId("");
+      return () => {
+        cancelled = true;
+      };
+    }
+    window.harnessCore
+      ?.listSessionProfiles({ providerId })
+      .then((response) => {
+        if (cancelled || !response.ok) {
+          return;
+        }
+        const applicable = response.profiles
+          .filter((entry) => entry.id !== "native" && entry.valid)
+          .map((entry) => ({ id: entry.id, name: entry.name }));
+        setProfiles(applicable);
+        const preferred =
+          applicable.find((entry) => entry.id === "codex-synthetic-native") ??
+          applicable[0];
+        setProfileId(preferred?.id ?? "");
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [providerId]);
+
   const selectedProvider = providers.find((entry) => entry.id === providerId);
+  const needsProfile = providerId === "codex-uc";
 
   const onProviderChange = (nextProviderId: string) => {
     setProviderId(nextProviderId);
@@ -71,6 +109,7 @@ export function NativeCaptureCard() {
     try {
       const captureResult = await window.harnessCore.captureNativeRequest({
         model: model || undefined,
+        ...(needsProfile && profileId ? { profileId } : {}),
         providerId,
       });
       setResult(captureResult);
@@ -143,9 +182,26 @@ export function NativeCaptureCard() {
           ))}
         </select>
       </label>
+      {needsProfile ? (
+        <label className="settings-field">
+          <span>
+            {t("ui_labels", "settings.nativeCapture.profile", "Profile")}
+          </span>
+          <select
+            onChange={(event) => setProfileId(event.target.value)}
+            value={profileId}
+          >
+            {profiles.map((entry) => (
+              <option key={entry.id} value={entry.id}>
+                {entry.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <button
         className="settings-secondary"
-        disabled={busy || !providerId}
+        disabled={busy || !providerId || (needsProfile && !profileId)}
         onClick={() => {
           runCapture().catch(() => setBusy(false));
         }}

@@ -20,7 +20,10 @@ remain an exact native capture, but this HTTP route sanitizes transport-only
 fields rejected by `/backend-api/codex/responses` (for example top-level
 `type`, which belongs to the captured WebSocket/envelope shape). Native
 currently uses a short Harness-owned fallback instruction because this route
-has no app-server native prompt assembly.
+has no app-server native prompt assembly. The adapter serializes the outgoing
+HTTP body with static cache-sensitive fields first (`model`, `instructions`,
+`tools`) and dynamic turn history after them (`input`), so changing user/history
+content does not precede the provider prompt/tool prefix in the byte stream.
 
 Unlike `codex-provider`, this module does not start `codex app-server`, does
 not receive the app-server built-in tool surface, does not use app-server

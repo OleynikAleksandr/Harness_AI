@@ -177,6 +177,22 @@ try {
   assert.equal(Object.hasOwn(request, "type"), false);
   assert.equal(request.text.verbosity, "low");
   assert.equal(request.tools[0].name, "native_read_file");
+  assert.deepEqual(Object.keys(request).slice(0, 4), [
+    "model",
+    "instructions",
+    "tools",
+    "input",
+  ]);
+  assert.equal(
+    Object.keys(request).indexOf("instructions") <
+      Object.keys(request).indexOf("input"),
+    true
+  );
+  assert.equal(
+    Object.keys(request).indexOf("tools") <
+      Object.keys(request).indexOf("input"),
+    true
+  );
 
   const workspace = await mkdtemp(path.join(tmpdir(), "codex-uc-ws-"));
   const authPath = path.join(workspace, "auth.json");
@@ -199,6 +215,12 @@ try {
     );
     assert.equal(Object.hasOwn(body, "type"), false);
     assert.equal(body.text.verbosity, "low");
+    assert.deepEqual(Object.keys(body).slice(0, 4), [
+      "model",
+      "instructions",
+      "tools",
+      "input",
+    ]);
     return new Response(responseText(fetchCount), {
       headers:
         fetchCount === 3

@@ -62,18 +62,15 @@ export type ResponsesInputItem =
     };
 
 export interface CodexUcResponsesRequest {
-  readonly include?: readonly string[];
+  readonly include?: readonly unknown[];
   readonly input: readonly ResponsesInputItem[];
   readonly instructions: string;
   readonly model: string;
-  readonly parallel_tool_calls?: false;
-  readonly reasoning?: {
-    readonly effort: string;
-    readonly summary: "detailed";
-  };
-  readonly store?: false;
-  readonly stream?: true;
-  readonly tool_choice?: "auto";
+  readonly parallel_tool_calls?: boolean;
+  readonly reasoning?: Readonly<Record<string, unknown>>;
+  readonly store?: boolean;
+  readonly stream?: boolean;
+  readonly tool_choice?: unknown;
   readonly tools: readonly Readonly<Record<string, unknown>>[];
   readonly [key: string]: unknown;
 }
@@ -100,20 +97,32 @@ export const buildCodexUcResponsesRequest = (input: {
     typeof template.model === "string" && template.model.trim()
       ? template.model
       : input.model;
+  const nativeTools = input.nativeTools ?? input.tools.map(toResponsesTool);
+  const templateRemainder = omitCodexUcKnownTemplateFields(template);
+  let reasoning: Readonly<Record<string, unknown>> | undefined;
+  if (isRecord(template.reasoning)) {
+    reasoning = template.reasoning;
+  } else if (input.reasoningEffort) {
+    reasoning = { effort: input.reasoningEffort, summary: "detailed" };
+  }
   return {
-    include: ["reasoning.encrypted_content"],
-    parallel_tool_calls: false,
-    ...(input.reasoningEffort
-      ? { reasoning: { effort: input.reasoningEffort, summary: "detailed" } }
-      : {}),
-    store: false,
-    stream: true,
-    tool_choice: "auto",
-    ...template,
-    input: input.items,
-    instructions: input.instructions,
     model,
-    tools: input.nativeTools ?? input.tools.map(toResponsesTool),
+    instructions: input.instructions,
+    tools: nativeTools,
+    input: input.items,
+    tool_choice: template.tool_choice ?? "auto",
+    parallel_tool_calls:
+      typeof template.parallel_tool_calls === "boolean"
+        ? template.parallel_tool_calls
+        : false,
+    ...(reasoning ? { reasoning } : {}),
+    store: typeof template.store === "boolean" ? template.store : false,
+    stream: typeof template.stream === "boolean" ? template.stream : true,
+    include: Array.isArray(template.include)
+      ? template.include
+      : ["reasoning.encrypted_content"],
+    ...(template.text === undefined ? {} : { text: template.text }),
+    ...templateRemainder,
   };
 };
 
@@ -122,6 +131,23 @@ function sanitizeCodexUcRequestTemplate(
 ): Readonly<Record<string, unknown>> {
   const { type: _type, ...supportedTemplate } = template;
   return supportedTemplate;
+}
+
+function omitCodexUcKnownTemplateFields(
+  template: Readonly<Record<string, unknown>>
+): Readonly<Record<string, unknown>> {
+  const {
+    include: _include,
+    model: _model,
+    parallel_tool_calls: _parallelToolCalls,
+    reasoning: _reasoning,
+    store: _store,
+    stream: _stream,
+    text: _text,
+    tool_choice: _toolChoice,
+    ...remainder
+  } = template;
+  return remainder;
 }
 
 export function parseResponsesStream(

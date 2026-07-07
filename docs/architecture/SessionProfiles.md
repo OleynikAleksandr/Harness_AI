@@ -92,15 +92,22 @@ synthetic-native. Номера строк актуальны на дату ис�
   передаёт эти captured native fields как структурный Responses payload,
   сохраняя exact sidecar на диске, но отбрасывая transport-only поля, которые
   текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
-  tool surface формируется Harness function tools. Cache telemetry берётся
+  tool surface формируется Harness function tools. При HTTP-сериализации
+  CodexUC держит cache-sensitive статический префикс перед динамической
+  историей: `model`, `instructions` и `tools` идут перед `input`. Это
+  намеренный контракт для prompt-cache экспериментов: если `input` или другой
+  меняющийся блок оказывается перед системным prompt/tool prefix, backend
+  может распознать меньший cached prefix даже без tool calls и без reasoning.
+  Cache telemetry берётся
   из known Responses usage aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.) и означает provider-reported cached input read;
   CodexUC status panel стартует с `Cache: 0`, положительное значение становится
   cache-anchor display для активной projected session. Поздние меньшие
   значения, включая `cached: 0`, не стирают уже найденный положительный anchor
-  value, потому что один пользовательский turn может состоять из нескольких
-  внутренних Responses calls с разными usage shapes. Missing cache field не
-  превращается в новый ноль.
+  value в UI, но raw `cached` остаётся per-request фактом: падение значения на
+  следующем пользовательском turn означает, что именно этот backend request
+  получил меньший cached-input read, а не что весь session cache был удалён.
+  Missing cache field не превращается в новый ноль.
   Visible reasoning запрашивается через `reasoning.summary: "detailed"` вместе
   с выбранным effort; reasoning telemetry берётся из direct Responses reasoning
   summary/text stream deltas/items, буферизуется на границе active Responses

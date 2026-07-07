@@ -56,6 +56,7 @@ const usageLimitsSource = readFileSync(
   new URL("./codex-uc-usage-limits.ts", import.meta.url),
   "utf8"
 );
+const PROMPT_CACHE_KEY_REGEX = /^pck_[0-9a-f]{24}$/u;
 
 const compiled = ts.transpileModule(source, {
   compilerOptions: {
@@ -171,6 +172,7 @@ try {
     reasoningEffort: "low",
     requestTemplate: {
       model: "gpt-5.5",
+      prompt_cache_key: "captured-key-should-not-leak",
       text: { verbosity: "low" },
       type: "response.create",
     },
@@ -191,10 +193,13 @@ try {
   assert.equal(Object.hasOwn(request, "type"), false);
   assert.equal(request.text.verbosity, "low");
   assert.equal(request.tools[0].name, "native_read_file");
-  assert.deepEqual(Object.keys(request).slice(0, 4), [
+  assert.match(request.prompt_cache_key, PROMPT_CACHE_KEY_REGEX);
+  assert.notEqual(request.prompt_cache_key, "captured-key-should-not-leak");
+  assert.deepEqual(Object.keys(request).slice(0, 5), [
     "model",
     "instructions",
     "tools",
+    "prompt_cache_key",
     "input",
   ]);
   assert.equal(
@@ -204,8 +209,29 @@ try {
   );
   assert.equal(
     Object.keys(request).indexOf("tools") <
+      Object.keys(request).indexOf("prompt_cache_key"),
+    true
+  );
+  assert.equal(
+    Object.keys(request).indexOf("prompt_cache_key") <
       Object.keys(request).indexOf("input"),
     true
+  );
+  const requestWithDifferentInput = buildCodexUcResponsesRequest({
+    instructions: "i",
+    items: [{ content: "different dynamic user input", role: "user" }],
+    model: "gpt-5.5",
+    nativeTools: request.tools,
+    reasoningEffort: "low",
+    requestTemplate: {
+      model: "gpt-5.5",
+      text: { verbosity: "low" },
+    },
+    tools: [],
+  });
+  assert.equal(
+    requestWithDifferentInput.prompt_cache_key,
+    request.prompt_cache_key
   );
   assert.match(
     nativeCaptureSource,
@@ -229,6 +255,7 @@ try {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (_url, init) => {
     fetchCount += 1;
+    globalThis.__codexUcLastHeaders = init.headers;
     const body = JSON.parse(init.body);
     globalThis.__codexUcLastBody = body;
     assert.deepEqual(
@@ -237,10 +264,12 @@ try {
     );
     assert.equal(Object.hasOwn(body, "type"), false);
     assert.equal(body.text.verbosity, "low");
-    assert.deepEqual(Object.keys(body).slice(0, 4), [
+    assert.match(body.prompt_cache_key, PROMPT_CACHE_KEY_REGEX);
+    assert.deepEqual(Object.keys(body).slice(0, 5), [
       "model",
       "instructions",
       "tools",
+      "prompt_cache_key",
       "input",
     ]);
     return new Response(responseText(fetchCount), {
@@ -310,6 +339,22 @@ try {
     });
 
     assert.equal(fetchCount, 3);
+    assert.equal(
+      globalThis.__codexUcLastHeaders["session-id"],
+      outcome.providerSessionId
+    );
+    assert.equal(
+      globalThis.__codexUcLastHeaders.session_id,
+      outcome.providerSessionId
+    );
+    assert.equal(
+      globalThis.__codexUcLastHeaders["x-client-request-id"],
+      outcome.providerSessionId
+    );
+    assert.equal(
+      globalThis.__codexUcLastHeaders["x-session-affinity"],
+      outcome.providerSessionId
+    );
     assert.deepEqual(
       globalThis.__codexUcExecuted.map(([name]) => name),
       ["read_file", "write_file"]
@@ -367,6 +412,7 @@ try {
   console.log("codex-uc-provider tests passed");
 } finally {
   globalThis.__codexUcExecuted = undefined;
+  globalThis.__codexUcLastHeaders = undefined;
   globalThis.__codexUcLastBody = undefined;
   await rm(buildDir, { recursive: true, force: true });
 }

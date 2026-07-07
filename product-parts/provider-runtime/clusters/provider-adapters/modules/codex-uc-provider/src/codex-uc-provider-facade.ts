@@ -138,7 +138,7 @@ export class CodexUcProviderFacade implements ProviderAdapter {
     session.messages.push({ content, role: "user" });
     this.emit(session, event("turn_started"));
     try {
-      await this.runTurn(session, auth, turnOptions, abort.signal);
+      await this.runTurn(sessionId, session, auth, turnOptions, abort.signal);
       this.emit(session, event("turn_completed"));
     } catch (error) {
       if (!abort.signal.aborted) {
@@ -248,6 +248,7 @@ export class CodexUcProviderFacade implements ProviderAdapter {
   }
 
   private async runTurn(
+    sessionId: string,
     session: CodexUcSessionState,
     auth: CodexAuthTokens,
     turnOptions: ProviderTurnOptions,
@@ -255,6 +256,7 @@ export class CodexUcProviderFacade implements ProviderAdapter {
   ): Promise<void> {
     for (let step = 0; step < 64; step += 1) {
       const parsed = await this.callResponses(
+        sessionId,
         session,
         auth,
         turnOptions,
@@ -285,6 +287,7 @@ export class CodexUcProviderFacade implements ProviderAdapter {
   }
 
   private async callResponses(
+    sessionId: string,
     session: CodexUcSessionState,
     auth: CodexAuthTokens,
     turnOptions: ProviderTurnOptions,
@@ -311,6 +314,10 @@ export class CodexUcProviderFacade implements ProviderAdapter {
         authorization: `Bearer ${auth.accessToken}`,
         "chatgpt-account-id": auth.accountId,
         "content-type": "application/json",
+        "session-id": sessionId,
+        session_id: sessionId,
+        "x-client-request-id": sessionId,
+        "x-session-affinity": sessionId,
       },
       method: "POST",
       signal,

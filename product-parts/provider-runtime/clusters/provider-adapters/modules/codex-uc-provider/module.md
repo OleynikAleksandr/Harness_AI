@@ -22,10 +22,17 @@ fields rejected by `/backend-api/codex/responses` (for example top-level
 currently uses a short Harness-owned fallback instruction because this route
 has no app-server native prompt assembly. The adapter serializes the outgoing
 HTTP body in a cache-optimized order: `model`, `instructions`, structured
-`tools`, then dynamic `input` and the remaining request options. The unsupported
-native envelope `type` stays on disk in the exact sidecar but is omitted from
-the HTTP request. This intentionally keeps the provider-facing prompt and tool
-surface adjacent instead of letting changing session history split them.
+`tools`, a deterministic `prompt_cache_key`, then dynamic `input` and the
+remaining request options. The key is content-addressed from the static
+provider-facing prefix (`model`, `instructions`, structured tools and stable
+request options), not from the changing user/history input, so profile cache
+experiments can test one static anchor across multiple turns. The HTTP request
+also carries Codex-style session-affinity headers (`session-id`, `session_id`,
+`x-session-affinity`, `x-client-request-id`) for backend cache routing. The
+unsupported native envelope `type` stays on disk in the exact sidecar but is
+omitted from the HTTP request. This intentionally keeps the provider-facing
+prompt and tool surface adjacent instead of letting changing session history
+split them.
 
 Unlike `codex-provider`, this module does not start `codex app-server`, does
 not receive the app-server built-in tool surface, does not use app-server

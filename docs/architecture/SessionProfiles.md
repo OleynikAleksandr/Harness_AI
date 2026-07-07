@@ -94,12 +94,17 @@ synthetic-native. Номера строк актуальны на дату ис�
   текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
   tool surface формируется Harness function tools. При HTTP-сериализации
   CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
-  `input`, затем остальные request options; unsupported envelope `type`
-  остаётся в exact sidecar на диске, но не отправляется в HTTP route. Original
-  native request capture остаётся baseline/evidence, но для CodexUC
-  prompt-cache экспериментов динамический `input` не должен находиться между
-  системным prompt и системным tooling: иначе backend может распознать меньший
-  cached prefix даже без tool calls и без reasoning.
+  `prompt_cache_key`, `input`, затем остальные request options; unsupported
+  envelope `type` остаётся в exact sidecar на диске, но не отправляется в HTTP
+  route. `prompt_cache_key` является content-addressed ключом статического
+  provider-facing prefix (`model`, `instructions`, structured `tools` и stable
+  request options), а не session/user-input ключом. HTTP request также несёт
+  Codex-style cache/session routing headers (`session-id`, `session_id`,
+  `x-session-affinity`, `x-client-request-id`). Original native request capture
+  остаётся baseline/evidence, но для CodexUC prompt-cache экспериментов
+  динамический `input` не должен находиться между системным prompt и системным
+  tooling: иначе backend может распознать меньший cached prefix даже без tool
+  calls и без reasoning.
   Native Request Capture для CodexUC является profile-qualified diagnostic:
   карточка Settings передаёт в Core выбранный `profileId` вместе с provider/model,
   adapter читает `~/.harness-ai/Profiles/Codex/<profileId>/system-prompt.md`,

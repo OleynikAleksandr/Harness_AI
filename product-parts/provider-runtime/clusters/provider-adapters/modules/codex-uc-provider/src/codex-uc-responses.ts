@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { ToolDescriptor } from "../../../../../../core-runtime/clusters/universal-client/modules/client-contract/src/client-contract-facade.js";
 
 export interface ResponsesOutputItem {
@@ -67,6 +68,7 @@ export interface CodexUcResponsesRequest {
   readonly instructions: string;
   readonly model: string;
   readonly parallel_tool_calls?: boolean;
+  readonly prompt_cache_key?: string;
   readonly reasoning?: Readonly<Record<string, unknown>>;
   readonly store?: boolean;
   readonly stream?: boolean;
@@ -105,26 +107,68 @@ export const buildCodexUcResponsesRequest = (input: {
   } else if (input.reasoningEffort) {
     reasoning = { effort: input.reasoningEffort, summary: "detailed" };
   }
+  const toolChoice = template.tool_choice ?? "auto";
+  const parallelToolCalls =
+    typeof template.parallel_tool_calls === "boolean"
+      ? template.parallel_tool_calls
+      : false;
+  const store = typeof template.store === "boolean" ? template.store : false;
+  const stream = typeof template.stream === "boolean" ? template.stream : true;
+  const include = Array.isArray(template.include)
+    ? template.include
+    : ["reasoning.encrypted_content"];
+  const promptCacheKey = buildCodexUcPromptCacheKey({
+    include,
+    instructions: input.instructions,
+    model,
+    parallelToolCalls,
+    reasoning,
+    store,
+    text: template.text,
+    toolChoice,
+    tools: nativeTools,
+  });
   return {
     model,
     instructions: input.instructions,
     tools: nativeTools,
+    prompt_cache_key: promptCacheKey,
     input: input.items,
-    tool_choice: template.tool_choice ?? "auto",
-    parallel_tool_calls:
-      typeof template.parallel_tool_calls === "boolean"
-        ? template.parallel_tool_calls
-        : false,
+    tool_choice: toolChoice,
+    parallel_tool_calls: parallelToolCalls,
     ...(reasoning ? { reasoning } : {}),
-    store: typeof template.store === "boolean" ? template.store : false,
-    stream: typeof template.stream === "boolean" ? template.stream : true,
-    include: Array.isArray(template.include)
-      ? template.include
-      : ["reasoning.encrypted_content"],
+    store,
+    stream,
+    include,
     ...(template.text === undefined ? {} : { text: template.text }),
     ...templateRemainder,
   };
 };
+
+export function buildCodexUcPromptCacheKey(input: {
+  readonly include: readonly unknown[];
+  readonly instructions: string;
+  readonly model: string;
+  readonly parallelToolCalls: boolean;
+  readonly reasoning?: Readonly<Record<string, unknown>>;
+  readonly store: boolean;
+  readonly text?: unknown;
+  readonly toolChoice: unknown;
+  readonly tools: readonly Readonly<Record<string, unknown>>[];
+}): string {
+  const staticPrefix = stableJson({
+    include: input.include,
+    instructions: input.instructions,
+    model: input.model,
+    parallel_tool_calls: input.parallelToolCalls,
+    reasoning: input.reasoning ?? null,
+    store: input.store,
+    text: input.text ?? null,
+    tool_choice: input.toolChoice,
+    tools: input.tools,
+  });
+  return `pck_${createHash("sha256").update(staticPrefix).digest("hex").slice(0, 24)}`;
+}
 
 function sanitizeCodexUcRequestTemplate(
   template: Readonly<Record<string, unknown>>
@@ -140,6 +184,7 @@ function omitCodexUcKnownTemplateFields(
     include: _include,
     model: _model,
     parallel_tool_calls: _parallelToolCalls,
+    prompt_cache_key: _promptCacheKey,
     reasoning: _reasoning,
     store: _store,
     stream: _stream,
@@ -148,6 +193,24 @@ function omitCodexUcKnownTemplateFields(
     ...remainder
   } = template;
   return remainder;
+}
+
+function stableJson(value: unknown): string {
+  return JSON.stringify(sortJsonValue(value));
+}
+
+function sortJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(sortJsonValue);
+  }
+  if (!isRecord(value)) {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.keys(value)
+      .sort()
+      .map((key) => [key, sortJsonValue(value[key])])
+  );
 }
 
 export function parseResponsesStream(

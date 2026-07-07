@@ -189,7 +189,7 @@ try {
   assert.equal(request.store, false);
   assert.equal(request.stream, true);
   assert.deepEqual(request.include, ["reasoning.encrypted_content"]);
-  assert.deepEqual(request.reasoning, { effort: "low", summary: "detailed" });
+  assert.deepEqual(request.reasoning, { effort: "low", summary: "concise" });
   assert.equal(Object.hasOwn(request, "type"), false);
   assert.equal(request.text.verbosity, "low");
   assert.equal(request.tools[0].name, "native_read_file");
@@ -233,6 +233,26 @@ try {
     requestWithDifferentInput.prompt_cache_key,
     request.prompt_cache_key
   );
+  const requestWithTemplateReasoning = buildCodexUcResponsesRequest({
+    instructions: "i",
+    items: [{ content: "u", role: "user" }],
+    model: "gpt-5.5",
+    nativeTools: request.tools,
+    reasoningEffort: "low",
+    requestTemplate: {
+      model: "gpt-5.5",
+      reasoning: {
+        effort: "high",
+        summary: "detailed",
+      },
+      text: { verbosity: "low" },
+    },
+    tools: [],
+  });
+  assert.deepEqual(requestWithTemplateReasoning.reasoning, {
+    effort: "high",
+    summary: "concise",
+  });
   assert.match(
     nativeCaptureSource,
     /input\.options\.profileId \|\| DEFAULT_CAPTURE_PROFILE_ID/u

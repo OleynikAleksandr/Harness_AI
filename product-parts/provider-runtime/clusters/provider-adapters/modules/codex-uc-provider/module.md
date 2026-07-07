@@ -54,10 +54,12 @@ normal managed sessions, builds the Responses body through
 `buildCodexUcResponsesRequest`, and sends that HTTP POST through the shared
 MITM capture proxy. For custom native profiles, `system-prompt.md` remains the
 exact captured baseline and the profile materializer injects
-`custom-instructions.md` into the final `instructions` before this adapter
-computes `prompt_cache_key`; pre-merging custom text into `system-prompt.md`
-would duplicate those instructions. The artifact records an applied envelope with
-`kind: "codex-uc"`, the selected profile id, route
+  `custom-instructions.md` into the final `instructions` before this adapter
+  computes `prompt_cache_key`; pre-merging custom text into `system-prompt.md`
+  would duplicate those instructions. The adapter preserves native sidecars on
+  disk, but normalizes the outgoing CodexUC HTTP `reasoning.summary` to the
+  live-verified `concise` mode. The artifact records an applied envelope with
+  `kind: "codex-uc"`, the selected profile id, route
 `codex-oauth-responses`, and `toolSurface: "profile-native-tools"` so cache
 diagnostics can compare app-server Codex and CodexUC without guessing which
 static profile was used.
@@ -85,11 +87,14 @@ static profile was used.
   token aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.). Missing cache fields stay unknown; the adapter
   never forces unknown cache telemetry to `0`.
-- Visible reasoning is requested with `reasoning.summary: "detailed"` plus the
-  selected effort. Reasoning telemetry from direct Responses reasoning summary
-  stream deltas/items is buffered for the active Responses call and emitted as
-  coalesced Core-visible `thinking` dialog messages, not one row per provider
-  delta.
+- Visible reasoning is requested with `reasoning.summary: "concise"` plus the
+  selected effort or profile-template effort. Profile request-template
+  `reasoning` fields are preserved except for the route-owned summary mode,
+  because live Codex OAuth Responses testing returned readable summaries for
+  `concise` while `auto`/`detailed` did not. Reasoning telemetry from direct
+  Responses reasoning summary stream deltas/items is buffered for the active
+  Responses call and emitted as coalesced Core-visible `thinking` dialog
+  messages, not one row per provider delta.
 - Usage-limit telemetry through the proven Codex account-limits bridge
   (`account/rateLimits/read`) plus a best-effort direct response-header fast
   path when the backend provides Codex session/weekly limit percentages or

@@ -103,9 +103,9 @@ export const buildCodexUcResponsesRequest = (input: {
   const templateRemainder = omitCodexUcKnownTemplateFields(template);
   let reasoning: Readonly<Record<string, unknown>> | undefined;
   if (isRecord(template.reasoning)) {
-    reasoning = template.reasoning;
+    reasoning = toCodexUcReasoning(template.reasoning);
   } else if (input.reasoningEffort) {
-    reasoning = { effort: input.reasoningEffort, summary: "detailed" };
+    reasoning = toCodexUcReasoning({ effort: input.reasoningEffort });
   }
   const toolChoice = template.tool_choice ?? "auto";
   const parallelToolCalls =
@@ -193,6 +193,12 @@ function omitCodexUcKnownTemplateFields(
     ...remainder
   } = template;
   return remainder;
+}
+
+function toCodexUcReasoning(
+  reasoning: Readonly<Record<string, unknown>>
+): Readonly<Record<string, unknown>> {
+  return { ...reasoning, summary: "concise" };
 }
 
 function stableJson(value: unknown): string {

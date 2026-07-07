@@ -108,8 +108,8 @@ export const buildCodexUcResponsesRequest = (input: {
   return {
     model,
     instructions: input.instructions,
-    tools: nativeTools,
     input: input.items,
+    tools: nativeTools,
     tool_choice: template.tool_choice ?? "auto",
     parallel_tool_calls:
       typeof template.parallel_tool_calls === "boolean"

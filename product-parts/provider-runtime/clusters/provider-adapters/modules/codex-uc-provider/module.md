@@ -15,9 +15,12 @@ Core immutable session profile snapshot: managed profiles become the request
 `instructions`. If the snapshot carries a Codex native request bundle,
 `request-template.json` contributes static Responses request fields and
 `tools.json` supplies the provider-facing structured tool declarations; the
-local registry still executes returned function calls. Native currently uses a
-short Harness-owned fallback instruction because this route has no app-server
-native prompt assembly.
+local registry still executes returned function calls. The profile sidecar can
+remain an exact native capture, but this HTTP route sanitizes transport-only
+fields rejected by `/backend-api/codex/responses` (for example top-level
+`type`, which belongs to the captured WebSocket/envelope shape). Native
+currently uses a short Harness-owned fallback instruction because this route
+has no app-server native prompt assembly.
 
 Unlike `codex-provider`, this module does not start `codex app-server`, does
 not receive the app-server built-in tool surface, does not use app-server

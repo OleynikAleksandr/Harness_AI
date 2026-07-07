@@ -174,7 +174,7 @@ try {
   assert.equal(request.stream, true);
   assert.deepEqual(request.include, ["reasoning.encrypted_content"]);
   assert.deepEqual(request.reasoning, { effort: "low", summary: "detailed" });
-  assert.equal(request.type, "response.create");
+  assert.equal(Object.hasOwn(request, "type"), false);
   assert.equal(request.text.verbosity, "low");
   assert.equal(request.tools[0].name, "native_read_file");
 
@@ -197,7 +197,7 @@ try {
       body.tools.map((tool) => tool.name),
       ["read_file", "write_file"]
     );
-    assert.equal(body.type, "response.create");
+    assert.equal(Object.hasOwn(body, "type"), false);
     assert.equal(body.text.verbosity, "low");
     return new Response(responseText(fetchCount), {
       headers:

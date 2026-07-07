@@ -95,7 +95,7 @@ export const buildCodexUcResponsesRequest = (input: {
   readonly requestTemplate?: Readonly<Record<string, unknown>>;
   readonly tools: readonly ToolDescriptor[];
 }): CodexUcResponsesRequest => {
-  const template = input.requestTemplate ?? {};
+  const template = sanitizeCodexUcRequestTemplate(input.requestTemplate ?? {});
   const model =
     typeof template.model === "string" && template.model.trim()
       ? template.model
@@ -116,6 +116,13 @@ export const buildCodexUcResponsesRequest = (input: {
     tools: input.nativeTools ?? input.tools.map(toResponsesTool),
   };
 };
+
+function sanitizeCodexUcRequestTemplate(
+  template: Readonly<Record<string, unknown>>
+): Readonly<Record<string, unknown>> {
+  const { type: _type, ...supportedTemplate } = template;
+  return supportedTemplate;
+}
 
 export function parseResponsesStream(
   text: string,

@@ -79,16 +79,19 @@ synthetic-native. Номера строк актуальны на дату ис�
   `thread/start`) для raw Native шлёт только `{cwd, approvalPolicy, sandbox,
   model, persistExtendedHistory}` — поле `baseInstructions` НЕ заполняется.
   Когда выбран managed/synthetic profile, тот же путь добавляет frozen prompt
-  payload в `baseInstructions`; так работает `codex-synthetic-native`, собранный
-  из принятого native capture + материализованного `AGENTS.md`. Выбора
-  инструментов per-thread в протоколе нет: доступность инструментов фиксируется
-  флагами `--disable` при запуске процесса.
+  payload в `baseInstructions`. Pure `codex-synthetic-native` теперь является
+  exact baseline из принятого native capture, а кастомные инструкции живут в
+  отдельном `codex-synthetic-native-custom`. Выбора инструментов per-thread в
+  протоколе app-server нет: доступность инструментов фиксируется флагами
+  `--disable` при запуске процесса.
 - **CodexUC** — тестовый provider id `codex-uc`, отдельный от native Codex
   app-server. Он использует локальный Codex OAuth auth и
   Responses-compatible backend с `store:false`; managed/synthetic profile
   snapshot применяется как request `instructions`. Если профиль содержит
   native request bundle (`request-template.json` + `tools.json`), CodexUC
-  передаёт эти captured native fields как структурный Responses payload; иначе
+  передаёт эти captured native fields как структурный Responses payload,
+  сохраняя exact sidecar на диске, но отбрасывая transport-only поля, которые
+  текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
   tool surface формируется Harness function tools. Cache telemetry берётся
   из known Responses usage aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.) и означает provider-reported cached input read;

@@ -88,8 +88,11 @@ static profile was used.
   `cached_input_tokens`, etc.). Missing cache fields stay unknown; the adapter
   never forces unknown cache telemetry to `0`.
 - Visible reasoning is requested with `reasoning.summary: "concise"` plus the
-  selected effort or profile-template effort. Profile request-template
-  `reasoning` fields are preserved except for the route-owned summary mode,
+  Core-selected Codex effort for the session model. If a profile request
+  template also carries `reasoning`, the template fields remain static defaults
+  but the per-turn selected effort overrides `reasoning.effort`; if Core sends
+  no effort, the template effort is kept. Profile request-template `reasoning`
+  fields are otherwise preserved except for the route-owned summary mode,
   because live Codex OAuth Responses testing returned readable summaries for
   `concise` while `auto`/`detailed` did not. Reasoning telemetry from direct
   Responses reasoning summary stream deltas/items is buffered for the active

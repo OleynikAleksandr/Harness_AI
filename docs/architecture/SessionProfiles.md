@@ -135,9 +135,12 @@ synthetic-native. Номера строк актуальны на дату ис�
   получил меньший cached-input read, а не что весь session cache был удалён.
   Missing cache field не превращается в новый ноль.
   Visible reasoning запрашивается через `reasoning.summary: "concise"` вместе
-  с выбранным effort или effort из profile request-template. Native sidecar
-  остаётся byte/profile-exact на диске, но CodexUC HTTP route нормализует
-  исходящий `reasoning.summary` в `concise`, потому что live Codex OAuth
+  с Core-selected Codex effort для модели сессии. Если native-bundle
+  `request-template.json` тоже содержит `reasoning.effort`, выбранный в Core
+  effort переопределяет template effort; template effort остаётся fallback
+  только когда Core не передал per-turn effort. Native sidecar остаётся
+  byte/profile-exact на диске, но CodexUC HTTP route нормализует исходящий
+  `reasoning.summary` в `concise`, потому что live Codex OAuth
   Responses проверка вернула читаемые summary именно для `concise`, а
   `auto`/`detailed` summary events не дали. Reasoning telemetry берётся из
   direct Responses reasoning summary/text stream deltas/items, буферизуется на

@@ -250,6 +250,25 @@ try {
     tools: [],
   });
   assert.deepEqual(requestWithTemplateReasoning.reasoning, {
+    effort: "low",
+    summary: "concise",
+  });
+  const requestWithTemplateOnlyReasoning = buildCodexUcResponsesRequest({
+    instructions: "i",
+    items: [{ content: "u", role: "user" }],
+    model: "gpt-5.5",
+    nativeTools: request.tools,
+    requestTemplate: {
+      model: "gpt-5.5",
+      reasoning: {
+        effort: "high",
+        summary: "detailed",
+      },
+      text: { verbosity: "low" },
+    },
+    tools: [],
+  });
+  assert.deepEqual(requestWithTemplateOnlyReasoning.reasoning, {
     effort: "high",
     summary: "concise",
   });

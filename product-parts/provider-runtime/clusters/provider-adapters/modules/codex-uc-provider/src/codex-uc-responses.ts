@@ -101,12 +101,16 @@ export const buildCodexUcResponsesRequest = (input: {
       : input.model;
   const nativeTools = input.nativeTools ?? input.tools.map(toResponsesTool);
   const templateRemainder = omitCodexUcKnownTemplateFields(template);
-  let reasoning: Readonly<Record<string, unknown>> | undefined;
-  if (isRecord(template.reasoning)) {
-    reasoning = toCodexUcReasoning(template.reasoning);
-  } else if (input.reasoningEffort) {
-    reasoning = toCodexUcReasoning({ effort: input.reasoningEffort });
-  }
+  const templateReasoning = isRecord(template.reasoning)
+    ? template.reasoning
+    : undefined;
+  const reasoning =
+    templateReasoning || input.reasoningEffort
+      ? toCodexUcReasoning({
+          ...(templateReasoning ?? {}),
+          ...(input.reasoningEffort ? { effort: input.reasoningEffort } : {}),
+        })
+      : undefined;
   const toolChoice = template.tool_choice ?? "auto";
   const parallelToolCalls =
     typeof template.parallel_tool_calls === "boolean"

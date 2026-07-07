@@ -280,6 +280,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild after acceptance fixes: Rollback preserves the
   first two warmup/cache-anchor turns, `Turns` sits next to `Rollback`, and
   provider-reported cached input tokens render as `Cache` beside `Tokens`.
+- `docs/evidence/codex-uc-reasoning-effort-package-2026-07-07.md` —
+  packaged application rebuild evidence for the CodexUC request-body fix:
+  Core-selected Codex reasoning effort overrides native-bundle template
+  `reasoning.effort` while CodexUC keeps route-owned `summary: "concise"`.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

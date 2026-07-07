@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "docs(evidence): record codex uc reasoning effort package",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -61,6 +61,6 @@
 
 ### Stream: Package And Retest
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence. (scope: `docs/evidence/codex-uc-reasoning-effort-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc reasoning effort package`).
-4. [TODO] Git Commit: `docs(evidence): record codex uc reasoning effort package` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` User retests CodexUC in the packaged app and verifies that the selected Codex reasoning effort is reflected in the outgoing CodexUC route. (scope: user workflow; expected commit: none).
+3. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence. (scope: `docs/evidence/codex-uc-reasoning-effort-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc reasoning effort package`). Result: Completed in commit `docs(evidence): record codex uc reasoning effort package`.
+4. [DONE] Git Commit: `docs(evidence): record codex uc reasoning effort package` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests CodexUC in the packaged app and verifies that the selected Codex reasoning effort is reflected in the outgoing CodexUC route. (scope: user workflow; expected commit: none).

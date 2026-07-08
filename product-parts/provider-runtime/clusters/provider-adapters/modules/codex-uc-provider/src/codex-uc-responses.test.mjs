@@ -15,7 +15,17 @@ const promptCacheKeySource = readFileSync(
   new URL("./codex-uc-prompt-cache-key.ts", import.meta.url),
   "utf8"
 );
+const customToolCallsSource = readFileSync(
+  new URL("./codex-uc-custom-tool-calls.ts", import.meta.url),
+  "utf8"
+);
 const compiled = ts.transpileModule(source, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const compiledCustomToolCalls = ts.transpileModule(customToolCallsSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
@@ -31,6 +41,10 @@ const buildDir = await mkdtemp(path.join(tmpdir(), "codex-uc-responses-"));
 
 try {
   writeFileSync(path.join(buildDir, "codex-uc-responses.js"), compiled);
+  writeFileSync(
+    path.join(buildDir, "codex-uc-custom-tool-calls.js"),
+    compiledCustomToolCalls
+  );
   writeFileSync(
     path.join(buildDir, "codex-uc-prompt-cache-key.js"),
     compiledPromptCacheKey

@@ -112,7 +112,21 @@ synthetic-native. Номера строк актуальны на дату ис�
   `codex-synthetic-native` и custom-варианта structured `tools.json` и
   статический developer/runtime `input-prefix.json` синхронизированы с Codex app-server Native Request Capture
   `2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`
-  (`request.body.tools`, 17 entries, и `request.body.input[0]`). При HTTP-сериализации
+  (`request.body.tools`, 17 entries, и `request.body.input[0]`). Этот набор
+  является принятой frozen native-compatible версией для текущего сравнения:
+  CodexUC не обязан автоматически следовать каждому будущему изменению
+  OpenAI/Codex, но может интегрировать новые native tool shapes после
+  отдельного решения. Чтобы benchmark сравнивал app-server и CodexUC
+  лоб-в-лоб с этим native-like surface, CodexUC Responses parser исполняет не
+  только обычные `function_call`, но и native Responses `custom_tool_call`.
+  Streamed `response.custom_tool_call_input.*` собирается в tool input,
+  provider `call_id` сохраняется, а результат возвращается как
+  `function_call_output` в следующем request. Текущий freeform custom tool
+  `apply_patch` нормализуется в локальный executor argument
+  `{ "patch": "<freeform patch>" }`; остальные неизвестные custom tools
+  получают JSON object input как есть или fallback `{ "input": "..." }` и
+  проходят через обычный registry unknown-tool result, не останавливая turn.
+  При HTTP-сериализации
   CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
   `prompt_cache_key`, `input`, затем остальные request options. Профильные
   файлы не хранят `prompt_cache_key`: adapter вычисляет его на каждый request

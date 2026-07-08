@@ -1,4 +1,9 @@
 import type { ToolDescriptor } from "../../../../../../core-runtime/clusters/universal-client/modules/client-contract/src/client-contract-facade.js";
+import {
+  appendCustomToolInput,
+  normalizeResponsesOutputItem,
+  setCustomToolInput,
+} from "./codex-uc-custom-tool-calls.js";
 import { buildCodexUcPromptCacheKey } from "./codex-uc-prompt-cache-key.js";
 
 export interface ResponsesOutputItem {
@@ -8,6 +13,8 @@ export interface ResponsesOutputItem {
     readonly text?: string;
     readonly type: string;
   }[];
+  readonly id?: string;
+  readonly input?: string;
   readonly name?: string;
   readonly role?: string;
   readonly summary?: readonly {
@@ -192,13 +199,14 @@ export function parseResponsesStream(
   }
 ): ResponsesParsedStream {
   const outputItems: ResponsesOutputItem[] = [];
+  const customToolInputs = new Map<string, string>();
   let completed: ResponsesParsedStream["completed"];
   for (const block of text.split("\n\n")) {
     const event = readSseEvent(block);
     if (!event) {
       continue;
     }
-    const result = handleResponsesEvent(event, callbacks);
+    const result = handleResponsesEvent(event, callbacks, customToolInputs);
     if (result.outputItem) {
       outputItems.push(result.outputItem);
     }
@@ -229,14 +237,25 @@ function handleResponsesEvent(
   callbacks: {
     readonly onReasoningDelta?: (text: string) => void;
     readonly onTextDelta: (text: string) => void;
-  }
+  },
+  customToolInputs: Map<string, string>
 ): {
   completed?: ResponsesParsedStream["completed"];
   outputItem?: ResponsesOutputItem;
 } {
   emitDelta(event, callbacks);
+  if (event.name === "response.custom_tool_call_input.delta") {
+    appendCustomToolInput(event.data, customToolInputs);
+  }
+  if (event.name === "response.custom_tool_call_input.done") {
+    setCustomToolInput(event.data, customToolInputs);
+  }
   if (event.name === "response.output_item.done" && isRecord(event.data.item)) {
-    const outputItem = event.data.item as unknown as ResponsesOutputItem;
+    const outputItem = normalizeResponsesOutputItem(
+      event.data.item as unknown as ResponsesOutputItem,
+      event.data,
+      customToolInputs
+    );
     emitReasoningItem(outputItem, callbacks);
     return { outputItem };
   }
@@ -364,7 +383,7 @@ export function isFunctionCall(
   readonly name: string;
 } {
   return (
-    item.type === "function_call" &&
+    (item.type === "function_call" || item.type === "custom_tool_call") &&
     typeof item.arguments === "string" &&
     typeof item.call_id === "string" &&
     typeof item.name === "string"

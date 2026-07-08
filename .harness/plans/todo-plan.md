@@ -164,3 +164,10 @@
 
 39. [DONE] `harness-ai.phase15.stream1.task1` Record the accepted Codex app-server cache-anchor finding across the architecture/module/evidence documents so future work does not rediscover the `persistExtendedHistory` behavior. (scope: `docs/architecture/CodexCacheAnchorThread.md`, `docs/architecture/SessionProfiles.md`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`; expected commit: `docs(codex): record app-server cache anchor finding`). Result: Completed in commit `docs(codex): record app-server cache anchor finding`.
 40. [DONE] Git Commit: `docs(codex): record app-server cache anchor finding` (hash: self)
+
+## Phase 16 - CodexUC Native Custom Tool Loop (owner: Codex, updated: 2026-07-08)
+
+### Stream: Responses Tool-Call Compatibility
+
+41. [DONE] `harness-ai.phase16.stream1.task1` Make the CodexUC synthetic-native route execute native Responses `custom_tool_call` items, including streamed custom tool input, so benchmark sessions can compare Codex app-server and CodexUC with the same accepted native-like tool surface. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-responses.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-custom-tool-calls.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-responses.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex-uc): execute native custom tool calls`). Result: Completed in commit `fix(codex-uc): execute native custom tool calls`.
+42. [DONE] Git Commit: `fix(codex-uc): execute native custom tool calls` (hash: self)

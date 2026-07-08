@@ -18,10 +18,11 @@ const source = readFileSync(
       "  list: () => [",
       "    { description: 'Read file', name: 'read_file', parametersSchema: { type: 'object' }, qualifiedName: 'read_file', source: 'builtin' },",
       "    { description: 'Write file', name: 'write_file', parametersSchema: { type: 'object' }, qualifiedName: 'write_file', source: 'builtin' },",
+      "    { description: 'Apply patch', name: 'apply_patch', parametersSchema: { type: 'object' }, qualifiedName: 'apply_patch', source: 'builtin' },",
       "  ],",
       "  execute: async (name, argsJson) => {",
       "    globalThis.__codexUcExecuted.push([name, JSON.parse(argsJson)]);",
-      "    return { output: name === 'read_file' ? 'file contents' : 'wrote file' };",
+      "    return { output: name === 'read_file' ? 'file contents' : name === 'apply_patch' ? 'applied patch' : 'wrote file' };",
       "  },",
       "});\n",
     ].join("\n")
@@ -46,6 +47,10 @@ const source = readFileSync(
   .replace(/import \{ settingsStoreFacade \}[^\n]*\n/u, "");
 const responsesSource = readFileSync(
   new URL("./codex-uc-responses.ts", import.meta.url),
+  "utf8"
+);
+const customToolCallsSource = readFileSync(
+  new URL("./codex-uc-custom-tool-calls.ts", import.meta.url),
   "utf8"
 );
 const promptCacheKeySource = readFileSync(
@@ -73,6 +78,12 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const compiledResponses = ts.transpileModule(responsesSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const compiledCustomToolCalls = ts.transpileModule(customToolCallsSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
@@ -129,15 +140,34 @@ function responseText(step) {
     );
   }
   if (step === 2) {
+    const patch = [
+      "*** Begin Patch",
+      "*** Add File: benchmark.txt",
+      "+hello",
+      "*** End Patch",
+      "",
+    ].join("\n");
     return (
+      sse("response.custom_tool_call_input.delta", {
+        delta: patch.slice(0, 30),
+        item_id: "ctc-patch",
+      }) +
+      sse("response.custom_tool_call_input.delta", {
+        delta: patch.slice(30),
+        item_id: "ctc-patch",
+      }) +
+      sse("response.custom_tool_call_input.done", {
+        item_id: "ctc-patch",
+      }) +
       sse("response.output_item.done", {
         item: {
-          arguments: '{"path":"summary.txt","content":"summary"}',
-          call_id: "call-write",
-          name: "write_file",
-          type: "function_call",
+          call_id: "call-patch",
+          id: "ctc-patch",
+          name: "apply_patch",
+          type: "custom_tool_call",
         },
-      }) + sse("response.completed", { response: { id: "r2", usage } })
+      }) +
+      sse("response.completed", { response: { id: "r2", usage } })
     );
   }
   return (
@@ -180,6 +210,10 @@ try {
   writeFileSync(
     path.join(buildDir, "codex-uc-responses.js"),
     compiledResponses
+  );
+  writeFileSync(
+    path.join(buildDir, "codex-uc-custom-tool-calls.js"),
+    compiledCustomToolCalls
   );
   writeFileSync(
     path.join(buildDir, "codex-uc-prompt-cache-key.js"),
@@ -230,7 +264,7 @@ try {
     globalThis.__codexUcLastBody = body;
     assert.deepEqual(
       body.tools.map((tool) => tool.name),
-      ["read_file", "write_file"]
+      ["read_file", "write_file", "apply_patch"]
     );
     assert.equal(Object.hasOwn(body, "type"), false);
     assert.equal(body.text.verbosity, "low");
@@ -242,6 +276,17 @@ try {
       "prompt_cache_key",
       "input",
     ]);
+    if (fetchCount === 3) {
+      assert.equal(
+        body.input.some(
+          (item) =>
+            item.type === "function_call_output" &&
+            item.call_id === "call-patch" &&
+            item.output === "applied patch"
+        ),
+        true
+      );
+    }
     return new Response(responseText(fetchCount), {
       headers:
         fetchCount === 3
@@ -293,6 +338,12 @@ try {
             parameters: { type: "object" },
             type: "function",
           },
+          {
+            description: "Apply patch",
+            format: { type: "grammar" },
+            name: "apply_patch",
+            type: "custom",
+          },
         ],
         toolingCategories: {},
       },
@@ -334,7 +385,11 @@ try {
     );
     assert.deepEqual(
       globalThis.__codexUcExecuted.map(([name]) => name),
-      ["read_file", "write_file"]
+      ["read_file", "apply_patch"]
+    );
+    assert.match(
+      globalThis.__codexUcExecuted[1][1].patch,
+      /Add File: benchmark\.txt/u
     );
     assert.equal(globalThis.__codexUcLastBody.instructions, "profile prompt");
     assert.equal(globalThis.__codexUcLastBody.input[0].role, "developer");

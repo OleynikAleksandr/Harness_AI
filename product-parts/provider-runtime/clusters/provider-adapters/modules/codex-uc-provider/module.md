@@ -16,10 +16,19 @@ Core immutable session profile snapshot: managed profiles become the request
 `input-prefix.json` supplies captured static Responses input entries,
 `request-template.json` contributes static Responses request fields, and
 `tools.json` supplies the provider-facing structured tool declarations; the
-local registry still executes returned function calls. The profile sidecar can
-remain an exact native capture, but this HTTP route sanitizes transport-only
-fields rejected by `/backend-api/codex/responses` (for example top-level
-`type`, which belongs to the captured WebSocket/envelope shape). Native
+local registry still executes returned tool calls. For benchmark parity with
+Codex app-server, the native-bundle route accepts the frozen native-like tool
+surface captured into the profile even when the backend returns Responses
+`custom_tool_call` items. The route normalizes those custom calls into the
+same local execution loop used for `function_call` items, preserves the
+provider `call_id`, and returns a `function_call_output` to continue the
+turn. The current compatibility layer intentionally supports the accepted
+2026-07-08 native tool version rather than chasing every future Codex tool
+schema change automatically; new native tool shapes are integrated only after
+we decide they are useful for Harness. The profile sidecar can remain an exact
+native capture, but this HTTP route sanitizes transport-only fields rejected by
+`/backend-api/codex/responses` (for example top-level `type`, which belongs to
+the captured WebSocket/envelope shape). Native
 currently uses a short Harness-owned fallback instruction because this route
 has no app-server native prompt assembly. The adapter serializes the outgoing
 HTTP body in a cache-optimized order: `model`, final materialized
@@ -86,6 +95,11 @@ static profile was used.
 
 - Normalized provider events for Core session display.
 - Function tool execution through the Harness universal-client tool registry.
+  Responses `function_call` items execute with their JSON `arguments` as
+  before. Responses `custom_tool_call` items execute through the same registry
+  after route-owned argument normalization; the native freeform `apply_patch`
+  custom tool is wrapped as `{ "patch": "<freeform patch>" }` for the local
+  built-in `apply_patch` executor.
 - Token/cache telemetry from Responses `usage.input_tokens` and known cached
   token aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.). Missing cache fields stay unknown; the adapter

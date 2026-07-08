@@ -15,6 +15,10 @@ const promptCacheKeySource = readFileSync(
   new URL("./codex-uc-prompt-cache-key.ts", import.meta.url),
   "utf8"
 );
+const phaseProtocolSource = readFileSync(
+  new URL("./codex-uc-phase-protocol.ts", import.meta.url),
+  "utf8"
+);
 const customToolCallsSource = readFileSync(
   new URL("./codex-uc-custom-tool-calls.ts", import.meta.url),
   "utf8"
@@ -37,6 +41,12 @@ const compiledPromptCacheKey = ts.transpileModule(promptCacheKeySource, {
     target: ts.ScriptTarget.ES2022,
   },
 }).outputText;
+const compiledPhaseProtocol = ts.transpileModule(phaseProtocolSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
 const buildDir = await mkdtemp(path.join(tmpdir(), "codex-uc-responses-"));
 
 try {
@@ -48,6 +58,10 @@ try {
   writeFileSync(
     path.join(buildDir, "codex-uc-prompt-cache-key.js"),
     compiledPromptCacheKey
+  );
+  writeFileSync(
+    path.join(buildDir, "codex-uc-phase-protocol.js"),
+    compiledPhaseProtocol
   );
   const { buildCodexUcResponsesRequest } = await import(
     pathToFileURL(path.join(buildDir, "codex-uc-responses.js")).href
@@ -90,9 +104,14 @@ try {
   assert.equal(request.text.verbosity, "low");
   assert.deepEqual(
     request.input.map((item) => item.role),
-    ["developer", "user"]
+    ["developer", "developer", "user"]
   );
   assert.equal(request.tools[0].name, "native_read_file");
+  assert.equal(request.tools.at(-1).name, "final_answer");
+  assert.equal(
+    request.tools.filter((tool) => tool.name === "final_answer").length,
+    1
+  );
   assert.match(request.prompt_cache_key, PROMPT_CACHE_KEY_REGEX);
   assert.notEqual(request.prompt_cache_key, "captured-key-should-not-leak");
   assert.deepEqual(Object.keys(request).slice(0, 5), [
@@ -116,6 +135,12 @@ try {
   assert.equal(
     requestWithDifferentInput.prompt_cache_key,
     request.prompt_cache_key
+  );
+  assert.equal(
+    requestWithDifferentInput.tools.filter(
+      (tool) => tool.name === "final_answer"
+    ).length,
+    1
   );
 
   const requestWithDifferentInputPrefix = buildCodexUcResponsesRequest({

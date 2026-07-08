@@ -4,6 +4,10 @@ import {
   normalizeResponsesOutputItem,
   setCustomToolInput,
 } from "./codex-uc-custom-tool-calls.js";
+import {
+  CODEX_UC_PHASE_PROTOCOL_INPUT,
+  withCodexUcPhaseTool,
+} from "./codex-uc-phase-protocol.js";
 import { buildCodexUcPromptCacheKey } from "./codex-uc-prompt-cache-key.js";
 
 export interface ResponsesOutputItem {
@@ -108,8 +112,14 @@ export const buildCodexUcResponsesRequest = (input: {
     typeof template.model === "string" && template.model.trim()
       ? template.model
       : input.model;
-  const nativeTools = input.nativeTools ?? input.tools.map(toResponsesTool);
-  const inputItems = [...(input.nativeInputPrefix ?? []), ...input.items];
+  const nativeTools = withCodexUcPhaseTool(
+    input.nativeTools ?? input.tools.map(toResponsesTool)
+  );
+  const inputItems = [
+    ...(input.nativeInputPrefix ?? []),
+    CODEX_UC_PHASE_PROTOCOL_INPUT,
+    ...input.items,
+  ];
   const templateRemainder = omitCodexUcKnownTemplateFields(template);
   const templateReasoning = isRecord(template.reasoning)
     ? template.reasoning
@@ -140,7 +150,10 @@ export const buildCodexUcResponsesRequest = (input: {
     store,
     text: template.text,
     toolChoice,
-    inputPrefix: input.nativeInputPrefix ?? [],
+    inputPrefix: [
+      ...(input.nativeInputPrefix ?? []),
+      CODEX_UC_PHASE_PROTOCOL_INPUT,
+    ],
     tools: nativeTools,
   });
   return {

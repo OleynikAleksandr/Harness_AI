@@ -53,6 +53,14 @@ const customToolCallsSource = readFileSync(
   new URL("./codex-uc-custom-tool-calls.ts", import.meta.url),
   "utf8"
 );
+const phaseProtocolSource = readFileSync(
+  new URL("./codex-uc-phase-protocol.ts", import.meta.url),
+  "utf8"
+);
+const providerEventsSource = readFileSync(
+  new URL("./codex-uc-provider-events.ts", import.meta.url),
+  "utf8"
+);
 const promptCacheKeySource = readFileSync(
   new URL("./codex-uc-prompt-cache-key.ts", import.meta.url),
   "utf8"
@@ -69,50 +77,20 @@ const feedbackSource = readFileSync(
   new URL("./codex-uc-response-feedback.ts", import.meta.url),
   "utf8"
 );
+const sessionHistorySource = readFileSync(
+  new URL("./codex-uc-session-history.ts", import.meta.url),
+  "utf8"
+);
 const PROMPT_CACHE_KEY_REGEX = /^pck_[0-9a-f]{24}$/u;
 
-const compiled = ts.transpileModule(source, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
-const compiledResponses = ts.transpileModule(responsesSource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
-const compiledCustomToolCalls = ts.transpileModule(customToolCallsSource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
-const compiledPromptCacheKey = ts.transpileModule(promptCacheKeySource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
-const compiledNativeCapture = ts.transpileModule(nativeCaptureSource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
-const compiledUsageLimits = ts.transpileModule(usageLimitsSource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
-const compiledFeedback = ts.transpileModule(feedbackSource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
+function transpile(moduleSource) {
+  return ts.transpileModule(moduleSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  }).outputText;
+}
 
 const buildDir = await mkdtemp(path.join(tmpdir(), "codex-uc-provider-"));
 
@@ -170,32 +148,61 @@ function responseText(step) {
       sse("response.completed", { response: { id: "r2", usage } })
     );
   }
+  if (step === 3) {
+    return (
+      sse("response.created", {
+        response: {
+          id: "r3",
+          model: "gpt-5.5",
+          reasoning: { effort: "low", summary: "concise" },
+          status: "in_progress",
+        },
+      }) +
+      sse("response.reasoning_summary.delta", {
+        delta: { text: "thinking " },
+      }) +
+      sse("response.reasoning_summary.delta", {
+        delta: { text: "through" },
+      }) +
+      sse("response.output_text.delta", { delta: "Preparing final" }) +
+      sse("response.output_item.done", {
+        item: {
+          content: [{ text: "Preparing final", type: "output_text" }],
+          role: "assistant",
+          type: "message",
+        },
+      }) +
+      sse("response.completed", {
+        response: {
+          id: "r3",
+          model: "gpt-5.5",
+          reasoning: { effort: "low", summary: "concise" },
+          status: "completed",
+          usage,
+        },
+      })
+    );
+  }
   return (
     sse("response.created", {
       response: {
-        id: "r3",
+        id: "r4",
         model: "gpt-5.5",
         reasoning: { effort: "low", summary: "concise" },
         status: "in_progress",
       },
     }) +
-    sse("response.reasoning_summary.delta", {
-      delta: { text: "thinking " },
-    }) +
-    sse("response.reasoning_summary.delta", {
-      delta: { text: "through" },
-    }) +
-    sse("response.output_text.delta", { delta: "summary" }) +
     sse("response.output_item.done", {
       item: {
-        content: [{ text: "summary", type: "output_text" }],
-        role: "assistant",
-        type: "message",
+        arguments: '{"answer":"summary"}',
+        call_id: "call-final",
+        name: "final_answer",
+        type: "function_call",
       },
     }) +
     sse("response.completed", {
       response: {
-        id: "r3",
+        id: "r4",
         model: "gpt-5.5",
         reasoning: { effort: "low", summary: "concise" },
         status: "completed",
@@ -206,31 +213,20 @@ function responseText(step) {
 }
 
 try {
-  writeFileSync(path.join(buildDir, "codex-uc-provider-facade.js"), compiled);
-  writeFileSync(
-    path.join(buildDir, "codex-uc-responses.js"),
-    compiledResponses
-  );
-  writeFileSync(
-    path.join(buildDir, "codex-uc-custom-tool-calls.js"),
-    compiledCustomToolCalls
-  );
-  writeFileSync(
-    path.join(buildDir, "codex-uc-prompt-cache-key.js"),
-    compiledPromptCacheKey
-  );
-  writeFileSync(
-    path.join(buildDir, "codex-uc-native-capture.js"),
-    compiledNativeCapture
-  );
-  writeFileSync(
-    path.join(buildDir, "codex-uc-usage-limits.js"),
-    compiledUsageLimits
-  );
-  writeFileSync(
-    path.join(buildDir, "codex-uc-response-feedback.js"),
-    compiledFeedback
-  );
+  for (const [fileName, fileContent] of [
+    ["codex-uc-provider-facade.js", transpile(source)],
+    ["codex-uc-responses.js", transpile(responsesSource)],
+    ["codex-uc-custom-tool-calls.js", transpile(customToolCallsSource)],
+    ["codex-uc-phase-protocol.js", transpile(phaseProtocolSource)],
+    ["codex-uc-provider-events.js", transpile(providerEventsSource)],
+    ["codex-uc-prompt-cache-key.js", transpile(promptCacheKeySource)],
+    ["codex-uc-native-capture.js", transpile(nativeCaptureSource)],
+    ["codex-uc-usage-limits.js", transpile(usageLimitsSource)],
+    ["codex-uc-response-feedback.js", transpile(feedbackSource)],
+    ["codex-uc-session-history.js", transpile(sessionHistorySource)],
+  ]) {
+    writeFileSync(path.join(buildDir, fileName), fileContent);
+  }
   const { CodexUcProviderFacade } = await import(
     pathToFileURL(path.join(buildDir, "codex-uc-provider-facade.js")).href
   );
@@ -264,7 +260,7 @@ try {
     globalThis.__codexUcLastBody = body;
     assert.deepEqual(
       body.tools.map((tool) => tool.name),
-      ["read_file", "write_file", "apply_patch"]
+      ["read_file", "write_file", "apply_patch", "final_answer"]
     );
     assert.equal(Object.hasOwn(body, "type"), false);
     assert.equal(body.text.verbosity, "low");
@@ -283,6 +279,16 @@ try {
             item.type === "function_call_output" &&
             item.call_id === "call-patch" &&
             item.output === "applied patch"
+        ),
+        true
+      );
+    }
+    if (fetchCount === 4) {
+      assert.equal(
+        body.input.some(
+          (item) =>
+            item.role === "developer" &&
+            JSON.stringify(item).includes("previous assistant output")
         ),
         true
       );
@@ -366,7 +372,7 @@ try {
       reasoningEffort: "low",
     });
 
-    assert.equal(fetchCount, 3);
+    assert.equal(fetchCount, 4);
     assert.equal(
       globalThis.__codexUcLastHeaders["session-id"],
       outcome.providerSessionId
@@ -407,12 +413,19 @@ try {
         "dialog_message",
         "dialog_message",
         "stream_event",
+        "stream_event",
+        "dialog_message",
         "turn_completed",
       ]
     );
     assert.equal(events[4].role, "thinking");
     assert.equal(events[4].content, "thinking through");
     assert.equal(events[5].role, "assistant");
+    assert.equal(events[5].tag, "commentary");
+    assert.equal(events[5].content, "Preparing final");
+    assert.equal(events[8].role, "assistant");
+    assert.equal(events[8].tag, undefined);
+    assert.equal(events[8].content, "summary");
     assert.equal(events[1].data.tokenUsage.cached, 0);
     assert.equal(events[2].data.tokenUsage.cached, 7400);
     assert.equal(events[3].data.usageLimits.currentSession.percentUsed, 9);
@@ -421,6 +434,7 @@ try {
       61
     );
     assert.equal(events[6].data.tokenUsage.cached, 0);
+    assert.equal(events[7].data.tokenUsage.cached, 0);
     adapter.refreshUsageLimits({
       broadcast: () => undefined,
       providerSessionId: outcome.providerSessionId,
@@ -440,7 +454,7 @@ try {
     });
     assert.deepEqual(
       globalThis.__codexUcLastBody.input.map((item) => item.role),
-      ["developer", "user"]
+      ["developer", "developer", "user"]
     );
     assert.equal(
       globalThis.__codexUcLastBody.input.at(-1).content,

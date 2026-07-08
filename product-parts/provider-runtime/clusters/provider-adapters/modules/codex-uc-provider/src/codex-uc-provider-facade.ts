@@ -21,6 +21,13 @@ import type {
   ProviderUsageLimitsRefreshRequest,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { captureCodexUcNativeRequest } from "./codex-uc-native-capture.js";
+import {
+  codexUcPhaseContinuationInput,
+  isCodexUcFinalAnswerCall,
+  readCodexUcFinalAnswer,
+  toCodexUcAssistantInputItem,
+} from "./codex-uc-phase-protocol.js";
+import { dialogMessage, event, nowIso } from "./codex-uc-provider-events.js";
 import { recordCodexUcResponseFeedback } from "./codex-uc-response-feedback.js";
 import {
   buildCodexUcResponsesRequest,
@@ -29,11 +36,13 @@ import {
   isInputItem,
   parseResponsesStream,
   type ResponsesInputItem,
+  type ResponsesOutputItem,
   type ResponsesParsedStream,
   type ResponsesUsage,
   readCachedInputTokens,
   toInputItem,
 } from "./codex-uc-responses.js";
+import { rollbackResponsesInputItems } from "./codex-uc-session-history.js";
 import {
   type CodexUcUsageLimits,
   readUsageLimitsFromHeaders,
@@ -270,13 +279,24 @@ export class CodexUcProviderFacade implements ProviderAdapter {
         signal
       );
       const outputItems = parsed.outputItems;
+      const finalAnswer = outputItems.find(isCodexUcFinalAnswerCall);
+      const nonFinalOutputItems: ResponsesOutputItem[] = outputItems.filter(
+        (item) => !isCodexUcFinalAnswerCall(item)
+      );
       session.messages.push(
-        ...outputItems.map(toInputItem).filter(isInputItem)
+        ...nonFinalOutputItems.map(toInputItem).filter(isInputItem)
       );
       this.emitUsage(session, parsed.completed?.usage);
-      const calls = outputItems.filter(isFunctionCall);
-      if (calls.length === 0) {
+      if (finalAnswer) {
+        const answer = readCodexUcFinalAnswer(finalAnswer);
+        session.messages.push(toCodexUcAssistantInputItem(answer));
+        this.emit(session, dialogMessage(answer, "assistant", null));
         return;
+      }
+      const calls = nonFinalOutputItems.filter(isFunctionCall);
+      if (calls.length === 0) {
+        session.messages.push(codexUcPhaseContinuationInput());
+        continue;
       }
       for (const call of calls) {
         const result = await this.registry.execute(call.name, call.arguments, {
@@ -343,6 +363,7 @@ export class CodexUcProviderFacade implements ProviderAdapter {
     }
     this.emitUsageLimits(session, readUsageLimitsFromHeaders(response.headers));
     const reasoningBuffer = new CodexUcReasoningBuffer();
+    let commentaryBuffer = "";
     const flushReasoning = (): void => {
       const content = reasoningBuffer.flush();
       if (content) {
@@ -353,10 +374,16 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       onReasoningDelta: (delta) => reasoningBuffer.append(delta),
       onTextDelta: (delta) => {
         flushReasoning();
-        this.emit(session, dialogMessage(delta));
+        commentaryBuffer += delta;
       },
     });
     flushReasoning();
+    if (commentaryBuffer) {
+      this.emit(
+        session,
+        dialogMessage(commentaryBuffer, "assistant", "commentary")
+      );
+    }
     return parsed;
   }
 
@@ -448,52 +475,6 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       listener(eventPayload);
     }
   }
-}
-
-function dialogMessage(
-  content: string,
-  role: "assistant" | "thinking" = "assistant"
-): NormalizedProviderEvent {
-  return {
-    content,
-    role,
-    tag: "live",
-    timestamp: nowIso(),
-    type: "dialog_message",
-    uuid: randomUUID(),
-  };
-}
-
-function event(type: "turn_completed" | "turn_failed" | "turn_started") {
-  return { timestamp: nowIso(), type, uuid: randomUUID() };
-}
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function rollbackResponsesInputItems(
-  items: readonly ResponsesInputItem[],
-  numTurns: number
-): ResponsesInputItem[] {
-  let remainingTurns = numTurns;
-  for (let index = items.length - 1; index >= 0; index -= 1) {
-    if (!isUserInputItem(items[index])) {
-      continue;
-    }
-    remainingTurns -= 1;
-    if (remainingTurns === 0) {
-      return items.slice(0, index);
-    }
-  }
-  return [];
-}
-
-function isUserInputItem(item: ResponsesInputItem): item is {
-  readonly content: string;
-  readonly role: "user";
-} {
-  return "role" in item && item.role === "user";
 }
 
 export const codexUcProviderFacade = new CodexUcProviderFacade();

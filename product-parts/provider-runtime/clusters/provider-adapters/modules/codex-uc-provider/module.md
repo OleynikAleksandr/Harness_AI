@@ -22,7 +22,14 @@ surface captured into the profile even when the backend returns Responses
 `custom_tool_call` items. The route normalizes those custom calls into the
 same local execution loop used for `function_call` items, preserves the
 provider `call_id`, and returns a `function_call_output` to continue the
-turn. The current compatibility layer intentionally supports the accepted
+turn. The route also owns an explicit phase protocol: every request appends a
+developer message saying that ordinary assistant output is commentary, and it
+adds a protocol-only `final_answer` tool. Plain Responses `output_text` is
+emitted to Core as a `commentary` dialog message and never completes the turn.
+Only `final_answer` produces the terminal assistant answer; if a Responses call
+returns no executable tool call and no `final_answer`, the adapter appends a
+developer continuation item and keeps the loop alive. The current compatibility
+layer intentionally supports the accepted
 2026-07-08 native tool version rather than chasing every future Codex tool
 schema change automatically; new native tool shapes are integrated only after
 we decide they are useful for Harness. The profile sidecar can remain an exact
@@ -99,7 +106,9 @@ static profile was used.
   before. Responses `custom_tool_call` items execute through the same registry
   after route-owned argument normalization; the native freeform `apply_patch`
   custom tool is wrapped as `{ "patch": "<freeform patch>" }` for the local
-  built-in `apply_patch` executor.
+  built-in `apply_patch` executor. The route-owned `final_answer` protocol tool
+  is excluded from registry execution and instead marks the final assistant
+  answer; all ordinary streamed text is `commentary`.
 - Token/cache telemetry from Responses `usage.input_tokens` and known cached
   token aliases (`input_tokens_details.cached_tokens`,
   `cached_input_tokens`, etc.). Missing cache fields stay unknown; the adapter

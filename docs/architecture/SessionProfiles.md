@@ -126,6 +126,15 @@ synthetic-native. Номера строк актуальны на дату ис�
   `{ "patch": "<freeform patch>" }`; остальные неизвестные custom tools
   получают JSON object input как есть или fallback `{ "input": "..." }` и
   проходят через обычный registry unknown-tool result, не останавливая turn.
+  Дополнительно CodexUC adapter добавляет route-owned phase protocol, которого
+  нет в profile sidecars: каждый request получает developer item о том, что
+  обычный assistant `output_text` является `commentary`, а structured tools
+  дополняются protocol-only `final_answer`. Это не попытка менять captured
+  native profile, а совместимость с app-server `agentMessage.phase`: текст
+  без `final_answer` не завершает turn, а если Responses call вернул только
+  commentary и не вернул executable tool call, adapter добавляет developer
+  continuation item и продолжает loop. `final_answer` никогда не исполняется
+  через локальный registry; его `answer` становится terminal assistant output.
   При HTTP-сериализации
   CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
   `prompt_cache_key`, `input`, затем остальные request options. Профильные
@@ -863,7 +872,9 @@ Seed-профили — стандартный стартовый набор, к
    `body.instructions`, `tools.json` является точной копией captured
    `body.tools`, `input-prefix.json` хранит captured static developer/runtime
    `body.input[0]`, а `request-template.json` хранит статичные поля запроса. В
-   этом baseline нет workspace/custom instructions.
+   этом baseline нет workspace/custom instructions. Runtime adapter добавляет
+   поверх sidecar route-owned `final_answer` phase protocol; это не часть
+   frozen `tools.json`.
 7. `codex-synthetic-native-custom` (индивидуальный CodexUC, физически
    `Profiles/CodexUC/codex-synthetic-native-custom`) — тот же exact native
    baseline плюс `custom-instructions.md`. На диске `system-prompt.md`
@@ -873,7 +884,8 @@ Seed-профили — стандартный стартовый набор, к
    отдельного раздела или Harness wrapper. Для CodexUC после materialization
    adapter добавляет `prompt_cache_key` в HTTP payload после `tools` и перед
    `input`, где static `input-prefix.json` уже стоит перед динамической
-   историей; profiles не должны хранить этот key в
+   историей; profiles не должны хранить этот key или route-owned
+   `final_answer` protocol в
    `request-template.json`.
 8. `codex-app-server-synthetic-native` (индивидуальный Codex app-server,
    физически `Profiles/Codex/codex-app-server-synthetic-native`) — prompt-only

@@ -8,7 +8,7 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase17.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -178,4 +178,11 @@
 
 43. [DONE] `harness-ai.phase17.stream1.task1` Package the app for user verification after the CodexUC native `custom_tool_call` loop fix and record evidence. (scope: `docs/evidence/codex-uc-custom-tool-call-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc custom tool package`). Result: Package build succeeded and evidence was recorded for `release/mac-arm64/Harness AI.app`. Result: Completed in commit `docs(evidence): record codex uc custom tool package`.
 44. [DONE] Git Commit: `docs(evidence): record codex uc custom tool package` (hash: self)
-45. [IN_PROGRESS] `harness-ai.phase17.stream1.task2` User retests CodexUC synthetic-native benchmark sessions in the packaged app and verifies that native custom `apply_patch` calls continue the tool loop without manual nudging. (scope: user workflow; expected commit: none).
+45. [DONE] `harness-ai.phase17.stream1.task2` User retests CodexUC synthetic-native benchmark sessions in the packaged app and verifies that native custom `apply_patch` calls continue the tool loop without manual nudging. (scope: user workflow; expected commit: none). Result: Retest showed native custom tool calls continue, but CodexUC still lacks app-server-style commentary/final phase semantics and can stop after progress text without an explicit final answer.
+
+## Phase 18 - CodexUC Agent Phase Protocol (owner: Codex, updated: 2026-07-08)
+
+### Stream: Responses Phase Compatibility
+
+46. [DONE] `harness-ai.phase18.stream1.task1` Add an explicit CodexUC final-answer phase protocol so ordinary Responses output text is treated as commentary and only an explicit final signal completes the agent turn. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-responses.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-phase-protocol.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider-events.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-session-history.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-responses.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex-uc): require explicit final phase`). Result: Completed in commit `fix(codex-uc): require explicit final phase`.
+47. [DONE] Git Commit: `fix(codex-uc): require explicit final phase` (hash: self)

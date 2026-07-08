@@ -12,11 +12,11 @@ ids across namespaces are invalid product data), and the shared profile type mod
 (universal vs individual scope via the optional passport `provider` field,
 tooling category vocabulary v1).
 
-The module scans the profiles root, parses and validates the three documents
-of every profile directory (`profile.yaml`, `system-prompt.md`,
-`tooling.yaml`; `profile-document-parser.ts`, backed by the `yaml` package),
-plus optional native request sidecars (`custom-instructions.md`,
-`request-template.json`, `tools.json`), returns valid profiles separately from human-readable
+The module scans the profiles root, parses and validates the required profile
+documents (`profile.yaml`, `system-prompt.md`, and `tooling.yaml` for every
+profile except Codex app-server; `profile-document-parser.ts`, backed by the
+`yaml` package), plus optional native request sidecars
+(`custom-instructions.md`, `request-template.json`, `tools.json`), returns valid profiles separately from human-readable
 validation failures, and seeds the standard profile set on first access
 (`src/seed/**`): four universal drafts (`plan-document`,
 `todo-plan-deterministic`, `review`, `architecture-spec`), the active Claude
@@ -33,8 +33,9 @@ current structured tool sidecar is synchronized from the Codex app-server
 Native Request Capture
 `2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`. The Codex
 app-server profiles keep the same prompt baseline but do not store
-`request-template.json` or `tools.json`, because app-server owns the structured
-tool surface outside the profile. Custom variants add only
+`tooling.yaml`, `request-template.json`, or `tools.json`, because app-server
+owns both the category/tooling gate and structured tool surface outside the
+profile. Custom variants add only
 `custom-instructions.md`; the prompt file remains the captured baseline and
 must not pre-merge the custom text. Native-bundle materialization is
 responsible for inserting the sidecar into the final provider-facing
@@ -67,15 +68,15 @@ resurrect it.
 
 - Resolved profiles root directory.
 - Resolved per-profile document paths (`profile.yaml`, `system-prompt.md`,
-  `tooling.yaml`, plus optional `custom-instructions.md`,
+  `tooling.yaml` when profile-owned, plus optional `custom-instructions.md`,
   `request-template.json`, `tools.json`).
 - Shared session profile type model: passport (name, description, optional
   `provider`), tooling category vocabulary v1 (`file-read`, `file-write`,
   `shell`, `web`, `git`, `tests`), profile scope (`universal` |
   `individual`).
 - Scanned profile list: valid `SessionProfile` entries (passport, prompt
-  body, normalized tooling categories, optional native request bundle, scope,
-  document paths) plus
+  body, normalized profile-owned tooling categories or the Codex app-server
+  default category model, optional native request bundle, scope, document paths) plus
   `SessionProfileValidationFailure` entries with human-readable issues
   (missing/unreadable file, invalid YAML, non-mapping top level, missing
   `name`, empty prompt body, unknown tooling category, non-boolean category

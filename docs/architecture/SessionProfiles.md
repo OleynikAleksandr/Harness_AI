@@ -83,8 +83,8 @@ synthetic-native. Номера строк актуальны на дату ис�
   payload в `baseInstructions`. Prompt-only synthetic baselines для этого
   канала живут как `codex-app-server-synthetic-native` и
   `codex-app-server-synthetic-native-custom`; они не содержат
-  `request-template.json` или `tools.json`, потому что app-server tool registry
-  не передаётся через профиль. Выбора инструментов per-thread в протоколе
+  `tooling.yaml`, `request-template.json` или `tools.json`, потому что
+  app-server tool registry и category gate не передаются через профиль. Выбора инструментов per-thread в протоколе
   app-server нет: доступность инструментов фиксируется флагами `--disable` при
   запуске процесса. Visible reasoning для app-server Codex требует двух
   совпадающих сигналов: provider-home `config.toml` материализуется с
@@ -240,7 +240,11 @@ kebab-case id. Базово у него есть три документа:
   опциональная область применимости (`provider: <id>` для индивидуального
   профиля; отсутствие поля = универсальный профиль);
 - **системный промпт** (`system-prompt.md`): полное тело workflow-промпта;
-- **туллинг** (`tooling.yaml`): переключатели категорий.
+- **туллинг** (`tooling.yaml`): переключатели категорий. Для Codex app-server
+  (`provider: codex`) этот документ не является profile-owned surface:
+  app-server получает инструменты из собственного процесса/пенальника, поэтому
+  prompt-only app-server профили валидны без `tooling.yaml`, а старый sidecar не
+  должен влиять на перечень инструментов.
 
 Провайдерные native/synthetic профили могут иметь дополнительные структурные
 документы, которые не являются prompt text:
@@ -348,12 +352,10 @@ native/managed применения. Это было подтверждено Co
     codex-app-server-synthetic-native/  <- индивидуальный (provider: codex)
       profile.yaml
       system-prompt.md                  <- exact captured body.instructions
-      tooling.yaml                      <- category metadata; app-server tools are process-owned
     codex-app-server-synthetic-native-custom/
       profile.yaml
       system-prompt.md
       custom-instructions.md            <- inserted into system prompt body
-      tooling.yaml
   CodexUC/                              <- Codex OAuth Responses namespace
     codex-synthetic-native/             <- индивидуальный (provider: codex-uc)
       profile.yaml

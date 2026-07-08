@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -73,7 +73,6 @@ try {
     "profile.yaml":
       "name: Codex Nested\ndescription: Provider-scoped profile.\nprovider: codex\n",
     "system-prompt.md": "Nested provider prompt.\n",
-    "tooling.yaml": "categories:\n  shell: true\n",
   });
   await writeProfile(profilesRoot, "broken-yaml", {
     "profile.yaml": "name: Broken\n",
@@ -128,6 +127,8 @@ try {
   assert.equal(individual.tooling.categories.web, false);
   const nested = scan.profiles.find((profile) => profile.id === "codex-nested");
   assert.equal(nested.passport.provider, "codex");
+  assert.equal(nested.tooling.categories.shell, true);
+  assert.equal(nested.tooling.categories.web, true);
   assert.equal(
     nested.documents.profileDirectory,
     path.join(profilesRoot, "Codex", "codex-nested")
@@ -240,15 +241,21 @@ try {
     );
     assert.equal(codexAppServerSeed.scope, "individual");
     assert.equal(codexAppServerSeed.passport.provider, "codex");
+    assert.equal(existsSync(codexAppServerSeed.documents.toolingPath), false);
     assert.equal(
       codexAppServerSeed.documents.profileDirectory,
       path.join(seededRoot, "Codex", "codex-app-server-synthetic-native")
     );
+    assert.equal(codexAppServerSeed.tooling.categories.shell, true);
     assert.equal(codexAppServerSeed.nativeRequest, undefined);
     const codexAppServerCustomSeed = seededScan.profiles.find(
       (profile) => profile.id === "codex-app-server-synthetic-native-custom"
     );
     assert.equal(codexAppServerCustomSeed.passport.provider, "codex");
+    assert.equal(
+      existsSync(codexAppServerCustomSeed.documents.toolingPath),
+      false
+    );
     assert.equal(
       codexAppServerCustomSeed.documents.profileDirectory,
       path.join(seededRoot, "Codex", "codex-app-server-synthetic-native-custom")

@@ -13,6 +13,7 @@ import {
   parseSessionProfilePromptBody,
   parseSessionProfileTooling,
   resolveSessionProfileScope,
+  SESSION_PROFILE_TOOLING_CATEGORIES,
   type SessionProfileNativeRequestBundle,
   type SessionProfilePassport,
   type SessionProfileScope,
@@ -123,33 +124,26 @@ export class ProfileStoreFacade {
           profileId
         )
       : path.join(this.profilesRootDirectory, profileId);
-    return this.resolveDocumentPathsForDirectory(profileId, profileDirectory);
+    return this.resolveDocumentPathsForDirectory(profileDirectory);
   }
 
   private resolveDocumentPathsForDirectory(
-    _profileId: string,
     profileDirectory: string
   ): SessionProfileDocumentPaths {
+    const documentPath = (fileName: string) =>
+      path.join(profileDirectory, fileName);
     return {
-      customInstructionsPath: path.join(
-        profileDirectory,
+      customInstructionsPath: documentPath(
         SESSION_PROFILE_CUSTOM_INSTRUCTIONS_FILE_NAME
       ),
-      passportPath: path.join(
-        profileDirectory,
-        SESSION_PROFILE_PASSPORT_FILE_NAME
-      ),
+      passportPath: documentPath(SESSION_PROFILE_PASSPORT_FILE_NAME),
       profileDirectory,
-      promptPath: path.join(profileDirectory, SESSION_PROFILE_PROMPT_FILE_NAME),
-      requestTemplatePath: path.join(
-        profileDirectory,
+      promptPath: documentPath(SESSION_PROFILE_PROMPT_FILE_NAME),
+      requestTemplatePath: documentPath(
         SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME
       ),
-      toolingPath: path.join(
-        profileDirectory,
-        SESSION_PROFILE_TOOLING_FILE_NAME
-      ),
-      toolsPath: path.join(profileDirectory, SESSION_PROFILE_TOOLS_FILE_NAME),
+      toolingPath: documentPath(SESSION_PROFILE_TOOLING_FILE_NAME),
+      toolsPath: documentPath(SESSION_PROFILE_TOOLS_FILE_NAME),
     };
   }
 
@@ -171,7 +165,9 @@ export class ProfileStoreFacade {
       await fs.mkdir(documents.profileDirectory, { recursive: true });
       await fs.writeFile(documents.passportPath, seed.passportYaml, "utf8");
       await fs.writeFile(documents.promptPath, seed.promptBody, "utf8");
-      await fs.writeFile(documents.toolingPath, seed.toolingYaml, "utf8");
+      if (seed.toolingYaml !== undefined) {
+        await fs.writeFile(documents.toolingPath, seed.toolingYaml, "utf8");
+      }
       if (seed.customInstructions !== undefined) {
         await fs.writeFile(
           documents.customInstructionsPath,
@@ -211,10 +207,7 @@ export class ProfileStoreFacade {
   async loadProfile(profileId: string): Promise<SessionProfileLoadResult> {
     const profileRef = await this.findProfileDirectoryRef(profileId);
     const documents = profileRef
-      ? this.resolveDocumentPathsForDirectory(
-          profileId,
-          profileRef.profileDirectory
-        )
+      ? this.resolveDocumentPathsForDirectory(profileRef.profileDirectory)
       : this.resolveDocumentPaths(profileId);
     const issues: string[] = [];
     const passportText = await readDocument(
@@ -227,28 +220,26 @@ export class ProfileStoreFacade {
       SESSION_PROFILE_PROMPT_FILE_NAME,
       issues
     );
-    const toolingText = await readDocument(
-      documents.toolingPath,
-      SESSION_PROFILE_TOOLING_FILE_NAME,
-      issues
-    );
     if (issues.length > 0) {
       return { failure: { documents, id: profileId, issues }, ok: false };
     }
     const passportResult = parseSessionProfilePassport(passportText ?? "");
     const promptResult = parseSessionProfilePromptBody(promptText ?? "");
-    const toolingResult = parseSessionProfileTooling(toolingText ?? "");
-    const nativeRequest = await this.loadNativeRequestBundle(documents, issues);
-    issues.push(
-      ...passportResult.issues,
-      ...promptResult.issues,
-      ...toolingResult.issues
-    );
+    issues.push(...passportResult.issues, ...promptResult.issues);
     if (
       issues.length > 0 ||
-      !(passportResult.passport && toolingResult.tooling) ||
+      !passportResult.passport ||
       promptResult.promptBody === undefined
     ) {
+      return { failure: { documents, id: profileId, issues }, ok: false };
+    }
+    const tooling = await this.loadProfileTooling(
+      documents,
+      passportResult.passport,
+      issues
+    );
+    const nativeRequest = await this.loadNativeRequestBundle(documents, issues);
+    if (issues.length > 0) {
       return { failure: { documents, id: profileId, issues }, ok: false };
     }
     return {
@@ -260,7 +251,7 @@ export class ProfileStoreFacade {
         passport: passportResult.passport,
         promptBody: promptResult.promptBody,
         scope: resolveSessionProfileScope(passportResult.passport),
-        tooling: toolingResult.tooling,
+        tooling,
       },
     };
   }
@@ -418,6 +409,24 @@ export class ProfileStoreFacade {
     }
     return Object.keys(bundle).length > 0 ? bundle : undefined;
   }
+
+  private async loadProfileTooling(
+    documents: SessionProfileDocumentPaths,
+    passport: SessionProfilePassport,
+    issues: string[]
+  ): Promise<SessionProfileTooling> {
+    if (passport.provider === "codex") {
+      return buildDefaultSessionProfileTooling();
+    }
+    const toolingText = await readDocument(
+      documents.toolingPath,
+      SESSION_PROFILE_TOOLING_FILE_NAME,
+      issues
+    );
+    const toolingResult = parseSessionProfileTooling(toolingText ?? "");
+    issues.push(...toolingResult.issues);
+    return toolingResult.tooling ?? buildDefaultSessionProfileTooling();
+  }
 }
 
 async function readDocument(
@@ -460,6 +469,15 @@ async function hasProfilePassport(profileDirectory: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+function buildDefaultSessionProfileTooling(): SessionProfileTooling {
+  type ToolingCategory = (typeof SESSION_PROFILE_TOOLING_CATEGORIES)[number];
+  const categories = {} as Record<ToolingCategory, boolean>;
+  for (const category of SESSION_PROFILE_TOOLING_CATEGORIES) {
+    categories[category] = true;
+  }
+  return { categories };
 }
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {

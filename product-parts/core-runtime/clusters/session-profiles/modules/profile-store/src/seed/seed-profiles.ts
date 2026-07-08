@@ -20,7 +20,7 @@ export interface SeedSessionProfile {
   readonly promptBody: string;
   readonly providerDirectory?: string;
   readonly requestTemplateJson?: string;
-  readonly toolingYaml: string;
+  readonly toolingYaml?: string;
   readonly toolsJson?: string;
 }
 
@@ -30,6 +30,7 @@ interface SeedDefinition {
   readonly description: string;
   readonly id: string;
   readonly name: string;
+  readonly omitToolingYaml?: boolean;
   readonly promptBody: string;
   readonly provider?: string;
   readonly providerDirectory?: string;
@@ -165,6 +166,7 @@ const SEED_DEFINITIONS: readonly SeedDefinition[] = [
       "Codex app-server synthetic native baseline; app-server owns the structured tool surface.",
     id: "codex-app-server-synthetic-native",
     name: "Codex App-Server Synthetic Native",
+    omitToolingYaml: true,
     promptBody: CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
     provider: "codex",
     providerDirectory: "Codex",
@@ -183,6 +185,7 @@ const SEED_DEFINITIONS: readonly SeedDefinition[] = [
       "Codex app-server synthetic native baseline plus embedded custom instructions; app-server owns the structured tool surface.",
     id: "codex-app-server-synthetic-native-custom",
     name: "Codex App-Server Synthetic Native + Custom",
+    omitToolingYaml: true,
     promptBody: CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
     provider: "codex",
     providerDirectory: "Codex",
@@ -207,7 +210,9 @@ export const SEED_SESSION_PROFILES: readonly SeedSessionProfile[] =
     ...(definition.requestTemplateJson === undefined
       ? {}
       : { requestTemplateJson: definition.requestTemplateJson }),
-    toolingYaml: buildToolingYaml(definition.categories),
+    ...(definition.omitToolingYaml
+      ? {}
+      : { toolingYaml: buildToolingYaml(definition.categories) }),
     ...(definition.toolsJson === undefined
       ? {}
       : { toolsJson: definition.toolsJson }),

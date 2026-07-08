@@ -9,7 +9,9 @@ provider-scoped profiles under optional provider namespaces such as
 the virtual Native profile, provider-neutral session profile payload
 materialization, optional native request sidecars (`request-template.json`, `tools.json`,
 `custom-instructions.md`), and profile authoring (templates, creation,
-validity status).
+validity status). Codex app-server provider-scoped profiles are prompt-only
+profiles and do not own a `tooling.yaml` sidecar; app-server process startup
+flags and its internal registry own that tool surface.
 
 Contract source: `docs/architecture/SessionProfiles.md`.
 

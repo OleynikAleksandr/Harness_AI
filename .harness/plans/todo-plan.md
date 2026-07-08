@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task2",
-  "expectedCommitMessage": "fix(session-profiles): omit codex app-server tooling sidecar",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -119,5 +119,5 @@
 
 24. [DONE] `harness-ai.phase9.stream1.task1` Refresh CodexUC synthetic-native structured tools from the newest Codex app-server Native Request Capture and mirror the updated sidecar into the local CodexUC profile. (scope: local `~/.harness-ai/Profiles/CodexUC/codex-synthetic-native/tools.json`, local `~/.harness-ai/Profiles/CodexUC/codex-synthetic-native-custom/tools.json`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/seed/codex-synthetic-native-seed-prompt.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex-uc): refresh synthetic native tools from app-server capture`). Result: Completed in commit `fix(codex-uc): refresh synthetic native tools from app-server capture`.
 25. [DONE] Git Commit: `fix(codex-uc): refresh synthetic native tools from app-server capture` (hash: self)
-26. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` Stop seeding and requiring `tooling.yaml` for Codex app-server profiles because app-server ignores profile tooling metadata and owns tool availability through its process registry/flags. (scope: local `~/.harness-ai/Profiles/Codex/codex-app-server-synthetic-native/tooling.yaml`, local `~/.harness-ai/Profiles/Codex/codex-app-server-synthetic-native-custom/tooling.yaml`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/seed/seed-profiles.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/module.md`, `product-parts/core-runtime/clusters/session-profiles/cluster.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(session-profiles): omit codex app-server tooling sidecar`).
-27. [TODO] Git Commit: `fix(session-profiles): omit codex app-server tooling sidecar` (hash: TBD)
+26. [DONE] `harness-ai.phase9.stream1.task2` Stop seeding and requiring `tooling.yaml` for Codex app-server profiles because app-server ignores profile tooling metadata and owns tool availability through its process registry/flags. (scope: local `~/.harness-ai/Profiles/Codex/codex-app-server-synthetic-native/tooling.yaml`, local `~/.harness-ai/Profiles/Codex/codex-app-server-synthetic-native-custom/tooling.yaml`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/seed/seed-profiles.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/module.md`, `product-parts/core-runtime/clusters/session-profiles/cluster.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(session-profiles): omit codex app-server tooling sidecar`). Result: Completed in commit `fix(session-profiles): omit codex app-server tooling sidecar`.
+27. [DONE] Git Commit: `fix(session-profiles): omit codex app-server tooling sidecar` (hash: self)

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
@@ -35,6 +36,7 @@ export function recordCodexUcResponseFeedback(
         store: input.request.store ?? null,
         stream: input.request.stream ?? null,
       },
+      requestEnvelope: summarizeRequestEnvelope(input.request),
       responseEventNames: readResponseEventNames(input.responseText),
       responseStatus: input.responseStatus,
       route: "codex-oauth-responses",
@@ -91,6 +93,77 @@ function readResponseEventNames(responseText: string): string[] {
     }
   }
   return names;
+}
+
+function summarizeRequestEnvelope(
+  request: CodexUcResponsesRequest
+): Readonly<Record<string, unknown>> {
+  return {
+    inputBytes: byteLength(request.input),
+    inputCount: request.input.length,
+    instructionsBytes: Buffer.byteLength(request.instructions, "utf8"),
+    instructionsHash: hashString(request.instructions),
+    promptCacheKey: request.prompt_cache_key ?? null,
+    toolNames: request.tools
+      .map((tool) => readToolName(tool))
+      .filter((name): name is string => Boolean(name)),
+    toolsBytes: byteLength(request.tools),
+    toolsCount: request.tools.length,
+    toolSummaries: request.tools.map(summarizeTool),
+    topLevelKeys: Object.keys(request),
+  };
+}
+
+function summarizeTool(
+  tool: Readonly<Record<string, unknown>>
+): Readonly<Record<string, unknown>> {
+  return {
+    bytes: byteLength(tool),
+    hash: hashString(stableJson(tool)),
+    name: readToolName(tool),
+    type: readToolType(tool),
+  };
+}
+
+function readToolName(tool: Readonly<Record<string, unknown>>): string | null {
+  const name = readString(tool.name);
+  if (name) {
+    return name;
+  }
+  return readString(tool.function_name) ?? readString(tool.id);
+}
+
+function readToolType(tool: Readonly<Record<string, unknown>>): string | null {
+  return readString(tool.type);
+}
+
+function byteLength(value: unknown): number {
+  return Buffer.byteLength(stableJson(value), "utf8");
+}
+
+function hashString(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function stableJson(value: unknown): string {
+  if (
+    value === null ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "string"
+  ) {
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(stableJson).join(",")}]`;
+  }
+  if (!isRecord(value)) {
+    return JSON.stringify(null);
+  }
+  return `{${Object.keys(value)
+    .sort()
+    .map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`)
+    .join(",")}}`;
 }
 
 function readSseEvent(

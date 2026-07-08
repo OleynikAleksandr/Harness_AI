@@ -128,3 +128,10 @@
 
 28. [DONE] `harness-ai.phase10.stream1.task1` Make the Core provider-home manager preserve Codex app-server visible reasoning by materializing workspace `config.toml` with `model_reasoning_summary = "detailed"` instead of reintroducing suppressing `none`. (scope: `product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts`, `product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs`, `product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md`; expected commit: `fix(codex): keep workspace home reasoning detailed`). Result: Completed in commit `fix(codex): keep workspace home reasoning detailed`.
 29. [DONE] Git Commit: `fix(codex): keep workspace home reasoning detailed` (hash: self)
+
+## Phase 11 - CodexUC Live Envelope Parity (owner: Codex, updated: 2026-07-08)
+
+### Stream: Request Diagnostics
+
+30. [DONE] `harness-ai.phase11.stream1.task1` Record sanitized live CodexUC request-envelope diagnostics so packaged retests can compare the applied synthetic-native instructions/tools against Codex app-server request captures without relying on model self-report. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-response-feedback.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-response-feedback.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`; expected commit: `feat(codex-uc): record request envelope diagnostics`) Result: Completed in commit `feat(codex-uc): record request envelope diagnostics`.
+31. [DONE] Git Commit: `feat(codex-uc): record request envelope diagnostics` (hash: self)

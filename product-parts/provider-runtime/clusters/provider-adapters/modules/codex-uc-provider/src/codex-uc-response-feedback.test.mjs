@@ -74,7 +74,14 @@ try {
         reasoning: { effort: "xhigh", summary: "concise" },
         store: false,
         stream: true,
-        tools: [{ name: "secret_tool", type: "function" }],
+        tools: [
+          {
+            description: "secret tool description",
+            name: "secret_tool",
+            parameters: { properties: { path: { type: "string" } } },
+            type: "function",
+          },
+        ],
       },
       responseStatus: 200,
       responseText,
@@ -90,12 +97,24 @@ try {
     const logText = readFileSync(logPath, "utf8").trim();
     assert.equal(logText.includes("secret prompt"), false);
     assert.equal(logText.includes("secret user text"), false);
-    assert.equal(logText.includes("secret_tool"), false);
+    assert.equal(logText.includes("secret tool description"), false);
+    assert.equal(logText.includes('"properties"'), false);
     const record = JSON.parse(logText);
     assert.deepEqual(record.requested.reasoning, {
       effort: "xhigh",
       summary: "concise",
     });
+    assert.equal(record.requestEnvelope.instructionsBytes, 13);
+    assert.equal(record.requestEnvelope.inputCount, 1);
+    assert.equal(record.requestEnvelope.toolsCount, 1);
+    assert.deepEqual(record.requestEnvelope.toolNames, ["secret_tool"]);
+    assert.equal(record.requestEnvelope.toolSummaries[0].name, "secret_tool");
+    assert.equal(record.requestEnvelope.toolSummaries[0].type, "function");
+    assert.equal(
+      typeof record.requestEnvelope.toolSummaries[0].bytes,
+      "number"
+    );
+    assert.equal(typeof record.requestEnvelope.toolSummaries[0].hash, "string");
     assert.deepEqual(record.feedbackEvents.at(-1).reasoning, {
       effort: "xhigh",
       summary: "concise",

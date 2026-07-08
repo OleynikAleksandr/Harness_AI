@@ -103,12 +103,16 @@ static profile was used.
 - Redacted response-side reasoning feedback is appended to
   `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` after each
   CodexUC HTTP response is read. The record stores the requested
-  `model`/`reasoning`, HTTP status, response event names, and sanitized
-  `response.created` / `response.completed` model/status/reasoning metadata
-  when the backend returns it. It deliberately omits auth, prompt text, input
-  history, and tool schemas; missing response-side `reasoning` means the
-  backend did not provide acceptance metadata in the SSE feedback captured for
-  that turn.
+  `model`/`reasoning`, HTTP status, response event names, sanitized
+  `response.created` / `response.completed` model/status/reasoning metadata,
+  and request-envelope diagnostics for the live body sent to the backend. The
+  envelope block records top-level key order, prompt-cache key, instruction
+  byte length/hash, input count/bytes, tool count/bytes, and per-tool
+  name/type/byte/hash summaries so packaged retests can compare the applied
+  CodexUC synthetic-native surface with app-server captures. It deliberately
+  omits auth, prompt text, input history, tool descriptions, and tool schemas;
+  missing response-side `reasoning` means the backend did not provide acceptance
+  metadata in the SSE feedback captured for that turn.
 - Usage-limit telemetry through the proven Codex account-limits bridge
   (`account/rateLimits/read`) plus a best-effort direct response-header fast
   path when the backend provides Codex session/weekly limit percentages or

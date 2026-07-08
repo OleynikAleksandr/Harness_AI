@@ -100,6 +100,13 @@ relevant to the active task.
   foundation recommendation (CodeAI-Hub reference runtime as the code base,
   OpenCode as the behavior/extensibility reference, its Vercel-AI-SDK runtime
   dependency rejected) and the recorded user decisions.
+- `docs/architecture/ClaudeProviderResearch.md` — Claude provider research
+  note (Russian, Phase 1 of the claude-provider-research-2026-07-08 scope):
+  what Harness controls for Claude across system prompt, tool inventory,
+  settings sources, memory/context ballast, phase/event semantics,
+  cache/context/resume and benchmark design, each explicitly compared against
+  the closed Codex/CodexUC findings; the EXISTS/ABSENT summary and the open
+  research questions for the next cycles.
 
 ## Product Part Documentation
 

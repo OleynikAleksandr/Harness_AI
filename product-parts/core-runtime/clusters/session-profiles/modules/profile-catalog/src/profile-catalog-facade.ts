@@ -7,11 +7,11 @@ export const NATIVE_SESSION_PROFILE_ID = "native";
 
 /**
  * Providers whose adapters apply managed session profiles in the MVP scope.
- * CodexUC is Codex-family: it can apply Codex individual profiles through the
- * OAuth Responses-compatible route. The remaining universal-client endpoints
- * stay Native-only until Phase 5 adds their synthetic-native wrapper/profile
- * application layer. Retired ids such as kimi and glm-native are intentionally
- * absent.
+ * Codex and CodexUC use separate individual profile namespaces because their
+ * provider-facing tool/request payload contracts are different. The remaining
+ * universal-client endpoints stay Native-only until Phase 5 adds their
+ * synthetic-native wrapper/profile application layer. Retired ids such as kimi
+ * and glm-native are intentionally absent.
  */
 export const PROFILE_SUPPORTED_PROVIDER_IDS = [
   "claude",
@@ -151,10 +151,7 @@ function isProviderProfileApplicable(
   if (!profileProvider) {
     return false;
   }
-  if (profileProvider === providerId) {
-    return true;
-  }
-  return providerId === "codex-uc" && profileProvider === "codex";
+  return profileProvider === providerId;
 }
 
 function toCatalogEntry(profile: SessionProfile): SessionProfileCatalogEntry {

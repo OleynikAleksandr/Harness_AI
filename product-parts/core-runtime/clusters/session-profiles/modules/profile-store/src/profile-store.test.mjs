@@ -175,6 +175,8 @@ try {
       [
         "architecture-spec",
         "codeai-workflow-claude",
+        "codex-app-server-synthetic-native",
+        "codex-app-server-synthetic-native-custom",
         "codex-synthetic-native",
         "codex-synthetic-native-custom",
         "plan-document",
@@ -191,10 +193,10 @@ try {
       (profile) => profile.id === "codex-synthetic-native"
     );
     assert.equal(codexSeed.scope, "individual");
-    assert.equal(codexSeed.passport.provider, "codex");
+    assert.equal(codexSeed.passport.provider, "codex-uc");
     assert.equal(
       codexSeed.documents.profileDirectory,
-      path.join(seededRoot, "Codex", "codex-synthetic-native")
+      path.join(seededRoot, "CodexUC", "codex-synthetic-native")
     );
     assert.equal(
       codexSeed.promptBody.startsWith("You are Codex, a coding agent"),
@@ -215,10 +217,10 @@ try {
     const codexCustomSeed = seededScan.profiles.find(
       (profile) => profile.id === "codex-synthetic-native-custom"
     );
-    assert.equal(codexCustomSeed.passport.provider, "codex");
+    assert.equal(codexCustomSeed.passport.provider, "codex-uc");
     assert.equal(
       codexCustomSeed.documents.profileDirectory,
-      path.join(seededRoot, "Codex", "codex-synthetic-native-custom")
+      path.join(seededRoot, "CodexUC", "codex-synthetic-native-custom")
     );
     assert.equal(
       codexCustomSeed.promptBody.startsWith("You are Codex, a coding agent"),
@@ -233,6 +235,33 @@ try {
       /AGENTS\.md instructions for/u
     );
     assert.equal(codexCustomSeed.nativeRequest.tools.length, 17);
+    const codexAppServerSeed = seededScan.profiles.find(
+      (profile) => profile.id === "codex-app-server-synthetic-native"
+    );
+    assert.equal(codexAppServerSeed.scope, "individual");
+    assert.equal(codexAppServerSeed.passport.provider, "codex");
+    assert.equal(
+      codexAppServerSeed.documents.profileDirectory,
+      path.join(seededRoot, "Codex", "codex-app-server-synthetic-native")
+    );
+    assert.equal(codexAppServerSeed.nativeRequest, undefined);
+    const codexAppServerCustomSeed = seededScan.profiles.find(
+      (profile) => profile.id === "codex-app-server-synthetic-native-custom"
+    );
+    assert.equal(codexAppServerCustomSeed.passport.provider, "codex");
+    assert.equal(
+      codexAppServerCustomSeed.documents.profileDirectory,
+      path.join(seededRoot, "Codex", "codex-app-server-synthetic-native-custom")
+    );
+    assert.match(
+      codexAppServerCustomSeed.nativeRequest.customInstructions,
+      /# Harness AI Agent Instructions/u
+    );
+    assert.equal(codexAppServerCustomSeed.nativeRequest.tools, undefined);
+    assert.equal(
+      codexAppServerCustomSeed.nativeRequest.requestTemplate,
+      undefined
+    );
     const reviewSeed = seededScan.profiles.find(
       (profile) => profile.id === "review"
     );

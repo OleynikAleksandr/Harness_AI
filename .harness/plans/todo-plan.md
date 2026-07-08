@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": "fix(codex-uc): read codex uc profile namespace",
   "debt": null
 }
 ```
@@ -93,4 +93,15 @@
 
 13. [DONE] `harness-ai.phase6.stream1.task1` Repackage the app for user verification after switching CodexUC to backend-accepted detailed reasoning summary mode and record evidence. (scope: `docs/evidence/codex-uc-detailed-summary-package-2026-07-07.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc detailed summary package`). Result: Completed in commit `docs(evidence): record codex uc detailed summary package`.
 14. [DONE] Git Commit: `docs(evidence): record codex uc detailed summary package` (hash: self)
-15. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned `reasoning.summary: "detailed"` feedback. (scope: user workflow; expected commit: none).
+15. [TODO] `harness-ai.phase6.stream1.task2` User retests CodexUC in the packaged app and checks `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl` for backend-returned `reasoning.summary: "detailed"` feedback. (scope: user workflow; expected commit: none).
+
+## Phase 7 - Codex App-Server Profile And Reasoning Parity (owner: Codex, updated: 2026-07-08)
+
+### Stream: App-Server Validation
+
+16. [DONE] `harness-ai.phase7.stream1.task1` Split local and seeded Codex app-server profiles from CodexUC profiles under `~/.harness-ai/Profiles`, remove app-server-owned tool/request payload files from the app-server copies, and stop treating Codex app-server profiles as CodexUC-applicable. (scope: local `~/.harness-ai/Profiles/**`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/seed/seed-profiles.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/module.md`, `product-parts/core-runtime/clusters/session-profiles/cluster.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(session-profiles): split codex provider namespaces`). Result: Completed in commit `fix(session-profiles): split codex provider namespaces`.
+17. [DONE] Git Commit: `fix(session-profiles): split codex provider namespaces` (hash: self)
+18. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Make CodexUC native request capture read its native-bundle profiles from `Profiles/CodexUC`. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-native-capture.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex-uc): read codex uc profile namespace`).
+19. [TODO] Git Commit: `fix(codex-uc): read codex uc profile namespace` (hash: TBD)
+20. [TODO] `harness-ai.phase7.stream1.task3` Restore Codex app-server visible reasoning summary to detailed mode for packaged retest. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-provider-home-config.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/architecture/SessionProfiles.md`, `docs/evidence/codex-reference-summary-config-2026-06-28.md`; expected commit: `fix(codex): restore app-server detailed reasoning`).
+21. [TODO] Git Commit: `fix(codex): restore app-server detailed reasoning` (hash: TBD)

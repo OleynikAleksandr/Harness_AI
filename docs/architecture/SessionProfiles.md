@@ -13,7 +13,8 @@ Harness AI позволит пользователю выбирать **проф
   `~/.harness-ai/Profiles/**` (`HARNESS_AI_HOME`), потому что профили
   применяются в любом workspace. Универсальные профили лежат прямо в корне,
   а профили конкретного провайдера могут лежать в отдельном namespace,
-  например `~/.harness-ai/Profiles/Codex/<profileId>/`; id профиля при этом
+  например `~/.harness-ai/Profiles/Codex/<profileId>/` или
+  `~/.harness-ai/Profiles/CodexUC/<profileId>/`; id профиля при этом
   остаётся `<profileId>`, чтобы сохранённые выборы и сессии не зависели от
   физического пути.
 - Профиль — **один универсальный комплект документов** (системный промпт +
@@ -79,11 +80,13 @@ synthetic-native. Номера строк актуальны на дату ис�
   `thread/start`) для raw Native шлёт только `{cwd, approvalPolicy, sandbox,
   model, persistExtendedHistory}` — поле `baseInstructions` НЕ заполняется.
   Когда выбран managed/synthetic profile, тот же путь добавляет frozen prompt
-  payload в `baseInstructions`. Pure `codex-synthetic-native` теперь является
-  exact baseline из принятого native capture, а кастомные инструкции живут в
-  отдельном `codex-synthetic-native-custom`. Выбора инструментов per-thread в
-  протоколе app-server нет: доступность инструментов фиксируется флагами
-  `--disable` при запуске процесса.
+  payload в `baseInstructions`. Prompt-only synthetic baselines для этого
+  канала живут как `codex-app-server-synthetic-native` и
+  `codex-app-server-synthetic-native-custom`; они не содержат
+  `request-template.json` или `tools.json`, потому что app-server tool registry
+  не передаётся через профиль. Выбора инструментов per-thread в протоколе
+  app-server нет: доступность инструментов фиксируется флагами `--disable` при
+  запуске процесса.
 - **CodexUC** — тестовый provider id `codex-uc`, отдельный от native Codex
   app-server. Он использует локальный Codex OAuth auth и
   Responses-compatible backend с `store:false`; managed/synthetic profile
@@ -111,7 +114,7 @@ synthetic-native. Номера строк актуальны на дату ис�
   calls и без reasoning.
   Native Request Capture для CodexUC является profile-qualified diagnostic:
   карточка Settings передаёт в Core выбранный `profileId` вместе с provider/model,
-  adapter читает `~/.harness-ai/Profiles/Codex/<profileId>/system-prompt.md`,
+  adapter читает `~/.harness-ai/Profiles/CodexUC/<profileId>/system-prompt.md`,
   `request-template.json`, `tools.json` и optional `custom-instructions.md`.
   Для native-bundle профиля `system-prompt.md` остаётся exact captured
   `body.instructions`; если рядом есть `custom-instructions.md`, materializer
@@ -167,10 +170,10 @@ synthetic-native. Номера строк актуальны на дату ис�
   Turns/Rollback controls и общий provider scope `codex:global`; rollback
   реализуется не через app-server `thread/rollback`, а через pruning локальной
   Responses input history, потому что `store:false` маршрут пересылает историю
-  сам. В profile catalog он тоже Codex-family provider: universal profiles и
-  индивидуальные `provider: codex` профили, включая
-  `codex-synthetic-native` и `codex-synthetic-native-custom`, применимы к
-  `codex-uc`.
+  сам. В profile catalog он применяет universal profiles и индивидуальные
+  `provider: codex-uc` profiles из `Profiles/CodexUC`; app-server
+  `provider: codex` profiles не применимы к CodexUC, потому что их structured
+  tool/request payload принадлежит другому каналу.
 - **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
   прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
   универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;
@@ -329,13 +332,23 @@ native/managed применения. Это было подтверждено Co
     profile.yaml
     system-prompt.md
     tooling.yaml
-  Codex/                                <- provider namespace
-    codex-synthetic-native/             <- индивидуальный (provider: codex)
+  Codex/                                <- Codex app-server namespace
+    codex-app-server-synthetic-native/  <- индивидуальный (provider: codex)
+      profile.yaml
+      system-prompt.md                  <- exact captured body.instructions
+      tooling.yaml                      <- category metadata; app-server tools are process-owned
+    codex-app-server-synthetic-native-custom/
+      profile.yaml
+      system-prompt.md
+      custom-instructions.md            <- inserted into system prompt body
+      tooling.yaml
+  CodexUC/                              <- Codex OAuth Responses namespace
+    codex-synthetic-native/             <- индивидуальный (provider: codex-uc)
       profile.yaml
       system-prompt.md                  <- exact captured body.instructions
       tooling.yaml                      <- category metadata/fallback only
-      request-template.json             <- static captured request fields
-      tools.json                        <- exact captured body.tools
+      request-template.json
+      tools.json
     codex-synthetic-native-custom/
       profile.yaml
       system-prompt.md
@@ -379,8 +392,9 @@ categories:
 для тела промпта и custom instruction; JSON для структурного native request
 bundle. Один каталог = один профиль; применимость определяется полем
 `provider` паспорта (универсальный или индивидуальный). Провайдерский
-namespace (`Profiles/Codex/...`) является только физической группировкой и не
-входит в id профиля.
+namespace (`Profiles/Codex/...`, `Profiles/CodexUC/...`) является только
+физической группировкой и не входит в id профиля; один и тот же id не должен
+использоваться одновременно в разных namespace.
 
 ## Словарь категорий туллинга
 
@@ -797,14 +811,15 @@ Seed-профили — стандартный стартовый набор, к
    `codeai-workflow-glm-native` больше не сидируются, потому что их provider
    ids (`kimi`, `glm-native`) удалены; Kimi/GLM client-four profiles
    переопределяются в Phase 5 synthetic-native через новые live ids.
-6. `codex-synthetic-native` (индивидуальный, физически
-   `Profiles/Codex/codex-synthetic-native`) — ручной Codex probe из принятого
-   native request capture 2026-07-05: `system-prompt.md` является точной копией
-   captured `body.instructions`, `tools.json` является точной копией captured
+6. `codex-synthetic-native` (индивидуальный CodexUC, физически
+   `Profiles/CodexUC/codex-synthetic-native`) — ручной Codex probe из
+   принятого native request capture 2026-07-05 для Responses-compatible
+   CodexUC route: `system-prompt.md` является точной копией captured
+   `body.instructions`, `tools.json` является точной копией captured
    `body.tools`, а `request-template.json` хранит статичные поля запроса. В
    этом baseline нет workspace/custom instructions.
-7. `codex-synthetic-native-custom` (индивидуальный, физически
-   `Profiles/Codex/codex-synthetic-native-custom`) — тот же exact native
+7. `codex-synthetic-native-custom` (индивидуальный CodexUC, физически
+   `Profiles/CodexUC/codex-synthetic-native-custom`) — тот же exact native
    baseline плюс `custom-instructions.md`. На диске `system-prompt.md`
    остаётся exact captured baseline, а custom text хранится только в sidecar;
    materializer вставляет sidecar text в final `instructions` после `# General`
@@ -813,6 +828,17 @@ Seed-профили — стандартный стартовый набор, к
    adapter добавляет `prompt_cache_key` в HTTP payload после `tools` и перед
    динамическим `input`; profiles не должны хранить этот key в
    `request-template.json`.
+8. `codex-app-server-synthetic-native` (индивидуальный Codex app-server,
+   физически `Profiles/Codex/codex-app-server-synthetic-native`) — prompt-only
+   baseline с тем же captured `body.instructions`; `request-template.json` и
+   `tools.json` отсутствуют, потому что список инструментов и их описания
+   приходят из native app-server tool registry, а не из профиля.
+9. `codex-app-server-synthetic-native-custom` (индивидуальный Codex
+   app-server, физически
+   `Profiles/Codex/codex-app-server-synthetic-native-custom`) — тот же
+   prompt-only baseline плюс `custom-instructions.md`; структурные native tool
+   declarations по-прежнему не хранятся в профиле и не передаются через
+   `baseInstructions`.
 
 Плюс виртуальная запись `native` (не на диске).
 

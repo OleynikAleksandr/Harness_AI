@@ -86,7 +86,11 @@ synthetic-native. Номера строк актуальны на дату ис�
   `request-template.json` или `tools.json`, потому что app-server tool registry
   не передаётся через профиль. Выбора инструментов per-thread в протоколе
   app-server нет: доступность инструментов фиксируется флагами `--disable` при
-  запуске процесса.
+  запуске процесса. Visible reasoning для app-server Codex требует двух
+  совпадающих сигналов: provider-home `config.toml` материализуется с
+  top-level `model_reasoning_summary = "detailed"`, а каждый поддерживающий
+  summary turn отправляет `summary: "detailed"` в `turn/start`; `none` в
+  provider-home config считается suppressing regression для dialog reasoning.
 - **CodexUC** — тестовый provider id `codex-uc`, отдельный от native Codex
   app-server. Он использует локальный Codex OAuth auth и
   Responses-compatible backend с `store:false`; managed/synthetic profile

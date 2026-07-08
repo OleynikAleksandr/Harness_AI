@@ -9,11 +9,12 @@ const MODEL_REASONING_SUMMARY_LINE_REGEX =
 const MODEL_REASONING_EFFORT_LINE_REGEX =
   /^\s*model_reasoning_effort\s*=\s*.+$/mu;
 const FIRST_SECTION_LINE_REGEX = /^\s*\[.+\]\s*$/mu;
-const PROVIDER_HOME_REASONING_SUMMARY_LINE = 'model_reasoning_summary = "none"';
+const PROVIDER_HOME_REASONING_SUMMARY_LINE =
+  'model_reasoning_summary = "detailed"';
 
 const normalizeCodexProviderHomeConfigToml = (raw: string): string => {
-  // Provider-home config is process-global; per-turn summary is capability-gated
-  // in the App Server facade for models that support it.
+  // Keep app-server's process-global default aligned with the per-turn
+  // detailed summary request so config.toml cannot suppress visible reasoning.
   const summaryLine = PROVIDER_HOME_REASONING_SUMMARY_LINE;
   const withoutLegacy = raw
     .replace(LEGACY_REASONING_SUMMARY_LINE_REGEX, "")

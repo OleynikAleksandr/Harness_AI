@@ -48,7 +48,9 @@ the shared process.
 - Turn-level Codex reasoning summaries emitted by the reference app-server
   event router.
 - Provider-home `config.toml` materialized by the reference provider-home
-  process code under Harness runtime paths.
+  process code under Harness runtime paths with top-level
+  `model_reasoning_summary = "detailed"` so the process-global config does not
+  suppress the per-turn detailed summary request.
 - Native Codex `thread/start` without workflow `baseInstructions` or
   `project_doc_max_bytes: 0` override for ordinary workspace sessions; selected
   managed/synthetic profiles pass their prompt payload as `baseInstructions`.

@@ -1,4 +1,4 @@
-# Codex Reference Summary Config Verification - 2026-06-28
+# Codex App-Server Summary Config Verification - 2026-06-28
 
 ## Reference Finding
 
@@ -9,7 +9,11 @@
 
 ## Harness Result
 
-- Provider home preparation now materializes one top-level `model_reasoning_summary = "none"` and removes legacy/default summary lines.
+- 2026-07-08 update: Harness now materializes one top-level
+  `model_reasoning_summary = "detailed"` and removes legacy/default summary
+  lines. This intentionally diverges from the earlier CodeAI-Hub reference
+  finding because the packaged Codex app-server retest showed no visible
+  reasoning in the dialog while the provider home still forced `none`.
 - Codex `turn/start` still sends per-turn `summary: "detailed"` when enabled for supported models.
 - Codex Spark keeps reasoning effort selection but sends per-turn `summary: "none"`.
 - Codex settings capabilities align with the reference model list: GPT-5.2, GPT-5.3 Codex Spark, GPT-5.4 Mini, GPT-5.4, and GPT-5.5 expose `low`, `medium`, `high`, and `xhigh`, defaulting to `medium`.

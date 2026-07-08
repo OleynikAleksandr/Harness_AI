@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task3",
-  "expectedCommitMessage": "fix(codex): restore app-server detailed reasoning",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -103,5 +103,5 @@
 17. [DONE] Git Commit: `fix(session-profiles): split codex provider namespaces` (hash: self)
 18. [DONE] `harness-ai.phase7.stream1.task2` Make CodexUC native request capture read its native-bundle profiles from `Profiles/CodexUC`. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-native-capture.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex-uc): read codex uc profile namespace`). Result: Completed in commit `fix(codex-uc): read codex uc profile namespace`.
 19. [DONE] Git Commit: `fix(codex-uc): read codex uc profile namespace` (hash: self)
-20. [IN_PROGRESS] `harness-ai.phase7.stream1.task3` Restore Codex app-server visible reasoning summary to detailed mode for packaged retest. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-provider-home-config.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/architecture/SessionProfiles.md`, `docs/evidence/codex-reference-summary-config-2026-06-28.md`; expected commit: `fix(codex): restore app-server detailed reasoning`).
-21. [TODO] Git Commit: `fix(codex): restore app-server detailed reasoning` (hash: TBD)
+20. [DONE] `harness-ai.phase7.stream1.task3` Restore Codex app-server visible reasoning summary to detailed mode for packaged retest. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-provider-home-config.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/architecture/SessionProfiles.md`, `docs/evidence/codex-reference-summary-config-2026-06-28.md`; expected commit: `fix(codex): restore app-server detailed reasoning`). Result: Completed in commit `fix(codex): restore app-server detailed reasoning`.
+21. [DONE] Git Commit: `fix(codex): restore app-server detailed reasoning` (hash: self)

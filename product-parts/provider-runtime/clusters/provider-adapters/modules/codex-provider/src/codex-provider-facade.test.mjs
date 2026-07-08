@@ -16,6 +16,10 @@ const appServerProcessSource = readFileSync(
   join(moduleDir, "reference/app-server/process/codex-app-server-process.ts"),
   "utf8"
 );
+const appServerHomeConfigSource = readFileSync(
+  join(moduleDir, "reference/app-server/process/codex-provider-home-config.ts"),
+  "utf8"
+);
 
 assert.match(
   source,
@@ -42,6 +46,14 @@ assert.match(appServerProcessSource, /"\.harness"/u);
 assert.match(
   appServerProcessSource,
   /prepareProviderCodexHome\(processEnvironment\)/u
+);
+assert.match(
+  appServerHomeConfigSource,
+  /model_reasoning_summary = "detailed"/u
+);
+assert.doesNotMatch(
+  appServerHomeConfigSource,
+  /model_reasoning_summary = "none"/u
 );
 assert.doesNotMatch(appServerProcessSource, /"\.codeai-hub"/u);
 assert.doesNotMatch(

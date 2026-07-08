@@ -49,3 +49,15 @@ sessions with the same simple three-turn cache probe. Expected result: both
 providers should show the large static-prefix cache by the second visible turn,
 instead of Codex app-server requiring a third turn before the full cache is
 visible.
+
+## User Acceptance
+
+Accepted by packaged-app retest on 2026-07-08. The user verified the rebuilt
+application and confirmed that the Codex app-server cache behavior now works as
+expected.
+
+Finding to preserve for future work: the cache timing problem was not a
+time-based prompt-cache warmup issue. It was caused by the live app-server
+history mode differing from Native Request Capture. Keep live Codex app-server
+on `persistExtendedHistory: false` unless a future direct app-server probe
+proves that `true` preserves the same second-visible-turn cache-anchor timing.

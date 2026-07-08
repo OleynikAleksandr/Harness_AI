@@ -8,7 +8,7 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -156,4 +156,11 @@
 
 36. [DONE] `harness-ai.phase14.stream1.task1` Repackage the app for user verification after the Codex app-server cache-anchor history-mode fix and record evidence. (scope: `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex cache anchor package`). Result: Completed in commit `docs(evidence): record codex cache anchor package`.
 37. [DONE] Git Commit: `docs(evidence): record codex cache anchor package` (hash: self)
-38. [IN_PROGRESS] `harness-ai.phase14.stream1.task2` User retests Codex app-server and CodexUC in the packaged app and verifies cache parity timing after the second visible turn. (scope: user workflow; expected commit: none).
+38. [DONE] `harness-ai.phase14.stream1.task2` User retests Codex app-server and CodexUC in the packaged app and verifies cache parity timing after the second visible turn. (scope: user workflow; expected commit: none). Result: User accepted the rebuilt app on 2026-07-08: Codex app-server and CodexUC cache behavior now works as expected.
+
+## Phase 15 - Cache Anchor Finding Documentation (owner: Codex, updated: 2026-07-08)
+
+### Stream: Architecture Notes
+
+39. [DONE] `harness-ai.phase15.stream1.task1` Record the accepted Codex app-server cache-anchor finding across the architecture/module/evidence documents so future work does not rediscover the `persistExtendedHistory` behavior. (scope: `docs/architecture/CodexCacheAnchorThread.md`, `docs/architecture/SessionProfiles.md`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`; expected commit: `docs(codex): record app-server cache anchor finding`). Result: Completed in commit `docs(codex): record app-server cache anchor finding`.
+40. [DONE] Git Commit: `docs(codex): record app-server cache anchor finding` (hash: self)

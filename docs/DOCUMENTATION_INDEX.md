@@ -295,7 +295,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 - `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md` —
   packaged application rebuild evidence for aligning live Codex app-server
   history mode with Native Request Capture so cache-anchor parity can be
-  retested against CodexUC synthetic-native sessions.
+  retested against CodexUC synthetic-native sessions; includes the accepted
+  2026-07-08 finding that live app-server must keep
+  `persistExtendedHistory: false` for second-visible-turn cache parity.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

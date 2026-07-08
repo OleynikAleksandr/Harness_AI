@@ -434,6 +434,38 @@ post-rollback probe:
 cache anchor, а завершённые dynamic turns можно удалять между фазами без
 потери уже прогретого статичного prefix.
 
+### Accepted 2026-07-08 cache-anchor history mode finding
+
+Packaged-app retest on 2026-07-08 confirmed that live Codex app-server sessions
+must use `persistExtendedHistory: false` on both `thread/start` and
+`thread/resume` for stable cache-anchor parity with CodexUC synthetic-native
+sessions.
+
+Root cause found during the retest investigation:
+
+- Harness live Codex app-server had used `persistExtendedHistory: true` since
+  the original app-server migration.
+- Native Request Capture used `persistExtendedHistory: false`.
+- Direct app-server probe with `false` produced the expected cache timing:
+  `4992` cached input tokens on turn 1, then `14208` on turn 2 and turn 3.
+- Direct app-server probe with `true` was less stable and could depend on
+  app-server extended-history bootstrap state rather than the stable native
+  prompt prefix alone.
+- The packaged-app retest after switching live `thread/start`/`thread/resume`
+  to `false` was accepted by the user: Codex app-server now reaches the large
+  cache-anchor value on the same second-visible-turn timing as CodexUC.
+
+Do not "fix" this back to `true` for ordinary Harness sessions. If future work
+needs extended-history persistence, it must first re-run the cache-anchor probe
+and prove that Codex app-server still reports stable `last_token_usage` cache
+hits by the second visible turn.
+
+UI note: Harness keeps the positive Codex-family `Cache` display monotonic for
+the active projected session, so the status panel is a cache-anchor indicator,
+not a raw per-request trace. For debugging this specific behavior, use provider
+telemetry `last_token_usage.cached_input_tokens` from the rollout/request
+evidence.
+
 ### Что считать текущим окном
 
 `total_token_usage` в app-server остаётся накопительным счётчиком thread и НЕ
@@ -479,8 +511,9 @@ cache-anchor prefix после удаления dynamic turns.
 Порядок ручной проверки Codex:
 
 1. Создать Codex cache-anchor turn.
-2. Создать второй warmup/probe turn, чтобы статичный prefix был уже наблюдаемо
-   прогрет и в диалоге осталась начальная договорённость с агентом.
+2. Создать второй warmup/probe turn; после accepted 2026-07-08 fix для live
+   app-server (`persistExtendedHistory: false`) уже здесь должен появиться
+   большой cached-prefix value, matching CodexUC synthetic-native timing.
 3. Добавить 1-2 больших dynamic turns.
 4. Снять `thread/read includeTurns=true` и `thread/tokenUsage/updated`.
 5. Нажать Harness `Rollback`; UI отправляет `preserveFirstUserTurns: 2`, а

@@ -60,7 +60,10 @@ the shared process.
   Live sessions use `persistExtendedHistory: false`, matching Native Request
   Capture, so the stable native prompt prefix can be reused by provider prompt
   cache from the second turn instead of depending on extended-history bootstrap
-  state.
+  state. This is an accepted packaged-app compatibility finding from
+  2026-07-08: changing it back to `true` requires re-running the Codex
+  app-server cache-anchor probe and proving second-turn cache parity with
+  CodexUC.
 - `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the Codex
   rollout log(s) for a removed session from the workspace provider home, leaving
   the shared provider home otherwise intact.

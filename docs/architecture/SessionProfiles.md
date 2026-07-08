@@ -81,7 +81,9 @@ synthetic-native. Номера строк актуальны на дату ис�
   model, persistExtendedHistory: false}` — поле `baseInstructions` НЕ
   заполняется. `false` совпадает с Native Request Capture и удерживает
   стабильный native prompt prefix cacheable уже со второго turn, без
-  extended-history bootstrap state.
+  extended-history bootstrap state. Принятый packaged-app retest 2026-07-08
+  подтвердил это как compatibility contract: возвращать live app-server путь на
+  `persistExtendedHistory: true` нельзя без нового cache-anchor probe.
   Когда выбран managed/synthetic profile, тот же путь добавляет frozen prompt
   payload в `baseInstructions`. Prompt-only synthetic baselines для этого
   канала живут как `codex-app-server-synthetic-native` и
@@ -730,7 +732,9 @@ Core фактически применённые provider-specific details (whit
   payload (managed) или не получают его (native); категории туллинга в MVP —
   no-op (см. правила матрицы); live app-server path использует
   `persistExtendedHistory: false`, как диагностический capture path, чтобы
-  cache-anchor prefix прогревался ко второму turn; эффективный ключ
+  cache-anchor prefix прогревался ко второму turn. Это принято packaged-app
+  retest 2026-07-08: `true` ведёт к extended-history bootstrap behavior и
+  нестабильной timing/parity относительно CodexUC. Эффективный ключ
   процесс-профиля фиксируется в snapshot как задел под будущий пул процессов.
 - **Kimi**: материализация agent-артефактов (`agent.yaml` + `system.md` +
   список tools) перед `session/new` в **immutable каталог, ключуемый

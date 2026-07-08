@@ -78,7 +78,10 @@ synthetic-native. Номера строк актуальны на дату ис�
   `["app-server"]`; workflow добавляет `--disable multi_agent --disable
   computer_use ...`). Основной путь сессии (`codex-app-server-facade.ts`,
   `thread/start`) для raw Native шлёт только `{cwd, approvalPolicy, sandbox,
-  model, persistExtendedHistory}` — поле `baseInstructions` НЕ заполняется.
+  model, persistExtendedHistory: false}` — поле `baseInstructions` НЕ
+  заполняется. `false` совпадает с Native Request Capture и удерживает
+  стабильный native prompt prefix cacheable уже со второго turn, без
+  extended-history bootstrap state.
   Когда выбран managed/synthetic profile, тот же путь добавляет frozen prompt
   payload в `baseInstructions`. Prompt-only synthetic baselines для этого
   канала живут как `codex-app-server-synthetic-native` и
@@ -725,8 +728,10 @@ Core фактически применённые provider-specific details (whit
   инструкция + полный набор.
 - **Codex**: `thread/start`/`thread/resume` получают `baseInstructions` из
   payload (managed) или не получают его (native); категории туллинга в MVP —
-  no-op (см. правила матрицы); эффективный ключ процесс-профиля фиксируется
-  в snapshot как задел под будущий пул процессов.
+  no-op (см. правила матрицы); live app-server path использует
+  `persistExtendedHistory: false`, как диагностический capture path, чтобы
+  cache-anchor prefix прогревался ко второму turn; эффективный ключ
+  процесс-профиля фиксируется в snapshot как задел под будущий пул процессов.
 - **Kimi**: материализация agent-артефактов (`agent.yaml` + `system.md` +
   список tools) перед `session/new` в **immutable каталог, ключуемый
   content-hash применённого материала**: артефакты никогда не

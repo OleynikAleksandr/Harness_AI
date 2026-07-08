@@ -57,6 +57,10 @@ the shared process.
 - Native Codex `thread/start` without workflow `baseInstructions` or
   `project_doc_max_bytes: 0` override for ordinary workspace sessions; selected
   managed/synthetic profiles pass their prompt payload as `baseInstructions`.
+  Live sessions use `persistExtendedHistory: false`, matching Native Request
+  Capture, so the stable native prompt prefix can be reused by provider prompt
+  cache from the second turn instead of depending on extended-history bootstrap
+  state.
 - `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the Codex
   rollout log(s) for a removed session from the workspace provider home, leaving
   the shared provider home otherwise intact.

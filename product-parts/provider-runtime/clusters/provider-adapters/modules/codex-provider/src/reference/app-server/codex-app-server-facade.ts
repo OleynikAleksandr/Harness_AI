@@ -186,7 +186,7 @@ export class CodexAppServerFacade {
         sandbox:
           this.workspace.defaultSandboxMode ?? CODEX_WORKFLOW_DEFAULT_SANDBOX,
         model: this.workspace.defaultModel,
-        persistExtendedHistory: true,
+        persistExtendedHistory: false,
         ...buildCodexThreadProfileParams(profileState),
       }
     );
@@ -228,7 +228,7 @@ export class CodexAppServerFacade {
         sandbox:
           this.workspace.defaultSandboxMode ?? CODEX_WORKFLOW_DEFAULT_SANDBOX,
         model: this.workspace.defaultModel,
-        persistExtendedHistory: true,
+        persistExtendedHistory: false,
         ...buildCodexThreadProfileParams(profileState),
       }
     );

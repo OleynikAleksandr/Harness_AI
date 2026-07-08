@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase14.stream1.task1",
+  "expectedCommitMessage": "docs(evidence): record codex cache anchor package",
   "debt": null
 }
 ```
@@ -142,3 +142,18 @@
 
 32. [DONE] `harness-ai.phase12.stream1.task1` Add a static native Responses input-prefix sidecar to CodexUC synthetic-native profiles and prepend it to live CodexUC requests so the app-server developer input layer participates in cache/tool-surface parity tests. (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/**`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/**`, `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/**`, related module docs; expected commit: `feat(codex-uc): apply native input prefix`) Result: Completed in commit `feat(codex-uc): apply native input prefix`.
 33. [DONE] Git Commit: `feat(codex-uc): apply native input prefix` (hash: self)
+
+## Phase 13 - Codex App-Server Cache Anchor Stability (owner: Codex, updated: 2026-07-08)
+
+### Stream: App-Server History Mode
+
+34. [DONE] `harness-ai.phase13.stream1.task1` Align the live Codex app-server thread history mode with the Native Request Capture path so the static native prompt prefix becomes cacheable by the second turn instead of depending on extended-history bootstrap behavior. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex): stabilize app-server cache anchor`). Result: Completed in commit `fix(codex): stabilize app-server cache anchor`.
+35. [DONE] Git Commit: `fix(codex): stabilize app-server cache anchor` (hash: self)
+
+## Phase 14 - Repackage Cache Anchor Build (owner: Codex + User, updated: 2026-07-08)
+
+### Stream: Package And Retest
+
+36. [IN_PROGRESS] `harness-ai.phase14.stream1.task1` Repackage the app for user verification after the Codex app-server cache-anchor history-mode fix and record evidence. (scope: `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex cache anchor package`).
+37. [TODO] Git Commit: `docs(evidence): record codex cache anchor package` (hash: TBD)
+38. [TODO] `harness-ai.phase14.stream1.task2` User retests Codex app-server and CodexUC in the packaged app and verifies cache parity timing after the second visible turn. (scope: user workflow; expected commit: none).

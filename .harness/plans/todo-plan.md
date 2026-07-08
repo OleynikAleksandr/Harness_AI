@@ -8,8 +8,8 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream1.task1",
-  "expectedCommitMessage": "docs(evidence): record codex cache anchor package",
+  "currentTaskId": "harness-ai.phase14.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -154,6 +154,6 @@
 
 ### Stream: Package And Retest
 
-36. [IN_PROGRESS] `harness-ai.phase14.stream1.task1` Repackage the app for user verification after the Codex app-server cache-anchor history-mode fix and record evidence. (scope: `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex cache anchor package`).
-37. [TODO] Git Commit: `docs(evidence): record codex cache anchor package` (hash: TBD)
-38. [TODO] `harness-ai.phase14.stream1.task2` User retests Codex app-server and CodexUC in the packaged app and verifies cache parity timing after the second visible turn. (scope: user workflow; expected commit: none).
+36. [DONE] `harness-ai.phase14.stream1.task1` Repackage the app for user verification after the Codex app-server cache-anchor history-mode fix and record evidence. (scope: `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex cache anchor package`). Result: Completed in commit `docs(evidence): record codex cache anchor package`.
+37. [DONE] Git Commit: `docs(evidence): record codex cache anchor package` (hash: self)
+38. [IN_PROGRESS] `harness-ai.phase14.stream1.task2` User retests Codex app-server and CodexUC in the packaged app and verifies cache parity timing after the second visible turn. (scope: user workflow; expected commit: none).

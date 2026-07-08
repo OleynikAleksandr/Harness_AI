@@ -292,6 +292,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild evidence for switching CodexUC live Responses
   requests from low-value `summary: "concise"` to backend-accepted
   `summary: "detailed"` for user retest.
+- `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md` —
+  packaged application rebuild evidence for aligning live Codex app-server
+  history mode with Native Request Capture so cache-anchor parity can be
+  retested against CodexUC synthetic-native sessions.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

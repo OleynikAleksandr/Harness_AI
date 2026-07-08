@@ -320,6 +320,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   intermediate assistant output persisted as `commentary`, final output emitted
   only through the `final_answer` sentinel, and token/cache parity with Codex
   app-server benchmark behavior.
+- `docs/evidence/claude-electron-profile-economics-experiment-2026-07-08.md`
+  — preparation brief for the Claude full/native vs minimal Electron benchmark:
+  two seeded test workspaces, exact first prompt, comparison criteria and the
+  minimal Claude profile requirements derived from the CodexUC lean Electron
+  profile.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

@@ -91,6 +91,10 @@ synthetic-native. Номера строк актуальны на дату ис�
   top-level `model_reasoning_summary = "detailed"`, а каждый поддерживающий
   summary turn отправляет `summary: "detailed"` в `turn/start`; `none` в
   provider-home config считается suppressing regression для dialog reasoning.
+  Входящие app-server reasoning summaries нормализуются из обоих известных
+  shapes: legacy `summary: string[]` и текущих schema objects
+  `{ type: "summary_text", text }`, иначе dialog может не показать thinking
+  даже при корректном outgoing `summary: "detailed"`.
 - **CodexUC** — тестовый provider id `codex-uc`, отдельный от native Codex
   app-server. Он использует локальный Codex OAuth auth и
   Responses-compatible backend с `store:false`; managed/synthetic profile

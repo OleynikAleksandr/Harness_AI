@@ -46,7 +46,10 @@ the shared process.
 - Codex usage-limit telemetry built inside the Codex provider module from
   app-server rate-limit snapshots/events.
 - Turn-level Codex reasoning summaries emitted by the reference app-server
-  event router.
+  event router. Completed reasoning items may arrive either as legacy string
+  arrays or as app-server schema objects such as
+  `{ type: "summary_text", text }`; the router normalizes both shapes before
+  emitting Harness `thinking` messages.
 - Provider-home `config.toml` materialized by the reference provider-home
   process code under Harness runtime paths with top-level
   `model_reasoning_summary = "detailed"` so the process-global config does not

@@ -42,10 +42,22 @@ const asText = (value: unknown): string | null =>
 const asNumber = (value: unknown): number | null =>
   typeof value === "number" && Number.isFinite(value) ? value : null;
 
-const asStringArray = (value: unknown): string[] =>
-  Array.isArray(value)
-    ? value.filter((entry): entry is string => typeof entry === "string")
-    : [];
+const asReasoningBlockArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .map((entry) => {
+      if (typeof entry === "string") {
+        return entry;
+      }
+      if (isRecord(entry)) {
+        return asText(entry.text);
+      }
+      return null;
+    })
+    .filter((entry): entry is string => entry !== null);
+};
 const collectNonEmptyBlocks = (blocks: readonly string[]): string[] =>
   blocks.filter((block) => block.trim().length > 0);
 
@@ -344,15 +356,15 @@ export class CodexAppServerEventRouter {
           );
     if (!itemId) {
       this.emitReasoningBlocksWithoutStableId(threadId, {
-        finalContentBlocks: asStringArray(item.content),
-        finalSummaryBlocks: asStringArray(item.summary),
+        finalContentBlocks: asReasoningBlockArray(item.content),
+        finalSummaryBlocks: asReasoningBlockArray(item.summary),
         textFallback,
       });
       return;
     }
     const blocks = this.reasoningSummaryStreamBuffer.flushRemaining({
-      finalContentBlocks: asStringArray(item.content),
-      finalSummaryBlocks: asStringArray(item.summary),
+      finalContentBlocks: asReasoningBlockArray(item.content),
+      finalSummaryBlocks: asReasoningBlockArray(item.summary),
       itemId,
       itemKey: buildReasoningItemKey(threadId, itemId),
       textFallback,

@@ -16,6 +16,10 @@ const appServerProcessSource = readFileSync(
   join(moduleDir, "reference/app-server/process/codex-app-server-process.ts"),
   "utf8"
 );
+const appServerEventRouterSource = readFileSync(
+  join(moduleDir, "reference/app-server/codex-app-server-event-router.ts"),
+  "utf8"
+);
 const appServerHomeConfigSource = readFileSync(
   join(moduleDir, "reference/app-server/process/codex-provider-home-config.ts"),
   "utf8"
@@ -61,6 +65,19 @@ assert.doesNotMatch(
   /baseInstructions: workflowProfile\.baseInstructions/u
 );
 assert.doesNotMatch(appServerSource, /config: workflowProfile\.threadConfig/u);
+assert.match(appServerEventRouterSource, /asReasoningBlockArray/u);
+assert.match(
+  appServerEventRouterSource,
+  /if \(isRecord\(entry\)\) \{\s+return asText\(entry\.text\);/u
+);
+assert.doesNotMatch(
+  appServerEventRouterSource,
+  /finalSummaryBlocks: asStringArray\(item\.summary\)/u
+);
+assert.doesNotMatch(
+  appServerEventRouterSource,
+  /finalContentBlocks: asStringArray\(item\.content\)/u
+);
 
 for (const relativePath of [
   "reference/provider/codex-provider-adapter.ts",

@@ -105,3 +105,10 @@
 19. [DONE] Git Commit: `fix(codex-uc): read codex uc profile namespace` (hash: self)
 20. [DONE] `harness-ai.phase7.stream1.task3` Restore Codex app-server visible reasoning summary to detailed mode for packaged retest. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/process/codex-provider-home-config.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/architecture/SessionProfiles.md`, `docs/evidence/codex-reference-summary-config-2026-06-28.md`; expected commit: `fix(codex): restore app-server detailed reasoning`). Result: Completed in commit `fix(codex): restore app-server detailed reasoning`.
 21. [DONE] Git Commit: `fix(codex): restore app-server detailed reasoning` (hash: self)
+
+## Phase 8 - Codex App-Server Retest Findings (owner: Codex, updated: 2026-07-08)
+
+### Stream: Reasoning Summary Item Shape
+
+22. [DONE] `harness-ai.phase8.stream1.task1` Restore Codex app-server visible reasoning when app-server completes reasoning summaries as `{ type: "summary_text", text }` objects instead of string arrays. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-event-router.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex): parse app-server reasoning summary objects`). Result: Completed in commit `fix(codex): parse app-server reasoning summary objects`.
+23. [DONE] Git Commit: `fix(codex): parse app-server reasoning summary objects` (hash: self)

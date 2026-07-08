@@ -47,7 +47,7 @@ not resend the removed tail.
 The adapter also implements the diagnostic Native Request Capture boundary for
 CodexUC. Capture is profile-qualified: Core passes an explicit `profileId`
 from the Settings capture card, the adapter reads
-`~/.harness-ai/Profiles/Codex/<profileId>/system-prompt.md`,
+`~/.harness-ai/Profiles/CodexUC/<profileId>/system-prompt.md`,
 `request-template.json`, `tools.json`, and optional
 `custom-instructions.md`, assembles the same native-bundle prompt shape used by
 normal managed sessions, builds the Responses body through

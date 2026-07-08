@@ -73,7 +73,7 @@ function readCodexProfile(profileId: string): CaptureProfile {
   const profileDir = path.join(
     resolveHarnessHome(),
     "Profiles",
-    "Codex",
+    "CodexUC",
     profileId
   );
   const promptBody = readFileSync(

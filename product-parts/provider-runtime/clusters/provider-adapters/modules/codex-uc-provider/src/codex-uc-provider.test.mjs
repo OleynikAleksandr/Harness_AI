@@ -306,7 +306,7 @@ try {
     nativeCaptureSource,
     /input\.options\.profileId \|\| DEFAULT_CAPTURE_PROFILE_ID/u
   );
-  assert.match(nativeCaptureSource, /Profiles",\s*"Codex",\s*profileId/su);
+  assert.match(nativeCaptureSource, /Profiles",\s*"CodexUC",\s*profileId/su);
   assert.match(nativeCaptureSource, /custom-instructions\.md/u);
   assert.match(nativeCaptureSource, /mergeCustomInstructions/u);
   assert.match(nativeCaptureSource, /kind: "codex-uc"/u);

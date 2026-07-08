@@ -76,6 +76,11 @@ relevant to the active task.
   Harness workflow profiles, tool bundles, provider ceilings, and the
   benchmark model for calibrating Claude/Codex before applying the same
   matrix to universal-client providers.
+- `docs/architecture/CodexManagedPromptToolingEconomics.md` — CodexUC
+  managed prompt/tooling economics finding (Russian): benchmark conclusion
+  that task-specific control over system prompt and system tooling can
+  materially reduce token/cache footprint without observed completion-quality
+  loss, while provider adapters still own phase/tool-loop protocol semantics.
 - `docs/architecture/CodexCacheAnchorThread.md` — Codex app-server
   cache-anchor and `thread/rollback` research (Russian): the 2026-07-06
   rollback metrics, why `last_token_usage` and `thread/read includeTurns=true`

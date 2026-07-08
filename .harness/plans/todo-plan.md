@@ -8,7 +8,7 @@
   "planId": "codex-uc-reasoning-effort-2026-07-07",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
+  "currentTaskId": "harness-ai.phase17.stream1.task2",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -171,3 +171,11 @@
 
 41. [DONE] `harness-ai.phase16.stream1.task1` Make the CodexUC synthetic-native route execute native Responses `custom_tool_call` items, including streamed custom tool input, so benchmark sessions can compare Codex app-server and CodexUC with the same accepted native-like tool surface. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-responses.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-custom-tool-calls.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-responses.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`, `docs/architecture/SessionProfiles.md`; expected commit: `fix(codex-uc): execute native custom tool calls`). Result: Completed in commit `fix(codex-uc): execute native custom tool calls`.
 42. [DONE] Git Commit: `fix(codex-uc): execute native custom tool calls` (hash: self)
+
+## Phase 17 - Repackage Native Custom Tool Build (owner: Codex + User, updated: 2026-07-08)
+
+### Stream: Package And Retest
+
+43. [DONE] `harness-ai.phase17.stream1.task1` Package the app for user verification after the CodexUC native `custom_tool_call` loop fix and record evidence. (scope: `docs/evidence/codex-uc-custom-tool-call-package-2026-07-08.md`, `docs/DOCUMENTATION_INDEX.md`, `.harness/plans/todo-plan.md`; expected commit: `docs(evidence): record codex uc custom tool package`). Result: Package build succeeded and evidence was recorded for `release/mac-arm64/Harness AI.app`. Result: Completed in commit `docs(evidence): record codex uc custom tool package`.
+44. [DONE] Git Commit: `docs(evidence): record codex uc custom tool package` (hash: self)
+45. [IN_PROGRESS] `harness-ai.phase17.stream1.task2` User retests CodexUC synthetic-native benchmark sessions in the packaged app and verifies that native custom `apply_patch` calls continue the tool loop without manual nudging. (scope: user workflow; expected commit: none).

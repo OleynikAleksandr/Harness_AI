@@ -298,6 +298,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   retested against CodexUC synthetic-native sessions; includes the accepted
   2026-07-08 finding that live app-server must keep
   `persistExtendedHistory: false` for second-visible-turn cache parity.
+- `docs/evidence/codex-uc-custom-tool-call-package-2026-07-08.md` —
+  packaged application rebuild evidence for the CodexUC native custom tool-call
+  loop: streamed `response.custom_tool_call_input.*`, native `custom_tool_call`
+  normalization, freeform `apply_patch` executor arguments, and the package path
+  for user retest.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

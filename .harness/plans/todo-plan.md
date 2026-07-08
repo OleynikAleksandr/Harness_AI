@@ -135,3 +135,10 @@
 
 30. [DONE] `harness-ai.phase11.stream1.task1` Record sanitized live CodexUC request-envelope diagnostics so packaged retests can compare the applied synthetic-native instructions/tools against Codex app-server request captures without relying on model self-report. (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-response-feedback.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-response-feedback.test.mjs`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/module.md`; expected commit: `feat(codex-uc): record request envelope diagnostics`) Result: Completed in commit `feat(codex-uc): record request envelope diagnostics`.
 31. [DONE] Git Commit: `feat(codex-uc): record request envelope diagnostics` (hash: self)
+
+## Phase 12 - CodexUC Native Developer Input Prefix (owner: Codex, updated: 2026-07-08)
+
+### Stream: Static Native Profile Envelope
+
+32. [DONE] `harness-ai.phase12.stream1.task1` Add a static native Responses input-prefix sidecar to CodexUC synthetic-native profiles and prepend it to live CodexUC requests so the app-server developer input layer participates in cache/tool-surface parity tests. (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/**`, `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/**`, `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts`, `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/**`, related module docs; expected commit: `feat(codex-uc): apply native input prefix`) Result: Completed in commit `feat(codex-uc): apply native input prefix`.
+33. [DONE] Git Commit: `feat(codex-uc): apply native input prefix` (hash: self)

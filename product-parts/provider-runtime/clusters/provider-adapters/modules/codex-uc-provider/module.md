@@ -13,7 +13,8 @@ posts streamed Responses-compatible requests to
 tool loop through the existing universal-client tool registry. It accepts the
 Core immutable session profile snapshot: managed profiles become the request
 `instructions`. If the snapshot carries a Codex native request bundle,
-`request-template.json` contributes static Responses request fields and
+`input-prefix.json` supplies captured static Responses input entries,
+`request-template.json` contributes static Responses request fields, and
 `tools.json` supplies the provider-facing structured tool declarations; the
 local registry still executes returned function calls. The profile sidecar can
 remain an exact native capture, but this HTTP route sanitizes transport-only
@@ -23,12 +24,13 @@ currently uses a short Harness-owned fallback instruction because this route
 has no app-server native prompt assembly. The adapter serializes the outgoing
 HTTP body in a cache-optimized order: `model`, final materialized
 `instructions`, structured `tools`, a deterministic `prompt_cache_key`, then
-dynamic `input` and the remaining request options. Profiles do not store
-`prompt_cache_key` in `request-template.json`; the adapter computes it from the
-static provider-facing prefix (`model`, final `instructions`, structured tools
-and stable request options) and inserts it immediately after `tools`. The key
-is not derived from the changing user/history input, so profile cache
-experiments can test one static anchor across multiple turns. The HTTP request
+`input` with the static prefix prepended before dynamic user/history items, and
+the remaining request options. Profiles do not store `prompt_cache_key` in
+`request-template.json`; the adapter computes it from the static
+provider-facing prefix (`model`, final `instructions`, structured tools, static
+input prefix and stable request options) and inserts it immediately after
+`tools`. The key is not derived from the changing user/history input, so
+profile cache experiments can test one static anchor across multiple turns. The HTTP request
 also carries Codex-style session-affinity headers (`session-id`, `session_id`,
 `x-session-affinity`, `x-client-request-id`) for backend cache routing. The
 unsupported native envelope `type` stays on disk in the exact sidecar but is
@@ -48,7 +50,7 @@ The adapter also implements the diagnostic Native Request Capture boundary for
 CodexUC. Capture is profile-qualified: Core passes an explicit `profileId`
 from the Settings capture card, the adapter reads
 `~/.harness-ai/Profiles/CodexUC/<profileId>/system-prompt.md`,
-`request-template.json`, `tools.json`, and optional
+`input-prefix.json`, `request-template.json`, `tools.json`, and optional
 `custom-instructions.md`, assembles the same native-bundle prompt shape used by
 normal managed sessions, builds the Responses body through
 `buildCodexUcResponsesRequest`, and sends that HTTP POST through the shared
@@ -72,8 +74,9 @@ static profile was used.
 
 - Workspace path.
 - Core session profile payload from the immutable applied profile snapshot.
-  Codex native-bundle profiles may include structured `requestTemplate` and
-  `tools` fields in addition to the materialized prompt.
+  Codex native-bundle profiles may include structured `inputPrefix`,
+  `requestTemplate`, and `tools` fields in addition to the materialized
+  prompt.
 - Per-turn model/reasoning settings from the existing Codex settings section.
 - Local Codex OAuth auth file (`~/.codex/auth.json`).
 - Native Request Capture options: proxy/certificate context, selected model,

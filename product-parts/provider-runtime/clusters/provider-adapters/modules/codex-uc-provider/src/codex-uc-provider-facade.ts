@@ -60,6 +60,7 @@ interface CodexUcSessionState {
   readonly instructions: string;
   readonly listeners: Set<ProviderEventListener>;
   readonly messages: ResponsesInputItem[];
+  readonly nativeInputPrefix?: readonly Readonly<Record<string, unknown>>[];
   readonly nativeTools?: readonly Readonly<Record<string, unknown>>[];
   readonly profileApplication: ProviderProfileApplicationDetails;
   readonly requestTemplate?: Readonly<Record<string, unknown>>;
@@ -219,20 +220,25 @@ export class CodexUcProviderFacade implements ProviderAdapter {
   ): CodexUcSessionState {
     const managedProfile =
       options?.profileKind === "managed" && options.profile;
-    const instructions = managedProfile
-      ? options.profile?.prompt
-      : DEFAULT_INSTRUCTIONS;
     return {
       abort: null,
-      instructions: instructions ?? DEFAULT_INSTRUCTIONS,
+      instructions: managedProfile
+        ? options.profile.prompt
+        : DEFAULT_INSTRUCTIONS,
       listeners: new Set(),
       messages: [],
+      ...(managedProfile && options.profile?.inputPrefix
+        ? { nativeInputPrefix: options.profile.inputPrefix }
+        : {}),
       ...(managedProfile && options.profile?.tools
         ? { nativeTools: options.profile.tools }
         : {}),
       profileApplication: {
         ...(managedProfile && options.profile?.requestTemplate
           ? { requestTemplate: "profile-native-request-template" }
+          : {}),
+        ...(managedProfile && options.profile?.inputPrefix
+          ? { inputPrefix: "profile-native-input-prefix" }
           : {}),
         ...(managedProfile && options.profile?.tools
           ? { toolSurface: "profile-native-tools" }
@@ -304,6 +310,7 @@ export class CodexUcProviderFacade implements ProviderAdapter {
       instructions: session.instructions,
       items: session.messages,
       model,
+      nativeInputPrefix: session.nativeInputPrefix,
       nativeTools: session.nativeTools,
       reasoningEffort,
       requestTemplate: session.requestTemplate,

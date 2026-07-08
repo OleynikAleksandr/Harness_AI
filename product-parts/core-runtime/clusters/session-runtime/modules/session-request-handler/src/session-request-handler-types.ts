@@ -16,6 +16,7 @@ export interface AppliedProfileSnapshot {
   // (ProviderSessionStartResult); recorded once on the first bind.
   appliedProfileApplication?: Readonly<Record<string, unknown>>;
   readonly contentHash?: string;
+  readonly inputPrefix?: readonly Readonly<Record<string, unknown>>[];
   readonly kind: "managed" | "native";
   readonly profileId: string;
   readonly profileName: string;

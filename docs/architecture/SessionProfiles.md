@@ -99,20 +99,21 @@ synthetic-native. Номера строк актуальны на дату ис�
   app-server. Он использует локальный Codex OAuth auth и
   Responses-compatible backend с `store:false`; managed/synthetic profile
   snapshot применяется как request `instructions`. Если профиль содержит
-  native request bundle (`request-template.json` + `tools.json`), CodexUC
-  передаёт эти captured native fields как структурный Responses payload,
+  native request bundle (`input-prefix.json` + `request-template.json` +
+  `tools.json`), CodexUC передаёт эти captured native fields как структурный Responses payload,
   сохраняя exact sidecar на диске, но отбрасывая transport-only поля, которые
   текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
   tool surface формируется Harness function tools. Для
-  `codex-synthetic-native` и custom-варианта structured `tools.json`
-  синхронизирован с Codex app-server Native Request Capture
+  `codex-synthetic-native` и custom-варианта structured `tools.json` и
+  статический developer/runtime `input-prefix.json` синхронизированы с Codex app-server Native Request Capture
   `2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`
-  (`request.body.tools`, 17 entries). При HTTP-сериализации
+  (`request.body.tools`, 17 entries, и `request.body.input[0]`). При HTTP-сериализации
   CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
   `prompt_cache_key`, `input`, затем остальные request options. Профильные
   файлы не хранят `prompt_cache_key`: adapter вычисляет его на каждый request
-  из уже собранного статического provider-facing prefix и вставляет строго
-  после structured `tools` и перед динамическим `input`. Unsupported envelope
+  из уже собранного статического provider-facing prefix, включая
+  `input-prefix.json`, и вставляет строго после structured `tools` и перед
+  `input`. Unsupported envelope
   `type` остаётся в exact sidecar на диске, но не отправляется в HTTP route.
   `prompt_cache_key` является content-addressed ключом статического
   provider-facing prefix (`model`, final materialized `instructions`,
@@ -121,13 +122,14 @@ synthetic-native. Номера строк актуальны на дату ис�
   Codex-style cache/session routing headers (`session-id`, `session_id`,
   `x-session-affinity`, `x-client-request-id`). Original native request capture
   остаётся baseline/evidence, но для CodexUC prompt-cache экспериментов
-  динамический `input` не должен находиться между системным prompt и системным
-  tooling: иначе backend может распознать меньший cached prefix даже без tool
-  calls и без reasoning.
+  динамический user/history `input` не должен находиться между системным prompt,
+  системным tooling и captured developer/runtime prefix: иначе backend может
+  распознать меньший cached prefix даже без tool calls и без reasoning.
   Native Request Capture для CodexUC является profile-qualified diagnostic:
   карточка Settings передаёт в Core выбранный `profileId` вместе с provider/model,
   adapter читает `~/.harness-ai/Profiles/CodexUC/<profileId>/system-prompt.md`,
-  `request-template.json`, `tools.json` и optional `custom-instructions.md`.
+  `input-prefix.json`, `request-template.json`, `tools.json` и optional
+  `custom-instructions.md`.
   Для native-bundle профиля `system-prompt.md` остаётся exact captured
   `body.instructions`; если рядом есть `custom-instructions.md`, materializer
   вставляет этот текст в final `instructions` внутри native prompt body, в
@@ -256,6 +258,10 @@ kebab-case id. Базово у него есть три документа:
 - **request template** (`request-template.json`): статичные поля captured
   native request, кроме динамических `instructions`, `input`, `tools`,
   `prompt_cache_key` и `client_metadata`.
+- **native input prefix** (`input-prefix.json`): статичные captured
+  Responses `input` items, которые должны идти перед пользовательской/историей
+  сессии. Для CodexUC synthetic-native это app-server developer/runtime layer
+  (`body.input[0]`) с permissions, skills/plugins и memory instructions.
 - **native tools** (`tools.json`): структурный captured tool list exactly as
   sent by the native/provider client. Эти схемы передаются структурно, а не
   сериализуются внутрь `system-prompt.md`.
@@ -361,6 +367,7 @@ native/managed применения. Это было подтверждено Co
       profile.yaml
       system-prompt.md                  <- exact captured body.instructions
       tooling.yaml                      <- category metadata/fallback only
+      input-prefix.json                 <- captured static body.input prefix
       request-template.json
       tools.json
     codex-synthetic-native-custom/
@@ -368,6 +375,7 @@ native/managed применения. Это было подтверждено Co
       system-prompt.md
       custom-instructions.md            <- inserted into system prompt body
       tooling.yaml
+      input-prefix.json                 <- captured static body.input prefix
       request-template.json
       tools.json
 ```
@@ -830,7 +838,8 @@ Seed-профили — стандартный стартовый набор, к
    принятого native request capture 2026-07-05 для Responses-compatible
    CodexUC route: `system-prompt.md` является точной копией captured
    `body.instructions`, `tools.json` является точной копией captured
-   `body.tools`, а `request-template.json` хранит статичные поля запроса. В
+   `body.tools`, `input-prefix.json` хранит captured static developer/runtime
+   `body.input[0]`, а `request-template.json` хранит статичные поля запроса. В
    этом baseline нет workspace/custom instructions.
 7. `codex-synthetic-native-custom` (индивидуальный CodexUC, физически
    `Profiles/CodexUC/codex-synthetic-native-custom`) — тот же exact native
@@ -840,7 +849,8 @@ Seed-профили — стандартный стартовый набор, к
    как обычную часть system instructions, без имени `AGENTS.md`, пути,
    отдельного раздела или Harness wrapper. Для CodexUC после materialization
    adapter добавляет `prompt_cache_key` в HTTP payload после `tools` и перед
-   динамическим `input`; profiles не должны хранить этот key в
+   `input`, где static `input-prefix.json` уже стоит перед динамической
+   историей; profiles не должны хранить этот key в
    `request-template.json`.
 8. `codex-app-server-synthetic-native` (индивидуальный Codex app-server,
    физически `Profiles/Codex/codex-app-server-synthetic-native`) — prompt-only

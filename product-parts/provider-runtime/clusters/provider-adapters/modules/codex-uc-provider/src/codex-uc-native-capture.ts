@@ -30,6 +30,7 @@ export interface CaptureCodexUcNativeRequestInput {
 }
 
 interface CaptureProfile {
+  readonly inputPrefix?: readonly Readonly<Record<string, unknown>>[];
   readonly prompt: string;
   readonly requestTemplate: Readonly<Record<string, unknown>>;
   readonly tools: readonly Readonly<Record<string, unknown>>[];
@@ -45,6 +46,7 @@ export async function captureCodexUcNativeRequest(
     instructions: profile.prompt,
     items: [{ content: input.options.probePrompt, role: "user" }],
     model,
+    nativeInputPrefix: profile.inputPrefix,
     nativeTools: profile.tools,
     reasoningEffort: input.reasoningEffort,
     requestTemplate: profile.requestTemplate,
@@ -85,6 +87,9 @@ function readCodexProfile(profileId: string): CaptureProfile {
       promptBody,
       readOptionalFile(path.join(profileDir, "custom-instructions.md"))
     ),
+    inputPrefix: readOptionalJsonArray(
+      path.join(profileDir, "input-prefix.json")
+    ),
     requestTemplate: JSON.parse(
       readFileSync(path.join(profileDir, "request-template.json"), "utf8")
     ) as Readonly<Record<string, unknown>>,
@@ -92,6 +97,22 @@ function readCodexProfile(profileId: string): CaptureProfile {
       readFileSync(path.join(profileDir, "tools.json"), "utf8")
     ) as readonly Readonly<Record<string, unknown>>[],
   };
+}
+
+function readOptionalJsonArray(
+  filePath: string
+): readonly Readonly<Record<string, unknown>>[] | undefined {
+  if (!existsSync(filePath)) {
+    return;
+  }
+  const parsed = JSON.parse(readFileSync(filePath, "utf8")) as unknown;
+  if (
+    Array.isArray(parsed) &&
+    parsed.every((item) => typeof item === "object" && item !== null)
+  ) {
+    return parsed as readonly Readonly<Record<string, unknown>>[];
+  }
+  throw new Error(`${filePath}: root value must be an array of objects.`);
 }
 
 function readOptionalFile(filePath: string): string | undefined {

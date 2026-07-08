@@ -33,6 +33,7 @@ try {
   });
   const storeFiles = [
     "profile-document-parser.ts",
+    "profile-native-request-loader.ts",
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/codex-synthetic-native-seed-prompt.ts",

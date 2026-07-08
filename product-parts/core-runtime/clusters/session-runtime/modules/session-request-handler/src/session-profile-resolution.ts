@@ -84,6 +84,7 @@ export class SessionProfileResolver implements SessionProfileResolverLike {
         profileId: payload.profileId,
         profileName: payload.profileName,
         prompt: payload.prompt,
+        ...(payload.inputPrefix ? { inputPrefix: payload.inputPrefix } : {}),
         ...(payload.requestTemplate
           ? { requestTemplate: payload.requestTemplate }
           : {}),
@@ -147,6 +148,7 @@ export function buildSessionProfilePayload(
     profileId: snapshot.profileId,
     profileName: snapshot.profileName,
     prompt: snapshot.prompt,
+    ...(snapshot.inputPrefix ? { inputPrefix: snapshot.inputPrefix } : {}),
     ...(snapshot.requestTemplate
       ? { requestTemplate: snapshot.requestTemplate }
       : {}),

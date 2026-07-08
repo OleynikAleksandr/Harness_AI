@@ -40,6 +40,7 @@ try {
   await mkdir(path.join(buildDirectory, "seed"), { recursive: true });
   for (const file of [
     "profile-document-parser.ts",
+    "profile-native-request-loader.ts",
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/codex-synthetic-native-seed-prompt.ts",
@@ -209,6 +210,8 @@ try {
     assert.doesNotMatch(codexSeed.promptBody, /Captured Codex/u);
     assert.doesNotMatch(codexSeed.promptBody, /Materialized Workspace/u);
     assert.doesNotMatch(codexSeed.promptBody, /```json/u);
+    assert.equal(codexSeed.nativeRequest.inputPrefix.length, 1);
+    assert.equal(codexSeed.nativeRequest.inputPrefix[0].role, "developer");
     assert.equal(codexSeed.nativeRequest.tools.length, 17);
     assert.equal(
       codexSeed.nativeRequest.requestTemplate.type,
@@ -235,6 +238,11 @@ try {
       codexCustomSeed.nativeRequest.customInstructions,
       /AGENTS\.md instructions for/u
     );
+    assert.equal(codexCustomSeed.nativeRequest.inputPrefix.length, 1);
+    assert.equal(
+      codexCustomSeed.nativeRequest.inputPrefix[0].role,
+      "developer"
+    );
     assert.equal(codexCustomSeed.nativeRequest.tools.length, 17);
     const codexAppServerSeed = seededScan.profiles.find(
       (profile) => profile.id === "codex-app-server-synthetic-native"
@@ -242,12 +250,12 @@ try {
     assert.equal(codexAppServerSeed.scope, "individual");
     assert.equal(codexAppServerSeed.passport.provider, "codex");
     assert.equal(existsSync(codexAppServerSeed.documents.toolingPath), false);
+    assert.equal(codexAppServerSeed.nativeRequest, undefined);
     assert.equal(
       codexAppServerSeed.documents.profileDirectory,
       path.join(seededRoot, "Codex", "codex-app-server-synthetic-native")
     );
     assert.equal(codexAppServerSeed.tooling.categories.shell, true);
-    assert.equal(codexAppServerSeed.nativeRequest, undefined);
     const codexAppServerCustomSeed = seededScan.profiles.find(
       (profile) => profile.id === "codex-app-server-synthetic-native-custom"
     );
@@ -264,6 +272,7 @@ try {
       codexAppServerCustomSeed.nativeRequest.customInstructions,
       /# Harness AI Agent Instructions/u
     );
+    assert.equal(codexAppServerCustomSeed.nativeRequest.inputPrefix, undefined);
     assert.equal(codexAppServerCustomSeed.nativeRequest.tools, undefined);
     assert.equal(
       codexAppServerCustomSeed.nativeRequest.requestTemplate,

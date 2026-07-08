@@ -26,6 +26,7 @@ export interface SessionProfileTooling {
 
 export interface SessionProfileNativeRequestBundle {
   readonly customInstructions?: string;
+  readonly inputPrefix?: readonly Readonly<Record<string, unknown>>[];
   readonly requestTemplate?: Readonly<Record<string, unknown>>;
   readonly tools?: readonly Readonly<Record<string, unknown>>[];
 }

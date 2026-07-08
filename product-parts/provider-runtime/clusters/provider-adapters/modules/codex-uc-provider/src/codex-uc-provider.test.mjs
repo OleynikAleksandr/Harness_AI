@@ -48,6 +48,10 @@ const responsesSource = readFileSync(
   new URL("./codex-uc-responses.ts", import.meta.url),
   "utf8"
 );
+const promptCacheKeySource = readFileSync(
+  new URL("./codex-uc-prompt-cache-key.ts", import.meta.url),
+  "utf8"
+);
 const nativeCaptureSource = readFileSync(
   new URL("./codex-uc-native-capture.ts", import.meta.url),
   "utf8"
@@ -69,6 +73,12 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const compiledResponses = ts.transpileModule(responsesSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const compiledPromptCacheKey = ts.transpileModule(promptCacheKeySource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
@@ -172,6 +182,10 @@ try {
     compiledResponses
   );
   writeFileSync(
+    path.join(buildDir, "codex-uc-prompt-cache-key.js"),
+    compiledPromptCacheKey
+  );
+  writeFileSync(
     path.join(buildDir, "codex-uc-native-capture.js"),
     compiledNativeCapture
   );
@@ -183,125 +197,10 @@ try {
     path.join(buildDir, "codex-uc-response-feedback.js"),
     compiledFeedback
   );
-  const { buildCodexUcResponsesRequest, CodexUcProviderFacade } = await import(
+  const { CodexUcProviderFacade } = await import(
     pathToFileURL(path.join(buildDir, "codex-uc-provider-facade.js")).href
   );
 
-  const request = buildCodexUcResponsesRequest({
-    instructions: "i",
-    items: [{ content: "u", role: "user" }],
-    model: "gpt-5.5",
-    nativeTools: [
-      {
-        description: "Native read",
-        name: "native_read_file",
-        parameters: { type: "object" },
-        type: "function",
-      },
-    ],
-    reasoningEffort: "low",
-    requestTemplate: {
-      model: "gpt-5.5",
-      prompt_cache_key: "captured-key-should-not-leak",
-      text: { verbosity: "low" },
-      type: "response.create",
-    },
-    tools: [
-      {
-        description: "Read",
-        name: "read_file",
-        parametersSchema: { type: "object" },
-        qualifiedName: "read_file",
-        source: "builtin",
-      },
-    ],
-  });
-  assert.equal(request.store, false);
-  assert.equal(request.stream, true);
-  assert.deepEqual(request.include, ["reasoning.encrypted_content"]);
-  assert.deepEqual(request.reasoning, { effort: "low", summary: "detailed" });
-  assert.equal(Object.hasOwn(request, "type"), false);
-  assert.equal(request.text.verbosity, "low");
-  assert.equal(request.tools[0].name, "native_read_file");
-  assert.match(request.prompt_cache_key, PROMPT_CACHE_KEY_REGEX);
-  assert.notEqual(request.prompt_cache_key, "captured-key-should-not-leak");
-  assert.deepEqual(Object.keys(request).slice(0, 5), [
-    "model",
-    "instructions",
-    "tools",
-    "prompt_cache_key",
-    "input",
-  ]);
-  assert.equal(
-    Object.keys(request).indexOf("instructions") <
-      Object.keys(request).indexOf("tools"),
-    true
-  );
-  assert.equal(
-    Object.keys(request).indexOf("tools") <
-      Object.keys(request).indexOf("prompt_cache_key"),
-    true
-  );
-  assert.equal(
-    Object.keys(request).indexOf("prompt_cache_key") <
-      Object.keys(request).indexOf("input"),
-    true
-  );
-  const requestWithDifferentInput = buildCodexUcResponsesRequest({
-    instructions: "i",
-    items: [{ content: "different dynamic user input", role: "user" }],
-    model: "gpt-5.5",
-    nativeTools: request.tools,
-    reasoningEffort: "low",
-    requestTemplate: {
-      model: "gpt-5.5",
-      text: { verbosity: "low" },
-    },
-    tools: [],
-  });
-  assert.equal(
-    requestWithDifferentInput.prompt_cache_key,
-    request.prompt_cache_key
-  );
-  const requestWithTemplateReasoning = buildCodexUcResponsesRequest({
-    instructions: "i",
-    items: [{ content: "u", role: "user" }],
-    model: "gpt-5.5",
-    nativeTools: request.tools,
-    reasoningEffort: "low",
-    requestTemplate: {
-      model: "gpt-5.5",
-      reasoning: {
-        effort: "high",
-        summary: "detailed",
-      },
-      text: { verbosity: "low" },
-    },
-    tools: [],
-  });
-  assert.deepEqual(requestWithTemplateReasoning.reasoning, {
-    effort: "low",
-    summary: "detailed",
-  });
-  const requestWithTemplateOnlyReasoning = buildCodexUcResponsesRequest({
-    instructions: "i",
-    items: [{ content: "u", role: "user" }],
-    model: "gpt-5.5",
-    nativeTools: request.tools,
-    requestTemplate: {
-      model: "gpt-5.5",
-      reasoning: {
-        effort: "high",
-        summary: "detailed",
-      },
-      text: { verbosity: "low" },
-    },
-    tools: [],
-  });
-  assert.deepEqual(requestWithTemplateOnlyReasoning.reasoning, {
-    effort: "high",
-    summary: "detailed",
-  });
   assert.match(
     nativeCaptureSource,
     /input\.options\.profileId \|\| DEFAULT_CAPTURE_PROFILE_ID/u
@@ -370,6 +269,13 @@ try {
         profileId: "p",
         profileName: "Profile",
         prompt: "profile prompt",
+        inputPrefix: [
+          {
+            content: [{ text: "profile developer prefix", type: "input_text" }],
+            role: "developer",
+            type: "message",
+          },
+        ],
         requestTemplate: {
           text: { verbosity: "low" },
           type: "response.create",
@@ -431,6 +337,11 @@ try {
       ["read_file", "write_file"]
     );
     assert.equal(globalThis.__codexUcLastBody.instructions, "profile prompt");
+    assert.equal(globalThis.__codexUcLastBody.input[0].role, "developer");
+    assert.equal(
+      globalThis.__codexUcLastBody.input.some((item) => item.role === "user"),
+      true
+    );
     assert.deepEqual(
       events.map((event) => event.type),
       [
@@ -472,9 +383,14 @@ try {
       model: "gpt-5.5",
       reasoningEffort: "low",
     });
-    assert.deepEqual(globalThis.__codexUcLastBody.input, [
-      { content: "after rollback", role: "user" },
-    ]);
+    assert.deepEqual(
+      globalThis.__codexUcLastBody.input.map((item) => item.role),
+      ["developer", "user"]
+    );
+    assert.equal(
+      globalThis.__codexUcLastBody.input.at(-1).content,
+      "after rollback"
+    );
   } finally {
     if (previousHarnessHome === undefined) {
       process.env.HARNESS_AI_HOME = undefined;

@@ -16,8 +16,9 @@ The module scans the profiles root, parses and validates the required profile
 documents (`profile.yaml`, `system-prompt.md`, and `tooling.yaml` for every
 profile except Codex app-server; `profile-document-parser.ts`, backed by the
 `yaml` package), plus optional native request sidecars
-(`custom-instructions.md`, `request-template.json`, `tools.json`), returns valid profiles separately from human-readable
-validation failures, and seeds the standard profile set on first access
+(`custom-instructions.md`, `input-prefix.json`, `request-template.json`,
+`tools.json`), returns valid profiles separately from human-readable validation
+failures, and seeds the standard profile set on first access
 (`src/seed/**`): four universal drafts (`plan-document`,
 `todo-plan-deterministic`, `review`, `architecture-spec`), the active Claude
 individual migration profile (`codeai-workflow-claude` from the hardcoded
@@ -28,8 +29,9 @@ CodexUC provider-scoped profiles `codex-synthetic-native` and
 `codex-synthetic-native-custom` under `Profiles/CodexUC`. The CodexUC profiles
 preserve the accepted native request capture as a native bundle: captured
 `body.instructions` in `system-prompt.md`, captured `body.tools` in
-`tools.json`, and static request fields in `request-template.json`. The
-current structured tool sidecar is synchronized from the Codex app-server
+`tools.json`, captured static developer/runtime `body.input` entries in
+`input-prefix.json`, and static request fields in `request-template.json`. The
+current structured tool and input-prefix sidecars are synchronized from the Codex app-server
 Native Request Capture
 `2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`. The Codex
 app-server profiles keep the same prompt baseline but do not store
@@ -69,7 +71,7 @@ resurrect it.
 - Resolved profiles root directory.
 - Resolved per-profile document paths (`profile.yaml`, `system-prompt.md`,
   `tooling.yaml` when profile-owned, plus optional `custom-instructions.md`,
-  `request-template.json`, `tools.json`).
+  `input-prefix.json`, `request-template.json`, `tools.json`).
 - Shared session profile type model: passport (name, description, optional
   `provider`), tooling category vocabulary v1 (`file-read`, `file-write`,
   `shell`, `web`, `git`, `tests`), profile scope (`universal` |

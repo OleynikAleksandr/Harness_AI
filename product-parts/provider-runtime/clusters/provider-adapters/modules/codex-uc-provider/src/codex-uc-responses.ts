@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
 import type { ToolDescriptor } from "../../../../../../core-runtime/clusters/universal-client/modules/client-contract/src/client-contract-facade.js";
+import { buildCodexUcPromptCacheKey } from "./codex-uc-prompt-cache-key.js";
 
 export interface ResponsesOutputItem {
   readonly arguments?: string;
@@ -42,6 +42,7 @@ export interface ResponsesUsage {
 }
 
 export type ResponsesInputItem =
+  | Readonly<Record<string, unknown>>
   | { readonly content: string; readonly role: "user" }
   | {
       readonly content: readonly {
@@ -89,6 +90,7 @@ export const buildCodexUcResponsesRequest = (input: {
   readonly instructions: string;
   readonly items: readonly ResponsesInputItem[];
   readonly model: string;
+  readonly nativeInputPrefix?: readonly Readonly<Record<string, unknown>>[];
   readonly nativeTools?: readonly Readonly<Record<string, unknown>>[];
   readonly reasoningEffort?: string | null;
   readonly requestTemplate?: Readonly<Record<string, unknown>>;
@@ -100,6 +102,7 @@ export const buildCodexUcResponsesRequest = (input: {
       ? template.model
       : input.model;
   const nativeTools = input.nativeTools ?? input.tools.map(toResponsesTool);
+  const inputItems = [...(input.nativeInputPrefix ?? []), ...input.items];
   const templateRemainder = omitCodexUcKnownTemplateFields(template);
   const templateReasoning = isRecord(template.reasoning)
     ? template.reasoning
@@ -130,6 +133,7 @@ export const buildCodexUcResponsesRequest = (input: {
     store,
     text: template.text,
     toolChoice,
+    inputPrefix: input.nativeInputPrefix ?? [],
     tools: nativeTools,
   });
   return {
@@ -137,7 +141,7 @@ export const buildCodexUcResponsesRequest = (input: {
     instructions: input.instructions,
     tools: nativeTools,
     prompt_cache_key: promptCacheKey,
-    input: input.items,
+    input: inputItems,
     tool_choice: toolChoice,
     parallel_tool_calls: parallelToolCalls,
     ...(reasoning ? { reasoning } : {}),
@@ -148,31 +152,6 @@ export const buildCodexUcResponsesRequest = (input: {
     ...templateRemainder,
   };
 };
-
-export function buildCodexUcPromptCacheKey(input: {
-  readonly include: readonly unknown[];
-  readonly instructions: string;
-  readonly model: string;
-  readonly parallelToolCalls: boolean;
-  readonly reasoning?: Readonly<Record<string, unknown>>;
-  readonly store: boolean;
-  readonly text?: unknown;
-  readonly toolChoice: unknown;
-  readonly tools: readonly Readonly<Record<string, unknown>>[];
-}): string {
-  const staticPrefix = stableJson({
-    include: input.include,
-    instructions: input.instructions,
-    model: input.model,
-    parallel_tool_calls: input.parallelToolCalls,
-    reasoning: input.reasoning ?? null,
-    store: input.store,
-    text: input.text ?? null,
-    tool_choice: input.toolChoice,
-    tools: input.tools,
-  });
-  return `pck_${createHash("sha256").update(staticPrefix).digest("hex").slice(0, 24)}`;
-}
 
 function sanitizeCodexUcRequestTemplate(
   template: Readonly<Record<string, unknown>>
@@ -203,24 +182,6 @@ function toCodexUcReasoning(
   reasoning: Readonly<Record<string, unknown>>
 ): Readonly<Record<string, unknown>> {
   return { ...reasoning, summary: "detailed" };
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(sortJsonValue(value));
-}
-
-function sortJsonValue(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map(sortJsonValue);
-  }
-  if (!isRecord(value)) {
-    return value;
-  }
-  return Object.fromEntries(
-    Object.keys(value)
-      .sort()
-      .map((key) => [key, sortJsonValue(value[key])])
-  );
 }
 
 export function parseResponsesStream(

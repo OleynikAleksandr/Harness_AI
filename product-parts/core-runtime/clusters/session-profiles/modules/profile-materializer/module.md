@@ -10,7 +10,8 @@ content hash of the applied material. For profiles that carry a native request
 bundle, the materializer does not append the Harness session wrapper; it uses
 the profile prompt as provider-facing native instructions, inserts optional
 `custom-instructions.md` text into the native prompt body, and forwards
-`request-template.json`/`tools.json` as structured payload fields. For Codex
+`input-prefix.json`, `request-template.json`, and `tools.json` as structured
+payload fields. For Codex
 native-bundle profiles this means `codex-synthetic-native-custom` keeps
 `system-prompt.md` byte-aligned with the pure native baseline and stores
 workspace/custom rules only in `custom-instructions.md`; this module inserts
@@ -39,8 +40,9 @@ is never rebuilt from live data afterwards
   `profileName`, effective `toolingCategories`, and a sha256 `contentHash`
   over the applied prompt + categories + native request bundle for snapshot
   diagnostics. Optional wrapper sections are omitted when their context values
-  are absent. Native bundle profiles may also output `requestTemplate` and
-  `tools` for adapters that can send provider-native structured request data.
+  are absent. Native bundle profiles may also output `inputPrefix`,
+  `requestTemplate`, and `tools` for adapters that can send provider-native
+  structured request data.
 
 ## Owned Paths
 

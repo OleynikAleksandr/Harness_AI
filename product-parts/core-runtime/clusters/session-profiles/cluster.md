@@ -7,9 +7,9 @@ documents on disk (universal document set per profile plus individual
 provider-scoped profiles under optional provider namespaces such as
 `Profiles/Codex/**` and `Profiles/CodexUC/**`), catalog/selection truth with
 the virtual Native profile, provider-neutral session profile payload
-materialization, optional native request sidecars (`request-template.json`, `tools.json`,
-`custom-instructions.md`), and profile authoring (templates, creation,
-validity status). Codex app-server provider-scoped profiles are prompt-only
+materialization, optional native request sidecars (`input-prefix.json`,
+`request-template.json`, `tools.json`, `custom-instructions.md`), and profile
+authoring (templates, creation, validity status). Codex app-server provider-scoped profiles are prompt-only
 profiles and do not own a `tooling.yaml` sidecar; app-server process startup
 flags and its internal registry own that tool surface.
 

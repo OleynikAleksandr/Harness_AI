@@ -8,7 +8,6 @@ import {
 import { homedir } from "node:os";
 import path from "node:path";
 import {
-  parseSessionProfileJsonDocument,
   parseSessionProfilePassport,
   parseSessionProfilePromptBody,
   parseSessionProfileTooling,
@@ -19,6 +18,7 @@ import {
   type SessionProfileScope,
   type SessionProfileTooling,
 } from "./profile-document-parser.js";
+import { loadNativeRequestBundle } from "./profile-native-request-loader.js";
 import { SEED_SESSION_PROFILES } from "./seed/seed-profiles.js";
 
 export {
@@ -33,6 +33,7 @@ export {
 export const SESSION_PROFILE_PASSPORT_FILE_NAME = "profile.yaml";
 export const SESSION_PROFILE_CUSTOM_INSTRUCTIONS_FILE_NAME =
   "custom-instructions.md";
+export const SESSION_PROFILE_INPUT_PREFIX_FILE_NAME = "input-prefix.json";
 export const SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME =
   "request-template.json";
 export const SESSION_PROFILE_PROMPT_FILE_NAME = "system-prompt.md";
@@ -48,6 +49,7 @@ const PROFILE_WATCH_DEBOUNCE_MS = 300;
 
 export interface SessionProfileDocumentPaths {
   readonly customInstructionsPath: string;
+  readonly inputPrefixPath: string;
   readonly passportPath: string;
   readonly profileDirectory: string;
   readonly promptPath: string;
@@ -91,12 +93,6 @@ interface ProfileDirectoryRef {
   readonly providerDirectory?: string;
 }
 
-interface MutableSessionProfileNativeRequestBundle {
-  customInstructions?: string;
-  requestTemplate?: Readonly<Record<string, unknown>>;
-  tools?: readonly Readonly<Record<string, unknown>>[];
-}
-
 export function resolveSessionProfilesRootDirectory(): string {
   return path.join(harnessHome(), SESSION_PROFILES_ROOT_DIRECTORY_NAME);
 }
@@ -136,6 +132,7 @@ export class ProfileStoreFacade {
       customInstructionsPath: documentPath(
         SESSION_PROFILE_CUSTOM_INSTRUCTIONS_FILE_NAME
       ),
+      inputPrefixPath: documentPath(SESSION_PROFILE_INPUT_PREFIX_FILE_NAME),
       passportPath: documentPath(SESSION_PROFILE_PASSPORT_FILE_NAME),
       profileDirectory,
       promptPath: documentPath(SESSION_PROFILE_PROMPT_FILE_NAME),
@@ -172,6 +169,13 @@ export class ProfileStoreFacade {
         await fs.writeFile(
           documents.customInstructionsPath,
           seed.customInstructions,
+          "utf8"
+        );
+      }
+      if (seed.inputPrefixJson !== undefined) {
+        await fs.writeFile(
+          documents.inputPrefixPath,
+          seed.inputPrefixJson,
           "utf8"
         );
       }
@@ -238,7 +242,7 @@ export class ProfileStoreFacade {
       passportResult.passport,
       issues
     );
-    const nativeRequest = await this.loadNativeRequestBundle(documents, issues);
+    const nativeRequest = await loadNativeRequestBundle(documents, issues);
     if (issues.length > 0) {
       return { failure: { documents, id: profileId, issues }, ok: false };
     }
@@ -362,54 +366,6 @@ export class ProfileStoreFacade {
     return refs.find((ref) => ref.id === profileId);
   }
 
-  private async loadNativeRequestBundle(
-    documents: SessionProfileDocumentPaths,
-    issues: string[]
-  ): Promise<SessionProfileNativeRequestBundle | undefined> {
-    const [customInstructions, requestTemplateText, toolsText] =
-      await Promise.all([
-        readOptionalDocument(documents.customInstructionsPath),
-        readOptionalDocument(documents.requestTemplatePath),
-        readOptionalDocument(documents.toolsPath),
-      ]);
-    const bundle: MutableSessionProfileNativeRequestBundle = {};
-    if (customInstructions?.trim()) {
-      bundle.customInstructions = customInstructions;
-    }
-    if (requestTemplateText !== undefined) {
-      const parsed = parseSessionProfileJsonDocument(
-        requestTemplateText,
-        SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME
-      );
-      issues.push(...parsed.issues);
-      if (isPlainRecord(parsed.value)) {
-        bundle.requestTemplate = parsed.value;
-      } else if (parsed.value !== undefined) {
-        issues.push(
-          `${SESSION_PROFILE_REQUEST_TEMPLATE_FILE_NAME}: root value must be an object.`
-        );
-      }
-    }
-    if (toolsText !== undefined) {
-      const parsed = parseSessionProfileJsonDocument(
-        toolsText,
-        SESSION_PROFILE_TOOLS_FILE_NAME
-      );
-      issues.push(...parsed.issues);
-      if (
-        Array.isArray(parsed.value) &&
-        parsed.value.every((item) => isPlainRecord(item))
-      ) {
-        bundle.tools = parsed.value;
-      } else if (parsed.value !== undefined) {
-        issues.push(
-          `${SESSION_PROFILE_TOOLS_FILE_NAME}: root value must be an array of objects.`
-        );
-      }
-    }
-    return Object.keys(bundle).length > 0 ? bundle : undefined;
-  }
-
   private async loadProfileTooling(
     documents: SessionProfileDocumentPaths,
     passport: SessionProfilePassport,
@@ -442,16 +398,6 @@ async function readDocument(
   }
 }
 
-async function readOptionalDocument(
-  filePath: string
-): Promise<string | undefined> {
-  try {
-    return await fs.readFile(filePath, "utf8");
-  } catch {
-    return;
-  }
-}
-
 async function safeReadDirectory(directoryPath: string): Promise<Dirent[]> {
   try {
     return await fs.readdir(directoryPath, { withFileTypes: true });
@@ -478,10 +424,6 @@ function buildDefaultSessionProfileTooling(): SessionProfileTooling {
     categories[category] = true;
   }
   return { categories };
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function harnessHome(): string {

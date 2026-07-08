@@ -23,6 +23,7 @@ const { ProfileMaterializerFacade } = await import(
 const profile = {
   documents: {
     customInstructionsPath: "/tmp/p/custom-instructions.md",
+    inputPrefixPath: "/tmp/p/input-prefix.json",
     passportPath: "/tmp/p/profile.yaml",
     profileDirectory: "/tmp/p",
     promptPath: "/tmp/p/system-prompt.md",
@@ -111,6 +112,13 @@ const nativeProfile = {
       reasoning: { summary: "detailed" },
       type: "response.create",
     },
+    inputPrefix: [
+      {
+        content: [{ text: "Developer prefix.", type: "input_text" }],
+        role: "developer",
+        type: "message",
+      },
+    ],
     tools: [
       {
         description: "Read a file.",
@@ -135,6 +143,8 @@ const nativePayload = materializer.materialize(nativeProfile, {
 });
 
 assert.equal(nativePayload.profileId, "codex-synthetic-native-custom");
+assert.equal(nativePayload.inputPrefix.length, 1);
+assert.equal(nativePayload.inputPrefix[0].role, "developer");
 assert.equal(nativePayload.requestTemplate.type, "response.create");
 assert.equal(nativePayload.tools.length, 1);
 assert.equal(nativePayload.tools[0].name, "read_file");

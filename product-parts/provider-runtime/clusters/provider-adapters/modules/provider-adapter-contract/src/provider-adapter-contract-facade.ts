@@ -12,6 +12,7 @@ export interface ProviderTurnOptions {
  */
 export interface SessionProfilePayload {
   readonly contentHash: string;
+  readonly inputPrefix?: readonly Readonly<Record<string, unknown>>[];
   readonly profileId: string;
   readonly profileName: string;
   readonly prompt: string;

@@ -37,7 +37,7 @@ assert.equal(
   ),
   [
     'model = "gpt-5.5"',
-    'model_reasoning_summary = "none"',
+    'model_reasoning_summary = "detailed"',
     "[features]",
     "apps = true",
     "[hooks.state.example]",
@@ -72,7 +72,7 @@ assert.equal(
   ),
   [
     'model_reasoning_effort = "xhigh"',
-    'model_reasoning_summary = "none"',
+    'model_reasoning_summary = "detailed"',
     "",
   ].join("\n")
 );

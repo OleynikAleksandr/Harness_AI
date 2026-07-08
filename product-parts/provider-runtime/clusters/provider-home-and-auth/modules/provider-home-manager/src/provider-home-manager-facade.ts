@@ -33,7 +33,7 @@ const AUTH_FILENAME = "auth.json";
 const CONFIG_FILENAME = "config.toml";
 const LEGACY_CODEX_HOME = path.join(homedir(), ".codex");
 const LEGACY_SUMMARY_LINE_RE = /^\s*default_reasoning_summary\s*=\s*.+?$/gmu;
-const SUMMARY_LINE = 'model_reasoning_summary = "none"';
+const SUMMARY_LINE = 'model_reasoning_summary = "detailed"';
 const SUMMARY_LINE_RE = /^\s*model_reasoning_summary\s*=\s*.+?$/gmu;
 const REASONING_EFFORT_LINE_RE = /^\s*model_reasoning_effort\s*=\s*.+$/mu;
 const TOML_TABLE_RE = /^\s*\[/mu;

@@ -481,6 +481,27 @@ Tool bundles должны быть role-specific и benchmarkable.
 Для universal client providers bundle должен компилироваться в точный tool
 registry selection.
 
+### 7.2 Phase / completion contract
+
+Provider benchmark не считается объективным, если канал может завершить turn
+обычным progress text. Для каждого direct/custom provider adapter должен быть
+явно описан и протестирован phase contract:
+
+- provider progress/status text отображается как `commentary`;
+- provider reasoning/thinking отображается как `thinking`;
+- terminal assistant answer появляется только после явного completion signal;
+- отсутствие tool call и отсутствие completion signal не закрывает turn, а
+  возвращает adapter в продолжение agent loop или в честный blocked state.
+
+Native Codex app-server даёт такой сигнал как `agentMessage.phase`
+(`commentary` / `final_answer`). CodexUC не получает native phase marker из
+direct Responses route, поэтому его adapter добавляет provider-owned
+`final_answer` tool и continuation developer item. Это не compiler/profile
+artifact: compiler задаёт prompt и tool surface, а provider adapter отвечает
+за wire-level semantics завершения. Для остальных custom providers нужно
+создавать аналогичный adapter-level mechanism, а не полагаться на текст модели
+или общий universal-client heuristic.
+
 ## 8. Провайдерские потолки
 
 ### Claude

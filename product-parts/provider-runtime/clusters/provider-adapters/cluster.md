@@ -34,3 +34,15 @@ usage-limit reader, and provider-native request-template/tool payload details.
 They do not read session profile files directly; Core passes immutable applied
 profile payloads, including optional native request sidecars, through the
 shared contract.
+
+Adapters also own provider-specific phase and turn-completion semantics. The
+shared client/runtime layer must not infer that a turn is complete merely
+because a provider streamed assistant text. Each adapter translates its
+upstream protocol into Core-visible events: progress text becomes
+`commentary`, reasoning becomes `thinking`, and only the provider's explicit
+terminal signal becomes the final assistant message. Native Codex app-server
+already supplies this as `agentMessage.phase`; direct/custom providers that do
+not have an equivalent upstream phase must add their own adapter-level
+sentinel or continuation protocol. CodexUC is the accepted example: the
+adapter adds a route-owned `final_answer` tool and treats plain Responses
+`output_text` as non-terminal commentary.

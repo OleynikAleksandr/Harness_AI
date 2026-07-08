@@ -29,7 +29,13 @@ emitted to Core as a `commentary` dialog message and never completes the turn.
 Only `final_answer` produces the terminal assistant answer; if a Responses call
 returns no executable tool call and no `final_answer`, the adapter appends a
 developer continuation item and keeps the loop alive. The current compatibility
-layer intentionally supports the accepted
+layer lives in this provider adapter, not in the profile sidecars and not in
+the shared universal-client loop. That boundary is intentional: Codex
+app-server receives native `agentMessage.phase`, while CodexUC's direct
+Responses route does not, so the CodexUC adapter must synthesize equivalent
+phase semantics for Core. Future direct/custom providers need the same
+adapter-owned mapping before they can be treated as full agents. The route
+intentionally supports the accepted
 2026-07-08 native tool version rather than chasing every future Codex tool
 schema change automatically; new native tool shapes are integrated only after
 we decide they are useful for Harness. The profile sidecar can remain an exact
@@ -101,6 +107,10 @@ static profile was used.
 ## Outputs
 
 - Normalized provider events for Core session display.
+  Packaged retest on 2026-07-08 confirmed the expected phase mapping:
+  intermediate assistant text is persisted with `tag: "commentary"`, thinking
+  text with `role: "thinking"`, and the terminal assistant answer has no
+  commentary tag and is emitted only after `final_answer`.
 - Function tool execution through the Harness universal-client tool registry.
   Responses `function_call` items execute with their JSON `arguments` as
   before. Responses `custom_tool_call` items execute through the same registry

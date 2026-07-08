@@ -135,6 +135,15 @@ synthetic-native. Номера строк актуальны на дату ис�
   commentary и не вернул executable tool call, adapter добавляет developer
   continuation item и продолжает loop. `final_answer` никогда не исполняется
   через локальный registry; его `answer` становится terminal assistant output.
+  Это adapter-level compatibility layer, а не часть synthetic-native profile и
+  не общий universal-client behavior. Профиль отвечает за static prompt/tool
+  surface, а provider adapter отвечает за protocol semantics: как отличить
+  progress/commentary от terminal answer и когда переводить turn в idle.
+  Packaged retest 2026-07-08 подтвердил схему на реальной benchmark-сессии:
+  все промежуточные assistant messages имели `tag: "commentary"`, финальное
+  сообщение пришло без commentary tag только после backend request с
+  `final_answer` в tool surface, а token/cache profile стал сопоставим с
+  Codex app-server.
   При HTTP-сериализации
   CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
   `prompt_cache_key`, `input`, затем остальные request options. Профильные

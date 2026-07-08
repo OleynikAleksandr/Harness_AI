@@ -407,6 +407,18 @@ snake_case):
   route стримит Responses events (`response.output_item.done`,
   `function_call_output`, `usage.input_tokens_details.cached_tokens`) и требует
   `store:false`.
+- **Provider adapter phase contract** является частью Provider Runtime, а не
+  универсального agent loop. Общий клиент не должен считать любой streamed
+  assistant text финальным ответом. Endpoint adapter обязан привести
+  provider-specific stream к Core events: progress text -> `commentary`,
+  reasoning -> `thinking`, explicit completion signal -> terminal assistant
+  output. Если upstream не даёт native phase marker, adapter добавляет свой
+  sentinel/continuation protocol. CodexUC зафиксировал этот паттерн через
+  route-owned `final_answer`: ordinary Responses `output_text` не завершает
+  turn, а final answer появляется только после explicit tool signal. Для Kimi,
+  GLM, OpenRouter, Local Models и будущих custom providers нужно делать такой
+  же adapter-level contract с учетом их wire protocol, а не переносить
+  CodexUC-specific `final_answer` в общее ядро.
 - **Application Shell** только отображает Core-события и передаёт ввод
   пользователя; не выводит provider truth и не исполняет инструменты.
 

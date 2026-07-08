@@ -303,6 +303,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   loop: streamed `response.custom_tool_call_input.*`, native `custom_tool_call`
   normalization, freeform `apply_patch` executor arguments, and the package path
   for user retest.
+- `docs/evidence/codex-uc-phase-protocol-retest-2026-07-08.md` —
+  packaged-app retest evidence for the CodexUC adapter-owned phase protocol:
+  intermediate assistant output persisted as `commentary`, final output emitted
+  only through the `final_answer` sentinel, and token/cache parity with Codex
+  app-server benchmark behavior.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

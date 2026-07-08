@@ -34,6 +34,11 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
   adapters.
 - Provider-visible reasoning/thinking events emitted by provider-owned runtime
   modules rather than shared wrapper parsers.
+- Provider-owned phase semantics normalized before Core sees them: adapters
+  emit progress/status assistant text as non-terminal `commentary`, reasoning
+  as `thinking`, and only an explicit provider/adapter completion signal as
+  the terminal assistant answer. The shared contract does not let Core infer
+  turn completion from arbitrary assistant text.
 - Usage-limit refresh boundary only; provider-specific usage-limit readers live
   inside their provider modules.
 - Optional `rollbackSessionTurns(providerSessionId, numTurns)` boundary for

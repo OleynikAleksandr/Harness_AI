@@ -28,7 +28,10 @@ CodexUC provider-scoped profiles `codex-synthetic-native` and
 `codex-synthetic-native-custom` under `Profiles/CodexUC`. The CodexUC profiles
 preserve the accepted native request capture as a native bundle: captured
 `body.instructions` in `system-prompt.md`, captured `body.tools` in
-`tools.json`, and static request fields in `request-template.json`. The Codex
+`tools.json`, and static request fields in `request-template.json`. The
+current structured tool sidecar is synchronized from the Codex app-server
+Native Request Capture
+`2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`. The Codex
 app-server profiles keep the same prompt baseline but do not store
 `request-template.json` or `tools.json`, because app-server owns the structured
 tool surface outside the profile. Custom variants add only

@@ -103,7 +103,11 @@ synthetic-native. Номера строк актуальны на дату ис�
   передаёт эти captured native fields как структурный Responses payload,
   сохраняя exact sidecar на диске, но отбрасывая transport-only поля, которые
   текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
-  tool surface формируется Harness function tools. При HTTP-сериализации
+  tool surface формируется Harness function tools. Для
+  `codex-synthetic-native` и custom-варианта structured `tools.json`
+  синхронизирован с Codex app-server Native Request Capture
+  `2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`
+  (`request.body.tools`, 17 entries). При HTTP-сериализации
   CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
   `prompt_cache_key`, `input`, затем остальные request options. Профильные
   файлы не хранят `prompt_cache_key`: adapter вычисляет его на каждый request

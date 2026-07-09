@@ -7,12 +7,6 @@ import {
   CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
   CODEX_SYNTHETIC_NATIVE_TOOLS_JSON,
 } from "./codex-synthetic-native-seed-prompt.js";
-import {
-  ARCHITECTURE_SPEC_SEED_PROMPT,
-  PLAN_DOCUMENT_SEED_PROMPT,
-  REVIEW_SEED_PROMPT,
-  TODO_PLAN_DETERMINISTIC_SEED_PROMPT,
-} from "./universal-seed-prompts.js";
 
 export interface SeedSessionProfile {
   readonly customInstructions?: string;
@@ -42,65 +36,6 @@ interface SeedDefinition {
 }
 
 const SEED_DEFINITIONS: readonly SeedDefinition[] = [
-  {
-    categories: {
-      "file-read": true,
-      "file-write": true,
-      git: false,
-      shell: false,
-      tests: false,
-      web: true,
-    },
-    description: "Build a structured planning document for a feature or scope.",
-    id: "plan-document",
-    name: "Plan Document",
-    promptBody: PLAN_DOCUMENT_SEED_PROMPT,
-  },
-  {
-    categories: {
-      "file-read": true,
-      "file-write": true,
-      git: false,
-      shell: false,
-      tests: false,
-      web: false,
-    },
-    description:
-      "Produce a deterministic machine-manageable todo plan for an agreed scope.",
-    id: "todo-plan-deterministic",
-    name: "Deterministic Todo Plan",
-    promptBody: TODO_PLAN_DETERMINISTIC_SEED_PROMPT,
-  },
-  {
-    categories: {
-      "file-read": true,
-      "file-write": false,
-      git: true,
-      shell: true,
-      tests: true,
-      web: true,
-    },
-    description:
-      "Review a change set or code area and report verified findings.",
-    id: "review",
-    name: "Review",
-    promptBody: REVIEW_SEED_PROMPT,
-  },
-  {
-    categories: {
-      "file-read": true,
-      "file-write": true,
-      git: false,
-      shell: false,
-      tests: false,
-      web: false,
-    },
-    description:
-      "Write or update product part, cluster, or module specifications.",
-    id: "architecture-spec",
-    name: "Architecture Spec",
-    promptBody: ARCHITECTURE_SPEC_SEED_PROMPT,
-  },
   {
     categories: {
       "file-read": true,

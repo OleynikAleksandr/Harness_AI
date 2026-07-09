@@ -44,7 +44,6 @@ try {
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/codex-synthetic-native-seed-prompt.ts",
-    "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
   ]) {
     await writeFile(
@@ -175,15 +174,11 @@ try {
     assert.deepEqual(
       seededScan.profiles.map((profile) => profile.id),
       [
-        "architecture-spec",
         "codeai-workflow-claude",
         "codex-app-server-synthetic-native",
         "codex-app-server-synthetic-native-custom",
         "codex-synthetic-native",
         "codex-synthetic-native-custom",
-        "plan-document",
-        "review",
-        "todo-plan-deterministic",
       ]
     );
     const claudeSeed = seededScan.profiles.find(
@@ -278,31 +273,28 @@ try {
       codexAppServerCustomSeed.nativeRequest.requestTemplate,
       undefined
     );
-    const reviewSeed = seededScan.profiles.find(
-      (profile) => profile.id === "review"
-    );
-    assert.equal(reviewSeed.scope, "universal");
-    assert.equal(reviewSeed.tooling.categories["file-write"], false);
-    assert.equal(reviewSeed.tooling.categories.tests, true);
-
     // Re-seeding never overwrites user files and does not resurrect deletions.
     await writeFile(
-      path.join(seededRoot, "review", "system-prompt.md"),
+      path.join(seededRoot, "codeai-workflow-claude", "system-prompt.md"),
       "User edited.\n",
       "utf8"
     );
-    await rm(path.join(seededRoot, "plan-document"), {
+    await rm(path.join(seededRoot, "CodexUC", "codex-synthetic-native"), {
       force: true,
       recursive: true,
     });
     assert.equal(await seededStore.ensureSeededProfiles(), false);
     const rescanned = await seededStore.listProfiles();
     assert.equal(
-      rescanned.profiles.find((profile) => profile.id === "review").promptBody,
+      rescanned.profiles.find(
+        (profile) => profile.id === "codeai-workflow-claude"
+      ).promptBody,
       "User edited.\n"
     );
     assert.equal(
-      rescanned.profiles.some((profile) => profile.id === "plan-document"),
+      rescanned.profiles.some(
+        (profile) => profile.id === "codex-synthetic-native"
+      ),
       false
     );
   } finally {

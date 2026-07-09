@@ -37,7 +37,6 @@ try {
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/codex-synthetic-native-seed-prompt.ts",
-    "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
   ];
   for (const file of storeFiles) {
@@ -89,14 +88,25 @@ try {
   });
   const authoring = new ProfileAuthoringFacade({ profileStore });
 
-  // Universal profile from templates is valid by construction.
-  const created = await authoring.createProfile({ name: "My Deep Review" });
+  const missingProvider = await authoring.createProfile({
+    name: "My Deep Review",
+    provider: "",
+  });
+  assert.equal(missingProvider.ok, false);
+  assert.match(missingProvider.error, /provider/u);
+
+  // Provider-scoped profile from templates is valid by construction.
+  const created = await authoring.createProfile({
+    name: "My Deep Review",
+    provider: "claude",
+  });
   assert.equal(created.ok, true);
   assert.equal(created.id, "my-deep-review");
   const loaded = await profileStore.loadProfile("my-deep-review");
   assert.equal(loaded.ok, true);
-  assert.equal(loaded.profile.scope, "universal");
+  assert.equal(loaded.profile.scope, "individual");
   assert.equal(loaded.profile.passport.name, "My Deep Review");
+  assert.equal(loaded.profile.passport.provider, "claude");
   assert.equal(loaded.profile.tooling.categories.shell, true);
   assert.match(loaded.profile.promptBody, /action categories/u);
 
@@ -112,12 +122,21 @@ try {
   assert.equal(individualLoaded.profile.passport.provider, "codex");
 
   // Duplicate ids and empty/underivable names are structured errors.
-  const duplicate = await authoring.createProfile({ name: "My  Deep Review" });
+  const duplicate = await authoring.createProfile({
+    name: "My  Deep Review",
+    provider: "claude",
+  });
   assert.equal(duplicate.ok, false);
   assert.match(duplicate.error, /already exists/u);
-  const empty = await authoring.createProfile({ name: "   " });
+  const empty = await authoring.createProfile({
+    name: "   ",
+    provider: "claude",
+  });
   assert.equal(empty.ok, false);
-  const underivable = await authoring.createProfile({ name: "***" });
+  const underivable = await authoring.createProfile({
+    name: "***",
+    provider: "claude",
+  });
   assert.equal(underivable.ok, false);
 
   // Unicode names derive usable directory ids.

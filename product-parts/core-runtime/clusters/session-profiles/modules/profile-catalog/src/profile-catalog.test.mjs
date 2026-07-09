@@ -37,7 +37,6 @@ try {
     "profile-store-facade.ts",
     "seed/codeai-workflow-seed-prompts.ts",
     "seed/codex-synthetic-native-seed-prompt.ts",
-    "seed/universal-seed-prompts.ts",
     "seed/seed-profiles.ts",
   ];
   for (const file of storeFiles) {
@@ -89,19 +88,37 @@ try {
   });
   const catalog = new ProfileCatalogFacade({ profileStore });
 
-  // Listing seeds on first access and puts Native first.
+  await profileStore.ensureSeededProfiles();
+  await mkdir(path.join(profilesRoot, "review"), { recursive: true });
+  await writeFile(
+    path.join(profilesRoot, "review", "profile.yaml"),
+    "name: Review\ndescription: Legacy universal review profile.\n",
+    "utf8"
+  );
+  await writeFile(
+    path.join(profilesRoot, "review", "system-prompt.md"),
+    "Review the change set.\n",
+    "utf8"
+  );
+  await writeFile(
+    path.join(profilesRoot, "review", "tooling.yaml"),
+    "categories:\n  file-read: on\n  shell: on\n",
+    "utf8"
+  );
+
+  // Listing puts Native first and filters out legacy universal profiles.
   const claudeEntries = await catalog.listProfilesForProvider("claude");
   assert.equal(claudeEntries[0].id, NATIVE_SESSION_PROFILE_ID);
   assert.equal(claudeEntries[0].kind, "native");
   const claudeIds = claudeEntries.map((entry) => entry.id);
-  assert.ok(claudeIds.includes("review"));
+  assert.ok(!claudeIds.includes("review"));
   assert.ok(claudeIds.includes("codeai-workflow-claude"));
   assert.ok(!claudeIds.includes("codeai-workflow-kimi"));
   assert.ok(!claudeIds.includes("codeai-workflow-glm-native"));
 
   const codexEntries = await catalog.listProfilesForProvider("codex");
   const codexIds = codexEntries.map((entry) => entry.id);
-  assert.ok(codexIds.includes("review"));
+  assert.ok(!codexIds.includes("review"));
   assert.ok(codexIds.includes("codex-app-server-synthetic-native"));
   assert.ok(codexIds.includes("codex-app-server-synthetic-native-custom"));
   assert.ok(!codexIds.includes("codex-synthetic-native"));
@@ -109,14 +126,13 @@ try {
 
   const codexUcEntries = await catalog.listProfilesForProvider("codex-uc");
   const codexUcIds = codexUcEntries.map((entry) => entry.id);
-  assert.ok(codexUcIds.includes("review"));
+  assert.ok(!codexUcIds.includes("review"));
   assert.ok(codexUcIds.includes("codex-synthetic-native"));
   assert.ok(codexUcIds.includes("codex-synthetic-native-custom"));
   assert.ok(!codexUcIds.includes("codex-app-server-synthetic-native"));
   assert.ok(!codexUcIds.includes("codeai-workflow-claude"));
 
-  // Universal-client providers only get Native until Phase 5 wires their
-  // synthetic-native wrapper/profile application layer.
+  // Providers with no matching provider-scoped profiles still get Native.
   const openrouterEntries =
     await catalog.listProfilesForProvider("openrouter-client");
   assert.deepEqual(
@@ -150,14 +166,21 @@ try {
   });
   assert.deepEqual(explicitNative, { kind: "native", ok: true });
 
-  // Managed resolution returns the loaded profile.
+  // Provider-scoped managed resolution returns the loaded profile.
   const managed = await catalog.resolveForSession({
-    profileId: "review",
+    profileId: "codex-app-server-synthetic-native",
     providerId: "codex",
   });
   assert.equal(managed.ok, true);
   assert.equal(managed.kind, "managed");
-  assert.equal(managed.profile.id, "review");
+  assert.equal(managed.profile.id, "codex-app-server-synthetic-native");
+
+  const legacyUniversal = await catalog.resolveForSession({
+    profileId: "review",
+    providerId: "codex",
+  });
+  assert.equal(legacyUniversal.ok, false);
+  assert.match(legacyUniversal.error, /legacy universal/u);
 
   // Selected but broken/inapplicable/missing profiles are structured errors.
   const brokenResolution = await catalog.resolveForSession({
@@ -195,7 +218,7 @@ try {
     providerId: "kimi-client",
   });
   assert.equal(kimiManaged.ok, false);
-  assert.match(kimiManaged.error, /does not support managed session profiles/u);
+  assert.match(kimiManaged.error, /legacy universal/u);
 
   const missing = await catalog.resolveForSession({
     profileId: "does-not-exist",
@@ -205,8 +228,8 @@ try {
   assert.match(missing.error, /cannot be applied/u);
 
   const unsupported = await catalog.resolveForSession({
-    profileId: "review",
-    providerId: "openrouter-client",
+    profileId: "codeai-workflow-claude",
+    providerId: "retired-provider",
   });
   assert.equal(unsupported.ok, false);
   assert.match(unsupported.error, /does not support managed session profiles/u);

@@ -3,8 +3,6 @@ import { PROFILE_SUPPORTED_PROVIDER_IDS } from "../../../../../../core-runtime/c
 import type { SessionProfileDocumentPaths } from "../../../../../../core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
-type ProfileTypeChoice = "individual" | "universal";
-
 export function ProfileCreateFlow({
   onCreated,
 }: {
@@ -12,8 +10,6 @@ export function ProfileCreateFlow({
 }) {
   const { t } = useBrowserLocalization();
   const [open, setOpen] = useState(false);
-  const [profileType, setProfileType] =
-    useState<ProfileTypeChoice>("universal");
   const [providerId, setProviderId] = useState<string>(
     PROFILE_SUPPORTED_PROVIDER_IDS[0]
   );
@@ -49,7 +45,6 @@ export function ProfileCreateFlow({
 
   const reset = () => {
     setOpen(false);
-    setProfileType("universal");
     setProviderId(PROFILE_SUPPORTED_PROVIDER_IDS[0]);
     setName("");
   };
@@ -64,7 +59,7 @@ export function ProfileCreateFlow({
     try {
       const result = await window.harnessCore.createSessionProfile({
         name,
-        ...(profileType === "individual" ? { provider: providerId } : {}),
+        provider: providerId,
       });
       if (!result.ok) {
         setStatus(result.error);
@@ -99,58 +94,22 @@ export function ProfileCreateFlow({
       {open ? (
         <>
           <div className="settings-grid two">
-            <label className="settings-field" htmlFor="profile-create-type">
+            <label className="settings-field" htmlFor="profile-create-provider">
               <span>
-                {t("ui_labels", "settings.profileCreator.type", "Profile type")}
+                {t("ui_labels", "settings.profileCreator.provider", "Provider")}
               </span>
               <select
-                id="profile-create-type"
-                onChange={(event) =>
-                  setProfileType(event.target.value as ProfileTypeChoice)
-                }
-                value={profileType}
+                id="profile-create-provider"
+                onChange={(event) => setProviderId(event.target.value)}
+                value={providerId}
               >
-                <option value="universal">
-                  {t(
-                    "ui_labels",
-                    "settings.profileCreator.type.universal",
-                    "Universal (all supported providers)"
-                  )}
-                </option>
-                <option value="individual">
-                  {t(
-                    "ui_labels",
-                    "settings.profileCreator.type.individual",
-                    "Individual (one provider)"
-                  )}
-                </option>
+                {PROFILE_SUPPORTED_PROVIDER_IDS.map((id) => (
+                  <option key={id} value={id}>
+                    {providerNames[id] ?? id}
+                  </option>
+                ))}
               </select>
             </label>
-            {profileType === "individual" ? (
-              <label
-                className="settings-field"
-                htmlFor="profile-create-provider"
-              >
-                <span>
-                  {t(
-                    "ui_labels",
-                    "settings.profileCreator.provider",
-                    "Provider"
-                  )}
-                </span>
-                <select
-                  id="profile-create-provider"
-                  onChange={(event) => setProviderId(event.target.value)}
-                  value={providerId}
-                >
-                  {PROFILE_SUPPORTED_PROVIDER_IDS.map((id) => (
-                    <option key={id} value={id}>
-                      {providerNames[id] ?? id}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
           </div>
           <label className="settings-field" htmlFor="profile-create-name">
             <span>

@@ -33,7 +33,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 - `provider-settings-ui`: provider cards, auth/model/reasoning controls submitted through Core contracts.
 - `localization-settings-ui`: UI language and reasoning translation controls submitted through Core contracts.
 - `recovery-controls-ui`: Core restart/recovery action surface backed by a real Core process stop/start lifecycle.
-- `profile-settings-ui`: Profile Creator settings tab for session profile management.
+- `profile-settings-ui`: Profile Creator settings tab for provider-scoped session profile management.
 
 ### Browser Localization
 
@@ -62,7 +62,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 ### Session Profiles
 
-- `profile-store`: user-editable session profile documents on disk — Profiles root resolution, document layout, and the shared profile type model.
+- `profile-store`: user-editable session profile documents on disk — Profiles root resolution, document layout, provider-scoped first-access seeds, and the shared profile type model.
 - `profile-catalog`: profile selection truth — catalog read models, virtual Native profile, per-provider applicability, and session-creation resolution with structured errors.
 - `profile-materializer`: provider-neutral session profile payload — applied prompt with the system wrapper, effective tooling categories, and applied-content hash.
 - `profile-authoring`: profile creation and editing truth — document templates, create-profile operation with derived ids, and editor path resolution.

@@ -6,17 +6,18 @@ import type {
 export const NATIVE_SESSION_PROFILE_ID = "native";
 
 /**
- * Providers whose adapters apply managed session profiles in the MVP scope.
- * Codex and CodexUC use separate individual profile namespaces because their
- * provider-facing tool/request payload contracts are different. The remaining
- * universal-client endpoints stay Native-only until Phase 5 adds their
- * synthetic-native wrapper/profile application layer. Retired ids such as kimi
- * and glm-native are intentionally absent.
+ * Providers whose adapters are active in Core and can receive provider-scoped
+ * managed session profiles. Retired ids such as kimi and glm-native are
+ * intentionally absent.
  */
 export const PROFILE_SUPPORTED_PROVIDER_IDS = [
   "claude",
   "codex",
   "codex-uc",
+  "kimi-client",
+  "glm-client",
+  "openrouter-client",
+  "local-models-client",
 ] as const;
 
 export type SessionProfileCatalogEntryKind =
@@ -86,7 +87,6 @@ export class ProfileCatalogFacade {
     return all.filter(
       (entry) =>
         entry.kind === "native" ||
-        entry.kind === "universal" ||
         isProviderProfileApplicable(providerId, entry.provider)
     );
   }
@@ -122,8 +122,13 @@ export class ProfileCatalogFacade {
       };
     }
     const profile = result.profile;
+    if (profile.scope !== "individual") {
+      return {
+        error: `Session profile "${profileId}" is a legacy universal profile and cannot be applied to provider "${request.providerId}". Create a provider-scoped profile instead.`,
+        ok: false,
+      };
+    }
     if (
-      profile.scope === "individual" &&
       !isProviderProfileApplicable(
         request.providerId,
         profile.passport.provider
@@ -176,7 +181,7 @@ function toInvalidCatalogEntry(failure: {
     description: "",
     id: failure.id,
     issues: failure.issues,
-    kind: "universal",
+    kind: "individual",
     name: failure.id,
     valid: false,
   };

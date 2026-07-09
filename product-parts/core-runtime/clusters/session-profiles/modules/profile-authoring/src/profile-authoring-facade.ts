@@ -6,7 +6,7 @@ import type {
 
 export interface CreateSessionProfileRequest {
   readonly name: string;
-  readonly provider?: string;
+  readonly provider: string;
 }
 
 export type CreateSessionProfileResult =
@@ -44,6 +44,9 @@ export class ProfileAuthoringFacade {
       return { error: "Profile name must not be empty.", ok: false };
     }
     const provider = request.provider?.trim();
+    if (!provider) {
+      return { error: "Profile provider must not be empty.", ok: false };
+    }
     const id = deriveProfileId(name);
     if (!id) {
       return {
@@ -82,18 +85,14 @@ export function deriveProfileId(name: string): string {
     .replace(ID_TRIM_PATTERN, "");
 }
 
-function buildPassportTemplate(name: string, provider?: string): string {
+function buildPassportTemplate(name: string, provider: string): string {
   const lines = [
     "# Session profile passport. Shown in the profile picker.",
     `name: ${name}`,
     'description: ""',
+    "# Provider-scoped profile: offered only to this provider.",
+    `provider: ${provider}`,
   ];
-  if (provider) {
-    lines.push(
-      "# Individual profile: offered only to this provider.",
-      `provider: ${provider}`
-    );
-  }
   return `${lines.join("\n")}\n`;
 }
 

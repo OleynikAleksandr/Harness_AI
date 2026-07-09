@@ -61,7 +61,7 @@ interface Window {
         }
       | { error: string; ok: false }
     >;
-    createSessionProfile(request: { name: string; provider?: string }): Promise<
+    createSessionProfile(request: { name: string; provider: string }): Promise<
       | {
           documents: import("../../../../../../core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.js").SessionProfileDocumentPaths;
           id: string;

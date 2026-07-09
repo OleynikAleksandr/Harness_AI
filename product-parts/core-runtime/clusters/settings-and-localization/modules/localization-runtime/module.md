@@ -92,10 +92,10 @@ materialization, bootstrap payload reuse, and bundle state.
   be localized.
 - Profile Creator settings copy (`settings.tab.profileCreator` and the
   `settings.profileCreator.*` ids used by the `profile-settings-ui` module:
-  tab label, intro card, New Profile form labels/placeholder, profiles list
-  kind/applicability/validity labels and status messages) is part of the
-  approved `ui_labels`, `ui_helper_text` and `messages_for_the_user`
-  dictionaries.
+  tab label, intro card, provider-scoped New Profile form labels/placeholder,
+  profiles list kind/applicability/validity labels, legacy universal read-only
+  copy, and status messages) is part of the approved `ui_labels`,
+  `ui_helper_text` and `messages_for_the_user` dictionaries.
 - Glossary preserve/preferred-translation rules.
 - User-managed do-not-translate terms.
 - Translation facade for materializing non-English UI bundles.

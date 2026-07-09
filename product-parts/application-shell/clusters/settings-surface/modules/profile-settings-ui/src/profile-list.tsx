@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import type { SessionProfileCatalogEntry } from "../../../../../../core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.js";
-import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import {
+  type BrowserLocalizationLookup,
+  useBrowserLocalization,
+} from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
 /** Passport and tooling first; the prompt lands as the active editor tab. */
 const PROFILE_DOCUMENTS = ["passport", "tooling", "prompt"] as const;
@@ -12,6 +15,93 @@ function isSessionProfilesUpdatedEvent(event: unknown): boolean {
     typeof event === "object" &&
     event !== null &&
     (event as { type?: unknown }).type === "session-profiles:updated"
+  );
+}
+
+function ProfileListRow({
+  entry,
+  onOpen,
+  openingId,
+  providerNames,
+  t,
+}: {
+  readonly entry: SessionProfileCatalogEntry;
+  readonly onOpen: (profileId: string) => void;
+  readonly openingId: null | string;
+  readonly providerNames: Readonly<Record<string, string>>;
+  readonly t: BrowserLocalizationLookup["t"];
+}) {
+  const isLegacyUniversal = entry.kind === "universal";
+  let applicability = "";
+  if (isLegacyUniversal) {
+    applicability = t(
+      "ui_helper_text",
+      "settings.profileCreator.applicability.universal",
+      "Existing legacy profile; not available for new sessions"
+    );
+  } else if (entry.provider) {
+    applicability = providerNames[entry.provider] ?? entry.provider;
+  }
+  const kindLabel = isLegacyUniversal
+    ? t(
+        "ui_labels",
+        "settings.profileCreator.kind.legacyUniversal",
+        "Legacy Universal"
+      )
+    : t(
+        "ui_labels",
+        "settings.profileCreator.kind.individual",
+        "Provider profile"
+      );
+  let actionLabel = t(
+    "ui_labels",
+    "settings.profileCreator.edit",
+    "Edit in VS Code"
+  );
+  if (isLegacyUniversal) {
+    actionLabel = t(
+      "ui_labels",
+      "settings.profileCreator.readOnly",
+      "Read-only"
+    );
+  } else if (openingId === entry.id) {
+    actionLabel = t(
+      "messages_for_the_user",
+      "settings.profileCreator.opening",
+      "Opening..."
+    );
+  }
+
+  return (
+    <div className="settings-version-row">
+      <div className="settings-version-row-label">
+        <p className="settings-version-name">{entry.name}</p>
+        <p className="settings-version-text">
+          {kindLabel}
+          {" · "}
+          {applicability}{" "}
+          <span className="settings-chip">
+            {entry.valid
+              ? t("ui_labels", "settings.profileCreator.valid", "Valid")
+              : t("ui_labels", "settings.profileCreator.invalid", "Invalid")}
+          </span>
+        </p>
+        {entry.description ? (
+          <p className="settings-version-text">{entry.description}</p>
+        ) : null}
+        {entry.valid || entry.issues.length === 0 ? null : (
+          <p className="settings-version-status">{entry.issues.join(" ")}</p>
+        )}
+      </div>
+      <button
+        className="settings-secondary"
+        disabled={openingId !== null || isLegacyUniversal}
+        onClick={() => onOpen(entry.id)}
+        type="button"
+      >
+        {actionLabel}
+      </button>
+    </div>
   );
 }
 
@@ -112,19 +202,6 @@ export function ProfileList() {
     }
   };
 
-  const applicabilityLabel = (entry: SessionProfileCatalogEntry) => {
-    if (entry.kind === "universal") {
-      return t(
-        "ui_helper_text",
-        "settings.profileCreator.applicability.universal",
-        "All supported providers"
-      );
-    }
-    return entry.provider
-      ? (providerNames[entry.provider] ?? entry.provider)
-      : "";
-  };
-
   return (
     <section className="settings-card">
       <div className="settings-card-header">
@@ -153,63 +230,16 @@ export function ProfileList() {
       {entries && entries.length > 0 ? (
         <div className="settings-list">
           {entries.map((entry) => (
-            <div className="settings-version-row" key={entry.id}>
-              <div className="settings-version-row-label">
-                <p className="settings-version-name">{entry.name}</p>
-                <p className="settings-version-text">
-                  {entry.kind === "universal"
-                    ? t(
-                        "ui_labels",
-                        "settings.profileCreator.kind.universal",
-                        "Universal"
-                      )
-                    : t(
-                        "ui_labels",
-                        "settings.profileCreator.kind.individual",
-                        "Individual"
-                      )}
-                  {" · "}
-                  {applicabilityLabel(entry)}{" "}
-                  <span className="settings-chip">
-                    {entry.valid
-                      ? t("ui_labels", "settings.profileCreator.valid", "Valid")
-                      : t(
-                          "ui_labels",
-                          "settings.profileCreator.invalid",
-                          "Invalid"
-                        )}
-                  </span>
-                </p>
-                {entry.description ? (
-                  <p className="settings-version-text">{entry.description}</p>
-                ) : null}
-                {entry.valid || entry.issues.length === 0 ? null : (
-                  <p className="settings-version-status">
-                    {entry.issues.join(" ")}
-                  </p>
-                )}
-              </div>
-              <button
-                className="settings-secondary"
-                disabled={openingId !== null}
-                onClick={() => {
-                  openProfile(entry.id).catch(() => setOpeningId(null));
-                }}
-                type="button"
-              >
-                {openingId === entry.id
-                  ? t(
-                      "messages_for_the_user",
-                      "settings.profileCreator.opening",
-                      "Opening..."
-                    )
-                  : t(
-                      "ui_labels",
-                      "settings.profileCreator.edit",
-                      "Edit in VS Code"
-                    )}
-              </button>
-            </div>
+            <ProfileListRow
+              entry={entry}
+              key={entry.id}
+              onOpen={(profileId) => {
+                openProfile(profileId).catch(() => setOpeningId(null));
+              }}
+              openingId={openingId}
+              providerNames={providerNames}
+              t={t}
+            />
           ))}
         </div>
       ) : null}

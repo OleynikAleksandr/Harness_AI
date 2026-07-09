@@ -90,7 +90,7 @@
             {
               "id": "profile-settings-ui",
               "name": "Profile Settings UI",
-              "purpose": "Profile Creator settings tab for session profile management."
+              "purpose": "Profile Creator settings tab for provider-scoped session profile management."
             }
           ]
         },
@@ -182,7 +182,7 @@
             {
               "id": "profile-store",
               "name": "Profile Store",
-              "purpose": "User-editable session profile documents on disk: Profiles root resolution, document layout, and the shared profile type model."
+              "purpose": "User-editable session profile documents on disk: Profiles root resolution, document layout, provider-scoped first-access seeds, and the shared profile type model."
             },
             {
               "id": "profile-catalog",

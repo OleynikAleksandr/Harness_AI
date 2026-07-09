@@ -56,7 +56,7 @@ export async function listSessionProfilesRpcResult(payload: unknown): Promise<
   }
 }
 
-/** Creates a profile from the templates (universal or individual). */
+/** Creates a provider-scoped profile from the templates. */
 export async function createSessionProfileRpcResult(
   payload: unknown
 ): Promise<
@@ -68,7 +68,7 @@ export async function createSessionProfileRpcResult(
     const provider = readPayloadString(payload, "provider");
     const result = await profileAuthoring.createProfile({
       name: readPayloadString(payload, "name") ?? "",
-      ...(provider ? { provider } : {}),
+      provider: provider ?? "",
     });
     if (!result.ok) {
       return { error: result.error, ok: false };
@@ -96,7 +96,10 @@ export async function openSessionProfileFileRpcResult(
       };
     }
     await sessionProfileStore.ensureSeededProfiles();
-    const documents = profileAuthoring.resolveDocumentPaths(profileId);
+    const loaded = await sessionProfileStore.loadProfile(profileId);
+    const documents = loaded.ok
+      ? loaded.profile.documents
+      : loaded.failure.documents;
     const filePath = pickProfileDocument(
       documents,
       readPayloadString(payload, "document")

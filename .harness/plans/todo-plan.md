@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": "fix: make profile creator provider scoped",
   "debt": null
 }
 ```
@@ -76,4 +76,13 @@
 
 5. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture artifact retest`). Result: Completed in commit `docs: record native capture artifact retest`.
 6. [DONE] Git Commit: `docs: record native capture artifact retest` (hash: self)
-7. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests Native Request Capture in the packaged app for Codex app-server and profile-selectable providers (scope: user workflow; expected commit: none).
+7. [DONE] `harness-ai.phase2.stream1.task2` User retests Native Request Capture in the packaged app for Codex app-server and profile-selectable providers (scope: user workflow; expected commit: none). Result: User confirmed the generated artifacts are much clearer and asked to move to Profile Creator cleanup.
+
+## Phase 3 - Profile Creator Provider Scope (owner: Codex, updated: 2026-07-09)
+
+### Stream: Provider-Specific Authoring
+
+8. [DONE] `harness-ai.phase3.stream1.task1` Add the active plan slice for removing universal profile creation and making Profile Creator provider-specific (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add profile creator provider scope`). Result: Completed in commit `plan: add profile creator provider scope`.
+9. [DONE] Git Commit: `plan: add profile creator provider scope` (hash: self)
+10. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Remove universal profile creation from Profile Creator, require a provider for new profiles, show every active provider id in the provider picker, and align authoring/catalog/docs/tests with provider-scoped profile creation only (scope: `product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/src/**, product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/**, product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/**, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-session-profile-rpc.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/module.md, product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/module.md, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/module.md, product-parts/application-shell/clusters/settings-surface/modules/profile-settings-ui/module.md, docs/architecture/SessionProfilesV2.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`; expected commit: `fix: make profile creator provider scoped`).
+11. [TODO] Git Commit: `fix: make profile creator provider scoped` (hash: TBD)

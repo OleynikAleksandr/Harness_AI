@@ -238,6 +238,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   grabbed the memory-consolidation prewarm instead of the probe turn (WS
   capture now filters `response.create` frames by `minimumToolCount`, since the
   prewarm has empty tools), ahead of the user re-capturing Kimi and Codex.
+- `docs/evidence/native-capture-artifact-cleanup-package-2026-07-09.md` —
+  packaged application rebuild evidence for the Native Request Capture artifact
+  cleanup: raw JSONL now contains only captured upstream request records,
+  diagnostics move to `.diagnostics.jsonl`, and markdown reports system
+  prompt, tool declarations, and developer context as readable
+  profile-verification groups.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

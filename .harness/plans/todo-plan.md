@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "docs: record native capture artifact retest",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -74,6 +74,6 @@
 
 ### Stream: Package And Retest
 
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture artifact retest`).
-6. [TODO] Git Commit: `docs: record native capture artifact retest` (hash: TBD)
-7. [TODO] `harness-ai.phase2.stream1.task2` User retests Native Request Capture in the packaged app for Codex app-server and profile-selectable providers (scope: user workflow; expected commit: none).
+5. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture artifact retest`). Result: Completed in commit `docs: record native capture artifact retest`.
+6. [DONE] Git Commit: `docs: record native capture artifact retest` (hash: self)
+7. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests Native Request Capture in the packaged app for Codex app-server and profile-selectable providers (scope: user workflow; expected commit: none).

@@ -24,7 +24,7 @@ must respect Claude Agent SDK specifics.
 
 ## Workspaces
 
-Two clean benchmark workspaces are prepared.
+Three clean benchmark workspaces are prepared.
 
 ### Full/native Claude run
 
@@ -48,28 +48,47 @@ Workspace:
 Use this workspace with the new minimal Claude Electron profile that another
 agent will prepare.
 
-Both workspaces intentionally contain only starter fixtures:
+### Synthetic-native Claude run
+
+Workspace:
+
+```text
+/Users/oleksandroliinyk/VSCODE/Test_Claude_full_sint/
+```
+
+Use this workspace with the synthetic-native Claude benchmark profile. The goal
+is to compare a managed profile that mirrors the native prompt plus benchmark
+instructions against the full/native and minimal-profile routes.
+
+The workspaces intentionally contain only starter fixtures:
 
 - `README.md`
-- `BENCHMARK_REQUEST.md`
 - `docs/DOCUMENTATION_INDEX.md`
 - `.harness/plans/todo-plan.md`
+
+The full/native workspace also contains `CLAUDE.md`, because native Claude
+receives the benchmark behavior contract through project instructions. The
+minimal and synthetic-native managed routes receive the same contract through
+their selected profile system prompt.
+
+The workspace fixtures do not contain `BENCHMARK_REQUEST.md`. The first user
+prompt is sent manually by the tester and stays intentionally short; it is not
+the source of the workflow, route, or completion contract.
 
 They do not contain an Electron implementation, `package.json`,
 `product-parts`, `dist`, `release`, `node_modules`, or evidence output. The
 benchmark agent must create those artifacts during the run.
 
-## Exact First Prompt For Both Runs
+## Exact First Prompt For All Runs
 
-Use the same first user prompt in both workspaces. The only difference should
+Use the same first user prompt in all workspaces. The only difference should
 be the selected profile and the workspace path.
 
 ```text
 Собери в этом workspace macOS Electron-приложение Focus Ledger.
 
-Следуй активному benchmark-профилю полностью: сначала создай planning document, затем .harness/plans/todo-plan.md с микрозадачами, затем реализуй Electron main/preload/renderer приложение в product-parts, выполни install/build/tests/package:mac, создай evidence-документ и только после completion guard дай финальный ответ.
-
-Это именно desktop Electron/macOS application: не делай браузерное приложение, dev server, Vite app, Chrome/Playwright smoke и не используй порты. Не задавай уточняющих вопросов, если можешь продолжать по системному профилю.
+Следуй активному benchmark-профилю полностью. Не задавай уточняющих вопросов,
+если можешь продолжать по системному профилю или workspace-инструкциям.
 ```
 
 Expected final artifacts:
@@ -77,11 +96,12 @@ Expected final artifacts:
 ```text
 /Users/oleksandroliinyk/VSCODE/Test_Claude_full/release/Focus Ledger-darwin-arm64/Focus Ledger.app
 /Users/oleksandroliinyk/VSCODE/Test_Claude_min/release/Focus Ledger-darwin-arm64/Focus Ledger.app
+/Users/oleksandroliinyk/VSCODE/Test_Claude_full_sint/release/Focus Ledger-darwin-arm64/Focus Ledger.app
 ```
 
-## Success Criteria For Comparing The Two Runs
+## Success Criteria For Comparing The Runs
 
-Compare the full/native and minimal runs on:
+Compare the full/native, synthetic-native, and minimal runs on:
 
 - final token/cache footprint reported by Harness AI;
 - wall-clock duration;
@@ -148,8 +168,31 @@ content, adapting tool names and SDK fields to the Claude provider contract.
 # Lean Claude Benchmark Instructions: Focus Ledger Electron
 
 You are a pragmatic coding agent working in the user's current workspace.
-Communicate with the user in Russian. Use concise progress updates while
-working, and use a final answer only when the task is actually complete.
+
+## Language Contract
+
+- All user-visible assistant text MUST be in Russian.
+- Progress/status updates MUST be in Russian.
+- The final answer MUST be in Russian.
+- Do not write user-visible English status phrases such as "Let me...", "Now I
+  will...", "Done", or "Checking..."; use Russian equivalents.
+- If internal thinking is surfaced in the dialog by the harness, it should also
+  be written in Russian where possible.
+
+Use concise progress updates while working, and use a final answer only when
+the task is actually complete.
+
+## Instruction Source Contract
+
+- The first user prompt for this benchmark is intentionally short and only
+  starts the task.
+- This system prompt is the authoritative source for the benchmark workflow,
+  required workspace structure, implementation route, verification route, and
+  completion contract.
+- Do not expect or search for `BENCHMARK_REQUEST.md`; that file is not part of
+  the benchmark workspace contract.
+- Do not move the benchmark requirements into the first user prompt or treat
+  them as optional because the user prompt is short.
 
 ## Tool and Turn Contract
 
@@ -175,6 +218,8 @@ working, and use a final answer only when the task is actually complete.
 - Use ASCII in code and docs unless existing file content requires otherwise.
 - No browser website, Vite app, dev server, Chrome/Playwright smoke, ports, or
   landing page.
+- Do not use `window.alert`, `window.prompt`, or `window.confirm` in the
+  renderer UI. Every visible control must be implemented as in-app UI.
 
 ## Benchmark Goal
 
@@ -231,8 +276,14 @@ Application source must live under:
 
 product-parts/focus-ledger/clusters/desktop-app/modules/electron-shell/src/
 
-Build output may live under `dist/`. Packaged macOS output must live under
-`release/`.
+The workspace root must contain `package.json`, `package-lock.json` after
+install, `dist/` after build, and `release/` after packaging. Do not put the
+application manifest, dependencies, `node_modules`, build output, or package
+scripts only inside `product-parts/`. `product-parts/**` is for product/module
+source and documentation, not the project root.
+
+Build output must be created under the workspace-root `dist/`. Packaged macOS
+output must be created under the workspace-root `release/`.
 
 ## Required Workflow
 
@@ -248,12 +299,19 @@ Before implementation:
 
 After implementation:
 
-1. Install required dependencies if not present.
+1. Install required dependencies from the workspace root with:
+   `npm install --save-dev electron@31.7.7 @electron/packager@18.3.6`.
 2. Run `npm run build`.
 3. Run `npm test`.
 4. Run `npm run package:mac`.
-5. Verify a packaged `.app` exists under `release/` and contains app resources.
-6. Create `docs/evidence/build-package-and-smoke-test.md` with commands,
+5. Run a real Electron runtime smoke check of the packaged app or app entry
+   with `ELECTRON_RUN_AS_NODE` explicitly unset if that variable exists in the
+   shell environment. The smoke must verify that the Electron main process
+   starts, the renderer loads, the preload bridge is usable, and JSON
+   persistence writes below `app.getPath('userData')`. This is not a browser,
+   Chrome, Playwright, dev-server, or port-based smoke.
+6. Verify a packaged `.app` exists under `release/` and contains app resources.
+7. Create `docs/evidence/build-package-and-smoke-test.md` with commands,
    results, generated paths, smoke checks, and limitations.
 
 ## Completion Contract
@@ -268,12 +326,23 @@ Before any final answer, all of the following must be true:
 - `npm test` passed after final source edits.
 - `npm run package:mac` passed after final source edits.
 - A packaged `.app` exists under `release/`.
+- Root `package.json`, `dist/`, and `release/` exist at the workspace root.
+- Application source is under
+  `product-parts/focus-ledger/clusters/desktop-app/modules/electron-shell/src/`;
+  a flat `product-parts/src/**` app does not satisfy this benchmark.
+- Electron entrypoints keep the required `.mjs` filenames. If the Electron
+  builtin import is awkward in ESM, use `createRequire` inside `.mjs`; do not
+  switch required files to `.cjs`.
 - The final answer includes the absolute `.app` path and an `open` command.
 - The app has a real Electron main process, preload bridge, renderer UI, and
   main-process-owned JSON persistence.
 - Renderer code uses only the preload API for actions/persistence.
+- Renderer code does not use native browser dialogs: no `window.alert`,
+  `window.prompt`, or `window.confirm`.
 - Shared ledger tests cover add/edit/delete, status transitions, totals by
   project, daily summary, Markdown export, and invalid record rejection.
+- The evidence records a real Electron runtime smoke check. A filesystem-only
+  bundle smoke is useful but is not sufficient by itself for completion.
 
 Before finalizing, explicitly read `.harness/plans/todo-plan.md` and
 `docs/evidence/build-package-and-smoke-test.md`. If any item is open or
@@ -292,11 +361,14 @@ Required `package.json` scripts:
 - `npm run start` launches the Electron app.
 - `npm run package:mac` creates a macOS `.app` under `release/`.
 
-Recommended dependencies:
+These scripts must be defined in the workspace-root `package.json`.
 
-- `electron` as a development dependency.
-- `@electron/packager` or another simple Electron packager as a development
-  dependency.
+Required dependencies:
+
+- `electron@31.7.7` as a development dependency.
+- `@electron/packager@18.3.6` as a development dependency.
+- Do not substitute a different packager or Electron major version unless the
+  pinned install is impossible and the evidence explains the reason.
 
 Electron architecture requirements:
 

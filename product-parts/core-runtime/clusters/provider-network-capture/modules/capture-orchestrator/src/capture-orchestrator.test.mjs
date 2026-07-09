@@ -9,6 +9,7 @@ import ts from "typescript";
 // Mirror the four cluster facades into one build dir so the orchestrator's
 // relative imports (../../capture-artifacts/...) resolve after transpile.
 const FACADES = [
+  ["capture-artifacts", "capture-markdown-format"],
   ["capture-artifacts", "capture-artifacts-facade"],
   ["capture-certificates", "capture-certificates-facade"],
   ["capture-proxy", "capture-proxy-http"],

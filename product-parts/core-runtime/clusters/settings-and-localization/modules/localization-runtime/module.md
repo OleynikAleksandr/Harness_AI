@@ -81,8 +81,11 @@ materialization, bootstrap payload reuse, and bundle state.
   reopens the collapsed match list.
 - The Native Request Capture card copy is part of the approved dictionaries:
   `ui_labels` (`settings.nativeCapture.title`/`.provider`/`.model`/`.capture`/
-  `.markdownPath`/`.jsonlPath`), `ui_helper_text`
-  (`settings.nativeCapture.description`), and `messages_for_the_user`
+  `.markdownPath`/`.jsonlPath`, where `.jsonlPath` labels the raw JSONL
+  upstream-request artifact), `ui_helper_text`
+  (`settings.nativeCapture.description`, which describes local sensitive
+  artifacts and does not claim capture-and-abort behavior for Codex's
+  forward-transit path), and `messages_for_the_user`
   (`settings.nativeCapture.capturing`/`.failed`/`.done`).
 - Settings localization refresh blocker copy is part of the approved
   `messages_for_the_user` dictionary so the blocking save feedback itself can

@@ -334,12 +334,19 @@
   CODEX-промпт из reference-проекта (`CODEX_NATIVE_SYSTEM_INSTRUCTIONS` +
   аддендум CodeAI, 7 инструментов), а не родная база Kimi — прямое нарушение
   рамки «Native = клиент-провайдер», отдельный вопрос к Phase R.
-- **Артефакты**: пары `<timestamp>-<provider>-<model>-native-request.{jsonl,md}`
-  в Harness home logs; JSONL с записями `request_captured` /
-  `section_extract` (system, tools, messages), markdown — читаемый дамп с
-  извлечёнными секциями (формат эталонов CodeAI-Hub). Credential-заголовки
-  редактируются по списку до записи; тело запроса не редактируется — это
-  и есть полезный груз; артефакты локальные и помечены как sensitive.
+- **Артефакты**: набор
+  `<timestamp>-<provider>-<model>-native-request.jsonl`,
+  `<timestamp>-<provider>-<model>-native-request.diagnostics.jsonl` и
+  `<timestamp>-<provider>-<model>-native-request.md` в Harness home logs.
+  Основной JSONL содержит только записи `request_captured`, то есть
+  захваченные upstream request payloads. Lifecycle, applied envelope,
+  provider diagnostics и proxy events пишутся отдельно в diagnostics JSONL.
+  Markdown — читаемый отчёт с тремя profile-relevant группами:
+  `System Prompt`, `Tool Declarations`, `Developer Context: Permissions,
+  Skills, Plugins`; строковые prompt/developer payloads печатаются обычным
+  текстом с реальными переносами строк, а не JSON-escaped `\n`. Credential-
+  заголовки редактируются по списку до записи; тело запроса не редактируется —
+  это и есть полезный груз; артефакты локальные и помечены как sensitive.
 - **UI**: карточка `Native Request Capture` в Settings -> General с
   кнопками per provider (как в reference), статусом и путями артефактов;
   явные коды ошибок (`tls_trust_failed`, `target_not_seen`, `timeout`,

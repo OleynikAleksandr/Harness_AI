@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task1",
-  "expectedCommitMessage": "fix: clarify native capture artifacts",
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "docs: record native capture artifact retest",
   "debt": null
 }
 ```
@@ -67,13 +67,13 @@
 
 ### Stream: Readable Profile Payloads
 
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task1` Separate raw captured upstream request records from diagnostic records, and render markdown around profile-relevant groups: system prompt, tool declarations, and developer context, with readable text formatting instead of escaped JSON newlines (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/module.md, product-parts/core-runtime/clusters/provider-network-capture/cluster.md, product-parts/core-runtime/product-part.md, docs/architecture/SessionProfilesV2.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`; expected commit: `fix: clarify native capture artifacts`).
-4. [TODO] Git Commit: `fix: clarify native capture artifacts` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream1.task1` Separate raw captured upstream request records from diagnostic records, render markdown around profile-relevant groups with readable text formatting, and align Settings copy with forward-transit capture behavior (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-markdown-format.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/module.md, product-parts/core-runtime/clusters/provider-network-capture/cluster.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/product-part.md, docs/architecture/SessionProfilesV2.md, docs/DOCUMENTATION_INDEX.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`; expected commit: `fix: clarify native capture artifacts`). Result: Completed in commit `fix: clarify native capture artifacts`.
+4. [DONE] Git Commit: `fix: clarify native capture artifacts` (hash: self)
 
 ## Phase 2 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-09)
 
 ### Stream: Package And Retest
 
-5. [TODO] `harness-ai.phase2.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture artifact retest`).
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user verification after explicit user confirmation (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture artifact retest`).
 6. [TODO] Git Commit: `docs: record native capture artifact retest` (hash: TBD)
 7. [TODO] `harness-ai.phase2.stream1.task2` User retests Native Request Capture in the packaged app for Codex app-server and profile-selectable providers (scope: user workflow; expected commit: none).

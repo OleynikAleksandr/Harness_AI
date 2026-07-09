@@ -24,6 +24,11 @@ const outputDir = await mkdtemp(path.join(tmpdir(), "capture-out-"));
 try {
   const { writeFileSync } = await import("node:fs");
   writeFileSync(
+    path.join(buildDir, "capture-markdown-format.js"),
+    compile("capture-markdown-format.ts"),
+    "utf8"
+  );
+  writeFileSync(
     path.join(buildDir, "capture-artifacts-facade.js"),
     compile("capture-artifacts-facade.ts"),
     "utf8"
@@ -123,6 +128,10 @@ try {
     /claude-claude-opus-4-8-native-request\.jsonl$/u
   );
   assert.match(
+    writer.artifacts.diagnosticsJsonlPath,
+    /claude-claude-opus-4-8-native-request\.diagnostics\.jsonl$/u
+  );
+  assert.match(
     writer.artifacts.markdownPath,
     /claude-claude-opus-4-8-native-request\.md$/u
   );
@@ -151,11 +160,19 @@ try {
 
   await writer.writeCapturedRequest({
     body: {
-      system: "You are Claude.",
-      tools: [{ name: "Read" }],
-      messages: [],
+      system: "You are Claude.\nUse readable text.",
+      tools: [{ name: "Read", description: "Read a file.\nReturn text." }],
+      messages: [
+        {
+          role: "developer",
+          content: [
+            { type: "text", text: "Use profile skills.\nNo JSON escapes." },
+          ],
+        },
+        { role: "user", content: "probe" },
+      ],
     },
-    bodyText: '{"system":"You are Claude."}',
+    bodyText: '{"system":"You are Claude.\\nUse readable text."}',
     headers: {
       authorization: "Bearer sk-secret",
       "content-type": "application/json",
@@ -168,22 +185,39 @@ try {
   await writer.complete("captured");
 
   const jsonl = await readFile(writer.artifacts.jsonlPath, "utf8");
-  // Auth header never reaches disk, and the system section is extracted.
+  // Auth header never reaches disk, and the raw JSONL contains only captured
+  // upstream request records.
   assert.ok(!jsonl.includes("sk-secret"));
   assert.match(
     jsonl,
     new RegExp(REDACTED_CAPTURE_HEADER_VALUE.replace(/[[\]]/gu, "\\$&"), "u")
   );
-  assert.match(jsonl, /"type":"capture_start"/u);
   assert.match(jsonl, /"type":"request_captured"/u);
-  assert.match(jsonl, /"section":"system"/u);
-  assert.match(jsonl, /"type":"capture_end"/u);
+  assert.doesNotMatch(jsonl, /"type":"capture_start"/u);
+  assert.doesNotMatch(jsonl, /"section":"system"/u);
+  assert.doesNotMatch(jsonl, /"type":"capture_end"/u);
+
+  const diagnosticsJsonl = await readFile(
+    writer.artifacts.diagnosticsJsonlPath,
+    "utf8"
+  );
+  assert.match(diagnosticsJsonl, /"type":"capture_start"/u);
+  assert.match(diagnosticsJsonl, /"type":"capture_end"/u);
 
   const markdown = await readFile(writer.artifacts.markdownPath, "utf8");
   assert.ok(!markdown.includes("sk-secret"));
   assert.match(markdown, /# Claude Native Request Capture/u);
   assert.match(markdown, /Selected model: claude-opus-4-8/u);
-  assert.match(markdown, /You are Claude\./u);
+  assert.match(markdown, /### 1\. System Prompt/u);
+  assert.match(markdown, /### 2\. Tool Declarations/u);
+  assert.match(
+    markdown,
+    /### 3\. Developer Context: Permissions, Skills, Plugins/u
+  );
+  assert.match(markdown, /You are Claude\.\nUse readable text\./u);
+  assert.match(markdown, /Read a file\.\nReturn text\./u);
+  assert.match(markdown, /Use profile skills\.\nNo JSON escapes\./u);
+  assert.doesNotMatch(markdown, /You are Claude\\.nUse readable text/u);
   assert.match(markdown, /Sent upstream: true/u);
 
   // Envelope-only artifact: no HTTP request, but the applied-input envelope +
@@ -210,14 +244,22 @@ try {
     envelopeWriter.artifacts.jsonlPath,
     "utf8"
   );
-  assert.match(envelopeJsonl, /"type":"applied_input_envelope"/u);
-  assert.match(envelopeJsonl, /"type":"provider_diagnostic_context"/u);
+  assert.equal(envelopeJsonl, "");
+  const envelopeDiagnosticsJsonl = await readFile(
+    envelopeWriter.artifacts.diagnosticsJsonlPath,
+    "utf8"
+  );
+  assert.match(envelopeDiagnosticsJsonl, /"type":"applied_input_envelope"/u);
+  assert.match(
+    envelopeDiagnosticsJsonl,
+    /"type":"provider_diagnostic_context"/u
+  );
   const envelopeMarkdown = await readFile(
     envelopeWriter.artifacts.markdownPath,
     "utf8"
   );
   assert.match(envelopeMarkdown, /# Codex Native Request Capture/u);
-  assert.match(envelopeMarkdown, /## Applied Input Envelope/u);
+  assert.match(envelopeMarkdown, /## Applied Harness\/Profile Envelope/u);
   assert.match(envelopeMarkdown, /wire\.jsonl/u);
   assert.match(envelopeMarkdown, /wire_capture_note/u);
   assert.match(envelopeMarkdown, /No HTTP request intercepted/u);

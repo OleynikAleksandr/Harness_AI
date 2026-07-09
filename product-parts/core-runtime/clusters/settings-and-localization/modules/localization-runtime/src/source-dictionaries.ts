@@ -61,7 +61,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.nativeCapture.profile": "Profile",
     "settings.nativeCapture.capture": "Capture",
     "settings.nativeCapture.markdownPath": "Markdown artifact",
-    "settings.nativeCapture.jsonlPath": "JSONL artifact",
+    "settings.nativeCapture.jsonlPath": "Raw JSONL artifact",
     "settings.profileCreator.title": "Session Profiles",
     "settings.profileCreator.newProfile": "New Profile",
     "settings.profileCreator.type": "Profile type",
@@ -129,7 +129,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
   category: "ui_helper_text",
   entries: {
     "settings.nativeCapture.description":
-      "Capture a provider's native request locally for reference. Runs a diagnostic probe through a capture-and-abort proxy, records the vendor-default system prompt and tools, and never sends the request upstream. Diagnostic dev tool.",
+      "Capture a provider's native request locally for reference. Runs a diagnostic probe through the native capture path, records the upstream request plus readable profile-relevant payload groups, and writes local sensitive artifacts for verification.",
     "settings.localization.description":
       "Choose UI languages and translation engines.",
     "settings.coreControls.description":

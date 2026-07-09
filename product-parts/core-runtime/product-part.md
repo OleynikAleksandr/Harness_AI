@@ -12,6 +12,9 @@ contracts, not through direct module imports.
 - `runtime-process`
 - `workspace-architecture`
 - `session-runtime`
+- `session-profiles`
+- `provider-network-capture`
+- `universal-client`
 - `settings-and-localization`
 
 `development-orchestrator` and `intent-normalization` were scaffolded as
@@ -34,6 +37,9 @@ into `product-parts/**` as real module code.
 - Normalize visible provider reasoning before it reaches UI snapshots.
 - Promote provider session ids emitted by provider runtimes so Core keeps the authoritative binding for later turns.
 - Preserve provider-neutral message tags and coalesce live assistant chunks before session readback/display.
+- Own native request capture artifacts: raw upstream-request JSONL, separate
+  diagnostics JSONL, and readable Markdown reports for profile-verification
+  payload groups.
 
 ## Out Of Scope
 

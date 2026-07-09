@@ -5,8 +5,9 @@
 Own the artifact side of native request capture: the shared capture type
 model, credential-header redaction, provider-neutral section extraction
 (system prompt / tool schemas / messages), the human-readable markdown
-builder, and the append-only JSONL + markdown writer. This is the part that
-turns a raw captured request into readable reference dumps.
+builder, the raw upstream-request JSONL writer, and the separate diagnostics
+JSONL writer. This is the part that turns a raw captured request into readable
+profile-verification dumps.
 
 Behavior ported from the CodeAI-Hub `provider-network-capture` writer /
 redaction / markdown modules, collapsed into one facade for Harness AI.
@@ -44,27 +45,33 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   body, so the same `instructions`/`tools`/`input` extraction applies; its
   applied envelope identifies the selected profile separately.
 - `buildNativeRequestCaptureMarkdown(options)`: the readable dump with
-  provider, selected model, summary, redacted headers, and the extracted
-  system prompt / tool declarations / messages sections. Always states
-  `Sent upstream: false`.
-- `NativeRequestCaptureWriter`: creates the paired
-  `<timestamp>-<provider>-<model>-native-request.{jsonl,md}` artifacts (the
-  model segment is the sanitized selected model id, omitted when no model was
-  selected, so dumps for different models are distinguishable), appends
-  `capture_start` / `request_captured` / `section_extract` /
-  `applied_input_envelope` / `provider_diagnostic_context` / `capture_end`
-  JSONL records, and rewrites the markdown twin after each record. Every
-  captured request is redacted before it is persisted; the raw request body
-  is kept (it is the diagnostic payload) but auth headers are not.
+  provider, selected model, summary, request metadata, redacted headers,
+  request parameters, applied Harness/profile envelope, diagnostics pointers
+  and the three profile-relevant payload groups Harness compares when changing
+  profiles: `System Prompt`, `Tool Declarations`, and `Developer Context:
+  Permissions, Skills, Plugins`. String payloads are rendered as readable text
+  blocks with real newlines instead of JSON-escaped `\n` sequences; structured
+  schemas remain fenced JSON.
+- `NativeRequestCaptureWriter`: creates the artifact set
+  `<timestamp>-<provider>-<model>-native-request.jsonl`,
+  `<timestamp>-<provider>-<model>-native-request.diagnostics.jsonl`, and
+  `<timestamp>-<provider>-<model>-native-request.md` (the model segment is the
+  sanitized selected model id, omitted when no model was selected, so dumps
+  for different models are distinguishable). The raw JSONL appends only
+  `request_captured` records from the proxy path. The diagnostics JSONL
+  appends local lifecycle, applied-envelope, provider-context and completion
+  records. Every captured request is redacted before it is persisted; the raw
+  request body is kept because it is the diagnostic payload, but auth headers
+  are not.
 - `recordAppliedInputEnvelope(envelope)` and `recordDiagnosticContext(record)`
   let a provider adapter report what it applied and provider-specific
-  diagnostics, rendered in the `Applied Input Envelope` and
-  `Diagnostic Context` markdown sections. When no HTTP request was
-  intercepted, the summary states "No HTTP request intercepted" for the
-  envelope-only case without regressing the captured-request output. (The
-  wire-only artifact path was introduced for the ACP Kimi capture, which left
-  with the kimi-provider retirement 2026-07-05; the envelope/diagnostic
-  channel itself stays a generic writer capability.)
+  diagnostics, rendered in the `Applied Harness/Profile Envelope` and
+  `Diagnostics` markdown sections and persisted to the diagnostics JSONL.
+  When no HTTP request was intercepted, the summary states "No HTTP request
+  intercepted" for the envelope-only case without polluting the raw JSONL
+  artifact. (The wire-only artifact path was introduced for the ACP Kimi
+  capture, which left with the kimi-provider retirement 2026-07-05; the
+  envelope/diagnostic channel itself stays a generic writer capability.)
 
 ## Owned Paths
 

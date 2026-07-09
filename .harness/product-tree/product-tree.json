@@ -204,12 +204,12 @@
         {
           "id": "provider-network-capture",
           "name": "Provider Network Capture",
-          "purpose": "Local dev-time capture of a provider's native HTTPS request (system prompt + tool schemas) via a capture-and-abort proxy, without forwarding upstream; produces readable reference dumps.",
+          "purpose": "Local dev-time capture of a provider's native HTTPS request (system prompt + tool schemas + developer context) via the native capture path; produces raw upstream-request JSONL, diagnostics JSONL, and readable profile-verification dumps.",
           "modules": [
             {
               "id": "capture-artifacts",
               "name": "Capture Artifacts",
-              "purpose": "Capture type model, credential-header redaction, provider-neutral section extraction, and the JSONL + readable markdown artifact writer."
+              "purpose": "Capture type model, credential-header redaction, provider-neutral profile section extraction, and the raw JSONL + diagnostics JSONL + readable markdown artifact writer."
             },
             {
               "id": "capture-certificates",
@@ -219,7 +219,7 @@
             {
               "id": "capture-proxy",
               "name": "Capture Proxy",
-              "purpose": "Capture-and-abort MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint, and aborts before any upstream forward."
+              "purpose": "MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint, and supports the forward-transit capture path required by Codex app-server WebSocket transport."
             },
             {
               "id": "capture-orchestrator",

@@ -1,10 +1,21 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { buildNativeRequestCaptureMarkdown } from "./capture-markdown-format.js";
 
-// Providers whose native request Harness AI can capture: the two native
-// vendor channels. The ACP Kimi capture channel left with the kimi-provider
-// retirement (2026-07-05 user order); universal-client endpoints need no
-// capture — our own client owns their requests.
+export type {
+  NativeCaptureMarkdownOptions,
+  NativeCaptureSection,
+  NativeCaptureSectionName,
+} from "./capture-markdown-format.js";
+export {
+  buildNativeRequestCaptureMarkdown,
+  extractCaptureSections,
+} from "./capture-markdown-format.js";
+
+// Providers whose native request Harness AI can capture today. The writer is
+// provider-neutral so universal-client diagnostic paths can reuse the same
+// raw JSONL / diagnostics JSONL / readable markdown contract when validating
+// selected profile application.
 export type NativeCaptureProviderId = "claude" | "codex" | "codex-uc";
 
 export type NativeCaptureFailureReason =
@@ -24,16 +35,8 @@ export interface CapturedNativeRequest {
   readonly timestamp: string;
 }
 
-export type NativeCaptureSectionName = "messages" | "system" | "tools";
-
-export interface NativeCaptureSection {
-  readonly content?: unknown;
-  readonly payload?: unknown;
-  readonly section: NativeCaptureSectionName;
-  readonly type: "section_extract";
-}
-
 export interface NativeCaptureArtifacts {
+  readonly diagnosticsJsonlPath: string;
   readonly jsonlPath: string;
   readonly markdownPath: string;
 }
@@ -79,65 +82,6 @@ export function redactCaptureHeaders(
   return redacted;
 }
 
-// Providers name the fields differently (Anthropic `system`/`messages`,
-// OpenAI/Codex `instructions`/`input`, Kimi OpenAI-chat `messages[role=system]`),
-// so map them onto one section shape. The Codex WebSocket `response.create`
-// frame carries `instructions`, `tools`, and `input` at the top level (its
-// `type` field is ignored), so the same mapping extracts a full pair from it.
-export function extractCaptureSections(
-  body: unknown
-): readonly NativeCaptureSection[] {
-  if (!isRecord(body)) {
-    return [];
-  }
-  const sections: NativeCaptureSection[] = [];
-  if ("system" in body) {
-    sections.push({
-      type: "section_extract",
-      section: "system",
-      content: body.system,
-    });
-  } else if ("instructions" in body) {
-    sections.push({
-      type: "section_extract",
-      section: "system",
-      content: body.instructions,
-    });
-  } else {
-    // Kimi (OpenAI chat shape) has no top-level system field; the system
-    // prompt is the first `role: "system"` message.
-    const systemMessage = findSystemMessageContent(body.messages);
-    if (systemMessage !== undefined) {
-      sections.push({
-        type: "section_extract",
-        section: "system",
-        content: systemMessage,
-      });
-    }
-  }
-  if ("tools" in body) {
-    sections.push({
-      type: "section_extract",
-      section: "tools",
-      payload: body.tools,
-    });
-  }
-  if ("messages" in body) {
-    sections.push({
-      type: "section_extract",
-      section: "messages",
-      payload: body.messages,
-    });
-  } else if ("input" in body) {
-    sections.push({
-      type: "section_extract",
-      section: "messages",
-      payload: body.input,
-    });
-  }
-  return sections;
-}
-
 // Opaque provider-supplied envelope; recorded and serialized as-is.
 export type NativeCaptureAppliedInputEnvelope = unknown;
 
@@ -146,71 +90,9 @@ export interface NativeCaptureDiagnosticRecord {
   readonly payload: unknown;
 }
 
-export interface NativeCaptureMarkdownOptions {
-  readonly appliedInputEnvelope: NativeCaptureAppliedInputEnvelope | null;
-  readonly capturedRequests: readonly CapturedNativeRequest[];
-  readonly diagnosticRecords: readonly NativeCaptureDiagnosticRecord[];
-  readonly failureReason: NativeCaptureFailureReason | null;
-  readonly generatedAt: string;
-  readonly providerId: NativeCaptureProviderId;
-  readonly recordCount: number;
-  readonly selectedModelId: string | null;
-}
-
-export function buildNativeRequestCaptureMarkdown(
-  options: NativeCaptureMarkdownOptions
-): string {
-  const request = options.capturedRequests.at(-1) ?? null;
-  const sections = request ? extractCaptureSections(request.body) : [];
-  const title = `${capitalize(options.providerId)} Native Request Capture`;
-  return [
-    `# ${title}`,
-    "",
-    `Provider: ${options.providerId}`,
-    `Selected model: ${options.selectedModelId ?? "(provider default)"}`,
-    "Sent upstream: true",
-    "Capture mode: MITM forward transit",
-    `Generated at: ${options.generatedAt}`,
-    "",
-    "## Summary",
-    "",
-    buildSummary(request, options),
-    "",
-    "## Request Headers",
-    "",
-    fencedJson(request?.headers ?? {}),
-    "",
-    "## Extracted System Prompt",
-    "",
-    fencedJson(findSection(sections, "system")?.content ?? null),
-    "",
-    "## Extracted Tool Declarations",
-    "",
-    fencedJson(findSection(sections, "tools")?.payload ?? null),
-    "",
-    "## Extracted Messages",
-    "",
-    fencedJson(findSection(sections, "messages")?.payload ?? null),
-    "",
-    "## Applied Input Envelope",
-    "",
-    fencedJson(options.appliedInputEnvelope),
-    "",
-    "## Diagnostic Context",
-    "",
-    fencedJson(options.diagnosticRecords),
-    "",
-    "## Notes",
-    "",
-    "- Sensitive local diagnostic artifact. Do not upload or share.",
-    "- Credential-bearing headers are redacted by default.",
-    "- Full raw request bodies are preserved in the JSONL artifact.",
-    "",
-  ].join("\n");
-}
-
-// Append-only JSONL plus a rewritten human-readable markdown twin. Every
-// captured request is redacted before it touches disk.
+// Append-only raw JSONL, separate diagnostics JSONL, and a rewritten
+// human-readable markdown twin. Every captured request is redacted before it
+// touches disk.
 export class NativeRequestCaptureWriter {
   private readonly artifactsValue: NativeCaptureArtifacts;
   private readonly captureId: string;
@@ -220,7 +102,8 @@ export class NativeRequestCaptureWriter {
   private readonly capturedRequests: CapturedNativeRequest[] = [];
   private readonly diagnosticRecords: NativeCaptureDiagnosticRecord[] = [];
   private appliedInputEnvelope: NativeCaptureAppliedInputEnvelope | null = null;
-  private recordCount = 0;
+  private rawRecordCount = 0;
+  private diagnosticRecordCount = 0;
   private failureReason: NativeCaptureFailureReason | null = null;
 
   private constructor(
@@ -245,11 +128,16 @@ export class NativeRequestCaptureWriter {
     const model = modelFilenameSegment(options.selectedModelId);
     const stem = `${timestamp}-${options.providerId}${model}-native-request`;
     const artifacts: NativeCaptureArtifacts = {
+      diagnosticsJsonlPath: path.join(
+        options.outputDir,
+        `${stem}.diagnostics.jsonl`
+      ),
       jsonlPath: path.join(options.outputDir, `${stem}.jsonl`),
       markdownPath: path.join(options.outputDir, `${stem}.md`),
     };
     const writer = new NativeRequestCaptureWriter(options, artifacts);
-    await writer.appendRecord({
+    await fs.writeFile(artifacts.jsonlPath, "", "utf8");
+    await writer.appendDiagnosticRecord({
       type: "capture_start",
       captureId: options.captureId,
       providerId: options.providerId,
@@ -271,16 +159,13 @@ export class NativeRequestCaptureWriter {
       headers: redactCaptureHeaders(request.headers),
     };
     this.capturedRequests.push(sanitized);
-    await this.appendRecord({
+    await this.appendRawRecord({
       type: "request_captured",
       captureId: this.captureId,
       providerId: this.providerId,
       request: sanitized,
       sentUpstream: true,
     });
-    for (const section of extractCaptureSections(request.body)) {
-      await this.appendRecord({ captureId: this.captureId, ...section });
-    }
     await this.writeMarkdown();
   }
 
@@ -291,7 +176,7 @@ export class NativeRequestCaptureWriter {
     envelope: NativeCaptureAppliedInputEnvelope
   ): Promise<void> {
     this.appliedInputEnvelope = envelope;
-    await this.appendRecord({
+    await this.appendDiagnosticRecord({
       type: "applied_input_envelope",
       captureId: this.captureId,
       providerId: this.providerId,
@@ -305,7 +190,7 @@ export class NativeRequestCaptureWriter {
     record: NativeCaptureDiagnosticRecord
   ): Promise<void> {
     this.diagnosticRecords.push(record);
-    await this.appendRecord({
+    await this.appendDiagnosticRecord({
       type: "provider_diagnostic_context",
       captureId: this.captureId,
       providerId: this.providerId,
@@ -321,7 +206,7 @@ export class NativeRequestCaptureWriter {
     reason: NativeCaptureFailureReason | null = null
   ): Promise<void> {
     this.failureReason = reason;
-    await this.appendRecord({
+    await this.appendDiagnosticRecord({
       type: "capture_end",
       captureId: this.captureId,
       providerId: this.providerId,
@@ -333,10 +218,19 @@ export class NativeRequestCaptureWriter {
     await this.writeMarkdown();
   }
 
-  private async appendRecord(record: unknown): Promise<void> {
-    this.recordCount += 1;
+  private async appendRawRecord(record: unknown): Promise<void> {
+    this.rawRecordCount += 1;
     await fs.appendFile(
       this.artifactsValue.jsonlPath,
+      `${JSON.stringify(record)}\n`,
+      "utf8"
+    );
+  }
+
+  private async appendDiagnosticRecord(record: unknown): Promise<void> {
+    this.diagnosticRecordCount += 1;
+    await fs.appendFile(
+      this.artifactsValue.diagnosticsJsonlPath,
       `${JSON.stringify(record)}\n`,
       "utf8"
     );
@@ -346,11 +240,14 @@ export class NativeRequestCaptureWriter {
     const markdown = buildNativeRequestCaptureMarkdown({
       appliedInputEnvelope: this.appliedInputEnvelope,
       capturedRequests: this.capturedRequests,
+      diagnosticsJsonlPath: this.artifactsValue.diagnosticsJsonlPath,
       diagnosticRecords: this.diagnosticRecords,
       failureReason: this.failureReason,
       generatedAt: this.clock().toISOString(),
+      jsonlPath: this.artifactsValue.jsonlPath,
       providerId: this.providerId,
-      recordCount: this.recordCount,
+      rawRecordCount: this.rawRecordCount,
+      diagnosticRecordCount: this.diagnosticRecordCount,
       selectedModelId: this.selectedModelId,
     });
     await fs.writeFile(this.artifactsValue.markdownPath, markdown, "utf8");
@@ -365,55 +262,4 @@ function shouldRedactCaptureHeader(name: string, value: string): boolean {
     STAINLESS_HEADER_PATTERN.test(name) &&
     STAINLESS_CREDENTIAL_VALUE_PATTERN.test(value)
   );
-}
-
-function buildSummary(
-  request: CapturedNativeRequest | null,
-  options: NativeCaptureMarkdownOptions
-): string {
-  if (!request) {
-    const lead = options.appliedInputEnvelope
-      ? "No HTTP request intercepted (wire-only or envelope-only capture)."
-      : "No matching provider model request captured yet.";
-    const failure = options.failureReason
-      ? `Failure reason: ${options.failureReason}.`
-      : lead;
-    return [failure, `JSONL records: ${options.recordCount}.`].join("\n");
-  }
-  return [
-    `Captured provider requests: ${options.capturedRequests.length}.`,
-    `Primary request: ${request.method} ${request.target}${request.path}.`,
-    `JSONL records: ${options.recordCount}.`,
-  ].join("\n");
-}
-
-function findSection(
-  sections: readonly NativeCaptureSection[],
-  section: NativeCaptureSectionName
-): NativeCaptureSection | null {
-  return sections.find((record) => record.section === section) ?? null;
-}
-
-// The `content` of the first `role: "system"` chat message, or undefined when
-// there is none (used for the OpenAI/Kimi shape that has no top-level system).
-function findSystemMessageContent(messages: unknown): unknown {
-  if (!Array.isArray(messages)) {
-    return;
-  }
-  const systemMessage = messages.find(
-    (message) => isRecord(message) && message.role === "system"
-  );
-  return isRecord(systemMessage) ? systemMessage.content : undefined;
-}
-
-function fencedJson(value: unknown): string {
-  return ["```json", JSON.stringify(value, null, 2), "```"].join("\n");
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

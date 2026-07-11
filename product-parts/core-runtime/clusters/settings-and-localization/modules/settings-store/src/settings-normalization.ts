@@ -26,28 +26,34 @@ export const CLAUDE_REASONING_EFFORTS_BY_MODEL: Record<
   haiku: [],
 };
 const CODEX_MODEL_IDS = [
-  "gpt-5.2",
-  "gpt-5.3-codex-spark",
-  "gpt-5.4-mini",
-  "gpt-5.4",
+  "gpt-5.6-sol",
+  "gpt-5.6-terra",
+  "gpt-5.6-luna",
   "gpt-5.5",
+  "gpt-5.4",
+  "gpt-5.4-mini",
+  "gpt-5.3-codex-spark",
 ];
 const CODEX_REASONING_DEFAULTS_BY_MODEL: Record<string, ReasoningEffort> = {
-  "gpt-5.2": "medium",
-  "gpt-5.3-codex-spark": "medium",
+  "gpt-5.6-sol": "medium",
+  "gpt-5.6-terra": "medium",
+  "gpt-5.6-luna": "medium",
+  "gpt-5.5": "medium",
   "gpt-5.4": "medium",
   "gpt-5.4-mini": "medium",
-  "gpt-5.5": "medium",
+  "gpt-5.3-codex-spark": "high",
 };
 export const CODEX_REASONING_EFFORTS_BY_MODEL: Record<
   string,
   readonly ReasoningEffort[]
 > = {
-  "gpt-5.2": ["low", "medium", "high", "xhigh"],
-  "gpt-5.3-codex-spark": ["low", "medium", "high", "xhigh"],
-  "gpt-5.4-mini": ["low", "medium", "high", "xhigh"],
-  "gpt-5.4": ["low", "medium", "high", "xhigh"],
+  "gpt-5.6-sol": ["low", "medium", "high", "xhigh", "max", "ultra"],
+  "gpt-5.6-terra": ["low", "medium", "high", "xhigh", "max", "ultra"],
+  "gpt-5.6-luna": ["low", "medium", "high", "xhigh", "max"],
   "gpt-5.5": ["low", "medium", "high", "xhigh"],
+  "gpt-5.4": ["low", "medium", "high", "xhigh"],
+  "gpt-5.4-mini": ["low", "medium", "high", "xhigh"],
+  "gpt-5.3-codex-spark": ["low", "medium", "high", "xhigh"],
 };
 const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
 // The universal-client Kimi endpoint has a single public model id; the vendor
@@ -82,7 +88,7 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
     }
   }
   if (!CODEX_MODEL_IDS.includes(next.providers.codex.defaultModel)) {
-    next.providers.codex.defaultModel = "gpt-5.4-mini";
+    next.providers.codex.defaultModel = "gpt-5.6-sol";
   }
   if (!isRecord(next.providers.codex.reasoningByModel)) {
     next.providers.codex.reasoningByModel = {};

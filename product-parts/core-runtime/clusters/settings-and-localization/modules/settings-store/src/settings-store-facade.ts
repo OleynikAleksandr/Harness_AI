@@ -20,6 +20,7 @@ export type ReasoningEffort =
   | "high"
   | "xhigh"
   | "max"
+  | "ultra"
   | "ultracode";
 
 export interface LocalizationCategorySettings {

@@ -87,11 +87,12 @@ Own global and workspace settings persistence.
 
 ## Reasoning Effort Contract
 
-- Owns the `ReasoningEffort` type: `low`, `medium`, `high`, `xhigh`, `max`, `ultracode`.
+- Owns the `ReasoningEffort` type: `low`, `medium`, `high`, `xhigh`, `max`, `ultra`, `ultracode`.
 - `ultracode` mirrors the Claude CLI orchestration mode (xhigh + dynamic workflows).
+- `ultra` is the Codex app-server effort id for maximum reasoning with automatic task delegation; it is distinct from Claude `ultracode`.
 - `CLAUDE_REASONING_EFFORTS_BY_MODEL` (exported from `settings-normalization`, not the `node:fs`-backed facade, so the renderer can import it without bundling persistence) is the source of truth for which efforts each Claude alias exposes: Opus full set + ultracode, Sonnet without xhigh, Haiku none. The settings UI reads this map to filter the per-model selector.
 - `normalizeSettings` validates per-model Claude efforts against the whitelist and falls back to the provider default effort when a stored value is unknown.
-- Codex does not reuse Claude effort ranks. `CODEX_REASONING_EFFORTS_BY_MODEL` and `resolveCodexReasoningEffort` own Codex model capabilities: GPT-5.2, GPT-5.3 Codex Spark, and current GPT-5.4/5.5 models expose `low`, `medium`, `high`, and `xhigh` and default to `medium`. `supportsCodexReasoningSummary` records Codex model summary support separately; Spark keeps reasoning effort control but disables per-turn reasoning summaries.
+- Codex does not reuse Claude effort ranks. `CODEX_REASONING_EFFORTS_BY_MODEL` and `resolveCodexReasoningEffort` own the picker-visible Codex app-server capabilities: GPT-5.6 Sol and Terra expose `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`; GPT-5.6 Luna stops at `max`; GPT-5.5, GPT-5.4, GPT-5.4 Mini, and GPT-5.3 Codex Spark stop at `xhigh`. The GPT-5.6 family defaults to `medium`, while Spark follows the provider default `high`. Retired GPT-5.2 settings normalize to the provider-default GPT-5.6 Sol. `supportsCodexReasoningSummary` records Codex model summary support separately; Spark keeps reasoning effort control but disables per-turn reasoning summaries.
   The `codex-uc` test provider shares the existing `providers.codex` model and
   reasoning settings because it targets the same Codex model family over the
   Codex OAuth Responses-compatible route; it does not introduce a separate

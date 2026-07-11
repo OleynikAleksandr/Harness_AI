@@ -14,12 +14,21 @@ const localizationSyncKeySource = facadeSource.slice(
 );
 
 assert.match(source, /CODEX_REASONING_EFFORTS_BY_MODEL/u);
-assert.match(source, /"gpt-5\.2": \["low", "medium", "high", "xhigh"\]/u);
 assert.match(
   source,
-  /"gpt-5\.3-codex-spark": \["low", "medium", "high", "xhigh"\]/u
+  /"gpt-5\.6-sol": \["low", "medium", "high", "xhigh", "max", "ultra"\]/u
 );
-assert.match(source, /"gpt-5\.3-codex-spark": "medium"/u);
+assert.match(
+  source,
+  /"gpt-5\.6-terra": \["low", "medium", "high", "xhigh", "max", "ultra"\]/u
+);
+assert.match(
+  source,
+  /"gpt-5\.6-luna": \["low", "medium", "high", "xhigh", "max"\]/u
+);
+assert.match(source, /"gpt-5\.3-codex-spark": "high"/u);
+assert.match(source, /defaultModel = "gpt-5\.6-sol"/u);
+assert.doesNotMatch(source, /gpt-5\.2/u);
 assert.match(source, /supportsCodexReasoningSummary/u);
 assert.match(source, /CODEX_MODELS_WITHOUT_REASONING_SUMMARY/u);
 assert.match(source, /resolveCodexReasoningEffort/u);

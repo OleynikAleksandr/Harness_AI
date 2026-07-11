@@ -28,7 +28,9 @@ materialization, bootstrap payload reuse, and bundle state.
   version-neutral; the Sonnet source string does not include a concrete model
   id so localized bundles do not preserve stale Anthropic release numbers.
 - Codex provider settings helper copy and model descriptions are part of the
-  approved `ui_helper_text` dictionary.
+  approved `ui_helper_text` dictionary. The approved model keys cover the
+  picker-visible GPT-5.6 Sol/Terra/Luna family plus GPT-5.5, GPT-5.4,
+  GPT-5.4 Mini, and GPT-5.3 Codex Spark; the retired GPT-5.2 key is absent.
 - The ACP Kimi provider settings helper copy and model descriptions
   (`settings.provider.kimi.*`) left the approved dictionaries with the
   kimi-provider retirement (2026-07-05 user order); only the universal-client

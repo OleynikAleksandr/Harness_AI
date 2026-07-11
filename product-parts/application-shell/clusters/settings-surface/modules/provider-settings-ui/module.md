@@ -144,7 +144,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   model.
 - Codex default-model helper copy, reasoning summary description, model
   descriptions, and new-session note also resolve through the browser
-  localization provider.
+  localization provider. The picker mirrors the app-server-visible order:
+  GPT-5.6 Sol, Terra, Luna, GPT-5.5, GPT-5.4, GPT-5.4 Mini, and GPT-5.3 Codex
+  Spark; retired GPT-5.2 is not rendered. Per-model selectors expose `Ultra`
+  only for Sol and Terra, while Luna stops at `Max`.
 - Kimi default-model row descriptions resolve through the browser localization
   provider; the card description and note already use the same boundary.
 - The GLM tab includes a universal-client default-model card bound to

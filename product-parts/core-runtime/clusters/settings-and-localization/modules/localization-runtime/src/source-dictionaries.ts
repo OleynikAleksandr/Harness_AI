@@ -169,16 +169,20 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below.",
     "settings.provider.codex.defaultModel.description":
       "Select which Codex model to use when starting new sessions. Each model stores its own reasoning effort level.",
-    "settings.provider.codex.model.gpt-5.2.description":
-      "Optimized for professional work and long-running agents",
+    "settings.provider.codex.model.gpt-5.6-sol.description":
+      "Latest frontier agentic coding model",
+    "settings.provider.codex.model.gpt-5.6-terra.description":
+      "Balanced agentic coding model for everyday work",
+    "settings.provider.codex.model.gpt-5.6-luna.description":
+      "Fast and affordable agentic coding model",
     "settings.provider.codex.model.gpt-5.3-codex-spark.description":
-      "Ultra-fast coding model for lower-latency engineering tasks",
+      "Ultra-fast coding model",
     "settings.provider.codex.model.gpt-5.4-mini.description":
-      "Smaller GPT-5.4 variant for faster everyday coding tasks",
+      "Small, fast, and cost-efficient model for simpler coding tasks",
     "settings.provider.codex.model.gpt-5.4.description":
-      "Best general agentic model for tasks across industries",
+      "Strong model for everyday coding",
     "settings.provider.codex.model.gpt-5.5.description":
-      "Best general agentic model for tasks across industries",
+      "Frontier model for complex coding, research, and real-world work",
     "settings.provider.codex.newSessions.note":
       "Changes apply when creating a new Codex session.",
     "settings.provider.codex.reasoningSummary.description":

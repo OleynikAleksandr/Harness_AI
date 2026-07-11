@@ -44,30 +44,41 @@ export const PROVIDER_MODEL_OPTIONS = {
   ],
   codex: [
     {
-      description: "Optimized for professional work and long-running agents",
-      id: "gpt-5.2",
-      label: "GPT-5.2",
+      description: "Latest frontier agentic coding model",
+      id: "gpt-5.6-sol",
+      label: "GPT-5.6 Sol",
+    },
+    {
+      description: "Balanced agentic coding model for everyday work",
+      id: "gpt-5.6-terra",
+      label: "GPT-5.6 Terra",
+    },
+    {
+      description: "Fast and affordable agentic coding model",
+      id: "gpt-5.6-luna",
+      label: "GPT-5.6 Luna",
     },
     {
       description:
-        "Ultra-fast coding model for lower-latency engineering tasks",
-      id: "gpt-5.3-codex-spark",
-      label: "GPT-5.3-Codex-Spark",
+        "Frontier model for complex coding, research, and real-world work",
+      id: "gpt-5.5",
+      label: "GPT-5.5",
     },
     {
-      description: "Smaller GPT-5.4 variant for faster everyday coding tasks",
-      id: "gpt-5.4-mini",
-      label: "GPT-5.4 Mini",
-    },
-    {
-      description: "Best general agentic model for tasks across industries",
+      description: "Strong model for everyday coding",
       id: "gpt-5.4",
       label: "GPT-5.4",
     },
     {
-      description: "Best general agentic model for tasks across industries",
-      id: "gpt-5.5",
-      label: "GPT-5.5",
+      description:
+        "Small, fast, and cost-efficient model for simpler coding tasks",
+      id: "gpt-5.4-mini",
+      label: "GPT-5.4 Mini",
+    },
+    {
+      description: "Ultra-fast coding model",
+      id: "gpt-5.3-codex-spark",
+      label: "GPT-5.3-Codex-Spark",
     },
   ],
   glmClient: [
@@ -110,6 +121,7 @@ export const REASONING_EFFORT_OPTIONS: ReadonlyArray<{
   { label: "High", value: "high" },
   { label: "x-High", value: "xhigh" },
   { label: "Max", value: "max" },
+  { label: "Ultra", value: "ultra" },
   { label: "Ultracode", value: "ultracode" },
 ];
 

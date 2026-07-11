@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task2",
-  "expectedCommitMessage": "refactor: extract session window state [skip-docs]",
+  "currentTaskId": "harness-ai.phase8.stream2.task1",
+  "expectedCommitMessage": "feat: show subagent session tree",
   "debt": null
 }
 ```
@@ -143,12 +143,12 @@
 
 34. [DONE] `harness-ai.phase8.stream1.task1` Extract the existing dialog panel from its 499-line facade before adding timeline items, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, focused tests`; expected commit: `refactor: extract session dialog panel [skip-docs]`). Result: Completed in commit `refactor: extract session dialog panel [skip-docs]`.
 35. [DONE] Git Commit: `refactor: extract session dialog panel [skip-docs]` (hash: self)
-36. [IN_PROGRESS] `harness-ai.phase8.stream1.task2` Extract session hydration/list state from the near-limit window facade before wiring child sessions, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, focused tests`; expected commit: `refactor: extract session window state [skip-docs]`).
-37. [TODO] Git Commit: `refactor: extract session window state [skip-docs]` (hash: TBD)
+36. [DONE] `harness-ai.phase8.stream1.task2` Extract session hydration/list state from the near-limit window facade before wiring child sessions, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, focused tests`; expected commit: `refactor: extract session window state [skip-docs]`). Result: Completed in commit `refactor: extract session window state [skip-docs]`.
+37. [DONE] Git Commit: `refactor: extract session window state [skip-docs]` (hash: self)
 
 ### Stream: Tree, Timeline And Child View
 
-38. [TODO] `harness-ai.phase8.stream2.task1` Render a recursive sidebar tree with child counts/statuses, open/detach controls, resizable width, in-app rename dialog and regenerate-title action (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: show subagent session tree`).
+38. [IN_PROGRESS] `harness-ai.phase8.stream2.task1` Render a recursive sidebar tree with child counts/statuses, open/detach controls, resizable width, in-app rename dialog and regenerate-title action (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: show subagent session tree`).
 39. [TODO] Git Commit: `feat: show subagent session tree` (hash: TBD)
 40. [TODO] `harness-ai.phase8.stream2.task2` Merge Core subagent calls into the dialog timeline and add open/detach inline cards with live statuses (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-subagent-timeline.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts, focused tests, related module docs`; expected commit: `feat: show subagent calls in dialog`).
 41. [TODO] Git Commit: `feat: show subagent calls in dialog` (hash: TBD)

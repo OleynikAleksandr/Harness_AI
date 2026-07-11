@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
-import {
-  type SessionMessage,
-  type SessionTelemetry,
-  sessionSnapshotProjectorFacade,
-} from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import { sessionSnapshotProjectorFacade } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import type { LocalizationRuntimePayload } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
@@ -20,13 +15,9 @@ import {
   SessionIdPanel,
 } from "./reference-session-panels.js";
 import { SessionProfileStep } from "./session-profile-step.js";
-import {
-  appendAssistantNotice,
-  applyCoreEvent,
-  isProviderStatusEvent,
-  noop,
-} from "./session-window-core-events.js";
+import { isProviderStatusEvent, noop } from "./session-window-core-events.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
+import { useSessionWindowSessionState } from "./session-window-session-state.js";
 import "./session-window.css";
 
 export function SessionWindowFacade() {
@@ -44,10 +35,6 @@ export function SessionWindowFacade() {
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(
     detachedMode?.workspaceId ?? initialSnapshot.workspace.id
   );
-  const [sessions, setSessions] = useState<CoreSession[]>([]);
-  const [activeSessionId, setActiveSessionId] = useState(
-    detachedMode?.sessionId ?? ""
-  );
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
   const [profileStepProvider, setProfileStepProvider] =
@@ -57,32 +44,25 @@ export function SessionWindowFacade() {
     useState<HarnessSettings | null>(null);
   const [localizationPayload, setLocalizationPayload] =
     useState<LocalizationRuntimePayload | null>(null);
-  const [messagesBySession, setMessagesBySession] = useState<
-    Record<string, SessionMessage[]>
-  >({
-    [initialSnapshot.activeSessionId]: initialSnapshot.messages,
-  });
-  const [telemetryBySession, setTelemetryBySession] = useState<
-    Record<string, SessionTelemetry>
-  >({
-    [initialSnapshot.activeSessionId]: initialSnapshot.telemetry,
-  });
-  const [rollbackSessionId, setRollbackSessionId] = useState<string | null>(
-    null
-  );
-  const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
+  const {
+    activeSession,
+    activeSessionId,
+    addSession: addSessionToState,
+    appendNotice,
+    applyEvent,
+    hydrateSession,
+    messages,
+    refreshSessions,
+    rollbackSessionId,
+    runningSessionId,
+    selectSession,
+    sessions,
+    setRollbackSessionId,
+    telemetry,
+  } = useSessionWindowSessionState({ detachedMode, initialSnapshot });
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
     initialSnapshot.workspace;
-  const activeSession =
-    sessions.find((session) => session.id === activeSessionId) ??
-    (detachedMode ? undefined : sessions[0]);
-  const activeSessionDataId = activeSession?.id ?? activeSessionId;
-  const messages = activeSession
-    ? (messagesBySession[activeSessionDataId] ?? [])
-    : [];
-  const telemetry =
-    telemetryBySession[activeSessionDataId] ?? initialSnapshot.telemetry;
 
   const refreshSettingsSnapshot = useCallback(
     async (workspacePath?: string) => {
@@ -101,38 +81,6 @@ export function SessionWindowFacade() {
       setLocalizationPayload(payload);
     }
   }, []);
-
-  const hydrateSession = useCallback(async (sessionId: string) => {
-    const events = await window.harnessCore?.getSessionEvents(sessionId);
-    for (const event of events ?? []) {
-      applyCoreEvent({
-        event,
-        setMessagesBySession,
-        setRunningSessionId,
-        setTelemetryBySession,
-      });
-    }
-  }, []);
-
-  const refreshSessions = useCallback(
-    async (workspaceId: string, preferredSessionId?: string) => {
-      const loaded = await window.harnessCore?.listSessions(workspaceId);
-      const nextSessions = loaded ?? [];
-      setSessions(nextSessions);
-      let nextActiveSessionId = nextSessions[0]?.id ?? "";
-      if (
-        preferredSessionId &&
-        nextSessions.some((item) => item.id === preferredSessionId)
-      ) {
-        nextActiveSessionId = preferredSessionId;
-      }
-      setActiveSessionId(nextActiveSessionId);
-      if (nextActiveSessionId) {
-        await hydrateSession(nextActiveSessionId);
-      }
-    },
-    [hydrateSession]
-  );
 
   useEffect(() => {
     window.harnessCore?.listProviders().then(setProviderOptions).catch(noop);
@@ -170,16 +118,12 @@ export function SessionWindowFacade() {
         );
         return;
       }
-      applyCoreEvent({
-        event,
-        setMessagesBySession,
-        setRunningSessionId,
-        setTelemetryBySession,
-      });
+      applyEvent(event);
     });
   }, [
     detachedMode,
     activeWorkspaceId,
+    applyEvent,
     initialSnapshot.workspace,
     refreshLocalizationPayload,
     refreshSessions,
@@ -206,19 +150,11 @@ export function SessionWindowFacade() {
       text,
     });
     if (!result) {
-      appendAssistantNotice(
-        activeSessionId,
-        "Core runtime bridge is unavailable.",
-        setMessagesBySession
-      );
+      appendNotice(activeSessionId, "Core runtime bridge is unavailable.");
       return;
     }
     if (!result.ok) {
-      appendAssistantNotice(
-        activeSessionId,
-        result.error,
-        setMessagesBySession
-      );
+      appendNotice(activeSessionId, result.error);
     }
   }
 
@@ -234,26 +170,20 @@ export function SessionWindowFacade() {
         sessionId,
       });
       if (!result) {
-        appendAssistantNotice(
-          sessionId,
-          "Core runtime bridge is unavailable.",
-          setMessagesBySession
-        );
+        appendNotice(sessionId, "Core runtime bridge is unavailable.");
       } else if (result.ok) {
         await hydrateSession(sessionId);
-        appendAssistantNotice(
+        appendNotice(
           sessionId,
-          "Rolled back Codex turns to the first 2-turn anchor.",
-          setMessagesBySession
+          "Rolled back Codex turns to the first 2-turn anchor."
         );
       } else {
-        appendAssistantNotice(sessionId, result.error, setMessagesBySession);
+        appendNotice(sessionId, result.error);
       }
     } catch (error) {
-      appendAssistantNotice(
+      appendNotice(
         sessionId,
-        error instanceof Error ? error.message : String(error),
-        setMessagesBySession
+        error instanceof Error ? error.message : String(error)
       );
     } finally {
       setRollbackSessionId((current) =>
@@ -303,12 +233,7 @@ export function SessionWindowFacade() {
       return result.error;
     }
     const session = result.session;
-    setSessions((current) => [session, ...current]);
-    setMessagesBySession((current) => ({
-      ...current,
-      [session.id]: [],
-    }));
-    setActiveSessionId(session.id);
+    addSessionToState(session);
     setProfileStepProvider(null);
     return null;
   }
@@ -345,11 +270,6 @@ export function SessionWindowFacade() {
     await refreshSettingsSnapshot(result.workspace.path);
     await refreshLocalizationPayload();
     await refreshSessions(result.workspace.id);
-  }
-
-  async function selectSession(sessionId: string) {
-    setActiveSessionId(sessionId);
-    await hydrateSession(sessionId);
   }
 
   async function detachSession(sessionId: string) {

@@ -2,7 +2,6 @@
 
 ## Scope
 
-- Plan: `codex-uc-reasoning-effort-2026-07-07`
 - Implementation commit:
   `13a38bb4 fix(codex): stabilize app-server cache anchor`
 - Package task: `harness-ai.phase14.stream1.task1`
@@ -22,7 +21,7 @@ the change:
   direct app-server protocol and can depend on extended-history bootstrap state.
 
 This keeps the live Codex app-server path aligned with the captured native
-envelope that CodexUC synthetic-native profiles use for parity testing.
+envelope used for cache testing.
 
 ## Verification
 
@@ -44,11 +43,9 @@ envelope that CodexUC synthetic-native profiles use for parity testing.
 
 ## Retest Notes
 
-Start the rebuilt packaged app and create fresh Codex app-server and CodexUC
-sessions with the same simple three-turn cache probe. Expected result: both
-providers should show the large static-prefix cache by the second visible turn,
-instead of Codex app-server requiring a third turn before the full cache is
-visible.
+Start the rebuilt packaged app and create a fresh Codex app-server session with
+the same simple three-turn cache probe. Expected result: the large static-prefix
+cache is visible by the second turn.
 
 ## User Acceptance
 

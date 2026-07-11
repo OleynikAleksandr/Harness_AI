@@ -494,13 +494,10 @@ Provider benchmark не считается объективным, если ка
   возвращает adapter в продолжение agent loop или в честный blocked state.
 
 Native Codex app-server даёт такой сигнал как `agentMessage.phase`
-(`commentary` / `final_answer`). CodexUC не получает native phase marker из
-direct Responses route, поэтому его adapter добавляет provider-owned
-`final_answer` tool и continuation developer item. Это не compiler/profile
-artifact: compiler задаёт prompt и tool surface, а provider adapter отвечает
-за wire-level semantics завершения. Для остальных custom providers нужно
-создавать аналогичный adapter-level mechanism, а не полагаться на текст модели
-или общий universal-client heuristic.
+(`commentary` / `final_answer`). Это не compiler/profile artifact: compiler
+задаёт prompt и tool surface, а provider adapter отвечает за wire-level
+semantics завершения. Для custom providers нужен собственный adapter-level
+mechanism, а не текстовая эвристика общего universal client.
 
 ## 8. Провайдерские потолки
 

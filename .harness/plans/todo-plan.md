@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream3.task1",
-  "expectedCommitMessage": "docs: remove codex uc references",
+  "currentTaskId": "harness-ai.phase8.stream3.task2",
+  "expectedCommitMessage": "docs: record codex uc removal package",
   "debt": null
 }
 ```
@@ -175,7 +175,7 @@
 
 ### Stream: Documentation And Package
 
-70. [IN_PROGRESS] `harness-ai.phase8.stream3.task1` Remove CodexUC-only evidence/archived scope files and rewrite all current architecture/index references so the codebase documents Codex app-server plus the remaining Universal Client providers without dead links or historical CodexUC guidance (scope: `docs/**, .harness/plans/archive/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: remove codex uc references`).
-71. [TODO] Git Commit: `docs: remove codex uc references` (hash: TBD)
-72. [TODO] `harness-ai.phase8.stream3.task2` Build the user-approved macOS package, verify `Harness AI.app` and `app.asar` contain no CodexUC provider/runtime surface while retaining Universal Client modules and remaining providers, launch-smoke the app, and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex uc removal package`).
+70. [DONE] `harness-ai.phase8.stream3.task1` Remove CodexUC-only evidence/archived scope files and rewrite all current architecture/index references so the codebase documents Codex app-server plus the remaining Universal Client providers without dead links or historical CodexUC guidance (scope: `docs/**, .harness/plans/archive/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: remove codex uc references`). Result: Completed in commit `docs: remove codex uc references`.
+71. [DONE] Git Commit: `docs: remove codex uc references` (hash: self)
+72. [IN_PROGRESS] `harness-ai.phase8.stream3.task2` Build the user-approved macOS package, verify `Harness AI.app` and `app.asar` contain no CodexUC provider/runtime surface while retaining Universal Client modules and remaining providers, launch-smoke the app, and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex uc removal package`).
 73. [TODO] Git Commit: `docs: record codex uc removal package` (hash: TBD)

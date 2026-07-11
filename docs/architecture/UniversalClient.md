@@ -58,7 +58,6 @@ OSS-клиентов и API-доков провайдеров (2026-07-04). По
   LM-Studio-URL ушёл из production-путей) и детект окна контекста
   (Ollama `/api/show`, LM Studio `/api/v0/models`, llama.cpp `/props`;
   override — последнее слово).
-- CodexUC (`codex-uc-provider`) добавлен позже как отдельный тестовый
   subscription-backed surface: он использует Codex OAuth
   Responses-compatible backend, а не OpenAI-shape Chat Completions ядро, но
   сохраняет тот же Core-owned принцип — Harness формирует prompt/tools,
@@ -401,24 +400,15 @@ snake_case):
   разрешающая).
 - **Provider Runtime** владеет тонкими endpoint-модулями: детали auth
   провайдера, model-дескрипторы, provider-specific capability-профили
-  диалекта (раздел 3.3), особенности base_url/заголовков. CodexUC находится
-  здесь же как отдельный Responses-compatible endpoint module: он не
-  переиспользует Chat Completions `runClientTurn`, потому что Codex OAuth
-  route стримит Responses events (`response.output_item.done`,
-  `function_call_output`, `usage.input_tokens_details.cached_tokens`) и требует
-  `store:false`.
+  диалекта (раздел 3.3), особенности base_url/заголовков.
 - **Provider adapter phase contract** является частью Provider Runtime, а не
   универсального agent loop. Общий клиент не должен считать любой streamed
   assistant text финальным ответом. Endpoint adapter обязан привести
   provider-specific stream к Core events: progress text -> `commentary`,
   reasoning -> `thinking`, explicit completion signal -> terminal assistant
-  output. Если upstream не даёт native phase marker, adapter добавляет свой
-  sentinel/continuation protocol. CodexUC зафиксировал этот паттерн через
-  route-owned `final_answer`: ordinary Responses `output_text` не завершает
-  turn, а final answer появляется только после explicit tool signal. Для Kimi,
-  GLM, OpenRouter, Local Models и будущих custom providers нужно делать такой
-  же adapter-level contract с учетом их wire protocol, а не переносить
-  CodexUC-specific `final_answer` в общее ядро.
+  output. Если upstream не даёт native phase marker, endpoint adapter обязан
+  реализовать собственную проверяемую семантику завершения, не перенося её в
+  общее ядро.
 - **Application Shell** только отображает Core-события и передаёт ввод
   пользователя; не выводит provider truth и не исполняет инструменты.
 

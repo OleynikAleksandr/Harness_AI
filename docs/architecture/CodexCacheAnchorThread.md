@@ -438,8 +438,7 @@ cache anchor, а завершённые dynamic turns можно удалять 
 
 Packaged-app retest on 2026-07-08 confirmed that live Codex app-server sessions
 must use `persistExtendedHistory: false` on both `thread/start` and
-`thread/resume` for stable cache-anchor parity with CodexUC synthetic-native
-sessions.
+`thread/resume` for stable cache-anchor behavior.
 
 Root cause found during the retest investigation:
 
@@ -453,7 +452,7 @@ Root cause found during the retest investigation:
   prompt prefix alone.
 - The packaged-app retest after switching live `thread/start`/`thread/resume`
   to `false` was accepted by the user: Codex app-server now reaches the large
-  cache-anchor value on the same second-visible-turn timing as CodexUC.
+  cache-anchor value on the second visible turn.
 
 Do not "fix" this back to `true` for ordinary Harness sessions. If future work
 needs extended-history persistence, it must first re-run the cache-anchor probe
@@ -513,7 +512,7 @@ cache-anchor prefix после удаления dynamic turns.
 1. Создать Codex cache-anchor turn.
 2. Создать второй warmup/probe turn; после accepted 2026-07-08 fix для live
    app-server (`persistExtendedHistory: false`) уже здесь должен появиться
-   большой cached-prefix value, matching CodexUC synthetic-native timing.
+   большой cached-prefix value.
 3. Добавить 1-2 больших dynamic turns.
 4. Снять `thread/read includeTurns=true` и `thread/tokenUsage/updated`.
 5. Нажать Harness `Rollback`; UI отправляет `preserveFirstUserTurns: 2`, а

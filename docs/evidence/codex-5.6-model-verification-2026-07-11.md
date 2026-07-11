@@ -8,7 +8,6 @@ capabilities and make the Codex Native Request Capture diagnostic use the
 reasoning effort stored in provider Settings for the selected capture model.
 
 This slice changes the native `codex` app-server catalog. The separate
-`codex-uc` static client catalog is not treated as proof of the same rollout.
 
 ## Provider contract observed
 

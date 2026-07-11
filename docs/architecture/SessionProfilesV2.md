@@ -139,7 +139,6 @@
 - Уточнение 2026-07-09: первый реализуемый scope Profile Creator больше не
   создаёт универсальные профили. Новый профиль всегда provider-scoped, форма
   требует provider id, а список провайдеров покрывает все active Core ids
-  (`claude`, `codex`, `codex-uc`, `kimi-client`, `glm-client`,
   `openrouter-client`, `local-models-client`). Universal-профили остаются
   только legacy/read-only данными, если пользовательские старые файлы ещё
   лежат на диске.

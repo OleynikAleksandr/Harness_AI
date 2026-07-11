@@ -145,27 +145,8 @@ text.
   `DYNAMIC_BOUNDARY`) + `tools` (точный список). Обвязка и тулинг управляемы.
 - **Codex** — native app-server путь полностью управляет prompt через
   `baseInstructions`, но не даёт per-thread подменять 17 app-server tools.
-  CodexUC путь (`codex-oauth-responses`) идёт через наш клиент, поэтому может
-  передавать captured `tools.json` и `request-template.json` структурно.
-  Практический probe 2026-07-07:
-  `codex-synthetic-native` — exact individual Codex profile, собранный из
-  принятого native request capture
-  `2026-07-05T05-12-51-502Z-codex-gpt-5.5-native-request.jsonl`: captured
-  `body.instructions` лежит в `system-prompt.md`, captured `body.tools` лежит
-  в `tools.json`, статичные поля request body лежат в `request-template.json`.
-  В этом baseline нет `AGENTS.md`/workspace custom text. Профиль
-  `codex-synthetic-native-custom` использует тот же baseline и отдельный
-  `custom-instructions.md`; `system-prompt.md` остаётся exact baseline, а
-  materializer вставляет sidecar text в `# General` captured prompt без имени
-  файла, пути, отдельной секции или Harness wrapper. CodexUC не требует, чтобы
-  `request-template.json` содержал `prompt_cache_key`: adapter вычисляет key из
-  static provider-facing prefix (`model`, final `instructions`, structured
-  `tools`, stable options) и сериализует его после `tools` и перед
-  динамическим `input`, чтобы prompt/cache probe видел prompt и tooling как
-  смежный стабильный блок.
-  Любая будущая правка этих профилей должна менять только содержимое внутри
-  native формы или структурные native sidecars, но не добавлять Harness-метки,
-  секции, форматные wrappers или JSON code fences в provider-facing prompt.
+  Prompt-only synthetic profiles сохраняют captured `body.instructions`, но
+  structured tool declarations остаются под управлением app-server.
 - **Kimi** — канал подмены (agent.yaml → `system_prompt_path` + `tools:`) **не
   доказан** (verification 2026-07-02: нет подтверждённой привязки materialized
   agent.yaml к спавненному CLI). Синтетический Kimi native заблокирован, пока

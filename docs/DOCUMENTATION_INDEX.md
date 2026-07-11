@@ -57,7 +57,7 @@ relevant to the active task.
   Codex forward-transit WebSocket support, per-(provider, model) capture,
   Settings card, raw upstream-request JSONL, diagnostics JSONL, and readable
   profile-relevant prompt/tool/developer dumps — capture now serves
-  Claude/Codex/CodexUC after the Kimi channel was retired 2026-07-05, though
+  Claude/Codex after the Kimi channel was retired 2026-07-05, though
   the accepted 2026-07-03 Kimi dump remains Phase R material), the reordered
   roadmap that builds
   capture first (Phase R is gated on capturing at least three native pairs),
@@ -78,11 +78,6 @@ relevant to the active task.
   Harness workflow profiles, tool bundles, provider ceilings, and the
   benchmark model for calibrating Claude/Codex before applying the same
   matrix to universal-client providers.
-- `docs/architecture/CodexManagedPromptToolingEconomics.md` — CodexUC
-  managed prompt/tooling economics finding (Russian): benchmark conclusion
-  that task-specific control over system prompt and system tooling can
-  materially reduce token/cache footprint without observed completion-quality
-  loss, while provider adapters still own phase/tool-loop protocol semantics.
 - `docs/architecture/CodexCacheAnchorThread.md` — Codex app-server
   cache-anchor and `thread/rollback` research (Russian): the 2026-07-06
   rollback metrics, why `last_token_usage` and `thread/read includeTurns=true`
@@ -102,13 +97,6 @@ relevant to the active task.
   foundation recommendation (CodeAI-Hub reference runtime as the code base,
   OpenCode as the behavior/extensibility reference, its Vercel-AI-SDK runtime
   dependency rejected) and the recorded user decisions.
-- `docs/architecture/ClaudeProviderResearch.md` — Claude provider research
-  note (Russian, Phase 1 of the claude-provider-research-2026-07-08 scope):
-  what Harness controls for Claude across system prompt, tool inventory,
-  settings sources, memory/context ballast, phase/event semantics,
-  cache/context/resume and benchmark design, each explicitly compared against
-  the closed Codex/CodexUC findings; the EXISTS/ABSENT summary and the open
-  research questions for the next cycles.
 
 ## Product Part Documentation
 
@@ -319,39 +307,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged application rebuild after acceptance fixes: Rollback preserves the
   first two warmup/cache-anchor turns, `Turns` sits next to `Rollback`, and
   provider-reported cached input tokens render as `Cache` beside `Tokens`.
-- `docs/evidence/codex-uc-reasoning-effort-package-2026-07-07.md` —
-  packaged application rebuild evidence for the CodexUC request-body fix:
-  Core-selected Codex reasoning effort overrides native-bundle template
-  `reasoning.effort` while CodexUC keeps route-owned `summary: "concise"`.
-- `docs/evidence/codex-uc-response-feedback-package-2026-07-07.md` —
-  packaged application rebuild evidence for the CodexUC response-feedback
-  diagnostic: redacted provider feedback logs requested reasoning and backend
-  `response.created` / `response.completed` reasoning metadata when present.
-- `docs/evidence/codex-uc-detailed-summary-package-2026-07-07.md` —
-  packaged application rebuild evidence for switching CodexUC live Responses
-  requests from low-value `summary: "concise"` to backend-accepted
-  `summary: "detailed"` for user retest.
 - `docs/evidence/codex-app-server-cache-anchor-package-2026-07-08.md` —
   packaged application rebuild evidence for aligning live Codex app-server
-  history mode with Native Request Capture so cache-anchor parity can be
-  retested against CodexUC synthetic-native sessions; includes the accepted
+  history mode with Native Request Capture; includes the accepted
   2026-07-08 finding that live app-server must keep
   `persistExtendedHistory: false` for second-visible-turn cache parity.
-- `docs/evidence/codex-uc-custom-tool-call-package-2026-07-08.md` —
-  packaged application rebuild evidence for the CodexUC native custom tool-call
-  loop: streamed `response.custom_tool_call_input.*`, native `custom_tool_call`
-  normalization, freeform `apply_patch` executor arguments, and the package path
-  for user retest.
-- `docs/evidence/codex-uc-phase-protocol-retest-2026-07-08.md` —
-  packaged-app retest evidence for the CodexUC adapter-owned phase protocol:
-  intermediate assistant output persisted as `commentary`, final output emitted
-  only through the `final_answer` sentinel, and token/cache parity with Codex
-  app-server benchmark behavior.
-- `docs/evidence/claude-electron-profile-economics-experiment-2026-07-08.md`
-  — preparation brief for the Claude full/native vs minimal Electron benchmark:
-  two seeded test workspaces, exact first prompt, comparison criteria and the
-  minimal Claude profile requirements derived from the CodexUC lean Electron
-  profile.
 - `docs/evidence/localization-transfer-2026-06-30.md` — localization transfer
   implementation evidence before packaged application verification.
 - `docs/evidence/localization-transfer-packaged-app-2026-06-30.md` —

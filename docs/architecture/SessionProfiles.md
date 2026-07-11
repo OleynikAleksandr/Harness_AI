@@ -13,8 +13,7 @@ Harness AI позволит пользователю выбирать **проф
   `~/.harness-ai/Profiles/**` (`HARNESS_AI_HOME`), потому что профили
   применяются в любом workspace. Универсальные профили лежат прямо в корне,
   а профили конкретного провайдера могут лежать в отдельном namespace,
-  например `~/.harness-ai/Profiles/Codex/<profileId>/` или
-  `~/.harness-ai/Profiles/CodexUC/<profileId>/`; id профиля при этом
+  например `~/.harness-ai/Profiles/Codex/<profileId>/`; id профиля при этом
   остаётся `<profileId>`, чтобы сохранённые выборы и сессии не зависели от
   физического пути.
 - Профиль — **один универсальный комплект документов** (системный промпт +
@@ -100,131 +99,6 @@ synthetic-native. Номера строк актуальны на дату ис�
   shapes: legacy `summary: string[]` и текущих schema objects
   `{ type: "summary_text", text }`, иначе dialog может не показать thinking
   даже при корректном outgoing `summary: "detailed"`.
-- **CodexUC** — тестовый provider id `codex-uc`, отдельный от native Codex
-  app-server. Он использует локальный Codex OAuth auth и
-  Responses-compatible backend с `store:false`; managed/synthetic profile
-  snapshot применяется как request `instructions`. Если профиль содержит
-  native request bundle (`input-prefix.json` + `request-template.json` +
-  `tools.json`), CodexUC передаёт эти captured native fields как структурный Responses payload,
-  сохраняя exact sidecar на диске, но отбрасывая transport-only поля, которые
-  текущий HTTP endpoint отклоняет (например captured top-level `type`); иначе
-  tool surface формируется Harness function tools. Для
-  `codex-synthetic-native` и custom-варианта structured `tools.json` и
-  статический developer/runtime `input-prefix.json` синхронизированы с Codex app-server Native Request Capture
-  `2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`
-  (`request.body.tools`, 17 entries, и `request.body.input[0]`). Этот набор
-  является принятой frozen native-compatible версией для текущего сравнения:
-  CodexUC не обязан автоматически следовать каждому будущему изменению
-  OpenAI/Codex, но может интегрировать новые native tool shapes после
-  отдельного решения. Чтобы benchmark сравнивал app-server и CodexUC
-  лоб-в-лоб с этим native-like surface, CodexUC Responses parser исполняет не
-  только обычные `function_call`, но и native Responses `custom_tool_call`.
-  Streamed `response.custom_tool_call_input.*` собирается в tool input,
-  provider `call_id` сохраняется, а результат возвращается как
-  `function_call_output` в следующем request. Текущий freeform custom tool
-  `apply_patch` нормализуется в локальный executor argument
-  `{ "patch": "<freeform patch>" }`; остальные неизвестные custom tools
-  получают JSON object input как есть или fallback `{ "input": "..." }` и
-  проходят через обычный registry unknown-tool result, не останавливая turn.
-  Дополнительно CodexUC adapter добавляет route-owned phase protocol, которого
-  нет в profile sidecars: каждый request получает developer item о том, что
-  обычный assistant `output_text` является `commentary`, а structured tools
-  дополняются protocol-only `final_answer`. Это не попытка менять captured
-  native profile, а совместимость с app-server `agentMessage.phase`: текст
-  без `final_answer` не завершает turn, а если Responses call вернул только
-  commentary и не вернул executable tool call, adapter добавляет developer
-  continuation item и продолжает loop. `final_answer` никогда не исполняется
-  через локальный registry; его `answer` становится terminal assistant output.
-  Это adapter-level compatibility layer, а не часть synthetic-native profile и
-  не общий universal-client behavior. Профиль отвечает за static prompt/tool
-  surface, а provider adapter отвечает за protocol semantics: как отличить
-  progress/commentary от terminal answer и когда переводить turn в idle.
-  Packaged retest 2026-07-08 подтвердил схему на реальной benchmark-сессии:
-  все промежуточные assistant messages имели `tag: "commentary"`, финальное
-  сообщение пришло без commentary tag только после backend request с
-  `final_answer` в tool surface, а token/cache profile стал сопоставим с
-  Codex app-server.
-  При HTTP-сериализации
-  CodexUC держит cache-optimized порядок: `model`, `instructions`, `tools`,
-  `prompt_cache_key`, `input`, затем остальные request options. Профильные
-  файлы не хранят `prompt_cache_key`: adapter вычисляет его на каждый request
-  из уже собранного статического provider-facing prefix, включая
-  `input-prefix.json`, и вставляет строго после structured `tools` и перед
-  `input`. Unsupported envelope
-  `type` остаётся в exact sidecar на диске, но не отправляется в HTTP route.
-  `prompt_cache_key` является content-addressed ключом статического
-  provider-facing prefix (`model`, final materialized `instructions`,
-  structured `tools` и stable request options), а не session/user-input ключом.
-  HTTP request также несёт
-  Codex-style cache/session routing headers (`session-id`, `session_id`,
-  `x-session-affinity`, `x-client-request-id`). Original native request capture
-  остаётся baseline/evidence, но для CodexUC prompt-cache экспериментов
-  динамический user/history `input` не должен находиться между системным prompt,
-  системным tooling и captured developer/runtime prefix: иначе backend может
-  распознать меньший cached prefix даже без tool calls и без reasoning.
-  Native Request Capture для CodexUC является profile-qualified diagnostic:
-  карточка Settings передаёт в Core выбранный `profileId` вместе с provider/model,
-  adapter читает `~/.harness-ai/Profiles/CodexUC/<profileId>/system-prompt.md`,
-  `input-prefix.json`, `request-template.json`, `tools.json` и optional
-  `custom-instructions.md`.
-  Для native-bundle профиля `system-prompt.md` остаётся exact captured
-  `body.instructions`; если рядом есть `custom-instructions.md`, materializer
-  вставляет этот текст в final `instructions` внутри native prompt body, в
-  первую очередь после `# General`, без имени файла, пути или Harness wrapper.
-  Поэтому custom-профиль на диске НЕ должен предварительно сливать custom text
-  в `system-prompt.md`: иначе материализация добавит те же инструкции дважды.
-  Capture собирает такой же managed native-bundle prompt, как обычная CodexUC
-  session, добавляет adapter-owned `prompt_cache_key` после `tools`, и
-  отправляет этот HTTP body через общий MITM proxy. Артефакт обязан содержать
-  `applied_input_envelope.kind = "codex-uc"` и выбранный `profileId`; без этого
-  cache/captured-body сравнение с app-server Codex неинтерпретируемо.
-  Cache telemetry берётся
-  из known Responses usage aliases (`input_tokens_details.cached_tokens`,
-  `cached_input_tokens`, etc.) и означает provider-reported cached input read;
-  CodexUC status panel стартует с `Cache: 0`, положительное значение становится
-  cache-anchor display для активной projected session. Поздние меньшие
-  значения, включая `cached: 0`, не стирают уже найденный положительный anchor
-  value в UI, но raw `cached` остаётся per-request фактом: падение значения на
-  следующем пользовательском turn означает, что именно этот backend request
-  получил меньший cached-input read, а не что весь session cache был удалён.
-  Missing cache field не превращается в новый ноль.
-  Visible reasoning запрашивается через `reasoning.summary: "detailed"` вместе
-  с Core-selected Codex effort для модели сессии. Если native-bundle
-  `request-template.json` тоже содержит `reasoning.effort`, выбранный в Core
-  effort переопределяет template effort; template effort остаётся fallback
-  только когда Core не передал per-turn effort. Native sidecar остаётся
-  byte/profile-exact на диске, но CodexUC HTTP route нормализует исходящий
-  `reasoning.summary` в `detailed`, потому что live Codex OAuth
-  Responses проверка подтвердила, что backend принимает `detailed` и
-  возвращает его в `response.created` / `response.completed` feedback.
-  `concise` summary events приходили, но давали слишком мало полезной
-  информации для CodexUC Thinking surface. Reasoning telemetry берётся из
-  direct Responses reasoning summary/text stream deltas/items, буферизуется на
-  границе active Responses call и отдаётся в Core как coalesced `thinking`
-  messages, а не отдельная строка на каждый provider delta. Для acceptance и
-  отладки CodexUC дополнительно пишет redacted provider-feedback JSONL в
-  `~/.harness-ai/logs/providers/codex-uc-response-feedback.jsonl`: requested
-  `model`/`reasoning`, HTTP status, response event names и sanitized
-  `response.created` / `response.completed` model/status/reasoning metadata,
-  если backend вернул такие поля. Этот лог не содержит auth, prompt, input
-  history или tool schemas; отсутствие response-side `reasoning` означает, что
-  backend не подтвердил принятую reasoning-конфигурацию в доступном SSE
-  feedback.
-  Usage-limit telemetry
-  берётся через проверенный Codex account-limits bridge
-  (`account/rateLimits/read`) с best-effort direct response-header fast path,
-  если backend отдаёт Codex session/weekly limit проценты или пары
-  limit/remaining. Settings-карты у него нет: model/reasoning берутся из
-  существующего Codex settings section, а OAuth auth читается из локального
-  Codex login. В UI и telemetry он является
-  Codex-family provider: использует Codex-style reasoning label, cache counter,
-  Turns/Rollback controls и общий provider scope `codex:global`; rollback
-  реализуется не через app-server `thread/rollback`, а через pruning локальной
-  Responses input history, потому что `store:false` маршрут пересылает историю
-  сам. В profile catalog он применяет universal profiles и индивидуальные
-  `provider: codex-uc` profiles из `Profiles/CodexUC`; app-server
-  `provider: codex` profiles не применимы к CodexUC, потому что их structured
-  tool/request payload принадлежит другому каналу.
 - **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
   прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
   универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;
@@ -296,9 +170,8 @@ kebab-case id. Базово у него есть три документа:
   native request, кроме динамических `instructions`, `input`, `tools`,
   `prompt_cache_key` и `client_metadata`.
 - **native input prefix** (`input-prefix.json`): статичные captured
-  Responses `input` items, которые должны идти перед пользовательской/историей
-  сессии. Для CodexUC synthetic-native это app-server developer/runtime layer
-  (`body.input[0]`) с permissions, skills/plugins и memory instructions.
+  Responses `input` items, которые должны идти перед пользовательской историей
+  сессии.
 - **native tools** (`tools.json`): структурный captured tool list exactly as
   sent by the native/provider client. Эти схемы передаются структурно, а не
   сериализуются внутрь `system-prompt.md`.
@@ -399,18 +272,6 @@ native/managed применения. Это было подтверждено Co
       profile.yaml
       system-prompt.md
       custom-instructions.md            <- inserted into system prompt body
-  CodexUC/                              <- Codex OAuth Responses namespace
-    codex-synthetic-native/             <- индивидуальный (provider: codex-uc)
-      profile.yaml
-      system-prompt.md                  <- exact captured body.instructions
-      tooling.yaml                      <- category metadata/fallback only
-      input-prefix.json                 <- captured static body.input prefix
-      request-template.json
-      tools.json
-    codex-synthetic-native-custom/
-      profile.yaml
-      system-prompt.md
-      custom-instructions.md            <- inserted into system prompt body
       tooling.yaml
       input-prefix.json                 <- captured static body.input prefix
       request-template.json
@@ -451,7 +312,7 @@ categories:
 для тела промпта и custom instruction; JSON для структурного native request
 bundle. Один каталог = один профиль; применимость определяется полем
 `provider` паспорта (универсальный или индивидуальный). Провайдерский
-namespace (`Profiles/Codex/...`, `Profiles/CodexUC/...`) является только
+namespace (`Profiles/Codex/...`) является только
 физической группировкой и не входит в id профиля; один и тот же id не должен
 использоваться одновременно в разных namespace.
 
@@ -766,7 +627,7 @@ Core фактически применённые provider-specific details (whit
   `persistExtendedHistory: false`, как диагностический capture path, чтобы
   cache-anchor prefix прогревался ко второму turn. Это принято packaged-app
   retest 2026-07-08: `true` ведёт к extended-history bootstrap behavior и
-  нестабильной timing/parity относительно CodexUC. Эффективный ключ
+  нестабильному времени прогрева. Эффективный ключ
   процесс-профиля фиксируется в snapshot как задел под будущий пул процессов.
 - **Kimi**: материализация agent-артефактов (`agent.yaml` + `system.md` +
   список tools) перед `session/new` в **immutable каталог, ключуемый
@@ -874,34 +735,12 @@ Seed-профили — стандартный стартовый набор, к
    `codeai-workflow-glm-native` больше не сидируются, потому что их provider
    ids (`kimi`, `glm-native`) удалены; Kimi/GLM client-four profiles
    переопределяются в Phase 5 synthetic-native через новые live ids.
-6. `codex-synthetic-native` (индивидуальный CodexUC, физически
-   `Profiles/CodexUC/codex-synthetic-native`) — ручной Codex probe из
-   принятого native request capture 2026-07-05 для Responses-compatible
-   CodexUC route: `system-prompt.md` является точной копией captured
-   `body.instructions`, `tools.json` является точной копией captured
-   `body.tools`, `input-prefix.json` хранит captured static developer/runtime
-   `body.input[0]`, а `request-template.json` хранит статичные поля запроса. В
-   этом baseline нет workspace/custom instructions. Runtime adapter добавляет
-   поверх sidecar route-owned `final_answer` phase protocol; это не часть
-   frozen `tools.json`.
-7. `codex-synthetic-native-custom` (индивидуальный CodexUC, физически
-   `Profiles/CodexUC/codex-synthetic-native-custom`) — тот же exact native
-   baseline плюс `custom-instructions.md`. На диске `system-prompt.md`
-   остаётся exact captured baseline, а custom text хранится только в sidecar;
-   materializer вставляет sidecar text в final `instructions` после `# General`
-   как обычную часть system instructions, без имени `AGENTS.md`, пути,
-   отдельного раздела или Harness wrapper. Для CodexUC после materialization
-   adapter добавляет `prompt_cache_key` в HTTP payload после `tools` и перед
-   `input`, где static `input-prefix.json` уже стоит перед динамической
-   историей; profiles не должны хранить этот key или route-owned
-   `final_answer` protocol в
-   `request-template.json`.
-8. `codex-app-server-synthetic-native` (индивидуальный Codex app-server,
+6. `codex-app-server-synthetic-native` (индивидуальный Codex app-server,
    физически `Profiles/Codex/codex-app-server-synthetic-native`) — prompt-only
    baseline с тем же captured `body.instructions`; `request-template.json` и
    `tools.json` отсутствуют, потому что список инструментов и их описания
    приходят из native app-server tool registry, а не из профиля.
-9. `codex-app-server-synthetic-native-custom` (индивидуальный Codex
+7. `codex-app-server-synthetic-native-custom` (индивидуальный Codex
    app-server, физически
    `Profiles/Codex/codex-app-server-synthetic-native-custom`) — тот же
    prompt-only baseline плюс `custom-instructions.md`; структурные native tool
@@ -990,7 +829,7 @@ Seed-профили — стандартный стартовый набор, к
   контракт ошибок; запоминание последнего выбранного профиля и
   AutoNormalizer-флага per provider в Core settings (settings-store).
 - **Фаза C — адаптеры, по одному на stream**: Claude → Codex →
-  CodexUC test surface → client-four synthetic-native (`kimi-client`,
+  client-four synthetic-native (`kimi-client`,
   `glm-client`, `openrouter-client`, `local-models-client`). `module.md`
   каждого адаптера получает таблицу маппинга категорий; старые GLM Native/Kimi
   ACP привязки не реанимируются.

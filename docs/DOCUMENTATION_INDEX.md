@@ -262,6 +262,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   Core turn options now override legacy/provider-home defaults, focused/full
   tests pass, and the compiled `app.asar` mapping plus launch smoke are
   verified for a fresh GPT-5.6 Sol Ultra retest.
+- `docs/evidence/native-capture-reasoning-package-2026-07-11.md` — explicit
+  Claude/Codex Native Request Capture reasoning selection, model-specific Core
+  capability validation, reasoning-qualified artifact filenames, live Codex
+  Sol Ultra plus Claude Sonnet Max captures, and packaged-app inspection and
+  launch evidence.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

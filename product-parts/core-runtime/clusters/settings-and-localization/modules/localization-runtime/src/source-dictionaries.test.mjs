@@ -42,6 +42,25 @@ assert.deepEqual(
 const registry = new SourceDictionaryRegistry();
 assert.equal(registry.getMessage("ui_labels", "settings.title"), "Settings");
 assert.equal(
+  registry.getMessage("ui_labels", "session.subagents.started"),
+  "Subagents started"
+);
+assert.equal(
+  registry.getMessage("ui_labels", "sidebar.regenerateSessionTitle"),
+  "Regenerate title"
+);
+assert.equal(
+  registry.getMessage("ui_helper_text", "session.subagent.readOnly"),
+  "Read-only live subagent session"
+);
+assert.equal(
+  registry.getMessage(
+    "messages_for_the_user",
+    "session.subagent.parentUnavailable"
+  ),
+  "Parent session unavailable"
+);
+assert.equal(
   registry.getMessage("messages_for_the_user", "core.bridge.unavailable"),
   "Core runtime bridge is unavailable."
 );

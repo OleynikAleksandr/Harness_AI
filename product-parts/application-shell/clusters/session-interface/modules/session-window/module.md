@@ -120,6 +120,11 @@ Render the transcript/dialog layout and session chrome.
   delegated task, agent/model/reasoning/status metadata and no input composer.
   The same child id drives open-in-place and detached-window actions from both
   the timeline and sidebar.
+- The approved visual layer reuses existing `--pm-*` tokens and lucide icons:
+  sidebar width is user-resizable from 240 to 360 px, nested branches use a
+  quiet connector, status colors are shared by tree/card/header, inline calls
+  form a responsive card grid, and child/detached layouts reserve a compact
+  metadata header above the transcript.
 - Sidebar rename and regenerate-title actions call the typed preload/Core
   commands. Successful mutations refresh only the session list; title
   validation and `titleOrigin` authority remain in Core.

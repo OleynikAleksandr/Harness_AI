@@ -89,6 +89,11 @@ materialization, bootstrap payload reuse, and bundle state.
   artifacts and does not claim capture-and-abort behavior for Codex's
   forward-transit path), and `messages_for_the_user`
   (`settings.nativeCapture.capturing`/`.failed`/`.done`).
+- Subagent tree controls, live status labels, inline call cards, child-session
+  breadcrumb/read-only copy and session rename/regenerate controls are approved
+  English source strings in the category dictionaries. The normal Core
+  localization materializer resolves configured languages such as Russian;
+  renderer fallbacks remain the same English source copy.
 - Settings localization refresh blocker copy is part of the approved
   `messages_for_the_user` dictionary so the blocking save feedback itself can
   be localized.

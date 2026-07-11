@@ -13,6 +13,10 @@ const coreEventsSource = readFileSync(
   new URL("./session-window-core-events.ts", import.meta.url),
   "utf8"
 );
+const stylesSource = readFileSync(
+  new URL("./session-window.css", import.meta.url),
+  "utf8"
+);
 
 assert.match(timelineSource, /buildSessionTimeline/u);
 assert.match(timelineSource, /timestamp: call\.createdAt/u);
@@ -46,3 +50,8 @@ assert.match(coreEventsSource, /upsertSubagentCallToState/u);
 assert.match(coreEventsSource, /candidate\.id === call\.id/u);
 assert.equal(timelineSource.split("\n").length <= 500, true);
 assert.equal(dialogSource.split("\n").length <= 500, true);
+assert.match(stylesSource, /\.session-sidebar \{[\s\S]*resize: horizontal/u);
+assert.match(stylesSource, /\.session-tree-children/u);
+assert.match(stylesSource, /\.session-subagent-call__list/u);
+assert.match(stylesSource, /\.session-reference-shell--subagent/u);
+assert.match(stylesSource, /\.session-rename-dialog/u);

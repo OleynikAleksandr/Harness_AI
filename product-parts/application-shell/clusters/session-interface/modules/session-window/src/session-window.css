@@ -1647,3 +1647,478 @@ strong {
   background: #241f1a;
   border-color: #4a4136;
 }
+
+/* Subagent session UX — follows the approved hybrid timeline + recursive-tree
+   prototype while reusing the existing Harness surface, border and text tokens. */
+.session-sidebar {
+  width: 280px;
+  min-width: 240px;
+  max-width: 360px;
+  overflow: hidden;
+  resize: horizontal;
+}
+
+.session-sidebar .sidebar-section {
+  min-height: 0;
+}
+
+.session-sidebar .session-list {
+  min-height: 0;
+  padding-right: 2px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.session-tree-node {
+  min-width: 0;
+}
+
+.session-tree-children {
+  display: grid;
+  gap: 3px;
+  padding-left: 8px;
+  margin: 2px 0 4px 13px;
+  border-left: 1px solid rgba(66, 201, 162, 0.2);
+}
+
+.session-tree-row .session-list-item {
+  gap: 5px;
+  min-height: 44px;
+}
+
+.session-tree-row.is-active .session-list-item {
+  background: rgba(66, 201, 162, 0.09);
+  border-color: rgba(66, 201, 162, 0.3);
+}
+
+.session-tree-toggle,
+.session-tree-toggle-spacer {
+  display: inline-flex;
+  flex: 0 0 22px;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 30px;
+  padding: 0;
+}
+
+.session-tree-toggle {
+  color: var(--pm-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+}
+
+.session-tree-toggle:hover,
+.session-tree-toggle:focus-visible {
+  color: var(--pm-accent-strong);
+  outline: none;
+  background: rgba(66, 201, 162, 0.1);
+}
+
+.session-tree-status {
+  flex: 0 0 auto;
+  color: #a5acb5;
+}
+
+.session-tree-status--running,
+.session-subagent-call__status--running,
+.session-subagent-header__status--running {
+  color: var(--pm-accent-strong);
+}
+
+.session-tree-status--pending,
+.session-subagent-call__status--pending,
+.session-subagent-header__status--pending {
+  color: #d6b96d;
+}
+
+.session-tree-status--completed,
+.session-subagent-call__status--completed,
+.session-subagent-header__status--completed {
+  color: #86d8b8;
+}
+
+.session-tree-status--interrupted,
+.session-subagent-call__status--interrupted,
+.session-subagent-header__status--interrupted {
+  color: #e7a96b;
+}
+
+.session-tree-status--failed,
+.session-tree-status--not_found,
+.session-subagent-call__status--failed,
+.session-subagent-call__status--not_found,
+.session-subagent-header__status--failed,
+.session-subagent-header__status--not_found {
+  color: #ef8588;
+}
+
+.session-tree-status--shutdown,
+.session-subagent-call__status--shutdown,
+.session-subagent-header__status--shutdown {
+  color: #8c949e;
+}
+
+.session-tree-title {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6px 3px;
+}
+
+.session-tree-title > span,
+.session-tree-title > small {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-tree-title > small {
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 300;
+  color: var(--pm-text-muted);
+}
+
+.session-tree-row .session-list-detach {
+  flex: 0 0 28px;
+  width: 28px;
+  min-height: 28px;
+  color: var(--pm-text-muted);
+  opacity: 0.72;
+}
+
+.session-tree-row:hover .session-list-detach,
+.session-tree-row .session-list-detach:focus-visible {
+  opacity: 1;
+}
+
+.session-context-error,
+.session-rename-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #ef8588;
+}
+
+.session-rename-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.session-rename-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: default;
+  background: rgba(3, 6, 10, 0.76);
+  border: 0;
+}
+
+.session-rename-dialog {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+  width: min(420px, 100%);
+  padding: 18px;
+  background: var(--pm-bg-secondary);
+  border: 1px solid var(--pm-border-strong);
+  border-radius: 10px;
+  box-shadow: var(--pm-shadow-soft);
+}
+
+.session-rename-dialog label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pm-text-primary);
+}
+
+.session-rename-dialog input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  color: var(--pm-text-primary);
+  outline: none;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 7px;
+}
+
+.session-rename-dialog input:focus {
+  border-color: var(--pm-accent);
+  box-shadow: 0 0 0 3px rgba(66, 201, 162, 0.14);
+}
+
+.session-rename-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.session-rename-actions button {
+  min-height: 34px;
+  padding: 0 14px;
+  color: var(--pm-text-primary);
+  cursor: pointer;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 7px;
+}
+
+.session-rename-actions button[type="submit"] {
+  color: #d6fff1;
+  background: #263832;
+  border-color: #2d9a86;
+}
+
+.session-rename-actions button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.session-subagent-call {
+  gap: 10px;
+  padding: 10px 12px 12px;
+  margin: 0 80px 0 30px;
+  background: #111820;
+  border-color: #2c3742;
+  box-shadow: 0 6px 14px 3px rgba(0, 0, 0, 0.45);
+}
+
+.session-subagent-call__header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--pm-text-secondary);
+}
+
+.session-subagent-call__header > span {
+  font-weight: 500;
+  color: var(--pm-text-primary);
+}
+
+.session-subagent-call__header time {
+  font-size: 10px;
+  color: var(--pm-text-muted);
+}
+
+.session-subagent-call__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+.session-subagent-call__row,
+.session-subagent-call__pending {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 62px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 7px;
+}
+
+.session-subagent-call__pending {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.session-subagent-call__pending small {
+  grid-column: 2;
+  font-size: 10.5px;
+  color: #d6b96d;
+}
+
+.session-subagent-call__open {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 0;
+  color: var(--pm-text-primary);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.session-subagent-call__open strong,
+.session-subagent-call__open small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-subagent-call__open strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.session-subagent-call__open small {
+  font-size: 10.5px;
+  color: var(--pm-text-muted);
+}
+
+.session-subagent-call__open:hover strong,
+.session-subagent-call__open:focus-visible strong {
+  color: var(--pm-accent-strong);
+}
+
+.session-subagent-call__detach {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--pm-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.session-subagent-call__detach:hover,
+.session-subagent-call__detach:focus-visible {
+  color: var(--pm-accent-strong);
+  outline: none;
+  background: rgba(66, 201, 162, 0.1);
+  border-color: rgba(66, 201, 162, 0.25);
+}
+
+.session-reference-shell--subagent {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.session-subagent-header {
+  display: grid;
+  gap: 9px;
+  padding: 10px 14px;
+}
+
+.session-subagent-header__breadcrumb {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--pm-text-muted);
+}
+
+.session-subagent-header__breadcrumb button {
+  max-width: 42%;
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pm-text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.session-subagent-header__breadcrumb button:hover,
+.session-subagent-header__breadcrumb button:focus-visible {
+  color: var(--pm-accent-strong);
+  outline: none;
+}
+
+.session-subagent-header__breadcrumb strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  color: var(--pm-text-primary);
+  white-space: nowrap;
+}
+
+.session-subagent-header__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.session-subagent-header__body > div {
+  min-width: 0;
+}
+
+.session-subagent-header__eyebrow {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 9px;
+  color: var(--pm-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.session-subagent-header__body p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: #b8bdc4;
+  white-space: nowrap;
+}
+
+.session-subagent-header__status {
+  padding: 4px 8px;
+  font-size: 10px;
+  text-transform: capitalize;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+.session-subagent-header__meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  font-size: 10.5px;
+  color: var(--pm-text-muted);
+}
+
+.session-subagent-header__meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 780px) {
+  .session-sidebar {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    overflow: visible;
+    resize: none;
+  }
+
+  .session-subagent-call {
+    margin-right: 8px;
+    margin-left: 8px;
+  }
+
+  .session-subagent-call__list {
+    grid-template-columns: 1fr;
+  }
+
+  .session-subagent-header__body,
+  .session-subagent-header__meta {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

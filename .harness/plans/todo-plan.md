@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream2.task4",
-  "expectedCommitMessage": "style: align subagent session ux",
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": "docs: record subagent session design qa",
   "debt": null
 }
 ```
@@ -156,14 +156,14 @@
 43. [DONE] Git Commit: `feat: open subagent session views` (hash: self)
 44. [DONE] `harness-ai.phase8.stream2.task3b` Track simultaneous parent and child turns independently so a child `turn_started` event cannot re-enable the still-running parent composer (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, focused tests, related module docs, .harness/plans/todo-plan.md`; expected commit: `fix: track concurrent session turns`). Result: Completed in commit `fix: track concurrent session turns`.
 45. [DONE] Git Commit: `fix: track concurrent session turns` (hash: self)
-46. [IN_PROGRESS] `harness-ai.phase8.stream2.task4` Apply the Figma-aligned subagent tree/card/header states and localized Russian/English copy using existing Harness tokens and lucide icons (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused tests, related module/localization docs`; expected commit: `style: align subagent session ux`).
-47. [TODO] Git Commit: `style: align subagent session ux` (hash: TBD)
+46. [DONE] `harness-ai.phase8.stream2.task4` Apply the Figma-aligned subagent tree/card/header states and localized Russian/English copy using existing Harness tokens and lucide icons (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused tests, related module/localization docs`; expected commit: `style: align subagent session ux`). Result: Completed in commit `style: align subagent session ux`.
+47. [DONE] Git Commit: `style: align subagent session ux` (hash: self)
 
 ## Phase 9 - Local Verification And Design QA (owner: Codex, updated: 2026-07-11)
 
 ### Stream: Runnable Evidence
 
-48. [TODO] `harness-ai.phase9.stream1.task1` Run the local build and focused live/mock subagent flow, compare the implemented states against the Figma/reference screenshots in the in-app Browser, and record a passed root Design QA report (scope: `design-qa.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record subagent session design qa`).
+48. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Run the local build and focused live/mock subagent flow, compare the implemented states against the Figma/reference screenshots in the in-app Browser, and record a passed root Design QA report (scope: `design-qa.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record subagent session design qa`).
 49. [TODO] Git Commit: `docs: record subagent session design qa` (hash: TBD)
 
 ## Phase 10 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-11)

@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task2",
-  "expectedCommitMessage": "fix: render codex capture payload as readable markdown",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -144,5 +144,5 @@
 
 48. [DONE] `harness-ai.phase7.stream1.task1` Add the user-requested follow-up slice for extracting Codex 0.144.1 embedded system instructions and additional tools into readable Markdown sections (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add codex capture markdown parser fix`). Result: Completed in commit `plan: add codex capture markdown parser fix`.
 49. [DONE] Git Commit: `plan: add codex capture markdown parser fix` (hash: self)
-50. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Parse the Codex 0.144.1 `input` envelope so the embedded base instructions render as readable `System Prompt`, `additional_tools` render as readable `Tool Declarations`, extracted structural items do not duplicate into developer context, and literal newlines/spacing remain human-readable; cover legacy and new schemas and align module/architecture documentation (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-markdown-format.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/module.md, docs/architecture/SessionProfilesV2.md`; expected commit: `fix: render codex capture payload as readable markdown`).
-51. [TODO] Git Commit: `fix: render codex capture payload as readable markdown` (hash: TBD)
+50. [DONE] `harness-ai.phase7.stream1.task2` Parse the Codex 0.144.1 `input` envelope so the embedded base instructions render as readable `System Prompt`, `additional_tools` render as readable `Tool Declarations`, extracted structural items do not duplicate into developer context, and literal newlines/spacing remain human-readable; cover legacy and new schemas and align module/architecture documentation (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-markdown-format.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/module.md, docs/architecture/SessionProfilesV2.md`; expected commit: `fix: render codex capture payload as readable markdown`). Result: Completed in commit `fix: render codex capture payload as readable markdown`.
+51. [DONE] Git Commit: `fix: render codex capture payload as readable markdown` (hash: self)

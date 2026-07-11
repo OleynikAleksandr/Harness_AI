@@ -29,10 +29,6 @@ export interface NativeCaptureMarkdownOptions {
   readonly selectedModelId: string | null;
 }
 
-// Providers name the fields differently (Anthropic `system`/`messages`,
-// OpenAI/Codex `instructions`/`input`, OpenAI-chat `messages[role=system]`),
-// so map them onto one section shape. The Codex WebSocket `response.create`
-// frame carries `instructions`, `tools`, and `input` at the top level.
 export function extractCaptureSections(
   body: unknown
 ): readonly NativeCaptureSection[] {
@@ -40,6 +36,8 @@ export function extractCaptureSections(
     return [];
   }
   const sections: NativeCaptureSection[] = [];
+  const input = messagesArray(body.input);
+  const embeddedCodexSystemMessage = input.find(isCodexSystemMessage) ?? null;
   if ("system" in body) {
     sections.push({
       type: "section_extract",
@@ -53,7 +51,9 @@ export function extractCaptureSections(
       content: body.instructions,
     });
   } else {
-    const systemMessage = findSystemMessageContent(body.messages);
+    const systemMessage =
+      findSystemMessageContent(body.messages) ??
+      embeddedCodexSystemMessage?.content;
     if (systemMessage !== undefined) {
       sections.push({
         type: "section_extract",
@@ -68,6 +68,15 @@ export function extractCaptureSections(
       section: "tools",
       payload: body.tools,
     });
+  } else {
+    const embeddedCodexTools = findCodexAdditionalTools(input);
+    if (embeddedCodexTools.length > 0) {
+      sections.push({
+        type: "section_extract",
+        section: "tools",
+        payload: embeddedCodexTools,
+      });
+    }
   }
   if ("messages" in body) {
     sections.push({
@@ -79,7 +88,11 @@ export function extractCaptureSections(
     sections.push({
       type: "section_extract",
       section: "messages",
-      payload: body.input,
+      payload: input.filter(
+        (message) =>
+          message !== embeddedCodexSystemMessage &&
+          message.type !== "additional_tools"
+      ),
     });
   }
   return sections;
@@ -428,13 +441,35 @@ function findSection(
 }
 
 function findSystemMessageContent(messages: unknown): unknown {
-  if (!Array.isArray(messages)) {
-    return;
-  }
-  const systemMessage = messages.find(
-    (message) => isRecord(message) && message.role === "system"
+  const systemMessage = messagesArray(messages).find(
+    (message) => message.role === "system"
   );
-  return isRecord(systemMessage) ? systemMessage.content : undefined;
+  return systemMessage?.content;
+}
+
+function isCodexSystemMessage(message: Record<string, unknown>): boolean {
+  return (
+    message.type === "message" &&
+    message.role === "developer" &&
+    Array.isArray(message.content) &&
+    message.content.some(
+      (entry) =>
+        isRecord(entry) &&
+        (textFromContentRecord(entry) ?? "")
+          .trimStart()
+          .startsWith("You are Codex")
+    )
+  );
+}
+
+function findCodexAdditionalTools(
+  input: readonly Record<string, unknown>[]
+): readonly unknown[] {
+  return input.flatMap((message) =>
+    message.type === "additional_tools" && Array.isArray(message.tools)
+      ? message.tools
+      : []
+  );
 }
 
 function fencedJson(value: unknown): string {

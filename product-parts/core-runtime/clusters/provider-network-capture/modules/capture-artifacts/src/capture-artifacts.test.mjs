@@ -93,6 +93,59 @@ try {
     1
   );
 
+  // Codex 0.144.1 embeds base instructions and tools into input items.
+  const embeddedResponseCreate = extractCaptureSections({
+    type: "response.create",
+    model: "gpt-5.6-sol",
+    input: [
+      {
+        type: "additional_tools",
+        role: "developer",
+        tools: [
+          {
+            type: "function",
+            name: "wait",
+            description: "Wait for output.\nPreserve spacing.",
+          },
+        ],
+      },
+      {
+        type: "message",
+        role: "developer",
+        content: [
+          {
+            type: "input_text",
+            text: "You are Codex.\n\nUse the workspace carefully.",
+          },
+        ],
+      },
+      {
+        type: "message",
+        role: "developer",
+        content: [{ type: "input_text", text: "<skills>profile</skills>" }],
+      },
+      {
+        type: "message",
+        role: "user",
+        content: [{ type: "input_text", text: "probe" }],
+      },
+    ],
+  });
+  assert.equal(
+    embeddedResponseCreate.find((s) => s.section === "system").content[0].text,
+    "You are Codex.\n\nUse the workspace carefully."
+  );
+  assert.equal(
+    embeddedResponseCreate.find((s) => s.section === "tools").payload.length,
+    1
+  );
+  assert.deepEqual(
+    embeddedResponseCreate
+      .find((s) => s.section === "messages")
+      .payload.map((message) => message.role),
+    ["developer", "user"]
+  );
+
   // OpenAI chat shape: no top-level system; the system prompt is the first
   // `role: "system"` message, and the messages section keeps the array.
   const chatShape = extractCaptureSections({
@@ -219,6 +272,69 @@ try {
   assert.match(markdown, /Use profile skills\.\nNo JSON escapes\./u);
   assert.doesNotMatch(markdown, /You are Claude\\.nUse readable text/u);
   assert.match(markdown, /Sent upstream: true/u);
+
+  const embeddedWriter = await NativeRequestCaptureWriter.create({
+    captureId: "cap-codex-embedded",
+    clock: () => new Date("2026-07-11T07:07:08.271Z"),
+    outputDir,
+    providerId: "codex",
+    selectedModelId: "gpt-5.6-sol",
+  });
+  await embeddedWriter.writeCapturedRequest({
+    body: {
+      type: "response.create",
+      input: [
+        {
+          type: "additional_tools",
+          role: "developer",
+          tools: [
+            {
+              type: "function",
+              name: "wait",
+              description: "Wait for output.\nPreserve spacing.",
+            },
+          ],
+        },
+        {
+          type: "message",
+          role: "developer",
+          content: [
+            {
+              type: "input_text",
+              text: "You are Codex.\n\nUse the workspace carefully.",
+            },
+          ],
+        },
+        {
+          type: "message",
+          role: "developer",
+          content: [{ type: "input_text", text: "Profile skill context." }],
+        },
+      ],
+    },
+    bodyText: "captured websocket frame",
+    headers: {},
+    method: "WS",
+    path: "/backend-api/codex/responses",
+    target: "chatgpt.com:443",
+    timestamp: "2026-07-11T07:07:10.421Z",
+  });
+  await embeddedWriter.complete("captured");
+  const embeddedMarkdown = await readFile(
+    embeddedWriter.artifacts.markdownPath,
+    "utf8"
+  );
+  assert.match(
+    embeddedMarkdown,
+    /You are Codex\.\n\nUse the workspace carefully\./u
+  );
+  assert.match(embeddedMarkdown, /Wait for output\.\nPreserve spacing\./u);
+  assert.match(embeddedMarkdown, /Profile skill context\./u);
+  assert.doesNotMatch(embeddedMarkdown, /No system prompt field found/u);
+  assert.doesNotMatch(embeddedMarkdown, /No tool declarations found/u);
+  assert.doesNotMatch(embeddedMarkdown, /"type": "additional_tools"/u);
+  assert.doesNotMatch(embeddedMarkdown, /You are Codex\.\\n/u);
+  assert.doesNotMatch(embeddedMarkdown, /Wait for output\.\\n/u);
 
   // Envelope-only artifact: no HTTP request, but the applied-input envelope +
   // diagnostic context still make a complete artifact.

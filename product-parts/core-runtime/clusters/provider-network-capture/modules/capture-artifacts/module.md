@@ -38,7 +38,13 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   (`messages[role=system]`) field names onto one `system` / `tools` /
   `messages` section shape. The Codex WebSocket `response.create` frame carries
   `instructions`/`tools`/`input` at the top level (its `type` field is
-  ignored), so the same mapping extracts a full pair from it. The OpenAI-chat
+  ignored), so the same mapping extracts a full pair from it. Codex 0.144.1
+  instead places tool declarations in a developer-role `input` item with
+  `type: "additional_tools"` and its base `You are Codex...` instructions in
+  the following developer message. The extractor promotes those structural
+  items into the tool/system sections and removes them from developer context,
+  while preserving permissions, skills, plugins and other developer messages.
+  The OpenAI-chat
   form has no top-level system field, so the first `role: "system"` chat
   message's content becomes the system section (the messages section still
   keeps the full array). CodexUC is captured as the same Responses-shaped HTTP
@@ -49,9 +55,10 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   request parameters, applied Harness/profile envelope, diagnostics pointers
   and the three profile-relevant payload groups Harness compares when changing
   profiles: `System Prompt`, `Tool Declarations`, and `Developer Context:
-  Permissions, Skills, Plugins`. String payloads are rendered as readable text
-  blocks with real newlines instead of JSON-escaped `\n` sequences; structured
-  schemas remain fenced JSON.
+  Permissions, Skills, Plugins`. String payloads, including embedded Codex base
+  instructions and `additional_tools` descriptions, are rendered as readable
+  text blocks with real newlines and spacing instead of JSON-escaped `\n`
+  sequences; structured schemas remain fenced JSON.
 - `NativeRequestCaptureWriter`: creates the artifact set
   `<timestamp>-<provider>-<model>-native-request.jsonl`,
   `<timestamp>-<provider>-<model>-native-request.diagnostics.jsonl`, and

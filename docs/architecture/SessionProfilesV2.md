@@ -371,7 +371,11 @@
   `ultra`. Эта же версия убрала top-level `tools` из `response.create`, поэтому
   WS-фильтр проверяет `minimumToolCount` только для legacy-frame, где поле
   `tools` существует; в новой схеме реальный turn выбирается точным совпадением
-  probe prompt. Диагностические CA/leaf автоматически ротируются до истечения,
+  probe prompt. Markdown extractor этой новой схемы поднимает developer item
+  `type: "additional_tools"` в `Tool Declarations`, а developer message с
+  базовым `You are Codex...` — в `System Prompt`; эти структурные элементы не
+  дублируются в `Developer Context`, а строки выводятся с реальными переносами
+  и отступами вместо JSON-escaped `\n`. Диагностические CA/leaf автоматически ротируются до истечения,
   а TLS/path/WS mismatch записываются структурно без prompt/body/query payload.
 - Для Claude capture **дополняет** инвентарь из `init`: `init` даёт имена
   инструментов и версию CLI на runtime, capture — полные схемы и текст

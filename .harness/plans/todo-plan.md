@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task5",
-  "expectedCommitMessage": "docs: record native capture certificate recovery",
+  "currentTaskId": "harness-ai.phase6.stream2.task2",
+  "expectedCommitMessage": "fix: refine native capture route diagnostics",
   "debt": null
 }
 ```
@@ -127,5 +127,11 @@
 35. [DONE] Git Commit: `fix: preserve native capture tls diagnostics` (hash: self)
 36. [DONE] `harness-ai.phase6.stream1.task4` Classify an uncaptured provider run with TLS socket failures as `tls_trust_failed` instead of `target_not_seen`, while preserving successful capture precedence and focused orchestrator coverage/docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/module.md`; expected commit: `fix: classify native capture tls failures`). Result: Completed in commit `fix: classify native capture tls failures`.
 37. [DONE] Git Commit: `fix: classify native capture tls failures` (hash: self)
-38. [IN_PROGRESS] `harness-ai.phase6.stream1.task5` Re-run focused/full gates, perform a real GPT-5.6 Sol Ultra Native Request Capture proving a non-empty raw request and rotated certificate dates, build and package the macOS app after the user's explicit approval, inspect `app.asar`, launch-smoke the package, and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, docs/architecture/SessionProfilesV2.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture certificate recovery`).
-39. [TODO] Git Commit: `docs: record native capture certificate recovery` (hash: TBD)
+38. [DONE] `harness-ai.phase6.stream2.task1` Add the follow-up slice discovered by the first post-rotation live capture: safe request-path diagnostics, trust-specific TLS classification, Codex 0.144.1 route alignment, real capture proof, and the already user-approved package (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add codex capture route follow-up`). Result: Completed in commit `plan: add codex capture route follow-up`.
+39. [DONE] Git Commit: `plan: add codex capture route follow-up` (hash: self)
+40. [IN_PROGRESS] `harness-ai.phase6.stream2.task2` Preserve the parsed request path as safe structural detail for path mismatches and classify `tls_trust_failed` only from certificate/trust TLS codes/messages rather than incidental connection resets, with focused proxy/orchestrator tests and docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/module.md, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/module.md`; expected commit: `fix: refine native capture route diagnostics`).
+41. [TODO] Git Commit: `fix: refine native capture route diagnostics` (hash: TBD)
+42. [TODO] `harness-ai.phase6.stream2.task3` Use the new diagnostics to identify and support the actual Codex 0.144.1 response path while preserving legacy route compatibility, then prove a real GPT-5.6 Sol Ultra capture with non-empty raw JSONL and focused tests/docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/module.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md, docs/architecture/SessionProfilesV2.md`; expected commit: `fix: align codex native capture response route`).
+43. [TODO] Git Commit: `fix: align codex native capture response route` (hash: TBD)
+44. [TODO] `harness-ai.phase6.stream2.task4` Re-run full gates/build, package the macOS app after the user's explicit approval, inspect the packaged certificate/route fixes in `app.asar`, launch-smoke the package, and record final recovery evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture certificate recovery`).
+45. [TODO] Git Commit: `docs: record native capture certificate recovery` (hash: TBD)

@@ -251,6 +251,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   user-approved macOS arm64 rebuild after the Codex 0.144.1 Markdown parser
   fix, with readable embedded system instructions and additional tool
   declarations, packaged `app.asar` content checks, SHA-256 and launch smoke.
+- `docs/evidence/retired-custom-codex-provider-removal-package-2026-07-11.md`
+  — end-to-end removal evidence for the retired custom OAuth Responses
+  provider, including a clean-dist package rebuild, direct absence checks in
+  `app.asar`, preserved Universal Client modules/adapters, SHA-256, and launch
+  smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

@@ -32,7 +32,7 @@ injection (pointing a provider client at the local proxy) is passed in as a
 ## Outputs
 
 - `DEFAULT_CAPTURE_TARGET_RULES`: per-provider target model endpoints
-  (Claude `api.anthropic.com` `/v1/messages`, Codex app-server and CodexUC
+  (Claude `api.anthropic.com` `/v1/messages` and Codex app-server
   `chatgpt.com` `/backend-api/codex/responses`; the ACP Kimi rule left with
   the kimi-provider retirement, 2026-07-05).
   Codex uses a WebSocket transport for `/responses`, so the proxy routes the

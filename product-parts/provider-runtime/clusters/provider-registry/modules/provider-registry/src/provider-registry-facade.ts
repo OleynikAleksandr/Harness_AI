@@ -8,7 +8,6 @@ import {
 export type ProviderId =
   | "claude"
   | "codex"
-  | "codex-uc"
   | "kimi-client"
   | "glm-client"
   | "openrouter-client"

@@ -18,8 +18,8 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
 
 ## Inputs
 
-- `NativeCaptureWriterOptions`: capture id, provider id (`claude` | `codex` |
-  `codex-uc` — the ACP `kimi` capture channel left with the kimi-provider
+- `NativeCaptureWriterOptions`: capture id, provider id (`claude` | `codex` —
+  the ACP `kimi` capture channel left with the kimi-provider
   retirement, 2026-07-05), output directory, optional selected model id,
   optional release version, optional clock (for deterministic artifacts in
   tests).
@@ -47,9 +47,7 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   The OpenAI-chat
   form has no top-level system field, so the first `role: "system"` chat
   message's content becomes the system section (the messages section still
-  keeps the full array). CodexUC is captured as the same Responses-shaped HTTP
-  body, so the same `instructions`/`tools`/`input` extraction applies; its
-  applied envelope identifies the selected profile separately.
+  keeps the full array).
 - `buildNativeRequestCaptureMarkdown(options)`: the readable dump with
   provider, selected model, summary, request metadata, redacted headers,
   request parameters, applied Harness/profile envelope, diagnostics pointers

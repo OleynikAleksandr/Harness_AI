@@ -44,7 +44,6 @@ registry.setReadinessWorkspace("workspace-a");
 
 assert.equal(registry.getProvider("codex").readinessStatus, "ready");
 assert.equal(registry.getProvider("claude").readinessStatus, "checking");
-assert.throws(() => registry.getProvider("codex-uc"), /Unknown provider/u);
 assert.match(descriptorSource, /codex: \[\s+\{ id: "gpt-5\.6-sol"/u);
 assert.match(descriptorSource, /\{ id: "gpt-5\.6-terra"/u);
 assert.match(descriptorSource, /\{ id: "gpt-5\.6-luna"/u);

@@ -16,7 +16,7 @@ export {
 // provider-neutral so universal-client diagnostic paths can reuse the same
 // raw JSONL / diagnostics JSONL / readable markdown contract when validating
 // selected profile application.
-export type NativeCaptureProviderId = "claude" | "codex" | "codex-uc";
+export type NativeCaptureProviderId = "claude" | "codex";
 
 export type NativeCaptureFailureReason =
   | "provider_not_supported"

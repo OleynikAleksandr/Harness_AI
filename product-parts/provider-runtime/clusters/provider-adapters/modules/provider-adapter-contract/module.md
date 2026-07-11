@@ -54,14 +54,13 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
 - Optional `captureNativeRequest(options: ProviderNativeCaptureOptions)`
   boundary for record-only diagnostic native request capture: the Core
   capture cluster owns the proxy and diagnostic certificates and passes
-  `proxyUrl`, `certificateEnv`, `certificatePath`, selected `model`, optional
-  `profileId`, `probePrompt`, `workspacePath` and optional
+  `proxyUrl`, `certificateEnv`, `certificatePath`, selected `model`,
+  `probePrompt`, `workspacePath` and optional
   `recordAppliedInputEnvelope`/`recordDiagnosticContext` callbacks; the adapter
   points its own client at the proxy and records the provider request. The
   `ProviderNativeCaptureAppliedInputEnvelope` boundary types only `kind`
-  (`claude`/`codex`/`codex-uc`); each adapter passes its own concrete
-  envelope. Claude/Codex implement native vendor capture; CodexUC implements a
-  Harness-client capture qualified by the selected session profile id (the ACP
+  (`claude`/`codex`); each adapter passes its own concrete
+  envelope. Claude/Codex implement native vendor capture (the ACP
   Kimi implementation was removed end-to-end with its module, 2026-07-05 user
   order); other providers leave it unimplemented and Core treats a missing
   method as `provider_not_supported`.

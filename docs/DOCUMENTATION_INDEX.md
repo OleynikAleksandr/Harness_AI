@@ -257,7 +257,8 @@ readiness registry, liveness checker, and workspace provisioner modules.
   cause and recovery evidence for expired diagnostic certificates, automatic
   CA/leaf rotation, safe TLS/path/WebSocket diagnostics, Codex 0.144.1's
   tool-less `response.create` frame contract, and a successful live GPT-5.6
-  Sol Ultra capture with canonical non-empty raw JSONL.
+  Sol Ultra capture with canonical non-empty raw JSONL, followed by direct
+  `app.asar` verification and a successful packaged-app launch smoke check.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

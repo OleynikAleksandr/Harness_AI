@@ -73,5 +73,28 @@ Native Request Capture intentionally preserves the actual upstream request.
 - Focused certificate, proxy and orchestrator tests passed.
 - Repository architecture and typecheck gates passed.
 - Every implementation commit passed the full commit suite (81 test groups).
-- macOS package verification is recorded in the final section after the
-  explicitly user-approved package rebuild.
+- The explicitly user-approved `npm run package:mac` rebuild passed.
+
+## Packaged application
+
+- Output: `release/mac-arm64/Harness AI.app`.
+- Target: Mach-O 64-bit arm64.
+- Electron: 42.5.0.
+- Signing: intentionally skipped (`identity: null`).
+- `app.asar` size: 30,491,824 bytes.
+- `app.asar` timestamp: `2026-07-11T09:02:52+0200`.
+- `app.asar` SHA-256:
+  `bdad71c280b725d7edd35d432a804c041bac8474dc146440af3f629239e4556d`.
+
+Direct `@electron/asar` inspection confirmed the package contains:
+
+- `X509Certificate` validity checks, the 24-hour renewal window, and
+  CA-directory rotation;
+- bounded TLS error detail normalization;
+- certificate/CA-specific `tls_trust_failed` classification;
+- query-free mismatch path diagnostics;
+- Codex 0.144.1 `hasTopLevelTools` WebSocket compatibility.
+
+The freshly packaged application was launched by absolute path and remained
+running. It is ready for the user's Settings -> General -> Native Request
+Capture acceptance retest.

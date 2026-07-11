@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream2.task5",
-  "expectedCommitMessage": "docs: record native capture certificate recovery",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -135,5 +135,5 @@
 43. [DONE] Git Commit: `fix: align codex native capture websocket frames` (hash: self)
 44. [DONE] `harness-ai.phase6.stream2.task4` Stabilize the certificate-expiry test clock against X.509 second-level `notBefore` rounding observed after the successful WS-fix commit (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/src/capture-certificates.test.mjs, .harness/plans/todo-plan.md`; expected commit: `test: stabilize capture certificate clock [skip-docs]`). Result: Completed in commit `test: stabilize capture certificate clock [skip-docs]`.
 45. [DONE] Git Commit: `test: stabilize capture certificate clock [skip-docs]` (hash: self)
-46. [IN_PROGRESS] `harness-ai.phase6.stream2.task5` Re-run full gates/build, package the macOS app after the user's explicit approval, inspect the packaged certificate/route fixes in `app.asar`, launch-smoke the package, and record final recovery evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture certificate recovery`).
-47. [TODO] Git Commit: `docs: record native capture certificate recovery` (hash: TBD)
+46. [DONE] `harness-ai.phase6.stream2.task5` Re-run full gates/build, package the macOS app after the user's explicit approval, inspect the packaged certificate/route fixes in `app.asar`, launch-smoke the package, and record final recovery evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture certificate recovery`). Result: Completed in commit `docs: record native capture certificate recovery`.
+47. [DONE] Git Commit: `docs: record native capture certificate recovery` (hash: self)

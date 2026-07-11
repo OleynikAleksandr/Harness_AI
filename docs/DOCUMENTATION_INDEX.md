@@ -47,6 +47,10 @@ relevant to the active task.
   provider-scoped profiles, immutable applied profile snapshot,
   `session-profiles` cluster, adapter application strategies, UI surface
   and phase roadmap.
+- `docs/architecture/SubagentSessions.md` — Core-owned Codex app-server
+  subagent session tree: structured collaboration events, inline timeline
+  entry points, recursive sidebar children, read-only child transcripts,
+  detached windows, auto-title and in-app rename contracts.
 - `docs/architecture/SessionProfilesV2.md` — session profiles contract
   revision (Russian): single `profile.md` document with YAML frontmatter,
   provider tool inventory (Claude SDK `init` capture + probe, GLM adapter

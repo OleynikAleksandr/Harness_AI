@@ -41,7 +41,9 @@ export function useSessionWindowSessionState(options: {
   const [rollbackSessionId, setRollbackSessionId] = useState<string | null>(
     null
   );
-  const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
+  const [runningSessionIds, setRunningSessionIds] = useState<
+    ReadonlySet<string>
+  >(new Set());
   const activeSession =
     sessions.find((session) => session.id === activeSessionId) ??
     (detachedMode ? undefined : sessions[0]);
@@ -52,12 +54,15 @@ export function useSessionWindowSessionState(options: {
   const telemetry =
     telemetryBySession[activeSessionDataId] ?? initialSnapshot.telemetry;
   const subagentCalls = subagentCallsBySession[activeSessionDataId] ?? [];
+  const runningSessionId = runningSessionIds.has(activeSessionDataId)
+    ? activeSessionDataId
+    : null;
 
   const applyEvent = useCallback((event: SessionCoreEvent) => {
     applyCoreEvent({
       event,
       setMessagesBySession,
-      setRunningSessionId,
+      setRunningSessionIds,
       setSubagentCallsBySession,
       setTelemetryBySession,
     });

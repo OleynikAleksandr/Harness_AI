@@ -26,7 +26,9 @@ export function applyCoreEvent(params: {
   setMessagesBySession: React.Dispatch<
     React.SetStateAction<Record<string, SessionMessage[]>>
   >;
-  setRunningSessionId: React.Dispatch<React.SetStateAction<string | null>>;
+  setRunningSessionIds: React.Dispatch<
+    React.SetStateAction<ReadonlySet<string>>
+  >;
   setSubagentCallsBySession?: React.Dispatch<
     React.SetStateAction<Record<string, CoreSubagentCall[]>>
   >;
@@ -37,7 +39,7 @@ export function applyCoreEvent(params: {
   const {
     event,
     setMessagesBySession,
-    setRunningSessionId,
+    setRunningSessionIds,
     setSubagentCallsBySession,
     setTelemetryBySession,
   } = params;
@@ -75,14 +77,14 @@ export function applyCoreEvent(params: {
     return;
   }
   if (event.type === "session:turn-state") {
-    setRunningSessionId((current) => {
+    setRunningSessionIds((current) => {
+      const next = new Set(current);
       if (event.payload.state === "running") {
-        return event.payload.sessionId;
+        next.add(event.payload.sessionId);
+      } else {
+        next.delete(event.payload.sessionId);
       }
-      if (current === event.payload.sessionId) {
-        return null;
-      }
-      return current;
+      return next;
     });
     return;
   }

@@ -19,7 +19,8 @@ assert.match(source, /setActiveSessionId/u);
 assert.match(source, /setMessagesBySession/u);
 assert.match(source, /setTelemetryBySession/u);
 assert.match(source, /setSubagentCallsBySession/u);
-assert.match(source, /setRunningSessionId/u);
+assert.match(source, /setRunningSessionIds/u);
+assert.match(source, /runningSessionIds\.has\(activeSessionDataId\)/u);
 assert.match(source, /setRollbackSessionId/u);
 assert.match(source, /refreshSessionList/u);
 assert.match(source, /candidate\.id !== session\.id/u);
@@ -38,3 +39,12 @@ assert.match(
   /onRegenerateSessionTitle=\{regenerateSessionTitle\}/u
 );
 assert.equal(facadeSource.split("\n").length <= 500, true);
+
+const coreEventsSource = readFileSync(
+  new URL("./session-window-core-events.ts", import.meta.url),
+  "utf8"
+);
+assert.match(coreEventsSource, /const next = new Set\(current\)/u);
+assert.match(coreEventsSource, /next\.add\(event\.payload\.sessionId\)/u);
+assert.match(coreEventsSource, /next\.delete\(event\.payload\.sessionId\)/u);
+assert.doesNotMatch(coreEventsSource, /return event\.payload\.sessionId/u);

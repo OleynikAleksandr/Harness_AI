@@ -18,6 +18,9 @@ Render the transcript/dialog layout and session chrome.
 - Core `session:created` / `session:updated` notifications refresh the visible
   session index without replacing the active selection. This keeps the live
   child tree and child header current while a parent turn continues.
+- Running state is tracked as a set of Core session ids. Concurrent parent and
+  child turns therefore cannot overwrite one shared running-session scalar;
+  the composer remains disabled until its own session becomes idle.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels use the Core settings-store capability resolver and disappear when the selected Codex model has no declared reasoning effort levels.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.

@@ -154,20 +154,22 @@
 41. [DONE] Git Commit: `feat: show subagent calls in dialog` (hash: self)
 42. [DONE] `harness-ai.phase8.stream2.task3` Wire child navigation, Core session refresh, title commands, read-only child input behavior and parent breadcrumb into the main and detached session views (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: open subagent session views`). Result: Completed in commit `feat: open subagent session views`.
 43. [DONE] Git Commit: `feat: open subagent session views` (hash: self)
-44. [IN_PROGRESS] `harness-ai.phase8.stream2.task4` Apply the Figma-aligned subagent tree/card/header states and localized Russian/English copy using existing Harness tokens and lucide icons (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused tests, related module/localization docs`; expected commit: `style: align subagent session ux`).
-45. [TODO] Git Commit: `style: align subagent session ux` (hash: TBD)
+44. [DONE] `harness-ai.phase8.stream2.task3b` Track simultaneous parent and child turns independently so a child `turn_started` event cannot re-enable the still-running parent composer (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, focused tests, related module docs, .harness/plans/todo-plan.md`; expected commit: `fix: track concurrent session turns`). Result: Completed in commit `fix: track concurrent session turns`.
+45. [DONE] Git Commit: `fix: track concurrent session turns` (hash: self)
+46. [IN_PROGRESS] `harness-ai.phase8.stream2.task4` Apply the Figma-aligned subagent tree/card/header states and localized Russian/English copy using existing Harness tokens and lucide icons (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused tests, related module/localization docs`; expected commit: `style: align subagent session ux`).
+47. [TODO] Git Commit: `style: align subagent session ux` (hash: TBD)
 
 ## Phase 9 - Local Verification And Design QA (owner: Codex, updated: 2026-07-11)
 
 ### Stream: Runnable Evidence
 
-46. [TODO] `harness-ai.phase9.stream1.task1` Run the local build and focused live/mock subagent flow, compare the implemented states against the Figma/reference screenshots in the in-app Browser, and record a passed root Design QA report (scope: `design-qa.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record subagent session design qa`).
-47. [TODO] Git Commit: `docs: record subagent session design qa` (hash: TBD)
+48. [TODO] `harness-ai.phase9.stream1.task1` Run the local build and focused live/mock subagent flow, compare the implemented states against the Figma/reference screenshots in the in-app Browser, and record a passed root Design QA report (scope: `design-qa.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record subagent session design qa`).
+49. [TODO] Git Commit: `docs: record subagent session design qa` (hash: TBD)
 
 ## Phase 10 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-11)
 
 ### Stream: Packaged Retest
 
-48. [TODO] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
-49. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
-50. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).
+50. [TODO] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
+51. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
+52. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).

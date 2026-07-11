@@ -41,6 +41,11 @@ the shared process.
 - Core-resolved default model and optional Codex reasoning effort. Codex effort
   values are `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`; the provider
   `ultra` value is distinct from Claude `ultracode`.
+- Per-turn provider-neutral `model` and `reasoningEffort` from Core settings.
+  The adapter maps these directly to `turn/start.model` and
+  `turn/start.effort` before consulting the legacy applied-config envelope or
+  workspace/provider-home defaults. This keeps the visible per-model selection
+  and the provider-facing live turn identical.
 
 ## Outputs
 

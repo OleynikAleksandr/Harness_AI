@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task2",
-  "expectedCommitMessage": "fix: apply codex live reasoning effort",
+  "currentTaskId": "harness-ai.phase9.stream2.task1",
+  "expectedCommitMessage": "docs: record codex live reasoning package",
   "debt": null
 }
 ```
@@ -186,10 +186,10 @@
 
 74. [DONE] `harness-ai.phase9.stream1.task1` Add the user-approved follow-up scope for fixing live Codex app-server turns that display the selected GPT-5.6 reasoning effort in UI but fall back to provider-home `high`, and package the verified repair (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add codex live reasoning passthrough fix`). Result: Completed in commit `plan: add codex live reasoning passthrough fix`.
 75. [DONE] Git Commit: `plan: add codex live reasoning passthrough fix` (hash: self)
-76. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` Normalize provider-neutral Core turn options (`model`, `reasoningEffort`) inside the Codex adapter before legacy applied-config/default fallbacks, prove GPT-5.6 Sol `ultra` reaches `turn/start.effort`, and align adapter/session-runtime ownership documentation (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/provider-turn-options.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md`; expected commit: `fix: apply codex live reasoning effort`).
-77. [TODO] Git Commit: `fix: apply codex live reasoning effort` (hash: TBD)
+76. [DONE] `harness-ai.phase9.stream1.task2` Normalize provider-neutral Core turn options (`model`, `reasoningEffort`) inside the Codex adapter before legacy applied-config/default fallbacks, prove GPT-5.6 Sol `ultra` reaches `turn/start.effort`, and align adapter/session-runtime ownership documentation (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/provider-turn-options.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md`; expected commit: `fix: apply codex live reasoning effort`). Result: Completed in commit `fix: apply codex live reasoning effort`.
+77. [DONE] Git Commit: `fix: apply codex live reasoning effort` (hash: self)
 
 ### Stream: Package And Retest
 
-78. [TODO] `harness-ai.phase9.stream2.task1` Rebuild from a clean `dist`, package the user-approved macOS app, verify the repaired Codex live-turn normalization in `app.asar`, launch-smoke the package, and record evidence for a fresh GPT-5.6 Sol Ultra retest (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex live reasoning package`).
+78. [IN_PROGRESS] `harness-ai.phase9.stream2.task1` Rebuild from a clean `dist`, package the user-approved macOS app, verify the repaired Codex live-turn normalization in `app.asar`, launch-smoke the package, and record evidence for a fresh GPT-5.6 Sol Ultra retest (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex live reasoning package`).
 79. [TODO] Git Commit: `docs: record codex live reasoning package` (hash: TBD)

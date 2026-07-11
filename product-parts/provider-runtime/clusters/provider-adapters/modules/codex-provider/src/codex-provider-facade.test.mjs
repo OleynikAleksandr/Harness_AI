@@ -47,6 +47,15 @@ assert.match(appServerSource, /persistExtendedHistory: false/u);
 assert.doesNotMatch(appServerSource, /persistExtendedHistory: true/u);
 assert.match(appServerSource, /includeTurns: true/u);
 assert.match(appServerSource, /countThreadTurns\(response\.thread\)/u);
+assert.match(
+  appServerSource,
+  /asString\(turnOptions\?\.model\) \?\?[\s\S]*?asString\(appliedConfig\?\.modelId\)/u
+);
+assert.match(
+  appServerSource,
+  /asString\(turnOptions\?\.reasoningEffort\) \?\?[\s\S]*?asString\(appliedConfig\?\.reasoningEffort\)/u
+);
+assert.match(appServerSource, /effort: reasoningEffort/u);
 assert.match(appServerProcessSource, /"\.harness-ai"/u);
 assert.match(appServerProcessSource, /"\.harness"/u);
 assert.match(

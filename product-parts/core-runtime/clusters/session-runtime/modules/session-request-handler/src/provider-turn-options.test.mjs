@@ -41,3 +41,5 @@ assert.match(
   source,
   /reasoningSummaryEnabled: codex\.reasoningSummaryEnabled/u
 );
+assert.match(source, /model: session\.model/u);
+assert.match(source, /\{ reasoningEffort \}/u);

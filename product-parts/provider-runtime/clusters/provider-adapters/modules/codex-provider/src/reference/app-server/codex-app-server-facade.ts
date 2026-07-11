@@ -273,8 +273,11 @@ export class CodexAppServerFacade {
       ? turnOptions[CODEX_APPLIED_TURN_CONFIG_KEY]
       : null;
     const modelId =
-      asString(appliedConfig?.modelId) ?? this.workspace.defaultModel;
+      asString(turnOptions?.model) ??
+      asString(appliedConfig?.modelId) ??
+      this.workspace.defaultModel;
     const reasoningEffort =
+      asString(turnOptions?.reasoningEffort) ??
       asString(appliedConfig?.reasoningEffort) ??
       this.workspace.defaultReasoningEffort ??
       null;

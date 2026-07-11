@@ -2,7 +2,8 @@
 
 ## Responsibility
 
-Own workspace switcher, selected-workspace session list, next-session mode entry, session rename, and Settings entry.
+Own workspace switcher, selected-workspace recursive session tree, session
+rename UI, and Settings entry.
 
 ## Public Facade
 
@@ -12,19 +13,27 @@ Own workspace switcher, selected-workspace session list, next-session mode entry
 
 - Known workspace snapshot.
 - Selected workspace session list.
-- Core-owned next-session mode display summary.
+- Core-owned `sessionKind`, `parentSessionId`, subagent status/nickname/role and
+  title metadata.
 
 ## Outputs
 
 - Workspace selection/create/open intents.
-- Session open/create/rename intents.
-- Next-session mode panel open intent.
+- Session open/create/rename/regenerate-title intents.
+- Recursive parent/child rows with descendant/running counts, automatic
+  ancestor expansion for the selected child, and independent open/detach
+  controls on every level. Tree construction uses only Core session metadata;
+  it never reads transcript text or provider rollouts.
+- An in-app React rename dialog (100-character UI limit matching Core) and
+  context-menu regenerate action. Native browser/Electron prompt and confirm
+  dialogs are not used. The controls render only when the parent session window
+  supplies working Core command callbacks.
 - Settings navigation intent.
 - Sidebar, workspace menu, session context menu, and Settings entry copy
   resolved through the shared browser localization provider.
 
-- The `Next Session Mode` sidebar button is removed; session profile
-  selection lives in the new-session wizard (session-window profile step).
+- The `Next Session Mode` sidebar button is removed; session profile selection
+  lives in the new-session wizard (session-window profile step).
 
 ## Owned Paths
 

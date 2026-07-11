@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream2.task1",
-  "expectedCommitMessage": "feat: show subagent session tree",
+  "currentTaskId": "harness-ai.phase8.stream2.task2",
+  "expectedCommitMessage": "feat: show subagent calls in dialog",
   "debt": null
 }
 ```
@@ -148,9 +148,9 @@
 
 ### Stream: Tree, Timeline And Child View
 
-38. [IN_PROGRESS] `harness-ai.phase8.stream2.task1` Render a recursive sidebar tree with child counts/statuses, open/detach controls, resizable width, in-app rename dialog and regenerate-title action (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: show subagent session tree`).
-39. [TODO] Git Commit: `feat: show subagent session tree` (hash: TBD)
-40. [TODO] `harness-ai.phase8.stream2.task2` Merge Core subagent calls into the dialog timeline and add open/detach inline cards with live statuses (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-subagent-timeline.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts, focused tests, related module docs`; expected commit: `feat: show subagent calls in dialog`).
+38. [DONE] `harness-ai.phase8.stream2.task1` Render a recursive sidebar tree with child counts/statuses, open/detach controls, resizable width, in-app rename dialog and regenerate-title action (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: show subagent session tree`). Result: Completed in commit `feat: show subagent session tree`.
+39. [DONE] Git Commit: `feat: show subagent session tree` (hash: self)
+40. [IN_PROGRESS] `harness-ai.phase8.stream2.task2` Merge Core subagent calls into the dialog timeline and add open/detach inline cards with live statuses (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-subagent-timeline.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts, focused tests, related module docs`; expected commit: `feat: show subagent calls in dialog`).
 41. [TODO] Git Commit: `feat: show subagent calls in dialog` (hash: TBD)
 42. [TODO] `harness-ai.phase8.stream2.task3` Wire child navigation, Core session refresh, title commands, read-only child input behavior and parent breadcrumb into the main and detached session views (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: open subagent session views`).
 43. [TODO] Git Commit: `feat: open subagent session views` (hash: TBD)

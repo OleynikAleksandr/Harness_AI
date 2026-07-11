@@ -56,7 +56,9 @@ the shared process.
   child `thread/started` becomes `subagent_session` with metadata recovered
   from `source.subAgent.thread_spawn`, and child turn/thread lifecycle becomes
   `subagent_status`. The app-server facade creates the child subscription state
-  under the same workspace before Core adopts the provider thread.
+  under the same workspace before Core adopts the provider thread. The
+  structured agent-path title is also the delegated-task label; inherited
+  `thread.preview` text is only a fallback when the path is unavailable.
 - Structured subagent history hydration through app-server RPC only:
   `thread/list(ancestorThreadId)` discovers recursive descendants and
   `thread/read(includeTurns=true)` replays persisted collaboration,

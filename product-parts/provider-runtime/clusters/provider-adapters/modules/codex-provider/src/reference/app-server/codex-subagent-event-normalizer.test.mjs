@@ -138,7 +138,7 @@ assert.deepEqual(emitted.at(-1).payload, {
   parentProviderSessionId: "parent-thread",
   providerSessionId: "child-thread",
   status: "completed",
-  task: "Audit provider events",
+  task: "Provider event audit",
   timestamp: "2026-07-11T18:31:38.000Z",
   title: "Provider event audit",
   type: "subagent_session",

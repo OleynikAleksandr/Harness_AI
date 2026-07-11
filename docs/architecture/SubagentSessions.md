@@ -33,6 +33,11 @@ Codex adapter нормализует эти данные в provider-neutral с�
 Renderer только отображает Core-снимки и отправляет Core-команды. Разбор
 rollout-текста или поиск слов о субагентах в UI запрещены.
 
+У forked child поле `thread.preview` может содержать исходный текст parent.
+Поэтому delegated-task label берётся из структурированного `agentPath` и лишь
+при его отсутствии использует preview; explicit provider `name` по-прежнему
+может задавать title.
+
 Нормализованный provider boundary состоит из трёх событий:
 `subagent_control`, `subagent_session` и `subagent_status`. Codex-native
 `pendingInit/running/errored/...` переводятся в общий статусный словарь до

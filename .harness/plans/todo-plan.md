@@ -182,9 +182,11 @@
 59. [DONE] Git Commit: `fix: resolve subagent reasoning metadata` (hash: self)
 60. [DONE] `harness-ai.phase10.stream0.task5` Filter ancestor-inherited collaboration items from child `thread/read` history by structured agent-path ownership so historical sibling/self activities cannot create false nested calls or return completed children to running (scope: `.harness/plans/todo-plan.md, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-history-loader.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: filter inherited subagent history`). Result: Completed in commit `fix: filter inherited subagent history`.
 61. [DONE] Git Commit: `fix: filter inherited subagent history` (hash: self)
+62. [DONE] `harness-ai.phase10.stream0.task6` Preserve the structured agent-path task name when forked Codex `thread.preview` contains inherited parent text, keeping inline cards and child headers deterministic (scope: `.harness/plans/todo-plan.md, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-event-normalizer.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: preserve structured subagent task names`). Result: Completed in commit `fix: preserve structured subagent task names`.
+63. [DONE] Git Commit: `fix: preserve structured subagent task names` (hash: self)
 
 ### Stream: Packaged Retest
 
-62. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
-63. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
-64. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).
+64. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
+65. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
+66. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).

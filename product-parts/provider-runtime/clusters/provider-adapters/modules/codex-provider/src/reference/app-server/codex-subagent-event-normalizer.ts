@@ -256,9 +256,9 @@ function normalizeSessionEvent(
   const agentNickname =
     optionalString(thread?.agentNickname) ?? spawn.agentNickname;
   const agentRole = optionalString(thread?.agentRole) ?? spawn.agentRole;
-  const task = optionalString(thread?.preview);
-  const title =
-    optionalString(thread?.name) ?? titleFromAgentPath(spawn.agentPath);
+  const agentPathTitle = titleFromAgentPath(spawn.agentPath);
+  const task = agentPathTitle ?? optionalString(thread?.preview);
+  const title = optionalString(thread?.name) ?? agentPathTitle;
   return {
     ...(agentNickname ? { agentNickname } : {}),
     ...(agentRole ? { agentRole } : {}),

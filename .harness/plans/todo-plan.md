@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task1",
-  "expectedCommitMessage": "docs: record subagent session package",
+  "currentTaskId": "harness-ai.phase10.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -191,6 +191,6 @@
 
 ### Stream: Packaged Retest
 
-68. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
-69. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
-70. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).
+68. [DONE] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`). Result: Completed in commit `docs: record subagent session package`.
+69. [DONE] Git Commit: `docs: record subagent session package` (hash: self)
+70. [IN_PROGRESS] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).

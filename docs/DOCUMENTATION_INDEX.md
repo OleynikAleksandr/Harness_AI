@@ -277,6 +277,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   capability validation, reasoning-qualified artifact filenames, live Codex
   Sol Ultra plus Claude Sonnet Max captures, and packaged-app inspection and
   launch evidence.
+- `docs/evidence/subagent-session-package-2026-07-11.md` — explicitly
+  user-approved macOS arm64 rebuild and two-launch packaged proof for Codex
+  subagent sessions: three historical descendants materialize with correct
+  task names, complete transcripts, `ultra` reasoning, terminal statuses, no
+  false nested calls, and no message duplication after restart.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

@@ -7,6 +7,7 @@ import { openExternalUrl } from "../../vscode-link-opener/src/vscode-link-opener
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = join(moduleDir, "../../../../../../..");
 let coreBridgePromise = null;
+const detachedSessionWindows = new Map();
 
 const windowDefaults = {
   backgroundColor: "#111318",
@@ -71,7 +72,17 @@ async function openDetachedSessionWindow(request) {
   if (!(sessionId && workspaceId)) {
     return { error: "Session id and workspace id are required.", ok: false };
   }
-  await createHarnessWindow({
+  const windowKey = JSON.stringify([workspaceId, sessionId]);
+  const existingPromise = detachedSessionWindows.get(windowKey);
+  if (existingPromise) {
+    const existing = await existingPromise;
+    if (!existing.isDestroyed()) {
+      focusDetachedWindow(existing);
+      return { focused: true, ok: true };
+    }
+    detachedSessionWindows.delete(windowKey);
+  }
+  const windowPromise = createHarnessWindow({
     height: 820,
     minHeight: 700,
     minWidth: 760,
@@ -83,7 +94,33 @@ async function openDetachedSessionWindow(request) {
     title: "Harness AI Session",
     width: 1000,
   });
-  return { ok: true };
+  detachedSessionWindows.set(windowKey, windowPromise);
+  try {
+    const window = await windowPromise;
+    window.once("closed", () => {
+      if (detachedSessionWindows.get(windowKey) === windowPromise) {
+        detachedSessionWindows.delete(windowKey);
+      }
+    });
+    focusDetachedWindow(window);
+    return { focused: false, ok: true };
+  } catch (error) {
+    if (detachedSessionWindows.get(windowKey) === windowPromise) {
+      detachedSessionWindows.delete(windowKey);
+    }
+    return {
+      error: error instanceof Error ? error.message : String(error),
+      ok: false,
+    };
+  }
+}
+
+function focusDetachedWindow(window) {
+  if (window.isMinimized()) {
+    window.restore();
+  }
+  window.show();
+  window.focus();
 }
 
 async function restartHarnessApp() {

@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task3",
-  "expectedCommitMessage": "feat: focus existing detached sessions",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": "refactor: extract session dialog panel [skip-docs]",
   "debt": null
 }
 ```
@@ -134,14 +134,14 @@
 29. [DONE] Git Commit: `feat: manage core session titles` (hash: self)
 30. [DONE] `harness-ai.phase7.stream1.task2` Expose title commands through the Core process bridge and preload API (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, focused tests and related module docs`; expected commit: `feat: expose session title commands`). Result: Completed in commit `feat: expose session title commands`.
 31. [DONE] Git Commit: `feat: expose session title commands` (hash: self)
-32. [IN_PROGRESS] `harness-ai.phase7.stream1.task3` Make detached session windows unique per workspace/session so repeat opens focus the existing child window and completion never closes it (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: focus existing detached sessions`).
-33. [TODO] Git Commit: `feat: focus existing detached sessions` (hash: TBD)
+32. [DONE] `harness-ai.phase7.stream1.task3` Make detached session windows unique per workspace/session so repeat opens focus the existing child window and completion never closes it (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: focus existing detached sessions`). Result: Completed in commit `feat: focus existing detached sessions`.
+33. [DONE] Git Commit: `feat: focus existing detached sessions` (hash: self)
 
 ## Phase 8 - Session UI (owner: Codex, updated: 2026-07-11)
 
 ### Stream: Refactors For Bounded Files
 
-34. [TODO] `harness-ai.phase8.stream1.task1` Extract the existing dialog panel from its 499-line facade before adding timeline items, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, focused tests`; expected commit: `refactor: extract session dialog panel [skip-docs]`).
+34. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Extract the existing dialog panel from its 499-line facade before adding timeline items, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, focused tests`; expected commit: `refactor: extract session dialog panel [skip-docs]`).
 35. [TODO] Git Commit: `refactor: extract session dialog panel [skip-docs]` (hash: TBD)
 36. [TODO] `harness-ai.phase8.stream1.task2` Extract session hydration/list state from the near-limit window facade before wiring child sessions, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, focused tests`; expected commit: `refactor: extract session window state [skip-docs]`).
 37. [TODO] Git Commit: `refactor: extract session window state [skip-docs]` (hash: TBD)

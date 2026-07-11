@@ -27,6 +27,11 @@ Own Electron lifecycle, window creation, and local application startup.
   Bridge, then schedules `app.relaunch(...)` and exits the current host so the
   next process reloads the packaged `app.asar` and starts a fresh Core runtime
   from disk.
+- Detached session windows are unique per `(workspaceId, sessionId)`. The host
+  stores the in-flight/created window promise so concurrent repeat clicks do
+  not create duplicates; later clicks restore/show/focus the existing window.
+  The registry entry is removed only when the BrowserWindow closes (or creation
+  fails), not when the provider turn/subagent completes.
 
 - `window.harnessCore` exposes `listSessionProfiles(request?)`,
   `createSessionProfile(request)` and `openSessionProfileFile(request)`

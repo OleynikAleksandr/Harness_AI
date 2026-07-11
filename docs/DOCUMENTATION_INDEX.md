@@ -249,6 +249,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   `ultra` effort contract, three completed live model/effort probes, the
   Settings and Native Request Capture catalog update, Core-owned capture
   reasoning propagation, and the explicit packaged-app boundary.
+- `docs/evidence/codex-5.6-model-package-2026-07-11.md` — explicitly
+  user-approved macOS arm64 package rebuild for the Codex 5.6 catalog and
+  Native Request Capture reasoning propagation, including direct `app.asar`
+  content checks, SHA-256, and a successful packaged-app launch smoke check.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

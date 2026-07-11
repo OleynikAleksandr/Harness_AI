@@ -54,8 +54,8 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
 - Optional `captureNativeRequest(options: ProviderNativeCaptureOptions)`
   boundary for record-only diagnostic native request capture: the Core
   capture cluster owns the proxy and diagnostic certificates and passes
-  `proxyUrl`, `certificateEnv`, `certificatePath`, selected `model`,
-  `probePrompt`, `workspacePath` and optional
+  `proxyUrl`, `certificateEnv`, `certificatePath`, selected `model`, selected
+  `reasoningEffort`, `probePrompt`, `workspacePath` and optional
   `recordAppliedInputEnvelope`/`recordDiagnosticContext` callbacks; the adapter
   points its own client at the proxy and records the provider request. The
   `ProviderNativeCaptureAppliedInputEnvelope` boundary types only `kind`

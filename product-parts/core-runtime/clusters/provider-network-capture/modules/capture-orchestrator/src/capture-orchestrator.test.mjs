@@ -125,6 +125,7 @@ try {
     providerId: "claude",
     model: "claude-opus-4-8",
     outputDir,
+    reasoningEffort: "max",
     runProviderCapture: (context) => {
       capturedContext = context;
       return Promise.resolve();
@@ -132,9 +133,12 @@ try {
   });
   assert.equal(okResult.ok, true);
   assert.equal(okResult.reason, null);
+  assert.equal(okResult.reasoningEffort, "max");
+  assert.match(okResult.jsonlPath, /claude-opus-4-8-max-native-request/u);
   assert.equal(capturedContext.proxyUrl, "http://127.0.0.1:12345");
   assert.equal(capturedContext.certificatePath, "/tmp/ca.pem");
   assert.equal(capturedContext.selectedModelId, "claude-opus-4-8");
+  assert.equal(capturedContext.selectedReasoningEffort, "max");
   assert.equal(capturedContext.captureId, "cap-1");
   assert.equal(
     capturedContext.certificateEnv.NODE_EXTRA_CA_CERTS,

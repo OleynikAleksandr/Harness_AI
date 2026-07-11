@@ -174,19 +174,20 @@ try {
     outputDir,
     providerId: "claude",
     selectedModelId: "claude-opus-4-8",
+    selectedReasoningEffort: "max",
   });
-  // The selected model id is part of the filename so dumps are distinguishable.
+  // The selected model and Core reasoning intent are part of every filename.
   assert.match(
     writer.artifacts.jsonlPath,
-    /claude-claude-opus-4-8-native-request\.jsonl$/u
+    /claude-claude-opus-4-8-max-native-request\.jsonl$/u
   );
   assert.match(
     writer.artifacts.diagnosticsJsonlPath,
-    /claude-claude-opus-4-8-native-request\.diagnostics\.jsonl$/u
+    /claude-claude-opus-4-8-max-native-request\.diagnostics\.jsonl$/u
   );
   assert.match(
     writer.artifacts.markdownPath,
-    /claude-claude-opus-4-8-native-request\.md$/u
+    /claude-claude-opus-4-8-max-native-request\.md$/u
   );
 
   // No selected model: the filename has no model segment.
@@ -205,10 +206,11 @@ try {
     outputDir,
     providerId: "claude",
     selectedModelId: "vendor/model name:1",
+    selectedReasoningEffort: "x/high",
   });
   assert.match(
     unsafeModel.artifacts.jsonlPath,
-    /-claude-vendor-model-name-1-native-request\.jsonl$/u
+    /-claude-vendor-model-name-1-x-high-native-request\.jsonl$/u
   );
 
   await writer.writeCapturedRequest({
@@ -255,6 +257,7 @@ try {
     "utf8"
   );
   assert.match(diagnosticsJsonl, /"type":"capture_start"/u);
+  assert.match(diagnosticsJsonl, /"selectedReasoningEffort":"max"/u);
   assert.match(diagnosticsJsonl, /"type":"capture_end"/u);
 
   const markdown = await readFile(writer.artifacts.markdownPath, "utf8");

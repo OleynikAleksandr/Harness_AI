@@ -54,7 +54,8 @@ relevant to the active task.
   the v1 category whitelist, Profile Creator tool selection UI, a standalone
   `provider-network-capture` Core cluster ported from the CodeAI-Hub
   "Provider Native Request Capture" architecture (native capture path with
-  Codex forward-transit WebSocket support, per-(provider, model) capture,
+  Codex forward-transit WebSocket support, per-(provider, model, reasoning)
+  capture with reasoning-qualified artifact filenames,
   Settings card, raw upstream-request JSONL, diagnostics JSONL, and readable
   profile-relevant prompt/tool/developer dumps — capture now serves
   Claude/Codex after the Kimi channel was retired 2026-07-05, though

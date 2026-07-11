@@ -71,6 +71,7 @@ export interface ProviderCaptureContext {
     readonly payload: unknown;
   }) => Promise<void>;
   readonly selectedModelId: string | null;
+  readonly selectedReasoningEffort: string | null;
   readonly workspacePath: string;
 }
 
@@ -88,6 +89,7 @@ export interface NativeCaptureCommand {
   readonly model?: string | null;
   readonly outputDir?: string;
   readonly providerId: NativeCaptureProviderId;
+  readonly reasoningEffort?: string | null;
   readonly runProviderCapture: RunProviderCapture;
   readonly targetRules?: readonly NativeCaptureTargetRule[];
   readonly timeoutMs?: number;
@@ -102,6 +104,7 @@ export interface NativeCaptureCommandResult {
   readonly ok: boolean;
   readonly providerId: NativeCaptureProviderId;
   readonly reason: NativeCaptureFailureReason | null;
+  readonly reasoningEffort: string | null;
 }
 
 interface CertificateStoreLike {
@@ -156,6 +159,7 @@ export class NativeCaptureOrchestrator {
       outputDir: command.outputDir ?? this.outputDir,
       providerId: command.providerId,
       selectedModelId: command.model ?? null,
+      selectedReasoningEffort: command.reasoningEffort ?? null,
     });
     return await this.captureViaProxy({ captureId, command, writer });
   }
@@ -228,6 +232,7 @@ export class NativeCaptureOrchestrator {
       recordDiagnosticContext: (record) =>
         writer.recordDiagnosticContext(record),
       selectedModelId: command.model ?? null,
+      selectedReasoningEffort: command.reasoningEffort ?? null,
       workspacePath: command.workspacePath ?? "",
     };
   }
@@ -367,6 +372,7 @@ function success(
     model: command.model ?? null,
     ok: true,
     providerId: command.providerId,
+    reasoningEffort: command.reasoningEffort ?? null,
     reason: null,
   };
 }
@@ -384,6 +390,7 @@ function failure(
     model: command.model ?? null,
     ok: false,
     providerId: command.providerId,
+    reasoningEffort: command.reasoningEffort ?? null,
     reason,
   };
 }

@@ -21,8 +21,8 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
 - `NativeCaptureWriterOptions`: capture id, provider id (`claude` | `codex` —
   the ACP `kimi` capture channel left with the kimi-provider
   retirement, 2026-07-05), output directory, optional selected model id,
-  optional release version, optional clock (for deterministic artifacts in
-  tests).
+  optional selected reasoning effort, optional release version, optional
+  clock (for deterministic artifacts in tests).
 - `CapturedNativeRequest` values from the capture proxy: method, path,
   target, headers, raw body and body text, timestamp.
 
@@ -58,11 +58,15 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   text blocks with real newlines and spacing instead of JSON-escaped `\n`
   sequences; structured schemas remain fenced JSON.
 - `NativeRequestCaptureWriter`: creates the artifact set
-  `<timestamp>-<provider>-<model>-native-request.jsonl`,
-  `<timestamp>-<provider>-<model>-native-request.diagnostics.jsonl`, and
-  `<timestamp>-<provider>-<model>-native-request.md` (the model segment is the
-  sanitized selected model id, omitted when no model was selected, so dumps
-  for different models are distinguishable). The raw JSONL appends only
+  `<timestamp>-<provider>-<model>-<reasoning>-native-request.jsonl`,
+  `<timestamp>-<provider>-<model>-<reasoning>-native-request.diagnostics.jsonl`,
+  and `<timestamp>-<provider>-<model>-<reasoning>-native-request.md`. Model and
+  reasoning segments are sanitized; direct legacy writer callers may omit
+  either, while the Core capture command supplies both so dumps for different
+  model/effort pairs are distinguishable. The selected reasoning value is the
+  Core/app-server intent (for example Codex `ultra`), not a value re-derived
+  from a provider-normalized upstream body. `capture_start` records both
+  selected dimensions in diagnostics. The raw JSONL appends only
   `request_captured` records from the proxy path. The diagnostics JSONL
   appends local lifecycle, applied-envelope, provider-context and completion
   records. Every captured request is redacted before it is persisted; the raw

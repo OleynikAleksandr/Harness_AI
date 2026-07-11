@@ -3,7 +3,7 @@
 ## Responsibility
 
 Own the command-level orchestration of native request capture: validate the
-`(providerId, model)` request, mint a capture id, wire the certificate store,
+`(providerId, model, reasoning)` request, mint a capture id, wire the certificate store,
 capture proxy and artifact writer together, invoke the provider adapter
 capture through the proxy, apply the timeout/target rules, and return the
 artifact paths result.
@@ -24,8 +24,8 @@ injection (pointing a provider client at the local proxy) is passed in as a
   `captureIdFactory`, `certificateStore`, `proxyFactory`, `clock`, and
   `outputDir` (defaults to `<harness home>/logs/native-request-capture`) —
   all injectable for testing.
-- `NativeCaptureCommand`: provider id, optional model, optional profile id,
-  optional workspace path, optional `targetRules` override (else
+- `NativeCaptureCommand`: provider id, optional model, optional selected
+  reasoning effort, optional workspace path, optional `targetRules` override (else
   `DEFAULT_CAPTURE_TARGET_RULES` per provider), optional `timeoutMs`, and the
   required `runProviderCapture` callback.
 
@@ -51,7 +51,7 @@ injection (pointing a provider client at the local proxy) is passed in as a
   `ProviderNativeCaptureOptions` so the RPC callback is
   `(ctx) => adapter.captureNativeRequest(ctx)` — capture id, proxy url,
   certificate env hints, certificate path, diagnostic probe prompt, provider
-  id, selected model, optional profile id, workspace path, and the
+  id, selected model, selected reasoning effort, workspace path, and the
   `recordAppliedInputEnvelope`/`recordDiagnosticContext` callbacks wired to
   the writer.
 - `NativeCaptureOrchestrator.capture(command)`: mints one capture id, creates
@@ -71,7 +71,8 @@ injection (pointing a provider client at the local proxy) is passed in as a
   `certificateEnv`/`certificatePath`/`proxyUrl` values. The kimi-only
   reverse-bridge path (`captureViaReverse` + `NativeCaptureReverseBridge`)
   left with the ACP kimi retirement (2026-07-05 user order). Returns
-  `{ ok, providerId, model, markdownPath, jsonlPath, error, reason }`.
+  `{ ok, providerId, model, reasoningEffort, markdownPath, jsonlPath, error,
+  reason }`.
 
 ## Owned Paths
 

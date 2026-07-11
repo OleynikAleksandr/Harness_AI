@@ -204,12 +204,12 @@
         {
           "id": "provider-network-capture",
           "name": "Provider Network Capture",
-          "purpose": "Local dev-time capture of a provider's native HTTPS request (system prompt + tool schemas + developer context) via the native capture path; produces raw upstream-request JSONL, diagnostics JSONL, and readable profile-verification dumps.",
+          "purpose": "Local dev-time capture of a provider's native HTTPS request (system prompt + tool schemas + developer context) for a Core-validated model/reasoning pair; produces reasoning-qualified raw upstream-request JSONL, diagnostics JSONL, and readable profile-verification dumps.",
           "modules": [
             {
               "id": "capture-artifacts",
               "name": "Capture Artifacts",
-              "purpose": "Capture type model, credential-header redaction, provider-neutral profile section extraction, and the raw JSONL + diagnostics JSONL + readable markdown artifact writer."
+              "purpose": "Capture type model, credential-header redaction, provider-neutral profile section extraction, and the reasoning-qualified raw JSONL + diagnostics JSONL + readable markdown artifact writer."
             },
             {
               "id": "capture-certificates",
@@ -224,7 +224,7 @@
             {
               "id": "capture-orchestrator",
               "name": "Capture Orchestrator",
-              "purpose": "Command-level orchestration of native request capture: wires the certificate store, capture proxy and artifact writer, invokes the provider adapter capture through the proxy, and returns the artifact paths."
+              "purpose": "Command-level orchestration of model/reasoning-qualified native request capture: wires the certificate store, capture proxy and artifact writer, invokes the provider adapter capture through the proxy, and returns the artifact paths."
             }
           ]
         },

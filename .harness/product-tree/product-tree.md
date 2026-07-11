@@ -69,10 +69,10 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 ### Provider Network Capture
 
-- `capture-artifacts`: capture type model, credential-header redaction, provider-neutral profile section extraction (system prompt / tool schemas / developer context), and the raw JSONL + diagnostics JSONL + readable markdown artifact writer for native request capture.
+- `capture-artifacts`: capture type model, credential-header redaction, provider-neutral profile section extraction (system prompt / tool schemas / developer context), and the reasoning-qualified raw JSONL + diagnostics JSONL + readable markdown artifact writer for native request capture.
 - `capture-certificates`: diagnostic CA and per-host leaf certificates for the capture proxy's TLS termination, plus the env hints that make a provider client trust the CA for the capture run only.
 - `capture-proxy`: MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint from background traffic, and supports the forward-transit capture path required by Codex app-server WebSocket transport.
-- `capture-orchestrator`: command-level orchestration of native request capture — wires the certificate store, capture proxy and artifact writer, invokes the provider adapter capture through the proxy, and returns the artifact paths.
+- `capture-orchestrator`: command-level orchestration of model/reasoning-qualified native request capture — wires the certificate store, capture proxy and artifact writer, invokes the provider adapter capture through the proxy, and returns the artifact paths.
 
 ### Universal Client
 

@@ -48,6 +48,7 @@ interface NativeCaptureWriterOptions {
   readonly providerId: NativeCaptureProviderId;
   readonly releaseVersion?: string | null;
   readonly selectedModelId?: string | null;
+  readonly selectedReasoningEffort?: string | null;
 }
 
 const CREDENTIAL_HEADER_PATTERN =
@@ -56,18 +57,19 @@ const STAINLESS_HEADER_PATTERN = /^x-stainless-/iu;
 const STAINLESS_CREDENTIAL_VALUE_PATTERN =
   /(bearer|token|secret|credential|oauth|session)/iu;
 const ARTIFACT_STEM_TIME_PATTERN = /[:.]/gu;
-const ARTIFACT_MODEL_UNSAFE_PATTERN = /[^a-zA-Z0-9._-]+/gu;
+const ARTIFACT_SEGMENT_UNSAFE_PATTERN = /[^a-zA-Z0-9._-]+/gu;
 
 export const REDACTED_CAPTURE_HEADER_VALUE = "[REDACTED]";
 
-// A filename-safe segment for the selected model, or "" when no model was
-// chosen, so dumps for different models are distinguishable on disk.
-function modelFilenameSegment(modelId: string | null | undefined): string {
-  const trimmed = modelId?.trim();
+// A filename-safe segment for a selected capture dimension, or "" when that
+// dimension is absent. Core capture calls always provide model + reasoning;
+// the empty form preserves direct writer compatibility for older callers.
+function artifactFilenameSegment(value: string | null | undefined): string {
+  const trimmed = value?.trim();
   if (!trimmed) {
     return "";
   }
-  return `-${trimmed.replace(ARTIFACT_MODEL_UNSAFE_PATTERN, "-")}`;
+  return `-${trimmed.replace(ARTIFACT_SEGMENT_UNSAFE_PATTERN, "-")}`;
 }
 
 export function redactCaptureHeaders(
@@ -99,6 +101,7 @@ export class NativeRequestCaptureWriter {
   private readonly clock: () => Date;
   private readonly providerId: NativeCaptureProviderId;
   private readonly selectedModelId: string | null;
+  private readonly selectedReasoningEffort: string | null;
   private readonly capturedRequests: CapturedNativeRequest[] = [];
   private readonly diagnosticRecords: NativeCaptureDiagnosticRecord[] = [];
   private appliedInputEnvelope: NativeCaptureAppliedInputEnvelope | null = null;
@@ -115,6 +118,7 @@ export class NativeRequestCaptureWriter {
     this.clock = options.clock ?? (() => new Date());
     this.providerId = options.providerId;
     this.selectedModelId = options.selectedModelId ?? null;
+    this.selectedReasoningEffort = options.selectedReasoningEffort ?? null;
   }
 
   static async create(
@@ -125,8 +129,9 @@ export class NativeRequestCaptureWriter {
     const timestamp = now
       .toISOString()
       .replace(ARTIFACT_STEM_TIME_PATTERN, "-");
-    const model = modelFilenameSegment(options.selectedModelId);
-    const stem = `${timestamp}-${options.providerId}${model}-native-request`;
+    const model = artifactFilenameSegment(options.selectedModelId);
+    const reasoning = artifactFilenameSegment(options.selectedReasoningEffort);
+    const stem = `${timestamp}-${options.providerId}${model}${reasoning}-native-request`;
     const artifacts: NativeCaptureArtifacts = {
       diagnosticsJsonlPath: path.join(
         options.outputDir,
@@ -143,6 +148,7 @@ export class NativeRequestCaptureWriter {
       providerId: options.providerId,
       releaseVersion: options.releaseVersion ?? null,
       selectedModelId: options.selectedModelId ?? null,
+      selectedReasoningEffort: options.selectedReasoningEffort ?? null,
       sentUpstream: true,
       timestamp: now.toISOString(),
     });

@@ -17,6 +17,9 @@ architecture (`Plans/Archive/Provider_Native_Request_Capture_Architecture.md`).
 ## Owned Modules
 
 - `capture-artifacts`
+- `capture-certificates`
+- `capture-proxy`
+- `capture-orchestrator`
 
 ## Facade Rule
 
@@ -33,4 +36,6 @@ and displays the Core-returned artifact paths. Artifact ownership separates
 the raw upstream-request JSONL from local diagnostics JSONL, while the
 markdown report highlights the profile-relevant payload groups common across
 native and universal-client providers: system prompt, tool declarations, and
-developer context.
+developer context. The provider-neutral command carries the Core-validated
+model and reasoning intent together; artifact filenames preserve that pair
+even when the provider normalizes its upstream request representation.

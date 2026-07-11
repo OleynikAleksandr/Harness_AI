@@ -100,6 +100,7 @@ export interface ProviderNativeCaptureOptions {
     readonly payload: unknown;
   }) => Promise<void> | void;
   readonly selectedModelId?: string | null;
+  readonly selectedReasoningEffort?: string | null;
   readonly workflowPrompt?: string | null;
   readonly workspacePath: string;
 }

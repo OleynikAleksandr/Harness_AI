@@ -339,9 +339,12 @@
   аддендум CodeAI, 7 инструментов), а не родная база Kimi — прямое нарушение
   рамки «Native = клиент-провайдер», отдельный вопрос к Phase R.
 - **Артефакты**: набор
-  `<timestamp>-<provider>-<model>-native-request.jsonl`,
-  `<timestamp>-<provider>-<model>-native-request.diagnostics.jsonl` и
-  `<timestamp>-<provider>-<model>-native-request.md` в Harness home logs.
+  `<timestamp>-<provider>-<model>-<reasoning>-native-request.jsonl`,
+  `<timestamp>-<provider>-<model>-<reasoning>-native-request.diagnostics.jsonl`
+  и `<timestamp>-<provider>-<model>-<reasoning>-native-request.md` в Harness
+  home logs. Reasoning-сегмент отражает валидированный Core/app-server intent,
+  а не повторно вычисляется из provider-normalized upstream body; поэтому
+  Codex Ultra-файл сохраняет `ultra` в имени при честном wire payload `max`.
   Основной JSONL содержит только записи `request_captured`, то есть
   захваченные upstream request payloads. Lifecycle, applied envelope,
   provider diagnostics и proxy events пишутся отдельно в diagnostics JSONL.

@@ -57,6 +57,11 @@ the shared process.
   from `source.subAgent.thread_spawn`, and child turn/thread lifecycle becomes
   `subagent_status`. The app-server facade creates the child subscription state
   under the same workspace before Core adopts the provider thread.
+- Structured subagent history hydration through app-server RPC only:
+  `thread/list(ancestorThreadId)` discovers recursive descendants and
+  `thread/read(includeTurns=true)` replays persisted collaboration,
+  `agentMessage`, and `reasoning` items through the same event router used for
+  live notifications. No provider rollout file parsing is used.
 - Provider usage/context telemetry.
 - Model capability lookup for the live picker family: GPT-5.6 Sol/Terra
   support through `ultra`, GPT-5.6 Luna through `max`, and

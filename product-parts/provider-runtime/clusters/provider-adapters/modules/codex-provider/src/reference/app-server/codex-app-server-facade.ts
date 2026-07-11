@@ -23,6 +23,7 @@ import {
   resolveCodexSessionProfileState,
 } from "./codex-profile-application.js";
 import { buildCodexReasoningSummaryParams } from "./codex-reasoning-summary-params.js";
+import { CodexSubagentHistoryLoader } from "./codex-subagent-history-loader.js";
 import { CodexAppServerProcess } from "./process/codex-app-server-process.js";
 import { CODEX_DEFAULT_PROCESS_PROFILE_KEY } from "./process/codex-app-server-process-profile.js";
 
@@ -133,7 +134,9 @@ const resolveTurnReasoningSummaryMode = (): CodexReasoningSummaryMode =>
 
 export class CodexAppServerFacade {
   private readonly eventRouter: CodexAppServerEventRouter;
+  private readonly historyLoader: CodexSubagentHistoryLoader;
   private readonly process: CodexAppServerProcess;
+  private readonly reporter: CodexModuleOptions["reporter"];
   private readonly sessions = new Map<string, AppServerSessionState>();
   // Thread ids for which this facade has actually completed a handshake
   // (thread/start or thread/resume) against the current app-server child
@@ -149,6 +152,7 @@ export class CodexAppServerFacade {
 
   constructor(options: CodexModuleOptions) {
     this.workspace = options.workspace;
+    this.reporter = options.reporter;
     this.process = new CodexAppServerProcess({
       environment: options.environment ?? {},
       processProfileKey: CODEX_DEFAULT_PROCESS_PROFILE_KEY,
@@ -158,6 +162,11 @@ export class CodexAppServerFacade {
       emit: (threadId, payload) => this.emit(threadId, payload),
       ensureSessionState: (threadId) => this.ensureSessionState(threadId),
       listThreadIds: () => this.sessions.keys(),
+    });
+    this.historyLoader = new CodexSubagentHistoryLoader({
+      request: (method, params) => this.process.request(method, params),
+      routeNotification: (method, params) =>
+        this.eventRouter.handleNotification(method, params),
     });
     this.process.onNotification((notification) => {
       this.eventRouter.handleNotification(
@@ -348,6 +357,11 @@ export class CodexAppServerFacade {
   ): () => void {
     const state = this.ensureSessionState(threadId);
     state.listeners.add(listener);
+    this.historyLoader.hydrate(threadId).catch((error: unknown) => {
+      this.reporter?.warn?.(
+        `Unable to hydrate Codex subagent history for ${threadId}: ${String(error)}`
+      );
+    });
     return () => {
       state.listeners.delete(listener);
     };

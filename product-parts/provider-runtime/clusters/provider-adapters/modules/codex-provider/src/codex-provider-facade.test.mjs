@@ -20,6 +20,10 @@ const appServerEventRouterSource = readFileSync(
   join(moduleDir, "reference/app-server/codex-app-server-event-router.ts"),
   "utf8"
 );
+const appServerHistoryLoaderSource = readFileSync(
+  join(moduleDir, "reference/app-server/codex-subagent-history-loader.ts"),
+  "utf8"
+);
 const appServerHomeConfigSource = readFileSync(
   join(moduleDir, "reference/app-server/process/codex-provider-home-config.ts"),
   "utf8"
@@ -46,6 +50,14 @@ assert.match(appServerSource, /"thread\/read"/u);
 assert.match(appServerSource, /persistExtendedHistory: false/u);
 assert.doesNotMatch(appServerSource, /persistExtendedHistory: true/u);
 assert.match(appServerSource, /includeTurns: true/u);
+assert.match(appServerSource, /CodexSubagentHistoryLoader/u);
+assert.match(appServerSource, /this\.historyLoader\.hydrate\(threadId\)/u);
+assert.match(appServerHistoryLoaderSource, /ancestorThreadId/u);
+assert.match(appServerHistoryLoaderSource, /"thread\/list"/u);
+assert.match(appServerHistoryLoaderSource, /"thread\/read"/u);
+assert.match(appServerHistoryLoaderSource, /"thread\/started"/u);
+assert.match(appServerHistoryLoaderSource, /"item\/completed"/u);
+assert.doesNotMatch(appServerHistoryLoaderSource, /readFile|jsonl|rollout/iu);
 assert.match(appServerSource, /countThreadTurns\(response\.thread\)/u);
 assert.match(
   appServerSource,
@@ -94,6 +106,7 @@ for (const relativePath of [
   "reference/provider/codex-provider-adapter.ts",
   "reference/app-server/codex-app-server-facade.ts",
   "reference/app-server/codex-app-server-event-router.ts",
+  "reference/app-server/codex-subagent-history-loader.ts",
   "reference/app-server/codex-reasoning-summary-stream-buffer.ts",
   "reference/app-server/process/codex-app-server-process.ts",
   "reference/app-server/process/codex-provider-home-config.ts",

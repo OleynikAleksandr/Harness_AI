@@ -48,6 +48,10 @@ Native collaboration is normalized at the same boundary. Codex app-server
 notifications become provider-neutral subagent events. Structured
 `source.subAgent.thread_spawn` supplies the child path/nickname/role; Core, not
 the adapter or renderer, owns the resulting parent-child session graph.
+When Core has no child record for an already-persisted Codex thread, the
+adapter uses official `thread/list(ancestorThreadId)` and
+`thread/read(includeTurns=true)` responses to replay the same structured
+events; it does not inspect provider JSONL files.
 
 Codex reasoning effort types follow the live app-server catalog: GPT-5.6
 Sol/Terra add `max` and `ultra`, Luna adds `max`, while older picker-visible

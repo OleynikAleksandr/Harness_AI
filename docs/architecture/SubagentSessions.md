@@ -24,6 +24,9 @@ Codex app-server уже предоставляет структурирован�
 - `turn/started`, `turn/completed` и terminal `error` — фактический lifecycle
   работы дочернего thread;
 - обычные `agentMessage` и `reasoning` события дочернего thread — его диалог.
+- `thread/list(ancestorThreadId)` и `thread/read(includeTurns=true)` —
+  официальный структурированный источник descendants и завершённых items при
+  восстановлении после перезапуска.
 
 Codex adapter нормализует эти данные в provider-neutral события. Core владеет
 связями parent/child, статусами, persisted read model и timeline-вставками.
@@ -62,6 +65,13 @@ hydration `session-event-stream` объединяет их по id в исход
 подписывается на уже работающий provider thread и сохраняется в workspace
 session index. После перезапуска она восстанавливается и resume-ится тем же
 путём, что и обычная Codex-сессия.
+
+Если provider descendants уже существуют, но старый Core ещё не успел создать
+для них records, Codex adapter запрашивает рекурсивный список через
+`ancestorThreadId`, читает turns каждого thread и повторно пропускает только
+структурированные collaboration/reasoning/agentMessage items через штатный
+event router. Внутри одного процесса каждый transcript/activity replay
+выполняется один раз; raw rollout JSONL не читается.
 
 Live adoption не вызывает второй `thread/start`/`thread/resume`: Core берёт
 adapter уже связанной parent session, подписывается на child provider thread id
@@ -165,9 +175,8 @@ Registry хранит promise уже начатого создания окна,
   пустые controls.
 - Запуск новых субагентов вручную из UI и отправка сообщений в дочернюю сессию
   не входят в MVP.
-- Исторические Codex descendants, созданные до появления Core child record, не
-  реконструируются из rollout-текста. Новые child records сохраняются и
-  восстанавливаются штатно.
+- Исторические Codex descendants реконструируются только из app-server
+  `thread/list`/`thread/read`; fallback на разбор rollout-текста отсутствует.
 
 ## Критерии приёмки
 
@@ -180,5 +189,7 @@ Registry хранит promise уже начатого создания окна,
 5. Auto title, manual rename и regenerate сохраняются после перезапуска.
 6. Parent delete не оставляет видимых orphan descendants.
 7. Renderer не анализирует текст сообщений для определения субагентов.
-8. Локальный build, focused tests и visual Design QA проходят; package build
+8. Уже существующие provider descendants появляются в дереве вместе со своим
+   завершённым transcript после восстановления Core.
+9. Локальный build, focused tests и visual Design QA проходят; package build
    выполняется только после отдельного подтверждения пользователя.

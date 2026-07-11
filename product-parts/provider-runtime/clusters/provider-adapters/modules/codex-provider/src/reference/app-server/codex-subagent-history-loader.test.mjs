@@ -63,6 +63,27 @@ const childThread = {
       completedAt: 1_783_794_760,
       id: "child-turn",
       items: [
+        {
+          agentPath: "/root/provider_event_audit",
+          agentThreadId: "child-thread",
+          id: "call-spawn",
+          kind: "started",
+          type: "subAgentActivity",
+        },
+        {
+          agentPath: "/root/core_session_graph_audit",
+          agentThreadId: "sibling-thread",
+          id: "call-sibling",
+          kind: "started",
+          type: "subAgentActivity",
+        },
+        {
+          agentPath: "/root/provider_event_audit/nested_audit",
+          agentThreadId: "grandchild-thread",
+          id: "call-grandchild",
+          kind: "started",
+          type: "subAgentActivity",
+        },
         childSummary,
         {
           id: "child-answer",
@@ -111,9 +132,23 @@ assert.equal(
   false
 );
 assert.equal(
-  notifications.some(
+  notifications.filter(
     ({ method, params }) =>
       method === "item/completed" && params.item.id === "call-spawn"
+  ).length,
+  1
+);
+assert.equal(
+  notifications.some(
+    ({ method, params }) =>
+      method === "item/completed" && params.item.id === "call-sibling"
+  ),
+  false
+);
+assert.equal(
+  notifications.some(
+    ({ method, params }) =>
+      method === "item/completed" && params.item.id === "call-grandchild"
   ),
   true
 );

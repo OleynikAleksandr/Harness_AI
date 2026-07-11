@@ -61,7 +61,11 @@ the shared process.
   `thread/list(ancestorThreadId)` discovers recursive descendants and
   `thread/read(includeTurns=true)` replays persisted collaboration,
   `agentMessage`, and `reasoning` items through the same event router used for
-  live notifications. No provider rollout file parsing is used.
+  live notifications. Because a forked child read also contains ancestor
+  items, collaboration replay is ownership-filtered: current
+  `subAgentActivity` must target a direct child of the current structured
+  agent path, while legacy calls use `senderThreadId`. No provider rollout file
+  parsing is used.
 - Provider usage/context telemetry.
 - Model capability lookup for the live picker family: GPT-5.6 Sol/Terra
   support through `ultra`, GPT-5.6 Luna through `max`, and

@@ -16,37 +16,63 @@ const asString = (value: unknown): string | null =>
 const asNumber = (value: unknown): number | null =>
   typeof value === "number" && Number.isFinite(value) ? value : null;
 
-const isReplayableItem = (item: Record<string, unknown>): boolean =>
-  [
-    "agentMessage",
-    "reasoning",
-    "subAgentActivity",
-    "collabAgentToolCall",
-  ].includes(asString(item.type) ?? "");
+const isTranscriptItem = (item: Record<string, unknown>): boolean =>
+  ["agentMessage", "reasoning"].includes(asString(item.type) ?? "");
 
-const isSubagentActivity = (item: Record<string, unknown>): boolean =>
-  ["subAgentActivity", "collabAgentToolCall"].includes(
-    asString(item.type) ?? ""
-  );
+const readThreadSpawn = (
+  thread: Record<string, unknown>
+): Record<string, unknown> | null => {
+  const source = isRecord(thread.source) ? thread.source : null;
+  const subAgentValue = source?.subAgent ?? source?.subagent;
+  const subAgent = isRecord(subAgentValue) ? subAgentValue : null;
+  return isRecord(subAgent?.thread_spawn) ? subAgent.thread_spawn : null;
+};
 
 const readParentThreadId = (thread: Record<string, unknown>): string | null => {
   const direct = asString(thread.parentThreadId);
   if (direct) {
     return direct;
   }
-  const source = isRecord(thread.source) ? thread.source : null;
-  const subAgentValue = source?.subAgent ?? source?.subagent;
-  const subAgent = isRecord(subAgentValue) ? subAgentValue : null;
-  const spawn = isRecord(subAgent?.thread_spawn) ? subAgent.thread_spawn : null;
-  return asString(spawn?.parent_thread_id);
+  return asString(readThreadSpawn(thread)?.parent_thread_id);
 };
 
 const readThreadDepth = (thread: Record<string, unknown>): number => {
-  const source = isRecord(thread.source) ? thread.source : null;
-  const subAgentValue = source?.subAgent ?? source?.subagent;
-  const subAgent = isRecord(subAgentValue) ? subAgentValue : null;
-  const spawn = isRecord(subAgent?.thread_spawn) ? subAgent.thread_spawn : null;
-  return asNumber(spawn?.depth) ?? Number.MAX_SAFE_INTEGER;
+  return asNumber(readThreadSpawn(thread)?.depth) ?? Number.MAX_SAFE_INTEGER;
+};
+
+const readAgentPath = (thread: Record<string, unknown>): string | null =>
+  asString(thread.agentPath) ??
+  asString(readThreadSpawn(thread)?.agent_path) ??
+  (readParentThreadId(thread) === null ? "/root" : null);
+
+const isDirectChildPath = (parentPath: string, childPath: string): boolean => {
+  const parentSegments = parentPath.split("/").filter(Boolean);
+  const childSegments = childPath.split("/").filter(Boolean);
+  return (
+    childSegments.length === parentSegments.length + 1 &&
+    parentSegments.every((segment, index) => childSegments[index] === segment)
+  );
+};
+
+const isOwnedSubagentActivity = (
+  thread: Record<string, unknown>,
+  item: Record<string, unknown>
+): boolean => {
+  const itemType = asString(item.type);
+  if (itemType === "collabAgentToolCall") {
+    const senderThreadId = asString(item.senderThreadId);
+    return senderThreadId
+      ? senderThreadId === asString(thread.id)
+      : readParentThreadId(thread) === null;
+  }
+  if (itemType !== "subAgentActivity") {
+    return false;
+  }
+  const agentPath = readAgentPath(thread);
+  const targetPath = asString(item.agentPath);
+  return Boolean(
+    agentPath && targetPath && isDirectChildPath(agentPath, targetPath)
+  );
 };
 
 const readTurns = (
@@ -209,8 +235,8 @@ export class CodexSubagentHistoryLoader {
       for (const [itemIndex, item] of readItems(turn).entries()) {
         if (
           !(
-            (replayActivities && isSubagentActivity(item)) ||
-            (replayTranscript && isReplayableItem(item))
+            (replayActivities && isOwnedSubagentActivity(thread, item)) ||
+            (replayTranscript && isTranscriptItem(item))
           )
         ) {
           continue;

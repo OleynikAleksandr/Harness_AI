@@ -76,6 +76,13 @@ event router. Внутри одного процесса каждый transcript
 role/tag/source text и не добавляет точные дубликаты в persisted transcript.
 Изменённый текст и завершение live-tail при этом остаются обычными обновлениями.
 
+Forked child `thread/read` включает часть items родительской истории. Adapter
+не переигрывает их как вызовы самого child: актуальный `subAgentActivity`
+принадлежит thread только когда его `agentPath` является прямым потомком
+структурированного path текущего агента; legacy `collabAgentToolCall`
+проверяется по `senderThreadId`. Поэтому self/sibling activities не создают
+ложные grandchildren и не возвращают завершённые sessions в `running`.
+
 Live adoption не вызывает второй `thread/start`/`thread/resume`: Core берёт
 adapter уже связанной parent session, подписывается на child provider thread id
 и публикует ready binding. При обычном restart persisted child, напротив,

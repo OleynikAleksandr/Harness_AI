@@ -91,7 +91,6 @@ export interface ProviderNativeCaptureOptions {
   readonly certificateEnv: Readonly<Record<string, string>>;
   readonly certificatePath: string;
   readonly probePrompt: string;
-  readonly profileId?: string | null;
   readonly proxyUrl: string;
   readonly recordAppliedInputEnvelope?: (
     envelope: unknown

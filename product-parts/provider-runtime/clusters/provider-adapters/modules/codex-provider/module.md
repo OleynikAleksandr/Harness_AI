@@ -71,8 +71,7 @@ the shared process.
   cache from the second turn instead of depending on extended-history bootstrap
   state. This is an accepted packaged-app compatibility finding from
   2026-07-08: changing it back to `true` requires re-running the Codex
-  app-server cache-anchor probe and proving second-turn cache parity with
-  CodexUC.
+  app-server cache-anchor probe and proving second-turn cache stability.
 - `deleteSessionArtifacts(providerSessionId, workspacePath)` removes the Codex
   rollout log(s) for a removed session from the workspace provider home, leaving
   the shared provider home otherwise intact.

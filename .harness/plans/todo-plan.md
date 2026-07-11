@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream2.task3",
-  "expectedCommitMessage": "refactor: delete codex uc adapter module",
+  "currentTaskId": "harness-ai.phase8.stream3.task1",
+  "expectedCommitMessage": "docs: remove codex uc references",
   "debt": null
 }
 ```
@@ -170,12 +170,12 @@
 65. [DONE] Git Commit: `refactor: remove codex uc runtime branches` (hash: self)
 66. [DONE] `harness-ai.phase8.stream2.task2` Remove CodexUC from the native-capture provider contract, orchestrator, Core RPC and provider-adapter capture types while preserving Claude/Codex capture, with focused tests/docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/cluster.md, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/module.md, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md`; expected commit: `refactor: remove codex uc capture route`). Result: Completed in commit `refactor: remove codex uc capture route`.
 67. [DONE] Git Commit: `refactor: remove codex uc capture route` (hash: self)
-68. [IN_PROGRESS] `harness-ai.phase8.stream2.task3` Delete the complete CodexUC provider adapter module after all callers are removed, update provider-adapter ownership and product-tree projections, and prove no remaining runtime import targets the deleted module (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/**, product-parts/provider-runtime/clusters/provider-adapters/cluster.md, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`; expected commit: `refactor: delete codex uc adapter module`).
-69. [TODO] Git Commit: `refactor: delete codex uc adapter module` (hash: TBD)
+68. [DONE] `harness-ai.phase8.stream2.task3` Delete the complete CodexUC provider adapter module after all callers are removed, update provider-adapter ownership and product-tree projections, and prove no remaining runtime import targets the deleted module (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/**, product-parts/provider-runtime/clusters/provider-adapters/cluster.md, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/module.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`; expected commit: `refactor: delete codex uc adapter module`). Result: Completed in commit `refactor: delete codex uc adapter module`.
+69. [DONE] Git Commit: `refactor: delete codex uc adapter module` (hash: self)
 
 ### Stream: Documentation And Package
 
-70. [TODO] `harness-ai.phase8.stream3.task1` Remove CodexUC-only evidence/archived scope files and rewrite all current architecture/index references so the codebase documents Codex app-server plus the remaining Universal Client providers without dead links or historical CodexUC guidance (scope: `docs/**, .harness/plans/archive/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: remove codex uc references`).
+70. [IN_PROGRESS] `harness-ai.phase8.stream3.task1` Remove CodexUC-only evidence/archived scope files and rewrite all current architecture/index references so the codebase documents Codex app-server plus the remaining Universal Client providers without dead links or historical CodexUC guidance (scope: `docs/**, .harness/plans/archive/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: remove codex uc references`).
 71. [TODO] Git Commit: `docs: remove codex uc references` (hash: TBD)
 72. [TODO] `harness-ai.phase8.stream3.task2` Build the user-approved macOS package, verify `Harness AI.app` and `app.asar` contain no CodexUC provider/runtime surface while retaining Universal Client modules and remaining providers, launch-smoke the app, and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex uc removal package`).
 73. [TODO] Git Commit: `docs: record codex uc removal package` (hash: TBD)

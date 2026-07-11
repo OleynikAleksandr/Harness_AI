@@ -89,10 +89,12 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - `session-subagent-lifecycle.ts` consumes only typed provider-neutral
   `subagent_control`/`subagent_session`/`subagent_status` events. It creates or
   enriches child `CoreSession` records, preserves recursive parent ids,
-  requests adoption of the live child provider thread, updates child status,
-  and publishes stable `CoreSubagentCall` snapshots. Spawn-tool completion is
-  not treated as child completion: call status is derived from agent/thread
-  states, so a successfully spawned running agent remains `running`.
+  inherits the parent model/reasoning effort when Codex does not repeat them on
+  its spawn activity, requests adoption of the live child provider thread,
+  updates child status, and publishes stable `CoreSubagentCall` snapshots.
+  Spawn-tool completion is not treated as child completion: call status is
+  derived from agent/thread states, so a successfully spawned running agent
+  remains `running`.
 - The facade now wires that lifecycle to the provider event router. A new child
   is remembered in the append-only event stream, added to the workspace index,
   initialized with Core telemetry, published through `session:created`, and

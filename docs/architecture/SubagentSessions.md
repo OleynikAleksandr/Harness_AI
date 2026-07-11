@@ -14,11 +14,15 @@ Harness AI показывает работу субагентов Codex app-serv
 
 Codex app-server уже предоставляет структурированные данные:
 
-- `item/started` и `item/completed` с `collabAgentToolCall` — место вызова,
-  prompt, model, reasoning effort, receiver thread ids и состояния агентов;
+- `item/completed` с актуальным `subAgentActivity` — id вызова, child thread id,
+  agent path и вид действия `started/interacted/interrupted`; legacy-форма
+  `collabAgentToolCall` также остаётся поддержанной;
 - `thread/started` — `parentThreadId`, `agentNickname`, `agentRole`, `name`,
-  preview и provider thread id дочерней сессии;
+  preview, provider thread id и структурированный
+  `source.subAgent.thread_spawn` дочерней сессии;
 - `thread/status/changed` — живой статус дочернего thread;
+- `turn/started`, `turn/completed` и terminal `error` — фактический lifecycle
+  работы дочернего thread;
 - обычные `agentMessage` и `reasoning` события дочернего thread — его диалог.
 
 Codex adapter нормализует эти данные в provider-neutral события. Core владеет
@@ -64,10 +68,11 @@ adapter уже связанной parent session, подписывается н�
 и публикует ready binding. При обычном restart persisted child, напротив,
 проходит штатный `resumeSession` независимо от parent order.
 
-`collabAgentToolCall.status=completed` означает завершение самого вызова
-`spawnAgent`, а не работы созданного агента. Поэтому статус карточки выводится
-из `agentsStates`/child thread status: успешный spawn работающего child остаётся
-`running` до его собственного завершения.
+Завершение `subAgentActivity`/`collabAgentToolCall` означает завершение самого
+вызова `spawnAgent`, а не работы созданного агента. Поэтому статус карточки
+выводится из child turn/thread status: успешный spawn работающего child остаётся
+`running` до его собственного завершения. Если spawn-событие не повторяет model
+и reasoning effort, Core наследует их из parent session.
 
 Одинаковый lifecycle применяется рекурсивно: collaboration event в child
 session создаёт grandchild с `parentSessionId` этого child, не выравнивая дерево
@@ -131,7 +136,7 @@ sequenceDiagram
   participant C as Core Runtime
   participant U as Session UI
 
-  A->>P: item/started collabAgentToolCall
+  A->>P: item/completed subAgentActivity(started)
   P->>C: provider subagent call
   C->>C: create child session and timeline item
   C-->>U: session created + subagent call

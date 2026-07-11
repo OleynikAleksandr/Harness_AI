@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task1",
-  "expectedCommitMessage": "docs: record subagent session package",
+  "currentTaskId": "harness-ai.phase10.stream0.task2",
+  "expectedCommitMessage": "fix: hydrate codex subagent history",
   "debt": null
 }
 ```
@@ -170,8 +170,15 @@
 
 ## Phase 10 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-11)
 
+### Stream: Packaged Defect Correction
+
+52. [DONE] `harness-ai.phase10.stream0.task1` Normalize the actual Codex `subAgentActivity` and child turn lifecycle notifications, preserve structured agent identity, and inherit the parent reasoning effort when Core creates a child session (scope: `.harness/plans/todo-plan.md, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-event-normalizer.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: route codex subagent activity`). Result: Completed in commit `fix: route codex subagent activity`.
+53. [DONE] Git Commit: `fix: route codex subagent activity` (hash: self)
+54. [IN_PROGRESS] `harness-ai.phase10.stream0.task2` Hydrate persisted Codex descendant threads and their completed transcript items after Core/app restart so existing physical subagent sessions materialize in the Core session graph without rollout-text inference (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-history-loader.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: hydrate codex subagent history`).
+55. [TODO] Git Commit: `fix: hydrate codex subagent history` (hash: TBD)
+
 ### Stream: Packaged Retest
 
-52. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
-53. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
-54. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).
+56. [TODO] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
+57. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
+58. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).

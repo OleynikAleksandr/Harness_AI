@@ -43,9 +43,11 @@ not have an equivalent upstream phase must add their own adapter-level
 sentinel or continuation protocol.
 
 Native collaboration is normalized at the same boundary. Codex app-server
-`collabAgentToolCall`, child `thread/started`, and `thread/status/changed`
-notifications become provider-neutral subagent events; Core, not the adapter
-or renderer, owns the resulting parent-child session graph.
+`subAgentActivity` (plus the legacy `collabAgentToolCall` shape), child
+`thread/started`, child turn lifecycle, and `thread/status/changed`
+notifications become provider-neutral subagent events. Structured
+`source.subAgent.thread_spawn` supplies the child path/nickname/role; Core, not
+the adapter or renderer, owns the resulting parent-child session graph.
 
 Codex reasoning effort types follow the live app-server catalog: GPT-5.6
 Sol/Terra add `max` and `ultra`, Luna adds `max`, while older picker-visible

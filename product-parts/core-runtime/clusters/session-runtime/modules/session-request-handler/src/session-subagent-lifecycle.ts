@@ -186,35 +186,45 @@ export class SessionSubagentLifecycle {
     parent: CoreSession,
     seed: ChildSessionSeed
   ): CoreSession {
+    const inheritedSeed = {
+      ...seed,
+      reasoningEffort: seed.reasoningEffort ?? parent.reasoningEffort,
+    };
     const existing = this.findChildByProviderSessionId(seed.providerSessionId);
     if (existing) {
-      const updated = mergeChildSession(existing, seed);
+      const updated = mergeChildSession(existing, inheritedSeed);
       this.deps.updateSession(updated);
       this.deps.adoptProviderSession(updated, parent);
       return updated;
     }
     const child: CoreSession = {
-      ...(seed.agentNickname ? { agentNickname: seed.agentNickname } : {}),
-      ...(seed.agentRole ? { agentRole: seed.agentRole } : {}),
+      ...(inheritedSeed.agentNickname
+        ? { agentNickname: inheritedSeed.agentNickname }
+        : {}),
+      ...(inheritedSeed.agentRole
+        ? { agentRole: inheritedSeed.agentRole }
+        : {}),
       appliedProfile: parent.appliedProfile,
-      createdAt: seed.timestamp,
-      ...(seed.task ? { delegatedTask: seed.task } : {}),
+      createdAt: inheritedSeed.timestamp,
+      ...(inheritedSeed.task ? { delegatedTask: inheritedSeed.task } : {}),
       id: createId("session-subagent"),
-      model: seed.model ?? parent.model,
+      model: inheritedSeed.model ?? parent.model,
       nextSessionMode: parent.nextSessionMode,
       parentSessionId: parent.id,
       providerId: parent.providerId,
       providerName: parent.providerName,
-      providerSessionId: seed.providerSessionId,
-      ...(seed.reasoningEffort
-        ? { reasoningEffort: seed.reasoningEffort }
+      providerSessionId: inheritedSeed.providerSessionId,
+      ...(inheritedSeed.reasoningEffort
+        ? { reasoningEffort: inheritedSeed.reasoningEffort }
         : {}),
       sessionKind: "subagent",
-      ...(seed.subagentCallId ? { subagentCallId: seed.subagentCallId } : {}),
-      subagentStatus: seed.status,
-      title: resolveChildTitle(seed),
+      ...(inheritedSeed.subagentCallId
+        ? { subagentCallId: inheritedSeed.subagentCallId }
+        : {}),
+      subagentStatus: inheritedSeed.status,
+      title: resolveChildTitle(inheritedSeed),
       titleOrigin: "auto",
-      updatedAt: seed.timestamp,
+      updatedAt: inheritedSeed.timestamp,
       workspaceId: parent.workspaceId,
       ...(parent.workspacePath ? { workspacePath: parent.workspacePath } : {}),
     };

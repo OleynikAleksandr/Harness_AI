@@ -51,11 +51,12 @@ the shared process.
 
 - Normalized provider events.
 - Structured Codex collaboration notifications normalized without reading
-  rollout text: `collabAgentToolCall` item lifecycle becomes
-  `subagent_control`, child `thread/started` becomes `subagent_session` with
-  parent/nickname/role/task metadata, and `thread/status/changed` becomes
-  `subagent_status`. The app-server facade creates the child subscription
-  state under the same workspace before Core adopts the provider thread.
+  rollout text: current `subAgentActivity(kind=started)` items become
+  `subagent_control`, while legacy `collabAgentToolCall` remains supported;
+  child `thread/started` becomes `subagent_session` with metadata recovered
+  from `source.subAgent.thread_spawn`, and child turn/thread lifecycle becomes
+  `subagent_status`. The app-server facade creates the child subscription state
+  under the same workspace before Core adopts the provider thread.
 - Provider usage/context telemetry.
 - Model capability lookup for the live picker family: GPT-5.6 Sol/Terra
   support through `ultra`, GPT-5.6 Luna through `max`, and

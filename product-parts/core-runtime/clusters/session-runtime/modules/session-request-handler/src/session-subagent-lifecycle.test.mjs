@@ -19,7 +19,11 @@ assert.match(source, /event\.type === "subagent_session"/u);
 assert.match(source, /handleStatusEvent/u);
 assert.match(source, /sessionKind: "subagent"/u);
 assert.match(source, /parentSessionId: parent\.id/u);
-assert.match(source, /providerSessionId: seed\.providerSessionId/u);
+assert.match(source, /providerSessionId: inheritedSeed\.providerSessionId/u);
+assert.match(
+  source,
+  /reasoningEffort: seed\.reasoningEffort \?\? parent\.reasoningEffort/u
+);
 assert.match(source, /subagentCallId/u);
 assert.match(source, /titleOrigin: "auto"/u);
 assert.match(source, /adoptProviderSession/u);

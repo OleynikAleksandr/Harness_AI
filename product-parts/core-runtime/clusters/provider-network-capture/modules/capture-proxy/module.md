@@ -25,6 +25,8 @@ upgrade forwarding and frame decode are added in a sibling module file (Phase
 the sibling `capture-proxy-http.ts`. The WebSocket helpers — upgrade detection,
 `Sec-WebSocket-Extensions` strip, masked-frame decode, and the client-frame
 capture runner — live in `capture-proxy-ws.ts`. Both are used by the facade.
+Bounded TLS error normalization lives in `capture-proxy-tls-error.ts` so the
+facade remains below the module's 500-line implementation limit.
 The reverse-forward bridge (`capture-proxy-reverse.ts`, `NativeCaptureReverseBridge`)
 is a second entry point that reuses the facade's `resolveRuleMismatch` and the
 HTTP reader for clients that ignore proxy env.
@@ -74,6 +76,10 @@ HTTP reader for clients that ignore proxy env.
   structural metadata only — never header or body values — so it is safe to
   persist in the diagnostic artifact and explains why a target request was not
   captured.
+- A client TLS handshake failure emits `request_ignored` with reason
+  `tls_socket_error` plus a bounded, payload-free detail containing the runtime
+  error `code` and `message`. This preserves certificate expiry/trust alerts in
+  diagnostics without recording headers, request bodies, or credentials.
 - The proxy hands the raw captured request (including headers) to the
   caller; credential redaction happens in the artifact writer, not here.
 - The kimi-only reverse-forward bridge (`capture-proxy-reverse.ts`,

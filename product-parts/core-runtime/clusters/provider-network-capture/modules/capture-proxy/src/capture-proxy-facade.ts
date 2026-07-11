@@ -12,6 +12,10 @@ import {
   parseHttpRequest,
 } from "./capture-proxy-http.js";
 import {
+  buildTlsErrorDetail,
+  type NativeCaptureTlsErrorDetail,
+} from "./capture-proxy-tls-error.js";
+import {
   isWebSocketUpgrade,
   parseHeadHeaders,
   runWebSocketCapture,
@@ -23,9 +27,6 @@ const DEFAULT_HTTPS_PORT = 443;
 const DECIMAL_RADIX = 10;
 const HTTP_HEAD_SEPARATOR = "\r\n\r\n";
 
-// A target model endpoint to capture; background traffic (Datadog, GitHub,
-// auth checks, prewarm turns on the same endpoint) that does not match every
-// set field is ignored, not captured — the proxy keeps waiting.
 export interface NativeCaptureTargetRule {
   readonly bodyIncludes?: string;
   readonly host: string;
@@ -37,7 +38,7 @@ export interface NativeCaptureTargetRule {
 // Structural metadata about a body-rejected request that matched the rule's
 // host+path. Values (headers, body text) are never included — only shapes and
 // counts — so it stays safe to persist in the diagnostic artifact.
-export interface NativeCaptureIgnoredRequestDetail {
+export interface NativeCaptureBodyMismatchDetail {
   readonly bodyBytes: number;
   readonly hasContentLength: boolean;
   readonly hasTransferEncoding: boolean;
@@ -45,6 +46,10 @@ export interface NativeCaptureIgnoredRequestDetail {
   readonly toolCount: number;
   readonly topLevelKeys: readonly string[];
 }
+
+export type NativeCaptureIgnoredRequestDetail =
+  | NativeCaptureBodyMismatchDetail
+  | NativeCaptureTlsErrorDetail;
 
 export type NativeCaptureProxyEvent =
   | { readonly target: string; readonly type: "proxy_connect" }
@@ -245,8 +250,8 @@ export class NativeRequestCaptureProxy {
     upstream.on("data", (chunk: Buffer) => tlsSocket.write(chunk));
     upstream.on("error", () => tlsSocket.destroy());
     upstream.on("close", () => tlsSocket.destroy());
-    tlsSocket.on("error", () => {
-      this.emitIgnored(target, "tls_socket_error");
+    tlsSocket.on("error", (error) => {
+      this.emitIgnored(target, "tls_socket_error", buildTlsErrorDetail(error));
       upstream.destroy();
     });
     tlsSocket.on("close", () => upstream.destroy());

@@ -90,6 +90,11 @@ try {
     "utf8"
   );
   writeFileSync(
+    path.join(buildDir, "capture-proxy-tls-error.js"),
+    compile("capture-proxy-tls-error.ts"),
+    "utf8"
+  );
+  writeFileSync(
     path.join(buildDir, "capture-proxy-facade.js"),
     compile("capture-proxy-facade.ts"),
     "utf8"
@@ -130,12 +135,15 @@ try {
   await new Promise((resolve) => fake.server.listen(0, "127.0.0.1", resolve));
   const fakePort = fake.server.address().port;
 
-  function buildProxy(rule, events) {
+  function buildProxy(rule, events, onEvent) {
     return new NativeRequestCaptureProxy({
       providerId: "claude",
       targetRules: [rule],
       timeoutMs: 4000,
-      onEvent: events ? (e) => events.push(e) : undefined,
+      onEvent: (event) => {
+        events?.push(event);
+        onEvent?.(event);
+      },
       resolveTlsCredentials: () => credentials,
       // Forward to the local fake upstream instead of the real host.
       createUpstream: () => net.connect(fakePort, "127.0.0.1"),
@@ -322,7 +330,43 @@ try {
     "permessage-deflate must be stripped from the forwarded upgrade"
   );
 
-  // The reverse-forward bridge (Case 4 of old) left with the ACP kimi capture
+  // Case 4: a client-side TLS rejection is preserved as a safe diagnostic
+  // code/message instead of the previous opaque tls_socket_error marker.
+  let resolveTlsErrorEvent;
+  const tlsErrorEvent = new Promise((resolve) => {
+    resolveTlsErrorEvent = resolve;
+  });
+  const tlsEvents = [];
+  const tlsProxy = buildProxy(rule, tlsEvents, (event) => {
+    if (
+      event.type === "request_ignored" &&
+      event.reason === "tls_socket_error"
+    ) {
+      resolveTlsErrorEvent(event);
+    }
+  });
+  const tlsHandle = await tlsProxy.start();
+  const tlsTunnel = net.connect(tlsHandle.port, "127.0.0.1");
+  await new Promise((resolve, reject) => {
+    tlsTunnel.once("error", reject);
+    tlsTunnel.write(
+      "CONNECT api.anthropic.com:443 HTTP/1.1\r\nHost: api.anthropic.com:443\r\n\r\n"
+    );
+    tlsTunnel.once("data", resolve);
+  });
+  tlsTunnel.write("not-a-tls-client-hello");
+  const emittedTlsError = await tlsErrorEvent;
+  await tlsHandle.stop();
+  tlsTunnel.destroy();
+
+  assert.equal(emittedTlsError.reason, "tls_socket_error");
+  assert.equal(typeof emittedTlsError.detail.code, "string");
+  assert.match(
+    emittedTlsError.detail.message,
+    /packet|protocol|record|version/iu
+  );
+
+  // The reverse-forward bridge (Case 5 of old) left with the ACP kimi capture
   // channel (2026-07-05 user order): capture serves Claude/Codex only and
   // both run through the forward-transit proxy.
 

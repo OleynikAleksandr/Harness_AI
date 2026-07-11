@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type {
   SessionMessage,
@@ -7,13 +7,9 @@ import type {
 import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
-import { useSessionDialogAutoscroll } from "./session-dialog-autoscroll.js";
 import { SessionInputTextarea } from "./session-input-textarea.js";
-import {
-  mergeThinkingMessagesForDisplay,
-  resolveTranslatedDisplayText,
-  useTranslatedTextReveal,
-} from "./translated-text-reveal.js";
+
+export { DialogPanel } from "./session-dialog-panel.js";
 export function SessionIdPanel({
   session,
   telemetry,
@@ -36,54 +32,6 @@ export function SessionIdPanel({
         {telemetry.limitRows.map((row) => (
           <LimitRow key={row.label} row={row} />
         ))}
-      </div>
-    </section>
-  );
-}
-export function DialogPanel({
-  messages,
-  providerId,
-  providerName,
-}: {
-  messages: SessionMessage[];
-  providerId: string | undefined;
-  providerName: string | undefined;
-}) {
-  const { t } = useBrowserLocalization();
-  const displayMessages = useMemo(
-    () => mergeThinkingMessagesForDisplay(messages),
-    [messages]
-  );
-  const { onScroll, scrollContainerRef } =
-    useSessionDialogAutoscroll(displayMessages);
-  return (
-    <section
-      aria-label={t("ui_labels", "session.transcript", "Transcript")}
-      className="session-dialog session-panel"
-    >
-      <div
-        className="session-dialog__scroll"
-        onScroll={onScroll}
-        ref={scrollContainerRef}
-      >
-        {displayMessages.length === 0 ? (
-          <p className="session-dialog__empty">
-            {t(
-              "messages_for_the_user",
-              "session.noMessages",
-              "No messages yet."
-            )}
-          </p>
-        ) : (
-          displayMessages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              providerId={providerId}
-              providerName={providerName}
-            />
-          ))
-        )}
       </div>
     </section>
   );
@@ -323,92 +271,6 @@ function resolveIdLabel(
     ? t("messages_for_the_user", "session.id.pending", "ID: pending...")
     : t("messages_for_the_user", "session.id.unavailable", "ID: unavailable");
 }
-function MessageBubble({
-  message,
-  providerId,
-  providerName,
-}: {
-  message: SessionMessage;
-  providerId: string | undefined;
-  providerName: string | undefined;
-}) {
-  const { t } = useBrowserLocalization();
-  const isThinking = isThinkingMessage(message);
-  const displayText = resolveTranslatedDisplayText(message, isThinking);
-  const revealedText = useTranslatedTextReveal(
-    displayText,
-    Boolean(message.localizedContent)
-  );
-  const tint = resolveProviderTint(providerId);
-  return (
-    <article className={resolveBubbleClassName(message, isThinking, tint)}>
-      <header
-        className={
-          isThinking
-            ? "session-dialog__message-header session-dialog__message-header--thinking"
-            : "session-dialog__message-header"
-        }
-      >
-        <span className="session-dialog__role">
-          {resolveMessageRoleLabel(message.role, isThinking, providerName, t)}
-        </span>
-        <span className="session-dialog__timestamp">
-          {formatMessageTime(message.timestamp)}
-        </span>
-      </header>
-      <div
-        className={
-          isThinking
-            ? "session-dialog__content session-dialog__content--thinking"
-            : "session-dialog__content"
-        }
-      >
-        {revealedText}
-      </div>
-    </article>
-  );
-}
-function isThinkingMessage(message: SessionMessage): boolean {
-  return (
-    message.role === "thinking" ||
-    (message.role === "assistant" && message.tag === "thinking")
-  );
-}
-function resolveProviderTint(
-  providerId: string | undefined
-): "claude" | "codex" | "kimi" | null {
-  if (providerId === "claude") {
-    return providerId;
-  }
-  if (isCodexProvider(providerId)) {
-    return "codex";
-  }
-  // The visible Kimi is the universal-client `kimi-client` endpoint (the ACP
-  // `kimi` id left with the kimi-provider retirement, 2026-07-05); its live
-  // sessions keep the Kimi tint.
-  if (providerId === "kimi-client") {
-    return "kimi";
-  }
-  return null;
-}
-function resolveBubbleClassName(
-  message: SessionMessage,
-  isThinking: boolean,
-  tint: "claude" | "codex" | "kimi" | null
-): string {
-  const base = "session-dialog__message";
-  if (isThinking) {
-    return tint
-      ? `${base} session-dialog__message--assistant-thinking session-dialog__message--assistant-${tint}`
-      : `${base} session-dialog__message--thinking`;
-  }
-  if (message.role === "assistant") {
-    return tint
-      ? `${base} session-dialog__message--assistant session-dialog__message--assistant-${tint}`
-      : `${base} session-dialog__message--assistant`;
-  }
-  return `${base} session-dialog__message--${message.role}`;
-}
 function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -420,24 +282,6 @@ function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
       total: {formatElapsed(createdAt, now)}
     </span>
   );
-}
-function resolveMessageRoleLabel(
-  role: SessionMessage["role"],
-  isThinking: boolean,
-  providerName: string | undefined,
-  t: ReturnType<typeof useBrowserLocalization>["t"]
-): string {
-  if (isThinking) {
-    return t("ui_labels", "session.role.thinking", "Thinking");
-  }
-  if (role === "assistant") {
-    return (
-      providerName ?? t("ui_labels", "session.role.assistant", "Assistant")
-    );
-  }
-  return role === "system"
-    ? t("ui_labels", "session.role.system", "System")
-    : t("ui_labels", "session.role.user", "User");
 }
 function resolveReasoningLabel(
   session: CoreSession | undefined,
@@ -469,16 +313,6 @@ const isCodexProvider = (providerId: string | undefined): boolean =>
   providerId === "codex";
 function shortenId(id: string): string {
   return `${id.slice(0, 8)}...`;
-}
-function formatMessageTime(timestamp: string): string {
-  const date = new Date(timestamp);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-  return new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
 }
 function formatElapsed(createdAt: string | undefined, now: number): string {
   if (!createdAt) {

@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
-  "expectedCommitMessage": "refactor: extract session dialog panel [skip-docs]",
+  "currentTaskId": "harness-ai.phase8.stream1.task2",
+  "expectedCommitMessage": "refactor: extract session window state [skip-docs]",
   "debt": null
 }
 ```
@@ -141,9 +141,9 @@
 
 ### Stream: Refactors For Bounded Files
 
-34. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Extract the existing dialog panel from its 499-line facade before adding timeline items, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, focused tests`; expected commit: `refactor: extract session dialog panel [skip-docs]`).
-35. [TODO] Git Commit: `refactor: extract session dialog panel [skip-docs]` (hash: TBD)
-36. [TODO] `harness-ai.phase8.stream1.task2` Extract session hydration/list state from the near-limit window facade before wiring child sessions, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, focused tests`; expected commit: `refactor: extract session window state [skip-docs]`).
+34. [DONE] `harness-ai.phase8.stream1.task1` Extract the existing dialog panel from its 499-line facade before adding timeline items, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, focused tests`; expected commit: `refactor: extract session dialog panel [skip-docs]`). Result: Completed in commit `refactor: extract session dialog panel [skip-docs]`.
+35. [DONE] Git Commit: `refactor: extract session dialog panel [skip-docs]` (hash: self)
+36. [IN_PROGRESS] `harness-ai.phase8.stream1.task2` Extract session hydration/list state from the near-limit window facade before wiring child sessions, preserving behavior (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, focused tests`; expected commit: `refactor: extract session window state [skip-docs]`).
 37. [TODO] Git Commit: `refactor: extract session window state [skip-docs]` (hash: TBD)
 
 ### Stream: Tree, Timeline And Child View

@@ -5,6 +5,10 @@ const source = readFileSync(
   new URL("./reference-session-panels.tsx", import.meta.url),
   "utf8"
 );
+const dialogSource = readFileSync(
+  new URL("./session-dialog-panel.tsx", import.meta.url),
+  "utf8"
+);
 const facadeSource = readFileSync(
   new URL("./session-window-facade.tsx", import.meta.url),
   "utf8"
@@ -30,24 +34,30 @@ assert.doesNotMatch(
   source,
   /providers\.codex\.reasoningByModel\[session\.model\] \?\? "medium"/u
 );
+assert.match(
+  source,
+  /export \{ DialogPanel \} from "\.\/session-dialog-panel\.js"/u
+);
+assert.equal(source.split("\n").length <= 500, true);
+assert.equal(dialogSource.split("\n").length <= 500, true);
 
 // Dialog bubble class mapping: provider tint + thinking branches stay intact.
 // The visible Kimi tint follows the universal-client `kimi-client` id (the
 // ACP `kimi` id left with the kimi-provider retirement, 2026-07-05).
-assert.match(source, /providerId === "claude"/u);
-assert.match(source, /providerId === "codex"/u);
-assert.match(source, /providerId === "kimi-client"/u);
-assert.doesNotMatch(source, /providerId === "kimi"\b/u);
+assert.match(dialogSource, /providerId === "claude"/u);
+assert.match(dialogSource, /providerId === "codex"/u);
+assert.match(dialogSource, /providerId === "kimi-client"/u);
+assert.doesNotMatch(dialogSource, /providerId === "kimi"\b/u);
 assert.match(
-  source,
+  dialogSource,
   /session-dialog__message--assistant session-dialog__message--assistant-\$\{tint\}/u
 );
 assert.match(
-  source,
+  dialogSource,
   /session-dialog__message--assistant-thinking session-dialog__message--assistant-\$\{tint\}/u
 );
-assert.match(source, /session-dialog__message--thinking/u);
+assert.match(dialogSource, /session-dialog__message--thinking/u);
 assert.match(
-  source,
+  dialogSource,
   /message\.role === "assistant" && message\.tag === "thinking"/u
 );

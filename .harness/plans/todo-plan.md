@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat: select reasoning for native capture",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "docs: record native capture reasoning package",
   "debt": null
 }
 ```
@@ -86,13 +86,13 @@
 
 ### Stream: Provider And Model Controls
 
-11. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Add a model-aware reasoning selector to the Native Request Capture card for Claude and Codex, submit the selected Core-declared value, and cover the renderer contract without deriving provider truth in UI (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/native-capture-card.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, focused UI tests, provider-settings-ui module docs`; expected commit: `feat: select reasoning for native capture`).
-12. [TODO] Git Commit: `feat: select reasoning for native capture` (hash: TBD)
+11. [DONE] `harness-ai.phase2.stream1.task1` Add a model-aware reasoning selector to the Native Request Capture card for Claude and Codex, submit the selected Core-declared value, localize its label, and cover the renderer contract without deriving provider truth in UI (scope: `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/src/native-capture-card.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused UI tests, provider-settings-ui/localization-runtime module docs`; expected commit: `feat: select reasoning for native capture`). Result: Completed in commit `feat: select reasoning for native capture`.
+12. [DONE] Git Commit: `feat: select reasoning for native capture` (hash: self)
 
 ## Phase 3 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-11)
 
 ### Stream: Live Proof And Package
 
-13. [TODO] `harness-ai.phase3.stream1.task1` Prove a GPT-5.6 Sol Ultra capture records `turn/start.effort=ultra` while preserving the provider-normalized upstream payload, verify reasoning-aware artifact filenames, run the explicitly approved macOS package build, inspect `app.asar`, launch-smoke the app, and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture reasoning package`).
+13. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Prove a GPT-5.6 Sol Ultra capture records `turn/start.effort=ultra` while preserving the provider-normalized upstream payload, verify reasoning-aware artifact filenames, run the explicitly approved macOS package build, inspect `app.asar`, launch-smoke the app, and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture reasoning package`).
 14. [TODO] Git Commit: `docs: record native capture reasoning package` (hash: TBD)
 15. [TODO] `harness-ai.phase3.stream1.task2` User retests reasoning selection and capture artifacts in the packaged app for Claude and Codex (scope: user workflow; expected commit: none).

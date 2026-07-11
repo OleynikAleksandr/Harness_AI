@@ -58,6 +58,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.nativeCapture.title": "Native Request Capture",
     "settings.nativeCapture.provider": "Provider",
     "settings.nativeCapture.model": "Model",
+    "settings.nativeCapture.reasoning": "Reasoning",
     "settings.nativeCapture.profile": "Profile",
     "settings.nativeCapture.capture": "Capture",
     "settings.nativeCapture.markdownPath": "Markdown artifact",

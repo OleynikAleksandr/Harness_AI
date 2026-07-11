@@ -355,7 +355,9 @@
   заголовки редактируются по списку до записи; тело запроса не редактируется —
   это и есть полезный груз; артефакты локальные и помечены как sensitive.
 - **UI**: карточка `Native Request Capture` в Settings -> General с
-  кнопками per provider (как в reference), статусом и путями артефактов;
+  Core-populated селекторами provider/model/reasoning, статусом и путями
+  артефактов; renderer показывает model-specific reasoning options/labels и
+  отправляет выбранный id без собственных capability maps;
   явные коды ошибок (`tls_trust_failed`, `target_not_seen`, `timeout`,
   `provider_not_supported`, `model_not_supported`,
   `reasoning_not_supported`). Capture — команда диагностики, не сохраняемая

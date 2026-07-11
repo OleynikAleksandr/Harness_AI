@@ -4,7 +4,17 @@ import { SettingsCard } from "./settings-reference-controls.js";
 
 interface CaptureProvider {
   readonly id: string;
-  readonly models: readonly { readonly id: string; readonly label: string }[];
+  readonly models: readonly CaptureModel[];
+}
+
+interface CaptureModel {
+  readonly defaultReasoningEffort: string;
+  readonly id: string;
+  readonly label: string;
+  readonly reasoningEfforts: readonly {
+    readonly id: string;
+    readonly label: string;
+  }[];
 }
 
 interface CaptureResult {
@@ -22,6 +32,7 @@ export function NativeCaptureCard() {
   const [providers, setProviders] = useState<readonly CaptureProvider[]>([]);
   const [providerId, setProviderId] = useState("");
   const [model, setModel] = useState("");
+  const [reasoningEffort, setReasoningEffort] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [result, setResult] = useState<CaptureResult | null>(null);
@@ -37,8 +48,10 @@ export function NativeCaptureCard() {
         setProviders(response.providers);
         const first = response.providers[0];
         if (first) {
+          const firstModel = first.models[0];
           setProviderId(first.id);
-          setModel(first.models[0]?.id ?? "");
+          setModel(firstModel?.id ?? "");
+          setReasoningEffort(firstModel?.defaultReasoningEffort ?? "");
         }
       })
       .catch(() => undefined);
@@ -48,11 +61,25 @@ export function NativeCaptureCard() {
   }, []);
 
   const selectedProvider = providers.find((entry) => entry.id === providerId);
+  const selectedModel = selectedProvider?.models.find(
+    (entry) => entry.id === model
+  );
+
+  const selectModel = (
+    provider: CaptureProvider | undefined,
+    modelId?: string
+  ) => {
+    const nextModel =
+      provider?.models.find((entry) => entry.id === modelId) ??
+      provider?.models[0];
+    setModel(nextModel?.id ?? "");
+    setReasoningEffort(nextModel?.defaultReasoningEffort ?? "");
+    setResult(null);
+  };
 
   const onProviderChange = (nextProviderId: string) => {
     setProviderId(nextProviderId);
-    const next = providers.find((entry) => entry.id === nextProviderId);
-    setModel(next?.models[0]?.id ?? "");
+    selectModel(providers.find((entry) => entry.id === nextProviderId));
   };
 
   const runCapture = async () => {
@@ -72,6 +99,7 @@ export function NativeCaptureCard() {
       const captureResult = await window.harnessCore.captureNativeRequest({
         model: model || undefined,
         providerId,
+        reasoningEffort: reasoningEffort || undefined,
       });
       setResult(captureResult);
       setStatus(
@@ -133,7 +161,9 @@ export function NativeCaptureCard() {
       <label className="settings-field">
         <span>{t("ui_labels", "settings.nativeCapture.model", "Model")}</span>
         <select
-          onChange={(event) => setModel(event.target.value)}
+          onChange={(event) =>
+            selectModel(selectedProvider, event.target.value)
+          }
           value={model}
         >
           {(selectedProvider?.models ?? []).map((entry) => (
@@ -143,9 +173,25 @@ export function NativeCaptureCard() {
           ))}
         </select>
       </label>
+      <label className="settings-field">
+        <span>
+          {t("ui_labels", "settings.nativeCapture.reasoning", "Reasoning")}
+        </span>
+        <select
+          disabled={!selectedModel}
+          onChange={(event) => setReasoningEffort(event.target.value)}
+          value={reasoningEffort}
+        >
+          {(selectedModel?.reasoningEfforts ?? []).map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.label}
+            </option>
+          ))}
+        </select>
+      </label>
       <button
         className="settings-secondary"
-        disabled={busy || !providerId}
+        disabled={busy || !providerId || !model || !reasoningEffort}
         onClick={() => {
           runCapture().catch(() => setBusy(false));
         }}

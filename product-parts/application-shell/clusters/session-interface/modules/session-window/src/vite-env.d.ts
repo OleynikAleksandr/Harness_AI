@@ -75,8 +75,8 @@ interface Window {
     }): Promise<{ error: string; ok: false } | { filePath: string; ok: true }>;
     captureNativeRequest(request: {
       model?: string;
-      profileId?: string;
       providerId: string;
+      reasoningEffort?: string;
     }): Promise<{
       error: string | null;
       jsonlPath: string | null;
@@ -87,7 +87,12 @@ interface Window {
       ok: true;
       providers: {
         id: string;
-        models: { id: string; label: string }[];
+        models: {
+          defaultReasoningEffort: string;
+          id: string;
+          label: string;
+          reasoningEfforts: { id: string; label: string }[];
+        }[];
       }[];
     }>;
     getSessionEvents(

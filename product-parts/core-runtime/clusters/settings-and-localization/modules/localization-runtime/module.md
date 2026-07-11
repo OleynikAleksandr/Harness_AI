@@ -82,9 +82,9 @@ materialization, bootstrap payload reuse, and bundle state.
   dictionary; it names the icon button that re-runs the model slug search and
   reopens the collapsed match list.
 - The Native Request Capture card copy is part of the approved dictionaries:
-  `ui_labels` (`settings.nativeCapture.title`/`.provider`/`.model`/`.capture`/
-  `.markdownPath`/`.jsonlPath`, where `.jsonlPath` labels the raw JSONL
-  upstream-request artifact), `ui_helper_text`
+  `ui_labels` (`settings.nativeCapture.title`/`.provider`/`.model`/
+  `.reasoning`/`.capture`/`.markdownPath`/`.jsonlPath`, where `.jsonlPath`
+  labels the raw JSONL upstream-request artifact), `ui_helper_text`
   (`settings.nativeCapture.description`, which describes local sensitive
   artifacts and does not claim capture-and-abort behavior for Codex's
   forward-transit path), and `messages_for_the_user`

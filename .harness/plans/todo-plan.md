@@ -8,7 +8,7 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream2.task4",
+  "currentTaskId": "harness-ai.phase6.stream2.task5",
   "expectedCommitMessage": "docs: record native capture certificate recovery",
   "debt": null
 }
@@ -133,5 +133,7 @@
 41. [DONE] Git Commit: `fix: refine native capture route diagnostics` (hash: self)
 42. [DONE] `harness-ai.phase6.stream2.task3` Preserve safe structural diagnostics for rejected Codex WebSocket frames, identify and support the actual Codex 0.144.1 `response.create` frame contract while keeping prewarm disambiguation, then prove a real GPT-5.6 Sol Ultra capture with non-empty raw JSONL and focused tests/docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-ws.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/module.md, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/module.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md, docs/architecture/SessionProfilesV2.md`; expected commit: `fix: align codex native capture websocket frames`). Result: Completed in commit `fix: align codex native capture websocket frames`.
 43. [DONE] Git Commit: `fix: align codex native capture websocket frames` (hash: self)
-44. [IN_PROGRESS] `harness-ai.phase6.stream2.task4` Re-run full gates/build, package the macOS app after the user's explicit approval, inspect the packaged certificate/route fixes in `app.asar`, launch-smoke the package, and record final recovery evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture certificate recovery`).
-45. [TODO] Git Commit: `docs: record native capture certificate recovery` (hash: TBD)
+44. [DONE] `harness-ai.phase6.stream2.task4` Stabilize the certificate-expiry test clock against X.509 second-level `notBefore` rounding observed after the successful WS-fix commit (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/src/capture-certificates.test.mjs, .harness/plans/todo-plan.md`; expected commit: `test: stabilize capture certificate clock [skip-docs]`). Result: Completed in commit `test: stabilize capture certificate clock [skip-docs]`.
+45. [DONE] Git Commit: `test: stabilize capture certificate clock [skip-docs]` (hash: self)
+46. [IN_PROGRESS] `harness-ai.phase6.stream2.task5` Re-run full gates/build, package the macOS app after the user's explicit approval, inspect the packaged certificate/route fixes in `app.asar`, launch-smoke the package, and record final recovery evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record native capture certificate recovery`).
+47. [TODO] Git Commit: `docs: record native capture certificate recovery` (hash: TBD)

@@ -66,6 +66,7 @@ try {
   assert.ok(Buffer.isBuffer(bundle.credentials.key));
 
   // Second run reuses existing CA/host certs — no new openssl calls.
+  now = new Date();
   const callsAfterFirst = calls.length;
   await store.prepareHostCredentials("api.anthropic.com");
   assert.equal(calls.length, callsAfterFirst);

@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream2.task1",
-  "expectedCommitMessage": "docs: record codex live reasoning package",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -191,5 +191,5 @@
 
 ### Stream: Package And Retest
 
-78. [IN_PROGRESS] `harness-ai.phase9.stream2.task1` Rebuild from a clean `dist`, package the user-approved macOS app, verify the repaired Codex live-turn normalization in `app.asar`, launch-smoke the package, and record evidence for a fresh GPT-5.6 Sol Ultra retest (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex live reasoning package`).
-79. [TODO] Git Commit: `docs: record codex live reasoning package` (hash: TBD)
+78. [DONE] `harness-ai.phase9.stream2.task1` Rebuild from a clean `dist`, package the user-approved macOS app, verify the repaired Codex live-turn normalization in `app.asar`, launch-smoke the package, and record evidence for a fresh GPT-5.6 Sol Ultra retest (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex live reasoning package`). Result: Completed in commit `docs: record codex live reasoning package`.
+79. [DONE] Git Commit: `docs: record codex live reasoning package` (hash: self)

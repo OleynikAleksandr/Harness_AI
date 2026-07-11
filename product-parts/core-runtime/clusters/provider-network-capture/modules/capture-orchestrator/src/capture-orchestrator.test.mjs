@@ -243,6 +243,37 @@ try {
   assert.equal(tlsFailureResult.reason, "tls_trust_failed");
   assert.match(tlsFailureResult.error, /tls_trust_failed/u);
 
+  // Generic connection resets are common on background/sibling sockets and
+  // are not certificate trust evidence by themselves.
+  const resetOnlyProxyFactory = (proxyOptions) => ({
+    start: () =>
+      Promise.resolve({
+        port: 3,
+        proxyUrl: "http://127.0.0.1:3",
+        stop: () => Promise.resolve(),
+        waitForCapture: () => {
+          proxyOptions.onEvent?.({
+            type: "request_ignored",
+            target: "chatgpt.com:443",
+            reason: "tls_socket_error",
+            detail: { code: "ECONNRESET", message: "read ECONNRESET" },
+          });
+          return Promise.resolve({ status: "timeout", reason: "timeout" });
+        },
+      }),
+  });
+  const resetOnlyResult = await new NativeCaptureOrchestrator({
+    captureIdFactory: () => "cap-reset",
+    certificateStore: fakeCertStore,
+    clock,
+    proxyFactory: resetOnlyProxyFactory,
+  }).capture({
+    providerId: "codex",
+    outputDir,
+    runProviderCapture: () => Promise.resolve(),
+  });
+  assert.equal(resetOnlyResult.reason, "timeout");
+
   // Timeout path: the proxy times out and the provider run also fails.
   const timeoutProxyFactory = () => ({
     start: () =>

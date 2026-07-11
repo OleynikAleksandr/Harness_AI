@@ -99,7 +99,7 @@ try {
     compile("capture-proxy-facade.ts"),
     "utf8"
   );
-  const { NativeRequestCaptureProxy } = await import(
+  const { NativeRequestCaptureProxy, resolveRuleMismatch } = await import(
     pathToFileURL(path.join(buildDir, "capture-proxy-facade.js")).href
   );
 
@@ -194,6 +194,21 @@ try {
     pathIncludes: "/v1/messages",
     bodyIncludes: "Harness AI capture probe",
   };
+  const pathMismatch = resolveRuleMismatch(
+    {
+      body: {},
+      bodyText: "{}",
+      headers: { "content-length": "2" },
+      method: "POST",
+      path: "/backend-api/codex/new-responses-path",
+    },
+    { host: "chatgpt.com", pathIncludes: "/backend-api/codex/responses" }
+  );
+  assert.equal(pathMismatch.reason, "request_path_not_matched");
+  assert.equal(
+    pathMismatch.detail.requestPath,
+    "/backend-api/codex/new-responses-path"
+  );
 
   // Case 1: a matched request is captured AND forwarded; the client gets the
   // real upstream response relayed back.

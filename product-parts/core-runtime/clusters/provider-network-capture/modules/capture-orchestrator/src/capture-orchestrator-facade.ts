@@ -19,6 +19,8 @@ import {
 
 const DIAGNOSTIC_PROBE_PROMPT =
   "Harness AI native request capture probe. This request must not be sent upstream.";
+const TLS_TRUST_FAILURE_PATTERN =
+  /certificate|cert[_ -]|unknown ca|self[- ]signed|unable to verify/iu;
 
 // Provider model endpoints to match. Codex app-server uses WebSocket on the
 // Codex Responses path; CodexUC uses the same backend path through Harness'
@@ -336,12 +338,7 @@ function resolveCaptureFailureReason(
     | { readonly kind: "provider_done" },
   proxyEvents: readonly NativeCaptureProxyEvent[]
 ): NativeCaptureFailureReason {
-  if (
-    proxyEvents.some(
-      (event) =>
-        event.type === "request_ignored" && event.reason === "tls_socket_error"
-    )
-  ) {
+  if (proxyEvents.some(isTlsTrustFailureEvent)) {
     return "tls_trust_failed";
   }
   if (outcome.kind === "proxy" && outcome.result.status !== "captured") {
@@ -350,6 +347,19 @@ function resolveCaptureFailureReason(
   return outcome.kind === "provider_failed"
     ? "runtime_failed"
     : "target_not_seen";
+}
+
+function isTlsTrustFailureEvent(event: NativeCaptureProxyEvent): boolean {
+  if (
+    event.type !== "request_ignored" ||
+    event.reason !== "tls_socket_error" ||
+    !event.detail ||
+    !("message" in event.detail)
+  ) {
+    return false;
+  }
+  const signal = `${event.detail.code ?? ""} ${event.detail.message}`;
+  return TLS_TRUST_FAILURE_PATTERN.test(signal);
 }
 
 function defaultOutputDir(): string {

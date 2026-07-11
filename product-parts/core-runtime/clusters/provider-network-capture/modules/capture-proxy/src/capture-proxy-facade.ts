@@ -43,6 +43,7 @@ export interface NativeCaptureBodyMismatchDetail {
   readonly hasContentLength: boolean;
   readonly hasTransferEncoding: boolean;
   readonly probeMatched: boolean;
+  readonly requestPath: string;
   readonly toolCount: number;
   readonly topLevelKeys: readonly string[];
 }
@@ -234,10 +235,6 @@ export class NativeRequestCaptureProxy {
     clientSocket.on("error", () => upstream.destroy());
   }
 
-  // MITM forward transit: relay the response back always, and route the first
-  // client request. A WebSocket upgrade on the target path is handed to the WS
-  // capture (decode the request frame); an HTTP request is forwarded byte-for-
-  // byte and captured if it matches. The request reaches the vendor.
   private forwardAndInspect(
     tlsSocket: tls.TLSSocket,
     target: string,
@@ -449,7 +446,10 @@ export function resolveRuleMismatch(
   rule: NativeCaptureTargetRule
 ): RuleMismatch | null {
   if (rule.pathIncludes && !request.path.includes(rule.pathIncludes)) {
-    return { reason: "request_path_not_matched" };
+    return {
+      reason: "request_path_not_matched",
+      detail: buildIgnoredRequestDetail(request, rule),
+    };
   }
   // Host+path matched: any body rejection from here carries a diagnostic
   // detail so the artifact shows why the target request was not captured.
@@ -482,6 +482,7 @@ function buildIgnoredRequestDetail(
     probeMatched: rule.bodyIncludes
       ? request.bodyText.includes(rule.bodyIncludes)
       : true,
+    requestPath: request.path,
     toolCount: countRequestTools(request.body),
     topLevelKeys: isJsonObject(request.body) ? Object.keys(request.body) : [],
   };

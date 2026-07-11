@@ -71,11 +71,12 @@ HTTP reader for clients that ignore proxy env.
   captured.
 - A request that matched the rule host+path but was rejected on the body
   carries a `detail` on its `request_ignored` event
-  (`NativeCaptureIgnoredRequestDetail`: `bodyBytes`, `hasContentLength`,
+  (`NativeCaptureIgnoredRequestDetail`: `requestPath`, `bodyBytes`, `hasContentLength`,
   `hasTransferEncoding`, `probeMatched`, `toolCount`, `topLevelKeys`). It is
   structural metadata only — never header or body values — so it is safe to
   persist in the diagnostic artifact and explains why a target request was not
-  captured.
+  captured. A host-matched path rejection carries the same safe detail, making
+  provider route changes observable without storing headers or body values.
 - A client TLS handshake failure emits `request_ignored` with reason
   `tls_socket_error` plus a bounded, payload-free detail containing the runtime
   error `code` and `message`. This preserves certificate expiry/trust alerts in

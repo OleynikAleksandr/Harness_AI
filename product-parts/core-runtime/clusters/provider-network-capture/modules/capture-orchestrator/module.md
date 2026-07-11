@@ -59,9 +59,11 @@ injection (pointing a provider client at the local proxy) is passed in as a
   run and flushed once into the writer as `capture_proxy_event`
   diagnostic-context records, so an ignored prewarm request is visible in the
   dump. If the provider finishes/fails before capture and those events contain
-  `tls_socket_error`, the result is classified as `tls_trust_failed` rather
-  than the misleading `target_not_seen`; an actual captured proxy result still
-  has precedence over incidental TLS failures from sibling connections.
+  `tls_socket_error` whose bounded code/message identifies certificate or CA
+  trust failure, the result is classified as `tls_trust_failed` rather than
+  the misleading `target_not_seen`; generic `ECONNRESET`/`EPIPE` events are
+  not treated as trust failures, and an actual captured proxy result still has
+  precedence over incidental TLS failures from sibling connections.
   `runCapture` takes explicit
   `certificateEnv`/`certificatePath`/`proxyUrl` values. The kimi-only
   reverse-bridge path (`captureViaReverse` + `NativeCaptureReverseBridge`)

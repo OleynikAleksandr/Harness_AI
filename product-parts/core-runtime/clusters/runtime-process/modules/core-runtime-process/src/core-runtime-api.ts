@@ -194,10 +194,9 @@ export class CoreRuntimeApi {
     if (snapshot) {
       workspaceRegistryFacade.restoreSnapshot(snapshot);
     }
-    const sessions = sessionRequestHandlerFacade.restoreSessionHistory(
+    sessionRequestHandlerFacade.restoreSessionHistory(
       workspaceRegistryFacade.getKnownWorkspaces()
     );
-    sessionEventStreamFacade.configureSessionHistory(sessions);
     sessionRequestHandlerFacade.restoreTelemetryHistory(
       sessionEventStreamFacade.latestTelemetryBySession()
     );

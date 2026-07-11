@@ -141,6 +141,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Session restore helpers live in `session-history-restore.ts`; Codex rollback
   validation/pruning lives in `session-rollback.ts` so the facade stays under
   the 500-line module limit while keeping Core as the workflow authority.
+  Restore configures and loads append-only event files before rebuilding
+  `messagesBySession`; provider replay therefore sees persisted stable message
+  ids and remains idempotent across process restarts.
 
 - Managed profile resolution is active at create: `next-session-mode.ts`
   resolves a managed selection only with a concrete profile id (requestMode

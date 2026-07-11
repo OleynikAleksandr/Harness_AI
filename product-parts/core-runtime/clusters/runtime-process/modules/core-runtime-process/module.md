@@ -103,6 +103,10 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `core-provider-adapter-registration.ts`. `CoreRuntimeApi` holds a
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
+- Startup delegates session-index and event-file hydration as one ordered
+  Session Runtime operation. Runtime Process no longer loads the event stream
+  afterward, which previously left `messagesBySession` empty while restored
+  provider subscriptions replayed history.
 - `PROVIDER_IDS` includes the universal-client endpoints `kimi-client`,
   `glm-client`, `local-models-client` and `openrouter-client`:
   their adapters register at startup and RPC provider-id validation accepts

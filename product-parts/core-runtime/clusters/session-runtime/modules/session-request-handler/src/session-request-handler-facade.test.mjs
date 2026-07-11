@@ -83,6 +83,17 @@ const historySource = readFileSync(
   new URL("./session-history-store.ts", import.meta.url),
   "utf8"
 );
+const historyRestoreSource = readFileSync(
+  new URL("./session-history-restore.ts", import.meta.url),
+  "utf8"
+);
+const coreRuntimeApiSource = readFileSync(
+  new URL(
+    "../../../../runtime-process/modules/core-runtime-process/src/core-runtime-api.ts",
+    import.meta.url
+  ),
+  "utf8"
+);
 assert.match(
   historySource,
   /isAppliedProfileSnapshot\(value\.appliedProfile\)/u
@@ -142,6 +153,18 @@ assert.match(historySource, /normalizeCoreSession/u);
 assert.match(
   historySource,
   /sessionKind: session\.sessionKind \?\? "primary"/u
+);
+assert.match(
+  typesSource,
+  /configureSessionHistory\?\(sessions: CoreSession\[\]\)/u
+);
+assert.match(
+  historyRestoreSource,
+  /configureSessionHistory\?\.\(restoredSessions\)[\s\S]+?for \(const session of restoredSessions\)/u
+);
+assert.doesNotMatch(
+  coreRuntimeApiSource,
+  /sessionEventStreamFacade\.configureSessionHistory/u
 );
 
 // The router owns reasoning projection, promotion, and turn-state routing.

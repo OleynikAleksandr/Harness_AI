@@ -19,6 +19,7 @@ export function restoreSessionHistory(params: {
   const restoredSessions = params.workspaces.flatMap((workspace) =>
     readWorkspaceSessionIndex(workspace.path)
   );
+  params.eventStream.configureSessionHistory?.(restoredSessions);
   for (const session of restoredSessions) {
     params.sessions.set(session.id, session);
     params.messagesBySession.set(

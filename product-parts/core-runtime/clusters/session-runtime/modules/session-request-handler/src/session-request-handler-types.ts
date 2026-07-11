@@ -122,6 +122,7 @@ export interface ProviderSessionBindingFacadeLike {
 }
 
 export interface SessionEventStreamLike {
+  configureSessionHistory?(sessions: CoreSession[]): void;
   listEvents?(sessionId?: string): SessionCoreEvent[];
   publish(event: SessionCoreEvent): void;
   rememberSession?(session: CoreSession): void;

@@ -80,6 +80,9 @@ event router. Внутри одного процесса каждый transcript
 сопоставляет повторно полученные provider messages по стабильным id +
 role/tag/source text и не добавляет точные дубликаты в persisted transcript.
 Изменённый текст и завершение live-tail при этом остаются обычными обновлениями.
+Для этого startup сначала загружает append-only Core event files и только потом
+восстанавливает `messagesBySession` и provider bindings; dedupe видит уже
+сохранённые stable ids до начала app-server history replay.
 После применения historical child metadata Core повторно вычисляет status
 родительского timeline-call из актуального child status, поэтому восстановленный
 `completed` одинаково виден в карточке, дереве и child header.

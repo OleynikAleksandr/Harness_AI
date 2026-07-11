@@ -75,6 +75,15 @@ export interface SendCoreMessageRequest {
   text: string;
 }
 
+export interface RenameCoreSessionRequest {
+  sessionId: string;
+  title: string;
+}
+
+export interface RegenerateCoreSessionTitleRequest {
+  sessionId: string;
+}
+
 export interface RollbackCoreSessionRequest {
   numTurns?: number;
   preserveFirstUserTurns?: number;

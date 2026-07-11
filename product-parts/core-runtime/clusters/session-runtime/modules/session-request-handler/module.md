@@ -13,6 +13,8 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Workspace id/path.
 - Session id or provider selection.
 - Raw user message payload.
+- Raw Core title intents: manual rename (`sessionId`, `title`) and automatic
+  title regeneration (`sessionId`).
 - Raw Codex rollback intent (`sessionId`, `numTurns`) from Core RPC/UI;
   this is accepted only for Codex sessions and only while the session
   is idle.
@@ -101,6 +103,14 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   descendant, closes each live provider binding, removes provider artifacts and
   deletes every record from the Core session/maps/index, preventing visible
   orphan children.
+- `session-title-service.ts` owns title normalization and mutation. The first
+  substantive primary-session user message replaces the provider placeholder
+  exactly once with a 72-character auto title. Manual rename normalizes and
+  validates up to 100 characters, records `titleOrigin=manual`, and blocks
+  later automatic replacement. Regenerate reuses the first Core user message
+  and returns the session to `titleOrigin=auto`; child sessions keep their
+  delegated-task/provider titles. Every mutation persists the session and
+  emits `session:updated` for client refresh.
 - Provider session starts flow through the additive adapter contract:
   `createSession`/`resumeSession` outcomes are normalized via
   `normalizeProviderSessionStart` before binding.

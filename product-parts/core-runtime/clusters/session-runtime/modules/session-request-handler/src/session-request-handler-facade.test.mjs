@@ -17,6 +17,10 @@ const rollbackSource = readFileSync(
   new URL("./session-rollback.ts", import.meta.url),
   "utf8"
 );
+const titleServiceSource = readFileSync(
+  new URL("./session-title-service.ts", import.meta.url),
+  "utf8"
+);
 
 // The facade delegates provider binding and event routing to a bounded helper.
 assert.match(source, /new SessionProviderBindingLifecycle/u);
@@ -69,6 +73,11 @@ assert.match(typesSource, /sessionKind\?: CoreSessionKind/u);
 assert.match(typesSource, /parentSessionId\?: string/u);
 assert.match(typesSource, /subagentStatus\?: CoreSubagentStatus/u);
 assert.match(typesSource, /titleOrigin\?: CoreSessionTitleOrigin/u);
+assert.match(typesSource, /export interface RenameCoreSessionRequest/u);
+assert.match(
+  typesSource,
+  /export interface RegenerateCoreSessionTitleRequest/u
+);
 
 const historySource = readFileSync(
   new URL("./session-history-store.ts", import.meta.url),
@@ -119,6 +128,12 @@ assert.match(source, /async createSession\(/u);
 assert.equal(source.split("\n").length <= 500, true);
 assert.match(source, /sessionKind: "primary"/u);
 assert.match(source, /titleOrigin: "default"/u);
+assert.match(source, /sessionTitleService\.applyInitialAutoTitle/u);
+assert.match(source, /renameSession\(request: RenameCoreSessionRequest\)/u);
+assert.match(source, /regenerateSessionTitle\(/u);
+assert.match(titleServiceSource, /titleOrigin: "manual"/u);
+assert.match(titleServiceSource, /titleOrigin: "auto"/u);
+assert.match(titleServiceSource, /session\.sessionKind === "subagent"/u);
 assert.match(source, /collectSessionTreeIds\(sessionId\)\.reverse\(\)/u);
 assert.match(source, /session\.parentSessionId === parentSessionId/u);
 assert.match(bindingLifecycleSource, /adoptProviderSession\(/u);

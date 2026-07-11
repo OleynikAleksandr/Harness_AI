@@ -37,6 +37,8 @@ import type {
   ProviderRegistryLike,
   ProviderRuntimeBinding,
   ProviderSessionBindingFacadeLike,
+  RegenerateCoreSessionTitleRequest,
+  RenameCoreSessionRequest,
   RollbackCoreSessionRequest,
   SendCoreMessageRequest,
   SessionEventStreamLike,
@@ -44,6 +46,7 @@ import type {
 } from "./session-request-handler-types.js";
 import { SessionRollback } from "./session-rollback.js";
 import { SessionSubagentLifecycle } from "./session-subagent-lifecycle.js";
+import { sessionTitleService } from "./session-title-service.js";
 import { SessionTurnStop } from "./session-turn-stop.js";
 
 export type { CoreSession } from "./session-request-handler-types.js";
@@ -56,6 +59,14 @@ export class SessionRequestHandlerFacade {
   private readonly runtimeBindings = new Map<string, ProviderRuntimeBinding>();
   private readonly messagesBySession = new Map<string, CoreSessionMessage[]>();
   private readonly sessions = new Map<string, CoreSession>();
+  private readonly titleContext = {
+    getFirstUserMessage: (sessionId: string) =>
+      this.messagesBySession
+        .get(sessionId)
+        ?.find((message) => message.role === "user")?.text,
+    getSession: (sessionId: string) => this.sessions.get(sessionId),
+    updateSession: (session: CoreSession) => this.updateSession(session),
+  };
   private readonly providerBindingLifecycle: SessionProviderBindingLifecycle;
   private readonly subagentLifecycle: SessionSubagentLifecycle;
   private readonly telemetryBySession = new Map<
@@ -139,7 +150,7 @@ export class SessionRequestHandlerFacade {
           timestamp: call.updatedAt,
           type: "session:subagent-call",
         }),
-      updateSession: (session) => this.updateSubagentSession(session),
+      updateSession: (session) => this.updateSession(session),
     });
   }
   async createSession(
@@ -173,27 +184,7 @@ export class SessionRequestHandlerFacade {
     if (request.workspacePath) {
       session.workspacePath = request.workspacePath;
     }
-    this.sessions.set(session.id, session);
-    this.messagesBySession.set(session.id, []);
-    this.eventStream.rememberSession?.(session);
-    this.persistSessionIndex(session.workspacePath);
-    this.setTelemetry(
-      session.id,
-      usageContextTelemetryFacade.createTelemetry({
-        model: session.model,
-        provider: session.providerName,
-        providerId: session.providerId,
-        status: "idle",
-      })
-    );
-    this.eventStream.publish({
-      payload: { sessionId: session.id, title: session.title },
-      timestamp: now,
-      type: "session:created",
-    });
-    this.publishBinding(
-      this.bindingFacade.createPending(session.id, session.providerId)
-    );
+    this.rememberCreatedSession(session, "idle");
     this.providerBindingLifecycle
       .bindProviderSession(session)
       .catch((error: unknown) => {
@@ -211,9 +202,12 @@ export class SessionRequestHandlerFacade {
       return { error: "Message is empty", ok: false };
     }
     const now = new Date().toISOString();
-    const updatedSession = { ...session, updatedAt: now };
-    this.sessions.set(session.id, updatedSession);
-    this.persistSessionIndex(updatedSession.workspacePath);
+    const updatedSession = sessionTitleService.applyInitialAutoTitle(
+      session,
+      text,
+      now
+    );
+    this.updateSession(updatedSession);
     this.publishMessage({
       id: createId("message-user"),
       role: "user",
@@ -229,6 +223,17 @@ export class SessionRequestHandlerFacade {
         this.publishTurnState(session.id, "idle");
       });
     return { ok: true, session: updatedSession };
+  }
+  renameSession(request: RenameCoreSessionRequest): CoreSessionActionResult {
+    return sessionTitleService.renameSession(request, this.titleContext);
+  }
+  regenerateSessionTitle(
+    request: RegenerateCoreSessionTitleRequest
+  ): CoreSessionActionResult {
+    return sessionTitleService.regenerateSessionTitle(
+      request,
+      this.titleContext
+    );
   }
   stopTurn(sessionId: string): CoreSessionActionResult {
     return this.turnStop.stop(sessionId);
@@ -326,6 +331,16 @@ export class SessionRequestHandlerFacade {
   }
 
   private addSubagentSession(session: CoreSession): void {
+    this.rememberCreatedSession(
+      session,
+      session.subagentStatus === "running" ? "running" : "idle"
+    );
+  }
+
+  private rememberCreatedSession(
+    session: CoreSession,
+    status: "idle" | "running"
+  ): void {
     this.sessions.set(session.id, session);
     this.messagesBySession.set(session.id, []);
     this.eventStream.rememberSession?.(session);
@@ -336,7 +351,7 @@ export class SessionRequestHandlerFacade {
         model: session.model,
         provider: session.providerName,
         providerId: session.providerId,
-        status: session.subagentStatus === "running" ? "running" : "idle",
+        status,
       })
     );
     this.eventStream.publish({
@@ -349,7 +364,7 @@ export class SessionRequestHandlerFacade {
     );
   }
 
-  private updateSubagentSession(session: CoreSession): void {
+  private updateSession(session: CoreSession): void {
     this.sessions.set(session.id, session);
     this.persistSessionIndex(session.workspacePath);
     this.eventStream.publish({
@@ -363,30 +378,24 @@ export class SessionRequestHandlerFacade {
     parentSessionId: string,
     callId: string
   ): CoreSubagentCall | undefined {
-    for (const event of this.eventStream.listEvents?.(parentSessionId) ?? []) {
-      if (
-        event.type === "session:subagent-call" &&
-        event.payload.id === callId
-      ) {
-        return event.payload;
-      }
-    }
-    return undefined;
+    const event = (this.eventStream.listEvents?.(parentSessionId) ?? []).find(
+      (candidate) =>
+        candidate.type === "session:subagent-call" &&
+        candidate.payload.id === callId
+    );
+    return event?.type === "session:subagent-call" ? event.payload : undefined;
   }
 
   private collectSessionTreeIds(rootSessionId: string): string[] {
-    const collected = [rootSessionId];
+    const collected = new Set([rootSessionId]);
     for (const parentSessionId of collected) {
       for (const session of this.sessions.values()) {
-        if (
-          session.parentSessionId === parentSessionId &&
-          !collected.includes(session.id)
-        ) {
-          collected.push(session.id);
+        if (session.parentSessionId === parentSessionId) {
+          collected.add(session.id);
         }
       }
     }
-    return collected;
+    return [...collected];
   }
 
   private publishBinding(binding: ProviderSessionBinding): void {

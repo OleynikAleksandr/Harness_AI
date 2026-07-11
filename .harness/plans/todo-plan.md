@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "feat: manage core session titles",
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": "feat: expose session title commands",
   "debt": null
 }
 ```
@@ -130,9 +130,9 @@
 
 ### Stream: Titles And IPC
 
-28. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Add one-shot Core auto titles, manual rename locking and regenerate-title commands (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-title-service.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: manage core session titles`).
-29. [TODO] Git Commit: `feat: manage core session titles` (hash: TBD)
-30. [TODO] `harness-ai.phase7.stream1.task2` Expose title commands through the Core process bridge and preload API (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, focused tests and related module docs`; expected commit: `feat: expose session title commands`).
+28. [DONE] `harness-ai.phase7.stream1.task1` Add one-shot Core auto titles, manual rename locking and regenerate-title commands (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-title-service.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: manage core session titles`). Result: Completed in commit `feat: manage core session titles`.
+29. [DONE] Git Commit: `feat: manage core session titles` (hash: self)
+30. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Expose title commands through the Core process bridge and preload API (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, focused tests and related module docs`; expected commit: `feat: expose session title commands`).
 31. [TODO] Git Commit: `feat: expose session title commands` (hash: TBD)
 32. [TODO] `harness-ai.phase7.stream1.task3` Make detached session windows unique per workspace/session so repeat opens focus the existing child window and completion never closes it (scope: `product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: focus existing detached sessions`).
 33. [TODO] Git Commit: `feat: focus existing detached sessions` (hash: TBD)

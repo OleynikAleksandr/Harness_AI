@@ -28,6 +28,8 @@ into `product-parts/**` as real module code.
 ## Responsibilities
 
 - Own workspace/session state and snapshots consumed by Application Shell.
+- Own deterministic session auto-title, manual-title lock and regenerate
+  commands; Application Shell only submits intent and renders the result.
 - Own provider-neutral parent-child session graphs and persisted subagent
   timeline read models; clients only render them.
 - Own next-session mode truth; Application Shell can display and submit mode choices but cannot decide provider behavior locally.

@@ -47,6 +47,10 @@ assert.match(
   /buildProviderAdapterInstance\([\s\S]*?reasoningEffort\s*\)/u
 );
 assert.match(rpcSource, /model: selectedModel/u);
+assert.match(
+  rpcSource,
+  /orchestrator\.capture\(\{[\s\S]*?reasoningEffort,[\s\S]*?runProviderCapture/u
+);
 
 // The builder is factored out and reused by the registry wiring.
 assert.match(

@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream2.task2",
-  "expectedCommitMessage": "fix: pass native capture reasoning command",
+  "currentTaskId": "harness-ai.phase1.stream3.task1",
+  "expectedCommitMessage": "fix: apply native capture reasoning to providers",
   "debt": null
 }
 ```
@@ -74,12 +74,12 @@
 
 5. [DONE] `harness-ai.phase1.stream2.task1` Carry the validated reasoning effort through the provider-neutral capture context and encode it immediately after the model in JSONL, diagnostics JSONL, and Markdown artifact filenames (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, related focused tests and module/cluster docs, docs/architecture/SessionProfilesV2.md`; expected commit: `feat: identify native captures by reasoning`). Result: Completed in commit `feat: identify native captures by reasoning`.
 6. [DONE] Git Commit: `feat: identify native captures by reasoning` (hash: self)
-7. [IN_PROGRESS] `harness-ai.phase1.stream2.task2` Pass the Core-validated capture reasoning effort into the provider-neutral orchestrator command so production artifact identity and provider context use the same explicit intent (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `fix: pass native capture reasoning command`).
-8. [TODO] Git Commit: `fix: pass native capture reasoning command` (hash: TBD)
+7. [DONE] `harness-ai.phase1.stream2.task2` Pass the Core-validated capture reasoning effort into the provider-neutral orchestrator command so production artifact identity and provider context use the same explicit intent (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `fix: pass native capture reasoning command`). Result: Completed in commit `fix: pass native capture reasoning command`.
+8. [DONE] Git Commit: `fix: pass native capture reasoning command` (hash: self)
 
 ### Stream: Provider Application
 
-9. [TODO] `harness-ai.phase1.stream3.task1` Apply the explicit capture reasoning effort in the Claude interactive CLI (`--effort`) and Codex app-server `turn/start`, record it in provider diagnostics, and prove the provider boundaries with focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-native-request-capture-service.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-interactive-cli-runner.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/diagnostics/codex-native-request-capture-service.ts, related focused tests and provider module/cluster docs, docs/architecture/SessionProfilesV2.md`; expected commit: `fix: apply native capture reasoning to providers`).
+9. [IN_PROGRESS] `harness-ai.phase1.stream3.task1` Apply the explicit capture reasoning effort in the Claude interactive CLI (`--effort`) and Codex app-server `turn/start`, record it in provider diagnostics, and prove the provider boundaries with focused tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-native-request-capture-service.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/diagnostics/claude-interactive-cli-runner.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/diagnostics/codex-native-request-capture-service.ts, related focused tests and provider module/cluster docs, docs/architecture/SessionProfilesV2.md`; expected commit: `fix: apply native capture reasoning to providers`).
 10. [TODO] Git Commit: `fix: apply native capture reasoning to providers` (hash: TBD)
 
 ## Phase 2 - Native Capture UI (owner: Codex, updated: 2026-07-11)

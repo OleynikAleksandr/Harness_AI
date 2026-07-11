@@ -85,6 +85,7 @@ export async function captureNativeRequestRpcResult(
   const result = await orchestrator.capture({
     model: selectedModel,
     providerId: providerId as "claude" | "codex",
+    reasoningEffort,
     runProviderCapture: (context) => capture(context),
     workspacePath,
     ...(providerId === "claude"

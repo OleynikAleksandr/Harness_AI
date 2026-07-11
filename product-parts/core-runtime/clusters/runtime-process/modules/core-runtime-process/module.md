@@ -159,7 +159,10 @@ also run here so the Application Shell remains UI/supervisor/client only.
   back to the selected model's stored provider setting when supported, then to
   the descriptor default. Unknown models return `model_not_supported` and
   unsupported effort/model pairs return `reasoning_not_supported` rather than
-  silently downgrading. The Claude command passes a raised
+  silently downgrading. The resolved effort is passed into the provider-neutral
+  orchestrator command, so the adapter context, diagnostic `capture_start`,
+  and reasoning-qualified artifact filenames share the exact same Core intent.
+  The Claude command passes a raised
   `timeoutMs` (120s): its capture drives the provider binary interactively in
   a pty (boot the UI, type the probe, submit), which does not fit the 30s
   proxy default that suits the direct Codex client.

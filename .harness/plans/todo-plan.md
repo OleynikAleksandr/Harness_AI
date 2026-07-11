@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task6",
-  "expectedCommitMessage": "fix: apply codex reasoning to native capture",
+  "currentTaskId": "harness-ai.phase4.stream1.task7",
+  "expectedCommitMessage": "docs: record codex 5.6 model verification",
   "debt": null
 }
 ```
@@ -101,7 +101,7 @@
 19. [DONE] Git Commit: `fix: align codex 5.6 runtime capabilities` (hash: self)
 20. [DONE] `harness-ai.phase4.stream1.task5` Replace the Codex Native Request Capture picker catalog with the provider-visible GPT-5.6 models and cover the Core-returned catalog (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.ts, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-readiness.test.mjs, product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `fix: expose codex 5.6 capture models`). Result: Completed in commit `fix: expose codex 5.6 capture models`.
 21. [DONE] Git Commit: `fix: expose codex 5.6 capture models` (hash: self)
-22. [IN_PROGRESS] `harness-ai.phase4.stream1.task6` Resolve the selected Codex model's normalized reasoning setting in Core and pass it into the dedicated Native Request Capture adapter, with focused RPC coverage and runtime documentation (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-adapter-registration.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `fix: apply codex reasoning to native capture`).
-23. [TODO] Git Commit: `fix: apply codex reasoning to native capture` (hash: TBD)
-24. [TODO] `harness-ai.phase4.stream1.task7` Verify the updated catalog and reasoning propagation with focused tests/build plus live app-server calls to GPT-5.6 Luna max, Terra ultra, and Sol ultra, then record redacted response evidence and documentation-index linkage (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, docs/architecture/SessionProfilesV2.md`; expected commit: `docs: record codex 5.6 model verification`).
+22. [DONE] `harness-ai.phase4.stream1.task6` Resolve the selected Codex model's normalized reasoning setting in Core and pass it into the dedicated Native Request Capture adapter, with focused RPC coverage and runtime documentation (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-adapter-registration.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`; expected commit: `fix: apply codex reasoning to native capture`). Result: Completed in commit `fix: apply codex reasoning to native capture`.
+23. [DONE] Git Commit: `fix: apply codex reasoning to native capture` (hash: self)
+24. [IN_PROGRESS] `harness-ai.phase4.stream1.task7` Verify the updated catalog and reasoning propagation with focused tests/build plus live app-server calls to GPT-5.6 Luna max, Terra ultra, and Sol ultra, then record redacted response evidence and documentation-index linkage (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, docs/architecture/SessionProfilesV2.md`; expected commit: `docs: record codex 5.6 model verification`).
 25. [TODO] Git Commit: `docs: record codex 5.6 model verification` (hash: TBD)

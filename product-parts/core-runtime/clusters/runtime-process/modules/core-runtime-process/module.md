@@ -153,7 +153,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `initialize`), and drives it through the `provider-network-capture` cluster's
   `NativeCaptureOrchestrator` (record-only request), passing the optional
   `profileId` through for profile-qualified providers such as CodexUC and
-  returning `{ ok, markdownPath, jsonlPath, error }`. The Claude command passes a raised
+  returning `{ ok, markdownPath, jsonlPath, error }`. For Codex app-server,
+  Core resolves the effective capture model and its normalized
+  `providers.codex.reasoningByModel` value, then passes both into the dedicated
+  adapter; the captured `turn/start` therefore uses the same reasoning effort
+  selected in Settings instead of `null`. The Claude command passes a raised
   `timeoutMs` (120s): its capture drives the provider binary interactively in
   a pty (boot the UI, type the probe, submit), which does not fit the 30s
   proxy default that suits the direct Codex client.

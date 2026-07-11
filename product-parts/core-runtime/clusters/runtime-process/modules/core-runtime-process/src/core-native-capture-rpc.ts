@@ -1,6 +1,8 @@
 import { providerDescriptorFacade } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { NativeCaptureOrchestrator } from "../../../../provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.js";
+import { resolveCodexReasoningEffort } from "../../../../settings-and-localization/modules/settings-store/src/settings-normalization.js";
+import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { buildProviderAdapterInstance } from "./core-provider-adapter-registration.js";
 
 // Capture serves native vendor channels plus CodexUC's Harness-built Codex
@@ -39,10 +41,24 @@ export async function captureNativeRequestRpcResult(
       ok: false,
     };
   }
+  const codexSettings =
+    providerId === "codex"
+      ? settingsStoreFacade.getSettings(workspacePath).providers.codex
+      : null;
+  const selectedModel = model ?? codexSettings?.defaultModel ?? null;
+  const reasoningEffort = codexSettings
+    ? resolveCodexReasoningEffort(
+        selectedModel ?? codexSettings.defaultModel,
+        codexSettings.reasoningByModel[
+          selectedModel ?? codexSettings.defaultModel
+        ]
+      )
+    : null;
   const adapter = buildProviderAdapterInstance(
     providerId as ProviderId,
-    model ?? "",
-    workspacePath
+    selectedModel ?? "",
+    workspacePath,
+    reasoningEffort
   );
   const capture = adapter?.captureNativeRequest?.bind(adapter);
   if (!capture) {
@@ -60,7 +76,7 @@ export async function captureNativeRequestRpcResult(
     // Best-effort provider bootstrap; the capture run surfaces real failures.
   }
   const result = await orchestrator.capture({
-    model: model ?? null,
+    model: selectedModel,
     profileId: profileId ?? null,
     providerId: providerId as "claude" | "codex" | "codex-uc",
     runProviderCapture: (context) => capture(context),

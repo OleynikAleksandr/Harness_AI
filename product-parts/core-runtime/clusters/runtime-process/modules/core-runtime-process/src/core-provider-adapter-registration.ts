@@ -1,5 +1,6 @@
 import { ClaudeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { CodexProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
+import type { CodexReasoningEffort } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/types/index.js";
 import { CodexUcProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider-facade.js";
 import { GlmClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-client-provider/src/glm-client-provider-facade.js";
 import { KimiClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
@@ -17,13 +18,18 @@ import {
 export function buildProviderAdapterInstance(
   providerId: ProviderId,
   model: string,
-  workspacePath: string
+  workspacePath: string,
+  reasoningEffort?: string | null
 ): ProviderAdapter | null {
   switch (providerId) {
     case "claude":
       return new ClaudeProviderFacade(model, workspacePath);
     case "codex":
-      return new CodexProviderFacade({ defaultModel: model, workspacePath });
+      return new CodexProviderFacade({
+        defaultModel: model,
+        defaultReasoningEffort: readCodexReasoningEffort(reasoningEffort),
+        workspacePath,
+      });
     case "codex-uc":
       return new CodexUcProviderFacade(workspacePath, {
         usageLimitsAdapter: new CodexProviderFacade({
@@ -52,6 +58,22 @@ export function buildProviderAdapterInstance(
       return new LocalModelsClientProviderFacade(workspacePath);
     default:
       return null;
+  }
+}
+
+function readCodexReasoningEffort(
+  value: string | null | undefined
+): CodexReasoningEffort | undefined {
+  switch (value) {
+    case "low":
+    case "medium":
+    case "high":
+    case "xhigh":
+    case "max":
+    case "ultra":
+      return value;
+    default:
+      return;
   }
 }
 

@@ -33,6 +33,13 @@ assert.doesNotMatch(rpcSource, /"kimi"/u);
 assert.match(rpcSource, /provider_not_supported/u);
 assert.match(rpcSource, /getCapturableModels/u);
 assert.match(rpcSource, /getCaptureProviderIds/u);
+assert.match(rpcSource, /settingsStoreFacade\.getSettings\(workspacePath\)/u);
+assert.match(rpcSource, /resolveCodexReasoningEffort/u);
+assert.match(
+  rpcSource,
+  /buildProviderAdapterInstance\([\s\S]*?reasoningEffort\s*\)/u
+);
+assert.match(rpcSource, /model: selectedModel/u);
 
 // The builder is factored out and reused by the registry wiring.
 assert.match(
@@ -43,6 +50,8 @@ assert.match(
   registrationSource,
   /const adapter = buildProviderAdapterInstance\(/u
 );
+assert.match(registrationSource, /defaultReasoningEffort:/u);
+assert.match(registrationSource, /case "ultra":/u);
 
 // Core runtime API dispatches both capture methods.
 assert.match(apiSource, /case "capture-native-request":/u);

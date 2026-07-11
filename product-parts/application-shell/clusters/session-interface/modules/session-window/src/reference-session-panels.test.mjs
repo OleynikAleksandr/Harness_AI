@@ -21,7 +21,7 @@ assert.match(source, /session\.status\.cache/u);
 assert.match(source, /turnCount > 2/u);
 assert.match(source, /onRollbackTurns\?\.\(\)/u);
 assert.match(source, /telemetry\.status === "idle"/u);
-assert.match(source, /isCodexFamilyProvider\(session\?\.providerId\)/u);
+assert.match(source, /isCodexProvider\(session\?\.providerId\)/u);
 assert.match(facadeSource, /rollbackSessionTurns\(\{/u);
 assert.match(facadeSource, /preserveFirstUserTurns: 2/u);
 assert.match(facadeSource, /first 2-turn anchor/u);
@@ -36,7 +36,6 @@ assert.doesNotMatch(
 // ACP `kimi` id left with the kimi-provider retirement, 2026-07-05).
 assert.match(source, /providerId === "claude"/u);
 assert.match(source, /providerId === "codex"/u);
-assert.match(source, /providerId === "codex-uc"/u);
 assert.match(source, /providerId === "kimi-client"/u);
 assert.doesNotMatch(source, /providerId === "kimi"\b/u);
 assert.match(

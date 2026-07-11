@@ -19,7 +19,7 @@ Render the transcript/dialog layout and session chrome.
 - Core-owned localization runtime payload from the Electron preload bridge.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
-- For Codex-family sessions (`codex` and `codex-uc`), the session status panel
+- For Codex sessions, the session status panel
   renders the display-only visible turn count from the current transcript
   (`role === "user"`) immediately before the Codex-family Rollback button,
   between the
@@ -118,10 +118,7 @@ Render the transcript/dialog layout and session chrome.
   endpoints, e.g. the visible Kimi → `kimi-for-coding`) wins over the
   settings-snapshot lookup; multi-model client endpoints such as the visible GLM
   use the Core settings snapshot (`providers.glmClient.defaultModel`). The
-  renderer never invents a model id. `codex-uc` shares the Codex settings
-  section for model display and reasoning badge because it targets the same
-  Codex model family over the OAuth Responses-compatible route. The same
-  resolution feeds the `model` field
+  renderer never invents a model id. The same resolution feeds the `model` field
   of `createSession`. The visible `openrouter-client` and
   `local-models-client` resolve through the shared settings sections
   (`providers.openRouter.defaultModel` / `providers.localModels.defaultModel`);

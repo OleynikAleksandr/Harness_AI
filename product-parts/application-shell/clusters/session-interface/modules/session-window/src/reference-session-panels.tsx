@@ -216,7 +216,7 @@ export function ReferenceStatusPanel({
 }) {
   const { t } = useBrowserLocalization();
   const reasoning = resolveReasoningLabel(session, settings);
-  const showCodexRollbackProbe = isCodexFamilyProvider(session?.providerId);
+  const showCodexRollbackProbe = isCodexProvider(session?.providerId);
   const turnCount = showCodexRollbackProbe
     ? messages.filter((message) => message.role === "user").length
     : 0;
@@ -380,7 +380,7 @@ function resolveProviderTint(
   if (providerId === "claude") {
     return providerId;
   }
-  if (isCodexFamilyProvider(providerId)) {
+  if (isCodexProvider(providerId)) {
     return "codex";
   }
   // The visible Kimi is the universal-client `kimi-client` endpoint (the ACP
@@ -446,7 +446,7 @@ function resolveReasoningLabel(
   if (!(session && settings)) {
     return null;
   }
-  if (isCodexFamilyProvider(session.providerId)) {
+  if (isCodexProvider(session.providerId)) {
     const effort = resolveCodexReasoningEffort(
       session.model,
       settings.providers.codex.reasoningByModel[session.model]
@@ -465,8 +465,8 @@ function resolveReasoningLabel(
   }
   return null;
 }
-const isCodexFamilyProvider = (providerId: string | undefined): boolean =>
-  providerId === "codex" || providerId === "codex-uc";
+const isCodexProvider = (providerId: string | undefined): boolean =>
+  providerId === "codex";
 function shortenId(id: string): string {
   return `${id.slice(0, 8)}...`;
 }

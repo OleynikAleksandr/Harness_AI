@@ -97,7 +97,6 @@ function getProviderModel(
     case "claude":
       return settings.providers.claude.defaultModel;
     case "codex":
-    case "codex-uc":
       return settings.providers.codex.defaultModel;
     case "glm-client":
       return settings.providers.glmClient.defaultModel;

@@ -9,19 +9,23 @@ const routerSource = readFileSync(
   new URL("./session-provider-event-router.ts", import.meta.url),
   "utf8"
 );
+const bindingLifecycleSource = readFileSync(
+  new URL("./session-provider-binding-lifecycle.ts", import.meta.url),
+  "utf8"
+);
 const rollbackSource = readFileSync(
   new URL("./session-rollback.ts", import.meta.url),
   "utf8"
 );
 
-// The facade delegates provider event routing to the dedicated router file.
-assert.match(source, /from "\.\/session-provider-event-router\.js"/u);
+// The facade delegates provider binding and event routing to a bounded helper.
+assert.match(source, /new SessionProviderBindingLifecycle/u);
 assert.match(
-  source,
+  bindingLifecycleSource,
   /routeProviderEvent\(this\.providerEventRouterContext\(\), sessionId, event\)/u
 );
 assert.match(source, /from "\.\/session-live-tail-dedupe\.js"/u);
-assert.match(source, /buildProviderTurnOptions\(session\)/u);
+assert.match(bindingLifecycleSource, /buildProviderTurnOptions\(session\)/u);
 assert.match(source, /async refreshUsageLimits\(sessionId: string\)/u);
 assert.match(source, /rollbackSessionTurns\(/u);
 assert.match(source, /new SessionRollback/u);
@@ -31,7 +35,10 @@ assert.match(source, /ReasoningTranslationOverlayFacade/u);
 assert.match(source, /type: "session:message_translation"/u);
 assert.match(source, /usageContextTelemetryFacade\.applyProviderEvent\(/u);
 // Provider session starts are normalized through the additive contract.
-assert.match(source, /normalizeProviderSessionStart\(startOutcome\)/u);
+assert.match(
+  bindingLifecycleSource,
+  /normalizeProviderSessionStart\(startOutcome\)/u
+);
 
 // The applied profile snapshot is captured at create via the resolver
 // (Native fallback lives in session-profile-resolution.ts) and adapter
@@ -99,8 +106,12 @@ assert.match(rollbackSource, /type: "session:messages-replaced"/u);
 // Managed resolution activates at create through the profile resolver and
 // the adapter receives the snapshot-built payload.
 assert.match(source, /this\.profileResolver\.resolveAppliedProfile\(/u);
-assert.match(source, /buildSessionProfilePayload\(session\.appliedProfile\)/u);
+assert.match(
+  bindingLifecycleSource,
+  /buildSessionProfilePayload\(session\.appliedProfile\)/u
+);
 assert.match(source, /async createSession\(/u);
+assert.equal(source.split("\n").length <= 500, true);
 
 // The router owns reasoning projection, promotion, and turn-state routing.
 assert.match(

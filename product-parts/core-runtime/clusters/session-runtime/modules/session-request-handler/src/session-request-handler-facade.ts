@@ -1,4 +1,3 @@
-import { normalizeProviderSessionStart } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   type ProviderUsageTelemetry,
   usageContextTelemetryFacade,
@@ -12,7 +11,6 @@ import {
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { resolveNextSessionMode } from "./next-session-mode.js";
-import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import {
   restoreSessionHistory as restoreHistory,
   restoreTelemetryHistory as restoreTelemetry,
@@ -20,20 +18,14 @@ import {
 } from "./session-history-restore.js";
 import { resolveDisplayMessage } from "./session-live-tail-dedupe.js";
 import {
-  buildSessionProfilePayload,
   SessionProfileResolver,
   type SessionProfileResolverLike,
   withRecordedProfileApplication,
 } from "./session-profile-resolution.js";
+import { SessionProviderBindingLifecycle } from "./session-provider-binding-lifecycle.js";
 import {
-  type ProviderEventRouterContext,
-  routeProviderEvent,
-} from "./session-provider-event-router.js";
-import {
-  ADAPTER_NOT_REGISTERED,
   closeAndCleanupProviderSession,
   createId,
-  resolveBindingUnavailableMessage,
   stringifyError,
 } from "./session-request-handler-runtime-utils.js";
 import type {
@@ -62,6 +54,7 @@ export class SessionRequestHandlerFacade {
   private readonly runtimeBindings = new Map<string, ProviderRuntimeBinding>();
   private readonly messagesBySession = new Map<string, CoreSessionMessage[]>();
   private readonly sessions = new Map<string, CoreSession>();
+  private readonly providerBindingLifecycle: SessionProviderBindingLifecycle;
   private readonly telemetryBySession = new Map<
     string,
     ProviderUsageTelemetry
@@ -73,7 +66,8 @@ export class SessionRequestHandlerFacade {
     publishIdle: (sessionId) => this.publishTurnState(sessionId, "idle"),
   });
   private readonly rollback = new SessionRollback({
-    bindProviderSession: (session) => this.bindProviderSession(session),
+    bindProviderSession: (session) =>
+      this.providerBindingLifecycle.bindProviderSession(session),
     getEvents: (sessionId) => this.eventStream.listEvents?.(sessionId) ?? [],
     getMessages: (sessionId) => this.messagesBySession.get(sessionId) ?? [],
     getRuntimeBinding: (sessionId) => this.runtimeBindings.get(sessionId),
@@ -96,6 +90,33 @@ export class SessionRequestHandlerFacade {
     this.eventStream = deps.eventStream ?? sessionEventStreamFacade;
     this.providerRegistry = deps.providerRegistry ?? providerRegistryFacade;
     this.profileResolver = deps.profileResolver ?? new SessionProfileResolver();
+    this.providerBindingLifecycle = new SessionProviderBindingLifecycle({
+      bindingFacade: this.bindingFacade,
+      getSession: (sessionId) => this.sessions.get(sessionId),
+      providerRegistry: this.providerRegistry,
+      publishBinding: (binding) => this.publishBinding(binding),
+      publishError: (sessionId, error) => this.publishError(sessionId, error),
+      publishMessage: (message) => this.publishMessage(message),
+      publishTranslationPatch: (payload) =>
+        this.eventStream.publish({
+          payload,
+          timestamp: new Date().toISOString(),
+          type: "session:message_translation",
+        }),
+      publishTurnState: (sessionId, state) =>
+        this.publishTurnState(sessionId, state),
+      reasoningTranslation: this.reasoningTranslation,
+      recordAppliedProfileApplication: (sessionId, application) =>
+        this.recordAppliedProfileApplication(sessionId, application),
+      runtimeBindings: this.runtimeBindings,
+      updateTelemetryFromProvider: (sessionId, event) =>
+        this.updateTelemetry(sessionId, (current) =>
+          usageContextTelemetryFacade.applyProviderEvent(
+            current,
+            event as Record<string, unknown>
+          )
+        ),
+    });
   }
   async createSession(
     request: CreateCoreSessionRequest
@@ -147,9 +168,11 @@ export class SessionRequestHandlerFacade {
     this.publishBinding(
       this.bindingFacade.createPending(session.id, session.providerId)
     );
-    this.bindProviderSession(session).catch((error: unknown) => {
-      this.publishError(session.id, stringifyError(error));
-    });
+    this.providerBindingLifecycle
+      .bindProviderSession(session)
+      .catch((error: unknown) => {
+        this.publishError(session.id, stringifyError(error));
+      });
     return { ok: true, session };
   }
   sendMessage(request: SendCoreMessageRequest): CoreSessionActionResult {
@@ -173,12 +196,12 @@ export class SessionRequestHandlerFacade {
       timestamp: now,
     });
     this.publishTurnState(session.id, "running");
-    this.dispatchProviderMessage(updatedSession, text).catch(
-      (error: unknown) => {
+    this.providerBindingLifecycle
+      .dispatchProviderMessage(updatedSession, text)
+      .catch((error: unknown) => {
         this.publishError(session.id, stringifyError(error));
         this.publishTurnState(session.id, "idle");
-      }
-    );
+      });
     return { ok: true, session: updatedSession };
   }
   stopTurn(sessionId: string): CoreSessionActionResult {
@@ -239,9 +262,11 @@ export class SessionRequestHandlerFacade {
   }
   resumeRestoredSessions(): void {
     for (const session of this.sessions.values()) {
-      this.bindProviderSession(session).catch((error: unknown) => {
-        this.publishError(session.id, stringifyError(error));
-      });
+      this.providerBindingLifecycle
+        .bindProviderSession(session)
+        .catch((error: unknown) => {
+          this.publishError(session.id, stringifyError(error));
+        });
     }
   }
   private publishMessage(message: CoreSessionMessage) {
@@ -360,139 +385,8 @@ export class SessionRequestHandlerFacade {
     }
   }
 
-  private async bindProviderSession(session: CoreSession): Promise<void> {
-    const adapter = this.providerRegistry.getAdapter(session.providerId);
-    if (!adapter) {
-      this.publishBinding(
-        this.bindingFacade.markFailed(
-          session.id,
-          session.providerId,
-          ADAPTER_NOT_REGISTERED
-        )
-      );
-      this.publishError(session.id, ADAPTER_NOT_REGISTERED);
-      return;
-    }
-    try {
-      await adapter.initialize?.();
-      // Adapter input comes strictly from the immutable snapshot (never
-      // reread); legacy sessions pass no options at all.
-      const profilePayload = buildSessionProfilePayload(session.appliedProfile);
-      const startOptions = session.appliedProfile
-        ? { profile: profilePayload, profileKind: session.appliedProfile.kind }
-        : undefined;
-      const startOutcome =
-        session.providerSessionId && adapter.resumeSession
-          ? await adapter.resumeSession(
-              session.providerSessionId,
-              session.workspacePath,
-              startOptions
-            )
-          : await adapter.createSession(session.workspacePath, startOptions);
-      const { appliedProfileApplication, providerSessionId } =
-        normalizeProviderSessionStart(startOutcome);
-      this.recordAppliedProfileApplication(
-        session.id,
-        appliedProfileApplication
-      );
-      const unsubscribe = adapter.subscribe(providerSessionId, (event) =>
-        this.handleProviderEvent(session.id, event)
-      );
-      this.runtimeBindings.set(session.id, {
-        adapter,
-        providerSessionId,
-        unsubscribe,
-      });
-      this.publishBinding(
-        this.bindingFacade.markReady(
-          session.id,
-          session.providerId,
-          providerSessionId
-        )
-      );
-      this.refreshUsageLimits(session.id).catch(() => undefined);
-    } catch (error) {
-      this.publishBinding(
-        this.bindingFacade.markFailed(
-          session.id,
-          session.providerId,
-          stringifyError(error)
-        )
-      );
-      this.publishError(session.id, stringifyError(error));
-    }
-  }
-  private async dispatchProviderMessage(
-    session: CoreSession,
-    text: string
-  ): Promise<void> {
-    // Resume-on-send: after a Stop the binding is gone, so rebind (which resumes
-    // by providerSessionId) before dispatching the turn.
-    let binding = this.runtimeBindings.get(session.id);
-    if (!binding) {
-      await this.bindProviderSession(session);
-      binding = this.runtimeBindings.get(session.id);
-    }
-    if (!binding) {
-      throw new Error(
-        resolveBindingUnavailableMessage(
-          this.bindingFacade.getBinding(session.id)
-        )
-      );
-    }
-    await binding.adapter.sendMessage(
-      binding.providerSessionId,
-      text,
-      buildProviderTurnOptions(session)
-    );
-  }
-  private handleProviderEvent(sessionId: string, event: unknown): void {
-    routeProviderEvent(this.providerEventRouterContext(), sessionId, event);
-  }
-  private providerEventRouterContext(): ProviderEventRouterContext {
-    return {
-      getBinding: (sessionId) => this.runtimeBindings.get(sessionId),
-      getSession: (sessionId) => this.sessions.get(sessionId),
-      markBindingReady: (sessionId, providerId, providerSessionId) =>
-        this.publishBinding(
-          this.bindingFacade.markReady(sessionId, providerId, providerSessionId)
-        ),
-      publishError: (sessionId, error) => this.publishError(sessionId, error),
-      publishMessage: (message) => this.publishMessage(message),
-      publishTranslationPatch: (payload) =>
-        this.eventStream.publish({
-          payload,
-          timestamp: new Date().toISOString(),
-          type: "session:message_translation",
-        }),
-      publishTurnState: (sessionId, state) =>
-        this.publishTurnState(sessionId, state),
-      reasoningTranslation: this.reasoningTranslation,
-      refreshUsageLimits: (sessionId) =>
-        this.refreshUsageLimits(sessionId).catch(() => undefined),
-      setBinding: (sessionId, binding) =>
-        this.runtimeBindings.set(sessionId, binding),
-      updateTelemetry: (sessionId, event) =>
-        this.updateTelemetry(sessionId, (current) =>
-          usageContextTelemetryFacade.applyProviderEvent(
-            current,
-            event as Record<string, unknown>
-          )
-        ),
-    };
-  }
   async refreshUsageLimits(sessionId: string): Promise<void> {
-    const session = this.sessions.get(sessionId);
-    const binding = this.runtimeBindings.get(sessionId);
-    if (!(session?.workspacePath && binding?.adapter.refreshUsageLimits)) {
-      return;
-    }
-    await binding.adapter.refreshUsageLimits({
-      broadcast: (event) => this.handleProviderEvent(sessionId, event),
-      providerSessionId: binding.providerSessionId,
-      runtimeSessionId: sessionId,
-      workspacePath: session.workspacePath,
-    });
+    await this.providerBindingLifecycle.refreshUsageLimits(sessionId);
   }
 }
 

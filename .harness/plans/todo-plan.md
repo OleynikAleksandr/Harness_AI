@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": "fix: rotate expired capture certificates",
+  "currentTaskId": "harness-ai.phase6.stream1.task3",
+  "expectedCommitMessage": "fix: preserve native capture tls diagnostics",
   "debt": null
 }
 ```
@@ -121,9 +121,9 @@
 
 30. [DONE] `harness-ai.phase6.stream1.task1` Add the user-approved Native Request Capture expired-certificate repair, diagnostic classification, live retest, and package slice (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add native capture certificate fix scope`). Result: Completed in commit `plan: add native capture certificate fix scope`.
 31. [DONE] Git Commit: `plan: add native capture certificate fix scope` (hash: self)
-32. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Validate cached diagnostic CA/leaf expiry before reuse, rotate an expired CA together with its signed host material, rotate an expired leaf independently, and cover both paths with focused tests/docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/src/capture-certificates-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/src/capture-certificates.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/module.md`; expected commit: `fix: rotate expired capture certificates`).
-33. [TODO] Git Commit: `fix: rotate expired capture certificates` (hash: TBD)
-34. [TODO] `harness-ai.phase6.stream1.task3` Preserve safe TLS socket error code/message details in proxy diagnostic events and cover the emitted shape without exposing request payloads (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/module.md`; expected commit: `fix: preserve native capture tls diagnostics`).
+32. [DONE] `harness-ai.phase6.stream1.task2` Validate cached diagnostic CA/leaf expiry before reuse, rotate an expired CA together with its signed host material, rotate an expired leaf independently, and cover both paths with focused tests/docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/src/capture-certificates-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/src/capture-certificates.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-certificates/module.md`; expected commit: `fix: rotate expired capture certificates`). Result: Completed in commit `fix: rotate expired capture certificates`.
+33. [DONE] Git Commit: `fix: rotate expired capture certificates` (hash: self)
+34. [IN_PROGRESS] `harness-ai.phase6.stream1.task3` Preserve safe TLS socket error code/message details in proxy diagnostic events and cover the emitted shape without exposing request payloads (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/src/capture-proxy.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-proxy/module.md`; expected commit: `fix: preserve native capture tls diagnostics`).
 35. [TODO] Git Commit: `fix: preserve native capture tls diagnostics` (hash: TBD)
 36. [TODO] `harness-ai.phase6.stream1.task4` Classify an uncaptured provider run with TLS socket failures as `tls_trust_failed` instead of `target_not_seen`, while preserving successful capture precedence and focused orchestrator coverage/docs (scope: `product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator.test.mjs, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/module.md`; expected commit: `fix: classify native capture tls failures`).
 37. [TODO] Git Commit: `fix: classify native capture tls failures` (hash: TBD)

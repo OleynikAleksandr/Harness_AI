@@ -1,11 +1,14 @@
 import { execFile } from "node:child_process";
+import { X509Certificate } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
-const CERTIFICATE_DAYS = "7";
+const CA_CERTIFICATE_DAYS = "30";
+const HOST_CERTIFICATE_DAYS = "7";
+const CERTIFICATE_RENEWAL_WINDOW_MS = 24 * 60 * 60 * 1000;
 const HOST_SLUG_PATTERN = /[^a-zA-Z0-9.-]/gu;
 const CA_CERT_FILE = "harness-native-capture-ca.pem";
 const CA_KEY_FILE = "harness-native-capture-ca.key.pem";
@@ -33,6 +36,7 @@ type OpenSslRunner = (
 ) => Promise<void>;
 
 interface NativeCaptureCertificateStoreOptions {
+  readonly now?: () => Date;
   readonly opensslPath?: string;
   readonly rootDir?: string;
   readonly runOpenSsl?: OpenSslRunner;
@@ -46,10 +50,12 @@ export class NativeCaptureCertificateStore {
   private readonly opensslPath: string;
   private readonly rootDirValue: string;
   private readonly runOpenSsl: OpenSslRunner;
+  private readonly now: () => Date;
 
   constructor(options: NativeCaptureCertificateStoreOptions = {}) {
     this.opensslPath = options.opensslPath ?? "openssl";
     this.rootDirValue = options.rootDir ?? defaultCertDirectory();
+    this.now = options.now ?? (() => new Date());
     this.runOpenSsl =
       options.runOpenSsl ??
       ((args, runOptions) => this.defaultRunOpenSsl(args, runOptions));
@@ -89,9 +95,13 @@ export class NativeCaptureCertificateStore {
     readonly certPath: string;
     readonly keyPath: string;
   }): Promise<void> {
-    if (await pathsExist(paths.certPath, paths.keyPath)) {
+    if (
+      (await pathsExist(paths.certPath, paths.keyPath)) &&
+      (await this.isCertificateCurrent(paths.certPath))
+    ) {
       return;
     }
+    await this.clearCertificateDirectory();
     await this.runOpenSsl(
       [
         "req",
@@ -104,7 +114,7 @@ export class NativeCaptureCertificateStore {
         "-out",
         paths.certPath,
         "-days",
-        CERTIFICATE_DAYS,
+        CA_CERTIFICATE_DAYS,
         "-subj",
         "/CN=Harness AI Native Request Capture Local CA",
       ],
@@ -122,9 +132,17 @@ export class NativeCaptureCertificateStore {
       readonly keyPath: string;
     }
   ): Promise<void> {
-    if (await pathsExist(host.certPath, host.keyPath)) {
+    if (
+      (await pathsExist(host.certPath, host.keyPath)) &&
+      (await this.isCertificateCurrent(host.certPath))
+    ) {
       return;
     }
+    await Promise.all(
+      [host.certPath, host.csrPath, host.extPath, host.keyPath].map(
+        (filePath) => fs.rm(filePath, { force: true })
+      )
+    );
     await fs.writeFile(
       host.extPath,
       `subjectAltName=DNS:${hostname}\nextendedKeyUsage=serverAuth\n`,
@@ -159,7 +177,7 @@ export class NativeCaptureCertificateStore {
         "-out",
         host.certPath,
         "-days",
-        CERTIFICATE_DAYS,
+        HOST_CERTIFICATE_DAYS,
         "-sha256",
         "-extfile",
         host.extPath,
@@ -195,6 +213,35 @@ export class NativeCaptureCertificateStore {
     options: { readonly cwd: string }
   ): Promise<void> {
     await execFileAsync(this.opensslPath, [...args], { cwd: options.cwd });
+  }
+
+  private async isCertificateCurrent(certPath: string): Promise<boolean> {
+    try {
+      const certificate = new X509Certificate(await fs.readFile(certPath));
+      const validFrom = Date.parse(certificate.validFrom);
+      const validTo = Date.parse(certificate.validTo);
+      const now = this.now().getTime();
+      return (
+        Number.isFinite(validFrom) &&
+        Number.isFinite(validTo) &&
+        validFrom <= now &&
+        validTo - now > CERTIFICATE_RENEWAL_WINDOW_MS
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private async clearCertificateDirectory(): Promise<void> {
+    const entries = await fs.readdir(this.rootDirValue);
+    await Promise.all(
+      entries.map((entry) =>
+        fs.rm(path.join(this.rootDirValue, entry), {
+          force: true,
+          recursive: true,
+        })
+      )
+    );
   }
 }
 

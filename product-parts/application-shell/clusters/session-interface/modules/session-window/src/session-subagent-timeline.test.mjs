@@ -55,3 +55,5 @@ assert.match(stylesSource, /\.session-tree-children/u);
 assert.match(stylesSource, /\.session-subagent-call__list/u);
 assert.match(stylesSource, /\.session-reference-shell--subagent/u);
 assert.match(stylesSource, /\.session-rename-dialog/u);
+assert.match(stylesSource, /\.session-tree-title:focus-visible/u);
+assert.match(stylesSource, /-webkit-line-clamp: 2/u);

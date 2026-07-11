@@ -158,18 +158,20 @@
 45. [DONE] Git Commit: `fix: track concurrent session turns` (hash: self)
 46. [DONE] `harness-ai.phase8.stream2.task4` Apply the Figma-aligned subagent tree/card/header states and localized Russian/English copy using existing Harness tokens and lucide icons (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused tests, related module/localization docs`; expected commit: `style: align subagent session ux`). Result: Completed in commit `style: align subagent session ux`.
 47. [DONE] Git Commit: `style: align subagent session ux` (hash: self)
+48. [DONE] `harness-ai.phase8.stream2.task5` Apply visual-QA corrections to remove duplicated child subtitles, preserve useful task/status metadata, strengthen child status markers and normalize focus/header prominence (scope: `product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, related module docs, .harness/plans/todo-plan.md`; expected commit: `fix: polish subagent session visuals`). Result: Completed in commit `fix: polish subagent session visuals`.
+49. [DONE] Git Commit: `fix: polish subagent session visuals` (hash: self)
 
 ## Phase 9 - Local Verification And Design QA (owner: Codex, updated: 2026-07-11)
 
 ### Stream: Runnable Evidence
 
-48. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Run the local build and focused live/mock subagent flow, compare the implemented states against the Figma/reference screenshots in the in-app Browser, and record a passed root Design QA report (scope: `design-qa.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record subagent session design qa`).
-49. [TODO] Git Commit: `docs: record subagent session design qa` (hash: TBD)
+50. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Run the local build and focused live/mock subagent flow, compare the implemented states against the Figma/reference screenshots in the in-app Browser, and record a passed root Design QA report (scope: `design-qa.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record subagent session design qa`).
+51. [TODO] Git Commit: `docs: record subagent session design qa` (hash: TBD)
 
 ## Phase 10 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-11)
 
 ### Stream: Packaged Retest
 
-50. [TODO] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
-51. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
-52. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).
+52. [TODO] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
+53. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
+54. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).

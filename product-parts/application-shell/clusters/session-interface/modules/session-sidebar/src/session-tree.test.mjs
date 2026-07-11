@@ -19,6 +19,11 @@ assert.match(treeSource, /session-tree-children/u);
 assert.match(treeSource, /expandedSessionIds/u);
 assert.match(treeSource, /tree\.parentBySessionId\.get\(activeSessionId\)/u);
 assert.match(treeSource, /session-tree-status--\$\{session\.subagentStatus/u);
+assert.match(treeSource, /session\.delegatedTask/u);
+assert.match(
+  treeSource,
+  /session\.delegatedTask \? null : session\.agentRole/u
+);
 assert.match(treeSource, /onDetachSession\(session\.id\)/u);
 assert.match(treeSource, /onSelectSession\(session\.id\)/u);
 assert.doesNotMatch(treeSource, /message\.text/u);

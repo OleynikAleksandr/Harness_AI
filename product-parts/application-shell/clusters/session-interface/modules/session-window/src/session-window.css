@@ -1719,6 +1719,9 @@ strong {
 
 .session-tree-status {
   flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin-left: 1px;
   color: #a5acb5;
 }
 
@@ -1783,6 +1786,11 @@ strong {
   font-style: normal;
   font-weight: 300;
   color: var(--pm-text-muted);
+}
+
+.session-tree-title:focus-visible {
+  outline: 1px solid rgba(66, 201, 162, 0.7);
+  outline-offset: -2px;
 }
 
 .session-tree-row .session-list-detach {
@@ -1955,21 +1963,23 @@ strong {
   border: 0;
 }
 
-.session-subagent-call__open strong,
-.session-subagent-call__open small {
+.session-subagent-call__open strong {
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
-.session-subagent-call__open strong {
-  font-size: 12px;
-  font-weight: 500;
-}
-
 .session-subagent-call__open small {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
   font-size: 10.5px;
+  line-height: 1.25;
   color: var(--pm-text-muted);
+  white-space: normal;
 }
 
 .session-subagent-call__open:hover strong,
@@ -2039,6 +2049,7 @@ strong {
 .session-subagent-header__breadcrumb strong {
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 14px;
   font-weight: 500;
   color: var(--pm-text-primary);
   white-space: nowrap;

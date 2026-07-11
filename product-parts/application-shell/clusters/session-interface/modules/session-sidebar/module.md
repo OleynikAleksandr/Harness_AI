@@ -13,8 +13,8 @@ rename UI, and Settings entry.
 
 - Known workspace snapshot.
 - Selected workspace session list.
-- Core-owned `sessionKind`, `parentSessionId`, subagent status/nickname/role and
-  title metadata.
+- Core-owned `sessionKind`, `parentSessionId`, delegated task, subagent
+  status/nickname/role and title metadata.
 
 ## Outputs
 
@@ -24,6 +24,9 @@ rename UI, and Settings entry.
   ancestor expansion for the selected child, and independent open/detach
   controls on every level. Tree construction uses only Core session metadata;
   it never reads transcript text or provider rollouts.
+- A child row uses its delegated task plus localized status as the secondary
+  line, falling back to role plus status when no task is available. It does not
+  repeat `agentNickname` when Core already used that nickname as the title.
 - An in-app React rename dialog (100-character UI limit matching Core) and
   context-menu regenerate action. Native browser/Electron prompt and confirm
   dialogs are not used. The controls render only when the parent session window

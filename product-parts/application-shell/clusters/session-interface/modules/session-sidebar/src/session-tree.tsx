@@ -254,14 +254,15 @@ function resolveSubagentSecondaryText(
   session: CoreSession,
   t: ReturnType<typeof useBrowserLocalization>["t"]
 ): string {
+  const status = t(
+    "ui_labels",
+    `sidebar.subagent.status.${session.subagentStatus ?? "pending"}`,
+    session.subagentStatus ?? "pending"
+  );
   return [
-    session.agentNickname,
-    session.agentRole,
-    t(
-      "ui_labels",
-      `sidebar.subagent.status.${session.subagentStatus ?? "pending"}`,
-      session.subagentStatus ?? "pending"
-    ),
+    session.delegatedTask,
+    session.delegatedTask ? null : session.agentRole,
+    status,
   ]
     .filter(Boolean)
     .join(" · ");

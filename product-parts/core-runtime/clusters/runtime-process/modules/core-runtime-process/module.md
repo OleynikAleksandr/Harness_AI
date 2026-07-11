@@ -58,6 +58,10 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - The `rollback-session-turns` RPC forwards the raw Codex rollback intent
   (`sessionId`, `numTurns`) to Session Runtime. Runtime Process does not inspect
   provider history, derive turn counts, or choose rollback strategy.
+- `rename-session` and `regenerate-session-title` forward raw title intents to
+  Session Runtime. Core Session Runtime validates, persists and publishes the
+  updated title; Runtime Process does not derive titles or maintain a shadow
+  session name.
 - Localization runtime bootstrap payloads are materialized through Core RPC into
   the Harness home `Localization` directory, using Core settings category
   mapping and provider-owned translation engines so browser clients render

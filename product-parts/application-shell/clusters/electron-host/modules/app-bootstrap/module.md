@@ -39,6 +39,9 @@ Own Electron lifecycle, window creation, and local application startup.
 - `window.harnessCore.rollbackSessionTurns({ sessionId, numTurns })` exposes
   only the raw Codex rollback intent to the renderer; Core owns provider
   validation, strategy and transcript refresh.
+- `window.harnessCore.renameSession({ sessionId, title })` and
+  `regenerateSessionTitle({ sessionId })` expose only user intent; title
+  derivation, validation, persistence and manual-lock truth remain in Core.
 
 ## Owned Paths
 

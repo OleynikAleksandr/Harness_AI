@@ -9,6 +9,10 @@ const supervisorSource = readFileSync(
   new URL("./core-process-supervisor.mjs", import.meta.url),
   "utf8"
 );
+const preloadSource = readFileSync(
+  new URL("../../app-bootstrap/src/preload.cjs", import.meta.url),
+  "utf8"
+);
 
 assert.match(source, /harness-ai:core:get-session-events/u);
 assert.match(
@@ -23,6 +27,15 @@ assert.match(
   source,
   /"harness-ai:core:rollback-session-turns":\s*"rollback-session-turns"/u
 );
+assert.match(source, /"harness-ai:core:rename-session":\s*"rename-session"/u);
+assert.match(
+  source,
+  /"harness-ai:core:regenerate-session-title":\s*"regenerate-session-title"/u
+);
+assert.match(preloadSource, /renameSession: \(request\)/u);
+assert.match(preloadSource, /harness-ai:core:rename-session/u);
+assert.match(preloadSource, /regenerateSessionTitle: \(request\)/u);
+assert.match(preloadSource, /harness-ai:core:regenerate-session-title/u);
 assert.match(source, /createCoreProcessSupervisor\(repositoryRoot\)/u);
 assert.match(source, /await coreSupervisor\.start\(\)/u);
 assert.match(source, /await coreSupervisor\.restart\(\)/u);

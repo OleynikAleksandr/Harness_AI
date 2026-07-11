@@ -110,6 +110,9 @@ session создаёт grandchild с `parentSessionId` этого child, не в
   пользовательского сообщения.
 - Rename выполняется React-диалогом внутри приложения; native
   `window.prompt`/`window.confirm` не используются.
+- Renderer отправляет только `rename-session` или
+  `regenerate-session-title`; preload/Core bridge не нормализуют имя и не
+  дублируют Core title state.
 
 ## Последовательность live-событий
 

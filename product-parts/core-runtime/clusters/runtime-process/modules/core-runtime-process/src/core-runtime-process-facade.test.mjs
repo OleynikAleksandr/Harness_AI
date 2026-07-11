@@ -43,4 +43,8 @@ assert.doesNotMatch(
 assert.match(apiSource, /sessionRequestHandlerFacade\.createSession/u);
 assert.match(apiSource, /"rollback-session-turns"/u);
 assert.match(apiSource, /sessionRequestHandlerFacade\.rollbackSessionTurns/u);
+assert.match(apiSource, /"rename-session"/u);
+assert.match(apiSource, /sessionRequestHandlerFacade\.renameSession/u);
+assert.match(apiSource, /"regenerate-session-title"/u);
+assert.match(apiSource, /sessionRequestHandlerFacade\.regenerateSessionTitle/u);
 assert.match(entrySource, /api: coreRuntimeApi/u);

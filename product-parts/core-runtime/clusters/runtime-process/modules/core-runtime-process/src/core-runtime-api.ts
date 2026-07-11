@@ -168,6 +168,12 @@ export class CoreRuntimeApi {
         return sessionRequestHandlerFacade.rollbackSessionTurns(
           payload as never
         );
+      case "rename-session":
+        return sessionRequestHandlerFacade.renameSession(payload as never);
+      case "regenerate-session-title":
+        return sessionRequestHandlerFacade.regenerateSessionTitle(
+          payload as never
+        );
       case "send-message":
         return sessionRequestHandlerFacade.sendMessage(payload as never);
       case "stop-turn":

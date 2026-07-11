@@ -22,6 +22,8 @@ const IPC_TO_RPC = {
   "harness-ai:core:list-sessions": "list-sessions",
   "harness-ai:core:list-workspaces": "list-workspaces",
   "harness-ai:core:rebuild-localization": "rebuild-localization",
+  "harness-ai:core:regenerate-session-title": "regenerate-session-title",
+  "harness-ai:core:rename-session": "rename-session",
   "harness-ai:core:reset-workspace-settings": "reset-workspace-settings",
   "harness-ai:core:rollback-session-turns": "rollback-session-turns",
   "harness-ai:core:save-provider-system-settings":

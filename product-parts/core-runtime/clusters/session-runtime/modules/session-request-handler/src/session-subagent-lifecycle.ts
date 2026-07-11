@@ -133,7 +133,7 @@ export class SessionSubagentLifecycle {
     ) {
       return;
     }
-    this.ensureChildSession(parent, {
+    const child = this.ensureChildSession(parent, {
       agentNickname: event.agentNickname,
       agentRole: event.agentRole,
       providerSessionId: event.providerSessionId,
@@ -142,6 +142,7 @@ export class SessionSubagentLifecycle {
       timestamp: event.timestamp,
       title: event.title,
     });
+    this.updateParentCall(child, event.timestamp);
   }
 
   private handleStatusEvent(

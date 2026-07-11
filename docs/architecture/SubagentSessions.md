@@ -80,6 +80,9 @@ event router. Внутри одного процесса каждый transcript
 сопоставляет повторно полученные provider messages по стабильным id +
 role/tag/source text и не добавляет точные дубликаты в persisted transcript.
 Изменённый текст и завершение live-tail при этом остаются обычными обновлениями.
+После применения historical child metadata Core повторно вычисляет status
+родительского timeline-call из актуального child status, поэтому восстановленный
+`completed` одинаково виден в карточке, дереве и child header.
 
 Forked child `thread/read` включает часть items родительской истории. Adapter
 не переигрывает их как вызовы самого child: актуальный `subAgentActivity`

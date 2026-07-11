@@ -98,6 +98,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   the same Core turn setting used for provider dispatch. It then requests
   adoption of the live child provider thread, updates child status, and
   publishes stable `CoreSubagentCall` snapshots.
+  Historical `subagent_session` metadata also recomputes its parent call after
+  enriching the child, so a restored terminal thread cannot leave the timeline
+  call in `running`.
   Spawn-tool completion is not treated as child completion: call status is
   derived from agent/thread states, so a successfully spawned running agent
   remains `running`.

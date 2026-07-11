@@ -17,6 +17,10 @@ const bindingLifecycleSource = readFileSync(
 assert.match(source, /event\.type === "subagent_control"/u);
 assert.match(source, /event\.type === "subagent_session"/u);
 assert.match(source, /handleStatusEvent/u);
+assert.match(
+  source,
+  /const child = this\.ensureChildSession\(parent,[\s\S]+?this\.updateParentCall\(child, event\.timestamp\)/u
+);
 assert.match(source, /sessionKind: "subagent"/u);
 assert.match(source, /parentSessionId: parent\.id/u);
 assert.match(source, /providerSessionId: inheritedSeed\.providerSessionId/u);

@@ -16,11 +16,8 @@ Own provider catalog, availability, and provider invocation profile descriptors.
 
 ## Outputs
 
-- Provider catalog snapshot. The `glm-opencode` provider id has been removed
-  during the GLM migration; it no longer appears in the catalog or picker.
-  The `codex-uc` catalog entry is visible as `CodexUC`: a test provider for
-  the Codex OAuth Responses-compatible route, distinct from the native
-  `codex` app-server provider.
+- Provider catalog snapshot. Retired provider ids do not appear in the catalog
+  or picker.
 - Provider visibility: every catalog entry carries
   `visibility: "visible" | "internal"`. `listProviders()` returns only
   visible providers (the picker snapshot); internal providers stay
@@ -38,7 +35,7 @@ Own provider catalog, availability, and provider invocation profile descriptors.
 - Core-owned default model id: descriptors of universal-client endpoints
   carry `defaultModelId` from the provider-descriptor client model catalog
   only for single-model catalogs (`kimi-client` → `kimi-for-coding`); multi-
-  model client endpoints such as visible `glm-client` and `codex-uc` omit
+  model client endpoints such as visible `glm-client` omit
   `defaultModelId` and resolve the selected model through settings.
 - Enabled/disabled provider state.
 - Provider readiness status/message for the Core-selected readiness workspace,

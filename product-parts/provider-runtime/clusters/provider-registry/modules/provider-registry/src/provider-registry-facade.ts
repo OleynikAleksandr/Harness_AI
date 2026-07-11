@@ -65,13 +65,6 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "visible",
   },
   {
-    id: "codex-uc",
-    name: "CodexUC",
-    moduleId: "codex-uc-provider",
-    status: "needs-settings",
-    visibility: "visible",
-  },
-  {
     // The visible Kimi: the universal-client endpoint (the retired ACP
     // kimi-provider module was removed by the 2026-07-05 user order).
     id: "kimi-client",

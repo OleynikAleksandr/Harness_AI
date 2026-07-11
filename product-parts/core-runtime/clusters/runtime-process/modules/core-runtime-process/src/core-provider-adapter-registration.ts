@@ -1,7 +1,6 @@
 import { ClaudeProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { CodexProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import type { CodexReasoningEffort } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/types/index.js";
-import { CodexUcProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-uc-provider/src/codex-uc-provider-facade.js";
 import { GlmClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-client-provider/src/glm-client-provider-facade.js";
 import { KimiClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
 import { LocalModelsClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
@@ -29,13 +28,6 @@ export function buildProviderAdapterInstance(
         defaultModel: model,
         defaultReasoningEffort: readCodexReasoningEffort(reasoningEffort),
         workspacePath,
-      });
-    case "codex-uc":
-      return new CodexUcProviderFacade(workspacePath, {
-        usageLimitsAdapter: new CodexProviderFacade({
-          defaultModel: model,
-          workspacePath,
-        }),
       });
     case "kimi-client":
       // The universal-client endpoint pins its own model (kimi-for-coding is

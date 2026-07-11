@@ -39,13 +39,6 @@ export interface ProviderModelDescriptor {
 const CLIENT_PROVIDER_MODELS: Readonly<
   Record<string, readonly ProviderModelDescriptor[]>
 > = {
-  "codex-uc": [
-    { id: "gpt-5.2", label: "GPT-5.2" },
-    { id: "gpt-5.3-codex-spark", label: "GPT-5.3-Codex-Spark" },
-    { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
-    { id: "gpt-5.4", label: "GPT-5.4" },
-    { id: "gpt-5.5", label: "GPT-5.5" },
-  ],
   "glm-client": [
     { id: "glm-5.2", label: "GLM 5.2" },
     { id: "glm-5.1", label: "GLM 5.1" },
@@ -59,10 +52,8 @@ const CLIENT_PROVIDER_MODELS: Readonly<
 // Models offered in the Native Request Capture UI, per capture provider.
 // Different models can carry different system prompts, so capture is chosen
 // per model. Ids mirror the provider model catalog. Capture covers the two
-// native vendor channels plus CodexUC's Harness-built OAuth Responses request:
-// the ACP Kimi capture channel left with the kimi-provider retirement
-// (2026-07-05). CodexUC is included so its client-built request can be compared
-// byte-for-byte against captured app-server Codex requests.
+// native vendor channels. The ACP Kimi capture channel left with the
+// kimi-provider retirement (2026-07-05).
 const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
   {
     claude: [
@@ -79,13 +70,9 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
       { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
       { id: "gpt-5.3-codex-spark", label: "GPT-5.3-Codex-Spark" },
     ],
-    "codex-uc": CLIENT_PROVIDER_MODELS["codex-uc"],
   };
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
-  // Codex OAuth Responses-compatible endpoint: local Codex OAuth auth, no
-  // app-server/provider home.
-  "codex-uc",
   // Universal-client endpoint: key-only auth from Core settings, no provider home.
   "glm-client",
   "kimi-client",

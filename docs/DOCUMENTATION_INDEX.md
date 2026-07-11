@@ -259,6 +259,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   tool-less `response.create` frame contract, and a successful live GPT-5.6
   Sol Ultra capture with canonical non-empty raw JSONL, followed by direct
   `app.asar` verification and a successful packaged-app launch smoke check.
+- `docs/evidence/codex-capture-markdown-package-2026-07-11.md` — explicitly
+  user-approved macOS arm64 rebuild after the Codex 0.144.1 Markdown parser
+  fix, with readable embedded system instructions and additional tool
+  declarations, packaged `app.asar` content checks, SHA-256 and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream2.task2",
-  "expectedCommitMessage": "docs: record codex capture markdown package",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -151,5 +151,5 @@
 
 52. [DONE] `harness-ai.phase7.stream2.task1` Add the explicitly user-approved macOS package slice for the Codex capture Markdown parser fix (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add codex capture markdown package`). Result: Completed in commit `plan: add codex capture markdown package`.
 53. [DONE] Git Commit: `plan: add codex capture markdown package` (hash: self)
-54. [IN_PROGRESS] `harness-ai.phase7.stream2.task2` Build the macOS package, verify the packaged app and `app.asar` contain the Codex 0.144.1 embedded system/additional-tools Markdown extraction, and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex capture markdown package`).
-55. [TODO] Git Commit: `docs: record codex capture markdown package` (hash: TBD)
+54. [DONE] `harness-ai.phase7.stream2.task2` Build the macOS package, verify the packaged app and `app.asar` contain the Codex 0.144.1 embedded system/additional-tools Markdown extraction, and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex capture markdown package`). Result: Completed in commit `docs: record codex capture markdown package`.
+55. [DONE] Git Commit: `docs: record codex capture markdown package` (hash: self)

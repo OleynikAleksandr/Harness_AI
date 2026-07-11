@@ -85,7 +85,10 @@ adapter уже связанной parent session, подписывается н�
 вызова `spawnAgent`, а не работы созданного агента. Поэтому статус карточки
 выводится из child turn/thread status: успешный spawn работающего child остаётся
 `running` до его собственного завершения. Если spawn-событие не повторяет model
-и reasoning effort, Core наследует их из parent session.
+и reasoning effort, Core наследует их из parent session. Для legacy parent без
+сохранённого effort Core использует тот же model-aware reasoning setting,
+который формирует provider turn options; поэтому восстановленный Ultra child
+не теряет `Ultra` в UI metadata.
 
 Одинаковый lifecycle применяется рекурсивно: collaboration event в child
 session создаёт grandchild с `parentSessionId` этого child, не выравнивая дерево

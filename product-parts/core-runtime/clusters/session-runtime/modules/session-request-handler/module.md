@@ -94,8 +94,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   `subagent_control`/`subagent_session`/`subagent_status` events. It creates or
   enriches child `CoreSession` records, preserves recursive parent ids,
   inherits the parent model/reasoning effort when Codex does not repeat them on
-  its spawn activity, requests adoption of the live child provider thread,
-  updates child status, and publishes stable `CoreSubagentCall` snapshots.
+  its spawn activity, and for a legacy parent without persisted effort resolves
+  the same Core turn setting used for provider dispatch. It then requests
+  adoption of the live child provider thread, updates child status, and
+  publishes stable `CoreSubagentCall` snapshots.
   Spawn-tool completion is not treated as child completion: call status is
   derived from agent/thread states, so a successfully spawned running agent
   remains `running`.

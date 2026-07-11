@@ -22,8 +22,9 @@ assert.match(source, /parentSessionId: parent\.id/u);
 assert.match(source, /providerSessionId: inheritedSeed\.providerSessionId/u);
 assert.match(
   source,
-  /reasoningEffort: seed\.reasoningEffort \?\? parent\.reasoningEffort/u
+  /seed\.reasoningEffort \?\?\s+parent\.reasoningEffort \?\?\s+resolveConfiguredReasoningEffort\(parent\)/u
 );
+assert.match(source, /buildProviderTurnOptions\(session\)\.reasoningEffort/u);
 assert.match(source, /subagentCallId/u);
 assert.match(source, /titleOrigin: "auto"/u);
 assert.match(source, /adoptProviderSession/u);

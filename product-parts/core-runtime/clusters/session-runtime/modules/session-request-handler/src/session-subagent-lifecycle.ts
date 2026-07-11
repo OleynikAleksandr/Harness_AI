@@ -10,6 +10,7 @@ import type {
   CoreSubagentCall,
   CoreSubagentCallStatus,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
+import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import { createId } from "./session-request-handler-runtime-utils.js";
 import type {
   CoreSession,
@@ -188,7 +189,10 @@ export class SessionSubagentLifecycle {
   ): CoreSession {
     const inheritedSeed = {
       ...seed,
-      reasoningEffort: seed.reasoningEffort ?? parent.reasoningEffort,
+      reasoningEffort:
+        seed.reasoningEffort ??
+        parent.reasoningEffort ??
+        resolveConfiguredReasoningEffort(parent),
     };
     const existing = this.findChildByProviderSessionId(seed.providerSessionId);
     if (existing) {
@@ -317,4 +321,13 @@ function resolveCallStatus(
 
 function uniqueStrings(values: Iterable<string>): string[] {
   return [...new Set(values)];
+}
+
+function resolveConfiguredReasoningEffort(
+  session: CoreSession
+): string | undefined {
+  const effort = buildProviderTurnOptions(session).reasoningEffort;
+  return typeof effort === "string" && effort.trim().length > 0
+    ? effort.trim()
+    : undefined;
 }

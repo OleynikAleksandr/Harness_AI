@@ -18,7 +18,6 @@ export type CoreEventListener = (event: unknown) => void;
 export const PROVIDER_IDS: ProviderId[] = [
   "claude",
   "codex",
-  "codex-uc",
   // Universal-client endpoints stay registered and routable by id; RPC
   // provider-id validation reads this list. The ACP `kimi` id left with the
   // kimi-provider retirement (2026-07-05 user order).

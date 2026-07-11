@@ -151,7 +151,7 @@ also run here so the Application Shell remains UI/supervisor/client only.
   never clobbered), best-effort bootstraps it (`ensureWorkspaceHome` +
   `initialize`), and drives it through the `provider-network-capture` cluster's
   `NativeCaptureOrchestrator` (record-only request), passing the optional
-  `profileId` through for profile-qualified providers such as CodexUC and
+  `profileId` through for profile-qualified providers and
   returning `{ ok, markdownPath, jsonlPath, error }`. For Codex app-server,
   Core resolves the effective capture model and its normalized
   `providers.codex.reasoningByModel` value, then passes both into the dedicated
@@ -161,7 +161,7 @@ also run here so the Application Shell remains UI/supervisor/client only.
   a pty (boot the UI, type the probe, submit), which does not fit the 30s
   proxy default that suits the direct Codex client.
   `list-capturable-models` returns the per-provider capturable model catalog
-  from `provider-descriptor`. Claude, Codex app-server, and CodexUC are
+  from `provider-descriptor`. Claude and Codex app-server are
   capture providers (the ACP Kimi capture channel left with the kimi-provider
   retirement, 2026-07-05); other providers return `provider_not_supported`.
   Its Codex list mirrors the app-server-visible GPT-5.6 Sol/Terra/Luna-first

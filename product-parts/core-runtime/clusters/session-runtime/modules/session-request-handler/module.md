@@ -13,8 +13,8 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Workspace id/path.
 - Session id or provider selection.
 - Raw user message payload.
-- Raw Codex-family rollback intent (`sessionId`, `numTurns`) from Core RPC/UI;
-  this is accepted only for Codex/CodexUC sessions and only while the session
+- Raw Codex rollback intent (`sessionId`, `numTurns`) from Core RPC/UI;
+  this is accepted only for Codex sessions and only while the session
   is idle.
 - Optional next-session mode input, currently resolved by Core to the native raw baseline.
 - Turn options from Core-owned settings/model binding.
@@ -52,15 +52,13 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - `stopTurn(sessionId)` matches the reference Stop: it unsubscribes the binding, calls `adapter.closeSession(providerSessionId)` (which interrupts the in-flight turn — Claude `interrupt`, Kimi `cancel`), invalidates the runtime binding, and flips turn-state to idle. The persisted `providerSessionId` stays on the session.
 - Turn dispatch is oneshot + resume: `sendMessage` rebinds when the runtime binding is missing (after a Stop or a Core restart), and `bindProviderSession` resumes by the persisted `providerSessionId` through `adapter.resumeSession` when one exists, otherwise creates a fresh provider session. So a stopped conversation continues from the prior turn on the next message.
 - `rollbackSessionTurns({ sessionId, numTurns })` is Core-owned and
-  Codex-family-only: it validates the active session, rejects non-Codex-family
+  Codex-only: it validates the active session, rejects non-Codex
   / running sessions, resumes the provider binding when needed, calls the
   adapter's optional `rollbackSessionTurns`, prunes the Core-visible transcript
   from the Nth last user turn, restores token/cache telemetry to the snapshot
   immediately before the removed tail, and publishes
   `session:messages-replaced` plus idle telemetry. Native Codex implements this
-  through app-server `thread/rollback`; CodexUC implements it by pruning its
-  local Responses input history because that route uses `store:false` and
-  resends the local input list. The same facade accepts the manual anchor policy
+  through app-server `thread/rollback`. The same facade accepts the manual anchor policy
   `preserveFirstUserTurns: 2`; Core derives `numTurns` from the event-stream
   transcript projection so UI buttons, todo-plan orchestration and future
   automation do not duplicate rollback-depth logic. Provider-neutral rollback
@@ -83,7 +81,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   `appliedProfileApplication` details on the first bind. The snapshot includes
   the materialized prompt, tooling categories, content hash, and optional
   native request sidecars (`inputPrefix`, `requestTemplate`, `tools`) so
-  CodexUC/native-bundle sessions resume with the same provider-facing payload.
+  native-bundle sessions resume with the same provider-facing payload.
   Resume rebuilds adapter input from the snapshot and never rereads
   `~/.harness-ai/Profiles/**`; sessions persisted before this feature have no
   snapshot and keep legacy no-payload behavior.

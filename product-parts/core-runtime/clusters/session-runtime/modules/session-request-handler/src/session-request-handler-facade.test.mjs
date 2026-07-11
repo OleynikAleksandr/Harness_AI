@@ -89,8 +89,7 @@ const adapterContractSource = readFileSync(
   "utf8"
 );
 assert.match(adapterContractSource, /rollbackSessionTurns\?\(/u);
-assert.match(rollbackSource, /isCodexFamilyProvider\(session\.providerId\)/u);
-assert.match(rollbackSource, /providerId === "codex-uc"/u);
+assert.match(rollbackSource, /session\.providerId !== "codex"/u);
 assert.match(rollbackSource, /Cannot rollback while a turn is running/u);
 assert.match(rollbackSource, /resolveRollbackTurnCount/u);
 assert.match(rollbackSource, /readAnchorTelemetrySnapshot/u);

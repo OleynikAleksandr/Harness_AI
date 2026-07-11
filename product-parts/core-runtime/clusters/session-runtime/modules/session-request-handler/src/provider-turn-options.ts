@@ -17,7 +17,7 @@ export function buildProviderTurnOptions(
       thinkingEnabled: claude.thinking.enabled,
     };
   }
-  if (session.providerId !== "codex" && session.providerId !== "codex-uc") {
+  if (session.providerId !== "codex") {
     return { model: session.model };
   }
   const codex = settings.providers.codex;

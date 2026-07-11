@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
-import path from "node:path";
 import { ClaudeProviderFacade } from "../../../../provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { CodexProviderFacade } from "../../../../provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import { listLocalModels } from "../../../../provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
@@ -87,12 +84,6 @@ export class ProviderLivenessCheckerFacade {
   }
 
   private async checkApiProvider(providerId: ProviderId): Promise<void> {
-    if (providerId === "codex-uc") {
-      if (!hasCodexOAuthAuth()) {
-        throw new Error("Sign in with Codex/ChatGPT before using CodexUC.");
-      }
-      return;
-    }
     if (providerId === "openrouter-client") {
       if (!this.deps.authStore.getApiKey(providerId)) {
         throw new Error("Add an OpenRouter API key in Provider Settings.");
@@ -107,25 +98,6 @@ export class ProviderLivenessCheckerFacade {
         "Start the local model server (LM Studio, Ollama or llama.cpp) at the configured base URL and load a model."
       );
     }
-  }
-}
-
-function hasCodexOAuthAuth(): boolean {
-  try {
-    const parsed = JSON.parse(
-      readFileSync(path.join(homedir(), ".codex", "auth.json"), "utf8")
-    ) as {
-      readonly tokens?: {
-        readonly access_token?: unknown;
-        readonly account_id?: unknown;
-      };
-    };
-    return (
-      typeof parsed.tokens?.access_token === "string" &&
-      typeof parsed.tokens?.account_id === "string"
-    );
-  } catch {
-    return false;
   }
 }
 

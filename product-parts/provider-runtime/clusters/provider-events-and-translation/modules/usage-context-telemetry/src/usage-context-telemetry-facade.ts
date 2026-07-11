@@ -170,7 +170,7 @@ function mergeCachedTokenCount(options: {
     return options.current;
   }
   if (
-    isCodexFamilyProvider(options.providerId) &&
+    options.providerId === "codex" &&
     (options.current ?? 0) > 0 &&
     options.next < (options.current ?? 0)
   ) {
@@ -373,7 +373,7 @@ function fallbackLabels(providerId: string): ProviderUsageLimitLabels {
 }
 
 function pendingLimitState(providerId: string): "loading" | "unavailable" {
-  if (providerId === "claude" || isCodexFamilyProvider(providerId)) {
+  if (providerId === "claude" || providerId === "codex") {
     return "loading";
   }
   return "unavailable";
@@ -386,14 +386,14 @@ function providerScopeKey(providerId: string): string | null {
   if (providerId === "claude") {
     return "claude:global";
   }
-  if (isCodexFamilyProvider(providerId)) {
+  if (providerId === "codex") {
     return "codex:global";
   }
   return null;
 }
 
 function defaultCachedTokenCount(providerId: string): number | null {
-  return isCodexFamilyProvider(providerId) ? 0 : null;
+  return providerId === "codex" ? 0 : null;
 }
 
 function defaultTokenLimit(providerId: string): number {
@@ -406,10 +406,6 @@ function hasFiveHourWindow(providerId: string): boolean {
   // The live GLM coding-plan endpoint (`glm-client`) keeps the five-hour
   // window; the ACP `kimi` match left with the kimi-provider retirement.
   return providerId.startsWith("glm-");
-}
-
-function isCodexFamilyProvider(providerId: string): boolean {
-  return providerId === "codex" || providerId === "codex-uc";
 }
 
 function buildResetLabel(value: string): string {

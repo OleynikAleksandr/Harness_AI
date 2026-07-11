@@ -142,18 +142,14 @@ export class SessionRollback {
   }
 
   private validate(session: CoreSession): string | null {
-    if (!isCodexFamilyProvider(session.providerId)) {
-      return "Rollback is only available for Codex-family sessions";
+    if (session.providerId !== "codex") {
+      return "Rollback is only available for Codex sessions";
     }
     if (this.deps.getTelemetryStatus(session.id) === "running") {
       return "Cannot rollback while a turn is running";
     }
     return null;
   }
-}
-
-function isCodexFamilyProvider(providerId: string): boolean {
-  return providerId === "codex" || providerId === "codex-uc";
 }
 
 function resolveRollbackTurnCount(

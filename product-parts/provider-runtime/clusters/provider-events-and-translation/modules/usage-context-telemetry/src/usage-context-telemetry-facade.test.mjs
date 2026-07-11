@@ -26,26 +26,16 @@ assert.equal(codex.cacheDisplay?.value, "0");
 assert.equal(codex.limitRows[0].text, "Session ...");
 assert.equal(codex.limitRows[1].text, "Weekly ...");
 
-const codexUc = usageContextTelemetryFacade.createTelemetry({
-  model: "gpt-5.4-mini",
-  provider: "CodexUC",
-  providerId: "codex-uc",
-});
-assert.equal(codexUc.providerScopeKey, "codex:global");
-assert.equal(codexUc.cacheDisplay?.value, "0");
-assert.equal(codexUc.limitRows[0].text, "Session ...");
-assert.equal(codexUc.limitRows[1].text, "Weekly ...");
-
-const codexUcCached = usageContextTelemetryFacade.applyProviderEvent(codexUc, {
+const codexCached = usageContextTelemetryFacade.applyProviderEvent(codex, {
   data: {
     kind: "token_usage",
     tokenUsage: { cached: 7440, limit: 200_000, used: 19_000 },
   },
   type: "stream_event",
 });
-assert.equal(codexUcCached.cacheDisplay?.value, "7,440");
-const codexUcZeroAfterHit = usageContextTelemetryFacade.applyProviderEvent(
-  codexUcCached,
+assert.equal(codexCached.cacheDisplay?.value, "7,440");
+const codexZeroAfterHit = usageContextTelemetryFacade.applyProviderEvent(
+  codexCached,
   {
     data: {
       kind: "token_usage",
@@ -54,10 +44,10 @@ const codexUcZeroAfterHit = usageContextTelemetryFacade.applyProviderEvent(
     type: "stream_event",
   }
 );
-assert.equal(codexUcZeroAfterHit.cacheDisplay?.value, "7,440");
-assert.equal(codexUcZeroAfterHit.tokenDisplay.value, "20,000 (90%)");
-const codexUcLowerHitAfterHit = usageContextTelemetryFacade.applyProviderEvent(
-  codexUcCached,
+assert.equal(codexZeroAfterHit.cacheDisplay?.value, "7,440");
+assert.equal(codexZeroAfterHit.tokenDisplay.value, "20,000 (90%)");
+const codexLowerHitAfterHit = usageContextTelemetryFacade.applyProviderEvent(
+  codexCached,
   {
     data: {
       kind: "token_usage",
@@ -66,8 +56,8 @@ const codexUcLowerHitAfterHit = usageContextTelemetryFacade.applyProviderEvent(
     type: "stream_event",
   }
 );
-assert.equal(codexUcLowerHitAfterHit.cacheDisplay?.value, "7,440");
-assert.equal(codexUcLowerHitAfterHit.tokenDisplay.value, "20,100 (90%)");
+assert.equal(codexLowerHitAfterHit.cacheDisplay?.value, "7,440");
+assert.equal(codexLowerHitAfterHit.tokenDisplay.value, "20,100 (90%)");
 
 const withTokens = usageContextTelemetryFacade.applyProviderEvent(codex, {
   data: {

@@ -33,7 +33,6 @@ assert.match(source, /process\.env\.CORE_PORT/u);
 assert.match(source, /text\/event-stream/u);
 assert.match(adapterRegistrationSource, /new ClaudeProviderFacade/u);
 assert.match(adapterRegistrationSource, /new CodexProviderFacade/u);
-assert.doesNotMatch(adapterRegistrationSource, /CodexUcProviderFacade/u);
 assert.match(lifecycleSource, /providerRegistryFacade\.clearAdapters/u);
 assert.match(lifecycleSource, /providerReadinessRegistryFacade\.subscribe/u);
 assert.match(lifecycleSource, /type: "provider:status"/u);

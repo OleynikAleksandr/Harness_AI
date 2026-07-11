@@ -24,9 +24,24 @@ const HTTP_COMPATIBLE_CAPABILITIES: ProviderCapabilities = {
 };
 
 export interface CapturableModel {
+  readonly defaultReasoningEffort: NativeCaptureReasoningEffort;
   readonly id: string;
   readonly label: string;
+  readonly reasoningEfforts: readonly CapturableReasoningOption[];
 }
+
+export interface CapturableReasoningOption {
+  readonly id: NativeCaptureReasoningEffort;
+  readonly label: string;
+}
+
+export type NativeCaptureReasoningEffort =
+  | "low"
+  | "medium"
+  | "high"
+  | "xhigh"
+  | "max"
+  | "ultra";
 
 export interface ProviderModelDescriptor {
   readonly id: string;
@@ -54,21 +69,72 @@ const CLIENT_PROVIDER_MODELS: Readonly<
 // per model. Ids mirror the provider model catalog. Capture covers the two
 // native vendor channels. The ACP Kimi capture channel left with the
 // kimi-provider retirement (2026-07-05).
+const BASE_REASONING_EFFORTS = ["low", "medium", "high", "xhigh"] as const;
+const REASONING_EFFORTS_WITH_MAX = [...BASE_REASONING_EFFORTS, "max"] as const;
+const REASONING_EFFORTS_WITH_ULTRA = [
+  ...REASONING_EFFORTS_WITH_MAX,
+  "ultra",
+] as const;
+const REASONING_LABELS: Readonly<Record<NativeCaptureReasoningEffort, string>> =
+  {
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+    xhigh: "x-High",
+    max: "Max",
+    ultra: "Ultra",
+  };
+
+const capturableModel = (
+  id: string,
+  label: string,
+  reasoningEfforts: readonly NativeCaptureReasoningEffort[],
+  defaultReasoningEffort: NativeCaptureReasoningEffort = "medium"
+): CapturableModel => ({
+  defaultReasoningEffort,
+  id,
+  label,
+  reasoningEfforts: reasoningEfforts.map((effort) => ({
+    id: effort,
+    label: REASONING_LABELS[effort],
+  })),
+});
+
 const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
   {
+    // Claude Code 2.1.207 exposes these five values through the interactive
+    // CLI's --effort flag for every captured alias. `ultracode` is a separate
+    // session orchestration setting, not a reasoning-effort value.
     claude: [
-      { id: "sonnet", label: "Sonnet" },
-      { id: "opus", label: "Opus" },
-      { id: "haiku", label: "Haiku" },
+      capturableModel("sonnet", "Sonnet", REASONING_EFFORTS_WITH_MAX),
+      capturableModel("opus", "Opus", REASONING_EFFORTS_WITH_MAX),
+      capturableModel("haiku", "Haiku", REASONING_EFFORTS_WITH_MAX),
     ],
     codex: [
-      { id: "gpt-5.6-sol", label: "GPT-5.6 Sol" },
-      { id: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
-      { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
-      { id: "gpt-5.5", label: "GPT-5.5" },
-      { id: "gpt-5.4", label: "GPT-5.4" },
-      { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
-      { id: "gpt-5.3-codex-spark", label: "GPT-5.3-Codex-Spark" },
+      capturableModel(
+        "gpt-5.6-sol",
+        "GPT-5.6 Sol",
+        REASONING_EFFORTS_WITH_ULTRA
+      ),
+      capturableModel(
+        "gpt-5.6-terra",
+        "GPT-5.6 Terra",
+        REASONING_EFFORTS_WITH_ULTRA
+      ),
+      capturableModel(
+        "gpt-5.6-luna",
+        "GPT-5.6 Luna",
+        REASONING_EFFORTS_WITH_MAX
+      ),
+      capturableModel("gpt-5.5", "GPT-5.5", BASE_REASONING_EFFORTS),
+      capturableModel("gpt-5.4", "GPT-5.4", BASE_REASONING_EFFORTS),
+      capturableModel("gpt-5.4-mini", "GPT-5.4 Mini", BASE_REASONING_EFFORTS),
+      capturableModel(
+        "gpt-5.3-codex-spark",
+        "GPT-5.3-Codex-Spark",
+        BASE_REASONING_EFFORTS,
+        "high"
+      ),
     ],
   };
 
@@ -92,6 +158,17 @@ export class ProviderDescriptorFacade {
 
   getCapturableModels(providerId: string): readonly CapturableModel[] {
     return CAPTURABLE_MODELS[providerId] ?? [];
+  }
+
+  getCapturableModel(
+    providerId: string,
+    modelId: string
+  ): CapturableModel | null {
+    return (
+      this.getCapturableModels(providerId).find(
+        (model) => model.id === modelId
+      ) ?? null
+    );
   }
 
   getCaptureProviderIds(): readonly string[] {

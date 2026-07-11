@@ -23,15 +23,21 @@ Own model/reasoning capabilities and UI metadata for providers.
   `requiresProviderHome: false`: they run on local OAuth, key-only auth, or
   base URL + optional key from Core settings and never provision a provider
   home.
-- Capturable model catalog for the Native Request Capture UI:
-  `getCapturableModels(providerId)` returns `{ id, label }` entries per
-  capture provider (Claude and Codex app-server), and
+- Capturable model/reasoning catalog for the Native Request Capture UI:
+  `getCapturableModels(providerId)` returns renderer-safe `{ id, label,
+  defaultReasoningEffort, reasoningEfforts[] }` entries per capture provider
+  (Claude and Codex app-server), `getCapturableModel(providerId, modelId)`
+  validates a concrete model selection, and
   `getCaptureProviderIds()` lists the providers that offer capture. Model ids
   mirror the provider model catalog so capture can be
   chosen per model (different models can carry different system prompts). The
   Codex app-server capture catalog follows the live picker order (GPT-5.6
   Sol/Terra/Luna, 5.5, 5.4, 5.4 Mini, 5.3 Codex Spark) and excludes retired
-  GPT-5.2.
+  GPT-5.2. Sol/Terra expose `ultra`, Luna stops at `max`, and older Codex
+  models stop at `xhigh`. The Claude interactive capture catalog exposes the
+  native CLI `--effort` values `low/medium/high/xhigh/max` for Sonnet, Opus,
+  and Haiku. Claude `ultracode` is intentionally absent because it is a
+  separate session-orchestration setting, not an effort value.
 - Client endpoint model catalog: `getClientModels(providerId)`
   returns `ProviderModelDescriptor` (`{ id, label }`) entries; `kimi-client`
   carries the single public Kimi Code model `kimi-for-coding` (the vendor

@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task1",
-  "expectedCommitMessage": "feat: add native capture reasoning contract",
+  "currentTaskId": "harness-ai.phase1.stream2.task1",
+  "expectedCommitMessage": "feat: identify native captures by reasoning",
   "debt": null
 }
 ```
@@ -67,12 +67,12 @@
 
 ### Stream: Catalog And Command Validation
 
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task1` Extend the Core-owned capture catalog with per-model reasoning capabilities/defaults for Claude and Codex, validate an explicit capture reasoning value in Core, and return the capability surface to the UI (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, related focused tests, provider-descriptor/core-runtime-process module docs, docs/architecture/SessionProfilesV2.md`; expected commit: `feat: add native capture reasoning contract`).
-4. [TODO] Git Commit: `feat: add native capture reasoning contract` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream1.task1` Extend the Core-owned capture catalog with per-model reasoning capabilities/defaults for Claude and Codex, validate an explicit capture reasoning value in Core, and return the capability surface to the UI (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-native-capture-rpc.ts, related focused tests, provider-descriptor/core-runtime-process module docs, docs/architecture/SessionProfilesV2.md`; expected commit: `feat: add native capture reasoning contract`). Result: Completed in commit `feat: add native capture reasoning contract`.
+4. [DONE] Git Commit: `feat: add native capture reasoning contract` (hash: self)
 
 ### Stream: Orchestration And Artifact Identity
 
-5. [TODO] `harness-ai.phase1.stream2.task1` Carry the validated reasoning effort through the provider-neutral capture context and encode it immediately after the model in JSONL, diagnostics JSONL, and Markdown artifact filenames (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, related focused tests and module/cluster docs, docs/architecture/SessionProfilesV2.md`; expected commit: `feat: identify native captures by reasoning`).
+5. [IN_PROGRESS] `harness-ai.phase1.stream2.task1` Carry the validated reasoning effort through the provider-neutral capture context and encode it immediately after the model in JSONL, diagnostics JSONL, and Markdown artifact filenames (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.ts, product-parts/core-runtime/clusters/provider-network-capture/modules/capture-artifacts/src/capture-artifacts-facade.ts, related focused tests and module/cluster docs, docs/architecture/SessionProfilesV2.md`; expected commit: `feat: identify native captures by reasoning`).
 6. [TODO] Git Commit: `feat: identify native captures by reasoning` (hash: TBD)
 
 ### Stream: Provider Application

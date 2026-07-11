@@ -1,7 +1,10 @@
-import { providerDescriptorFacade } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
+import {
+  type CapturableModel,
+  type NativeCaptureReasoningEffort,
+  providerDescriptorFacade,
+} from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { NativeCaptureOrchestrator } from "../../../../provider-network-capture/modules/capture-orchestrator/src/capture-orchestrator-facade.js";
-import { resolveCodexReasoningEffort } from "../../../../settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { buildProviderAdapterInstance } from "./core-provider-adapter-registration.js";
 
@@ -31,41 +34,47 @@ export async function captureNativeRequestRpcResult(
 ): Promise<CaptureNativeRequestRpcResult> {
   const providerId = readPayloadString(payload, "providerId");
   const model = readPayloadString(payload, "model");
+  const requestedReasoningEffort = readPayloadString(
+    payload,
+    "reasoningEffort"
+  );
   if (!(providerId && CAPTURE_PROVIDER_IDS.has(providerId))) {
-    return {
-      error: "provider_not_supported",
-      jsonlPath: null,
-      markdownPath: null,
-      ok: false,
-    };
+    return captureFailure("provider_not_supported");
   }
-  const codexSettings =
+  const settings = settingsStoreFacade.getSettings(workspacePath);
+  const providerSettings =
     providerId === "codex"
-      ? settingsStoreFacade.getSettings(workspacePath).providers.codex
-      : null;
-  const selectedModel = model ?? codexSettings?.defaultModel ?? null;
-  const reasoningEffort = codexSettings
-    ? resolveCodexReasoningEffort(
-        selectedModel ?? codexSettings.defaultModel,
-        codexSettings.reasoningByModel[
-          selectedModel ?? codexSettings.defaultModel
-        ]
-      )
-    : null;
+      ? settings.providers.codex
+      : settings.providers.claude;
+  const selectedModel = model ?? providerSettings.defaultModel;
+  const modelDescriptor = providerDescriptorFacade.getCapturableModel(
+    providerId,
+    selectedModel
+  );
+  if (!modelDescriptor) {
+    return captureFailure("model_not_supported");
+  }
+  const reasoningEffort = resolveCaptureReasoningEffort({
+    model: modelDescriptor,
+    requestedReasoningEffort,
+    storedReasoningEffort:
+      providerId === "codex"
+        ? settings.providers.codex.reasoningByModel[selectedModel]
+        : (settings.providers.claude.thinkingByModel[selectedModel] ??
+          settings.providers.claude.thinking.effort),
+  });
+  if (!reasoningEffort) {
+    return captureFailure("reasoning_not_supported");
+  }
   const adapter = buildProviderAdapterInstance(
     providerId as ProviderId,
-    selectedModel ?? "",
+    selectedModel,
     workspacePath,
     reasoningEffort
   );
   const capture = adapter?.captureNativeRequest?.bind(adapter);
   if (!capture) {
-    return {
-      error: "provider_not_supported",
-      jsonlPath: null,
-      markdownPath: null,
-      ok: false,
-    };
+    return captureFailure("provider_not_supported");
   }
   try {
     await adapter?.ensureWorkspaceHome?.(workspacePath);
@@ -94,7 +103,7 @@ export interface CapturableProvidersRpcResult {
   readonly ok: true;
   readonly providers: readonly {
     readonly id: string;
-    readonly models: readonly { readonly id: string; readonly label: string }[];
+    readonly models: readonly CapturableModel[];
   }[];
 }
 
@@ -115,4 +124,39 @@ function readPayloadString(payload: unknown, key: string): string | undefined {
   }
   const value = (payload as Record<string, unknown>)[key];
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function captureFailure(error: string): CaptureNativeRequestRpcResult {
+  return {
+    error,
+    jsonlPath: null,
+    markdownPath: null,
+    ok: false,
+  };
+}
+
+function resolveCaptureReasoningEffort(options: {
+  readonly model: CapturableModel;
+  readonly requestedReasoningEffort?: string;
+  readonly storedReasoningEffort?: string;
+}): NativeCaptureReasoningEffort | null {
+  const supportedEfforts = options.model.reasoningEfforts.map(
+    (effort) => effort.id
+  );
+  if (options.requestedReasoningEffort) {
+    return supportedEfforts.includes(
+      options.requestedReasoningEffort as NativeCaptureReasoningEffort
+    )
+      ? (options.requestedReasoningEffort as NativeCaptureReasoningEffort)
+      : null;
+  }
+  if (
+    options.storedReasoningEffort &&
+    supportedEfforts.includes(
+      options.storedReasoningEffort as NativeCaptureReasoningEffort
+    )
+  ) {
+    return options.storedReasoningEffort as NativeCaptureReasoningEffort;
+  }
+  return options.model.defaultReasoningEffort;
 }

@@ -354,15 +354,26 @@
 - **UI**: карточка `Native Request Capture` в Settings -> General с
   кнопками per provider (как в reference), статусом и путями артефактов;
   явные коды ошибок (`tls_trust_failed`, `target_not_seen`, `timeout`,
-  `provider_not_supported`). Capture — команда диагностики, не сохраняемая
+  `provider_not_supported`, `model_not_supported`,
+  `reasoning_not_supported`). Capture — команда диагностики, не сохраняемая
   настройка; обычные ходы пользователя прокси не касаются.
+  Core-каталог capture для каждой модели также возвращает допустимые
+  reasoning-effort значения, их UI-label и default. Команда capture принимает
+  явный `reasoningEffort` и валидирует тройку `(provider, model, reasoning)`;
+  неизвестная модель или неподдерживаемый уровень завершаются явной ошибкой,
+  без silent downgrade. Для совместимости вызов без reasoning использует
+  сохранённое per-model значение, если оно поддерживается, затем Core default.
+  Claude capture использует только реальные значения интерактивного CLI
+  `--effort`: `low/medium/high/xhigh/max`; `ultracode` остаётся отдельным
+  orchestration mode и не маскируется под reasoning effort.
   Codex-каталог capture повторяет picker-visible `model/list`: GPT-5.6 Sol,
   Terra, Luna, GPT-5.5, GPT-5.4, GPT-5.4 Mini и GPT-5.3 Codex Spark; удалённая
-  GPT-5.2 не показывается. Для выбранной Codex-модели Core берёт
-  нормализованный `providers.codex.reasoningByModel[model]` из Settings и
-  передаёт его выделенному диагностическому адаптеру, поэтому native capture
-  отправляет тот же `turn/start.effort` (включая `ultra` для Sol/Terra), а не
-  `null` и не renderer-derived значение.
+  GPT-5.2 не показывается. Для выбранной Codex-модели Core передаёт явный
+  reasoning intent выделенному диагностическому адаптеру; legacy-вызов без
+  него использует нормализованный `providers.codex.reasoningByModel[model]`
+  из Settings. Поэтому native capture отправляет точный
+  `turn/start.effort` (включая `ultra` для Sol/Terra), а не `null` и не
+  renderer-derived значение.
   В Codex 0.144.1 `Ultra` является app-server orchestration mode: Harness
   передаёт `turn/start.effort=ultra`, а фактический upstream
   `response.create.reasoning.effort` нормализуется самим Codex в `max`;

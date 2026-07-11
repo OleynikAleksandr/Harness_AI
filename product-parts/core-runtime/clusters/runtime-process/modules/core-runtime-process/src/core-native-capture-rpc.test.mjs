@@ -30,10 +30,18 @@ assert.match(
 );
 assert.doesNotMatch(rpcSource, /"kimi"/u);
 assert.match(rpcSource, /provider_not_supported/u);
+assert.match(rpcSource, /model_not_supported/u);
+assert.match(rpcSource, /reasoning_not_supported/u);
 assert.match(rpcSource, /getCapturableModels/u);
+assert.match(rpcSource, /getCapturableModel/u);
 assert.match(rpcSource, /getCaptureProviderIds/u);
 assert.match(rpcSource, /settingsStoreFacade\.getSettings\(workspacePath\)/u);
-assert.match(rpcSource, /resolveCodexReasoningEffort/u);
+assert.match(
+  rpcSource,
+  /readPayloadString\([\s\S]*?payload,[\s\S]*?"reasoningEffort"/u
+);
+assert.match(rpcSource, /model\.reasoningEfforts\.map/u);
+assert.match(rpcSource, /model\.defaultReasoningEffort/u);
 assert.match(
   rpcSource,
   /buildProviderAdapterInstance\([\s\S]*?reasoningEffort\s*\)/u

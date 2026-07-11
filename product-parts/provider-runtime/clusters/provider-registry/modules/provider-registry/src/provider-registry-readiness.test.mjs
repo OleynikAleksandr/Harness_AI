@@ -9,6 +9,16 @@ const descriptorSource = readFileSync(
   ),
   "utf8"
 );
+const descriptorCompiled = ts.transpileModule(descriptorSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const descriptorModuleUrl = `data:text/javascript;base64,${Buffer.from(
+  descriptorCompiled
+).toString("base64")}`;
+const { providerDescriptorFacade } = await import(descriptorModuleUrl);
 
 const source = readFileSync(
   new URL("./provider-registry-facade.ts", import.meta.url),
@@ -44,9 +54,36 @@ registry.setReadinessWorkspace("workspace-a");
 
 assert.equal(registry.getProvider("codex").readinessStatus, "ready");
 assert.equal(registry.getProvider("claude").readinessStatus, "checking");
-assert.match(descriptorSource, /codex: \[\s+\{ id: "gpt-5\.6-sol"/u);
-assert.match(descriptorSource, /\{ id: "gpt-5\.6-terra"/u);
-assert.match(descriptorSource, /\{ id: "gpt-5\.6-luna"/u);
+assert.deepEqual(
+  providerDescriptorFacade
+    .getCapturableModels("codex")
+    .slice(0, 3)
+    .map((model) => model.id),
+  ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]
+);
+assert.deepEqual(
+  providerDescriptorFacade
+    .getCapturableModel("codex", "gpt-5.6-sol")
+    .reasoningEfforts.map((effort) => effort.id),
+  ["low", "medium", "high", "xhigh", "max", "ultra"]
+);
+assert.deepEqual(
+  providerDescriptorFacade
+    .getCapturableModel("codex", "gpt-5.6-luna")
+    .reasoningEfforts.map((effort) => effort.id),
+  ["low", "medium", "high", "xhigh", "max"]
+);
+assert.deepEqual(
+  providerDescriptorFacade
+    .getCapturableModel("claude", "opus")
+    .reasoningEfforts.map((effort) => effort.id),
+  ["low", "medium", "high", "xhigh", "max"]
+);
+assert.equal(
+  providerDescriptorFacade.getCapturableModel("codex", "gpt-5.3-codex-spark")
+    .defaultReasoningEffort,
+  "high"
+);
 const captureCatalogSource = descriptorSource.slice(
   descriptorSource.indexOf("const CAPTURABLE_MODELS")
 );

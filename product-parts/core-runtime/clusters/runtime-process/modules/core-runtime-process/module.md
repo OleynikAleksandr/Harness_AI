@@ -148,20 +148,24 @@ also run here so the Application Shell remains UI/supervisor/client only.
 - Native request capture RPCs (`core-native-capture-rpc.ts`):
   `capture-native-request` builds a dedicated adapter instance via
   `buildProviderAdapterInstance` (so an active session's registered adapter is
-  never clobbered), best-effort bootstraps it (`ensureWorkspaceHome` +
+  never clobbered), validates the requested model and optional explicit
+  `reasoningEffort` against the Core-returned provider descriptor, best-effort
+  bootstraps it (`ensureWorkspaceHome` +
   `initialize`), and drives it through the `provider-network-capture` cluster's
   `NativeCaptureOrchestrator` (record-only request), passing the optional
   `profileId` through for profile-qualified providers and
   returning `{ ok, markdownPath, jsonlPath, error }`. For Codex app-server,
-  Core resolves the effective capture model and its normalized
-  `providers.codex.reasoningByModel` value, then passes both into the dedicated
-  adapter; the captured `turn/start` therefore uses the same reasoning effort
-  selected in Settings instead of `null`. The Claude command passes a raised
+  Core prefers the explicit command effort; legacy callers without one fall
+  back to the selected model's stored provider setting when supported, then to
+  the descriptor default. Unknown models return `model_not_supported` and
+  unsupported effort/model pairs return `reasoning_not_supported` rather than
+  silently downgrading. The Claude command passes a raised
   `timeoutMs` (120s): its capture drives the provider binary interactively in
   a pty (boot the UI, type the probe, submit), which does not fit the 30s
   proxy default that suits the direct Codex client.
-  `list-capturable-models` returns the per-provider capturable model catalog
-  from `provider-descriptor`. Claude and Codex app-server are
+  `list-capturable-models` returns the per-provider capturable model catalog,
+  model-specific reasoning options, labels, and default effort from
+  `provider-descriptor`. Claude and Codex app-server are
   capture providers (the ACP Kimi capture channel left with the kimi-provider
   retirement, 2026-07-05); other providers return `provider_not_supported`.
   Its Codex list mirrors the app-server-visible GPT-5.6 Sol/Terra/Luna-first

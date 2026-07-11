@@ -179,13 +179,11 @@ const DEFAULT_SETTINGS: HarnessSettings = {
   },
 };
 
-const PROVIDER_KEY_BY_ID: Record<
-  ProviderId,
-  keyof HarnessSettings["providers"]
+const PROVIDER_KEY_BY_ID: Partial<
+  Record<ProviderId, keyof HarnessSettings["providers"]>
 > = {
   claude: "claude",
   codex: "codex",
-  "codex-uc": "codex",
   "kimi-client": "kimiClient",
   "glm-client": "glmClient",
   // The universal-client endpoint shares the openRouter section: ONE key
@@ -215,7 +213,11 @@ export class SettingsStoreFacade {
     workspacePath?: string
   ): { providerId: ProviderId; selectedModel: string } {
     const settings = this.getSettings(workspacePath);
-    const provider = settings.providers[PROVIDER_KEY_BY_ID[providerId]];
+    const providerKey = PROVIDER_KEY_BY_ID[providerId];
+    if (!providerKey) {
+      throw new Error(`Provider has no settings model: ${providerId}`);
+    }
+    const provider = settings.providers[providerKey];
     const selectedModel =
       "defaultModel" in provider ? provider.defaultModel : "sonnet";
     return {

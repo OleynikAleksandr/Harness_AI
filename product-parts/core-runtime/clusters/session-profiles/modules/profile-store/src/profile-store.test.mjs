@@ -177,8 +177,6 @@ try {
         "codeai-workflow-claude",
         "codex-app-server-synthetic-native",
         "codex-app-server-synthetic-native-custom",
-        "codex-synthetic-native",
-        "codex-synthetic-native-custom",
       ]
     );
     const claudeSeed = seededScan.profiles.find(
@@ -186,59 +184,6 @@ try {
     );
     assert.equal(claudeSeed.scope, "individual");
     assert.equal(claudeSeed.passport.provider, "claude");
-    const codexSeed = seededScan.profiles.find(
-      (profile) => profile.id === "codex-synthetic-native"
-    );
-    assert.equal(codexSeed.scope, "individual");
-    assert.equal(codexSeed.passport.provider, "codex-uc");
-    assert.equal(
-      codexSeed.documents.profileDirectory,
-      path.join(seededRoot, "CodexUC", "codex-synthetic-native")
-    );
-    assert.equal(
-      codexSeed.promptBody.startsWith("You are Codex, a coding agent"),
-      true
-    );
-    assert.doesNotMatch(codexSeed.promptBody, /AGENTS\.md/u);
-    assert.doesNotMatch(codexSeed.promptBody, /<INSTRUCTIONS>/u);
-    assert.doesNotMatch(codexSeed.promptBody, /Synthetic Native/u);
-    assert.doesNotMatch(codexSeed.promptBody, /Captured Codex/u);
-    assert.doesNotMatch(codexSeed.promptBody, /Materialized Workspace/u);
-    assert.doesNotMatch(codexSeed.promptBody, /```json/u);
-    assert.equal(codexSeed.nativeRequest.inputPrefix.length, 1);
-    assert.equal(codexSeed.nativeRequest.inputPrefix[0].role, "developer");
-    assert.equal(codexSeed.nativeRequest.tools.length, 17);
-    assert.equal(
-      codexSeed.nativeRequest.requestTemplate.type,
-      "response.create"
-    );
-    assert.equal(codexSeed.nativeRequest.customInstructions, undefined);
-    const codexCustomSeed = seededScan.profiles.find(
-      (profile) => profile.id === "codex-synthetic-native-custom"
-    );
-    assert.equal(codexCustomSeed.passport.provider, "codex-uc");
-    assert.equal(
-      codexCustomSeed.documents.profileDirectory,
-      path.join(seededRoot, "CodexUC", "codex-synthetic-native-custom")
-    );
-    assert.equal(
-      codexCustomSeed.promptBody.startsWith("You are Codex, a coding agent"),
-      true
-    );
-    assert.match(
-      codexCustomSeed.nativeRequest.customInstructions,
-      /# Harness AI Agent Instructions/u
-    );
-    assert.doesNotMatch(
-      codexCustomSeed.nativeRequest.customInstructions,
-      /AGENTS\.md instructions for/u
-    );
-    assert.equal(codexCustomSeed.nativeRequest.inputPrefix.length, 1);
-    assert.equal(
-      codexCustomSeed.nativeRequest.inputPrefix[0].role,
-      "developer"
-    );
-    assert.equal(codexCustomSeed.nativeRequest.tools.length, 17);
     const codexAppServerSeed = seededScan.profiles.find(
       (profile) => profile.id === "codex-app-server-synthetic-native"
     );
@@ -279,10 +224,10 @@ try {
       "User edited.\n",
       "utf8"
     );
-    await rm(path.join(seededRoot, "CodexUC", "codex-synthetic-native"), {
-      force: true,
-      recursive: true,
-    });
+    await rm(
+      path.join(seededRoot, "Codex", "codex-app-server-synthetic-native"),
+      { force: true, recursive: true }
+    );
     assert.equal(await seededStore.ensureSeededProfiles(), false);
     const rescanned = await seededStore.listProfiles();
     assert.equal(

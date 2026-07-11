@@ -30,7 +30,7 @@ broken/inapplicable => structured error, never a silent fallback".
 - `listProfilesForProvider(providerId)` — picker read model: Native first
   plus entries whose passport `provider` exactly matches the requested
   provider. `PROFILE_SUPPORTED_PROVIDER_IDS` tracks all active Core provider
-  ids: `claude`, `codex`, `codex-uc`, `kimi-client`, `glm-client`,
+  ids: `claude`, `codex`, `kimi-client`, `glm-client`,
   `openrouter-client`, and `local-models-client`. Retired ids such as `kimi`
   and `glm-native` are not supported targets.
 - `resolveForSession({ profileId?, providerId })` —

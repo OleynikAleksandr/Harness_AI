@@ -6,8 +6,8 @@ Own the on-disk truth of user-editable session profiles: the
 `~/.harness-ai/Profiles/**` root resolution (`HARNESS_AI_HOME` aware), the
 profile directory layout (one directory per profile; legacy universal profiles
 can still be read directly under `Profiles/`, while new provider-scoped
-profiles may live under a namespace such as `Profiles/Codex/<profileId>/` or
-`Profiles/CodexUC/<profileId>/` while keeping the same profile id; the namespace
+profiles may live under a namespace such as `Profiles/Codex/<profileId>/`
+while keeping the same profile id; the namespace
 is not part of the id, so duplicate ids across namespaces are invalid product
 data), and the shared profile type model (legacy universal vs individual scope
 via the optional passport `provider` field, tooling category vocabulary v1).
@@ -24,16 +24,7 @@ contains the active Claude individual migration profile
 (`codeai-workflow-claude` from the hardcoded Claude workflow prompt), the Codex
 provider-scoped profiles
 `codex-app-server-synthetic-native` and
-`codex-app-server-synthetic-native-custom` under `Profiles/Codex`, plus the
-CodexUC provider-scoped profiles `codex-synthetic-native` and
-`codex-synthetic-native-custom` under `Profiles/CodexUC`. The CodexUC profiles
-preserve the accepted native request capture as a native bundle: captured
-`body.instructions` in `system-prompt.md`, captured `body.tools` in
-`tools.json`, captured static developer/runtime `body.input` entries in
-`input-prefix.json`, and static request fields in `request-template.json`. The
-current structured tool and input-prefix sidecars are synchronized from the Codex app-server
-Native Request Capture
-`2026-07-08T05-52-03-626Z-codex-gpt-5.5-native-request.jsonl`. The Codex
+`codex-app-server-synthetic-native-custom` under `Profiles/Codex`. The Codex
 app-server profiles keep the same prompt baseline but do not store
 `tooling.yaml`, `request-template.json`, or `tools.json`, because app-server
 owns both the category/tooling gate and structured tool surface outside the
@@ -41,10 +32,7 @@ profile. Custom variants add only
 `custom-instructions.md`; the prompt file remains the captured baseline and
 must not pre-merge the custom text. Native-bundle materialization is
 responsible for inserting the sidecar into the final provider-facing
-`instructions`, and CodexUC is responsible for adding its runtime
-`prompt_cache_key` to the HTTP request after structured `tools`.
-`request-template.json` stores stable captured request fields, not a cached
-runtime key. The same storage invariant applies to every profile directory:
+`instructions`. The same storage invariant applies to every profile directory:
 `system-prompt.md` is provider-facing prompt payload, while provenance,
 diagnostics, seed notes, and Harness metadata belong in `profile.yaml`, docs,
 evidence, or sidecar artifacts, not inside prompt text.

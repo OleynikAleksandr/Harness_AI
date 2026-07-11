@@ -124,14 +124,6 @@ try {
   assert.ok(!codexIds.includes("codex-synthetic-native"));
   assert.ok(!codexIds.includes("codeai-workflow-claude"));
 
-  const codexUcEntries = await catalog.listProfilesForProvider("codex-uc");
-  const codexUcIds = codexUcEntries.map((entry) => entry.id);
-  assert.ok(!codexUcIds.includes("review"));
-  assert.ok(codexUcIds.includes("codex-synthetic-native"));
-  assert.ok(codexUcIds.includes("codex-synthetic-native-custom"));
-  assert.ok(!codexUcIds.includes("codex-app-server-synthetic-native"));
-  assert.ok(!codexUcIds.includes("codeai-workflow-claude"));
-
   // Providers with no matching provider-scoped profiles still get Native.
   const openrouterEntries =
     await catalog.listProfilesForProvider("openrouter-client");
@@ -204,14 +196,6 @@ try {
   assert.equal(codexSynthetic.ok, true);
   assert.equal(codexSynthetic.kind, "managed");
   assert.equal(codexSynthetic.profile.passport.provider, "codex");
-
-  const codexUcSynthetic = await catalog.resolveForSession({
-    profileId: "codex-synthetic-native",
-    providerId: "codex-uc",
-  });
-  assert.equal(codexUcSynthetic.ok, true);
-  assert.equal(codexUcSynthetic.kind, "managed");
-  assert.equal(codexUcSynthetic.profile.passport.provider, "codex-uc");
 
   const kimiManaged = await catalog.resolveForSession({
     profileId: "review",

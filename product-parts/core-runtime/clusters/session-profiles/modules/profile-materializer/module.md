@@ -11,13 +11,7 @@ bundle, the materializer does not append the Harness session wrapper; it uses
 the profile prompt as provider-facing native instructions, inserts optional
 `custom-instructions.md` text into the native prompt body, and forwards
 `input-prefix.json`, `request-template.json`, and `tools.json` as structured
-payload fields. For Codex
-native-bundle profiles this means `codex-synthetic-native-custom` keeps
-`system-prompt.md` byte-aligned with the pure native baseline and stores
-workspace/custom rules only in `custom-instructions.md`; this module inserts
-that sidecar into the final `instructions` (after `# General` when present).
-Provider adapters may then add transport/runtime fields such as CodexUC
-`prompt_cache_key`, but those fields are not profile-store documents. The
+payload fields. The
 assembled payload is what the applied profile snapshot freezes at create; it
 is never rebuilt from live data afterwards
 (`docs/architecture/SessionProfiles.md`).

@@ -2,10 +2,7 @@ import type { SessionProfileToolingCategory } from "../profile-document-parser.j
 import { CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT } from "./codeai-workflow-seed-prompts.js";
 import {
   CODEX_SYNTHETIC_NATIVE_CUSTOM_INSTRUCTIONS,
-  CODEX_SYNTHETIC_NATIVE_INPUT_PREFIX_JSON,
-  CODEX_SYNTHETIC_NATIVE_REQUEST_TEMPLATE_JSON,
   CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
-  CODEX_SYNTHETIC_NATIVE_TOOLS_JSON,
 } from "./codex-synthetic-native-seed-prompt.js";
 
 export interface SeedSessionProfile {
@@ -51,47 +48,6 @@ const SEED_DEFINITIONS: readonly SeedDefinition[] = [
     name: "CodeAI Workflow (Claude)",
     promptBody: CODEAI_WORKFLOW_CLAUDE_SEED_PROMPT,
     provider: "claude",
-  },
-  {
-    categories: {
-      "file-read": true,
-      "file-write": true,
-      git: true,
-      shell: true,
-      tests: true,
-      web: true,
-    },
-    description:
-      "Exact synthetic Codex native baseline for CodexUC from the accepted native request capture.",
-    id: "codex-synthetic-native",
-    name: "Codex Synthetic Native",
-    promptBody: CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
-    provider: "codex-uc",
-    providerDirectory: "CodexUC",
-    inputPrefixJson: CODEX_SYNTHETIC_NATIVE_INPUT_PREFIX_JSON,
-    requestTemplateJson: CODEX_SYNTHETIC_NATIVE_REQUEST_TEMPLATE_JSON,
-    toolsJson: CODEX_SYNTHETIC_NATIVE_TOOLS_JSON,
-  },
-  {
-    categories: {
-      "file-read": true,
-      "file-write": true,
-      git: true,
-      shell: true,
-      tests: true,
-      web: true,
-    },
-    customInstructions: CODEX_SYNTHETIC_NATIVE_CUSTOM_INSTRUCTIONS,
-    description:
-      "Synthetic Codex native baseline for CodexUC plus embedded custom instructions.",
-    id: "codex-synthetic-native-custom",
-    name: "Codex Synthetic Native + Custom",
-    promptBody: CODEX_SYNTHETIC_NATIVE_SEED_PROMPT,
-    provider: "codex-uc",
-    providerDirectory: "CodexUC",
-    inputPrefixJson: CODEX_SYNTHETIC_NATIVE_INPUT_PREFIX_JSON,
-    requestTemplateJson: CODEX_SYNTHETIC_NATIVE_REQUEST_TEMPLATE_JSON,
-    toolsJson: CODEX_SYNTHETIC_NATIVE_TOOLS_JSON,
   },
   {
     categories: {

@@ -4,7 +4,7 @@
 
 Owns runtime-selectable session profile truth: user-editable profile
 documents on disk (provider-scoped profiles, optional provider namespaces such
-as `Profiles/Codex/**` and `Profiles/CodexUC/**`, plus read-only legacy
+as `Profiles/Codex/**`, plus read-only legacy
 universal profile parsing), catalog/selection truth with the virtual Native
 profile, provider-neutral session profile payload materialization, optional
 native request sidecars (`input-prefix.json`, `request-template.json`,

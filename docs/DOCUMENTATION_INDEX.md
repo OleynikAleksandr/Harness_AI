@@ -129,8 +129,14 @@ readiness registry, liveness checker, and workspace provisioner modules.
 
 ## Evidence
 
+- `design-qa.md` — текущий итог Design QA для UX сессий субагентов; содержит
+  ссылку на подробное evidence и обязательный final result.
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,
   provider migration, UI fixes, runtime behavior, smoke checks and retests.
+- `docs/evidence/subagent-session-design-qa-2026-07-11.md` — build и browser
+  Design QA гибридного subagent UX: inline timeline entries, recursive sidebar
+  tree, child read-only view, detach, rename/regenerate и visual comparison с
+  согласованным Figma-прототипом.
 - `docs/evidence/session-profiles-package-2026-07-02.md` — packaged
   application rebuild evidence for the session profiles scope ahead of user
   acceptance.

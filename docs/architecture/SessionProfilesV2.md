@@ -357,6 +357,13 @@
   явные коды ошибок (`tls_trust_failed`, `target_not_seen`, `timeout`,
   `provider_not_supported`). Capture — команда диагностики, не сохраняемая
   настройка; обычные ходы пользователя прокси не касаются.
+  Codex-каталог capture повторяет picker-visible `model/list`: GPT-5.6 Sol,
+  Terra, Luna, GPT-5.5, GPT-5.4, GPT-5.4 Mini и GPT-5.3 Codex Spark; удалённая
+  GPT-5.2 не показывается. Для выбранной Codex-модели Core берёт
+  нормализованный `providers.codex.reasoningByModel[model]` из Settings и
+  передаёт его выделенному диагностическому адаптеру, поэтому native capture
+  отправляет тот же `turn/start.effort` (включая `ultra` для Sol/Terra), а не
+  `null` и не renderer-derived значение.
 - Для Claude capture **дополняет** инвентарь из `init`: `init` даёт имена
   инструментов и версию CLI на runtime, capture — полные схемы и текст
   системного промпта для анализа и составления профилей.

@@ -244,6 +244,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   diagnostics move to `.diagnostics.jsonl`, and markdown reports system
   prompt, tool declarations, and developer context as readable
   profile-verification groups.
+- `docs/evidence/codex-5.6-model-verification-2026-07-11.md` — Codex 0.144.1
+  app-server `model/list` evidence for GPT-5.6 Sol/Terra/Luna, the Sol/Terra
+  `ultra` effort contract, three completed live model/effort probes, the
+  Settings and Native Request Capture catalog update, Core-owned capture
+  reasoning propagation, and the explicit packaged-app boundary.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

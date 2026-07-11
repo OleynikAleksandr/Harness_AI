@@ -8,8 +8,8 @@
   "planId": "native-capture-artifact-cleanup-2026-07-09",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase5.stream1.task2",
+  "expectedCommitMessage": "docs: record codex 5.6 package",
   "debt": null
 }
 ```
@@ -105,3 +105,12 @@
 23. [DONE] Git Commit: `fix: apply codex reasoning to native capture` (hash: self)
 24. [DONE] `harness-ai.phase4.stream1.task7` Verify the updated catalog and reasoning propagation with focused tests/build plus live app-server calls to GPT-5.6 Luna max, Terra ultra, and Sol ultra, then record redacted response evidence and documentation-index linkage (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, docs/architecture/SessionProfilesV2.md`; expected commit: `docs: record codex 5.6 model verification`). Result: Completed in commit `docs: record codex 5.6 model verification`.
 25. [DONE] Git Commit: `docs: record codex 5.6 model verification` (hash: self)
+
+## Phase 5 - Codex 5.6 Package (owner: Codex, updated: 2026-07-11)
+
+### Stream: Package And Handoff
+
+26. [DONE] `harness-ai.phase5.stream1.task1` Add the explicitly user-approved macOS package slice for the Codex 5.6 catalog and Native Request Capture reasoning changes (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add codex 5.6 package scope`). Result: Completed in commit `plan: add codex 5.6 package scope`.
+27. [DONE] Git Commit: `plan: add codex 5.6 package scope` (hash: self)
+28. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` Run `npm run package:mac`, verify the unsigned macOS app and packaged `app.asar` contain the GPT-5.6 model catalog plus Ultra/capture-reasoning runtime, and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record codex 5.6 package`).
+29. [TODO] Git Commit: `docs: record codex 5.6 package` (hash: TBD)

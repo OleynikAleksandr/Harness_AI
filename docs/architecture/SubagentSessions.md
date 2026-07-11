@@ -71,7 +71,10 @@ session index. После перезапуска она восстанавлив
 `ancestorThreadId`, читает turns каждого thread и повторно пропускает только
 структурированные collaboration/reasoning/agentMessage items через штатный
 event router. Внутри одного процесса каждый transcript/activity replay
-выполняется один раз; raw rollout JSONL не читается.
+выполняется один раз; raw rollout JSONL не читается. При следующем запуске Core
+сопоставляет повторно полученные provider messages по стабильным id +
+role/tag/source text и не добавляет точные дубликаты в persisted transcript.
+Изменённый текст и завершение live-tail при этом остаются обычными обновлениями.
 
 Live adoption не вызывает второй `thread/start`/`thread/resume`: Core берёт
 adapter уже связанной parent session, подписывается на child provider thread id

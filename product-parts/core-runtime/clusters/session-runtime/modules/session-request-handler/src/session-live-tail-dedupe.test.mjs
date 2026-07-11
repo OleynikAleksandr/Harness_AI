@@ -13,7 +13,9 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
-const { resolveLiveAssistantTail } = await import(moduleUrl);
+const { resolveDisplayMessage, resolveLiveAssistantTail } = await import(
+  moduleUrl
+);
 
 const liveMessage = (text) => ({
   id: `live-${text.length}`,
@@ -38,3 +40,51 @@ assert.deepEqual(
 assert.deepEqual(resolveLiveAssistantTail([], "Final answer."), {
   text: "Final answer.",
 });
+
+const restoredMessage = {
+  id: "provider-item::assistant::0",
+  role: "assistant",
+  sessionId: "session-1",
+  text: "Persisted child answer.",
+  timestamp: "2026-07-11T18:31:40.000Z",
+};
+assert.equal(
+  resolveDisplayMessage([restoredMessage], {
+    ...restoredMessage,
+    timestamp: "2026-07-11T19:00:00.000Z",
+  }),
+  null
+);
+assert.equal(
+  resolveDisplayMessage(
+    [
+      {
+        ...restoredMessage,
+        id: "provider-reasoning::thinking::0",
+        role: "thinking",
+        tag: "thinking",
+      },
+    ],
+    {
+      ...restoredMessage,
+      id: "provider-reasoning::thinking::0",
+      role: "thinking",
+      tag: "thinking",
+    }
+  ),
+  null
+);
+assert.deepEqual(
+  resolveDisplayMessage([restoredMessage], {
+    ...restoredMessage,
+    text: "Persisted child answer with a recovered tail.",
+  }),
+  {
+    ...restoredMessage,
+    text: "Persisted child answer with a recovered tail.",
+  }
+);
+assert.equal(
+  resolveDisplayMessage([{ ...restoredMessage, tag: "live" }], restoredMessage),
+  null
+);

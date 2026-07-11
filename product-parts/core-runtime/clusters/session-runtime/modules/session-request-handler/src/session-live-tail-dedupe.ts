@@ -7,6 +7,9 @@ export function resolveDisplayMessage(
   existingMessages: readonly CoreSessionMessage[],
   message: CoreSessionMessage
 ): CoreSessionMessage | null {
+  if (hasStableMessageDuplicate(existingMessages, message)) {
+    return null;
+  }
   if (message.role !== "assistant" || message.tag === "live") {
     return message;
   }
@@ -19,6 +22,19 @@ export function resolveDisplayMessage(
     text: deduped.text,
     ...(deduped.tag ? { tag: deduped.tag } : {}),
   };
+}
+
+function hasStableMessageDuplicate(
+  messages: readonly CoreSessionMessage[],
+  candidate: CoreSessionMessage
+): boolean {
+  return messages.some(
+    (message) =>
+      message.id === candidate.id &&
+      message.role === candidate.role &&
+      message.tag === candidate.tag &&
+      message.text === candidate.text
+  );
 }
 
 export function resolveLiveAssistantTail(

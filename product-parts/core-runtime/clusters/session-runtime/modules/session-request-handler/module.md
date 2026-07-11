@@ -56,6 +56,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   broadcast as `session:message_translation` patch events; source message `text`
   remains the canonical transcript.
 - Assistant live chunks tagged `live` are kept in Core session state so final provider full-text messages can be suppressed or reduced to an unseen live tail before UI display.
+- Completed provider messages with the same stable id, role, tag and source
+  text are idempotent in Core. This prevents app-server history replay from
+  duplicating a persisted child transcript on later restarts while preserving
+  live-tail completion and genuinely changed content.
 - Provider bindings are promoted from temporary ids to real provider session ids in Core before later turns are dispatched, so resumed provider turns never depend on renderer state.
 - Usage limits can be refreshed by Core when a session dialog is hydrated, so provider limit rows such as Kimi 5h/weekly recover even when the original binding-time read was unavailable. Reference-compatible provider telemetry payloads without a provider event `type` are still accepted for telemetry before typed event routing begins.
 - Session mode metadata is stored on the Core session. The only active runtime behavior in this scope is `Native · Raw`; managed/normalized selections may be visualized by clients but are not applied to provider dispatch until a later Core contract enables them.

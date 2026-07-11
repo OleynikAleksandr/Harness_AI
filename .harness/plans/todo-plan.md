@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream0.task3",
-  "expectedCommitMessage": "fix: dedupe restored provider messages",
+  "currentTaskId": "harness-ai.phase10.stream1.task1",
+  "expectedCommitMessage": "docs: record subagent session package",
   "debt": null
 }
 ```
@@ -176,11 +176,11 @@
 53. [DONE] Git Commit: `fix: route codex subagent activity` (hash: self)
 54. [DONE] `harness-ai.phase10.stream0.task2` Hydrate persisted Codex descendant threads and their completed transcript items after Core/app restart so existing physical subagent sessions materialize in the Core session graph without rollout-text inference (scope: `.harness/plans/todo-plan.md, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-history-loader.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: hydrate codex subagent history`). Result: Completed in commit `fix: hydrate codex subagent history`.
 55. [DONE] Git Commit: `fix: hydrate codex subagent history` (hash: self)
-56. [IN_PROGRESS] `harness-ai.phase10.stream0.task3` Deduplicate stable provider message ids when persisted Codex child transcripts are replayed on later restarts, while preserving live-tail completion semantics (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-live-tail-dedupe.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: dedupe restored provider messages`).
-57. [TODO] Git Commit: `fix: dedupe restored provider messages` (hash: TBD)
+56. [DONE] `harness-ai.phase10.stream0.task3` Deduplicate stable provider message ids when persisted Codex child transcripts are replayed on later restarts, while preserving live-tail completion semantics (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-live-tail-dedupe.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: dedupe restored provider messages`). Result: Completed in commit `fix: dedupe restored provider messages`.
+57. [DONE] Git Commit: `fix: dedupe restored provider messages` (hash: self)
 
 ### Stream: Packaged Retest
 
-58. [TODO] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
+58. [IN_PROGRESS] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`).
 59. [TODO] Git Commit: `docs: record subagent session package` (hash: TBD)
 60. [TODO] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).

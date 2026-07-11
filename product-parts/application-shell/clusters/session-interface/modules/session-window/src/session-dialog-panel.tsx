@@ -1,7 +1,14 @@
 import { useMemo } from "react";
+import type { CoreSubagentCall } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { SessionMessage } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { useSessionDialogAutoscroll } from "./session-dialog-autoscroll.js";
+import {
+  buildSessionTimeline,
+  buildTimelineScrollMessages,
+  SubagentCallTimelineItem,
+} from "./session-subagent-timeline.js";
 import {
   mergeThinkingMessagesForDisplay,
   resolveTranslatedDisplayText,
@@ -10,20 +17,36 @@ import {
 
 export function DialogPanel({
   messages,
+  onDetachSubagent = noop,
+  onOpenSubagent = noop,
   providerId,
   providerName,
+  sessions = [],
+  subagentCalls = [],
 }: {
   messages: SessionMessage[];
+  onDetachSubagent?: (sessionId: string) => void;
+  onOpenSubagent?: (sessionId: string) => void;
   providerId: string | undefined;
   providerName: string | undefined;
+  sessions?: readonly CoreSession[];
+  subagentCalls?: readonly CoreSubagentCall[];
 }) {
   const { t } = useBrowserLocalization();
   const displayMessages = useMemo(
     () => mergeThinkingMessagesForDisplay(messages),
     [messages]
   );
+  const timeline = useMemo(
+    () => buildSessionTimeline(displayMessages, subagentCalls),
+    [displayMessages, subagentCalls]
+  );
+  const scrollMessages = useMemo(
+    () => buildTimelineScrollMessages(timeline),
+    [timeline]
+  );
   const { onScroll, scrollContainerRef } =
-    useSessionDialogAutoscroll(displayMessages);
+    useSessionDialogAutoscroll(scrollMessages);
   return (
     <section
       aria-label={t("ui_labels", "session.transcript", "Transcript")}
@@ -34,7 +57,7 @@ export function DialogPanel({
         onScroll={onScroll}
         ref={scrollContainerRef}
       >
-        {displayMessages.length === 0 ? (
+        {timeline.length === 0 ? (
           <p className="session-dialog__empty">
             {t(
               "messages_for_the_user",
@@ -43,18 +66,32 @@ export function DialogPanel({
             )}
           </p>
         ) : (
-          displayMessages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              providerId={providerId}
-              providerName={providerName}
-            />
-          ))
+          timeline.map((item) =>
+            item.kind === "message" ? (
+              <MessageBubble
+                key={item.id}
+                message={item.message}
+                providerId={providerId}
+                providerName={providerName}
+              />
+            ) : (
+              <SubagentCallTimelineItem
+                call={item.call}
+                key={item.id}
+                onDetachSubagent={onDetachSubagent}
+                onOpenSubagent={onOpenSubagent}
+                sessions={sessions}
+              />
+            )
+          )
         )}
       </div>
     </section>
   );
+}
+
+function noop() {
+  return undefined;
 }
 
 function MessageBubble({

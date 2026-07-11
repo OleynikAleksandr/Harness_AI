@@ -12,6 +12,9 @@ Render the transcript/dialog layout and session chrome.
 
 - Session snapshot from Core Runtime.
 - Core session messages with provider-neutral role/tag fields.
+- Core `session:subagent-call` timeline snapshots and child `CoreSession`
+  metadata. The renderer upserts snapshots by stable call id and does not infer
+  spawn activity from message text.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels use the Core settings-store capability resolver and disappear when the selected Codex model has no declared reasoning effort levels.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
@@ -65,6 +68,13 @@ Render the transcript/dialog layout and session chrome.
   the bubble shadow. A `ResizeObserver` watches visible bubbles and repins when
   an earlier thinking bubble grows after a later assistant bubble already
   exists.
+- `session-dialog-panel.tsx` merges translated/coalesced messages with
+  `CoreSubagentCall.createdAt` entries into one timestamp-ordered timeline.
+  Inline cards keep the normal dialog bubble boundary, show delegated task as
+  the primary label, nickname/role/model/reasoning/status as secondary
+  metadata, and render open + detached-window controls for each child Core id.
+  A spawn event without a child id yet remains visible as a pending card and is
+  replaced in place when Core publishes the updated call.
 - The shared `.session-panel` surface (id bar, dialog, input, status) uses the
   reference grey backdrop `rgba(40,41,42,1)` with a single clean `1px solid
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background
@@ -97,6 +107,9 @@ Render the transcript/dialog layout and session chrome.
 ## Outputs
 
 - Rendered chat session surface.
+- Inline subagent entry points at their Core-recorded spawn position; opening
+  or detaching is emitted with the child Core session id, never a parsed
+  provider/rollout identifier.
 - Session-level UI actions sent to Core, including the running-turn Stop that
   calls Core `stopTurn` with the active session id.
 - Enabled Rollback control in the Codex-family status panel. It dispatches only

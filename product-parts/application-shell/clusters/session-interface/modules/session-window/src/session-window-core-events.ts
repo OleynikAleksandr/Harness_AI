@@ -1,4 +1,7 @@
-import type { SessionCoreEvent } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import type {
+  CoreSubagentCall,
+  SessionCoreEvent,
+} from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import type {
   SessionMessage,
   SessionTelemetry,
@@ -24,6 +27,9 @@ export function applyCoreEvent(params: {
     React.SetStateAction<Record<string, SessionMessage[]>>
   >;
   setRunningSessionId: React.Dispatch<React.SetStateAction<string | null>>;
+  setSubagentCallsBySession?: React.Dispatch<
+    React.SetStateAction<Record<string, CoreSubagentCall[]>>
+  >;
   setTelemetryBySession: React.Dispatch<
     React.SetStateAction<Record<string, SessionTelemetry>>
   >;
@@ -32,8 +38,15 @@ export function applyCoreEvent(params: {
     event,
     setMessagesBySession,
     setRunningSessionId,
+    setSubagentCallsBySession,
     setTelemetryBySession,
   } = params;
+  if (event.type === "session:subagent-call") {
+    setSubagentCallsBySession?.((current) =>
+      upsertSubagentCallToState(current, event.payload)
+    );
+    return;
+  }
   if (event.type === "session:message") {
     setMessagesBySession((current) =>
       appendSessionMessageToState(current, event.payload)
@@ -79,6 +92,23 @@ export function applyCoreEvent(params: {
       [event.payload.sessionId]: event.payload.telemetry,
     }));
   }
+}
+
+export function upsertSubagentCallToState(
+  current: Record<string, CoreSubagentCall[]>,
+  call: CoreSubagentCall
+): Record<string, CoreSubagentCall[]> {
+  const calls = current[call.sessionId] ?? [];
+  const existingIndex = calls.findIndex(
+    (candidate) => candidate.id === call.id
+  );
+  const nextCalls = [...calls];
+  if (existingIndex === -1) {
+    nextCalls.push(call);
+  } else {
+    nextCalls[existingIndex] = call;
+  }
+  return { ...current, [call.sessionId]: nextCalls };
 }
 
 export function appendAssistantNotice(

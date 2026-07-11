@@ -81,7 +81,12 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   prerequisite is missing: that file is a symlink to the user's live Claude
   config via the auth home-bridge), boot wait -> type probe -> submit ->
   drain -> self-terminate on a timer (the capture orchestrator never kills
-  the provider process; the forward proxy capture wins the race). The run inherits the provider auth env (`HOME` -> provider home,
+  the provider process; the forward proxy capture wins the race). The PTY
+  command applies the Core-validated model with `--model` and the explicit
+  capture reasoning with `--effort low|medium|high|xhigh|max`; the applied
+  envelope records both values. Claude `ultracode` is not sent as an effort
+  because it is a separate session-orchestration setting. The run inherits
+  the provider auth env (`HOME` -> provider home,
   `CLAUDE_USE_CLI_AUTH`) plus the diagnostic proxy env (`HTTPS_PROXY`/
   `ALL_PROXY` + `NODE_EXTRA_CA_CERTS`/`SSL_CERT_FILE`/`REQUESTS_CA_BUNDLE`).
   The managed-vs-vanilla comparison and applied turn config were removed;

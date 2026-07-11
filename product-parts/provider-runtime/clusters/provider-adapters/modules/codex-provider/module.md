@@ -116,7 +116,11 @@ the shared process.
   temporary process afterward. The managed-vs-vanilla comparison and the
   translation-capture scenario were removed (with the now-dead
   `codex-workflow-instruction-profile.ts` and
-  `codex-native-translation-capture-profile.ts`); only recording remains.
+  `codex-native-translation-capture-profile.ts`); only recording remains. The
+  Core-selected capture reasoning takes precedence over the adapter default
+  in `turn/start.effort`; diagnostics record the exact request, including
+  `ultra`, before Codex may normalize its downstream `response.create` body to
+  `max`.
 
 ## Owned Paths
 

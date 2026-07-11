@@ -45,4 +45,8 @@ sentinel or continuation protocol.
 Codex reasoning effort types follow the live app-server catalog: GPT-5.6
 Sol/Terra add `max` and `ultra`, Luna adds `max`, while older picker-visible
 models stop at `xhigh`. Core settings select the effort; the adapter translates
-that normalized value into app-server `turn/start`.
+that normalized value into app-server `turn/start`. Native Request Capture
+uses the same explicit provider-neutral reasoning intent: Codex applies it to
+`turn/start.effort`, while Claude applies its supported
+`low/medium/high/xhigh/max` values through the interactive CLI `--effort`
+argument.

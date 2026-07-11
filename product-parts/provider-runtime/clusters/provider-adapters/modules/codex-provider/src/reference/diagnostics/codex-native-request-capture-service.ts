@@ -6,6 +6,7 @@ import {
   type CodexAppServerProcessProfileKey,
 } from "../app-server/process/codex-app-server-process-profile.js";
 import type {
+  CodexReasoningEffort,
   CodexReasoningSummaryMode,
   CodexWorkspaceOptions,
   ModuleReporter,
@@ -36,6 +37,7 @@ export interface CodexNativeRequestCaptureOptions {
     readonly payload: unknown;
   }) => Promise<void> | void;
   readonly selectedModelId?: string | null;
+  readonly selectedReasoningEffort?: string | null;
   readonly workflowPrompt?: string | null;
   readonly workspacePath: string;
 }
@@ -207,7 +209,7 @@ export class CodexNativeRequestCaptureService {
       ],
       cwd: options.workspacePath,
       model: modelId,
-      effort: this.#workspace.defaultReasoningEffort ?? null,
+      effort: this.#resolveReasoningEffort(options),
       ...buildCodexReasoningSummaryParams(
         modelId,
         this.#resolveReasoningSummaryMode()
@@ -292,6 +294,16 @@ export class CodexNativeRequestCaptureService {
     );
   }
 
+  #resolveReasoningEffort(
+    options: CodexNativeRequestCaptureOptions
+  ): CodexReasoningEffort | null {
+    return (
+      asCodexReasoningEffort(options.selectedReasoningEffort) ??
+      this.#workspace.defaultReasoningEffort ??
+      null
+    );
+  }
+
   #resolveCapturePrompt(options: CodexNativeRequestCaptureOptions): string {
     return asString(options.workflowPrompt) ?? options.probePrompt;
   }
@@ -340,3 +352,19 @@ export class CodexNativeRequestCaptureService {
     return isRecord(params) && asString(params.threadId) === threadId;
   }
 }
+
+const asCodexReasoningEffort = (
+  value: unknown
+): CodexReasoningEffort | null => {
+  switch (value) {
+    case "low":
+    case "medium":
+    case "high":
+    case "xhigh":
+    case "max":
+    case "ultra":
+      return value;
+    default:
+      return null;
+  }
+};

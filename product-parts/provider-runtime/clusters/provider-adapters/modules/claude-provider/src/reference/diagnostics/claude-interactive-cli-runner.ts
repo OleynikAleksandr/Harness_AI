@@ -69,8 +69,16 @@ export interface ClaudeInteractiveCliRunOptions {
   readonly modelId?: string | null;
   readonly postSubmitWaitMs?: number;
   readonly probePrompt: string;
+  readonly reasoningEffort?: ClaudeInteractiveReasoningEffort | null;
   readonly workspacePath: string;
 }
+
+export type ClaudeInteractiveReasoningEffort =
+  | "low"
+  | "medium"
+  | "high"
+  | "xhigh"
+  | "max";
 
 export interface ClaudeInteractiveCliRunResult {
   readonly exitCode: number | null;
@@ -126,8 +134,15 @@ export function buildPtyDriverArgv(options: {
   readonly modelId?: string | null;
   readonly postSubmitWaitMs: number;
   readonly probePrompt: string;
+  readonly reasoningEffort?: ClaudeInteractiveReasoningEffort | null;
 }): readonly string[] {
-  const extraArgs = options.modelId ? ["--model", options.modelId] : [];
+  const extraArgs: string[] = [];
+  if (options.modelId) {
+    extraArgs.push("--model", options.modelId);
+  }
+  if (options.reasoningEffort) {
+    extraArgs.push("--effort", options.reasoningEffort);
+  }
   return [
     "-c",
     PYTHON_PTY_DRIVER,
@@ -159,6 +174,7 @@ export async function runClaudeInteractiveCli(
     modelId: options.modelId,
     postSubmitWaitMs,
     probePrompt: options.probePrompt,
+    reasoningEffort: options.reasoningEffort,
   });
   return await new Promise<ClaudeInteractiveCliRunResult>((resolve, reject) => {
     const child = spawn(PYTHON_BINARY, argv, {

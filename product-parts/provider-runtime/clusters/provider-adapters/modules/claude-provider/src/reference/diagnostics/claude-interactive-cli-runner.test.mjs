@@ -6,6 +6,16 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
+const captureServiceSource = readFileSync(
+  new URL("./claude-native-request-capture-service.ts", import.meta.url),
+  "utf8"
+);
+assert.match(captureServiceSource, /options\.selectedReasoningEffort/u);
+assert.match(
+  captureServiceSource,
+  /runClaudeInteractiveCli\(\{[\s\S]*?reasoningEffort,/u
+);
+
 function compile(file) {
   return ts.transpileModule(
     readFileSync(new URL(`./${file}`, import.meta.url), "utf8"),
@@ -97,6 +107,7 @@ const { buildPtyDriverArgv, upsertInteractiveTrustConfig } = await import(
     modelId: "claude-opus-4-8",
     postSubmitWaitMs: 25_000,
     probePrompt: "probe text",
+    reasoningEffort: "max",
   });
   assert.equal(argv[0], "-c");
   assert.ok(argv[1].includes("pty.fork"));
@@ -107,6 +118,8 @@ const { buildPtyDriverArgv, upsertInteractiveTrustConfig } = await import(
     "25",
     "--model",
     "claude-opus-4-8",
+    "--effort",
+    "max",
   ]);
 }
 

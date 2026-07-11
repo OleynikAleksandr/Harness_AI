@@ -1,7 +1,10 @@
 import type { SDKInstaller } from "../installer/sdk-installer.js";
 import type { ClaudeSDKAuthProvider } from "../sdk/claude-sdk-manager.js";
 import type { ClaudeWorkspaceOptions } from "../types.js";
-import { runClaudeInteractiveCli } from "./claude-interactive-cli-runner.js";
+import {
+  type ClaudeInteractiveReasoningEffort,
+  runClaudeInteractiveCli,
+} from "./claude-interactive-cli-runner.js";
 
 export interface ClaudeNativeRequestCaptureOptions {
   readonly captureId: string;
@@ -13,6 +16,7 @@ export interface ClaudeNativeRequestCaptureOptions {
     envelope: ClaudeNativeRequestCaptureAppliedInputEnvelope
   ) => Promise<void> | void;
   readonly selectedModelId?: string | null;
+  readonly selectedReasoningEffort?: string | null;
   readonly workflowPrompt?: string | null;
   readonly workspacePath: string;
 }
@@ -23,6 +27,7 @@ interface ClaudeNativeRequestCaptureAppliedInputEnvelope {
   readonly kind: "claude";
   readonly mode: "interactive_cli";
   readonly model: string | null;
+  readonly reasoningEffort: ClaudeInteractiveReasoningEffort | null;
 }
 
 interface ClaudeNativeRequestCaptureAuthProvider extends ClaudeSDKAuthProvider {
@@ -70,18 +75,23 @@ export class ClaudeNativeRequestCaptureService {
       readNonEmptyString(options.selectedModelId) ??
       readNonEmptyString(this.#workspace.defaultModel) ??
       null;
+    const reasoningEffort = readClaudeInteractiveReasoningEffort(
+      options.selectedReasoningEffort
+    );
     await options.recordAppliedInputEnvelope?.({
       binaryPath: executablePath,
       cwd: options.workspacePath,
       kind: "claude",
       mode: "interactive_cli",
       model: modelId,
+      reasoningEffort,
     });
     await runClaudeInteractiveCli({
       binaryPath: executablePath,
       env: this.buildInteractiveEnv(options),
       modelId,
       probePrompt: resolveCapturePrompt(options),
+      reasoningEffort,
       workspacePath: options.workspacePath,
     });
   }
@@ -109,6 +119,21 @@ const readNonEmptyString = (value: unknown): string | undefined =>
   typeof value === "string" && value.trim().length > 0
     ? value.trim()
     : undefined;
+
+const readClaudeInteractiveReasoningEffort = (
+  value: unknown
+): ClaudeInteractiveReasoningEffort | null => {
+  switch (value) {
+    case "low":
+    case "medium":
+    case "high":
+    case "xhigh":
+    case "max":
+      return value;
+    default:
+      return null;
+  }
+};
 
 const resolveCapturePrompt = (
   options: ClaudeNativeRequestCaptureOptions

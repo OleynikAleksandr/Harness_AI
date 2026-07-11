@@ -1,4 +1,7 @@
-import { normalizeProviderSessionStart } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import {
+  normalizeProviderSessionStart,
+  type ProviderSubagentEvent,
+} from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import type { ReasoningTranslationOverlayFacade } from "../../../../settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.js";
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import type {
@@ -26,6 +29,10 @@ import type {
 interface SessionProviderBindingLifecycleDependencies {
   readonly bindingFacade: ProviderSessionBindingFacadeLike;
   readonly getSession: (sessionId: string) => CoreSession | undefined;
+  readonly handleSubagentEvent: (
+    sessionId: string,
+    event: ProviderSubagentEvent
+  ) => void;
   readonly providerRegistry: ProviderRegistryLike;
   readonly publishBinding: (binding: ProviderSessionBinding) => void;
   readonly publishError: (sessionId: string, error: string) => void;
@@ -142,6 +149,41 @@ export class SessionProviderBindingLifecycle {
     );
   }
 
+  adoptProviderSession(
+    childSession: CoreSession,
+    parentSession: CoreSession
+  ): void {
+    const providerSessionId = childSession.providerSessionId;
+    if (!providerSessionId) {
+      return;
+    }
+    const existing = this.deps.runtimeBindings.get(childSession.id);
+    if (existing?.providerSessionId === providerSessionId) {
+      return;
+    }
+    const parentBinding = this.deps.runtimeBindings.get(parentSession.id);
+    if (!parentBinding) {
+      return;
+    }
+    existing?.unsubscribe();
+    const unsubscribe = parentBinding.adapter.subscribe(
+      providerSessionId,
+      (event) => this.handleProviderEvent(childSession.id, event)
+    );
+    this.deps.runtimeBindings.set(childSession.id, {
+      adapter: parentBinding.adapter,
+      providerSessionId,
+      unsubscribe,
+    });
+    this.deps.publishBinding(
+      this.deps.bindingFacade.markReady(
+        childSession.id,
+        childSession.providerId,
+        providerSessionId
+      )
+    );
+  }
+
   async refreshUsageLimits(sessionId: string): Promise<void> {
     const session = this.deps.getSession(sessionId);
     const binding = this.deps.runtimeBindings.get(sessionId);
@@ -164,6 +206,7 @@ export class SessionProviderBindingLifecycle {
     return {
       getBinding: (sessionId) => this.deps.runtimeBindings.get(sessionId),
       getSession: this.deps.getSession,
+      handleSubagentEvent: this.deps.handleSubagentEvent,
       markBindingReady: (sessionId, providerId, providerSessionId) =>
         this.deps.publishBinding(
           this.deps.bindingFacade.markReady(

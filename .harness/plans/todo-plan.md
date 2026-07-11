@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task4",
-  "expectedCommitMessage": "feat: persist core subagent session tree",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "feat: manage core session titles",
   "debt": null
 }
 ```
@@ -123,14 +123,14 @@
 23. [DONE] Git Commit: `feat: add core subagent session contracts` (hash: self)
 24. [DONE] `harness-ai.phase6.stream1.task3` Implement provider-event routing and the Core subagent lifecycle that creates/adopts child bindings, maintains parent-child status and records spawn timeline items (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-provider-event-router.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: orchestrate core subagent sessions`). Result: Completed in commit `feat: orchestrate core subagent sessions`.
 25. [DONE] Git Commit: `feat: orchestrate core subagent sessions` (hash: self)
-26. [IN_PROGRESS] `harness-ai.phase6.stream1.task4` Wire the subagent lifecycle into the request handler, persist/restore child records and cascade parent deletion so no orphan descendants remain (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: persist core subagent session tree`).
-27. [TODO] Git Commit: `feat: persist core subagent session tree` (hash: TBD)
+26. [DONE] `harness-ai.phase6.stream1.task4` Wire the subagent lifecycle into the request handler, persist/restore child records and cascade parent deletion so no orphan descendants remain (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-provider-binding-lifecycle.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: persist core subagent session tree`). Result: Completed in commit `feat: persist core subagent session tree`.
+27. [DONE] Git Commit: `feat: persist core subagent session tree` (hash: self)
 
 ## Phase 7 - Session Identity And Window Commands (owner: Codex, updated: 2026-07-11)
 
 ### Stream: Titles And IPC
 
-28. [TODO] `harness-ai.phase7.stream1.task1` Add one-shot Core auto titles, manual rename locking and regenerate-title commands (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-title-service.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: manage core session titles`).
+28. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Add one-shot Core auto titles, manual rename locking and regenerate-title commands (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-title-service.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: manage core session titles`).
 29. [TODO] Git Commit: `feat: manage core session titles` (hash: TBD)
 30. [TODO] `harness-ai.phase7.stream1.task2` Expose title commands through the Core process bridge and preload API (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, focused tests and related module docs`; expected commit: `feat: expose session title commands`).
 31. [TODO] Git Commit: `feat: expose session title commands` (hash: TBD)

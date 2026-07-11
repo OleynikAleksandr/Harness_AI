@@ -11,7 +11,9 @@ export function readWorkspaceSessionIndex(
   }
   try {
     const parsed = JSON.parse(readFileSync(indexPath, "utf8")) as unknown;
-    return Array.isArray(parsed) ? parsed.filter(isCoreSession) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter(isCoreSession).map(normalizeCoreSession)
+      : [];
   } catch {
     return [];
   }
@@ -44,8 +46,49 @@ function isCoreSession(value: unknown): value is CoreSession {
     typeof value.updatedAt === "string" &&
     (value.providerSessionId === undefined ||
       typeof value.providerSessionId === "string") &&
+    isOptionalString(value.agentNickname) &&
+    isOptionalString(value.agentRole) &&
+    isOptionalString(value.delegatedTask) &&
+    isOptionalString(value.parentSessionId) &&
+    isOptionalString(value.reasoningEffort) &&
+    isOptionalString(value.subagentCallId) &&
+    (value.sessionKind === undefined ||
+      value.sessionKind === "primary" ||
+      value.sessionKind === "subagent") &&
+    (value.sessionKind !== "subagent" ||
+      typeof value.parentSessionId === "string") &&
+    (value.subagentStatus === undefined ||
+      isSubagentStatus(value.subagentStatus)) &&
+    (value.titleOrigin === undefined ||
+      value.titleOrigin === "default" ||
+      value.titleOrigin === "auto" ||
+      value.titleOrigin === "manual") &&
     isAppliedProfileSnapshot(value.appliedProfile)
   );
+}
+
+function normalizeCoreSession(session: CoreSession): CoreSession {
+  return {
+    ...session,
+    sessionKind: session.sessionKind ?? "primary",
+    titleOrigin: session.titleOrigin ?? "default",
+  };
+}
+
+function isSubagentStatus(value: unknown): boolean {
+  return (
+    value === "pending" ||
+    value === "running" ||
+    value === "interrupted" ||
+    value === "completed" ||
+    value === "failed" ||
+    value === "shutdown" ||
+    value === "not_found"
+  );
+}
+
+function isOptionalString(value: unknown): boolean {
+  return value === undefined || typeof value === "string";
 }
 
 // Sessions persisted before session profiles have no appliedProfile (legacy);

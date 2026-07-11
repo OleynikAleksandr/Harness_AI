@@ -37,8 +37,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Provider-neutral child-session metadata on `CoreSession`: optional
   `sessionKind`, `parentSessionId`, agent nickname/role, delegated task,
   reasoning effort, subagent status/call id and title origin. Fields remain
-  optional for persisted sessions created before this contract; new-session
-  materialization is owned by the following lifecycle slice.
+  optional for persisted sessions created before this contract; restore
+  normalizes those records to `primary`/`default`, while new sessions receive
+  explicit values.
 - Provider dispatch requests through the provider adapter contract.
 - Session errors and lifecycle state.
 - Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.
@@ -90,6 +91,16 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   and publishes stable `CoreSubagentCall` snapshots. Spawn-tool completion is
   not treated as child completion: call status is derived from agent/thread
   states, so a successfully spawned running agent remains `running`.
+- The facade now wires that lifecycle to the provider event router. A new child
+  is remembered in the append-only event stream, added to the workspace index,
+  initialized with Core telemetry, published through `session:created`, and
+  adopted through the already-running parent adapter binding before subsequent
+  child reasoning/messages arrive. Restore keeps child metadata and resumes its
+  persisted provider thread through the normal binding path.
+- Deleting any session cascades through every recursive `parentSessionId`
+  descendant, closes each live provider binding, removes provider artifacts and
+  deletes every record from the Core session/maps/index, preventing visible
+  orphan children.
 - Provider session starts flow through the additive adapter contract:
   `createSession`/`resumeSession` outcomes are normalized via
   `normalizeProviderSessionStart` before binding.

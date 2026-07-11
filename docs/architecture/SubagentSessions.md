@@ -59,6 +59,11 @@ hydration `session-event-stream` объединяет их по id в исход
 session index. После перезапуска она восстанавливается и resume-ится тем же
 путём, что и обычная Codex-сессия.
 
+Live adoption не вызывает второй `thread/start`/`thread/resume`: Core берёт
+adapter уже связанной parent session, подписывается на child provider thread id
+и публикует ready binding. При обычном restart persisted child, напротив,
+проходит штатный `resumeSession` независимо от parent order.
+
 `collabAgentToolCall.status=completed` означает завершение самого вызова
 `spawnAgent`, а не работы созданного агента. Поэтому статус карточки выводится
 из `agentsStates`/child thread status: успешный spawn работающего child остаётся

@@ -20,6 +20,7 @@ const rollbackSource = readFileSync(
 
 // The facade delegates provider binding and event routing to a bounded helper.
 assert.match(source, /new SessionProviderBindingLifecycle/u);
+assert.match(source, /new SessionSubagentLifecycle/u);
 assert.match(
   bindingLifecycleSource,
   /routeProviderEvent\(this\.providerEventRouterContext\(\), sessionId, event\)/u
@@ -116,6 +117,17 @@ assert.match(
 );
 assert.match(source, /async createSession\(/u);
 assert.equal(source.split("\n").length <= 500, true);
+assert.match(source, /sessionKind: "primary"/u);
+assert.match(source, /titleOrigin: "default"/u);
+assert.match(source, /collectSessionTreeIds\(sessionId\)\.reverse\(\)/u);
+assert.match(source, /session\.parentSessionId === parentSessionId/u);
+assert.match(bindingLifecycleSource, /adoptProviderSession\(/u);
+assert.match(bindingLifecycleSource, /handleSubagentEvent/u);
+assert.match(historySource, /normalizeCoreSession/u);
+assert.match(
+  historySource,
+  /sessionKind: session\.sessionKind \?\? "primary"/u
+);
 
 // The router owns reasoning projection, promotion, and turn-state routing.
 assert.match(

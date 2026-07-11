@@ -8,6 +8,7 @@ import type { ProviderSessionBinding } from "../../provider-session-binding/src/
 import { providerSessionBindingFacade } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 import {
   type CoreSessionMessage,
+  type CoreSubagentCall,
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { resolveNextSessionMode } from "./next-session-mode.js";
@@ -42,6 +43,7 @@ import type {
   SessionRequestHandlerDependencies,
 } from "./session-request-handler-types.js";
 import { SessionRollback } from "./session-rollback.js";
+import { SessionSubagentLifecycle } from "./session-subagent-lifecycle.js";
 import { SessionTurnStop } from "./session-turn-stop.js";
 
 export type { CoreSession } from "./session-request-handler-types.js";
@@ -55,6 +57,7 @@ export class SessionRequestHandlerFacade {
   private readonly messagesBySession = new Map<string, CoreSessionMessage[]>();
   private readonly sessions = new Map<string, CoreSession>();
   private readonly providerBindingLifecycle: SessionProviderBindingLifecycle;
+  private readonly subagentLifecycle: SessionSubagentLifecycle;
   private readonly telemetryBySession = new Map<
     string,
     ProviderUsageTelemetry
@@ -93,6 +96,8 @@ export class SessionRequestHandlerFacade {
     this.providerBindingLifecycle = new SessionProviderBindingLifecycle({
       bindingFacade: this.bindingFacade,
       getSession: (sessionId) => this.sessions.get(sessionId),
+      handleSubagentEvent: (sessionId, event) =>
+        this.subagentLifecycle.handleProviderEvent(sessionId, event),
       providerRegistry: this.providerRegistry,
       publishBinding: (binding) => this.publishBinding(binding),
       publishError: (sessionId, error) => this.publishError(sessionId, error),
@@ -117,6 +122,25 @@ export class SessionRequestHandlerFacade {
           )
         ),
     });
+    this.subagentLifecycle = new SessionSubagentLifecycle({
+      addSession: (session) => this.addSubagentSession(session),
+      adoptProviderSession: (childSession, parentSession) =>
+        this.providerBindingLifecycle.adoptProviderSession(
+          childSession,
+          parentSession
+        ),
+      getSession: (sessionId) => this.sessions.get(sessionId),
+      getSubagentCall: (parentSessionId, callId) =>
+        this.getSubagentCall(parentSessionId, callId),
+      listSessions: () => this.listSessions(),
+      publishSubagentCall: (call) =>
+        this.eventStream.publish({
+          payload: call,
+          timestamp: call.updatedAt,
+          type: "session:subagent-call",
+        }),
+      updateSession: (session) => this.updateSubagentSession(session),
+    });
   }
   async createSession(
     request: CreateCoreSessionRequest
@@ -140,7 +164,9 @@ export class SessionRequestHandlerFacade {
       nextSessionMode,
       providerId: request.providerId,
       providerName: request.providerName,
+      sessionKind: "primary",
       title: request.title ?? `${request.providerName} session`,
+      titleOrigin: "default",
       updatedAt: now,
       workspaceId: request.workspaceId,
     };
@@ -213,25 +239,32 @@ export class SessionRequestHandlerFacade {
     return this.rollback.rollback(request);
   }
   deleteSession(sessionId: string): DeleteSessionResult {
-    const session = this.sessions.get(sessionId);
-    if (!session) {
+    const rootSession = this.sessions.get(sessionId);
+    if (!rootSession) {
       return { error: "Session not found", ok: false };
     }
-    const binding = this.runtimeBindings.get(sessionId);
-    closeAndCleanupProviderSession({
-      adapter:
-        binding?.adapter ??
-        this.providerRegistry.getAdapter(session.providerId),
-      binding,
-      providerSessionId:
-        binding?.providerSessionId ?? session.providerSessionId,
-      workspacePath: session.workspacePath,
-    });
-    this.runtimeBindings.delete(sessionId);
-    this.messagesBySession.delete(sessionId);
-    this.telemetryBySession.delete(sessionId);
-    this.sessions.delete(sessionId);
-    this.persistSessionIndex(session.workspacePath);
+    const sessionIds = this.collectSessionTreeIds(sessionId).reverse();
+    for (const id of sessionIds) {
+      const session = this.sessions.get(id);
+      if (!session) {
+        continue;
+      }
+      const binding = this.runtimeBindings.get(id);
+      closeAndCleanupProviderSession({
+        adapter:
+          binding?.adapter ??
+          this.providerRegistry.getAdapter(session.providerId),
+        binding,
+        providerSessionId:
+          binding?.providerSessionId ?? session.providerSessionId,
+        workspacePath: session.workspacePath,
+      });
+      this.runtimeBindings.delete(id);
+      this.messagesBySession.delete(id);
+      this.telemetryBySession.delete(id);
+      this.sessions.delete(id);
+    }
+    this.persistSessionIndex(rootSession.workspacePath);
     return { ok: true };
   }
   listSessions(workspaceId?: string): CoreSession[] {
@@ -290,6 +323,70 @@ export class SessionRequestHandlerFacade {
     const messages = this.messagesBySession.get(message.sessionId) ?? [];
     messages.push(message);
     this.messagesBySession.set(message.sessionId, messages);
+  }
+
+  private addSubagentSession(session: CoreSession): void {
+    this.sessions.set(session.id, session);
+    this.messagesBySession.set(session.id, []);
+    this.eventStream.rememberSession?.(session);
+    this.persistSessionIndex(session.workspacePath);
+    this.setTelemetry(
+      session.id,
+      usageContextTelemetryFacade.createTelemetry({
+        model: session.model,
+        provider: session.providerName,
+        providerId: session.providerId,
+        status: session.subagentStatus === "running" ? "running" : "idle",
+      })
+    );
+    this.eventStream.publish({
+      payload: { sessionId: session.id, title: session.title },
+      timestamp: session.createdAt,
+      type: "session:created",
+    });
+    this.publishBinding(
+      this.bindingFacade.createPending(session.id, session.providerId)
+    );
+  }
+
+  private updateSubagentSession(session: CoreSession): void {
+    this.sessions.set(session.id, session);
+    this.persistSessionIndex(session.workspacePath);
+    this.eventStream.publish({
+      payload: { sessionId: session.id },
+      timestamp: session.updatedAt,
+      type: "session:updated",
+    });
+  }
+
+  private getSubagentCall(
+    parentSessionId: string,
+    callId: string
+  ): CoreSubagentCall | undefined {
+    for (const event of this.eventStream.listEvents?.(parentSessionId) ?? []) {
+      if (
+        event.type === "session:subagent-call" &&
+        event.payload.id === callId
+      ) {
+        return event.payload;
+      }
+    }
+    return undefined;
+  }
+
+  private collectSessionTreeIds(rootSessionId: string): string[] {
+    const collected = [rootSessionId];
+    for (const parentSessionId of collected) {
+      for (const session of this.sessions.values()) {
+        if (
+          session.parentSessionId === parentSessionId &&
+          !collected.includes(session.id)
+        ) {
+          collected.push(session.id);
+        }
+      }
+    }
+    return collected;
   }
 
   private publishBinding(binding: ProviderSessionBinding): void {

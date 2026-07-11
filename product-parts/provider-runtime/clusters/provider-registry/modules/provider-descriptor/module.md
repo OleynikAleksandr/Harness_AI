@@ -32,7 +32,10 @@ Own model/reasoning capabilities and UI metadata for providers.
   the Settings diagnostic capture the exact HTTP body built from a selected
   Codex session profile and compare it against the native app-server Codex
   artifact. Model ids mirror the provider model catalog so capture can be
-  chosen per model (different models can carry different system prompts).
+  chosen per model (different models can carry different system prompts). The
+  Codex app-server capture catalog follows the live picker order (GPT-5.6
+  Sol/Terra/Luna, 5.5, 5.4, 5.4 Mini, 5.3 Codex Spark) and excludes retired
+  GPT-5.2.
 - Client endpoint model catalog: `getClientModels(providerId)`
   returns `ProviderModelDescriptor` (`{ id, label }`) entries; `kimi-client`
   carries the single public Kimi Code model `kimi-for-coding` (the vendor

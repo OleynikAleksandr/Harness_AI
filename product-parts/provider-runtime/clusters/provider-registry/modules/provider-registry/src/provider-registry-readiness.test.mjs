@@ -2,6 +2,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 
+const descriptorSource = readFileSync(
+  new URL(
+    "../../provider-descriptor/src/provider-descriptor-facade.ts",
+    import.meta.url
+  ),
+  "utf8"
+);
+
 const source = readFileSync(
   new URL("./provider-registry-facade.ts", import.meta.url),
   "utf8"
@@ -41,6 +49,13 @@ assert.equal(codexUc.visibility, "visible");
 assert.equal(codexUc.name, "CodexUC");
 assert.equal(codexUc.moduleId, "codex-uc-provider");
 assert.equal(codexUc.defaultModelId, "gpt-5.5");
+assert.match(descriptorSource, /codex: \[\s+\{ id: "gpt-5\.6-sol"/u);
+assert.match(descriptorSource, /\{ id: "gpt-5\.6-terra"/u);
+assert.match(descriptorSource, /\{ id: "gpt-5\.6-luna"/u);
+const captureCatalogSource = descriptorSource.slice(
+  descriptorSource.indexOf("const CAPTURABLE_MODELS")
+);
+assert.doesNotMatch(captureCatalogSource, /codex: \[\s+\{ id: "gpt-5\.2"/u);
 
 // The visible Kimi is the universal-client endpoint; the ACP kimi id/module
 // was removed by the kimi-provider retirement (2026-07-05 user order), so no

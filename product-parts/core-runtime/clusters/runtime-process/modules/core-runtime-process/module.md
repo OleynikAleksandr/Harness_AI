@@ -161,6 +161,8 @@ also run here so the Application Shell remains UI/supervisor/client only.
   from `provider-descriptor`. Claude, Codex app-server, and CodexUC are
   capture providers (the ACP Kimi capture channel left with the kimi-provider
   retirement, 2026-07-05); other providers return `provider_not_supported`.
+  Its Codex list mirrors the app-server-visible GPT-5.6 Sol/Terra/Luna-first
+  order and omits retired GPT-5.2.
   The adapter builder is factored out of
   `core-provider-adapter-registration.ts` and reused by the shared registry
   wiring.

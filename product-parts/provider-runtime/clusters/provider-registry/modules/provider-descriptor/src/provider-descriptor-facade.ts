@@ -71,11 +71,13 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
       { id: "haiku", label: "Haiku" },
     ],
     codex: [
-      { id: "gpt-5.2", label: "GPT-5.2" },
-      { id: "gpt-5.3-codex-spark", label: "GPT-5.3-Codex-Spark" },
-      { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
-      { id: "gpt-5.4", label: "GPT-5.4" },
+      { id: "gpt-5.6-sol", label: "GPT-5.6 Sol" },
+      { id: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
+      { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
       { id: "gpt-5.5", label: "GPT-5.5" },
+      { id: "gpt-5.4", label: "GPT-5.4" },
+      { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
+      { id: "gpt-5.3-codex-spark", label: "GPT-5.3-Codex-Spark" },
     ],
     "codex-uc": CLIENT_PROVIDER_MODELS["codex-uc"],
   };

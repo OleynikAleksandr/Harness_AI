@@ -28,6 +28,8 @@ into `product-parts/**` as real module code.
 ## Responsibilities
 
 - Own workspace/session state and snapshots consumed by Application Shell.
+- Own provider-neutral parent-child session graphs and persisted subagent
+  timeline read models; clients only render them.
 - Own next-session mode truth; Application Shell can display and submit mode choices but cannot decide provider behavior locally.
 - Own provider adapter registration and provider session binding.
 - Expose Core RPC and event-stream contracts consumed by Application Shell.

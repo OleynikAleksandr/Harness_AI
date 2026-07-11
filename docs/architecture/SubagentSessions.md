@@ -41,10 +41,18 @@ rollout-текста или поиск слов о субагентах в UI з
 - `subagentStatus` с provider-neutral состоянием;
 - `titleOrigin: "default" | "auto" | "manual"`.
 
+Поля добавлены как backward-compatible optional metadata: persisted sessions,
+созданные до этого контракта, читаются как primary/default. Все новые records
+материализуются Core lifecycle с явными значениями.
+
 Timeline основной сессии получает `CoreSubagentCall`. Он хранит стабильный id
 вызова, исходный timestamp, delegated prompt и ссылки на созданные Core child
 session ids. Повторные provider-обновления меняют существующую карточку, но не
 переносят её из исходной точки диалога.
+
+Append-only история может содержать несколько snapshots одного call. При
+hydration `session-event-stream` объединяет их по id в исходной позиции и
+возвращает последнее состояние карточки.
 
 Дочерняя сессия создаётся в Core сразу после структурированного spawn-события,
 подписывается на уже работающий provider thread и сохраняется в workspace

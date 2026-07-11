@@ -31,6 +31,20 @@ export interface CoreSessionMessageTranslationPatch {
   targetLanguage: string;
 }
 
+export type CoreSubagentCallStatus = "running" | "completed" | "failed";
+
+export interface CoreSubagentCall {
+  childSessionIds: string[];
+  createdAt: string;
+  id: string;
+  model?: string;
+  reasoningEffort?: string;
+  sessionId: string;
+  status: CoreSubagentCallStatus;
+  task?: string;
+  updatedAt: string;
+}
+
 export type CoreTurnState = "idle" | "running";
 
 export type SessionCoreEvent =
@@ -63,6 +77,16 @@ export type SessionCoreEvent =
       payload: { sessionId: string; title: string };
       timestamp: string;
       type: "session:created";
+    }
+  | {
+      payload: { sessionId: string };
+      timestamp: string;
+      type: "session:updated";
+    }
+  | {
+      payload: CoreSubagentCall;
+      timestamp: string;
+      type: "session:subagent-call";
     }
   | {
       payload: ProviderSessionBinding;
@@ -107,7 +131,9 @@ export class SessionEventStreamFacade {
     const events = sessionId
       ? this.events.filter((event) => event.payload.sessionId === sessionId)
       : this.events;
-    return coalesceLiveAssistantMessageEvents(events);
+    return coalesceSubagentCallEvents(
+      coalesceLiveAssistantMessageEvents(events)
+    );
   }
 
   latestTelemetryBySession(): Map<string, ProviderUsageTelemetry> {
@@ -235,6 +261,39 @@ function coalesceLiveAssistantMessageEvents(
         ...(translationState ? { translationState } : {}),
       },
       timestamp: event.timestamp,
+    };
+  }
+  return coalesced;
+}
+
+function coalesceSubagentCallEvents(
+  events: readonly SessionCoreEvent[]
+): SessionCoreEvent[] {
+  const coalesced: SessionCoreEvent[] = [];
+  const callIndexById = new Map<string, number>();
+  for (const event of events) {
+    if (event.type !== "session:subagent-call") {
+      coalesced.push(event);
+      continue;
+    }
+    const key = `${event.payload.sessionId}:${event.payload.id}`;
+    const existingIndex = callIndexById.get(key);
+    if (existingIndex === undefined) {
+      callIndexById.set(key, coalesced.length);
+      coalesced.push(event);
+      continue;
+    }
+    const previous = coalesced[existingIndex];
+    if (previous.type !== "session:subagent-call") {
+      continue;
+    }
+    coalesced[existingIndex] = {
+      ...event,
+      payload: {
+        ...event.payload,
+        createdAt: previous.payload.createdAt,
+      },
+      timestamp: previous.timestamp,
     };
   }
   return coalesced;

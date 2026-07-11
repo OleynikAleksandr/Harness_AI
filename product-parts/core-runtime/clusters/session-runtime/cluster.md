@@ -2,7 +2,9 @@
 
 ## Boundary
 
-Owns session metadata, next-session mode truth, append-only JSONL history, provider session bindings, provider id promotion, turn state, live assistant chunk read-models, and UI session snapshots.
+Owns session metadata, parent-child subagent graph truth, next-session mode,
+append-only JSONL history, provider session bindings, provider id promotion,
+turn state, live assistant chunk/timeline read-models, and UI session snapshots.
 
 ## Owned Modules
 

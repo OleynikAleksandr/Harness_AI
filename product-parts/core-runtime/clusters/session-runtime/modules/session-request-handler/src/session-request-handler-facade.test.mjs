@@ -64,6 +64,10 @@ assert.match(typesSource, /export interface AppliedProfileSnapshot/u);
 assert.match(typesSource, /export interface RollbackCoreSessionRequest/u);
 assert.match(typesSource, /preserveFirstUserTurns\?: number/u);
 assert.match(typesSource, /appliedProfile\?: AppliedProfileSnapshot/u);
+assert.match(typesSource, /sessionKind\?: CoreSessionKind/u);
+assert.match(typesSource, /parentSessionId\?: string/u);
+assert.match(typesSource, /subagentStatus\?: CoreSubagentStatus/u);
+assert.match(typesSource, /titleOrigin\?: CoreSessionTitleOrigin/u);
 
 const historySource = readFileSync(
   new URL("./session-history-store.ts", import.meta.url),

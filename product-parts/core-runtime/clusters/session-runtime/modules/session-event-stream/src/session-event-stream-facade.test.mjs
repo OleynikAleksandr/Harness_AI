@@ -108,11 +108,41 @@ firstStream.publish({
   timestamp: "2026-06-27T00:00:05.000Z",
   type: "session:message_translation",
 });
+firstStream.publish({
+  payload: {
+    childSessionIds: ["session-child"],
+    createdAt: "2026-06-27T00:00:06.000Z",
+    id: "spawn-call-1",
+    model: "gpt-5.6-sol",
+    reasoningEffort: "ultra",
+    sessionId: session.id,
+    status: "running",
+    task: "Audit the provider boundary",
+    updatedAt: "2026-06-27T00:00:06.000Z",
+  },
+  timestamp: "2026-06-27T00:00:06.000Z",
+  type: "session:subagent-call",
+});
+firstStream.publish({
+  payload: {
+    childSessionIds: ["session-child"],
+    createdAt: "2026-06-27T00:00:07.000Z",
+    id: "spawn-call-1",
+    model: "gpt-5.6-sol",
+    reasoningEffort: "ultra",
+    sessionId: session.id,
+    status: "completed",
+    task: "Audit the provider boundary",
+    updatedAt: "2026-06-27T00:00:07.000Z",
+  },
+  timestamp: "2026-06-27T00:00:07.000Z",
+  type: "session:subagent-call",
+});
 
 const secondStream = new SessionEventStreamFacade();
 secondStream.configureSessionHistory([session]);
 
-assert.equal(secondStream.listEvents(session.id).length, 5);
+assert.equal(secondStream.listEvents(session.id).length, 6);
 assert.equal(secondStream.listEvents(session.id)[0].type, "session:message");
 const liveMessage = secondStream
   .listEvents(session.id)
@@ -126,6 +156,12 @@ const translationPatch = secondStream
   .listEvents(session.id)
   .find((event) => event.type === "session:message_translation");
 assert.equal(translationPatch?.payload.localizedContent, "Проверяю план.");
+const subagentCall = secondStream
+  .listEvents(session.id)
+  .find((event) => event.type === "session:subagent-call");
+assert.equal(subagentCall?.payload.status, "completed");
+assert.equal(subagentCall?.payload.createdAt, "2026-06-27T00:00:06.000Z");
+assert.deepEqual(subagentCall?.payload.childSessionIds, ["session-child"]);
 assert.equal(
   secondStream.latestTelemetryBySession().get(session.id)?.tokenUsage?.used,
   40

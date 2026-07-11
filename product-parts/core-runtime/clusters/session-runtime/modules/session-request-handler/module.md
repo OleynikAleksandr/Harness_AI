@@ -34,6 +34,11 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 ## Outputs
 
 - Core session events.
+- Provider-neutral child-session metadata on `CoreSession`: optional
+  `sessionKind`, `parentSessionId`, agent nickname/role, delegated task,
+  reasoning effort, subagent status/call id and title origin. Fields remain
+  optional for persisted sessions created before this contract; new-session
+  materialization is owned by the following lifecycle slice.
 - Provider dispatch requests through the provider adapter contract.
 - Session errors and lifecycle state.
 - Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.
@@ -73,6 +78,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   application, provider session id promotion, reasoning display projection,
   and turn-state transitions moved out of the facade to keep it under the
   500-line cap; the facade supplies a thin callback context.
+- Provider binding/start/resume/dispatch/event wiring lives in
+  `session-provider-binding-lifecycle.ts`; this is a behavior-preserving split
+  from the facade and is also the adoption point for already-running provider
+  child threads.
 - Provider session starts flow through the additive adapter contract:
   `createSession`/`resumeSession` outcomes are normalized via
   `normalizeProviderSessionStart` before binding.

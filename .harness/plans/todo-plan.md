@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": "feat: add core subagent session contracts",
+  "currentTaskId": "harness-ai.phase6.stream1.task3",
+  "expectedCommitMessage": "feat: orchestrate core subagent sessions",
   "debt": null
 }
 ```
@@ -119,9 +119,9 @@
 
 20. [DONE] `harness-ai.phase6.stream1.task1` Extract the existing provider binding lifecycle from the 499-line request-handler facade to create safe additive headroom without changing behavior (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-provider-binding-lifecycle.ts, focused tests`; expected commit: `refactor: extract session provider binding lifecycle [skip-docs]`). Result: Completed in commit `refactor: extract session provider binding lifecycle [skip-docs]`.
 21. [DONE] Git Commit: `refactor: extract session provider binding lifecycle [skip-docs]` (hash: self)
-22. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Add persisted Core child-session metadata, provider-neutral subagent statuses, timeline call events and event hydration/coalescing contracts (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: add core subagent session contracts`).
-23. [TODO] Git Commit: `feat: add core subagent session contracts` (hash: TBD)
-24. [TODO] `harness-ai.phase6.stream1.task3` Implement provider-event routing and the Core subagent lifecycle that creates/adopts child bindings, maintains parent-child status and records spawn timeline items (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-provider-event-router.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: orchestrate core subagent sessions`).
+22. [DONE] `harness-ai.phase6.stream1.task2` Add persisted Core child-session metadata, provider-neutral subagent statuses, timeline call events and event hydration/coalescing contracts (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: add core subagent session contracts`). Result: Completed in commit `feat: add core subagent session contracts`.
+23. [DONE] Git Commit: `feat: add core subagent session contracts` (hash: self)
+24. [IN_PROGRESS] `harness-ai.phase6.stream1.task3` Implement provider-event routing and the Core subagent lifecycle that creates/adopts child bindings, maintains parent-child status and records spawn timeline items (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-provider-event-router.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: orchestrate core subagent sessions`).
 25. [TODO] Git Commit: `feat: orchestrate core subagent sessions` (hash: TBD)
 26. [TODO] `harness-ai.phase6.stream1.task4` Wire the subagent lifecycle into the request handler, persist/restore child records and cascade parent deletion so no orphan descendants remain (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: persist core subagent session tree`).
 27. [TODO] Git Commit: `feat: persist core subagent session tree` (hash: TBD)

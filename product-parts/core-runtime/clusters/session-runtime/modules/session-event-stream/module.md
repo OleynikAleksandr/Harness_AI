@@ -24,6 +24,12 @@ Expose provider-neutral Core session events to Application Shell projections. Pr
 - Core message translation metadata: `translationState`, `localizedContent`,
   and `session:message_translation` patch events.
 - Consecutive assistant messages tagged `live` coalesced for session replay/readback.
+- Persisted `session:subagent-call` timeline items with stable creation
+  position, child Core session ids, delegated task, model/reasoning and live
+  status. Repeated snapshots for the same call coalesce at the original
+  timeline position during hydration.
+- `session:updated` invalidation events tell clients to re-read the Core
+  session snapshot instead of deriving metadata changes locally.
 - Snapshot invalidation signals.
 - Per-session teardown via `deleteSessionEvents(sessionId)`: idempotently unlinks the
   session event log, forgets the session, and drops its in-memory events so a later

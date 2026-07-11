@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "feat: surface codex subagent events",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "refactor: extract session provider binding lifecycle [skip-docs]",
   "debt": null
 }
 ```
@@ -110,14 +110,14 @@
 
 ### Stream: Codex App Server Normalization
 
-18. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Add provider-neutral subagent event contracts and normalize Codex `collabAgentToolCall`, `thread/started`, and `thread/status/changed` notifications without rollout-text inference (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-event-router.ts, focused tests, related provider docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: surface codex subagent events`).
-19. [TODO] Git Commit: `feat: surface codex subagent events` (hash: TBD)
+18. [DONE] `harness-ai.phase5.stream1.task1` Add provider-neutral subagent event contracts and normalize Codex `collabAgentToolCall`, `thread/started`, and `thread/status/changed` notifications without rollout-text inference (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-app-server-event-router.ts, focused tests, related provider docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: surface codex subagent events`). Result: Completed in commit `feat: surface codex subagent events`.
+19. [DONE] Git Commit: `feat: surface codex subagent events` (hash: self)
 
 ## Phase 6 - Core Session Graph (owner: Codex, updated: 2026-07-11)
 
 ### Stream: Session Runtime Foundations
 
-20. [TODO] `harness-ai.phase6.stream1.task1` Extract the existing provider binding lifecycle from the 499-line request-handler facade to create safe additive headroom without changing behavior (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-provider-binding-lifecycle.ts, focused tests`; expected commit: `refactor: extract session provider binding lifecycle [skip-docs]`).
+20. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Extract the existing provider binding lifecycle from the 499-line request-handler facade to create safe additive headroom without changing behavior (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-provider-binding-lifecycle.ts, focused tests`; expected commit: `refactor: extract session provider binding lifecycle [skip-docs]`).
 21. [TODO] Git Commit: `refactor: extract session provider binding lifecycle [skip-docs]` (hash: TBD)
 22. [TODO] `harness-ai.phase6.stream1.task2` Add persisted Core child-session metadata, provider-neutral subagent statuses, timeline call events and event hydration/coalescing contracts (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: add core subagent session contracts`).
 23. [TODO] Git Commit: `feat: add core subagent session contracts` (hash: TBD)

@@ -29,6 +29,12 @@ Define the shared provider adapter boundary used by Core. Adapters expose sessio
   keeps the adapter's current behavior
   (docs/architecture/SessionProfiles.md).
 - Provider event subscription.
+- Provider-neutral structured subagent events: `subagent_control` preserves the
+  collaboration call position, prompt/model/reasoning and receiver states;
+  `subagent_session` describes a newly started child thread and its parent;
+  `subagent_status` carries live child state. Adapters normalize native
+  provider shapes before Core sees them, and renderer text inference is not
+  part of this boundary.
 - Provider lifecycle errors.
 - Core-owned `turnOptions` passed through to provider-owned migrated reference
   adapters.

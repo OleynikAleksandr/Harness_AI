@@ -13,6 +13,7 @@ import {
   type CodexReasoningSummaryBlock,
   CodexReasoningSummaryStreamBuffer,
 } from "./codex-reasoning-summary-stream-buffer.js";
+import { routeCodexSubagentNotification } from "./codex-subagent-event-normalizer.js";
 
 export interface AppServerSessionState {
   activeTurnId: string | null;
@@ -77,6 +78,9 @@ export class CodexAppServerEventRouter {
   }
 
   handleNotification(method: string, params: unknown): void {
+    if (routeCodexSubagentNotification(this.deps, method, params)) {
+      return;
+    }
     switch (method) {
       case "turn/started":
         this.handleTurnStarted(params);

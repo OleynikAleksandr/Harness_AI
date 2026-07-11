@@ -72,6 +72,73 @@ export interface ProviderRollbackResult {
   turns: number;
 }
 
+export type ProviderSubagentStatus =
+  | "pending"
+  | "running"
+  | "interrupted"
+  | "completed"
+  | "failed"
+  | "shutdown"
+  | "not_found";
+
+export interface ProviderSubagentState {
+  readonly message?: string;
+  readonly providerSessionId: string;
+  readonly status: ProviderSubagentStatus;
+}
+
+export interface ProviderSubagentControlEvent {
+  readonly action: "spawn" | "send_input" | "resume" | "wait" | "close";
+  readonly agentStates: readonly ProviderSubagentState[];
+  readonly callId: string;
+  readonly lifecycleStatus: "running" | "completed" | "failed";
+  readonly model?: string;
+  readonly prompt?: string;
+  readonly reasoningEffort?: string;
+  readonly receiverProviderSessionIds: readonly string[];
+  readonly senderProviderSessionId: string;
+  readonly timestamp: string;
+  readonly type: "subagent_control";
+}
+
+export interface ProviderSubagentSessionEvent {
+  readonly agentNickname?: string;
+  readonly agentRole?: string;
+  readonly parentProviderSessionId: string;
+  readonly providerSessionId: string;
+  readonly status: ProviderSubagentStatus;
+  readonly task?: string;
+  readonly timestamp: string;
+  readonly title?: string;
+  readonly type: "subagent_session";
+}
+
+export interface ProviderSubagentStatusEvent {
+  readonly providerSessionId: string;
+  readonly status: ProviderSubagentStatus;
+  readonly timestamp: string;
+  readonly type: "subagent_status";
+}
+
+export type ProviderSubagentEvent =
+  | ProviderSubagentControlEvent
+  | ProviderSubagentSessionEvent
+  | ProviderSubagentStatusEvent;
+
+export function isProviderSubagentEvent(
+  value: unknown
+): value is ProviderSubagentEvent {
+  if (!(value && typeof value === "object")) {
+    return false;
+  }
+  const type = (value as { readonly type?: unknown }).type;
+  return (
+    type === "subagent_control" ||
+    type === "subagent_session" ||
+    type === "subagent_status"
+  );
+}
+
 // Provider-tagged applied-input-envelope recorded during native request
 // capture. Only `kind` is typed at this boundary; each adapter passes its own
 // concrete envelope (extra fields serialized as-is by the capture writer).

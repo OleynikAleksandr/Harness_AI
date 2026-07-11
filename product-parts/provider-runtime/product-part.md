@@ -18,7 +18,8 @@ provider-backed translation engines composed by Core Runtime only.
 - Own provider catalog, descriptors, invocation profile metadata, readiness, and adapters.
 - Keep provider homes, caches, auth references, and runtime files isolated.
 - Own provider-specific runtime prompts or native project-instruction startup before requests reach external SDKs or CLIs.
-- Normalize provider events for Core Runtime.
+- Normalize provider events for Core Runtime, including structured native
+  collaboration/subagent lifecycle events when a provider exposes them.
 
 ## Out Of Scope
 

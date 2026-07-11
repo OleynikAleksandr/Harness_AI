@@ -42,6 +42,11 @@ already supplies this as `agentMessage.phase`; direct/custom providers that do
 not have an equivalent upstream phase must add their own adapter-level
 sentinel or continuation protocol.
 
+Native collaboration is normalized at the same boundary. Codex app-server
+`collabAgentToolCall`, child `thread/started`, and `thread/status/changed`
+notifications become provider-neutral subagent events; Core, not the adapter
+or renderer, owns the resulting parent-child session graph.
+
 Codex reasoning effort types follow the live app-server catalog: GPT-5.6
 Sol/Terra add `max` and `ultra`, Luna adds `max`, while older picker-visible
 models stop at `xhigh`. Core settings select the effort; the adapter translates

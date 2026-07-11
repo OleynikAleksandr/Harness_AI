@@ -26,6 +26,11 @@ Codex adapter нормализует эти данные в provider-neutral с�
 Renderer только отображает Core-снимки и отправляет Core-команды. Разбор
 rollout-текста или поиск слов о субагентах в UI запрещены.
 
+Нормализованный provider boundary состоит из трёх событий:
+`subagent_control`, `subagent_session` и `subagent_status`. Codex-native
+`pendingInit/running/errored/...` переводятся в общий статусный словарь до
+передачи в Core.
+
 ## Core read model
 
 `CoreSession` получает добавочные поля:

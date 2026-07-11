@@ -1,10 +1,15 @@
+import { ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import { sessionSnapshotProjectorFacade } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import type { LocalizationRuntimePayload } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
-import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import {
+  BrowserLocalizationProvider,
+  useBrowserLocalization,
+} from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
 import { ProviderPicker, resolveProviderModel } from "./provider-picker.js";
@@ -52,14 +57,22 @@ export function SessionWindowFacade() {
     applyEvent,
     hydrateSession,
     messages,
+    regenerateSessionTitle,
+    refreshSessionList,
     refreshSessions,
+    renameSession,
     rollbackSessionId,
     runningSessionId,
     selectSession,
     sessions,
     setRollbackSessionId,
+    subagentCalls,
     telemetry,
-  } = useSessionWindowSessionState({ detachedMode, initialSnapshot });
+  } = useSessionWindowSessionState({
+    activeWorkspaceId,
+    detachedMode,
+    initialSnapshot,
+  });
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
     initialSnapshot.workspace;
@@ -119,6 +132,12 @@ export function SessionWindowFacade() {
         return;
       }
       applyEvent(event);
+      if (
+        event.type === "session:created" ||
+        event.type === "session:updated"
+      ) {
+        refreshSessionList(activeWorkspaceId).catch(noop);
+      }
     });
   }, [
     detachedMode,
@@ -126,6 +145,7 @@ export function SessionWindowFacade() {
     applyEvent,
     initialSnapshot.workspace,
     refreshLocalizationPayload,
+    refreshSessionList,
     refreshSessions,
     refreshSettingsSnapshot,
   ]);
@@ -283,6 +303,10 @@ export function SessionWindowFacade() {
       await refreshSessions(activeWorkspace.id);
     }
   }
+  const parentSession = activeSession?.parentSessionId
+    ? sessions.find((session) => session.id === activeSession.parentSessionId)
+    : undefined;
+  const isSubagentSession = activeSession?.sessionKind === "subagent";
   const shellClassName = detachedMode
     ? "harness-app-shell harness-app-shell--detached"
     : "harness-app-shell";
@@ -298,6 +322,8 @@ export function SessionWindowFacade() {
             onDeleteSession={deleteSession}
             onDetachSession={detachSession}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onRegenerateSessionTitle={regenerateSessionTitle}
+            onRenameSession={renameSession}
             onSelectSession={selectSession}
             onSelectWorkspace={selectWorkspace}
             onToggleWorkspaceMenu={() =>
@@ -310,19 +336,38 @@ export function SessionWindowFacade() {
         )}
 
         {activeSession ? (
-          <main className="session-reference-shell">
+          <main
+            className={
+              isSubagentSession
+                ? "session-reference-shell session-reference-shell--subagent"
+                : "session-reference-shell"
+            }
+          >
             <SessionIdPanel session={activeSession} telemetry={telemetry} />
+            {isSubagentSession ? (
+              <SubagentSessionHeader
+                onOpenParent={selectSession}
+                parentSession={parentSession}
+                session={activeSession}
+              />
+            ) : null}
             <DialogPanel
               messages={messages}
+              onDetachSubagent={detachSession}
+              onOpenSubagent={selectSession}
               providerId={activeSession.providerId}
               providerName={activeSession.providerName}
+              sessions={sessions}
+              subagentCalls={subagentCalls}
             />
-            <ReferenceInputPanel
-              disabled={runningSessionId === activeSession.id}
-              onStop={() => stopActiveTurn(activeSession.id)}
-              onSubmit={appendUserMessage}
-              session={activeSession}
-            />
+            {isSubagentSession ? null : (
+              <ReferenceInputPanel
+                disabled={runningSessionId === activeSession.id}
+                onStop={() => stopActiveTurn(activeSession.id)}
+                onSubmit={appendUserMessage}
+                session={activeSession}
+              />
+            )}
             <ReferenceStatusPanel
               messages={messages}
               onRollbackTurns={() =>
@@ -370,5 +415,75 @@ export function SessionWindowFacade() {
         />
       </div>
     </BrowserLocalizationProvider>
+  );
+}
+
+function SubagentSessionHeader({
+  onOpenParent,
+  parentSession,
+  session,
+}: {
+  onOpenParent: (sessionId: string) => void | Promise<void>;
+  parentSession: CoreSession | undefined;
+  session: CoreSession;
+}) {
+  const { t } = useBrowserLocalization();
+  const metadata = [
+    session.agentNickname,
+    session.agentRole,
+    session.model,
+    session.reasoningEffort,
+  ].filter(Boolean);
+  return (
+    <section className="session-subagent-header session-panel">
+      <div className="session-subagent-header__breadcrumb">
+        {parentSession ? (
+          <button
+            onClick={() => onOpenParent(parentSession.id)}
+            title={parentSession.title}
+            type="button"
+          >
+            {parentSession.title}
+          </button>
+        ) : (
+          <span>
+            {t(
+              "messages_for_the_user",
+              "session.subagent.parentUnavailable",
+              "Parent session unavailable"
+            )}
+          </span>
+        )}
+        <ChevronRight aria-hidden="true" size={14} />
+        <strong>{session.title}</strong>
+      </div>
+      <div className="session-subagent-header__body">
+        <div>
+          <span className="session-subagent-header__eyebrow">
+            {t("ui_labels", "session.subagent.task", "Delegated task")}
+          </span>
+          <p>{session.delegatedTask ?? session.title}</p>
+        </div>
+        <span
+          className={`session-subagent-header__status session-subagent-header__status--${session.subagentStatus ?? "pending"}`}
+        >
+          {t(
+            "ui_labels",
+            `session.subagent.status.${session.subagentStatus ?? "pending"}`,
+            session.subagentStatus ?? "pending"
+          )}
+        </span>
+      </div>
+      <div className="session-subagent-header__meta">
+        <span>{metadata.join(" · ")}</span>
+        <span>
+          {t(
+            "ui_helper_text",
+            "session.subagent.readOnly",
+            "Read-only live subagent session"
+          )}
+        </span>
+      </div>
+    </section>
   );
 }

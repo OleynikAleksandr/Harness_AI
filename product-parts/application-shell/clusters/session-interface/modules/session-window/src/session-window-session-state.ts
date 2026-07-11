@@ -1,5 +1,8 @@
 import { useCallback, useState } from "react";
-import type { SessionCoreEvent } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import type {
+  CoreSubagentCall,
+  SessionCoreEvent,
+} from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type {
   SessionMessage,
@@ -13,10 +16,11 @@ import {
 import type { DetachedSessionMode } from "./session-window-routing.js";
 
 export function useSessionWindowSessionState(options: {
+  activeWorkspaceId: string;
   detachedMode: DetachedSessionMode | null;
   initialSnapshot: SessionSnapshot;
 }) {
-  const { detachedMode, initialSnapshot } = options;
+  const { activeWorkspaceId, detachedMode, initialSnapshot } = options;
   const [sessions, setSessions] = useState<CoreSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState(
     detachedMode?.sessionId ?? ""
@@ -31,6 +35,9 @@ export function useSessionWindowSessionState(options: {
   >({
     [initialSnapshot.activeSessionId]: initialSnapshot.telemetry,
   });
+  const [subagentCallsBySession, setSubagentCallsBySession] = useState<
+    Record<string, CoreSubagentCall[]>
+  >({});
   const [rollbackSessionId, setRollbackSessionId] = useState<string | null>(
     null
   );
@@ -44,12 +51,14 @@ export function useSessionWindowSessionState(options: {
     : [];
   const telemetry =
     telemetryBySession[activeSessionDataId] ?? initialSnapshot.telemetry;
+  const subagentCalls = subagentCallsBySession[activeSessionDataId] ?? [];
 
   const applyEvent = useCallback((event: SessionCoreEvent) => {
     applyCoreEvent({
       event,
       setMessagesBySession,
       setRunningSessionId,
+      setSubagentCallsBySession,
       setTelemetryBySession,
     });
   }, []);
@@ -84,8 +93,16 @@ export function useSessionWindowSessionState(options: {
     [hydrateSession]
   );
 
+  const refreshSessionList = useCallback(async (workspaceId: string) => {
+    const loaded = await window.harnessCore?.listSessions(workspaceId);
+    setSessions(loaded ?? []);
+  }, []);
+
   const addSession = useCallback((session: CoreSession) => {
-    setSessions((current) => [session, ...current]);
+    setSessions((current) => [
+      session,
+      ...current.filter((candidate) => candidate.id !== session.id),
+    ]);
     setMessagesBySession((current) => ({
       ...current,
       [session.id]: [],
@@ -105,6 +122,41 @@ export function useSessionWindowSessionState(options: {
     appendAssistantNotice(sessionId, text, setMessagesBySession);
   }, []);
 
+  const renameSession = useCallback(
+    async (sessionId: string, title: string): Promise<string | null> => {
+      const result = await window.harnessCore?.renameSession({
+        sessionId,
+        title,
+      });
+      if (!result) {
+        return "Core runtime bridge is unavailable.";
+      }
+      if (!result.ok) {
+        return result.error;
+      }
+      await refreshSessionList(activeWorkspaceId);
+      return null;
+    },
+    [activeWorkspaceId, refreshSessionList]
+  );
+
+  const regenerateSessionTitle = useCallback(
+    async (sessionId: string): Promise<string | null> => {
+      const result = await window.harnessCore?.regenerateSessionTitle({
+        sessionId,
+      });
+      if (!result) {
+        return "Core runtime bridge is unavailable.";
+      }
+      if (!result.ok) {
+        return result.error;
+      }
+      await refreshSessionList(activeWorkspaceId);
+      return null;
+    },
+    [activeWorkspaceId, refreshSessionList]
+  );
+
   return {
     activeSession,
     activeSessionId,
@@ -113,12 +165,16 @@ export function useSessionWindowSessionState(options: {
     applyEvent,
     hydrateSession,
     messages,
+    regenerateSessionTitle,
+    refreshSessionList,
     refreshSessions,
+    renameSession,
     rollbackSessionId,
     runningSessionId,
     selectSession,
     sessions,
     setRollbackSessionId,
+    subagentCalls,
     telemetry,
   };
 }

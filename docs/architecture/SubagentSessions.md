@@ -102,6 +102,9 @@ session создаёт grandchild с `parentSessionId` этого child, не в
 - Диалог живой, но поле ввода отсутствует: MVP является read-only просмотром.
 - Верхняя область показывает breadcrumb к parent session, delegated task,
   nickname/role, model, reasoning и status.
+- `session:created` и `session:updated` обновляют индекс сессий без смены
+  текущей вкладки; открытие child выполняется существующей Core-session
+  навигацией и hydrates его append-only event history.
 - Завершение субагента не закрывает уже откреплённое окно.
 
 ### Названия сессий

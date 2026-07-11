@@ -137,6 +137,20 @@ interface Window {
       workspaces: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace[];
     }>;
     rebuildLocalization(): Promise<{ ok: true } | { error: string; ok: false }>;
+    regenerateSessionTitle(request: { sessionId: string }): Promise<
+      | {
+          ok: true;
+          session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
+      | { error: string; ok: false }
+    >;
+    renameSession(request: { sessionId: string; title: string }): Promise<
+      | {
+          ok: true;
+          session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
+      | { error: string; ok: false }
+    >;
     onEvent(
       listener: (
         event:

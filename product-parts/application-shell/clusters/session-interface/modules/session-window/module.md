@@ -15,6 +15,9 @@ Render the transcript/dialog layout and session chrome.
 - Core `session:subagent-call` timeline snapshots and child `CoreSession`
   metadata. The renderer upserts snapshots by stable call id and does not infer
   spawn activity from message text.
+- Core `session:created` / `session:updated` notifications refresh the visible
+  session index without replacing the active selection. This keeps the live
+  child tree and child header current while a parent turn continues.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels use the Core settings-store capability resolver and disappear when the selected Codex model has no declared reasoning effort levels.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
@@ -110,6 +113,13 @@ Render the transcript/dialog layout and session chrome.
 - Inline subagent entry points at their Core-recorded spawn position; opening
   or detaching is emitted with the child Core session id, never a parsed
   provider/rollout identifier.
+- Selecting a child renders its live transcript with a parent breadcrumb,
+  delegated task, agent/model/reasoning/status metadata and no input composer.
+  The same child id drives open-in-place and detached-window actions from both
+  the timeline and sidebar.
+- Sidebar rename and regenerate-title actions call the typed preload/Core
+  commands. Successful mutations refresh only the session list; title
+  validation and `titleOrigin` authority remain in Core.
 - Session-level UI actions sent to Core, including the running-turn Stop that
   calls Core `stopTurn` with the active session id.
 - Enabled Rollback control in the Codex-family status panel. It dispatches only

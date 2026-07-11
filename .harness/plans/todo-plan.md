@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream2.task3",
-  "expectedCommitMessage": "feat: open subagent session views",
+  "currentTaskId": "harness-ai.phase8.stream2.task4",
+  "expectedCommitMessage": "style: align subagent session ux",
   "debt": null
 }
 ```
@@ -152,9 +152,9 @@
 39. [DONE] Git Commit: `feat: show subagent session tree` (hash: self)
 40. [DONE] `harness-ai.phase8.stream2.task2` Merge Core subagent calls into the dialog timeline and add open/detach inline cards with live statuses (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-subagent-timeline.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts, focused tests, related module docs`; expected commit: `feat: show subagent calls in dialog`). Result: Completed in commit `feat: show subagent calls in dialog`.
 41. [DONE] Git Commit: `feat: show subagent calls in dialog` (hash: self)
-42. [IN_PROGRESS] `harness-ai.phase8.stream2.task3` Wire child navigation, Core session refresh, title commands, read-only child input behavior and parent breadcrumb into the main and detached session views (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: open subagent session views`).
-43. [TODO] Git Commit: `feat: open subagent session views` (hash: TBD)
-44. [TODO] `harness-ai.phase8.stream2.task4` Apply the Figma-aligned subagent tree/card/header states and localized Russian/English copy using existing Harness tokens and lucide icons (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused tests, related module/localization docs`; expected commit: `style: align subagent session ux`).
+42. [DONE] `harness-ai.phase8.stream2.task3` Wire child navigation, Core session refresh, title commands, read-only child input behavior and parent breadcrumb into the main and detached session views (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `feat: open subagent session views`). Result: Completed in commit `feat: open subagent session views`.
+43. [DONE] Git Commit: `feat: open subagent session views` (hash: self)
+44. [IN_PROGRESS] `harness-ai.phase8.stream2.task4` Apply the Figma-aligned subagent tree/card/header states and localized Russian/English copy using existing Harness tokens and lucide icons (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, focused tests, related module/localization docs`; expected commit: `style: align subagent session ux`).
 45. [TODO] Git Commit: `style: align subagent session ux` (hash: TBD)
 
 ## Phase 9 - Local Verification And Design QA (owner: Codex, updated: 2026-07-11)

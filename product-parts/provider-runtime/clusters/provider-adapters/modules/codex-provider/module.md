@@ -15,6 +15,9 @@ fallbacks use `~/.harness-ai/providers/codex/home`.
 The facade also accepts an explicit `providerHomePath` for Core-owned
 global-home liveness preflight without pretending the global home is a
 workspace root.
+Dedicated diagnostic instances may also receive Core-resolved
+`defaultReasoningEffort`; the facade passes it to the isolated app-server
+workspace options instead of reading or deriving settings itself.
 The workspace-scoped `CODEX_HOME`, `CODEX_WORKSPACE_PATH` and
 `CODEX_SETTINGS_PATH` values are passed into the app-server process options, so
 provider-home preparation uses the active workspace environment rather than
@@ -35,11 +38,17 @@ the shared process.
 - Provider turn request.
 - Codex auth/home configuration.
 - Active workspace path used as app-server `cwd`.
+- Core-resolved default model and optional Codex reasoning effort. Codex effort
+  values are `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`; the provider
+  `ultra` value is distinct from Claude `ultracode`.
 
 ## Outputs
 
 - Normalized provider events.
 - Provider usage/context telemetry.
+- Model capability lookup for the live picker family: GPT-5.6 Sol/Terra
+  support through `ultra`, GPT-5.6 Luna through `max`, and
+  GPT-5.5/5.4/5.4 Mini/5.3 Codex Spark through `xhigh`; GPT-5.2 is retired.
 - Codex app-server `thread/tokenUsage/updated` events preserve the
   provider-reported cached input token count when present, so Core telemetry can
   display cache reuse beside context-window usage.

@@ -2,9 +2,11 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { CodexProviderAdapter } from "./reference/index.js";
+import type { CodexReasoningEffort } from "./reference/types/index.js";
 
 interface CodexProviderOptions {
   defaultModel?: string;
+  defaultReasoningEffort?: CodexReasoningEffort;
   providerHomePath?: string;
   workspacePath?: string;
 }
@@ -39,6 +41,7 @@ export class CodexProviderFacade extends CodexProviderAdapter {
       workspace: {
         defaultApprovalMode: "never",
         defaultModel: normalizeModel(options.defaultModel),
+        defaultReasoningEffort: options.defaultReasoningEffort,
         defaultSandboxMode: "danger-full-access",
         workspacePath,
       },

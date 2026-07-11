@@ -4,9 +4,17 @@ const CODEX_REASONING_EFFORT_OPTIONS = [
   "high",
   "xhigh",
 ] as const;
+const CODEX_REASONING_EFFORT_OPTIONS_WITH_MAX = [
+  ...CODEX_REASONING_EFFORT_OPTIONS,
+  "max",
+] as const;
+const CODEX_REASONING_EFFORT_OPTIONS_WITH_ULTRA = [
+  ...CODEX_REASONING_EFFORT_OPTIONS_WITH_MAX,
+  "ultra",
+] as const;
 
 export type CodexCapabilityReasoningEffort =
-  (typeof CODEX_REASONING_EFFORT_OPTIONS)[number];
+  (typeof CODEX_REASONING_EFFORT_OPTIONS_WITH_ULTRA)[number];
 
 export interface CodexModelCapabilities {
   readonly autoCompactTokenLimit: number;
@@ -45,13 +53,21 @@ const createCodexModelCapabilities = (
 });
 
 const CODEX_MODEL_CAPABILITIES = [
-  createCodexModelCapabilities("gpt-5.2"),
+  createCodexModelCapabilities("gpt-5.6-sol", {
+    reasoningEffortOptions: CODEX_REASONING_EFFORT_OPTIONS_WITH_ULTRA,
+  }),
+  createCodexModelCapabilities("gpt-5.6-terra", {
+    reasoningEffortOptions: CODEX_REASONING_EFFORT_OPTIONS_WITH_ULTRA,
+  }),
+  createCodexModelCapabilities("gpt-5.6-luna", {
+    reasoningEffortOptions: CODEX_REASONING_EFFORT_OPTIONS_WITH_MAX,
+  }),
+  createCodexModelCapabilities("gpt-5.5"),
+  createCodexModelCapabilities("gpt-5.4"),
+  createCodexModelCapabilities("gpt-5.4-mini"),
   createCodexModelCapabilities(SPARK_MODEL_ID, {
     supportsReasoningSummary: false,
   }),
-  createCodexModelCapabilities("gpt-5.4-mini"),
-  createCodexModelCapabilities("gpt-5.4"),
-  createCodexModelCapabilities("gpt-5.5"),
 ] as const satisfies readonly CodexModelCapabilities[];
 
 const CAPABILITIES_BY_MODEL_ID = new Map(

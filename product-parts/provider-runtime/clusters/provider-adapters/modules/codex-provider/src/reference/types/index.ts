@@ -10,7 +10,13 @@ export type {
 } from "./codex-model-capabilities.js";
 export { getCodexModelCapabilities } from "./codex-model-capabilities.js";
 
-export type CodexReasoningEffort = "low" | "medium" | "high" | "xhigh";
+export type CodexReasoningEffort =
+  | "low"
+  | "medium"
+  | "high"
+  | "xhigh"
+  | "max"
+  | "ultra";
 export type CodexReasoningSummaryMode =
   | "auto"
   | "concise"

@@ -46,3 +46,8 @@ not have an equivalent upstream phase must add their own adapter-level
 sentinel or continuation protocol. CodexUC is the accepted example: the
 adapter adds a route-owned `final_answer` tool and treats plain Responses
 `output_text` as non-terminal commentary.
+
+Codex reasoning effort types follow the live app-server catalog: GPT-5.6
+Sol/Terra add `max` and `ultra`, Luna adds `max`, while older picker-visible
+models stop at `xhigh`. Core settings select the effort; the adapter translates
+that normalized value into app-server `turn/start`.

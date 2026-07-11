@@ -59,6 +59,15 @@ hydration `session-event-stream` объединяет их по id в исход
 session index. После перезапуска она восстанавливается и resume-ится тем же
 путём, что и обычная Codex-сессия.
 
+`collabAgentToolCall.status=completed` означает завершение самого вызова
+`spawnAgent`, а не работы созданного агента. Поэтому статус карточки выводится
+из `agentsStates`/child thread status: успешный spawn работающего child остаётся
+`running` до его собственного завершения.
+
+Одинаковый lifecycle применяется рекурсивно: collaboration event в child
+session создаёт grandchild с `parentSessionId` этого child, не выравнивая дерево
+до одного уровня.
+
 ## UX-контракт
 
 ### Диалог основной сессии

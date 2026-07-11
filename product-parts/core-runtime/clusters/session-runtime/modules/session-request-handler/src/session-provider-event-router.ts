@@ -1,3 +1,7 @@
+import {
+  isProviderSubagentEvent,
+  type ProviderSubagentEvent,
+} from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import type { ReasoningTranslationOverlayFacade } from "../../../../settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.js";
 import type {
   CoreSessionMessage,
@@ -20,6 +24,10 @@ export interface ProviderEventRouterContext {
     sessionId: string
   ) => ProviderRuntimeBinding | undefined;
   readonly getSession: (sessionId: string) => CoreSession | undefined;
+  readonly handleSubagentEvent?: (
+    sessionId: string,
+    event: ProviderSubagentEvent
+  ) => void;
   readonly markBindingReady: (
     sessionId: string,
     providerId: CoreSession["providerId"],
@@ -51,6 +59,10 @@ export function routeProviderEvent(
   event: unknown
 ): void {
   if (!isRecord(event)) {
+    return;
+  }
+  if (isProviderSubagentEvent(event)) {
+    context.handleSubagentEvent?.(sessionId, event);
     return;
   }
   context.updateTelemetry(sessionId, event);

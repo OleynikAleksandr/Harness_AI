@@ -76,12 +76,20 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Provider event routing lives in `session-provider-event-router.ts`
   (`routeProviderEvent` + `ProviderEventRouterContext`): telemetry
   application, provider session id promotion, reasoning display projection,
-  and turn-state transitions moved out of the facade to keep it under the
-  500-line cap; the facade supplies a thin callback context.
+  structured subagent event interception, and turn-state transitions moved
+  out of the facade to keep it under the 500-line cap; the facade supplies a
+  thin callback context.
 - Provider binding/start/resume/dispatch/event wiring lives in
   `session-provider-binding-lifecycle.ts`; this is a behavior-preserving split
   from the facade and is also the adoption point for already-running provider
   child threads.
+- `session-subagent-lifecycle.ts` consumes only typed provider-neutral
+  `subagent_control`/`subagent_session`/`subagent_status` events. It creates or
+  enriches child `CoreSession` records, preserves recursive parent ids,
+  requests adoption of the live child provider thread, updates child status,
+  and publishes stable `CoreSubagentCall` snapshots. Spawn-tool completion is
+  not treated as child completion: call status is derived from agent/thread
+  states, so a successfully spawned running agent remains `running`.
 - Provider session starts flow through the additive adapter contract:
   `createSession`/`resumeSession` outcomes are normalized via
   `normalizeProviderSessionStart` before binding.

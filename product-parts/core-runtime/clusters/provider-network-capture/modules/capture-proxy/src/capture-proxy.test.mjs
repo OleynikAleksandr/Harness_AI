@@ -200,7 +200,7 @@ try {
       bodyText: "{}",
       headers: { "content-length": "2" },
       method: "POST",
-      path: "/backend-api/codex/new-responses-path",
+      path: "/backend-api/codex/new-responses-path?token=secret",
     },
     { host: "chatgpt.com", pathIncludes: "/backend-api/codex/responses" }
   );
@@ -278,7 +278,8 @@ try {
     bodyIncludes: "Harness AI capture probe",
     minimumToolCount: 1,
   };
-  const wsProxy = buildProxy(wsRule);
+  const wsEvents = [];
+  const wsProxy = buildProxy(wsRule, wsEvents);
   const wsHandle = await wsProxy.start();
   const wsClient = await openClientTls(wsHandle);
   wsClient.write(
@@ -333,6 +334,16 @@ try {
     "the probe-turn frame must be captured, not the prewarm frame"
   );
   assert.equal(wsResult.request.body.tools.length, 3);
+  const rejectedPrewarm = wsEvents.find(
+    (event) =>
+      event.type === "request_ignored" &&
+      event.reason === "websocket_frame_not_matched"
+  );
+  assert.equal(rejectedPrewarm.detail.frameType, "response.create");
+  assert.equal(rejectedPrewarm.detail.hasTopLevelTools, true);
+  assert.equal(rejectedPrewarm.detail.probeMatched, true);
+  assert.equal(rejectedPrewarm.detail.toolCount, 0);
+  assert.ok(rejectedPrewarm.detail.payloadBytes > 0);
   const wsUpstream = fake.connections.find((c) =>
     Buffer.concat(c.chunks).includes("Upgrade: websocket")
   );
@@ -344,6 +355,41 @@ try {
       .includes("sec-websocket-extensions"),
     "permessage-deflate must be stripped from the forwarded upgrade"
   );
+
+  // Codex 0.144.1 omits top-level tools from both prewarm and real request
+  // frames. When the tools field is absent, the probe match identifies the
+  // real turn; legacy frames that include tools still use minimumToolCount.
+  const currentWsProxy = buildProxy(wsRule);
+  const currentWsHandle = await currentWsProxy.start();
+  const currentWsClient = await openClientTls(currentWsHandle);
+  currentWsClient.write(
+    [
+      "GET /v1/messages HTTP/1.1",
+      "Host: api.anthropic.com",
+      "Connection: Upgrade",
+      "Upgrade: websocket",
+      "Sec-WebSocket-Version: 13",
+      "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==",
+      "",
+      "",
+    ].join("\r\n")
+  );
+  await new Promise((resolve) => currentWsClient.once("data", resolve));
+  currentWsClient.write(
+    buildMaskedTextFrame(
+      JSON.stringify({
+        type: "response.create",
+        model: "gpt-5.6-sol",
+        input: [{ type: "text", text: "Harness AI capture probe turn" }],
+      })
+    )
+  );
+  const currentWsResult = await currentWsHandle.waitForCapture();
+  await currentWsHandle.stop();
+  currentWsClient.destroy();
+  assert.equal(currentWsResult.status, "captured");
+  assert.equal(currentWsResult.request.body.model, "gpt-5.6-sol");
+  assert.equal("tools" in currentWsResult.request.body, false);
 
   // Case 4: a client-side TLS rejection is preserved as a safe diagnostic
   // code/message instead of the previous opaque tls_socket_error marker.

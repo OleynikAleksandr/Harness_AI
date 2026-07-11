@@ -126,6 +126,15 @@ function countFrameTools(body: unknown): number {
   return Array.isArray(tools) ? tools.length : 0;
 }
 
+export interface WebSocketRejectedFrameDetail {
+  readonly frameType: string | null;
+  readonly hasTopLevelTools: boolean;
+  readonly payloadBytes: number;
+  readonly probeMatched: boolean;
+  readonly toolCount: number;
+  readonly topLevelKeys: readonly string[];
+}
+
 export interface WebSocketCaptureParams {
   readonly afterHead: Buffer;
   readonly clientSocket: net.Socket;
@@ -134,6 +143,7 @@ export interface WebSocketCaptureParams {
   readonly minimumTools?: number;
   readonly now: () => string;
   readonly onCapture: (request: CapturedNativeRequest) => void;
+  readonly onFrameRejected?: (detail: WebSocketRejectedFrameDetail) => void;
   readonly target: string;
   readonly upstream: net.Socket;
 }
@@ -171,14 +181,16 @@ export function runWebSocketCapture(params: WebSocketCaptureParams): void {
         continue;
       }
       const text = frame.payload.toString("utf8");
-      if (params.frameIncludes && !text.includes(params.frameIncludes)) {
-        continue;
-      }
       const parsed = safeJson(text);
-      if (
-        typeof params.minimumTools === "number" &&
-        countFrameTools(parsed) < params.minimumTools
-      ) {
+      const rejection = buildFrameRejectionDetail({
+        frameIncludes: params.frameIncludes,
+        minimumTools: params.minimumTools,
+        parsed,
+        payloadBytes: frame.payload.length,
+        text,
+      });
+      if (rejection) {
+        params.onFrameRejected?.(rejection);
         continue;
       }
       captured = true;
@@ -201,4 +213,48 @@ export function runWebSocketCapture(params: WebSocketCaptureParams): void {
       inspect();
     }
   });
+}
+
+function buildFrameRejectionDetail(options: {
+  readonly frameIncludes?: string;
+  readonly minimumTools?: number;
+  readonly parsed: unknown;
+  readonly payloadBytes: number;
+  readonly text: string;
+}): WebSocketRejectedFrameDetail | null {
+  const probeMatched = options.frameIncludes
+    ? options.text.includes(options.frameIncludes)
+    : true;
+  const toolCount = countFrameTools(options.parsed);
+  const hasTopLevelTools =
+    isJsonObject(options.parsed) && "tools" in options.parsed;
+  if (
+    probeMatched &&
+    (typeof options.minimumTools !== "number" ||
+      !hasTopLevelTools ||
+      toolCount >= options.minimumTools)
+  ) {
+    return null;
+  }
+  return {
+    frameType: readFrameType(options.parsed),
+    hasTopLevelTools,
+    payloadBytes: options.payloadBytes,
+    probeMatched,
+    toolCount,
+    topLevelKeys: isJsonObject(options.parsed)
+      ? Object.keys(options.parsed)
+      : [],
+  };
+}
+
+function readFrameType(body: unknown): string | null {
+  if (!isJsonObject(body)) {
+    return null;
+  }
+  return typeof body.type === "string" ? body.type : null;
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

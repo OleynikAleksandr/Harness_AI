@@ -42,7 +42,10 @@ injection (pointing a provider client at the local proxy) is passed in as a
   memory-consolidation prewarm consolidates our probe session so it also
   contains the probe text, and only its empty `tools` array distinguishes it
   from the probe turn (full native tool set) — the tool-count filter selects
-  our turn's frame.
+  our turn's frame on legacy schemas. Codex 0.144.1 omits top-level `tools`
+  from `response.create`; when that field is absent the proxy relies on the
+  probe match instead, while still enforcing the count whenever `tools` is
+  present.
 - `ProviderCaptureContext`: what the orchestrator hands the adapter callback.
   Its shape matches the provider adapter contract's
   `ProviderNativeCaptureOptions` so the RPC callback is

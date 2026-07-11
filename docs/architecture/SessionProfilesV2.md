@@ -364,6 +364,15 @@
   передаёт его выделенному диагностическому адаптеру, поэтому native capture
   отправляет тот же `turn/start.effort` (включая `ultra` для Sol/Terra), а не
   `null` и не renderer-derived значение.
+  В Codex 0.144.1 `Ultra` является app-server orchestration mode: Harness
+  передаёт `turn/start.effort=ultra`, а фактический upstream
+  `response.create.reasoning.effort` нормализуется самим Codex в `max`;
+  capture сохраняет реальный wire payload и не подменяет его обратно на
+  `ultra`. Эта же версия убрала top-level `tools` из `response.create`, поэтому
+  WS-фильтр проверяет `minimumToolCount` только для legacy-frame, где поле
+  `tools` существует; в новой схеме реальный turn выбирается точным совпадением
+  probe prompt. Диагностические CA/leaf автоматически ротируются до истечения,
+  а TLS/path/WS mismatch записываются структурно без prompt/body/query payload.
 - Для Claude capture **дополняет** инвентарь из `init`: `init` даёт имена
   инструментов и версию CLI на runtime, capture — полные схемы и текст
   системного промпта для анализа и составления профилей.

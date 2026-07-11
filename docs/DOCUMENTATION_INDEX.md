@@ -253,6 +253,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   user-approved macOS arm64 package rebuild for the Codex 5.6 catalog and
   Native Request Capture reasoning propagation, including direct `app.asar`
   content checks, SHA-256, and a successful packaged-app launch smoke check.
+- `docs/evidence/codex-0.144.1-native-capture-recovery-2026-07-11.md` — root
+  cause and recovery evidence for expired diagnostic certificates, automatic
+  CA/leaf rotation, safe TLS/path/WebSocket diagnostics, Codex 0.144.1's
+  tool-less `response.create` frame contract, and a successful live GPT-5.6
+  Sol Ultra capture with canonical non-empty raw JSONL.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

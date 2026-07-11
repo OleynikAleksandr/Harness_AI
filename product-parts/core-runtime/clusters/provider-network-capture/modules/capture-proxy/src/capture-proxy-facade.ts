@@ -19,6 +19,7 @@ import {
   isWebSocketUpgrade,
   parseHeadHeaders,
   runWebSocketCapture,
+  type WebSocketRejectedFrameDetail,
 } from "./capture-proxy-ws.js";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
@@ -35,9 +36,6 @@ export interface NativeCaptureTargetRule {
   readonly port?: number;
 }
 
-// Structural metadata about a body-rejected request that matched the rule's
-// host+path. Values (headers, body text) are never included — only shapes and
-// counts — so it stays safe to persist in the diagnostic artifact.
 export interface NativeCaptureBodyMismatchDetail {
   readonly bodyBytes: number;
   readonly hasContentLength: boolean;
@@ -50,7 +48,8 @@ export interface NativeCaptureBodyMismatchDetail {
 
 export type NativeCaptureIgnoredRequestDetail =
   | NativeCaptureBodyMismatchDetail
-  | NativeCaptureTlsErrorDetail;
+  | NativeCaptureTlsErrorDetail
+  | WebSocketRejectedFrameDetail;
 
 export type NativeCaptureProxyEvent =
   | { readonly target: string; readonly type: "proxy_connect" }
@@ -286,6 +285,8 @@ export class NativeRequestCaptureProxy {
             minimumTools: rule.minimumToolCount,
             now: () => new Date().toISOString(),
             onCapture: (request) => this.completeCaptured(request),
+            onFrameRejected: (detail) =>
+              this.emitIgnored(target, "websocket_frame_not_matched", detail),
             target,
             upstream,
           });
@@ -482,7 +483,7 @@ function buildIgnoredRequestDetail(
     probeMatched: rule.bodyIncludes
       ? request.bodyText.includes(rule.bodyIncludes)
       : true,
-    requestPath: request.path,
+    requestPath: request.path.split("?", 1)[0] ?? request.path,
     toolCount: countRequestTools(request.body),
     topLevelKeys: isJsonObject(request.body) ? Object.keys(request.body) : [],
   };

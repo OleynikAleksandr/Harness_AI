@@ -69,6 +69,16 @@ HTTP reader for clients that ignore proxy env.
   distinguishes it from the probe turn (17 tools). Without any filter the first
   data frame is taken. This is how Codex's mandatory WebSocket transport is
   captured.
+- A data frame rejected by the probe/tool filters emits
+  `websocket_frame_not_matched` with structural-only metadata: frame type,
+  payload byte count, probe-match boolean, tool count, and top-level keys. The
+  whether a top-level tools field exists, payload byte count, probe-match
+  boolean, tool count, and top-level keys. The frame text, input,
+  instructions, tools, and credentials are not copied into diagnostics.
+  Codex 0.144.1 omits top-level `tools`; for that schema a matching probe is
+  accepted without the legacy minimum-tool-count check. Legacy frames that do
+  carry `tools` still require the configured count, preserving prewarm
+  disambiguation.
 - A request that matched the rule host+path but was rejected on the body
   carries a `detail` on its `request_ignored` event
   (`NativeCaptureIgnoredRequestDetail`: `requestPath`, `bodyBytes`, `hasContentLength`,
@@ -76,7 +86,8 @@ HTTP reader for clients that ignore proxy env.
   structural metadata only — never header or body values — so it is safe to
   persist in the diagnostic artifact and explains why a target request was not
   captured. A host-matched path rejection carries the same safe detail, making
-  provider route changes observable without storing headers or body values.
+  provider route changes observable without storing headers or body values;
+  query strings are removed from the recorded path.
 - A client TLS handshake failure emits `request_ignored` with reason
   `tls_socket_error` plus a bounded, payload-free detail containing the runtime
   error `code` and `message`. This preserves certificate expiry/trust alerts in

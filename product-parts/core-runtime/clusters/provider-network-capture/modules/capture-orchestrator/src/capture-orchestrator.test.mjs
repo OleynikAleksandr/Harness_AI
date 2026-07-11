@@ -164,6 +164,15 @@ try {
             target: "chatgpt.com:443",
             reason: "request_body_not_matched",
           });
+          proxyOptions.onEvent?.({
+            type: "request_ignored",
+            target: "chatgpt.com:443",
+            reason: "tls_socket_error",
+            detail: {
+              code: "ERR_SSL_TEST",
+              message: "incidental background TLS failure",
+            },
+          });
           return Promise.resolve({
             status: "captured",
             request: capturedRequest,
@@ -186,6 +195,53 @@ try {
   const eventMarkdown = await readFile(eventResult.markdownPath, "utf8");
   assert.match(eventMarkdown, /capture_proxy_event/u);
   assert.match(eventMarkdown, /request_body_not_matched/u);
+  assert.match(eventMarkdown, /ERR_SSL_TEST/u);
+
+  // If the provider finishes before a target request is captured and the
+  // proxy observed TLS handshake failures, report tls_trust_failed instead of
+  // the misleading target_not_seen. A captured result still wins above even
+  // when another connection emitted a TLS error (eventResult).
+  let resolveTlsProxy;
+  const tlsFailureProxyFactory = (proxyOptions) => ({
+    start: () =>
+      Promise.resolve({
+        port: 2,
+        proxyUrl: "http://127.0.0.1:2",
+        stop: () => Promise.resolve(),
+        waitForCapture: () => {
+          proxyOptions.onEvent?.({
+            type: "request_ignored",
+            target: "chatgpt.com:443",
+            reason: "tls_socket_error",
+            detail: {
+              code: "ERR_SSL_SSLV3_ALERT_CERTIFICATE_EXPIRED",
+              message: "certificate expired",
+            },
+          });
+          return new Promise((resolve) => {
+            resolveTlsProxy = resolve;
+          });
+        },
+      }),
+  });
+  const tlsFailureResult = await new NativeCaptureOrchestrator({
+    captureIdFactory: () => "cap-tls",
+    certificateStore: fakeCertStore,
+    clock,
+    proxyFactory: tlsFailureProxyFactory,
+  }).capture({
+    providerId: "codex",
+    outputDir,
+    runProviderCapture: () => {
+      setImmediate(() =>
+        resolveTlsProxy({ status: "timeout", reason: "timeout" })
+      );
+      return Promise.resolve();
+    },
+  });
+  assert.equal(tlsFailureResult.ok, false);
+  assert.equal(tlsFailureResult.reason, "tls_trust_failed");
+  assert.match(tlsFailureResult.error, /tls_trust_failed/u);
 
   // Timeout path: the proxy times out and the provider run also fails.
   const timeoutProxyFactory = () => ({

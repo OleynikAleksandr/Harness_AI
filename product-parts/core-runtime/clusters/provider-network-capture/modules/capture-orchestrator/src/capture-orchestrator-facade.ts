@@ -279,16 +279,14 @@ export class NativeCaptureOrchestrator {
       await writer.complete("captured");
       return success(command, writer);
     }
-    if (outcome.kind === "provider_failed") {
-      await writer.complete("failed", "runtime_failed");
-      return failure(command, writer, "runtime_failed", outcome.error);
-    }
-    const reason =
-      outcome.kind === "proxy" && outcome.result.status !== "captured"
-        ? outcome.result.reason
-        : "target_not_seen";
+    const reason = resolveCaptureFailureReason(outcome, params.proxyEvents);
     await writer.complete(reason === "timeout" ? "timeout" : "failed", reason);
-    return failure(command, writer, reason);
+    return failure(
+      command,
+      writer,
+      reason,
+      outcome.kind === "provider_failed" ? outcome.error : undefined
+    );
   }
 
   private async recordProxyEvents(
@@ -326,6 +324,32 @@ export class NativeCaptureOrchestrator {
     }
     return providerOutcome;
   }
+}
+
+function resolveCaptureFailureReason(
+  outcome:
+    | {
+        readonly kind: "proxy";
+        readonly result: NativeCaptureProxyResult;
+      }
+    | { readonly error: unknown; readonly kind: "provider_failed" }
+    | { readonly kind: "provider_done" },
+  proxyEvents: readonly NativeCaptureProxyEvent[]
+): NativeCaptureFailureReason {
+  if (
+    proxyEvents.some(
+      (event) =>
+        event.type === "request_ignored" && event.reason === "tls_socket_error"
+    )
+  ) {
+    return "tls_trust_failed";
+  }
+  if (outcome.kind === "proxy" && outcome.result.status !== "captured") {
+    return outcome.result.reason;
+  }
+  return outcome.kind === "provider_failed"
+    ? "runtime_failed"
+    : "target_not_seen";
 }
 
 function defaultOutputDir(): string {

@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream9.task2",
-  "expectedCommitMessage": "feat: link inline code file paths",
+  "currentTaskId": "harness-ai.phase12.stream9.task3",
+  "expectedCommitMessage": "docs: record inline path package",
   "debt": null
 }
 ```
@@ -283,7 +283,7 @@
 
 121. [DONE] `harness-ai.phase12.stream9.task1` Record the user's retest finding: workspace paths written as inline code (backticks, e.g. `.harness/plans/todo-plan.md`) are not anchors and stayed non-clickable; inline code whose text looks like a workspace file path (slash-separated, dotted file segment, optional `:line[:column]`, no whitespace) must open through the same `vscode://file` route, while ordinary inline code stays untouched; the package order stays active for this cycle (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue inline path links`). Result: Completed in commit `plan: queue inline path links`.
 122. [DONE] Git Commit: `plan: queue inline path links` (hash: self)
-123. [IN_PROGRESS] `harness-ai.phase12.stream9.task2` Wrap inline code that matches a workspace file path into the existing `vscode://file` anchor (single-line, no spaces, slash-separated with a dotted final segment, optional `:line[:column]`; absolute or workspace-root resolved) and style the wrapped code as clickable without recoloring ordinary code (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `feat: link inline code file paths`).
-124. [TODO] Git Commit: `feat: link inline code file paths` (hash: TBD)
-125. [TODO] `harness-ai.phase12.stream9.task3` Rebuild the user-ordered macOS package with inline code path links, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record inline path package`).
+123. [DONE] `harness-ai.phase12.stream9.task2` Wrap inline code that matches a workspace file path into the existing `vscode://file` anchor (single-line, no spaces, slash-separated with a dotted final segment, optional `:line[:column]`; absolute or workspace-root resolved) and style the wrapped code as clickable without recoloring ordinary code (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `feat: link inline code file paths`). Result: Completed in commit `feat: link inline code file paths`.
+124. [DONE] Git Commit: `feat: link inline code file paths` (hash: self)
+125. [IN_PROGRESS] `harness-ai.phase12.stream9.task3` Rebuild the user-ordered macOS package with inline code path links, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record inline path package`).
 126. [TODO] Git Commit: `docs: record inline path package` (hash: TBD)

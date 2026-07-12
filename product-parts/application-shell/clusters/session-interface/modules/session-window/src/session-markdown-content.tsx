@@ -21,6 +21,8 @@ const FILE_URI_PREFIX = "file://";
 // schemeless workspace-relative path.
 const URL_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/iu;
 const TRAILING_SLASHES_PATTERN = /\/+$/u;
+const LOCATION_SUFFIX_PATTERN = /:\d+(?::\d+)?$/u;
+const WHITESPACE_PATTERN = /\s/u;
 
 export function SessionMarkdownContent({
   className,
@@ -56,8 +58,58 @@ function createMarkdownComponents(
     a(props) {
       return <MarkdownExternalLink {...props} workspaceRoot={workspaceRoot} />;
     },
+    code(props) {
+      return <MarkdownInlineCode {...props} workspaceRoot={workspaceRoot} />;
+    },
     p: MarkdownSentenceParagraph,
   };
+}
+
+function MarkdownInlineCode({
+  children,
+  node: _node,
+  workspaceRoot,
+  ...codeProps
+}: ComponentProps<"code"> & ExtraProps & { workspaceRoot?: string }) {
+  // Inline code whose text looks like a workspace file path becomes the same
+  // vscode://file anchor as explicit links; block code and ordinary inline
+  // code render unchanged.
+  const fileHref =
+    typeof children === "string"
+      ? resolveInlineCodeFileHref(children, workspaceRoot)
+      : null;
+  if (!fileHref) {
+    return <code {...codeProps}>{children}</code>;
+  }
+  return (
+    <a
+      className="session-markdown-file-link"
+      href={fileHref}
+      rel="noreferrer"
+      target="_blank"
+    >
+      <code {...codeProps}>{children}</code>
+    </a>
+  );
+}
+
+function resolveInlineCodeFileHref(
+  text: string,
+  workspaceRoot: string | undefined
+): string | null {
+  // A path candidate is a single slash-separated token whose file segment is
+  // dotted (extension), optionally suffixed with :line[:column].
+  if (WHITESPACE_PATTERN.test(text) || !text.includes("/")) {
+    return null;
+  }
+  const withoutLocation = text.replace(LOCATION_SUFFIX_PATTERN, "");
+  const fileSegment = withoutLocation.slice(
+    withoutLocation.lastIndexOf("/") + 1
+  );
+  if (!fileSegment.includes(".")) {
+    return null;
+  }
+  return resolveVsCodeFileHref(text, workspaceRoot);
 }
 
 function MarkdownExternalLink({

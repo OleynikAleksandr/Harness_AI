@@ -61,6 +61,18 @@ assert.match(
   /\.session-dialog__content--markdown a \{[^}]*max-width: 100%/u
 );
 
+// Inline code that looks like a workspace file path (slash-separated dotted
+// file segment, optional :line[:column], no whitespace) wraps into the same
+// vscode://file anchor; ordinary inline code and block code stay untouched.
+assert.match(markdownSource, /resolveInlineCodeFileHref/u);
+assert.match(markdownSource, /session-markdown-file-link/u);
+assert.match(markdownSource, /fileSegment\.includes\("\."\)/u);
+assert.match(markdownSource, /WHITESPACE_PATTERN\.test\(text\)/u);
+assert.match(
+  stylesSource,
+  /a\.session-markdown-file-link code \{[^}]*cursor: pointer/u
+);
+
 // Every sentence of a regular reply paragraph starts on its own display
 // line: text nodes split on `.!?` + whitespace + uppercase, inline elements
 // stay untouched, and the paragraph renders newlines via pre-line.

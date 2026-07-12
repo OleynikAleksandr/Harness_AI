@@ -1188,6 +1188,19 @@ strong {
   text-underline-offset: 2px;
 }
 
+/* Inline code recognized as a workspace file path: clickable, keeps the code
+   plate, reads as a link via color + dotted underline. */
+.session-dialog__content--markdown a.session-markdown-file-link {
+  text-decoration: none;
+}
+
+.session-dialog__content--markdown a.session-markdown-file-link code {
+  color: #6d9cef;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
 .session-dialog__content--markdown hr {
   margin: 10px 0;
   border: none;

@@ -67,7 +67,12 @@ Render the transcript/dialog layout and session chrome.
   at that line in VS Code (the same route the profile file buttons already
   use). Schemeless relative hrefs (for example `.harness/plans/todo-plan.md`)
   resolve against the Core-provided active workspace root passed down from the
-  session window facade, so they address files of the concrete workspace;
+  session window facade, so they address files of the concrete workspace.
+  Inline code whose text looks like a workspace file path (slash-separated
+  with a dotted file segment, optional `:line[:column]`, no whitespace) wraps
+  into the same `vscode://file` anchor and reads as a clickable dotted link,
+  while ordinary inline code, block code and non-path tokens like `89/89` or
+  `thread/read` stay untouched;
   `https`/`http` targets open in the default system browser, and the handler
   denies every other protocol. Rendered links wrap as whole units
   (inline-block) instead of breaking at hyphens mid-link.

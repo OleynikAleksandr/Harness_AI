@@ -50,3 +50,17 @@ assert.match(
   bindingLifecycleSource,
   /handleSubagentEvent: this\.deps\.handleSubagentEvent/u
 );
+
+// Terminal child statuses are monotonic: historical running/pending replay
+// never downgrades them without strictly newer provider evidence.
+assert.match(source, /TERMINAL_SUBAGENT_STATUSES/u);
+assert.match(
+  source,
+  /guardSubagentStatus\(session, event\.status, event\.timestamp\)/u
+);
+assert.match(source, /guardSubagentStatus\(child, state\.status, timestamp\)/u);
+assert.match(
+  source,
+  /guardSubagentStatus\(session, seed\.status, seed\.timestamp\)/u
+);
+assert.match(source, /timestamp > session\.updatedAt \? status : current/u);

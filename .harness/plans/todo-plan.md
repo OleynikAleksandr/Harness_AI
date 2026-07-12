@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream1.task3",
-  "expectedCommitMessage": "fix: guard terminal subagent statuses",
+  "currentTaskId": "harness-ai.phase14.stream1.task4",
+  "expectedCommitMessage": "docs: record race and cleanup package",
   "debt": null
 }
 ```
@@ -308,7 +308,7 @@
 135. [DONE] Git Commit: `plan: queue terminal status race fix` (hash: self)
 136. [DONE] `harness-ai.phase14.stream1.task2` Serialize Codex subagent hydrations through one chain, pair each descendant `thread/started` immediately with its replay, skip re-announcing descendants whose terminal status was already replayed, and prove the concurrent parent+child recovery order with a transpiled regression test (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-history-loader.ts, focused tests, codex-provider module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: serialize codex hydration replay`). Result: Completed in commit `fix: serialize codex hydration replay`.
 137. [DONE] Git Commit: `fix: serialize codex hydration replay` (hash: self)
-138. [IN_PROGRESS] `harness-ai.phase14.stream1.task3` Guard Core subagent statuses monotonically: a terminal child status (completed/interrupted/failed/not_found/shutdown) is never downgraded to running/pending by an event that is not strictly newer than the session's current timestamp, across status events, agent states and child merges (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, focused tests, session-request-handler module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: guard terminal subagent statuses`).
-139. [TODO] Git Commit: `fix: guard terminal subagent statuses` (hash: TBD)
-140. [TODO] `harness-ai.phase14.stream1.task4` Build the explicitly user-approved combined macOS package (terminal-status race fix plus session artifact cascade cleanup), inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record race and cleanup package`).
+138. [DONE] `harness-ai.phase14.stream1.task3` Guard Core subagent statuses monotonically: a terminal child status (completed/interrupted/failed/not_found/shutdown) is never downgraded to running/pending by an event that is not strictly newer than the session's current timestamp, across status events, agent states and child merges (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, focused tests, session-request-handler module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: guard terminal subagent statuses`). Result: Completed in commit `fix: guard terminal subagent statuses`.
+139. [DONE] Git Commit: `fix: guard terminal subagent statuses` (hash: self)
+140. [IN_PROGRESS] `harness-ai.phase14.stream1.task4` Build the explicitly user-approved combined macOS package (terminal-status race fix plus session artifact cascade cleanup), inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record race and cleanup package`).
 141. [TODO] Git Commit: `docs: record race and cleanup package` (hash: TBD)

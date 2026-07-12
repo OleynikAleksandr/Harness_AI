@@ -30,6 +30,32 @@ interface ChildSessionSeed {
   readonly title?: string;
 }
 
+const TERMINAL_SUBAGENT_STATUSES: ReadonlySet<CoreSubagentStatus> = new Set([
+  "completed",
+  "failed",
+  "interrupted",
+  "not_found",
+  "shutdown",
+]);
+
+// A terminal child status is monotonic: historical running/pending replay
+// (timestamps not strictly newer than the session record) can never downgrade
+// it; only strictly newer provider evidence (a live resume) restarts a child.
+function guardSubagentStatus(
+  session: CoreSession,
+  status: CoreSubagentStatus,
+  timestamp: string
+): CoreSubagentStatus {
+  const current = session.subagentStatus;
+  if (
+    !(current && TERMINAL_SUBAGENT_STATUSES.has(current)) ||
+    TERMINAL_SUBAGENT_STATUSES.has(status)
+  ) {
+    return status;
+  }
+  return timestamp > session.updatedAt ? status : current;
+}
+
 interface SessionSubagentLifecycleDependencies {
   readonly addSession: (session: CoreSession) => void;
   readonly adoptProviderSession: (
@@ -156,6 +182,12 @@ export class SessionSubagentLifecycle {
     ) {
       return;
     }
+    if (
+      guardSubagentStatus(session, event.status, event.timestamp) !==
+      event.status
+    ) {
+      return;
+    }
     const updated = {
       ...session,
       subagentStatus: event.status,
@@ -172,6 +204,11 @@ export class SessionSubagentLifecycle {
     for (const state of states) {
       const child = this.findChildByProviderSessionId(state.providerSessionId);
       if (!child) {
+        continue;
+      }
+      if (
+        guardSubagentStatus(child, state.status, timestamp) !== state.status
+      ) {
         continue;
       }
       const updated = {
@@ -277,6 +314,7 @@ function mergeChildSession(
   seed: ChildSessionSeed
 ): CoreSession {
   const canAutoTitle = session.titleOrigin !== "manual";
+  const status = guardSubagentStatus(session, seed.status, seed.timestamp);
   return {
     ...session,
     ...(seed.agentNickname ? { agentNickname: seed.agentNickname } : {}),
@@ -285,9 +323,11 @@ function mergeChildSession(
     ...(seed.model ? { model: seed.model } : {}),
     ...(seed.reasoningEffort ? { reasoningEffort: seed.reasoningEffort } : {}),
     ...(seed.subagentCallId ? { subagentCallId: seed.subagentCallId } : {}),
-    subagentStatus: seed.status,
+    subagentStatus: status,
     ...(canAutoTitle ? { title: resolveChildTitle(seed, session.title) } : {}),
-    updatedAt: seed.timestamp,
+    // A rejected downgrade keeps the session timestamp: a historical event
+    // must not bump the record it failed to change.
+    updatedAt: status === seed.status ? seed.timestamp : session.updatedAt,
   };
 }
 

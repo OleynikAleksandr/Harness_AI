@@ -110,6 +110,12 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   adopted through the already-running parent adapter binding before subsequent
   child reasoning/messages arrive. Restore keeps child metadata and resumes its
   persisted provider thread through the normal binding path.
+- Child subagent statuses are monotonic at the Core boundary: a terminal
+  status (`completed`/`interrupted`/`failed`/`not_found`/`shutdown`) is never
+  downgraded to `running`/`pending` by a status event, agent state or child
+  merge whose timestamp is not strictly newer than the session record, so
+  historical hydration replay cannot resurrect finished children; a rejected
+  downgrade also keeps the record's `updatedAt` untouched.
 - Deleting any session cascades through every recursive `parentSessionId`
   descendant, closes each live provider binding, removes provider artifacts and
   deletes every record from the Core session/maps/index, preventing visible

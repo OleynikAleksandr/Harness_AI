@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase13.stream1.task2",
+  "expectedCommitMessage": "fix: cascade subagent artifact deletion",
   "debt": null
 }
 ```
@@ -287,3 +287,16 @@
 124. [DONE] Git Commit: `feat: link inline code file paths` (hash: self)
 125. [DONE] `harness-ai.phase12.stream9.task3` Rebuild the user-ordered macOS package with inline code path links, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record inline path package`). Result: Completed in commit `docs: record inline path package`.
 126. [DONE] Git Commit: `docs: record inline path package` (hash: self)
+
+## Phase 13 - Subagent Session Data Cleanup (owner: Codex + User, updated: 2026-07-12)
+
+### Stream: Cascade Artifact Deletion
+
+127. [DONE] `harness-ai.phase13.stream1.task1` Record the user's defect report: deleting a parent native session cascades child subagent sessions correctly, but their Core event JSONL files (`.harness/sessions/events/`) and reasoning translation overlays (`.harness/sessions/reasoning-translations/`) remain on disk as orphans, because event deletion runs only for the root at the API layer and overlay deletion is never wired to the cascade (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue session artifact cleanup`). Result: Completed in commit `plan: queue session artifact cleanup`.
+128. [DONE] Git Commit: `plan: queue session artifact cleanup` (hash: self)
+129. [IN_PROGRESS] `harness-ai.phase13.stream1.task2` Delete per-session Core event files and reasoning translation overlays inside the request-handler cascade for every session in the deleted tree, exposing an additive facade delete on the reasoning translation overlay module and an optional event-stream contract method (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-facade.ts, focused tests, related module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: cascade subagent artifact deletion`).
+130. [TODO] Git Commit: `fix: cascade subagent artifact deletion` (hash: TBD)
+131. [TODO] `harness-ai.phase13.stream1.task3` Remove the now-duplicated root-only cleanup calls from the delete-session RPC so the request-handler cascade is the single artifact-cleanup route (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, focused tests, core-runtime-process module docs`; expected commit: `refactor: unify session artifact cleanup`).
+132. [TODO] Git Commit: `refactor: unify session artifact cleanup` (hash: TBD)
+133. [TODO] `harness-ai.phase13.stream1.task4` After fresh explicit user confirmation, build the macOS package with the cascade cleanup, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record session cleanup package`).
+134. [TODO] Git Commit: `docs: record session cleanup package` (hash: TBD)

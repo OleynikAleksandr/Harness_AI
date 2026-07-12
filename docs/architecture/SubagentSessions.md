@@ -224,7 +224,10 @@ Registry хранит promise уже начатого создания окна,
 4. Open и detach работают из карточки и sidebar; повторный detach фокусирует
    одно окно.
 5. Auto title, manual rename и regenerate сохраняются после перезапуска.
-6. Parent delete не оставляет видимых orphan descendants.
+6. Parent delete не оставляет видимых orphan descendants, а каскад
+   дополнительно удаляет event JSONL и reasoning-translation sidecar
+   каждой сессии дерева (`.harness/sessions/events/`,
+   `.harness/sessions/reasoning-translations/`).
 7. Renderer не анализирует текст сообщений для определения субагентов.
 8. Уже существующие provider descendants появляются в дереве вместе со своим
    завершённым transcript после восстановления Core.

@@ -14,6 +14,10 @@ the Settings localization snapshot, marks eligible visible reasoning as
 translation request through Provider Runtime translation engines.
 `ReasoningTranslationOverlayStore` appends overlay records under the workspace
 session sidecar directory, including the translated source text for new records.
+The facade also exposes `deleteSessionOverlays(workspacePath, sessionId)`,
+which removes the persisted overlay JSONL of one session; the Core session
+delete cascade calls it for every session in a deleted tree so no orphan
+sidecars remain.
 `ReasoningTranslationOverlayProjector` applies translated overlays whose stored
 source hash still matches the current message text, and keeps the latest
 translated prefix visible while a growing reasoning message is waiting for its

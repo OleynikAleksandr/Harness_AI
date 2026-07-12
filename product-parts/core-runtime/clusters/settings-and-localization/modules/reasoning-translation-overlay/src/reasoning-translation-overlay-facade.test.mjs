@@ -197,3 +197,13 @@ assert.deepEqual(
     targetLanguage: "ru",
   }
 );
+
+// The facade exposes the sidecar delete used by the session delete cascade.
+const overlayFacadeSource = readFileSync(
+  new URL("./reasoning-translation-overlay-facade.ts", import.meta.url),
+  "utf8"
+);
+assert.match(
+  overlayFacadeSource,
+  /deleteSessionOverlays\(workspacePath: string, sessionId: string\): void \{\s*this\.overlayStore\.deleteSessionOverlays\(workspacePath, sessionId\);/u
+);

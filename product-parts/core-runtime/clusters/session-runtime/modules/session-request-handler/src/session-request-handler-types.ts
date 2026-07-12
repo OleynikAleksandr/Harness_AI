@@ -123,6 +123,9 @@ export interface ProviderSessionBindingFacadeLike {
 
 export interface SessionEventStreamLike {
   configureSessionHistory?(sessions: CoreSession[]): void;
+  // Deletes the persisted event JSONL and buffered events of one session so a
+  // cascaded delete leaves no orphan event files behind.
+  deleteSessionEvents?(sessionId: string): void;
   listEvents?(sessionId?: string): SessionCoreEvent[];
   publish(event: SessionCoreEvent): void;
   rememberSession?(session: CoreSession): void;

@@ -26,6 +26,7 @@ import {
 import { SessionProviderBindingLifecycle } from "./session-provider-binding-lifecycle.js";
 import {
   closeAndCleanupProviderSession,
+  collectSessionTreeIds,
   createId,
   stringifyError,
 } from "./session-request-handler-runtime-utils.js";
@@ -248,7 +249,9 @@ export class SessionRequestHandlerFacade {
     if (!rootSession) {
       return { error: "Session not found", ok: false };
     }
-    const sessionIds = this.collectSessionTreeIds(sessionId).reverse();
+    const sessionIds = collectSessionTreeIds(this.sessions, sessionId)
+      .slice()
+      .reverse();
     for (const id of sessionIds) {
       const session = this.sessions.get(id);
       if (!session) {
@@ -264,6 +267,15 @@ export class SessionRequestHandlerFacade {
           binding?.providerSessionId ?? session.providerSessionId,
         workspacePath: session.workspacePath,
       });
+      // Every session in the deleted tree drops its persisted event JSONL
+      // and reasoning translation overlay, so no orphan artifacts remain.
+      this.eventStream.deleteSessionEvents?.(id);
+      if (session.workspacePath) {
+        this.reasoningTranslation.deleteSessionOverlays(
+          session.workspacePath,
+          id
+        );
+      }
       this.runtimeBindings.delete(id);
       this.messagesBySession.delete(id);
       this.telemetryBySession.delete(id);
@@ -384,18 +396,6 @@ export class SessionRequestHandlerFacade {
         candidate.payload.id === callId
     );
     return event?.type === "session:subagent-call" ? event.payload : undefined;
-  }
-
-  private collectSessionTreeIds(rootSessionId: string): string[] {
-    const collected = new Set([rootSessionId]);
-    for (const parentSessionId of collected) {
-      for (const session of this.sessions.values()) {
-        if (session.parentSessionId === parentSessionId) {
-          collected.add(session.id);
-        }
-      }
-    }
-    return [...collected];
   }
 
   private publishBinding(binding: ProviderSessionBinding): void {

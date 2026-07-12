@@ -145,8 +145,9 @@ assert.match(source, /regenerateSessionTitle\(/u);
 assert.match(titleServiceSource, /titleOrigin: "manual"/u);
 assert.match(titleServiceSource, /titleOrigin: "auto"/u);
 assert.match(titleServiceSource, /session\.sessionKind === "subagent"/u);
-assert.match(source, /collectSessionTreeIds\(sessionId\)\.reverse\(\)/u);
-assert.match(source, /session\.parentSessionId === parentSessionId/u);
+assert.match(source, /collectSessionTreeIds\(this\.sessions, sessionId\)/u);
+assert.match(utilsSource, /export function collectSessionTreeIds\(/u);
+assert.match(utilsSource, /session\.parentSessionId === parentSessionId/u);
 assert.match(bindingLifecycleSource, /adoptProviderSession\(/u);
 assert.match(bindingLifecycleSource, /handleSubagentEvent/u);
 assert.match(historySource, /normalizeCoreSession/u);
@@ -184,3 +185,12 @@ assert.match(
   /if \(!isRecord\(event\)\)[\s\S]+?context\.updateTelemetry\(sessionId, event\)[\s\S]+?if \(typeof event\.type !== "string"\)/u
 );
 assert.doesNotMatch(routerSource, /event\.tag === "thinking"/u);
+
+// The delete cascade removes each tree session's persisted event JSONL and
+// reasoning translation overlay so no orphan sidecar files remain.
+assert.match(source, /this\.eventStream\.deleteSessionEvents\?\.\(id\);/u);
+assert.match(
+  source,
+  /this\.reasoningTranslation\.deleteSessionOverlays\(\s*session\.workspacePath,\s*id\s*\)/u
+);
+assert.match(typesSource, /deleteSessionEvents\?\(sessionId: string\): void;/u);

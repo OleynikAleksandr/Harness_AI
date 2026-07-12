@@ -113,7 +113,12 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Deleting any session cascades through every recursive `parentSessionId`
   descendant, closes each live provider binding, removes provider artifacts and
   deletes every record from the Core session/maps/index, preventing visible
-  orphan children.
+  orphan children. The same cascade deletes each session's persisted Core
+  event JSONL (`SessionEventStreamLike.deleteSessionEvents`) and its reasoning
+  translation overlay sidecar
+  (`ReasoningTranslationOverlayFacade.deleteSessionOverlays`), so deleted
+  subagent trees leave no orphan files under `.harness/sessions/events/` or
+  `.harness/sessions/reasoning-translations/`.
 - `session-title-service.ts` owns title normalization and mutation. The first
   substantive primary-session user message replaces the provider placeholder
   exactly once with a 72-character auto title. Manual rename normalizes and

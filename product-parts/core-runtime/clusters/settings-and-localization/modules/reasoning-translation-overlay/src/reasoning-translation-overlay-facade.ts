@@ -93,7 +93,7 @@ export interface ReasoningTranslationPolicy {
 interface ReasoningTranslationOverlayOptions {
   readonly overlayStore?: Pick<
     ReasoningTranslationOverlayStore,
-    "appendOverlay"
+    "appendOverlay" | "deleteSessionOverlays"
   >;
   readonly translationFacade?: Pick<
     ProviderTranslationEnginesFacade,
@@ -108,13 +108,19 @@ export class ReasoningTranslationOverlayFacade {
   >;
   private readonly overlayStore: Pick<
     ReasoningTranslationOverlayStore,
-    "appendOverlay"
+    "appendOverlay" | "deleteSessionOverlays"
   >;
 
   constructor(options: ReasoningTranslationOverlayOptions = {}) {
     this.overlayStore =
       options.overlayStore ?? new ReasoningTranslationOverlayStore();
     this.explicitTranslationFacade = options.translationFacade;
+  }
+
+  // Removes the persisted overlay JSONL of one session; the session delete
+  // cascade calls this for every session in the deleted tree.
+  deleteSessionOverlays(workspacePath: string, sessionId: string): void {
+    this.overlayStore.deleteSessionOverlays(workspacePath, sessionId);
   }
 
   private resolveTranslationFacade(

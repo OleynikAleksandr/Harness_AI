@@ -8,7 +8,7 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream2.task2",
+  "currentTaskId": "harness-ai.phase12.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -206,4 +206,12 @@
 
 73. [DONE] `harness-ai.phase11.stream2.task1` Build the explicitly approved macOS package, inspect the repaired `app.asar`, run a safe launch smoke and record focused verification evidence for clean child transcript recovery and terminal statuses (scope: `.harness/plans/todo-plan.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record codex child recovery package`). Result: Completed in commit `docs: record codex child recovery package`.
 74. [DONE] Git Commit: `docs: record codex child recovery package` (hash: self)
-75. [IN_PROGRESS] `harness-ai.phase11.stream2.task2` User retests restored child transcripts, interrupted/completed statuses and the existing subagent navigation in the rebuilt packaged app (scope: user workflow; expected commit: none).
+75. [DONE] `harness-ai.phase11.stream2.task2` User retests restored child transcripts, interrupted/completed statuses and the existing subagent navigation in the rebuilt packaged app (scope: user workflow; expected commit: none). Result: User accepted the rebuilt package and the implemented subagent recovery feature; active scope remains open for a later visual adjustment.
+
+## Phase 12 - Subagent UI Visual Follow-Up (owner: Codex + User, updated: 2026-07-12)
+
+### Stream: Next-Session Handoff
+
+76. [DONE] `harness-ai.phase12.stream0.task1` Record the accepted package and queue a deliberately abstract next-session task for user-directed visual changes to the subagent interface without choosing files, layout or behavior before clarification (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue subagent visual follow-up`). Result: Completed in commit `plan: queue subagent visual follow-up`.
+77. [DONE] Git Commit: `plan: queue subagent visual follow-up` (hash: self)
+78. [IN_PROGRESS] `harness-ai.phase12.stream1.task1` At the beginning of the next session, clarify the requested visual adjustments related to subagents, define the exact UI scope and implementation microtasks, then proceed only within that newly agreed boundary (scope: clarification and plan refinement only until user details are provided; expected commit: none).

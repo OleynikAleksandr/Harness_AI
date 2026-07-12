@@ -317,6 +317,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   workspace root into the same `vscode://file` route (optional
   `:line[:column]`), scheme/anchor hrefs untouched; includes asar inspection
   and launch smoke.
+- `docs/evidence/inline-path-package-2026-07-12.md` — rebuild making inline
+  code that looks like a workspace file path (slash-separated dotted file
+  segment, optional `:line[:column]`) clickable through the same
+  `vscode://file` anchor, while ordinary code and non-path tokens stay
+  untouched; includes asar inspection and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

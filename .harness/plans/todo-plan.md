@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream8.task3",
-  "expectedCommitMessage": "docs: record relative link package",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -276,5 +276,5 @@
 116. [DONE] Git Commit: `plan: queue workspace relative links` (hash: self)
 117. [DONE] `harness-ai.phase12.stream8.task2` Resolve schemeless relative markdown hrefs against the Core-provided active workspace root (passed from the session window facade through the dialog panel) into `vscode://file` anchors with optional `:line[:column]`, leaving scheme/anchor hrefs untouched (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, focused tests, session-window module docs`; expected commit: `feat: resolve workspace relative links`). Result: Completed in commit `feat: resolve workspace relative links`.
 118. [DONE] Git Commit: `feat: resolve workspace relative links` (hash: self)
-119. [IN_PROGRESS] `harness-ai.phase12.stream8.task3` Rebuild the user-ordered macOS package with workspace-relative link resolution, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record relative link package`).
-120. [TODO] Git Commit: `docs: record relative link package` (hash: TBD)
+119. [DONE] `harness-ai.phase12.stream8.task3` Rebuild the user-ordered macOS package with workspace-relative link resolution, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record relative link package`). Result: Completed in commit `docs: record relative link package`.
+120. [DONE] Git Commit: `docs: record relative link package` (hash: self)

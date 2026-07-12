@@ -311,6 +311,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   `https://`/`http://` beside `vscode://file/` so reply links open in the
   default system browser while every other protocol stays denied; includes
   asar inspection and launch smoke.
+- `docs/evidence/relative-link-package-2026-07-12.md` — rebuild with
+  workspace-relative link resolution: schemeless hrefs like
+  `.harness/plans/todo-plan.md` resolve against the Core-provided active
+  workspace root into the same `vscode://file` route (optional
+  `:line[:column]`), scheme/anchor hrefs untouched; includes asar inspection
+  and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

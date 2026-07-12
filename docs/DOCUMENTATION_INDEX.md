@@ -286,6 +286,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   user-approved macOS arm64 rebuild after filtering ancestor turns out of
   restored child transcripts and preserving interrupted/failed/completed turn
   semantics; includes real three-thread provider proof and packaged smoke.
+- `docs/evidence/dialog-markdown-indicator-package-2026-07-12.md` — explicitly
+  user-ordered macOS arm64 rebuild with GFM markdown rendering of assistant
+  and thinking replies (tables, code, links) and reshaped sidebar subagent
+  indicators (neutral hollow in-flight ring; filled green completed and orange
+  interrupted dots); includes asar inspection and packaged launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

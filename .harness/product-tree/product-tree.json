@@ -48,7 +48,7 @@
             {
               "id": "session-window",
               "name": "Session Window",
-              "purpose": "Transcript/dialog layout, session chrome, next-session mode panel, and Core-provided localizedContent reveal."
+              "purpose": "Transcript/dialog layout, session chrome, next-session mode panel, Core-provided localizedContent reveal, and GFM markdown rendering of assistant replies."
             },
             {
               "id": "input-controls",

@@ -4,6 +4,7 @@ import type { CoreSession } from "../../../../../../core-runtime/clusters/sessio
 import type { SessionMessage } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { useSessionDialogAutoscroll } from "./session-dialog-autoscroll.js";
+import { SessionMarkdownContent } from "./session-markdown-content.js";
 import {
   buildSessionTimeline,
   buildTimelineScrollMessages,
@@ -127,16 +128,35 @@ function MessageBubble({
           {formatMessageTime(message.timestamp)}
         </span>
       </header>
-      <div
-        className={
-          isThinking
-            ? "session-dialog__content session-dialog__content--thinking"
-            : "session-dialog__content"
-        }
-      >
-        {revealedText}
-      </div>
+      <MessageBubbleContent
+        isThinking={isThinking}
+        renderMarkdown={isThinking || message.role === "assistant"}
+        text={revealedText}
+      />
     </article>
+  );
+}
+
+function MessageBubbleContent({
+  isThinking,
+  renderMarkdown,
+  text,
+}: {
+  isThinking: boolean;
+  renderMarkdown: boolean;
+  text: string;
+}) {
+  const className = isThinking
+    ? "session-dialog__content session-dialog__content--thinking"
+    : "session-dialog__content";
+  if (!renderMarkdown) {
+    return <div className={className}>{text}</div>;
+  }
+  return (
+    <SessionMarkdownContent
+      className={`${className} session-dialog__content--markdown`}
+      text={text}
+    />
   );
 }
 

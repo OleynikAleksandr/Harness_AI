@@ -23,7 +23,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 ### Session Interface
 
-- `session-window`: transcript/dialog layout, session chrome, next-session mode panel, and Core-provided localizedContent reveal from Core read models.
+- `session-window`: transcript/dialog layout, session chrome, next-session mode panel, Core-provided localizedContent reveal from Core read models, and GFM markdown rendering of assistant replies.
 - `input-controls`: message input, Stop/Play controls, busy/lock display, and user intent submission only.
 - `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
 - `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry.

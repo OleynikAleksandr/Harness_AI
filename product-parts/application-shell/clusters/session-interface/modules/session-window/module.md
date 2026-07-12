@@ -58,8 +58,12 @@ Render the transcript/dialog layout and session chrome.
   reference tint (the other universal-client endpoints) use the neutral
   assistant background.
 - A thinking bubble is `role === "thinking"` or an assistant message tagged
-  `thinking`. Bubbles render plain text (no markdown engine) and thinking plates
-  stay expanded (no collapse toggle).
+  `thinking`. Assistant and thinking bubbles render GFM markdown (tables,
+  lists, code, links) through the renderer-only `SessionMarkdownContent`
+  component built on `react-markdown` + `remark-gfm` with `skipHtml`: raw HTML
+  never executes, and external links open through the Electron window-open
+  bridge (`target="_blank"` → system browser). User and system messages stay
+  plain text, and thinking plates stay expanded (no collapse toggle).
 - Pending translated reasoning hides the source text until Core patches
   `localizedContent`; translated thinking is revealed progressively in the
   renderer while source `text` remains unchanged in state. When a provider

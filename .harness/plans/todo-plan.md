@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream2.task3",
-  "expectedCommitMessage": "style: format markdown session replies",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -222,5 +222,5 @@
 80. [DONE] Git Commit: `plan: define dialog markdown rendering scope` (hash: self)
 81. [DONE] `harness-ai.phase12.stream2.task2` Render assistant and thinking dialog bubbles through a session markdown component built on `react-markdown` + `remark-gfm` with `skipHtml`, external links delegated to the existing window-open bridge, and no provider-truth classification in the renderer (scope: `package.json, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, focused tests, session-window module docs, .harness/product-tree/**`; expected commit: `feat: render markdown in session dialog`). Result: Completed in commit `feat: render markdown in session dialog`.
 82. [DONE] Git Commit: `feat: render markdown in session dialog` (hash: self)
-83. [IN_PROGRESS] `harness-ai.phase12.stream2.task3` Style rendered markdown inside dialog bubbles — tables, lists, headings, code blocks, inline code, blockquotes, links — for the dark session theme and replace the plain-text `pre-wrap` contract for markdown content (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `style: format markdown session replies`).
-84. [TODO] Git Commit: `style: format markdown session replies` (hash: TBD)
+83. [DONE] `harness-ai.phase12.stream2.task3` Style rendered markdown inside dialog bubbles — tables, lists, headings, code blocks, inline code, blockquotes, links — for the dark session theme and replace the plain-text `pre-wrap` contract for markdown content (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `style: format markdown session replies`). Result: Completed in commit `style: format markdown session replies`.
+84. [DONE] Git Commit: `style: format markdown session replies` (hash: self)

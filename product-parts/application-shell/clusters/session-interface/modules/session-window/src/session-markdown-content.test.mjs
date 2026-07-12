@@ -9,6 +9,10 @@ const dialogSource = readFileSync(
   new URL("./session-dialog-panel.tsx", import.meta.url),
   "utf8"
 );
+const stylesSource = readFileSync(
+  new URL("./session-window.css", import.meta.url),
+  "utf8"
+);
 const rootPackageJson = JSON.parse(
   readFileSync(
     new URL("../../../../../../../package.json", import.meta.url),
@@ -35,6 +39,27 @@ assert.match(
   /renderMarkdown=\{isThinking \|\| message\.role === "assistant"\}/u
 );
 assert.match(dialogSource, /<div className=\{className\}>\{text\}<\/div>/u);
+
+// Markdown bubbles drop the plain-text pre-wrap contract and style GFM
+// elements (tables scroll instead of overflowing the bubble).
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown \{\s*white-space: normal;/u
+);
+assert.match(stylesSource, /\.session-dialog__content--markdown table \{/u);
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown table \{[^}]*overflow-x: auto/u
+);
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown pre \{[^}]*overflow-x: auto/u
+);
+assert.match(stylesSource, /\.session-dialog__content--markdown pre code \{/u);
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown blockquote \{/u
+);
 
 // The markdown dependencies stay declared beside their first renderer use.
 assert.equal(typeof rootPackageJson.dependencies["react-markdown"], "string");

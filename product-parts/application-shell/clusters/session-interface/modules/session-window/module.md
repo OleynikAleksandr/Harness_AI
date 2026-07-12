@@ -63,7 +63,10 @@ Render the transcript/dialog layout and session chrome.
   component built on `react-markdown` + `remark-gfm` with `skipHtml`: raw HTML
   never executes, and external links open through the Electron window-open
   bridge (`target="_blank"` → system browser). User and system messages stay
-  plain text, and thinking plates stay expanded (no collapse toggle).
+  plain text, and thinking plates stay expanded (no collapse toggle). Markdown
+  elements are styled for the dark dialog theme — bordered horizontally
+  scrollable tables, dark code blocks, compact headings/lists, blockquotes and
+  reference-blue links — while plain-text bubbles keep the `pre-wrap` contract.
 - Pending translated reasoning hides the source text until Core patches
   `localizedContent`; translated thinking is revealed progressively in the
   renderer while source `text` remains unchanged in state. When a provider

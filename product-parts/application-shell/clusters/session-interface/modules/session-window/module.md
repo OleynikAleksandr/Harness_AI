@@ -61,8 +61,13 @@ Render the transcript/dialog layout and session chrome.
   `thinking`. Regular assistant replies render GFM markdown (tables, lists,
   code, links) through the renderer-only `SessionMarkdownContent` component
   built on `react-markdown` + `remark-gfm` with `skipHtml`: raw HTML never
-  executes, and external links open through the Electron window-open bridge
-  (`target="_blank"` → system browser). User, system and thinking messages
+  executes, and every anchor routes through the Electron window-open handler.
+  Absolute unix/file-URI hrefs with an optional `:line[:column]` suffix become
+  `vscode://file/...` anchors, so a click opens the referenced workspace file
+  at that line in VS Code (the same route the profile file buttons already
+  use); the handler ignores non-`vscode://file` targets. Rendered links wrap
+  as whole units (inline-block) instead of breaking at hyphens mid-link.
+  User, system and thinking messages
   stay plain text — the 2026-07-12 packaged retest explicitly returned
   thinking plates to the thin pre-wrap format (markdown had merged their
   single-newline sections into one bold wall) — and thinking plates stay

@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 import ReactMarkdown, {
   type Components,
+  defaultUrlTransform,
   type ExtraProps,
 } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -11,6 +12,11 @@ const REMARK_PLUGINS = [remarkGfm];
 // new display line; paragraphs render with pre-line so the inserted newlines
 // (and author soft breaks) become visible without touching code or tables.
 const SENTENCE_BREAK_PATTERN = /([.!?])\s+(?=\p{Lu})/gu;
+
+// Absolute unix path with an optional :line[:column] suffix, as emitted by
+// agent replies referencing workspace files.
+const FILE_PATH_LOCATION_PATTERN = /^(\/.+?)(?::(\d+)(?::(\d+))?)?$/u;
+const FILE_URI_PREFIX = "file://";
 
 const MARKDOWN_COMPONENTS: Components = {
   a: MarkdownExternalLink,
@@ -30,6 +36,7 @@ export function SessionMarkdownContent({
         components={MARKDOWN_COMPONENTS}
         remarkPlugins={REMARK_PLUGINS}
         skipHtml
+        urlTransform={keepFileUrl}
       >
         {text}
       </ReactMarkdown>
@@ -38,12 +45,63 @@ export function SessionMarkdownContent({
 }
 
 function MarkdownExternalLink({
+  href,
   node: _node,
   ...anchorProps
 }: ComponentProps<"a"> & ExtraProps) {
-  // target="_blank" hands the URL to the Electron window-open handler, which
-  // opens external links in the system browser instead of a new app window.
-  return <a {...anchorProps} rel="noreferrer" target="_blank" />;
+  // Absolute file:line hrefs become vscode://file links so a click opens the
+  // file at that line in the workspace VS Code window through the existing
+  // Electron window-open handler; other targets keep the same handler route.
+  const vsCodeHref = resolveVsCodeFileHref(href);
+  return (
+    <a
+      {...anchorProps}
+      href={vsCodeHref ?? href}
+      rel="noreferrer"
+      target="_blank"
+    />
+  );
+}
+
+function resolveVsCodeFileHref(href: string | undefined): string | null {
+  if (!href) {
+    return null;
+  }
+  const raw = href.trim();
+  const path = raw.startsWith(FILE_URI_PREFIX) ? decodeFileUriPath(raw) : raw;
+  if (!path?.startsWith("/")) {
+    return null;
+  }
+  const match = FILE_PATH_LOCATION_PATTERN.exec(path);
+  if (!match) {
+    return null;
+  }
+  const line = parsePositiveInteger(match[2]);
+  const column = parsePositiveInteger(match[3]);
+  return `vscode://file/${match[1]}:${line}:${column}`;
+}
+
+function decodeFileUriPath(href: string): string | null {
+  try {
+    const uri = new URL(href);
+    if (uri.protocol !== "file:") {
+      return null;
+    }
+    return decodeURIComponent(uri.pathname);
+  } catch {
+    return null;
+  }
+}
+
+function parsePositiveInteger(value: string | undefined): number {
+  const parsed = value ? Number.parseInt(value, 10) : Number.NaN;
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function keepFileUrl(url: string): string {
+  // The default react-markdown transform would strip file:// hrefs before
+  // the anchor component can turn them into vscode://file links.
+  return url.startsWith(FILE_URI_PREFIX) ? url : defaultUrlTransform(url);
 }
 
 function MarkdownSentenceParagraph({

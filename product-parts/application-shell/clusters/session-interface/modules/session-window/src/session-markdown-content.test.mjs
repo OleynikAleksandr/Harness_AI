@@ -30,6 +30,22 @@ assert.match(markdownSource, /rel="noreferrer"/u);
 assert.match(markdownSource, /target="_blank"/u);
 assert.doesNotMatch(markdownSource, /dangerouslySetInnerHTML/u);
 
+// Absolute file:line hrefs resolve into vscode://file anchors handled by the
+// existing Electron window-open route, file:// hrefs survive the default url
+// transform, and rendered links wrap as whole units (inline-block).
+assert.match(markdownSource, /resolveVsCodeFileHref/u);
+assert.match(markdownSource, /vscode:\/\/file\//u);
+assert.match(markdownSource, /urlTransform=\{keepFileUrl\}/u);
+assert.match(markdownSource, /defaultUrlTransform/u);
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown a \{[^}]*display: inline-block/u
+);
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown a \{[^}]*max-width: 100%/u
+);
+
 // Every sentence of a regular reply paragraph starts on its own display
 // line: text nodes split on `.!?` + whitespace + uppercase, inline elements
 // stay untouched, and the paragraph renders newlines via pre-line.

@@ -1180,6 +1180,9 @@ strong {
 }
 
 .session-dialog__content--markdown a {
+  /* links wrap as whole units: never broken at hyphens mid-link. */
+  display: inline-block;
+  max-width: 100%;
   color: #6d9cef;
   text-decoration: underline;
   text-underline-offset: 2px;

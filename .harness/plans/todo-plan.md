@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream4.task3",
-  "expectedCommitMessage": "docs: record markdown feedback package",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -240,5 +240,5 @@
 92. [DONE] Git Commit: `plan: queue markdown feedback corrections` (hash: self)
 93. [DONE] `harness-ai.phase12.stream4.task2` Restore plain-text thinking plates (markdown only for regular assistant replies) and stop word-shattering in markdown tables by resetting `word-break`/`overflow-wrap` to normal inside table content (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `fix: restore thinking format and table wrapping`). Result: Completed in commit `fix: restore thinking format and table wrapping`.
 94. [DONE] Git Commit: `fix: restore thinking format and table wrapping` (hash: self)
-95. [IN_PROGRESS] `harness-ai.phase12.stream4.task3` Rebuild the user-ordered macOS package with the feedback corrections, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record markdown feedback package`).
-96. [TODO] Git Commit: `docs: record markdown feedback package` (hash: TBD)
+95. [DONE] `harness-ai.phase12.stream4.task3` Rebuild the user-ordered macOS package with the feedback corrections, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record markdown feedback package`). Result: Completed in commit `docs: record markdown feedback package`.
+96. [DONE] Git Commit: `docs: record markdown feedback package` (hash: self)

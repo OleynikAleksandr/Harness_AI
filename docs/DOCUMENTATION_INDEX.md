@@ -291,6 +291,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   and thinking replies (tables, code, links) and reshaped sidebar subagent
   indicators (neutral hollow in-flight ring; filled green completed and orange
   interrupted dots); includes asar inspection and packaged launch smoke.
+- `docs/evidence/markdown-feedback-package-2026-07-12.md` — rebuild after the
+  packaged retest feedback: markdown tables wrap by whole words instead of
+  anywhere-breaks that shattered narrow header columns, and thinking plates
+  returned to the thin plain-text pre-wrap format (markdown stays only in
+  regular assistant replies); includes asar inspection and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

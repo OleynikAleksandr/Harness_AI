@@ -1034,8 +1034,9 @@ strong {
   color: #adb2ba;
   word-break: break-word;
   overflow-wrap: anywhere;
-  /* note: user/system content stays plain text, so pre-wrap preserves its
-     typed newlines. Markdown bubbles switch to normal whitespace below. */
+  /* note: user/system/thinking content stays plain text, so pre-wrap
+     preserves its typed newlines (thinking keeps the thin reference format).
+     Markdown reply bubbles switch to normal whitespace below. */
   white-space: pre-wrap;
 }
 
@@ -1121,6 +1122,10 @@ strong {
   margin: 8px 0;
   overflow-x: auto;
   font-size: 12px;
+  /* tables wrap by whole words: the inherited anywhere-breaks shattered
+     narrow header columns into single letters. Wide tables scroll instead. */
+  word-break: normal;
+  overflow-wrap: normal;
   border-collapse: collapse;
 }
 

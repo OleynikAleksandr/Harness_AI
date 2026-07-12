@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream4.task2",
-  "expectedCommitMessage": "fix: restore thinking format and table wrapping",
+  "currentTaskId": "harness-ai.phase12.stream4.task3",
+  "expectedCommitMessage": "docs: record markdown feedback package",
   "debt": null
 }
 ```
@@ -238,7 +238,7 @@
 
 91. [DONE] `harness-ai.phase12.stream4.task1` Record the user's packaged retest feedback: markdown tables must wrap by whole words instead of inherited anywhere-breaks that shatter narrow header columns, and thinking plates must return to the pre-markdown plain-text format (thin weight, pre-wrap line breaks); the user's package order stays active for this correction cycle (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue markdown feedback corrections`). Result: Completed in commit `plan: queue markdown feedback corrections`.
 92. [DONE] Git Commit: `plan: queue markdown feedback corrections` (hash: self)
-93. [IN_PROGRESS] `harness-ai.phase12.stream4.task2` Restore plain-text thinking plates (markdown only for regular assistant replies) and stop word-shattering in markdown tables by resetting `word-break`/`overflow-wrap` to normal inside table content (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `fix: restore thinking format and table wrapping`).
-94. [TODO] Git Commit: `fix: restore thinking format and table wrapping` (hash: TBD)
-95. [TODO] `harness-ai.phase12.stream4.task3` Rebuild the user-ordered macOS package with the feedback corrections, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record markdown feedback package`).
+93. [DONE] `harness-ai.phase12.stream4.task2` Restore plain-text thinking plates (markdown only for regular assistant replies) and stop word-shattering in markdown tables by resetting `word-break`/`overflow-wrap` to normal inside table content (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `fix: restore thinking format and table wrapping`). Result: Completed in commit `fix: restore thinking format and table wrapping`.
+94. [DONE] Git Commit: `fix: restore thinking format and table wrapping` (hash: self)
+95. [IN_PROGRESS] `harness-ai.phase12.stream4.task3` Rebuild the user-ordered macOS package with the feedback corrections, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record markdown feedback package`).
 96. [TODO] Git Commit: `docs: record markdown feedback package` (hash: TBD)

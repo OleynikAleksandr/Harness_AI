@@ -58,15 +58,19 @@ Render the transcript/dialog layout and session chrome.
   reference tint (the other universal-client endpoints) use the neutral
   assistant background.
 - A thinking bubble is `role === "thinking"` or an assistant message tagged
-  `thinking`. Assistant and thinking bubbles render GFM markdown (tables,
-  lists, code, links) through the renderer-only `SessionMarkdownContent`
-  component built on `react-markdown` + `remark-gfm` with `skipHtml`: raw HTML
-  never executes, and external links open through the Electron window-open
-  bridge (`target="_blank"` → system browser). User and system messages stay
-  plain text, and thinking plates stay expanded (no collapse toggle). Markdown
-  elements are styled for the dark dialog theme — bordered horizontally
-  scrollable tables, dark code blocks, compact headings/lists, blockquotes and
-  reference-blue links — while plain-text bubbles keep the `pre-wrap` contract.
+  `thinking`. Regular assistant replies render GFM markdown (tables, lists,
+  code, links) through the renderer-only `SessionMarkdownContent` component
+  built on `react-markdown` + `remark-gfm` with `skipHtml`: raw HTML never
+  executes, and external links open through the Electron window-open bridge
+  (`target="_blank"` → system browser). User, system and thinking messages
+  stay plain text — the 2026-07-12 packaged retest explicitly returned
+  thinking plates to the thin pre-wrap format (markdown had merged their
+  single-newline sections into one bold wall) — and thinking plates stay
+  expanded (no collapse toggle). Markdown elements are styled for the dark
+  dialog theme — bordered horizontally scrollable tables that wrap by whole
+  words (no inherited anywhere-breaks shattering narrow columns), dark code
+  blocks, compact headings/lists, blockquotes and reference-blue links — while
+  plain-text bubbles keep the `pre-wrap` contract.
 - Pending translated reasoning hides the source text until Core patches
   `localizedContent`; translated thinking is revealed progressively in the
   renderer while source `text` remains unchanged in state. When a provider

@@ -30,18 +30,28 @@ assert.match(markdownSource, /rel="noreferrer"/u);
 assert.match(markdownSource, /target="_blank"/u);
 assert.doesNotMatch(markdownSource, /dangerouslySetInnerHTML/u);
 
-// Assistant and thinking bubbles render markdown; user/system messages stay
-// plain text.
+// Only regular assistant replies render markdown; thinking plates returned
+// to the thin plain-text pre-wrap format after the 2026-07-12 packaged
+// feedback, and user/system messages stay plain text too.
 assert.match(dialogSource, /<SessionMarkdownContent/u);
 assert.match(dialogSource, /session-dialog__content--markdown/u);
 assert.match(
   dialogSource,
-  /renderMarkdown=\{isThinking \|\| message\.role === "assistant"\}/u
+  /renderMarkdown=\{!isThinking && message\.role === "assistant"\}/u
 );
 assert.match(dialogSource, /<div className=\{className\}>\{text\}<\/div>/u);
 
 // Markdown bubbles drop the plain-text pre-wrap contract and style GFM
-// elements (tables scroll instead of overflowing the bubble).
+// elements (tables scroll instead of overflowing the bubble, and wrap by
+// whole words instead of the inherited anywhere-breaks).
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown table \{[^}]*word-break: normal/u
+);
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown table \{[^}]*overflow-wrap: normal/u
+);
 assert.match(
   stylesSource,
   /\.session-dialog__content--markdown \{\s*white-space: normal;/u

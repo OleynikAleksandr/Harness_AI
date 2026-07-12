@@ -130,7 +130,7 @@ function MessageBubble({
       </header>
       <MessageBubbleContent
         isThinking={isThinking}
-        renderMarkdown={isThinking || message.role === "assistant"}
+        renderMarkdown={!isThinking && message.role === "assistant"}
         text={revealedText}
       />
     </article>

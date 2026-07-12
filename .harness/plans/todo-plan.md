@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream6.task3",
-  "expectedCommitMessage": "docs: record file link package",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -258,5 +258,5 @@
 104. [DONE] Git Commit: `plan: queue file link handling` (hash: self)
 105. [DONE] `harness-ai.phase12.stream6.task2` Resolve absolute unix/file-URI markdown hrefs with optional `:line[:column]` into `vscode://file/...` anchors handled by the existing Electron window-open bridge, and wrap rendered links as unbreakable inline blocks (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `feat: open file links in vs code`). Result: Completed in commit `feat: open file links in vs code`.
 106. [DONE] Git Commit: `feat: open file links in vs code` (hash: self)
-107. [IN_PROGRESS] `harness-ai.phase12.stream6.task3` Rebuild the user-ordered macOS package with the file-link handling, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record file link package`).
-108. [TODO] Git Commit: `docs: record file link package` (hash: TBD)
+107. [DONE] `harness-ai.phase12.stream6.task3` Rebuild the user-ordered macOS package with the file-link handling, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record file link package`). Result: Completed in commit `docs: record file link package`.
+108. [DONE] Git Commit: `docs: record file link package` (hash: self)

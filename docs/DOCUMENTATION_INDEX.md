@@ -301,6 +301,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   starts on its own display line (sentence-end + uppercase heuristic on text
   nodes, `pre-line` paragraphs keeping author soft breaks; code/tables/lists
   untouched); includes asar inspection and launch smoke.
+- `docs/evidence/file-link-package-2026-07-12.md` — rebuild with markdown link
+  handling: links wrap as whole units (inline-block, no mid-hyphen breaks) and
+  absolute file:line hrefs resolve to `vscode://file` anchors that open the
+  workspace file at the referenced line through the existing window-open
+  route; includes asar inspection and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

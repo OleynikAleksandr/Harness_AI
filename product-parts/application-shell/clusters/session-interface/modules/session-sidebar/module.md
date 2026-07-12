@@ -27,6 +27,11 @@ rename UI, and Settings entry.
 - A child row uses its delegated task plus localized status as the secondary
   line, falling back to role plus status when no task is available. It does not
   repeat `agentNickname` when Core already used that nickname as the title.
+- A child row's leading status indicator encodes progress by shape: pending
+  and running children render a neutral hollow ring, while settled outcomes
+  keep a filled dot — green `completed`, orange `interrupted`, red
+  `failed`/`not_found`, grey `shutdown`. Inline timeline cards and the child
+  header keep filled dots and share the same settled colors.
 - An in-app React rename dialog (100-character UI limit matching Core) and
   context-menu regenerate action. Native browser/Electron prompt and confirm
   dialogs are not used. The controls render only when the parent session window

@@ -1861,28 +1861,34 @@ strong {
   color: #a5acb5;
 }
 
-.session-tree-status--running,
 .session-subagent-call__status--running,
 .session-subagent-header__status--running {
   color: var(--pm-accent-strong);
 }
 
-.session-tree-status--pending,
 .session-subagent-call__status--pending,
 .session-subagent-header__status--pending {
   color: #d6b96d;
 }
 
+/* Sidebar tree: in-flight children show a neutral hollow ring; only settled
+   outcomes fill the dot (green completed, orange interrupted, red failed). */
+.session-tree-status--pending,
+.session-tree-status--running {
+  color: #a5acb5;
+  fill: transparent;
+}
+
 .session-tree-status--completed,
 .session-subagent-call__status--completed,
 .session-subagent-header__status--completed {
-  color: #86d8b8;
+  color: #52c974;
 }
 
 .session-tree-status--interrupted,
 .session-subagent-call__status--interrupted,
 .session-subagent-header__status--interrupted {
-  color: #e7a96b;
+  color: #f0883e;
 }
 
 .session-tree-status--failed,

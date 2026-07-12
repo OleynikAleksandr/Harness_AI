@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream3.task2",
-  "expectedCommitMessage": "style: shape subagent status indicators",
+  "currentTaskId": "harness-ai.phase12.stream3.task3",
+  "expectedCommitMessage": "docs: record dialog markdown and indicator package",
   "debt": null
 }
 ```
@@ -229,7 +229,7 @@
 
 85. [DONE] `harness-ai.phase12.stream3.task1` Define the user-approved sidebar indicator scope: in-flight subagent rows (pending/running) show a neutral hollow ring, settled outcomes keep a filled dot with clear colors (green completed, orange interrupted; failed/not_found stay red, shutdown stays grey), inline cards and the child header share the settled colors, and the user explicitly ordered a fresh macOS package after the fix (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: define subagent indicator scope`). Result: Completed in commit `plan: define subagent indicator scope`.
 86. [DONE] Git Commit: `plan: define subagent indicator scope` (hash: self)
-87. [IN_PROGRESS] `harness-ai.phase12.stream3.task2` Shape the sidebar subagent status indicators: neutral hollow ring for pending/running rows, filled green completed and filled orange interrupted dots, settled colors shared with inline timeline cards and the child session header (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-sidebar module docs, docs/architecture/SubagentSessions.md`; expected commit: `style: shape subagent status indicators`).
-88. [TODO] Git Commit: `style: shape subagent status indicators` (hash: TBD)
-89. [TODO] `harness-ai.phase12.stream3.task3` Build the explicitly user-ordered macOS package with the dialog markdown and indicator changes, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record dialog markdown and indicator package`).
+87. [DONE] `harness-ai.phase12.stream3.task2` Shape the sidebar subagent status indicators: neutral hollow ring for pending/running rows, filled green completed and filled orange interrupted dots, settled colors shared with inline timeline cards and the child session header (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-sidebar module docs, docs/architecture/SubagentSessions.md`; expected commit: `style: shape subagent status indicators`). Result: Completed in commit `style: shape subagent status indicators`.
+88. [DONE] Git Commit: `style: shape subagent status indicators` (hash: self)
+89. [IN_PROGRESS] `harness-ai.phase12.stream3.task3` Build the explicitly user-ordered macOS package with the dialog markdown and indicator changes, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record dialog markdown and indicator package`).
 90. [TODO] Git Commit: `docs: record dialog markdown and indicator package` (hash: TBD)

@@ -359,6 +359,7 @@ export function SessionWindowFacade() {
               providerName={activeSession.providerName}
               sessions={sessions}
               subagentCalls={subagentCalls}
+              workspaceRoot={activeWorkspace?.path}
             />
             {isSubagentSession ? null : (
               <ReferenceInputPanel

@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from "react";
+import { type ComponentProps, type ReactNode, useMemo } from "react";
 import ReactMarkdown, {
   type Components,
   defaultUrlTransform,
@@ -17,23 +17,28 @@ const SENTENCE_BREAK_PATTERN = /([.!?])\s+(?=\p{Lu})/gu;
 // agent replies referencing workspace files.
 const FILE_PATH_LOCATION_PATTERN = /^(\/.+?)(?::(\d+)(?::(\d+))?)?$/u;
 const FILE_URI_PREFIX = "file://";
-
-const MARKDOWN_COMPONENTS: Components = {
-  a: MarkdownExternalLink,
-  p: MarkdownSentenceParagraph,
-};
+// Any leading "scheme:" (https:, mailto:, vscode:) means the href is not a
+// schemeless workspace-relative path.
+const URL_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/iu;
+const TRAILING_SLASHES_PATTERN = /\/+$/u;
 
 export function SessionMarkdownContent({
   className,
   text,
+  workspaceRoot,
 }: {
   className: string;
   text: string;
+  workspaceRoot?: string;
 }) {
+  const components = useMemo(
+    () => createMarkdownComponents(workspaceRoot),
+    [workspaceRoot]
+  );
   return (
     <div className={className}>
       <ReactMarkdown
-        components={MARKDOWN_COMPONENTS}
+        components={components}
         remarkPlugins={REMARK_PLUGINS}
         skipHtml
         urlTransform={keepFileUrl}
@@ -44,15 +49,28 @@ export function SessionMarkdownContent({
   );
 }
 
+function createMarkdownComponents(
+  workspaceRoot: string | undefined
+): Components {
+  return {
+    a(props) {
+      return <MarkdownExternalLink {...props} workspaceRoot={workspaceRoot} />;
+    },
+    p: MarkdownSentenceParagraph,
+  };
+}
+
 function MarkdownExternalLink({
   href,
   node: _node,
+  workspaceRoot,
   ...anchorProps
-}: ComponentProps<"a"> & ExtraProps) {
-  // Absolute file:line hrefs become vscode://file links so a click opens the
-  // file at that line in the workspace VS Code window through the existing
-  // Electron window-open handler; other targets keep the same handler route.
-  const vsCodeHref = resolveVsCodeFileHref(href);
+}: ComponentProps<"a"> & ExtraProps & { workspaceRoot?: string }) {
+  // Absolute and workspace-relative file:line hrefs become vscode://file
+  // links so a click opens the file at that line in the workspace VS Code
+  // window through the existing Electron window-open handler; other targets
+  // keep the same handler route.
+  const vsCodeHref = resolveVsCodeFileHref(href, workspaceRoot);
   return (
     <a
       {...anchorProps}
@@ -63,13 +81,15 @@ function MarkdownExternalLink({
   );
 }
 
-function resolveVsCodeFileHref(href: string | undefined): string | null {
+function resolveVsCodeFileHref(
+  href: string | undefined,
+  workspaceRoot: string | undefined
+): string | null {
   if (!href) {
     return null;
   }
-  const raw = href.trim();
-  const path = raw.startsWith(FILE_URI_PREFIX) ? decodeFileUriPath(raw) : raw;
-  if (!path?.startsWith("/")) {
+  const path = resolveAbsoluteFilePath(href.trim(), workspaceRoot);
+  if (!path) {
     return null;
   }
   const match = FILE_PATH_LOCATION_PATTERN.exec(path);
@@ -79,6 +99,30 @@ function resolveVsCodeFileHref(href: string | undefined): string | null {
   const line = parsePositiveInteger(match[2]);
   const column = parsePositiveInteger(match[3]);
   return `vscode://file/${match[1]}:${line}:${column}`;
+}
+
+function resolveAbsoluteFilePath(
+  raw: string,
+  workspaceRoot: string | undefined
+): string | null {
+  if (!raw || raw.startsWith("#")) {
+    return null;
+  }
+  if (raw.startsWith(FILE_URI_PREFIX)) {
+    return decodeFileUriPath(raw);
+  }
+  if (raw.startsWith("/")) {
+    return raw;
+  }
+  // Schemeless relative hrefs address files of the active workspace.
+  if (!workspaceRoot || URL_SCHEME_PATTERN.test(raw)) {
+    return null;
+  }
+  const relative = raw.startsWith("./") ? raw.slice(2) : raw;
+  if (!relative) {
+    return null;
+  }
+  return `${workspaceRoot.replace(TRAILING_SLASHES_PATTERN, "")}/${relative}`;
 }
 
 function decodeFileUriPath(href: string): string | null {

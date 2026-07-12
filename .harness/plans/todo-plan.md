@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream8.task2",
-  "expectedCommitMessage": "feat: resolve workspace relative links",
+  "currentTaskId": "harness-ai.phase12.stream8.task3",
+  "expectedCommitMessage": "docs: record relative link package",
   "debt": null
 }
 ```
@@ -274,7 +274,7 @@
 
 115. [DONE] `harness-ai.phase12.stream8.task1` Record the user's follow-up: schemeless relative links like `.harness/plans/todo-plan.md` must address files of the concrete active workspace, resolving against the Core-provided workspace root into the same `vscode://file` route; the package order stays active for this cycle (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue workspace relative links`). Result: Completed in commit `plan: queue workspace relative links`.
 116. [DONE] Git Commit: `plan: queue workspace relative links` (hash: self)
-117. [IN_PROGRESS] `harness-ai.phase12.stream8.task2` Resolve schemeless relative markdown hrefs against the Core-provided active workspace root (passed from the session window facade through the dialog panel) into `vscode://file` anchors with optional `:line[:column]`, leaving scheme/anchor hrefs untouched (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, focused tests, session-window module docs`; expected commit: `feat: resolve workspace relative links`).
-118. [TODO] Git Commit: `feat: resolve workspace relative links` (hash: TBD)
-119. [TODO] `harness-ai.phase12.stream8.task3` Rebuild the user-ordered macOS package with workspace-relative link resolution, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record relative link package`).
+117. [DONE] `harness-ai.phase12.stream8.task2` Resolve schemeless relative markdown hrefs against the Core-provided active workspace root (passed from the session window facade through the dialog panel) into `vscode://file` anchors with optional `:line[:column]`, leaving scheme/anchor hrefs untouched (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, focused tests, session-window module docs`; expected commit: `feat: resolve workspace relative links`). Result: Completed in commit `feat: resolve workspace relative links`.
+118. [DONE] Git Commit: `feat: resolve workspace relative links` (hash: self)
+119. [IN_PROGRESS] `harness-ai.phase12.stream8.task3` Rebuild the user-ordered macOS package with workspace-relative link resolution, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record relative link package`).
 120. [TODO] Git Commit: `docs: record relative link package` (hash: TBD)

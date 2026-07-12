@@ -24,6 +24,7 @@ export function DialogPanel({
   providerName,
   sessions = [],
   subagentCalls = [],
+  workspaceRoot,
 }: {
   messages: SessionMessage[];
   onDetachSubagent?: (sessionId: string) => void;
@@ -32,6 +33,7 @@ export function DialogPanel({
   providerName: string | undefined;
   sessions?: readonly CoreSession[];
   subagentCalls?: readonly CoreSubagentCall[];
+  workspaceRoot?: string;
 }) {
   const { t } = useBrowserLocalization();
   const displayMessages = useMemo(
@@ -74,6 +76,7 @@ export function DialogPanel({
                 message={item.message}
                 providerId={providerId}
                 providerName={providerName}
+                workspaceRoot={workspaceRoot}
               />
             ) : (
               <SubagentCallTimelineItem
@@ -99,10 +102,12 @@ function MessageBubble({
   message,
   providerId,
   providerName,
+  workspaceRoot,
 }: {
   message: SessionMessage;
   providerId: string | undefined;
   providerName: string | undefined;
+  workspaceRoot?: string;
 }) {
   const { t } = useBrowserLocalization();
   const isThinking = isThinkingMessage(message);
@@ -132,6 +137,7 @@ function MessageBubble({
         isThinking={isThinking}
         renderMarkdown={!isThinking && message.role === "assistant"}
         text={revealedText}
+        workspaceRoot={workspaceRoot}
       />
     </article>
   );
@@ -141,10 +147,12 @@ function MessageBubbleContent({
   isThinking,
   renderMarkdown,
   text,
+  workspaceRoot,
 }: {
   isThinking: boolean;
   renderMarkdown: boolean;
   text: string;
+  workspaceRoot?: string;
 }) {
   const className = isThinking
     ? "session-dialog__content session-dialog__content--thinking"
@@ -156,6 +164,7 @@ function MessageBubbleContent({
     <SessionMarkdownContent
       className={`${className} session-dialog__content--markdown`}
       text={text}
+      workspaceRoot={workspaceRoot}
     />
   );
 }

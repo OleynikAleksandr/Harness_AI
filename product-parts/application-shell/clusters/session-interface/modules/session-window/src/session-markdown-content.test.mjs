@@ -37,6 +37,21 @@ assert.match(markdownSource, /resolveVsCodeFileHref/u);
 assert.match(markdownSource, /vscode:\/\/file\//u);
 assert.match(markdownSource, /urlTransform=\{keepFileUrl\}/u);
 assert.match(markdownSource, /defaultUrlTransform/u);
+
+// Schemeless relative hrefs address files of the active workspace: the
+// Core-provided workspace root travels facade -> dialog panel -> markdown
+// anchors, scheme/anchor hrefs stay untouched.
+assert.match(markdownSource, /URL_SCHEME_PATTERN/u);
+assert.match(
+  markdownSource,
+  /workspaceRoot\.replace\(TRAILING_SLASHES_PATTERN, ""\)/u
+);
+assert.match(dialogSource, /workspaceRoot=\{workspaceRoot\}/u);
+const facadeSource = readFileSync(
+  new URL("./session-window-facade.tsx", import.meta.url),
+  "utf8"
+);
+assert.match(facadeSource, /workspaceRoot=\{activeWorkspace\?\.path\}/u);
 assert.match(
   stylesSource,
   /\.session-dialog__content--markdown a \{[^}]*display: inline-block/u

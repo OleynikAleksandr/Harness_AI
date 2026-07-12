@@ -50,11 +50,11 @@ also run here so the Application Shell remains UI/supervisor/client only.
   `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
   stays first on PATH. OpenCode version/update handling is removed with the
   embedded runtime migration.
-- On `delete-session` RPC, orchestrates session removal: deletes the session's
-  event log, deletes the Core-owned reasoning translation sidecar under
-  `.harness/sessions/reasoning-translations/`, and asks the provider adapter to
-  delete its own per-session artifact (e.g. the Codex rollout) so nothing
-  outlives the session record.
+- The `delete-session` RPC forwards the raw intent to Session Runtime and
+  performs no cleanup of its own: the request-handler delete cascade closes
+  bindings and removes provider artifacts, per-session event JSONL and
+  reasoning translation sidecars for every session in the deleted tree
+  (parent and all descendants), so nothing outlives the session records.
 - The `rollback-session-turns` RPC forwards the raw Codex rollback intent
   (`sessionId`, `numTurns`) to Session Runtime. Runtime Process does not inspect
   provider history, derive turn counts, or choose rollback strategy.

@@ -8,11 +8,7 @@ import {
   providerRegistryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { sessionEventStreamFacade } from "../../../../session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
-import {
-  type CoreSession,
-  sessionRequestHandlerFacade,
-} from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
-import { ReasoningTranslationOverlayStore } from "../../../../settings-and-localization/modules/reasoning-translation-overlay/src/reasoning-translation-overlay-store.js";
+import { sessionRequestHandlerFacade } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import {
   type HarnessSettings,
   settingsStoreFacade,
@@ -58,8 +54,6 @@ const WORKSPACE_REGISTRY_FILE = join(
 export class CoreRuntimeApi {
   private initialized = false;
   private readonly providerLifecycle = new CoreProviderLifecycle();
-  private readonly reasoningOverlayStore =
-    new ReasoningTranslationOverlayStore();
 
   initialize(): void {
     if (this.initialized) {
@@ -109,15 +103,11 @@ export class CoreRuntimeApi {
       case "create-session":
         return sessionRequestHandlerFacade.createSession(payload as never);
       case "delete-session": {
+        // The request-handler cascade is the single cleanup route: it closes
+        // bindings and removes provider artifacts, event JSONL and reasoning
+        // translation overlays for every session in the deleted tree.
         const sessionId = readString(payload);
-        const session = sessionRequestHandlerFacade
-          .listSessions()
-          .find((item) => item.id === sessionId);
-        const result = sessionRequestHandlerFacade.deleteSession(sessionId);
-        sessionEventStreamFacade.deleteSessionEvents(sessionId);
-        this.deleteReasoningTranslationOverlays(session);
-        this.deleteProviderSessionArtifacts(session);
-        return result;
+        return sessionRequestHandlerFacade.deleteSession(sessionId);
       }
       case "get-settings":
         return settingsStoreFacade.getSettings(
@@ -226,33 +216,6 @@ export class CoreRuntimeApi {
     } catch (error) {
       return { error: describeError(error), ok: false };
     }
-  }
-
-  private deleteProviderSessionArtifacts(
-    session: CoreSession | undefined
-  ): void {
-    if (!(session?.providerSessionId && session.workspacePath)) {
-      return;
-    }
-    const adapter = providerRegistryFacade.getAdapter(session.providerId);
-    Promise.resolve(
-      adapter?.deleteSessionArtifacts?.(
-        session.providerSessionId,
-        session.workspacePath
-      )
-    ).catch(() => undefined);
-  }
-
-  private deleteReasoningTranslationOverlays(
-    session: CoreSession | undefined
-  ): void {
-    if (!session?.workspacePath) {
-      return;
-    }
-    this.reasoningOverlayStore.deleteSessionOverlays(
-      session.workspacePath,
-      session.id
-    );
   }
 
   private getSessionEvents(sessionId: string): unknown[] {

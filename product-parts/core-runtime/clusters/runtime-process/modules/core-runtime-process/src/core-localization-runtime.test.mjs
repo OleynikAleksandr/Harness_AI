@@ -28,10 +28,13 @@ assert.match(
   /new ProviderTranslationEnginesFacade\(\{\s*engines: createProviderTranslationEngines\(/u
 );
 assert.match(apiSource, /materializeCoreLocalizationRuntimePayload\(/u);
-assert.match(apiSource, /ReasoningTranslationOverlayStore/u);
-assert.match(apiSource, /private readonly reasoningOverlayStore/u);
-assert.match(apiSource, /this\.deleteReasoningTranslationOverlays\(session\)/u);
+// delete-session RPC delegates all artifact cleanup (events, overlays,
+// provider files) to the request-handler cascade; the API keeps no local
+// overlay store or per-root cleanup helpers.
 assert.match(
   apiSource,
-  /deleteSessionOverlays\(\s*session\.workspacePath,\s*session\.id\s*\)/u
+  /case "delete-session": \{[\s\S]*?deleteSession\(sessionId\);\s*\}/u
 );
+assert.doesNotMatch(apiSource, /ReasoningTranslationOverlayStore/u);
+assert.doesNotMatch(apiSource, /deleteReasoningTranslationOverlays/u);
+assert.doesNotMatch(apiSource, /deleteProviderSessionArtifacts/u);

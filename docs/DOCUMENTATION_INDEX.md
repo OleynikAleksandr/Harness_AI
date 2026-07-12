@@ -306,6 +306,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   absolute file:line hrefs resolve to `vscode://file` anchors that open the
   workspace file at the referenced line through the existing window-open
   route; includes asar inspection and launch smoke.
+- `docs/evidence/web-link-package-2026-07-12.md` — rebuild after the user
+  confirmed clickable web links: the window-open allowlist extends to
+  `https://`/`http://` beside `vscode://file/` so reply links open in the
+  default system browser while every other protocol stays denied; includes
+  asar inspection and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream7.task3",
-  "expectedCommitMessage": "docs: record web link package",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -267,5 +267,5 @@
 110. [DONE] Git Commit: `plan: queue web link opening` (hash: self)
 111. [DONE] `harness-ai.phase12.stream7.task2` Allow `https://` and `http://` targets through the Electron window-open opener so web links in rendered replies open in the system browser, prove the exact protocol allowlist with a focused test, and sync the opener/session-window docs plus product tree (scope: `product-parts/application-shell/clusters/electron-host/modules/vscode-link-opener/src/vscode-link-opener-facade.mjs, focused tests, vscode-link-opener/session-window module docs, .harness/product-tree/**`; expected commit: `feat: open web links in system browser`). Result: Completed in commit `feat: open web links in system browser`.
 112. [DONE] Git Commit: `feat: open web links in system browser` (hash: self)
-113. [IN_PROGRESS] `harness-ai.phase12.stream7.task3` Rebuild the user-ordered macOS package with the web-link opening, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record web link package`).
-114. [TODO] Git Commit: `docs: record web link package` (hash: TBD)
+113. [DONE] `harness-ai.phase12.stream7.task3` Rebuild the user-ordered macOS package with the web-link opening, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record web link package`). Result: Completed in commit `docs: record web link package`.
+114. [DONE] Git Commit: `docs: record web link package` (hash: self)

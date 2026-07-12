@@ -48,7 +48,7 @@ assert.match(
 );
 assert.match(normalizerSource, /errored: "failed"/u);
 assert.match(normalizerSource, /notFound: "not_found"/u);
-assert.doesNotMatch(
+assert.match(
   normalizerSource,
   /type === "notLoaded"[\s\S]{0,80}return "pending"/u
 );
@@ -137,7 +137,7 @@ assert.deepEqual(emitted.at(-1).payload, {
   agentNickname: "Archimedes",
   parentProviderSessionId: "parent-thread",
   providerSessionId: "child-thread",
-  status: "completed",
+  status: "pending",
   task: "Provider event audit",
   timestamp: "2026-07-11T18:31:38.000Z",
   title: "Provider event audit",
@@ -159,5 +159,23 @@ assert.deepEqual(emitted.at(-1).payload, {
   providerSessionId: "child-thread",
   status: "completed",
   timestamp: "2026-07-11T18:31:40.000Z",
+  type: "subagent_status",
+});
+
+assert.equal(
+  normalizerModule.routeCodexSubagentNotification(deps, "turn/completed", {
+    threadId: "child-thread",
+    turn: {
+      completedAt: 1_783_794_701,
+      error: null,
+      status: "interrupted",
+    },
+  }),
+  false
+);
+assert.deepEqual(emitted.at(-1).payload, {
+  providerSessionId: "child-thread",
+  status: "interrupted",
+  timestamp: "2026-07-11T18:31:41.000Z",
   type: "subagent_status",
 });

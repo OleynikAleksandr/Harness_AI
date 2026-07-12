@@ -74,8 +74,11 @@ session index. После перезапуска она восстанавлив
 Если provider descendants уже существуют, но старый Core ещё не успел создать
 для них records, Codex adapter запрашивает рекурсивный список через
 `ancestorThreadId`, читает turns каждого thread и повторно пропускает только
-структурированные collaboration/reasoning/agentMessage items через штатный
-event router. Внутри одного процесса каждый transcript/activity replay
+структурированные collaboration items и собственные child
+reasoning/agentMessage через штатный event router. Для этого adapter читает
+цепочку ancestors и исключает из child transcript все turns, чьи стабильные
+turn ids принадлежат ancestor threads; fork-копия parent reasoning/messages не
+появляется в child view. Внутри одного процесса каждый transcript/activity replay
 выполняется один раз; raw rollout JSONL не читается. При следующем запуске Core
 сопоставляет повторно полученные provider messages по стабильным id +
 role/tag/source text и не добавляет точные дубликаты в persisted transcript.
@@ -86,6 +89,11 @@ role/tag/source text и не добавляет точные дубликаты 
 После применения historical child metadata Core повторно вычисляет status
 родительского timeline-call из актуального child status, поэтому восстановленный
 `completed` одинаково виден в карточке, дереве и child header.
+Статус `thread.status=notLoaded` означает лишь отсутствие thread в памяти нового
+app-server процесса и сначала нормализуется как `pending`. После transcript
+replay adapter отдельно проводит через event router последний собственный turn
+child; его `completed`, `interrupted`, `failed` или `inProgress` становится
+источником terminal/running truth для Core.
 
 Forked child `thread/read` включает часть items родительской истории. Adapter
 не переигрывает их как вызовы самого child: актуальный `subAgentActivity`

@@ -79,6 +79,9 @@ const normalizeAgentStatus = (
 
 const normalizeThreadStatus = (value: unknown): ProviderSubagentStatus => {
   const type = isRecord(value) ? asString(value.type) : null;
+  if (type === "notLoaded") {
+    return "pending";
+  }
   if (type === "active") {
     return "running";
   }
@@ -86,6 +89,19 @@ const normalizeThreadStatus = (value: unknown): ProviderSubagentStatus => {
     return "failed";
   }
   return "completed";
+};
+
+const normalizeCompletedTurnStatus = (
+  turn: Record<string, unknown> | null
+): ProviderSubagentStatus => {
+  const status = asString(turn?.status);
+  if (status === "failed" || isRecord(turn?.error)) {
+    return "failed";
+  }
+  if (status === "interrupted") {
+    return "interrupted";
+  }
+  return status === "inProgress" ? "running" : "completed";
 };
 
 const normalizeCallStatus = (
@@ -289,10 +305,9 @@ function normalizeTurnStatusEvent(
       type: "subagent_status",
     };
   }
-  const failed = asString(turn?.status) === "failed" || isRecord(turn?.error);
   return {
     providerSessionId,
-    status: failed ? "failed" : "completed",
+    status: normalizeCompletedTurnStatus(turn),
     timestamp: timestampFromSeconds(turn?.completedAt),
     type: "subagent_status",
   };

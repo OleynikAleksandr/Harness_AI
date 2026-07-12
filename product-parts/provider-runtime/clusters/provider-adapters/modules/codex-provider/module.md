@@ -62,12 +62,17 @@ the shared process.
 - Structured subagent history hydration through app-server RPC only:
   `thread/list(ancestorThreadId)` discovers recursive descendants and
   `thread/read(includeTurns=true)` replays persisted collaboration,
-  `agentMessage`, and `reasoning` items through the same event router used for
-  live notifications. Because a forked child read also contains ancestor
-  items, collaboration replay is ownership-filtered: current
+  child-owned `agentMessage` and `reasoning` items through the same event router
+  used for live notifications. Because a forked child read also contains
+  ancestor turns, the loader reads the ancestor chain and excludes every turn
+  id owned by an ancestor before replaying the child transcript. Collaboration
+  replay remains independently ownership-filtered: current
   `subAgentActivity` must target a direct child of the current structured
   agent path, while legacy calls use `senderThreadId`. No provider rollout file
-  parsing is used.
+  parsing is used. Historical `notLoaded` is treated as pending until the
+  loader replays the latest child-owned turn status; completed, failed,
+  interrupted and in-progress turns therefore retain their app-server
+  semantics after restart.
 - Provider usage/context telemetry.
 - Model capability lookup for the live picker family: GPT-5.6 Sol/Terra
   support through `ultra`, GPT-5.6 Luna through `max`, and

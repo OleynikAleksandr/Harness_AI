@@ -60,6 +60,19 @@ const childThread = {
   status: { type: "notLoaded" },
   turns: [
     {
+      completedAt: null,
+      id: "parent-turn",
+      items: [
+        {
+          id: "parent-message",
+          text: "Already in Core",
+          type: "agentMessage",
+        },
+      ],
+      startedAt: 1_783_794_698,
+      status: "interrupted",
+    },
+    {
       completedAt: 1_783_794_760,
       id: "child-turn",
       items: [
@@ -93,6 +106,7 @@ const childThread = {
         },
       ],
       startedAt: 1_783_794_700,
+      status: "interrupted",
     },
   ],
 };
@@ -170,6 +184,25 @@ assert.equal(
   notifications.some(
     ({ method, params }) =>
       method === "item/completed" && params.item.id === "child-answer"
+  ),
+  true
+);
+assert.equal(
+  notifications.some(
+    ({ method, params }) =>
+      method === "turn/completed" &&
+      params.threadId === "child-thread" &&
+      params.turn.id === "parent-turn"
+  ),
+  false
+);
+assert.equal(
+  notifications.some(
+    ({ method, params }) =>
+      method === "turn/completed" &&
+      params.threadId === "child-thread" &&
+      params.turn.id === "child-turn" &&
+      params.turn.status === "interrupted"
   ),
   true
 );

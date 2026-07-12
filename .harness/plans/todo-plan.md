@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase11.stream2.task1",
+  "expectedCommitMessage": "docs: record codex child recovery package",
   "debt": null
 }
 ```
@@ -193,4 +193,17 @@
 
 68. [DONE] `harness-ai.phase10.stream1.task1` After fresh explicit user confirmation, build the macOS package, inspect `app.asar`, launch-smoke the app and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record subagent session package`). Result: Completed in commit `docs: record subagent session package`.
 69. [DONE] Git Commit: `docs: record subagent session package` (hash: self)
-70. [IN_PROGRESS] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none).
+70. [DONE] `harness-ai.phase10.stream1.task2` User retests inline subagent cards, sidebar tree, child transcript, detach, auto title and rename in the packaged app (scope: user workflow; expected commit: none). Result: User audit confirmed the packaged tree and exposed inherited parent transcript replay plus lossy terminal-status recovery.
+
+## Phase 11 - Post-Audit Provider Recovery Repair (owner: Codex, updated: 2026-07-12)
+
+### Stream: Child Transcript And Terminal Semantics
+
+71. [DONE] `harness-ai.phase11.stream1.task1` Filter parent-fork transcript items from restored Codex child sessions and derive honest live/historical terminal status from app-server turn data instead of treating every interrupted or not-loaded thread as completed (scope: `.harness/plans/todo-plan.md, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-history-loader.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/app-server/codex-subagent-event-normalizer.ts, focused tests, codex-provider module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: preserve codex child recovery semantics`). Result: Completed in commit `fix: preserve codex child recovery semantics`.
+72. [DONE] Git Commit: `fix: preserve codex child recovery semantics` (hash: self)
+
+### Stream: Package And User Retest
+
+73. [IN_PROGRESS] `harness-ai.phase11.stream2.task1` Build the explicitly approved macOS package, inspect the repaired `app.asar`, run a safe launch smoke and record focused verification evidence for clean child transcript recovery and terminal statuses (scope: `.harness/plans/todo-plan.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record codex child recovery package`).
+74. [TODO] Git Commit: `docs: record codex child recovery package` (hash: TBD)
+75. [TODO] `harness-ai.phase11.stream2.task2` User retests restored child transcripts, interrupted/completed statuses and the existing subagent navigation in the rebuilt packaged app (scope: user workflow; expected commit: none).

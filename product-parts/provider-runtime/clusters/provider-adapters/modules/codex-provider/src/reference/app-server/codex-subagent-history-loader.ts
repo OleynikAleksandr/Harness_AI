@@ -5,6 +5,8 @@ interface CodexSubagentHistoryLoaderDependencies {
 
 interface ReplayOptions {
   readonly includeTranscript: boolean;
+  readonly inheritedTurnIds: ReadonlySet<string>;
+  readonly replayTerminalStatus: boolean;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -83,6 +85,12 @@ const readTurns = (
 const readItems = (turn: Record<string, unknown>): Record<string, unknown>[] =>
   Array.isArray(turn.items) ? turn.items.filter(isRecord) : [];
 
+const readTurnId = (
+  threadId: string,
+  turn: Record<string, unknown>,
+  turnIndex: number
+): string => asString(turn.id) ?? `${threadId}:turn:${turnIndex}`;
+
 const compareThreads = (
   left: Record<string, unknown>,
   right: Record<string, unknown>
@@ -108,6 +116,7 @@ export class CodexSubagentHistoryLoader {
   private readonly deps: CodexSubagentHistoryLoaderDependencies;
   private readonly hydrationByRoot = new Map<string, Promise<void>>();
   private readonly replayedActivities = new Set<string>();
+  private readonly replayedTerminalStatuses = new Set<string>();
   private readonly replayedTranscripts = new Set<string>();
   private readonly threadReads = new Map<
     string,
@@ -142,21 +151,52 @@ export class CodexSubagentHistoryLoader {
       this.readThread(rootThreadId),
       this.listDescendants(rootThreadId),
     ]);
-    await this.replayThread(rootThread, {
-      includeTranscript: readParentThreadId(rootThread) !== null,
-    });
+    const ancestors = await this.readAncestors(rootThread);
+    const descendantThreads: Record<string, unknown>[] = [];
     for (const descendant of descendants.sort(compareThreads)) {
+      const descendantId = asString(descendant.id);
+      if (descendantId) {
+        descendantThreads.push(await this.readThread(descendantId));
+      }
+    }
+    const threadsById = new Map<string, Record<string, unknown>>();
+    for (const thread of [...ancestors, rootThread, ...descendantThreads]) {
+      const threadId = asString(thread.id);
+      if (threadId) {
+        threadsById.set(threadId, thread);
+      }
+    }
+    const rootIsSubagent = readParentThreadId(rootThread) !== null;
+    await this.replayThread(rootThread, {
+      inheritedTurnIds: collectAncestorTurnIds(rootThread, threadsById),
+      includeTranscript: rootIsSubagent,
+      replayTerminalStatus: rootIsSubagent,
+    });
+    for (const descendant of descendantThreads) {
       this.deps.routeNotification("thread/started", { thread: descendant });
     }
-    for (const descendant of descendants) {
-      const descendantId = asString(descendant.id);
-      if (!descendantId) {
-        continue;
-      }
-      await this.replayThread(await this.readThread(descendantId), {
+    for (const descendant of descendantThreads) {
+      await this.replayThread(descendant, {
+        inheritedTurnIds: collectAncestorTurnIds(descendant, threadsById),
         includeTranscript: true,
+        replayTerminalStatus: true,
       });
     }
+  }
+
+  private async readAncestors(
+    thread: Record<string, unknown>
+  ): Promise<Record<string, unknown>[]> {
+    const ancestors: Record<string, unknown>[] = [];
+    const seen = new Set<string>();
+    let parentThreadId = readParentThreadId(thread);
+    while (parentThreadId && !seen.has(parentThreadId)) {
+      seen.add(parentThreadId);
+      const parent = await this.readThread(parentThreadId);
+      ancestors.push(parent);
+      parentThreadId = readParentThreadId(parent);
+    }
+    return ancestors;
   }
 
   private async listDescendants(
@@ -221,7 +261,10 @@ export class CodexSubagentHistoryLoader {
     const replayActivities = !this.replayedActivities.has(threadId);
     const replayTranscript =
       options.includeTranscript && !this.replayedTranscripts.has(threadId);
-    if (!(replayActivities || replayTranscript)) {
+    const replayTerminalStatus =
+      options.replayTerminalStatus &&
+      !this.replayedTerminalStatuses.has(threadId);
+    if (!(replayActivities || replayTranscript || replayTerminalStatus)) {
       return Promise.resolve();
     }
     if (replayActivities) {
@@ -230,15 +273,42 @@ export class CodexSubagentHistoryLoader {
     if (replayTranscript) {
       this.replayedTranscripts.add(threadId);
     }
+    if (replayTerminalStatus) {
+      this.replayedTerminalStatuses.add(threadId);
+    }
+    this.replayItems(
+      thread,
+      threadId,
+      options.inheritedTurnIds,
+      replayActivities,
+      replayTranscript
+    );
+    if (replayTerminalStatus) {
+      this.replayLatestOwnedTurnStatus(
+        thread,
+        threadId,
+        options.inheritedTurnIds
+      );
+    }
+    return Promise.resolve();
+  }
+
+  private replayItems(
+    thread: Record<string, unknown>,
+    threadId: string,
+    inheritedTurnIds: ReadonlySet<string>,
+    replayActivities: boolean,
+    replayTranscript: boolean
+  ): void {
     for (const [turnIndex, turn] of readTurns(thread).entries()) {
-      const turnId = asString(turn.id) ?? `${threadId}:turn:${turnIndex}`;
+      const turnId = readTurnId(threadId, turn, turnIndex);
+      const inheritedTurn = inheritedTurnIds.has(turnId);
       for (const [itemIndex, item] of readItems(turn).entries()) {
-        if (
-          !(
-            (replayActivities && isOwnedSubagentActivity(thread, item)) ||
-            (replayTranscript && isTranscriptItem(item))
-          )
-        ) {
+        const ownedActivity =
+          replayActivities && isOwnedSubagentActivity(thread, item);
+        const ownedTranscript =
+          replayTranscript && !inheritedTurn && isTranscriptItem(item);
+        if (!(ownedActivity || ownedTranscript)) {
           continue;
         }
         this.deps.routeNotification("item/completed", {
@@ -249,6 +319,48 @@ export class CodexSubagentHistoryLoader {
         });
       }
     }
-    return Promise.resolve();
   }
+
+  private replayLatestOwnedTurnStatus(
+    thread: Record<string, unknown>,
+    threadId: string,
+    inheritedTurnIds: ReadonlySet<string>
+  ): void {
+    const latestOwnedTurn = readTurns(thread)
+      .filter(
+        (turn, turnIndex) =>
+          !inheritedTurnIds.has(readTurnId(threadId, turn, turnIndex))
+      )
+      .at(-1);
+    if (!latestOwnedTurn) {
+      return;
+    }
+    this.deps.routeNotification(
+      asString(latestOwnedTurn.status) === "inProgress"
+        ? "turn/started"
+        : "turn/completed",
+      { threadId, turn: latestOwnedTurn }
+    );
+  }
+}
+
+function collectAncestorTurnIds(
+  thread: Record<string, unknown>,
+  threadsById: ReadonlyMap<string, Record<string, unknown>>
+): ReadonlySet<string> {
+  const turnIds = new Set<string>();
+  const seen = new Set<string>();
+  let parentThreadId = readParentThreadId(thread);
+  while (parentThreadId && !seen.has(parentThreadId)) {
+    seen.add(parentThreadId);
+    const parent = threadsById.get(parentThreadId);
+    if (!parent) {
+      break;
+    }
+    for (const [turnIndex, turn] of readTurns(parent).entries()) {
+      turnIds.add(readTurnId(parentThreadId, turn, turnIndex));
+    }
+    parentThreadId = readParentThreadId(parent);
+  }
+  return turnIds;
 }

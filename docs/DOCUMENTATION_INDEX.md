@@ -296,6 +296,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   anywhere-breaks that shattered narrow header columns, and thinking plates
   returned to the thin plain-text pre-wrap format (markdown stays only in
   regular assistant replies); includes asar inspection and launch smoke.
+- `docs/evidence/sentence-break-package-2026-07-12.md` — rebuild with the
+  readability follow-up: every sentence of a regular assistant reply paragraph
+  starts on its own display line (sentence-end + uppercase heuristic on text
+  nodes, `pre-line` paragraphs keeping author soft breaks; code/tables/lists
+  untouched); includes asar inspection and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

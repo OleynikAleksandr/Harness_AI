@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase12.stream6.task2",
+  "expectedCommitMessage": "feat: open file links in vs code",
   "debt": null
 }
 ```
@@ -251,3 +251,12 @@
 100. [DONE] Git Commit: `feat: split assistant sentences onto lines` (hash: self)
 101. [DONE] `harness-ai.phase12.stream5.task3` Rebuild the user-ordered macOS package with the sentence line breaks, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record sentence break package`). Result: Completed in commit `docs: record sentence break package`.
 102. [DONE] Git Commit: `docs: record sentence break package` (hash: self)
+
+### Stream: Markdown File Links
+
+103. [DONE] `harness-ai.phase12.stream6.task1` Record the user's link feedback: markdown links wrap as whole units (no mid-hyphen breaks) and absolute file:line links open the file in the workspace VS Code window at the referenced line, reusing the existing `vscode://file` window-open route without new IPC; the package order stays active for this cycle (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue file link handling`). Result: Completed in commit `plan: queue file link handling`.
+104. [DONE] Git Commit: `plan: queue file link handling` (hash: self)
+105. [IN_PROGRESS] `harness-ai.phase12.stream6.task2` Resolve absolute unix/file-URI markdown hrefs with optional `:line[:column]` into `vscode://file/...` anchors handled by the existing Electron window-open bridge, and wrap rendered links as unbreakable inline blocks (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `feat: open file links in vs code`).
+106. [TODO] Git Commit: `feat: open file links in vs code` (hash: TBD)
+107. [TODO] `harness-ai.phase12.stream6.task3` Rebuild the user-ordered macOS package with the file-link handling, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record file link package`).
+108. [TODO] Git Commit: `docs: record file link package` (hash: TBD)

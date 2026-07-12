@@ -217,6 +217,59 @@ assert.deepEqual(
     .map(({ method, params }) => [method, params.threadId ?? null]),
   [["thread/list", null]]
 );
-assert.equal(notifications.length, notificationCount + 1);
-assert.equal(notifications.at(-1).method, "thread/started");
+// A child whose terminal status was already replayed is never re-announced:
+// a late thread/started used to downgrade the restored terminal status.
+assert.equal(notifications.length, notificationCount);
+
+// Regression: concurrent hydrate(parent) + hydrate(child) runs through one
+// serial chain, so the child's final notification stays terminal and no
+// thread/started arrives after its terminal replay.
+const concurrentNotifications = [];
+const delayed = (value) =>
+  new Promise((resolve) => {
+    setTimeout(() => resolve(value), 1);
+  });
+const raceLoader = new CodexSubagentHistoryLoader({
+  request: (method, params) => {
+    if (method === "thread/list") {
+      return delayed({
+        data: [{ ...childThread, turns: [] }],
+        nextCursor: null,
+      });
+    }
+    return delayed({
+      thread: params.threadId === "parent-thread" ? parentThread : childThread,
+    });
+  },
+  routeNotification: (method, params) =>
+    concurrentNotifications.push({ method, params }),
+});
+await Promise.all([
+  raceLoader.hydrate("parent-thread"),
+  raceLoader.hydrate("child-thread"),
+]);
+const childStatusEvents = concurrentNotifications.filter(
+  ({ method, params }) =>
+    (method === "thread/started" && params.thread?.id === "child-thread") ||
+    (["turn/started", "turn/completed"].includes(method) &&
+      params.threadId === "child-thread")
+);
+assert.equal(childStatusEvents.length > 0, true);
+assert.equal(childStatusEvents.at(-1).method, "turn/completed");
+assert.equal(childStatusEvents.at(-1).params.turn.status, "interrupted");
+const terminalIndex = concurrentNotifications.findIndex(
+  ({ method, params }) =>
+    method === "turn/completed" && params.threadId === "child-thread"
+);
+assert.equal(terminalIndex >= 0, true);
+const lateStarted = concurrentNotifications
+  .slice(terminalIndex + 1)
+  .some(
+    ({ method, params }) =>
+      method === "thread/started" && params.thread?.id === "child-thread"
+  );
+assert.equal(lateStarted, false);
+
+assert.match(source, /hydrationChain/u);
+assert.match(source, /replayedTerminalStatuses\.has\(descendantId\)/u);
 assert.doesNotMatch(source, /readFile|jsonl|rollout/iu);

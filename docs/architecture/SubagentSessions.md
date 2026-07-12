@@ -230,6 +230,10 @@ Registry хранит promise уже начатого создания окна,
    `.harness/sessions/reasoning-translations/`).
 7. Renderer не анализирует текст сообщений для определения субагентов.
 8. Уже существующие provider descendants появляются в дереве вместе со своим
-   завершённым transcript после восстановления Core.
+   завершённым transcript после восстановления Core. Конкурентные hydrations
+   (parent + child) идут через одну последовательную цепочку в provider
+   loader, повторный анонс уже терминально восстановленного child запрещён,
+   а Core не понижает терминальный статус child историческим
+   running/pending без строго более свежего события.
 9. Локальный build, focused tests и visual Design QA проходят; package build
    выполняется только после отдельного подтверждения пользователя.

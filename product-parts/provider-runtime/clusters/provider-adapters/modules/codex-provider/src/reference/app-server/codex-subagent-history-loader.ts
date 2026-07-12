@@ -114,6 +114,7 @@ const itemTimestampMs = (
 export class CodexSubagentHistoryLoader {
   private readonly completedRoots = new Set<string>();
   private readonly deps: CodexSubagentHistoryLoaderDependencies;
+  private hydrationChain: Promise<void> = Promise.resolve();
   private readonly hydrationByRoot = new Map<string, Promise<void>>();
   private readonly replayedActivities = new Set<string>();
   private readonly replayedTerminalStatuses = new Set<string>();
@@ -135,15 +136,25 @@ export class CodexSubagentHistoryLoader {
     if (active) {
       return active;
     }
-    const hydration = this.hydrateRoot(rootThreadId)
-      .then(() => {
-        this.completedRoots.add(rootThreadId);
-      })
+    // Hydrations of different roots share the replay sets and can touch the
+    // same descendants; one serial chain keeps their notification order
+    // deterministic instead of racing terminal statuses.
+    const hydration = this.hydrationChain
+      .then(() => this.hydrateRootOnce(rootThreadId))
       .finally(() => {
         this.hydrationByRoot.delete(rootThreadId);
       });
     this.hydrationByRoot.set(rootThreadId, hydration);
+    this.hydrationChain = hydration.catch(() => undefined);
     return hydration;
+  }
+
+  private async hydrateRootOnce(rootThreadId: string): Promise<void> {
+    if (this.completedRoots.has(rootThreadId)) {
+      return;
+    }
+    await this.hydrateRoot(rootThreadId);
+    this.completedRoots.add(rootThreadId);
   }
 
   private async hydrateRoot(rootThreadId: string): Promise<void> {
@@ -173,9 +184,15 @@ export class CodexSubagentHistoryLoader {
       replayTerminalStatus: rootIsSubagent,
     });
     for (const descendant of descendantThreads) {
+      const descendantId = asString(descendant.id);
+      // A descendant whose terminal status was already replayed must not be
+      // re-announced: a late thread/started would downgrade the terminal
+      // status an earlier hydration just restored. Announce and replay as an
+      // immediate pair so no started arrives without its final status.
+      if (descendantId && this.replayedTerminalStatuses.has(descendantId)) {
+        continue;
+      }
       this.deps.routeNotification("thread/started", { thread: descendant });
-    }
-    for (const descendant of descendantThreads) {
       await this.replayThread(descendant, {
         inheritedTurnIds: collectAncestorTurnIds(descendant, threadsById),
         includeTranscript: true,

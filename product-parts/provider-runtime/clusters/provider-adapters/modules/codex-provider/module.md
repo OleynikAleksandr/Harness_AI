@@ -72,7 +72,12 @@ the shared process.
   parsing is used. Historical `notLoaded` is treated as pending until the
   loader replays the latest child-owned turn status; completed, failed,
   interrupted and in-progress turns therefore retain their app-server
-  semantics after restart.
+  semantics after restart. Hydrations of different roots run through one
+  serial chain (shared replay sets, deterministic notification order), each
+  descendant `thread/started` is paired immediately with its replay, and a
+  descendant whose terminal status was already replayed is never re-announced
+  — a late `thread/started` used to downgrade the restored terminal status
+  under concurrent parent+child hydration.
 - Provider usage/context telemetry.
 - Model capability lookup for the live picker family: GPT-5.6 Sol/Terra
   support through `ultra`, GPT-5.6 Luna through `max`, and

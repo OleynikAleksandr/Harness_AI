@@ -65,8 +65,9 @@ Render the transcript/dialog layout and session chrome.
   Absolute unix/file-URI hrefs with an optional `:line[:column]` suffix become
   `vscode://file/...` anchors, so a click opens the referenced workspace file
   at that line in VS Code (the same route the profile file buttons already
-  use); the handler ignores non-`vscode://file` targets. Rendered links wrap
-  as whole units (inline-block) instead of breaking at hyphens mid-link.
+  use); `https`/`http` targets open in the default system browser, and the
+  handler denies every other protocol. Rendered links wrap as whole units
+  (inline-block) instead of breaking at hyphens mid-link.
   User, system and thinking messages
   stay plain text — the 2026-07-12 packaged retest explicitly returned
   thinking plates to the thin pre-wrap format (markdown had merged their

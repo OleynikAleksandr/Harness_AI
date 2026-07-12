@@ -36,7 +36,7 @@
             {
               "id": "vscode-link-opener",
               "name": "VS Code Link Opener",
-              "purpose": "Open absolute file links in Visual Studio Code."
+              "purpose": "Open absolute file links in Visual Studio Code and web links in the system browser."
             }
           ]
         },

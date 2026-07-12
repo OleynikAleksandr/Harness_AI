@@ -19,7 +19,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 - `app-bootstrap`: Electron lifecycle, window creation, local app startup.
 - `core-process-bridge`: starts, stops, restarts, health-checks, or connects to the local Core Runtime process through process contracts only.
-- `vscode-link-opener`: opens absolute file links in Visual Studio Code.
+- `vscode-link-opener`: opens absolute file links in Visual Studio Code and web links in the system browser.
 
 ### Session Interface
 

@@ -1064,6 +1064,9 @@ strong {
 
 .session-dialog__content--markdown p {
   margin: 0 0 8px;
+  /* pre-line shows the renderer's one-line-per-sentence breaks and the
+     author's own soft line breaks inside a paragraph. */
+  white-space: pre-line;
 }
 
 .session-dialog__content--markdown strong {

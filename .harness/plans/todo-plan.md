@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream5.task2",
-  "expectedCommitMessage": "feat: split assistant sentences onto lines",
+  "currentTaskId": "harness-ai.phase12.stream5.task3",
+  "expectedCommitMessage": "docs: record sentence break package",
   "debt": null
 }
 ```
@@ -247,7 +247,7 @@
 
 97. [DONE] `harness-ai.phase12.stream5.task1` Record the accepted markdown feedback package and the user's next readability request: every sentence in a regular assistant reply paragraph starts on a new line (sentence-end punctuation + space + uppercase heuristic inside paragraphs only, code/tables/lists untouched), with author soft line breaks kept visible; the package order stays active for this cycle (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue sentence line breaks`). Result: Completed in commit `plan: queue sentence line breaks`.
 98. [DONE] Git Commit: `plan: queue sentence line breaks` (hash: self)
-99. [IN_PROGRESS] `harness-ai.phase12.stream5.task2` Split assistant reply paragraphs onto one line per sentence via a renderer-only paragraph formatter (`.!?` + whitespace + uppercase lookahead on text nodes) and render paragraph newlines with `pre-line` so author soft breaks stay visible (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `feat: split assistant sentences onto lines`).
-100. [TODO] Git Commit: `feat: split assistant sentences onto lines` (hash: TBD)
-101. [TODO] `harness-ai.phase12.stream5.task3` Rebuild the user-ordered macOS package with the sentence line breaks, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record sentence break package`).
+99. [DONE] `harness-ai.phase12.stream5.task2` Split assistant reply paragraphs onto one line per sentence via a renderer-only paragraph formatter (`.!?` + whitespace + uppercase lookahead on text nodes) and render paragraph newlines with `pre-line` so author soft breaks stay visible (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `feat: split assistant sentences onto lines`). Result: Completed in commit `feat: split assistant sentences onto lines`.
+100. [DONE] Git Commit: `feat: split assistant sentences onto lines` (hash: self)
+101. [IN_PROGRESS] `harness-ai.phase12.stream5.task3` Rebuild the user-ordered macOS package with the sentence line breaks, inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record sentence break package`).
 102. [TODO] Git Commit: `docs: record sentence break package` (hash: TBD)

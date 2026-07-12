@@ -30,6 +30,16 @@ assert.match(markdownSource, /rel="noreferrer"/u);
 assert.match(markdownSource, /target="_blank"/u);
 assert.doesNotMatch(markdownSource, /dangerouslySetInnerHTML/u);
 
+// Every sentence of a regular reply paragraph starts on its own display
+// line: text nodes split on `.!?` + whitespace + uppercase, inline elements
+// stay untouched, and the paragraph renders newlines via pre-line.
+assert.match(markdownSource, /p: MarkdownSentenceParagraph/u);
+assert.match(markdownSource, /\/\(\[\.!\?\]\)\\s\+\(\?=\\p\{Lu\}\)\/gu/u);
+assert.match(
+  stylesSource,
+  /\.session-dialog__content--markdown p \{[^}]*white-space: pre-line/u
+);
+
 // Only regular assistant replies render markdown; thinking plates returned
 // to the thin plain-text pre-wrap format after the 2026-07-12 packaged
 // feedback, and user/system messages stay plain text too.

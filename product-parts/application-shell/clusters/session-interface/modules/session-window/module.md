@@ -70,7 +70,11 @@ Render the transcript/dialog layout and session chrome.
   dialog theme — bordered horizontally scrollable tables that wrap by whole
   words (no inherited anywhere-breaks shattering narrow columns), dark code
   blocks, compact headings/lists, blockquotes and reference-blue links — while
-  plain-text bubbles keep the `pre-wrap` contract.
+  plain-text bubbles keep the `pre-wrap` contract. Inside reply paragraphs
+  every sentence starts on its own display line (a renderer-only formatter
+  splits text nodes on `.!?` + whitespace + uppercase and paragraphs render
+  with `pre-line`, which also keeps author soft line breaks visible); code,
+  tables, lists and inline elements are untouched.
 - Pending translated reasoning hides the source text until Core patches
   `localizedContent`; translated thinking is revealed progressively in the
   renderer while source `text` remains unchanged in state. When a provider

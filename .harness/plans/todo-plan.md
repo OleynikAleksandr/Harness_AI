@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream1.task1",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase12.stream2.task2",
+  "expectedCommitMessage": "feat: render markdown in session dialog",
   "debt": null
 }
 ```
@@ -214,4 +214,13 @@
 
 76. [DONE] `harness-ai.phase12.stream0.task1` Record the accepted package and queue a deliberately abstract next-session task for user-directed visual changes to the subagent interface without choosing files, layout or behavior before clarification (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: queue subagent visual follow-up`). Result: Completed in commit `plan: queue subagent visual follow-up`.
 77. [DONE] Git Commit: `plan: queue subagent visual follow-up` (hash: self)
-78. [IN_PROGRESS] `harness-ai.phase12.stream1.task1` At the beginning of the next session, clarify the requested visual adjustments related to subagents, define the exact UI scope and implementation microtasks, then proceed only within that newly agreed boundary (scope: clarification and plan refinement only until user details are provided; expected commit: none).
+78. [DONE] `harness-ai.phase12.stream1.task1` At the beginning of the next session, clarify the requested visual adjustments related to subagents, define the exact UI scope and implementation microtasks, then proceed only within that newly agreed boundary (scope: clarification and plan refinement only until user details are provided; expected commit: none). Result: User directed the first visual step: render agent reply markdown (including tables) in dialog bubbles like a VS Code-style preview instead of raw text; the agreed scope lives in Stream: Dialog Markdown Rendering.
+
+### Stream: Dialog Markdown Rendering
+
+79. [DONE] `harness-ai.phase12.stream2.task1` Define the user-approved dialog markdown scope: assistant and thinking bubbles render GFM markdown (tables included) through a renderer-only formatting component, user/system messages stay plain text, and dependency plus first use land in one commit because the knip gate rejects unused dependencies (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: define dialog markdown rendering scope`). Result: Completed in commit `plan: define dialog markdown rendering scope`.
+80. [DONE] Git Commit: `plan: define dialog markdown rendering scope` (hash: self)
+81. [IN_PROGRESS] `harness-ai.phase12.stream2.task2` Render assistant and thinking dialog bubbles through a session markdown component built on `react-markdown` + `remark-gfm` with `skipHtml`, external links delegated to the existing window-open bridge, and no provider-truth classification in the renderer (scope: `package.json, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-dialog-panel.tsx, focused tests, session-window module docs, .harness/product-tree/**`; expected commit: `feat: render markdown in session dialog`).
+82. [TODO] Git Commit: `feat: render markdown in session dialog` (hash: TBD)
+83. [TODO] `harness-ai.phase12.stream2.task3` Style rendered markdown inside dialog bubbles — tables, lists, headings, code blocks, inline code, blockquotes, links — for the dark session theme and replace the plain-text `pre-wrap` contract for markdown content (scope: `product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, focused tests, session-window module docs`; expected commit: `style: format markdown session replies`).
+84. [TODO] Git Commit: `style: format markdown session replies` (hash: TBD)

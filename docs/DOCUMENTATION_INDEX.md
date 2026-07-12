@@ -322,6 +322,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   segment, optional `:line[:column]`) clickable through the same
   `vscode://file` anchor, while ordinary code and non-path tokens stay
   untouched; includes asar inspection and launch smoke.
+- `docs/evidence/race-and-cleanup-package-2026-07-12.md` — explicitly
+  user-approved combined rebuild fixing the audited terminal-status race
+  (serialized provider hydrations, no re-announce of terminally replayed
+  children, Core monotonic terminal-status guard with a proven concurrent
+  regression test) plus the session artifact cascade cleanup (per-tree event
+  JSONL and reasoning translation sidecars deleted); includes asar runtime
+  marker inspection and launch smoke.
 - `docs/evidence/universal-client-kimi-package-2026-07-04.md` — packaged
   application rebuild for the Phase 2 Kimi auth-gate live validation: the
   visible Kimi runs on the universal client (`kimi-client` endpoint,

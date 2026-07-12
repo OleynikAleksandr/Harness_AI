@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream1.task4",
-  "expectedCommitMessage": "docs: record race and cleanup package",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -310,5 +310,5 @@
 137. [DONE] Git Commit: `fix: serialize codex hydration replay` (hash: self)
 138. [DONE] `harness-ai.phase14.stream1.task3` Guard Core subagent statuses monotonically: a terminal child status (completed/interrupted/failed/not_found/shutdown) is never downgraded to running/pending by an event that is not strictly newer than the session's current timestamp, across status events, agent states and child merges (scope: `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, focused tests, session-request-handler module docs, docs/architecture/SubagentSessions.md`; expected commit: `fix: guard terminal subagent statuses`). Result: Completed in commit `fix: guard terminal subagent statuses`.
 139. [DONE] Git Commit: `fix: guard terminal subagent statuses` (hash: self)
-140. [IN_PROGRESS] `harness-ai.phase14.stream1.task4` Build the explicitly user-approved combined macOS package (terminal-status race fix plus session artifact cascade cleanup), inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record race and cleanup package`).
-141. [TODO] Git Commit: `docs: record race and cleanup package` (hash: TBD)
+140. [DONE] `harness-ai.phase14.stream1.task4` Build the explicitly user-approved combined macOS package (terminal-status race fix plus session artifact cascade cleanup), inspect `app.asar`, run a safe launch smoke and record verification evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record race and cleanup package`). Result: Completed in commit `docs: record race and cleanup package`.
+141. [DONE] Git Commit: `docs: record race and cleanup package` (hash: self)

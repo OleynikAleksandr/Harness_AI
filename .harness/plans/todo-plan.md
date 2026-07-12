@@ -8,8 +8,8 @@
   "planId": "native-capture-reasoning-selection-2026-07-11",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream2.task1",
-  "expectedCommitMessage": "docs: record codex child recovery package",
+  "currentTaskId": "harness-ai.phase11.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -204,6 +204,6 @@
 
 ### Stream: Package And User Retest
 
-73. [IN_PROGRESS] `harness-ai.phase11.stream2.task1` Build the explicitly approved macOS package, inspect the repaired `app.asar`, run a safe launch smoke and record focused verification evidence for clean child transcript recovery and terminal statuses (scope: `.harness/plans/todo-plan.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record codex child recovery package`).
-74. [TODO] Git Commit: `docs: record codex child recovery package` (hash: TBD)
-75. [TODO] `harness-ai.phase11.stream2.task2` User retests restored child transcripts, interrupted/completed statuses and the existing subagent navigation in the rebuilt packaged app (scope: user workflow; expected commit: none).
+73. [DONE] `harness-ai.phase11.stream2.task1` Build the explicitly approved macOS package, inspect the repaired `app.asar`, run a safe launch smoke and record focused verification evidence for clean child transcript recovery and terminal statuses (scope: `.harness/plans/todo-plan.md, docs/evidence/**, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record codex child recovery package`). Result: Completed in commit `docs: record codex child recovery package`.
+74. [DONE] Git Commit: `docs: record codex child recovery package` (hash: self)
+75. [IN_PROGRESS] `harness-ai.phase11.stream2.task2` User retests restored child transcripts, interrupted/completed statuses and the existing subagent navigation in the rebuilt packaged app (scope: user workflow; expected commit: none).

@@ -122,10 +122,17 @@ const hydratedObserver = new ClaudeSubagentObserver({
 await hydratedObserver.hydrate();
 assert.deepEqual(
   hydratedEmitter.parentEvents.map((event) => event.type),
-  ["subagent_control", "subagent_session", "subagent_status"],
-  "hydration replays spawn, session metadata and the terminal status"
+  ["subagent_control", "subagent_session"],
+  "hydration replays spawn and session metadata on the parent channel"
 );
-const [control, sessionEvent, terminal] = hydratedEmitter.parentEvents;
+// Core accepts subagent_status only on the child channel; the parent channel
+// silently drops it (acceptance finding 2026-07-13).
+const terminalEntry = hydratedEmitter.childEvents.find(
+  (entry) => entry.payload.type === "subagent_status"
+);
+const terminal = terminalEntry.payload;
+assert.equal(terminalEntry.childId, "agent-aaa111");
+const [control, sessionEvent] = hydratedEmitter.parentEvents;
 assert.equal(control.callId, "toolu_aaa111");
 assert.equal(control.model, "claude-opus-4-8");
 assert.equal(control.timestamp, "2026-07-12T18:38:50.000Z");
@@ -135,11 +142,9 @@ assert.equal(sessionEvent.agentRole, "Explore");
 assert.equal(terminal.status, "completed");
 assert.equal(terminal.providerSessionId, "agent-aaa111");
 assert.deepEqual(
-  hydratedEmitter.childEvents.map((entry) => [
-    entry.childId,
-    entry.payload.type,
-    entry.payload.content,
-  ]),
+  hydratedEmitter.childEvents
+    .filter((entry) => entry.payload.type !== "subagent_status")
+    .map((entry) => [entry.childId, entry.payload.type, entry.payload.content]),
   [
     ["agent-aaa111", "thinking", "Reading."],
     ["agent-aaa111", "assistant", "Summary ready."],
@@ -149,8 +154,8 @@ assert.deepEqual(
 
 // Re-hydration replays nothing new (replay-once inside the process).
 await hydratedObserver.hydrate();
-assert.equal(hydratedEmitter.parentEvents.length, 3);
-assert.equal(hydratedEmitter.childEvents.length, 2);
+assert.equal(hydratedEmitter.parentEvents.length, 2);
+assert.equal(hydratedEmitter.childEvents.length, 3);
 
 // --- Hydration of an unfinished subagent marks it interrupted.
 writeAgentFiles("bbb222", "Never finished");
@@ -219,13 +224,52 @@ appendFileSync(
 );
 writeParentTerminal("ccc333");
 await liveObserver.stopTurnPolling();
+const liveTerminal = liveEmitter.childEvents.at(-1);
 assert.equal(
-  liveEmitter.parentEvents.at(-1).type,
+  liveTerminal.payload.type,
   "subagent_status",
-  "final scan emits the terminal status"
+  "final scan emits the terminal status into the child channel"
 );
-assert.equal(liveEmitter.parentEvents.at(-1).status, "completed");
-assert.deepEqual(liveEmitter.childEvents.at(-1).payload.content, "Done.");
+assert.equal(liveTerminal.payload.status, "completed");
+assert.equal(liveTerminal.childId, "agent-ccc333");
+
+// A throwing listener must not lose an already-read terminal: the parent
+// cursor has advanced past it, so it stays pended and re-emits next scan.
+rmSync(join(projectDir, parentId), { force: true, recursive: true });
+writeFileSync(parentPath, "");
+mkdirSync(subagentsDir, { recursive: true });
+writeAgentFiles("ddd444", "Flaky listener");
+writeParentTerminal("ddd444");
+let failuresLeft = 1;
+const flakyEvents = [];
+const flakyObserver = new ClaudeSubagentObserver({
+  emitter: {
+    emitToChild: (childId, payload) => {
+      if (payload.type === "subagent_status" && failuresLeft > 0) {
+        failuresLeft -= 1;
+        throw new Error("listener exploded");
+      }
+      flakyEvents.push(`${childId}:${payload.type}`);
+    },
+    emitToParent: () => undefined,
+  },
+  now: () => "flaky-ts",
+  parentProviderSessionId: parentId,
+  projectsDir,
+});
+await flakyObserver.hydrate();
+assert.equal(
+  flakyEvents.some((entry) => entry.includes("subagent_status")),
+  false,
+  "first emit failed"
+);
+await flakyObserver.hydrate();
+assert.equal(
+  flakyEvents.filter((entry) => entry === "agent-ddd444:subagent_status")
+    .length,
+  1,
+  "pended terminal re-emits on the next scan"
+);
 
 rmSync(projectsDir, { force: true, recursive: true });
 console.log("claude-subagent-observer tests passed");

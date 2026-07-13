@@ -97,7 +97,15 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   monotonic terminal guard absorb cross-restart replays). Hydration marks
   terminal-less agents `interrupted`; live scans keep them `running`. The
   spawn is re-announced once when the model becomes known from the first
-  transcript record so the Core call card shows it.
+  transcript record so the Core call card shows it. Terminal statuses are
+  emitted into the CHILD channel (`agent-<agentId>`): Core's
+  `handleStatusEvent` accepts `subagent_status` only on the subagent
+  session's own channel and silently drops it on the parent channel
+  (acceptance finding 2026-07-13, verified with an instrumented packaged
+  build). Read terminal results stay pended until their emit succeeds — the
+  parent cursor has already advanced past them, so a throwing listener must
+  not lose them; per-agent replay errors and scan errors are reported
+  through the adapter reporter instead of being swallowed.
 - Subagent adapter wiring (`claude-provider-adapter.ts`): one observer per
   bound parent session, created on create/resume (both hydrate existing
   files) with the projects root dir (the observer locates the cwd-derived

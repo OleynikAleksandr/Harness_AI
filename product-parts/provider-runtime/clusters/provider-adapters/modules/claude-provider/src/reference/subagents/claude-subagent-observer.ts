@@ -8,6 +8,7 @@ import {
 } from "./claude-subagent-event-normalizer.js";
 import {
   type ClaudeSubagentMeta,
+  type ClaudeSubagentToolUseResult,
   createJsonlTailCursor,
   extractSubagentToolUseResult,
   findParentTranscriptPath,
@@ -30,6 +31,7 @@ export interface ClaudeSubagentObserverEmitter {
 export interface ClaudeSubagentObserverOptions {
   readonly emitter: ClaudeSubagentObserverEmitter;
   readonly now?: () => string;
+  readonly onScanError?: (error: unknown) => void;
   readonly parentProviderSessionId: string;
   readonly pollIntervalMs?: number;
   readonly projectsDir: string;
@@ -55,11 +57,19 @@ export class ClaudeSubagentObserver {
   private chain: Promise<void> = Promise.resolve();
   private readonly emitter: ClaudeSubagentObserverEmitter;
   private readonly now: () => string;
+  private readonly onScanError?: (error: unknown) => void;
   private readonly parentCursor = createJsonlTailCursor();
   private parentProviderSessionId: string;
   // Located lazily: the CLI derives the slug directory from its cwd, and the
   // transcript only exists once the first turn streams.
   private parentTranscriptPath: string | null = null;
+  // Terminal results read from the parent transcript stay pended until their
+  // emit succeeds: the parent cursor has already advanced past them, so a
+  // throwing listener must not lose them.
+  private readonly pendingTerminals = new Map<
+    string,
+    ClaudeSubagentToolUseResult
+  >();
   private readonly pollIntervalMs: number;
   private pollTimer: NodeJS.Timeout | null = null;
   private polling = false;
@@ -68,6 +78,7 @@ export class ClaudeSubagentObserver {
   constructor(options: ClaudeSubagentObserverOptions) {
     this.emitter = options.emitter;
     this.now = options.now ?? (() => new Date().toISOString());
+    this.onScanError = options.onScanError;
     this.parentProviderSessionId = options.parentProviderSessionId;
     this.pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     this.projectsDir = options.projectsDir;
@@ -120,9 +131,13 @@ export class ClaudeSubagentObserver {
     }
     this.pollTimer = setTimeout(() => {
       this.pollTimer = null;
-      this.enqueue(() => this.scanOnce("running")).finally(() => {
-        this.scheduleNextPoll();
-      });
+      this.enqueue(() => this.scanOnce("running"))
+        .catch((error: unknown) => {
+          this.onScanError?.(error);
+        })
+        .finally(() => {
+          this.scheduleNextPoll();
+        });
     }, this.pollIntervalMs);
   }
 
@@ -147,23 +162,43 @@ export class ClaudeSubagentObserver {
         });
       }
     }
-    const terminalResults = await this.readParentTerminalResults();
-    for (const agent of this.agents.values()) {
-      await this.replayAgent(
-        agent,
-        terminalResults.has(agent.meta.agentId),
-        statusWithoutTerminal
-      );
+    for (const [agentId, result] of await this.readParentTerminalResults()) {
+      this.pendingTerminals.set(agentId, result);
     }
-    for (const [agentId, result] of terminalResults) {
+    for (const agent of this.agents.values()) {
+      try {
+        await this.replayAgent(
+          agent,
+          this.pendingTerminals.has(agent.meta.agentId) ||
+            agent.terminalEmitted,
+          statusWithoutTerminal
+        );
+      } catch (error) {
+        this.onScanError?.(error);
+      }
+    }
+    for (const [agentId, result] of this.pendingTerminals) {
       const agent = this.agents.get(agentId);
-      if (!agent || agent.terminalEmitted) {
+      if (!agent) {
         continue;
       }
-      agent.terminalEmitted = true;
-      this.emitter.emitToParent(
-        buildClaudeSubagentTerminalStatusEvent(result, this.now())
-      );
+      if (agent.terminalEmitted) {
+        this.pendingTerminals.delete(agentId);
+        continue;
+      }
+      try {
+        // Core accepts subagent_status only on the CHILD session channel
+        // (the parent channel silently drops it), matching how Codex thread
+        // statuses arrive through the child subscription.
+        this.emitter.emitToChild(
+          toClaudeChildProviderSessionId(agentId),
+          buildClaudeSubagentTerminalStatusEvent(result, this.now())
+        );
+        agent.terminalEmitted = true;
+        this.pendingTerminals.delete(agentId);
+      } catch (error) {
+        this.onScanError?.(error);
+      }
     }
   }
 

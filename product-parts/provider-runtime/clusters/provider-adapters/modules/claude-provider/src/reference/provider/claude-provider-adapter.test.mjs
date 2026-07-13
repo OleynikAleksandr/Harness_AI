@@ -39,6 +39,10 @@ assert.match(adapterSource, /updateParentSession\(newId\)/u);
 assert.match(adapterSource, /resolveClaudeProviderProjectsDir\(\)/u);
 assert.match(adapterSource, /projectsDir: this\.projectsDir/u);
 
+// Scan errors surface through the reporter instead of dying silently.
+assert.match(adapterSource, /onScanError: \(error: unknown\) =>/u);
+assert.match(adapterSource, /Claude subagent scan failed/u);
+
 // Child close only clears channel state; parent close stops its observer.
 assert.match(
   adapterSource,

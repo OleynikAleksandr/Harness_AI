@@ -278,6 +278,13 @@ export class ClaudeProviderAdapter {
             this.dispatchMessage(childId, payload),
           emitToParent: (event) => this.dispatchMessage(resolvedId, event),
         },
+        onScanError: (error: unknown) => {
+          this.reporter?.warn?.(
+            `Claude subagent scan failed: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          );
+        },
         parentProviderSessionId: resolvedId,
         projectsDir: this.projectsDir,
       });

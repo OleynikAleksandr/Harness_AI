@@ -122,6 +122,30 @@ right-click по строке сессии → меню появилось → D
 файлово (index.json пуст, event JSONL и provider transcript удалены).
 Сборка: `npm run build` + `npx electron-builder --mac dir` — exit 0.
 
+## Repackage 4 — 2026-07-13 (terminal status channel)
+
+Приёмочная находка: сабагенты вернули ответы, но Core держал их `running`
+вечно. Диагностика инструментированной сборкой (asar с console-логами +
+`stdio: "inherit"` для Core-процесса) показала: observer читал терминальные
+`toolUseResult` корректно и эмитил `subagent_status`, но В РОДИТЕЛЬСКИЙ
+канал — а `SessionSubagentLifecycle.handleStatusEvent` принимает статус
+только на канале самой subagent-сессии (`sessionKind === "subagent"`),
+молча отбрасывая его на родительском. Спавны доходили (subagent_control
+легитимно идёт в родительский канал), Codex не страдал (thread status
+приходит через подписку на child thread).
+
+Фикс `329ca362` — `fix: deliver claude subagent terminal status via child
+channel`: терминальные статусы эмитятся в канал child-сессии
+(`agent-<agentId>`); прочитанные терминальные результаты удерживаются до
+успешной эмиссии (курсор родительского JSONL уже прошёл мимо них — упавший
+слушатель не должен их терять); per-agent replay и ошибки сканов
+логируются через reporter адаптера вместо тихого проглатывания.
+
+Верификация в чистом пакете (build + electron-builder, exit 0): после
+запуска приложения hydration перевела всех шестерых застрявших детей
+сессии `0d2a7a8a-…` в `completed` — сводка дерева «6 subagents» без
+running, все точки залиты зелёным (скриншот-проверка через computer-use).
+
 ## User Acceptance
 
 - Ожидает проверки пользователем в упакованном приложении:

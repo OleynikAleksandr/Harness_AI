@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task2",
-  "expectedCommitMessage": "docs: record terminal status channel fix repackage",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -130,5 +130,5 @@
 
 30. [DONE] `harness-ai.phase9.stream1.task1` Root cause (verified with an instrumented packaged build): Core's `handleStatusEvent` accepts `subagent_status` only on the CHILD session channel (`sessionKind === "subagent"`), but the Claude observer emitted terminal statuses into the PARENT channel — Core silently dropped every completion, so children stayed `running` forever (spawns worked because `subagent_control` legitimately targets the parent channel; Codex works because thread statuses arrive via the child thread subscription). Fix: emit terminal statuses into the child channel; also make scans resilient — pend read terminal results until their emit succeeds (a listener throw must not lose them since the parent cursor has already advanced), wrap per-agent replay in try/catch, and report scan errors through the adapter reporter instead of swallowing them (scope: `claude-provider/src/reference/subagents/claude-subagent-observer.ts, claude-provider/src/reference/subagents/claude-subagent-observer.test.mjs, claude-provider/src/reference/provider/claude-provider-adapter.ts` + `claude-provider/src/reference/provider/claude-provider-adapter.test.mjs, claude-provider/module.md, docs/architecture/ClaudeSubagentSessions.md`; expected commit: `fix: deliver claude subagent terminal status via child channel`). Result: Completed in commit `fix: deliver claude subagent terminal status via child channel`.
 31. [DONE] Git Commit: `fix: deliver claude subagent terminal status via child channel` (hash: self)
-32. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` Rebuild a clean package (electron-builder over fresh dist — the release asar currently carries debug instrumentation), verify in the packaged app via computer-use that the six stuck children turn completed after hydration, update evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, .harness/plans/todo-plan.md`; expected commit: `docs: record terminal status channel fix repackage`).
-33. [TODO] Git Commit: `docs: record terminal status channel fix repackage` (hash: TBD)
+32. [DONE] `harness-ai.phase9.stream1.task2` Rebuild a clean package (electron-builder over fresh dist — the release asar currently carries debug instrumentation), verify in the packaged app via computer-use that the six stuck children turn completed after hydration, update evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, .harness/plans/todo-plan.md`; expected commit: `docs: record terminal status channel fix repackage`). Result: Completed in commit `docs: record terminal status channel fix repackage`.
+33. [DONE] Git Commit: `docs: record terminal status channel fix repackage` (hash: self)

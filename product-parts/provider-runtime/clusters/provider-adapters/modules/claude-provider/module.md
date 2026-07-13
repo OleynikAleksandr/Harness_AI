@@ -85,6 +85,26 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   `<uuid>::subagent::<block>` ids for Core dedupe). Child provider session
   ids are `agent-<agentId>` so resume/cleanup can tell them apart from
   primary UUID sessions.
+- Subagent observer (`claude-subagent-observer.ts`): per parent session
+  coordinator over the file layer — turn-scoped polling (default 1.5 s)
+  plus a final scan on turn end so late writes are never dropped, and a
+  hydration scan on (re)subscribe that replays existing subagent files.
+  All scans run through one serialized chain; spawn/terminal events replay
+  at most once per agent per process (Core's persisted history and
+  monotonic terminal guard absorb cross-restart replays). Hydration marks
+  terminal-less agents `interrupted`; live scans keep them `running`. The
+  spawn is re-announced once when the model becomes known from the first
+  transcript record so the Core call card shows it.
+- Subagent adapter wiring (`claude-provider-adapter.ts`): one observer per
+  bound parent session, created on create/resume (both hydrate existing
+  files); `turn_started`/`turn_completed`/`turn_failed` messages open and
+  close the polling window; subagent events go to the parent channel and
+  transcript messages to `agent-<agentId>` child channels through the
+  existing `dispatchMessage` buffering, so Core's `adoptProviderSession`
+  subscription picks them up. `resumeSession` returns child ids as-is
+  (pseudo-resume — a subagent is not an SDK session), `closeSession` for a
+  child only clears channel state, and session-id promotion retargets the
+  observer via `updateParentSession`.
 - Native request capture (`claude-native-request-capture-service.ts`,
   reached through the adapter's `captureNativeRequest`): a record-only
   diagnostic path that records the **original interactive CLI wrapping**. The

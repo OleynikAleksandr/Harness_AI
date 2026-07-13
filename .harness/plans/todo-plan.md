@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task3",
-  "expectedCommitMessage": "feat: add claude subagent observer with hydration",
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": "feat: cascade claude subagent artifact cleanup",
   "debt": null
 }
 ```
@@ -70,16 +70,16 @@
 4. [DONE] Git Commit: `feat: add claude subagent file reader` (hash: self)
 5. [DONE] `harness-ai.phase2.stream1.task2` Add the pure normalizer: meta.json -> subagent_control(spawn)/subagent_session, toolUseResult -> terminal subagent_status, agent JSONL records -> child-channel transcript message events, with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-event-normalizer.ts, claude-provider/src/reference/subagents/claude-subagent-event-normalizer.test.mjs, claude-provider/module.md`; expected commit: `feat: normalize claude subagent transcript events`). Result: Completed in commit `feat: normalize claude subagent transcript events`.
 6. [DONE] Git Commit: `feat: normalize claude subagent transcript events` (hash: self)
-7. [IN_PROGRESS] `harness-ai.phase2.stream1.task3` Add the observer coordinator: turn-scoped polling lifecycle, hydration scan on subscribe/resume, serialized hydration and replay-once sets, with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-observer.ts, claude-provider/src/reference/subagents/claude-subagent-observer.test.mjs, claude-provider/module.md`; expected commit: `feat: add claude subagent observer with hydration`).
-8. [TODO] Git Commit: `feat: add claude subagent observer with hydration` (hash: TBD)
+7. [DONE] `harness-ai.phase2.stream1.task3` Add the observer coordinator: turn-scoped polling lifecycle, hydration scan on subscribe/resume, serialized hydration and replay-once sets, with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-observer.ts, claude-provider/src/reference/subagents/claude-subagent-observer.test.mjs, claude-provider/module.md`; expected commit: `feat: add claude subagent observer with hydration`). Result: Completed; committed together with `feat: wire claude subagent events into adapter` (repair note: the knip gate rejects an observer without a consumer, so the observer files landed in the wiring commit).
+8. [DONE] Git Commit: `feat: add claude subagent observer with hydration` (hash: superseded — files landed in `feat: wire claude subagent events into adapter`)
 
 ## Phase 3 - Adapter Wiring And Cleanup (owner: Codex, updated: 2026-07-13)
 
 ### Stream: Adapter Integration
 
-9. [TODO] `harness-ai.phase3.stream1.task1` Wire the observer into `ClaudeProviderAdapter`: observer per bound session, subagent events into the parent channel, transcript into child channels via `dispatchMessage`, pseudo-resume for `agent-<agentId>` child ids (scope: `claude-provider/src/reference/provider/claude-provider-adapter.ts, claude-provider/src/reference/provider/claude-provider-adapter.test.mjs, claude-provider/module.md`; expected commit: `feat: wire claude subagent events into adapter`).
-10. [TODO] Git Commit: `feat: wire claude subagent events into adapter` (hash: TBD)
-11. [TODO] `harness-ai.phase3.stream1.task2` Extend transcript cleanup: parent deletion removes the `<sessionId>/` directory (subagents included), child `agent-<agentId>` deletion removes its file pair; update the existing cleanup test (scope: `claude-provider/src/reference/provider/claude-transcript-cleanup.ts, claude-provider/src/reference/provider/claude-transcript-cleanup.test.mjs, claude-provider/module.md`; expected commit: `feat: cascade claude subagent artifact cleanup`).
+9. [DONE] `harness-ai.phase3.stream1.task1` Wire the observer into `ClaudeProviderAdapter`: observer per bound session, subagent events into the parent channel, transcript into child channels via `dispatchMessage`, pseudo-resume for `agent-<agentId>` child ids (scope: `claude-provider/src/reference/provider/claude-provider-adapter.ts, claude-provider/src/reference/provider/claude-provider-adapter.test.mjs, claude-provider/module.md`; expected commit: `feat: wire claude subagent events into adapter`). Result: Completed in commit `feat: wire claude subagent events into adapter`.
+10. [DONE] Git Commit: `feat: wire claude subagent events into adapter` (hash: self)
+11. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Extend transcript cleanup: parent deletion removes the `<sessionId>/` directory (subagents included), child `agent-<agentId>` deletion removes its file pair; update the existing cleanup test (scope: `claude-provider/src/reference/provider/claude-transcript-cleanup.ts, claude-provider/src/reference/provider/claude-transcript-cleanup.test.mjs, claude-provider/module.md`; expected commit: `feat: cascade claude subagent artifact cleanup`).
 12. [TODO] Git Commit: `feat: cascade claude subagent artifact cleanup` (hash: TBD)
 
 ## Phase 4 - Subagent Timeline Info Panel (owner: Codex, updated: 2026-07-13)

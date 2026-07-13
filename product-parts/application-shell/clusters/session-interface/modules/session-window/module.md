@@ -105,13 +105,16 @@ Render the transcript/dialog layout and session chrome.
   exists.
 - `session-dialog-panel.tsx` merges translated/coalesced messages with
   `CoreSubagentCall.createdAt` entries into one timestamp-ordered timeline.
-  The inline card is a text-only info panel (user decision 2026-07-13,
-  docs/architecture/ClaudeSubagentSessions.md section 5): launch count plus
-  the delegated task list, no open/detach buttons, no per-child status rings
-  or metadata rows — child controls and live statuses live in the sidebar
-  tree only. A spawn event without a child id yet still shows the panel with
-  the call task and is enriched in place when Core publishes the updated
-  call.
+  Consecutive subagent launches collapse into one `SubagentLaunchDivider`
+  (user decision 2026-07-13, docs/architecture/ClaudeSubagentSessions.md
+  section 5): a horizontal rule broken in the middle by the localized
+  "Subagents launched" label and the total launch count (sum of
+  `max(childSessionIds.length, 1)` per call), which grows in place
+  (1, 2, 3, ...) as new launches join the group. The divider carries no task
+  list, buttons, status rings or metadata rows — child controls and live
+  statuses live in the sidebar tree only. A spawn event without a child id
+  yet still counts as one launch and is enriched in place when Core
+  publishes the updated call.
 - The shared `.session-panel` surface (id bar, dialog, input, status) uses the
   reference grey backdrop `rgba(40,41,42,1)` with a single clean `1px solid
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background
@@ -144,9 +147,9 @@ Render the transcript/dialog layout and session chrome.
 ## Outputs
 
 - Rendered chat session surface.
-- Inline subagent info panels at their Core-recorded spawn position; opening
-  or detaching happens from the sidebar tree and is emitted with the child
-  Core session id, never a parsed provider/rollout identifier.
+- Inline subagent launch dividers at their Core-recorded spawn position;
+  opening or detaching happens from the sidebar tree and is emitted with the
+  child Core session id, never a parsed provider/rollout identifier.
 - Selecting a child renders its live transcript with a parent breadcrumb,
   delegated task, agent/model/reasoning/status metadata and no input composer.
   Open-in-place and detached-window actions live in the sidebar tree.

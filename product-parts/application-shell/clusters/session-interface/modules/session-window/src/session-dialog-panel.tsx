@@ -8,7 +8,7 @@ import { SessionMarkdownContent } from "./session-markdown-content.js";
 import {
   buildSessionTimeline,
   buildTimelineScrollMessages,
-  SubagentCallTimelineItem,
+  SubagentLaunchDivider,
 } from "./session-subagent-timeline.js";
 import {
   mergeThinkingMessagesForDisplay,
@@ -20,7 +20,6 @@ export function DialogPanel({
   messages,
   providerId,
   providerName,
-  sessions = [],
   subagentCalls = [],
   workspaceRoot,
 }: {
@@ -75,11 +74,7 @@ export function DialogPanel({
                 workspaceRoot={workspaceRoot}
               />
             ) : (
-              <SubagentCallTimelineItem
-                call={item.call}
-                key={item.id}
-                sessions={sessions}
-              />
+              <SubagentLaunchDivider calls={item.calls} key={item.id} />
             )
           )
         )}

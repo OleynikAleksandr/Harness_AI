@@ -71,9 +71,12 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   (`<sessionId>/subagents/agent-<agentId>.meta.json` + `.jsonl`) — directory
   scan with meta parsing, incremental JSONL tail that only advances past
   fully terminated lines, and `toolUseResult` terminal-status extraction
-  from parent records. File reading is the sanctioned native channel for
-  Claude subagents (no structured RPC exists), mirroring the accepted
-  context-usage tail reader precedent.
+  from parent records. The parent transcript is located by scanning the
+  projects-root slug directories (`findParentTranscriptPath`) because the
+  CLI derives the slug from its cwd — the facade-configured slug must not
+  be trusted (acceptance finding 2026-07-13). File reading is the
+  sanctioned native channel for Claude subagents (no structured RPC
+  exists), mirroring the accepted context-usage tail reader precedent.
 - Subagent event normalizer (`claude-subagent-event-normalizer.ts`): pure
   mapping from the file layer into the provider-neutral subagent contract —
   meta.json becomes `subagent_control` (spawn, `callId` = toolUseId) plus
@@ -97,8 +100,10 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   transcript record so the Core call card shows it.
 - Subagent adapter wiring (`claude-provider-adapter.ts`): one observer per
   bound parent session, created on create/resume (both hydrate existing
-  files); `turn_started`/`turn_completed`/`turn_failed` messages open and
-  close the polling window; subagent events go to the parent channel and
+  files) with the projects root dir (the observer locates the cwd-derived
+  slug directory itself, lazily — the transcript only exists once the
+  first turn streams); `turn_started`/`turn_completed`/`turn_failed`
+  messages open and close the polling window; subagent events go to the parent channel and
   transcript messages to `agent-<agentId>` child channels through the
   existing `dispatchMessage` buffering, so Core's `adoptProviderSession`
   subscription picks them up. `resumeSession` returns child ids as-is

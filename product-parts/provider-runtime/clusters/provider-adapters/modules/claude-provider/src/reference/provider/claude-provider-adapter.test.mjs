@@ -32,7 +32,12 @@ assert.match(adapterSource, /stopTurnPolling\(\)/u);
 
 // Session id promotion retargets the observer.
 assert.match(adapterSource, /reassignSubagentObserver\(payload\.oldId/u);
-assert.match(adapterSource, /updateParentSession\(/u);
+assert.match(adapterSource, /updateParentSession\(newId\)/u);
+
+// The observer scans the projects root: the CLI derives the slug directory
+// from its cwd, so the configured facade slug must not be trusted.
+assert.match(adapterSource, /resolveClaudeProviderProjectsDir\(\)/u);
+assert.match(adapterSource, /projectsDir: this\.projectsDir/u);
 
 // Child close only clears channel state; parent close stops its observer.
 assert.match(

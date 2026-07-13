@@ -33,16 +33,16 @@ const observerSource = compile("./claude-subagent-observer.ts")
   .replace("./claude-subagent-files.js", filesUrl)
   .replace("./claude-subagent-event-normalizer.js", normalizerUrl);
 const observerUrl = `data:text/javascript;base64,${Buffer.from(observerSource).toString("base64")}`;
-const { ClaudeSubagentObserver, resolveParentTranscriptPath } = await import(
-  observerUrl
-);
+const { ClaudeSubagentObserver } = await import(observerUrl);
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const projectDir = mkdtempSync(join(tmpdir(), "harness-claude-subagent-obs-"));
+const projectsDir = mkdtempSync(join(tmpdir(), "harness-claude-subagent-obs-"));
+// The slug directory name deliberately differs from anything configured: the
+// observer must locate it by scanning the projects root.
+const projectDir = join(projectsDir, "-Users-x-Test-md");
 const parentId = "d47f61c9-64fa-4174-9b43-7fd4042f9ffc";
-const parentPath = resolveParentTranscriptPath(projectDir, parentId);
-assert.equal(parentPath, join(projectDir, `${parentId}.jsonl`));
+const parentPath = join(projectDir, `${parentId}.jsonl`);
 const subagentsDir = join(projectDir, parentId, "subagents");
 mkdirSync(subagentsDir, { recursive: true });
 
@@ -116,7 +116,7 @@ const hydratedObserver = new ClaudeSubagentObserver({
   emitter: hydratedEmitter,
   now: () => "now-ts",
   parentProviderSessionId: parentId,
-  parentTranscriptPath: parentPath,
+  projectsDir,
   pollIntervalMs: 20,
 });
 await hydratedObserver.hydrate();
@@ -159,7 +159,7 @@ const interruptedObserver = new ClaudeSubagentObserver({
   emitter: interruptedEmitter,
   now: () => "now-ts",
   parentProviderSessionId: parentId,
-  parentTranscriptPath: parentPath,
+  projectsDir,
 });
 await interruptedObserver.hydrate();
 const interruptedSession = interruptedEmitter.parentEvents.find(
@@ -188,7 +188,7 @@ const liveObserver = new ClaudeSubagentObserver({
   emitter: liveEmitter,
   now: () => "live-ts",
   parentProviderSessionId: parentId,
-  parentTranscriptPath: parentPath,
+  projectsDir,
   pollIntervalMs: 15,
 });
 liveObserver.startTurnPolling();
@@ -227,5 +227,5 @@ assert.equal(
 assert.equal(liveEmitter.parentEvents.at(-1).status, "completed");
 assert.deepEqual(liveEmitter.childEvents.at(-1).payload.content, "Done.");
 
-rmSync(projectDir, { force: true, recursive: true });
+rmSync(projectsDir, { force: true, recursive: true });
 console.log("claude-subagent-observer tests passed");

@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": "docs: record claude subagent path fix repackage",
   "debt": null
 }
 ```
@@ -95,4 +95,13 @@
 
 15. [DONE] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record claude subagent sessions package`). Result: Completed in commit `docs: record claude subagent sessions package`.
 16. [DONE] Git Commit: `docs: record claude subagent sessions package` (hash: self)
-17. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` User retests in the packaged app: Claude subagent visibility (live spawn info panel, sidebar tree, read-only child dialog, restart recovery, cascade delete) and the informational card for both providers (scope: user workflow; expected commit: none).
+17. [TODO] `harness-ai.phase5.stream1.task2` User retests in the packaged app: Claude subagent visibility (live spawn info panel, sidebar tree, read-only child dialog, restart recovery, cascade delete) and the informational card for both providers (scope: user workflow; expected commit: none). First retest 2026-07-13 FAILED: no subagent events surfaced — root cause in Phase 6.
+
+## Phase 6 - Acceptance Fix: Transcript Path Resolution (owner: Codex, updated: 2026-07-13)
+
+### Stream: Observer Path Fix
+
+18. [DONE] `harness-ai.phase6.stream1.task1` Fix the subagent observer parent-transcript path: the adapter passed `projects/<claudeProjectSlug>/` with the hardcoded facade slug `harness-ai`, but Claude CLI writes under the cwd-derived slug. Resolve the parent transcript by scanning the projects dir slug directories for `<sessionId>.jsonl` (same resilience as the context-usage tail reader) and lazily bind observer paths (scope: `claude-provider/src/reference/subagents/claude-subagent-files.ts, claude-provider/src/reference/subagents/claude-subagent-observer.ts, claude-provider/src/reference/provider/claude-provider-adapter.ts` + their tests + `claude-provider/module.md`; expected commit: `fix: resolve claude subagent transcript path by scan`). Result: Completed in commit `fix: resolve claude subagent transcript path by scan`.
+19. [DONE] Git Commit: `fix: resolve claude subagent transcript path by scan` (hash: self)
+20. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Repackage the app (`npm run package:mac`, user-confirmed scope continuation) and update the evidence document (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, .harness/plans/todo-plan.md`; expected commit: `docs: record claude subagent path fix repackage`).
+21. [TODO] Git Commit: `docs: record claude subagent path fix repackage` (hash: TBD)

@@ -25,6 +25,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString(
 const {
   createJsonlTailCursor,
   extractSubagentToolUseResult,
+  findParentTranscriptPath,
   readJsonlRecordsFrom,
   resolveSubagentsDir,
   scanSubagentsDirectory,
@@ -39,6 +40,20 @@ mkdirSync(subagentsDir, { recursive: true });
 
 // resolveSubagentsDir derives the directory from the parent transcript path.
 assert.equal(resolveSubagentsDir(parentPath), subagentsDir);
+
+// findParentTranscriptPath scans slug directories (the CLI derives the slug
+// from its cwd, so it is not knowable up front).
+writeFileSync(parentPath, "");
+const projectsDir = join(root, "projects");
+assert.equal(
+  await findParentTranscriptPath(projectsDir, sessionId),
+  parentPath
+);
+assert.equal(await findParentTranscriptPath(projectsDir, "missing-id"), null);
+assert.equal(
+  await findParentTranscriptPath(join(root, "nope"), sessionId),
+  null
+);
 
 // Directory scan pairs meta.json with the transcript path and skips noise.
 writeFileSync(

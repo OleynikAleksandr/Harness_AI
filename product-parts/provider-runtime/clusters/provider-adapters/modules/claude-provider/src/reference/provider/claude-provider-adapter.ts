@@ -11,15 +11,15 @@ import {
 } from "../diagnostics/claude-native-request-capture-service.js";
 import { SDKInstaller } from "../installer/sdk-installer.js";
 import { SDKMessageProcessor } from "../messaging/message-processor.js";
-import { resolveClaudeProviderProjectDir } from "../sdk/claude-provider-home.js";
+import {
+  resolveClaudeProviderProjectDir,
+  resolveClaudeProviderProjectsDir,
+} from "../sdk/claude-provider-home.js";
 import { ClaudeSDKManager } from "../sdk/claude-sdk-manager.js";
 import { SDKSessionManager } from "../session/session-manager.js";
 import type { ActiveSession } from "../session/types.js";
 import { isClaudeChildProviderSessionId } from "../subagents/claude-subagent-event-normalizer.js";
-import {
-  ClaudeSubagentObserver,
-  resolveParentTranscriptPath,
-} from "../subagents/claude-subagent-observer.js";
+import { ClaudeSubagentObserver } from "../subagents/claude-subagent-observer.js";
 import { ClaudeHaikuTranslationService } from "../translation/claude-haiku-translation-service.js";
 import type {
   ClaudeModuleOptions,
@@ -47,7 +47,9 @@ export class ClaudeProviderAdapter {
     string,
     ClaudeSubagentObserver
   >();
-  private readonly projectPath: string;
+  // Claude CLI derives the actual slug directory from its cwd, so observers
+  // scan the projects root instead of trusting the configured slug.
+  private readonly projectsDir: string;
 
   constructor(options: ClaudeModuleOptions) {
     this.usageLimitsFacade = options.usageLimitsFacade;
@@ -57,7 +59,7 @@ export class ClaudeProviderAdapter {
     const projectPath = this.resolveProjectPath(
       options.workspace.claudeProjectSlug
     );
-    this.projectPath = projectPath;
+    this.projectsDir = resolveClaudeProviderProjectsDir();
     const installer = new SDKInstaller(options.installerPaths, {
       logger: reporter,
     });
@@ -277,10 +279,7 @@ export class ClaudeProviderAdapter {
           emitToParent: (event) => this.dispatchMessage(resolvedId, event),
         },
         parentProviderSessionId: resolvedId,
-        parentTranscriptPath: resolveParentTranscriptPath(
-          this.projectPath,
-          resolvedId
-        ),
+        projectsDir: this.projectsDir,
       });
       this.subagentObservers.set(resolvedId, observer);
     }
@@ -325,10 +324,7 @@ export class ClaudeProviderAdapter {
     }
     this.subagentObservers.delete(oldId);
     this.subagentObservers.set(newId, observer);
-    observer.updateParentSession(
-      newId,
-      resolveParentTranscriptPath(this.projectPath, newId)
-    );
+    observer.updateParentSession(newId);
   }
 
   private dispatchMessage(sessionId: string, payload: unknown): void {

@@ -45,6 +45,38 @@ export const resolveSubagentsDir = (parentTranscriptPath: string): string => {
   return path.join(dir, sessionId, "subagents");
 };
 
+// Claude CLI derives the project slug directory from its cwd, so the slug is
+// not knowable up front (the facade-configured slug does not match). Locate
+// the parent transcript by scanning the slug directories, the same
+// resilience the context-usage tail reader uses.
+export const findParentTranscriptPath = async (
+  projectsDir: string,
+  parentProviderSessionId: string
+): Promise<string | null> => {
+  let entries: string[] = [];
+  try {
+    entries = await readdir(projectsDir);
+  } catch {
+    return null;
+  }
+  for (const entry of entries.sort()) {
+    const candidate = path.join(
+      projectsDir,
+      entry,
+      `${parentProviderSessionId}.jsonl`
+    );
+    try {
+      const stats = await stat(candidate);
+      if (stats.isFile()) {
+        return candidate;
+      }
+    } catch {
+      // Not in this slug directory; keep scanning.
+    }
+  }
+  return null;
+};
+
 const parseSubagentMeta = (
   agentId: string,
   raw: string

@@ -1,4 +1,3 @@
-import path from "node:path";
 import type { ProviderSubagentEvent } from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   buildClaudeSubagentSpawnEvents,
@@ -11,6 +10,7 @@ import {
   type ClaudeSubagentMeta,
   createJsonlTailCursor,
   extractSubagentToolUseResult,
+  findParentTranscriptPath,
   type JsonlTailCursor,
   readJsonlRecordsFrom,
   resolveSubagentsDir,
@@ -31,8 +31,8 @@ export interface ClaudeSubagentObserverOptions {
   readonly emitter: ClaudeSubagentObserverEmitter;
   readonly now?: () => string;
   readonly parentProviderSessionId: string;
-  readonly parentTranscriptPath: string;
   readonly pollIntervalMs?: number;
+  readonly projectsDir: string;
 }
 
 interface TrackedSubagent {
@@ -57,30 +57,30 @@ export class ClaudeSubagentObserver {
   private readonly now: () => string;
   private readonly parentCursor = createJsonlTailCursor();
   private parentProviderSessionId: string;
-  private parentTranscriptPath: string;
+  // Located lazily: the CLI derives the slug directory from its cwd, and the
+  // transcript only exists once the first turn streams.
+  private parentTranscriptPath: string | null = null;
   private readonly pollIntervalMs: number;
   private pollTimer: NodeJS.Timeout | null = null;
   private polling = false;
+  private readonly projectsDir: string;
 
   constructor(options: ClaudeSubagentObserverOptions) {
     this.emitter = options.emitter;
     this.now = options.now ?? (() => new Date().toISOString());
     this.parentProviderSessionId = options.parentProviderSessionId;
-    this.parentTranscriptPath = options.parentTranscriptPath;
     this.pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
+    this.projectsDir = options.projectsDir;
   }
 
   // A resumed Claude CLI session keeps appending to a new transcript file;
   // retarget paths but keep replay state so agents are not re-announced.
-  updateParentSession(
-    parentProviderSessionId: string,
-    parentTranscriptPath: string
-  ): void {
+  updateParentSession(parentProviderSessionId: string): void {
     if (this.parentProviderSessionId === parentProviderSessionId) {
       return;
     }
     this.parentProviderSessionId = parentProviderSessionId;
-    this.parentTranscriptPath = parentTranscriptPath;
+    this.parentTranscriptPath = null;
     this.parentCursor.offset = 0;
   }
 
@@ -129,7 +129,11 @@ export class ClaudeSubagentObserver {
   private async scanOnce(
     statusWithoutTerminal: "interrupted" | "running"
   ): Promise<void> {
-    const subagentsDir = resolveSubagentsDir(this.parentTranscriptPath);
+    const parentTranscriptPath = await this.locateParentTranscript();
+    if (!parentTranscriptPath) {
+      return;
+    }
+    const subagentsDir = resolveSubagentsDir(parentTranscriptPath);
     const discoveries = await scanSubagentsDirectory(subagentsDir);
     for (const discovery of discoveries) {
       if (!this.agents.has(discovery.meta.agentId)) {
@@ -214,7 +218,23 @@ export class ClaudeSubagentObserver {
     }
   }
 
+  private async locateParentTranscript(): Promise<string | null> {
+    if (!this.parentTranscriptPath) {
+      this.parentTranscriptPath = await findParentTranscriptPath(
+        this.projectsDir,
+        this.parentProviderSessionId
+      );
+    }
+    return this.parentTranscriptPath;
+  }
+
   private async readParentTerminalResults() {
+    if (!this.parentTranscriptPath) {
+      return new Map<
+        string,
+        NonNullable<ReturnType<typeof extractSubagentToolUseResult>>
+      >();
+    }
     const records = await readJsonlRecordsFrom(
       this.parentTranscriptPath,
       this.parentCursor
@@ -232,11 +252,6 @@ export class ClaudeSubagentObserver {
     return results;
   }
 }
-
-export const resolveParentTranscriptPath = (
-  projectDir: string,
-  parentProviderSessionId: string
-): string => path.join(projectDir, `${parentProviderSessionId}.jsonl`);
 
 const findFirstModel = (records: readonly unknown[]): string | null => {
   for (const record of records) {

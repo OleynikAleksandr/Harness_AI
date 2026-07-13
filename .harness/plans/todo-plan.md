@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": "docs: record context menu fix repackage",
   "debt": null
 }
 ```
@@ -105,3 +105,12 @@
 19. [DONE] Git Commit: `fix: resolve claude subagent transcript path by scan` (hash: self)
 20. [DONE] `harness-ai.phase6.stream1.task2` Repackage the app (`npm run package:mac`, user-confirmed scope continuation) and update the evidence document (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, .harness/plans/todo-plan.md`; expected commit: `docs: record claude subagent path fix repackage`). Result: Completed in commit `docs: record claude subagent path fix repackage`.
 21. [DONE] Git Commit: `docs: record claude subagent path fix repackage` (hash: self)
+
+## Phase 7 - Acceptance Fix: Context Menu Hit Area (owner: Codex, updated: 2026-07-13)
+
+### Stream: Sidebar Context Menu
+
+22. [DONE] `harness-ai.phase7.stream1.task1` Fix the unreliable right-click delete in the sidebar: the contextmenu handler sits on the title button only, so right-clicks on the rest of the row (padding, chevron, status ring, detach icon) do nothing and even dismiss an open menu via the global pointerdown closer. Cover the whole primary session row with right-click targets: stretch the title button over the free row width and add the shared contextmenu handler to the chevron/detach buttons (a11y lint forbids handlers on the row div) (scope: `session-sidebar/src/session-tree.tsx, session-sidebar/src/session-tree.test.mjs, session-window/src/session-window.css, session-sidebar/module.md`; expected commit: `fix: open session context menu from the whole row`). Result: Completed in commit `fix: open session context menu from the whole row`.
+23. [DONE] Git Commit: `fix: open session context menu from the whole row` (hash: self)
+24. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Repackage the app (`npm run package:mac` or direct electron-builder over fresh dist, user-confirmed scope continuation) and update the evidence document (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, .harness/plans/todo-plan.md`; expected commit: `docs: record context menu fix repackage`).
+25. [TODO] Git Commit: `docs: record context menu fix repackage` (hash: TBD)

@@ -1,5 +1,11 @@
 import { ChevronDown, ChevronRight, Circle, ExternalLink } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
@@ -96,6 +102,17 @@ function SessionTreeNode({
   const secondaryText = isSubagent
     ? resolveSubagentSecondaryText(session, t)
     : resolveRootSummary(descendants, t);
+  // Every interactive element of the row opens the menu on right-click and
+  // the title button stretches over the free row width: title-only handling
+  // left dead zones (padding, chevron, detach icon) where the gesture
+  // silently did nothing.
+  const openRowContextMenu = (event: ReactMouseEvent) => {
+    if (isSubagent) {
+      return;
+    }
+    event.preventDefault();
+    onContextMenu(session);
+  };
   return (
     <div className="session-tree-node">
       <div
@@ -118,6 +135,7 @@ function SessionTreeNode({
               )}
               className="session-tree-toggle"
               onClick={() => onToggle(session.id)}
+              onContextMenu={openRowContextMenu}
               type="button"
             >
               {expanded ? (
@@ -140,13 +158,7 @@ function SessionTreeNode({
           <button
             className="session-list-title session-tree-title"
             onClick={() => onSelectSession(session.id)}
-            onContextMenu={(event) => {
-              if (isSubagent) {
-                return;
-              }
-              event.preventDefault();
-              onContextMenu(session);
-            }}
+            onContextMenu={openRowContextMenu}
             title={buildSessionTooltip(session)}
             type="button"
           >
@@ -156,6 +168,7 @@ function SessionTreeNode({
           <button
             className="session-list-detach"
             onClick={() => onDetachSession(session.id)}
+            onContextMenu={openRowContextMenu}
             title={t("ui_labels", "sidebar.detachSession", "Detach session")}
             type="button"
           >

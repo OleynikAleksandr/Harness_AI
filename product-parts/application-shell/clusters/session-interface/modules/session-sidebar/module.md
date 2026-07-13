@@ -36,6 +36,14 @@ rename UI, and Settings entry.
   context-menu regenerate action. Native browser/Electron prompt and confirm
   dialogs are not used. The controls render only when the parent session window
   supplies working Core command callbacks.
+- The context menu opens from a right-click anywhere on a primary session row:
+  the title button stretches over the free row width (`flex: 1` +
+  `align-self: stretch` in the shared session-window stylesheet) and the
+  chevron/detach buttons share the same contextmenu handler. Title-button-only
+  handling left dead zones — row padding, tree chevron, detach icon — where
+  the gesture silently did nothing or merely dismissed an open menu
+  (acceptance finding 2026-07-13). Subagent rows intentionally have no
+  context menu.
 - Settings navigation intent.
 - Sidebar, workspace menu, session context menu, and Settings entry copy
   resolved through the shared browser localization provider.

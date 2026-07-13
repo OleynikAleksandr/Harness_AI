@@ -1925,10 +1925,16 @@ strong {
 
 .session-tree-title {
   display: flex;
+
+  /* Stretch over the free row width/height so a right-click anywhere on the
+     row (not just the label text) lands on an interactive element. */
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 3px;
   align-items: flex-start;
+  align-self: stretch;
   justify-content: center;
+  min-width: 0;
   padding: 6px 3px;
 }
 

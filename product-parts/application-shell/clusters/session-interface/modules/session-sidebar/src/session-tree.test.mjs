@@ -30,6 +30,18 @@ assert.match(
 );
 assert.match(treeSource, /onDetachSession\(session\.id\)/u);
 assert.match(treeSource, /onSelectSession\(session\.id\)/u);
+// The right-click target covers the whole session row: the stretched title
+// button plus explicit handlers on the chevron and detach buttons —
+// title-only handling left dead zones where the gesture silently failed
+// (acceptance finding 2026-07-13).
+const contextMenuHandlers =
+  treeSource.match(/onContextMenu=\{openRowContextMenu\}/gu) ?? [];
+assert.equal(
+  contextMenuHandlers.length,
+  3,
+  "chevron, title and detach buttons all open the row context menu"
+);
+assert.match(treeSource, /const openRowContextMenu = /u);
 assert.doesNotMatch(treeSource, /message\.text/u);
 assert.doesNotMatch(treeSource, /rollout/u);
 

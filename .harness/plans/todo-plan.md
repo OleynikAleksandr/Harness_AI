@@ -8,8 +8,8 @@
   "planId": "subagent-launch-divider-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat: add subagent launch divider label",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": "feat: collapse subagent launches into dialog divider",
   "debt": null
 }
 ```
@@ -74,9 +74,9 @@
 
 ### Stream: Dialog Timeline
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Replace the subagent card labels in the approved `ui_labels` dictionary: drop `session.subagents.started` and `session.subagents.launchedForTasks`, add the single divider label `session.subagents.launched` ("Subagents launched"); update the dictionary test and the localization module doc (scope: `localization-runtime/src/source-dictionaries.ts, localization-runtime/src/source-dictionaries.test.mjs, localization-runtime/module.md`; expected commit: `feat: add subagent launch divider label`).
-4. [TODO] Git Commit: `feat: add subagent launch divider label` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` Collapse consecutive `subagent-call` timeline items into one launch-group item and render it as a horizontal divider with a centered gap holding the localized label and the total launch count (sum of child sessions per call, growing 1, 2, 3, ... as launches join the group); remove the card markup (header/summary/task list) and its styles, keep autoscroll reacting to group updates, refresh the module test and docs (scope: `session-window/src/session-subagent-timeline.tsx, session-window/src/session-dialog-panel.tsx, session-window/src/session-window.css` + paired `session-window/src/session-subagent-timeline.test.mjs`, `session-window/module.md`, `docs/architecture/ClaudeSubagentSessions.md`; expected commit: `feat: collapse subagent launches into dialog divider`).
+3. [DONE] `harness-ai.phase2.stream1.task1` Replace the subagent card labels in the approved `ui_labels` dictionary: drop `session.subagents.started` and `session.subagents.launchedForTasks`, add the single divider label `session.subagents.launched` ("Subagents launched"); update the dictionary test and the localization module doc (scope: `localization-runtime/src/source-dictionaries.ts, localization-runtime/src/source-dictionaries.test.mjs, localization-runtime/module.md`; expected commit: `feat: add subagent launch divider label`). Result: Completed in commit `feat: add subagent launch divider label`.
+4. [DONE] Git Commit: `feat: add subagent launch divider label` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` Collapse consecutive `subagent-call` timeline items into one launch-group item and render it as a horizontal divider with a centered gap holding the localized label and the total launch count (sum of child sessions per call, growing 1, 2, 3, ... as launches join the group); remove the card markup (header/summary/task list) and its styles, keep autoscroll reacting to group updates, refresh the module test and docs (scope: `session-window/src/session-subagent-timeline.tsx, session-window/src/session-dialog-panel.tsx, session-window/src/session-window.css` + paired `session-window/src/session-subagent-timeline.test.mjs`, `session-window/module.md`, `docs/architecture/ClaudeSubagentSessions.md`; expected commit: `feat: collapse subagent launches into dialog divider`).
 6. [TODO] Git Commit: `feat: collapse subagent launches into dialog divider` (hash: TBD)
 
 ## Phase 3 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-13)

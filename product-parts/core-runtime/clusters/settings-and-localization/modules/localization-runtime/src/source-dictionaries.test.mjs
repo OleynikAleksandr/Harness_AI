@@ -42,8 +42,8 @@ assert.deepEqual(
 const registry = new SourceDictionaryRegistry();
 assert.equal(registry.getMessage("ui_labels", "settings.title"), "Settings");
 assert.equal(
-  registry.getMessage("ui_labels", "session.subagents.started"),
-  "Subagents started"
+  registry.getMessage("ui_labels", "session.subagents.launched"),
+  "Subagents launched"
 );
 assert.equal(
   registry.getMessage("ui_labels", "sidebar.regenerateSessionTitle"),

@@ -52,6 +52,11 @@ materialization, bootstrap payload reuse, and bundle state.
   `session.status.cache`, `session.status.turns`, `session.status.rollback`)
   are approved `ui_labels` source strings for the visible Codex-only validation
   controls.
+- The subagent launch divider label (`session.subagents.launched`, "Subagents
+  launched") is the only approved `ui_labels` source string for the dialog
+  timeline divider; it replaced the retired `session.subagents.started` card
+  title when the per-launch info cards collapsed into one divider line
+  (user request 2026-07-13).
 - GLM universal-client provider help
   (`settings.provider.glmClient.description`,
   `settings.provider.glmClient.apiKey.description`) is part of the approved

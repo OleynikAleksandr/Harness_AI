@@ -140,7 +140,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "session.subagent.status.running": "running",
     "session.subagent.status.shutdown": "stopped",
     "session.subagent.task": "Delegated task",
-    "session.subagents.started": "Subagents started",
+    "session.subagents.launched": "Subagents launched",
     "session.status.cache": "Cache:",
     "session.status.model": "Model:",
     "session.status.rollback": "Rollback",

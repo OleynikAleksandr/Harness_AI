@@ -48,3 +48,16 @@ Implementation commits:
   карточной разметки/кнопок/статусов, divider-классы в CSS.
 - Приёмка пользователем в упакованном приложении — задача
   `harness-ai.phase3.stream1.task2` активного плана.
+
+## Acceptance Fix Repackage (2026-07-13)
+
+- Приёмка первой сборки: пользователь запросил один fix — сделать
+  горизонтальную черту в два раза ярче.
+- Fix: `.session-subagent-divider::before/::after` background
+  `#2c3742` (rgb 44 55 66) -> `#586e84` (rgb 88 110 132) — удвоенная
+  яркость; commit `25223724` (`fix: brighten subagent divider line`).
+- Пересборка: `npm run package:mac`, `app.asar` от 2026-07-13 13:28:08;
+  видимый в терминале exit 144 — известный pipe-артефакт, лог сборки
+  завершается штатно (unsigned, identity=null).
+- Проверка пакета: `strings app.asar` содержит `586e84` и классы
+  `session-subagent-divider` — новый тон линии в бандле.

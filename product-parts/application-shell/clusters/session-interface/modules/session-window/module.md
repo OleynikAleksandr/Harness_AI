@@ -114,7 +114,9 @@ Render the transcript/dialog layout and session chrome.
   list, buttons, status rings or metadata rows — child controls and live
   statuses live in the sidebar tree only. A spawn event without a child id
   yet still counts as one launch and is enriched in place when Core
-  publishes the updated call.
+  publishes the updated call. The rule line tone is `#586e84` — twice the
+  brightness of the `#2c3742` border tone it started from (user acceptance
+  feedback 2026-07-13).
 - The shared `.session-panel` surface (id bar, dialog, input, status) uses the
   reference grey backdrop `rgba(40,41,42,1)` with a single clean `1px solid
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background

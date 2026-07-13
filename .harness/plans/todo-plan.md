@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task2",
-  "expectedCommitMessage": "feat: cascade claude subagent artifact cleanup",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "feat: make subagent timeline card informational",
   "debt": null
 }
 ```
@@ -79,14 +79,14 @@
 
 9. [DONE] `harness-ai.phase3.stream1.task1` Wire the observer into `ClaudeProviderAdapter`: observer per bound session, subagent events into the parent channel, transcript into child channels via `dispatchMessage`, pseudo-resume for `agent-<agentId>` child ids (scope: `claude-provider/src/reference/provider/claude-provider-adapter.ts, claude-provider/src/reference/provider/claude-provider-adapter.test.mjs, claude-provider/module.md`; expected commit: `feat: wire claude subagent events into adapter`). Result: Completed in commit `feat: wire claude subagent events into adapter`.
 10. [DONE] Git Commit: `feat: wire claude subagent events into adapter` (hash: self)
-11. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Extend transcript cleanup: parent deletion removes the `<sessionId>/` directory (subagents included), child `agent-<agentId>` deletion removes its file pair; update the existing cleanup test (scope: `claude-provider/src/reference/provider/claude-transcript-cleanup.ts, claude-provider/src/reference/provider/claude-transcript-cleanup.test.mjs, claude-provider/module.md`; expected commit: `feat: cascade claude subagent artifact cleanup`).
-12. [TODO] Git Commit: `feat: cascade claude subagent artifact cleanup` (hash: TBD)
+11. [DONE] `harness-ai.phase3.stream1.task2` Extend transcript cleanup: parent deletion removes the `<sessionId>/` directory (subagents included), child `agent-<agentId>` deletion removes its file pair; update the existing cleanup test (scope: `claude-provider/src/reference/provider/claude-transcript-cleanup.ts, claude-provider/src/reference/provider/claude-transcript-cleanup.test.mjs, claude-provider/module.md`; expected commit: `feat: cascade claude subagent artifact cleanup`). Result: Completed in commit `feat: cascade claude subagent artifact cleanup`.
+12. [DONE] Git Commit: `feat: cascade claude subagent artifact cleanup` (hash: self)
 
 ## Phase 4 - Subagent Timeline Info Panel (owner: Codex, updated: 2026-07-13)
 
 ### Stream: Dialog Card Simplification
 
-13. [TODO] `harness-ai.phase4.stream1.task1` Replace the interactive subagent call card in the dialog timeline (both providers) with a text-only info panel: subagent count + delegated task list; remove open/detach buttons, per-child status rings and metadata rows; controls remain in the sidebar tree only. This task deliberately spans 4 functional files (scope: `session-window/src/session-subagent-timeline.tsx, session-window/src/session-subagent-timeline.test.mjs, session-window/src/session-dialog-panel.tsx, session-window/src/session-window.css` + docs `session-window/module.md, docs/architecture/SubagentSessions.md, docs/architecture/ClaudeSubagentSessions.md`; expected commit: `feat: make subagent timeline card informational`).
+13. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Replace the interactive subagent call card in the dialog timeline (both providers) with a text-only info panel: subagent count + delegated task list; remove open/detach buttons, per-child status rings and metadata rows; controls remain in the sidebar tree only. This task deliberately spans 4 functional files (scope: `session-window/src/session-subagent-timeline.tsx, session-window/src/session-subagent-timeline.test.mjs, session-window/src/session-dialog-panel.tsx, session-window/src/session-window.css` + docs `session-window/module.md, docs/architecture/SubagentSessions.md, docs/architecture/ClaudeSubagentSessions.md`; expected commit: `feat: make subagent timeline card informational`).
 14. [TODO] Git Commit: `feat: make subagent timeline card informational` (hash: TBD)
 
 ## Phase 5 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-13)

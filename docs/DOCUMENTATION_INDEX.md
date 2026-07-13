@@ -292,6 +292,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   to the Claude provider (file-based observer in claude-provider, child
   channels, pseudo-resume, cascade file cleanup) and turning the dialog
   subagent card into a text-only info panel for both providers.
+- `docs/evidence/subagent-launch-divider-package-2026-07-13.md` — macOS arm64
+  rebuild for the subagent-launch-divider scope: the dialog info panel became
+  a single horizontal divider with a centered gap holding the localized
+  "Subagents launched" label and a launch counter that grows in place as
+  consecutive launches join the group.
 - `docs/evidence/codex-child-recovery-package-2026-07-12.md` — explicitly
   user-approved macOS arm64 rebuild after filtering ancestor turns out of
   restored child transcripts and preserving interrupted/failed/completed turn

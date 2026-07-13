@@ -81,6 +81,23 @@ projects-root вместо slug-пути.
 до этапа packaging; прямой `npx electron-builder --mac dir --publish never`
 поверх свежего `dist/` завершился успешно.
 
+## Repackage 2 — 2026-07-13 (context menu hit area)
+
+Пользователь подтвердил видимость сабагентов Claude после первого repackage,
+но правый клик по имени сессии открывал меню «через раз»: обработчик
+`contextmenu` висел только на кнопке заголовка, и попадание в остальную
+часть строки (padding, chevron дерева, иконка detach) молча ничего не
+делало, а при открытом меню глобальный pointerdown-закрыватель просто
+прятал его.
+
+Фикс `2f874f58` — `fix: open session context menu from the whole row`:
+кнопка заголовка растянута на свободную ширину/высоту строки
+(`flex: 1` + `align-self: stretch`), chevron- и detach-кнопки получили тот
+же contextmenu-обработчик (a11y-линт запрещает обработчики на
+неинтерактивном div строки). Subagent-строки по-прежнему без меню.
+Повторная сборка: `npm run build` (exit 0) + `npx electron-builder --mac
+dir --publish never` (exit 0), `app.asar` пересобран.
+
 ## User Acceptance
 
 - Ожидает проверки пользователем в упакованном приложении:

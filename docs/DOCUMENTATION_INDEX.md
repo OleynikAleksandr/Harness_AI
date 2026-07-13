@@ -31,6 +31,11 @@ relevant to the active task.
 
 ## Architecture
 
+- `docs/architecture/ClaudeSubagentSessions.md` — Claude subagent
+  sessions plan: file-based subagent observer in claude-provider
+  (meta.json + agent JSONL tail), provider-neutral subagent events
+  reusing the existing Core/UI contract, pseudo-resume for child ids,
+  cascade artifact cleanup.
 - `docs/architecture/CodeAIHubProviderRuntimeAlignment.md` — CodeAI-Hub
   provider-runtime migration map and provider alignment contract.
 - `docs/architecture/FirstElectronSessionSlice.md` — first Electron session

@@ -206,14 +206,19 @@ Registry хранит promise уже начатого создания окна,
 
 ## Границы первой реализации
 
-- Реализуется Codex app-server, потому что только его текущий adapter получает
-  native collaboration events.
-- Другие providers продолжают работать без subagent-полей; UI не показывает
-  пустые controls.
+- Первая реализация покрыла Codex app-server, потому что только его adapter
+  получает native collaboration events. С 2026-07-13 контракт расширяется на
+  Claude через файловый наблюдатель в claude-provider — см.
+  `docs/architecture/ClaudeSubagentSessions.md`; Core/UI контракты этого
+  документа при этом не меняются.
+- Providers без subagent-эмиссии продолжают работать без subagent-полей;
+  UI не показывает пустые controls.
 - Запуск новых субагентов вручную из UI и отправка сообщений в дочернюю сессию
   не входят в MVP.
 - Исторические Codex descendants реконструируются только из app-server
-  `thread/list`/`thread/read`; fallback на разбор rollout-текста отсутствует.
+  `thread/list`/`thread/read`; fallback на разбор rollout-текста для Codex
+  отсутствует. Для Claude файловый JSONL — единственный native-источник,
+  поэтому его чтение является штатным каналом claude-provider (не fallback).
 
 ## Критерии приёмки
 

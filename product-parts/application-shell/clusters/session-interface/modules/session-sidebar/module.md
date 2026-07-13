@@ -44,6 +44,13 @@ rename UI, and Settings entry.
   the gesture silently did nothing or merely dismissed an open menu
   (acceptance finding 2026-07-13). Subagent rows intentionally have no
   context menu.
+- The menu renders `position: fixed`, anchored to the viewport rect of the
+  row captured at open time, and closes on scroll/resize. With absolute
+  positioning the scrollable `.session-list` clipped the menu entirely
+  whenever the list content was shorter than the menu (one session in the
+  workspace → menu fully below the list's bottom edge), which read as
+  "delete works every other time" (second acceptance finding 2026-07-13,
+  verified live via DevTools in the packaged app).
 - Settings navigation intent.
 - Sidebar, workspace menu, session context menu, and Settings entry copy
   resolved through the shared browser localization provider.

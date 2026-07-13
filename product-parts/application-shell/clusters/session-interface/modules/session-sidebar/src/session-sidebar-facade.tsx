@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
-import { SessionTree } from "./session-tree.js";
+import { type SessionContextMenuAnchor, SessionTree } from "./session-tree.js";
 
 interface SessionSidebarProps {
   activeSessionId: string;
@@ -47,6 +47,9 @@ export function SessionSidebarFacade({
   const sidebarRef = useRef<HTMLElement | null>(null);
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const [menuSessionId, setMenuSessionId] = useState<string | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<SessionContextMenuAnchor | null>(
+    null
+  );
   const [menuError, setMenuError] = useState<string | null>(null);
   const [confirmDeleteSessionId, setConfirmDeleteSessionId] = useState<
     string | null
@@ -76,11 +79,21 @@ export function SessionSidebarFacade({
         setConfirmDeleteSessionId(null);
       }
     }
+    // The menu is position:fixed (anchored to the row at open time), so any
+    // scroll or resize would leave it floating detached — close it instead.
+    function closeOnViewportChange() {
+      setMenuSessionId(null);
+      setConfirmDeleteSessionId(null);
+    }
     document.addEventListener("pointerdown", closeMenu);
     document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener("scroll", closeOnViewportChange, true);
+    window.addEventListener("resize", closeOnViewportChange);
     return () => {
       document.removeEventListener("pointerdown", closeMenu);
       document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("scroll", closeOnViewportChange, true);
+      window.removeEventListener("resize", closeOnViewportChange);
     };
   }, [menuSessionId]);
 
@@ -99,9 +112,13 @@ export function SessionSidebarFacade({
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [renameTarget]);
 
-  function openContextMenu(session: CoreSession) {
+  function openContextMenu(
+    session: CoreSession,
+    anchor: SessionContextMenuAnchor
+  ) {
     setConfirmDeleteSessionId(null);
     setMenuError(null);
+    setMenuAnchor(anchor);
     setMenuSessionId(session.id);
   }
 
@@ -127,8 +144,22 @@ export function SessionSidebarFacade({
   }
 
   function renderContextMenu(session: CoreSession) {
+    // Fixed positioning escapes the scrollable session list: with absolute
+    // positioning the menu rendered below the list's bottom edge and the
+    // list's overflow clipped it entirely (acceptance finding 2026-07-13,
+    // verified live via DevTools in the packaged app).
     return (
-      <div className="session-context-menu">
+      <div
+        className="session-context-menu"
+        style={
+          menuAnchor
+            ? {
+                right: Math.max(0, window.innerWidth - menuAnchor.right),
+                top: menuAnchor.top,
+              }
+            : undefined
+        }
+      >
         {confirmDeleteSessionId === session.id ? (
           <>
             <strong>

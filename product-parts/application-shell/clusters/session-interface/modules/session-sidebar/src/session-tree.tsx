@@ -9,10 +9,20 @@ import {
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
+// Viewport coordinates of the row edge the menu attaches to. The menu
+// renders position:fixed so the scrollable session list cannot clip it.
+export interface SessionContextMenuAnchor {
+  readonly right: number;
+  readonly top: number;
+}
+
 interface SessionTreeProps {
   activeSessionId: string;
   contextMenuSessionId: string | null;
-  onContextMenu: (session: CoreSession) => void;
+  onContextMenu: (
+    session: CoreSession,
+    anchor: SessionContextMenuAnchor
+  ) => void;
   onDetachSession: (sessionId: string) => void;
   onSelectSession: (sessionId: string) => void;
   renderContextMenu: (session: CoreSession) => ReactNode;
@@ -85,7 +95,10 @@ function SessionTreeNode({
   activeSessionId: string;
   contextMenuSessionId: string | null;
   expandedSessionIds: ReadonlySet<string>;
-  onContextMenu: (session: CoreSession) => void;
+  onContextMenu: (
+    session: CoreSession,
+    anchor: SessionContextMenuAnchor
+  ) => void;
   onDetachSession: (sessionId: string) => void;
   onSelectSession: (sessionId: string) => void;
   onToggle: (sessionId: string) => void;
@@ -111,7 +124,11 @@ function SessionTreeNode({
       return;
     }
     event.preventDefault();
-    onContextMenu(session);
+    const row = (event.currentTarget as HTMLElement).closest(
+      ".session-list-row"
+    );
+    const rect = (row ?? event.currentTarget).getBoundingClientRect();
+    onContextMenu(session, { right: rect.right, top: rect.bottom + 4 });
   };
   return (
     <div className="session-tree-node">

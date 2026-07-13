@@ -263,10 +263,10 @@ strong {
 }
 
 .session-context-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  z-index: 15;
+  /* Fixed so the scrollable session list cannot clip the menu; the inline
+     style supplies top/right viewport coordinates from the anchored row. */
+  position: fixed;
+  z-index: 60;
   min-width: 150px;
   padding: 5px;
   background: #161b21;

@@ -42,6 +42,24 @@ assert.equal(
   "chevron, title and detach buttons all open the row context menu"
 );
 assert.match(treeSource, /const openRowContextMenu = /u);
+// The menu renders position:fixed anchored to the row rect: absolutely
+// positioned menus were clipped entirely by the scrollable session list
+// when the list content was shorter than the menu (verified live in the
+// packaged app, 2026-07-13).
+assert.match(treeSource, /SessionContextMenuAnchor/u);
+assert.match(treeSource, /getBoundingClientRect\(\)/u);
+assert.match(sidebarSource, /setMenuAnchor/u);
+assert.match(sidebarSource, /window\.innerWidth - menuAnchor\.right/u);
+assert.match(
+  sidebarSource,
+  /addEventListener\("scroll", closeOnViewportChange, true\)/u,
+  "a scroll closes the fixed-position menu"
+);
+assert.match(
+  stylesSource,
+  /\.session-context-menu \{[^}]*position: fixed/u,
+  "menu escapes list clipping via fixed positioning"
+);
 assert.doesNotMatch(treeSource, /message\.text/u);
 assert.doesNotMatch(treeSource, /rollout/u);
 

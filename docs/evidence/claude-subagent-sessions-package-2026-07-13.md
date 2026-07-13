@@ -98,6 +98,30 @@ projects-root вместо slug-пути.
 Повторная сборка: `npm run build` (exit 0) + `npx electron-builder --mac
 dir --publish never` (exit 0), `app.asar` пересобран.
 
+## Repackage 3 — 2026-07-13 (context menu clipping)
+
+Retest после repackage 2 показал, что right-click delete всё ещё не
+работает при одной сессии в списке. Живая диагностика через DevTools в
+упакованном приложении (computer-use) дала точный диагноз: меню
+РЕНДЕРИЛОСЬ (React-обработчик и state исправны), но absolute-меню
+позиционируется под строкой, а прокручиваемый `.session-list`
+(overflow hidden/auto) обрезает всё за пределами своего контента — при
+одной сессии меню целиком ниже нижней границы списка (menu top=179 vs
+list bottom=175) и полностью невидимо; при длинном списке помещается —
+отсюда «работает через раз». Фикс зоны клика (repackage 2) был полезен,
+но корень был в клиппинге.
+
+Фикс `08cb397b` — `fix: escape session context menu from list clipping`:
+меню рендерится `position: fixed` с якорем по viewport-rect строки,
+захваченным при открытии (fixed не подвержен overflow-клипу; у предков
+нет transform), и закрывается при scroll/resize.
+
+Верификация end-to-end в упакованном приложении через computer-use:
+right-click по строке сессии → меню появилось → Delete → карточка
+«Удалить сессию?» → Delete → сессия исчезла из sidebar; каскад подтверждён
+файлово (index.json пуст, event JSONL и provider transcript удалены).
+Сборка: `npm run build` + `npx electron-builder --mac dir` — exit 0.
+
 ## User Acceptance
 
 - Ожидает проверки пользователем в упакованном приложении:

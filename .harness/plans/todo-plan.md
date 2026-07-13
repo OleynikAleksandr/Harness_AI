@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task2",
-  "expectedCommitMessage": "docs: record context menu clipping fix repackage",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -121,5 +121,5 @@
 
 26. [DONE] `harness-ai.phase8.stream1.task1` Root-cause fix verified live via DevTools in the packaged app: the context menu WAS rendering but `.session-list` (overflow hidden/auto) clipped it — with few sessions the absolutely-positioned menu falls entirely below the list's bottom edge (menu top=179 vs list bottom=175), so it never shows; with a long list it happens to fit, hence "works every other time". Render the menu with `position: fixed` anchored to the row rect (fixed escapes overflow clipping; no transformed ancestors) and close it on scroll/resize (scope: `session-sidebar/src/session-tree.tsx, session-sidebar/src/session-sidebar-facade.tsx, session-window/src/session-window.css, session-sidebar/src/session-tree.test.mjs, session-sidebar/module.md`; expected commit: `fix: escape session context menu from list clipping`). Result: Completed in commit `fix: escape session context menu from list clipping`.
 27. [DONE] Git Commit: `fix: escape session context menu from list clipping` (hash: self)
-28. [IN_PROGRESS] `harness-ai.phase8.stream1.task2` Repackage, verify the delete flow end-to-end in the packaged app via computer-use (right-click -> menu -> Delete -> confirm card -> session gone), update evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, .harness/plans/todo-plan.md`; expected commit: `docs: record context menu clipping fix repackage`).
-29. [TODO] Git Commit: `docs: record context menu clipping fix repackage` (hash: TBD)
+28. [DONE] `harness-ai.phase8.stream1.task2` Repackage, verify the delete flow end-to-end in the packaged app via computer-use (right-click -> menu -> Delete -> confirm card -> session gone), update evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, .harness/plans/todo-plan.md`; expected commit: `docs: record context menu clipping fix repackage`). Result: Completed in commit `docs: record context menu clipping fix repackage`.
+29. [DONE] Git Commit: `docs: record context menu clipping fix repackage` (hash: self)

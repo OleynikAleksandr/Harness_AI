@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat: add claude subagent file reader",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": "feat: normalize claude subagent transcript events",
   "debt": null
 }
 ```
@@ -66,9 +66,9 @@
 
 ### Stream: Provider File Layer
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Add the subagent file layer: directory scan of `<sessionId>/subagents/**`, meta.json parsing, incremental JSONL tail (agent transcript + parent toolUseResult extraction) with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-files.ts, claude-provider/src/reference/subagents/claude-subagent-files.test.mjs, claude-provider/module.md`; expected commit: `feat: add claude subagent file reader`).
-4. [TODO] Git Commit: `feat: add claude subagent file reader` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` Add the pure normalizer: meta.json -> subagent_control(spawn)/subagent_session, toolUseResult -> terminal subagent_status, agent JSONL records -> child-channel transcript message events, with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-event-normalizer.ts, claude-provider/src/reference/subagents/claude-subagent-event-normalizer.test.mjs, claude-provider/module.md`; expected commit: `feat: normalize claude subagent transcript events`).
+3. [DONE] `harness-ai.phase2.stream1.task1` Add the subagent file layer: directory scan of `<sessionId>/subagents/**`, meta.json parsing, incremental JSONL tail (agent transcript + parent toolUseResult extraction) with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-files.ts, claude-provider/src/reference/subagents/claude-subagent-files.test.mjs, claude-provider/module.md`; expected commit: `feat: add claude subagent file reader`). Result: Completed in commit `feat: add claude subagent file reader`.
+4. [DONE] Git Commit: `feat: add claude subagent file reader` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` Add the pure normalizer: meta.json -> subagent_control(spawn)/subagent_session, toolUseResult -> terminal subagent_status, agent JSONL records -> child-channel transcript message events, with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-event-normalizer.ts, claude-provider/src/reference/subagents/claude-subagent-event-normalizer.test.mjs, claude-provider/module.md`; expected commit: `feat: normalize claude subagent transcript events`).
 6. [TODO] Git Commit: `feat: normalize claude subagent transcript events` (hash: TBD)
 7. [TODO] `harness-ai.phase2.stream1.task3` Add the observer coordinator: turn-scoped polling lifecycle, hydration scan on subscribe/resume, serialized hydration and replay-once sets, with unit test (scope: `claude-provider/src/reference/subagents/claude-subagent-observer.ts, claude-provider/src/reference/subagents/claude-subagent-observer.test.mjs, claude-provider/module.md`; expected commit: `feat: add claude subagent observer with hydration`).
 8. [TODO] Git Commit: `feat: add claude subagent observer with hydration` (hash: TBD)

@@ -65,6 +65,15 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   tools (follow the shell category via Bash).
 - `claude-sdk-manager-types.ts` holds the manager option/settings shapes,
   split out to keep `claude-sdk-manager.ts` under the 500-line cap.
+- Subagent file layer (`src/reference/subagents/claude-subagent-files.ts`,
+  docs/architecture/ClaudeSubagentSessions.md): reads the Claude CLI native
+  subagent storage next to the parent transcript
+  (`<sessionId>/subagents/agent-<agentId>.meta.json` + `.jsonl`) — directory
+  scan with meta parsing, incremental JSONL tail that only advances past
+  fully terminated lines, and `toolUseResult` terminal-status extraction
+  from parent records. File reading is the sanctioned native channel for
+  Claude subagents (no structured RPC exists), mirroring the accepted
+  context-usage tail reader precedent.
 - Native request capture (`claude-native-request-capture-service.ts`,
   reached through the adapter's `captureNativeRequest`): a record-only
   diagnostic path that records the **original interactive CLI wrapping**. The

@@ -88,7 +88,8 @@ role/tag/source text и не добавляет точные дубликаты 
 сохранённые stable ids до начала app-server history replay.
 После применения historical child metadata Core повторно вычисляет status
 родительского timeline-call из актуального child status, поэтому восстановленный
-`completed` одинаково виден в карточке, дереве и child header.
+`completed` одинаково виден в дереве и child header (timeline-панель статусов
+не отображает, но read-model остаётся согласованной).
 Статус `thread.status=notLoaded` означает лишь отсутствие thread в памяти нового
 app-server процесса и сначала нормализуется как `pending`. После transcript
 replay adapter отдельно проводит через event router последний собственный turn
@@ -108,8 +109,8 @@ adapter уже связанной parent session, подписывается н�
 проходит штатный `resumeSession` независимо от parent order.
 
 Завершение `subAgentActivity`/`collabAgentToolCall` означает завершение самого
-вызова `spawnAgent`, а не работы созданного агента. Поэтому статус карточки
-выводится из child turn/thread status: успешный spawn работающего child остаётся
+вызова `spawnAgent`, а не работы созданного агента. Поэтому статус
+timeline-call (Core read-model) выводится из child turn/thread status: успешный spawn работающего child остаётся
 `running` до его собственного завершения. Если spawn-событие не повторяет model
 и reasoning effort, Core наследует их из parent session. Для legacy parent без
 сохранённого effort Core использует тот же model-aware reasoning setting,
@@ -124,13 +125,16 @@ session создаёт grandchild с `parentSessionId` этого child, не в
 
 ### Диалог основной сессии
 
-- В момент `spawnAgent` появляется компактная карточка субагента.
-- Если provider сначала прислал call без receiver id, pending-карточка всё
-  равно появляется в исходной позиции и обогащается child controls следующим
-  Core snapshot с тем же call id.
-- Карточка показывает задачу, nickname/role, model + reasoning и живой статус.
-- Нажатие по карточке открывает дочернюю сессию в центральной области.
-- `ExternalLink` открывает или фокусирует отдельное окно этой сессии.
+- В момент `spawnAgent` появляется карточка субагентов в исходной позиции
+  timeline. С 2026-07-13 (решение пользователя, см.
+  `docs/architecture/ClaudeSubagentSessions.md`, раздел 5) карточка — чисто
+  информационная текстовая панель: количество запущенных субагентов и
+  перечень делегированных задач.
+- Если provider сначала прислал call без receiver id, панель всё равно
+  появляется в исходной позиции и обогащается задачами следующим Core
+  snapshot с тем же call id.
+- Кнопок открытия/открепления и живых статусов на панели нет: управление
+  дочерними сессиями и статусы живут только в sidebar-дереве.
 
 ### Левый sidebar
 
@@ -139,8 +143,9 @@ session создаёт grandchild с `parentSessionId` этого child, не в
 - Слева от имени child строки стоит статусный индикатор формы: пока работа
   идёт (`pending`/`running`) — нейтральное незалитое кольцо; итоговые статусы
   залиты цветом — зелёный `completed`, оранжевый `interrupted`, красный
-  `failed`/`not_found`, серый `shutdown`. Карточки в timeline и header
-  дочерней сессии остаются залитыми и используют те же итоговые цвета.
+  `failed`/`not_found`, серый `shutdown`. Header дочерней сессии остаётся
+  залитым и использует те же итоговые цвета; timeline-панель статусов
+  не показывает.
 - Chevron раскрывает рекурсивное дерево потомков; grandchildren остаются на
   своём уровне вложенности.
 - Выбор child автоматически раскрывает цепочку его ancestors, но остальные
@@ -222,12 +227,12 @@ Registry хранит promise уже начатого создания окна,
 
 ## Критерии приёмки
 
-1. Native-profile Codex session при `spawnAgent` показывает карточку в точном
-   месте timeline и child в sidebar без перезапуска UI.
+1. Native-profile Codex session при `spawnAgent` показывает info-панель в
+   точном месте timeline и child в sidebar без перезапуска UI.
 2. Child transcript получает live reasoning и ответы своего provider thread.
-3. Статусы running/completed/error одинаковы в карточке, дереве и child header.
-4. Open и detach работают из карточки и sidebar; повторный detach фокусирует
-   одно окно.
+3. Статусы running/completed/error одинаковы в дереве и child header.
+4. Open и detach работают из sidebar (карточка в диалоге — информационная,
+   без controls); повторный detach фокусирует одно окно.
 5. Auto title, manual rename и regenerate сохраняются после перезапуска.
 6. Parent delete не оставляет видимых orphan descendants, а каскад
    дополнительно удаляет event JSONL и reasoning-translation sidecar

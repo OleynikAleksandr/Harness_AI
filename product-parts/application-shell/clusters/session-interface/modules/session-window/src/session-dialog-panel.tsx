@@ -18,8 +18,6 @@ import {
 
 export function DialogPanel({
   messages,
-  onDetachSubagent = noop,
-  onOpenSubagent = noop,
   providerId,
   providerName,
   sessions = [],
@@ -27,8 +25,6 @@ export function DialogPanel({
   workspaceRoot,
 }: {
   messages: SessionMessage[];
-  onDetachSubagent?: (sessionId: string) => void;
-  onOpenSubagent?: (sessionId: string) => void;
   providerId: string | undefined;
   providerName: string | undefined;
   sessions?: readonly CoreSession[];
@@ -82,8 +78,6 @@ export function DialogPanel({
               <SubagentCallTimelineItem
                 call={item.call}
                 key={item.id}
-                onDetachSubagent={onDetachSubagent}
-                onOpenSubagent={onOpenSubagent}
                 sessions={sessions}
               />
             )
@@ -92,10 +86,6 @@ export function DialogPanel({
       </div>
     </section>
   );
-}
-
-function noop() {
-  return undefined;
 }
 
 function MessageBubble({

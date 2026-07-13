@@ -1,4 +1,3 @@
-import { Circle, ExternalLink } from "lucide-react";
 import type { CoreSubagentCall } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { SessionMessage } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
@@ -52,20 +51,24 @@ export function buildTimelineScrollMessages(
   );
 }
 
+// Text-only info panel: launch count plus the delegated task list. Open,
+// detach and live statuses live in the sidebar tree only
+// (docs/architecture/ClaudeSubagentSessions.md, section 5).
 export function SubagentCallTimelineItem({
   call,
-  onDetachSubagent,
-  onOpenSubagent,
   sessions,
 }: {
   call: CoreSubagentCall;
-  onDetachSubagent: (sessionId: string) => void;
-  onOpenSubagent: (sessionId: string) => void;
   sessions: readonly CoreSession[];
 }) {
   const { t } = useBrowserLocalization();
   const sessionById = new Map(sessions.map((session) => [session.id, session]));
-  const childSessionIds = call.childSessionIds;
+  const tasks = resolveDelegatedTasks(call, sessionById);
+  const count = Math.max(call.childSessionIds.length, 1);
+  const agentWord =
+    count === 1
+      ? t("ui_labels", "sidebar.subagent.one", "subagent")
+      : t("ui_labels", "sidebar.subagent.many", "subagents");
   return (
     <article className="session-dialog__message session-subagent-call">
       <header className="session-subagent-call__header">
@@ -74,91 +77,38 @@ export function SubagentCallTimelineItem({
         </span>
         <time dateTime={call.createdAt}>{formatTime(call.createdAt)}</time>
       </header>
-      {childSessionIds.length === 0 ? (
-        <div className="session-subagent-call__pending">
-          <Circle aria-hidden="true" fill="currentColor" size={9} />
-          <span>
-            {call.task ?? t("ui_labels", "session.subagent", "Subagent")}
-          </span>
-          <small>{resolveCallStatusLabel(call.status, t)}</small>
-        </div>
-      ) : (
-        <div className="session-subagent-call__list">
-          {childSessionIds.map((sessionId) => {
-            const session = sessionById.get(sessionId);
-            return (
-              <div className="session-subagent-call__row" key={sessionId}>
-                <Circle
-                  aria-hidden="true"
-                  className={`session-subagent-call__status session-subagent-call__status--${session?.subagentStatus ?? call.status}`}
-                  fill="currentColor"
-                  size={10}
-                />
-                <button
-                  className="session-subagent-call__open"
-                  onClick={() => onOpenSubagent(sessionId)}
-                  title={session?.delegatedTask ?? call.task ?? session?.title}
-                  type="button"
-                >
-                  <strong>
-                    {session?.delegatedTask ??
-                      call.task ??
-                      session?.title ??
-                      t("ui_labels", "session.subagent", "Subagent")}
-                  </strong>
-                  <small>{resolveChildMetadata(session, call, t)}</small>
-                </button>
-                <button
-                  aria-label={t(
-                    "ui_labels",
-                    "session.subagent.detach",
-                    "Open subagent in a new window"
-                  )}
-                  className="session-subagent-call__detach"
-                  onClick={() => onDetachSubagent(sessionId)}
-                  title={t(
-                    "ui_labels",
-                    "session.subagent.detach",
-                    "Open subagent in a new window"
-                  )}
-                  type="button"
-                >
-                  <ExternalLink aria-hidden="true" size={14} />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <p className="session-subagent-call__summary">
+        {`${count} ${agentWord} ${t(
+          "ui_labels",
+          "session.subagents.launchedForTasks",
+          "launched for the following tasks:"
+        )}`}
+      </p>
+      {tasks.length > 0 ? (
+        <ul className="session-subagent-call__tasks">
+          {tasks.map((task) => (
+            <li key={task}>{task}</li>
+          ))}
+        </ul>
+      ) : null}
     </article>
   );
 }
 
-function resolveChildMetadata(
-  session: CoreSession | undefined,
+function resolveDelegatedTasks(
   call: CoreSubagentCall,
-  t: ReturnType<typeof useBrowserLocalization>["t"]
-): string {
-  return [
-    session?.agentNickname,
-    session?.agentRole,
-    session?.model ?? call.model,
-    session?.reasoningEffort ?? call.reasoningEffort,
-    resolveCallStatusLabel(session?.subagentStatus ?? call.status, t),
-  ]
-    .filter(Boolean)
-    .join(" · ");
-}
-
-function resolveCallStatusLabel(
-  status: string,
-  t: ReturnType<typeof useBrowserLocalization>["t"]
-): string {
-  return t(
-    "ui_labels",
-    `session.subagent.status.${status}`,
-    status.replace("_", " ")
-  );
+  sessionById: ReadonlyMap<string, CoreSession>
+): string[] {
+  const tasks = call.childSessionIds
+    .map((sessionId) => {
+      const session = sessionById.get(sessionId);
+      return session?.delegatedTask ?? session?.title ?? call.task;
+    })
+    .filter((task): task is string => Boolean(task && task.trim().length > 0));
+  if (tasks.length === 0 && call.task) {
+    tasks.push(call.task);
+  }
+  return [...new Set(tasks)];
 }
 
 function formatTime(timestamp: string): string {

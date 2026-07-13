@@ -1885,12 +1885,10 @@ strong {
   color: #a5acb5;
 }
 
-.session-subagent-call__status--running,
 .session-subagent-header__status--running {
   color: var(--pm-accent-strong);
 }
 
-.session-subagent-call__status--pending,
 .session-subagent-header__status--pending {
   color: #d6b96d;
 }
@@ -1904,28 +1902,23 @@ strong {
 }
 
 .session-tree-status--completed,
-.session-subagent-call__status--completed,
 .session-subagent-header__status--completed {
   color: #52c974;
 }
 
 .session-tree-status--interrupted,
-.session-subagent-call__status--interrupted,
 .session-subagent-header__status--interrupted {
   color: #f0883e;
 }
 
 .session-tree-status--failed,
 .session-tree-status--not_found,
-.session-subagent-call__status--failed,
-.session-subagent-call__status--not_found,
 .session-subagent-header__status--failed,
 .session-subagent-header__status--not_found {
   color: #ef8588;
 }
 
 .session-tree-status--shutdown,
-.session-subagent-call__status--shutdown,
 .session-subagent-header__status--shutdown {
   color: #8c949e;
 }
@@ -2088,91 +2081,23 @@ strong {
   color: var(--pm-text-muted);
 }
 
-.session-subagent-call__list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 8px;
+.session-subagent-call__summary {
+  margin: 0;
+  font-size: 12px;
+  color: var(--pm-text-primary);
 }
 
-.session-subagent-call__row,
-.session-subagent-call__pending {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
-  min-height: 62px;
-  padding: 9px 10px;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 7px;
-}
-
-.session-subagent-call__pending {
-  grid-template-columns: auto minmax(0, 1fr);
-}
-
-.session-subagent-call__pending small {
-  grid-column: 2;
-  font-size: 10.5px;
-  color: #d6b96d;
-}
-
-.session-subagent-call__open {
+.session-subagent-call__tasks {
   display: grid;
   gap: 4px;
-  min-width: 0;
-  padding: 0;
-  color: var(--pm-text-primary);
-  text-align: left;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
+  padding-left: 18px;
+  margin: 0;
 }
 
-.session-subagent-call__open strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.session-subagent-call__open small {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  -webkit-line-clamp: 2;
-  font-size: 10.5px;
-  line-height: 1.25;
+.session-subagent-call__tasks li {
+  font-size: 11.5px;
+  line-height: 1.35;
   color: var(--pm-text-muted);
-  white-space: normal;
-}
-
-.session-subagent-call__open:hover strong,
-.session-subagent-call__open:focus-visible strong {
-  color: var(--pm-accent-strong);
-}
-
-.session-subagent-call__detach {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  color: var(--pm-text-muted);
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
-}
-
-.session-subagent-call__detach:hover,
-.session-subagent-call__detach:focus-visible {
-  color: var(--pm-accent-strong);
-  outline: none;
-  background: rgba(66, 201, 162, 0.1);
-  border-color: rgba(66, 201, 162, 0.25);
 }
 
 .session-reference-shell--subagent {
@@ -2287,10 +2212,6 @@ strong {
   .session-subagent-call {
     margin-right: 8px;
     margin-left: 8px;
-  }
-
-  .session-subagent-call__list {
-    grid-template-columns: 1fr;
   }
 
   .session-subagent-header__body,

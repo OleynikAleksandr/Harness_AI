@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat: make subagent timeline card informational",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "docs: record claude subagent sessions package",
   "debt": null
 }
 ```
@@ -86,13 +86,13 @@
 
 ### Stream: Dialog Card Simplification
 
-13. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Replace the interactive subagent call card in the dialog timeline (both providers) with a text-only info panel: subagent count + delegated task list; remove open/detach buttons, per-child status rings and metadata rows; controls remain in the sidebar tree only. This task deliberately spans 4 functional files (scope: `session-window/src/session-subagent-timeline.tsx, session-window/src/session-subagent-timeline.test.mjs, session-window/src/session-dialog-panel.tsx, session-window/src/session-window.css` + docs `session-window/module.md, docs/architecture/SubagentSessions.md, docs/architecture/ClaudeSubagentSessions.md`; expected commit: `feat: make subagent timeline card informational`).
-14. [TODO] Git Commit: `feat: make subagent timeline card informational` (hash: TBD)
+13. [DONE] `harness-ai.phase4.stream1.task1` Replace the interactive subagent call card in the dialog timeline (both providers) with a text-only info panel: subagent count + delegated task list; remove open/detach buttons, per-child status rings and metadata rows; controls remain in the sidebar tree only. This task deliberately spans 4 functional files (scope: `session-window/src/session-subagent-timeline.tsx, session-window/src/session-subagent-timeline.test.mjs, session-window/src/session-dialog-panel.tsx, session-window/src/session-window.css` + docs `session-window/module.md, docs/architecture/SubagentSessions.md, docs/architecture/ClaudeSubagentSessions.md`; expected commit: `feat: make subagent timeline card informational`). Result: Completed in commit `feat: make subagent timeline card informational`.
+14. [DONE] Git Commit: `feat: make subagent timeline card informational` (hash: self)
 
 ## Phase 5 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-13)
 
 ### Stream: Package And Retest
 
-15. [TODO] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record claude subagent sessions package`).
+15. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record claude subagent sessions package`).
 16. [TODO] Git Commit: `docs: record claude subagent sessions package` (hash: TBD)
 17. [TODO] `harness-ai.phase5.stream1.task2` User retests in the packaged app: Claude subagent visibility (live spawn info panel, sidebar tree, read-only child dialog, restart recovery, cascade delete) and the informational card for both providers (scope: user workflow; expected commit: none).

@@ -31,8 +31,12 @@ assert.match(facadeSource, /event\.type === "session:created"/u);
 assert.match(facadeSource, /event\.type === "session:updated"/u);
 assert.match(facadeSource, /<SubagentSessionHeader/u);
 assert.match(facadeSource, /isSubagentSession \? null/u);
-assert.match(facadeSource, /onOpenSubagent=\{selectSession\}/u);
-assert.match(facadeSource, /onDetachSubagent=\{detachSession\}/u);
+// The dialog card is informational only; open/detach controls live in the
+// sidebar tree (docs/architecture/ClaudeSubagentSessions.md, section 5).
+assert.doesNotMatch(facadeSource, /onOpenSubagent/u);
+assert.doesNotMatch(facadeSource, /onDetachSubagent/u);
+assert.match(facadeSource, /onDetachSession=\{detachSession\}/u);
+assert.match(facadeSource, /onSelectSession=\{selectSession\}/u);
 assert.match(facadeSource, /onRenameSession=\{renameSession\}/u);
 assert.match(
   facadeSource,

@@ -105,11 +105,13 @@ Render the transcript/dialog layout and session chrome.
   exists.
 - `session-dialog-panel.tsx` merges translated/coalesced messages with
   `CoreSubagentCall.createdAt` entries into one timestamp-ordered timeline.
-  Inline cards keep the normal dialog bubble boundary, show delegated task as
-  the primary label, nickname/role/model/reasoning/status as secondary
-  metadata, and render open + detached-window controls for each child Core id.
-  A spawn event without a child id yet remains visible as a pending card and is
-  replaced in place when Core publishes the updated call.
+  The inline card is a text-only info panel (user decision 2026-07-13,
+  docs/architecture/ClaudeSubagentSessions.md section 5): launch count plus
+  the delegated task list, no open/detach buttons, no per-child status rings
+  or metadata rows — child controls and live statuses live in the sidebar
+  tree only. A spawn event without a child id yet still shows the panel with
+  the call task and is enriched in place when Core publishes the updated
+  call.
 - The shared `.session-panel` surface (id bar, dialog, input, status) uses the
   reference grey backdrop `rgba(40,41,42,1)` with a single clean `1px solid
   rgba(67,68,70,1)` outline and no `box-shadow`. The outer app shell background
@@ -142,17 +144,16 @@ Render the transcript/dialog layout and session chrome.
 ## Outputs
 
 - Rendered chat session surface.
-- Inline subagent entry points at their Core-recorded spawn position; opening
-  or detaching is emitted with the child Core session id, never a parsed
-  provider/rollout identifier.
+- Inline subagent info panels at their Core-recorded spawn position; opening
+  or detaching happens from the sidebar tree and is emitted with the child
+  Core session id, never a parsed provider/rollout identifier.
 - Selecting a child renders its live transcript with a parent breadcrumb,
   delegated task, agent/model/reasoning/status metadata and no input composer.
-  The same child id drives open-in-place and detached-window actions from both
-  the timeline and sidebar.
+  Open-in-place and detached-window actions live in the sidebar tree.
 - The approved visual layer reuses existing `--pm-*` tokens and lucide icons:
   sidebar width is user-resizable from 240 to 360 px, nested branches use a
-  quiet connector, status colors are shared by tree/card/header, inline calls
-  form a responsive card grid, and child/detached layouts reserve a compact
+  quiet connector, status colors are shared by tree/header, the inline call
+  panel stays text-only, and child/detached layouts reserve a compact
   metadata header above the transcript.
 - Sidebar rename and regenerate-title actions call the typed preload/Core
   commands. Successful mutations refresh only the session list; title

@@ -353,8 +353,6 @@ export function SessionWindowFacade() {
             ) : null}
             <DialogPanel
               messages={messages}
-              onDetachSubagent={detachSession}
-              onOpenSubagent={selectSession}
               providerId={activeSession.providerId}
               providerName={activeSession.providerName}
               sessions={sessions}

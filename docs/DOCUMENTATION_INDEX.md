@@ -287,6 +287,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   subagent sessions: three historical descendants materialize with correct
   task names, complete transcripts, `ultra` reasoning, terminal statuses, no
   false nested calls, and no message duplication after restart.
+- `docs/evidence/claude-subagent-sessions-package-2026-07-13.md` — explicitly
+  user-ordered macOS arm64 rebuild bringing Codex-parity subagent visibility
+  to the Claude provider (file-based observer in claude-provider, child
+  channels, pseudo-resume, cascade file cleanup) and turning the dialog
+  subagent card into a text-only info panel for both providers.
 - `docs/evidence/codex-child-recovery-package-2026-07-12.md` — explicitly
   user-approved macOS arm64 rebuild after filtering ancestor turns out of
   restored child transcripts and preserving interrupted/failed/completed turn

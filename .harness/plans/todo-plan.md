@@ -8,8 +8,8 @@
   "planId": "claude-subagent-sessions-2026-07-13",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "docs: record claude subagent sessions package",
+  "currentTaskId": "harness-ai.phase5.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -93,6 +93,6 @@
 
 ### Stream: Package And Retest
 
-15. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record claude subagent sessions package`).
-16. [TODO] Git Commit: `docs: record claude subagent sessions package` (hash: TBD)
-17. [TODO] `harness-ai.phase5.stream1.task2` User retests in the packaged app: Claude subagent visibility (live spawn info panel, sidebar tree, read-only child dialog, restart recovery, cascade delete) and the informational card for both providers (scope: user workflow; expected commit: none).
+15. [DONE] `harness-ai.phase5.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/claude-subagent-sessions-package-2026-07-13.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: record claude subagent sessions package`). Result: Completed in commit `docs: record claude subagent sessions package`.
+16. [DONE] Git Commit: `docs: record claude subagent sessions package` (hash: self)
+17. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` User retests in the packaged app: Claude subagent visibility (live spawn info panel, sidebar tree, read-only child dialog, restart recovery, cascade delete) and the informational card for both providers (scope: user workflow; expected commit: none).

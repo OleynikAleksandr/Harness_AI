@@ -46,6 +46,9 @@ export interface ActiveSession {
   };
   readonly resumeSessionId?: string;
   readonly runtimeTurnConfig: ClaudeRuntimeTurnConfig;
+  // Last-API-call usage snapshot from the Agent SDK assistant/result stream
+  // messages; absent until the first assistant message of the session.
+  sdkUsage?: import("../messaging/claude-sdk-usage-tracker.js").ClaudeSdkUsageSnapshot;
   sessionId: string;
   // Applied session profile state (managed payload or native presets);
   // absent on legacy sessions that predate session profiles.

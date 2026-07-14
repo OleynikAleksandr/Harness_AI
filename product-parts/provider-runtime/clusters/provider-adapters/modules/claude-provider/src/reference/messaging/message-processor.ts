@@ -14,6 +14,7 @@ import {
   ClaudeMessageFinishHandler,
   type ContextUsageReaderConfig,
 } from "./claude-message-finish-handler.js";
+import { ClaudeSdkUsageTracker } from "./claude-sdk-usage-tracker.js";
 import { ClaudeStreamEventRouter } from "./claude-stream-event-router.js";
 import type { ClaudeTextTranslationAdapter } from "./claude-thought-translation-adapter.js";
 
@@ -68,6 +69,7 @@ const isAssistantEndTurnMessage = (message: ClaudeStreamMessage): boolean =>
 export class SDKMessageProcessor {
   private readonly finishHandler: ClaudeMessageFinishHandler;
   private readonly reporter?: ModuleReporter;
+  private readonly sdkUsageTracker: ClaudeSdkUsageTracker;
   private readonly sessionManager: SDKSessionManager;
   private readonly streamEventRouter: ClaudeStreamEventRouter;
 
@@ -88,6 +90,7 @@ export class SDKMessageProcessor {
       undefined,
       options.providerId
     );
+    this.sdkUsageTracker = new ClaudeSdkUsageTracker();
   }
 
   configureContextUsageReader(config: ContextUsageReaderConfig): void {
@@ -387,6 +390,7 @@ export class SDKMessageProcessor {
     if (!emitter) {
       return;
     }
+    this.sdkUsageTracker.recordMessage(session, message);
 
     switch (message.type) {
       case "assistant": {

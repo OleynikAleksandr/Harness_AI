@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "feat: track claude sdk usage per turn",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": "feat: emit claude cache and sdk token usage",
   "debt": null
 }
 ```
@@ -80,9 +80,9 @@
 
 ### Stream: Provider Usage Extraction
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Add an SDK usage tracker to claude-provider messaging: a new `claude-sdk-usage-tracker.ts` consumes `assistant`/`result` SDK messages already flowing through `dispatchMessage`, dedupes by `message.id`, and keeps a per-session snapshot of the last API call (`input_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens`, `output_tokens`) plus `contextWindow` from `result.modelUsage`; wire it into `message-processor.ts`; cover with a module test and update the module doc (scope: `claude-provider/src/reference/messaging/claude-sdk-usage-tracker.ts, claude-provider/src/reference/messaging/message-processor.ts` + paired test + `claude-provider/module.md`; expected commit: `feat: track claude sdk usage per turn`).
-4. [TODO] Git Commit: `feat: track claude sdk usage per turn` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` Enrich Claude token events from the tracker snapshot: extend `TokenUsageSnapshot` and the emitted `token_usage` stream event and `turn_completed` payload with `cached` (= last-call `cache_read_input_tokens`, Codex parity) and `sdkUsed` (= last-call `input + cache_read + cache_creation`), keeping the legacy `/context` `used`/`limit` untouched; update tests and the module doc (scope: `claude-provider/src/reference/messaging/claude-token-usage-sync.ts, claude-provider/src/reference/messaging/claude-usage-sync.ts` + paired tests + `claude-provider/module.md`; expected commit: `feat: emit claude cache and sdk token usage`).
+3. [DONE] `harness-ai.phase2.stream1.task1` Add an SDK usage tracker to claude-provider messaging: a new `claude-sdk-usage-tracker.ts` consumes `assistant`/`result` SDK messages already flowing through `dispatchMessage`, dedupes by `message.id`, and keeps a per-session snapshot of the last API call (`input_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens`, `output_tokens`) plus `contextWindow` from `result.modelUsage`; wire it into `message-processor.ts`; store the snapshot on a new `ActiveSession.sdkUsage` field (`session/types.ts`, mirroring the existing `sessionProfile` inline-type-import pattern) so Stream: Telemetry Display's task 2 can read it straight off the session object it already receives, without a passthrough method through `claude-message-finish-handler.ts` (out of both tasks' scope); cover with a module test and update the module doc (scope: `claude-provider/src/reference/messaging/claude-sdk-usage-tracker.ts, claude-provider/src/reference/messaging/message-processor.ts, claude-provider/src/reference/session/types.ts` + paired test + `claude-provider/module.md`; expected commit: `feat: track claude sdk usage per turn`). Result: Completed in commit `feat: track claude sdk usage per turn`.
+4. [DONE] Git Commit: `feat: track claude sdk usage per turn` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` Enrich Claude token events from the tracker snapshot: extend `TokenUsageSnapshot` and the emitted `token_usage` stream event and `turn_completed` payload with `cached` (= last-call `cache_read_input_tokens`, Codex parity) and `sdkUsed` (= last-call `input + cache_read + cache_creation`), keeping the legacy `/context` `used`/`limit` untouched; update tests and the module doc (scope: `claude-provider/src/reference/messaging/claude-token-usage-sync.ts, claude-provider/src/reference/messaging/claude-usage-sync.ts` + paired tests + `claude-provider/module.md`; expected commit: `feat: emit claude cache and sdk token usage`).
 6. [TODO] Git Commit: `feat: emit claude cache and sdk token usage` (hash: TBD)
 
 ### Stream: Telemetry Display

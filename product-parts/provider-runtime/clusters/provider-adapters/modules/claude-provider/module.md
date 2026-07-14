@@ -145,6 +145,17 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   The managed-vs-vanilla comparison and applied turn config were removed;
   only recording remains (`docs/architecture/SessionProfilesV2.md`,
   decision 5).
+- SDK usage tracker (`claude-sdk-usage-tracker.ts`): reads the last-API-call
+  usage from the `assistant`/`result` Agent SDK stream messages already
+  flowing through `message-processor.ts`'s `dispatchMessage`, without a
+  second CLI subprocess. Dedupes repeated `assistant` messages that share
+  one `message.id` (parallel tool_use content blocks report the same
+  API-call usage) and keeps the snapshot — `inputTokens`,
+  `cacheReadInputTokens`, `cacheCreationInputTokens`, `outputTokens`, plus
+  `contextWindow` merged in from the turn's `result.modelUsage` once
+  reported — directly on `ActiveSession.sdkUsage` so other messaging
+  collaborators can read it off the session object they already receive
+  (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
 
 ## Owned Paths
 

@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream2.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase5.stream1.task2",
+  "expectedCommitMessage": "feat: retire claude context probe",
   "debt": null
 }
 ```
@@ -114,3 +114,20 @@
 18. [DONE] `harness-ai.phase4.stream2.task1` Repackage the app with the acceptance fixes (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: repackage claude cache telemetry build`). Result: Completed in commit `chore: repackage claude cache telemetry build`.
 19. [DONE] Git Commit: `chore: repackage claude cache telemetry build` (hash: self)
 20. [IN_PROGRESS] `harness-ai.phase4.stream2.task2` User retests in the packaged app: restored sessions bind without "Provider setup needed" errors, Claude status panel shows the dual Tokens figures and the Cache chip on a fresh session, and the two figures come from independent sources (scope: user workflow; expected commit: none).
+
+## Phase 5 - Live Token Usage & Probe Retirement (owner: Codex + User, updated: 2026-07-14)
+
+### Stream: Live Usage
+
+21. [DONE] `harness-ai.phase5.stream1.task1` Stream Claude token usage per API call: add `claude-live-usage-emitter.ts` (dedup map keyed by provider session id) that builds a full `{used, limit, cached}` snapshot from `ActiveSession.sdkUsage` via a new tracker-only builder in `claude-token-usage-snapshot.ts` (`used` = last-call input + cache_read + cache_creation, `limit` = tracker `contextWindow` or 0 so the facade keeps the previous limit, `cached` = last-call cache read) and emits the `token_usage` stream event right after `sdkUsageTracker.recordMessage` in `message-processor.ts`'s `dispatchMessage`, so the status panel updates after every agent-loop cycle like Codex; cover with a module test and update the module doc (scope: `claude-provider/src/reference/messaging/claude-live-usage-emitter.ts, claude-provider/src/reference/messaging/claude-token-usage-snapshot.ts, claude-provider/src/reference/messaging/message-processor.ts` + paired test + `claude-provider/module.md`; expected commit: `feat: stream claude token usage per api call`). Result: Completed in commit `feat: stream claude token usage per api call`.
+22. [DONE] Git Commit: `feat: stream claude token usage per api call` (hash: self)
+23. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` Retire the legacy `/context` probe (user order 2026-07-14 after the dual figures matched): delete the probe subsystem (`claude-context-usage-reader.ts` + its test, `claude-context-usage-probe.ts`, `claude-context-usage-cwd-resolver.ts`, `claude-context-usage-provider-jsonl.ts`, `claude-context-usage-snapshot.ts`), rework `claude-token-usage-sync.ts` into a tracker-backed completion snapshot (no CLI subprocess, keep `postTurnTokenUsageUnavailable` when no SDK usage exists), keep the per-use env resolution for rate-limit reads by renaming the reader config to a usage-environment config through `claude-usage-sync.ts`/`claude-message-finish-handler.ts`/`message-processor.ts`/`claude-sdk-manager.ts`, and rewrite the snapshot test; this plan line explicitly splits one coherent retirement across those files — the probe cannot be half-removed without failing knip/architecture gates (scope: five deleted probe files + `claude-token-usage-sync.ts, claude-usage-sync.ts, claude-message-finish-handler.ts, message-processor.ts, claude-sdk-manager.ts` + paired tests + `claude-provider/module.md`; expected commit: `feat: retire claude context probe`).
+24. [TODO] Git Commit: `feat: retire claude context probe` (hash: TBD)
+25. [TODO] `harness-ai.phase5.stream1.task3` Drop the dual Tokens diagnostic in usage-context-telemetry now that the SDK figure is the only `used` source: remove `sdkUsed` from `ProviderTokenUsage`/merge/format (single-figure display, percent now live because `used` updates every cycle), keep the Cache chip and the restored-telemetry normalization, refresh the facade test and module doc (scope: `usage-context-telemetry/src/usage-context-telemetry-facade.ts` + paired `usage-context-telemetry-facade.test.mjs` + `usage-context-telemetry/module.md`; expected commit: `feat: drop dual claude token figure display`).
+26. [TODO] Git Commit: `feat: drop dual claude token figure display` (hash: TBD)
+
+### Stream: Package And Retest
+
+27. [TODO] `harness-ai.phase5.stream2.task1` Package the app with live token usage (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package live claude token usage build`).
+28. [TODO] Git Commit: `chore: package live claude token usage build` (hash: TBD)
+29. [TODO] `harness-ai.phase5.stream2.task2` User retests in the packaged app: Claude Tokens/Cache figures update during the turn after every agent-loop cycle (Codex parity), a single Tokens figure remains after the dual diagnostic removal, and restored sessions stay healthy (scope: user workflow; expected commit: none).

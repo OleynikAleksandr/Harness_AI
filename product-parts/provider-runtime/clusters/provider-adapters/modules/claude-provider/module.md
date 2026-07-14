@@ -169,6 +169,15 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   `claude-message-finish-handler.ts`'s existing pass-through) the
   `turn_completed` payload both carry the enriched snapshot without further
   wiring (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
+- Live per-cycle token usage (`claude-live-usage-emitter.ts`, Codex parity):
+  right after the SDK usage tracker records an assistant message,
+  `message-processor.ts` asks the emitter to forward a full
+  `{used, limit, cached}` snapshot (`buildLiveTokenUsageSnapshot`) as a
+  `token_usage` stream event, deduped per provider session until the figures
+  change — the status panel ticks after every agent-loop API call instead of
+  waiting for turn end. `limit` is 0 until the turn's `result.modelUsage`
+  reports the context window; the telemetry facade then keeps its previous
+  limit.
 - Probe-less SDK usage emission (2026-07-14 acceptance fix): when the legacy
   `/context` probe yields no snapshot or throws, `claude-token-usage-sync.ts`
   still emits the `token_usage` stream event with only the tracker's

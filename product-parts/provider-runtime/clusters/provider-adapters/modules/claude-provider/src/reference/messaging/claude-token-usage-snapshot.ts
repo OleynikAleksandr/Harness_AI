@@ -31,6 +31,28 @@ export const buildTokenUsageSnapshot = (
   used: legacy.used,
 });
 
+// Full panel snapshot straight from the SDK usage tracker, emitted after
+// every agent-loop API call (Codex parity): `used` is the current context
+// size, `cached` the last-call cache read, `limit` the model context window
+// (0 until `result.modelUsage` reports it — the telemetry facade then keeps
+// its previous limit).
+export interface LiveTokenUsageSnapshot {
+  readonly cached: number;
+  readonly limit: number;
+  readonly used: number;
+}
+
+export const buildLiveTokenUsageSnapshot = (
+  sdkUsage: ClaudeSdkUsageSnapshot | undefined
+): LiveTokenUsageSnapshot | null =>
+  sdkUsage
+    ? {
+        cached: sdkUsage.cacheReadInputTokens,
+        limit: sdkUsage.contextWindow ?? 0,
+        used: computeSdkUsed(sdkUsage),
+      }
+    : null;
+
 // The SDK usage channel must not die with the legacy probe: when `/context`
 // yields no snapshot the provider still reports the tracker's last-call
 // figures on their own (2026-07-14 acceptance fix).

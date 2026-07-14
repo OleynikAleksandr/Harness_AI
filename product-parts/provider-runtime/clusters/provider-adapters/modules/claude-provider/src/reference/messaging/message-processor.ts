@@ -10,6 +10,7 @@ import type {
   ClaudeUsageLimitsFacadeBridge,
   ModuleReporter,
 } from "../types.js";
+import { ClaudeLiveUsageEmitter } from "./claude-live-usage-emitter.js";
 import {
   ClaudeMessageFinishHandler,
   type ContextUsageReaderConfig,
@@ -68,6 +69,7 @@ const isAssistantEndTurnMessage = (message: ClaudeStreamMessage): boolean =>
 
 export class SDKMessageProcessor {
   private readonly finishHandler: ClaudeMessageFinishHandler;
+  private readonly liveUsageEmitter: ClaudeLiveUsageEmitter;
   private readonly reporter?: ModuleReporter;
   private readonly sdkUsageTracker: ClaudeSdkUsageTracker;
   private readonly sessionManager: SDKSessionManager;
@@ -91,6 +93,9 @@ export class SDKMessageProcessor {
       options.providerId
     );
     this.sdkUsageTracker = new ClaudeSdkUsageTracker();
+    this.liveUsageEmitter = new ClaudeLiveUsageEmitter({
+      providerId: options.providerId,
+    });
   }
 
   configureContextUsageReader(config: ContextUsageReaderConfig): void {
@@ -391,6 +396,7 @@ export class SDKMessageProcessor {
       return;
     }
     this.sdkUsageTracker.recordMessage(session, message);
+    this.liveUsageEmitter.emitIfChanged(session, message);
 
     switch (message.type) {
       case "assistant": {

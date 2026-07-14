@@ -309,6 +309,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   dead `/context` probe, and the probe env frozen onto the global provider
   home by the liveness-preflight race; three fix commits, packaged-asar
   inspection, and the retest checklist.
+- `docs/evidence/claude-live-token-usage-package-2026-07-14.md` — Phase 5
+  rebuild: per-API-call live Claude token/cache emission (Codex parity),
+  full retirement of the legacy `/context` probe subsystem, single-figure
+  Tokens display restored, orphaned-`dist/runtime` gotcha documented, and
+  packaged-asar inspection.
 - `docs/evidence/claude-cache-telemetry-package-2026-07-14.md` — macOS
   arm64 rebuild for the claude-cache-telemetry scope: the SDK usage tracker,
   the dual-figure Tokens display and the Claude Cache chip landed across

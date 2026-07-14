@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream2.task1",
-  "expectedCommitMessage": "chore: package live claude token usage build",
+  "currentTaskId": "harness-ai.phase5.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -128,6 +128,6 @@
 
 ### Stream: Package And Retest
 
-27. [IN_PROGRESS] `harness-ai.phase5.stream2.task1` Package the app with live token usage (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package live claude token usage build`).
-28. [TODO] Git Commit: `chore: package live claude token usage build` (hash: TBD)
-29. [TODO] `harness-ai.phase5.stream2.task2` User retests in the packaged app: Claude Tokens/Cache figures update during the turn after every agent-loop cycle (Codex parity), a single Tokens figure remains after the dual diagnostic removal, and restored sessions stay healthy (scope: user workflow; expected commit: none).
+27. [DONE] `harness-ai.phase5.stream2.task1` Package the app with live token usage (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package live claude token usage build`). Result: Completed in commit `chore: package live claude token usage build`.
+28. [DONE] Git Commit: `chore: package live claude token usage build` (hash: self)
+29. [IN_PROGRESS] `harness-ai.phase5.stream2.task2` User retests in the packaged app: Claude Tokens/Cache figures update during the turn after every agent-loop cycle (Codex parity), a single Tokens figure remains after the dual diagnostic removal, and restored sessions stay healthy (scope: user workflow; expected commit: none).

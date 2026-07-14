@@ -169,6 +169,13 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   `claude-message-finish-handler.ts`'s existing pass-through) the
   `turn_completed` payload both carry the enriched snapshot without further
   wiring (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
+- Probe-less SDK usage emission (2026-07-14 acceptance fix): when the legacy
+  `/context` probe yields no snapshot or throws, `claude-token-usage-sync.ts`
+  still emits the `token_usage` stream event with only the tracker's
+  `cached`/`sdkUsed` figures (`buildSdkOnlyTokenUsage`, deduped per session
+  until the figures change); the usage-context-telemetry facade merges such
+  partial events by keeping the previous legacy `used`, so the Cache chip and
+  the SDK diagnostic figure no longer die with the probe.
 
 ## Owned Paths
 

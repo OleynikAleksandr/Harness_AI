@@ -31,6 +31,24 @@ export const buildTokenUsageSnapshot = (
   used: legacy.used,
 });
 
+// The SDK usage channel must not die with the legacy probe: when `/context`
+// yields no snapshot the provider still reports the tracker's last-call
+// figures on their own (2026-07-14 acceptance fix).
+export interface SdkOnlyTokenUsage {
+  readonly cached: number;
+  readonly sdkUsed: number;
+}
+
+export const buildSdkOnlyTokenUsage = (
+  sdkUsage: ClaudeSdkUsageSnapshot | undefined
+): SdkOnlyTokenUsage | null =>
+  sdkUsage
+    ? {
+        cached: sdkUsage.cacheReadInputTokens,
+        sdkUsed: computeSdkUsed(sdkUsage),
+      }
+    : null;
+
 export const areTokenUsageSnapshotsEqual = (
   left: TokenUsageSnapshot,
   right: TokenUsageSnapshot

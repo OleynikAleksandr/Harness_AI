@@ -4,7 +4,9 @@ import type { ActiveSession } from "../session/types.js";
 import type { ModuleReporter } from "../types.js";
 import {
   areTokenUsageSnapshotsEqual,
+  buildSdkOnlyTokenUsage,
   buildTokenUsageSnapshot,
+  type SdkOnlyTokenUsage,
   type TokenUsageSnapshot,
 } from "./claude-token-usage-snapshot.js";
 
@@ -47,6 +49,7 @@ export class ClaudeTokenUsageSync {
   private readonly contextUsageLastAttemptAt = new Map<string, number>();
   private readonly providerId: string;
   private readonly reporter?: ModuleReporter;
+  private readonly sdkOnlyEmitCache = new Map<string, SdkOnlyTokenUsage>();
   private readonly tokenUsageCache = new Map<string, TokenUsageSnapshot>();
 
   constructor(options: ClaudeTokenUsageSyncOptions) {
@@ -110,6 +113,7 @@ export class ClaudeTokenUsageSync {
       .read({ sessionId: resolvedId, cwd: session.workspacePath })
       .then((snapshot) => {
         if (!snapshot) {
+          this.emitSdkOnlyUsage(session, resolvedId);
           return {
             tokenUsage: null,
             postTurnTokenUsageUnavailable: true,
@@ -157,6 +161,7 @@ export class ClaudeTokenUsageSync {
             error instanceof Error ? error.message : String(error)
           }`
         );
+        this.emitSdkOnlyUsage(session, resolvedId);
         return {
           tokenUsage: this.tokenUsageCache.get(resolvedId) ?? null,
           postTurnTokenUsageUnavailable: !this.tokenUsageCache.has(resolvedId),
@@ -168,6 +173,41 @@ export class ClaudeTokenUsageSync {
 
     this.contextUsageInFlight.set(resolvedId, refreshPromise);
     return await refreshPromise;
+  }
+
+  // The legacy `/context` probe can legitimately fail (e.g. the transcript is
+  // unavailable to the probe environment); the SDK usage tracker's figures
+  // still reach the panel on their own — the telemetry facade keeps the
+  // previous legacy `used` for such partial events (2026-07-14 acceptance
+  // fix).
+  private emitSdkOnlyUsage(session: ActiveSession, resolvedId: string): void {
+    const sdkOnly = buildSdkOnlyTokenUsage(session.sdkUsage);
+    if (!sdkOnly) {
+      return;
+    }
+    const previous = this.sdkOnlyEmitCache.get(resolvedId);
+    if (
+      previous &&
+      previous.cached === sdkOnly.cached &&
+      previous.sdkUsed === sdkOnly.sdkUsed
+    ) {
+      return;
+    }
+    this.sdkOnlyEmitCache.set(resolvedId, sdkOnly);
+    session.eventEmitter.emit("message", {
+      type: "stream_event",
+      provider: this.providerId,
+      sessionId: session.sessionId,
+      claudeSessionId: resolvedId,
+      tokenUsage: sdkOnly,
+      data: {
+        kind: "token_usage",
+        cached: sdkOnly.cached,
+        sdkUsed: sdkOnly.sdkUsed,
+      },
+      uuid: `${crypto.randomUUID()}::token_usage`,
+      timestamp: new Date().toISOString(),
+    });
   }
 }
 

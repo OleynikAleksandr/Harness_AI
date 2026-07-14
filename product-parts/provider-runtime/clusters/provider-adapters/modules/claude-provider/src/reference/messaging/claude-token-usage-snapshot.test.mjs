@@ -13,8 +13,12 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
-const { areTokenUsageSnapshotsEqual, buildTokenUsageSnapshot, computeSdkUsed } =
-  await import(moduleUrl);
+const {
+  areTokenUsageSnapshotsEqual,
+  buildSdkOnlyTokenUsage,
+  buildTokenUsageSnapshot,
+  computeSdkUsed,
+} = await import(moduleUrl);
 
 const sdkUsage = {
   cacheCreationInputTokens: 113,
@@ -79,5 +83,13 @@ assert.equal(
   ),
   false
 );
+
+// Probe-less emission (2026-07-14 acceptance): the SDK figures stand on
+// their own when the legacy /context probe yields nothing.
+assert.deepEqual(buildSdkOnlyTokenUsage(sdkUsage), {
+  cached: 27_280,
+  sdkUsed: 8 + 27_280 + 113,
+});
+assert.equal(buildSdkOnlyTokenUsage(undefined), null);
 
 console.log("claude-token-usage-snapshot tests passed");

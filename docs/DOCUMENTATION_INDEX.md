@@ -303,6 +303,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   `cache_creation` input tokens), Agent SDK usage-field rules, the current
   `/context`-scrape token path, and the user decision to show dual
   dash-separated Tokens figures plus a Codex-parity Cache chip.
+- `docs/evidence/claude-cache-telemetry-package-2026-07-14.md` — acceptance
+  findings and fix rebuild for the claude-cache-telemetry scope: restored
+  telemetry crashing every facade entry point, SDK figures coupled to the
+  dead `/context` probe, and the probe env frozen onto the global provider
+  home by the liveness-preflight race; three fix commits, packaged-asar
+  inspection, and the retest checklist.
 - `docs/evidence/claude-cache-telemetry-package-2026-07-14.md` — macOS
   arm64 rebuild for the claude-cache-telemetry scope: the SDK usage tracker,
   the dual-figure Tokens display and the Claude Cache chip landed across

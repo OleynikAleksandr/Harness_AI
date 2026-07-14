@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream2.task1",
-  "expectedCommitMessage": "chore: repackage claude cache telemetry build",
+  "currentTaskId": "harness-ai.phase4.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -111,6 +111,6 @@
 
 ### Stream: Package And Retest
 
-18. [IN_PROGRESS] `harness-ai.phase4.stream2.task1` Repackage the app with the acceptance fixes (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: repackage claude cache telemetry build`).
-19. [TODO] Git Commit: `chore: repackage claude cache telemetry build` (hash: TBD)
-20. [TODO] `harness-ai.phase4.stream2.task2` User retests in the packaged app: restored sessions bind without "Provider setup needed" errors, Claude status panel shows the dual Tokens figures and the Cache chip on a fresh session, and the two figures come from independent sources (scope: user workflow; expected commit: none).
+18. [DONE] `harness-ai.phase4.stream2.task1` Repackage the app with the acceptance fixes (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: repackage claude cache telemetry build`). Result: Completed in commit `chore: repackage claude cache telemetry build`.
+19. [DONE] Git Commit: `chore: repackage claude cache telemetry build` (hash: self)
+20. [IN_PROGRESS] `harness-ai.phase4.stream2.task2` User retests in the packaged app: restored sessions bind without "Provider setup needed" errors, Claude status panel shows the dual Tokens figures and the Cache chip on a fresh session, and the two figures come from independent sources (scope: user workflow; expected commit: none).

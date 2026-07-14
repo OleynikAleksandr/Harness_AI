@@ -111,7 +111,7 @@ export class ClaudeUsageSync {
   private readonly reporter?: ModuleReporter;
   private readonly tokenUsageSync: ClaudeTokenUsageSync;
   private readonly usageLimitsFacade?: ClaudeUsageLimitsFacadeBridge;
-  private usageLimitsEnvironment: NodeJS.ProcessEnv | undefined;
+  private resolveUsageLimitsEnvironment: (() => NodeJS.ProcessEnv) | undefined;
 
   constructor(options: ClaudeUsageSyncOptions) {
     this.providerId = options.providerId ?? "claude";
@@ -121,7 +121,10 @@ export class ClaudeUsageSync {
   }
 
   configureContextUsageReader(config: ClaudeContextUsageReaderConfig): void {
-    this.usageLimitsEnvironment = config.env;
+    // Per-use env resolution, matching the context-usage reader: a one-shot
+    // snapshot freezes onto whichever provider home was active at adapter
+    // initialize (2026-07-14 acceptance fix).
+    this.resolveUsageLimitsEnvironment = config.resolveEnv;
     this.tokenUsageSync.configureContextUsageReader(config);
   }
 
@@ -269,11 +272,12 @@ export class ClaudeUsageSync {
   ): NodeJS.ProcessEnv | undefined {
     const runtimePayload =
       this.latestRuntimeUsageLimitsPayload.get(providerSessionId);
+    const environment = this.resolveUsageLimitsEnvironment?.();
     return runtimePayload
       ? {
-          ...(this.usageLimitsEnvironment ?? {}),
+          ...(environment ?? {}),
           [CLAUDE_RUNTIME_RATE_LIMIT_INFO_ENV_KEY]: runtimePayload,
         }
-      : this.usageLimitsEnvironment;
+      : environment;
   }
 }

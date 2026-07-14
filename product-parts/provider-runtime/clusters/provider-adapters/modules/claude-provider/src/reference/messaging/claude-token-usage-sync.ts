@@ -16,8 +16,12 @@ const MIN_REFRESH_INTERVAL_MS = 1500;
 const TEMP_SESSION_PREFIX = "temp_";
 
 export interface ContextUsageReaderConfig {
-  readonly env: NodeJS.ProcessEnv;
   readonly executablePath: string;
+  // Resolved at every probe run, never snapshotted: a one-shot env taken at
+  // adapter initialize races the global-home liveness preflight and freezes
+  // the probe onto the global provider home while turns write transcripts to
+  // the workspace-local home (2026-07-14 acceptance fix).
+  readonly resolveEnv: () => NodeJS.ProcessEnv;
 }
 
 export interface TokenUsageReadResult {

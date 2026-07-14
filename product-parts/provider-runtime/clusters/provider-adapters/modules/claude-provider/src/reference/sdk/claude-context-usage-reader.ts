@@ -9,8 +9,8 @@ import type { ContextUsageSnapshot } from "./claude-context-usage-snapshot.js";
 import { extractSnapshotFromStreamJsonLine } from "./claude-context-usage-snapshot.js";
 
 interface ContextUsageReaderOptions {
-  readonly env: NodeJS.ProcessEnv;
   readonly executablePath: string;
+  readonly resolveEnv: () => NodeJS.ProcessEnv;
 }
 
 const TEMP_SESSION_PREFIX = "temp_";
@@ -143,7 +143,9 @@ export class ClaudeContextUsageReader {
   }
 
   private resolveRuntimeEnv(): NodeJS.ProcessEnv {
-    const merged = { ...this.options.env };
+    // Fresh env per probe run: the provider home may differ from the one-shot
+    // snapshot the adapter held at initialize (2026-07-14 acceptance fix).
+    const merged = { ...this.options.resolveEnv() };
     if (!merged[CLAUDE_OAUTH_ENV_KEY]) {
       const runtimeToken = process.env[CLAUDE_OAUTH_ENV_KEY]?.trim();
       if (runtimeToken) {

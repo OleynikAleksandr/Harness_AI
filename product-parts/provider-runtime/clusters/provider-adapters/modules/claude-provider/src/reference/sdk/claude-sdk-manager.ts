@@ -94,7 +94,7 @@ export class ClaudeSDKManager {
     if (!this.contextReaderConfigured) {
       this.deps.processor.configureContextUsageReader({
         executablePath: this.deps.installer.getExecutablePath(),
-        env: this.resolveAuthEnvironment(),
+        resolveEnv: () => this.resolveAuthEnvironment(),
       });
       this.contextReaderConfigured = true;
     }

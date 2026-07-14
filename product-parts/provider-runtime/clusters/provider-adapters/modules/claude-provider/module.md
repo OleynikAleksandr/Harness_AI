@@ -176,6 +176,15 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   until the figures change); the usage-context-telemetry facade merges such
   partial events by keeping the previous legacy `used`, so the Cache chip and
   the SDK diagnostic figure no longer die with the probe.
+- Per-read probe env (2026-07-14 acceptance fix): `ContextUsageReaderConfig`
+  carries a `resolveEnv` callback (wired to the adapter's auth environment)
+  instead of a one-shot env snapshot; `claude-context-usage-reader.ts` and
+  `claude-usage-sync.ts`'s rate-limit reads resolve it at every use. The old
+  snapshot was taken at adapter initialize, which races the global-home
+  liveness preflight (`withProviderHomeEnv`) and froze the probe onto
+  `~/.harness-ai/providers/claude/home` while turns write transcripts to the
+  workspace-local provider home — `--resume` then answered "No conversation
+  found" and the legacy Tokens figure never updated.
 
 ## Owned Paths
 

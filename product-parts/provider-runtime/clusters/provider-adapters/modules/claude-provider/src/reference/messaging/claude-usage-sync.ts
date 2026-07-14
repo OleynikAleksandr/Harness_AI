@@ -8,10 +8,10 @@ import type {
   ClaudeUsageLimitsStreamPayload,
   ModuleReporter,
 } from "../types.js";
+import type { TokenUsageSnapshot as ClaudeTokenUsageSnapshot } from "./claude-token-usage-snapshot.js";
 import type {
   ContextUsageReaderConfig as ClaudeContextUsageReaderConfig,
   TokenUsageReadResult as ClaudeTokenUsageReadResult,
-  TokenUsageSnapshot as ClaudeTokenUsageSnapshot,
 } from "./claude-token-usage-sync.js";
 import {
   ClaudeTokenUsageSync,
@@ -21,10 +21,10 @@ import {
 const CLAUDE_RUNTIME_RATE_LIMIT_INFO_ENV_KEY =
   "CODEAI_CLAUDE_RATE_LIMIT_INFO_PAYLOAD";
 
+export type { TokenUsageSnapshot } from "./claude-token-usage-snapshot.js";
 export type {
   ContextUsageReaderConfig,
   TokenUsageReadResult,
-  TokenUsageSnapshot,
 } from "./claude-token-usage-sync.js";
 
 interface ClaudeUsageSyncOptions {

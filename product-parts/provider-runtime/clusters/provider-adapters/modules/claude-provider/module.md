@@ -156,6 +156,19 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   reported — directly on `ActiveSession.sdkUsage` so other messaging
   collaborators can read it off the session object they already receive
   (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
+- Token usage snapshot merge (`claude-token-usage-snapshot.ts`, pure — no
+  CLI/session imports so it is unit-testable on its own): `TokenUsageSnapshot`
+  keeps the legacy `/context`-scrape `used`/`limit` untouched and adds two
+  optional fields sourced from the SDK usage tracker's snapshot — `cached`
+  (= last-call `cacheReadInputTokens`, Codex parity for the Cache chip) and
+  `sdkUsed` (= last-call `inputTokens + cacheReadInputTokens +
+  cacheCreationInputTokens`, a temporary diagnostic pending user comparison
+  against the legacy figure). Both stay absent (not zero) until
+  `ActiveSession.sdkUsage` exists. `claude-token-usage-sync.ts` builds every
+  snapshot through this merge, so the `token_usage` stream event and (via
+  `claude-message-finish-handler.ts`'s existing pass-through) the
+  `turn_completed` payload both carry the enriched snapshot without further
+  wiring (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
 
 ## Owned Paths
 

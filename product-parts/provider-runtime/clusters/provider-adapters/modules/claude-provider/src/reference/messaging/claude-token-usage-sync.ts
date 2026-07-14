@@ -2,6 +2,13 @@ import crypto from "node:crypto";
 import { ClaudeContextUsageReader } from "../sdk/claude-context-usage-reader.js";
 import type { ActiveSession } from "../session/types.js";
 import type { ModuleReporter } from "../types.js";
+import {
+  areTokenUsageSnapshotsEqual,
+  buildTokenUsageSnapshot,
+  type TokenUsageSnapshot,
+} from "./claude-token-usage-snapshot.js";
+
+export type { TokenUsageSnapshot } from "./claude-token-usage-snapshot.js";
 
 const MIN_REFRESH_INTERVAL_MS = 1500;
 const TEMP_SESSION_PREFIX = "temp_";
@@ -9,11 +16,6 @@ const TEMP_SESSION_PREFIX = "temp_";
 export interface ContextUsageReaderConfig {
   readonly env: NodeJS.ProcessEnv;
   readonly executablePath: string;
-}
-
-export interface TokenUsageSnapshot {
-  readonly limit: number;
-  readonly used: number;
 }
 
 export interface TokenUsageReadResult {
@@ -45,10 +47,7 @@ export class ClaudeTokenUsageSync {
   private readonly contextUsageLastAttemptAt = new Map<string, number>();
   private readonly providerId: string;
   private readonly reporter?: ModuleReporter;
-  private readonly tokenUsageCache = new Map<
-    string,
-    { used: number; limit: number }
-  >();
+  private readonly tokenUsageCache = new Map<string, TokenUsageSnapshot>();
 
   constructor(options: ClaudeTokenUsageSyncOptions) {
     this.providerId = options.providerId ?? "claude";
@@ -117,16 +116,9 @@ export class ClaudeTokenUsageSync {
           } satisfies TokenUsageReadResult;
         }
 
-        const nextUsage = {
-          used: snapshot.used,
-          limit: snapshot.limit,
-        } satisfies TokenUsageSnapshot;
+        const nextUsage = buildTokenUsageSnapshot(snapshot, session.sdkUsage);
         const previous = this.tokenUsageCache.get(resolvedId);
-        if (
-          previous &&
-          previous.used === nextUsage.used &&
-          previous.limit === nextUsage.limit
-        ) {
+        if (previous && areTokenUsageSnapshotsEqual(previous, nextUsage)) {
           return {
             tokenUsage: previous,
             postTurnTokenUsageUnavailable: false,
@@ -144,6 +136,12 @@ export class ClaudeTokenUsageSync {
             kind: "token_usage",
             used: nextUsage.used,
             limit: nextUsage.limit,
+            ...(nextUsage.cached === undefined
+              ? {}
+              : { cached: nextUsage.cached }),
+            ...(nextUsage.sdkUsed === undefined
+              ? {}
+              : { sdkUsed: nextUsage.sdkUsed }),
           },
           uuid: `${crypto.randomUUID()}::token_usage`,
           timestamp: new Date().toISOString(),

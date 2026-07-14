@@ -124,3 +124,63 @@ const openRouterWithTokens = usageContextTelemetryFacade.applyProviderEvent(
   }
 );
 assert.equal(openRouterWithTokens.tokenDisplay.value, "512 (100%)");
+
+// Claude carries a temporary dual-figure Tokens diagnostic: the legacy
+// /context scrape dash-separated with the SDK usage tracker's last-call
+// sdkUsed figure, while the Cache chip reads `cached` the same generic way
+// Codex does (Codex parity,
+// docs/evidence/claude-cache-telemetry-research-2026-07-14.md).
+const claude = usageContextTelemetryFacade.createTelemetry({
+  model: "claude-sonnet-5",
+  provider: "Claude",
+  providerId: "claude",
+});
+assert.equal(claude.providerScopeKey, "claude:global");
+assert.equal(claude.tokenDisplay.value, "0 (100%)");
+assert.equal(claude.cacheDisplay, null);
+
+const claudeWithSdkUsage = usageContextTelemetryFacade.applyProviderEvent(
+  claude,
+  {
+    data: {
+      kind: "token_usage",
+      tokenUsage: {
+        cached: 27_280,
+        limit: 200_000,
+        sdkUsed: 27_401,
+        used: 27_500,
+      },
+    },
+    type: "stream_event",
+  }
+);
+assert.equal(claudeWithSdkUsage.tokenDisplay.value, "27,500 - 27,401 (86%)");
+assert.equal(claudeWithSdkUsage.cacheDisplay?.value, "27,280");
+
+// A later event without sdkUsed/cached (e.g. a raw /context-only refresh)
+// keeps the last known values instead of collapsing back to the
+// single-figure display or losing the Cache chip.
+const claudeLegacyOnlyRefresh = usageContextTelemetryFacade.applyProviderEvent(
+  claudeWithSdkUsage,
+  {
+    data: {
+      kind: "token_usage",
+      tokenUsage: { limit: 200_000, used: 27_600 },
+    },
+    type: "stream_event",
+  }
+);
+assert.equal(
+  claudeLegacyOnlyRefresh.tokenDisplay.value,
+  "27,600 - 27,401 (86%)"
+);
+assert.equal(claudeLegacyOnlyRefresh.cacheDisplay?.value, "27,280");
+
+// Claude without any SDK usage yet (e.g. the very first /context probe
+// before the first assistant message streamed) keeps the single-figure
+// format instead of fabricating a dash.
+const claudeNoSdkYet = usageContextTelemetryFacade.applyProviderEvent(claude, {
+  data: { kind: "token_usage", tokenUsage: { limit: 200_000, used: 1200 } },
+  type: "stream_event",
+});
+assert.equal(claudeNoSdkYet.tokenDisplay.value, "1,200 (99%)");

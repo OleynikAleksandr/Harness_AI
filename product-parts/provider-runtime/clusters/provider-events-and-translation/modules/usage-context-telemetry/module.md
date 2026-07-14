@@ -25,6 +25,17 @@ Own usage limits and context-window signals derived from provider events.
   maximum positive cache hit seen for the active projected session while the
   context-window `used` value still follows the latest provider report.
   Providers without that signal keep the field `null`.
+- `tokenDisplay` renders as a single `"<used> (<percent>%)"` figure for every
+  provider, except when a normalized token-usage event carries the
+  Claude-only temporary diagnostic field `sdkUsed` (last-API-call
+  `input + cache_read + cache_creation` from the Agent SDK, alongside the
+  legacy `/context`-scrape `used`): then the value becomes
+  `"<used> - <sdkUsed> (<percent>%)"`, dash-separated, with the percent still
+  computed from the legacy `used`/`limit` pair. `sdkUsed` persists across a
+  later event that omits it (same latest-wins-but-not-erased merge as
+  `cached`), and is a temporary diagnostic pending user comparison of the two
+  figures before a future scope retires the legacy probe
+  (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
 - Warning/limit state.
 - Provider usage scope keys are limited to native vendor account scopes:
   `claude:global` and the Codex account scope `codex:global`. GLM OpenCode dropped its scope with the GLM

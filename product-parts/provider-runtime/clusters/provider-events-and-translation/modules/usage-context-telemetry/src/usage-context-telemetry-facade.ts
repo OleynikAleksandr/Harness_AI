@@ -3,6 +3,11 @@ export type ProviderTurnStatus = "idle" | "running" | "stopped";
 export interface ProviderTokenUsage {
   cached: number | null;
   limit: number;
+  // Claude-only temporary diagnostic: last-API-call SDK usage
+  // (input + cache_read + cache_creation), shown dash-separated next to the
+  // legacy `/context`-scrape `used` until the two are confirmed to match
+  // (docs/evidence/claude-cache-telemetry-research-2026-07-14.md).
+  sdkUsed: number | null;
   used: number;
 }
 
@@ -77,6 +82,7 @@ export class UsageContextTelemetryFacade {
     const tokenUsage = {
       cached: defaultCachedTokenCount(request.providerId),
       limit: defaultTokenLimit(request.providerId),
+      sdkUsed: null,
       used: 0,
     };
     return buildTelemetry({
@@ -157,6 +163,7 @@ function mergeTokenUsage(
       providerId: current.providerId,
     }),
     limit: next.limit || current.tokenUsage.limit,
+    sdkUsed: next.sdkUsed ?? current.tokenUsage.sdkUsed,
     used: next.used,
   };
 }
@@ -271,10 +278,11 @@ function readTokenUsage(event: unknown): ProviderTokenUsage | null {
     readNumber(candidate.total_tokens);
   const limit = readNumber(candidate.limit) ?? 0;
   const cached = readCachedTokenCount(candidate);
+  const sdkUsed = readNumber(candidate.sdkUsed);
   if (used === null || used < 0) {
     return null;
   }
-  return { cached, used, limit: Math.max(0, limit) };
+  return { cached, sdkUsed, used, limit: Math.max(0, limit) };
 }
 
 function readUsageLimits(event: unknown): ProviderUsageLimits | null {
@@ -326,9 +334,16 @@ function formatTokenUsage(tokenUsage: ProviderTokenUsage): {
     : 0;
   const usedText = tokenUsage.used.toLocaleString();
   const limitText = limit?.toLocaleString() ?? "unknown";
+  if (tokenUsage.sdkUsed === null) {
+    return {
+      title: `Context window: ${usedText} used, ${limitText} limit, ${remaining}% remaining`,
+      value: `${usedText} (${remaining}%)`,
+    };
+  }
+  const sdkUsedText = tokenUsage.sdkUsed.toLocaleString();
   return {
-    title: `Context window: ${usedText} used, ${limitText} limit, ${remaining}% remaining`,
-    value: `${usedText} (${remaining}%)`,
+    title: `Context window: ${usedText} used (legacy /context) - ${sdkUsedText} used (SDK usage), ${limitText} limit, ${remaining}% remaining`,
+    value: `${usedText} - ${sdkUsedText} (${remaining}%)`,
   };
 }
 

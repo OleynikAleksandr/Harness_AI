@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream2.task1",
-  "expectedCommitMessage": "feat: show dual claude token figures and cache chip",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "chore: package claude cache telemetry build",
   "debt": null
 }
 ```
@@ -87,13 +87,13 @@
 
 ### Stream: Telemetry Display
 
-7. [IN_PROGRESS] `harness-ai.phase2.stream2.task1` Show the dual Tokens figure in usage-context-telemetry: read the optional `sdkUsed` field, render the Tokens value as `"<legacy> - <sdk> (<percent>%)"` (dash-separated; percent still from the legacy figure) when `sdkUsed` is present, keep the single-figure format otherwise, and verify the existing `cached` path shows the Cache chip for Claude events; update the facade test and module doc (scope: `usage-context-telemetry/src/usage-context-telemetry-facade.ts` + paired `usage-context-telemetry-facade.test.mjs` + `usage-context-telemetry/module.md`; expected commit: `feat: show dual claude token figures and cache chip`).
-8. [TODO] Git Commit: `feat: show dual claude token figures and cache chip` (hash: TBD)
+7. [DONE] `harness-ai.phase2.stream2.task1` Show the dual Tokens figure in usage-context-telemetry: read the optional `sdkUsed` field, render the Tokens value as `"<legacy> - <sdk> (<percent>%)"` (dash-separated; percent still from the legacy figure) when `sdkUsed` is present, keep the single-figure format otherwise, and verify the existing `cached` path shows the Cache chip for Claude events; update the facade test and module doc (scope: `usage-context-telemetry/src/usage-context-telemetry-facade.ts` + paired `usage-context-telemetry-facade.test.mjs` + `usage-context-telemetry/module.md`; expected commit: `feat: show dual claude token figures and cache chip`). Result: Completed in commit `feat: show dual claude token figures and cache chip`.
+8. [DONE] Git Commit: `feat: show dual claude token figures and cache chip` (hash: self)
 
 ## Phase 3 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-14)
 
 ### Stream: Package And Retest
 
-9. [TODO] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package claude cache telemetry build`).
+9. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package claude cache telemetry build`).
 10. [TODO] Git Commit: `chore: package claude cache telemetry build` (hash: TBD)
 11. [TODO] `harness-ai.phase3.stream1.task2` User retests in the packaged app: Claude status panel shows two dash-separated Tokens figures (legacy vs SDK) and the Cache chip with cache-read tokens; the user compares the figures across real turns to decide (in a future scope) whether the legacy `/context` probe can be retired (scope: user workflow; expected commit: none).

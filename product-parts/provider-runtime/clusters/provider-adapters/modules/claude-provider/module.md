@@ -176,6 +176,14 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   `buildTokenUsageSnapshot` result as a `token_usage` stream event, deduped
   per provider session until the figures change — the status panel ticks
   after every agent-loop API call instead of waiting for turn end.
+- Subagent token usage (Codex parity, 2026-07-14): the subagent observer
+  extracts `message.usage` from agent-JSONL assistant records
+  (`extractClaudeSubagentTokenUsage`: `used` = input + cache_read +
+  cache_creation, `cached` = cache_read) and emits the newest figures to the
+  child session channel as the same `token_usage` stream event the primary
+  channel uses, deduped per agent until the figures change; `limit` stays 0
+  (the JSONL never reports a context window) so the telemetry facade keeps
+  its default.
 - Turn-completion token usage: `claude-usage-sync.ts`'s
   `readCompletionPayload` builds the same tracker snapshot for the
   `turn_completed` payload (no CLI subprocess; `postTurnTokenUsageUnavailable`

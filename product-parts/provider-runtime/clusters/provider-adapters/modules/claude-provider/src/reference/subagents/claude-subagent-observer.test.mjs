@@ -271,5 +271,88 @@ assert.equal(
   "pended terminal re-emits on the next scan"
 );
 
+// --- Token usage streaming (Codex subagent parity): each new last-call
+// usage read from the agent JSONL reaches the child channel once.
+rmSync(join(projectDir, parentId), { force: true, recursive: true });
+writeFileSync(parentPath, "");
+mkdirSync(subagentsDir, { recursive: true });
+writeFileSync(
+  join(subagentsDir, "agent-eee555.meta.json"),
+  JSON.stringify({
+    agentType: "Explore",
+    description: "Token usage agent",
+    toolUseId: "toolu_eee555",
+    spawnDepth: 1,
+  })
+);
+const usageRecord = (uuid, usage) =>
+  `${JSON.stringify({
+    type: "assistant",
+    uuid,
+    timestamp: "2026-07-14T12:00:00.000Z",
+    isSidechain: true,
+    agentId: "eee555",
+    message: {
+      model: "claude-opus-4-8",
+      role: "assistant",
+      content: [{ type: "text", text: `step ${uuid}` }],
+      usage,
+    },
+  })}\n`;
+appendFileSync(
+  join(subagentsDir, "agent-eee555.jsonl"),
+  usageRecord("eee555-r1", {
+    input_tokens: 5,
+    cache_read_input_tokens: 1000,
+    cache_creation_input_tokens: 200,
+  })
+);
+const usageEmitter = makeEmitter();
+const usageObserver = new ClaudeSubagentObserver({
+  emitter: usageEmitter,
+  now: () => "usage-ts",
+  parentProviderSessionId: parentId,
+  projectsDir,
+});
+await usageObserver.hydrate();
+const usageEvents = () =>
+  usageEmitter.childEvents.filter(
+    (entry) => entry.payload?.data?.kind === "token_usage"
+  );
+assert.equal(usageEvents().length, 1);
+assert.equal(usageEvents()[0].childId, "agent-eee555");
+assert.deepEqual(usageEvents()[0].payload.tokenUsage, {
+  cached: 1000,
+  limit: 0,
+  used: 1205,
+});
+assert.deepEqual(usageEvents()[0].payload.data, {
+  kind: "token_usage",
+  used: 1205,
+  limit: 0,
+  cached: 1000,
+});
+
+// A rescan without new records must not re-emit the same figures.
+await usageObserver.stopTurnPolling();
+assert.equal(usageEvents().length, 1);
+
+// A new API call appended to the JSONL emits the fresh figures once.
+appendFileSync(
+  join(subagentsDir, "agent-eee555.jsonl"),
+  usageRecord("eee555-r2", {
+    input_tokens: 6,
+    cache_read_input_tokens: 1400,
+    cache_creation_input_tokens: 0,
+  })
+);
+await usageObserver.stopTurnPolling();
+assert.equal(usageEvents().length, 2);
+assert.deepEqual(usageEvents()[1].payload.tokenUsage, {
+  cached: 1400,
+  limit: 0,
+  used: 1406,
+});
+
 rmSync(projectsDir, { force: true, recursive: true });
 console.log("claude-subagent-observer tests passed");

@@ -17,6 +17,7 @@ const {
   buildClaudeSubagentSpawnEvents,
   buildClaudeSubagentTerminalStatusEvent,
   extractClaudeSubagentModel,
+  extractClaudeSubagentTokenUsage,
   isClaudeChildProviderSessionId,
   mapClaudeSubagentTerminalStatus,
   normalizeClaudeSubagentTranscriptRecord,
@@ -191,5 +192,35 @@ assert.deepEqual(
   ),
   []
 );
+
+// Token usage extraction (Codex subagent parity): used = input +
+// cache_read + cache_creation, cached = cache_read; empty or non-assistant
+// records yield null.
+assert.deepEqual(
+  extractClaudeSubagentTokenUsage({
+    type: "assistant",
+    message: {
+      usage: {
+        input_tokens: 8,
+        cache_read_input_tokens: 1200,
+        cache_creation_input_tokens: 300,
+        output_tokens: 40,
+      },
+    },
+  }),
+  { cached: 1200, used: 1508 }
+);
+assert.equal(
+  extractClaudeSubagentTokenUsage({
+    type: "assistant",
+    message: { usage: { output_tokens: 5 } },
+  }),
+  null
+);
+assert.equal(
+  extractClaudeSubagentTokenUsage({ type: "user", message: { usage: {} } }),
+  null
+);
+assert.equal(extractClaudeSubagentTokenUsage({ type: "assistant" }), null);
 
 console.log("claude-subagent-event-normalizer tests passed");

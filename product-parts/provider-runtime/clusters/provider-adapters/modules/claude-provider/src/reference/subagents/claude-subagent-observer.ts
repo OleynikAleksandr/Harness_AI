@@ -1,8 +1,11 @@
+import crypto from "node:crypto";
 import type { ProviderSubagentEvent } from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   buildClaudeSubagentSpawnEvents,
   buildClaudeSubagentTerminalStatusEvent,
+  type ClaudeSubagentTokenUsage,
   extractClaudeSubagentModel,
+  extractClaudeSubagentTokenUsage,
   normalizeClaudeSubagentTranscriptRecord,
   toClaudeChildProviderSessionId,
 } from "./claude-subagent-event-normalizer.js";
@@ -39,6 +42,7 @@ export interface ClaudeSubagentObserverOptions {
 
 interface TrackedSubagent {
   readonly cursor: JsonlTailCursor;
+  lastTokenUsage: ClaudeSubagentTokenUsage | null;
   readonly meta: ClaudeSubagentMeta;
   model: string | null;
   spawnEmitted: boolean;
@@ -154,6 +158,7 @@ export class ClaudeSubagentObserver {
       if (!this.agents.has(discovery.meta.agentId)) {
         this.agents.set(discovery.meta.agentId, {
           cursor: createJsonlTailCursor(),
+          lastTokenUsage: null,
           meta: discovery.meta,
           model: null,
           spawnEmitted: false,
@@ -243,6 +248,7 @@ export class ClaudeSubagentObserver {
     }
     const childId = toClaudeChildProviderSessionId(agent.meta.agentId);
     const fallbackTimestamp = this.now();
+    let latestTokenUsage: ClaudeSubagentTokenUsage | null = null;
     for (const record of records) {
       for (const message of normalizeClaudeSubagentTranscriptRecord(
         record,
@@ -250,7 +256,50 @@ export class ClaudeSubagentObserver {
       )) {
         this.emitter.emitToChild(childId, message);
       }
+      const tokenUsage = extractClaudeSubagentTokenUsage(record);
+      if (tokenUsage) {
+        latestTokenUsage = tokenUsage;
+      }
     }
+    this.emitTokenUsage(agent, childId, latestTokenUsage, fallbackTimestamp);
+  }
+
+  // Codex subagent parity: each new last-call usage read from the agent
+  // JSONL reaches the child session as the same token_usage stream event the
+  // primary channel emits; limit stays 0 (the JSONL never reports a context
+  // window), so the telemetry facade keeps its default.
+  private emitTokenUsage(
+    agent: TrackedSubagent,
+    childId: string,
+    latestTokenUsage: ClaudeSubagentTokenUsage | null,
+    timestamp: string
+  ): void {
+    if (
+      !latestTokenUsage ||
+      (agent.lastTokenUsage &&
+        agent.lastTokenUsage.used === latestTokenUsage.used &&
+        agent.lastTokenUsage.cached === latestTokenUsage.cached)
+    ) {
+      return;
+    }
+    agent.lastTokenUsage = latestTokenUsage;
+    this.emitter.emitToChild(childId, {
+      type: "stream_event",
+      claudeSessionId: childId,
+      tokenUsage: {
+        cached: latestTokenUsage.cached,
+        limit: 0,
+        used: latestTokenUsage.used,
+      },
+      data: {
+        kind: "token_usage",
+        used: latestTokenUsage.used,
+        limit: 0,
+        cached: latestTokenUsage.cached,
+      },
+      uuid: `${crypto.randomUUID()}::token_usage`,
+      timestamp,
+    });
   }
 
   private async locateParentTranscript(): Promise<string | null> {

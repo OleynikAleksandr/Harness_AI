@@ -116,6 +116,37 @@ export const extractClaudeSubagentModel = (record: unknown): string | null => {
     : null;
 };
 
+// Subagent token usage projected into the same token_usage stream event the
+// primary Claude channel emits (Codex subagent parity): `used` = last-call
+// input + cache_read + cache_creation, `cached` = last-call cache read. The
+// agent JSONL never reports a context window, so `limit` stays 0 downstream
+// and the telemetry facade keeps its default.
+export interface ClaudeSubagentTokenUsage {
+  readonly cached: number;
+  readonly used: number;
+}
+
+const readTokenCount = (value: unknown): number =>
+  typeof value === "number" && Number.isFinite(value) ? value : 0;
+
+export const extractClaudeSubagentTokenUsage = (
+  record: unknown
+): ClaudeSubagentTokenUsage | null => {
+  if (!isRecord(record) || record.type !== "assistant") {
+    return null;
+  }
+  const message = record.message;
+  if (!(isRecord(message) && isRecord(message.usage))) {
+    return null;
+  }
+  const cached = readTokenCount(message.usage.cache_read_input_tokens);
+  const used =
+    readTokenCount(message.usage.input_tokens) +
+    cached +
+    readTokenCount(message.usage.cache_creation_input_tokens);
+  return used > 0 ? { cached, used } : null;
+};
+
 export const normalizeClaudeSubagentTranscriptRecord = (
   record: unknown,
   fallbackTimestamp: string

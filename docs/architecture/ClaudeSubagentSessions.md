@@ -105,6 +105,10 @@ history-loader — разные каналы).
    нормализация:
    - meta.json → `subagent_control` (spawn) + `subagent_session`;
    - `toolUseResult` → `subagent_status` (терминальный);
+   - `message.usage` assistant-записей → `token_usage` для child-канала
+     (`used` = input + cache_read + cache_creation, `cached` = cache_read,
+     limit 0 — окно контекста в JSONL не сообщается; паритет с
+     Codex-сабагентами, добавлено 2026-07-14);
    - записи agent-JSONL → message-события транскрипта child-канала в тех же
      форматах, что использует основной поток (`assistant`, thinking-диалог);
      переиспользуются существующие правила эмиссии messaging-модуля.

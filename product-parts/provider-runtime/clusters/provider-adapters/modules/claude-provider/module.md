@@ -156,44 +156,33 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   reported — directly on `ActiveSession.sdkUsage` so other messaging
   collaborators can read it off the session object they already receive
   (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
-- Token usage snapshot merge (`claude-token-usage-snapshot.ts`, pure — no
-  CLI/session imports so it is unit-testable on its own): `TokenUsageSnapshot`
-  keeps the legacy `/context`-scrape `used`/`limit` untouched and adds two
-  optional fields sourced from the SDK usage tracker's snapshot — `cached`
-  (= last-call `cacheReadInputTokens`, Codex parity for the Cache chip) and
-  `sdkUsed` (= last-call `inputTokens + cacheReadInputTokens +
-  cacheCreationInputTokens`, a temporary diagnostic pending user comparison
-  against the legacy figure). Both stay absent (not zero) until
-  `ActiveSession.sdkUsage` exists. `claude-token-usage-sync.ts` builds every
-  snapshot through this merge, so the `token_usage` stream event and (via
-  `claude-message-finish-handler.ts`'s existing pass-through) the
-  `turn_completed` payload both carry the enriched snapshot without further
-  wiring (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
+- Token usage snapshot (`claude-token-usage-snapshot.ts`, pure — no
+  CLI/session imports so it is unit-testable on its own): the SDK usage
+  tracker's snapshot is the ONLY token-usage source — the legacy `/context`
+  CLI probe subsystem retired on 2026-07-14 by user order after its figure
+  and the SDK figure matched. `buildTokenUsageSnapshot` maps
+  `ActiveSession.sdkUsage` to `{used, limit, cached}`: `used` = last-call
+  `inputTokens + cacheReadInputTokens + cacheCreationInputTokens` (current
+  context size), `cached` = last-call `cacheReadInputTokens` (Codex parity
+  for the Cache chip), `limit` = tracker `contextWindow` (0 until the turn's
+  `result.modelUsage` reports it — the telemetry facade then keeps its
+  previous limit).
 - Live per-cycle token usage (`claude-live-usage-emitter.ts`, Codex parity):
   right after the SDK usage tracker records an assistant message,
-  `message-processor.ts` asks the emitter to forward a full
-  `{used, limit, cached}` snapshot (`buildLiveTokenUsageSnapshot`) as a
-  `token_usage` stream event, deduped per provider session until the figures
-  change — the status panel ticks after every agent-loop API call instead of
-  waiting for turn end. `limit` is 0 until the turn's `result.modelUsage`
-  reports the context window; the telemetry facade then keeps its previous
-  limit.
-- Probe-less SDK usage emission (2026-07-14 acceptance fix): when the legacy
-  `/context` probe yields no snapshot or throws, `claude-token-usage-sync.ts`
-  still emits the `token_usage` stream event with only the tracker's
-  `cached`/`sdkUsed` figures (`buildSdkOnlyTokenUsage`, deduped per session
-  until the figures change); the usage-context-telemetry facade merges such
-  partial events by keeping the previous legacy `used`, so the Cache chip and
-  the SDK diagnostic figure no longer die with the probe.
-- Per-read probe env (2026-07-14 acceptance fix): `ContextUsageReaderConfig`
-  carries a `resolveEnv` callback (wired to the adapter's auth environment)
-  instead of a one-shot env snapshot; `claude-context-usage-reader.ts` and
-  `claude-usage-sync.ts`'s rate-limit reads resolve it at every use. The old
-  snapshot was taken at adapter initialize, which races the global-home
-  liveness preflight (`withProviderHomeEnv`) and froze the probe onto
-  `~/.harness-ai/providers/claude/home` while turns write transcripts to the
-  workspace-local provider home — `--resume` then answered "No conversation
-  found" and the legacy Tokens figure never updated.
+  `message-processor.ts` asks the emitter to forward the
+  `buildTokenUsageSnapshot` result as a `token_usage` stream event, deduped
+  per provider session until the figures change — the status panel ticks
+  after every agent-loop API call instead of waiting for turn end.
+- Turn-completion token usage: `claude-usage-sync.ts`'s
+  `readCompletionPayload` builds the same tracker snapshot for the
+  `turn_completed` payload (no CLI subprocess; `postTurnTokenUsageUnavailable`
+  only when no SDK usage streamed) and refreshes the shared usage limits.
+- Per-use usage environment (`ClaudeUsageEnvironmentConfig.resolveEnv`,
+  2026-07-14 fix): the rate-limit reads in `claude-usage-sync.ts` resolve the
+  adapter auth environment at every use instead of a one-shot snapshot, which
+  raced the global-home liveness preflight (`withProviderHomeEnv`) and froze
+  onto `~/.harness-ai/providers/claude/home` while sessions live in the
+  workspace-local provider home.
 
 ## Owned Paths
 

@@ -13,12 +13,7 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
-const {
-  areTokenUsageSnapshotsEqual,
-  buildSdkOnlyTokenUsage,
-  buildTokenUsageSnapshot,
-  computeSdkUsed,
-} = await import(moduleUrl);
+const { buildTokenUsageSnapshot, computeSdkUsed } = await import(moduleUrl);
 
 const sdkUsage = {
   cacheCreationInputTokens: 113,
@@ -28,68 +23,32 @@ const sdkUsage = {
   outputTokens: 58,
 };
 
-// sdkUsed sums the last API call's input + cache_read + cache_creation,
-// matching the Agent SDK's documented current-context-size formula.
+// The used figure sums the last API call's input + cache_read +
+// cache_creation, matching the Agent SDK's documented current-context-size
+// formula.
 assert.equal(computeSdkUsed(sdkUsage), 8 + 27_280 + 113);
 
-// With an SDK snapshot, the legacy /context figures merge with cached (=
-// cache_read_input_tokens, Codex parity) and the sdkUsed diagnostic figure.
+// The panel snapshot comes straight from the tracker (the legacy /context
+// probe retired 2026-07-14): used = context size, cached = last-call cache
+// read (Codex parity), limit = the reported context window.
+assert.deepEqual(buildTokenUsageSnapshot(sdkUsage), {
+  cached: 27_280,
+  limit: 200_000,
+  used: 27_401,
+});
+
+// Before result.modelUsage reports the window, limit is 0 so the telemetry
+// facade keeps its previous limit.
 assert.deepEqual(
-  buildTokenUsageSnapshot({ used: 40_000, limit: 200_000 }, sdkUsage),
+  buildTokenUsageSnapshot({ ...sdkUsage, contextWindow: null }),
   {
     cached: 27_280,
-    limit: 200_000,
-    sdkUsed: 8 + 27_280 + 113,
-    used: 40_000,
+    limit: 0,
+    used: 27_401,
   }
 );
 
-// Without an SDK snapshot yet (e.g. before the first assistant message),
-// the legacy used/limit pass through unchanged and cached/sdkUsed stay
-// absent rather than fabricated as zero.
-const legacyOnly = buildTokenUsageSnapshot(
-  { used: 40_000, limit: 200_000 },
-  undefined
-);
-assert.deepEqual(legacyOnly, { used: 40_000, limit: 200_000 });
-assert.equal("cached" in legacyOnly, false);
-assert.equal("sdkUsed" in legacyOnly, false);
-
-// Equality holds when every field matches, including the new optional ones.
-assert.equal(
-  areTokenUsageSnapshotsEqual(
-    { used: 1, limit: 2, cached: 3, sdkUsed: 4 },
-    { used: 1, limit: 2, cached: 3, sdkUsed: 4 }
-  ),
-  true
-);
-
-// A cached-only change (legacy used/limit unchanged) must still be treated
-// as a change, so a fresh SDK usage reading is not suppressed as a
-// redundant /context-probe repeat.
-assert.equal(
-  areTokenUsageSnapshotsEqual(
-    { used: 1, limit: 2, cached: 3, sdkUsed: 4 },
-    { used: 1, limit: 2, cached: 30, sdkUsed: 4 }
-  ),
-  false
-);
-
-// A snapshot with no SDK fields differs from one that has gained them.
-assert.equal(
-  areTokenUsageSnapshotsEqual(
-    { used: 1, limit: 2 },
-    { used: 1, limit: 2, cached: 0, sdkUsed: 0 }
-  ),
-  false
-);
-
-// Probe-less emission (2026-07-14 acceptance): the SDK figures stand on
-// their own when the legacy /context probe yields nothing.
-assert.deepEqual(buildSdkOnlyTokenUsage(sdkUsage), {
-  cached: 27_280,
-  sdkUsed: 8 + 27_280 + 113,
-});
-assert.equal(buildSdkOnlyTokenUsage(undefined), null);
+// No SDK usage yet (before the first assistant message) -> no snapshot.
+assert.equal(buildTokenUsageSnapshot(undefined), null);
 
 console.log("claude-token-usage-snapshot tests passed");

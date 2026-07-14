@@ -6,11 +6,11 @@ import type {
   ModuleReporter,
 } from "../types.js";
 import {
+  type ClaudeUsageEnvironmentConfig,
   ClaudeUsageSync,
-  type ContextUsageReaderConfig,
 } from "./claude-usage-sync.js";
 
-export type { ContextUsageReaderConfig } from "./claude-usage-sync.js";
+export type { ClaudeUsageEnvironmentConfig } from "./claude-usage-sync.js";
 
 interface ClaudeMessageFinishHandlerOptions {
   readonly providerId?: string;
@@ -27,8 +27,8 @@ export class ClaudeMessageFinishHandler {
     this.usageSync = new ClaudeUsageSync(options);
   }
 
-  configureContextUsageReader(config: ContextUsageReaderConfig): void {
-    this.usageSync.configureContextUsageReader(config);
+  configureUsageEnvironment(config: ClaudeUsageEnvironmentConfig): void {
+    this.usageSync.configureUsageEnvironment(config);
   }
 
   emitTurnStarted(session: ActiveSession, claudeSessionId: string): void {

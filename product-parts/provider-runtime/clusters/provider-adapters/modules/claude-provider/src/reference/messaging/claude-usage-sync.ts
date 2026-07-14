@@ -8,24 +8,33 @@ import type {
   ClaudeUsageLimitsStreamPayload,
   ModuleReporter,
 } from "../types.js";
-import type { TokenUsageSnapshot as ClaudeTokenUsageSnapshot } from "./claude-token-usage-snapshot.js";
-import type {
-  ContextUsageReaderConfig as ClaudeContextUsageReaderConfig,
-  TokenUsageReadResult as ClaudeTokenUsageReadResult,
-} from "./claude-token-usage-sync.js";
 import {
-  ClaudeTokenUsageSync,
-  resolveClaudeProviderSessionId,
-} from "./claude-token-usage-sync.js";
+  buildTokenUsageSnapshot,
+  type TokenUsageSnapshot as ClaudeTokenUsageSnapshot,
+} from "./claude-token-usage-snapshot.js";
 
 const CLAUDE_RUNTIME_RATE_LIMIT_INFO_ENV_KEY =
   "CODEAI_CLAUDE_RATE_LIMIT_INFO_PAYLOAD";
+const TEMP_SESSION_PREFIX = "temp_";
 
 export type { TokenUsageSnapshot } from "./claude-token-usage-snapshot.js";
-export type {
-  ContextUsageReaderConfig,
-  TokenUsageReadResult,
-} from "./claude-token-usage-sync.js";
+
+// Environment used by the shared rate-limit reads; resolved at every use so
+// the active provider home is honored (the legacy `/context` probe that this
+// config once configured retired 2026-07-14).
+export interface ClaudeUsageEnvironmentConfig {
+  readonly resolveEnv: () => NodeJS.ProcessEnv;
+}
+
+const resolveClaudeProviderSessionId = (
+  session: ActiveSession,
+  claudeSessionId: string | null | undefined
+): string | null => {
+  const candidate = claudeSessionId ?? session.sessionId;
+  return !candidate || candidate.startsWith(TEMP_SESSION_PREFIX)
+    ? null
+    : candidate;
+};
 
 interface ClaudeUsageSyncOptions {
   readonly providerId?: string;
@@ -109,23 +118,19 @@ export class ClaudeUsageSync {
   private readonly latestRuntimeUsageLimitsPayload = new Map<string, string>();
   private readonly providerId: string;
   private readonly reporter?: ModuleReporter;
-  private readonly tokenUsageSync: ClaudeTokenUsageSync;
   private readonly usageLimitsFacade?: ClaudeUsageLimitsFacadeBridge;
   private resolveUsageLimitsEnvironment: (() => NodeJS.ProcessEnv) | undefined;
 
   constructor(options: ClaudeUsageSyncOptions) {
     this.providerId = options.providerId ?? "claude";
     this.reporter = options.reporter;
-    this.tokenUsageSync = new ClaudeTokenUsageSync(options);
     this.usageLimitsFacade = options.usageLimitsFacade;
   }
 
-  configureContextUsageReader(config: ClaudeContextUsageReaderConfig): void {
-    // Per-use env resolution, matching the context-usage reader: a one-shot
-    // snapshot freezes onto whichever provider home was active at adapter
-    // initialize (2026-07-14 acceptance fix).
+  configureUsageEnvironment(config: ClaudeUsageEnvironmentConfig): void {
+    // Per-use env resolution: a one-shot snapshot freezes onto whichever
+    // provider home was active at adapter initialize (2026-07-14 fix).
     this.resolveUsageLimitsEnvironment = config.resolveEnv;
-    this.tokenUsageSync.configureContextUsageReader(config);
   }
 
   async readCompletionPayload(
@@ -136,20 +141,24 @@ export class ClaudeUsageSync {
     readonly tokenUsage?: ClaudeTokenUsageSnapshot | null;
     readonly usageLimits?: ClaudeUsageLimits;
   }> {
-    const tokenUsageResult: ClaudeTokenUsageReadResult =
-      await this.tokenUsageSync.readTokenUsage(session, claudeSessionId, {
-        force: true,
-      });
+    // Turn-completion snapshot straight from the SDK usage tracker; mid-turn
+    // updates already streamed via ClaudeLiveUsageEmitter.
+    const resolvedId = this.resolveTokenUsageSessionId(
+      session,
+      claudeSessionId
+    );
+    const tokenUsage = resolvedId
+      ? buildTokenUsageSnapshot(session.sdkUsage)
+      : null;
     const usageLimits = await this.refreshUsageLimitsFromUsage(
       session,
       claudeSessionId,
       { force: true }
     );
     return {
-      tokenUsage: tokenUsageResult.tokenUsage,
+      tokenUsage,
       usageLimits,
-      postTurnTokenUsageUnavailable:
-        tokenUsageResult.postTurnTokenUsageUnavailable,
+      postTurnTokenUsageUnavailable: !tokenUsage,
     };
   }
 

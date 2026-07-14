@@ -78,8 +78,10 @@ child-каналы. Core-контракты, read-model и UI-компонент
 источник правды — структурные RPC app-server (`thread/list`, `thread/read`).
 У Claude SDK структурного API перечисления сабагентов нет; каталог
 `subagents/**` и есть его native-формат хранения. Прецедент файлового чтения
-в claude-provider уже есть и принят архитектурой: context-usage tail reader
-(`claude-context-usage-provider-jsonl.ts`). Проверка живых данных показала,
+в claude-provider был принят архитектурой ещё context-usage tail reader-ом
+(`claude-context-usage-provider-jsonl.ts`; сам probe выведен из эксплуатации
+2026-07-14 — токены теперь идут из SDK usage tracker, но файловый прецедент
+остаётся в силе для сабагентов). Проверка живых данных показала,
 что SDK-стрим основной сессии не доставляет транскрипт сабагентов
 (пересечение uuid событий Core-лога и сабагентских JSONL — ноль), поэтому
 файловый источник — единственный полный. Правило «UI не классифицирует»
@@ -95,7 +97,8 @@ history-loader — разные каналы).
 1. **`reference/subagents/claude-subagent-files.ts`** — файловый слой:
    - скан `<projects>/<slug>/<sessionId>/subagents/` (пары meta.json + jsonl);
    - парс meta.json;
-   - инкрементальный tail JSONL по offset (подход context-usage tail reader):
+   - инкрементальный tail JSONL по offset (подход ныне выведенного
+     context-usage tail reader-а):
      дочитывание новых строк agent-JSONL и родительского JSONL;
    - извлечение `toolUseResult` с `agentId` из родительских записей.
 2. **`reference/subagents/claude-subagent-event-normalizer.ts`** — чистая

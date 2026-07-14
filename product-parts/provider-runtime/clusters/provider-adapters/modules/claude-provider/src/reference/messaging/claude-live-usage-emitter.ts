@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 import type { ActiveSession } from "../session/types.js";
 import type { ClaudeStreamMessage } from "../types.js";
 import {
-  buildLiveTokenUsageSnapshot,
-  type LiveTokenUsageSnapshot,
+  buildTokenUsageSnapshot,
+  type TokenUsageSnapshot,
 } from "./claude-token-usage-snapshot.js";
 
 const TEMP_SESSION_PREFIX = "temp_";
@@ -17,7 +17,7 @@ interface ClaudeLiveUsageEmitterOptions {
 // assistant message, and this emitter forwards changed snapshots so the
 // status panel ticks during the turn instead of waiting for turn end.
 export class ClaudeLiveUsageEmitter {
-  private readonly lastEmitted = new Map<string, LiveTokenUsageSnapshot>();
+  private readonly lastEmitted = new Map<string, TokenUsageSnapshot>();
   private readonly providerId: string;
 
   constructor(options: ClaudeLiveUsageEmitterOptions = {}) {
@@ -29,7 +29,7 @@ export class ClaudeLiveUsageEmitter {
     if (!claudeSessionId || claudeSessionId.startsWith(TEMP_SESSION_PREFIX)) {
       return;
     }
-    const snapshot = buildLiveTokenUsageSnapshot(session.sdkUsage);
+    const snapshot = buildTokenUsageSnapshot(session.sdkUsage);
     if (!snapshot) {
       return;
     }

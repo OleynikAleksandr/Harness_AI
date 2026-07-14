@@ -13,7 +13,7 @@ import type {
 import { ClaudeLiveUsageEmitter } from "./claude-live-usage-emitter.js";
 import {
   ClaudeMessageFinishHandler,
-  type ContextUsageReaderConfig,
+  type ClaudeUsageEnvironmentConfig,
 } from "./claude-message-finish-handler.js";
 import { ClaudeSdkUsageTracker } from "./claude-sdk-usage-tracker.js";
 import { ClaudeStreamEventRouter } from "./claude-stream-event-router.js";
@@ -98,8 +98,8 @@ export class SDKMessageProcessor {
     });
   }
 
-  configureContextUsageReader(config: ContextUsageReaderConfig): void {
-    this.finishHandler.configureContextUsageReader(config);
+  configureUsageEnvironment(config: ClaudeUsageEnvironmentConfig): void {
+    this.finishHandler.configureUsageEnvironment(config);
   }
 
   proactiveUsageLimitsRefresh(

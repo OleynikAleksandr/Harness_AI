@@ -1,14 +1,15 @@
 import type { ClaudeSdkUsageSnapshot } from "./claude-sdk-usage-tracker.js";
 
+// Panel snapshot built straight from the SDK usage tracker (the legacy
+// `/context` CLI probe retired 2026-07-14 by user order after its figure and
+// the SDK figure matched): `used` is the current context size (last-call
+// input + cache_read + cache_creation), `cached` the last-call cache read
+// (Codex parity for the Cache chip), `limit` the model context window —
+// 0 until the turn's `result.modelUsage` reports it, in which case the
+// telemetry facade keeps its previous limit.
 export interface TokenUsageSnapshot {
-  // Last-API-call cache read, SDK usage tracker parity with Codex's Cache
-  // chip; absent when no SDK usage has streamed yet this session.
-  readonly cached?: number;
+  readonly cached: number;
   readonly limit: number;
-  // Last-API-call input + cache_read + cache_creation, a temporary
-  // diagnostic figure shown next to the legacy `/context` scrape until the
-  // two are confirmed to match (docs/evidence/claude-cache-telemetry-research-2026-07-14.md).
-  readonly sdkUsed?: number;
   readonly used: number;
 }
 
@@ -18,33 +19,8 @@ export const computeSdkUsed = (sdkUsage: ClaudeSdkUsageSnapshot): number =>
   sdkUsage.cacheCreationInputTokens;
 
 export const buildTokenUsageSnapshot = (
-  legacy: { readonly limit: number; readonly used: number },
   sdkUsage: ClaudeSdkUsageSnapshot | undefined
-): TokenUsageSnapshot => ({
-  ...(sdkUsage
-    ? {
-        cached: sdkUsage.cacheReadInputTokens,
-        sdkUsed: computeSdkUsed(sdkUsage),
-      }
-    : {}),
-  limit: legacy.limit,
-  used: legacy.used,
-});
-
-// Full panel snapshot straight from the SDK usage tracker, emitted after
-// every agent-loop API call (Codex parity): `used` is the current context
-// size, `cached` the last-call cache read, `limit` the model context window
-// (0 until `result.modelUsage` reports it — the telemetry facade then keeps
-// its previous limit).
-export interface LiveTokenUsageSnapshot {
-  readonly cached: number;
-  readonly limit: number;
-  readonly used: number;
-}
-
-export const buildLiveTokenUsageSnapshot = (
-  sdkUsage: ClaudeSdkUsageSnapshot | undefined
-): LiveTokenUsageSnapshot | null =>
+): TokenUsageSnapshot | null =>
   sdkUsage
     ? {
         cached: sdkUsage.cacheReadInputTokens,
@@ -52,30 +28,3 @@ export const buildLiveTokenUsageSnapshot = (
         used: computeSdkUsed(sdkUsage),
       }
     : null;
-
-// The SDK usage channel must not die with the legacy probe: when `/context`
-// yields no snapshot the provider still reports the tracker's last-call
-// figures on their own (2026-07-14 acceptance fix).
-export interface SdkOnlyTokenUsage {
-  readonly cached: number;
-  readonly sdkUsed: number;
-}
-
-export const buildSdkOnlyTokenUsage = (
-  sdkUsage: ClaudeSdkUsageSnapshot | undefined
-): SdkOnlyTokenUsage | null =>
-  sdkUsage
-    ? {
-        cached: sdkUsage.cacheReadInputTokens,
-        sdkUsed: computeSdkUsed(sdkUsage),
-      }
-    : null;
-
-export const areTokenUsageSnapshotsEqual = (
-  left: TokenUsageSnapshot,
-  right: TokenUsageSnapshot
-): boolean =>
-  left.used === right.used &&
-  left.limit === right.limit &&
-  left.cached === right.cached &&
-  left.sdkUsed === right.sdkUsed;

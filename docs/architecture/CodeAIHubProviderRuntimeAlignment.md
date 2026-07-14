@@ -120,7 +120,7 @@ Required behavior:
 - Replace `claude --print` wrapper behavior with the Claude Agent SDK manager/session path.
 - Preserve SDK query options for `cwd`, `projectPath`, `additionalDirectories`, `settingSources`, `systemPrompt`, `tools`, `model`, `effort`, `thinking`, `resume`, and structured output.
 - Preserve thinking stream handling: content block start/delta/stop, thinking live buffer, text live buffer, final thinking reconciliation, and `dialog_message` emissions tagged as `thinking`.
-- Preserve auth/home bridge, usage/context probes, stale binding handling, and runtime profile behavior.
+- Preserve auth/home bridge, usage/context probes, stale binding handling, and runtime profile behavior. (The migrated `/context` probe was later retired on 2026-07-14: token usage now streams from the Agent SDK usage tracker per API call.)
 - In the packaged macOS app, preserve reference installer behavior while augmenting the npm runner PATH for GUI launches so Homebrew npm can be found before Claude SDK setup.
 
 ### Codex

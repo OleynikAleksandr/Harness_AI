@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream2.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": "feat: stream claude subagent token usage",
   "debt": null
 }
 ```
@@ -131,3 +131,18 @@
 27. [DONE] `harness-ai.phase5.stream2.task1` Package the app with live token usage (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package live claude token usage build`). Result: Completed in commit `chore: package live claude token usage build`.
 28. [DONE] Git Commit: `chore: package live claude token usage build` (hash: self)
 29. [IN_PROGRESS] `harness-ai.phase5.stream2.task2` User retests in the packaged app: Claude Tokens/Cache figures update during the turn after every agent-loop cycle (Codex parity), a single Tokens figure remains after the dual diagnostic removal, and restored sessions stay healthy (scope: user workflow; expected commit: none).
+
+## Phase 6 - Subagent Token Usage (owner: Codex + User, updated: 2026-07-14)
+
+### Stream: Subagent Usage
+
+30. [DONE] `harness-ai.phase6.stream1.task1` Stop the parent panel jumping while subagents run: the main SDK stream interleaves subagent assistant messages (`parent_tool_use_id` set) whose usage describes the SUBAGENT context, so `claude-sdk-usage-tracker.ts` must ignore them instead of overwriting `ActiveSession.sdkUsage` (the live emitter then stays silent via its dedup); cover with a tracker test and update the module doc (scope: `claude-provider/src/reference/messaging/claude-sdk-usage-tracker.ts` + paired `claude-sdk-usage-tracker.test.mjs` + `claude-provider/module.md`; expected commit: `fix: ignore subagent usage in parent tracker`). Result: Completed in commit `fix: ignore subagent usage in parent tracker`.
+31. [DONE] Git Commit: `fix: ignore subagent usage in parent tracker` (hash: self)
+32. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Stream Claude subagent token usage into the child sessions (Codex parity): extract `message.usage` from agent-JSONL assistant records in `claude-subagent-event-normalizer.ts` (`used` = input + cache_read + cache_creation, `cached` = cache_read, limit stays 0 — the facade keeps the 200k default) and emit a deduped `token_usage` stream event to the child channel from `claude-subagent-observer.ts`'s replay loop; cover with normalizer/observer tests and update the module doc plus `docs/architecture/ClaudeSubagentSessions.md` (scope: `claude-provider/src/reference/subagents/claude-subagent-event-normalizer.ts, claude-provider/src/reference/subagents/claude-subagent-observer.ts` + paired tests + `claude-provider/module.md`, `docs/architecture/ClaudeSubagentSessions.md`; expected commit: `feat: stream claude subagent token usage`).
+33. [TODO] Git Commit: `feat: stream claude subagent token usage` (hash: TBD)
+
+### Stream: Package And Retest
+
+34. [TODO] `harness-ai.phase6.stream2.task1` Package the app with subagent token usage (`npm run package:mac` after clearing `dist/runtime`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package subagent token usage build`).
+35. [TODO] Git Commit: `chore: package subagent token usage build` (hash: TBD)
+36. [TODO] `harness-ai.phase6.stream2.task2` User retests in the packaged app: the parent Claude panel stays on the parent context while subagents run (no jumping), and each Claude subagent session shows its own live Tokens/Cache like Codex subagents (scope: user workflow; expected commit: none).

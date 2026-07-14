@@ -195,4 +195,32 @@ const resultMessage = (modelUsage) => ({
   assert.equal(sessionB.sdkUsage.inputTokens, 2);
 }
 
+// Subagent messages interleaved into the main stream (parent_tool_use_id
+// set) describe the SUBAGENT context and never touch the parent snapshot
+// (2026-07-14 fix: the parent panel jumped between contexts).
+{
+  const tracker = new ClaudeSdkUsageTracker();
+  const session = {};
+  tracker.recordMessage(
+    session,
+    assistantMessage("msg_parent", {
+      input_tokens: 10,
+      cache_read_input_tokens: 30_000,
+    })
+  );
+  tracker.recordMessage(session, {
+    ...assistantMessage("msg_sub", {
+      input_tokens: 4,
+      cache_read_input_tokens: 5000,
+    }),
+    parent_tool_use_id: "toolu_task_1",
+  });
+  assert.equal(session.sdkUsage.cacheReadInputTokens, 30_000);
+  tracker.recordMessage(session, {
+    ...resultMessage({ haiku: { contextWindow: 200_000 } }),
+    parent_tool_use_id: "toolu_task_1",
+  });
+  assert.equal(session.sdkUsage.contextWindow, null);
+}
+
 console.log("claude-sdk-usage-tracker tests passed");

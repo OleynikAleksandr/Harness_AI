@@ -150,7 +150,10 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   flowing through `message-processor.ts`'s `dispatchMessage`, without a
   second CLI subprocess. Dedupes repeated `assistant` messages that share
   one `message.id` (parallel tool_use content blocks report the same
-  API-call usage) and keeps the snapshot — `inputTokens`,
+  API-call usage), ignores subagent messages interleaved into the main
+  stream (`parent_tool_use_id` set — their usage describes the SUBAGENT
+  context and previously made the parent panel jump while subagents ran;
+  2026-07-14 fix) and keeps the snapshot — `inputTokens`,
   `cacheReadInputTokens`, `cacheCreationInputTokens`, `outputTokens`, plus
   `contextWindow` merged in from the turn's `result.modelUsage` once
   reported — directly on `ActiveSession.sdkUsage` so other messaging

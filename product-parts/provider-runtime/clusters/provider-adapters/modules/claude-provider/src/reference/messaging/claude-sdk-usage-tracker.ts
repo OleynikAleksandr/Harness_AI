@@ -65,6 +65,16 @@ export class ClaudeSdkUsageTracker {
   >();
 
   recordMessage(session: ActiveSession, message: ClaudeStreamMessage): void {
+    // The main SDK stream interleaves subagent messages (parent_tool_use_id
+    // set); their usage describes the SUBAGENT context and must not
+    // overwrite the parent snapshot (2026-07-14 fix — the parent panel
+    // jumped between contexts while subagents ran).
+    if (
+      typeof message.parent_tool_use_id === "string" &&
+      message.parent_tool_use_id.length > 0
+    ) {
+      return;
+    }
     if (message.type === "assistant") {
       this.recordAssistantMessage(session, message);
       return;

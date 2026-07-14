@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": "fix: emit claude sdk usage without context probe",
   "debt": null
 }
 ```
@@ -96,4 +96,21 @@
 
 9. [DONE] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package claude cache telemetry build`). Result: Completed in commit `chore: package claude cache telemetry build`.
 10. [DONE] Git Commit: `chore: package claude cache telemetry build` (hash: self)
-11. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` User retests in the packaged app: Claude status panel shows two dash-separated Tokens figures (legacy vs SDK) and the Cache chip with cache-read tokens; the user compares the figures across real turns to decide (in a future scope) whether the legacy `/context` probe can be retired (scope: user workflow; expected commit: none).
+11. [DONE] `harness-ai.phase3.stream1.task2` User retests in the packaged app: Claude status panel shows two dash-separated Tokens figures (legacy vs SDK) and the Cache chip with cache-read tokens; the user compares the figures across real turns to decide (in a future scope) whether the legacy `/context` probe can be retired (scope: user workflow; expected commit: none). Result: user retested on 2026-07-14 and rejected the build — Claude Tokens stays `0 (100%)`, no Cache chip, and restored Codex sessions show "Provider setup needed: Cannot read properties of undefined (reading 'toLocaleString')"; live diagnosis confirmed three defects (facade crash on restored telemetry, SDK figures coupled to the dead probe, probe env frozen to the global provider home) — handled in Phase 4.
+
+## Phase 4 - Acceptance Fixes (owner: Codex + User, updated: 2026-07-14)
+
+### Stream: Telemetry Hardening
+
+12. [DONE] `harness-ai.phase4.stream1.task1` Harden usage-context-telemetry against restored telemetry: normalize `tokenUsage` inside `buildTelemetry` (undefined `sdkUsed`/`cached` from pre-upgrade persisted history become `null`), make `mergeTokenUsage`/`formatTokenUsage` null-safe, accept probe-less events that carry only `cached`/`sdkUsed` (no `used`) by keeping the previous `used`; add a regression test that JSON-round-trips a pre-upgrade telemetry object (no `sdkUsed` key) through `applyBinding`/`applyStatus`/`applyProviderEvent` without throwing (scope: `usage-context-telemetry/src/usage-context-telemetry-facade.ts` + paired `usage-context-telemetry-facade.test.mjs` + `usage-context-telemetry/module.md`; expected commit: `fix: harden telemetry against restored token usage`). Result: Completed in commit `fix: harden telemetry against restored token usage`.
+13. [DONE] Git Commit: `fix: harden telemetry against restored token usage` (hash: self)
+14. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` Decouple the SDK usage channel from the legacy probe in claude-provider: when the `/context` probe returns no snapshot (or throws) but `session.sdkUsage` exists, still emit the `token_usage` stream event carrying `cached` and `sdkUsed` (no legacy `used`/`limit` fabrication — the facade keeps the previous `used`); cover with a module test and update the module doc (scope: `claude-provider/src/reference/messaging/claude-token-usage-sync.ts, claude-provider/src/reference/messaging/claude-token-usage-snapshot.ts` + paired test + `claude-provider/module.md`; expected commit: `fix: emit claude sdk usage without context probe`).
+15. [TODO] Git Commit: `fix: emit claude sdk usage without context probe` (hash: TBD)
+16. [TODO] `harness-ai.phase4.stream1.task3` Fix the probe provider-home split: the context-usage reader must resolve its env at every read (per-read `resolveEnv` callback wired from the adapter's `resolveAuthEnvironment`) instead of the one-shot env snapshot taken at adapter initialize, which the global-home liveness preflight races and freezes to `~/.harness-ai/providers/claude/home` while turns write transcripts to the workspace-local provider home (scope: `claude-provider/src/reference/sdk/claude-sdk-manager.ts, claude-provider/src/reference/sdk/claude-context-usage-reader.ts, claude-provider/src/reference/messaging/claude-token-usage-sync.ts` + paired test + `claude-provider/module.md`; expected commit: `fix: resolve claude probe env per read`).
+17. [TODO] Git Commit: `fix: resolve claude probe env per read` (hash: TBD)
+
+### Stream: Package And Retest
+
+18. [TODO] `harness-ai.phase4.stream2.task1` Repackage the app with the acceptance fixes (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: repackage claude cache telemetry build`).
+19. [TODO] Git Commit: `chore: repackage claude cache telemetry build` (hash: TBD)
+20. [TODO] `harness-ai.phase4.stream2.task2` User retests in the packaged app: restored sessions bind without "Provider setup needed" errors, Claude status panel shows the dual Tokens figures and the Cache chip on a fresh session, and the two figures come from independent sources (scope: user workflow; expected commit: none).

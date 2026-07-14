@@ -184,3 +184,55 @@ const claudeNoSdkYet = usageContextTelemetryFacade.applyProviderEvent(claude, {
   type: "stream_event",
 });
 assert.equal(claudeNoSdkYet.tokenDisplay.value, "1,200 (99%)");
+
+// Regression (2026-07-14 acceptance): telemetry restored from persisted
+// session history written by a pre-sdkUsed build has no `sdkUsed` key at all
+// (undefined after the JSON round-trip). Every facade entry point must
+// normalize instead of crashing with "Cannot read properties of undefined
+// (reading 'toLocaleString')", which broke provider binding for every
+// restored session.
+const { sdkUsed: _droppedByOldBuild, ...preUpgradeTokenUsage } =
+  codexCached.tokenUsage;
+const restored = JSON.parse(
+  JSON.stringify({ ...codexCached, tokenUsage: preUpgradeTokenUsage })
+);
+assert.equal("sdkUsed" in restored.tokenUsage, false);
+const restoredBound = usageContextTelemetryFacade.applyBinding(restored, {
+  providerSessionId: "thread-1",
+  status: "ready",
+});
+assert.equal(restoredBound.tokenDisplay.value, "19,000 (90%)");
+assert.equal(restoredBound.tokenUsage.sdkUsed, null);
+const restoredRunning = usageContextTelemetryFacade.applyStatus(
+  restored,
+  "running"
+);
+assert.equal(restoredRunning.status, "running");
+const restoredRefreshed = usageContextTelemetryFacade.applyProviderEvent(
+  restored,
+  {
+    data: {
+      kind: "token_usage",
+      tokenUsage: { cached: 8000, limit: 200_000, used: 21_000 },
+    },
+    type: "stream_event",
+  }
+);
+assert.equal(restoredRefreshed.tokenDisplay.value, "21,000 (89%)");
+
+// Probe-less Claude event (2026-07-14 acceptance): when the legacy /context
+// probe is unavailable the provider still emits cached/sdkUsed without any
+// legacy `used`; the facade keeps the previous `used` figure and shows the
+// Cache chip instead of dropping the event.
+const claudeProbeLess = usageContextTelemetryFacade.applyProviderEvent(claude, {
+  data: {
+    kind: "token_usage",
+    tokenUsage: { cached: 26_500, sdkUsed: 27_400 },
+  },
+  type: "stream_event",
+});
+assert.equal(claudeProbeLess.tokenDisplay.value, "0 - 27,400 (100%)");
+assert.equal(claudeProbeLess.cacheDisplay?.value, "26,500");
+assert.equal(claudeProbeLess.tokenUsage.used, 0);
+
+console.log("usage-context-telemetry-facade tests passed");

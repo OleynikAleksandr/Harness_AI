@@ -3,9 +3,8 @@ export type ProviderTurnStatus = "idle" | "running" | "stopped";
 export interface ProviderTokenUsage {
   cached: number | null;
   limit: number;
-  // Claude-only temporary diagnostic: last-API-call SDK usage
-  // (input + cache_read + cache_creation), shown dash-separated next to the
-  // legacy `/context`-scrape `used` until the two are confirmed to match
+  // Claude-only temporary diagnostic: last-API-call SDK usage, dash-separated
+  // next to the legacy `/context` `used` until the two are confirmed to match
   // (docs/evidence/claude-cache-telemetry-research-2026-07-14.md).
   sdkUsed: number | null;
   used: number;
@@ -132,7 +131,7 @@ export class UsageContextTelemetryFacade {
     current: ProviderUsageTelemetry,
     event: unknown
   ): ProviderUsageTelemetry {
-    const tokenUsage = readTokenUsage(event);
+    const tokenUsage = readTokenUsagePatch(event);
     const usageLimits = readUsageLimits(event);
     if (!(tokenUsage || usageLimits)) {
       return current;
@@ -152,19 +151,28 @@ export class UsageContextTelemetryFacade {
   }
 }
 
+// A provider event may carry only part of the figures (e.g. a probe-less
+// Claude event without a legacy `used`); merge keeps every absent field.
+interface ProviderTokenUsagePatch {
+  cached: number | null;
+  limit: number;
+  sdkUsed: number | null;
+  used: number | null;
+}
+
 function mergeTokenUsage(
   current: ProviderUsageTelemetry,
-  next: ProviderTokenUsage
+  next: ProviderTokenUsagePatch
 ): ProviderTokenUsage {
   return {
     cached: mergeCachedTokenCount({
-      current: current.tokenUsage.cached,
+      current: current.tokenUsage.cached ?? null,
       next: next.cached,
       providerId: current.providerId,
     }),
     limit: next.limit || current.tokenUsage.limit,
-    sdkUsed: next.sdkUsed ?? current.tokenUsage.sdkUsed,
-    used: next.used,
+    sdkUsed: next.sdkUsed ?? current.tokenUsage.sdkUsed ?? null,
+    used: next.used ?? current.tokenUsage.used ?? 0,
   };
 }
 
@@ -197,16 +205,25 @@ function buildTelemetry(value: {
   usageLimits: ProviderUsageLimits | null;
 }): ProviderUsageTelemetry {
   const labels = value.usageLimitLabels ?? fallbackLabels(value.providerId);
+  // Telemetry restored from persisted history may predate newer token-usage
+  // fields (undefined after the JSON round-trip); normalize before formatting.
+  const tokenUsage: ProviderTokenUsage = {
+    cached: value.tokenUsage.cached ?? null,
+    limit: value.tokenUsage.limit ?? 0,
+    sdkUsed: value.tokenUsage.sdkUsed ?? null,
+    used: value.tokenUsage.used ?? 0,
+  };
   return {
     ...value,
-    cacheDisplay: formatCacheUsage(value.tokenUsage),
+    tokenUsage,
+    cacheDisplay: formatCacheUsage(tokenUsage),
     limitRows: buildLimitRows({
       labels,
       providerId: value.providerId,
       usageLimits: value.usageLimits,
     }),
     providerScopeKey: providerScopeKey(value.providerId),
-    tokenDisplay: formatTokenUsage(value.tokenUsage),
+    tokenDisplay: formatTokenUsage(tokenUsage),
     updatedAt: new Date().toISOString(),
     usageLimitLabels: labels,
   };
@@ -262,7 +279,7 @@ function limitRow(
   };
 }
 
-function readTokenUsage(event: unknown): ProviderTokenUsage | null {
+function readTokenUsagePatch(event: unknown): ProviderTokenUsagePatch | null {
   const root = isRecord(event) ? event : null;
   const data = isRecord(root?.data) ? root.data : null;
   let candidate = isRecord(root?.tokenUsage) ? root.tokenUsage : null;
@@ -279,7 +296,11 @@ function readTokenUsage(event: unknown): ProviderTokenUsage | null {
   const limit = readNumber(candidate.limit) ?? 0;
   const cached = readCachedTokenCount(candidate);
   const sdkUsed = readNumber(candidate.sdkUsed);
-  if (used === null || used < 0) {
+  if (used !== null && used < 0) {
+    return null;
+  }
+  // Probe-less events carry only cached/sdkUsed; no figure at all is noise.
+  if (used === null && cached === null && sdkUsed === null) {
     return null;
   }
   return { cached, sdkUsed, used, limit: Math.max(0, limit) };
@@ -395,9 +416,8 @@ function pendingLimitState(providerId: string): "loading" | "unavailable" {
 }
 
 function providerScopeKey(providerId: string): string | null {
-  // Only the native vendor channels carry a provider-scoped usage limit; the
-  // retired glm-native/openrouter/ACP-kimi provider scopes left with the
-  // 2026-07-05 cleanups.
+  // Only the native vendor channels carry a provider-scoped usage limit;
+  // retired provider scopes left with the 2026-07-05 cleanups.
   if (providerId === "claude") {
     return "claude:global";
   }
@@ -418,8 +438,7 @@ function defaultTokenLimit(providerId: string): number {
 }
 
 function hasFiveHourWindow(providerId: string): boolean {
-  // The live GLM coding-plan endpoint (`glm-client`) keeps the five-hour
-  // window; the ACP `kimi` match left with the kimi-provider retirement.
+  // Only the GLM coding plan (`glm-*`) keeps the five-hour window.
   return providerId.startsWith("glm-");
 }
 

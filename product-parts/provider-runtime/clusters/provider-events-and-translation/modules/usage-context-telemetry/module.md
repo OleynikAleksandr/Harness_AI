@@ -36,6 +36,15 @@ Own usage limits and context-window signals derived from provider events.
   `cached`), and is a temporary diagnostic pending user comparison of the two
   figures before a future scope retires the legacy probe
   (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
+- Restored-telemetry hardening: `buildTelemetry` normalizes `tokenUsage`
+  before any formatting, so telemetry objects restored from persisted session
+  history written by older builds (no `sdkUsed`/`cached` keys after the JSON
+  round-trip) pass through `applyBinding`/`applyStatus`/`applyProviderEvent`
+  without crashing (2026-07-14 acceptance fix).
+- Partial token-usage events: a provider event may carry only
+  `cached`/`sdkUsed` without a legacy `used` figure (probe-less Claude
+  emission); the merge keeps the previous `used`/`limit` and still updates the
+  Cache chip and the SDK diagnostic figure (2026-07-14 acceptance fix).
 - Warning/limit state.
 - Provider usage scope keys are limited to native vendor account scopes:
   `claude:global` and the Codex account scope `codex:global`. GLM OpenCode dropped its scope with the GLM

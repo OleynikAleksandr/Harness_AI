@@ -297,6 +297,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   a single horizontal divider with a centered gap holding the localized
   "Subagents launched" label and a launch counter that grows in place as
   consecutive launches join the group.
+- `docs/evidence/claude-cache-telemetry-research-2026-07-14.md` — research
+  evidence for the claude-cache-telemetry scope: live headless experiment
+  proving Claude SDK returns per-turn cache usage (`cache_read` /
+  `cache_creation` input tokens), Agent SDK usage-field rules, the current
+  `/context`-scrape token path, and the user decision to show dual
+  dash-separated Tokens figures plus a Codex-parity Cache chip.
 - `docs/evidence/codex-child-recovery-package-2026-07-12.md` — explicitly
   user-approved macOS arm64 rebuild after filtering ancestor turns out of
   restored child transcripts and preserving interrupted/failed/completed turn

@@ -26,25 +26,19 @@ Own usage limits and context-window signals derived from provider events.
   context-window `used` value still follows the latest provider report.
   Providers without that signal keep the field `null`.
 - `tokenDisplay` renders as a single `"<used> (<percent>%)"` figure for every
-  provider, except when a normalized token-usage event carries the
-  Claude-only temporary diagnostic field `sdkUsed` (last-API-call
-  `input + cache_read + cache_creation` from the Agent SDK, alongside the
-  legacy `/context`-scrape `used`): then the value becomes
-  `"<used> - <sdkUsed> (<percent>%)"`, dash-separated, with the percent still
-  computed from the legacy `used`/`limit` pair. `sdkUsed` persists across a
-  later event that omits it (same latest-wins-but-not-erased merge as
-  `cached`), and is a temporary diagnostic pending user comparison of the two
-  figures before a future scope retires the legacy probe
-  (`docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
+  provider. For Claude, `used` now streams from the Agent SDK usage tracker
+  after every agent-loop API call, so the figure and percent tick live during
+  the turn (the legacy `/context` scrape and the temporary dash-separated
+  dual-figure diagnostic retired 2026-07-14 by user order after both figures
+  matched; `docs/evidence/claude-cache-telemetry-research-2026-07-14.md`).
+  Mid-turn Claude events may carry `limit: 0` until the turn's
+  `result.modelUsage` reports the context window — the merge keeps the
+  previous limit.
 - Restored-telemetry hardening: `buildTelemetry` normalizes `tokenUsage`
   before any formatting, so telemetry objects restored from persisted session
-  history written by older builds (no `sdkUsed`/`cached` keys after the JSON
-  round-trip) pass through `applyBinding`/`applyStatus`/`applyProviderEvent`
-  without crashing (2026-07-14 acceptance fix).
-- Partial token-usage events: a provider event may carry only
-  `cached`/`sdkUsed` without a legacy `used` figure (probe-less Claude
-  emission); the merge keeps the previous `used`/`limit` and still updates the
-  Cache chip and the SDK diagnostic figure (2026-07-14 acceptance fix).
+  history written by older builds (missing newer token-usage keys after the
+  JSON round-trip) pass through `applyBinding`/`applyStatus`/
+  `applyProviderEvent` without crashing (2026-07-14 acceptance fix).
 - Warning/limit state.
 - Provider usage scope keys are limited to native vendor account scopes:
   `claude:global` and the Codex account scope `codex:global`. GLM OpenCode dropped its scope with the GLM

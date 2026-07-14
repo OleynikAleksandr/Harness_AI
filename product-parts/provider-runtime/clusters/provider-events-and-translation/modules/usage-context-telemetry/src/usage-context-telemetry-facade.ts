@@ -3,10 +3,6 @@ export type ProviderTurnStatus = "idle" | "running" | "stopped";
 export interface ProviderTokenUsage {
   cached: number | null;
   limit: number;
-  // Claude-only temporary diagnostic: last-API-call SDK usage, dash-separated
-  // next to the legacy `/context` `used` until the two are confirmed to match
-  // (docs/evidence/claude-cache-telemetry-research-2026-07-14.md).
-  sdkUsed: number | null;
   used: number;
 }
 
@@ -81,7 +77,6 @@ export class UsageContextTelemetryFacade {
     const tokenUsage = {
       cached: defaultCachedTokenCount(request.providerId),
       limit: defaultTokenLimit(request.providerId),
-      sdkUsed: null,
       used: 0,
     };
     return buildTelemetry({
@@ -131,7 +126,7 @@ export class UsageContextTelemetryFacade {
     current: ProviderUsageTelemetry,
     event: unknown
   ): ProviderUsageTelemetry {
-    const tokenUsage = readTokenUsagePatch(event);
+    const tokenUsage = readTokenUsage(event);
     const usageLimits = readUsageLimits(event);
     if (!(tokenUsage || usageLimits)) {
       return current;
@@ -151,18 +146,9 @@ export class UsageContextTelemetryFacade {
   }
 }
 
-// A provider event may carry only part of the figures (e.g. a probe-less
-// Claude event without a legacy `used`); merge keeps every absent field.
-interface ProviderTokenUsagePatch {
-  cached: number | null;
-  limit: number;
-  sdkUsed: number | null;
-  used: number | null;
-}
-
 function mergeTokenUsage(
   current: ProviderUsageTelemetry,
-  next: ProviderTokenUsagePatch
+  next: ProviderTokenUsage
 ): ProviderTokenUsage {
   return {
     cached: mergeCachedTokenCount({
@@ -171,8 +157,7 @@ function mergeTokenUsage(
       providerId: current.providerId,
     }),
     limit: next.limit || current.tokenUsage.limit,
-    sdkUsed: next.sdkUsed ?? current.tokenUsage.sdkUsed ?? null,
-    used: next.used ?? current.tokenUsage.used ?? 0,
+    used: next.used,
   };
 }
 
@@ -210,7 +195,6 @@ function buildTelemetry(value: {
   const tokenUsage: ProviderTokenUsage = {
     cached: value.tokenUsage.cached ?? null,
     limit: value.tokenUsage.limit ?? 0,
-    sdkUsed: value.tokenUsage.sdkUsed ?? null,
     used: value.tokenUsage.used ?? 0,
   };
   return {
@@ -279,7 +263,7 @@ function limitRow(
   };
 }
 
-function readTokenUsagePatch(event: unknown): ProviderTokenUsagePatch | null {
+function readTokenUsage(event: unknown): ProviderTokenUsage | null {
   const root = isRecord(event) ? event : null;
   const data = isRecord(root?.data) ? root.data : null;
   let candidate = isRecord(root?.tokenUsage) ? root.tokenUsage : null;
@@ -295,15 +279,10 @@ function readTokenUsagePatch(event: unknown): ProviderTokenUsagePatch | null {
     readNumber(candidate.total_tokens);
   const limit = readNumber(candidate.limit) ?? 0;
   const cached = readCachedTokenCount(candidate);
-  const sdkUsed = readNumber(candidate.sdkUsed);
-  if (used !== null && used < 0) {
+  if (used === null || used < 0) {
     return null;
   }
-  // Probe-less events carry only cached/sdkUsed; no figure at all is noise.
-  if (used === null && cached === null && sdkUsed === null) {
-    return null;
-  }
-  return { cached, sdkUsed, used, limit: Math.max(0, limit) };
+  return { cached, used, limit: Math.max(0, limit) };
 }
 
 function readUsageLimits(event: unknown): ProviderUsageLimits | null {
@@ -355,16 +334,9 @@ function formatTokenUsage(tokenUsage: ProviderTokenUsage): {
     : 0;
   const usedText = tokenUsage.used.toLocaleString();
   const limitText = limit?.toLocaleString() ?? "unknown";
-  if (tokenUsage.sdkUsed === null) {
-    return {
-      title: `Context window: ${usedText} used, ${limitText} limit, ${remaining}% remaining`,
-      value: `${usedText} (${remaining}%)`,
-    };
-  }
-  const sdkUsedText = tokenUsage.sdkUsed.toLocaleString();
   return {
-    title: `Context window: ${usedText} used (legacy /context) - ${sdkUsedText} used (SDK usage), ${limitText} limit, ${remaining}% remaining`,
-    value: `${usedText} - ${sdkUsedText} (${remaining}%)`,
+    title: `Context window: ${usedText} used, ${limitText} limit, ${remaining}% remaining`,
+    value: `${usedText} (${remaining}%)`,
   };
 }
 

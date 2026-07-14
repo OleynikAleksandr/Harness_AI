@@ -125,11 +125,10 @@ const openRouterWithTokens = usageContextTelemetryFacade.applyProviderEvent(
 );
 assert.equal(openRouterWithTokens.tokenDisplay.value, "512 (100%)");
 
-// Claude carries a temporary dual-figure Tokens diagnostic: the legacy
-// /context scrape dash-separated with the SDK usage tracker's last-call
-// sdkUsed figure, while the Cache chip reads `cached` the same generic way
-// Codex does (Codex parity,
-// docs/evidence/claude-cache-telemetry-research-2026-07-14.md).
+// Claude token usage streams live from the SDK usage tracker after every
+// agent-loop API call (the legacy /context probe and the temporary
+// dual-figure diagnostic retired 2026-07-14); the Cache chip reads `cached`
+// the same generic way Codex does.
 const claude = usageContextTelemetryFacade.createTelemetry({
   model: "claude-sonnet-5",
   provider: "Claude",
@@ -139,70 +138,49 @@ assert.equal(claude.providerScopeKey, "claude:global");
 assert.equal(claude.tokenDisplay.value, "0 (100%)");
 assert.equal(claude.cacheDisplay, null);
 
-const claudeWithSdkUsage = usageContextTelemetryFacade.applyProviderEvent(
-  claude,
-  {
-    data: {
-      kind: "token_usage",
-      tokenUsage: {
-        cached: 27_280,
-        limit: 200_000,
-        sdkUsed: 27_401,
-        used: 27_500,
-      },
-    },
-    type: "stream_event",
-  }
-);
-assert.equal(claudeWithSdkUsage.tokenDisplay.value, "27,500 - 27,401 (86%)");
-assert.equal(claudeWithSdkUsage.cacheDisplay?.value, "27,280");
-
-// A later event without sdkUsed/cached (e.g. a raw /context-only refresh)
-// keeps the last known values instead of collapsing back to the
-// single-figure display or losing the Cache chip.
-const claudeLegacyOnlyRefresh = usageContextTelemetryFacade.applyProviderEvent(
-  claudeWithSdkUsage,
-  {
-    data: {
-      kind: "token_usage",
-      tokenUsage: { limit: 200_000, used: 27_600 },
-    },
-    type: "stream_event",
-  }
-);
-assert.equal(
-  claudeLegacyOnlyRefresh.tokenDisplay.value,
-  "27,600 - 27,401 (86%)"
-);
-assert.equal(claudeLegacyOnlyRefresh.cacheDisplay?.value, "27,280");
-
-// Claude without any SDK usage yet (e.g. the very first /context probe
-// before the first assistant message streamed) keeps the single-figure
-// format instead of fabricating a dash.
-const claudeNoSdkYet = usageContextTelemetryFacade.applyProviderEvent(claude, {
-  data: { kind: "token_usage", tokenUsage: { limit: 200_000, used: 1200 } },
+const claudeLiveUsage = usageContextTelemetryFacade.applyProviderEvent(claude, {
+  data: {
+    kind: "token_usage",
+    tokenUsage: { cached: 27_280, limit: 200_000, used: 27_401 },
+  },
   type: "stream_event",
 });
-assert.equal(claudeNoSdkYet.tokenDisplay.value, "1,200 (99%)");
+assert.equal(claudeLiveUsage.tokenDisplay.value, "27,401 (86%)");
+assert.equal(claudeLiveUsage.cacheDisplay?.value, "27,280");
+
+// Mid-turn events carry limit 0 until result.modelUsage reports the context
+// window; the previous limit is kept.
+const claudeMidTurn = usageContextTelemetryFacade.applyProviderEvent(
+  claudeLiveUsage,
+  {
+    data: {
+      kind: "token_usage",
+      tokenUsage: { cached: 27_500, limit: 0, used: 27_900 },
+    },
+    type: "stream_event",
+  }
+);
+assert.equal(claudeMidTurn.tokenUsage.limit, 200_000);
+assert.equal(claudeMidTurn.tokenDisplay.value, "27,900 (86%)");
+assert.equal(claudeMidTurn.cacheDisplay?.value, "27,500");
 
 // Regression (2026-07-14 acceptance): telemetry restored from persisted
-// session history written by a pre-sdkUsed build has no `sdkUsed` key at all
-// (undefined after the JSON round-trip). Every facade entry point must
-// normalize instead of crashing with "Cannot read properties of undefined
-// (reading 'toLocaleString')", which broke provider binding for every
-// restored session.
-const { sdkUsed: _droppedByOldBuild, ...preUpgradeTokenUsage } =
+// session history written by an older build may miss newer token-usage keys
+// entirely (undefined after the JSON round-trip). Every facade entry point
+// must normalize instead of crashing with "Cannot read properties of
+// undefined (reading 'toLocaleString')", which broke provider binding for
+// every restored session.
+const { cached: _droppedByOldBuild, ...preUpgradeTokenUsage } =
   codexCached.tokenUsage;
 const restored = JSON.parse(
   JSON.stringify({ ...codexCached, tokenUsage: preUpgradeTokenUsage })
 );
-assert.equal("sdkUsed" in restored.tokenUsage, false);
+assert.equal("cached" in restored.tokenUsage, false);
 const restoredBound = usageContextTelemetryFacade.applyBinding(restored, {
   providerSessionId: "thread-1",
   status: "ready",
 });
 assert.equal(restoredBound.tokenDisplay.value, "19,000 (90%)");
-assert.equal(restoredBound.tokenUsage.sdkUsed, null);
 const restoredRunning = usageContextTelemetryFacade.applyStatus(
   restored,
   "running"
@@ -219,20 +197,5 @@ const restoredRefreshed = usageContextTelemetryFacade.applyProviderEvent(
   }
 );
 assert.equal(restoredRefreshed.tokenDisplay.value, "21,000 (89%)");
-
-// Probe-less Claude event (2026-07-14 acceptance): when the legacy /context
-// probe is unavailable the provider still emits cached/sdkUsed without any
-// legacy `used`; the facade keeps the previous `used` figure and shows the
-// Cache chip instead of dropping the event.
-const claudeProbeLess = usageContextTelemetryFacade.applyProviderEvent(claude, {
-  data: {
-    kind: "token_usage",
-    tokenUsage: { cached: 26_500, sdkUsed: 27_400 },
-  },
-  type: "stream_event",
-});
-assert.equal(claudeProbeLess.tokenDisplay.value, "0 - 27,400 (100%)");
-assert.equal(claudeProbeLess.cacheDisplay?.value, "26,500");
-assert.equal(claudeProbeLess.tokenUsage.used, 0);
 
 console.log("usage-context-telemetry-facade tests passed");

@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream2.task1",
-  "expectedCommitMessage": "chore: package subagent token usage build",
+  "currentTaskId": "harness-ai.phase6.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -143,6 +143,6 @@
 
 ### Stream: Package And Retest
 
-34. [IN_PROGRESS] `harness-ai.phase6.stream2.task1` Package the app with subagent token usage (`npm run package:mac` after clearing `dist/runtime`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package subagent token usage build`).
-35. [TODO] Git Commit: `chore: package subagent token usage build` (hash: TBD)
-36. [TODO] `harness-ai.phase6.stream2.task2` User retests in the packaged app: the parent Claude panel stays on the parent context while subagents run (no jumping), and each Claude subagent session shows its own live Tokens/Cache like Codex subagents (scope: user workflow; expected commit: none).
+34. [DONE] `harness-ai.phase6.stream2.task1` Package the app with subagent token usage (`npm run package:mac` after clearing `dist/runtime`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package subagent token usage build`). Result: Completed in commit `chore: package subagent token usage build`.
+35. [DONE] Git Commit: `chore: package subagent token usage build` (hash: self)
+36. [IN_PROGRESS] `harness-ai.phase6.stream2.task2` User retests in the packaged app: the parent Claude panel stays on the parent context while subagents run (no jumping), and each Claude subagent session shows its own live Tokens/Cache like Codex subagents (scope: user workflow; expected commit: none).

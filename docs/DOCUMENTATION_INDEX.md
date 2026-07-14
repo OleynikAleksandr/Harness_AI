@@ -314,6 +314,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   full retirement of the legacy `/context` probe subsystem, single-figure
   Tokens display restored, orphaned-`dist/runtime` gotcha documented, and
   packaged-asar inspection.
+- `docs/evidence/claude-subagent-token-usage-package-2026-07-14.md` —
+  Phase 6 rebuild: the parent Claude panel no longer jumps while subagents
+  run (subagent messages filtered out of the parent usage tracker) and
+  Claude subagent sessions stream their own live Tokens/Cache from the
+  agent-JSONL observer (Codex subagent parity).
 - `docs/evidence/claude-cache-telemetry-package-2026-07-14.md` — macOS
   arm64 rebuild for the claude-cache-telemetry scope: the SDK usage tracker,
   the dual-figure Tokens display and the Claude Cache chip landed across

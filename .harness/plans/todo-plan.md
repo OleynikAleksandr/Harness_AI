@@ -8,8 +8,8 @@
   "planId": "claude-cache-telemetry-2026-07-14",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "chore: package claude cache telemetry build",
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -94,6 +94,6 @@
 
 ### Stream: Package And Retest
 
-9. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package claude cache telemetry build`).
-10. [TODO] Git Commit: `chore: package claude cache telemetry build` (hash: TBD)
-11. [TODO] `harness-ai.phase3.stream1.task2` User retests in the packaged app: Claude status panel shows two dash-separated Tokens figures (legacy vs SDK) and the Cache chip with cache-read tokens; the user compares the figures across real turns to decide (in a future scope) whether the legacy `/context` probe can be retired (scope: user workflow; expected commit: none).
+9. [DONE] `harness-ai.phase3.stream1.task1` Package the app for user verification (`npm run package:mac`, allowed by this plan) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package claude cache telemetry build`). Result: Completed in commit `chore: package claude cache telemetry build`.
+10. [DONE] Git Commit: `chore: package claude cache telemetry build` (hash: self)
+11. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` User retests in the packaged app: Claude status panel shows two dash-separated Tokens figures (legacy vs SDK) and the Cache chip with cache-read tokens; the user compares the figures across real turns to decide (in a future scope) whether the legacy `/context` probe can be retired (scope: user workflow; expected commit: none).

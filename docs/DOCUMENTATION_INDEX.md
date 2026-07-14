@@ -303,6 +303,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   `cache_creation` input tokens), Agent SDK usage-field rules, the current
   `/context`-scrape token path, and the user decision to show dual
   dash-separated Tokens figures plus a Codex-parity Cache chip.
+- `docs/evidence/claude-cache-telemetry-package-2026-07-14.md` — macOS
+  arm64 rebuild for the claude-cache-telemetry scope: the SDK usage tracker,
+  the dual-figure Tokens display and the Claude Cache chip landed across
+  three commits, all commit-hook gates passed (97 test groups), and the
+  packaged app is ready for the pending user-acceptance retest.
 - `docs/evidence/codex-child-recovery-package-2026-07-12.md` — explicitly
   user-approved macOS arm64 rebuild after filtering ancestor turns out of
   restored child transcripts and preserving interrupted/failed/completed turn

@@ -8,8 +8,8 @@
   "planId": "grok-provider-implementation-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task2",
-  "expectedCommitMessage": "build: package Grok provider for testing",
+  "currentTaskId": "harness-ai.phase7.stream1.task3",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -118,6 +118,6 @@
 
 37. [DONE] `harness-ai.phase7.stream1.task1` Run live installed-CLI integration checks for auth reuse, Native, Managed prompt/tools, models/reasoning, usage/cache, turns/rollback, permissions, MCP, resume and subagents; fix only evidenced gaps and record sanitized verification. Live wire evidence proved that installed `0.2.101` treats rewind `force: false` as preview-only and emits the subscription tier as `subscription_tier`, so this task also corrects the native conversation-only execute flag plus additive billing decoder and their contract tests/docs (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-rewind-client.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-rewind-client.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-billing-client.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-model-billing.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, docs/evidence/grok-provider-integration-plan-2026-07-16.md, docs/evidence/grok-provider-live-verification-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `test: verify Grok provider integration`). Result: Completed in commit `test: verify Grok provider integration`.
 38. [DONE] Git Commit: `test: verify Grok provider integration` (hash: self)
-39. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Build renderer/runtime and package a new macOS application, verify `release/mac-arm64/Harness AI.app` and its `app.asar`, then record package evidence for user testing (scope: `docs/evidence/grok-provider-package-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `build: package Grok provider for testing`).
-40. [TODO] Git Commit: `build: package Grok provider for testing` (hash: TBD)
-41. [TODO] `harness-ai.phase7.stream1.task3` User retests the Grok provider in the packaged app, with special acceptance of complete Codex-equivalent lower status-panel data and rollback behavior (scope: user workflow; expected commit: none).
+39. [DONE] `harness-ai.phase7.stream1.task2` Build renderer/runtime and package a new macOS application, verify `release/mac-arm64/Harness AI.app` and its `app.asar`, then record package evidence for user testing (scope: `docs/evidence/grok-provider-package-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `build: package Grok provider for testing`). Result: Completed in commit `build: package Grok provider for testing`.
+40. [DONE] Git Commit: `build: package Grok provider for testing` (hash: self)
+41. [IN_PROGRESS] `harness-ai.phase7.stream1.task3` User retests the Grok provider in the packaged app, with special acceptance of complete Codex-equivalent lower status-panel data and rollback behavior (scope: user workflow; expected commit: none).

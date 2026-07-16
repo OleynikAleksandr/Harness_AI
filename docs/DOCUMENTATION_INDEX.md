@@ -152,6 +152,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   resume/rewind, permission/ask-user/plan interactions, one-shot MCP stdio
   tool execution and native subagent routing, including the two evidenced wire
   decoder fixes.
+- `docs/evidence/grok-provider-package-2026-07-16.md` — macOS arm64 package
+  identity, app.asar contents and checksum, full quality/build results, exact
+  Codex-parity contract for the Grok lower status panel, and the packaged user
+  acceptance checklist.
 - `docs/evidence/subagent-session-design-qa-2026-07-11.md` — build и browser
   Design QA гибридного subagent UX: inline timeline entries, recursive sidebar
   tree, child read-only view, detach, rename/regenerate и visual comparison с

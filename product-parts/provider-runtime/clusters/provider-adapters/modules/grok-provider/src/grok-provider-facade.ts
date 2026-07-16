@@ -51,3 +51,9 @@ export type {
   GrokCliLocationOptions,
   GrokCliProbe,
 } from "./grok-cli-locator.js";
+export type {
+  GrokSessionRuntimeOptions,
+  GrokSessionStartResult,
+  GrokSessionTransport,
+} from "./grok-session-runtime.js";
+export { GrokSessionRuntime } from "./grok-session-runtime.js";

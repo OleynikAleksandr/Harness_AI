@@ -21,6 +21,24 @@ export interface GrokAcpResponse {
   readonly result?: unknown;
 }
 
+export interface GrokAcpAuthMethod {
+  readonly id: string;
+  readonly name?: string;
+}
+
+export interface GrokAcpInitializeResult {
+  readonly _meta?: Readonly<Record<string, unknown>>;
+  readonly agentCapabilities?: Readonly<Record<string, unknown>>;
+  readonly agentInfo?: Readonly<Record<string, unknown>>;
+  readonly authMethods?: readonly GrokAcpAuthMethod[];
+  readonly protocolVersion?: number;
+}
+
+export interface GrokAcpSessionSelection {
+  readonly modelId?: string;
+  readonly reasoningEffort?: string;
+}
+
 export type GrokAcpReverseRequestHandler = (
   request: GrokAcpRequest
 ) => Promise<unknown> | unknown;

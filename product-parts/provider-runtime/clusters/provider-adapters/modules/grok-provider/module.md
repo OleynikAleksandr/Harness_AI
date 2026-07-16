@@ -38,6 +38,13 @@ from unexpected exit, and rejects orphaned requests on every exit. The
 supervisor does not copy or inspect Grok authentication state; the child uses
 the installed CLI home directly.
 
+`GrokSessionRuntime` owns one immutable provider-session binding. It performs
+ACP v1 initialize, selects cached subscription authentication when advertised,
+creates or loads a session, applies model/reasoning selection, sends structured
+text content blocks, emits native cancel and closes the session process. Model
+switching uses installed-build `session/set_model` first and falls back only on
+method-not-found to `session/setModel` for source/build compatibility.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -54,6 +61,7 @@ the installed CLI home directly.
 - CLI version and structured readiness/auth status.
 - Typed ACP requests, responses, notifications and reverse-request dispatch.
 - Expected/unexpected ACP process exit and bounded diagnostic stderr.
+- Initialized/authenticated ACP session identity and applied model/reasoning.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

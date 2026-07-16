@@ -8,8 +8,8 @@
   "planId": "grok-provider-implementation-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "feat: add Grok ACP session lifecycle",
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": "feat: normalize Grok ACP events",
   "debt": null
 }
 ```
@@ -68,9 +68,9 @@
 
 ### Stream: Native Provider Behavior
 
-9. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Implement ACP initialize/authenticate/session-new/session-load/prompt/cancel/close lifecycle with immutable provider-session identity and model/reasoning application (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: add Grok ACP session lifecycle`).
-10. [TODO] Git Commit: `feat: add Grok ACP session lifecycle` (hash: TBD)
-11. [TODO] `harness-ai.phase3.stream1.task2` Normalize structured Grok assistant, reasoning, tool, plan, usage and failure updates into the provider adapter event contract without text classification (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: normalize Grok ACP events`).
+9. [DONE] `harness-ai.phase3.stream1.task1` Implement ACP initialize/authenticate/session-new/session-load/prompt/cancel/close lifecycle with immutable provider-session identity and model/reasoning application, exposed through the module facade (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: add Grok ACP session lifecycle`). Result: Completed in commit `feat: add Grok ACP session lifecycle`.
+10. [DONE] Git Commit: `feat: add Grok ACP session lifecycle` (hash: self)
+11. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Normalize structured Grok assistant, reasoning, tool, plan, usage and failure updates into the provider adapter event contract without text classification (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: normalize Grok ACP events`).
 12. [TODO] Git Commit: `feat: normalize Grok ACP events` (hash: TBD)
 13. [TODO] `harness-ai.phase3.stream1.task3` Implement Native/Managed profile application, verified Grok tool-category mapping and applied-profile proof with fail-closed managed binding and frozen resume behavior (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-profile-application.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-tool-inventory.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-profile-application.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, docs/architecture/SessionProfiles.md, docs/architecture/SessionProfilesV2.md, .harness/plans/todo-plan.md`; expected commit: `feat: apply Grok session profiles`).
 14. [TODO] Git Commit: `feat: apply Grok session profiles` (hash: TBD)

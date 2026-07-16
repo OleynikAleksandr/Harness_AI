@@ -155,7 +155,8 @@ readiness registry, liveness checker, and workspace provisioner modules.
   evidence for Kimi CLI `0.26.0` native capture across all three Coding Plan
   models: exact upstream model ids, distinct system hashes, the shared
   25-tool native schema set, raw/Markdown interpretation, redaction and
-  temporary-home cleanup; package rebuild remains pending explicit approval.
+  temporary-home cleanup; includes pre-package and packaged Settings UI smokes,
+  the macOS arm64 package identity and the packaged `app.asar` checksum.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

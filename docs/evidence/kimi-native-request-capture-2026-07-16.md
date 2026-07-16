@@ -96,6 +96,37 @@ For every pair:
 
 ## Package Status
 
-No `npm run package:mac` was run for this scope. The packaged `Harness AI.app`
-still requires separate explicit user confirmation before rebuild and manual
-Settings verification.
+The user explicitly approved the package rebuild on 2026-07-16.
+
+Before packaging, the freshly rebuilt source application was launched through
+Electron from `dist/renderer/index.html`. A macOS UI smoke check opened
+Settings -> General -> Native Request Capture, selected `kimi`, and
+successfully selected every catalog entry in order:
+
+- `K2.7 Coding`;
+- `K2.7 Coding HighSpeed`;
+- `K3`.
+
+The Kimi selection removed the Reasoning field as required by the Core catalog.
+This check established the rendered Settings behavior before the package step,
+not only the source-level descriptor contents.
+
+`npm run package:mac` then completed successfully, including a fresh typecheck,
+runtime build, renderer build and unsigned macOS arm64 directory package. The
+resulting application is:
+
+`release/mac-arm64/Harness AI.app`
+
+The packaged `app.asar` metadata is:
+
+- modified: `2026-07-16 20:39:16 +0200`;
+- size: `32,249,151` bytes;
+- SHA-256: `484bf1dd407a050dddb3b5e9a358916365648af2df194eefe0270da7c650ba5c`.
+
+The archive contains the exact Kimi model ids and labels from the Core catalog.
+After packaging, the installed artifact was launched from
+`release/mac-arm64/Harness AI.app/Contents/Resources/app.asar/dist/renderer/index.html`.
+The same macOS UI smoke check selected `kimi`, then `K2.7 Coding`,
+`K2.7 Coding HighSpeed` and `K3` in succession. Reasoning remained absent. The
+packaged application was left running on the Kimi `K3` selection for user
+testing.

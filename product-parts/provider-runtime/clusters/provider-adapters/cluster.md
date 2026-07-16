@@ -9,12 +9,14 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `provider-adapter-contract`
 - `claude-provider`
 - `codex-provider`
+- `grok-provider`
 - `kimi-client-provider`
 - `glm-client-provider`
 - `openrouter-client-provider`
 - `local-models-client-provider`
 
-Only the two native vendor channels (`claude-provider`, `codex-provider`) and
+Only the three native vendor channels (`claude-provider`, `codex-provider`,
+`grok-provider`) and
 the universal-client four remain. The retired `glm-native-provider`,
 `openrouter-provider`, `local-models-provider` and the orphaned
 `provider-turn-runner` were removed by the 2026-07-05 legacy cleanup; the ACP
@@ -54,6 +56,12 @@ adapter uses official `thread/list(ancestorThreadId)` and
 events. Ancestor-inherited collaboration items in a forked child history are
 excluded by structured agent-path/sender ownership, so sibling launches cannot
 become false nested calls. The adapter does not inspect provider JSONL files.
+
+Grok is a native subscription-backed channel over the official Grok Build ACP
+stdio process. Its module owns CLI discovery, cached-auth readiness, ACP
+transport, native session/profile/tool/permission/MCP/subagent translation and
+Codex-equivalent session telemetry. It is not part of the OpenAI-shape
+universal client.
 
 Codex reasoning effort types follow the live app-server catalog: GPT-5.6
 Sol/Terra add `max` and `ultra`, Luna adds `max`, while older picker-visible

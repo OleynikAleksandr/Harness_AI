@@ -349,6 +349,11 @@
               "purpose": "Codex provider adapter."
             },
             {
+              "id": "grok-provider",
+              "name": "Grok Provider",
+              "purpose": "Official Grok Build ACP provider adapter using CLI-owned subscription authentication."
+            },
+            {
               "id": "kimi-client-provider",
               "name": "Kimi Client Provider",
               "purpose": "Thin Kimi endpoint for the Core universal client: Kimi dialect specifics (api.kimi.com/coding/v1, kimi-for-coding, reasoning_content) and the ClientTurnRequest builder the Core agent loop runs."

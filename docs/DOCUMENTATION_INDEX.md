@@ -128,6 +128,10 @@ surface, process boundary, provider semantics, UI display contract or runtime
 state changes, update every affected product-part/cluster/module document in
 the same commit.
 
+The native provider module catalog includes `grok-provider`, whose contract is
+tracked by the module glob above and whose implementation baseline is recorded
+in `docs/evidence/grok-provider-integration-plan-2026-07-16.md`.
+
 Provider readiness docs are part of this product documentation tree under
 `product-parts/provider-runtime/clusters/provider-readiness/**`, including the
 readiness registry, liveness checker, and workspace provisioner modules.

@@ -20,6 +20,8 @@ provider-backed translation engines composed by Core Runtime only.
 - Own provider-specific runtime prompts or native project-instruction startup before requests reach external SDKs or CLIs.
 - Normalize provider events for Core Runtime, including structured native
   collaboration/subagent lifecycle events when a provider exposes them.
+- Own the official Grok Build ACP adapter and preserve the boundary between
+  SuperGrok subscription auth and separately billed xAI API routes.
 
 ## Out Of Scope
 

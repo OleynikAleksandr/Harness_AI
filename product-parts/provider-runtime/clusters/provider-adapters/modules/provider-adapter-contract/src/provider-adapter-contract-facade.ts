@@ -2,6 +2,85 @@ export interface ProviderTurnOptions {
   [key: string]: unknown;
 }
 
+export type ProviderInteractionKind =
+  | "permission"
+  | "ask_user"
+  | "plan_approval";
+
+export interface ProviderInteractionOption {
+  readonly description?: string;
+  readonly id: string;
+  readonly kind?: string;
+  readonly label: string;
+}
+
+export interface ProviderInteractionQuestion {
+  readonly allowFreeform: boolean;
+  readonly allowMultiple: boolean;
+  readonly header?: string;
+  readonly id: string;
+  readonly options: readonly ProviderInteractionOption[];
+  readonly prompt: string;
+}
+
+export interface ProviderInteractionRequestEvent {
+  readonly expiresAt?: string;
+  readonly interactionId: string;
+  readonly kind: ProviderInteractionKind;
+  readonly message: string;
+  readonly options: readonly ProviderInteractionOption[];
+  readonly plan?: string;
+  readonly provider: string;
+  readonly questions: readonly ProviderInteractionQuestion[];
+  readonly timestamp: string;
+  readonly title: string;
+  readonly toolCallId?: string;
+  readonly type: "provider_interaction_requested";
+}
+
+export interface ProviderInteractionResolvedEvent {
+  readonly interactionId: string;
+  readonly provider: string;
+  readonly reason: "cancelled" | "provider" | "submitted" | "timed_out";
+  readonly timestamp: string;
+  readonly type: "provider_interaction_resolved";
+}
+
+export interface ProviderInteractionDecision {
+  readonly answers?: Readonly<Record<string, string | readonly string[]>>;
+  readonly feedback?: string;
+  readonly interactionId: string;
+  readonly optionId?: string;
+  readonly outcome: "answered" | "approved" | "cancelled" | "selected";
+}
+
+export function isProviderInteractionRequestEvent(
+  value: unknown
+): value is ProviderInteractionRequestEvent {
+  return (
+    isInteractionRecord(value) &&
+    value.type === "provider_interaction_requested" &&
+    typeof value.interactionId === "string" &&
+    (value.kind === "permission" ||
+      value.kind === "ask_user" ||
+      value.kind === "plan_approval")
+  );
+}
+
+export function isProviderInteractionResolvedEvent(
+  value: unknown
+): value is ProviderInteractionResolvedEvent {
+  return (
+    isInteractionRecord(value) &&
+    value.type === "provider_interaction_resolved" &&
+    typeof value.interactionId === "string"
+  );
+}
+
+function isInteractionRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 /**
  * Provider-neutral session profile payload materialized by Core
  * (docs/architecture/SessionProfiles.md). Adapters translate it into their
@@ -195,6 +274,10 @@ export interface ProviderAdapter {
   refreshUsageLimits?(
     request: ProviderUsageLimitsRefreshRequest
   ): Promise<void> | void;
+  respondToInteraction?(
+    sessionId: string,
+    decision: ProviderInteractionDecision
+  ): Promise<void>;
   resumeSession?(
     sessionId: string,
     workspacePath?: string,

@@ -33,6 +33,9 @@ CLI and its cached subscription login before Core publishes ready state.
 - Health/status payload with process identity.
 - Graceful shutdown acknowledgement.
 - Server-sent Core events and RPC results.
+- `respond-provider-interaction` forwards a validated user decision to Core's
+  pending-interaction lifecycle; Runtime Process never constructs native
+  provider or ACP response payloads.
 - In-memory provider readiness events (`provider:status`) derived from raw
   readiness changes for the active workspace; these are streamed to clients but
   not written to session history JSONL.

@@ -24,6 +24,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Grok uses the same provider-neutral binding and immutable applied-profile
   snapshot. Core forwards the session model and optional reasoning effort on
   each turn; only the Grok adapter translates them to ACP `session/set_model`.
+- Provider interaction requests are captured as Core-owned pending state and
+  exposed through ephemeral session events. Core validates response envelopes,
+  forwards one typed decision to the bound adapter and cancels pending requests
+  after five minutes; timeout and replacement fail closed as cancellation.
 - Codex dispatch carries the selected session model and its normalized
   per-model reasoning effort as provider-neutral turn options. The Codex
   adapter owns translation into app-server `turn/start.model` and

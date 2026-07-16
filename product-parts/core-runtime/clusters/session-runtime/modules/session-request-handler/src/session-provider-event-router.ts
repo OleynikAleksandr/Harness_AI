@@ -1,4 +1,6 @@
 import {
+  isProviderInteractionRequestEvent,
+  isProviderInteractionResolvedEvent,
   isProviderSubagentEvent,
   type ProviderSubagentEvent,
 } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
@@ -9,6 +11,7 @@ import type {
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
 import { readPromotedProviderSessionId } from "./provider-session-id-promotion.js";
+import { sessionProviderInteractionLifecycle } from "./session-provider-interaction-lifecycle.js";
 import { resolveReasoningTranslationSettingsSnapshot } from "./session-reasoning-translation-settings.js";
 import {
   isRecord,
@@ -63,6 +66,17 @@ export function routeProviderEvent(
   }
   if (isProviderSubagentEvent(event)) {
     context.handleSubagentEvent?.(sessionId, event);
+    return;
+  }
+  if (isProviderInteractionRequestEvent(event)) {
+    const binding = context.getBinding(sessionId);
+    if (binding) {
+      sessionProviderInteractionLifecycle.capture(sessionId, event, binding);
+    }
+    return;
+  }
+  if (isProviderInteractionResolvedEvent(event)) {
+    sessionProviderInteractionLifecycle.resolveFromProvider(sessionId, event);
     return;
   }
   context.updateTelemetry(sessionId, event);

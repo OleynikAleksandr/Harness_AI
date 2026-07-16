@@ -6,6 +6,10 @@ import {
   unlinkSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
+import type {
+  ProviderInteractionRequestEvent,
+  ProviderInteractionResolvedEvent,
+} from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import type { ProviderUsageTelemetry } from "../../../../../../provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.js";
 import type { ProviderSessionBinding } from "../../provider-session-binding/src/provider-session-binding-facade.js";
 
@@ -48,6 +52,16 @@ export interface CoreSubagentCall {
 export type CoreTurnState = "idle" | "running";
 
 export type SessionCoreEvent =
+  | {
+      payload: ProviderInteractionRequestEvent & { sessionId: string };
+      timestamp: string;
+      type: "session:provider-interaction";
+    }
+  | {
+      payload: ProviderInteractionResolvedEvent & { sessionId: string };
+      timestamp: string;
+      type: "session:provider-interaction-resolved";
+    }
   | {
       payload: { sessionId: string; state: CoreTurnState };
       timestamp: string;
@@ -198,6 +212,12 @@ export class SessionEventStreamFacade {
   }
 
   private appendHistoryEvent(event: SessionCoreEvent): void {
+    if (
+      event.type === "session:provider-interaction" ||
+      event.type === "session:provider-interaction-resolved"
+    ) {
+      return;
+    }
     const eventFile = this.sessionEventFiles.get(event.payload.sessionId);
     if (!eventFile) {
       return;

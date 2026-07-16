@@ -8,6 +8,7 @@ import {
   providerRegistryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { sessionEventStreamFacade } from "../../../../session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
+import { sessionProviderInteractionLifecycle } from "../../../../session-runtime/modules/session-request-handler/src/session-provider-interaction-lifecycle.js";
 import { sessionRequestHandlerFacade } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import {
   type HarnessSettings,
@@ -164,6 +165,8 @@ export class CoreRuntimeApi {
         return sessionRequestHandlerFacade.regenerateSessionTitle(
           payload as never
         );
+      case "respond-provider-interaction":
+        return sessionProviderInteractionLifecycle.respond(payload);
       case "send-message":
         return sessionRequestHandlerFacade.sendMessage(payload as never);
       case "stop-turn":

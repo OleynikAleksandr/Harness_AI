@@ -4,6 +4,11 @@
 
 Expose provider-neutral Core session events to Application Shell projections. Provider-native events are normalized before they enter this stream.
 
+Live provider interactions and their resolution events use the same Core event
+channel but are excluded from transcript JSONL. A restored provider session
+must reissue a still-valid blocking gate, preventing stale permissions from
+appearing after Core restart.
+
 ## Public Facade
 
 `SessionEventStreamFacade`

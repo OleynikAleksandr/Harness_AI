@@ -4,6 +4,11 @@
 
 Define the shared provider adapter boundary used by Core. Adapters expose session-based operations; UI and Electron host never call provider CLIs, SDKs, or APIs directly.
 
+Interactive adapters emit sanitized provider-neutral requests for permission,
+user-question and plan-approval gates, then accept one typed decision through
+`respondToInteraction`. ACP method names and raw extension payloads stay inside
+the provider adapter; cancellation and malformed decisions must fail closed.
+
 ## Public Facade
 
 `ProviderAdapterContractFacade`

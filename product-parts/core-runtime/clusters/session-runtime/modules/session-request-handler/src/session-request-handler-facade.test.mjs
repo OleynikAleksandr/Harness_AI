@@ -9,6 +9,10 @@ const routerSource = readFileSync(
   new URL("./session-provider-event-router.ts", import.meta.url),
   "utf8"
 );
+const interactionSource = readFileSync(
+  new URL("./session-provider-interaction-lifecycle.ts", import.meta.url),
+  "utf8"
+);
 const bindingLifecycleSource = readFileSync(
   new URL("./session-provider-binding-lifecycle.ts", import.meta.url),
   "utf8"
@@ -178,6 +182,12 @@ assert.match(
   /reasoningTranslation\.publishDisplayMessages\(\{[\s\S]+?displayMessages/u
 );
 assert.match(routerSource, /readPromotedProviderSessionId\(event\)/u);
+assert.match(routerSource, /isProviderInteractionRequestEvent\(event\)/u);
+assert.match(routerSource, /isProviderInteractionResolvedEvent\(event\)/u);
+assert.match(interactionSource, /DEFAULT_INTERACTION_TIMEOUT_MS/u);
+assert.match(interactionSource, /outcome: "cancelled"/u);
+assert.match(interactionSource, /respondToInteraction\?\./u);
+assert.match(coreRuntimeApiSource, /"respond-provider-interaction"/u);
 assert.match(routerSource, /promotedProviderSessionId/u);
 assert.match(routerSource, /context\.setBinding\(sessionId, \{/u);
 assert.match(

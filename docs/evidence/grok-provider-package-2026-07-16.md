@@ -17,9 +17,9 @@ scope остаётся открытым до пользовательской п
 | Electron | `42.5.0` |
 | Packaging tool | `electron-builder 26.15.3` |
 | Signing | unsigned, как предусмотрено локальной package-конфигурацией |
-| `app.asar` size | `32213204` bytes |
-| `app.asar` modified | `2026-07-16T12:57:31+0200` |
-| `app.asar` SHA-256 | `041937140eb1e25ca22d6d8e2d41bb539aecede18e1b75d45a0f466c708bef98` |
+| `app.asar` size | `32219875` bytes |
+| `app.asar` modified | `2026-07-16T16:38:04+0200` |
+| `app.asar` SHA-256 | `7d809298ecea5ee58fbb2dccf2ee3762bb1f33c7f42f850dc00cea7a242d3ff7` |
 
 Исполняемый файл внутри `.app` проверен как `Mach-O 64-bit executable arm64`.
 
@@ -34,7 +34,8 @@ scope остаётся открытым до пользовательской п
 - Native/Managed profile application и effective tool inventory;
 - permission/ask-user/plan interaction bridge;
 - native subagent normalization;
-- provider facade/adapter и Core usage/status telemetry.
+- semantic Thinking stream buffer;
+- replay-safe provider facade/adapter и Core usage/status telemetry.
 
 Также в архив вошёл Core-owned
 `usage-context-status-panel.js`, через который Grok и Codex получают
@@ -68,7 +69,7 @@ session profiles, in-app permission/ask-user/plan dialogs, MCP transport и
 | Formatter/lint | passed |
 | Knip | passed |
 | TypeScript | passed |
-| Repository tests | `110` passed |
+| Repository tests | `111` passed |
 | Duplication | passed |
 | Security audit | `0` vulnerabilities |
 | Link check | passed |
@@ -83,6 +84,58 @@ Live-проверка установленного `grok 0.2.101`, подпис�
 Native/Managed binding, моделей, usage/cache/billing, resume/rewind,
 interactions, MCP и native subagents зафиксирована в
 `docs/evidence/grok-provider-live-verification-2026-07-16.md`.
+
+## Acceptance repair package
+
+Пакет пересобран после commit `654ca411` (`fix: stabilize Grok dialog
+streaming`) для исправления двух дефектов, найденных при пользовательской
+проверке:
+
+1. Grok ACP присылал Thinking токенами, а adapter превращал каждый токен в
+   самостоятельное Core message. Из-за этого каждый фрагмент переводился
+   отдельно и отображался с переносом строки. Новый semantic stream buffer
+   сохраняет исходные пробелы и выпускает законченные предложения/абзацы либо
+   ограниченный по размеру смысловой блок. Перевод выполняется для целого
+   блока, после чего существующий prefix-stable UI reveal возвращает перевод в
+   диалог стримом.
+2. `session/load` повторно присылал сохранённую историю как ACP notifications
+   с `_meta.isReplay: true`. Core уже восстановил ту же историю из своей JSONL,
+   поэтому replay создавал вторые Thinking и Grok blocks. Adapter теперь
+   отбрасывает replay до маршрутизации chat/subagent events; normalizer также
+   содержит защитный replay filter.
+
+Live source-build probe установленного Grok CLI подтвердил:
+
+- первый turn вернул два полных читаемых reasoning-предложения и один
+  assistant result `FIRST_OK`;
+- resume до нового turn дал `0` исторических assistant/thinking messages;
+- второй turn после resume вернул один полный reasoning block и один assistant
+  result `SECOND_OK`.
+
+## Визуальная проверка repair package
+
+Проверка выполнена в упакованном `Harness AI.app`, а не только в dev/runtime
+сборке:
+
+1. После холодного запуска окно полностью отрисовалось; чёрного пустого
+   renderer не было.
+2. Создана новая Native Grok-сессия с prompt
+   `Кратко обдумай запрос в двух полных предложениях и ответь точно: VISUAL_OK`.
+3. В transcript появился один переведённый Thinking block с нормальной строкой
+   и один визуальный Grok block. Token-level лестницы и отдельных строк для
+   каждого чанка не было.
+4. Нижняя status panel показала `Model: grok-4.5 (high)`,
+   `Tokens: 13,469 (97%)`, `Cache: 11,136`, `Turns: 1` и Rollback control.
+5. Приложение было полностью остановлено и запущено заново. После повторного
+   открытия той же native session и ожидания более минуты transcript по-прежнему
+   содержал ровно один Thinking block и один Grok block; поздний replay не
+   добавил дубликаты.
+
+Ранее повреждённая тестовая сессия
+`session-grok-d07f6b8d-d848-466f-9210-2ad818870b4d` намеренно не переписана:
+старые append-only события остаются историческим артефактом. Исправление
+гарантирует корректный live stream и reopen для новых сессий без разрушительной
+миграции пользовательской истории.
 
 ## Пользовательская приёмка
 

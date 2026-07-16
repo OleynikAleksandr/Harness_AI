@@ -8,8 +8,8 @@
   "planId": "grok-provider-implementation-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task2",
-  "expectedCommitMessage": "build: repackage Grok dialog fixes",
+  "currentTaskId": "harness-ai.phase8.stream1.task3",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -126,6 +126,6 @@
 
 41. [DONE] `harness-ai.phase8.stream1.task1` Match the proven Codex/Claude dialog-stream behavior by assembling Grok ACP thought deltas into readable sentence/paragraph-sized blocks before Core translation, preserving provider whitespace and stable prompt-owned identities; suppress `_meta.isReplay` historical chat/subagent notifications during Harness-owned session restore so reopening cannot append duplicate thinking or assistant answers. Cover live token deltas, forced boundary flush, replay filtering and resumed-session regression tests (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-semantic-stream-buffer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-provider-adapter.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-semantic-stream-buffer.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-provider-adapter.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, docs/evidence/grok-provider-live-verification-2026-07-16.md, .harness/plans/todo-plan.md`; expected commit: `fix: stabilize Grok dialog streaming`). Result: Completed in commit `fix: stabilize Grok dialog streaming`.
 42. [DONE] Git Commit: `fix: stabilize Grok dialog streaming` (hash: self)
-43. [IN_PROGRESS] `harness-ai.phase8.stream1.task2` Rebuild and package the macOS application, then personally verify the shipped UI with a fresh Grok reasoning turn, readable translated blocks, one assistant answer, cold restart, restored session with no replay duplicates, and the complete Codex-equivalent lower status panel; update package evidence with the new artifact identity and visual results (scope: `docs/evidence/grok-provider-package-2026-07-16.md, .harness/plans/todo-plan.md`; expected commit: `build: repackage Grok dialog fixes`).
-44. [TODO] Git Commit: `build: repackage Grok dialog fixes` (hash: TBD)
-45. [TODO] `harness-ai.phase8.stream1.task3` User retests the corrected Grok provider in the packaged app, accepting readable streamed/translated reasoning, duplicate-free resume and complete Codex-equivalent lower status-panel/rollback behavior (scope: user workflow; expected commit: none).
+43. [DONE] `harness-ai.phase8.stream1.task2` Rebuild and package the macOS application, then personally verify the shipped UI with a fresh Grok reasoning turn, readable translated blocks, one assistant answer, cold restart, restored session with no replay duplicates, and the complete Codex-equivalent lower status panel; update package evidence with the new artifact identity and visual results (scope: `docs/evidence/grok-provider-package-2026-07-16.md, .harness/plans/todo-plan.md`; expected commit: `build: repackage Grok dialog fixes`). Result: Completed in commit `build: repackage Grok dialog fixes`.
+44. [DONE] Git Commit: `build: repackage Grok dialog fixes` (hash: self)
+45. [IN_PROGRESS] `harness-ai.phase8.stream1.task3` User retests the corrected Grok provider in the packaged app, accepting readable streamed/translated reasoning, duplicate-free resume and complete Codex-equivalent lower status-panel/rollback behavior (scope: user workflow; expected commit: none).

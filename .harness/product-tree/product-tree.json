@@ -359,6 +359,11 @@
               "purpose": "Thin Kimi endpoint for the Core universal client: Kimi dialect specifics (api.kimi.com/coding/v1, Core session-selected Coding Plan model, reasoning_content) and the ClientTurnRequest builder the Core agent loop runs."
             },
             {
+              "id": "kimi-native-capture",
+              "name": "Kimi Native Capture",
+              "purpose": "Diagnostic-only driver for the installed Kimi CLI: temporary native config/auth home, selected-model alias materialization, reverse-bridge provider URL rewrite, and one ACP default-agent probe; not a production session adapter."
+            },
+            {
               "id": "glm-client-provider",
               "name": "GLM Client Provider",
               "purpose": "Thin GLM endpoint for the Core universal client: Z.ai coding dialect specifics (api.z.ai/api/coding/paas/v4, Accept-Language, reasoning_content, GLM extraBody params) and the ClientTurnRequest builder the Core agent loop runs."

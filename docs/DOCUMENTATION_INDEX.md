@@ -132,6 +132,11 @@ The native provider module catalog includes `grok-provider`, whose contract is
 tracked by the module glob above and whose implementation baseline is recorded
 in `docs/evidence/grok-provider-integration-plan-2026-07-16.md`.
 
+The provider-adapter catalog also includes the diagnostic-only
+`kimi-native-capture` module. It drives the installed Kimi CLI solely for
+Native Request Capture; Kimi production sessions remain on
+`kimi-client-provider` and the Core universal client.
+
 Provider readiness docs are part of this product documentation tree under
 `product-parts/provider-runtime/clusters/provider-readiness/**`, including the
 readiness registry, liveness checker, and workspace provisioner modules.

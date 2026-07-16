@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": "feat: add Kimi CLI native capture driver",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: register Kimi native capture catalog",
   "debt": null
 }
 ```
@@ -77,14 +77,14 @@
 
 3. [DONE] `harness-ai.phase2.stream1.task1` Restore the provider-neutral Kimi reverse-forward transit and Kimi artifact type while preserving Claude/Codex paths; cover target matching, forwarding and reasoning-qualified artifact naming and synchronize capture-cluster docs (scope: `capture-proxy/src/capture-proxy-reverse.ts, capture-orchestrator/src/capture-orchestrator-facade.ts, capture-artifacts/src/capture-artifacts-facade.ts` + paired tests/docs; expected commit: `feat: restore Kimi native capture transport`). Result: Completed in commit `feat: restore Kimi native capture transport`.
 4. [DONE] Git Commit: `feat: restore Kimi native capture transport` (hash: self)
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` Add a diagnostic-only Kimi CLI capture module that clones the real Kimi auth/config into a temporary home, rewrites only provider base URLs to the reverse bridge, selects the requested model and drives one native default-agent probe; cover config rewriting, process cleanup and applied-envelope evidence and synchronize provider-adapter/product-tree docs (scope: `provider-adapters/modules/kimi-native-capture/src/kimi-native-capture-facade.ts, provider-adapters/modules/kimi-native-capture/src/kimi-capture-config-rewrite.ts, provider-adapters/modules/kimi-native-capture/src/kimi-acp-client.ts` + paired tests/docs/product-tree; expected commit: `feat: add Kimi CLI native capture driver`).
-6. [TODO] Git Commit: `feat: add Kimi CLI native capture driver` (hash: TBD)
+5. [DONE] `harness-ai.phase2.stream1.task2` Add a diagnostic-only Kimi CLI capture module that clones the real Kimi auth/config into a temporary home, rewrites only provider base URLs to the reverse bridge, selects the requested model and drives one native default-agent probe; cover config rewriting, process cleanup and applied-envelope evidence and synchronize provider-adapter/product-tree docs (scope: `provider-adapters/modules/kimi-native-capture/src/kimi-native-capture-facade.ts, provider-adapters/modules/kimi-native-capture/src/kimi-capture-config-rewrite.ts, provider-adapters/modules/kimi-native-capture/src/kimi-acp-client.ts` + paired tests/docs/product-tree; expected commit: `feat: add Kimi CLI native capture driver`). Result: Completed in commit `feat: add Kimi CLI native capture driver`.
+6. [DONE] Git Commit: `feat: add Kimi CLI native capture driver` (hash: self)
 
 ## Phase 3 - Core Contract And Settings Surface (owner: Codex, updated: 2026-07-16)
 
 ### Stream: Catalog Routing And Readable Artifacts
 
-7. [TODO] `harness-ai.phase3.stream1.task1` Register Kimi plus the three Core-owned Coding Plan models in the native-capture catalog, model optional provider-default reasoning honestly, and route Kimi capture commands to the diagnostic CLI facade without re-registering the retired ACP provider; cover RPC validation and synchronize registry/runtime docs (scope: `provider-descriptor/src/provider-descriptor-facade.ts, core-runtime-process/src/core-native-capture-rpc.ts, provider-adapter-contract/src/provider-adapter-contract-facade.ts` + paired tests/docs; expected commit: `feat: register Kimi native capture catalog`).
+7. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Register Kimi plus the three Core-owned Coding Plan models in the native-capture catalog, model optional provider-default reasoning honestly, and route Kimi capture commands to the diagnostic CLI facade without re-registering the retired ACP provider; cover RPC validation and synchronize registry/runtime docs (scope: `provider-descriptor/src/provider-descriptor-facade.ts, core-runtime-process/src/core-native-capture-rpc.ts, provider-adapter-contract/src/provider-adapter-contract-facade.ts` + paired tests/docs; expected commit: `feat: register Kimi native capture catalog`).
 8. [TODO] Git Commit: `feat: register Kimi native capture catalog` (hash: TBD)
 9. [TODO] `harness-ai.phase3.stream1.task2` Update the Native Request Capture card to display Kimi cleanly, allow models with provider-default reasoning, and verify the readable artifact parser extracts Kimi system messages and native tool schemas from the current CLI request envelope; synchronize UI/artifact docs (scope: `provider-settings-ui/src/native-capture-card.tsx, capture-artifacts/src/capture-payload-sections.ts, capture-artifacts/src/capture-markdown-format.ts` + paired tests/docs; expected commit: `feat: expose Kimi native capture in Settings`).
 10. [TODO] Git Commit: `feat: expose Kimi native capture in Settings` (hash: TBD)

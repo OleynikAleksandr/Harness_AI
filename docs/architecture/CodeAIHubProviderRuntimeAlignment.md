@@ -169,10 +169,11 @@ Status:
 - Removed by the kimi-provider retirement (2026-07-05 user order). The visible
   Kimi runs through `kimi-client-provider` on the Core universal client
   (subscription-key `api.kimi.com/coding/v1` endpoint, `kimi-for-coding`
-  model); the ACP `kimi acp` subprocess adapter and its Kimi native-capture
-  channel were removed end-to-end, and the ported reference sources stay in
-  git history. The accepted 2026-07-03 Kimi capture dumps remain the
-  synthetic-native material for Phase R.
+  model); the ACP `kimi acp` production session adapter remains removed.
+  A new diagnostic-only `kimi-native-capture` module reuses the verified
+  default-agent ACP capture algorithm with a temporary native home and reverse
+  bridge, without re-registering `kimi` as a runtime provider. The larger
+  retired runtime sources stay in git history.
 
 ### GLM Native (removed)
 

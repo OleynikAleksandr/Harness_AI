@@ -11,6 +11,7 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `codex-provider`
 - `grok-provider`
 - `kimi-client-provider`
+- `kimi-native-capture`
 - `glm-client-provider`
 - `openrouter-client-provider`
 - `local-models-client-provider`
@@ -20,10 +21,12 @@ Only the three native vendor channels (`claude-provider`, `codex-provider`,
 the universal-client four remain. The retired `glm-native-provider`,
 `openrouter-provider`, `local-models-provider` and the orphaned
 `provider-turn-runner` were removed by the 2026-07-05 legacy cleanup; the ACP
-`kimi-provider` (and its Kimi native-capture channel) was removed by the same
-day's kimi-provider retirement order. Their consumed `src/reference/**` corpus
-lives on in git history. The universal client is the single client path for
-the client four.
+`kimi-provider` was removed by the same day's kimi-provider retirement order.
+The universal client remains the single production session path for the
+client four. `kimi-native-capture` restores only a diagnostic driver for the
+installed Kimi CLI's default-agent request; it is not a session adapter and
+does not re-register the retired ACP provider. The older consumed
+`src/reference/**` runtime corpus lives on in git history.
 
 ## Facade Rule
 

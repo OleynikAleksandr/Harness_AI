@@ -31,6 +31,24 @@ export interface GrokSessionStartResult {
   readonly selection: GrokAcpSessionSelection;
 }
 
+export function normalizeGrokTurnSelection(
+  options: Readonly<Record<string, unknown>> | undefined
+): GrokAcpSessionSelection | undefined {
+  if (!options) {
+    return;
+  }
+  const modelId =
+    readOptionalString(options.model) ?? readOptionalString(options.modelId);
+  const reasoningEffort = readOptionalString(options.reasoningEffort);
+  if (!(modelId || reasoningEffort)) {
+    return;
+  }
+  return {
+    ...(modelId ? { modelId } : {}),
+    ...(reasoningEffort ? { reasoningEffort } : {}),
+  };
+}
+
 const METHOD_NOT_FOUND_CODE = -32_601;
 const AUTH_METHOD_PRIORITY = ["cached_token", "grok.com", "xai.api_key"];
 const GROK_SESSION_PREFIX_PATTERN = /^grok:/u;
@@ -272,6 +290,10 @@ function normalizeSessionId(value: string): string {
     throw new Error("Cannot load a Grok session with an empty provider id.");
   }
   return normalized;
+}
+
+function readOptionalString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
 function readSessionId(response: unknown, method: string): string {

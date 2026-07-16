@@ -95,6 +95,21 @@ passed at session creation without renderer inspection. An empty list does not
 disable Grok's own trusted project/user MCP discovery; MCP credentials and
 server tool payloads remain inside the official CLI lifecycle.
 
+`GrokSubagentNormalizer` consumes only native
+`x.ai/session_notification` variants `subagent_spawned`, `subagent_progress`
+and `subagent_finished`. It correlates parent prompt, parent/child ACP session
+IDs and native subagent identity, maps terminal `cancelled` to provider-neutral
+`interrupted`, and emits the existing `subagent_control`, `subagent_session`
+and child-channel `subagent_status` contract. The adapter registers child ACP
+session aliases before Core adoption, routes ordinary child notifications to
+child-only listeners, and never starts a second Grok process for a live child.
+
+Persisted spawn/finish notifications replay through `session/load`. After
+binding, the adapter additionally calls native `_x.ai/subagent/list_running`
+to recover transient progress lost during disconnect. Child transcript and
+terminal state therefore converge through structured provider events; no
+renderer text recognition or Harness-owned Grok-history parser is used.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -119,6 +134,8 @@ server tool payloads remain inside the official CLI lifecycle.
 - Subscription billing tier, period/reset and truthful optional usage percent.
 - Core-mediated permission, ask-user and plan-approval blocking interactions.
 - Native Grok MCP discovery plus optional Core-provided ACP server config.
+- Native parent/child sessions, live progress, terminal/cancelled status and
+  recovered child transcript routing through the shared subagent lifecycle.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

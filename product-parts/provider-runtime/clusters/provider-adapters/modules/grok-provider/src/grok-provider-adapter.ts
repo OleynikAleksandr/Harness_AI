@@ -10,7 +10,6 @@ import type {
 import type {
   GrokAcpNotification,
   GrokAcpRequest,
-  GrokAcpSessionSelection,
 } from "./grok-acp-contracts.js";
 import {
   GrokAcpProcess,
@@ -33,7 +32,12 @@ import {
 import {
   GrokSessionRuntime,
   type GrokSessionTransport,
+  normalizeGrokTurnSelection,
 } from "./grok-session-runtime.js";
+import {
+  GrokSubagentNormalizer,
+  readGrokNotificationSessionId,
+} from "./grok-subagent-normalizer.js";
 
 export interface GrokProcessFactoryOptions {
   readonly cwd: string;
@@ -56,24 +60,27 @@ export interface GrokProviderAdapterOptions extends GrokCliLocationOptions {
   readonly workspacePath?: string;
 }
 
+type GrokListenerMap = Map<string, Set<ProviderEventListener>>;
+const GROK_SESSION_PREFIX_PATTERN = /^grok:/u;
+
 interface GrokAdapterSession {
   readonly application: GrokProfileApplication;
   readonly eventNormalizer: GrokEventNormalizer;
   readonly interactionBridge: GrokInteractionBridge;
-  readonly listeners: Set<ProviderEventListener>;
-  readonly pendingEvents: unknown[];
+  readonly listenersByProviderSessionId: GrokListenerMap;
+  readonly pendingEventsByProviderSessionId: Map<string, unknown[]>;
   providerSessionId: string | null;
   readonly runtime: GrokSessionRuntime;
+  readonly subagentNormalizer: GrokSubagentNormalizer;
   readonly transport: GrokSessionTransport;
   turnRunning: boolean;
   readonly workspacePath: string;
 }
 
-const GROK_SESSION_PREFIX_PATTERN = /^grok:/u;
-
 export class GrokProviderAdapter implements ProviderAdapter {
   readonly #options: GrokProviderAdapterOptions;
   readonly #sessions = new Map<string, GrokAdapterSession>();
+  readonly #subagentSessions = new Map<string, GrokAdapterSession>();
   #binaryPath: string | null = null;
   #initialized = false;
 
@@ -102,7 +109,7 @@ export class GrokProviderAdapter implements ProviderAdapter {
     const profileState = resolveGrokSessionProfileState(startOptions);
     const application = buildGrokProfileApplication(profileState);
     const entry = this.#createEntry(
-      normalizeWorkspacePath(workspacePath ?? this.#options.workspacePath),
+      (workspacePath ?? this.#options.workspacePath)?.trim() || process.cwd(),
       application
     );
     try {
@@ -124,10 +131,15 @@ export class GrokProviderAdapter implements ProviderAdapter {
     startOptions?: ProviderSessionStartOptions
   ): Promise<ProviderSessionStartOutcome> {
     this.#assertInitialized();
+    const normalizedProviderSessionId =
+      normalizeProviderSessionId(providerSessionId);
+    if (this.#subagentSessions.has(normalizedProviderSessionId)) {
+      return normalizedProviderSessionId;
+    }
     const profileState = resolveGrokSessionProfileState(startOptions);
     const application = buildGrokProfileApplication(profileState);
     const entry = this.#createEntry(
-      normalizeWorkspacePath(workspacePath ?? this.#options.workspacePath),
+      (workspacePath ?? this.#options.workspacePath)?.trim() || process.cwd(),
       application
     );
     try {
@@ -148,12 +160,15 @@ export class GrokProviderAdapter implements ProviderAdapter {
     listener: ProviderEventListener
   ): () => void {
     const entry = this.#requireSession(providerSessionId);
-    entry.listeners.add(listener);
-    for (const event of entry.pendingEvents.splice(0)) {
-      this.#dispatch(entry, event);
+    const normalizedId = normalizeProviderSessionId(providerSessionId);
+    const listeners = this.#listenersFor(entry, normalizedId);
+    listeners.add(listener);
+    const pending = entry.pendingEventsByProviderSessionId.get(normalizedId);
+    for (const event of pending?.splice(0) ?? []) {
+      listener(event);
     }
     return () => {
-      entry.listeners.delete(listener);
+      listeners.delete(listener);
     };
   }
 
@@ -169,20 +184,26 @@ export class GrokProviderAdapter implements ProviderAdapter {
       );
     }
     entry.turnRunning = true;
-    this.#dispatch(entry, entry.eventNormalizer.turnStarted(providerSessionId));
+    this.#dispatch(
+      entry,
+      entry.eventNormalizer.turnStarted(providerSessionId),
+      providerSessionId
+    );
     try {
       const result = await entry.runtime.prompt(
         content,
-        readTurnSelection(turnOptions)
+        normalizeGrokTurnSelection(turnOptions)
       );
       this.#dispatch(
         entry,
-        entry.eventNormalizer.normalizePromptResult(providerSessionId, result)
+        entry.eventNormalizer.normalizePromptResult(providerSessionId, result),
+        providerSessionId
       );
     } catch (error) {
       this.#dispatch(
         entry,
-        entry.eventNormalizer.normalizePromptFailure(providerSessionId, error)
+        entry.eventNormalizer.normalizePromptFailure(providerSessionId, error),
+        providerSessionId
       );
       throw error;
     } finally {
@@ -192,12 +213,22 @@ export class GrokProviderAdapter implements ProviderAdapter {
 
   async closeSession(providerSessionId: string): Promise<void> {
     const entry = this.#requireSession(providerSessionId);
+    const normalizedId = normalizeProviderSessionId(providerSessionId);
+    if (this.#subagentSessions.has(normalizedId)) {
+      this.#subagentSessions.delete(normalizedId);
+      entry.listenersByProviderSessionId.delete(normalizedId);
+      entry.pendingEventsByProviderSessionId.delete(normalizedId);
+      return;
+    }
     if (entry.turnRunning) {
       await entry.runtime.cancel().catch(() => undefined);
     }
-    this.#sessions.delete(providerSessionId);
-    entry.listeners.clear();
-    entry.pendingEvents.length = 0;
+    this.#sessions.delete(normalizedId);
+    for (const childSessionId of entry.listenersByProviderSessionId.keys()) {
+      this.#subagentSessions.delete(childSessionId);
+    }
+    entry.listenersByProviderSessionId.clear();
+    entry.pendingEventsByProviderSessionId.clear();
     entry.interactionBridge.cancelAll();
     await entry.runtime.close();
   }
@@ -216,9 +247,6 @@ export class GrokProviderAdapter implements ProviderAdapter {
     _workspacePath: string
   ): void {
     normalizeProviderSessionId(providerSessionId);
-    this.#options.reporter?.info?.(
-      "Grok session has no Harness-owned persistent artifacts to delete."
-    );
   }
 
   #createEntry(
@@ -266,10 +294,11 @@ export class GrokProviderAdapter implements ProviderAdapter {
       application,
       eventNormalizer: new GrokEventNormalizer(),
       interactionBridge,
-      listeners: new Set(),
-      pendingEvents: [],
+      listenersByProviderSessionId: new Map(),
+      pendingEventsByProviderSessionId: new Map(),
       providerSessionId: null,
       runtime,
+      subagentNormalizer: new GrokSubagentNormalizer(),
       transport,
       turnRunning: false,
       workspacePath,
@@ -300,6 +329,8 @@ export class GrokProviderAdapter implements ProviderAdapter {
     }
     entry.providerSessionId = normalizedId;
     this.#sessions.set(normalizedId, entry);
+    this.#listenersFor(entry, normalizedId);
+    this.#recoverRunningSubagents(entry, normalizedId).catch(() => undefined);
     if (!includeProfileDetails) {
       return normalizedId;
     }
@@ -310,10 +341,27 @@ export class GrokProviderAdapter implements ProviderAdapter {
     entry: GrokAdapterSession,
     notification: GrokAcpNotification
   ): void {
+    const subagentEvents =
+      entry.subagentNormalizer.normalizeNotification(notification);
+    if (subagentEvents.length > 0) {
+      for (const routed of subagentEvents) {
+        if (routed.childProviderSessionId) {
+          this.#registerSubagentSession(entry, routed.childProviderSessionId);
+        }
+        this.#dispatch(entry, routed.event, routed.targetProviderSessionId);
+      }
+      return;
+    }
+    const targetProviderSessionId =
+      readGrokNotificationSessionId(notification) ?? entry.providerSessionId;
+    const compatibleNotification =
+      notification.method === "x.ai/session_notification"
+        ? { ...notification, method: "_x.ai/session_notification" }
+        : notification;
     for (const event of entry.eventNormalizer.normalizeNotification(
-      notification
+      compatibleNotification
     )) {
-      this.#dispatch(entry, event);
+      this.#dispatch(entry, event, targetProviderSessionId);
     }
   }
 
@@ -341,19 +389,85 @@ export class GrokProviderAdapter implements ProviderAdapter {
     return await entry.interactionBridge.handle(request);
   }
 
-  #dispatch(entry: GrokAdapterSession, event: unknown): void {
-    if (entry.listeners.size === 0) {
-      entry.pendingEvents.push(event);
+  #dispatch(
+    entry: GrokAdapterSession,
+    event: unknown,
+    targetProviderSessionId = entry.providerSessionId
+  ): void {
+    if (!targetProviderSessionId) {
       return;
     }
-    for (const listener of entry.listeners) {
+    const listeners = this.#listenersFor(entry, targetProviderSessionId);
+    if (listeners.size === 0) {
+      const pending =
+        entry.pendingEventsByProviderSessionId.get(targetProviderSessionId) ??
+        [];
+      pending.push(event);
+      entry.pendingEventsByProviderSessionId.set(
+        targetProviderSessionId,
+        pending
+      );
+      return;
+    }
+    for (const listener of listeners) {
       listener(event);
     }
   }
 
+  async #recoverRunningSubagents(
+    entry: GrokAdapterSession,
+    parentProviderSessionId: string
+  ): Promise<void> {
+    const response = await entry.transport.request(
+      "_x.ai/subagent/list_running",
+      {
+        sessionId: parentProviderSessionId,
+      }
+    );
+    for (const routed of entry.subagentNormalizer.normalizeRunningResponse(
+      response,
+      parentProviderSessionId
+    )) {
+      if (routed.childProviderSessionId) {
+        this.#registerSubagentSession(entry, routed.childProviderSessionId);
+      }
+      this.#dispatch(entry, routed.event, routed.targetProviderSessionId);
+    }
+  }
+
+  #registerSubagentSession(
+    entry: GrokAdapterSession,
+    providerSessionId: string
+  ): void {
+    const normalizedId = normalizeProviderSessionId(providerSessionId);
+    const existing = this.#subagentSessions.get(normalizedId);
+    if (existing && existing !== entry) {
+      throw new Error(
+        `Grok subagent session ${normalizedId} is already bound.`
+      );
+    }
+    this.#subagentSessions.set(normalizedId, entry);
+    this.#listenersFor(entry, normalizedId);
+  }
+
+  #listenersFor(
+    entry: GrokAdapterSession,
+    providerSessionId: string
+  ): Set<ProviderEventListener> {
+    const normalizedId = normalizeProviderSessionId(providerSessionId);
+    let listeners = entry.listenersByProviderSessionId.get(normalizedId);
+    if (!listeners) {
+      listeners = new Set();
+      entry.listenersByProviderSessionId.set(normalizedId, listeners);
+    }
+    return listeners;
+  }
+
   #requireSession(providerSessionId: string): GrokAdapterSession {
     const normalizedId = normalizeProviderSessionId(providerSessionId);
-    const entry = this.#sessions.get(normalizedId);
+    const entry =
+      this.#sessions.get(normalizedId) ??
+      this.#subagentSessions.get(normalizedId);
     if (!entry) {
       throw new Error(`Grok provider session is not bound: ${normalizedId}`);
     }
@@ -374,36 +488,10 @@ export class GrokProviderAdapter implements ProviderAdapter {
   }
 }
 
-function readTurnSelection(
-  options: ProviderTurnOptions | undefined
-): GrokAcpSessionSelection | undefined {
-  if (!options) {
-    return;
-  }
-  const modelId = readString(options.model) ?? readString(options.modelId);
-  const reasoningEffort = readString(options.reasoningEffort);
-  if (!(modelId || reasoningEffort)) {
-    return;
-  }
-  return {
-    ...(modelId ? { modelId } : {}),
-    ...(reasoningEffort ? { reasoningEffort } : {}),
-  };
-}
-
-function normalizeWorkspacePath(value: string | undefined): string {
-  const workspacePath = value?.trim() || process.cwd();
-  return workspacePath;
-}
-
 function normalizeProviderSessionId(value: string): string {
   const normalized = value.trim().replace(GROK_SESSION_PREFIX_PATTERN, "");
   if (!normalized) {
     throw new Error("Grok provider session id is empty.");
   }
   return normalized;
-}
-
-function readString(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
 }

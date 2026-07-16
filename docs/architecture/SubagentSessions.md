@@ -43,6 +43,31 @@ rollout-текста или поиск слов о субагентах в UI з
 `pendingInit/running/errored/...` переводятся в общий статусный словарь до
 передачи в Core.
 
+### Grok Build
+
+Grok использует тот же provider-neutral boundary, но получает truth напрямую
+из официального ACP-канала Grok Build:
+
+- `x.ai/session_notification / subagent_spawned` приходит на parent до первых
+  child-событий и содержит `parent_session_id`, `parent_prompt_id`,
+  `child_session_id`, тип, задачу, persona/role и фактическую модель;
+- `subagent_progress` передаёт живое состояние дочерней работы и всегда
+  маршрутизируется в Core-канал child session;
+- `subagent_finished` является terminal truth; нативное `cancelled`
+  нормализуется в общее `interrupted`, а `failed/completed` сохраняют смысл;
+- обычные `session/update` с `sessionId` child образуют его reasoning,
+  assistant и tool transcript без копирования событий в parent transcript;
+- `session/load` воспроизводит сохранённые spawn/finish события, а
+  `_x.ai/subagent/list_running` восстанавливает неперсистентный progress после
+  переподключения.
+
+Grok adapter регистрирует child ACP id до передачи spawn в Core. Поэтому
+`adoptProviderSession` подписывается на уже работающий официальный child route,
+не создаёт второй CLI-процесс и не вызывает отдельный `session/new/load`.
+Закрытие read-only child binding отписывает только child; lifecycle parent ACP
+процесса остаётся неизменным. История Grok CLI не читается Harness-парсером и
+renderer не распознаёт субагентов по тексту.
+
 ## Core read model
 
 `CoreSession` получает добавочные поля:
@@ -184,16 +209,16 @@ session создаёт grandchild с `parentSessionId` этого child, не в
 
 ```mermaid
 sequenceDiagram
-  participant A as Codex app-server
-  participant P as Codex adapter
+  participant A as Provider native runtime
+  participant P as Provider adapter
   participant C as Core Runtime
   participant U as Session UI
 
-  A->>P: item/completed subAgentActivity(started)
+  A->>P: structured native subagent spawn
   P->>C: provider subagent call
   C->>C: create child session and timeline item
   C-->>U: session created + subagent call
-  A->>P: thread/started(parentThreadId, nickname, role)
+  A->>P: structured child session metadata
   P->>C: provider subagent session metadata
   C-->>U: session updated
   A->>P: child reasoning / agentMessage / status
@@ -212,11 +237,11 @@ Registry хранит promise уже начатого создания окна,
 
 ## Границы первой реализации
 
-- Первая реализация покрыла Codex app-server, потому что только его adapter
-  получает native collaboration events. С 2026-07-13 контракт расширяется на
-  Claude через файловый наблюдатель в claude-provider — см.
-  `docs/architecture/ClaudeSubagentSessions.md`; Core/UI контракты этого
-  документа при этом не меняются.
+- Первая реализация покрыла Codex app-server. С 2026-07-13 контракт расширен
+  на Claude через файловый наблюдатель в claude-provider — см.
+  `docs/architecture/ClaudeSubagentSessions.md`; с 2026-07-16 Grok подключён
+  через нативные ACP subagent notifications и официальный recovery API.
+  Core/UI контракты этого документа при этом не меняются.
 - Providers без subagent-эмиссии продолжают работать без subagent-полей;
   UI не показывает пустые controls.
 - Запуск новых субагентов вручную из UI и отправка сообщений в дочернюю сессию

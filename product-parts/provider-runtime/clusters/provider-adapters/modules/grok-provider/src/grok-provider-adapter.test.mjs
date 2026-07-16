@@ -98,6 +98,7 @@ try {
     "grok-tool-inventory.ts",
     "grok-profile-application.ts",
     "grok-session-runtime.ts",
+    "grok-subagent-normalizer.ts",
     "grok-provider-adapter.ts",
   ];
   for (const filename of filenames) {
@@ -201,6 +202,64 @@ try {
       .mcpServers,
     [{ name: "workspace-tools", transport: "stdio" }]
   );
+
+  transports[1].callbacks.onNotification({
+    method: "x.ai/session_notification",
+    params: {
+      sessionId: "session-2",
+      update: {
+        child_session_id: "child-2",
+        description: "Inspect the workspace",
+        parent_session_id: "session-2",
+        sessionUpdate: "subagent_spawned",
+        subagent_id: "child-2",
+        subagent_type: "explore",
+      },
+    },
+  });
+  assert.equal(
+    await adapter.resumeSession("child-2", "/workspace-b"),
+    "child-2"
+  );
+  assert.equal(transports.length, 2);
+  const childEvents = [];
+  adapter.subscribe("child-2", (event) => childEvents.push(event));
+  transports[1].callbacks.onNotification({
+    method: "session/update",
+    params: {
+      sessionId: "child-2",
+      update: {
+        content: { text: "child reply", type: "text" },
+        sessionUpdate: "agent_message_chunk",
+      },
+    },
+  });
+  transports[1].callbacks.onNotification({
+    method: "x.ai/session_notification",
+    params: {
+      sessionId: "session-2",
+      update: {
+        child_session_id: "child-2",
+        sessionUpdate: "subagent_finished",
+        status: "completed",
+        subagent_id: "child-2",
+      },
+    },
+  });
+  assert.deepEqual(
+    managedEvents.slice(-4).map((event) => event.type),
+    [
+      "turn_completed",
+      "subagent_control",
+      "subagent_session",
+      "subagent_control",
+    ]
+  );
+  assert.deepEqual(
+    childEvents.map((event) => event.type),
+    ["assistant", "subagent_status"]
+  );
+  assert.equal(childEvents[0].content, "child reply");
 
   const permission = transports[1].callbacks.onReverseRequest({
     id: "permission-1",

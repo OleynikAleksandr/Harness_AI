@@ -13,6 +13,7 @@ try {
   await mkdir(buildDir, { recursive: true });
   for (const filename of [
     "grok-acp-contracts.ts",
+    "grok-semantic-stream-buffer.ts",
     "grok-event-normalizer.ts",
   ]) {
     const source = readFileSync(new URL(filename, import.meta.url), "utf8");
@@ -53,8 +54,23 @@ try {
       sessionUpdate: "agent_thought_chunk",
     })
   );
-  assert.equal(thinking[0].type, "thinking");
-  assert.equal(thinking[0].tag, "thinking");
+  assert.deepEqual(thinking, []);
+  const completedThinking = normalizer.normalizeNotification(
+    notification({
+      content: { text: " complete.", type: "text" },
+      sessionUpdate: "agent_thought_chunk",
+    })
+  );
+  assert.equal(completedThinking[0].type, "thinking");
+  assert.equal(completedThinking[0].content, "Reason complete.");
+  assert.equal(completedThinking[0].tag, "thinking");
+
+  normalizer.normalizeNotification(
+    notification({
+      content: { text: "Before tool", type: "text" },
+      sessionUpdate: "agent_thought_chunk",
+    })
+  );
 
   const tool = normalizer.normalizeNotification(
     notification({
@@ -64,8 +80,10 @@ try {
       toolCallId: "tool-1",
     })
   );
-  assert.equal(tool[0].data.kind, "tool_call");
-  assert.equal(tool[0].data.toolCallId, "tool-1");
+  assert.equal(tool[0].type, "thinking");
+  assert.equal(tool[0].content, "Before tool");
+  assert.equal(tool[1].data.kind, "tool_call");
+  assert.equal(tool[1].data.toolCallId, "tool-1");
 
   const plan = normalizer.normalizeNotification(
     notification({
@@ -107,6 +125,19 @@ try {
   });
   assert.equal(nested[0].type, "turn_failed");
   assert.equal(nested[0].message, "bad token");
+
+  const replay = normalizer.normalizeNotification({
+    method: "session/update",
+    params: {
+      _meta: { isReplay: true },
+      sessionId: "s1",
+      update: {
+        content: { text: "historical", type: "text" },
+        sessionUpdate: "agent_message_chunk",
+      },
+    },
+  });
+  assert.deepEqual(replay, []);
 
   const completed = normalizer.normalizePromptResult("s1", {
     _meta: { cachedReadTokens: 64, modelId: "grok-4.5", totalTokens: 1234 },

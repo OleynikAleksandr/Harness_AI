@@ -150,3 +150,45 @@ Credentials, persistent Grok config и project MCP files не создавали
 Этот документ закрывает installed-CLI/Core-adapter verification. Проверка
 видимой нижней status panel и in-app dialogs в shipped Electron surface
 остаётся отдельным package + user-acceptance gate.
+
+## Packaged acceptance findings: semantic reasoning и replay — 2026-07-16
+
+Первый визуальный packaged retest обнаружил два дефекта, которые не покрывала
+исходная live matrix:
+
+1. Grok ACP передавал один thought как token-level
+   `agent_thought_chunk`, а адаптер превращал каждый delta в отдельное
+   `session:message`. Контрольная Core-сессия записала 43 отдельных thinking
+   message и запустила 43 независимых перевода, поэтому UI закономерно показал
+   каждое слово/знак с новой строки.
+2. При повторном открытии `session/load` воспроизводил сохранённые thought и
+   assistant updates с `_meta.isReplay: true`. Адаптер не учитывал replay stamp
+   и добавлял цельный historical thought и финальный ответ поверх уже
+   восстановленной append-only Core history.
+
+Исправленный provider path теперь:
+
+- сохраняет исходный whitespace token deltas;
+- накапливает их до sentence/paragraph, bounded-size, tool, plan, answer или
+  terminal boundary;
+- публикует один Core thinking message на читаемый смысловой блок со стабильным
+  session/prompt/block ID;
+- переводит уже этот блок через существующий Core overlay, после чего UI
+  использует prefix-stable translated reveal;
+- подавляет historical chat/subagent notifications, явно помеченные Grok как
+  `_meta.isReplay: true`, поскольку Harness Core уже восстановил собственную
+  session history;
+- сохраняет native `_x.ai/subagent/list_running` для восстановления только
+  текущего transient состояния.
+
+Повторный source-build probe против установленного CLI подтвердил:
+
+| Проверка | Результат |
+| --- | --- |
+| Первый Native turn | 2 полных reasoning-предложения, assistant `FIRST_OK` |
+| `session/load` до нового turn | 0 historical thinking/assistant messages |
+| Новый turn после resume | 1 полный reasoning-блок, assistant `SECOND_OK` |
+
+Служебные model/system notifications после resume остаются допустимыми и не
+создают dialog bubbles. Следующий gate — новый packaged build и личная
+визуальная проверка перевода, cold restart и duplicate-free reopen.

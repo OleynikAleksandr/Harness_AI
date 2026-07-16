@@ -49,6 +49,17 @@ class FakeTransport {
     if (method === "session/load") {
       this.loadedSessionId = params.sessionId;
       this.sessionMeta = params._meta;
+      this.callbacks.onNotification({
+        method: "session/update",
+        params: {
+          _meta: { isReplay: true },
+          sessionId: params.sessionId,
+          update: {
+            content: { text: "historical answer", type: "text" },
+            sessionUpdate: "agent_message_chunk",
+          },
+        },
+      });
       return Promise.resolve({});
     }
     if (method === "session/set_model" || method === "session/setModel") {
@@ -92,6 +103,28 @@ class FakeTransport {
       this.callbacks.onNotification({
         method: "session/update",
         params: {
+          _meta: { promptId: `prompt:${params.sessionId}` },
+          sessionId: params.sessionId,
+          update: {
+            content: { text: "Readable", type: "text" },
+            sessionUpdate: "agent_thought_chunk",
+          },
+        },
+      });
+      this.callbacks.onNotification({
+        method: "session/update",
+        params: {
+          _meta: { promptId: `prompt:${params.sessionId}` },
+          sessionId: params.sessionId,
+          update: {
+            content: { text: " thought.", type: "text" },
+            sessionUpdate: "agent_thought_chunk",
+          },
+        },
+      });
+      this.callbacks.onNotification({
+        method: "session/update",
+        params: {
           sessionId: params.sessionId,
           update: {
             content: { text: `reply:${params.sessionId}`, type: "text" },
@@ -125,6 +158,7 @@ try {
     "grok-session-runtime.ts",
     "grok-session-event-router.ts",
     "grok-rewind-client.ts",
+    "grok-semantic-stream-buffer.ts",
     "grok-subagent-normalizer.ts",
     "grok-provider-adapter.ts",
   ];
@@ -215,14 +249,15 @@ try {
   ]);
   assert.deepEqual(
     nativeEvents.map((event) => event.type),
-    ["turn_started", "assistant", "turn_completed"]
+    ["turn_started", "thinking", "assistant", "turn_completed"]
   );
   assert.deepEqual(
     managedEvents.map((event) => event.type),
-    ["turn_started", "assistant", "turn_completed"]
+    ["turn_started", "thinking", "assistant", "turn_completed"]
   );
-  assert.equal(nativeEvents[1].content, "reply:session-1");
-  assert.equal(managedEvents[1].content, "reply:session-2");
+  assert.equal(nativeEvents[1].content, "Readable thought.");
+  assert.equal(nativeEvents[2].content, "reply:session-1");
+  assert.equal(managedEvents[2].content, "reply:session-2");
   assert.equal(transports[1].lastSetModel._meta.reasoningEffort, "high");
   assert.deepEqual(
     transports[0].calls.find((call) => call.method === "session/new").params
@@ -349,6 +384,9 @@ try {
   );
   assert.equal(resumed.providerSessionId, "resumed-session");
   assert.equal(transports[2].loadedSessionId, "resumed-session");
+  const resumedEvents = [];
+  adapter.subscribe("resumed-session", (event) => resumedEvents.push(event));
+  assert.deepEqual(resumedEvents, []);
 
   await adapter.closeSession("session-2");
   await adapter.closeSession("resumed-session");

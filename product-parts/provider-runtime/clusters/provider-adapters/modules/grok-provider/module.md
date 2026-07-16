@@ -46,11 +46,18 @@ switching uses installed-build `session/set_model` first and falls back only on
 method-not-found to `session/setModel` for source/build compatibility.
 
 `GrokEventNormalizer` consumes ACP `sessionUpdate` discriminators, never output
-text heuristics. It projects assistant/reasoning chunks, tool calls/results,
-plans, usage, model changes and explicit retry/recovery failures into the
-existing provider event vocabulary. Prompt completion preserves Grok's native
-`totalTokens` and `cachedReadTokens`; the context limit remains provider/Core
-telemetry truth rather than a guessed value.
+text heuristics. Token-level `agent_thought_chunk` deltas first pass through a
+provider-owned semantic stream buffer that preserves their original whitespace
+and emits complete sentence/paragraph blocks (or a bounded/forced block at a
+tool, plan, answer or terminal boundary). Core therefore translates one
+readable reasoning block at a time and the existing translated-text reveal
+streams human text instead of one translated token per line. Stable
+session/prompt/block identities survive the translation overlay lifecycle.
+Assistant chunks, tool calls/results, plans, usage, model changes and explicit
+retry/recovery failures continue through the existing provider event
+vocabulary. Prompt completion preserves Grok's native `totalTokens` and
+`cachedReadTokens`; the context limit remains provider/Core telemetry truth
+rather than a guessed value.
 
 Native profile application emits no ACP prompt or agent-profile override.
 Managed application sends the frozen prompt once as
@@ -67,8 +74,13 @@ process/runtime per bound session. Create/resume return immutable provider IDs
 and applied-profile details, subscriptions are isolated by provider session,
 turn start/completion/failure is normalized, turn model/effort options are
 forwarded, and close cancels an active turn before stopping only that process.
-The adapter creates no Harness-owned persistent session artifacts, so deletion
-never recursively touches Grok-owned history under the CLI home.
+The adapter creates no Harness-owned persistent provider artifacts, so deletion
+never recursively touches Grok-owned history under the CLI home. Harness Core
+does own its append-only dialog history: on `session/load`, Grok marks historical
+notifications with `_meta.isReplay: true`, and the adapter suppresses those
+chat/subagent replays before routing. This prevents restored thinking and final
+answers from being appended a second time while native running-subagent recovery
+continues through `_x.ai/subagent/list_running`.
 
 `GrokSessionEventRouter` owns parent/child listener isolation and buffered event
 delivery, keeping the public adapter below the module file-size boundary while
@@ -120,11 +132,12 @@ and child-channel `subagent_status` contract. The adapter registers child ACP
 session aliases before Core adoption, routes ordinary child notifications to
 child-only listeners, and never starts a second Grok process for a live child.
 
-Persisted spawn/finish notifications replay through `session/load`. After
-binding, the adapter additionally calls native `_x.ai/subagent/list_running`
-to recover transient progress lost during disconnect. Child transcript and
-terminal state therefore converge through structured provider events; no
-renderer text recognition or Harness-owned Grok-history parser is used.
+Persisted spawn/finish notifications are historical replay and are ignored
+because Core already restored its own session event stream. After binding, the
+adapter calls native `_x.ai/subagent/list_running` to recover current transient
+progress lost during disconnect. Child transcript and terminal state therefore
+converge through structured provider events; no renderer text recognition or
+Harness-owned Grok-history parser is used.
 
 ## Public Facade
 

@@ -4,13 +4,23 @@ import type {
   GrokProviderEvent,
 } from "./grok-acp-contracts.js";
 import { isRecord } from "./grok-acp-contracts.js";
+import {
+  GrokSemanticStreamBuffer,
+  type GrokSemanticTextBlock,
+  isGrokReplayNotification,
+} from "./grok-semantic-stream-buffer.js";
 
 type MessageRole = "assistant" | "thinking";
 
 export class GrokEventNormalizer {
+  readonly #thinkingBuffer = new GrokSemanticStreamBuffer();
+
   normalizeNotification(
     notification: GrokAcpNotification
   ): readonly GrokProviderEvent[] {
+    if (isGrokReplayNotification(notification)) {
+      return [];
+    }
     if (
       notification.method !== "session/update" &&
       notification.method !== "_x.ai/session/update" &&
@@ -25,13 +35,14 @@ export class GrokEventNormalizer {
     }
     const params = unwrapNotificationParams(notification.params);
     const update = isRecord(params?.update) ? params.update : null;
-    if (!update) {
+    if (!(params && update)) {
       return [createEvent("grok_acp_event", { raw: notification.params })];
     }
-    return this.#normalizeUpdate(update);
+    return this.#normalizeUpdate(update, readNotificationContext(params));
   }
 
   turnStarted(providerSessionId: string): GrokProviderEvent {
+    this.#thinkingBuffer.startTurn(providerSessionId);
     return createEvent("turn_started", { providerSessionId });
   }
 
@@ -60,19 +71,27 @@ export class GrokEventNormalizer {
   }
 
   #normalizeUpdate(
-    update: Record<string, unknown>
+    update: Record<string, unknown>,
+    context: GrokNotificationContext
   ): readonly GrokProviderEvent[] {
     switch (update.sessionUpdate) {
       case "agent_message_chunk":
-        return messageEvents(update, "assistant");
+        return [
+          ...this.#flushThinking(context.sessionId),
+          ...messageEvents(update, "assistant", context),
+        ];
       case "agent_thought_chunk":
-        return messageEvents(update, "thinking");
+        return this.#thinkingEvents(update, context);
       case "tool_call":
-        return [streamEvent("tool_call", readToolUpdate(update))];
+        return [
+          ...this.#flushThinking(context.sessionId),
+          streamEvent("tool_call", readToolUpdate(update)),
+        ];
       case "tool_call_update":
         return [streamEvent("tool_result", readToolUpdate(update))];
       case "plan":
         return [
+          ...this.#flushThinking(context.sessionId),
           streamEvent("plan", {
             entries: Array.isArray(update.entries) ? update.entries : [],
             raw: update,
@@ -89,11 +108,22 @@ export class GrokEventNormalizer {
           }),
         ];
       case "auto_recovery_exhausted":
-        return [failureEvent(update, "Grok recovery exhausted.")];
+        return [
+          ...this.#flushThinking(context.sessionId),
+          failureEvent(update, "Grok recovery exhausted."),
+        ];
       case "retry_state":
         return update.type === "failed"
-          ? [failureEvent(update, "Grok retry failed.")]
+          ? [
+              ...this.#flushThinking(context.sessionId),
+              failureEvent(update, "Grok retry failed."),
+            ]
           : [streamEvent("retry_state", { raw: update })];
+      case "turn_completed":
+        return [
+          ...this.#flushThinking(context.sessionId),
+          streamEvent("turn_completed", { raw: update }),
+        ];
       default:
         return [
           streamEvent(String(update.sessionUpdate ?? "session_update"), {
@@ -102,6 +132,36 @@ export class GrokEventNormalizer {
         ];
     }
   }
+
+  #thinkingEvents(
+    update: Record<string, unknown>,
+    context: GrokNotificationContext
+  ): readonly GrokProviderEvent[] {
+    const content = isRecord(update.content) ? update.content : null;
+    const text = readRawString(content?.text);
+    if (!text) {
+      return [];
+    }
+    return this.#thinkingBuffer
+      .append({
+        promptId: context.promptId,
+        sessionId: context.sessionId,
+        text,
+        timestamp: context.timestamp,
+      })
+      .map(thinkingEvent);
+  }
+
+  #flushThinking(sessionId: string): readonly GrokProviderEvent[] {
+    return this.#thinkingBuffer.flush(sessionId).map(thinkingEvent);
+  }
+}
+
+interface GrokNotificationContext {
+  readonly eventId: string | null;
+  readonly promptId: string | null;
+  readonly sessionId: string;
+  readonly timestamp: string;
 }
 
 function unwrapNotificationParams(
@@ -122,7 +182,8 @@ function unwrapNotificationParams(
 
 function messageEvents(
   update: Record<string, unknown>,
-  role: MessageRole
+  role: MessageRole,
+  context: GrokNotificationContext
 ): readonly GrokProviderEvent[] {
   const content = isRecord(update.content) ? update.content : null;
   const text = readRawString(content?.text);
@@ -130,12 +191,43 @@ function messageEvents(
     return [];
   }
   return [
-    createEvent(role, {
-      content: text,
-      ...(role === "assistant" ? { tag: "live" } : { tag: "thinking" }),
-      text,
-    }),
+    createEvent(
+      role,
+      {
+        content: text,
+        ...(role === "assistant" ? { tag: "live" } : { tag: "thinking" }),
+        text,
+      },
+      {
+        timestamp: context.timestamp,
+        uuid: context.eventId ? `${context.eventId}::${role}` : undefined,
+      }
+    ),
   ];
+}
+
+function thinkingEvent(block: GrokSemanticTextBlock): GrokProviderEvent {
+  return createEvent(
+    "thinking",
+    { content: block.text, tag: "thinking", text: block.text },
+    { timestamp: block.timestamp, uuid: block.id }
+  );
+}
+
+function readNotificationContext(
+  params: Record<string, unknown>
+): GrokNotificationContext {
+  const meta = isRecord(params._meta) ? params._meta : null;
+  const timestampMs = readNumber(meta?.agentTimestampMs);
+  return {
+    eventId: readString(meta?.eventId),
+    promptId: readString(meta?.promptId),
+    sessionId: readString(params.sessionId) ?? "unknown-session",
+    timestamp:
+      timestampMs === null
+        ? new Date().toISOString()
+        : new Date(timestampMs).toISOString(),
+  };
 }
 
 function readToolUpdate(
@@ -210,14 +302,15 @@ function streamEvent(
 
 function createEvent(
   type: string,
-  payload: Readonly<Record<string, unknown>> = {}
+  payload: Readonly<Record<string, unknown>> = {},
+  identity: { readonly timestamp?: string; readonly uuid?: string } = {}
 ): GrokProviderEvent {
-  const timestamp = new Date().toISOString();
+  const timestamp = identity.timestamp ?? new Date().toISOString();
   return {
     provider: "grok",
     timestamp,
     type,
-    uuid: `${crypto.randomUUID()}::${type}`,
+    uuid: identity.uuid ?? `${crypto.randomUUID()}::${type}`,
     ...payload,
   };
 }

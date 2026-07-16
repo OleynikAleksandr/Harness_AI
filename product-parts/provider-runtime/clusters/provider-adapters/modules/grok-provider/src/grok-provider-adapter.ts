@@ -33,6 +33,7 @@ import {
   verifyGrokProfileApplication,
 } from "./grok-profile-application.js";
 import { GrokRewindClient } from "./grok-rewind-client.js";
+import { isGrokReplayNotification } from "./grok-semantic-stream-buffer.js";
 import { GrokSessionEventRouter } from "./grok-session-event-router.js";
 import {
   GrokSessionRuntime,
@@ -362,6 +363,9 @@ export class GrokProviderAdapter implements ProviderAdapter {
     entry: GrokAdapterSession,
     notification: GrokAcpNotification
   ): void {
+    if (isGrokReplayNotification(notification)) {
+      return;
+    }
     const subagentEvents =
       entry.subagentNormalizer.normalizeNotification(notification);
     if (subagentEvents.length > 0) {

@@ -37,7 +37,7 @@ export class GrokRewindClient {
     const executeResponse = await this.#transport.request(
       "_x.ai/rewind/execute",
       {
-        force: false,
+        force: true,
         mode: "conversation_only",
         sessionId: providerSessionId,
         targetPromptIndex,

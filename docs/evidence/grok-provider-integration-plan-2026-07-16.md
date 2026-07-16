@@ -427,7 +427,10 @@ Implementation slice `feat: match Grok status panel to Codex` закрепляе
 - billing refresh идёт через authenticated `_x.ai/billing` в scope
   `grok:subscription`; weekly reset сохраняется даже при `percentUsed: null`;
 - rollback читает `_x.ai/rewind/points`, требует точный `prompt_index` и вызывает
-  `_x.ai/rewind/execute` с `conversation_only`/`force: false`;
+  `_x.ai/rewind/execute` с `conversation_only`/`force: true`; live installed
+  contract подтвердил, что `force: false` является preview-only и возвращает
+  `success: false`, тогда как режим `conversation_only` независимо от флага не
+  изменяет файлы;
 - renderer показывает поля и передаёт preserve policy только по Core
   capabilities, не считает user messages и не содержит Codex/Grok allowlist.
 

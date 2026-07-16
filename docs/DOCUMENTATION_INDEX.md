@@ -146,6 +146,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   Grok Build CLI/ACP and SuperGrok subscription findings plus the proposed
   native `grok-provider` architecture, profile/tooling contracts, phased
   implementation roadmap, risks and packaged acceptance criteria.
+- `docs/evidence/grok-provider-live-verification-2026-07-16.md` — sanitized
+  installed `grok 0.2.101` verification of cached subscription auth, dynamic
+  models/reasoning, Native/Managed prompt and tools, live usage/cache/billing,
+  resume/rewind, permission/ask-user/plan interactions, one-shot MCP stdio
+  tool execution and native subagent routing, including the two evidenced wire
+  decoder fixes.
 - `docs/evidence/subagent-session-design-qa-2026-07-11.md` — build и browser
   Design QA гибридного subagent UX: inline timeline entries, recursive sidebar
   tree, child read-only view, detach, rename/regenerate и visual comparison с

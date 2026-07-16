@@ -93,8 +93,10 @@ weekly reset and nullable percentage.
 `GrokRewindClient` owns the installed `_x.ai/rewind/points` and
 `_x.ai/rewind/execute` contract. Adapter rollback selects the checkpoint whose
 `prompt_index` matches the Core-computed preserved-turn count and executes it
-with `mode: "conversation_only"` and `force: false`, so transcript history is
-rewound without undoing workspace file changes. Missing or incompatible
+with `mode: "conversation_only"` and `force: true`. In Grok's rewind contract
+`force: false` is preview-only and always reports `success: false`; `force:
+true` commits the operation, while `conversation_only` still guarantees that
+workspace files are untouched. Missing or incompatible
 checkpoints fail explicitly; no approximate local deletion is attempted.
 
 `GrokInteractionBridge` allowlists exactly ACP tool permission,

@@ -47,7 +47,7 @@ try {
   assert.deepEqual(calls[1], {
     method: "_x.ai/rewind/execute",
     params: {
-      force: false,
+      force: true,
       mode: "conversation_only",
       sessionId: "session-1",
       targetPromptIndex: 2,

@@ -113,6 +113,18 @@ try {
   assert.equal(unknownUsage.usagePercent, null);
   assert.equal(unknownUsage.resetAt, "2026-07-20T00:00:00.000Z");
 
+  const installedWireUsage = normalizeGrokBillingSnapshot({
+    config: {
+      currentPeriod: {
+        end: "2026-07-20T00:00:00Z",
+        type: "WEEKLY",
+      },
+    },
+    subscription_tier: "SuperGrok",
+  });
+  assert.equal(installedWireUsage.subscriptionTier, "SuperGrok");
+  assert.equal(installedWireUsage.usagePercent, null);
+
   const legacy = normalizeGrokBillingSnapshot({
     config: {
       billingPeriodEnd: "2026-08-01T00:00:00Z",

@@ -67,7 +67,8 @@ export function normalizeGrokBillingSnapshot(
     providerScopeKey: "grok:subscription",
     resetAt: period?.endAt ?? null,
     source: "grok_acp",
-    subscriptionTier: readString(root?.subscriptionTier),
+    subscriptionTier:
+      readString(root?.subscriptionTier) ?? readString(root?.subscription_tier),
     usagePercent: nativeUsagePercent ?? deriveLegacyUsagePercent(limit, used),
   };
 }

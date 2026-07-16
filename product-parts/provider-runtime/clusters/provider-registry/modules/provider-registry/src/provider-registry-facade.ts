@@ -8,6 +8,7 @@ import {
 export type ProviderId =
   | "claude"
   | "codex"
+  | "grok"
   | "kimi-client"
   | "glm-client"
   | "openrouter-client"
@@ -61,6 +62,15 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     name: "Codex",
     moduleId: "codex-provider",
     status: "needs-settings",
+    visibility: "visible",
+  },
+  {
+    // The official Grok Build CLI supplies its model/reasoning catalog at ACP
+    // initialize time, so the registry intentionally carries no static model.
+    id: "grok",
+    name: "Grok",
+    moduleId: "grok-provider",
+    status: "available",
     visibility: "visible",
   },
   {

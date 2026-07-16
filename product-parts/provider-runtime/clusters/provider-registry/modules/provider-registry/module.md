@@ -4,6 +4,12 @@
 
 Own provider catalog, availability, and provider invocation profile descriptors.
 
+The visible native catalog includes Grok. Its descriptor points at the
+`grok-provider` module and is settings-independent, while readiness still comes
+from the shared Core readiness registry. Grok has no static `defaultModelId`:
+the provider's authenticated ACP `modelState` remains the only model/default
+truth and is normalized by the Grok adapter module.
+
 ## Public Facade
 
 `ProviderRegistryFacade`
@@ -37,6 +43,8 @@ Own provider catalog, availability, and provider invocation profile descriptors.
   only for single-model catalogs (`kimi-client` → `kimi-for-coding`); multi-
   model client endpoints such as visible `glm-client` omit
   `defaultModelId` and resolve the selected model through settings.
+- Grok deliberately omits a registry default model because its installed CLI
+  advertises a subscription/account-specific catalog dynamically.
 - Enabled/disabled provider state.
 - Provider readiness status/message for the Core-selected readiness workspace,
   using the provider-readiness registry combine function.

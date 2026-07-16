@@ -13,3 +13,6 @@ assert.match(
   source,
   /listInvocationProfiles\(\): ProviderInvocationProfile\[\]/u
 );
+assert.match(source, /id: "grok"/u);
+assert.match(source, /moduleId: "grok-provider"/u);
+assert.match(source, /name: "Grok"/u);

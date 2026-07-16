@@ -101,6 +101,9 @@ Provider Runtime modules stay independent:
 - provider-specific process/API/session logic stays provider-owned;
 - provider homes/auth/runtime files stay provider-owned;
 - provider events flow back to Core through shared contracts.
+- native Grok model/reasoning and subscription billing facts come from the
+  authenticated Grok ACP process and are normalized before Core publishes
+  them; neither the registry nor renderer maintains a parallel static catalog.
 
 Provider Runtime must not be composed by Application Shell. Core Runtime is the
 only owner allowed to instantiate and register provider adapters.

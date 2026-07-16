@@ -54,6 +54,12 @@ registry.setReadinessWorkspace("workspace-a");
 
 assert.equal(registry.getProvider("codex").readinessStatus, "ready");
 assert.equal(registry.getProvider("claude").readinessStatus, "checking");
+const grok = registry.getProvider("grok");
+assert.equal(grok.visibility, "visible");
+assert.equal(grok.moduleId, "grok-provider");
+assert.equal(grok.status, "available");
+assert.equal(grok.defaultModelId, undefined);
+assert.equal(grok.readinessStatus, "checking");
 assert.deepEqual(
   providerDescriptorFacade
     .getCapturableModels("codex")
@@ -97,6 +103,7 @@ assert.equal(
   visible.every((provider) => provider.visibility === "visible"),
   true
 );
+assert.equal(visible.filter((provider) => provider.name === "Grok").length, 1);
 assert.equal(visible.filter((provider) => provider.name === "Kimi").length, 1);
 const kimiClient = registry.getProvider("kimi-client");
 assert.equal(kimiClient.visibility, "visible");

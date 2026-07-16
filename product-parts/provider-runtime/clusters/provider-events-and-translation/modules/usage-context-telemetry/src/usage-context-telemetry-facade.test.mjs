@@ -6,12 +6,25 @@ const source = readFileSync(
   new URL("./usage-context-telemetry-facade.ts", import.meta.url),
   "utf8"
 );
-const compiled = ts.transpileModule(source, {
+const statusPanelSource = readFileSync(
+  new URL("./usage-context-status-panel.ts", import.meta.url),
+  "utf8"
+);
+const statusPanelCompiled = ts.transpileModule(statusPanelSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
   },
 }).outputText;
+const statusPanelUrl = `data:text/javascript;base64,${Buffer.from(statusPanelCompiled).toString("base64")}`;
+const compiled = ts
+  .transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  })
+  .outputText.replaceAll("./usage-context-status-panel.js", statusPanelUrl);
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
 const { usageContextTelemetryFacade } = await import(moduleUrl);
 
@@ -25,6 +38,51 @@ assert.equal(codex.tokenDisplay.value, "0 (100%)");
 assert.equal(codex.cacheDisplay?.value, "0");
 assert.equal(codex.limitRows[0].text, "Session ...");
 assert.equal(codex.limitRows[1].text, "Weekly ...");
+assert.equal(codex.turnCount, 0);
+assert.equal(codex.statusPanelCapabilities.showTurns, true);
+assert.equal(codex.statusPanelCapabilities.rollbackPreserveFirstUserTurns, 2);
+
+const grok = usageContextTelemetryFacade.createTelemetry({
+  model: "grok-4.5",
+  provider: "Grok",
+  providerId: "grok",
+});
+assert.equal(grok.providerScopeKey, "grok:subscription");
+assert.equal(grok.tokenUsage.limit, 500_000);
+assert.equal(grok.tokenDisplay.value, "0 (100%)");
+assert.equal(grok.cacheDisplay?.value, "0");
+assert.equal(grok.statusPanelCapabilities.showTurns, true);
+const grokCompleted = usageContextTelemetryFacade.applyProviderEvent(grok, {
+  type: "turn_completed",
+});
+assert.equal(grokCompleted.turnCount, 1);
+const grokBilling = usageContextTelemetryFacade.applyProviderEvent(
+  grokCompleted,
+  {
+    type: "usage_limits",
+    usageLimitLabels: {
+      currentSession: "SuperGrok",
+      currentWeekAllModels: "Weekly",
+    },
+    usageLimits: {
+      currentSession: null,
+      currentWeekAllModels: {
+        percentUsed: null,
+        resetsAt: "2026-07-20T00:00:00.000Z",
+      },
+    },
+  }
+);
+assert.equal(grokBilling.limitRows[0].label, "SuperGrok");
+assert.equal(grokBilling.limitRows[1].percentUsed, null);
+assert.match(grokBilling.limitRows[1].text, /Weekly \(Resets/u);
+
+const grokComposer = usageContextTelemetryFacade.createTelemetry({
+  model: "grok-composer-2.5-fast",
+  provider: "Grok",
+  providerId: "grok",
+});
+assert.equal(grokComposer.tokenUsage.limit, 200_000);
 
 const codexCached = usageContextTelemetryFacade.applyProviderEvent(codex, {
   data: {

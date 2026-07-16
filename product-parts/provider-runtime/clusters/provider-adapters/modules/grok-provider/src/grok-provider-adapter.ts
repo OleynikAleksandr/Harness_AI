@@ -3,9 +3,11 @@ import type {
   ProviderAdapter,
   ProviderEventListener,
   ProviderInteractionDecision,
+  ProviderRollbackResult,
   ProviderSessionStartOptions,
   ProviderSessionStartOutcome,
   ProviderTurnOptions,
+  ProviderUsageLimitsRefreshRequest,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import type {
   GrokAcpNotification,
@@ -16,6 +18,7 @@ import {
   type GrokAcpProcessExit,
   type GrokAcpProcessReporter,
 } from "./grok-acp-process.js";
+import { GrokBillingClient } from "./grok-billing-client.js";
 import {
   type GrokCliLocationOptions,
   type GrokCliProbe,
@@ -29,6 +32,8 @@ import {
   resolveGrokSessionProfileState,
   verifyGrokProfileApplication,
 } from "./grok-profile-application.js";
+import { GrokRewindClient } from "./grok-rewind-client.js";
+import { GrokSessionEventRouter } from "./grok-session-event-router.js";
 import {
   GrokSessionRuntime,
   type GrokSessionTransport,
@@ -60,21 +65,18 @@ export interface GrokProviderAdapterOptions extends GrokCliLocationOptions {
   readonly workspacePath?: string;
 }
 
-type GrokListenerMap = Map<string, Set<ProviderEventListener>>;
 const GROK_SESSION_PREFIX_PATTERN = /^grok:/u;
 
 interface GrokAdapterSession {
   readonly application: GrokProfileApplication;
   readonly eventNormalizer: GrokEventNormalizer;
+  readonly eventRouter: GrokSessionEventRouter;
   readonly interactionBridge: GrokInteractionBridge;
-  readonly listenersByProviderSessionId: GrokListenerMap;
-  readonly pendingEventsByProviderSessionId: Map<string, unknown[]>;
   providerSessionId: string | null;
   readonly runtime: GrokSessionRuntime;
   readonly subagentNormalizer: GrokSubagentNormalizer;
   readonly transport: GrokSessionTransport;
   turnRunning: boolean;
-  readonly workspacePath: string;
 }
 
 export class GrokProviderAdapter implements ProviderAdapter {
@@ -161,15 +163,7 @@ export class GrokProviderAdapter implements ProviderAdapter {
   ): () => void {
     const entry = this.#requireSession(providerSessionId);
     const normalizedId = normalizeProviderSessionId(providerSessionId);
-    const listeners = this.#listenersFor(entry, normalizedId);
-    listeners.add(listener);
-    const pending = entry.pendingEventsByProviderSessionId.get(normalizedId);
-    for (const event of pending?.splice(0) ?? []) {
-      listener(event);
-    }
-    return () => {
-      listeners.delete(listener);
-    };
+    return entry.eventRouter.subscribe(normalizedId, listener);
   }
 
   async sendMessage(
@@ -216,21 +210,57 @@ export class GrokProviderAdapter implements ProviderAdapter {
     const normalizedId = normalizeProviderSessionId(providerSessionId);
     if (this.#subagentSessions.has(normalizedId)) {
       this.#subagentSessions.delete(normalizedId);
-      entry.listenersByProviderSessionId.delete(normalizedId);
-      entry.pendingEventsByProviderSessionId.delete(normalizedId);
+      entry.eventRouter.clearSession(normalizedId);
       return;
     }
     if (entry.turnRunning) {
       await entry.runtime.cancel().catch(() => undefined);
     }
     this.#sessions.delete(normalizedId);
-    for (const childSessionId of entry.listenersByProviderSessionId.keys()) {
-      this.#subagentSessions.delete(childSessionId);
+    for (const [childSessionId, childEntry] of this.#subagentSessions) {
+      if (childEntry === entry) {
+        this.#subagentSessions.delete(childSessionId);
+      }
     }
-    entry.listenersByProviderSessionId.clear();
-    entry.pendingEventsByProviderSessionId.clear();
+    entry.eventRouter.clearAll();
     entry.interactionBridge.cancelAll();
     await entry.runtime.close();
+  }
+
+  async refreshUsageLimits(
+    request: ProviderUsageLimitsRefreshRequest
+  ): Promise<void> {
+    const entry = this.#requireSession(request.providerSessionId);
+    const snapshot = await new GrokBillingClient({
+      transport: entry.transport,
+    }).read();
+    request.broadcast({
+      provider: "grok",
+      providerScopeKey: snapshot.providerScopeKey,
+      type: "usage_limits",
+      usageLimitLabels: {
+        currentSession: snapshot.subscriptionTier ?? "Subscription",
+        currentWeekAllModels: "Weekly",
+      },
+      usageLimits: {
+        currentSession: null,
+        currentWeekAllModels: {
+          percentUsed: snapshot.usagePercent,
+          resetsAt: snapshot.resetAt,
+        },
+      },
+    });
+  }
+
+  async rollbackSessionTurns(
+    providerSessionId: string,
+    numTurns: number
+  ): Promise<ProviderRollbackResult> {
+    const entry = this.#requireSession(providerSessionId);
+    return await new GrokRewindClient(entry.transport).rollbackTurns(
+      normalizeProviderSessionId(providerSessionId),
+      numTurns
+    );
   }
 
   respondToInteraction(
@@ -240,13 +270,6 @@ export class GrokProviderAdapter implements ProviderAdapter {
     const entry = this.#requireSession(providerSessionId);
     entry.interactionBridge.respond(decision);
     return Promise.resolve();
-  }
-
-  deleteSessionArtifacts(
-    providerSessionId: string,
-    _workspacePath: string
-  ): void {
-    normalizeProviderSessionId(providerSessionId);
   }
 
   #createEntry(
@@ -293,15 +316,13 @@ export class GrokProviderAdapter implements ProviderAdapter {
     entry = {
       application,
       eventNormalizer: new GrokEventNormalizer(),
+      eventRouter: new GrokSessionEventRouter(),
       interactionBridge,
-      listenersByProviderSessionId: new Map(),
-      pendingEventsByProviderSessionId: new Map(),
       providerSessionId: null,
       runtime,
       subagentNormalizer: new GrokSubagentNormalizer(),
       transport,
       turnRunning: false,
-      workspacePath,
     };
     return entry;
   }
@@ -329,7 +350,7 @@ export class GrokProviderAdapter implements ProviderAdapter {
     }
     entry.providerSessionId = normalizedId;
     this.#sessions.set(normalizedId, entry);
-    this.#listenersFor(entry, normalizedId);
+    entry.eventRouter.ensureSession(normalizedId);
     this.#recoverRunningSubagents(entry, normalizedId).catch(() => undefined);
     if (!includeProfileDetails) {
       return normalizedId;
@@ -397,21 +418,7 @@ export class GrokProviderAdapter implements ProviderAdapter {
     if (!targetProviderSessionId) {
       return;
     }
-    const listeners = this.#listenersFor(entry, targetProviderSessionId);
-    if (listeners.size === 0) {
-      const pending =
-        entry.pendingEventsByProviderSessionId.get(targetProviderSessionId) ??
-        [];
-      pending.push(event);
-      entry.pendingEventsByProviderSessionId.set(
-        targetProviderSessionId,
-        pending
-      );
-      return;
-    }
-    for (const listener of listeners) {
-      listener(event);
-    }
+    entry.eventRouter.dispatch(targetProviderSessionId, event);
   }
 
   async #recoverRunningSubagents(
@@ -447,20 +454,7 @@ export class GrokProviderAdapter implements ProviderAdapter {
       );
     }
     this.#subagentSessions.set(normalizedId, entry);
-    this.#listenersFor(entry, normalizedId);
-  }
-
-  #listenersFor(
-    entry: GrokAdapterSession,
-    providerSessionId: string
-  ): Set<ProviderEventListener> {
-    const normalizedId = normalizeProviderSessionId(providerSessionId);
-    let listeners = entry.listenersByProviderSessionId.get(normalizedId);
-    if (!listeners) {
-      listeners = new Set();
-      entry.listenersByProviderSessionId.set(normalizedId, listeners);
-    }
-    return listeners;
+    entry.eventRouter.ensureSession(normalizedId);
   }
 
   #requireSession(providerSessionId: string): GrokAdapterSession {

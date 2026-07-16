@@ -182,11 +182,14 @@ export function SessionWindowFacade() {
     await window.harnessCore?.stopTurn(sessionId);
   }
 
-  async function rollbackActiveSessionTurns(sessionId: string) {
+  async function rollbackActiveSessionTurns(
+    sessionId: string,
+    preserveFirstUserTurns: number
+  ) {
     setRollbackSessionId(sessionId);
     try {
       const result = await window.harnessCore?.rollbackSessionTurns({
-        preserveFirstUserTurns: 2,
+        preserveFirstUserTurns,
         sessionId,
       });
       if (!result) {
@@ -195,7 +198,7 @@ export function SessionWindowFacade() {
         await hydrateSession(sessionId);
         appendNotice(
           sessionId,
-          "Rolled back Codex turns to the first 2-turn anchor."
+          `Rolled back ${activeSession?.providerName ?? "provider"} turns to the first ${preserveFirstUserTurns}-turn anchor.`
         );
       } else {
         appendNotice(sessionId, result.error);
@@ -371,9 +374,11 @@ export function SessionWindowFacade() {
               />
             )}
             <ReferenceStatusPanel
-              messages={messages}
-              onRollbackTurns={() =>
-                rollbackActiveSessionTurns(activeSession.id)
+              onRollbackTurns={(preserveFirstUserTurns) =>
+                rollbackActiveSessionTurns(
+                  activeSession.id,
+                  preserveFirstUserTurns
+                )
               }
               rollbackPending={rollbackSessionId === activeSession.id}
               session={activeSession}

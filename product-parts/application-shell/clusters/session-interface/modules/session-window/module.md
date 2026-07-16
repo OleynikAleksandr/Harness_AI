@@ -30,18 +30,16 @@ Render the transcript/dialog layout and session chrome.
 - Core-owned localization runtime payload from the Electron preload bridge.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
-- For Codex sessions, the session status panel
-  renders the display-only visible turn count from the current transcript
-  (`role === "user"`) immediately before the Codex-family Rollback button,
-  between the
-  Tokens/optional Cache telemetry and Rollback. Provider-reported
-  `cacheDisplay` renders beside the Core-owned token telemetry when available.
-  The Codex-family Rollback button preserves the first two visible user
-  turns as the warmup/cache-anchor pair by sending Core the
-  `preserveFirstUserTurns: 2` policy while the session is idle; Core derives
-  `numTurns`, validates provider id/binding/turn count, and restores transcript
-  plus token/cache telemetry to the anchor snapshot. Non-Codex-family sessions
-  keep the standard token-only status layout.
+- The session status panel renders only Core telemetry truth. Codex and Grok
+  receive the identical lower-panel contract and ordering: applied Model,
+  supported reasoning effort, Tokens, Cache, Turns and Rollback. `turnCount`
+  comes from Core/provider events rather than counting user messages in the
+  renderer; `Cache: 0` is visible from session start for both providers.
+  `statusPanelCapabilities` controls field/action visibility and supplies the
+  two-turn warmup/cache-anchor policy. Rollback forwards that preserved count
+  to Core while idle; Core derives depth, validates the binding and restores
+  transcript plus telemetry. Providers without a capability keep only their
+  supported status fields, without renderer-owned provider allowlists.
 - The session window owns refresh of the browser localization runtime payload
   and passes that refresh callback to Settings, so save/reset can show newly
   materialized localized copy without reopening the app shell.
@@ -167,8 +165,9 @@ Render the transcript/dialog layout and session chrome.
   validation and `titleOrigin` authority remain in Core.
 - Session-level UI actions sent to Core, including the running-turn Stop that
   calls Core `stopTurn` with the active session id.
-- Enabled Rollback control in the Codex-family status panel. It dispatches only
-  the raw `{ sessionId, preserveFirstUserTurns: 2 }` intent to Core, keeps
+- Enabled Rollback control in the Codex/Grok status panel. It dispatches only
+  the raw `{ sessionId, preserveFirstUserTurns }` intent supplied by Core
+  telemetry capabilities, keeps
   renderer code out of rollback-depth calculation, shows controlled transcript
   notices for success/failure, and applies Core `session:messages-replaced`
   events to refresh the visible transcript after rollback.

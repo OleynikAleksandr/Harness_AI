@@ -125,7 +125,10 @@ const adapterContractSource = readFileSync(
   "utf8"
 );
 assert.match(adapterContractSource, /rollbackSessionTurns\?\(/u);
-assert.match(rollbackSource, /session\.providerId !== "codex"/u);
+assert.match(
+  rollbackSource,
+  /ROLLBACK_PROVIDER_IDS = new Set\(\["codex", "grok"\]\)/u
+);
 assert.match(rollbackSource, /Cannot rollback while a turn is running/u);
 assert.match(rollbackSource, /resolveRollbackTurnCount/u);
 assert.match(rollbackSource, /readAnchorTelemetrySnapshot/u);

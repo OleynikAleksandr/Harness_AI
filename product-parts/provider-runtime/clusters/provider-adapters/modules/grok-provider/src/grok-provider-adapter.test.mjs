@@ -64,6 +64,30 @@ class FakeTransport {
         },
       });
     }
+    if (method === "_x.ai/billing") {
+      return Promise.resolve({
+        result: {
+          config: {
+            currentPeriod: {
+              end: "2026-07-20T00:00:00.000Z",
+              start: "2026-07-13T00:00:00.000Z",
+              type: "WEEKLY",
+            },
+          },
+          subscriptionTier: "SuperGrok",
+        },
+      });
+    }
+    if (method === "_x.ai/rewind/points") {
+      return Promise.resolve({
+        result: {
+          rewind_points: [0, 1, 2, 3].map((prompt_index) => ({ prompt_index })),
+        },
+      });
+    }
+    if (method === "_x.ai/rewind/execute") {
+      return Promise.resolve({ result: { success: true } });
+    }
     if (method === "session/prompt") {
       this.callbacks.onNotification({
         method: "session/update",
@@ -92,12 +116,15 @@ try {
     "grok-acp-contracts.ts",
     "grok-acp-router.ts",
     "grok-acp-process.ts",
+    "grok-billing-client.ts",
     "grok-cli-locator.ts",
     "grok-event-normalizer.ts",
     "grok-interaction-bridge.ts",
     "grok-tool-inventory.ts",
     "grok-profile-application.ts",
     "grok-session-runtime.ts",
+    "grok-session-event-router.ts",
+    "grok-rewind-client.ts",
     "grok-subagent-normalizer.ts",
     "grok-provider-adapter.ts",
   ];
@@ -202,6 +229,31 @@ try {
       .mcpServers,
     [{ name: "workspace-tools", transport: "stdio" }]
   );
+  const usageEvents = [];
+  await adapter.refreshUsageLimits({
+    broadcast: (event) => usageEvents.push(event),
+    providerSessionId: "session-2",
+    runtimeSessionId: "runtime-2",
+    workspacePath: "/workspace-b",
+  });
+  assert.equal(usageEvents[0].usageLimitLabels.currentSession, "SuperGrok");
+  assert.equal(
+    usageEvents[0].usageLimits.currentWeekAllModels.percentUsed,
+    null
+  );
+  assert.equal(
+    usageEvents[0].usageLimits.currentWeekAllModels.resetsAt,
+    "2026-07-20T00:00:00.000Z"
+  );
+  assert.deepEqual(await adapter.rollbackSessionTurns("session-2", 2), {
+    providerSessionId: "session-2",
+    turns: 2,
+  });
+  assert.equal(
+    transports[1].calls.find((call) => call.method === "_x.ai/rewind/execute")
+      .params.mode,
+    "conversation_only"
+  );
 
   transports[1].callbacks.onNotification({
     method: "x.ai/session_notification",
@@ -297,7 +349,6 @@ try {
   );
   assert.equal(resumed.providerSessionId, "resumed-session");
   assert.equal(transports[2].loadedSessionId, "resumed-session");
-  adapter.deleteSessionArtifacts("resumed-session", "/workspace-c");
 
   await adapter.closeSession("session-2");
   await adapter.closeSession("resumed-session");

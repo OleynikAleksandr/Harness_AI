@@ -70,6 +70,10 @@ forwarded, and close cancels an active turn before stopping only that process.
 The adapter creates no Harness-owned persistent session artifacts, so deletion
 never recursively touches Grok-owned history under the CLI home.
 
+`GrokSessionEventRouter` owns parent/child listener isolation and buffered event
+delivery, keeping the public adapter below the module file-size boundary while
+preserving the same provider-session routing contract.
+
 `normalizeGrokModelCatalog` consumes only ACP-advertised `modelState` truth.
 Each model keeps its provider ID, label, description, context window and native
 reasoning menu; the reasoning option value (not a presentation alias) is the
@@ -82,6 +86,16 @@ tier, native weekly/monthly period and reset, included/on-demand/prepaid credit
 facts and unified-billing state. `creditUsagePercent` is preferred, legacy
 limit/used fields are used only when both make a percentage provable, and an
 unreported percentage remains `null` rather than becoming a misleading zero.
+`GrokProviderAdapter.refreshUsageLimits` publishes this snapshot through the
+shared `grok:subscription` telemetry scope, including the SuperGrok tier label,
+weekly reset and nullable percentage.
+
+`GrokRewindClient` owns the installed `_x.ai/rewind/points` and
+`_x.ai/rewind/execute` contract. Adapter rollback selects the checkpoint whose
+`prompt_index` matches the Core-computed preserved-turn count and executes it
+with `mode: "conversation_only"` and `force: false`, so transcript history is
+rewound without undoing workspace file changes. Missing or incompatible
+checkpoints fail explicitly; no approximate local deletion is attempted.
 
 `GrokInteractionBridge` allowlists exactly ACP tool permission,
 `x.ai/ask_user_question` and `x.ai/exit_plan_mode` reverse requests. It emits
@@ -132,6 +146,7 @@ renderer text recognition or Harness-owned Grok-history parser is used.
 - Complete `ProviderAdapter` create/resume/send/subscribe/close composition.
 - Dynamic ACP model/reasoning catalog with native context windows.
 - Subscription billing tier, period/reset and truthful optional usage percent.
+- Native conversation-only rewind through validated Grok prompt checkpoints.
 - Core-mediated permission, ask-user and plan-approval blocking interactions.
 - Native Grok MCP discovery plus optional Core-provided ACP server config.
 - Native parent/child sessions, live progress, terminal/cancelled status and

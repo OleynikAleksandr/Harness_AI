@@ -1,3 +1,13 @@
+import {
+  defaultProviderCachedTokens,
+  defaultProviderTokenLimit,
+  type ProviderStatusPanelCapabilities,
+  providerStatusPanelCapabilities,
+  resolveProviderTurnCount,
+} from "./usage-context-status-panel.js";
+
+export type { ProviderStatusPanelCapabilities } from "./usage-context-status-panel.js";
+
 export type ProviderTurnStatus = "idle" | "running" | "stopped";
 
 export interface ProviderTokenUsage {
@@ -7,7 +17,7 @@ export interface ProviderTokenUsage {
 }
 
 export interface ProviderUsageLimitBucket {
-  percentUsed: number;
+  percentUsed: number | null;
   resetsAt?: string | null;
 }
 
@@ -43,11 +53,13 @@ export interface ProviderUsageTelemetry {
   providerScopeKey: string | null;
   providerSessionId: string | null;
   status: ProviderTurnStatus;
+  statusPanelCapabilities: ProviderStatusPanelCapabilities;
   tokenDisplay: {
     title: string;
     value: string;
   };
   tokenUsage: ProviderTokenUsage;
+  turnCount: number;
   updatedAt: string;
   usageLimitLabels: ProviderUsageLimitLabels;
   usageLimits: ProviderUsageLimits | null;
@@ -66,17 +78,11 @@ interface ProviderBindingLike {
   status: "failed" | "pending" | "ready";
 }
 
-const DEFAULT_TOKEN_LIMIT = 200_000;
-// Token limit for five-hour-window subscription providers (the GLM coding
-// plan; the ACP Kimi that first needed it left with the kimi-provider
-// retirement, 2026-07-05).
-const FIVE_HOUR_WINDOW_TOKEN_LIMIT = 262_144;
-
 export class UsageContextTelemetryFacade {
   createTelemetry(request: CreateTelemetryRequest): ProviderUsageTelemetry {
     const tokenUsage = {
-      cached: defaultCachedTokenCount(request.providerId),
-      limit: defaultTokenLimit(request.providerId),
+      cached: defaultProviderCachedTokens(request.providerId),
+      limit: defaultProviderTokenLimit(request.providerId, request.model),
       used: 0,
     };
     return buildTelemetry({
@@ -86,6 +92,7 @@ export class UsageContextTelemetryFacade {
       providerSessionId: null,
       status: request.status ?? "idle",
       tokenUsage,
+      turnCount: 0,
       usageLimits: null,
     });
   }
@@ -101,6 +108,7 @@ export class UsageContextTelemetryFacade {
       providerSessionId: binding.providerSessionId ?? null,
       status: current.status,
       tokenUsage: current.tokenUsage,
+      turnCount: current.turnCount,
       usageLimitLabels: current.usageLimitLabels,
       usageLimits: current.usageLimits,
     });
@@ -117,6 +125,7 @@ export class UsageContextTelemetryFacade {
       providerSessionId: current.providerSessionId,
       status,
       tokenUsage: current.tokenUsage,
+      turnCount: current.turnCount,
       usageLimitLabels: current.usageLimitLabels,
       usageLimits: current.usageLimits,
     });
@@ -128,7 +137,12 @@ export class UsageContextTelemetryFacade {
   ): ProviderUsageTelemetry {
     const tokenUsage = readTokenUsage(event);
     const usageLimits = readUsageLimits(event);
-    if (!(tokenUsage || usageLimits)) {
+    const usageLimitLabels = readUsageLimitLabels(event);
+    const turnCount = resolveProviderTurnCount(current.turnCount ?? 0, event);
+    if (
+      !(tokenUsage || usageLimits || usageLimitLabels) &&
+      turnCount === current.turnCount
+    ) {
       return current;
     }
     return buildTelemetry({
@@ -140,7 +154,8 @@ export class UsageContextTelemetryFacade {
       tokenUsage: tokenUsage
         ? mergeTokenUsage(current, tokenUsage)
         : current.tokenUsage,
-      usageLimitLabels: current.usageLimitLabels,
+      turnCount,
+      usageLimitLabels: usageLimitLabels ?? current.usageLimitLabels,
       usageLimits: usageLimits ?? current.usageLimits,
     });
   }
@@ -186,6 +201,7 @@ function buildTelemetry(value: {
   providerSessionId: string | null;
   status: ProviderTurnStatus;
   tokenUsage: ProviderTokenUsage;
+  turnCount: number;
   usageLimitLabels?: ProviderUsageLimitLabels;
   usageLimits: ProviderUsageLimits | null;
 }): ProviderUsageTelemetry {
@@ -207,7 +223,9 @@ function buildTelemetry(value: {
       usageLimits: value.usageLimits,
     }),
     providerScopeKey: providerScopeKey(value.providerId),
+    statusPanelCapabilities: providerStatusPanelCapabilities(value.providerId),
     tokenDisplay: formatTokenUsage(tokenUsage),
+    turnCount: value.turnCount ?? 0,
     updatedAt: new Date().toISOString(),
     usageLimitLabels: labels,
   };
@@ -315,13 +333,27 @@ function readBucket(value: unknown): ProviderUsageLimitBucket | null {
     return null;
   }
   const percentUsed = readNumber(value.percentUsed);
-  if (percentUsed === null) {
+  const resetsAt = readString(value.resetsAt);
+  if (percentUsed === null && !resetsAt) {
     return null;
   }
   return {
-    percentUsed: clampPercent(Math.round(percentUsed)),
-    resetsAt: readString(value.resetsAt),
+    percentUsed:
+      percentUsed === null ? null : clampPercent(Math.round(percentUsed)),
+    resetsAt,
   };
+}
+
+function readUsageLimitLabels(event: unknown): ProviderUsageLimitLabels | null {
+  const root = isRecord(event) ? event : null;
+  const labels = isRecord(root?.usageLimitLabels)
+    ? root.usageLimitLabels
+    : null;
+  const currentSession = readString(labels?.currentSession);
+  const currentWeekAllModels = readString(labels?.currentWeekAllModels);
+  return currentSession && currentWeekAllModels
+    ? { currentSession, currentWeekAllModels }
+    : null;
 }
 
 function formatTokenUsage(tokenUsage: ProviderTokenUsage): {
@@ -381,7 +413,11 @@ function fallbackLabels(providerId: string): ProviderUsageLimitLabels {
 }
 
 function pendingLimitState(providerId: string): "loading" | "unavailable" {
-  if (providerId === "claude" || providerId === "codex") {
+  if (
+    providerId === "claude" ||
+    providerId === "codex" ||
+    providerId === "grok"
+  ) {
     return "loading";
   }
   return "unavailable";
@@ -396,17 +432,10 @@ function providerScopeKey(providerId: string): string | null {
   if (providerId === "codex") {
     return "codex:global";
   }
+  if (providerId === "grok") {
+    return "grok:subscription";
+  }
   return null;
-}
-
-function defaultCachedTokenCount(providerId: string): number | null {
-  return providerId === "codex" ? 0 : null;
-}
-
-function defaultTokenLimit(providerId: string): number {
-  return hasFiveHourWindow(providerId)
-    ? FIVE_HOUR_WINDOW_TOKEN_LIMIT
-    : DEFAULT_TOKEN_LIMIT;
 }
 
 function hasFiveHourWindow(providerId: string): boolean {

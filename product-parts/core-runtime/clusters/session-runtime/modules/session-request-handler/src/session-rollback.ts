@@ -10,6 +10,8 @@ import type {
   RollbackCoreSessionRequest,
 } from "./session-request-handler-types.js";
 
+const ROLLBACK_PROVIDER_IDS = new Set(["codex", "grok"]);
+
 export function isPositiveTurnCount(value: number): boolean {
   return Number.isSafeInteger(value) && value > 0;
 }
@@ -70,7 +72,7 @@ export class SessionRollback {
     }
     const binding = await this.resolveBinding(session);
     if (!binding?.adapter.rollbackSessionTurns) {
-      return { error: "Codex rollback binding is unavailable", ok: false };
+      return { error: "Provider rollback binding is unavailable", ok: false };
     }
     try {
       await binding.adapter.rollbackSessionTurns(
@@ -142,8 +144,8 @@ export class SessionRollback {
   }
 
   private validate(session: CoreSession): string | null {
-    if (session.providerId !== "codex") {
-      return "Rollback is only available for Codex sessions";
+    if (!ROLLBACK_PROVIDER_IDS.has(session.providerId)) {
+      return "Rollback is only available for Codex and Grok sessions";
     }
     if (this.deps.getTelemetryStatus(session.id) === "running") {
       return "Cannot rollback while a turn is running";

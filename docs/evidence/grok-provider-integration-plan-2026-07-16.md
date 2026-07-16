@@ -414,6 +414,26 @@ Grok использует тот же provider-neutral session shell, что Cod
 5. Rollback доступен по тем же правилам, сохраняет двух-turn anchor и обновляет весь snapshot;
 6. ни одно обязательное поле не скрыто только потому, что provider ID равен `grok`.
 
+### 8.4 Реализованный Core/UI контракт
+
+Implementation slice `feat: match Grok status panel to Codex` закрепляет эту
+паритетность без Grok-specific UI:
+
+- Usage Context Telemetry публикует `statusPanelCapabilities` и Core-owned
+  `turnCount`; Codex и Grok получают одинаковые Cache/Turns/Rollback
+  capabilities и anchor `2`;
+- Grok 4.5 получает catalog-confirmed контекст `500000`, Composer — `200000`, а
+  `Cache: 0` существует с начального snapshot;
+- billing refresh идёт через authenticated `_x.ai/billing` в scope
+  `grok:subscription`; weekly reset сохраняется даже при `percentUsed: null`;
+- rollback читает `_x.ai/rewind/points`, требует точный `prompt_index` и вызывает
+  `_x.ai/rewind/execute` с `conversation_only`/`force: false`;
+- renderer показывает поля и передаёт preserve policy только по Core
+  capabilities, не считает user messages и не содержит Codex/Grok allowlist.
+
+Окончательный чек раздела 8.3 остаётся packaged user-acceptance gate: наличие
+контракта в source не заменяет проверку собранного `Harness AI.app`.
+
 ## 9. Implementation Roadmap
 
 Каждая будущая микро-задача должна иметь собственную строку `Git Commit`, затрагивать не более трёх функциональных файлов и обновлять релевантную документацию в том же commit.

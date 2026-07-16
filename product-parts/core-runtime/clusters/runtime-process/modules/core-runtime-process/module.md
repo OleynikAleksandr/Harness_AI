@@ -66,9 +66,10 @@ state.
   bindings and removes provider artifacts, per-session event JSONL and
   reasoning translation sidecars for every session in the deleted tree
   (parent and all descendants), so nothing outlives the session records.
-- The `rollback-session-turns` RPC forwards the raw Codex rollback intent
-  (`sessionId`, `numTurns`) to Session Runtime. Runtime Process does not inspect
-  provider history, derive turn counts, or choose rollback strategy.
+- The `rollback-session-turns` RPC forwards the raw provider-neutral Codex/Grok
+  rollback intent (`sessionId`, `numTurns`) to Session Runtime. Runtime Process
+  does not inspect provider history, derive turn counts, or choose rollback
+  strategy.
 - `rename-session` and `regenerate-session-title` forward raw title intents to
   Session Runtime. Core Session Runtime validates, persists and publishes the
   updated title; Runtime Process does not derive titles or maintain a shadow

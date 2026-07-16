@@ -45,7 +45,13 @@ export function restoreTelemetryHistory(params: {
 }): void {
   for (const [sessionId, telemetry] of params.telemetryHistory) {
     if (params.sessions.has(sessionId)) {
-      params.telemetryBySession.set(sessionId, telemetry);
+      params.telemetryBySession.set(
+        sessionId,
+        usageContextTelemetryFacade.applyStatus(
+          telemetry,
+          telemetry.status ?? "idle"
+        )
+      );
     }
   }
 }

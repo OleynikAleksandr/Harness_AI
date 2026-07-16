@@ -1,9 +1,6 @@
 import { type CSSProperties, useEffect, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
-import type {
-  SessionMessage,
-  SessionTelemetry,
-} from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import type { SessionTelemetry } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
@@ -148,15 +145,13 @@ export function ReferenceInputPanel({
   );
 }
 export function ReferenceStatusPanel({
-  messages,
   onRollbackTurns,
   rollbackPending,
   session,
   settings,
   telemetry,
 }: {
-  messages: readonly SessionMessage[];
-  onRollbackTurns?: () => void;
+  onRollbackTurns?: (preserveFirstUserTurns: number) => void;
   rollbackPending?: boolean;
   session: CoreSession | undefined;
   settings: HarnessSettings | null;
@@ -164,17 +159,19 @@ export function ReferenceStatusPanel({
 }) {
   const { t } = useBrowserLocalization();
   const reasoning = resolveReasoningLabel(session, settings);
-  const showCodexRollbackProbe = isCodexProvider(session?.providerId);
-  const turnCount = showCodexRollbackProbe
-    ? messages.filter((message) => message.role === "user").length
-    : 0;
+  const capabilities = telemetry.statusPanelCapabilities;
+  const preserveFirstUserTurns = capabilities.rollbackPreserveFirstUserTurns;
+  const showRollback = preserveFirstUserTurns !== null;
   const rollbackReady = Boolean(
-    onRollbackTurns && turnCount > 2 && telemetry.status === "idle"
+    onRollbackTurns &&
+      preserveFirstUserTurns !== null &&
+      telemetry.turnCount > preserveFirstUserTurns &&
+      telemetry.status === "idle"
   );
   return (
     <section
       className={
-        showCodexRollbackProbe
+        showRollback
           ? "session-status session-status--codex-rollback-probe session-panel"
           : "session-status session-panel"
       }
@@ -194,7 +191,7 @@ export function ReferenceStatusPanel({
           {telemetry.tokenDisplay.value}
         </strong>
       </span>
-      {telemetry.cacheDisplay ? (
+      {capabilities.showCache && telemetry.cacheDisplay ? (
         <span className="session-status-chip session-status-chip--cache">
           <span>{t("ui_labels", "session.status.cache", "Cache:")}</span>
           <strong title={telemetry.cacheDisplay.title}>
@@ -202,17 +199,17 @@ export function ReferenceStatusPanel({
           </strong>
         </span>
       ) : null}
-      {showCodexRollbackProbe ? (
+      {capabilities.showTurns ? (
         <span className="session-status-chip session-status-chip--turns">
           <span>{t("ui_labels", "session.status.turns", "Turns:")}</span>
-          <strong>{turnCount}</strong>
+          <strong>{telemetry.turnCount}</strong>
         </span>
       ) : null}
-      {showCodexRollbackProbe ? (
+      {showRollback ? (
         <button
           className="session-status-button session-status-button--rollback"
           disabled={!rollbackReady || rollbackPending}
-          onClick={() => onRollbackTurns?.()}
+          onClick={() => onRollbackTurns?.(preserveFirstUserTurns ?? 0)}
           type="button"
         >
           {t("ui_labels", "session.status.rollback", "Rollback")}

@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "chore: verify Kimi native request capture",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "chore: package Kimi native capture build",
   "debt": null
 }
 ```
@@ -93,13 +93,13 @@
 
 ### Stream: Native CLI Evidence
 
-11. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Run focused live native captures with installed Kimi CLI `0.26.0` for all three model ids, verify raw JSONL against the derived Markdown system/tool sections, and record sanitized evidence without credentials or full sensitive prompts (scope: `docs/evidence/kimi-native-request-capture-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: verify Kimi native request capture`).
-12. [TODO] Git Commit: `chore: verify Kimi native request capture` (hash: TBD)
+11. [DONE] `harness-ai.phase4.stream1.task1` Run focused live native captures with installed Kimi CLI `0.26.0` for all three model ids, verify raw JSONL against the derived Markdown system/tool sections, and record sanitized evidence without credentials or full sensitive prompts (scope: `docs/evidence/kimi-native-request-capture-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: verify Kimi native request capture`). Result: Completed in commit `chore: verify Kimi native request capture`.
+12. [DONE] Git Commit: `chore: verify Kimi native request capture` (hash: self)
 
 ## Phase 5 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-16)
 
 ### Stream: Package And Retest
 
-13. [TODO] `harness-ai.phase5.stream1.task1` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native capture build`).
+13. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native capture build`).
 14. [TODO] Git Commit: `chore: package Kimi native capture build` (hash: TBD)
 15. [TODO] `harness-ai.phase5.stream1.task2` User captures all three Kimi models from Settings -> General and confirms the raw/readable artifacts contain the expected native CLI system prompt and tool schemas (completion: user-acceptance; scope: user workflow; expected commit: none).

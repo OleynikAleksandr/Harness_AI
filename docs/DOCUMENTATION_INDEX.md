@@ -151,6 +151,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   three-model catalog/turn evidence, Core routing and Settings/new-session
   selection contract, automated gates, packaged `app.asar` checksum and
   packaged Kimi Settings smoke ahead of user acceptance.
+- `docs/evidence/kimi-native-request-capture-2026-07-16.md` — sanitized live
+  evidence for Kimi CLI `0.26.0` native capture across all three Coding Plan
+  models: exact upstream model ids, distinct system hashes, the shared
+  25-tool native schema set, raw/Markdown interpretation, redaction and
+  temporary-home cleanup; package rebuild remains pending explicit approval.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

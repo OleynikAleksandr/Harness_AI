@@ -13,12 +13,24 @@ const facadeSource = readFileSync(
   new URL("./session-window-facade.tsx", import.meta.url),
   "utf8"
 );
+const providerPickerSource = readFileSync(
+  new URL("./provider-picker.tsx", import.meta.url),
+  "utf8"
+);
 const coreEventsSource = readFileSync(
   new URL("./session-window-core-events.ts", import.meta.url),
   "utf8"
 );
 
 assert.match(source, /resolveCodexReasoningEffort/u);
+assert.match(
+  source,
+  /session\.reasoningEffort \?\?\s+settings\.providers\.grok\.reasoningByModel\[session\.model\]/u
+);
+assert.match(
+  providerPickerSource,
+  /case "grok":\s+return settings\.providers\.grok\.defaultModel/u
+);
 assert.match(source, /return effort \? `\(\$\{effort\}\)` : null/u);
 assert.match(source, /telemetry\.cacheDisplay/u);
 assert.match(source, /session\.status\.cache/u);

@@ -22,7 +22,9 @@ Render the transcript/dialog layout and session chrome.
   child turns therefore cannot overwrite one shared running-session scalar;
   the composer remains disabled until its own session becomes idle.
 - User interaction events from child controls.
-- Provider settings snapshot for display-only labels. Codex reasoning labels use the Core settings-store capability resolver and disappear when the selected Codex model has no declared reasoning effort levels.
+- Provider settings snapshot for display-only labels. Codex reasoning labels
+  use the Core settings-store capability resolver; Grok labels use its
+  Core-selected per-model effort and disappear for provider-managed Composer.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
 - Core-owned provider readiness descriptors and live `provider:status` events.
 - Core-owned localization runtime payload from the Electron preload bridge.
@@ -188,6 +190,9 @@ Render the transcript/dialog layout and session chrome.
   of `createSession`. The visible `openrouter-client` and
   `local-models-client` resolve through the shared settings sections
   (`providers.openRouter.defaultModel` / `providers.localModels.defaultModel`);
+  Grok resolves through `providers.grok.defaultModel`, so its ready card and
+  the created Core session carry the same exact selected model instead of the
+  former `cli-default` placeholder;
   the retired legacy `glm-native`/`openrouter`/`local-models` model cases left
   `getProviderModel` with the 2026-07-05 legacy cleanup, and the ACP `kimi`
   case left with the kimi-provider retirement (the visible Kimi resolves

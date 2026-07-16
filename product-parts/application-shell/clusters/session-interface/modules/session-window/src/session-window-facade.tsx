@@ -228,6 +228,9 @@ export function SessionWindowFacade() {
   ): Promise<string | null> {
     const snapshot =
       settingsSnapshot ?? (await refreshSettingsSnapshot(activeWorkspace.path));
+    // The shared picker resolves every vendor-channel model from the
+    // Core-owned settings snapshot; Grok follows this path without a
+    // renderer-side ACP catalog or provider-specific session wizard.
     const model = resolveProviderModel(provider, snapshot);
     const result = await window.harnessCore?.createSession({
       model,

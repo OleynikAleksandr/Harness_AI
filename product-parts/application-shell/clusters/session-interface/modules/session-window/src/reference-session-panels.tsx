@@ -302,6 +302,12 @@ function resolveReasoningLabel(
       ? `(${settings.providers.claude.thinkingByModel[session.model] ?? settings.providers.claude.thinking.effort})`
       : "(off)";
   }
+  if (session.providerId === "grok") {
+    const effort =
+      session.reasoningEffort ??
+      settings.providers.grok.reasoningByModel[session.model];
+    return effort ? `(${effort})` : null;
+  }
   if (session.providerId === "openrouter-client") {
     return settings.providers.openRouter.endpointTag
       ? `(${settings.providers.openRouter.endpointTag})`

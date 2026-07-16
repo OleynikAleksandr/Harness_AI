@@ -3,11 +3,16 @@ import type {
   GrokCliProbe as GrokCliProbeResult,
 } from "./grok-cli-locator.js";
 import { locateGrokCli, probeGrokCli } from "./grok-cli-locator.js";
+import {
+  GrokProviderAdapter,
+  type GrokProviderAdapterOptions,
+} from "./grok-provider-adapter.js";
 
-export class GrokProviderFacade {
+export class GrokProviderFacade extends GrokProviderAdapter {
   readonly #locationOptions: GrokCliLocationOptionsInput;
 
-  constructor(options: GrokCliLocationOptionsInput = {}) {
+  constructor(options: GrokProviderAdapterOptions = {}) {
+    super(options);
     this.#locationOptions = options;
   }
 
@@ -62,6 +67,11 @@ export {
   resolveGrokSessionProfileState,
   verifyGrokProfileApplication,
 } from "./grok-profile-application.js";
+export type {
+  GrokProcessFactoryOptions,
+  GrokProviderAdapterOptions,
+} from "./grok-provider-adapter.js";
+export { GrokProviderAdapter } from "./grok-provider-adapter.js";
 export type {
   GrokSessionRuntimeOptions,
   GrokSessionStartResult,

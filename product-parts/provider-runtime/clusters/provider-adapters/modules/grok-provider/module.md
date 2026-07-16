@@ -62,6 +62,14 @@ tool selections fail before session creation. After `session/new` the adapter
 must query `_x.ai/session/info`; agent-name or effective-tool-count mismatch
 fails the binding instead of falling back to the full vendor toolset.
 
+`GrokProviderAdapter` composes the public provider lifecycle with one ACP
+process/runtime per bound session. Create/resume return immutable provider IDs
+and applied-profile details, subscriptions are isolated by provider session,
+turn start/completion/failure is normalized, turn model/effort options are
+forwarded, and close cancels an active turn before stopping only that process.
+The adapter creates no Harness-owned persistent session artifacts, so deletion
+never recursively touches Grok-owned history under the CLI home.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -81,6 +89,7 @@ fails the binding instead of falling back to the full vendor toolset.
 - Initialized/authenticated ACP session identity and applied model/reasoning.
 - Provider-neutral display, progress, usage and failure events from ACP tags.
 - Native/Managed session metadata plus verified applied-profile proof.
+- Complete `ProviderAdapter` create/resume/send/subscribe/close composition.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

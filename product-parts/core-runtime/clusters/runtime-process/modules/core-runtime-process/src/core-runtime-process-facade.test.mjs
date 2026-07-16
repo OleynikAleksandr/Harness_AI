@@ -33,6 +33,12 @@ assert.match(source, /process\.env\.CORE_PORT/u);
 assert.match(source, /text\/event-stream/u);
 assert.match(adapterRegistrationSource, /new ClaudeProviderFacade/u);
 assert.match(adapterRegistrationSource, /new CodexProviderFacade/u);
+assert.match(adapterRegistrationSource, /new GrokProviderFacade/u);
+assert.match(lifecycleSource, /"grok"/u);
+assert.match(
+  lifecycleSource,
+  /providerId === "grok"[\s\S]*?providerAuthStoreFacade\.getModel/u
+);
 assert.match(lifecycleSource, /providerRegistryFacade\.clearAdapters/u);
 assert.match(lifecycleSource, /providerReadinessRegistryFacade\.subscribe/u);
 assert.match(lifecycleSource, /type: "provider:status"/u);

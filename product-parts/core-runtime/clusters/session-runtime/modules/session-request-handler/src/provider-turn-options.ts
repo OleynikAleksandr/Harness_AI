@@ -17,6 +17,14 @@ export function buildProviderTurnOptions(
       thinkingEnabled: claude.thinking.enabled,
     };
   }
+  if (session.providerId === "grok") {
+    return {
+      model: session.model,
+      ...(session.reasoningEffort
+        ? { reasoningEffort: session.reasoningEffort }
+        : {}),
+    };
+  }
   if (session.providerId !== "codex") {
     return { model: session.model };
   }

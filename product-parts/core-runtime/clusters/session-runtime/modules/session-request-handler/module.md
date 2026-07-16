@@ -21,6 +21,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Optional next-session mode input, currently resolved by Core to the native raw baseline.
 - Turn options from Core-owned settings/model binding.
 - Core-owned provider settings used to derive applied turn options for the native-channel providers: model selection, Claude thinking toggles, and Codex reasoning effort/summary enablement (resolved through the settings-store Codex capability contract). Universal-client endpoints resolve their own settings per turn inside their adapters.
+- Grok uses the same provider-neutral binding and immutable applied-profile
+  snapshot. Core forwards the session model and optional reasoning effort on
+  each turn; only the Grok adapter translates them to ACP `session/set_model`.
 - Codex dispatch carries the selected session model and its normalized
   per-model reasoning effort as provider-neutral turn options. The Codex
   adapter owns translation into app-server `turn/start.model` and

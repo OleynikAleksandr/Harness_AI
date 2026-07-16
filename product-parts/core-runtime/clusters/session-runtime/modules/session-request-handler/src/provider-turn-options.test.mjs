@@ -11,6 +11,11 @@ assert.match(
   /settingsStoreFacade\.getSettings\(session\.workspacePath\)/u
 );
 assert.match(source, /session\.providerId === "claude"/u);
+assert.match(source, /session\.providerId === "grok"/u);
+assert.match(
+  source,
+  /session\.reasoningEffort[\s\S]*?reasoningEffort: session\.reasoningEffort/u
+);
 assert.match(
   source,
   /thinkingByModel\[session\.model\] \?\? claude\.thinking\.effort/u

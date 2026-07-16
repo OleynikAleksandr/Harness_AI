@@ -2,6 +2,7 @@ import { ClaudeProviderFacade } from "../../../../../../provider-runtime/cluster
 import { CodexProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import type { CodexReasoningEffort } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/reference/types/index.js";
 import { GlmClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/glm-client-provider/src/glm-client-provider-facade.js";
+import { GrokProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-provider-facade.js";
 import { KimiClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
 import { LocalModelsClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
 import { OpenRouterClientProviderFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/openrouter-client-provider/src/openrouter-client-provider-facade.js";
@@ -27,6 +28,12 @@ export function buildProviderAdapterInstance(
       return new CodexProviderFacade({
         defaultModel: model,
         defaultReasoningEffort: readCodexReasoningEffort(reasoningEffort),
+        workspacePath,
+      });
+    case "grok":
+      return new GrokProviderFacade({
+        ...(model ? { defaultModel: model } : {}),
+        ...(reasoningEffort ? { defaultReasoningEffort: reasoningEffort } : {}),
         workspacePath,
       });
     case "kimi-client":

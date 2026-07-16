@@ -50,6 +50,7 @@ const checker = new ProviderLivenessCheckerFacade({
 });
 
 await checker.checkProvider("codex");
+await checker.checkProvider("grok");
 await checker.checkProvider("openrouter-client");
 await checker.checkProvider("local-models-client");
 
@@ -58,6 +59,8 @@ assert.deepEqual(
   [
     "codex:checking",
     "codex:ready",
+    "grok:checking",
+    "grok:ready",
     "openrouter-client:checking",
     "openrouter-client:ready",
     "local-models-client:checking",

@@ -23,7 +23,9 @@ Own provider liveness preflight helpers.
 - Env-isolated adapter initialization runner.
 - Raw liveness status written into the readiness registry.
 - Provider-home preflight builds only the active provider-home adapters
-  (`claude`, `codex`); the embedded OpenCode runtime, the retired `glm-native`
+  (`claude`, `codex`, `grok`); Grok's facade delegates discovery and cached
+  subscription-auth verification to the official CLI without reading or
+  copying token contents. The embedded OpenCode runtime, the retired `glm-native`
   adapter and the ACP `kimi` adapter are all unbound from liveness checks
   (GLM migration, then the 2026-07-05 legacy cleanup and the kimi-provider
   retirement).

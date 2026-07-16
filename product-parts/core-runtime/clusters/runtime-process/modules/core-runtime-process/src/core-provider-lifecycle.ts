@@ -18,6 +18,7 @@ export type CoreEventListener = (event: unknown) => void;
 export const PROVIDER_IDS: ProviderId[] = [
   "claude",
   "codex",
+  "grok",
   // Universal-client endpoints stay registered and routable by id; RPC
   // provider-id validation reads this list. The ACP `kimi` id left with the
   // kimi-provider retirement (2026-07-05 user order).
@@ -49,8 +50,10 @@ export class CoreProviderLifecycle {
   registerAdapter(providerId: ProviderId): void {
     const workspacePath = this.activeWorkspacePath();
     const model =
-      settingsStoreFacade.getProviderModel(providerId, workspacePath)
-        .selectedModel ?? providerAuthStoreFacade.getModel(providerId);
+      providerId === "grok"
+        ? (providerAuthStoreFacade.getModel(providerId) ?? "")
+        : settingsStoreFacade.getProviderModel(providerId, workspacePath)
+            .selectedModel;
     registerProviderAdapterInstance(providerId, model, workspacePath);
   }
 

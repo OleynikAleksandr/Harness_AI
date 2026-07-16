@@ -1,5 +1,6 @@
 import { ClaudeProviderFacade } from "../../../../provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { CodexProviderFacade } from "../../../../provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
+import { GrokProviderFacade } from "../../../../provider-adapters/modules/grok-provider/src/grok-provider-facade.js";
 import { listLocalModels } from "../../../../provider-adapters/modules/local-models-client-provider/src/local-models-client-provider-facade.js";
 import type { ProviderAdapter } from "../../../../provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
@@ -114,6 +115,8 @@ function createHomeAdapter(
       );
     case "codex":
       return new CodexProviderFacade({ providerHomePath });
+    case "grok":
+      return new GrokProviderFacade();
     default:
       throw new Error(`Provider does not use a provider home: ${providerId}`);
   }

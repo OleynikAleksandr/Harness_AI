@@ -53,10 +53,25 @@ export type {
 } from "./grok-acp-router.js";
 export { GrokAcpRouter } from "./grok-acp-router.js";
 export type {
+  GrokBillingClientOptions,
+  GrokBillingPeriod,
+  GrokBillingSnapshot,
+} from "./grok-billing-client.js";
+export {
+  GrokBillingClient,
+  normalizeGrokBillingSnapshot,
+} from "./grok-billing-client.js";
+export type {
   GrokCliLocationOptions,
   GrokCliProbe,
 } from "./grok-cli-locator.js";
 export { GrokEventNormalizer } from "./grok-event-normalizer.js";
+export type {
+  GrokModelCatalog,
+  GrokModelDescriptor,
+  GrokReasoningEffortDescriptor,
+} from "./grok-model-catalog.js";
+export { normalizeGrokModelCatalog } from "./grok-model-catalog.js";
 export type {
   GrokProfileApplication,
   GrokProfileVerificationExpectation,

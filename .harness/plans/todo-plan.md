@@ -8,8 +8,8 @@
   "planId": "grok-provider-implementation-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
-  "expectedCommitMessage": "feat: expose Grok models and billing",
+  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "expectedCommitMessage": "feat: register Grok provider descriptor",
   "debt": null
 }
 ```
@@ -81,9 +81,9 @@
 
 ### Stream: Provider Discovery And Runtime Truth
 
-17. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Normalize dynamic Grok models/reasoning capabilities and additive SuperGrok billing/weekly-reset schemas, preserving unknown usage percentage as unknown (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-model-catalog.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-billing-client.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-model-billing.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: expose Grok models and billing`).
-18. [TODO] Git Commit: `feat: expose Grok models and billing` (hash: TBD)
-19. [TODO] `harness-ai.phase4.stream1.task2` Add the Grok provider descriptor/readiness/model defaults and registry tests while keeping all catalog truth Core/provider-owned (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.ts, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.test.mjs, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-readiness.test.mjs, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/module.md, docs/architecture/ReferenceCoreRuntimeBoundary.md, .harness/plans/todo-plan.md`; expected commit: `feat: register Grok provider descriptor`).
+17. [DONE] `harness-ai.phase4.stream1.task1` Normalize dynamic Grok models/reasoning capabilities and additive SuperGrok billing/weekly-reset schemas, preserving unknown usage percentage as unknown (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-model-catalog.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-billing-client.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-model-billing.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: expose Grok models and billing`). Result: Completed in commit `feat: expose Grok models and billing`.
+18. [DONE] Git Commit: `feat: expose Grok models and billing` (hash: self)
+19. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` Add the Grok provider descriptor/readiness/model defaults and registry tests while keeping all catalog truth Core/provider-owned (scope: `product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.ts, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.test.mjs, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-readiness.test.mjs, product-parts/provider-runtime/clusters/provider-registry/modules/provider-registry/module.md, docs/architecture/ReferenceCoreRuntimeBoundary.md, .harness/plans/todo-plan.md`; expected commit: `feat: register Grok provider descriptor`).
 20. [TODO] Git Commit: `feat: register Grok provider descriptor` (hash: TBD)
 21. [TODO] `harness-ai.phase4.stream1.task3` Register the Grok adapter in Core composition and propagate model/reasoning/profile turn options through the existing provider-neutral session binding (scope: `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/provider-turn-options.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/provider-turn-options.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: bind Grok sessions in Core`).
 22. [TODO] Git Commit: `feat: bind Grok sessions in Core` (hash: TBD)

@@ -70,6 +70,19 @@ forwarded, and close cancels an active turn before stopping only that process.
 The adapter creates no Harness-owned persistent session artifacts, so deletion
 never recursively touches Grok-owned history under the CLI home.
 
+`normalizeGrokModelCatalog` consumes only ACP-advertised `modelState` truth.
+Each model keeps its provider ID, label, description, context window and native
+reasoning menu; the reasoning option value (not a presentation alias) is the
+wire ID used for selection. Missing catalog fields remain absent/null and are
+never filled from a static UI list.
+
+`GrokBillingClient` reads the authenticated `_x.ai/billing` extension through
+the session ACP transport. The normalized snapshot carries the subscription
+tier, native weekly/monthly period and reset, included/on-demand/prepaid credit
+facts and unified-billing state. `creditUsagePercent` is preferred, legacy
+limit/used fields are used only when both make a percentage provable, and an
+unreported percentage remains `null` rather than becoming a misleading zero.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -90,6 +103,8 @@ never recursively touches Grok-owned history under the CLI home.
 - Provider-neutral display, progress, usage and failure events from ACP tags.
 - Native/Managed session metadata plus verified applied-profile proof.
 - Complete `ProviderAdapter` create/resume/send/subscribe/close composition.
+- Dynamic ACP model/reasoning catalog with native context windows.
+- Subscription billing tier, period/reset and truthful optional usage percent.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

@@ -142,6 +142,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   ссылку на подробное evidence и обязательный final result.
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,
   provider migration, UI fixes, runtime behavior, smoke checks and retests.
+- `docs/evidence/kimi-model-selection-package-2026-07-16.md` — live Kimi
+  three-model catalog/turn evidence, Core routing and Settings/new-session
+  selection contract, automated gates, packaged `app.asar` checksum and
+  packaged Kimi Settings smoke ahead of user acceptance.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

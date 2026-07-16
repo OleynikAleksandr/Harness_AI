@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import type {
   ProviderAdapter,
   ProviderEventListener,
+  ProviderInteractionDecision,
   ProviderSessionStartOptions,
   ProviderSessionStartOutcome,
   ProviderTurnOptions,
@@ -10,7 +11,6 @@ import type {
   GrokAcpNotification,
   GrokAcpRequest,
   GrokAcpSessionSelection,
-  GrokProviderEvent,
 } from "./grok-acp-contracts.js";
 import {
   GrokAcpProcess,
@@ -23,6 +23,7 @@ import {
   probeGrokCli,
 } from "./grok-cli-locator.js";
 import { GrokEventNormalizer } from "./grok-event-normalizer.js";
+import { GrokInteractionBridge } from "./grok-interaction-bridge.js";
 import {
   buildGrokProfileApplication,
   type GrokProfileApplication,
@@ -45,23 +46,22 @@ export interface GrokProviderAdapterOptions extends GrokCliLocationOptions {
   readonly clientVersion?: string;
   readonly defaultModel?: string;
   readonly defaultReasoningEffort?: string;
+  readonly interactionTimeoutMs?: number;
+  readonly mcpServers?: readonly Readonly<Record<string, unknown>>[];
   readonly processFactory?: (
     options: GrokProcessFactoryOptions
   ) => GrokSessionTransport;
   readonly readinessProbe?: () => Promise<GrokCliProbe>;
   readonly reporter?: GrokAcpProcessReporter;
-  readonly reverseRequestHandler?: (
-    request: GrokAcpRequest,
-    providerSessionId: string | null
-  ) => Promise<unknown>;
   readonly workspacePath?: string;
 }
 
 interface GrokAdapterSession {
   readonly application: GrokProfileApplication;
   readonly eventNormalizer: GrokEventNormalizer;
+  readonly interactionBridge: GrokInteractionBridge;
   readonly listeners: Set<ProviderEventListener>;
-  readonly pendingEvents: GrokProviderEvent[];
+  readonly pendingEvents: unknown[];
   providerSessionId: string | null;
   readonly runtime: GrokSessionRuntime;
   readonly transport: GrokSessionTransport;
@@ -198,7 +198,17 @@ export class GrokProviderAdapter implements ProviderAdapter {
     this.#sessions.delete(providerSessionId);
     entry.listeners.clear();
     entry.pendingEvents.length = 0;
+    entry.interactionBridge.cancelAll();
     await entry.runtime.close();
+  }
+
+  respondToInteraction(
+    providerSessionId: string,
+    decision: ProviderInteractionDecision
+  ): Promise<void> {
+    const entry = this.#requireSession(providerSessionId);
+    entry.interactionBridge.respond(decision);
+    return Promise.resolve();
   }
 
   deleteSessionArtifacts(
@@ -233,6 +243,10 @@ export class GrokProviderAdapter implements ProviderAdapter {
           onReverseRequest: callbacks.onReverseRequest,
           reporter: this.#options.reporter,
         });
+    const interactionBridge = new GrokInteractionBridge({
+      emit: (event) => this.#dispatch(entry, { ...event, provider: "grok" }),
+      timeoutMs: this.#options.interactionTimeoutMs,
+    });
     const runtime = new GrokSessionRuntime({
       clientVersion: this.#options.clientVersion,
       selection: {
@@ -243,6 +257,7 @@ export class GrokProviderAdapter implements ProviderAdapter {
           ? { reasoningEffort: this.#options.defaultReasoningEffort }
           : {}),
       },
+      mcpServers: this.#options.mcpServers,
       sessionMeta: application.sessionMeta,
       transport,
       workspacePath,
@@ -250,6 +265,7 @@ export class GrokProviderAdapter implements ProviderAdapter {
     entry = {
       application,
       eventNormalizer: new GrokEventNormalizer(),
+      interactionBridge,
       listeners: new Set(),
       pendingEvents: [],
       providerSessionId: null,
@@ -306,6 +322,9 @@ export class GrokProviderAdapter implements ProviderAdapter {
       return;
     }
     entry.turnRunning = false;
+    entry.interactionBridge.cancelAll(
+      "Grok ACP process exited while awaiting an interaction."
+    );
     this.#dispatch(entry, {
       message: `Grok ACP process exited unexpectedly (${exit.code ?? exit.signal ?? "unknown"}).`,
       provider: "grok",
@@ -319,14 +338,10 @@ export class GrokProviderAdapter implements ProviderAdapter {
     entry: GrokAdapterSession,
     request: GrokAcpRequest
   ): Promise<unknown> {
-    const handler = this.#options.reverseRequestHandler;
-    if (!handler) {
-      throw new Error(`Unsupported Grok reverse request: ${request.method}`);
-    }
-    return await handler(request, entry.providerSessionId);
+    return await entry.interactionBridge.handle(request);
   }
 
-  #dispatch(entry: GrokAdapterSession, event: GrokProviderEvent): void {
+  #dispatch(entry: GrokAdapterSession, event: unknown): void {
     if (entry.listeners.size === 0) {
       entry.pendingEvents.push(event);
       return;

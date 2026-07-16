@@ -83,6 +83,18 @@ facts and unified-billing state. `creditUsagePercent` is preferred, legacy
 limit/used fields are used only when both make a percentage provable, and an
 unreported percentage remains `null` rather than becoming a misleading zero.
 
+`GrokInteractionBridge` allowlists exactly ACP tool permission,
+`x.ai/ask_user_question` and `x.ai/exit_plan_mode` reverse requests. It emits
+sanitized provider-neutral interactions without raw tool inputs, credentials
+or arbitrary extension payloads, then maps the validated Core decision back to
+the matching JSON-RPC request. Cancellation, replacement and timeout fail
+closed. Unknown reverse methods are rejected.
+
+ACP `mcpServers` can be supplied only through Core-owned adapter options and is
+passed at session creation without renderer inspection. An empty list does not
+disable Grok's own trusted project/user MCP discovery; MCP credentials and
+server tool payloads remain inside the official CLI lifecycle.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -105,6 +117,8 @@ unreported percentage remains `null` rather than becoming a misleading zero.
 - Complete `ProviderAdapter` create/resume/send/subscribe/close composition.
 - Dynamic ACP model/reasoning catalog with native context windows.
 - Subscription billing tier, period/reset and truthful optional usage percent.
+- Core-mediated permission, ask-user and plan-approval blocking interactions.
+- Native Grok MCP discovery plus optional Core-provided ACP server config.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

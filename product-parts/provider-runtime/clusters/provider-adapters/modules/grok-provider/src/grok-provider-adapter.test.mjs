@@ -94,6 +94,7 @@ try {
     "grok-acp-process.ts",
     "grok-cli-locator.ts",
     "grok-event-normalizer.ts",
+    "grok-interaction-bridge.ts",
     "grok-tool-inventory.ts",
     "grok-profile-application.ts",
     "grok-session-runtime.ts",
@@ -133,6 +134,7 @@ try {
   const adapter = new GrokProviderAdapter({
     defaultModel: "grok-4.5",
     defaultReasoningEffort: "low",
+    mcpServers: [{ name: "workspace-tools", transport: "stdio" }],
     processFactory: (callbacks) => {
       const transport = new FakeTransport(
         callbacks,
@@ -194,6 +196,30 @@ try {
   assert.equal(nativeEvents[1].content, "reply:session-1");
   assert.equal(managedEvents[1].content, "reply:session-2");
   assert.equal(transports[1].lastSetModel._meta.reasoningEffort, "high");
+  assert.deepEqual(
+    transports[0].calls.find((call) => call.method === "session/new").params
+      .mcpServers,
+    [{ name: "workspace-tools", transport: "stdio" }]
+  );
+
+  const permission = transports[1].callbacks.onReverseRequest({
+    id: "permission-1",
+    method: "session/request_permission",
+    params: {
+      options: [{ name: "Allow", optionId: "allow-once" }],
+      toolCall: { title: "Read file", toolCallId: "tool-1" },
+    },
+  });
+  const permissionEvent = managedEvents.at(-1);
+  assert.equal(permissionEvent.type, "provider_interaction_requested");
+  await adapter.respondToInteraction("session-2", {
+    interactionId: permissionEvent.interactionId,
+    optionId: "allow-once",
+    outcome: "selected",
+  });
+  assert.deepEqual(await permission, {
+    outcome: { optionId: "allow-once", outcome: "selected" },
+  });
 
   await adapter.closeSession("session-1");
   assert.equal(transports[0].stopCount, 1);

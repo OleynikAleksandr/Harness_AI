@@ -51,6 +51,7 @@ export type {
   GrokCliLocationOptions,
   GrokCliProbe,
 } from "./grok-cli-locator.js";
+export { GrokEventNormalizer } from "./grok-event-normalizer.js";
 export type {
   GrokSessionRuntimeOptions,
   GrokSessionStartResult,

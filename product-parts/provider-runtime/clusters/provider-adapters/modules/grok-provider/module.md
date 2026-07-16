@@ -45,6 +45,13 @@ text content blocks, emits native cancel and closes the session process. Model
 switching uses installed-build `session/set_model` first and falls back only on
 method-not-found to `session/setModel` for source/build compatibility.
 
+`GrokEventNormalizer` consumes ACP `sessionUpdate` discriminators, never output
+text heuristics. It projects assistant/reasoning chunks, tool calls/results,
+plans, usage, model changes and explicit retry/recovery failures into the
+existing provider event vocabulary. Prompt completion preserves Grok's native
+`totalTokens` and `cachedReadTokens`; the context limit remains provider/Core
+telemetry truth rather than a guessed value.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -62,6 +69,7 @@ method-not-found to `session/setModel` for source/build compatibility.
 - Typed ACP requests, responses, notifications and reverse-request dispatch.
 - Expected/unexpected ACP process exit and bounded diagnostic stderr.
 - Initialized/authenticated ACP session identity and applied model/reasoning.
+- Provider-neutral display, progress, usage and failure events from ACP tags.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

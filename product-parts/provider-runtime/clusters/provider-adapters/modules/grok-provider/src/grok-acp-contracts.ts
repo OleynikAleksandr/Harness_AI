@@ -39,6 +39,14 @@ export interface GrokAcpSessionSelection {
   readonly reasoningEffort?: string;
 }
 
+export interface GrokProviderEvent {
+  readonly provider: "grok";
+  readonly timestamp: string;
+  readonly type: string;
+  readonly uuid: string;
+  readonly [key: string]: unknown;
+}
+
 export type GrokAcpReverseRequestHandler = (
   request: GrokAcpRequest
 ) => Promise<unknown> | unknown;

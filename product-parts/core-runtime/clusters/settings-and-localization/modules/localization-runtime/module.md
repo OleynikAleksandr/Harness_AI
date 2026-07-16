@@ -42,7 +42,11 @@ materialization, bootstrap payload reuse, and bundle state.
   where the Kimi For Coding key comes from (Kimi Code Console, up to 5 keys,
   each shown once at creation). The API-key card title
   (`settings.provider.kimiClient.apiKey`, "Kimi For Coding API Key") is part
-  of the approved `ui_labels` dictionary.
+  of the approved `ui_labels` dictionary. The Kimi model card is covered too:
+  `settings.provider.kimiClient.defaultModel` in `ui_labels`, plus
+  `.defaultModel.description` and the three
+  `.model.<model-id>.description` entries (`kimi-for-coding`,
+  `kimi-for-coding-highspeed`, `k3`) in `ui_helper_text`.
 - GLM, Local Models, OpenRouter and session continuity Settings helper copy are
   part of the approved dictionaries so selecting Russian for UI Helper Text or
   Messages for the User covers those provider tabs without renderer-local string

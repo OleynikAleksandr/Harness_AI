@@ -45,6 +45,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.baseUrl": "Base URL",
     "settings.provider.defaultModel": "Default Model",
     "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
+    "settings.provider.kimiClient.defaultModel": "Kimi Default model",
     "settings.provider.localModels": "Local Models",
     "settings.provider.localModelsClient.connection": "Local Models Server",
     "settings.provider.localModelsClient.contextLength": "Context Length",
@@ -220,6 +221,14 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Runs Kimi Code on the Harness universal client with a subscription API key. Nothing is downloaded or installed.",
     "settings.provider.kimiClient.apiKey.description":
       "Paste a Kimi For Coding API key from the Kimi Code Console at kimi.com. A Kimi Code subscription allows up to 5 keys; each key is shown only once when created.",
+    "settings.provider.kimiClient.defaultModel.description":
+      "Choose the Kimi model used by the universal client when new sessions start.",
+    "settings.provider.kimiClient.model.kimi-for-coding.description":
+      "Standard K2.7 coding model.",
+    "settings.provider.kimiClient.model.kimi-for-coding-highspeed.description":
+      "Stable high-speed K2.7 coding model.",
+    "settings.provider.kimiClient.model.k3.description":
+      "Latest Kimi coding model available on the Allegretto plan.",
     "settings.provider.sessionContinuity.description":
       "When the remaining context window drops to or below this percentage, Harness AI can automatically wrap up the current session and start a new one. Default: 30%.",
     "settings.provider.glmClient.defaultModel.description":

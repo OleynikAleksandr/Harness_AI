@@ -71,6 +71,38 @@ assert.match(
   ),
   /Kimi Code Console/u
 );
+assert.equal(
+  registry.getMessage("ui_labels", "settings.provider.kimiClient.defaultModel"),
+  "Kimi Default model"
+);
+assert.match(
+  registry.getMessage(
+    "ui_helper_text",
+    "settings.provider.kimiClient.defaultModel.description"
+  ),
+  /new sessions/u
+);
+assert.match(
+  registry.getMessage(
+    "ui_helper_text",
+    "settings.provider.kimiClient.model.kimi-for-coding.description"
+  ),
+  /K2\.7/u
+);
+assert.match(
+  registry.getMessage(
+    "ui_helper_text",
+    "settings.provider.kimiClient.model.kimi-for-coding-highspeed.description"
+  ),
+  /high-speed/u
+);
+assert.match(
+  registry.getMessage(
+    "ui_helper_text",
+    "settings.provider.kimiClient.model.k3.description"
+  ),
+  /Allegretto/u
+);
 assert.match(
   registry.getMessage(
     "ui_helper_text",

@@ -160,7 +160,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - The Kimi default-model card renders K2.7 Coding, K2.7 Coding HighSpeed and
   K3 from the provider-descriptor catalog and updates only
   `providers.kimiClient.defaultModel`. Its title, helper copy and model-row
-  descriptions resolve through the browser localization provider.
+  descriptions resolve through the browser localization provider and approved
+  `settings.provider.kimiClient.defaultModel*` / `.model.*.description` keys.
 - The GLM tab includes a universal-client default-model card bound to
   `providers.glmClient.defaultModel` and populated from
   `PROVIDER_MODEL_OPTIONS.glmClient` (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,

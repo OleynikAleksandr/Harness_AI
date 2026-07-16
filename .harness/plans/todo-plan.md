@@ -8,8 +8,8 @@
   "planId": "kimi-model-selection-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task2",
-  "expectedCommitMessage": "feat: localize Kimi model selection",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "chore: package Kimi model selection build",
   "debt": null
 }
 ```
@@ -72,13 +72,13 @@
 
 7. [DONE] `harness-ai.phase3.stream1.task1` Add the three Core-owned Kimi options to the Settings default-model card and make the new-session provider card display/use the selected Kimi default; cover both surfaces with focused tests and synchronize UI docs (scope: `provider-settings-ui/src/settings-model-options.ts, provider-settings-ui/src/settings-tab-content.tsx, session-window/src/provider-picker.tsx` + paired tests/docs; expected commit: `feat: add Kimi model selection controls`). Result: Completed in commit `feat: add Kimi model selection controls`.
 8. [DONE] Git Commit: `feat: add Kimi model selection controls` (hash: self)
-9. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Add approved localization dictionary entries for the Kimi default-model card and all three Core-owned model descriptions; cover the keys and synchronize localization/settings docs (scope: `localization-runtime/src/source-dictionaries.ts, localization-runtime/src/source-dictionaries.test.mjs, localization-runtime/module.md` + related provider-settings docs; expected commit: `feat: localize Kimi model selection`).
-10. [TODO] Git Commit: `feat: localize Kimi model selection` (hash: TBD)
+9. [DONE] `harness-ai.phase3.stream1.task2` Add approved localization dictionary entries for the Kimi default-model card and all three Core-owned model descriptions; cover the keys and synchronize localization/settings docs (scope: `localization-runtime/src/source-dictionaries.ts, localization-runtime/src/source-dictionaries.test.mjs, localization-runtime/module.md` + related provider-settings docs; expected commit: `feat: localize Kimi model selection`). Result: Completed in commit `feat: localize Kimi model selection`.
+10. [DONE] Git Commit: `feat: localize Kimi model selection` (hash: self)
 
 ## Phase 4 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-16)
 
 ### Stream: Package And Retest
 
-11. [TODO] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi model selection build`).
+11. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi model selection build`).
 12. [TODO] Git Commit: `chore: package Kimi model selection build` (hash: TBD)
 13. [TODO] `harness-ai.phase4.stream1.task2` User retests all three Kimi choices in Settings and confirms the selected model appears in the new-session card and is used by a live session (completion: user-acceptance; scope: user workflow; expected commit: none).

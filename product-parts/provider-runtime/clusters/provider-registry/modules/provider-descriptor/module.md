@@ -39,9 +39,12 @@ Own model/reasoning capabilities and UI metadata for providers.
   and Haiku. Claude `ultracode` is intentionally absent because it is a
   separate session-orchestration setting, not an effort value.
 - Client endpoint model catalog: `getClientModels(providerId)`
-  returns `ProviderModelDescriptor` (`{ id, label }`) entries; `kimi-client`
-  carries the single public Kimi Code model `kimi-for-coding` (the vendor
-  rotates the backend behind that id), and `glm-client` carries the
+  returns renderer-safe `ProviderModelDescriptor` (`{ id, label,
+  description? }`) entries. `KIMI_CLIENT_MODELS` is the shared Core/provider-
+  runtime source consumed by normalization and UI surfaces; its live-verified
+  2026-07-16 Coding Plan catalog is `kimi-for-coding` (K2.7 Coding),
+  `kimi-for-coding-highspeed` (K2.7 Coding HighSpeed), and `k3` (K3).
+  `glm-client` carries the
   Core-owned GLM coding-plan catalog (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). Multi-model client providers resolve their selected
   model from settings rather than registry `defaultModelId`.

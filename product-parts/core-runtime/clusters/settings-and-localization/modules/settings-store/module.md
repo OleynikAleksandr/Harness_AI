@@ -42,8 +42,10 @@ Own global and workspace settings persistence.
 - The `kimi-client` provider has its dedicated `providers.kimiClient` section
   (`ProviderClientKeySettings`: `apiKey` + `defaultModel`), the key-storage
   shape for universal-client endpoints — key-only onboarding, no `baseUrl`
-  (the dialect profile owns it), and `defaultModel` pinned by normalization
-  to the single public `kimi-for-coding` id. The section persists into the
+  (the dialect profile owns it), and `defaultModel` validated by normalization
+  against the provider-descriptor catalog (`kimi-for-coding`,
+  `kimi-for-coding-highspeed`, `k3`), with unknown legacy values falling back
+  to `kimi-for-coding`. The section persists into the
   system settings file, syncs into the provider-auth-store file
   (`providers/kimi-client/settings.json`) on save like the other key-based
   providers, and reads back through the auth overlay, so

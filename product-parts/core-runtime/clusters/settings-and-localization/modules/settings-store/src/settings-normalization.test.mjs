@@ -42,6 +42,16 @@ assert.match(source, /CODEX_MODELS_WITHOUT_REASONING_SUMMARY/u);
 assert.match(source, /resolveCodexReasoningEffort/u);
 assert.match(source, /return null/u);
 assert.match(source, /GLM_CLIENT_MODEL_IDS/u);
+assert.match(source, /KIMI_CLIENT_MODELS/u);
+assert.match(source, /KIMI_CLIENT_MODEL_IDS/u);
+assert.match(
+  source,
+  /!KIMI_CLIENT_MODEL_IDS\.includes\(next\.providers\.kimiClient\.defaultModel\)/u
+);
+assert.match(
+  source,
+  /next\.providers\.kimiClient\.defaultModel = "kimi-for-coding"/u
+);
 assert.match(source, /next\.providers\.glmClient\.defaultModel = "glm-5\.2"/u);
 assert.match(source, /next\.providers\.glmClient\.reasoningEffort = "max"/u);
 assert.match(

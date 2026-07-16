@@ -30,7 +30,7 @@ const source = readFileSync(
   )
   .replace(
     /import \{[\s\S]*?providerDescriptorFacade,[\s\S]*?\} from "\.\.\/\.\.\/provider-descriptor\/src\/provider-descriptor-facade\.js";\n/u,
-    'const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }), getClientModels: (providerId) => (providerId === "kimi-client" ? [{ id: "kimi-for-coding", label: "Kimi For Coding" }] : providerId === "glm-client" ? [{ id: "glm-5.2", label: "GLM 5.2" }, { id: "glm-5.1", label: "GLM 5.1" }] : []) };\n'
+    'const providerDescriptorFacade = { getCapabilities: () => ({ modelSync: { acceptsAppliedTurnConfig: true, supportsReasoningSelection: true }, requiresProviderHome: true, supportsImmediateBinding: true }), getClientModels: (providerId) => (providerId === "kimi-client" ? [{ id: "kimi-for-coding", label: "K2.7 Coding" }, { id: "kimi-for-coding-highspeed", label: "K2.7 Coding HighSpeed" }, { id: "k3", label: "K3" }] : providerId === "glm-client" ? [{ id: "glm-5.2", label: "GLM 5.2" }, { id: "glm-5.1", label: "GLM 5.1" }] : []) };\n'
   )
   .replace(
     /import \{ providerReadinessRegistryFacade \}[\s\S]*?provider-readiness-registry-facade\.js";\n/u,
@@ -94,6 +94,12 @@ const captureCatalogSource = descriptorSource.slice(
   descriptorSource.indexOf("const CAPTURABLE_MODELS")
 );
 assert.doesNotMatch(captureCatalogSource, /codex: \[\s+\{ id: "gpt-5\.2"/u);
+assert.deepEqual(
+  providerDescriptorFacade
+    .getClientModels("kimi-client")
+    .map((model) => model.id),
+  ["kimi-for-coding", "kimi-for-coding-highspeed", "k3"]
+);
 
 // The visible Kimi is the universal-client endpoint; the ACP kimi id/module
 // was removed by the kimi-provider retirement (2026-07-05 user order), so no
@@ -108,7 +114,7 @@ assert.equal(visible.filter((provider) => provider.name === "Kimi").length, 1);
 const kimiClient = registry.getProvider("kimi-client");
 assert.equal(kimiClient.visibility, "visible");
 assert.equal(kimiClient.moduleId, "kimi-client-provider");
-assert.equal(kimiClient.defaultModelId, "kimi-for-coding");
+assert.equal(kimiClient.defaultModelId, undefined);
 assert.throws(() => registry.getProvider("kimi"), /Unknown provider/u);
 
 const glmClient = registry.getProvider("glm-client");

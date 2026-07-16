@@ -1,3 +1,4 @@
+import { KIMI_CLIENT_MODELS } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 import type {
   HarnessSettings,
   ReasoningEffort,
@@ -64,10 +65,7 @@ export const GROK_REASONING_EFFORTS_BY_MODEL: Record<
   "grok-composer-2.5-fast": [],
 };
 const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
-// The universal-client Kimi endpoint has a single public model id; the vendor
-// rotates the backend behind it, so the setting is pinned. The retired ACP
-// Kimi model catalog left with the kimi-provider retirement (2026-07-05).
-const KIMI_CLIENT_MODEL_ID = "kimi-for-coding";
+const KIMI_CLIENT_MODEL_IDS = KIMI_CLIENT_MODELS.map((model) => model.id);
 const GLM_CLIENT_MODEL_IDS = [
   "glm-5.2",
   "glm-5.1",
@@ -128,7 +126,9 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
       ];
     })
   );
-  next.providers.kimiClient.defaultModel = KIMI_CLIENT_MODEL_ID;
+  if (!KIMI_CLIENT_MODEL_IDS.includes(next.providers.kimiClient.defaultModel)) {
+    next.providers.kimiClient.defaultModel = "kimi-for-coding";
+  }
   if (!GLM_CLIENT_MODEL_IDS.includes(next.providers.glmClient.defaultModel)) {
     next.providers.glmClient.defaultModel = "glm-5.2";
   }

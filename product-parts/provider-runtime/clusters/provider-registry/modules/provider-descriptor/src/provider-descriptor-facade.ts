@@ -44,13 +44,33 @@ export type NativeCaptureReasoningEffort =
   | "ultra";
 
 export interface ProviderModelDescriptor {
+  readonly description?: string;
   readonly id: string;
   readonly label: string;
 }
 
-// Model catalog for universal-client endpoint providers. Kimi Code exposes a
-// single public coding model id and rotates the backend behind it. The
-// kimi-client provider stays internal until the Phase 2 visibility switch.
+// Verified Kimi Coding Plan catalog returned by GET /coding/v1/models for the
+// current subscription key on 2026-07-16. This is provider-runtime truth; UI
+// surfaces consume these descriptors instead of inventing model ids locally.
+export const KIMI_CLIENT_MODELS: readonly ProviderModelDescriptor[] = [
+  {
+    description: "Standard K2.7 coding model.",
+    id: "kimi-for-coding",
+    label: "K2.7 Coding",
+  },
+  {
+    description: "Stable high-speed K2.7 coding model.",
+    id: "kimi-for-coding-highspeed",
+    label: "K2.7 Coding HighSpeed",
+  },
+  {
+    description: "Latest Kimi coding model available on the Allegretto plan.",
+    id: "k3",
+    label: "K3",
+  },
+];
+
+// Model catalog for universal-client endpoint providers.
 const CLIENT_PROVIDER_MODELS: Readonly<
   Record<string, readonly ProviderModelDescriptor[]>
 > = {
@@ -61,7 +81,7 @@ const CLIENT_PROVIDER_MODELS: Readonly<
     { id: "glm-4.7", label: "GLM 4.7" },
     { id: "glm-4.6", label: "GLM 4.6" },
   ],
-  "kimi-client": [{ id: "kimi-for-coding", label: "Kimi For Coding" }],
+  "kimi-client": KIMI_CLIENT_MODELS,
 };
 
 // Models offered in the Native Request Capture UI, per capture provider.

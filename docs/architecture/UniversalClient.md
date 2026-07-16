@@ -307,10 +307,11 @@ snake_case):
 ### 3.7 Каталог моделей
 
 - Core-owned каталог в `provider-descriptor`; UI ничего не выдумывает.
-- Kimi: единственный публичный id `kimi-for-coding` (контекст 262 144,
-  выход 32 768; бэкенд-модель ротируется вендором). Auth gate 2026-07-04
-  пройден на статическом Core-каталоге БЕЗ обращения к `GET /models`;
-  endpoint `GET /models` остаётся UNVERIFIED и для MVP не нужен.
+- Kimi: live-каталог текущего Coding Plan ключа перепроверен 2026-07-16 через
+  `GET /coding/v1/models` и содержит `kimi-for-coding` (K2.7 Coding),
+  `kimi-for-coding-highspeed` (K2.7 Coding HighSpeed Stable) и `k3` (K3).
+  Все три id входят в Core-каталог; неизвестное сохранённое значение
+  нормализуется обратно к `kimi-for-coding`.
 - GLM: статический enum из доки (glm-5.2 default, glm-5.1, glm-5-turbo,
   glm-4.7*, glm-4.6...); официального списка «моделей coding-плана» нет —
   фиксируем перечень сами, правим по фактам.

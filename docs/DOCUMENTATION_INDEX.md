@@ -138,6 +138,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   ссылку на подробное evidence и обязательный final result.
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,
   provider migration, UI fixes, runtime behavior, smoke checks and retests.
+- `docs/evidence/grok-provider-integration-plan-2026-07-16.md` — verified
+  Grok Build CLI/ACP and SuperGrok subscription findings plus the proposed
+  native `grok-provider` architecture, profile/tooling contracts, phased
+  implementation roadmap, risks and packaged acceptance criteria.
 - `docs/evidence/subagent-session-design-qa-2026-07-11.md` — build и browser
   Design QA гибридного subagent UX: inline timeline entries, recursive sidebar
   tree, child read-only view, detach, rename/regenerate и visual comparison с

@@ -3,9 +3,10 @@
 ## Статус документа
 
 - **Тип:** исследовательское evidence + план реализации.
-- **Текущий scope:** только планирование; production-код Grok-провайдера ещё не создаётся.
-- **Цель будущего implementation scope:** добавить в Harness AI нативный провайдер `grok`, который использует установленный официальный Grok Build CLI и существующую подписочную авторизацию пользователя, поддерживает Native/Managed session profiles, модели, reasoning, системный промпт, нативный туллинг, MCP, разрешения, сессии, usage и субагентов.
+- **Текущий scope:** документ является baseline активного implementation scope `grok-provider-implementation-2026-07-16`; реализация выполняется по `.harness/plans/todo-plan.md` до нового package build.
+- **Цель implementation scope:** добавить в Harness AI нативный провайдер `grok`, который использует установленный официальный Grok Build CLI и существующую подписочную авторизацию пользователя, поддерживает Native/Managed session profiles, модели, reasoning, системный промпт, нативный туллинг, MCP, разрешения, сессии, usage и субагентов.
 - **Основное решение:** интеграция через официальный ACP stdio-канал `grok agent stdio`.
+- **Обязательная UI-граница:** функциональность Grok session interface должна быть идентична Codex; особенно нижняя status panel обязана получать из Core все Codex-поля и действия без Grok-specific упрощений.
 
 ## 1. Решение Кратко
 
@@ -133,6 +134,23 @@ Live версия 0.2.101 подтверждает доступность extens
 Следствие: billing decoder должен быть additive и принимать обе формы. Недоступный процент отображается как `unknown`, а не как `0%`.
 
 Официально SuperGrok использует общий недельный consumer pool для Grok-продуктов. xAI API имеет отдельный billing: [Grok subscription FAQ](https://docs.x.ai/grok/faq), [Grok and API billing separation](https://docs.x.ai/console/faq/accounts).
+
+### 2.7 Live ACP contract probe для Codex UI parity
+
+Повторный sanitized probe 2026-07-16 на установленном `grok 0.2.101` доказал полный набор источников для нижней Codex-панели:
+
+- `session/new` возвращает dynamic `models`: `grok-4.5` с контекстом `500000` и усилиями `low`/`medium`/`high`, а также `grok-composer-2.5-fast` с контекстом `200000`;
+- session-level `systemPromptOverride` записался в `system_prompt.txt` дословно; marker equality проверен без вывода prompt/auth contents;
+- минимальный `_meta.agentProfile` с `tools: ["Read"]`, `agentsMd: false` и `discoverSkills: false` применился как `agentName: harness-capability-auditor`;
+- effective tool inventory в controlled probe состоял ровно из `read_file`, `search_tool`, `use_tool`; `x.ai/session/info` подтвердил `toolDefinitionsCount: 3` вместо полного набора из `25`;
+- installed wire использует `session/set_model` и принимает `_meta.reasoningEffort`; persisted summary подтвердил `reasoning_effort: low` после выбора `low`;
+- более новый public snapshot использует `session/setModel`, поэтому adapter обязан capability-probe/fallback между этими двумя method spellings;
+- `session/prompt` response `_meta` вернул `totalTokens`, `inputTokens`, `outputTokens`, `cachedReadTokens` и `reasoningTokens`; controlled turn дал ненулевой `cachedReadTokens`;
+- `_x.ai/session/info` вернул model, agent name, `context.used`, `context.total`, `context.usagePct`, `context.turnCount`, tool counts и текущий turn index;
+- `_x.ai/rewind/points` вернул native prompt checkpoints, а public extension contract содержит `_x.ai/rewind/execute` с `conversation_only`, `files_only` и `all`;
+- `_x.ai/billing` подтвердил `SuperGrok`, weekly period и reset при отсутствии процента usage.
+
+Критическая поправка к исходному исследованию: сложный `agentProfile` с `promptMode: full` без собственного `promptBody` не должен использоваться вместе с отдельным `systemPromptOverride`. На live binary это привело к fallback на полный toolset. Доказанный Managed binding использует отдельный полный `systemPromptOverride` и минимальный валидный `agentProfile` без `promptMode`; effective tool count проверяется через `x.ai/session/info`, а не предполагается по request payload.
 
 ## 3. Рассмотренные Варианты
 
@@ -275,15 +293,15 @@ Managed применяется один раз при create:
   "agentProfile": {
     "name": "harness-<profile-id>",
     "description": "Harness managed session profile",
-    "promptMode": "full",
-    "tools": ["<verified tool ids>"],
+    "tools": ["<verified Grok or Claude-compatible aliases>"],
     "disallowedTools": ["<verified denied ids>"],
-    "agentsMd": false
+    "agentsMd": false,
+    "discoverSkills": false
   }
 }
 ```
 
-Точная комбинация `systemPromptOverride` и `promptMode` должна быть подтверждена live probe. Если `systemPromptOverride` уже является единственным prompt truth, `promptBody` не дублируется.
+`systemPromptOverride` является единственным prompt truth; `promptMode` и `promptBody` не дублируют его. После `session/new` adapter обязан вызвать `x.ai/session/info` и доказать expected agent name и effective tool-definition count. Несовпадение является structured profile-application failure.
 
 `agentsMd: false` предлагается для Managed, чтобы workspace instruction discovery не создавала второй, незафиксированный слой prompt truth. Если профильный контракт позже явно разрешит provider discovery, это оформляется отдельным архитектурным решением.
 
@@ -354,7 +372,49 @@ Security requirements:
 
 Readable Grok `updates.jsonl` и `chat_history.jsonl` являются provider-owned diagnostics/history, но live Core state идёт из текущего ACP connection. File tailing используется только как recovery fallback после доказанного gap, а не как основной event channel.
 
-## 8. Implementation Roadmap
+## 8. Codex-Equivalent Session Interface Contract
+
+### 8.1 Общий session shell
+
+Grok использует тот же provider-neutral session shell, что Codex. Функциональная идентичность включает:
+
+- session ID и immutable applied-profile chip;
+- provider usage-limit rows в верхней панели;
+- assistant, reasoning/thinking, tool lifecycle, plan и subagent timeline;
+- stop/cancel текущего turn;
+- elapsed session time;
+- resume и восстановление provider session ID;
+- нижнюю status panel с теми же chips, порядком данных, состояниями и действием Rollback.
+
+Не допускается отдельная упрощённая Grok-панель. Отличаться могут только provider-owned значения, названия моделей и поддерживаемые reasoning efforts.
+
+### 8.2 Обязательная нижняя status panel
+
+| Codex control/data | Обязательный Grok source | Core contract и поведение |
+| --- | --- | --- |
+| `Model:` | `session/new`/`session/load` model state и `x.ai/session/info.model` | Показывать фактически applied model, а не только настройку до запуска |
+| reasoning chip | выбранный effort + подтверждение `session/set_model`/`session/setModel`; persisted/session model state | Показывать applied `low`/`medium`/`high`; для модели без effort chip отсутствует так же, как при неподдерживаемой Codex capability |
+| `Tokens:` | prompt response `_meta.totalTokens` плюс `x.ai/session/info.context.used/total/usagePct` | Тот же формат `used (percent%)`, обновление после каждого structured provider snapshot |
+| `Cache:` | prompt response `_meta.cachedReadTokens` | Chip видим с `0` от старта и обновляется тем же Core-owned stable-cache policy, что Codex; отсутствие wire field не превращается в выдуманный `0` после turn |
+| `Turns:` | `x.ai/session/info.context.turnCount` и rewind checkpoints | Renderer не считает user messages; Core публикует provider-normalized turns |
+| `Rollback` | `x.ai/rewind/points` и `x.ai/rewind/execute` | Та же кнопка, disabled во время turn/при `Turns <= 2`; default сохраняет первые два warmup turns и вызывает `conversation_only`, чтобы не откатывать файлы |
+
+Для installed `0.2.101` Grok target `targetPromptIndex: 2` означает сохранить prompts `0..1`. Перед enable Core проверяет наличие совместимого rewind point; после execute повторно читает `session/info` и points, обновляет transcript projection, tokens/cache/turns и только затем снимает pending state.
+
+Если будущая версия Grok перестаёт отдавать любой из обязательных источников, provider readiness получает degraded/unsupported capability и Grok не считается достигшим Codex parity. Renderer не вычисляет поле из текста, локальных файлов или приблизительной формулы.
+
+### 8.3 Packaged acceptance status panel
+
+Пользовательская проверка нового `Harness AI.app` обязана подтвердить:
+
+1. нижняя панель Grok визуально и функционально повторяет Codex;
+2. Model и reasoning соответствуют реально применённым значениям;
+3. Tokens и Cache появляются и обновляются после turn без reload;
+4. Turns приходит из Core/provider truth и меняется после следующего prompt;
+5. Rollback доступен по тем же правилам, сохраняет двух-turn anchor и обновляет весь snapshot;
+6. ни одно обязательное поле не скрыто только потому, что provider ID равен `grok`.
+
+## 9. Implementation Roadmap
 
 Каждая будущая микро-задача должна иметь собственную строку `Git Commit`, затрагивать не более трёх функциональных файлов и обновлять релевантную документацию в том же commit.
 
@@ -450,7 +510,7 @@ Exit gate: capture либо записывает реальный upstream reque
 
 ### Phase I — Package and User Acceptance
 
-Только после явного решения пользователя о package build:
+Package build для текущего scope явно разрешён пользователем 2026-07-16:
 
 1. `npm run build`;
 2. `npm run package:mac`;
@@ -461,7 +521,7 @@ Exit gate: capture либо записывает реальный upstream reque
 
 Scope не архивируется автоматически после acceptance.
 
-## 9. Documentation Matrix Для Implementation Scope
+## 10. Documentation Matrix Для Implementation Scope
 
 При изменении production code потребуется синхронно проверить и обновить:
 
@@ -478,13 +538,16 @@ Scope не архивируется автоматически после accept
 - `docs/DOCUMENTATION_INDEX.md`;
 - релевантные evidence-документы каждого принятого slice.
 
-## 10. Acceptance Criteria
+## 11. Acceptance Criteria
 
 Provider не считается завершённым, пока не выполнены все обязательные пункты:
 
 - [ ] Harness находит официальный CLI из packaged app без shell-profile зависимости.
 - [ ] Существующий login `grok.com` используется без повторного ввода и копирования секрета.
 - [ ] Dynamic model catalog показывает live модели и только поддерживаемые reasoning efforts.
+- [ ] Grok session interface функционально идентичен Codex session interface.
+- [ ] Нижняя status panel показывает Model, applied reasoning, Tokens, Cache, Core-owned Turns и Rollback без provider-specific пропусков.
+- [ ] Grok Rollback использует native rewind, сохраняет первые два warmup turns и обновляет transcript/telemetry snapshot.
 - [ ] Native не меняет Grok system prompt или toolset.
 - [ ] Managed полностью применяет frozen Harness prompt.
 - [ ] Managed tool selection доказуемо ограничивает effective Grok toolset.
@@ -499,7 +562,7 @@ Provider не считается завершённым, пока не выпо�
 - [ ] Удаление Harness-сессии не оставляет управляемые adapter artifacts и не удаляет чужие Grok-сессии.
 - [ ] Packaged app проходит user acceptance на текущей SuperGrok-подписке.
 
-## 11. Явные Non-Goals Первого Implementation Scope
+## 12. Явные Non-Goals Первого Implementation Scope
 
 - Не встраивать Rust workspace `grok-build` внутрь Electron bundle.
 - Не обращаться напрямую к private subscription proxy из Harness.
@@ -508,9 +571,9 @@ Provider не считается завершённым, пока не выпо�
 - Не создавать Grok-specific session/profile/subagent truth в renderer.
 - Не объявлять Native Request Capture поддержанным без raw upstream evidence.
 - Не переходить на shared leader/server topology до измерений.
-- Не запускать package build или scope archive без явной команды пользователя.
+- Не архивировать scope без явной команды пользователя. Package build для текущего implementation scope прямо разрешён пользователем 2026-07-16.
 
-## 12. Известные Риски и Решения
+## 13. Известные Риски и Решения
 
 | Риск | Решение |
 | --- | --- |
@@ -524,19 +587,20 @@ Provider не считается завершённым, пока не выпо�
 | Subagent status приходит на другой канал | Нормализовать parent/child ownership по provider session IDs |
 | Billing percentage отсутствует | Optional value; не вычислять из отсутствующих credit fields |
 | Vendor добавляет новый tool | Capability snapshot + drift warning; Managed не расширяется молча |
+| Grok status source исчезает или меняет schema | Additive decoder + readiness degradation; не скрывать пропажу renderer fallback-ом |
 
-## 13. Рекомендуемый Следующий Scope
+## 14. Текущий Implementation Scope
 
-Следующий active implementation plan следует начать с **Phase R — Live Contract Probes**, а не сразу с registry/UI. Минимальный первый результат должен доказать на реальной подписке четыре контракта:
+Active plan `grok-provider-implementation-2026-07-16` начинается с **Phase R — Live Contract Probes**, а не с registry/UI. Первый результат на реальной подписке доказал четыре контракта:
 
 1. полный system prompt override;
 2. точное ограничение toolset;
 3. model/reasoning application;
 4. permission и subagent wire shapes.
 
-Только после этих доказательств `grok` можно добавлять в provider registry и Profile Creator без риска видимого, но фактически неработающего control surface.
+Prompt override, exact tool inventory, model/reasoning application, token/cache/context/turns и native rewind уже имеют live evidence. Permission и subagent wire shapes остаются обязательными implementation slices до user-visible registry activation.
 
-## 14. Источники
+## 15. Источники
 
 - [xai-org/grok-build](https://github.com/xai-org/grok-build)
 - [Grok Build overview](https://docs.x.ai/build/overview)
@@ -546,4 +610,3 @@ Provider не считается завершённым, пока не выпо�
 - [Enterprise deployments, auth, sandbox and permissions](https://docs.x.ai/build/enterprise)
 - [Grok subscription FAQ](https://docs.x.ai/grok/faq)
 - [Grok and xAI API billing separation](https://docs.x.ai/console/faq/accounts)
-

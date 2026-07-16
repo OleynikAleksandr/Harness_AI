@@ -8,7 +8,7 @@
   "planId": "kimi-model-selection-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -81,4 +81,4 @@
 
 11. [DONE] `harness-ai.phase4.stream1.task1` Package the app for user verification (`npm run package:mac`) and record evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi model selection build`). Result: Completed in commit `chore: package Kimi model selection build`.
 12. [DONE] Git Commit: `chore: package Kimi model selection build` (hash: self)
-13. [IN_PROGRESS] `harness-ai.phase4.stream1.task2` User retests all three Kimi choices in Settings and confirms the selected model appears in the new-session card and is used by a live session (completion: user-acceptance; scope: user workflow; expected commit: none).
+13. [DONE] `harness-ai.phase4.stream1.task2` User retests all three Kimi choices in Settings and confirms the selected model appears in the new-session card and is used by a live session (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User verified all three Kimi model choices and confirmed the packaged workflow works correctly Acceptance Commit: `chore: record plan acceptance kimi-model-selection-2026-07-16`.

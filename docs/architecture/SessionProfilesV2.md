@@ -91,6 +91,10 @@
   и строятся вокруг live `*-client` ids, а не retired ids.
 - **Codex**: канал получения инструментов остаётся отдельным native-путём;
   managed-профили Codex остаются prompt-only до dedicated application layer.
+- **Grok**: официальный ACP-канал применяет managed prompt через
+  `_meta.systemPromptOverride`, tools через минимальный `_meta.agentProfile`,
+  а `_x.ai/session/info` является обязательным fail-closed proof. Native не
+  передаёт оба override и сохраняет vendor discovery.
 - Кэш инвентаря — локальный runtime state в Harness home (не tracked),
   ключ — `<providerId>@<версия>`.
 - RPC для UI: `get-provider-tool-inventory` → `{ version, tools[] }` на

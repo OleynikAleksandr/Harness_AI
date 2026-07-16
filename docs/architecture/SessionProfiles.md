@@ -53,6 +53,7 @@ synthetic-native. Номера строк актуальны на дату ис�
 | --- | --- | --- | --- | --- |
 | Claude | `@anthropic-ai/claude-agent-sdk` 0.3.195 (in-process) | Полная замена (`systemPrompt: string`) или пресет `claude_code` + `append` | Whitelist `tools: string[]` (`[]` отключает все), `disallowedTools`, пресет тулзов | Опции SDK-запроса на сессию |
 | Codex | Подпроцесс `codex app-server`, codex-cli 0.142.5, JSON-RPC | Полная замена через `thread/start` `baseInstructions` (плюс `developerInstructions`, `config`) | Только на уровне процесса: флаги `--disable <feature>` при запуске app-server; per-thread параметров тулзов нет | Параметры `thread/start` + запуск процесса под профиль |
+| Grok | Официальный `grok agent stdio`, ACP v1, подписочная авторизация CLI | Полная замена через `_meta.systemPromptOverride` | `_meta.agentProfile.tools` с проверенными совместимыми alias и обязательным post-create proof | `session/new` / `session/load` metadata + `_x.ai/session/info` |
 | Kimi (historical ACP) | Удалённый подпроцесс `kimi acp`, kimi 0.18.0, ACP JSON-RPC | Историческая гипотеза: замена через материализованный agent-файл `agent.yaml` -> `system_prompt_path: ./system.md`; верификация позже показала, что binding недоказуем | Исторически: явный список `tools:` нативных идентификаторов Kimi в `agent.yaml` | Удалено вместе с `kimi-provider`; живой Kimi — `kimi-client`, profile application входит в Phase 5 |
 | GLM Native (historical) | Удалённый Harness HTTP-клиент (`fetch` -> `api.z.ai` `/chat/completions`, SSE) | Исторически: системное сообщение собирали мы сами | Исторически: собственные схемы инструментов и локальное исполнение | Удалено вместе с `glm-native-provider`; живой GLM — `glm-client`, profile application входит в Phase 5 |
 
@@ -338,14 +339,14 @@ StrReplaceFile. Модель каждого канала продолжает р
 
 Честная матрица применимости (что каждый адаптер реально может):
 
-| Категория | Claude (whitelist `tools`) | Codex (флаги `--disable`) | Kimi (`tools` в `agent.yaml`) | GLM Native (наши схемы) |
+| Категория | Claude (whitelist `tools`) | Codex (флаги `--disable`) | Grok (`_meta.agentProfile.tools`) | GLM Native (наши схемы) |
 | --- | --- | --- | --- | --- |
-| file-read | Read, Glob, Grep | не управляется | ReadFile, ReadMediaFile, Glob, Grep | read_file, read_file_anchored, grep_files, glob_files |
-| file-write | Write, Edit | не управляется | WriteFile, StrReplaceFile | write_file, edit_file, edit_file_by_anchor, apply_patch |
-| shell | Bash | не управляется | Shell | exec_command |
-| web | WebSearch, WebFetch | не управляется в MVP (фиче-флаги — только с будущим пулом процессов) | (сегодня нет — n/a) | web_search, web_fetch, browser_fetch |
-| git | через shell (отдельных инструментов нет) | не управляется | через Shell | git_status, git_diff, git_log, git_blame |
-| tests | через shell | не управляется | через Shell | run_tests |
+| file-read | Read, Glob, Grep | не управляется | Read, Glob, Grep | read_file, read_file_anchored, grep_files, glob_files |
+| file-write | Write, Edit | не управляется | Write, Edit | write_file, edit_file, edit_file_by_anchor, apply_patch |
+| shell | Bash | не управляется | Bash | exec_command |
+| web | WebSearch, WebFetch | не управляется в MVP (фиче-флаги — только с будущим пулом процессов) | WebSearch, WebFetch | web_search, web_fetch, browser_fetch |
+| git | через shell (отдельных инструментов нет) | не управляется | через Bash | git_status, git_diff, git_log, git_blame |
+| tests | через shell | не управляется | через Bash | run_tests |
 
 Правила матрицы:
 
@@ -629,6 +630,13 @@ Core фактически применённые provider-specific details (whit
   retest 2026-07-08: `true` ведёт к extended-history bootstrap behavior и
   нестабильному времени прогрева. Эффективный ключ
   процесс-профиля фиксируется в snapshot как задел под будущий пул процессов.
+- **Grok**: native не добавляет `_meta.systemPromptOverride` или
+  `_meta.agentProfile`; managed передаёт замороженный prompt как полную замену
+  и минимальный agent profile с проверенными alias. После создания адаптер
+  обязан прочитать `_x.ai/session/info` и подтвердить имя агента и ограниченный
+  effective tool count; mismatch является ошибкой старта. Resume использует
+  тот же замороженный payload из applied snapshot, без повторной резолюции
+  текущего файла профиля.
 - **Kimi**: материализация agent-артефактов (`agent.yaml` + `system.md` +
   список tools) перед `session/new` в **immutable каталог, ключуемый
   content-hash применённого материала**: артефакты никогда не

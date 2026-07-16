@@ -53,8 +53,23 @@ export type {
 } from "./grok-cli-locator.js";
 export { GrokEventNormalizer } from "./grok-event-normalizer.js";
 export type {
+  GrokProfileApplication,
+  GrokProfileVerificationExpectation,
+  GrokSessionProfileState,
+} from "./grok-profile-application.js";
+export {
+  buildGrokProfileApplication,
+  resolveGrokSessionProfileState,
+  verifyGrokProfileApplication,
+} from "./grok-profile-application.js";
+export type {
   GrokSessionRuntimeOptions,
   GrokSessionStartResult,
   GrokSessionTransport,
 } from "./grok-session-runtime.js";
 export { GrokSessionRuntime } from "./grok-session-runtime.js";
+export type { GrokToolSelection } from "./grok-tool-inventory.js";
+export {
+  GROK_TOOL_CATEGORY_MAP,
+  mapGrokToolCategories,
+} from "./grok-tool-inventory.js";

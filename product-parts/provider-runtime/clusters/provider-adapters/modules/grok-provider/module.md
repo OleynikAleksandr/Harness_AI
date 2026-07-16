@@ -52,6 +52,16 @@ existing provider event vocabulary. Prompt completion preserves Grok's native
 `totalTokens` and `cachedReadTokens`; the context limit remains provider/Core
 telemetry truth rather than a guessed value.
 
+Native profile application emits no ACP prompt or agent-profile override.
+Managed application sends the frozen prompt once as
+`_meta.systemPromptOverride` and a minimal `_meta.agentProfile` with verified
+Claude-compatible Grok aliases, `agentsMd: false` and `discoverSkills: false`.
+The category map is `file-read → Read/Glob/Grep`, `file-write → Write/Edit`,
+`shell/git/tests → Bash`, `web → WebSearch/WebFetch`. Empty/unresolved managed
+tool selections fail before session creation. After `session/new` the adapter
+must query `_x.ai/session/info`; agent-name or effective-tool-count mismatch
+fails the binding instead of falling back to the full vendor toolset.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -70,6 +80,7 @@ telemetry truth rather than a guessed value.
 - Expected/unexpected ACP process exit and bounded diagnostic stderr.
 - Initialized/authenticated ACP session identity and applied model/reasoning.
 - Provider-neutral display, progress, usage and failure events from ACP tags.
+- Native/Managed session metadata plus verified applied-profile proof.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

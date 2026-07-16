@@ -7,9 +7,10 @@ locates the official CLI without relying on the Electron GUI process shell
 profile, reuses CLI-owned cached authentication without reading token contents,
 and will translate the Core provider contract to Grok ACP stdio.
 
-The initial foundation exposes only binary discovery and a read-only readiness
-probe. It deliberately does not register a visible provider until the ACP
-session/profile/telemetry contract is implemented and verified.
+The foundation exposes binary discovery, a read-only readiness probe and a
+tolerant newline-delimited JSON-RPC router. It deliberately does not register a
+visible provider until the ACP session/profile/telemetry contract is
+implemented and verified.
 
 Binary discovery order is deterministic:
 
@@ -22,6 +23,13 @@ Readiness runs `--version`, then `--no-auto-update models`. A successful model
 catalog proves that the installed CLI can reuse its cached subscription auth.
 The module returns structured `missing`, `login_required`, `unavailable`, or
 `ready` state and never exposes command stderr or auth-file contents to UI.
+
+`GrokAcpRouter` owns ACP request identifiers, response correlation, provider
+notifications and reverse client requests. Every request has a bounded timeout;
+AbortSignal cancellation emits `$/cancelRequest`, and process shutdown can
+reject every outstanding request. Reverse requests are answered with structured
+JSON-RPC success or error payloads. Malformed/unmatched protocol messages are
+reported diagnostically and never become renderer-owned inference.
 
 ## Public Facade
 
@@ -37,6 +45,7 @@ The module returns structured `missing`, `login_required`, `unavailable`, or
 
 - Resolved executable path.
 - CLI version and structured readiness/auth status.
+- Typed ACP requests, responses, notifications and reverse-request dispatch.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

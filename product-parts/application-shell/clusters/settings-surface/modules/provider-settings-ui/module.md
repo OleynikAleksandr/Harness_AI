@@ -21,13 +21,16 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   card for client endpoint providers — one password field bound to the
   provider's `providers.*.apiKey` settings entry plus the provider-help copy,
   localized by message prefix. Every provider connected to the universal
-  client mounts one in its Settings tab; today the Kimi tab holds ONLY the
+  client mounts one in its Settings tab; the Kimi tab holds the
   `KimiClientApiKeyCard` bound to `providers.kimiClient.apiKey` (prefix
   `settings.provider.kimiClient`, card title
-  `settings.provider.kimiClient.apiKey`) — the visible Kimi (`kimi-client`)
-  pins the single `kimi-for-coding` model, so no model card is needed, and
-  the ACP default-model card + thinking toggles left with the kimi-provider
-  retirement (2026-07-05 user order). The GLM
+  `settings.provider.kimiClient.apiKey`) above a `DefaultModelCard` bound to
+  `providers.kimiClient.defaultModel`. The card consumes the shared
+  provider-descriptor catalog (`kimi-for-coding`,
+  `kimi-for-coding-highspeed`, `k3`) through `PROVIDER_MODEL_OPTIONS`, so the
+  renderer does not duplicate provider model ids. The retired ACP thinking
+  toggles remain absent after the kimi-provider retirement (2026-07-05 user
+  order). The GLM
   tab binds `GlmClientApiKeyCard` to `providers.glmClient.apiKey` (prefix
   `settings.provider.glmClient`, card title
   `settings.provider.glmClient.apiKey`) above the universal-client GLM model
@@ -154,8 +157,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `grok-4.5` with `High/Medium/Low` and `grok-composer-2.5-fast` with honest
   provider-managed reasoning. It also uses the shared session-continuity card;
   no renderer capability inference or direct CLI call occurs.
-- Kimi default-model row descriptions resolve through the browser localization
-  provider; the card description and note already use the same boundary.
+- The Kimi default-model card renders K2.7 Coding, K2.7 Coding HighSpeed and
+  K3 from the provider-descriptor catalog and updates only
+  `providers.kimiClient.defaultModel`. Its title, helper copy and model-row
+  descriptions resolve through the browser localization provider.
 - The GLM tab includes a universal-client default-model card bound to
   `providers.glmClient.defaultModel` and populated from
   `PROVIDER_MODEL_OPTIONS.glmClient` (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,

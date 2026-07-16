@@ -1,4 +1,5 @@
 import type { ReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import { KIMI_CLIENT_MODELS } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 
 export type SettingsTabId =
   | "claude"
@@ -97,6 +98,7 @@ export const PROVIDER_MODEL_OPTIONS = {
       label: "Composer 2.5 Fast",
     },
   ],
+  kimiClient: KIMI_CLIENT_MODELS,
   glmClient: [
     {
       description:

@@ -191,21 +191,21 @@ Render the transcript/dialog layout and session chrome.
   reflects the live catalog (provider renames, Restart Core) instead of the list
   cached at renderer startup.
 - Provider card model labels resolve through `resolveProviderModel`: a
-  Core-owned `defaultModelId` on the provider descriptor (universal-client
-  endpoints, e.g. the visible Kimi → `kimi-for-coding`) wins over the
-  settings-snapshot lookup; multi-model client endpoints such as the visible GLM
-  use the Core settings snapshot (`providers.glmClient.defaultModel`). The
+  Core-owned `defaultModelId` on a single-model provider descriptor wins over
+  the settings-snapshot lookup; multi-model client endpoints use the Core
+  settings snapshot (Kimi → `providers.kimiClient.defaultModel`, GLM →
+  `providers.glmClient.defaultModel`). The
   renderer never invents a model id. The same resolution feeds the `model` field
   of `createSession`. The visible `openrouter-client` and
   `local-models-client` resolve through the shared settings sections
   (`providers.openRouter.defaultModel` / `providers.localModels.defaultModel`);
   Grok resolves through `providers.grok.defaultModel`, so its ready card and
   the created Core session carry the same exact selected model instead of the
-  former `cli-default` placeholder;
+  former `cli-default` placeholder; Kimi likewise displays and creates the
+  session with the exact Settings selection instead of `cli-default`;
   the retired legacy `glm-native`/`openrouter`/`local-models` model cases left
   `getProviderModel` with the 2026-07-05 legacy cleanup, and the ACP `kimi`
-  case left with the kimi-provider retirement (the visible Kimi resolves
-  through the Core-owned `defaultModelId`). The session-panel endpoint-tag
+  case left with the kimi-provider retirement. The session-panel endpoint-tag
   badge follows the live `openrouter-client` sessions.
 
 - New-session wizard step 2 (`session-profile-step.tsx`): after the

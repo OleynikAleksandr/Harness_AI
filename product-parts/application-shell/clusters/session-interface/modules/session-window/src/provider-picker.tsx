@@ -100,6 +100,8 @@ function getProviderModel(
       return settings.providers.codex.defaultModel;
     case "grok":
       return settings.providers.grok.defaultModel;
+    case "kimi-client":
+      return settings.providers.kimiClient.defaultModel;
     case "glm-client":
       return settings.providers.glmClient.defaultModel;
     case "openrouter-client":

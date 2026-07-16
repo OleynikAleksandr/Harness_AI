@@ -31,6 +31,10 @@ assert.match(
   providerPickerSource,
   /case "grok":\s+return settings\.providers\.grok\.defaultModel/u
 );
+assert.match(
+  providerPickerSource,
+  /case "kimi-client":\s+return settings\.providers\.kimiClient\.defaultModel/u
+);
 assert.match(source, /return effort \? `\(\$\{effort\}\)` : null/u);
 assert.match(source, /telemetry\.cacheDisplay/u);
 assert.match(source, /session\.status\.cache/u);

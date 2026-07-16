@@ -202,10 +202,6 @@ export function SettingsTabContent({
   }
 
   if (activeTab === "kimi") {
-    // The visible Kimi is the universal-client endpoint (`kimi-client`): it
-    // pins the single public `kimi-for-coding` model, so the tab carries only
-    // the client key card. The ACP default-model card and thinking toggles
-    // left with the kimi-provider retirement (2026-07-05 user order).
     return (
       <div className="settings-reference-stack">
         <KimiClientApiKeyCard
@@ -215,6 +211,29 @@ export function SettingsTabContent({
               next.providers.kimiClient.apiKey = value;
             })
           }
+        />
+        <DefaultModelCard
+          description={t(
+            "ui_helper_text",
+            "settings.provider.kimiClient.defaultModel.description",
+            "Choose the Kimi model used by the universal client when new sessions start."
+          )}
+          onChange={(defaultModel) =>
+            update((next) => {
+              next.providers.kimiClient.defaultModel = defaultModel;
+            })
+          }
+          options={localizeModelOptions(
+            t,
+            "settings.provider.kimiClient.model",
+            PROVIDER_MODEL_OPTIONS.kimiClient
+          )}
+          title={t(
+            "ui_labels",
+            "settings.provider.kimiClient.defaultModel",
+            "Kimi Default model"
+          )}
+          value={settings.providers.kimiClient.defaultModel}
         />
       </div>
     );

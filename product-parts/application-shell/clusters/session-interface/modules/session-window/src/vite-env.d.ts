@@ -88,7 +88,7 @@ interface Window {
       providers: {
         id: string;
         models: {
-          defaultReasoningEffort: string;
+          defaultReasoningEffort: string | null;
           id: string;
           label: string;
           reasoningEfforts: { id: string; label: string }[];

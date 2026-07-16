@@ -126,7 +126,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `captureNativeRequest` command (`providerId`, `model`, and the exact
   Core-declared `reasoningEffort`) and displays the Core-returned result. A
   provider/model change resets the local selector to that model's Core default;
-  the renderer does not import or reconstruct provider capability maps. Capture truth
+  models with no Core-declared reasoning options (the Kimi native CLI channel)
+  hide the reasoning field and do not block Capture, while Claude/Codex still
+  require the exact selected effort. The renderer does not import or
+  reconstruct provider capability maps. Capture truth
   (proxy, record-only request, artifacts) is Core-owned.
 - The OpenRouter model slug search (`OpenRouterModelEndpointPicker` in
   `openrouter-settings-card.tsx`, used by the provider default model block and

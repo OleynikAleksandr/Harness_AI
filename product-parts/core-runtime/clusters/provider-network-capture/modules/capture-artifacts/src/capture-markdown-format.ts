@@ -111,7 +111,7 @@ export function buildNativeRequestCaptureMarkdown(
     `Provider: ${options.providerId}`,
     `Selected model: ${options.selectedModelId ?? "(provider default)"}`,
     "Sent upstream: true",
-    "Capture mode: MITM forward transit",
+    `Capture mode: ${captureMode(options.providerId)}`,
     `Generated at: ${options.generatedAt}`,
     "",
     "## Summary",
@@ -479,7 +479,6 @@ function fencedJson(value: unknown): string {
 function fencedText(value: string): string {
   return fencedBlock("text", value);
 }
-
 function fencedBlock(language: string, value: string): string {
   const longestFence = Math.max(
     2,
@@ -489,10 +488,12 @@ function fencedBlock(language: string, value: string): string {
   return [`${fence}${language}`, value, fence].join("\n");
 }
 
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
+const capitalize = (value: string): string =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+const captureMode = (providerId: NativeCaptureProviderId): string =>
+  providerId === "kimi"
+    ? "native CLI reverse-forward transit"
+    : "MITM forward transit";
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }

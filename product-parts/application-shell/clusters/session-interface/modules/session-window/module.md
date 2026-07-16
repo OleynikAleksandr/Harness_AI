@@ -31,6 +31,9 @@ Render the transcript/dialog layout and session chrome.
   window keeps at most the latest pending interaction per Core session and
   never persists it or reconstructs it from provider text.
 - Core-owned localization runtime payload from the Electron preload bridge.
+- The shared `vite-env.d.ts` bridge contract models Native Request Capture
+  `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
+  that expose no independent reasoning selector.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
 - The session status panel renders only Core telemetry truth. Codex and Grok

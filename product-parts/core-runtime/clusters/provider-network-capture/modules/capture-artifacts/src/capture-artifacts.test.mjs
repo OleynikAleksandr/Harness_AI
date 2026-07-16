@@ -146,15 +146,27 @@ try {
     ["developer", "user"]
   );
 
-  // OpenAI chat shape: no top-level system; the system prompt is the first
-  // `role: "system"` message, and the messages section keeps the array.
+  // Kimi native CLI uses the OpenAI chat shape: system lives in the first
+  // system-role message and tools use nested function declarations.
   const chatShape = extractCaptureSections({
-    model: "vendor-model",
+    model: "k3",
     messages: [
       { role: "system", content: "You are a coding CLI." },
       { role: "user", content: "probe" },
     ],
-    tools: [{ function: { name: "Bash" } }],
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "shell",
+          description: "Run a command.",
+          parameters: {
+            type: "object",
+            properties: { command: { type: "string" } },
+          },
+        },
+      },
+    ],
   });
   assert.equal(
     chatShape.find((s) => s.section === "system").content,
@@ -165,6 +177,52 @@ try {
     chatShape.find((s) => s.section === "messages").payload.length,
     2
   );
+
+  const kimiWriter = await NativeRequestCaptureWriter.create({
+    captureId: "cap-kimi",
+    clock: () => new Date("2026-07-16T18:00:00.000Z"),
+    outputDir,
+    providerId: "kimi",
+    selectedModelId: "k3",
+    selectedReasoningEffort: null,
+  });
+  await kimiWriter.writeCapturedRequest({
+    body: {
+      model: "k3",
+      messages: [
+        { role: "system", content: "You are Kimi Code CLI." },
+        { role: "user", content: "probe" },
+      ],
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "shell",
+            description: "Run a command.",
+            parameters: { type: "object", required: ["command"] },
+          },
+        },
+      ],
+    },
+    bodyText: "captured Kimi request",
+    headers: {},
+    method: "POST",
+    path: "/coding/v1/chat/completions",
+    target: "api.kimi.com:443",
+    timestamp: "2026-07-16T18:00:00.000Z",
+  });
+  await kimiWriter.complete("captured");
+  assert.match(kimiWriter.artifacts.jsonlPath, /kimi-k3-native-request/u);
+  const kimiMarkdown = await readFile(
+    kimiWriter.artifacts.markdownPath,
+    "utf8"
+  );
+  assert.match(kimiMarkdown, /# Kimi Native Request Capture/u);
+  assert.match(kimiMarkdown, /native CLI reverse-forward transit/u);
+  assert.match(kimiMarkdown, /You are Kimi Code CLI\./u);
+  assert.match(kimiMarkdown, /#### 1\. shell/u);
+  assert.match(kimiMarkdown, /Run a command\./u);
+  assert.match(kimiMarkdown, /"required": \[/u);
 
   // Writer: fixed clock so artifact paths and content are deterministic.
   const clock = () => new Date("2026-07-02T18:00:00.000Z");

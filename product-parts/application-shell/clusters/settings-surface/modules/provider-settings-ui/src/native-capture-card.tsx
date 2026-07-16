@@ -8,7 +8,7 @@ interface CaptureProvider {
 }
 
 interface CaptureModel {
-  readonly defaultReasoningEffort: string;
+  readonly defaultReasoningEffort: string | null;
   readonly id: string;
   readonly label: string;
   readonly reasoningEfforts: readonly {
@@ -63,6 +63,9 @@ export function NativeCaptureCard() {
   const selectedProvider = providers.find((entry) => entry.id === providerId);
   const selectedModel = selectedProvider?.models.find(
     (entry) => entry.id === model
+  );
+  const modelRequiresReasoning = Boolean(
+    selectedModel && selectedModel.reasoningEfforts.length > 0
   );
 
   const selectModel = (
@@ -173,25 +176,31 @@ export function NativeCaptureCard() {
           ))}
         </select>
       </label>
-      <label className="settings-field">
-        <span>
-          {t("ui_labels", "settings.nativeCapture.reasoning", "Reasoning")}
-        </span>
-        <select
-          disabled={!selectedModel}
-          onChange={(event) => setReasoningEffort(event.target.value)}
-          value={reasoningEffort}
-        >
-          {(selectedModel?.reasoningEfforts ?? []).map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      {modelRequiresReasoning ? (
+        <label className="settings-field">
+          <span>
+            {t("ui_labels", "settings.nativeCapture.reasoning", "Reasoning")}
+          </span>
+          <select
+            onChange={(event) => setReasoningEffort(event.target.value)}
+            value={reasoningEffort}
+          >
+            {(selectedModel?.reasoningEfforts ?? []).map((entry) => (
+              <option key={entry.id} value={entry.id}>
+                {entry.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <button
         className="settings-secondary"
-        disabled={busy || !providerId || !model || !reasoningEffort}
+        disabled={
+          busy ||
+          !providerId ||
+          !model ||
+          (modelRequiresReasoning && !reasoningEffort)
+        }
         onClick={() => {
           runCapture().catch(() => setBusy(false));
         }}

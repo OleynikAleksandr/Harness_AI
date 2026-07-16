@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task2",
-  "expectedCommitMessage": "feat: expose Kimi native capture in Settings",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "chore: verify Kimi native request capture",
   "debt": null
 }
 ```
@@ -86,14 +86,14 @@
 
 7. [DONE] `harness-ai.phase3.stream1.task1` Register Kimi plus the three Core-owned Coding Plan models in the native-capture catalog, model optional provider-default reasoning honestly, and route Kimi capture commands to the diagnostic CLI facade without re-registering the retired ACP provider; cover RPC validation and synchronize registry/runtime docs (scope: `provider-descriptor/src/provider-descriptor-facade.ts, core-runtime-process/src/core-native-capture-rpc.ts, provider-adapter-contract/src/provider-adapter-contract-facade.ts` + paired tests/docs; expected commit: `feat: register Kimi native capture catalog`). Result: Completed in commit `feat: register Kimi native capture catalog`.
 8. [DONE] Git Commit: `feat: register Kimi native capture catalog` (hash: self)
-9. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Update the Native Request Capture card to display Kimi cleanly, allow models with provider-default reasoning, and verify the readable artifact parser extracts Kimi system messages and native tool schemas from the current CLI request envelope; synchronize UI/artifact docs (scope: `provider-settings-ui/src/native-capture-card.tsx, capture-artifacts/src/capture-payload-sections.ts, capture-artifacts/src/capture-markdown-format.ts` + paired tests/docs; expected commit: `feat: expose Kimi native capture in Settings`).
-10. [TODO] Git Commit: `feat: expose Kimi native capture in Settings` (hash: TBD)
+9. [DONE] `harness-ai.phase3.stream1.task2` Update the Native Request Capture card to display Kimi cleanly, allow models with provider-default reasoning, and verify the readable artifact parser extracts Kimi system messages and native tool schemas from the current CLI request envelope; synchronize UI/artifact docs (scope: `provider-settings-ui/src/native-capture-card.tsx, capture-artifacts/src/capture-payload-sections.ts, capture-artifacts/src/capture-markdown-format.ts` + paired tests/docs; expected commit: `feat: expose Kimi native capture in Settings`). Result: Completed in commit `feat: expose Kimi native capture in Settings`.
+10. [DONE] Git Commit: `feat: expose Kimi native capture in Settings` (hash: self)
 
 ## Phase 4 - Live Verification (owner: Codex, updated: 2026-07-16)
 
 ### Stream: Native CLI Evidence
 
-11. [TODO] `harness-ai.phase4.stream1.task1` Run focused live native captures with installed Kimi CLI `0.26.0` for all three model ids, verify raw JSONL against the derived Markdown system/tool sections, and record sanitized evidence without credentials or full sensitive prompts (scope: `docs/evidence/kimi-native-request-capture-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: verify Kimi native request capture`).
+11. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Run focused live native captures with installed Kimi CLI `0.26.0` for all three model ids, verify raw JSONL against the derived Markdown system/tool sections, and record sanitized evidence without credentials or full sensitive prompts (scope: `docs/evidence/kimi-native-request-capture-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: verify Kimi native request capture`).
 12. [TODO] Git Commit: `chore: verify Kimi native request capture` (hash: TBD)
 
 ## Phase 5 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-16)

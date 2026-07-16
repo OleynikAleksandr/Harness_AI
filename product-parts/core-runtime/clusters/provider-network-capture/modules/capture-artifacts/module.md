@@ -44,10 +44,11 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   the following developer message. The extractor promotes those structural
   items into the tool/system sections and removes them from developer context,
   while preserving permissions, skills, plugins and other developer messages.
-  The OpenAI-chat
-  form has no top-level system field, so the first `role: "system"` chat
-  message's content becomes the system section (the messages section still
-  keeps the full array).
+  The OpenAI-chat form used by the Kimi native CLI has no top-level system
+  field, so the first `role: "system"` chat message's content becomes the
+  system section; nested `function.name` / `description` / `parameters`
+  declarations become readable tool entries while the messages section keeps
+  the full array.
 - `buildNativeRequestCaptureMarkdown(options)`: the readable dump with
   provider, selected model, summary, request metadata, redacted headers,
   request parameters, applied Harness/profile envelope, diagnostics pointers
@@ -62,8 +63,9 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   `<timestamp>-<provider>-<model>-<reasoning>-native-request.diagnostics.jsonl`,
   and `<timestamp>-<provider>-<model>-<reasoning>-native-request.md`. Model and
   reasoning segments are sanitized; direct legacy writer callers may omit
-  either, while the Core capture command supplies both so dumps for different
-  model/effort pairs are distinguishable. The selected reasoning value is the
+  either. Core supplies reasoning for Claude/Codex so model/effort pairs are
+  distinguishable; Kimi intentionally omits that segment because its CLI has
+  no reasoning control. The selected reasoning value is the
   Core/app-server intent (for example Codex `ultra`), not a value re-derived
   from a provider-normalized upstream body. `capture_start` records both
   selected dimensions in diagnostics. The raw JSONL appends only
@@ -72,15 +74,16 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
   records. Every captured request is redacted before it is persisted; the raw
   request body is kept because it is the diagnostic payload, but auth headers
   are not.
+- The readable `Capture mode` is provider-accurate: Claude/Codex report MITM
+  forward transit and Kimi reports native CLI reverse-forward transit.
 - `recordAppliedInputEnvelope(envelope)` and `recordDiagnosticContext(record)`
   let a provider adapter report what it applied and provider-specific
   diagnostics, rendered in the `Applied Harness/Profile Envelope` and
   `Diagnostics` markdown sections and persisted to the diagnostics JSONL.
   When no HTTP request was intercepted, the summary states "No HTTP request
   intercepted" for the envelope-only case without polluting the raw JSONL
-  artifact. (The wire-only artifact path was introduced for the ACP Kimi
-  capture, which left with the kimi-provider retirement 2026-07-05; the
-  envelope/diagnostic channel itself stays a generic writer capability.)
+  artifact. Kimi records its diagnostic CLI mode/model/bridge envelope through
+  this generic channel in addition to the captured upstream request.
 
 ## Owned Paths
 

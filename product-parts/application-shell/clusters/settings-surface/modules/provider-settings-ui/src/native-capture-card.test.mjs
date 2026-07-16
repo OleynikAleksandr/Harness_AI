@@ -13,10 +13,13 @@ assert.match(
   /setReasoningEffort\(firstModel\?\.defaultReasoningEffort \?\? ""\)/u
 );
 assert.match(source, /selectedModel\?\.reasoningEfforts \?\? \[\]/u);
+assert.match(source, /modelRequiresReasoning/u);
+assert.match(source, /selectedModel\.reasoningEfforts\.length > 0/u);
 assert.match(
   source,
   /captureNativeRequest\(\{[\s\S]*?reasoningEffort: reasoningEffort \|\| undefined/u
 );
+assert.match(source, /\(modelRequiresReasoning && !reasoningEffort\)/u);
 assert.match(source, /settings\.nativeCapture\.reasoning/u);
 assert.doesNotMatch(source, /CODEX_REASONING_EFFORTS_BY_MODEL/u);
 assert.doesNotMatch(source, /CLAUDE_REASONING_EFFORTS_BY_MODEL/u);

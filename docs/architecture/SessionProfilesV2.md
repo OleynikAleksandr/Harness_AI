@@ -360,7 +360,9 @@
 - **UI**: карточка `Native Request Capture` в Settings -> General с
   Core-populated селекторами provider/model/reasoning, статусом и путями
   артефактов; renderer показывает model-specific reasoning options/labels и
-  отправляет выбранный id без собственных capability maps;
+  отправляет выбранный id без собственных capability maps. Если Core вернул
+  пустой список reasoning (Kimi), поле скрывается и capture уходит без
+  выдуманного effort;
   явные коды ошибок (`tls_trust_failed`, `target_not_seen`, `timeout`,
   `provider_not_supported`, `model_not_supported`,
   `reasoning_not_supported`). Capture — команда диагностики, не сохраняемая

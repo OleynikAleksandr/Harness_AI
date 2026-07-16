@@ -40,7 +40,9 @@ Own Electron lifecycle, window creation, and local application startup.
 - `window.harnessCore` also exposes `captureNativeRequest(request)` and
   `listCapturableModels()` for the Native Request Capture Settings card,
   bridged to the Core `capture-native-request` / `list-capturable-models`
-  methods through the core-process bridge and typed in `vite-env.d.ts`.
+  methods through the core-process bridge and typed in `vite-env.d.ts`, where
+  a model's default reasoning effort is nullable when the provider exposes no
+  reasoning selector.
 - `window.harnessCore.rollbackSessionTurns({ sessionId, numTurns })` exposes
   only the raw Codex/Grok rollback intent to the renderer; Core owns provider
   validation, strategy and transcript refresh.

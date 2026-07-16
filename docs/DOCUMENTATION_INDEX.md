@@ -142,6 +142,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
   ссылку на подробное evidence и обязательный final result.
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,
   provider migration, UI fixes, runtime behavior, smoke checks and retests.
+- `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
+  orchestrator contract for explicit `completion: user-acceptance` tasks,
+  guarded acceptance commits and separate user-directed archival.
 - `docs/evidence/grok-provider-integration-plan-2026-07-16.md` — verified
   Grok Build CLI/ACP and SuperGrok subscription findings plus the proposed
   native `grok-provider` architecture, profile/tooling contracts, phased

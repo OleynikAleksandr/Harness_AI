@@ -21,6 +21,7 @@
     "plan:validate": "node scripts/plan.mjs validate",
     "plan:repair": "node scripts/plan.mjs repair",
     "plan:commit": "node scripts/plan.mjs commit",
+    "plan:accept": "node scripts/plan.mjs accept",
     "plan:archive": "node scripts/plan.mjs archive",
     "check:architecture": "node scripts/check-architecture.mjs",
     "lint": "ultracite check",

@@ -13,6 +13,9 @@ import { pathToFileURL } from "node:url";
 const PLAN_PATH = ".harness/plans/todo-plan.md";
 const ARCHIVE_DIR = ".harness/plans/archive";
 const DEBT_PATH = ".git/harness-plan-debt";
+const ACCEPTANCE_COMPLETION_MARKER = "completion: user-acceptance";
+const DEFAULT_ACCEPTANCE_NOTE =
+  "User explicitly accepted the delivered result.";
 const COMMIT_MESSAGE_LINE_REGEX = /\r?\n/u;
 const ESCAPE_REGEX = /[.*+?^${}()|[\]\\]/gu;
 const EXPECTED_COMMIT_REGEX = /expected commit:\s*`([^`]+)`/u;
@@ -49,6 +52,17 @@ function run(command, args) {
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
+}
+
+function gitDiffHasChanges(args) {
+  const result = spawnSync("git", args, { stdio: "ignore" });
+  if (result.status === 0) {
+    return false;
+  }
+  if (result.status === 1) {
+    return true;
+  }
+  throw new Error(`Git inspection failed: git ${args.join(" ")}`);
 }
 
 function expectedCommitFromLine(line) {
@@ -129,12 +143,85 @@ function validateCommitMessage(filePath) {
   }
   if (
     state.expectedCommitMessage === message ||
-    text.includes(`Git Commit: \`${message}\``)
+    text.includes(`Git Commit: \`${message}\``) ||
+    acceptanceCommitIsRecorded(text, message)
   ) {
     console.log("Commit message matches active plan.");
     return;
   }
   throw new Error(`Commit message is not present in active plan: ${message}`);
+}
+
+export function buildAcceptanceCommitMessage(planId) {
+  if (!planId) {
+    throw new Error("Active plan id is required to record acceptance");
+  }
+  return `chore: record plan acceptance ${planId}`;
+}
+
+export function acceptanceCommitIsRecorded(text, message) {
+  return text.includes(`Acceptance Commit: \`${message}\``);
+}
+
+function sanitizeAcceptanceNote(note) {
+  const normalized = (note || DEFAULT_ACCEPTANCE_NOTE)
+    .replaceAll("`", "'")
+    .replace(/\s+/gu, " ")
+    .trim();
+  return (normalized || DEFAULT_ACCEPTANCE_NOTE).slice(0, 500);
+}
+
+export function markAcceptanceDone(text, state, note = "") {
+  if (state.executionScopeStatus !== "ACTIVE") {
+    throw new Error("User acceptance requires an ACTIVE execution scope");
+  }
+  if (!state.currentTaskId) {
+    throw new Error("No active task is awaiting user acceptance");
+  }
+  if (state.expectedCommitMessage !== null) {
+    throw new Error(
+      `Current task expects commit "${state.expectedCommitMessage}" and cannot be accepted`
+    );
+  }
+
+  const currentTaskPattern = new RegExp(
+    "^(\\d+\\. )\\[IN_PROGRESS\\]( `" +
+      escapeRegExp(state.currentTaskId) +
+      "`[^\\n]*)$",
+    "mu"
+  );
+  const currentTaskMatch = text.match(currentTaskPattern);
+  if (!currentTaskMatch) {
+    throw new Error(`Active acceptance task not found: ${state.currentTaskId}`);
+  }
+  if (!currentTaskMatch[0].includes(ACCEPTANCE_COMPLETION_MARKER)) {
+    throw new Error(
+      `Current task is not marked with ${ACCEPTANCE_COMPLETION_MARKER}`
+    );
+  }
+
+  const acceptanceCommitMessage = buildAcceptanceCommitMessage(state.planId);
+  const result = ` Result: User acceptance recorded — ${sanitizeAcceptanceNote(
+    note
+  )} Acceptance Commit: \`${acceptanceCommitMessage}\`.`;
+  let nextText = text.replace(currentTaskPattern, `$1[DONE]$2${result}`);
+  const acceptedTaskIndex = nextText.indexOf(`\`${state.currentTaskId}\``);
+  const nextTask = findNextTask(nextText, acceptedTaskIndex);
+  if (!nextTask) {
+    state.currentTaskId = null;
+    state.expectedCommitMessage = null;
+    state.lastRecordedCommit = "self";
+    return replaceState(nextText, state);
+  }
+
+  nextText =
+    nextText.slice(0, nextTask.lineStart) +
+    nextTask.line.replace("[TODO]", "[IN_PROGRESS]") +
+    nextText.slice(nextTask.lineEnd);
+  state.currentTaskId = nextTask.taskId;
+  state.expectedCommitMessage = nextTask.expectedCommitMessage;
+  state.lastRecordedCommit = "self";
+  return replaceState(nextText, state);
 }
 
 export function markCommitDone(text, state, message) {
@@ -201,6 +288,29 @@ function commit(message) {
   writePlan(text);
   run("git", ["add", "-A"]);
   run("git", ["commit", "-m", message]);
+}
+
+function accept(note) {
+  const text = readPlan();
+  const state = validatePlan();
+  const acceptanceCommitMessage = buildAcceptanceCommitMessage(state.planId);
+  const nextText = markAcceptanceDone(text, state, note);
+  if (gitDiffHasChanges(["diff", "--cached", "--quiet"])) {
+    throw new Error(
+      "Cannot record acceptance while unrelated staged changes are present"
+    );
+  }
+  if (gitDiffHasChanges(["diff", "--quiet", "--", PLAN_PATH])) {
+    throw new Error(
+      `Cannot record acceptance while ${PLAN_PATH} has uncommitted changes`
+    );
+  }
+  writePlan(nextText);
+  run("git", ["add", "--", PLAN_PATH]);
+  run("git", ["commit", "-m", acceptanceCommitMessage]);
+  console.log(
+    `Recorded user acceptance for ${state.planId}; scope remains ACTIVE`
+  );
 }
 
 function repair() {
@@ -296,6 +406,8 @@ if (invokedDirectly) {
       validateCommitMessage(resolve(args[0] ?? ""));
     } else if (command === "commit") {
       commit(args.join(" ").trim());
+    } else if (command === "accept") {
+      accept(args.join(" ").trim());
     } else if (command === "archive") {
       archive(args.includes("--force"));
     } else if (command === "repair") {

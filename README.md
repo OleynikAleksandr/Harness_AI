@@ -13,6 +13,15 @@ This repository is intentionally new. CodeAI Hub is reference material only; Har
 
 MVP starts with the workspace skeleton, then installs the local development harness, then implements the first runnable Electron session slice.
 
+## Plan Lifecycle
+
+Implementation tasks are committed with `npm run plan:commit -- "<message>"`.
+Final user-verification tasks are explicitly marked
+`completion: user-acceptance` and are completed with
+`npm run plan:accept -- "<acceptance note>"` after the user confirms the
+result. Acceptance is recorded in its own commit but keeps the scope active;
+`npm run plan:archive` remains a separate user-directed closeout action.
+
 ## Packaged App Rebuilds
 
 Use `npm run package:mac` when a change must be tested in

@@ -50,6 +50,13 @@
   added, moved or deleted.
 - No release/package build starts as a release decision without explicit user confirmation.
 - Scope closeout/archival is user-directed only: the agent never initiates moving `Execution Scope Status` to `NONE`, running `npm run plan:archive`, or starting a fresh empty plan — it may only suggest it and wait for the user's direct order.
+- A final user-verification task uses `completion: user-acceptance` and
+  `expected commit: none`. Explicit positive acceptance is recorded with
+  `npm run plan:accept -- "<short acceptance note>"`; this marks only that task
+  done, creates its acceptance commit and leaves the scope ACTIVE.
+- User acceptance does not authorize `plan:archive`. Archival remains a later,
+  separate direct user command; after `plan:accept`, ordinary archival must not
+  require `--force`.
 - Verification/package builds for the current implementation scope are allowed when the active plan asks for them.
 - Quality gates run automatically on every commit (`.husky/pre-commit`) and push (`.husky/pre-push`); plans never include a separate phase or task just to run gates.
 - Commit with `npm run plan:commit -- "<expected commit message>"`.
@@ -70,4 +77,4 @@
 
 3. [TODO] `harness-ai.phase<N+1>.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit: `<verification commit message>`).
 4. [TODO] Git Commit: `<verification commit message>` (hash: TBD)
-5. [TODO] `harness-ai.phase<N+1>.stream1.task2` User retests the implemented workflow in the packaged app (scope: user workflow; expected commit: none).
+5. [TODO] `harness-ai.phase<N+1>.stream1.task2` User retests the implemented workflow in the packaged app (completion: user-acceptance; scope: user workflow; expected commit: none).

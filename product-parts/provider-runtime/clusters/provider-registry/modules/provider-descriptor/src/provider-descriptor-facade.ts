@@ -24,7 +24,7 @@ const HTTP_COMPATIBLE_CAPABILITIES: ProviderCapabilities = {
 };
 
 export interface CapturableModel {
-  readonly defaultReasoningEffort: NativeCaptureReasoningEffort;
+  readonly defaultReasoningEffort: NativeCaptureReasoningEffort | null;
   readonly id: string;
   readonly label: string;
   readonly reasoningEfforts: readonly CapturableReasoningOption[];
@@ -109,7 +109,7 @@ const capturableModel = (
   id: string,
   label: string,
   reasoningEfforts: readonly NativeCaptureReasoningEffort[],
-  defaultReasoningEffort: NativeCaptureReasoningEffort = "medium"
+  defaultReasoningEffort: NativeCaptureReasoningEffort | null = "medium"
 ): CapturableModel => ({
   defaultReasoningEffort,
   id,
@@ -156,6 +156,12 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
         "high"
       ),
     ],
+    // Kimi exposes no independent reasoning control in the native CLI. The
+    // three ids are the verified Coding Plan catalog; capture materializes a
+    // temporary CLI alias and preserves the provider default for each model.
+    kimi: KIMI_CLIENT_MODELS.map((model) =>
+      capturableModel(model.id, model.label, [], null)
+    ),
   };
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([

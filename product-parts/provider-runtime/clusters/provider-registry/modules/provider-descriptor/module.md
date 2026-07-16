@@ -26,7 +26,8 @@ Own model/reasoning capabilities and UI metadata for providers.
 - Capturable model/reasoning catalog for the Native Request Capture UI:
   `getCapturableModels(providerId)` returns renderer-safe `{ id, label,
   defaultReasoningEffort, reasoningEfforts[] }` entries per capture provider
-  (Claude and Codex app-server), `getCapturableModel(providerId, modelId)`
+  (Claude, Codex app-server, and the diagnostic Kimi CLI channel),
+  `getCapturableModel(providerId, modelId)`
   validates a concrete model selection, and
   `getCaptureProviderIds()` lists the providers that offer capture. Model ids
   mirror the provider model catalog so capture can be
@@ -38,6 +39,9 @@ Own model/reasoning capabilities and UI metadata for providers.
   native CLI `--effort` values `low/medium/high/xhigh/max` for Sonnet, Opus,
   and Haiku. Claude `ultracode` is intentionally absent because it is a
   separate session-orchestration setting, not an effort value.
+  Kimi reuses the three-model `KIMI_CLIENT_MODELS` catalog and exposes an
+  empty reasoning list with `defaultReasoningEffort: null` because the native
+  CLI has no independent reasoning selector.
 - Client endpoint model catalog: `getClientModels(providerId)`
   returns renderer-safe `ProviderModelDescriptor` (`{ id, label,
   description? }`) entries. `KIMI_CLIENT_MODELS` is the shared Core/provider-

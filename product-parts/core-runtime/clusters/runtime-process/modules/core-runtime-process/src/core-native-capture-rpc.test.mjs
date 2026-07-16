@@ -21,14 +21,13 @@ assert.match(
   rpcSource,
   /runProviderCapture: \(context\) => capture\(context\)/u
 );
-// Capture serves native vendor channels; the ACP kimi capture channel left
-// with the kimi-provider retirement
-// (2026-07-05 user order).
+// Kimi is restored only as a diagnostic native-CLI capture channel.
 assert.match(
   rpcSource,
-  /CAPTURE_PROVIDER_IDS = new Set\(\["claude", "codex"\]\)/u
+  /CAPTURE_PROVIDER_IDS = new Set\(\["claude", "codex", "kimi"\]\)/u
 );
-assert.doesNotMatch(rpcSource, /"kimi"/u);
+assert.match(rpcSource, /kimiNativeCaptureFacade\.captureNativeRequest/u);
+assert.match(rpcSource, /settings\.providers\.kimiClient\.defaultModel/u);
 assert.match(rpcSource, /provider_not_supported/u);
 assert.match(rpcSource, /model_not_supported/u);
 assert.match(rpcSource, /reasoning_not_supported/u);
@@ -42,6 +41,7 @@ assert.match(
 );
 assert.match(rpcSource, /model\.reasoningEfforts\.map/u);
 assert.match(rpcSource, /model\.defaultReasoningEffort/u);
+assert.match(rpcSource, /modelDescriptor\.reasoningEfforts\.length > 0/u);
 assert.match(
   rpcSource,
   /buildProviderAdapterInstance\([\s\S]*?reasoningEffort\s*\)/u

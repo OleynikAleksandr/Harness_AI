@@ -1,3 +1,4 @@
+import { kimiNativeCaptureFacade } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-native-capture/src/kimi-native-capture-facade.js";
 import {
   type CapturableModel,
   type NativeCaptureReasoningEffort,
@@ -8,10 +9,9 @@ import { NativeCaptureOrchestrator } from "../../../../provider-network-capture/
 import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { buildProviderAdapterInstance } from "./core-provider-adapter-registration.js";
 
-// Capture serves native vendor channels. The ACP Kimi capture channel was removed with the
-// kimi-provider retirement (2026-07-05 user order); the accepted Kimi dumps
-// remain the synthetic-native material.
-const CAPTURE_PROVIDER_IDS = new Set(["claude", "codex"]);
+// Kimi is a diagnostic native-CLI channel only; its production sessions keep
+// using `kimi-client` and the Core universal client.
+const CAPTURE_PROVIDER_IDS = new Set(["claude", "codex", "kimi"]);
 // The Claude capture drives the provider binary interactively in a pty
 // (boot the UI, type the probe, submit), which does not fit the 30s proxy
 // default that suits the direct Codex client.
@@ -42,11 +42,13 @@ export async function captureNativeRequestRpcResult(
     return captureFailure("provider_not_supported");
   }
   const settings = settingsStoreFacade.getSettings(workspacePath);
-  const providerSettings =
-    providerId === "codex"
-      ? settings.providers.codex
-      : settings.providers.claude;
-  const selectedModel = model ?? providerSettings.defaultModel;
+  let providerDefaultModel = settings.providers.kimiClient.defaultModel;
+  if (providerId === "codex") {
+    providerDefaultModel = settings.providers.codex.defaultModel;
+  } else if (providerId === "claude") {
+    providerDefaultModel = settings.providers.claude.defaultModel;
+  }
+  const selectedModel = model ?? providerDefaultModel;
   const modelDescriptor = providerDescriptorFacade.getCapturableModel(
     providerId,
     selectedModel
@@ -54,25 +56,41 @@ export async function captureNativeRequestRpcResult(
   if (!modelDescriptor) {
     return captureFailure("model_not_supported");
   }
+  let storedReasoningEffort: string | undefined;
+  if (providerId === "codex") {
+    storedReasoningEffort =
+      settings.providers.codex.reasoningByModel[selectedModel];
+  } else if (providerId === "claude") {
+    storedReasoningEffort =
+      settings.providers.claude.thinkingByModel[selectedModel] ??
+      settings.providers.claude.thinking.effort;
+  }
   const reasoningEffort = resolveCaptureReasoningEffort({
     model: modelDescriptor,
     requestedReasoningEffort,
-    storedReasoningEffort:
-      providerId === "codex"
-        ? settings.providers.codex.reasoningByModel[selectedModel]
-        : (settings.providers.claude.thinkingByModel[selectedModel] ??
-          settings.providers.claude.thinking.effort),
+    storedReasoningEffort,
   });
-  if (!reasoningEffort) {
+  if (
+    !reasoningEffort &&
+    (requestedReasoningEffort || modelDescriptor.reasoningEfforts.length > 0)
+  ) {
     return captureFailure("reasoning_not_supported");
   }
-  const adapter = buildProviderAdapterInstance(
-    providerId as ProviderId,
-    selectedModel,
-    workspacePath,
-    reasoningEffort
-  );
-  const capture = adapter?.captureNativeRequest?.bind(adapter);
+  const adapter =
+    providerId === "kimi"
+      ? null
+      : buildProviderAdapterInstance(
+          providerId as ProviderId,
+          selectedModel,
+          workspacePath,
+          reasoningEffort
+        );
+  const capture =
+    providerId === "kimi"
+      ? kimiNativeCaptureFacade.captureNativeRequest.bind(
+          kimiNativeCaptureFacade
+        )
+      : adapter?.captureNativeRequest?.bind(adapter);
   if (!capture) {
     return captureFailure("provider_not_supported");
   }
@@ -84,7 +102,7 @@ export async function captureNativeRequestRpcResult(
   }
   const result = await orchestrator.capture({
     model: selectedModel,
-    providerId: providerId as "claude" | "codex",
+    providerId: providerId as "claude" | "codex" | "kimi",
     reasoningEffort,
     runProviderCapture: (context) => capture(context),
     workspacePath,

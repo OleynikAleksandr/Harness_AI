@@ -100,6 +100,24 @@ assert.deepEqual(
     .map((model) => model.id),
   ["kimi-for-coding", "kimi-for-coding-highspeed", "k3"]
 );
+assert.deepEqual(providerDescriptorFacade.getCaptureProviderIds(), [
+  "claude",
+  "codex",
+  "kimi",
+]);
+assert.deepEqual(
+  providerDescriptorFacade.getCapturableModels("kimi").map((model) => model.id),
+  ["kimi-for-coding", "kimi-for-coding-highspeed", "k3"]
+);
+assert.equal(
+  providerDescriptorFacade.getCapturableModel("kimi", "k3")
+    .defaultReasoningEffort,
+  null
+);
+assert.deepEqual(
+  providerDescriptorFacade.getCapturableModel("kimi", "k3").reasoningEfforts,
+  []
+);
 
 // The visible Kimi is the universal-client endpoint; the ACP kimi id/module
 // was removed by the kimi-provider retirement (2026-07-05 user order), so no

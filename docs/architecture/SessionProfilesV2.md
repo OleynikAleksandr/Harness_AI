@@ -214,9 +214,10 @@
   в pty (см. Claude-блок ниже) с env `HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS`
   (Node TLS); Codex — изолированный временный app-server c `HTTPS_PROXY` +
   `SSL_CERT_FILE` (Rust TLS), рабочий app-server не мутируется. **Kimi
-  УДАЛЁН из capture (2026-07-05, вместе с модулем `kimi-provider`)** — прежде
-  он снимался через **reverse-forward мост** (бинарь kimi Mach-O игнорирует
-  proxy-env); этот путь удалён, capture обслуживает только Claude/Codex.
+  восстановлен как диагностический capture-канал 2026-07-16** через
+  **reverse-forward мост** (нативный CLI игнорирует proxy-env) и отдельный
+  `kimi-native-capture`; удалённый ACP session provider не возвращается,
+  обычные Kimi-сессии остаются на universal client.
   GLM Native и остальные endpoint-модули универсального клиента съёма не
   требуют: их системное сообщение и схемы инструментов собирает наш
   собственный клиент.
@@ -307,14 +308,12 @@
   (канал управления); приближение живого промпта к CLI-эталону — предмет
   Phase R на базе снятых эталонов.
 - **Kimi: съём через reverse-forward мост, ACP с дефолтным агентом**
-  (установлено 2026-07-03). **СТАТУС (2026-07-05, прямой приказ
-  пользователя): Kimi УДАЛЁН из capture вместе с модулем `kimi-provider`.**
-  Capture теперь обслуживает только нативные каналы Claude/Codex;
-  reverse-forward мост (`capture-proxy-reverse.ts`), правило целей `kimi` и
-  ветка `captureViaReverse` удалены. Материал для Phase R по Kimi — уже
-  принятые дампы от 2026-07-03 (новые сняться не могут: ACP-канал ушёл вместе
-  с модулем). Описание ниже сохранено как историческая проектная запись того,
-  что было снято и почему. Прежний Kimi-«захват» был заглушкой — записывал
+  (установлено 2026-07-03, восстановлено диагностически 2026-07-16).
+  Новый `kimi-native-capture` клонирует только native config/auth/device state
+  во временный HOME, добавляет выбранную Coding Plan модель как временный CLI
+  alias, переписывает provider `base_url` на мост и делает один default-agent
+  ACP probe. Это не возвращает удалённый `kimi-provider`: production Kimi
+  остаётся universal-client endpoint. Прежний Kimi-«захват» был заглушкой — записывал
   только пути (`wire.jsonl`, который никто не пишет) и оркестратор завершал
   прогон `captured` с нулевым содержимым (ложный успех). «Wire» — это наш
   ACP JSON-RPC (клиент↔агент), в нём НЕТ нативного system prompt / схем
@@ -452,10 +451,10 @@ deny-list, Profile Creator) следует за capture.
    markdown, redaction, извлечение секций), оркестратор. Прокси пересмотрен
    в Phase 6.5 с capture-and-abort на forward-транзит + WS-decode (2026-07-03).
 3. **Phase 3 — capture-адаптеры провайдеров**: `captureNativeRequest` в
-   контракте адаптера с выбором `(provider, model)`; после удаления Kimi ACP
-   2026-07-05 живые реализации capture остаются только для Claude (env SDK)
-   и Codex (временный app-server). Материал Kimi для Phase 5 берётся из
-   принятых дампов 2026-07-03.
+   контракте адаптера с выбором `(provider, model)`; Claude использует
+   интерактивный CLI, Codex — временный app-server, а Kimi — отдельный
+   диагностический `kimi-native-capture` с ACP default agent и reverse bridge,
+   без регистрации ACP session provider.
 4. **Phase 4 — RPC и мост**: Core RPC `capture-native-request` +
    перечень моделей провайдера; Electron bridge + preload.
 5. **Phase 5 — capture UI**: карточка `Native Request Capture` в Settings —

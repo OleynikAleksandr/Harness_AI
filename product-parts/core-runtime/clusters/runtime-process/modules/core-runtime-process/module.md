@@ -187,12 +187,17 @@ state.
   a pty (boot the UI, type the probe, submit), which does not fit the 30s
   proxy default that suits the direct Codex client.
   `list-capturable-models` returns the per-provider capturable model catalog,
-  model-specific reasoning options, labels, and default effort from
-  `provider-descriptor`. Claude and Codex app-server are
-  capture providers (the ACP Kimi capture channel left with the kimi-provider
-  retirement, 2026-07-05); other providers return `provider_not_supported`.
+  model-specific reasoning options, labels, and optional default effort from
+  `provider-descriptor`. Claude, Codex app-server and the diagnostic Kimi CLI
+  channel are capture providers. Kimi routes directly to
+  `kimi-native-capture` and never enters `PROVIDER_IDS` or
+  `buildProviderAdapterInstance`; other providers return
+  `provider_not_supported`.
   Its Codex list mirrors the app-server-visible GPT-5.6 Sol/Terra/Luna-first
   order and omits retired GPT-5.2.
+  Its Kimi list is `kimi-for-coding`, `kimi-for-coding-highspeed`, `k3` with
+  no reasoning selector; an explicit Kimi reasoning value is rejected rather
+  than silently downgraded.
   The adapter builder is factored out of
   `core-provider-adapter-registration.ts` and reused by the shared registry
   wiring.

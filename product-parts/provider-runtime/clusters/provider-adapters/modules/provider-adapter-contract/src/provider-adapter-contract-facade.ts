@@ -222,9 +222,9 @@ export function isProviderSubagentEvent(
 // capture. Only `kind` is typed at this boundary; each adapter passes its own
 // concrete envelope (extra fields serialized as-is by the capture writer).
 export interface ProviderNativeCaptureAppliedInputEnvelope {
-  // Capture serves native vendor channels; the ACP Kimi `kind: "kimi"` envelope left with
-  // the kimi-provider module deletion (2026-07-05).
-  readonly kind: "claude" | "codex";
+  // Kimi denotes the diagnostic native-CLI channel only; it does not imply a
+  // registered ACP session provider.
+  readonly kind: "claude" | "codex" | "kimi";
 }
 
 // Record-only native request capture options (no managed-vs-vanilla

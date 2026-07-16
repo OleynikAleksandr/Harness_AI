@@ -8,8 +8,8 @@
   "planId": "grok-provider-implementation-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task3",
-  "expectedCommitMessage": "feat: supervise Grok ACP processes",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: add Grok ACP session lifecycle",
   "debt": null
 }
 ```
@@ -61,14 +61,14 @@
 4. [DONE] Git Commit: `feat: add Grok provider module foundation` (hash: self)
 5. [DONE] `harness-ai.phase2.stream1.task2` Implement tolerant ACP JSON-RPC contracts/router for requests, responses, notifications and reverse requests with cancellation, timeouts and pending-request rejection, then expose that transport through the module facade (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-router.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-router.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: add Grok ACP router`). Result: Completed in commit `feat: add Grok ACP router`.
 6. [DONE] Git Commit: `feat: add Grok ACP router` (hash: self)
-7. [IN_PROGRESS] `harness-ai.phase2.stream1.task3` Implement one-process-per-session Grok ACP supervision and a fake stdio agent fixture, including bounded stderr, expected/unexpected exit and orphan-request cleanup (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-process.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-process.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-fake-agent.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: supervise Grok ACP processes`).
-8. [TODO] Git Commit: `feat: supervise Grok ACP processes` (hash: TBD)
+7. [DONE] `harness-ai.phase2.stream1.task3` Implement one-process-per-session Grok ACP supervision and a fake stdio agent fixture, including bounded stderr, expected/unexpected exit and orphan-request cleanup, then expose the supervisor through the module facade (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-process.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-process.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-fake-agent.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: supervise Grok ACP processes`). Result: Completed in commit `feat: supervise Grok ACP processes`.
+8. [DONE] Git Commit: `feat: supervise Grok ACP processes` (hash: self)
 
 ## Phase 3 - Session Lifecycle, Events And Profiles (owner: Codex, updated: 2026-07-16)
 
 ### Stream: Native Provider Behavior
 
-9. [TODO] `harness-ai.phase3.stream1.task1` Implement ACP initialize/authenticate/session-new/session-load/prompt/cancel/close lifecycle with immutable provider-session identity and model/reasoning application (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: add Grok ACP session lifecycle`).
+9. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Implement ACP initialize/authenticate/session-new/session-load/prompt/cancel/close lifecycle with immutable provider-session identity and model/reasoning application (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: add Grok ACP session lifecycle`).
 10. [TODO] Git Commit: `feat: add Grok ACP session lifecycle` (hash: TBD)
 11. [TODO] `harness-ai.phase3.stream1.task2` Normalize structured Grok assistant, reasoning, tool, plan, usage and failure updates into the provider adapter event contract without text classification (scope: `product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-event-normalizer.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/src/grok-acp-contracts.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/grok-provider/module.md, .harness/plans/todo-plan.md`; expected commit: `feat: normalize Grok ACP events`).
 12. [TODO] Git Commit: `feat: normalize Grok ACP events` (hash: TBD)

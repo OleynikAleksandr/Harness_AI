@@ -37,6 +37,12 @@ export {
   GrokAcpRequestTimeoutError,
 } from "./grok-acp-contracts.js";
 export type {
+  GrokAcpProcessExit,
+  GrokAcpProcessOptions,
+  GrokAcpProcessReporter,
+} from "./grok-acp-process.js";
+export { GrokAcpProcess } from "./grok-acp-process.js";
+export type {
   GrokAcpRequestOptions,
   GrokAcpRouterOptions,
 } from "./grok-acp-router.js";

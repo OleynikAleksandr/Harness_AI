@@ -31,6 +31,13 @@ reject every outstanding request. Reverse requests are answered with structured
 JSON-RPC success or error payloads. Malformed/unmatched protocol messages are
 reported diagnostically and never become renderer-owned inference.
 
+`GrokAcpProcess` supervises exactly one `grok --no-auto-update agent
+--no-leader stdio` child per provider session. It serializes writes, routes
+newline-delimited stdout, bounds retained stderr, distinguishes requested stop
+from unexpected exit, and rejects orphaned requests on every exit. The
+supervisor does not copy or inspect Grok authentication state; the child uses
+the installed CLI home directly.
+
 ## Public Facade
 
 `GrokProviderFacade`
@@ -46,6 +53,7 @@ reported diagnostically and never become renderer-owned inference.
 - Resolved executable path.
 - CLI version and structured readiness/auth status.
 - Typed ACP requests, responses, notifications and reverse-request dispatch.
+- Expected/unexpected ACP process exit and bounded diagnostic stderr.
 - Future ACP-backed `ProviderAdapter` lifecycle from the same module boundary.
 
 ## Owned Paths

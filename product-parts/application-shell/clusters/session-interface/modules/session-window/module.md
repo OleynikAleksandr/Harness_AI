@@ -27,6 +27,9 @@ Render the transcript/dialog layout and session chrome.
   Core-selected per-model effort and disappear for provider-managed Composer.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
 - Core-owned provider readiness descriptors and live `provider:status` events.
+- Ephemeral Core `session:provider-interaction` and resolved events. The session
+  window keeps at most the latest pending interaction per Core session and
+  never persists it or reconstructs it from provider text.
 - Core-owned localization runtime payload from the Electron preload bridge.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
@@ -165,6 +168,13 @@ Render the transcript/dialog layout and session chrome.
   validation and `titleOrigin` authority remain in Core.
 - Session-level UI actions sent to Core, including the running-turn Stop that
   calls Core `stopTurn` with the active session id.
+- In-app Grok interaction dialogs for tool permission, ask-user questions and
+  plan approval. They render only the sanitized provider-neutral Core read
+  model, support native option IDs, single/multiple/free-form answers and
+  optional plan feedback, then send one typed decision through
+  `respondProviderInteraction`. Cancel/close is an explicit `cancelled`
+  decision; no native browser alert/prompt/confirm is used. The dialog is
+  session-scoped and disappears only after the matching Core resolved event.
 - Enabled Rollback control in the Codex/Grok status panel. It dispatches only
   the raw `{ sessionId, preserveFirstUserTurns }` intent supplied by Core
   telemetry capabilities, keeps

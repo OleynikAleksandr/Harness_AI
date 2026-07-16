@@ -12,6 +12,10 @@ import {
 } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
+import {
+  ActiveGrokInteractionPanel,
+  useGrokInteractionState,
+} from "./grok-interaction-panel.js";
 import { ProviderPicker, resolveProviderModel } from "./provider-picker.js";
 import {
   DialogPanel,
@@ -49,6 +53,7 @@ export function SessionWindowFacade() {
     useState<HarnessSettings | null>(null);
   const [localizationPayload, setLocalizationPayload] =
     useState<LocalizationRuntimePayload | null>(null);
+  const grokInteractions = useGrokInteractionState();
   const {
     activeSession,
     activeSessionId,
@@ -76,7 +81,6 @@ export function SessionWindowFacade() {
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
     initialSnapshot.workspace;
-
   const refreshSettingsSnapshot = useCallback(
     async (workspacePath?: string) => {
       const snapshot = await window.harnessCore?.getSettings(workspacePath);
@@ -87,7 +91,6 @@ export function SessionWindowFacade() {
     },
     []
   );
-
   const refreshLocalizationPayload = useCallback(async () => {
     const payload = await window.harnessCore?.getLocalizationRuntimePayload();
     if (payload) {
@@ -131,6 +134,7 @@ export function SessionWindowFacade() {
         );
         return;
       }
+      grokInteractions.applyEvent(event);
       applyEvent(event);
       if (
         event.type === "session:created" ||
@@ -148,13 +152,12 @@ export function SessionWindowFacade() {
     refreshSessionList,
     refreshSessions,
     refreshSettingsSnapshot,
+    grokInteractions.applyEvent,
   ]);
 
   function openProviderPicker() {
     setIsProviderPickerOpen(true);
     refreshSettingsSnapshot().catch(noop);
-    // Re-query the live Core catalog so the card reflects provider updates
-    // (renames, Restart Core) instead of the list cached at startup.
     window.harnessCore?.listProviders().then(setProviderOptions).catch(noop);
   }
 
@@ -219,8 +222,6 @@ export function SessionWindowFacade() {
     if (provider.readinessStatus !== "ready") {
       return;
     }
-    // Wizard step 2: the profile choice is mandatory by flow structure; Core
-    // still guarantees the Native fallback when no selection arrives.
     setIsProviderPickerOpen(false);
     setProfileStepProvider(provider);
   }
@@ -231,9 +232,6 @@ export function SessionWindowFacade() {
   ): Promise<string | null> {
     const snapshot =
       settingsSnapshot ?? (await refreshSettingsSnapshot(activeWorkspace.path));
-    // The shared picker resolves every vendor-channel model from the
-    // Core-owned settings snapshot; Grok follows this path without a
-    // renderer-side ACP catalog or provider-specific session wizard.
     const model = resolveProviderModel(provider, snapshot);
     const result = await window.harnessCore?.createSession({
       model,
@@ -419,6 +417,10 @@ export function SessionWindowFacade() {
           isOpen={isSettingsOpen}
           onClose={closeSettings}
           onLocalizationRuntimeRefresh={refreshLocalizationPayload}
+        />
+        <ActiveGrokInteractionPanel
+          sessionId={activeSession?.id}
+          state={grokInteractions}
         />
       </div>
     </BrowserLocalizationProvider>

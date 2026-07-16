@@ -151,6 +151,10 @@ interface Window {
         }
       | { error: string; ok: false }
     >;
+    respondProviderInteraction(request: {
+      decision: import("../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js").ProviderInteractionDecision;
+      sessionId: string;
+    }): Promise<{ ok: true } | { error: string; ok: false }>;
     onEvent(
       listener: (
         event:

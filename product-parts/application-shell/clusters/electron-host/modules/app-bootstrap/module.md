@@ -42,8 +42,12 @@ Own Electron lifecycle, window creation, and local application startup.
   bridged to the Core `capture-native-request` / `list-capturable-models`
   methods through the core-process bridge and typed in `vite-env.d.ts`.
 - `window.harnessCore.rollbackSessionTurns({ sessionId, numTurns })` exposes
-  only the raw Codex rollback intent to the renderer; Core owns provider
+  only the raw Codex/Grok rollback intent to the renderer; Core owns provider
   validation, strategy and transcript refresh.
+- `window.harnessCore.respondProviderInteraction({ sessionId, decision })`
+  exposes only a typed user decision for a Core-published blocking provider
+  interaction. Raw Grok reverse-request payloads and ACP response construction
+  remain outside the preload surface.
 - `window.harnessCore.renameSession({ sessionId, title })` and
   `regenerateSessionTitle({ sessionId })` expose only user intent; title
   derivation, validation, persistence and manual-lock truth remain in Core.

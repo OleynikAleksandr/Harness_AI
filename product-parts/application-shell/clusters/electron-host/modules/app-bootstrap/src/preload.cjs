@@ -50,6 +50,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:regenerate-session-title", request),
   renameSession: (request) =>
     ipcRenderer.invoke("harness-ai:core:rename-session", request),
+  respondProviderInteraction: (request) =>
+    ipcRenderer.invoke("harness-ai:core:respond-provider-interaction", request),
   onEvent: (listener) => {
     const handler = (_event, payload) => listener(payload);
     ipcRenderer.on("harness-ai:core-event", handler);

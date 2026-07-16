@@ -434,6 +434,25 @@ Implementation slice `feat: match Grok status panel to Codex` закрепляе
 Окончательный чек раздела 8.3 остаётся packaged user-acceptance gate: наличие
 контракта в source не заменяет проверку собранного `Harness AI.app`.
 
+### 8.5 Реализованные blocking interactions
+
+Implementation slice `feat: add Grok interaction dialogs` соединяет уже
+нормализованный Core interaction lifecycle с session UI:
+
+- `session:provider-interaction` открывает session-scoped in-app dialog, а
+  matching resolved event закрывает только этот запрос;
+- permission dialog показывает provider-supplied безопасные labels и отправляет
+  выбранный option ID без raw tool input;
+- ask-user dialog поддерживает один/несколько вариантов и free-form ответы;
+- plan approval показывает plan content, approve и cancel с optional feedback;
+- preload/Core Process Bridge передают только `{ sessionId, decision }` в
+  `respond-provider-interaction`; ACP response остаётся внутри Grok adapter;
+- закрытие окна означает typed `cancelled`, системные browser dialogs не
+  используются.
+
+Живой permission/ask-user/plan проход остаётся обязательной частью Phase 7
+installed-CLI verification и packaged acceptance.
+
 ## 9. Implementation Roadmap
 
 Каждая будущая микро-задача должна иметь собственную строку `Git Commit`, затрагивать не более трёх функциональных файлов и обновлять релевантную документацию в том же commit.

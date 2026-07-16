@@ -42,9 +42,13 @@ modules or own Core truth.
   every category ignoring the localization bundle cache, and
   `harness-ai:core:set-local-model-context` → `set-local-model-context`, so
   the Local Models per-model context control reaches the Core-owned LM Studio
-  management reload. Codex rollback uses the same transport-only pattern:
+  management reload. Codex/Grok rollback uses the same transport-only pattern:
   `harness-ai:core:rollback-session-turns` → `rollback-session-turns`, passing
   only the raw `sessionId`/`numTurns` intent to Core.
+  Blocking provider interactions follow that boundary through
+  `harness-ai:core:respond-provider-interaction` →
+  `respond-provider-interaction`; the bridge forwards the typed decision and
+  never interprets permission, question or plan semantics.
   Session naming follows the same transport-only contract:
   `harness-ai:core:rename-session` → `rename-session` and
   `harness-ai:core:regenerate-session-title` → `regenerate-session-title`.

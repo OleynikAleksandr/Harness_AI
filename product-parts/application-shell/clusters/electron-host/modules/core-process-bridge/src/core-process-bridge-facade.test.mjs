@@ -30,12 +30,18 @@ assert.match(
 assert.match(source, /"harness-ai:core:rename-session":\s*"rename-session"/u);
 assert.match(
   source,
+  /"harness-ai:core:respond-provider-interaction":\s*"respond-provider-interaction"/u
+);
+assert.match(
+  source,
   /"harness-ai:core:regenerate-session-title":\s*"regenerate-session-title"/u
 );
 assert.match(preloadSource, /renameSession: \(request\)/u);
 assert.match(preloadSource, /harness-ai:core:rename-session/u);
 assert.match(preloadSource, /regenerateSessionTitle: \(request\)/u);
 assert.match(preloadSource, /harness-ai:core:regenerate-session-title/u);
+assert.match(preloadSource, /respondProviderInteraction: \(request\)/u);
+assert.match(preloadSource, /harness-ai:core:respond-provider-interaction/u);
 assert.match(source, /createCoreProcessSupervisor\(repositoryRoot\)/u);
 assert.match(source, /await coreSupervisor\.start\(\)/u);
 assert.match(source, /await coreSupervisor\.restart\(\)/u);

@@ -28,6 +28,14 @@ assert.match(
 );
 assert.match(source, /"gpt-5\.3-codex-spark": "high"/u);
 assert.match(source, /defaultModel = "gpt-5\.6-sol"/u);
+assert.match(source, /GROK_REASONING_EFFORTS_BY_MODEL/u);
+assert.match(source, /"grok-4\.5": \["high", "medium", "low"\]/u);
+assert.match(source, /"grok-composer-2\.5-fast": \[\]/u);
+assert.match(source, /next\.providers\.grok\.defaultModel = "grok-4\.5"/u);
+assert.match(
+  source,
+  /next\.providers\.grok\.reasoningByModel = Object\.fromEntries/u
+);
 assert.doesNotMatch(source, /gpt-5\.2/u);
 assert.match(source, /supportsCodexReasoningSummary/u);
 assert.match(source, /CODEX_MODELS_WITHOUT_REASONING_SUMMARY/u);
@@ -43,6 +51,10 @@ assert.match(
 assert.match(
   facadeSource,
   /glmClient: \{\n\s+apiKey: "",\n\s+defaultModel: "glm-5\.2",\n\s+reasoningEffort: "max",\n\s+\}/u
+);
+assert.match(
+  facadeSource,
+  /grok: \{\n\s+\.\.\.commonProvider\("grok-4\.5"\),\n\s+reasoningByModel: \{ "grok-4\.5": "high" \},\n\s+\}/u
 );
 assert.match(source, /normalizeLocalBaseUrl/u);
 assert.match(source, /normalizeContextLengthByModel/u);

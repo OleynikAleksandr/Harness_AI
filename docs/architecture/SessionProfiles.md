@@ -637,6 +637,12 @@ Core фактически применённые provider-specific details (whit
   effective tool count; mismatch является ошибкой старта. Resume использует
   тот же замороженный payload из applied snapshot, без повторной резолюции
   текущего файла профиля.
+  После доказанной post-create верификации `grok` входит в
+  `PROFILE_SUPPORTED_PROVIDER_IDS`: Native остаётся первым и безопасным
+  fallback, а Profile Creator и session picker показывают только Grok-профили
+  с явным `provider: grok`. Core settings отдельно владеют выбранной моделью и
+  нативным reasoning (`grok-4.5`: `high/medium/low`; Composer — без ручного
+  effort); renderer эти возможности не выводит из ACP payload самостоятельно.
 - **Kimi**: материализация agent-артефактов (`agent.yaml` + `system.md` +
   список tools) перед `session/new` в **immutable каталог, ключуемый
   content-hash применённого материала**: артефакты никогда не

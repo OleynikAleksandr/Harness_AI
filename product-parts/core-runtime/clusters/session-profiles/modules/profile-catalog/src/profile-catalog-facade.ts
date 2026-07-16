@@ -13,6 +13,7 @@ export const NATIVE_SESSION_PROFILE_ID = "native";
 export const PROFILE_SUPPORTED_PROVIDER_IDS = [
   "claude",
   "codex",
+  "grok",
   "kimi-client",
   "glm-client",
   "openrouter-client",

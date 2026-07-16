@@ -18,11 +18,12 @@ export function buildProviderTurnOptions(
     };
   }
   if (session.providerId === "grok") {
+    const grok = settings.providers.grok;
+    const reasoningEffort =
+      session.reasoningEffort ?? grok.reasoningByModel[session.model];
     return {
       model: session.model,
-      ...(session.reasoningEffort
-        ? { reasoningEffort: session.reasoningEffort }
-        : {}),
+      ...(reasoningEffort ? { reasoningEffort } : {}),
     };
   }
   if (session.providerId !== "codex") {

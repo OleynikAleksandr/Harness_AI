@@ -30,9 +30,13 @@ broken/inapplicable => structured error, never a silent fallback".
 - `listProfilesForProvider(providerId)` — picker read model: Native first
   plus entries whose passport `provider` exactly matches the requested
   provider. `PROFILE_SUPPORTED_PROVIDER_IDS` tracks all active Core provider
-  ids: `claude`, `codex`, `kimi-client`, `glm-client`,
+  ids: `claude`, `codex`, `grok`, `kimi-client`, `glm-client`,
   `openrouter-client`, and `local-models-client`. Retired ids such as `kimi`
   and `glm-native` are not supported targets.
+- Grok is managed-profile eligible because its adapter now proves both the
+  system prompt override and effective restricted tooling after session
+  creation. Native remains the first/fallback entry; a Grok-scoped managed
+  profile is offered only when its passport declares `provider: grok`.
 - `resolveForSession({ profileId?, providerId })` —
   `{ ok: true, kind: "native" }` for no/native selection;
   `{ ok: true, kind: "managed", profile }` for an applicable valid profile;

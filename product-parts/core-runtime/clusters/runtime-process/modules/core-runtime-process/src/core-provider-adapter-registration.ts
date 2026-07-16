@@ -79,12 +79,14 @@ function readCodexReasoningEffort(
 export function registerProviderAdapterInstance(
   providerId: ProviderId,
   model: string,
-  workspacePath: string
+  workspacePath: string,
+  reasoningEffort?: string
 ): void {
   const adapter = buildProviderAdapterInstance(
     providerId,
     model,
-    workspacePath
+    workspacePath,
+    reasoningEffort
   );
   if (adapter) {
     providerRegistryFacade.registerAdapter(providerId, adapter);

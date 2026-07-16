@@ -8,6 +8,7 @@ import {
   LocalModelsClientConnectionCard,
 } from "./client-api-key-card.js";
 import { CodexDefaultModelCard } from "./codex-default-model-card.js";
+import { GrokDefaultModelCard } from "./grok-default-model-card.js";
 import {
   type LocalModelEntry,
   LocalModelsSettingsCard,
@@ -170,6 +171,29 @@ export function SettingsTabContent({
             "ui_labels",
             "settings.provider.codex.sessionContinuity",
             "Codex Session Continuity"
+          )}
+          value={provider.sessionContinuity.remainingPercentThreshold}
+        />
+      </div>
+    );
+  }
+
+  if (activeTab === "grok") {
+    const provider = settings.providers.grok;
+    return (
+      <div className="settings-reference-stack">
+        <GrokDefaultModelCard provider={provider} update={update} />
+        <SessionContinuityCard
+          onChange={(value) =>
+            update((next) => {
+              next.providers.grok.sessionContinuity.remainingPercentThreshold =
+                value;
+            })
+          }
+          title={t(
+            "ui_labels",
+            "settings.provider.grok.sessionContinuity",
+            "Grok Session Continuity"
           )}
           value={provider.sessionContinuity.remainingPercentThreshold}
         />

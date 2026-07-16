@@ -93,6 +93,12 @@ Own global and workspace settings persistence.
 - `CLAUDE_REASONING_EFFORTS_BY_MODEL` (exported from `settings-normalization`, not the `node:fs`-backed facade, so the renderer can import it without bundling persistence) is the source of truth for which efforts each Claude alias exposes: Opus full set + ultracode, Sonnet without xhigh, Haiku none. The settings UI reads this map to filter the per-model selector.
 - `normalizeSettings` validates per-model Claude efforts against the whitelist and falls back to the provider default effort when a stored value is unknown.
 - Codex does not reuse Claude effort ranks. `CODEX_REASONING_EFFORTS_BY_MODEL` and `resolveCodexReasoningEffort` own the picker-visible Codex app-server capabilities: GPT-5.6 Sol and Terra expose `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`; GPT-5.6 Luna stops at `max`; GPT-5.5, GPT-5.4, GPT-5.4 Mini, and GPT-5.3 Codex Spark stop at `xhigh`. The GPT-5.6 family defaults to `medium`, while Spark follows the provider default `high`. Retired GPT-5.2 settings normalize to the provider-default GPT-5.6 Sol. `supportsCodexReasoningSummary` records Codex model summary support separately; Spark keeps reasoning effort control but disables per-turn reasoning summaries.
+- `providers.grok` stores the Core-selected default model and per-model native
+  reasoning values. The verified installed catalog is `grok-4.5` (default,
+  `high/medium/low`, default `high`) and `grok-composer-2.5-fast` (provider-
+  managed reasoning). Normalization rejects unknown stored values, system/
+  workspace projections persist the section, and provider id `grok` resolves
+  through the same `getProviderModel` boundary as other native channels.
 - Session profile picker memory is settings truth owned here
   (`session-profile-memory.ts`): the last selected profile id and the
   AutoNormalizer flag per provider, stored in

@@ -3,6 +3,7 @@ import type { ReasoningEffort } from "../../../../../../core-runtime/clusters/se
 export type SettingsTabId =
   | "claude"
   | "codex"
+  | "grok"
   | "kimi"
   | "glmClient"
   | "localModels"
@@ -16,6 +17,7 @@ export const SETTINGS_TABS: ReadonlyArray<{
 }> = [
   { id: "claude", label: "Claude" },
   { id: "codex", label: "Codex" },
+  { id: "grok", label: "Grok" },
   { id: "kimi", label: "Kimi" },
   { id: "glmClient", label: "GLM" },
   { id: "localModels", label: "Local Models" },
@@ -79,6 +81,20 @@ export const PROVIDER_MODEL_OPTIONS = {
       description: "Ultra-fast coding model",
       id: "gpt-5.3-codex-spark",
       label: "GPT-5.3-Codex-Spark",
+    },
+  ],
+  grok: [
+    {
+      description:
+        "xAI's frontier model with a 500K native context window and adjustable reasoning effort.",
+      id: "grok-4.5",
+      label: "Grok 4.5",
+    },
+    {
+      description:
+        "Fast coding model with a 200K native context window and provider-managed reasoning.",
+      id: "grok-composer-2.5-fast",
+      label: "Composer 2.5 Fast",
     },
   ],
   glmClient: [

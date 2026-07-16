@@ -11,10 +11,12 @@ Core process boundary. Provider CLI/version tooling and local-model discovery
 also run here so the Application Shell remains UI/supervisor/client only.
 
 Core composition registers the native Grok adapter beside Claude and Codex.
-Until Core has an explicit model selection it passes no Grok default, leaving
-the authenticated ACP catalog/current model authoritative. The shared liveness
-preflight initializes the Grok facade and therefore verifies both the official
-CLI and its cached subscription login before Core publishes ready state.
+It resolves Grok's selected model and model-specific reasoning from the
+Core-owned settings snapshot and supplies them to the adapter at registration;
+the adapter still validates/applies them through authenticated ACP. The shared
+liveness preflight initializes the Grok facade and therefore verifies both the
+official CLI and its cached subscription login before Core publishes ready
+state.
 
 ## Public Facade
 

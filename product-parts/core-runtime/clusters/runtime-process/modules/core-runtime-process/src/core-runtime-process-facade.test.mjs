@@ -37,8 +37,9 @@ assert.match(adapterRegistrationSource, /new GrokProviderFacade/u);
 assert.match(lifecycleSource, /"grok"/u);
 assert.match(
   lifecycleSource,
-  /providerId === "grok"[\s\S]*?providerAuthStoreFacade\.getModel/u
+  /providerId === "grok"[\s\S]*?settings\.providers\.grok\.reasoningByModel\[model\]/u
 );
+assert.match(lifecycleSource, /settingsStoreFacade\.getProviderModel/u);
 assert.match(lifecycleSource, /providerRegistryFacade\.clearAdapters/u);
 assert.match(lifecycleSource, /providerReadinessRegistryFacade\.subscribe/u);
 assert.match(lifecycleSource, /type: "provider:status"/u);

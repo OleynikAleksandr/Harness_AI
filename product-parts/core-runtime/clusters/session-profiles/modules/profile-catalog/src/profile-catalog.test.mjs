@@ -105,6 +105,23 @@ try {
     "categories:\n  file-read: on\n  shell: on\n",
     "utf8"
   );
+  const grokProfileDirectory = path.join(profilesRoot, "Grok", "grok-review");
+  await mkdir(grokProfileDirectory, { recursive: true });
+  await writeFile(
+    path.join(grokProfileDirectory, "profile.yaml"),
+    "name: Grok Review\ndescription: Managed Grok review.\nprovider: grok\n",
+    "utf8"
+  );
+  await writeFile(
+    path.join(grokProfileDirectory, "system-prompt.md"),
+    "Review the change set with Grok.\n",
+    "utf8"
+  );
+  await writeFile(
+    path.join(grokProfileDirectory, "tooling.yaml"),
+    "categories:\n  file-read: on\n  shell: on\n",
+    "utf8"
+  );
 
   // Listing puts Native first and filters out legacy universal profiles.
   const claudeEntries = await catalog.listProfilesForProvider("claude");
@@ -123,6 +140,12 @@ try {
   assert.ok(codexIds.includes("codex-app-server-synthetic-native-custom"));
   assert.ok(!codexIds.includes("codex-synthetic-native"));
   assert.ok(!codexIds.includes("codeai-workflow-claude"));
+
+  const grokEntries = await catalog.listProfilesForProvider("grok");
+  assert.deepEqual(
+    grokEntries.map((entry) => entry.id),
+    [NATIVE_SESSION_PROFILE_ID, "grok-review"]
+  );
 
   // Providers with no matching provider-scoped profiles still get Native.
   const openrouterEntries =
@@ -166,6 +189,14 @@ try {
   assert.equal(managed.ok, true);
   assert.equal(managed.kind, "managed");
   assert.equal(managed.profile.id, "codex-app-server-synthetic-native");
+
+  const grokManaged = await catalog.resolveForSession({
+    profileId: "grok-review",
+    providerId: "grok",
+  });
+  assert.equal(grokManaged.ok, true);
+  assert.equal(grokManaged.kind, "managed");
+  assert.equal(grokManaged.profile.passport.provider, "grok");
 
   const legacyUniversal = await catalog.resolveForSession({
     profileId: "review",

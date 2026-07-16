@@ -55,6 +55,14 @@ export const CODEX_REASONING_EFFORTS_BY_MODEL: Record<
   "gpt-5.4-mini": ["low", "medium", "high", "xhigh"],
   "gpt-5.3-codex-spark": ["low", "medium", "high", "xhigh"],
 };
+const GROK_MODEL_IDS = ["grok-4.5", "grok-composer-2.5-fast"];
+export const GROK_REASONING_EFFORTS_BY_MODEL: Record<
+  string,
+  readonly ReasoningEffort[]
+> = {
+  "grok-4.5": ["high", "medium", "low"],
+  "grok-composer-2.5-fast": [],
+};
 const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
 // The universal-client Kimi endpoint has a single public model id; the vendor
 // rotates the backend behind it, so the setting is pinned. The retired ACP
@@ -100,6 +108,24 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
         next.providers.codex.reasoningByModel[modelId]
       );
       return effort ? [[modelId, effort]] : [];
+    })
+  );
+  if (!GROK_MODEL_IDS.includes(next.providers.grok.defaultModel)) {
+    next.providers.grok.defaultModel = "grok-4.5";
+  }
+  if (!isRecord(next.providers.grok.reasoningByModel)) {
+    next.providers.grok.reasoningByModel = {};
+  }
+  next.providers.grok.reasoningByModel = Object.fromEntries(
+    GROK_MODEL_IDS.flatMap((modelId) => {
+      const efforts = GROK_REASONING_EFFORTS_BY_MODEL[modelId] ?? [];
+      if (efforts.length === 0) {
+        return [];
+      }
+      const configured = next.providers.grok.reasoningByModel[modelId];
+      return [
+        [modelId, efforts.includes(configured) ? configured : efforts[0]],
+      ];
     })
   );
   next.providers.kimiClient.defaultModel = KIMI_CLIENT_MODEL_ID;

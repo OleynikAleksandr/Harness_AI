@@ -49,12 +49,21 @@ export class CoreProviderLifecycle {
 
   registerAdapter(providerId: ProviderId): void {
     const workspacePath = this.activeWorkspacePath();
-    const model =
+    const settings = settingsStoreFacade.getSettings(workspacePath);
+    const model = settingsStoreFacade.getProviderModel(
+      providerId,
+      workspacePath
+    ).selectedModel;
+    const reasoningEffort =
       providerId === "grok"
-        ? (providerAuthStoreFacade.getModel(providerId) ?? "")
-        : settingsStoreFacade.getProviderModel(providerId, workspacePath)
-            .selectedModel;
-    registerProviderAdapterInstance(providerId, model, workspacePath);
+        ? settings.providers.grok.reasoningByModel[model]
+        : undefined;
+    registerProviderAdapterInstance(
+      providerId,
+      model,
+      workspacePath,
+      reasoningEffort
+    );
   }
 
   startLivenessPreflight(): void {

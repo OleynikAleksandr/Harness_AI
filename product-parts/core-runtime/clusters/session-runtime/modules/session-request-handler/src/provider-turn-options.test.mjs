@@ -14,7 +14,7 @@ assert.match(source, /session\.providerId === "claude"/u);
 assert.match(source, /session\.providerId === "grok"/u);
 assert.match(
   source,
-  /session\.reasoningEffort[\s\S]*?reasoningEffort: session\.reasoningEffort/u
+  /session\.reasoningEffort \?\? grok\.reasoningByModel\[session\.model\]/u
 );
 assert.match(
   source,

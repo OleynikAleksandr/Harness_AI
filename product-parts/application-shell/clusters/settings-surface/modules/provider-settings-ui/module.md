@@ -149,6 +149,11 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   GPT-5.6 Sol, Terra, Luna, GPT-5.5, GPT-5.4, GPT-5.4 Mini, and GPT-5.3 Codex
   Spark; retired GPT-5.2 is not rendered. Per-model selectors expose `Ultra`
   only for Sol and Terra, while Luna stops at `Max`.
+- The Grok tab reads and edits only Core-owned `providers.grok` settings. Its
+  model card exposes the verified installed catalog in provider order:
+  `grok-4.5` with `High/Medium/Low` and `grok-composer-2.5-fast` with honest
+  provider-managed reasoning. It also uses the shared session-continuity card;
+  no renderer capability inference or direct CLI call occurs.
 - Kimi default-model row descriptions resolve through the browser localization
   provider; the card description and note already use the same boundary.
 - The GLM tab includes a universal-client default-model card bound to

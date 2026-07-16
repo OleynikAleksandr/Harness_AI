@@ -110,7 +110,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 - `codex-provider`: Codex provider adapter.
 - `grok-provider`: official Grok Build ACP provider adapter using CLI-owned
   subscription authentication.
-- `kimi-client-provider`: thin Kimi endpoint for the Core universal client — Kimi dialect specifics (`api.kimi.com/coding/v1`, `kimi-for-coding`, `reasoning_content`) and the `ClientTurnRequest` builder the Core agent loop runs.
+- `kimi-client-provider`: thin Kimi endpoint for the Core universal client — Kimi dialect specifics (`api.kimi.com/coding/v1`, Core session-selected Coding Plan model, `reasoning_content`) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `glm-client-provider`: thin GLM endpoint for the Core universal client — Z.ai coding dialect specifics (`api.z.ai/api/coding/paas/v4`, `Accept-Language`, `reasoning_content`, GLM `extraBody` params) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `openrouter-client-provider`: thin OpenRouter endpoint for the Core universal client — OpenRouter dialect specifics (`reasoning_details` thinking, usage in any chunk, per-turn `apiKey`/`baseUrl`/`defaultModel`/`endpointTag` from the shared `openRouter` settings section) and the `ClientTurnRequest` builder the Core agent loop runs.
 - `local-models-client-provider`: thin Local Models endpoint for the Core universal client — local-server dialect specifics (per-turn base URL from Core settings resolved to a `/v1` request base, optional Bearer key, `reasoning_content` thinking, no `tool_choice`) and the `ClientTurnRequest` builder the Core agent loop runs.

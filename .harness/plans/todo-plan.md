@@ -8,8 +8,8 @@
   "planId": "kimi-model-selection-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": "feat: route selected Kimi model",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: add Kimi model selection controls",
   "debt": null
 }
 ```
@@ -63,14 +63,14 @@
 
 3. [DONE] `harness-ai.phase2.stream1.task1` Replace the single-model Kimi assumption with the verified three-model provider catalog and normalize persisted defaults against that catalog; cover the contract with focused tests and synchronize the provider/settings architecture docs (scope: `provider-descriptor/src/provider-descriptor-facade.ts, settings-store/src/settings-normalization.ts` + paired tests/docs; expected commit: `feat: add Kimi coding model catalog`). Result: Completed in commit `feat: add Kimi coding model catalog`.
 4. [DONE] Git Commit: `feat: add Kimi coding model catalog` (hash: self)
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` Route the immutable Core session model through the Kimi universal-client adapter instead of pinning every turn to `kimi-for-coding`; cover default and explicit-model requests and synchronize adapter/runtime docs (scope: `kimi-client-provider/src/kimi-client-provider-facade.ts, kimi-client-provider/src/kimi-client-provider.test.mjs, core-runtime-process/src/core-provider-adapter-registration.ts` + related docs; expected commit: `feat: route selected Kimi model`).
-6. [TODO] Git Commit: `feat: route selected Kimi model` (hash: TBD)
+5. [DONE] `harness-ai.phase2.stream1.task2` Route the immutable Core session model through the Kimi universal-client adapter instead of pinning every turn to `kimi-for-coding`; cover default and explicit-model requests and synchronize adapter/runtime docs (scope: `kimi-client-provider/src/kimi-client-provider-facade.ts, kimi-client-provider/src/kimi-client-provider.test.mjs, core-runtime-process/src/core-provider-adapter-registration.ts` + related docs; expected commit: `feat: route selected Kimi model`). Result: Completed in commit `feat: route selected Kimi model`.
+6. [DONE] Git Commit: `feat: route selected Kimi model` (hash: self)
 
 ## Phase 3 - Kimi Model Selection UI (owner: Codex, updated: 2026-07-16)
 
 ### Stream: Settings And Session Picker
 
-7. [TODO] `harness-ai.phase3.stream1.task1` Add the three Core-owned Kimi options to the Settings default-model card and make the new-session provider card display/use the selected Kimi default; cover both surfaces with focused tests and synchronize UI docs (scope: `provider-settings-ui/src/settings-model-options.ts, provider-settings-ui/src/settings-tab-content.tsx, session-window/src/provider-picker.tsx` + paired tests/docs; expected commit: `feat: add Kimi model selection controls`).
+7. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Add the three Core-owned Kimi options to the Settings default-model card and make the new-session provider card display/use the selected Kimi default; cover both surfaces with focused tests and synchronize UI docs (scope: `provider-settings-ui/src/settings-model-options.ts, provider-settings-ui/src/settings-tab-content.tsx, session-window/src/provider-picker.tsx` + paired tests/docs; expected commit: `feat: add Kimi model selection controls`).
 8. [TODO] Git Commit: `feat: add Kimi model selection controls` (hash: TBD)
 
 ## Phase 4 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-16)

@@ -122,8 +122,8 @@ state.
 - `PROVIDER_IDS` includes the universal-client endpoints `kimi-client`,
   `glm-client`, `local-models-client` and `openrouter-client`:
   their adapters register at startup and RPC provider-id validation accepts
-  them. Kimi pins its single
-  public `kimi-for-coding` model; GLM resolves its selected model and reasoning
+  them. Kimi resolves the immutable Core session model from per-turn options
+  (`kimi-for-coding`, `kimi-for-coding-highspeed`, or `k3`); GLM resolves its selected model and reasoning
   effort from Core settings per turn while the adapter pins only the GLM
   dialect; Local Models resolves its selected model and server connection
   (base URL + optional key) from Core settings per turn while the adapter pins

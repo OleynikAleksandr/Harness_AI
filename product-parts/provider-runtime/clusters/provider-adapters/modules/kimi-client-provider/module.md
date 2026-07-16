@@ -4,8 +4,8 @@
 
 The thin Kimi endpoint for the Core universal client. Holds Kimi's dialect
 specifics — the Kimi Code subscription coding endpoint
-(`api.kimi.com/coding/v1`), the `kimi-for-coding` model, and the
-`reasoning_content` thinking form — builds the `ClientTurnRequest`, and exposes
+(`api.kimi.com/coding/v1`), the Core session-selected Coding Plan model, and
+the `reasoning_content` thinking form — builds the `ClientTurnRequest`, and exposes
 the `ProviderAdapter` that Core session routing constructs. This module stays
 Kimi-specific: it does NOT own the agent loop, tool execution or streaming
 (those are the Core `universal-client` cluster); the adapter wires the loop,
@@ -27,7 +27,8 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
 - `KimiTurnInput`: the subscription API key, the message history, the available
   tool descriptors, an optional model override, and an optional abort signal.
 - `ProviderAdapter` calls from Core session routing (create/resume session,
-  send message, subscribe, close, delete artifacts).
+  send message with the immutable Core session model in `ProviderTurnOptions`,
+  subscribe, close, delete artifacts).
 
 ## Outputs
 
@@ -37,6 +38,11 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
 - `buildKimiTurnRequest(input)`: the Core `ClientTurnRequest` for a Kimi turn
   (defaults the model, attaches the dialect and key).
 - `KimiClientProviderFacade`: the `ProviderAdapter` on the universal client.
+  Each turn uses `ProviderTurnOptions.model` supplied from `session.model`;
+  legacy/empty callers fall back to `KIMI_MODEL`. The provider catalog and
+  settings normalization constrain visible choices to `kimi-for-coding`,
+  `kimi-for-coding-highspeed`, and `k3`. No `temperature` is sent, which keeps
+  K3 on its provider-required default value `1`.
   Sessions are in-memory: each keeps its message history and carries the
   final in-turn history returned by `runClientTurn` (assistant + tool
   messages included) into the next turn. Turn events map through

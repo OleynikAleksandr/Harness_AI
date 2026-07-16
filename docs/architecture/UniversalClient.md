@@ -311,7 +311,9 @@ snake_case):
   `GET /coding/v1/models` и содержит `kimi-for-coding` (K2.7 Coding),
   `kimi-for-coding-highspeed` (K2.7 Coding HighSpeed Stable) и `k3` (K3).
   Все три id входят в Core-каталог; неизвестное сохранённое значение
-  нормализуется обратно к `kimi-for-coding`.
+  нормализуется обратно к `kimi-for-coding`. Выбор фиксируется в Core session
+  snapshot и передаётся Kimi-адаптеру с каждым ходом; K3 получает вендорский
+  default `temperature: 1`, потому что общий клиент не отправляет этот параметр.
 - GLM: статический enum из доки (glm-5.2 default, glm-5.1, glm-5-turbo,
   glm-4.7*, glm-4.6...); официального списка «моделей coding-плана» нет —
   фиксируем перечень сами, правим по фактам.

@@ -33,6 +33,7 @@ const source = readFileSync(
       "};",
       "const runClientTurn = (params) => {",
       "  globalThis.__kimiClientTestTurns.push(params.request.messages.map((m) => m.role));",
+      "  globalThis.__kimiClientTestModels.push(params.request.model);",
       '  params.onEvent({ kind: "turn_started" });',
       "  if (globalThis.__kimiClientTestFail) {",
       '    params.onEvent({ error: "provider_error", kind: "turn_failed", text: "boom" });',
@@ -103,6 +104,7 @@ try {
 
   // --- ProviderAdapter behavior on the mocked loop ---
   globalThis.__kimiClientTestApiKey = "sk-live";
+  globalThis.__kimiClientTestModels = [];
   globalThis.__kimiClientTestTurns = [];
   globalThis.__kimiClientTestFail = false;
 
@@ -112,24 +114,32 @@ try {
 
   const received = [];
   adapter.subscribe(sessionId, (event) => received.push(event));
-  await adapter.sendMessage(sessionId, "hi");
+  await adapter.sendMessage(sessionId, "hi", { model: "k3" });
   assert.deepEqual(
     received.map((event) => event.type),
     ["turn_started", "dialog_message", "turn_completed"]
   );
   assert.equal(received[1].content, "ok");
+  assert.equal(globalThis.__kimiClientTestModels.at(-1), "k3");
 
   // The next turn carries the full session history (user, assistant, user).
-  await adapter.sendMessage(sessionId, "again");
+  await adapter.sendMessage(sessionId, "again", {
+    model: "kimi-for-coding-highspeed",
+  });
   assert.deepEqual(globalThis.__kimiClientTestTurns, [
     ["user"],
     ["user", "assistant", "user"],
   ]);
+  assert.equal(
+    globalThis.__kimiClientTestModels.at(-1),
+    "kimi-for-coding-highspeed"
+  );
 
   // Stop keeps the history; resume-on-send continues the same session id.
   await adapter.closeSession(sessionId);
   await adapter.resumeSession(sessionId);
   await adapter.sendMessage(sessionId, "more");
+  assert.equal(globalThis.__kimiClientTestModels.at(-1), "kimi-for-coding");
   assert.deepEqual(globalThis.__kimiClientTestTurns.at(-1), [
     "user",
     "assistant",
@@ -173,6 +183,7 @@ try {
   console.log("kimi-client-provider tests passed");
 } finally {
   globalThis.__kimiClientTestApiKey = undefined;
+  globalThis.__kimiClientTestModels = undefined;
   globalThis.__kimiClientTestTurns = undefined;
   globalThis.__kimiClientTestFail = undefined;
   await rm(buildDir, { recursive: true, force: true });

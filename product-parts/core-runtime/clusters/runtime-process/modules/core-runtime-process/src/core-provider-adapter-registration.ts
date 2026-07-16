@@ -37,9 +37,8 @@ export function buildProviderAdapterInstance(
         workspacePath,
       });
     case "kimi-client":
-      // The universal-client endpoint pins its own model (kimi-for-coding is
-      // the single public id), so the selected model is intentionally not
-      // passed.
+      // The adapter receives the immutable Core session model in per-turn
+      // options; registration only pins the workspace and Kimi dialect.
       return new KimiClientProviderFacade(workspacePath);
     case "glm-client":
       // Multi-model GLM resolves the selected model and reasoning effort from

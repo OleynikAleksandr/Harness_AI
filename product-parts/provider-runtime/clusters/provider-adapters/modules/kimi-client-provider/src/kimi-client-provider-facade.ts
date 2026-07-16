@@ -29,9 +29,11 @@ import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modu
 import type {
   ProviderAdapter,
   ProviderEventListener,
+  ProviderTurnOptions,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 
-// The single public Kimi Code coding model; the vendor rotates the backend.
+// Backward-compatible fallback for legacy callers that do not pass Core's
+// immutable session model in ProviderTurnOptions.
 export const KIMI_MODEL = "kimi-for-coding";
 
 export const KIMI_DIALECT: DialectProfile = {
@@ -67,6 +69,9 @@ export const buildKimiTurnRequest = (
 const AUTH_MISSING_MESSAGE =
   "Kimi For Coding API key is missing. Add it in Provider Settings.";
 
+const readTurnModel = (value: unknown): string =>
+  typeof value === "string" && value.trim() ? value.trim() : KIMI_MODEL;
+
 interface KimiClientSessionState {
   abort: AbortController | null;
   readonly listeners: Set<ProviderEventListener>;
@@ -100,7 +105,11 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     return Promise.resolve(sessionId);
   }
 
-  async sendMessage(sessionId: string, content: string): Promise<void> {
+  async sendMessage(
+    sessionId: string,
+    content: string,
+    turnOptions?: ProviderTurnOptions
+  ): Promise<void> {
     const session = this.requireSession(sessionId);
     const apiKey = providerAuthStoreFacade.getApiKey("kimi-client");
     if (!apiKey) {
@@ -113,6 +122,7 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     const request = buildKimiTurnRequest({
       apiKey,
       messages: [...session.messages, { content, role: "user" }],
+      model: readTurnModel(turnOptions?.model),
       signal: abort.signal,
       tools: this.registry.listDescriptors(),
     });

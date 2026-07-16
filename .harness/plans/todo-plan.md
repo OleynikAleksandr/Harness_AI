@@ -8,7 +8,7 @@
   "planId": "plan-user-acceptance-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -49,4 +49,4 @@
 
 1. [DONE] `harness-ai.phase1.stream1.task1` Add an explicit `completion: user-acceptance` task contract and a guarded `plan:accept` command that completes only the active acceptance task, records the user-provided acceptance note in a dedicated commit, leaves the scope ACTIVE, and allows a later ordinary `plan:archive`; add regression coverage for success and misuse while documenting the standard workflow (scope: `scripts/plan.mjs, scripts/plan-accept.test.mjs, package.json, .harness/plans/todo-plan.template.md, AGENTS.md, CLAUDE.md, README.md, docs/evidence/plan-user-acceptance-command-2026-07-16.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `feat: add plan acceptance workflow`). Result: Completed in commit `feat: add plan acceptance workflow`.
 2. [DONE] Git Commit: `feat: add plan acceptance workflow` (hash: self)
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task2` User verifies that recorded acceptance and scope archival are now separate standard actions with no forced close required (completion: user-acceptance; scope: user workflow; expected commit: none).
+3. [DONE] `harness-ai.phase1.stream1.task2` User verifies that recorded acceptance and scope archival are now separate standard actions with no forced close required (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — Пользователь подтвердил выполнение задачи Acceptance Commit: `chore: record plan acceptance plan-user-acceptance-2026-07-16`.

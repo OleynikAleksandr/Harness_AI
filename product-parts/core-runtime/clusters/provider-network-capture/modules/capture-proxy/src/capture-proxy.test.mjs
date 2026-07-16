@@ -27,9 +27,7 @@ const UPSTREAM_RESPONSE = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok";
 const UPSTREAM_WS_ACCEPT =
   "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n";
 
-// A fake upstream: records what the proxy forwarded and replies once the
-// request head arrives — 101 for a WebSocket upgrade, else 200 — so we can
-// assert forwarding, response relay, and the deflate-strip rewrite.
+// Fake upstream for forwarding, response relay, and deflate-strip checks.
 function startFakeUpstream() {
   const connections = [];
   const server = net.createServer((socket) => {
@@ -99,8 +97,16 @@ try {
     compile("capture-proxy-facade.ts"),
     "utf8"
   );
+  writeFileSync(
+    path.join(buildDir, "capture-proxy-reverse.js"),
+    compile("capture-proxy-reverse.ts"),
+    "utf8"
+  );
   const { NativeRequestCaptureProxy, resolveRuleMismatch } = await import(
     pathToFileURL(path.join(buildDir, "capture-proxy-facade.js")).href
+  );
+  const { NativeCaptureReverseBridge } = await import(
+    pathToFileURL(path.join(buildDir, "capture-proxy-reverse.js")).href
   );
 
   const keyPath = path.join(buildDir, "host.key.pem");
@@ -356,9 +362,7 @@ try {
     "permessage-deflate must be stripped from the forwarded upgrade"
   );
 
-  // Codex 0.144.1 omits top-level tools from both prewarm and real request
-  // frames. When the tools field is absent, the probe match identifies the
-  // real turn; legacy frames that include tools still use minimumToolCount.
+  // Current Codex frames without top-level tools rely on the probe match.
   const currentWsProxy = buildProxy(wsRule);
   const currentWsHandle = await currentWsProxy.start();
   const currentWsClient = await openClientTls(currentWsHandle);
@@ -390,9 +394,61 @@ try {
   assert.equal(currentWsResult.status, "captured");
   assert.equal(currentWsResult.request.body.model, "gpt-5.6-sol");
   assert.equal("tools" in currentWsResult.request.body, false);
-
-  // Case 4: a client-side TLS rejection is preserved as a safe diagnostic
-  // code/message instead of the previous opaque tls_socket_error marker.
+  const reverseBridge = new NativeCaptureReverseBridge({
+    providerId: "kimi",
+    rule: {
+      host: "api.kimi.com",
+      pathIncludes: "/chat/completions",
+      bodyIncludes: "Harness AI capture probe",
+    },
+    timeoutMs: 4000,
+    upstreamHost: "api.kimi.com",
+    createUpstream: () => net.connect(fakePort, "127.0.0.1"),
+  });
+  const reverseHandle = await reverseBridge.start();
+  assert.match(reverseHandle.baseUrl, /^http:\/\/127\.0\.0\.1:\d+$/u);
+  const reverseClient = net.connect(reverseHandle.port, "127.0.0.1");
+  await new Promise((resolve) => reverseClient.once("connect", resolve));
+  const reverseResponse = new Promise((resolve) => {
+    reverseClient.once("data", (chunk) => resolve(chunk.toString("utf8")));
+  });
+  const reverseBody = JSON.stringify({
+    model: "kimi-for-coding",
+    messages: [
+      { role: "system", content: "You are Kimi Code CLI." },
+      { role: "user", content: "Harness AI capture probe turn" },
+    ],
+    tools: [{ function: { name: "Bash" } }],
+  });
+  reverseClient.write(
+    [
+      "POST /coding/v1/chat/completions HTTP/1.1",
+      "Host: 127.0.0.1",
+      "Authorization: Bearer sk-kimi-secret",
+      "Content-Type: application/json",
+      `Content-Length: ${Buffer.byteLength(reverseBody)}`,
+      "",
+      reverseBody,
+    ].join("\r\n")
+  );
+  const reverseResult = await reverseHandle.waitForCapture();
+  const reverseRelayed = await reverseResponse;
+  await reverseHandle.stop();
+  reverseClient.destroy();
+  assert.equal(reverseResult.status, "captured");
+  assert.equal(reverseResult.request.path, "/coding/v1/chat/completions");
+  assert.equal(
+    reverseResult.request.body.messages[0].content,
+    "You are Kimi Code CLI."
+  );
+  assert.match(reverseRelayed, /200 OK/u);
+  assert.ok(
+    fake.connections.some((connection) =>
+      Buffer.concat(connection.chunks)
+        .toString("utf8")
+        .includes("host: api.kimi.com")
+    )
+  );
   let resolveTlsErrorEvent;
   const tlsErrorEvent = new Promise((resolve) => {
     resolveTlsErrorEvent = resolve;

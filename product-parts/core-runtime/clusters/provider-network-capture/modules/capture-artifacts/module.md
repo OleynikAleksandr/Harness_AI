@@ -18,9 +18,9 @@ redaction / markdown modules, collapsed into one facade for Harness AI.
 
 ## Inputs
 
-- `NativeCaptureWriterOptions`: capture id, provider id (`claude` | `codex` —
-  the ACP `kimi` capture channel left with the kimi-provider
-  retirement, 2026-07-05), output directory, optional selected model id,
+- `NativeCaptureWriterOptions`: capture id, provider id (`claude` | `codex` |
+  `kimi`; Kimi is a diagnostic native-CLI channel, not the retired ACP
+  runtime provider), output directory, optional selected model id,
   optional selected reasoning effort, optional release version, optional
   clock (for deterministic artifacts in tests).
 - `CapturedNativeRequest` values from the capture proxy: method, path,

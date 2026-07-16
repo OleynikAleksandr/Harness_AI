@@ -12,11 +12,10 @@ export {
   extractCaptureSections,
 } from "./capture-markdown-format.js";
 
-// Providers whose native request Harness AI can capture today. The writer is
-// provider-neutral so universal-client diagnostic paths can reuse the same
-// raw JSONL / diagnostics JSONL / readable markdown contract when validating
-// selected profile application.
-export type NativeCaptureProviderId = "claude" | "codex";
+// Providers whose original vendor clients Harness AI can capture today. Kimi
+// remains a universal-client runtime provider; this id is only for its
+// diagnostic native-CLI capture channel.
+export type NativeCaptureProviderId = "claude" | "codex" | "kimi";
 
 export type NativeCaptureFailureReason =
   | "provider_not_supported"

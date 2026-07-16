@@ -16,6 +16,7 @@ import {
   type NativeCaptureTargetRule,
   NativeRequestCaptureProxy,
 } from "../../capture-proxy/src/capture-proxy-facade.js";
+import { NativeCaptureReverseBridge } from "../../capture-proxy/src/capture-proxy-reverse.js";
 
 const DIAGNOSTIC_PROBE_PROMPT =
   "Harness AI native request capture probe. This request must not be sent upstream.";
@@ -49,6 +50,16 @@ export const DEFAULT_CAPTURE_TARGET_RULES: Readonly<
       pathIncludes: "/backend-api/codex/responses",
       bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
       minimumToolCount: 1,
+    },
+  ],
+  // Kimi Code ignores proxy env, so its temporary native CLI home points the
+  // provider base URL at a local reverse-forward bridge. The bridge preserves
+  // the real endpoint path and selects only the diagnostic probe turn.
+  kimi: [
+    {
+      host: "api.kimi.com",
+      pathIncludes: "/chat/completions",
+      bodyIncludes: DIAGNOSTIC_PROBE_PROMPT,
     },
   ],
 };
@@ -119,12 +130,17 @@ type ProxyFactory = (
   options: ConstructorParameters<typeof NativeRequestCaptureProxy>[0]
 ) => Pick<NativeRequestCaptureProxy, "start">;
 
+type ReverseBridgeFactory = (
+  options: ConstructorParameters<typeof NativeCaptureReverseBridge>[0]
+) => Pick<NativeCaptureReverseBridge, "start">;
+
 interface NativeCaptureOrchestratorOptions {
   readonly captureIdFactory?: () => string;
   readonly certificateStore?: CertificateStoreLike;
   readonly clock?: () => Date;
   readonly outputDir?: string;
   readonly proxyFactory?: ProxyFactory;
+  readonly reverseBridgeFactory?: ReverseBridgeFactory;
 }
 
 // Command-level facade: validates the (provider, model) request, mints a
@@ -137,6 +153,7 @@ export class NativeCaptureOrchestrator {
   private readonly clock: () => Date;
   private readonly outputDir: string;
   private readonly proxyFactory: ProxyFactory;
+  private readonly reverseBridgeFactory: ReverseBridgeFactory;
 
   constructor(options: NativeCaptureOrchestratorOptions = {}) {
     this.captureIdFactory = options.captureIdFactory ?? randomUUID;
@@ -147,6 +164,9 @@ export class NativeCaptureOrchestrator {
     this.proxyFactory =
       options.proxyFactory ??
       ((proxyOptions) => new NativeRequestCaptureProxy(proxyOptions));
+    this.reverseBridgeFactory =
+      options.reverseBridgeFactory ??
+      ((bridgeOptions) => new NativeCaptureReverseBridge(bridgeOptions));
   }
 
   async capture(
@@ -161,7 +181,9 @@ export class NativeCaptureOrchestrator {
       selectedModelId: command.model ?? null,
       selectedReasoningEffort: command.reasoningEffort ?? null,
     });
-    return await this.captureViaProxy({ captureId, command, writer });
+    return command.providerId === "kimi"
+      ? await this.captureViaReverse({ captureId, command, writer })
+      : await this.captureViaProxy({ captureId, command, writer });
   }
 
   // Claude/Codex: run the provider client through the forward-transit proxy.
@@ -204,6 +226,46 @@ export class NativeCaptureOrchestrator {
         handle,
         proxyEvents,
         proxyUrl: handle.proxyUrl,
+        writer,
+      });
+    } finally {
+      await handle.stop();
+    }
+  }
+
+  // Kimi: run the native CLI through a plain local reverse-forward bridge.
+  // The driven client writes to the bridge base URL, which relays the request
+  // to the real provider. No diagnostic CA is involved on the local leg.
+  private async captureViaReverse(params: {
+    readonly captureId: string;
+    readonly command: NativeCaptureCommand;
+    readonly writer: NativeRequestCaptureWriter;
+  }): Promise<NativeCaptureCommandResult> {
+    const { command, writer } = params;
+    const rule = (command.targetRules ??
+      DEFAULT_CAPTURE_TARGET_RULES[command.providerId])[0];
+    if (!rule) {
+      await writer.complete("failed", "target_not_seen");
+      return failure(command, writer, "target_not_seen");
+    }
+    const proxyEvents: NativeCaptureProxyEvent[] = [];
+    const bridge = this.reverseBridgeFactory({
+      onEvent: (event) => proxyEvents.push(event),
+      providerId: command.providerId,
+      rule,
+      timeoutMs: command.timeoutMs,
+      upstreamHost: rule.host,
+    });
+    const handle = await bridge.start();
+    try {
+      return await this.runCapture({
+        captureId: params.captureId,
+        certificateEnv: {},
+        certificatePath: "",
+        command,
+        handle,
+        proxyEvents,
+        proxyUrl: handle.baseUrl,
         writer,
       });
     } finally {

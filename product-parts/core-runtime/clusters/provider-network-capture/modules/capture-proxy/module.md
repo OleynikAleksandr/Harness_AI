@@ -94,11 +94,13 @@ HTTP reader for clients that ignore proxy env.
   diagnostics without recording headers, request bodies, or credentials.
 - The proxy hands the raw captured request (including headers) to the
   caller; credential redaction happens in the artifact writer, not here.
-- The kimi-only reverse-forward bridge (`capture-proxy-reverse.ts`,
-  `NativeCaptureReverseBridge` — a plain HTTP listener for the kimi Mach-O
-  binary that ignored proxy env) was removed with the ACP kimi retirement
-  (2026-07-05 user order); every capture provider runs through the
-  forward-transit CONNECT proxy.
+- `capture-proxy-reverse.ts` exposes `NativeCaptureReverseBridge`, a plain
+  loopback HTTP listener for the Kimi CLI, which ignores proxy env. It buffers
+  one complete client request, applies the same path/body target matching,
+  rewrites `Host` to the real vendor, forwards the request over TLS, relays the
+  upstream response, and emits the same bounded capture events. This is a
+  diagnostic transport only; it does not restore the retired ACP Kimi runtime
+  provider.
 
 ## Owned Paths
 

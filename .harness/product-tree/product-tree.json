@@ -219,12 +219,12 @@
             {
               "id": "capture-proxy",
               "name": "Capture Proxy",
-              "purpose": "MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint, and supports the forward-transit capture path required by Codex app-server WebSocket transport."
+              "purpose": "MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint, and supports the forward-transit capture path required by Codex app-server WebSocket transport; also owns the Kimi native-CLI reverse-forward bridge for a client that ignores proxy env."
             },
             {
               "id": "capture-orchestrator",
               "name": "Capture Orchestrator",
-              "purpose": "Command-level orchestration of model/reasoning-qualified native request capture: wires the certificate store, capture proxy and artifact writer, invokes the provider adapter capture through the proxy, and returns the artifact paths."
+              "purpose": "Command-level orchestration of model/reasoning-qualified native request capture: selects the CONNECT proxy or Kimi reverse bridge, wires the capture transport and artifact writer, invokes the provider diagnostic capture driver, and returns the artifact paths."
             }
           ]
         },

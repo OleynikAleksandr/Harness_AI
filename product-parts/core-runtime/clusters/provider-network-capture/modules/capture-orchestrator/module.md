@@ -32,9 +32,9 @@ injection (pointing a provider client at the local proxy) is passed in as a
 ## Outputs
 
 - `DEFAULT_CAPTURE_TARGET_RULES`: per-provider target model endpoints
-  (Claude `api.anthropic.com` `/v1/messages` and Codex app-server
-  `chatgpt.com` `/backend-api/codex/responses`; the ACP Kimi rule left with
-  the kimi-provider retirement, 2026-07-05).
+  (Claude `api.anthropic.com` `/v1/messages`, Codex app-server
+  `chatgpt.com` `/backend-api/codex/responses`, and the diagnostic Kimi CLI
+  channel `api.kimi.com` `/chat/completions`).
   Codex uses a WebSocket transport for `/responses`, so the proxy routes the
   upgrade on that path to its WS capture and decodes the `response.create`
   frame (the payload is in the frame, not an HTTP body). The Codex rule carries
@@ -68,9 +68,11 @@ injection (pointing a provider client at the local proxy) is passed in as a
   not treated as trust failures, and an actual captured proxy result still has
   precedence over incidental TLS failures from sibling connections.
   `runCapture` takes explicit
-  `certificateEnv`/`certificatePath`/`proxyUrl` values. The kimi-only
-  reverse-bridge path (`captureViaReverse` + `NativeCaptureReverseBridge`)
-  left with the ACP kimi retirement (2026-07-05 user order). Returns
+  `certificateEnv`/`certificatePath`/`proxyUrl` values. Kimi selects the
+  `captureViaReverse` path and receives the `NativeCaptureReverseBridge` base
+  URL with empty certificate fields; Claude/Codex keep the CONNECT proxy path.
+  This diagnostic route is independent of the retired ACP Kimi runtime.
+  Returns
   `{ ok, providerId, model, reasoningEffort, markdownPath, jsonlPath, error,
   reason }`.
 

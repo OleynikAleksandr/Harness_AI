@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task26",
-  "expectedCommitMessage": "chore: package Kimi native model config build",
+  "currentTaskId": "harness-ai.phase8.stream1.task27",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -228,6 +228,6 @@
 87. [DONE] Git Commit: `plan: add Kimi native model config stream` (hash: self)
 88. [DONE] `harness-ai.phase8.stream1.task25` Declare the Core-catalog Kimi models in the workspace-home config: the home bootstrap appends missing `[models.<id>]` sections (`kimi-for-coding-highspeed`, `k3` — provider inherited from the user's existing model section, `max_context_size = 262144`) to the copied `config.toml` on every prepare (append-only; existing sections and user edits stay untouched), so `session/set_config_option {model}` stops rejecting the catalog models (verified live: with the section present the CLI accepts `k3`); cover section appending, quoting and idempotence with tests and synchronize module docs (scope: `kimi-native-session/src/kimi-workspace-home.ts` + paired tests/docs; expected commit: `feat: declare Kimi native models in workspace home`). Result: Completed in commit `feat: declare Kimi native models in workspace home`.
 89. [DONE] Git Commit: `feat: declare Kimi native models in workspace home` (hash: self)
-90. [IN_PROGRESS] `harness-ai.phase8.stream1.task26` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-17 model-fix order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native model config build`).
-91. [TODO] Git Commit: `chore: package Kimi native model config build` (hash: TBD)
-92. [TODO] `harness-ai.phase8.stream1.task27` User verifies in the packaged app: a native Kimi session created with `k3` really runs on `k3` (wire `config.update` shows the alias), permission-free full access, workspace store and deletion keep working, swarm visibility keeps working, and accepts the documented provider-side thinking limitation (completion: user-acceptance; scope: user workflow; expected commit: none).
+90. [DONE] `harness-ai.phase8.stream1.task26` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-17 model-fix order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native model config build`). Result: Completed in commit `chore: package Kimi native model config build`.
+91. [DONE] Git Commit: `chore: package Kimi native model config build` (hash: self)
+92. [IN_PROGRESS] `harness-ai.phase8.stream1.task27` User verifies in the packaged app: a native Kimi session created with `k3` really runs on `k3` (wire `config.update` shows the alias), permission-free full access, workspace store and deletion keep working, swarm visibility keeps working, and accepts the documented provider-side thinking limitation (completion: user-acceptance; scope: user workflow; expected commit: none).

@@ -194,6 +194,15 @@ readiness registry, liveness checker, and workspace provisioner modules.
   and delete the mapped native session directory with the Harness session;
   includes the live dist smoke and the packaged `app.asar` checksum with
   binary-grep proof.
+- `docs/evidence/kimi-native-model-config-package-2026-07-17.md` — Kimi
+  native model-config packaging evidence for the thinking investigation:
+  the verified provider-side thinking limitation (the CLI rejects
+  `thinking=on` for `kimi-for-coding`; wire requests carry
+  `thinkingEffort: off`), the model-selection defect (catalog models were
+  not declared in the home config, so native sessions silently ran the
+  default model) and its fix (bootstrap appends the missing `[models.*]`
+  sections; wire proof that a native session really runs on `k3`), plus
+  the packaged `app.asar` checksum with binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

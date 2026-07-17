@@ -1,8 +1,9 @@
-import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { execFile, spawnSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import type { ProviderNativeCaptureOptions } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import { KimiAcpClient, type KimiCaptureAcpClient } from "./kimi-acp-client.js";
 import { prepareKimiCaptureConfig } from "./kimi-capture-config-rewrite.js";
@@ -10,6 +11,10 @@ import { prepareKimiCaptureConfig } from "./kimi-capture-config-rewrite.js";
 const KIMI_CONFIG_DIRNAME = ".kimi-code";
 const CLONE_ENTRIES = ["config.toml", "credentials", "device_id", "tui.toml"];
 const CAPTURE_SETTLE_MS = 12_000;
+const KIMI_VERSION_TIMEOUT_MS = 5000;
+const KIMI_UPGRADE_TIMEOUT_MS = 300_000;
+const KIMI_UPGRADE_MAX_BUFFER_BYTES = 10 * 1_048_576;
+const execFileAsync = promisify(execFile);
 
 interface KimiNativeCaptureDependencies {
   readonly baseEnv: NodeJS.ProcessEnv;
@@ -136,6 +141,57 @@ export class KimiNativeCaptureFacade {
 function resolveKimiCommand(): string {
   const userInstall = path.join(homedir(), KIMI_CONFIG_DIRNAME, "bin", "kimi");
   return existsSync(userInstall) ? userInstall : "kimi";
+}
+
+export interface KimiCliVersionStatus {
+  currentVersion: null | string;
+  latestVersion: null | string;
+}
+
+// Kimi CLI version tooling for the provider-versions surface. The CLI is a
+// standalone binary (no npm package): the current version comes from
+// `kimi --version`, the latest version from the update-state file the CLI
+// itself refreshes against its CDN channel on every launch, and updates run
+// the native `kimi upgrade` command.
+export async function readKimiCliVersionStatus(
+  overrides: {
+    readonly kimiCommand?: string;
+    readonly updateStatePath?: string;
+  } = {}
+): Promise<KimiCliVersionStatus> {
+  const command = overrides.kimiCommand ?? resolveKimiCommand();
+  const updateStatePath =
+    overrides.updateStatePath ??
+    path.join(homedir(), KIMI_CONFIG_DIRNAME, "updates", "latest.json");
+  const currentVersion = await execFileAsync(command, ["--version"], {
+    timeout: KIMI_VERSION_TIMEOUT_MS,
+  })
+    .then(({ stdout }) => stdout.trim() || null)
+    .catch(() => null);
+  return {
+    currentVersion,
+    latestVersion: readKimiLatestKnownVersion(updateStatePath),
+  };
+}
+
+export async function upgradeKimiCli(kimiCommand?: string): Promise<void> {
+  await execFileAsync(kimiCommand ?? resolveKimiCommand(), ["upgrade"], {
+    maxBuffer: KIMI_UPGRADE_MAX_BUFFER_BYTES,
+    timeout: KIMI_UPGRADE_TIMEOUT_MS,
+  });
+}
+
+function readKimiLatestKnownVersion(updateStatePath: string): string | null {
+  try {
+    const parsed = JSON.parse(readFileSync(updateStatePath, "utf8")) as {
+      latest?: unknown;
+    };
+    return typeof parsed.latest === "string" && parsed.latest.trim()
+      ? parsed.latest.trim()
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 function readKimiVersion(command: string): string | null {

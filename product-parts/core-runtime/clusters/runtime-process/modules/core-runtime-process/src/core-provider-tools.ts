@@ -2,6 +2,10 @@ import { exec } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import {
+  readKimiCliVersionStatus,
+  upgradeKimiCli,
+} from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-native-capture/src/kimi-native-capture-facade.js";
+import {
   ensureLocalModelContext,
   type LocalModelEntry,
   listLocalModelEntries,
@@ -76,16 +80,22 @@ export async function applyLocalModelContext(
 }
 
 export async function loadProviderVersions(): Promise<unknown> {
-  const [claudeCli, claudeSdk, codexCli, codexSdk] = await Promise.all([
-    readCliPackageVersion("claude"),
-    readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
-    readCliPackageVersion("codex"),
-    readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
-  ]);
+  const [claudeCli, claudeSdk, codexCli, codexSdk, kimiCli] = await Promise.all(
+    [
+      readCliPackageVersion("claude"),
+      readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+      readCliPackageVersion("codex"),
+      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
+      readKimiCliVersionStatus(),
+    ]
+  );
   return {
     checkedAt: new Date().toISOString(),
     claude: { cli: claudeCli, sdk: claudeSdk },
     codex: { cli: codexCli, sdk: codexSdk },
+    // Kimi has no SDK (the universal client talks plain HTTP); the CLI is a
+    // standalone binary versioned through its own `kimi upgrade` channel.
+    kimi: { cli: kimiCli },
   };
 }
 
@@ -99,6 +109,10 @@ export async function installLatestGlobalPackage(
 }
 
 export async function updateProviderCli(provider: unknown): Promise<void> {
+  if (provider === "kimi") {
+    await upgradeKimiCli();
+    return;
+  }
   const command = PROVIDER_CLI_UPDATE_COMMANDS[provider as ProviderVersionKey];
   if (!command) {
     throw new Error("Unknown provider CLI update target.");

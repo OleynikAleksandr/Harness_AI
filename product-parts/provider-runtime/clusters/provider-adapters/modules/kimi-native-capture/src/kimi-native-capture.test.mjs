@@ -46,9 +46,10 @@ try {
   const { prepareKimiCaptureConfig } = await import(
     pathToFileURL(path.join(moduleDir, "kimi-capture-config-rewrite.js")).href
   );
-  const { KimiNativeCaptureFacade } = await import(
-    pathToFileURL(path.join(moduleDir, "kimi-native-capture-facade.js")).href
-  );
+  const { KimiNativeCaptureFacade, readKimiCliVersionStatus, upgradeKimiCli } =
+    await import(
+      pathToFileURL(path.join(moduleDir, "kimi-native-capture-facade.js")).href
+    );
 
   const sourceConfig = `default_model = "kimi-for-coding"
 [services.moonshot_search]
@@ -130,6 +131,42 @@ max_context_size = 262144
   assert.equal(envelopes[0].mode, "acp_default_agent");
   assert.equal(diagnostics[0].payload.selectedModelId, "k3");
   await assert.rejects(() => stat(capturedTempHome), /ENOENT/u);
+
+  const updatesDir = path.join(sourceConfigDir, "updates");
+  mkdirSync(updatesDir, { recursive: true });
+  await writeFile(
+    path.join(updatesDir, "latest.json"),
+    JSON.stringify({ latest: "0.99.1", source: "cdn" }),
+    "utf8"
+  );
+  const kimiArgsLog = path.join(sourceConfigDir, "kimi-args.log");
+  const fakeKimi = path.join(sourceConfigDir, "fake-kimi.sh");
+  await writeFile(
+    fakeKimi,
+    `#!/bin/sh\necho "$@" >> "${kimiArgsLog}"\necho "0.98.0"\n`,
+    { mode: 0o755 }
+  );
+  const versionStatus = await readKimiCliVersionStatus({
+    kimiCommand: fakeKimi,
+    updateStatePath: path.join(updatesDir, "latest.json"),
+  });
+  assert.deepEqual(versionStatus, {
+    currentVersion: "0.98.0",
+    latestVersion: "0.99.1",
+  });
+  const missingStatus = await readKimiCliVersionStatus({
+    kimiCommand: path.join(sourceConfigDir, "missing-kimi"),
+    updateStatePath: path.join(updatesDir, "absent.json"),
+  });
+  assert.deepEqual(missingStatus, {
+    currentVersion: null,
+    latestVersion: null,
+  });
+  await upgradeKimiCli(fakeKimi);
+  assert.deepEqual(readFileSync(kimiArgsLog, "utf8").trim().split("\n"), [
+    "--version",
+    "upgrade",
+  ]);
 
   console.log("kimi native capture tests passed");
 } finally {

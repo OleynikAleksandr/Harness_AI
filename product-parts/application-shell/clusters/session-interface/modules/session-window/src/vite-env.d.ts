@@ -35,6 +35,9 @@ interface ProviderVersionsSnapshot {
   checkedAt: string;
   claude: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
   codex: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
+  // Kimi has no SDK and no npm package: one CLI entry from the native
+  // `kimi upgrade` channel.
+  kimi: { cli: Omit<ProviderVersionEntry, "packageName"> };
 }
 
 interface Window {
@@ -260,7 +263,7 @@ interface Window {
       | { error: string; ok: false; text: string }
     >;
     updateProviderVersion(request: {
-      provider: "claude" | "codex";
+      provider: "claude" | "codex" | "kimi";
       target: "cli" | "sdk";
     }): Promise<
       | { ok: true; versions: ProviderVersionsSnapshot }

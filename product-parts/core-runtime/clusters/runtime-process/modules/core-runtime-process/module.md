@@ -61,6 +61,13 @@ state.
   `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
   stays first on PATH. OpenCode version/update handling is removed with the
   embedded runtime migration.
+  The `get-provider-versions` snapshot also carries `kimi: { cli }` (CLI row
+  only — Kimi has no SDK and no npm package) sourced from the Kimi
+  native-capture facade version tooling: current version from the installed
+  standalone binary, latest from the CLI's own update-state file. The
+  `update-provider-version` CLI target for `kimi` runs the native
+  `kimi upgrade` through the same facade; the SDK target stays rejected by
+  package resolution.
 - The `delete-session` RPC forwards the raw intent to Session Runtime and
   performs no cleanup of its own: the request-handler delete cascade closes
   bindings and removes provider artifacts, per-session event JSONL and

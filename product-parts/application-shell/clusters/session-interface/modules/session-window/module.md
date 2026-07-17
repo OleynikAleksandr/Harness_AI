@@ -34,6 +34,10 @@ Render the transcript/dialog layout and session chrome.
 - The shared `vite-env.d.ts` bridge contract models Native Request Capture
   `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
   that expose no independent reasoning selector.
+- The `ProviderVersionsSnapshot` bridge type carries `kimi: { cli }` without a
+  `packageName` (the Kimi CLI is a standalone binary, not an npm package) and
+  `updateProviderVersion` accepts `provider: "kimi"`; the snapshot stays
+  Core-computed truth from `get-provider-versions`.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
 - The session status panel renders only Core telemetry truth. Codex and Grok

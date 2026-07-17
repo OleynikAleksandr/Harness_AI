@@ -20,6 +20,16 @@ native logs/session history are never copied.
 `src/kimi-native-capture-facade.ts` exports `KimiNativeCaptureFacade` and the
 singleton `kimiNativeCaptureFacade` with `captureNativeRequest(options)`.
 
+Since the 2026-07-17 Kimi settings parity stream the facade also owns the Kimi
+CLI version tooling for the provider-versions surface (the CLI is a standalone
+binary, not an npm/pip package): `readKimiCliVersionStatus()` returns
+`{ currentVersion, latestVersion }` — current from `kimi --version`, latest
+from the `~/.kimi-code/updates/latest.json` update-state file the CLI itself
+refreshes against its CDN channel on every launch — and `upgradeKimiCli()`
+runs the native `kimi upgrade` command. Both resolve the same
+`~/.kimi-code/bin/kimi` (PATH fallback) install the capture driver uses and
+accept explicit overrides for tests.
+
 ## Inputs
 
 - Core-owned `ProviderNativeCaptureOptions`: capture id, selected model id,
@@ -36,6 +46,9 @@ singleton `kimiNativeCaptureFacade` with `captureNativeRequest(options)`.
   model.
 - Bounded CLI version/process diagnostics; no credential contents are copied
   into diagnostics.
+- Kimi CLI version status (`readKimiCliVersionStatus`) and native upgrade
+  execution (`upgradeKimiCli`) consumed by the Core runtime-process
+  provider-versions RPC.
 
 ## Owned Paths
 

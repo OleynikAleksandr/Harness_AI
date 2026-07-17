@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task6",
-  "expectedCommitMessage": "feat: request Kimi native thinking best effort",
+  "currentTaskId": "harness-ai.phase8.stream1.task7",
+  "expectedCommitMessage": "chore: package Kimi telemetry build",
   "debt": null
 }
 ```
@@ -192,8 +192,8 @@
 51. [DONE] Git Commit: `feat: enable Kimi status panel telemetry` (hash: self)
 52. [DONE] `harness-ai.phase8.stream1.task5` Broadcast Kimi usage limits to the top panel: restore the verified `GET https://api.kimi.com/coding/v1/usages` reader (Bearer key from the Harness kimi-client auth store with the CLI config-TOML `api_key` fallback; `limits[0].detail` -> 5h bucket, `usage` -> weekly bucket) behind `refreshUsageLimits` on the Kimi adapter for both native and client sessions, and register `kimi-client` in the pending/scope/fallback label tables; cover payload parsing and broadcast with tests (scope: `kimi-client-provider/src/kimi-usage-limits.ts, kimi-client-provider/src/kimi-client-provider-facade.ts, usage-context-telemetry/src/usage-context-telemetry-facade.ts` + paired tests/docs; expected commit: `feat: broadcast Kimi usage limits`). Result: Completed in commit `feat: broadcast Kimi usage limits`.
 53. [DONE] Git Commit: `feat: broadcast Kimi usage limits` (hash: self)
-54. [IN_PROGRESS] `harness-ai.phase8.stream1.task6` Request Kimi native thinking best-effort: send `session/set_config_option {thinking, "on"}` at session open, keep the session alive on refusal and surface one honest diagnostic stream event (CLI `0.26.0` rejects the advertised option with `Internal error`; config-aliased models do not expose it at all — document the limitation); cover the request and refusal paths with tests (scope: `kimi-native-session/src/kimi-native-session-runtime.ts` + paired tests/docs; expected commit: `feat: request Kimi native thinking best effort`).
-55. [TODO] Git Commit: `feat: request Kimi native thinking best effort` (hash: TBD)
-56. [TODO] `harness-ai.phase8.stream1.task7` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-17 defect order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi telemetry build`).
+54. [DONE] `harness-ai.phase8.stream1.task6` Request Kimi native thinking best-effort: send `session/set_config_option {thinking, "on"}` at session open, keep the session alive on refusal and surface one honest diagnostic stream event (CLI `0.26.0` rejects the advertised option with `Internal error`; config-aliased models do not expose it at all — document the limitation); cover the request and refusal paths with tests (scope: `kimi-native-session/src/kimi-native-session-runtime.ts` + paired tests/docs; expected commit: `feat: request Kimi native thinking best effort`). Result: Completed in commit `feat: request Kimi native thinking best effort`.
+55. [DONE] Git Commit: `feat: request Kimi native thinking best effort` (hash: self)
+56. [IN_PROGRESS] `harness-ai.phase8.stream1.task7` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-17 defect order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi telemetry build`).
 57. [TODO] Git Commit: `chore: package Kimi telemetry build` (hash: TBD)
 58. [TODO] `harness-ai.phase8.stream1.task8` User verifies in the packaged app: a native Kimi session shows the subagent launch divider, the lower panel shows context window/Cache/Turns, the top panel shows 5h/weekly limits, and accepts the documented thinking limitation together with the profile-selective routing (completion: user-acceptance; scope: user workflow; expected commit: none).

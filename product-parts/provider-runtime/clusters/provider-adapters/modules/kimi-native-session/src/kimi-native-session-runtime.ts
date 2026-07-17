@@ -104,7 +104,27 @@ export class KimiNativeSessionRuntime {
     if (this.options.model) {
       await this.applyModel(this.options.model);
     }
+    await this.requestThinking(sessionId);
     return sessionId;
+  }
+
+  // Best-effort thinking: `session/new` advertises the thinking select
+  // (off|on), but CLI 0.26.0 rejects enabling it ("Internal error") and
+  // config-aliased models drop the option entirely. The request is still
+  // sent once per session so future CLI/model combinations that accept it
+  // start emitting agent_thought_chunk (already normalized into thinking
+  // bubbles) with no Harness change; a refusal surfaces one honest
+  // diagnostic and keeps the native session alive.
+  private async requestThinking(sessionId: string): Promise<void> {
+    await this.channel
+      .request("session/set_config_option", {
+        configId: "thinking",
+        sessionId,
+        value: "on",
+      })
+      .catch((error: Error) => {
+        this.emit(streamDiagnostic("kimi_thinking_unavailable", error.message));
+      });
   }
 
   async prompt(text: string, model?: string): Promise<void> {

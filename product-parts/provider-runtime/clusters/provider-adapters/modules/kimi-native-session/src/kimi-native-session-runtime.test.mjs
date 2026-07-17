@@ -143,8 +143,16 @@ try {
       '    write({ id: message.id, jsonrpc: "2.0", result: { sessionId: "kimi-s-1" } });',
       "  }",
       '  if (message.method === "session/set_config_option") {',
-      "    globalThis.selectedModel = message.params.value;",
-      '    write({ id: message.id, jsonrpc: "2.0", result: {} });',
+      '    if (message.params.configId === "thinking") {',
+      "      write({",
+      '        error: { code: -32603, message: "Internal error" },',
+      "        id: message.id,",
+      '        jsonrpc: "2.0",',
+      "      });",
+      "    } else {",
+      "      globalThis.selectedModel = message.params.value;",
+      '      write({ id: message.id, jsonrpc: "2.0", result: {} });',
+      "    }",
       "  }",
       '  if (message.method === "session/prompt") {',
       '    update("agent_thought_chunk", { content: { text: "thinking about it" } });',
@@ -188,6 +196,7 @@ try {
     event.type === "stream_event" ? `stream:${event.data.kind}` : event.type
   );
   assert.deepEqual(types, [
+    "stream:kimi_thinking_unavailable",
     "turn_started",
     "dialog_message",
     "dialog_message",
@@ -197,6 +206,12 @@ try {
     "stream:token_usage",
     "turn_completed",
   ]);
+  const thinkingDiagnostic = events.find(
+    (event) =>
+      event.type === "stream_event" &&
+      event.data.kind === "kimi_thinking_unavailable"
+  );
+  assert.match(thinkingDiagnostic.data.message, /Internal error/u);
   assert.deepEqual(usageReads, ["kimi-s-1"]);
   const storeUsage = events.filter(
     (event) =>

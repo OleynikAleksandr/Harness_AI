@@ -49,9 +49,15 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
 
 - `KimiNativeSessionRuntime` is one immutable binding: one runtime = one
   `kimi acp` child = one native CLI session. `open()` performs
-  `initialize` -> `session/new` and best-effort model selection through
-  `session/set_config_option` (the only config the Kimi ACP surface accepts;
-  a refusal emits a diagnostic stream event and keeps the native session).
+  `initialize` -> `session/new`, best-effort model selection through
+  `session/set_config_option` (a refusal emits a diagnostic stream event and
+  keeps the native session) and a best-effort thinking request
+  (`{configId: "thinking", value: "on"}`): `session/new` advertises the
+  thinking select, but CLI 0.26.0 rejects enabling it (`Internal error`) and
+  config-aliased models drop the option entirely, so a refusal surfaces one
+  honest `kimi_thinking_unavailable` diagnostic — future CLI/model
+  combinations that accept the option start emitting `agent_thought_chunk`
+  (already normalized into thinking bubbles) with no Harness change.
   `prompt(text, model?)` applies the per-turn Core session model the same
   best-effort way when it differs from the already-applied one (the driver
   forwards `ProviderTurnOptions.model`), emits `turn_started`, sends

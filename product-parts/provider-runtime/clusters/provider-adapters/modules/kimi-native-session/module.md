@@ -52,7 +52,10 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   `initialize` -> `session/new` and best-effort model selection through
   `session/set_config_option` (the only config the Kimi ACP surface accepts;
   a refusal emits a diagnostic stream event and keeps the native session).
-  `prompt()` emits `turn_started`, sends `session/prompt` with a
+  `prompt(text, model?)` applies the per-turn Core session model the same
+  best-effort way when it differs from the already-applied one (the driver
+  forwards `ProviderTurnOptions.model`), emits `turn_started`, sends
+  `session/prompt` with a
   30-minute turn timeout, flushes buffered text and emits `turn_completed`
   (with the CLI `stopReason` as the message) or `turn_failed`.
   `cancelTurn()` sends the `session/cancel` notification and keeps the CLI

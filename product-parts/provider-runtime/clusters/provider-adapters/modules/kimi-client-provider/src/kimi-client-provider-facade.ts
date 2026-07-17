@@ -1,11 +1,16 @@
-// Thin Kimi endpoint for the universal client. Holds Kimi's dialect specifics
-// (base URL, model, thinking form), builds the ClientTurnRequest, and exposes
-// the ProviderAdapter that Core session routing constructs: each session keeps
-// its in-memory message history, every turn runs through the Core client-core
-// agent loop, and stream events are emitted as NormalizedProviderEvents. The
-// Kimi Code subscription channel accepts a plain API key from a third-party
-// client (verified via OpenCode). Contract: docs/architecture/UniversalClient.md
-// sections 3.3 / 3.6.
+// Thin Kimi endpoint for the universal client plus the profile-selective
+// session router (2026-07-17 user order): sessions of the built-in native
+// profile delegate to the kimi-native-session ACP driver (installed Kimi
+// CLI, default agent, real provider home), while managed/legacy sessions run
+// the Core client-core agent loop with the materialized managed profile
+// really applied (leading system message + builtin tool whitelist). The
+// module holds Kimi's dialect specifics (base URL, model, thinking form),
+// builds the ClientTurnRequest, and exposes the one ProviderAdapter Core
+// session routing constructs for `kimi-client`. Each client session keeps
+// its in-memory message history and stream events are emitted as
+// NormalizedProviderEvents. The Kimi Code subscription channel accepts a
+// plain API key from a third-party client (verified via OpenCode). Contract:
+// docs/architecture/UniversalClient.md sections 3.3 / 3.6.
 
 import { randomUUID } from "node:crypto";
 import { createBuiltinToolSource } from "../../../../../../core-runtime/clusters/universal-client/modules/builtin-tools/src/builtin-tools-facade.js";
@@ -26,11 +31,22 @@ import {
 } from "../../../../../../core-runtime/clusters/universal-client/modules/tool-registry/src/tool-registry-facade.js";
 import type { NormalizedProviderEvent } from "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js";
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
+import {
+  isKimiNativeSessionId,
+  kimiNativeSessionDriver,
+} from "../../kimi-native-session/src/kimi-native-session-facade.js";
 import type {
   ProviderAdapter,
   ProviderEventListener,
+  ProviderInteractionDecision,
+  ProviderSessionStartOptions,
   ProviderTurnOptions,
+  SessionProfilePayload,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import {
+  buildKimiManagedSystemMessages,
+  selectKimiManagedTools,
+} from "./kimi-managed-profile-application.js";
 
 // Backward-compatible fallback for legacy callers that do not pass Core's
 // immutable session model in ProviderTurnOptions.
@@ -76,6 +92,7 @@ interface KimiClientSessionState {
   abort: AbortController | null;
   readonly listeners: Set<ProviderEventListener>;
   messages: readonly ClientMessage[];
+  readonly profile: SessionProfilePayload | undefined;
   readonly workspacePath: string;
 }
 
@@ -90,9 +107,19 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     this.registry.registerSource(createBuiltinToolSource());
   }
 
-  createSession(workspacePath?: string): Promise<string> {
+  createSession(
+    workspacePath?: string,
+    options?: ProviderSessionStartOptions
+  ): Promise<string> {
+    if (options?.profileKind === "native") {
+      // Native profile = the vendor CLI itself: the session runs on the
+      // kimi-native-session ACP driver, not the universal client.
+      return kimiNativeSessionDriver.createSession({
+        workspacePath: workspacePath ?? this.defaultWorkspacePath,
+      });
+    }
     const sessionId = `kimi-client-${randomUUID()}`;
-    this.ensureSession(sessionId, workspacePath);
+    this.ensureSession(sessionId, workspacePath, options);
     return Promise.resolve(sessionId);
   }
 
@@ -100,8 +127,17 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   // continues under the same provider session id. After a Core restart the
   // map is empty and the session resumes with a blank history (client session
   // history persistence is not part of the MVP).
-  resumeSession(sessionId: string, workspacePath?: string): Promise<string> {
-    this.ensureSession(sessionId, workspacePath);
+  resumeSession(
+    sessionId: string,
+    workspacePath?: string,
+    options?: ProviderSessionStartOptions
+  ): Promise<string> {
+    if (isKimiNativeSessionId(sessionId)) {
+      return kimiNativeSessionDriver.resumeSession(sessionId, {
+        workspacePath: workspacePath ?? this.defaultWorkspacePath,
+      });
+    }
+    this.ensureSession(sessionId, workspacePath, options);
     return Promise.resolve(sessionId);
   }
 
@@ -110,6 +146,15 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     content: string,
     turnOptions?: ProviderTurnOptions
   ): Promise<void> {
+    if (isKimiNativeSessionId(sessionId)) {
+      const model = turnOptions?.model;
+      await kimiNativeSessionDriver.sendMessage(
+        sessionId,
+        content,
+        typeof model === "string" && model.trim() ? model.trim() : undefined
+      );
+      return;
+    }
     const session = this.requireSession(sessionId);
     const apiKey = providerAuthStoreFacade.getApiKey("kimi-client");
     if (!apiKey) {
@@ -124,7 +169,10 @@ export class KimiClientProviderFacade implements ProviderAdapter {
       messages: [...session.messages, { content, role: "user" }],
       model: readTurnModel(turnOptions?.model),
       signal: abort.signal,
-      tools: this.registry.listDescriptors(),
+      tools: selectKimiManagedTools(
+        this.registry.listDescriptors(),
+        session.profile
+      ),
     });
     try {
       session.messages = await runClientTurn({
@@ -141,6 +189,9 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   }
 
   subscribe(sessionId: string, listener: ProviderEventListener): () => void {
+    if (isKimiNativeSessionId(sessionId)) {
+      return kimiNativeSessionDriver.subscribe(sessionId, listener);
+    }
     const session = this.requireSession(sessionId);
     session.listeners.add(listener);
     return () => session.listeners.delete(listener);
@@ -148,7 +199,11 @@ export class KimiClientProviderFacade implements ProviderAdapter {
 
   // Stop semantics (session-turn-stop contract): abort the in-flight turn but
   // keep the history so the next message resumes the same provider session id.
+  // Native sessions keep their CLI process alive the same way.
   closeSession(sessionId: string): Promise<void> {
+    if (isKimiNativeSessionId(sessionId)) {
+      return kimiNativeSessionDriver.stopSession(sessionId);
+    }
     const session = this.sessions.get(sessionId);
     if (session) {
       session.abort?.abort();
@@ -157,17 +212,40 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     return Promise.resolve();
   }
 
-  // Full cleanup for a removed session: drop the in-memory history.
-  deleteSessionArtifacts(providerSessionId: string): void {
+  respondToInteraction(
+    sessionId: string,
+    decision: ProviderInteractionDecision
+  ): Promise<void> {
+    if (isKimiNativeSessionId(sessionId)) {
+      kimiNativeSessionDriver.respondToInteraction(sessionId, decision);
+    }
+    return Promise.resolve();
+  }
+
+  // Full cleanup for a removed session: drop the in-memory history; a native
+  // session also stops its CLI child.
+  deleteSessionArtifacts(providerSessionId: string): Promise<void> | void {
+    if (isKimiNativeSessionId(providerSessionId)) {
+      return kimiNativeSessionDriver.deleteSession(providerSessionId);
+    }
     this.sessions.delete(providerSessionId);
   }
 
-  private ensureSession(sessionId: string, workspacePath?: string): void {
+  private ensureSession(
+    sessionId: string,
+    workspacePath?: string,
+    options?: ProviderSessionStartOptions
+  ): void {
     if (!this.sessions.has(sessionId)) {
+      const profile =
+        options?.profileKind === "managed" ? options.profile : undefined;
       this.sessions.set(sessionId, {
         abort: null,
         listeners: new Set(),
-        messages: [],
+        // The managed profile prompt opens the history once as its system
+        // message; runClientTurn then carries it forward with the history.
+        messages: buildKimiManagedSystemMessages(profile),
+        profile,
         workspacePath: workspacePath ?? this.defaultWorkspacePath,
       });
     }

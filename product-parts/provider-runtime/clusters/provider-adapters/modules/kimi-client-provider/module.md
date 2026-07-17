@@ -2,8 +2,15 @@
 
 ## Responsibility
 
-The thin Kimi endpoint for the Core universal client. Holds Kimi's dialect
-specifics — the Kimi Code subscription coding endpoint
+The thin Kimi endpoint for the Core universal client and, since the
+2026-07-17 profile-routing order, the profile-selective session router for
+the one `kimi-client` adapter: sessions created with the built-in `native`
+profile (`ProviderSessionStartOptions.profileKind === "native"`) delegate
+create/resume/send/subscribe/stop/delete/respond to the
+`kimi-native-session` ACP driver (installed Kimi CLI, default agent, real
+provider home; provider session ids are marked by `isKimiNativeSessionId`),
+while managed/legacy sessions keep running the universal client. Holds
+Kimi's dialect specifics — the Kimi Code subscription coding endpoint
 (`api.kimi.com/coding/v1`), the Core session-selected Coding Plan model, and
 the `reasoning_content` thinking form — builds the `ClientTurnRequest`, and exposes
 the `ProviderAdapter` that Core session routing constructs. This module stays
@@ -53,6 +60,23 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
   (`closeSession`) aborts the in-flight turn but keeps the history for
   resume-on-send; `deleteSessionArtifacts` drops the in-memory state. Session
   history does not persist across a Core restart (client MVP).
+- Managed profile application (`kimi-managed-profile-application.ts`):
+  managed sessions really apply the materialized profile on the universal
+  client — the profile prompt opens the session history exactly once as its
+  leading system message, and the provider-neutral tooling categories select
+  the builtin tool whitelist through `KIMI_CLIENT_TOOL_CATEGORY_MAP`
+  (`file-read` -> read/grep/glob, `file-write` -> write/edit/apply_patch,
+  `git`/`shell`/`tests` -> exec_command, `web` -> web_fetch/web_search).
+  Unknown categories are contract no-ops; raw `profile.tools` schemas are not
+  registered because the universal client executes only its builtin
+  inventory. Sessions without a managed payload keep the full inventory.
+- Native routing: `createSession` with `profileKind: "native"` returns the
+  driver's `kimi-native-<uuid>` session id; every later adapter call for
+  such an id (send with the per-turn Core model, subscribe, Stop as
+  turn-cancel, delete as child shutdown, `respondToInteraction` for CLI
+  permission asks) forwards to the `kimi-native-session` facade. The
+  standalone ACP provider id `kimi` stays retired — routing lives inside
+  `kimi-client`.
 
 ## Owned Paths
 

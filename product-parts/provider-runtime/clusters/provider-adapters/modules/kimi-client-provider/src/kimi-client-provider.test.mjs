@@ -19,7 +19,44 @@ const source = readFileSync(
   )
   .replace(
     /import \{ createBuiltinToolSource \}[^\n]*\n/u,
-    'const createBuiltinToolSource = () => ({ execute: () => Promise.resolve({ output: "" }), list: () => [{ description: "echo", name: "echo", parametersSchema: {}, qualifiedName: "echo", source: "builtin" }], source: "builtin" });\n'
+    'const createBuiltinToolSource = () => ({ execute: () => Promise.resolve({ output: "" }), list: () => ["read_file", "web_fetch", "echo"].map((name) => ({ description: name, name, parametersSchema: {}, qualifiedName: name, source: "builtin" })), source: "builtin" });\n'
+  )
+  .replace(
+    /import \{\n\s*isKimiNativeSessionId,\n\s*kimiNativeSessionDriver,\n\} from[^\n]*\n/u,
+    [
+      "const isKimiNativeSessionId = (sessionId) =>",
+      '  sessionId.startsWith("kimi-native-");',
+      "const kimiNativeSessionDriver = {",
+      "  createSession: (options) => {",
+      '    globalThis.__kimiNativeCalls.push(["create", options.workspacePath]);',
+      '    return Promise.resolve("kimi-native-test-1");',
+      "  },",
+      "  deleteSession: (sessionId) => {",
+      '    globalThis.__kimiNativeCalls.push(["delete", sessionId]);',
+      "    return Promise.resolve();",
+      "  },",
+      "  respondToInteraction: (sessionId, decision) => {",
+      '    globalThis.__kimiNativeCalls.push(["respond", sessionId, decision.outcome]);',
+      "  },",
+      "  resumeSession: (sessionId, options) => {",
+      '    globalThis.__kimiNativeCalls.push(["resume", sessionId, options.workspacePath]);',
+      "    return Promise.resolve(sessionId);",
+      "  },",
+      "  sendMessage: (sessionId, content, model) => {",
+      '    globalThis.__kimiNativeCalls.push(["send", sessionId, content, model ?? null]);',
+      "    return Promise.resolve();",
+      "  },",
+      "  stopSession: (sessionId) => {",
+      '    globalThis.__kimiNativeCalls.push(["stop", sessionId]);',
+      "    return Promise.resolve();",
+      "  },",
+      "  subscribe: (sessionId) => {",
+      '    globalThis.__kimiNativeCalls.push(["subscribe", sessionId]);',
+      "    return () => undefined;",
+      "  },",
+      "};",
+      "",
+    ].join("\n")
   )
   .replace(
     /import \{\n\s*mapClientTurnEvent,\n\s*runClientTurn,\n\} from[^\n]*\n/u,
@@ -34,6 +71,7 @@ const source = readFileSync(
       "const runClientTurn = (params) => {",
       "  globalThis.__kimiClientTestTurns.push(params.request.messages.map((m) => m.role));",
       "  globalThis.__kimiClientTestModels.push(params.request.model);",
+      "  globalThis.__kimiClientTestTools.push(params.request.tools.map((t) => t.name));",
       '  params.onEvent({ kind: "turn_started" });',
       "  if (globalThis.__kimiClientTestFail) {",
       '    params.onEvent({ error: "provider_error", kind: "turn_failed", text: "boom" });',
@@ -58,12 +96,30 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 
+const managedApplicationCompiled = ts.transpileModule(
+  readFileSync(
+    new URL("./kimi-managed-profile-application.ts", import.meta.url),
+    "utf8"
+  ),
+  {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  }
+).outputText;
+
 const buildDir = await mkdtemp(path.join(tmpdir(), "kimi-client-provider-"));
 
 try {
   writeFileSync(
     path.join(buildDir, "kimi-client-provider-facade.js"),
     compiled,
+    "utf8"
+  );
+  writeFileSync(
+    path.join(buildDir, "kimi-managed-profile-application.js"),
+    managedApplicationCompiled,
     "utf8"
   );
   const {
@@ -106,7 +162,9 @@ try {
   globalThis.__kimiClientTestApiKey = "sk-live";
   globalThis.__kimiClientTestModels = [];
   globalThis.__kimiClientTestTurns = [];
+  globalThis.__kimiClientTestTools = [];
   globalThis.__kimiClientTestFail = false;
+  globalThis.__kimiNativeCalls = [];
 
   const adapter = new KimiClientProviderFacade("/ws");
   const sessionId = await adapter.createSession();
@@ -180,11 +238,74 @@ try {
   );
   assert.equal(failEvents[2].message, "boom");
 
+  // --- Profile-selective routing ---
+  globalThis.__kimiClientTestFail = false;
+
+  // Native profile sessions delegate every adapter surface to the ACP driver.
+  const nativeSessionId = await adapter.createSession("/ws", {
+    profileKind: "native",
+  });
+  assert.equal(nativeSessionId, "kimi-native-test-1");
+  adapter.subscribe(nativeSessionId, () => undefined);
+  await adapter.sendMessage(nativeSessionId, "go native", { model: "k3" });
+  await adapter.closeSession(nativeSessionId);
+  await adapter.respondToInteraction(nativeSessionId, {
+    interactionId: "kimi-interaction:1",
+    optionId: "allow",
+    outcome: "selected",
+  });
+  await adapter.resumeSession(nativeSessionId, "/ws");
+  await adapter.deleteSessionArtifacts(nativeSessionId);
+  assert.deepEqual(globalThis.__kimiNativeCalls, [
+    ["create", "/ws"],
+    ["subscribe", "kimi-native-test-1"],
+    ["send", "kimi-native-test-1", "go native", "k3"],
+    ["stop", "kimi-native-test-1"],
+    ["respond", "kimi-native-test-1", "selected"],
+    ["resume", "kimi-native-test-1", "/ws"],
+    ["delete", "kimi-native-test-1"],
+  ]);
+
+  // Managed profile sessions stay on the universal client and really apply
+  // the materialized profile: leading system message + tool whitelist.
+  const managedSession = await adapter.createSession("/ws", {
+    profile: {
+      contentHash: "hash-1",
+      profileId: "custom-1",
+      profileName: "Custom",
+      prompt: "Act as the workspace butler.",
+      toolingCategories: { "file-read": true, unknown: true, web: false },
+    },
+    profileKind: "managed",
+  });
+  assert.ok(managedSession.startsWith("kimi-client-"));
+  await adapter.sendMessage(managedSession, "hello there");
+  assert.deepEqual(globalThis.__kimiClientTestTurns.at(-1), ["system", "user"]);
+  assert.deepEqual(globalThis.__kimiClientTestTools.at(-1), ["read_file"]);
+
+  // The system message persists in history exactly once across turns.
+  await adapter.sendMessage(managedSession, "and again");
+  assert.deepEqual(globalThis.__kimiClientTestTurns.at(-1), [
+    "system",
+    "user",
+    "assistant",
+    "user",
+  ]);
+
+  // Sessions without a managed profile keep the full builtin inventory.
+  assert.deepEqual(globalThis.__kimiClientTestTools[0], [
+    "read_file",
+    "web_fetch",
+    "echo",
+  ]);
+
   console.log("kimi-client-provider tests passed");
 } finally {
   globalThis.__kimiClientTestApiKey = undefined;
   globalThis.__kimiClientTestModels = undefined;
   globalThis.__kimiClientTestTurns = undefined;
+  globalThis.__kimiClientTestTools = undefined;
   globalThis.__kimiClientTestFail = undefined;
+  globalThis.__kimiNativeCalls = undefined;
   await rm(buildDir, { recursive: true, force: true });
 }

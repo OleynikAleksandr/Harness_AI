@@ -33,6 +33,7 @@ const PROMPT_TIMEOUT_MS = 30 * 60_000;
 // native profile path.
 export class KimiNativeSessionRuntime {
   private acpSessionId: string | null = null;
+  private appliedModel: string | null = null;
   private readonly channel: KimiAcpSessionProcess;
   private readonly normalizer = new KimiSessionEventNormalizer();
   private readonly options: KimiNativeSessionRuntimeOptions;
@@ -87,25 +88,18 @@ export class KimiNativeSessionRuntime {
     }
     this.acpSessionId = sessionId;
     if (this.options.model) {
-      // Model selection is the only config the Kimi ACP surface accepts;
-      // a refusal must not kill the native session.
-      await this.channel
-        .request("session/set_config_option", {
-          configId: "model",
-          sessionId,
-          value: this.options.model,
-        })
-        .catch((error: Error) => {
-          this.emit(
-            streamDiagnostic("kimi_model_selection_failed", error.message)
-          );
-        });
+      await this.applyModel(this.options.model);
     }
     return sessionId;
   }
 
-  async prompt(text: string): Promise<void> {
+  async prompt(text: string, model?: string): Promise<void> {
     const sessionId = await this.open();
+    if (model) {
+      // The Core session model arrives with the turn; select it before the
+      // prompt when it differs from what the CLI session already applied.
+      await this.applyModel(model);
+    }
     this.turnActive = true;
     this.emit(lifecycleEvent("turn_started"));
     try {
@@ -151,6 +145,27 @@ export class KimiNativeSessionRuntime {
   async close(): Promise<void> {
     this.acpSessionId = null;
     await this.channel.stop();
+  }
+
+  // Model selection is the only config the Kimi ACP surface accepts; a
+  // refusal must not kill the native session. The requested value is
+  // remembered either way so a rejecting CLI is not re-asked every turn.
+  private async applyModel(model: string): Promise<void> {
+    if (!this.acpSessionId || model === this.appliedModel) {
+      return;
+    }
+    this.appliedModel = model;
+    await this.channel
+      .request("session/set_config_option", {
+        configId: "model",
+        sessionId: this.acpSessionId,
+        value: model,
+      })
+      .catch((error: Error) => {
+        this.emit(
+          streamDiagnostic("kimi_model_selection_failed", error.message)
+        );
+      });
   }
 
   private handleNotification(notification: KimiAcpNotification): void {

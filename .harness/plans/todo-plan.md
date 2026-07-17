@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task8",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase8.stream1.task2",
+  "expectedCommitMessage": "feat: surface Kimi native subagents",
   "debt": null
 }
 ```
@@ -41,6 +41,20 @@
   return. This user order supersedes the earlier "the removed ACP session
   provider does not return" doc rule, which must be rewritten to the
   selective model.
+- **Planning source (stream 4):** user defect feedback 2026-07-17 on the
+  packaged profile-routing build (workspace `/Users/oleksandroliinyk/VSCODE/Test_md/`):
+  native Kimi sessions show no thinking bubbles, no subagent activity (must
+  match Claude/Codex), an empty lower status panel (context window, cache,
+  turns) and empty top usage limits. Live diagnosis: Kimi CLI `0.26.0` sends
+  subagents only as `Agent`/`AgentSwarm` tool_call updates (result carries
+  `agent_id`/`actual_subagent_type`/`status`), sends NO `usage_update`
+  notifications (usage lives in the session store `wire.jsonl`
+  `usage.record` rows incl. `inputCacheRead`), the limits endpoint
+  `GET /coding/v1/usages` works with the config-TOML key, and
+  `session/set_config_option {thinking, "on"}` is rejected by the CLI
+  (`Internal error`) even though `session/new` advertises the option —
+  thinking stays a best-effort request with an honest diagnostic. The user
+  pre-authorized packaging the fixed build in the same order.
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Readable architecture projection:** `.harness/product-tree/product-tree.md`.
@@ -162,4 +176,24 @@
 40. [DONE] Git Commit: `docs: record Kimi profile-selective routing` (hash: self)
 41. [DONE] `harness-ai.phase7.stream1.task7` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi profile routing build`). Result: Completed in commit `chore: package Kimi profile routing build`.
 42. [DONE] Git Commit: `chore: package Kimi profile routing build` (hash: self)
-43. [IN_PROGRESS] `harness-ai.phase7.stream1.task8` User verifies a native-profile Kimi session runs through the installed Kimi CLI (native system prompt/tools visible in behavior) and a managed-profile Kimi session runs through the universal client with the profile prompt applied (completion: user-acceptance; scope: user workflow; expected commit: none).
+43. [DONE] `harness-ai.phase7.stream1.task8` User verifies a native-profile Kimi session runs through the installed Kimi CLI (native system prompt/tools visible in behavior) and a managed-profile Kimi session runs through the universal client with the profile prompt applied (completion: user-acceptance; scope: user workflow; expected commit: none). Result: Superseded by the 2026-07-17 defect feedback (plan migration): the user reported missing thinking bubbles, subagent visibility, status-panel telemetry and top limits; acceptance moves to `harness-ai.phase8.stream1.task8`, which covers routing plus the telemetry fixes together.
+
+## Phase 8 - Kimi Native Session Telemetry (owner: Codex, updated: 2026-07-17)
+
+### Stream: Subagents, Status Panel, Limits And Thinking
+
+44. [DONE] `harness-ai.phase8.stream1.task1` Extend the active scope with the Kimi session telemetry stream fixing the 2026-07-17 defect feedback: native subagent visibility, status-panel Tokens/Cache/Turns, top usage limits and best-effort thinking (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add Kimi session telemetry stream`). Result: Completed in commit `plan: add Kimi session telemetry stream`.
+45. [DONE] Git Commit: `plan: add Kimi session telemetry stream` (hash: self)
+46. [IN_PROGRESS] `harness-ai.phase8.stream1.task2` Surface Kimi native subagents: synthesize the provider-neutral subagent lifecycle from `Agent`/`AgentSwarm` tool calls (spawn control+session on the tool call with a `kimi-agent-<toolCallId>` child id, task from streamed `rawInput.description`/`prompt`, agent role from the result's `actual_subagent_type`, terminal status from the completed/failed tool update) so the dialog shows the same subagent divider as Claude/Codex; cover the synthesis with tests and synchronize module docs (scope: `kimi-native-session/src/kimi-subagent-normalizer.ts, kimi-native-session/src/kimi-session-event-normalizer.ts` + paired tests/docs; expected commit: `feat: surface Kimi native subagents`).
+47. [TODO] Git Commit: `feat: surface Kimi native subagents` (hash: TBD)
+48. [TODO] `harness-ai.phase8.stream1.task3` Read Kimi native token usage from the CLI session store: locate `sessions/*/<acpSessionId>/agents/main/wire.jsonl` in the real provider home, take the latest `usage.record`/`step.end` row (`used = inputOther+output+inputCacheRead+inputCacheCreation`, `cached = inputCacheRead`, limit from the config `max_context_size` with the verified 262144 default) and emit the shared `token_usage` stream event after every native turn (the CLI sends no live `usage_update`); cover row parsing and turn-end emission with tests (scope: `kimi-native-session/src/kimi-session-usage-reader.ts, kimi-native-session/src/kimi-native-session-runtime.ts` + paired tests/docs; expected commit: `feat: read Kimi native token usage`).
+49. [TODO] Git Commit: `feat: read Kimi native token usage` (hash: TBD)
+50. [TODO] `harness-ai.phase8.stream1.task4` Declare Kimi in the Core status-panel capability tables: `kimi-client` shows Cache and Turns (no rollback), the default token limit becomes the verified native context `262144`, and the default cached counter starts at `0` like the other cache-capable providers; cover the capability set with tests and synchronize telemetry docs (scope: `usage-context-telemetry/src/usage-context-status-panel.ts` + paired tests/docs; expected commit: `feat: enable Kimi status panel telemetry`).
+51. [TODO] Git Commit: `feat: enable Kimi status panel telemetry` (hash: TBD)
+52. [TODO] `harness-ai.phase8.stream1.task5` Broadcast Kimi usage limits to the top panel: restore the verified `GET https://api.kimi.com/coding/v1/usages` reader (Bearer key from the Harness kimi-client auth store with the CLI config-TOML `api_key` fallback; `limits[0].detail` -> 5h bucket, `usage` -> weekly bucket) behind `refreshUsageLimits` on the Kimi adapter for both native and client sessions, and register `kimi-client` in the pending/scope/fallback label tables; cover payload parsing and broadcast with tests (scope: `kimi-client-provider/src/kimi-usage-limits.ts, kimi-client-provider/src/kimi-client-provider-facade.ts, usage-context-telemetry/src/usage-context-telemetry-facade.ts` + paired tests/docs; expected commit: `feat: broadcast Kimi usage limits`).
+53. [TODO] Git Commit: `feat: broadcast Kimi usage limits` (hash: TBD)
+54. [TODO] `harness-ai.phase8.stream1.task6` Request Kimi native thinking best-effort: send `session/set_config_option {thinking, "on"}` at session open, keep the session alive on refusal and surface one honest diagnostic stream event (CLI `0.26.0` rejects the advertised option with `Internal error`; config-aliased models do not expose it at all — document the limitation); cover the request and refusal paths with tests (scope: `kimi-native-session/src/kimi-native-session-runtime.ts` + paired tests/docs; expected commit: `feat: request Kimi native thinking best effort`).
+55. [TODO] Git Commit: `feat: request Kimi native thinking best effort` (hash: TBD)
+56. [TODO] `harness-ai.phase8.stream1.task7` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-17 defect order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi telemetry build`).
+57. [TODO] Git Commit: `chore: package Kimi telemetry build` (hash: TBD)
+58. [TODO] `harness-ai.phase8.stream1.task8` User verifies in the packaged app: a native Kimi session shows the subagent launch divider, the lower panel shows context window/Cache/Turns, the top panel shows 5h/weekly limits, and accepts the documented thinking limitation together with the profile-selective routing (completion: user-acceptance; scope: user workflow; expected commit: none).

@@ -61,7 +61,8 @@ export interface HarnessSettings {
     grok: ProviderCommonSettings & {
       reasoningByModel: Record<string, ReasoningEffort>;
     };
-    kimiClient: ProviderClientKeySettings;
+    kimiClient: ProviderClientKeySettings &
+      Pick<ProviderCommonSettings, "autoUpdate" | "sessionContinuity">;
     glmClient: ProviderClientKeySettings & {
       reasoningEffort: ReasoningEffort;
     };
@@ -157,7 +158,9 @@ const DEFAULT_SETTINGS: HarnessSettings = {
     },
     kimiClient: {
       apiKey: "",
+      autoUpdate: { enabled: false },
       defaultModel: "kimi-for-coding",
+      sessionContinuity: { remainingPercentThreshold: 30 },
     },
     glmClient: {
       apiKey: "",

@@ -50,6 +50,15 @@ Own global and workspace settings persistence.
   (`providers/kimi-client/settings.json`) on save like the other key-based
   providers, and reads back through the auth overlay, so
   `getApiKey("kimi-client")` and the Settings UI see one value.
+  Since the 2026-07-17 Kimi settings parity stream the section additionally
+  carries the common `autoUpdate` (default `{ enabled: false }`, projected
+  into the system settings file like the other providers' auto-update flags)
+  and `sessionContinuity` (default `{ remainingPercentThreshold: 30 }`,
+  projected into the workspace settings file like `workspaceCommon`) keys via
+  `Pick<ProviderCommonSettings, ...>`; the auth-store overlay/sync still
+  exchanges only the string connection fields, so these two keys live purely
+  in the settings files. Like every provider, the stored continuity threshold
+  has no runtime consumer yet — it is settings truth for the Settings surface.
 - The `glm-client` provider has its dedicated `providers.glmClient` section
   for the universal-client GLM endpoint: `apiKey`, `defaultModel`, and
   `reasoningEffort`. It is key-only (`baseUrl` is owned by the GLM dialect

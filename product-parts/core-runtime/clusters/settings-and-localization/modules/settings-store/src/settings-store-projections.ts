@@ -21,6 +21,7 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
       grok: { autoUpdate: settings.providers.grok.autoUpdate },
       kimiClient: {
         apiKey: settings.providers.kimiClient.apiKey,
+        autoUpdate: settings.providers.kimiClient.autoUpdate,
         defaultModel: settings.providers.kimiClient.defaultModel,
       },
       glmClient: {
@@ -61,6 +62,9 @@ export function workspaceSettingsFrom(
       grok: {
         ...workspaceCommon(settings.providers.grok),
         reasoningByModel: settings.providers.grok.reasoningByModel,
+      },
+      kimiClient: {
+        sessionContinuity: settings.providers.kimiClient.sessionContinuity,
       },
       localModels: {
         defaultModel: settings.providers.localModels.defaultModel,

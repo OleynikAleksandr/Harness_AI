@@ -170,6 +170,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   client, the live pre-package smoke on the installed CLI `0.26.0`
   ("HARNESS NATIVE OK" native turn), commit gates and the packaged
   `app.asar` checksum with binary-grep proof.
+- `docs/evidence/kimi-telemetry-package-2026-07-17.md` — Kimi session
+  telemetry packaging evidence for the same-day defect feedback: synthesized
+  native subagent lifecycle from `Agent`/`AgentSwarm` tool calls, per-turn
+  token/cache usage from the CLI session store, status-panel capabilities
+  and top usage limits for `kimi-client`, the documented CLI `0.26.0`
+  thinking limitation with the best-effort request, the live subagent smoke
+  and the packaged `app.asar` checksum.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

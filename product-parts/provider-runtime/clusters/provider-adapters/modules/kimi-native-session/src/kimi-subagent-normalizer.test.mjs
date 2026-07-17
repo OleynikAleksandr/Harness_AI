@@ -192,6 +192,28 @@ try {
   assert.equal(parsedTask.length, 1);
   assert.equal(parsedTask[0].type, "subagent_session");
   assert.equal(parsedTask[0].task, "Read files in parallel (2 agents)");
+
+  // Live polling registers store-observed agents while the swarm runs; the
+  // duplicate registration is a no-op.
+  assert.deepEqual(swarm.liveSwarmCallIds(), ["swarm-9"]);
+  const liveSpawns = swarm.registerLiveSwarmAgents("swarm-9", [
+    { agentId: "agent-0", prompt: "Read a.md now" },
+  ]);
+  assert.equal(liveSpawns.length, 2);
+  assert.equal(liveSpawns[0].type, "subagent_control");
+  assert.deepEqual(liveSpawns[0].receiverProviderSessionIds, [
+    "kimi-agent-swarm-9:agent-0",
+  ]);
+  assert.equal(liveSpawns[1].type, "subagent_session");
+  assert.equal(liveSpawns[1].task, "Read a.md now");
+  assert.equal(liveSpawns[1].agentRole, "explore");
+  assert.deepEqual(
+    swarm.registerLiveSwarmAgents("swarm-9", [
+      { agentId: "agent-0", prompt: "Read a.md now" },
+    ]),
+    []
+  );
+
   const swarmTerminal = swarm.normalizeToolUpdate({
     content: [
       {
@@ -206,12 +228,13 @@ try {
     status: "completed",
     toolCallId: "swarm-9",
   });
+  // agent-0 already exists from live polling; only agent-1 spawns here.
   const agentSpawns = swarmTerminal.filter(
     (event) => event.type === "subagent_control"
   );
   assert.deepEqual(
     agentSpawns.map((event) => event.receiverProviderSessionIds[0]),
-    ["kimi-agent-swarm-9:agent-0", "kimi-agent-swarm-9:agent-1"]
+    ["kimi-agent-swarm-9:agent-1"]
   );
   assert.equal(agentSpawns[0].prompt, "Read files in parallel (2 agents)");
   const terminalStatuses = new Map(
@@ -232,6 +255,13 @@ try {
   );
   assert.equal(agentZeroSessions[0].agentRole, "explore");
   assert.equal(agentZeroSessions[0].task, "a.md");
+  assert.deepEqual(swarm.liveSwarmCallIds(), []);
+  assert.deepEqual(
+    swarm.registerLiveSwarmAgents("swarm-9", [
+      { agentId: "agent-2", prompt: "late" },
+    ]),
+    []
+  );
 
   // Integration: the session event normalizer interleaves subagent events
   // with the ordinary tool stream events.

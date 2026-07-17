@@ -30,6 +30,13 @@ interface ParsedSubagentInput {
   readonly subagentType: string | null;
 }
 
+// One live swarm agent observed in the CLI session store while the swarm
+// still runs (`agents/agent-<n>/`, delegated prompt from its wire).
+export interface KimiLiveSwarmAgent {
+  readonly agentId: string;
+  readonly prompt: string | null;
+}
+
 interface ParsedSwarmAgentResult {
   readonly agentId: string;
   readonly item: string | null;
@@ -94,6 +101,42 @@ export class KimiSubagentNormalizer {
         ...(entry.swarm
           ? this.swarmTerminalEvents(parent, toolCallId, entry, update, status)
           : this.agentTerminalEvents(parent, entry, update, status))
+      );
+    }
+    return events;
+  }
+
+  // Tool call ids of swarms that are still running — the runtime polls the
+  // session store only while this is non-empty.
+  liveSwarmCallIds(): string[] {
+    return [...this.tracked.entries()]
+      .filter(([, entry]) => entry.swarm && !entry.terminal)
+      .map(([toolCallId]) => toolCallId);
+  }
+
+  // Register agents the session-store poller observed for a running swarm:
+  // every unseen agent spawns as a running child so the launch divider grows
+  // live. Terminal statuses stay with the swarm result.
+  registerLiveSwarmAgents(
+    toolCallId: string,
+    agents: readonly KimiLiveSwarmAgent[]
+  ): ProviderSubagentEvent[] {
+    const parent = this.parentProviderSessionId;
+    const entry = this.tracked.get(toolCallId);
+    if (!(parent && entry?.swarm) || entry.terminal) {
+      return [];
+    }
+    const events: ProviderSubagentEvent[] = [];
+    const role = entry.parsedInput?.subagentType ?? null;
+    for (const agent of agents) {
+      if (entry.agents.has(agent.agentId)) {
+        continue;
+      }
+      const childId = `${entry.childId}:${agent.agentId}`;
+      entry.agents.set(agent.agentId, { childId, terminal: false });
+      events.push(
+        spawnControl(parent, toolCallId, childId, entry.task),
+        sessionEvent(parent, childId, "running", agent.prompt, role)
       );
     }
     return events;

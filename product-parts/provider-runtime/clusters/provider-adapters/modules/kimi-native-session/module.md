@@ -88,8 +88,14 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   (`kimi-agent-<toolCallId>:<agent_id>`, task = its `item`, spawned under
   the same call so the divider counter is honest) and closes each with its
   reported outcome (`completed` -> completed, `aborted` -> interrupted,
-  anything else -> failed) before closing the swarm's root child. This feeds
-  the same Core subagent graph and dialog launch divider Claude/Codex use. The synthetic child ids are marked by
+  anything else -> failed) before closing the swarm's root child. While a
+  swarm still runs the normalizer also accepts live registrations from the
+  session-store poller (`liveSwarmCallIds`/`registerLiveSwarmAgents`,
+  proxied through `KimiSessionEventNormalizer`): every store-observed agent
+  spawns immediately as a running child with its delegated prompt as the
+  task, so the launch divider grows while the swarm works instead of
+  jumping at the end. This feeds the same Core subagent graph and dialog
+  launch divider Claude/Codex use. The synthetic child ids are marked by
   `isKimiNativeSubagentSessionId` (`kimi-agent-*`): Core's child-session
   adoption binds them onto the parent's adapter, which must serve them as an
   inert channel — a Kimi subagent has no provider channel of its own. The
@@ -137,6 +143,18 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   shared `token_usage` stream event with
   `used = inputOther + output + inputCacheRead + inputCacheCreation`,
   `cached = inputCacheRead` and the verified `262144` native context limit.
+- Live swarm progress (`kimi-swarm-progress-reader.ts`): the ACP stream is
+  silent while an AgentSwarm executes (verified on the 2026-07-17 headless
+  probe), so during an active turn the runtime polls the CLI session store
+  every 2 s for `agents/agent-<n>/` homes and registers each observed agent
+  through the normalizer as a live running child (task = the delegated
+  prompt from the agent wire's first `turn.prompt` row, stripped of leading
+  context tags). Polling attributes agents only while exactly one swarm is
+  running (the store carries no tool-call linkage; parallel swarms fall
+  back to the terminal swarm result) and deliberately reports no terminal
+  state — an agent wire has no reliable terminal row (a follow-up
+  `turn.prompt` revives a finished-looking agent), so terminal statuses
+  come from the swarm result or the turn end.
 
 ## Owned Paths
 

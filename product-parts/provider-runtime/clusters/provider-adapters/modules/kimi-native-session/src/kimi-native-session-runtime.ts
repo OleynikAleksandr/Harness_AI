@@ -18,6 +18,8 @@ import {
   type KimiSessionTokenUsage,
   readKimiSessionTokenUsage,
 } from "./kimi-session-usage-reader.js";
+import type { KimiLiveSwarmAgent } from "./kimi-subagent-normalizer.js";
+import { readKimiSwarmAgents } from "./kimi-swarm-progress-reader.js";
 
 export interface KimiNativeSessionRuntimeOptions {
   readonly model?: string;
@@ -27,6 +29,12 @@ export interface KimiNativeSessionRuntimeOptions {
   readonly processOverrides?: Partial<KimiAcpSessionProcessOptions>;
   // The Core-visible provider session id; parents synthesized subagents.
   readonly providerSessionId?: string;
+  // Test/DI override for the session-store swarm-agent reader.
+  readonly swarmAgentReader?: (
+    acpSessionId: string
+  ) => readonly KimiLiveSwarmAgent[];
+  // Test/DI override for the live-swarm poll cadence.
+  readonly swarmPollIntervalMs?: number;
   // Test/DI override for the session-store usage reader.
   readonly usageReader?: (acpSessionId: string) => KimiSessionTokenUsage | null;
   readonly workspacePath: string;
@@ -36,6 +44,9 @@ const HANDSHAKE_TIMEOUT_MS = 30_000;
 // A native turn can legitimately run for many minutes of agentic work; the
 // prompt request must not fall into the default wire timeout.
 const PROMPT_TIMEOUT_MS = 30 * 60_000;
+// The ACP stream is silent while a swarm executes; live progress comes from
+// polling the CLI session store at this cadence.
+const SWARM_POLL_INTERVAL_MS = 2000;
 
 // One immutable binding: one runtime = one `kimi acp` child = one native CLI
 // session with the default agent and the user's real provider home. The
@@ -48,6 +59,7 @@ export class KimiNativeSessionRuntime {
   private readonly channel: KimiAcpSessionProcess;
   private readonly normalizer = new KimiSessionEventNormalizer();
   private readonly options: KimiNativeSessionRuntimeOptions;
+  private swarmPollTimer: NodeJS.Timeout | null = null;
   private turnActive = false;
 
   constructor(options: KimiNativeSessionRuntimeOptions) {
@@ -136,6 +148,7 @@ export class KimiNativeSessionRuntime {
     }
     this.turnActive = true;
     this.emit(lifecycleEvent("turn_started"));
+    this.startSwarmPolling(sessionId);
     try {
       const result = await this.channel.request<Record<string, unknown>>(
         "session/prompt",
@@ -163,7 +176,45 @@ export class KimiNativeSessionRuntime {
         )
       );
     } finally {
+      this.stopSwarmPolling();
       this.turnActive = false;
+    }
+  }
+
+  // Live swarm progress: while a turn runs, poll the CLI session store for
+  // spawned swarm agents (the ACP stream is silent during swarm execution).
+  // Attribution needs exactly one running swarm — the store's agent homes
+  // carry no tool-call linkage, so parallel swarms fall back to the terminal
+  // swarm result.
+  private startSwarmPolling(acpSessionId: string): void {
+    if (this.swarmPollTimer) {
+      return;
+    }
+    this.swarmPollTimer = setInterval(
+      () => this.pollSwarmAgents(acpSessionId),
+      this.options.swarmPollIntervalMs ?? SWARM_POLL_INTERVAL_MS
+    );
+    this.swarmPollTimer.unref?.();
+  }
+
+  private stopSwarmPolling(): void {
+    if (this.swarmPollTimer) {
+      clearInterval(this.swarmPollTimer);
+      this.swarmPollTimer = null;
+    }
+  }
+
+  private pollSwarmAgents(acpSessionId: string): void {
+    const callIds = this.normalizer.liveSwarmCallIds();
+    if (callIds.length !== 1) {
+      return;
+    }
+    const reader = this.options.swarmAgentReader ?? readKimiSwarmAgents;
+    for (const event of this.normalizer.registerLiveSwarmAgents(
+      callIds[0],
+      reader(acpSessionId)
+    )) {
+      this.emit(event);
     }
   }
 
@@ -196,6 +247,7 @@ export class KimiNativeSessionRuntime {
   }
 
   async close(): Promise<void> {
+    this.stopSwarmPolling();
     this.acpSessionId = null;
     await this.channel.stop();
   }

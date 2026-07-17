@@ -18,6 +18,7 @@ try {
     "kimi-subagent-normalizer.ts",
     "kimi-session-event-normalizer.ts",
     "kimi-session-usage-reader.ts",
+    "kimi-swarm-progress-reader.ts",
     "kimi-native-session-runtime.ts",
     "kimi-interaction-bridge.ts",
     "kimi-native-session-facade.ts",

@@ -32,6 +32,7 @@ try {
     "kimi-subagent-normalizer.ts",
     "kimi-session-event-normalizer.ts",
     "kimi-session-usage-reader.ts",
+    "kimi-swarm-progress-reader.ts",
     "kimi-native-session-runtime.ts",
   ]) {
     const source = readFileSync(
@@ -270,6 +271,102 @@ try {
   assert.ok(failureTypes.includes("turn_failed"));
   assert.ok(failureTypes.includes("stream_error"));
   await failingRuntime.close();
+
+  // Live swarm polling: the swarm executes silently between the streamed
+  // input and the terminal result; store-observed agents spawn as running
+  // children before the swarm result closes them.
+  const swarmCli = path.join(root, "fake-kimi-swarm.mjs");
+  const swarmResultText =
+    '<agent_swarm_result>\n<summary>completed: 1</summary>\n<subagent agent_id="agent-0" item="a.md" outcome="completed">done</subagent>\n</agent_swarm_result>';
+  await writeFile(
+    swarmCli,
+    [
+      'import { createInterface } from "node:readline";',
+      "const write = (payload) => {",
+      '  process.stdout.write(JSON.stringify(payload) + "\\n");',
+      "};",
+      "const update = (sessionUpdate, extra) => {",
+      "  write({",
+      '    jsonrpc: "2.0",',
+      '    method: "session/update",',
+      '    params: { sessionId: "kimi-s-3", update: { sessionUpdate, ...extra } },',
+      "  });",
+      "};",
+      "const text = (value) => [",
+      '  { content: { text: value, type: "text" }, type: "content" },',
+      "];",
+      "const rl = createInterface({ input: process.stdin });",
+      'rl.on("line", (line) => {',
+      "  const message = JSON.parse(line);",
+      '  if (message.method === "initialize") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: { protocolVersion: 1 } });',
+      "  }",
+      '  if (message.method === "session/new") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: { sessionId: "kimi-s-3" } });',
+      "  }",
+      '  if (message.method === "session/set_config_option") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: {} });',
+      "  }",
+      '  if (message.method === "session/prompt") {',
+      '    update("tool_call", { status: "pending", title: "AgentSwarm", toolCallId: "sw1" });',
+      '    update("tool_call_update", {',
+      "      content: text(",
+      "        JSON.stringify({",
+      '          description: "Scan files",',
+      '          items: ["a.md"],',
+      '          subagent_type: "explore",',
+      "        })",
+      "      ),",
+      '      status: "in_progress",',
+      '      toolCallId: "sw1",',
+      "    });",
+      "    setTimeout(() => {",
+      '      update("tool_call_update", {',
+      `        content: text(${JSON.stringify(swarmResultText)}),`,
+      '        status: "completed",',
+      '        toolCallId: "sw1",',
+      "      });",
+      "      write({",
+      "        id: message.id,",
+      '        jsonrpc: "2.0",',
+      '        result: { stopReason: "end_turn" },',
+      "      });",
+      "    }, 150);",
+      "  }",
+      "});",
+    ].join("\n"),
+    "utf8"
+  );
+  const swarmEvents = [];
+  const swarmRuntime = new KimiNativeSessionRuntime({
+    onEvent: (event) => swarmEvents.push(event),
+    processOverrides: { command: process.execPath, commandArgs: [swarmCli] },
+    providerSessionId: "kimi-native-parent-sw",
+    swarmAgentReader: () => [{ agentId: "agent-0", prompt: "Scan a.md" }],
+    swarmPollIntervalMs: 20,
+    usageReader: () => null,
+    workspacePath: root,
+  });
+  await swarmRuntime.prompt("run the swarm");
+  await swarmRuntime.close();
+  const liveSpawnIndex = swarmEvents.findIndex(
+    (event) =>
+      event.type === "subagent_control" &&
+      event.receiverProviderSessionIds[0] === "kimi-agent-sw1:agent-0"
+  );
+  assert.ok(liveSpawnIndex >= 0);
+  const rootTerminalIndex = swarmEvents.findIndex(
+    (event) =>
+      event.type === "subagent_status" &&
+      event.providerSessionId === "kimi-agent-sw1"
+  );
+  assert.ok(liveSpawnIndex < rootTerminalIndex);
+  const agentZeroStatuses = swarmEvents.filter(
+    (event) =>
+      event.type === "subagent_status" &&
+      event.providerSessionId === "kimi-agent-sw1:agent-0"
+  );
+  assert.equal(agentZeroStatuses.at(-1).status, "completed");
 
   console.log("kimi native session runtime tests passed");
 } finally {

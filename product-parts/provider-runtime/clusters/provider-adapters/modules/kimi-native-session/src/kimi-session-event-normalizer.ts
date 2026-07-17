@@ -5,7 +5,10 @@ import {
   isKimiAcpRecord,
   type KimiAcpNotification,
 } from "./kimi-acp-session-contracts.js";
-import { KimiSubagentNormalizer } from "./kimi-subagent-normalizer.js";
+import {
+  type KimiLiveSwarmAgent,
+  KimiSubagentNormalizer,
+} from "./kimi-subagent-normalizer.js";
 
 // Events one native Kimi session emits toward Core: dialog/stream/lifecycle
 // events plus the synthesized provider-neutral subagent lifecycle.
@@ -35,6 +38,20 @@ export class KimiSessionEventNormalizer {
   // parent of every synthesized subagent.
   bindParentSession(providerSessionId: string): void {
     this.subagents.bindParentSession(providerSessionId);
+  }
+
+  // Live-swarm entry points the runtime polls through (the subagent
+  // normalizer is encapsulated here): swarm ids still running, and
+  // registration of agents observed in the CLI session store.
+  liveSwarmCallIds(): string[] {
+    return this.subagents.liveSwarmCallIds();
+  }
+
+  registerLiveSwarmAgents(
+    toolCallId: string,
+    agents: readonly KimiLiveSwarmAgent[]
+  ): KimiNativeSessionEvent[] {
+    return this.subagents.registerLiveSwarmAgents(toolCallId, agents);
   }
 
   // Map one `session/update` notification onto Core events. Non-update

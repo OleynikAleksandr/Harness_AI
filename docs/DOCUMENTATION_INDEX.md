@@ -163,6 +163,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   backend version-status check on the installed CLI `0.26.0`, commit gates,
   the packaged `app.asar` checksum and binary-grep proof that the new code
   is inside the package.
+- `docs/evidence/kimi-profile-routing-package-2026-07-17.md` — Kimi
+  profile-selective routing packaging evidence: the `kimi-native-session`
+  ACP backend for native-profile sessions (transport/runtime/normalizer/
+  permission bridge), real managed-profile application on the universal
+  client, the live pre-package smoke on the installed CLI `0.26.0`
+  ("HARNESS NATIVE OK" native turn), commit gates and the packaged
+  `app.asar` checksum with binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task7",
-  "expectedCommitMessage": "chore: package Kimi profile routing build",
+  "currentTaskId": "harness-ai.phase7.stream1.task8",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -160,6 +160,6 @@
 38. [DONE] Git Commit: `feat: route Kimi sessions by profile kind` (hash: self)
 39. [DONE] `harness-ai.phase7.stream1.task6` Rewrite the superseded "no ACP session provider returns" statements across architecture docs, cluster/module docs, product-tree purposes and load-bearing code comments to the new profile-selective truth (native profile -> ACP CLI backend inside `kimi-client`, managed -> universal client; the standalone `kimi` provider id stays retired) (scope: `docs/architecture/SessionProfilesV2.md, provider-adapters/cluster.md, .harness/product-tree/**` + related module docs/comments via `docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record Kimi profile-selective routing`). Result: Completed in commit `docs: record Kimi profile-selective routing`.
 40. [DONE] Git Commit: `docs: record Kimi profile-selective routing` (hash: self)
-41. [IN_PROGRESS] `harness-ai.phase7.stream1.task7` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi profile routing build`).
-42. [TODO] Git Commit: `chore: package Kimi profile routing build` (hash: TBD)
-43. [TODO] `harness-ai.phase7.stream1.task8` User verifies a native-profile Kimi session runs through the installed Kimi CLI (native system prompt/tools visible in behavior) and a managed-profile Kimi session runs through the universal client with the profile prompt applied (completion: user-acceptance; scope: user workflow; expected commit: none).
+41. [DONE] `harness-ai.phase7.stream1.task7` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi profile routing build`). Result: Completed in commit `chore: package Kimi profile routing build`.
+42. [DONE] Git Commit: `chore: package Kimi profile routing build` (hash: self)
+43. [IN_PROGRESS] `harness-ai.phase7.stream1.task8` User verifies a native-profile Kimi session runs through the installed Kimi CLI (native system prompt/tools visible in behavior) and a managed-profile Kimi session runs through the universal client with the profile prompt applied (completion: user-acceptance; scope: user workflow; expected commit: none).

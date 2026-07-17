@@ -1,9 +1,17 @@
 import { randomUUID } from "node:crypto";
 import type { NormalizedProviderEvent } from "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js";
+import type { ProviderSubagentEvent } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   isKimiAcpRecord,
   type KimiAcpNotification,
 } from "./kimi-acp-session-contracts.js";
+import { KimiSubagentNormalizer } from "./kimi-subagent-normalizer.js";
+
+// Events one native Kimi session emits toward Core: dialog/stream/lifecycle
+// events plus the synthesized provider-neutral subagent lifecycle.
+export type KimiNativeSessionEvent =
+  | NormalizedProviderEvent
+  | ProviderSubagentEvent;
 
 // Verified Kimi ACP stream discriminators (`session/update`): assistant and
 // thought text arrive as chunks, tools as call/update pairs, token usage as
@@ -21,13 +29,20 @@ export class KimiSessionEventNormalizer {
     assistant: [],
     thinking: [],
   };
+  private readonly subagents = new KimiSubagentNormalizer();
+
+  // The Core-visible provider session id (`kimi-native-<uuid>`) becomes the
+  // parent of every synthesized subagent.
+  bindParentSession(providerSessionId: string): void {
+    this.subagents.bindParentSession(providerSessionId);
+  }
 
   // Map one `session/update` notification onto Core events. Non-update
   // methods surface as diagnostic stream events so nothing is silently
   // dropped.
   normalizeNotification(
     notification: KimiAcpNotification
-  ): NormalizedProviderEvent[] {
+  ): KimiNativeSessionEvent[] {
     if (notification.method !== "session/update") {
       return [
         streamEvent("kimi_acp_notification", {
@@ -54,10 +69,14 @@ export class KimiSessionEventNormalizer {
       case "tool_call":
         return [
           ...this.flushAll(),
+          ...this.subagents.normalizeToolUpdate(update),
           streamEvent("kimi_tool_call", readToolPayload(update)),
         ];
       case "tool_call_update":
-        return [streamEvent("kimi_tool_result", readToolPayload(update))];
+        return [
+          ...this.subagents.normalizeToolUpdate(update),
+          streamEvent("kimi_tool_result", readToolPayload(update)),
+        ];
       case "usage_update":
         return normalizeUsage(update);
       default:

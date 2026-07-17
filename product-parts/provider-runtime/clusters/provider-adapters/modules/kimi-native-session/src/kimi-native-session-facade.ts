@@ -37,7 +37,11 @@ export {
   KimiNativeSessionRuntime,
   type KimiNativeSessionRuntimeOptions,
 } from "./kimi-native-session-runtime.js";
-export { KimiSessionEventNormalizer } from "./kimi-session-event-normalizer.js";
+export {
+  type KimiNativeSessionEvent,
+  KimiSessionEventNormalizer,
+} from "./kimi-session-event-normalizer.js";
+export { KimiSubagentNormalizer } from "./kimi-subagent-normalizer.js";
 
 const KIMI_NATIVE_SESSION_ID_PREFIX = "kimi-native-";
 
@@ -160,6 +164,7 @@ export class KimiNativeSessionDriver {
       ...(this.options.processOverrides
         ? { processOverrides: this.options.processOverrides }
         : {}),
+      providerSessionId: sessionId,
       workspacePath: startOptions.workspacePath,
     });
     const entry: KimiNativeSessionEntry = { bridge, listeners, runtime };

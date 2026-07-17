@@ -15,6 +15,7 @@ try {
     "kimi-acp-session-contracts.ts",
     "kimi-acp-session-router.ts",
     "kimi-acp-session-process.ts",
+    "kimi-subagent-normalizer.ts",
     "kimi-session-event-normalizer.ts",
     "kimi-native-session-runtime.ts",
     "kimi-interaction-bridge.ts",

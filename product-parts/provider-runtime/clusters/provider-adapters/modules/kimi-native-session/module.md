@@ -62,8 +62,21 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   session alive for resume-on-send; `close()` stops the child. An unexpected
   child death rejects the in-flight prompt (=> `turn_failed`) and emits
   `stream_error`.
+- `KimiSubagentNormalizer` synthesizes the provider-neutral subagent
+  lifecycle (`subagent_control`/`subagent_session`/`subagent_status`) from
+  `Agent`/`AgentSwarm` tool calls, because the Kimi ACP stream has no
+  dedicated subagent discriminators (verified live on CLI 0.26.0): spawn on
+  the tool call with a synthetic `kimi-agent-<toolCallId>` child id parented
+  by the Core-visible provider session id, the task from the settled
+  `rawInput.description`/`prompt`, the agent role from the result's
+  `actual_subagent_type` line and the terminal status from the
+  completed/failed tool update (one launched child per tool call — an
+  AgentSwarm call surfaces as a single launch; the CLI exposes no child ACP
+  sessions). This feeds the same Core subagent graph and dialog launch
+  divider Claude/Codex use.
 - `KimiSessionEventNormalizer` maps verified `session/update` discriminators
-  onto Core `NormalizedProviderEvent`s without renderer heuristics:
+  onto Core `NormalizedProviderEvent`s without renderer heuristics
+  (`KimiNativeSessionEvent` also carries the synthesized subagent events):
   `agent_message_chunk`/`agent_thought_chunk` buffer into readable
   `dialog_message` blocks using the sentence-boundary thresholds proven by
   the retired ACP provider (flush at 900 chars, or 360 at a sentence

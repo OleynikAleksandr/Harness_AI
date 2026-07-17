@@ -10,14 +10,19 @@ import {
   type KimiAcpSessionProcessExit,
   type KimiAcpSessionProcessOptions,
 } from "./kimi-acp-session-process.js";
-import { KimiSessionEventNormalizer } from "./kimi-session-event-normalizer.js";
+import {
+  type KimiNativeSessionEvent,
+  KimiSessionEventNormalizer,
+} from "./kimi-session-event-normalizer.js";
 
 export interface KimiNativeSessionRuntimeOptions {
   readonly model?: string;
-  readonly onEvent: (event: NormalizedProviderEvent) => void;
+  readonly onEvent: (event: KimiNativeSessionEvent) => void;
   readonly onReverseRequest?: KimiAcpReverseRequestHandler;
   // Test/DI overrides for the supervised child (command, args, timeouts).
   readonly processOverrides?: Partial<KimiAcpSessionProcessOptions>;
+  // The Core-visible provider session id; parents synthesized subagents.
+  readonly providerSessionId?: string;
   readonly workspacePath: string;
 }
 
@@ -41,6 +46,9 @@ export class KimiNativeSessionRuntime {
 
   constructor(options: KimiNativeSessionRuntimeOptions) {
     this.options = options;
+    if (options.providerSessionId) {
+      this.normalizer.bindParentSession(options.providerSessionId);
+    }
     this.channel = new KimiAcpSessionProcess({
       cwd: options.workspacePath,
       onExit: (exit) => this.handleExit(exit),
@@ -206,7 +214,7 @@ export class KimiNativeSessionRuntime {
     });
   }
 
-  private emit(event: NormalizedProviderEvent): void {
+  private emit(event: KimiNativeSessionEvent): void {
     this.options.onEvent(event);
   }
 }

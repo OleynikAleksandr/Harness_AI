@@ -102,7 +102,10 @@ synthetic-native. Номера строк актуальны на дату ис�
   даже при корректном outgoing `summary: "detailed"`.
 - **Kimi** (модуль `kimi-provider` УДАЛЁН вместе с ACP-каналом и Kimi-capture
   прямым приказом пользователя 2026-07-05 — видимый Kimi живёт на
-  универсальном клиенте `kimi-client`, HTTP-endpoint по subscription-ключу;
+  `kimi-client`: managed-профили идут HTTP-endpoint'ом universal client по
+  subscription-ключу, а профиль `native` с 2026-07-17 (stream 3) снова идёт
+  через установленный CLI по ACP — сессионный бэкенд `kimi-native-session`
+  с дефолтным агентом;
   описание ниже сохранено как историческая проектная запись для Phase 5, где
   профили перенацеливаются на клиентскую четвёрку; исходники — в git-истории)
   — адаптер запускал `kimi acp` (`kimi-managed-agent-profile.ts`,

@@ -356,7 +356,7 @@
             {
               "id": "kimi-client-provider",
               "name": "Kimi Client Provider",
-              "purpose": "Thin Kimi endpoint for the Core universal client: Kimi dialect specifics (api.kimi.com/coding/v1, Core session-selected Coding Plan model, reasoning_content) and the ClientTurnRequest builder the Core agent loop runs."
+              "purpose": "Thin Kimi endpoint for the Core universal client and the profile-selective session router (2026-07-17): native-profile sessions delegate to the kimi-native-session ACP backend, managed profiles run the client loop with the materialized prompt/tool whitelist applied; holds Kimi dialect specifics (api.kimi.com/coding/v1, Core session-selected Coding Plan model, reasoning_content) and the ClientTurnRequest builder."
             },
             {
               "id": "kimi-native-capture",

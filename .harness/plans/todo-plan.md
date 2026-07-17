@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task6",
-  "expectedCommitMessage": "docs: record Kimi profile-selective routing",
+  "currentTaskId": "harness-ai.phase7.stream1.task7",
+  "expectedCommitMessage": "chore: package Kimi profile routing build",
   "debt": null
 }
 ```
@@ -158,8 +158,8 @@
 36. [DONE] Git Commit: `feat: bridge Kimi native session interactions` (hash: self)
 37. [DONE] `harness-ai.phase7.stream1.task5` Route Kimi sessions by profile kind in the provider adapter: accept `ProviderSessionStartOptions`, delegate `profileKind: "native"` sessions to the kimi-native-session driver, keep managed sessions on the universal client and really apply the materialized managed profile there (profile system prompt as the turn's system message plus tooling-category filtering of builtin tools); cover both routes and managed application with tests and synchronize adapter docs (scope — this task is explicitly split as 4 functional files because the native driver gains the per-turn Core session model with the routing: `kimi-client-provider/src/kimi-client-provider-facade.ts, kimi-client-provider/src/kimi-managed-profile-application.ts, kimi-native-session/src/kimi-native-session-runtime.ts, kimi-native-session/src/kimi-native-session-facade.ts` + paired tests/docs; expected commit: `feat: route Kimi sessions by profile kind`). Result: Completed in commit `feat: route Kimi sessions by profile kind`.
 38. [DONE] Git Commit: `feat: route Kimi sessions by profile kind` (hash: self)
-39. [IN_PROGRESS] `harness-ai.phase7.stream1.task6` Rewrite the superseded "no ACP session provider returns" statements across architecture docs, cluster/module docs, product-tree purposes and load-bearing code comments to the new profile-selective truth (native profile -> ACP CLI backend inside `kimi-client`, managed -> universal client; the standalone `kimi` provider id stays retired) (scope: `docs/architecture/SessionProfilesV2.md, provider-adapters/cluster.md, .harness/product-tree/**` + related module docs/comments via `docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record Kimi profile-selective routing`).
-40. [TODO] Git Commit: `docs: record Kimi profile-selective routing` (hash: TBD)
-41. [TODO] `harness-ai.phase7.stream1.task7` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi profile routing build`).
+39. [DONE] `harness-ai.phase7.stream1.task6` Rewrite the superseded "no ACP session provider returns" statements across architecture docs, cluster/module docs, product-tree purposes and load-bearing code comments to the new profile-selective truth (native profile -> ACP CLI backend inside `kimi-client`, managed -> universal client; the standalone `kimi` provider id stays retired) (scope: `docs/architecture/SessionProfilesV2.md, provider-adapters/cluster.md, .harness/product-tree/**` + related module docs/comments via `docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record Kimi profile-selective routing`). Result: Completed in commit `docs: record Kimi profile-selective routing`.
+40. [DONE] Git Commit: `docs: record Kimi profile-selective routing` (hash: self)
+41. [IN_PROGRESS] `harness-ai.phase7.stream1.task7` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi profile routing build`).
 42. [TODO] Git Commit: `chore: package Kimi profile routing build` (hash: TBD)
 43. [TODO] `harness-ai.phase7.stream1.task8` User verifies a native-profile Kimi session runs through the installed Kimi CLI (native system prompt/tools visible in behavior) and a managed-profile Kimi session runs through the universal client with the profile prompt applied (completion: user-acceptance; scope: user workflow; expected commit: none).

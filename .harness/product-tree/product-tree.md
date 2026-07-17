@@ -110,7 +110,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 - `codex-provider`: Codex provider adapter.
 - `grok-provider`: official Grok Build ACP provider adapter using CLI-owned
   subscription authentication.
-- `kimi-client-provider`: thin Kimi endpoint for the Core universal client — Kimi dialect specifics (`api.kimi.com/coding/v1`, Core session-selected Coding Plan model, `reasoning_content`) and the `ClientTurnRequest` builder the Core agent loop runs.
+- `kimi-client-provider`: thin Kimi endpoint for the Core universal client and the profile-selective session router (2026-07-17) — native-profile sessions delegate to the `kimi-native-session` ACP backend, managed profiles run the client loop with the materialized prompt/tool whitelist applied; holds Kimi dialect specifics (`api.kimi.com/coding/v1`, Core session-selected Coding Plan model, `reasoning_content`) and the `ClientTurnRequest` builder.
 - `kimi-native-capture`: diagnostic-only driver for the installed Kimi CLI — temporary native config/auth home, selected-model alias materialization, reverse-bridge provider URL rewrite, and one ACP default-agent probe; it is not a production session adapter.
 - `kimi-native-session`: native ACP session channel for the `kimi-client` adapter — supervised `kimi acp` child (default agent, real `~/.kimi-code` home, self-update pinned off) with JSON-RPC correlation serving native-profile sessions; managed profiles stay on the universal client.
 - `glm-client-provider`: thin GLM endpoint for the Core universal client — Z.ai coding dialect specifics (`api.z.ai/api/coding/paas/v4`, `Accept-Language`, `reasoning_content`, GLM `extraBody` params) and the `ClientTurnRequest` builder the Core agent loop runs.

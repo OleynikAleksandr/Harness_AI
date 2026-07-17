@@ -74,8 +74,11 @@ const PROVIDERS: ProviderBaseDescriptor[] = [
     visibility: "visible",
   },
   {
-    // The visible Kimi: the universal-client endpoint (the retired ACP
-    // kimi-provider module was removed by the 2026-07-05 user order).
+    // The visible Kimi: one kimi-client adapter with profile-selective
+    // routing (2026-07-17 user order) — native-profile sessions run the
+    // installed CLI over ACP via kimi-native-session, managed profiles run
+    // the universal client. The standalone ACP provider id `kimi` stays
+    // retired (2026-07-05 user order).
     id: "kimi-client",
     name: "Kimi",
     moduleId: "kimi-client-provider",

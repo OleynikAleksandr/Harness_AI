@@ -88,7 +88,17 @@
 - **GLM client / Kimi client / OpenRouter / Local Models**: после
   universal-client migration старые GLM Native и Kimi ACP адаптеры удалены;
   инвентарь и synthetic-native application для client-four входят в Phase 5
-  и строятся вокруг live `*-client` ids, а не retired ids.
+  и строятся вокруг live `*-client` ids, а не retired ids. Исключение с
+  2026-07-17 (приказ пользователя, stream 3 активного плана): Kimi получил
+  profile-selective routing внутри `kimi-client` — сессии встроенного
+  профиля `native` идут через сессионный ACP-бэкенд `kimi-native-session`
+  (установленный CLI, дефолтный агент, реальный `~/.kimi-code`, без
+  переписывания base_url), а managed-профили остаются на universal client и
+  реально применяются (ведущее system-сообщение + builtin tool whitelist по
+  tooling-категориям). Kimi ACP не позволяет верифицируемо менять
+  промпт/туллинг (только выбор модели), поэтому native-ACP обслуживает
+  исключительно профиль `native`; standalone provider id `kimi` остаётся
+  retired.
 - **Codex**: канал получения инструментов остаётся отдельным native-путём;
   managed-профили Codex остаются prompt-only до dedicated application layer.
 - **Grok**: официальный ACP-канал применяет managed prompt через
@@ -216,8 +226,10 @@
   `SSL_CERT_FILE` (Rust TLS), рабочий app-server не мутируется. **Kimi
   восстановлен как диагностический capture-канал 2026-07-16** через
   **reverse-forward мост** (нативный CLI игнорирует proxy-env) и отдельный
-  `kimi-native-capture`; удалённый ACP session provider не возвращается,
-  обычные Kimi-сессии остаются на universal client.
+  `kimi-native-capture`; standalone ACP provider id `kimi` не возвращается.
+  С 2026-07-17 (stream 3) Kimi-сессии маршрутизируются по профилю внутри
+  `kimi-client`: профиль `native` — через сессионный ACP-бэкенд
+  `kimi-native-session`, managed-профили — на universal client.
   GLM Native и остальные endpoint-модули универсального клиента съёма не
   требуют: их системное сообщение и схемы инструментов собирает наш
   собственный клиент.
@@ -312,8 +324,10 @@
   Новый `kimi-native-capture` клонирует только native config/auth/device state
   во временный HOME, добавляет выбранную Coding Plan модель как временный CLI
   alias, переписывает provider `base_url` на мост и делает один default-agent
-  ACP probe. Это не возвращает удалённый `kimi-provider`: production Kimi
-  остаётся universal-client endpoint. Прежний Kimi-«захват» был заглушкой — записывал
+  ACP probe. Это не возвращает удалённый standalone `kimi-provider`; с
+  2026-07-17 production Kimi маршрутизируется по профилю внутри
+  `kimi-client` (`native` — ACP-бэкенд `kimi-native-session`, managed —
+  universal client). Прежний Kimi-«захват» был заглушкой — записывал
   только пути (`wire.jsonl`, который никто не пишет) и оркестратор завершал
   прогон `captured` с нулевым содержимым (ложный успех). «Wire» — это наш
   ACP JSON-RPC (клиент↔агент), в нём НЕТ нативного system prompt / схем

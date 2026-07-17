@@ -3,9 +3,11 @@
 ## Responsibility
 
 Own the diagnostic-only driver for capturing the original Kimi Code CLI
-request. Kimi production sessions remain on `kimi-client-provider` and the
-Core universal client; this module does not implement or register a session
-provider.
+request. Kimi production sessions are owned by `kimi-client-provider`
+(universal client for managed profiles; the `kimi-native-session` ACP
+backend for the built-in native profile since the 2026-07-17
+profile-routing order); this capture module stays diagnostic-only and does
+not implement or register a session provider.
 
 For one capture it clones only the user's native `config.toml`, credentials,
 device id and TUI settings into a temporary HOME, rewrites provider base URLs

@@ -18,7 +18,18 @@ provider inherited from the user's own model section,
 `session/set_config_option {model}` only for ids declared in `config.toml`
 (verified live: without the section every native session silently ran the
 default `kimi-for-coding`); existing sections and user edits stay
-untouched. No base-URL rewrite happens here — that remains a
+untouched. The bootstrap further declares thinking (2026-07-17 research —
+`kimi-for-coding` IS a thinking model; without Thinking the service routes
+to K2.6, and the refusals came from the migrated legacy config): it strips
+the deprecated `default_thinking` key from the copy, injects
+`capabilities = ["thinking", "tool_use"]` +
+`support_efforts = ["low", "high", "max"]` into catalog model sections that
+declare none, adds the same fields plus `default_effort` to generated
+sections, and upserts a `[thinking]` section (`enabled = true`,
+`keep = "all"`, default effort `high`). The effort LEVEL is read by the CLI
+once at process start — `writeKimiThinkingEffort(home, effort)` sets it
+per session right before the first spawn (the ACP `thinking` option only
+toggles off/on; unsupported levels are refused without writing). No base-URL rewrite happens here — that remains a
 capture-only mechanic of `kimi-native-capture`. Managed profiles never enter this
 module: the Kimi ACP surface cannot verifiably change prompt or tooling
 (model selection only via `session/set_config_option`), so every non-native

@@ -37,6 +37,22 @@ const CATALOG_MODEL_IDS = [
 ];
 const KIMI_NATIVE_CONTEXT_LIMIT = 262_144;
 const PROVIDER_LINE_PATTERN = /^\s*provider\s*=\s*"([^"]+)"/mu;
+// Thinking declarations (verified live on CLI 0.26.0, 2026-07-17): the CLI
+// derives "supported efforts" from the model section's capabilities, and the
+// migrated legacy user config declares none — that alone produced
+// `Supported efforts: off` and `thinking: {type: "disabled"}` requests while
+// kimi-for-coding is a thinking model (without Thinking the service routes
+// to K2.6). The effort LEVEL comes from `[thinking].effort`, read once at
+// CLI process start; the ACP option only toggles off/on.
+const MODEL_THINKING_LINES = [
+  'capabilities = ["thinking", "tool_use"]',
+  'support_efforts = ["low", "high", "max"]',
+];
+export const KIMI_THINKING_EFFORTS = ["low", "high", "max"] as const;
+export type KimiThinkingEffort = (typeof KIMI_THINKING_EFFORTS)[number];
+const DEFAULT_THINKING_EFFORT: KimiThinkingEffort = "high";
+const DEPRECATED_DEFAULT_THINKING_PATTERN = /^\s*default_thinking\s*=.*$\n?/gmu;
+const THINKING_EFFORT_LINE_PATTERN = /^\s*effort\s*=\s*".*"\s*$/mu;
 
 export interface KimiWorkspaceHome {
   // The `HOME` value for the spawned CLI child.
@@ -70,7 +86,109 @@ export function prepareKimiWorkspaceHome(
     copyIfMissing(path.join(realConfigDir, entry), path.join(configDir, entry));
   }
   ensureCatalogModelSections(path.join(configDir, "config.toml"));
+  ensureThinkingDeclarations(path.join(configDir, "config.toml"));
   return { homePath, sessionsRoot: path.join(configDir, "sessions") };
+}
+
+// Set the per-session thinking level: the CLI reads `[thinking].effort` at
+// process start, so the runtime writes it right before the first spawn.
+// Returns false (and writes nothing) for a level outside the supported set.
+export function writeKimiThinkingEffort(
+  home: KimiWorkspaceHome,
+  effort: string
+): boolean {
+  if (!(KIMI_THINKING_EFFORTS as readonly string[]).includes(effort)) {
+    return false;
+  }
+  const configPath = path.join(
+    home.homePath,
+    KIMI_CONFIG_DIRNAME,
+    "config.toml"
+  );
+  let source: string;
+  try {
+    source = readFileSync(configPath, "utf8");
+  } catch {
+    return false;
+  }
+  writeFileSync(configPath, upsertThinkingSection(source, effort), "utf8");
+  return true;
+}
+
+// Strip the deprecated key, declare thinking on the catalog model sections
+// and make sure a `[thinking]` section exists (enabled, default effort).
+function ensureThinkingDeclarations(configPath: string): void {
+  let source: string;
+  try {
+    source = readFileSync(configPath, "utf8");
+  } catch {
+    return;
+  }
+  let next = source.replace(DEPRECATED_DEFAULT_THINKING_PATTERN, "");
+  for (const modelId of CATALOG_MODEL_IDS) {
+    next = injectModelThinkingLines(next, modelId);
+  }
+  if (!hasThinkingSection(next)) {
+    next = upsertThinkingSection(next, DEFAULT_THINKING_EFFORT);
+  }
+  if (next !== source) {
+    writeFileSync(configPath, next, "utf8");
+  }
+}
+
+// Insert the thinking declarations right below the section header when the
+// section exists and declares no capabilities yet.
+function injectModelThinkingLines(source: string, modelId: string): string {
+  const lines = source.split("\n");
+  const headerIndex = lines.findIndex((line) => {
+    const trimmed = line.trim();
+    return (
+      trimmed === `[models.${modelId}]` || trimmed === `[models."${modelId}"]`
+    );
+  });
+  if (headerIndex < 0) {
+    return source;
+  }
+  let end = lines.length;
+  for (let index = headerIndex + 1; index < lines.length; index += 1) {
+    if (lines[index].trim().startsWith("[")) {
+      end = index;
+      break;
+    }
+  }
+  const body = lines.slice(headerIndex + 1, end);
+  if (body.some((line) => line.trim().startsWith("capabilities"))) {
+    return source;
+  }
+  lines.splice(headerIndex + 1, 0, ...MODEL_THINKING_LINES);
+  return lines.join("\n");
+}
+
+function hasThinkingSection(source: string): boolean {
+  return source.split("\n").some((line) => line.trim() === "[thinking]");
+}
+
+function upsertThinkingSection(source: string, effort: string): string {
+  if (!hasThinkingSection(source)) {
+    return `${source.trimEnd()}\n\n[thinking]\nenabled = true\neffort = "${effort}"\nkeep = "all"\n`;
+  }
+  const lines = source.split("\n");
+  const headerIndex = lines.findIndex((line) => line.trim() === "[thinking]");
+  let end = lines.length;
+  for (let index = headerIndex + 1; index < lines.length; index += 1) {
+    if (lines[index].trim().startsWith("[")) {
+      end = index;
+      break;
+    }
+  }
+  for (let index = headerIndex + 1; index < end; index += 1) {
+    if (THINKING_EFFORT_LINE_PATTERN.test(lines[index])) {
+      lines[index] = `effort = "${effort}"`;
+      return lines.join("\n");
+    }
+  }
+  lines.splice(headerIndex + 1, 0, `effort = "${effort}"`);
+  return lines.join("\n");
 }
 
 // Append-only on every prepare: existing sections and user edits stay
@@ -93,7 +211,7 @@ function ensureCatalogModelSections(configPath: string): void {
     source.match(PROVIDER_LINE_PATTERN)?.[1] ?? "kimi-for-coding";
   const blocks = missing.map(
     (modelId) =>
-      `\n[models.${modelId}]\nprovider = "${provider}"\nmodel = "${modelId}"\nmax_context_size = ${KIMI_NATIVE_CONTEXT_LIMIT}\n`
+      `\n[models.${modelId}]\nprovider = "${provider}"\nmodel = "${modelId}"\nmax_context_size = ${KIMI_NATIVE_CONTEXT_LIMIT}\n${MODEL_THINKING_LINES.join("\n")}\ndefault_effort = "${DEFAULT_THINKING_EFFORT}"\n`
   );
   writeFileSync(configPath, `${source.trimEnd()}\n${blocks.join("")}`, "utf8");
 }

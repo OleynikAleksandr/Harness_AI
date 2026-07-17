@@ -55,6 +55,7 @@ try {
     deleteKimiNativeSessionArtifacts,
     prepareKimiWorkspaceHome,
     recordKimiSessionMapping,
+    writeKimiThinkingEffort,
   } = await import(
     pathToFileURL(path.join(buildDir, "kimi-workspace-home.js")).href
   );
@@ -116,9 +117,35 @@ try {
   assert.equal(sectionCount("k3"), 1);
   assert.match(
     configText,
-    /\[models\.k3\]\nprovider = "kimi-prov"\nmodel = "k3"\nmax_context_size = 262144/u
+    /\[models\.k3\]\nprovider = "kimi-prov"\nmodel = "k3"\nmax_context_size = 262144\ncapabilities = \["thinking", "tool_use"\]\nsupport_efforts = \["low", "high", "max"\]\ndefault_effort = "high"/u
   );
-  assert.match(configText, /^default_thinking = false$/mu);
+
+  // Thinking declarations: the deprecated key is stripped, the user's own
+  // model section gains capabilities right below its header, and a
+  // [thinking] section exists with the default effort.
+  assert.doesNotMatch(configText, /default_thinking/u);
+  assert.match(
+    configText,
+    /\[models\.kimi-for-coding\]\ncapabilities = \["thinking", "tool_use"\]\nsupport_efforts = \["low", "high", "max"\]\nprovider = "kimi-prov"/u
+  );
+  assert.match(
+    configText,
+    /\[thinking\]\nenabled = true\neffort = "high"\nkeep = "all"/u
+  );
+
+  // The per-session effort writer replaces only the effort line and rejects
+  // unsupported levels.
+  assert.equal(writeKimiThinkingEffort(home, "max"), true);
+  assert.match(
+    readFileSync(path.join(configDir, "config.toml"), "utf8"),
+    /\[thinking\]\nenabled = true\neffort = "max"\nkeep = "all"/u
+  );
+  assert.equal(writeKimiThinkingEffort(home, "weird"), false);
+  assert.match(
+    readFileSync(path.join(configDir, "config.toml"), "utf8"),
+    /effort = "max"/u
+  );
+  assert.equal(writeKimiThinkingEffort(home, "low"), true);
 
   // Re-preparing is idempotent (no duplicate sections) and keeps local
   // config edits.

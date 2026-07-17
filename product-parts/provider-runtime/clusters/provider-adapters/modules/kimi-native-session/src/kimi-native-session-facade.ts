@@ -49,8 +49,11 @@ export {
 export { KimiSubagentNormalizer } from "./kimi-subagent-normalizer.js";
 export {
   deleteKimiNativeSessionArtifacts,
+  KIMI_THINKING_EFFORTS,
+  type KimiThinkingEffort,
   type KimiWorkspaceHome,
   prepareKimiWorkspaceHome,
+  writeKimiThinkingEffort,
 } from "./kimi-workspace-home.js";
 
 const KIMI_NATIVE_SESSION_ID_PREFIX = "kimi-native-";

@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": "feat: add Kimi common provider settings",
   "debt": null
 }
 ```
@@ -23,6 +23,12 @@
   Request Capture so the diagnostic path records the original Kimi CLI
   system instructions and native tool schemas, not Harness universal-client
   prompt/tool material.
+- **Planning source (stream 2):** user request 2026-07-17 — add two
+  Settings -> Kimi sections mirroring the Codex tab: a Kimi Versions card
+  (CLI row only; Kimi has no SDK package, the CLI is a standalone binary
+  with a native `kimi upgrade` channel) and a Kimi Session Continuity card
+  (stored threshold setting; no provider consumes the threshold yet, the
+  runtime consumer stays out of this scope).
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Readable architecture projection:** `.harness/product-tree/product-tree.md`.
@@ -37,6 +43,8 @@
   - `product-parts/provider-runtime/clusters/provider-adapters/cluster.md`
   - `product-parts/provider-runtime/clusters/provider-registry/modules/provider-descriptor/module.md`
   - `product-parts/application-shell/clusters/settings-surface/modules/provider-settings-ui/module.md`
+  - `product-parts/core-runtime/clusters/settings-and-localization/modules/settings-store/module.md`
+  - `product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md`
 
 ## Execution Rules
 
@@ -103,3 +111,21 @@
 13. [DONE] `harness-ai.phase5.stream1.task1` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native capture build`). Result: Completed in commit `chore: package Kimi native capture build`.
 14. [DONE] Git Commit: `chore: package Kimi native capture build` (hash: self)
 15. [DONE] `harness-ai.phase5.stream1.task2` User captures all three Kimi models from Settings -> General and confirms the raw/readable artifacts contain the expected native CLI system prompt and tool schemas (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User accepted current Kimi native capture implementation (Settings capture, all three models) Acceptance Commit: `chore: record plan acceptance kimi-native-request-capture-2026-07-16`.
+
+## Phase 6 - Kimi Settings Parity (owner: Codex, updated: 2026-07-17)
+
+### Stream: Kimi Versions And Continuity Cards
+
+16. [DONE] `harness-ai.phase6.stream1.task1` Extend the active scope with the Kimi settings parity stream: Settings -> Kimi gains a Kimi Versions card (single CLI row driven by the native `kimi upgrade` channel; Kimi has no SDK) and a Kimi Session Continuity card (stored threshold only; the runtime consumer stays out of scope for every provider) (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add Kimi settings parity stream`). Result: Completed in commit `plan: add Kimi settings parity stream`.
+17. [DONE] Git Commit: `plan: add Kimi settings parity stream` (hash: self)
+18. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Add `autoUpdate` and `sessionContinuity` settings to the Kimi client provider namespace with Codex-equivalent defaults (auto-update off, threshold 30) and the same system/workspace projection split; cover defaults and projection routing with tests and synchronize settings-store docs (scope: `settings-store/src/settings-store-facade.ts, settings-store/src/settings-store-projections.ts` + paired tests/docs; expected commit: `feat: add Kimi common provider settings`).
+19. [TODO] Git Commit: `feat: add Kimi common provider settings` (hash: TBD)
+20. [TODO] `harness-ai.phase6.stream1.task3` Serve Kimi CLI version status through the provider-versions RPC: current version from the installed CLI, latest from the CLI's own update-channel state, update via native `kimi upgrade`, no SDK entry; export the CLI version tooling from the Kimi native-capture facade and extend renderer RPC typings; cover version/update flows with tests and synchronize runtime/adapter docs (scope: `core-runtime-process/src/core-provider-tools.ts, kimi-native-capture/src/kimi-native-capture-facade.ts, session-window/src/vite-env.d.ts` + paired tests/docs; expected commit: `feat: serve Kimi CLI version status`).
+21. [TODO] Git Commit: `feat: serve Kimi CLI version status` (hash: TBD)
+22. [TODO] `harness-ai.phase6.stream1.task4` Render the Kimi Versions card in Settings -> Kimi with a single CLI row (no SDK row), the shared warning banner and the auto-update toggle wired to the new Kimi settings key, reusing the shared versions card component; cover CLI-only rendering with tests and synchronize provider-settings-ui/localization docs (scope: `provider-settings-ui/src/provider-version-controls.tsx, provider-settings-ui/src/settings-tab-content.tsx, localization-runtime/src/source-dictionaries.ts` + paired tests/docs; expected commit: `feat: show Kimi versions card in Settings`).
+23. [TODO] Git Commit: `feat: show Kimi versions card in Settings` (hash: TBD)
+24. [TODO] `harness-ai.phase6.stream1.task5` Render the Kimi Session Continuity card in Settings -> Kimi bound to the stored threshold with a localized title, reusing the shared continuity card component; cover the card wiring with tests and synchronize provider-settings-ui/localization docs (scope: `provider-settings-ui/src/settings-tab-content.tsx, localization-runtime/src/source-dictionaries.ts` + paired tests/docs; expected commit: `feat: show Kimi session continuity card`).
+25. [TODO] Git Commit: `feat: show Kimi session continuity card` (hash: TBD)
+26. [TODO] `harness-ai.phase6.stream1.task6` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi settings cards build`).
+27. [TODO] Git Commit: `chore: package Kimi settings cards build` (hash: TBD)
+28. [TODO] `harness-ai.phase6.stream1.task7` User verifies Settings -> Kimi shows the Kimi Versions card (single CLI row with real current/latest/update behavior) and the Kimi Session Continuity threshold that persists across restarts (completion: user-acceptance; scope: user workflow; expected commit: none).

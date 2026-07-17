@@ -41,12 +41,14 @@ import type {
   ProviderInteractionDecision,
   ProviderSessionStartOptions,
   ProviderTurnOptions,
+  ProviderUsageLimitsRefreshRequest,
   SessionProfilePayload,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   buildKimiManagedSystemMessages,
   selectKimiManagedTools,
 } from "./kimi-managed-profile-application.js";
+import { readKimiUsageLimitsEvent } from "./kimi-usage-limits.js";
 
 // Backward-compatible fallback for legacy callers that do not pass Core's
 // immutable session model in ProviderTurnOptions.
@@ -220,6 +222,20 @@ export class KimiClientProviderFacade implements ProviderAdapter {
       kimiNativeSessionDriver.respondToInteraction(sessionId, decision);
     }
     return Promise.resolve();
+  }
+
+  // One Kimi Coding Plan subscription serves native and client sessions
+  // alike; Core calls this on bind-ready and after every completed turn.
+  async refreshUsageLimits(
+    request: ProviderUsageLimitsRefreshRequest
+  ): Promise<void> {
+    const event = await readKimiUsageLimitsEvent();
+    if (event) {
+      request.broadcast({
+        ...event,
+        providerSessionId: request.providerSessionId,
+      });
+    }
   }
 
   // Full cleanup for a removed session: drop the in-memory history; a native

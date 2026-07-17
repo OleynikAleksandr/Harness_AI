@@ -87,6 +87,10 @@ const source = readFileSync(
   .replace(
     /import \{\n\s*createToolRegistry,\n\s*type ToolRegistry,\n\} from[^\n]*\n/u,
     'const createToolRegistry = () => { const sources = []; return { execute: () => Promise.resolve({ output: "" }), listDescriptors: () => sources.flatMap((s) => s.list()), registerSource: (s) => sources.push(s) }; };\n'
+  )
+  .replace(
+    /import \{ readKimiUsageLimitsEvent \}[^\n]*\n/u,
+    "const readKimiUsageLimitsEvent = () => Promise.resolve(globalThis.__kimiLimitsTestEvent ?? null);\n"
   );
 
 const compiled = ts.transpileModule(source, {
@@ -299,6 +303,31 @@ try {
     "echo",
   ]);
 
+  // Usage limits broadcast to the top panel with the provider session id.
+  globalThis.__kimiLimitsTestEvent = {
+    providerScopeKey: "kimi:global",
+    type: "usage_limits",
+    usageLimits: { currentSession: { percentUsed: 24, resetsAt: null } },
+  };
+  const broadcasts = [];
+  await adapter.refreshUsageLimits({
+    broadcast: (event) => broadcasts.push(event),
+    providerSessionId: "kimi-native-test-1",
+    runtimeSessionId: "core-1",
+    workspacePath: "/ws",
+  });
+  assert.equal(broadcasts.length, 1);
+  assert.equal(broadcasts[0].type, "usage_limits");
+  assert.equal(broadcasts[0].providerSessionId, "kimi-native-test-1");
+  globalThis.__kimiLimitsTestEvent = null;
+  await adapter.refreshUsageLimits({
+    broadcast: (event) => broadcasts.push(event),
+    providerSessionId: "kimi-native-test-1",
+    runtimeSessionId: "core-1",
+    workspacePath: "/ws",
+  });
+  assert.equal(broadcasts.length, 1);
+
   console.log("kimi-client-provider tests passed");
 } finally {
   globalThis.__kimiClientTestApiKey = undefined;
@@ -307,5 +336,6 @@ try {
   globalThis.__kimiClientTestTools = undefined;
   globalThis.__kimiClientTestFail = undefined;
   globalThis.__kimiNativeCalls = undefined;
+  globalThis.__kimiLimitsTestEvent = undefined;
   await rm(buildDir, { recursive: true, force: true });
 }

@@ -77,6 +77,16 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
   permission asks) forwards to the `kimi-native-session` facade. The
   standalone ACP provider id `kimi` stays retired — routing lives inside
   `kimi-client`.
+- Usage limits (`kimi-usage-limits.ts`, verified live 2026-07-17):
+  `refreshUsageLimits` reads `GET https://api.kimi.com/coding/v1/usages`
+  with the subscription Bearer key — Harness kimi-client auth store first,
+  CLI config-TOML `api_key` fallback so native sessions get limits without a
+  pasted key — and broadcasts the shared `usage_limits` event
+  (`providerScopeKey: "kimi:global"`, labels `5h`/`Weekly`,
+  `limits[0].detail` -> 5h bucket, `usage` -> weekly bucket; numeric API
+  fields arrive as strings). Core calls it on bind-ready and after every
+  completed turn for both native and client sessions; failures resolve to
+  no broadcast (the panel keeps its pending state).
 
 ## Owned Paths
 

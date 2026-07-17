@@ -35,7 +35,11 @@ Own usage limits and context-window signals derived from provider events.
   the verified `262144` Kimi Coding Plan native context window, cached
   values arrive as `inputCacheRead` from the CLI session-store usage the
   native session runtime emits per turn, and turns advance on
-  `turn_completed` like the other providers.
+  `turn_completed` like the other providers. `kimi-client` also joins the
+  limit tables: pending state `loading`, provider scope `kimi:global` and
+  the five-hour window labels (the Kimi Coding Plan `/coding/v1/usages`
+  window is 300 minutes), fed by the Kimi adapter's `refreshUsageLimits`
+  broadcast.
 - Core-owned `turnCount` follows a provider-normalized numeric turn field when
   one is present and otherwise advances only on structured `turn_completed`
   events. Restored snapshots are normalized through the same facade, so older

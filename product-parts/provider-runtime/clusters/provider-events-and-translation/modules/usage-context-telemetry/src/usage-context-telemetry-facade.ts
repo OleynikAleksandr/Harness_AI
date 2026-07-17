@@ -8,6 +8,12 @@ import {
 
 export type { ProviderStatusPanelCapabilities } from "./usage-context-status-panel.js";
 
+import {
+  fallbackLimitLabels,
+  pendingLimitState,
+  providerScopeKey,
+} from "./usage-context-limit-scopes.js";
+
 export type ProviderTurnStatus = "idle" | "running" | "stopped";
 
 export interface ProviderTokenUsage {
@@ -205,7 +211,8 @@ function buildTelemetry(value: {
   usageLimitLabels?: ProviderUsageLimitLabels;
   usageLimits: ProviderUsageLimits | null;
 }): ProviderUsageTelemetry {
-  const labels = value.usageLimitLabels ?? fallbackLabels(value.providerId);
+  const labels =
+    value.usageLimitLabels ?? fallbackLimitLabels(value.providerId);
   // Telemetry restored from persisted history may predate newer token-usage
   // fields (undefined after the JSON round-trip); normalize before formatting.
   const tokenUsage: ProviderTokenUsage = {
@@ -396,51 +403,6 @@ function readCachedTokenCount(
     readNumber(candidate.cachedInputTokens) ??
     readNumber(candidate.cached_input_tokens);
   return value === null || value < 0 ? null : value;
-}
-
-function fallbackLabels(providerId: string): ProviderUsageLimitLabels {
-  return hasFiveHourWindow(providerId)
-    ? {
-        currentSession: "5h",
-        currentWeekAllModels: "Weekly",
-        currentWeekSonnetOnly: "Parallel",
-      }
-    : {
-        currentSession: "Session",
-        currentWeekAllModels: "Weekly",
-        currentWeekSonnetOnly: "Model Weekly",
-      };
-}
-
-function pendingLimitState(providerId: string): "loading" | "unavailable" {
-  if (
-    providerId === "claude" ||
-    providerId === "codex" ||
-    providerId === "grok"
-  ) {
-    return "loading";
-  }
-  return "unavailable";
-}
-
-function providerScopeKey(providerId: string): string | null {
-  // Only the native vendor channels carry a provider-scoped usage limit;
-  // retired provider scopes left with the 2026-07-05 cleanups.
-  if (providerId === "claude") {
-    return "claude:global";
-  }
-  if (providerId === "codex") {
-    return "codex:global";
-  }
-  if (providerId === "grok") {
-    return "grok:subscription";
-  }
-  return null;
-}
-
-function hasFiveHourWindow(providerId: string): boolean {
-  // Only the GLM coding plan (`glm-*`) keeps the five-hour window.
-  return providerId.startsWith("glm-");
 }
 
 function buildResetLabel(value: string): string {

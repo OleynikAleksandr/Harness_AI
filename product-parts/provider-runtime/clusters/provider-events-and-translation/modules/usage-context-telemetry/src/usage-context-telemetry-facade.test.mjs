@@ -17,6 +17,19 @@ const statusPanelCompiled = ts.transpileModule(statusPanelSource, {
   },
 }).outputText;
 const statusPanelUrl = `data:text/javascript;base64,${Buffer.from(statusPanelCompiled).toString("base64")}`;
+const limitScopesCompiled = ts.transpileModule(
+  readFileSync(
+    new URL("./usage-context-limit-scopes.ts", import.meta.url),
+    "utf8"
+  ),
+  {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  }
+).outputText;
+const limitScopesUrl = `data:text/javascript;base64,${Buffer.from(limitScopesCompiled).toString("base64")}`;
 const compiled = ts
   .transpileModule(source, {
     compilerOptions: {
@@ -24,7 +37,8 @@ const compiled = ts
       target: ts.ScriptTarget.ES2022,
     },
   })
-  .outputText.replaceAll("./usage-context-status-panel.js", statusPanelUrl);
+  .outputText.replaceAll("./usage-context-status-panel.js", statusPanelUrl)
+  .replaceAll("./usage-context-limit-scopes.js", limitScopesUrl);
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
 const { usageContextTelemetryFacade } = await import(moduleUrl);
 

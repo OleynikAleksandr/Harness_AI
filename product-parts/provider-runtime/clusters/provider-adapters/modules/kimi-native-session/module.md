@@ -16,12 +16,34 @@ provider.
 
 ## Public Facade
 
-`src/kimi-native-session-facade.ts`. It re-exports the supervised process
-channel (`KimiAcpSessionProcess`, `resolveKimiSessionCommand`), the JSON-RPC
-router (`KimiAcpSessionRouter`), the wire contracts, the session runtime
-(`KimiNativeSessionRuntime`) and the stream normalizer
-(`KimiSessionEventNormalizer`); the interaction bridge and the adapter-facing
-driver surface extend this facade in the same stream.
+`src/kimi-native-session-facade.ts`. It owns the adapter-facing session
+driver (`KimiNativeSessionDriver`, singleton `kimiNativeSessionDriver`,
+session-id marker `isKimiNativeSessionId`) and re-exports the supervised
+process channel (`KimiAcpSessionProcess`, `resolveKimiSessionCommand`), the
+JSON-RPC router (`KimiAcpSessionRouter`), the wire contracts, the session
+runtime (`KimiNativeSessionRuntime`), the stream normalizer
+(`KimiSessionEventNormalizer`) and the permission bridge
+(`KimiInteractionBridge`).
+
+## Session Driver And Interaction Bridge
+
+- `KimiNativeSessionDriver` keeps one entry per provider session id
+  (`kimi-native-<uuid>`): an immutable ACP runtime binding, a fail-closed
+  permission bridge and the listener fan-out shared by stream events and
+  interaction events. `createSession`/`resumeSession` open the CLI binding
+  eagerly so spawn/auth failures surface at session start; after a Core
+  restart resume opens a fresh native CLI session under the same provider
+  session id. `stopSession` cancels the in-flight turn and pending
+  permissions but keeps the CLI session alive (resume-on-send);
+  `deleteSession` kills the child and drops the entry.
+- `KimiInteractionBridge` accepts exactly one reverse shape — the standard
+  ACP `session/request_permission` — and maps it onto a sanitized Core
+  `permission` interaction (`provider: "kimi"`, options from the CLI
+  request). Every other reverse method is refused with `methodNotFound`
+  (nothing is silently auto-approved). A user decision maps back to the ACP
+  `{ outcome: { outcome: "selected", optionId } }` shape; cancel, stop and
+  the 5-minute timeout answer the CLI with a cancelled outcome and emit the
+  matching resolved event.
 
 ## Session Runtime And Stream Normalization
 

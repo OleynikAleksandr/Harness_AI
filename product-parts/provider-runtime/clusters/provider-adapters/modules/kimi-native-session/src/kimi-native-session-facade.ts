@@ -41,6 +41,11 @@ export {
   type KimiNativeSessionEvent,
   KimiSessionEventNormalizer,
 } from "./kimi-session-event-normalizer.js";
+export {
+  type KimiSessionTokenUsage,
+  parseKimiWireUsage,
+  readKimiSessionTokenUsage,
+} from "./kimi-session-usage-reader.js";
 export { KimiSubagentNormalizer } from "./kimi-subagent-normalizer.js";
 
 const KIMI_NATIVE_SESSION_ID_PREFIX = "kimi-native-";

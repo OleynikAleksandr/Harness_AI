@@ -106,6 +106,15 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   channel close.
 - Expected/unexpected exit report with a bounded stderr snapshot for
   diagnostics.
+- Per-turn token usage for the status panel
+  (`kimi-session-usage-reader.ts`): the CLI streams no `usage_update`
+  notifications (verified on 0.26.0), so after every native turn the runtime
+  reads the latest `usage.record`/`step.end` row of the main agent's
+  `wire.jsonl` in the CLI session store
+  (`~/.kimi-code/sessions/<wd_*>/<acpSessionId>/agents/main/`) and emits the
+  shared `token_usage` stream event with
+  `used = inputOther + output + inputCacheRead + inputCacheCreation`,
+  `cached = inputCacheRead` and the verified `262144` native context limit.
 
 ## Owned Paths
 

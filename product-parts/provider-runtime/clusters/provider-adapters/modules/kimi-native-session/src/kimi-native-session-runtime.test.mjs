@@ -31,6 +31,7 @@ try {
     "kimi-acp-session-process.ts",
     "kimi-subagent-normalizer.ts",
     "kimi-session-event-normalizer.ts",
+    "kimi-session-usage-reader.ts",
     "kimi-native-session-runtime.ts",
   ]) {
     const source = readFileSync(
@@ -164,10 +165,15 @@ try {
   );
 
   const events = [];
+  const usageReads = [];
   const runtime = new KimiNativeSessionRuntime({
     model: "k3",
     onEvent: (event) => events.push(event),
     processOverrides: { command: process.execPath, commandArgs: [fakeCli] },
+    usageReader: (acpSessionId) => {
+      usageReads.push(acpSessionId);
+      return { cached: 20_094, limit: 262_144, used: 20_235 };
+    },
     workspacePath: root,
   });
   const acpSessionId = await runtime.open();
@@ -188,8 +194,19 @@ try {
     "stream:kimi_tool_call",
     "stream:kimi_tool_result",
     "stream:token_usage",
+    "stream:token_usage",
     "turn_completed",
   ]);
+  assert.deepEqual(usageReads, ["kimi-s-1"]);
+  const storeUsage = events.filter(
+    (event) =>
+      event.type === "stream_event" && event.data.kind === "token_usage"
+  );
+  assert.deepEqual(storeUsage.at(-1).data.tokenUsage, {
+    cached: 20_094,
+    limit: 262_144,
+    used: 20_235,
+  });
   const thinkingMessage = events.find(
     (event) => event.type === "dialog_message" && event.role === "thinking"
   );

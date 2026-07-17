@@ -14,6 +14,10 @@ import {
   type KimiNativeSessionEvent,
   KimiSessionEventNormalizer,
 } from "./kimi-session-event-normalizer.js";
+import {
+  type KimiSessionTokenUsage,
+  readKimiSessionTokenUsage,
+} from "./kimi-session-usage-reader.js";
 
 export interface KimiNativeSessionRuntimeOptions {
   readonly model?: string;
@@ -23,6 +27,8 @@ export interface KimiNativeSessionRuntimeOptions {
   readonly processOverrides?: Partial<KimiAcpSessionProcessOptions>;
   // The Core-visible provider session id; parents synthesized subagents.
   readonly providerSessionId?: string;
+  // Test/DI override for the session-store usage reader.
+  readonly usageReader?: (acpSessionId: string) => KimiSessionTokenUsage | null;
   readonly workspacePath: string;
 }
 
@@ -119,6 +125,7 @@ export class KimiNativeSessionRuntime {
       for (const event of this.normalizer.flushTurnEnd()) {
         this.emit(event);
       }
+      this.emitTurnTokenUsage(sessionId);
       const stopReason =
         isKimiAcpRecord(result) && typeof result.stopReason === "string"
           ? result.stopReason
@@ -128,6 +135,7 @@ export class KimiNativeSessionRuntime {
       for (const event of this.normalizer.flushTurnEnd()) {
         this.emit(event);
       }
+      this.emitTurnTokenUsage(sessionId);
       this.emit(
         lifecycleEvent(
           "turn_failed",
@@ -137,6 +145,23 @@ export class KimiNativeSessionRuntime {
     } finally {
       this.turnActive = false;
     }
+  }
+
+  // The CLI streams no usage_update; after every turn the session-store
+  // truth (latest usage.record of the main agent) feeds the status panel.
+  private emitTurnTokenUsage(acpSessionId: string): void {
+    const usage = (this.options.usageReader ?? readKimiSessionTokenUsage)(
+      acpSessionId
+    );
+    if (!usage) {
+      return;
+    }
+    this.emit({
+      data: { kind: "token_usage", tokenUsage: usage },
+      timestamp: nowIso(),
+      type: "stream_event",
+      uuid: `${randomUUID()}::token_usage`,
+    });
   }
 
   // Stop semantics: cancel the in-flight turn but keep the CLI session

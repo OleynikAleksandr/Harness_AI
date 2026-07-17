@@ -177,6 +177,14 @@ readiness registry, liveness checker, and workspace provisioner modules.
   and top usage limits for `kimi-client`, the documented CLI `0.26.0`
   thinking limitation with the best-effort request, the live subagent smoke
   and the packaged `app.asar` checksum.
+- `docs/evidence/kimi-swarm-visibility-package-2026-07-17.md` — Kimi swarm
+  visibility packaging evidence for the rejected-acceptance diagnosis (the
+  session never died: an 18-agent AgentSwarm ran in total ACP silence and
+  the user stopped the silent turn): parsed streamed swarm input as the
+  card task, live per-agent children polled from the CLI session store,
+  per-agent result delivery into child sessions, stop-time terminalization
+  of running subagent calls, the live 3-agent dist smoke and the packaged
+  `app.asar` checksum with binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task17",
-  "expectedCommitMessage": "chore: package Kimi swarm visibility build",
+  "currentTaskId": "harness-ai.phase8.stream1.task18",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -212,6 +212,6 @@
 71. [DONE] Git Commit: `feat: deliver Kimi agent results to child sessions` (hash: self)
 72. [DONE] `harness-ai.phase8.stream1.task16` Close running subagent calls when a turn stops: `SessionTurnStop` marks the stopped session's running subagent calls and their child sessions `interrupted` (provider-neutral — the Kimi Stop evidence showed cards stuck `running` forever because terminal provider events are lost after unsubscribe), preserving the monotonic terminal-status guard semantics; cover stop-time terminalization with tests (scope: `session-request-handler/src/session-turn-stop.ts, session-request-handler/src/session-request-handler-facade.ts` + paired tests/docs; expected commit: `fix: close running subagent calls on turn stop`). Result: Completed in commit `fix: close running subagent calls on turn stop`.
 73. [DONE] Git Commit: `fix: close running subagent calls on turn stop` (hash: self)
-74. [IN_PROGRESS] `harness-ai.phase8.stream1.task17` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi swarm visibility build`).
-75. [TODO] Git Commit: `chore: package Kimi swarm visibility build` (hash: TBD)
-76. [TODO] `harness-ai.phase8.stream1.task18` User verifies in the packaged app: a native Kimi swarm shows the parsed task on its card, the launch divider grows live while agents run, finished agent cards open with the agent's result, Stop closes cards as `interrupted`, the lower panel shows context window/Cache/Turns, the top panel shows 5h/weekly limits, and accepts the documented thinking limitation (completion: user-acceptance; scope: user workflow; expected commit: none).
+74. [DONE] `harness-ai.phase8.stream1.task17` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi swarm visibility build`). Result: Completed in commit `chore: package Kimi swarm visibility build`.
+75. [DONE] Git Commit: `chore: package Kimi swarm visibility build` (hash: self)
+76. [IN_PROGRESS] `harness-ai.phase8.stream1.task18` User verifies in the packaged app: a native Kimi swarm shows the parsed task on its card, the launch divider grows live while agents run, finished agent cards open with the agent's result, Stop closes cards as `interrupted`, the lower panel shows context window/Cache/Turns, the top panel shows 5h/weekly limits, and accepts the documented thinking limitation (completion: user-acceptance; scope: user workflow; expected commit: none).

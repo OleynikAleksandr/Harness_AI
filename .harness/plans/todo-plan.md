@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": "feat: add Kimi ACP session transport",
   "debt": null
 }
 ```
@@ -29,6 +29,18 @@
   with a native `kimi upgrade` channel) and a Kimi Session Continuity card
   (stored threshold setting; no provider consumes the threshold yet, the
   runtime consumer stays out of this scope).
+- **Planning source (stream 3):** user request 2026-07-17 — profile-selective
+  Kimi session routing: the built-in `native` profile runs sessions through
+  the installed Kimi CLI over ACP (default agent, real `~/.kimi-code` home,
+  no base-URL rewrite), every other profile keeps the universal client and
+  the universal-client path starts really applying the materialized managed
+  profile (system prompt + tooling categories). The Kimi ACP surface cannot
+  verifiably change prompt/tooling (model selection only), so native-ACP
+  serves the native profile exclusively; the provider id stays
+  `kimi-client` and the retired standalone ACP provider id `kimi` does not
+  return. This user order supersedes the earlier "the removed ACP session
+  provider does not return" doc rule, which must be rewritten to the
+  selective model.
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Readable architecture projection:** `.harness/product-tree/product-tree.md`.
@@ -129,3 +141,23 @@
 26. [DONE] `harness-ai.phase6.stream1.task6` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi settings cards build`). Result: Completed in commit `chore: package Kimi settings cards build`.
 27. [DONE] Git Commit: `chore: package Kimi settings cards build` (hash: self)
 28. [DONE] `harness-ai.phase6.stream1.task7` User verifies Settings -> Kimi shows the Kimi Versions card (single CLI row with real current/latest/update behavior) and the Kimi Session Continuity threshold that persists across restarts (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User accepted Kimi settings parity cards (Versions CLI row + Session Continuity) in packaged app Acceptance Commit: `chore: record plan acceptance kimi-native-request-capture-2026-07-16`.
+
+## Phase 7 - Kimi Profile-Selective Routing (owner: Codex, updated: 2026-07-17)
+
+### Stream: Native ACP Path And Managed Client Path
+
+29. [DONE] `harness-ai.phase7.stream1.task1` Extend the active scope with the Kimi profile routing stream: native profile -> installed Kimi CLI over ACP with the default agent, any managed profile -> universal client with the materialized profile really applied; record that the provider id stays `kimi-client` and the doc rule "the removed ACP session provider does not return" is superseded by this user order (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add Kimi profile routing stream`). Result: Completed in commit `plan: add Kimi profile routing stream`.
+30. [DONE] Git Commit: `plan: add Kimi profile routing stream` (hash: self)
+31. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Add the `kimi-native-session` module transport layer: supervised `kimi acp` child process against the real `~/.kimi-code` home (no config rewrite, auto-update disabled for session stability), newline JSON-RPC router with request correlation/timeouts/reverse-request dispatch, and wire contracts, following the verified Grok ACP layering; cover process lifecycle and router correlation with tests and register the module in product-tree docs (scope: `kimi-native-session/src/kimi-acp-session-process.ts, kimi-native-session/src/kimi-acp-session-router.ts, kimi-native-session/src/kimi-acp-session-contracts.ts` + paired tests/docs/product-tree; expected commit: `feat: add Kimi ACP session transport`).
+32. [TODO] Git Commit: `feat: add Kimi ACP session transport` (hash: TBD)
+33. [TODO] `harness-ai.phase7.stream1.task3` Add the Kimi native session runtime and event normalizer: initialize -> session/new -> model select (`session/set_config_option`) -> multi-turn `session/prompt` with `session/cancel` stop semantics, and normalize `session/update` notifications (assistant/thought/tool/plan/usage) into Core NormalizedProviderEvents without renderer heuristics; cover turn lifecycle and normalization with tests (scope: `kimi-native-session/src/kimi-native-session-runtime.ts, kimi-native-session/src/kimi-session-event-normalizer.ts` + paired tests/docs; expected commit: `feat: add Kimi native session runtime`).
+34. [TODO] Git Commit: `feat: add Kimi native session runtime` (hash: TBD)
+35. [TODO] `harness-ai.phase7.stream1.task4` Add the Kimi interaction bridge and the module facade: allowlisted ACP permission/reverse requests map to sanitized Core provider interactions with fail-closed decisions, and the facade exposes the session driver surface (create/resume/send/subscribe/stop/delete/respond) the provider adapter will consume; cover bridge mapping and facade lifecycle with tests (scope: `kimi-native-session/src/kimi-interaction-bridge.ts, kimi-native-session/src/kimi-native-session-facade.ts` + paired tests/docs; expected commit: `feat: bridge Kimi native session interactions`).
+36. [TODO] Git Commit: `feat: bridge Kimi native session interactions` (hash: TBD)
+37. [TODO] `harness-ai.phase7.stream1.task5` Route Kimi sessions by profile kind in the provider adapter: accept `ProviderSessionStartOptions`, delegate `profileKind: "native"` sessions to the kimi-native-session driver, keep managed sessions on the universal client and really apply the materialized managed profile there (profile system prompt as the turn's system message plus tooling-category filtering of builtin tools); cover both routes and managed application with tests and synchronize adapter docs (scope: `kimi-client-provider/src/kimi-client-provider-facade.ts, kimi-client-provider/src/kimi-managed-profile-application.ts` + paired tests/docs; expected commit: `feat: route Kimi sessions by profile kind`).
+38. [TODO] Git Commit: `feat: route Kimi sessions by profile kind` (hash: TBD)
+39. [TODO] `harness-ai.phase7.stream1.task6` Rewrite the superseded "no ACP session provider returns" statements across architecture docs, cluster/module docs, product-tree purposes and load-bearing code comments to the new profile-selective truth (native profile -> ACP CLI backend inside `kimi-client`, managed -> universal client; the standalone `kimi` provider id stays retired) (scope: `docs/architecture/SessionProfilesV2.md, provider-adapters/cluster.md, .harness/product-tree/**` + related module docs/comments via `docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record Kimi profile-selective routing`).
+40. [TODO] Git Commit: `docs: record Kimi profile-selective routing` (hash: TBD)
+41. [TODO] `harness-ai.phase7.stream1.task7` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi profile routing build`).
+42. [TODO] Git Commit: `chore: package Kimi profile routing build` (hash: TBD)
+43. [TODO] `harness-ai.phase7.stream1.task8` User verifies a native-profile Kimi session runs through the installed Kimi CLI (native system prompt/tools visible in behavior) and a managed-profile Kimi session runs through the universal client with the profile prompt applied (completion: user-acceptance; scope: user workflow; expected commit: none).

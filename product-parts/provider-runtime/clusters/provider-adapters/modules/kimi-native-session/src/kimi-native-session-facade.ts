@@ -49,12 +49,21 @@ export {
 export { KimiSubagentNormalizer } from "./kimi-subagent-normalizer.js";
 
 const KIMI_NATIVE_SESSION_ID_PREFIX = "kimi-native-";
+const KIMI_SUBAGENT_SESSION_ID_PREFIX = "kimi-agent-";
 
 // The kimi-client adapter routes by this marker: native-profile sessions get
 // prefixed provider session ids, everything else stays on the universal
 // client.
 export function isKimiNativeSessionId(sessionId: string): boolean {
   return sessionId.startsWith(KIMI_NATIVE_SESSION_ID_PREFIX);
+}
+
+// Synthetic child ids minted by the subagent normalizer. A Kimi subagent has
+// no provider channel of its own (its lifecycle is synthesized from the
+// parent's tool stream), so Core's child-session adoption must get an inert
+// channel instead of an unknown-session error.
+export function isKimiNativeSubagentSessionId(sessionId: string): boolean {
+  return sessionId.startsWith(KIMI_SUBAGENT_SESSION_ID_PREFIX);
 }
 
 export interface KimiNativeSessionStartOptions {
@@ -156,9 +165,16 @@ export class KimiNativeSessionDriver {
     }
     const listeners =
       existing?.listeners ?? new Set<(event: unknown) => void>();
+    // One throwing consumer must not break delivery to the others or tear
+    // down the native turn mid-batch (proven live: a Core-side listener
+    // failure silenced the whole session).
     const broadcast = (event: unknown): void => {
-      for (const listener of listeners) {
-        listener(event);
+      for (const listener of [...listeners]) {
+        try {
+          listener(event);
+        } catch {
+          // Listener failures are the consumer's concern; delivery goes on.
+        }
       }
     };
     const bridge = new KimiInteractionBridge({ emit: broadcast });

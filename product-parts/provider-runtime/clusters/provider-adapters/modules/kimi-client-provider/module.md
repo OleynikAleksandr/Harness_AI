@@ -74,9 +74,14 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
   driver's `kimi-native-<uuid>` session id; every later adapter call for
   such an id (send with the per-turn Core model, subscribe, Stop as
   turn-cancel, delete as child shutdown, `respondToInteraction` for CLI
-  permission asks) forwards to the `kimi-native-session` facade. The
-  standalone ACP provider id `kimi` stays retired — routing lives inside
-  `kimi-client`.
+  permission asks) forwards to the `kimi-native-session` facade. Synthetic
+  subagent ids (`kimi-agent-*`, marked by `isKimiNativeSubagentSessionId`)
+  are served as an inert channel: subscribe returns a no-op unsubscribe,
+  stop/delete are no-ops, resume echoes the id and sendMessage refuses
+  honestly — Core adopts synthesized children onto this adapter and an
+  unknown-session throw here used to kill the subagent-call publication and
+  the rest of the event batch (2026-07-17 retest defect). The standalone ACP
+  provider id `kimi` stays retired — routing lives inside `kimi-client`.
 - Usage limits (`kimi-usage-limits.ts`, verified live 2026-07-17):
   `refreshUsageLimits` reads `GET https://api.kimi.com/coding/v1/usages`
   with the subscription Bearer key — Harness kimi-client auth store first,

@@ -79,7 +79,13 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   completed/failed tool update (one launched child per tool call — an
   AgentSwarm call surfaces as a single launch; the CLI exposes no child ACP
   sessions). This feeds the same Core subagent graph and dialog launch
-  divider Claude/Codex use.
+  divider Claude/Codex use. The synthetic child ids are marked by
+  `isKimiNativeSubagentSessionId` (`kimi-agent-*`): Core's child-session
+  adoption binds them onto the parent's adapter, which must serve them as an
+  inert channel — a Kimi subagent has no provider channel of its own. The
+  driver's listener fan-out isolates consumer failures (one throwing
+  listener cannot break delivery to the others or tear down the native turn
+  mid-batch; proven live on the 2026-07-17 retest).
 - `KimiSessionEventNormalizer` maps verified `session/update` discriminators
   onto Core `NormalizedProviderEvent`s without renderer heuristics
   (`KimiNativeSessionEvent` also carries the synthesized subagent events):

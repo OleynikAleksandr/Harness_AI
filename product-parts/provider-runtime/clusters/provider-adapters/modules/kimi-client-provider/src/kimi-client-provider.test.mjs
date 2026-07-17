@@ -22,10 +22,12 @@ const source = readFileSync(
     'const createBuiltinToolSource = () => ({ execute: () => Promise.resolve({ output: "" }), list: () => ["read_file", "web_fetch", "echo"].map((name) => ({ description: name, name, parametersSchema: {}, qualifiedName: name, source: "builtin" })), source: "builtin" });\n'
   )
   .replace(
-    /import \{\n\s*isKimiNativeSessionId,\n\s*kimiNativeSessionDriver,\n\} from[^\n]*\n/u,
+    /import \{\n\s*isKimiNativeSessionId,\n\s*isKimiNativeSubagentSessionId,\n\s*kimiNativeSessionDriver,\n\} from[^\n]*\n/u,
     [
       "const isKimiNativeSessionId = (sessionId) =>",
       '  sessionId.startsWith("kimi-native-");',
+      "const isKimiNativeSubagentSessionId = (sessionId) =>",
+      '  sessionId.startsWith("kimi-agent-");',
       "const kimiNativeSessionDriver = {",
       "  createSession: (options) => {",
       '    globalThis.__kimiNativeCalls.push(["create", options.workspacePath]);',
@@ -302,6 +304,24 @@ try {
     "web_fetch",
     "echo",
   ]);
+
+  // Core adopts synthesized subagent children onto the parent's adapter:
+  // every surface serves the synthetic `kimi-agent-*` id inertly instead of
+  // throwing (the old unknown-session error killed the subagent-call
+  // publication and the rest of the event batch).
+  const childId = "kimi-agent-0:tool_x1";
+  const inertUnsubscribe = adapter.subscribe(childId, () => undefined);
+  assert.equal(typeof inertUnsubscribe, "function");
+  inertUnsubscribe();
+  assert.equal(await adapter.resumeSession(childId, "/ws"), childId);
+  await adapter.closeSession(childId);
+  await adapter.deleteSessionArtifacts(childId);
+  await assert.rejects(() => adapter.sendMessage(childId, "hi"), /read-only/u);
+  assert.ok(
+    !globalThis.__kimiNativeCalls.some((call) =>
+      String(call[1] ?? "").startsWith("kimi-agent-")
+    )
+  );
 
   // Usage limits broadcast to the top panel with the provider session id.
   globalThis.__kimiLimitsTestEvent = {

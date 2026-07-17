@@ -163,6 +163,11 @@ try {
   });
   assert.ok(isKimiNativeSessionId(sessionId));
   const events = [];
+  // A throwing listener must not break delivery to the others (listener
+  // isolation: one Core-side consumer failure used to silence the session).
+  driver.subscribe(sessionId, () => {
+    throw new Error("listener boom");
+  });
   driver.subscribe(sessionId, (event) => {
     events.push(event);
     if (event.type === "provider_interaction_requested") {

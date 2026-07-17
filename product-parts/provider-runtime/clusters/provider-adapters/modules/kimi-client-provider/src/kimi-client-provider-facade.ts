@@ -33,6 +33,7 @@ import type { NormalizedProviderEvent } from "../../../../provider-events-and-tr
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import {
   isKimiNativeSessionId,
+  isKimiNativeSubagentSessionId,
   kimiNativeSessionDriver,
 } from "../../kimi-native-session/src/kimi-native-session-facade.js";
 import type {
@@ -134,6 +135,10 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     workspacePath?: string,
     options?: ProviderSessionStartOptions
   ): Promise<string> {
+    if (isKimiNativeSubagentSessionId(sessionId)) {
+      // Synthetic subagent ids have no provider channel to resume.
+      return Promise.resolve(sessionId);
+    }
     if (isKimiNativeSessionId(sessionId)) {
       return kimiNativeSessionDriver.resumeSession(sessionId, {
         workspacePath: workspacePath ?? this.defaultWorkspacePath,
@@ -148,6 +153,11 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     content: string,
     turnOptions?: ProviderTurnOptions
   ): Promise<void> {
+    if (isKimiNativeSubagentSessionId(sessionId)) {
+      throw new Error(
+        "Kimi subagent sessions are read-only: talk to the parent session."
+      );
+    }
     if (isKimiNativeSessionId(sessionId)) {
       const model = turnOptions?.model;
       await kimiNativeSessionDriver.sendMessage(
@@ -191,6 +201,13 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   }
 
   subscribe(sessionId: string, listener: ProviderEventListener): () => void {
+    if (isKimiNativeSubagentSessionId(sessionId)) {
+      // Core adopts synthesized children onto the parent's adapter; the
+      // child has no channel of its own, so adoption gets an inert
+      // subscription instead of an unknown-session error (which used to
+      // kill the subagent-call publication and the rest of the batch).
+      return () => undefined;
+    }
     if (isKimiNativeSessionId(sessionId)) {
       return kimiNativeSessionDriver.subscribe(sessionId, listener);
     }
@@ -203,6 +220,9 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   // keep the history so the next message resumes the same provider session id.
   // Native sessions keep their CLI process alive the same way.
   closeSession(sessionId: string): Promise<void> {
+    if (isKimiNativeSubagentSessionId(sessionId)) {
+      return Promise.resolve();
+    }
     if (isKimiNativeSessionId(sessionId)) {
       return kimiNativeSessionDriver.stopSession(sessionId);
     }
@@ -241,6 +261,9 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   // Full cleanup for a removed session: drop the in-memory history; a native
   // session also stops its CLI child.
   deleteSessionArtifacts(providerSessionId: string): Promise<void> | void {
+    if (isKimiNativeSubagentSessionId(providerSessionId)) {
+      return;
+    }
     if (isKimiNativeSessionId(providerSessionId)) {
       return kimiNativeSessionDriver.deleteSession(providerSessionId);
     }

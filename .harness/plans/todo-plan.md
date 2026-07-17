@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task8",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase8.stream1.task10",
+  "expectedCommitMessage": "chore: package Kimi subagent adoption fix",
   "debt": null
 }
 ```
@@ -196,4 +196,9 @@
 55. [DONE] Git Commit: `feat: request Kimi native thinking best effort` (hash: self)
 56. [DONE] `harness-ai.phase8.stream1.task7` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-17 defect order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi telemetry build`). Result: Completed in commit `chore: package Kimi telemetry build`.
 57. [DONE] Git Commit: `chore: package Kimi telemetry build` (hash: self)
-58. [IN_PROGRESS] `harness-ai.phase8.stream1.task8` User verifies in the packaged app: a native Kimi session shows the subagent launch divider, the lower panel shows context window/Cache/Turns, the top panel shows 5h/weekly limits, and accepts the documented thinking limitation together with the profile-selective routing (completion: user-acceptance; scope: user workflow; expected commit: none).
+58. [DONE] `harness-ai.phase8.stream1.task8` User verifies in the packaged app: a native Kimi session shows the subagent launch divider, the lower panel shows context window/Cache/Turns, the top panel shows 5h/weekly limits, and accepts the documented thinking limitation together with the profile-selective routing (completion: user-acceptance; scope: user workflow; expected commit: none). Result: Superseded by the 2026-07-17 retest defect (plan migration): Core's child-session adoption calls the adapter with the synthetic `kimi-agent-*` id, the adapter throws, killing the subagent-call publication and the rest of the event batch; acceptance moves to `harness-ai.phase8.stream1.task11`.
+59. [DONE] `harness-ai.phase8.stream1.task9` Fix Kimi synthetic subagent adoption: the kimi-client adapter serves `kimi-agent-*` ids as a no-op provider channel (subscribe returns an inert unsubscribe, stop/delete are no-ops, resume echoes the id, sendMessage refuses honestly — the child has no provider channel of its own; its lifecycle is synthesized through the parent), and the native driver isolates listener failures so one throwing consumer cannot break event delivery; cover adoption calls and listener isolation with tests and synchronize module docs (scope: `kimi-client-provider/src/kimi-client-provider-facade.ts, kimi-native-session/src/kimi-native-session-facade.ts` + paired tests/docs; expected commit: `fix: adopt Kimi synthetic subagent channels`). Result: Completed in commit `fix: adopt Kimi synthetic subagent channels`.
+60. [DONE] Git Commit: `fix: adopt Kimi synthetic subagent channels` (hash: self)
+61. [IN_PROGRESS] `harness-ai.phase8.stream1.task10` Package the fixed app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-17 defect order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi subagent adoption fix`).
+62. [TODO] Git Commit: `chore: package Kimi subagent adoption fix` (hash: TBD)
+63. [TODO] `harness-ai.phase8.stream1.task11` User verifies in the packaged app: a native Kimi session shows live subagent activity (launch divider) without going silent, the lower panel shows context window/Cache/Turns, the top panel shows 5h/weekly limits, and accepts the documented thinking limitation (completion: user-acceptance; scope: user workflow; expected commit: none).

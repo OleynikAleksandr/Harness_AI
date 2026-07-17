@@ -116,8 +116,29 @@ export class KimiNativeSessionRuntime {
     if (this.options.model) {
       await this.applyModel(this.options.model);
     }
+    await this.requestFullAccess(sessionId);
     await this.requestThinking(sessionId);
     return sessionId;
+  }
+
+  // Full access (user order 2026-07-17): native sessions run without
+  // tool-permission cards. CLI 0.26.0 accepts
+  // `{configId: "mode", value: "yolo"}` (verified live — a Bash-using turn
+  // then triggers zero `session/request_permission`). A future CLI refusing
+  // the option keeps the session alive with one honest diagnostic, and the
+  // fail-closed interaction bridge still answers whatever the CLI asks.
+  private async requestFullAccess(sessionId: string): Promise<void> {
+    await this.channel
+      .request("session/set_config_option", {
+        configId: "mode",
+        sessionId,
+        value: "yolo",
+      })
+      .catch((error: Error) => {
+        this.emit(
+          streamDiagnostic("kimi_full_access_unavailable", error.message)
+        );
+      });
   }
 
   // Best-effort thinking: `session/new` advertises the thinking select

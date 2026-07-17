@@ -51,8 +51,14 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   `kimi acp` child = one native CLI session. `open()` performs
   `initialize` -> `session/new`, best-effort model selection through
   `session/set_config_option` (a refusal emits a diagnostic stream event and
-  keeps the native session) and a best-effort thinking request
-  (`{configId: "thinking", value: "on"}`): `session/new` advertises the
+  keeps the native session), a full-access mode request
+  (`{configId: "mode", value: "yolo"}`, user order 2026-07-17: native
+  sessions run without tool-permission cards — verified accepted by CLI
+  0.26.0 with zero `session/request_permission` on a Bash-using turn; a
+  future CLI refusing it surfaces one honest
+  `kimi_full_access_unavailable` diagnostic and the fail-closed interaction
+  bridge still answers whatever the CLI asks) and a best-effort thinking
+  request (`{configId: "thinking", value: "on"}`): `session/new` advertises the
   thinking select, but CLI 0.26.0 rejects enabling it (`Internal error`) and
   config-aliased models drop the option entirely, so a refusal surfaces one
   honest `kimi_thinking_unavailable` diagnostic — future CLI/model

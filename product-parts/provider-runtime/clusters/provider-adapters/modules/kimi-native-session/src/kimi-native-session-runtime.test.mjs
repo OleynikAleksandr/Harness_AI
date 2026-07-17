@@ -150,6 +150,13 @@ try {
       "        id: message.id,",
       '        jsonrpc: "2.0",',
       "      });",
+      '    } else if (message.params.configId === "mode") {',
+      '      write({ id: message.id, jsonrpc: "2.0", result: {} });',
+      "      write({",
+      '        jsonrpc: "2.0",',
+      '        method: "harness_test/mode",',
+      "        params: { value: message.params.value },",
+      "      });",
       "    } else {",
       "      globalThis.selectedModel = message.params.value;",
       '      write({ id: message.id, jsonrpc: "2.0", result: {} });',
@@ -197,6 +204,7 @@ try {
     event.type === "stream_event" ? `stream:${event.data.kind}` : event.type
   );
   assert.deepEqual(types, [
+    "stream:kimi_acp_notification",
     "stream:kimi_thinking_unavailable",
     "turn_started",
     "dialog_message",
@@ -207,6 +215,15 @@ try {
     "stream:token_usage",
     "turn_completed",
   ]);
+  // The full-access mode request reached the CLI with the yolo value and
+  // produced no refusal diagnostic.
+  const modeEcho = events.find(
+    (event) =>
+      event.type === "stream_event" &&
+      event.data.kind === "kimi_acp_notification" &&
+      event.data.method === "harness_test/mode"
+  );
+  assert.equal(modeEcho.data.raw.value, "yolo");
   const thinkingDiagnostic = events.find(
     (event) =>
       event.type === "stream_event" &&
@@ -271,6 +288,57 @@ try {
   assert.ok(failureTypes.includes("turn_failed"));
   assert.ok(failureTypes.includes("stream_error"));
   await failingRuntime.close();
+
+  // A CLI refusing the full-access mode keeps the session alive and
+  // surfaces one honest diagnostic.
+  const modeRefusingCli = path.join(root, "fake-kimi-mode-refusing.mjs");
+  await writeFile(
+    modeRefusingCli,
+    [
+      'import { createInterface } from "node:readline";',
+      "const write = (payload) => {",
+      '  process.stdout.write(JSON.stringify(payload) + "\\n");',
+      "};",
+      "const rl = createInterface({ input: process.stdin });",
+      'rl.on("line", (line) => {',
+      "  const message = JSON.parse(line);",
+      '  if (message.method === "initialize") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: {} });',
+      "  }",
+      '  if (message.method === "session/new") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: { sessionId: "s-4" } });',
+      "  }",
+      '  if (message.method === "session/set_config_option") {',
+      "    write({",
+      '      error: { code: -32603, message: "Internal error" },',
+      "      id: message.id,",
+      '      jsonrpc: "2.0",',
+      "    });",
+      "  }",
+      '  if (message.method === "session/prompt") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: { stopReason: "end_turn" } });',
+      "  }",
+      "});",
+    ].join("\n"),
+    "utf8"
+  );
+  const refusalEvents = [];
+  const refusingRuntime = new KimiNativeSessionRuntime({
+    onEvent: (event) => refusalEvents.push(event),
+    processOverrides: {
+      command: process.execPath,
+      commandArgs: [modeRefusingCli],
+    },
+    usageReader: () => null,
+    workspacePath: root,
+  });
+  await refusingRuntime.prompt("still works");
+  await refusingRuntime.close();
+  const refusalKinds = refusalEvents
+    .filter((event) => event.type === "stream_event")
+    .map((event) => event.data.kind);
+  assert.ok(refusalKinds.includes("kimi_full_access_unavailable"));
+  assert.equal(refusalEvents.at(-1).type, "turn_completed");
 
   // Live swarm polling: the swarm executes silently between the streamed
   // input and the terminal result; store-observed agents spawn as running

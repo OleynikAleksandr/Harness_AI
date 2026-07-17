@@ -11,7 +11,14 @@ resolved through the provider-home manager): the CLI session store lands
 inside the workspace instead of the global `~/.kimi-code/sessions/`, auth
 stays shared through `credentials`/`device_id` symlinks into the real home,
 `config.toml`/`tui.toml` are copied once, and the CLI binary keeps resolving
-from the real home. No base-URL rewrite happens here — that remains a
+from the real home. On every prepare the bootstrap also appends the missing
+Core-catalog `[models.*]` sections (`kimi-for-coding-highspeed`, `k3` —
+provider inherited from the user's own model section,
+`max_context_size = 262144`) to the copied config, because the CLI accepts
+`session/set_config_option {model}` only for ids declared in `config.toml`
+(verified live: without the section every native session silently ran the
+default `kimi-for-coding`); existing sections and user edits stay
+untouched. No base-URL rewrite happens here — that remains a
 capture-only mechanic of `kimi-native-capture`. Managed profiles never enter this
 module: the Kimi ACP surface cannot verifiably change prompt or tooling
 (model selection only via `session/set_config_option`), so every non-native

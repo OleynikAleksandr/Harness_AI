@@ -25,6 +25,18 @@ const KIMI_CONFIG_DIRNAME = ".kimi-code";
 const LINKED_ENTRIES = ["credentials", "device_id"];
 const COPIED_ENTRIES = ["config.toml", "tui.toml"];
 const SESSION_MAP_FILENAME = "harness-session-map.json";
+// Mirror of the Core Coding Plan catalog (provider-descriptor
+// KIMI_CLIENT_MODELS). The CLI accepts `session/set_config_option {model}`
+// only for ids declared in config.toml (`Model "k3" is not configured in
+// config.toml` — verified live on 0.26.0), and a stock user config declares
+// only the default model, so the bootstrap appends the missing sections.
+const CATALOG_MODEL_IDS = [
+  "kimi-for-coding",
+  "kimi-for-coding-highspeed",
+  "k3",
+];
+const KIMI_NATIVE_CONTEXT_LIMIT = 262_144;
+const PROVIDER_LINE_PATTERN = /^\s*provider\s*=\s*"([^"]+)"/mu;
 
 export interface KimiWorkspaceHome {
   // The `HOME` value for the spawned CLI child.
@@ -57,7 +69,42 @@ export function prepareKimiWorkspaceHome(
   for (const entry of COPIED_ENTRIES) {
     copyIfMissing(path.join(realConfigDir, entry), path.join(configDir, entry));
   }
+  ensureCatalogModelSections(path.join(configDir, "config.toml"));
   return { homePath, sessionsRoot: path.join(configDir, "sessions") };
+}
+
+// Append-only on every prepare: existing sections and user edits stay
+// untouched; the provider name is inherited from the user's own model
+// section so the appended entries route through the same subscription.
+function ensureCatalogModelSections(configPath: string): void {
+  let source: string;
+  try {
+    source = readFileSync(configPath, "utf8");
+  } catch {
+    return;
+  }
+  const missing = CATALOG_MODEL_IDS.filter(
+    (modelId) => !hasModelSection(source, modelId)
+  );
+  if (missing.length === 0) {
+    return;
+  }
+  const provider =
+    source.match(PROVIDER_LINE_PATTERN)?.[1] ?? "kimi-for-coding";
+  const blocks = missing.map(
+    (modelId) =>
+      `\n[models.${modelId}]\nprovider = "${provider}"\nmodel = "${modelId}"\nmax_context_size = ${KIMI_NATIVE_CONTEXT_LIMIT}\n`
+  );
+  writeFileSync(configPath, `${source.trimEnd()}\n${blocks.join("")}`, "utf8");
+}
+
+function hasModelSection(source: string, modelId: string): boolean {
+  const plain = `[models.${modelId}]`;
+  const quoted = `[models."${modelId}"]`;
+  return source.split("\n").some((line) => {
+    const trimmed = line.trim();
+    return trimmed === plain || trimmed === quoted;
+  });
 }
 
 // The Core provider session id is minted by Harness while the CLI mints its

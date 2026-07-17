@@ -68,7 +68,20 @@ try {
     "utf8"
   );
   writeFileSync(path.join(realConfigDir, "device_id"), "device-1", "utf8");
-  writeFileSync(path.join(realConfigDir, "config.toml"), "a = 1\n", "utf8");
+  writeFileSync(
+    path.join(realConfigDir, "config.toml"),
+    [
+      'default_model = "kimi-for-coding"',
+      "default_thinking = false",
+      "",
+      "[models.kimi-for-coding]",
+      'provider = "kimi-prov"',
+      'model = "kimi-for-coding"',
+      "max_context_size = 262144",
+      "",
+    ].join("\n"),
+    "utf8"
+  );
   writeFileSync(path.join(realConfigDir, "tui.toml"), "b = 2\n", "utf8");
 
   const workspacePath = path.join(root, "workspace");
@@ -90,16 +103,37 @@ try {
     readFileSync(path.join(configDir, "credentials", "token.json"), "utf8"),
     "{}"
   );
-  assert.equal(
-    readFileSync(path.join(configDir, "config.toml"), "utf8"),
-    "a = 1\n"
+
+  // The Core-catalog models get appended [models.*] sections (the CLI only
+  // accepts model selection for ids declared in config.toml); the provider
+  // is inherited from the user's own model section.
+  const configText = readFileSync(path.join(configDir, "config.toml"), "utf8");
+  const sectionCount = (name) =>
+    configText.split("\n").filter((line) => line.trim() === `[models.${name}]`)
+      .length;
+  assert.equal(sectionCount("kimi-for-coding"), 1);
+  assert.equal(sectionCount("kimi-for-coding-highspeed"), 1);
+  assert.equal(sectionCount("k3"), 1);
+  assert.match(
+    configText,
+    /\[models\.k3\]\nprovider = "kimi-prov"\nmodel = "k3"\nmax_context_size = 262144/u
   );
-  // Re-preparing is idempotent and keeps a locally edited config copy.
-  writeFileSync(path.join(configDir, "config.toml"), "a = 2\n", "utf8");
+  assert.match(configText, /^default_thinking = false$/mu);
+
+  // Re-preparing is idempotent (no duplicate sections) and keeps local
+  // config edits.
+  writeFileSync(
+    path.join(configDir, "config.toml"),
+    `${configText}# local tweak\n`,
+    "utf8"
+  );
   prepareKimiWorkspaceHome(workspacePath, { realKimiConfigDir: realConfigDir });
+  const reprepared = readFileSync(path.join(configDir, "config.toml"), "utf8");
+  assert.match(reprepared, /# local tweak/u);
   assert.equal(
-    readFileSync(path.join(configDir, "config.toml"), "utf8"),
-    "a = 2\n"
+    reprepared.split("\n").filter((line) => line.trim() === "[models.k3]")
+      .length,
+    1
   );
 
   // Deletion resolves the CLI store id from the persisted mapping and

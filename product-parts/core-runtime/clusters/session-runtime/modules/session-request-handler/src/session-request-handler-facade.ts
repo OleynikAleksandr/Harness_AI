@@ -78,6 +78,9 @@ export class SessionRequestHandlerFacade {
     deleteBinding: (sessionId) => this.runtimeBindings.delete(sessionId),
     getBinding: (sessionId) => this.runtimeBindings.get(sessionId),
     getSession: (sessionId) => this.sessions.get(sessionId),
+    interruptSubagentChild: (childSessionId, event) =>
+      this.subagentLifecycle.handleProviderEvent(childSessionId, event),
+    listSessions: () => this.listSessions(),
     publishIdle: (sessionId) => this.publishTurnState(sessionId, "idle"),
   });
   private readonly rollback = new SessionRollback({

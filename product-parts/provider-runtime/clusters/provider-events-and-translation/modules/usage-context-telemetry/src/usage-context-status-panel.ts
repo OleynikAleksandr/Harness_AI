@@ -7,7 +7,9 @@ export interface ProviderStatusPanelCapabilities {
 const ROLLBACK_PROVIDER_IDS = new Set(["codex", "grok"]);
 
 export function defaultProviderCachedTokens(providerId: string): number | null {
-  return ROLLBACK_PROVIDER_IDS.has(providerId) ? 0 : null;
+  return ROLLBACK_PROVIDER_IDS.has(providerId) || providerId === "kimi-client"
+    ? 0
+    : null;
 }
 
 export function defaultProviderTokenLimit(
@@ -16,6 +18,11 @@ export function defaultProviderTokenLimit(
 ): number {
   if (providerId === "grok") {
     return model === "grok-4.5" ? 500_000 : 200_000;
+  }
+  if (providerId === "kimi-client") {
+    // The verified Kimi Coding Plan native context window (config
+    // max_context_size); real usage events override it per turn.
+    return 262_144;
   }
   return providerId.startsWith("glm-") ? 262_144 : 200_000;
 }
@@ -26,8 +33,13 @@ export function providerStatusPanelCapabilities(
   const supportsRollback = ROLLBACK_PROVIDER_IDS.has(providerId);
   return {
     rollbackPreserveFirstUserTurns: supportsRollback ? 2 : null,
-    showCache: supportsRollback || providerId === "claude",
-    showTurns: supportsRollback,
+    // Kimi native turns report inputCacheRead from the CLI session store;
+    // turns count from turn_completed like the other providers.
+    showCache:
+      supportsRollback ||
+      providerId === "claude" ||
+      providerId === "kimi-client",
+    showTurns: supportsRollback || providerId === "kimi-client",
   };
 }
 

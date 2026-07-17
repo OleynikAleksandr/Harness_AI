@@ -84,6 +84,33 @@ const grokComposer = usageContextTelemetryFacade.createTelemetry({
 });
 assert.equal(grokComposer.tokenUsage.limit, 200_000);
 
+// Kimi shows the full panel since the 2026-07-17 telemetry stream: the
+// verified 262144 native context default, cache from the CLI session store
+// and turn counting; rollback stays unavailable.
+const kimi = usageContextTelemetryFacade.createTelemetry({
+  model: "kimi-for-coding",
+  provider: "Kimi",
+  providerId: "kimi-client",
+});
+assert.equal(kimi.tokenUsage.limit, 262_144);
+assert.equal(kimi.statusPanelCapabilities.showCache, true);
+assert.equal(kimi.statusPanelCapabilities.showTurns, true);
+assert.equal(kimi.statusPanelCapabilities.rollbackPreserveFirstUserTurns, null);
+assert.equal(kimi.cacheDisplay?.value, "0");
+const kimiUsage = usageContextTelemetryFacade.applyProviderEvent(kimi, {
+  data: {
+    kind: "token_usage",
+    tokenUsage: { cached: 20_094, limit: 262_144, used: 20_235 },
+  },
+  type: "stream_event",
+});
+assert.equal(kimiUsage.cacheDisplay?.value, "20,094");
+assert.equal(kimiUsage.tokenDisplay.value, "20,235 (92%)");
+const kimiTurn = usageContextTelemetryFacade.applyProviderEvent(kimiUsage, {
+  type: "turn_completed",
+});
+assert.equal(kimiTurn.turnCount, 1);
+
 const codexCached = usageContextTelemetryFacade.applyProviderEvent(codex, {
   data: {
     kind: "token_usage",

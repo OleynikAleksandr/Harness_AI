@@ -29,7 +29,13 @@ Own usage limits and context-window signals derived from provider events.
   exposes Cache, Turns and Rollback, including the number of warmup turns that
   rollback must preserve. Codex and Grok both publish the full contract with a
   two-turn anchor; the renderer does not branch on provider ids or infer these
-  capabilities from transcript text.
+  capabilities from transcript text. Since the 2026-07-17 Kimi telemetry
+  stream `kimi-client` shows Cache and Turns too (rollback stays
+  unavailable): its cached counter starts at `0`, the default token limit is
+  the verified `262144` Kimi Coding Plan native context window, cached
+  values arrive as `inputCacheRead` from the CLI session-store usage the
+  native session runtime emits per turn, and turns advance on
+  `turn_completed` like the other providers.
 - Core-owned `turnCount` follows a provider-normalized numeric turn field when
   one is present and otherwise advances only on structured `turn_completed`
   events. Restored snapshots are normalized through the same facade, so older

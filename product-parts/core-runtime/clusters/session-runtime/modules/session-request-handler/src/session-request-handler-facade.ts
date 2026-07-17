@@ -145,12 +145,8 @@ export class SessionRequestHandlerFacade {
       getSubagentCall: (parentSessionId, callId) =>
         this.getSubagentCall(parentSessionId, callId),
       listSessions: () => this.listSessions(),
-      publishSubagentCall: (call) =>
-        this.eventStream.publish({
-          payload: call,
-          timestamp: call.updatedAt,
-          type: "session:subagent-call",
-        }),
+      publishChildResultMessage: (message) => this.publishMessage(message),
+      publishSubagentCall: (event) => this.eventStream.publish(event),
       updateSession: (session) => this.updateSession(session),
     });
   }

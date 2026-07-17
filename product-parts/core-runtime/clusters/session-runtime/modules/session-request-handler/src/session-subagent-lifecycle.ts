@@ -7,8 +7,10 @@ import type {
   ProviderSubagentStatusEvent,
 } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import type {
+  CoreSessionMessage,
   CoreSubagentCall,
   CoreSubagentCallStatus,
+  SessionCoreEvent,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { buildProviderTurnOptions } from "./provider-turn-options.js";
 import { createId } from "./session-request-handler-runtime-utils.js";
@@ -68,7 +70,8 @@ interface SessionSubagentLifecycleDependencies {
     callId: string
   ) => CoreSubagentCall | undefined;
   readonly listSessions: () => CoreSession[];
-  readonly publishSubagentCall: (call: CoreSubagentCall) => void;
+  readonly publishChildResultMessage: (message: CoreSessionMessage) => void;
+  readonly publishSubagentCall: (event: SessionCoreEvent) => void;
   readonly updateSession: (session: CoreSession) => void;
 }
 
@@ -127,7 +130,7 @@ export class SessionSubagentLifecycle {
       ...(previous?.childSessionIds ?? []),
       ...children.map((child) => child.id),
     ]);
-    this.deps.publishSubagentCall({
+    this.publishCall({
       childSessionIds,
       createdAt: previous?.createdAt ?? event.timestamp,
       id: event.callId,
@@ -159,6 +162,12 @@ export class SessionSubagentLifecycle {
     ) {
       return;
     }
+    const existingStatus = this.findChildByProviderSessionId(
+      event.providerSessionId
+    )?.subagentStatus;
+    const wasTerminal =
+      existingStatus !== undefined &&
+      TERMINAL_SUBAGENT_STATUSES.has(existingStatus);
     const child = this.ensureChildSession(parent, {
       agentNickname: event.agentNickname,
       agentRole: event.agentRole,
@@ -168,6 +177,22 @@ export class SessionSubagentLifecycle {
       timestamp: event.timestamp,
       title: event.title,
     });
+    // A synthesized child has no provider channel to stream its content;
+    // the provider hands the final result with the terminal event and Core
+    // publishes it once, on the live transition into a terminal status.
+    if (
+      event.result &&
+      TERMINAL_SUBAGENT_STATUSES.has(event.status) &&
+      !wasTerminal
+    ) {
+      this.deps.publishChildResultMessage({
+        id: createId("message-subagent"),
+        role: "assistant",
+        sessionId: child.id,
+        text: event.result,
+        timestamp: event.timestamp,
+      });
+    }
     this.updateParentCall(child, event.timestamp);
   }
 
@@ -301,10 +326,20 @@ export class SessionSubagentLifecycle {
     const statuses = call.childSessionIds
       .map((sessionId) => this.deps.getSession(sessionId)?.subagentStatus)
       .filter((status): status is CoreSubagentStatus => Boolean(status));
-    this.deps.publishSubagentCall({
+    this.publishCall({
       ...call,
       status: resolveCallStatus("completed", statuses),
       updatedAt: timestamp,
+    });
+  }
+
+  // The lifecycle owns its domain event envelope; the facade only forwards
+  // it to the session event stream.
+  private publishCall(call: CoreSubagentCall): void {
+    this.deps.publishSubagentCall({
+      payload: call,
+      timestamp: call.updatedAt,
+      type: "session:subagent-call",
     });
   }
 }

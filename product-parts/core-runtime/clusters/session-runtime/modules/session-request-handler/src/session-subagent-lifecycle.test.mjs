@@ -51,6 +51,15 @@ assert.match(
   /handleSubagentEvent: this\.deps\.handleSubagentEvent/u
 );
 
+// A provider-handed terminal result publishes exactly once, on the child's
+// live transition into a terminal status (synthesized children have no
+// provider channel to stream their content).
+assert.match(source, /publishChildResultMessage/u);
+assert.match(
+  source,
+  /event\.result &&\s+TERMINAL_SUBAGENT_STATUSES\.has\(event\.status\) &&\s+!wasTerminal/u
+);
+
 // Terminal child statuses are monotonic: historical running/pending replay
 // never downgrades them without strictly newer provider evidence.
 assert.match(source, /TERMINAL_SUBAGENT_STATUSES/u);

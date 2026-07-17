@@ -185,6 +185,10 @@ export interface ProviderSubagentSessionEvent {
   readonly agentRole?: string;
   readonly parentProviderSessionId: string;
   readonly providerSessionId: string;
+  // Final result text of a finishing agent, for providers whose subagents
+  // have no provider channel of their own (synthesized children): Core
+  // publishes it once as the child's assistant message on terminalization.
+  readonly result?: string;
   readonly status: ProviderSubagentStatus;
   readonly task?: string;
   readonly timestamp: string;

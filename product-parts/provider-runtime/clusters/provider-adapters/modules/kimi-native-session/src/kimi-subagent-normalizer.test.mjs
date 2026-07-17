@@ -104,6 +104,7 @@ try {
   assert.equal(terminal[0].type, "subagent_session");
   assert.equal(terminal[0].agentRole, "coder");
   assert.equal(terminal[0].status, "completed");
+  assert.equal(terminal[0].result, "DONE");
   assert.equal(terminal[1].type, "subagent_status");
   assert.equal(terminal[1].status, "completed");
   assert.equal(terminal[1].providerSessionId, `kimi-agent-${toolCallId}`);
@@ -255,6 +256,13 @@ try {
   );
   assert.equal(agentZeroSessions[0].agentRole, "explore");
   assert.equal(agentZeroSessions[0].task, "a.md");
+  assert.equal(agentZeroSessions[0].result, "Alpha summary");
+  const rootTerminalSession = swarmTerminal.find(
+    (event) =>
+      event.type === "subagent_session" &&
+      event.providerSessionId === "kimi-agent-swarm-9"
+  );
+  assert.equal(rootTerminalSession.result, "completed: 1, aborted: 1");
   assert.deepEqual(swarm.liveSwarmCallIds(), []);
   assert.deepEqual(
     swarm.registerLiveSwarmAgents("swarm-9", [

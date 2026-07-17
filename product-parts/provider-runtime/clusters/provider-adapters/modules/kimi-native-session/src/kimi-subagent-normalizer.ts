@@ -22,6 +22,8 @@ const SUBAGENT_RESULT_STATUS_PATTERN = /(?:^|\n)status:\s*([\w-]+)/u;
 const SWARM_AGENT_SECTION_PATTERN =
   /<subagent\s+([^>]*?)>([\s\S]*?)<\/subagent>/gu;
 const SWARM_ATTRIBUTE_PATTERN = /([\w-]+)="([^"]*)"/gu;
+const SWARM_SUMMARY_PATTERN = /<summary>([\s\S]*?)<\/summary>/u;
+const AGENT_RESULT_BODY_MARKER = /\n\[summary\]\n/u;
 
 interface ParsedSubagentInput {
   readonly description: string | null;
@@ -216,7 +218,14 @@ export class KimiSubagentNormalizer {
         ? "failed"
         : "completed";
     return [
-      sessionEvent(parent, entry.childId, status, entry.task, role),
+      sessionEvent(
+        parent,
+        entry.childId,
+        status,
+        entry.task,
+        role,
+        agentResultBody(resultText)
+      ),
       statusEvent(entry.childId, status),
     ];
   }
@@ -233,7 +242,8 @@ export class KimiSubagentNormalizer {
   ): ProviderSubagentEvent[] {
     const events: ProviderSubagentEvent[] = [];
     const role = entry.parsedInput?.subagentType ?? null;
-    for (const agent of parseSwarmAgentResults(readResultText(update))) {
+    const resultText = readResultText(update);
+    for (const agent of parseSwarmAgentResults(resultText)) {
       const existing = entry.agents.get(agent.agentId);
       const childId = existing?.childId ?? `${entry.childId}:${agent.agentId}`;
       if (!existing) {
@@ -248,7 +258,7 @@ export class KimiSubagentNormalizer {
         trackedAgent.terminal = true;
         const status = swarmOutcomeStatus(agent.outcome);
         events.push(
-          sessionEvent(parent, childId, status, agent.item, role),
+          sessionEvent(parent, childId, status, agent.item, role, agent.text),
           statusEvent(childId, status)
         );
       }
@@ -256,7 +266,14 @@ export class KimiSubagentNormalizer {
     const rootStatus: ProviderSubagentStatus =
       updateStatus === "failed" ? "failed" : "completed";
     events.push(
-      sessionEvent(parent, entry.childId, rootStatus, entry.task, role),
+      sessionEvent(
+        parent,
+        entry.childId,
+        rootStatus,
+        entry.task,
+        role,
+        resultText.match(SWARM_SUMMARY_PATTERN)?.[1]?.trim() ?? null
+      ),
       statusEvent(entry.childId, rootStatus)
     );
     return events;
@@ -315,17 +332,27 @@ function sessionEvent(
   childId: string,
   status: ProviderSubagentStatus,
   task: string | null,
-  role: string | null
+  role: string | null,
+  result: string | null = null
 ): ProviderSubagentEvent {
   return {
     ...(role ? { agentRole: role } : {}),
     parentProviderSessionId: parent,
     providerSessionId: childId,
+    ...(result ? { result } : {}),
     status,
     ...(task ? { task } : {}),
     timestamp: nowIso(),
     type: "subagent_session",
   };
+}
+
+// A single-Agent result prefixes machine lines (`agent_id`, `status`, ...)
+// before a `[summary]` marker; the child's assistant message is the body.
+function agentResultBody(resultText: string): string | null {
+  const parts = resultText.split(AGENT_RESULT_BODY_MARKER);
+  const body = (parts.length > 1 ? parts.at(-1) : resultText)?.trim();
+  return body ? body : null;
 }
 
 function statusEvent(

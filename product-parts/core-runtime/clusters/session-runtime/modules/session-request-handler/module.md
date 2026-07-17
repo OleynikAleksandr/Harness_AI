@@ -108,7 +108,15 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   its spawn activity, and for a legacy parent without persisted effort resolves
   the same Core turn setting used for provider dispatch. It then requests
   adoption of the live child provider thread, updates child status, and
-  publishes stable `CoreSubagentCall` snapshots.
+  publishes stable `CoreSubagentCall` snapshots (the lifecycle builds its
+  `session:subagent-call` envelope itself; the facade only forwards it to the
+  event stream).
+  When a `subagent_session` event carries a provider-handed `result` text
+  (synthesized children — e.g. Kimi swarm agents — have no provider channel
+  to stream their content), the lifecycle publishes it exactly once as the
+  child's assistant message through the facade's message pipeline, on the
+  child's live transition into a terminal status; replays and repeated
+  terminal events cannot duplicate it.
   Historical `subagent_session` metadata also recomputes its parent call after
   enriching the child, so a restored terminal thread cannot leave the timeline
   call in `running`.

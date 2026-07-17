@@ -88,7 +88,12 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   (`kimi-agent-<toolCallId>:<agent_id>`, task = its `item`, spawned under
   the same call so the divider counter is honest) and closes each with its
   reported outcome (`completed` -> completed, `aborted` -> interrupted,
-  anything else -> failed) before closing the swarm's root child. While a
+  anything else -> failed) before closing the swarm's root child. Terminal
+  events carry the contract's `result` text — the per-agent section body for
+  swarm agents, the `<summary>` line for the swarm's root child and the
+  post-`[summary]` body for a single Agent — which Core publishes once as
+  the finished child's assistant message, so clicking a finished agent card
+  shows its outcome. While a
   swarm still runs the normalizer also accepts live registrations from the
   session-store poller (`liveSwarmCallIds`/`registerLiveSwarmAgents`,
   proxied through `KimiSessionEventNormalizer`): every store-observed agent

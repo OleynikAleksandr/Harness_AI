@@ -2,8 +2,14 @@ import { useState } from "react";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
-export type UpdatableProviderId = "claude" | "codex";
+export type UpdatableProviderId = "claude" | "codex" | "kimi";
 export type VersionTarget = "cli" | "sdk";
+
+const PROVIDER_LABELS: Record<UpdatableProviderId, string> = {
+  claude: "Claude",
+  codex: "Codex",
+  kimi: "Kimi",
+};
 
 export interface ProviderVersionEntry {
   currentVersion: null | string;
@@ -15,6 +21,9 @@ export interface ProviderVersionsSnapshot {
   checkedAt: string;
   claude: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
   codex: { cli: ProviderVersionEntry; sdk: ProviderVersionEntry };
+  // Kimi has no SDK and no npm package: one CLI entry from the native
+  // `kimi upgrade` channel.
+  kimi: { cli: Omit<ProviderVersionEntry, "packageName"> };
 }
 
 export function ProviderVersionsCard({
@@ -32,13 +41,13 @@ export function ProviderVersionsCard({
   loading: boolean;
   onAutoUpdateChange: (enabled: boolean) => void;
   onUpdate: (provider: UpdatableProviderId, target: VersionTarget) => void;
-  provider: "claude" | "codex";
+  provider: UpdatableProviderId;
   snapshot: null | ProviderVersionsSnapshot;
   updatingTargets: readonly string[];
 }) {
   const { t } = useBrowserLocalization();
   const [pendingTarget, setPendingTarget] = useState<null | string>(null);
-  const title = provider === "claude" ? "Claude Versions" : "Codex Versions";
+  const title = `${PROVIDER_LABELS[provider]} Versions`;
   const rows = versionRows(provider, snapshot);
   const handleUpdate = (target: VersionTarget) => {
     const key = `${provider}:${target}`;
@@ -69,12 +78,20 @@ export function ProviderVersionsCard({
       </div>
       <SettingsToggle
         checked={autoUpdate}
-        description={t(
-          "ui_helper_text",
-          "settings.provider.versions.autoUpdate.description",
-          "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below."
-        )}
-        label={`Auto-update ${provider === "claude" ? "Claude" : "Codex"}`}
+        description={
+          provider === "kimi"
+            ? t(
+                "ui_helper_text",
+                "settings.provider.versions.autoUpdate.cli.description",
+                "Automatically check and update the CLI when the Core starts. Manual updates are available below."
+              )
+            : t(
+                "ui_helper_text",
+                "settings.provider.versions.autoUpdate.description",
+                "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below."
+              )
+        }
+        label={`Auto-update ${PROVIDER_LABELS[provider]}`}
         onChange={onAutoUpdateChange}
       />
       {error ? <p className="settings-version-status">{error}</p> : null}
@@ -169,15 +186,25 @@ function VersionRow({
 }
 
 function versionRows(
-  provider: "claude" | "codex",
+  provider: UpdatableProviderId,
   snapshot: null | ProviderVersionsSnapshot
 ) {
   if (!snapshot) {
     return [];
   }
+  const prefix = PROVIDER_LABELS[provider];
+  if (provider === "kimi") {
+    return [
+      {
+        currentVersion: snapshot.kimi.cli.currentVersion,
+        label: `${prefix} CLI`,
+        latestVersion: snapshot.kimi.cli.latestVersion,
+        target: "cli" as const,
+      },
+    ];
+  }
   const providerSnapshot =
     provider === "claude" ? snapshot.claude : snapshot.codex;
-  const prefix = provider === "claude" ? "Claude" : "Codex";
   return [
     {
       currentVersion: providerSnapshot.cli.currentVersion,

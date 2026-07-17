@@ -197,6 +197,8 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "When enabled, Claude can use its adaptive thinking path for complex requests.",
     "settings.provider.versions.autoUpdate.description":
       "Automatically check and update the CLI and SDK when the Core starts. Manual updates are available below.",
+    "settings.provider.versions.autoUpdate.cli.description":
+      "Automatically check and update the CLI when the Core starts. Manual updates are available below.",
     "settings.provider.codex.defaultModel.description":
       "Select which Codex model to use when starting new sessions. Each model stores its own reasoning effort level.",
     "settings.provider.codex.model.gpt-5.6-sol.description":

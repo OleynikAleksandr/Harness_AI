@@ -28,7 +28,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `providers.kimiClient.defaultModel`. The card consumes the shared
   provider-descriptor catalog (`kimi-for-coding`,
   `kimi-for-coding-highspeed`, `k3`) through `PROVIDER_MODEL_OPTIONS`, so the
-  renderer does not duplicate provider model ids. The retired ACP thinking
+  renderer does not duplicate provider model ids. Below the model card the
+  Kimi tab mounts the shared `ProviderVersionsCard` in its CLI-only Kimi form
+  (single `Kimi CLI` row; auto-update toggle bound to
+  `providers.kimiClient.autoUpdate.enabled`). The retired ACP thinking
   toggles remain absent after the kimi-provider retirement (2026-07-05 user
   order). The GLM
   tab binds `GlmClientApiKeyCard` to `providers.glmClient.apiKey` (prefix
@@ -213,7 +216,13 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   Both were previously hardcoded Russian strings that showed up regardless of
   the configured UI language, including in an otherwise-English session; they
   now follow the same UI Helper Text / Messages for the User language
-  selection as the rest of Settings, in every Claude/Codex Versions card.
+  selection as the rest of Settings, in every Claude/Codex/Kimi Versions card.
+- The Kimi Versions card is the same shared component with `provider="kimi"`:
+  `versionRows` returns a single `Kimi CLI` row from `snapshot.kimi.cli` (no
+  SDK row — Kimi has no SDK or npm package; the CLI is a standalone binary
+  updated through the native `kimi upgrade` channel served by Core), and the
+  auto-update toggle swaps in the CLI-only helper text
+  `settings.provider.versions.autoUpdate.cli.description`.
 
 ## Settings Surface Styling
 

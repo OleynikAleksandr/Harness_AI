@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import type { LocalModelEntry } from "./local-models-settings-card.js";
-import type { ProviderVersionsSnapshot } from "./provider-version-controls.js";
+import type {
+  ProviderVersionsSnapshot,
+  UpdatableProviderId,
+  VersionTarget,
+} from "./provider-version-controls.js";
 import { SETTINGS_TABS, type SettingsTabId } from "./settings-model-options.js";
 import { SettingsTabContent } from "./settings-tab-content.js";
 import "./settings-surface.css";
@@ -316,8 +320,8 @@ export function ProviderSettingsUiFacade({
   };
 
   const updateProvider = async (
-    provider: "claude" | "codex",
-    target: "cli" | "sdk"
+    provider: UpdatableProviderId,
+    target: VersionTarget
   ) => {
     if (!window.harnessCore) {
       return;

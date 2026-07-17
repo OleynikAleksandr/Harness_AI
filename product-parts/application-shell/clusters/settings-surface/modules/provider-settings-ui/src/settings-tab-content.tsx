@@ -235,6 +235,20 @@ export function SettingsTabContent({
           )}
           value={settings.providers.kimiClient.defaultModel}
         />
+        <ProviderVersionsCard
+          autoUpdate={settings.providers.kimiClient.autoUpdate.enabled}
+          error={versionError}
+          loading={versionLoading}
+          onAutoUpdateChange={(enabled) =>
+            update((next) => {
+              next.providers.kimiClient.autoUpdate.enabled = enabled;
+            })
+          }
+          onUpdate={onUpdateProvider}
+          provider="kimi"
+          snapshot={versions}
+          updatingTargets={versionUpdatingTargets}
+        />
       </div>
     );
   }

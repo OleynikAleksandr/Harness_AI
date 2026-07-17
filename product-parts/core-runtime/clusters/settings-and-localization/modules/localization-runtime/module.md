@@ -47,6 +47,11 @@ materialization, bootstrap payload reuse, and bundle state.
   `.defaultModel.description` and the three
   `.model.<model-id>.description` entries (`kimi-for-coding`,
   `kimi-for-coding-highspeed`, `k3`) in `ui_helper_text`.
+- The provider Versions auto-update helper copy has a CLI-only variant
+  (`settings.provider.versions.autoUpdate.cli.description`) in
+  `ui_helper_text` for providers without an SDK entry — the Kimi Versions
+  card — alongside the CLI+SDK string
+  (`settings.provider.versions.autoUpdate.description`).
 - GLM, Local Models, OpenRouter and session continuity Settings helper copy are
   part of the approved dictionaries so selecting Russian for UI Helper Text or
   Messages for the User covers those provider tabs without renderer-local string

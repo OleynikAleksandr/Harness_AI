@@ -93,10 +93,14 @@ session id with the CLI store id).
   honest `kimi_thinking_unavailable` diagnostic — future CLI/model
   combinations that accept the option start emitting `agent_thought_chunk`
   (already normalized into thinking bubbles) with no Harness change.
-  `prompt(text, model?)` applies the per-turn Core session model the same
-  best-effort way when it differs from the already-applied one (the driver
-  forwards `ProviderTurnOptions.model`), emits `turn_started`, sends
-  `session/prompt` with a
+  `prompt(text, model?, reasoningEffort?)` applies the per-turn Core session
+  model the same best-effort way when it differs from the already-applied
+  one (the driver forwards `ProviderTurnOptions.model`), writes the turn's
+  reasoning effort into the workspace-home config before the first spawn
+  (the CLI reads the level once at process start; a level arriving after
+  start surfaces one `kimi_thinking_effort_locked` diagnostic per distinct
+  value and an unsupported level one `kimi_thinking_effort_unsupported`),
+  emits `turn_started`, sends `session/prompt` with a
   30-minute turn timeout, flushes buffered text and emits `turn_completed`
   (with the CLI `stopReason` as the message) or `turn_failed`.
   `cancelTurn()` sends the `session/cancel` notification and keeps the CLI

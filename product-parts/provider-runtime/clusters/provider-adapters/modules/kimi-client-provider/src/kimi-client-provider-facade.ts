@@ -161,10 +161,14 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     }
     if (isKimiNativeSessionId(sessionId)) {
       const model = turnOptions?.model;
+      const reasoningEffort = turnOptions?.reasoningEffort;
       await kimiNativeSessionDriver.sendMessage(
         sessionId,
         content,
-        typeof model === "string" && model.trim() ? model.trim() : undefined
+        typeof model === "string" && model.trim() ? model.trim() : undefined,
+        typeof reasoningEffort === "string" && reasoningEffort.trim()
+          ? reasoningEffort.trim()
+          : undefined
       );
       return;
     }

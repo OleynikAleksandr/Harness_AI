@@ -24,6 +24,7 @@ import {
   type KimiWorkspaceHome,
   prepareKimiWorkspaceHome,
   recordKimiSessionMapping,
+  writeKimiThinkingEffort,
 } from "./kimi-workspace-home.js";
 
 export interface KimiNativeSessionRuntimeOptions {
@@ -63,6 +64,8 @@ const SWARM_POLL_INTERVAL_MS = 2000;
 export class KimiNativeSessionRuntime {
   private acpSessionId: string | null = null;
   private appliedModel: string | null = null;
+  private appliedThinkingEffort: string | null = null;
+  private reportedThinkingEffort: string | null = null;
   private readonly channel: KimiAcpSessionProcess;
   private readonly normalizer = new KimiSessionEventNormalizer();
   private readonly options: KimiNativeSessionRuntimeOptions;
@@ -144,6 +147,42 @@ export class KimiNativeSessionRuntime {
     return sessionId;
   }
 
+  // The thinking LEVEL is read by the CLI once at process start
+  // (`[thinking].effort` in the workspace-home config), so the level from
+  // the first turn's Core options is written right before the first spawn
+  // and stays fixed for the session lifetime. A level arriving later (or an
+  // unsupported one) surfaces one honest diagnostic per distinct value.
+  private applyThinkingEffort(reasoningEffort?: string): void {
+    if (!reasoningEffort || reasoningEffort === this.appliedThinkingEffort) {
+      return;
+    }
+    if (this.acpSessionId) {
+      if (this.reportedThinkingEffort !== reasoningEffort) {
+        this.reportedThinkingEffort = reasoningEffort;
+        this.emit(
+          streamDiagnostic(
+            "kimi_thinking_effort_locked",
+            `The thinking effort is fixed at CLI start; "${reasoningEffort}" applies to the next new session.`
+          )
+        );
+      }
+      return;
+    }
+    if (writeKimiThinkingEffort(this.workspaceHome, reasoningEffort)) {
+      this.appliedThinkingEffort = reasoningEffort;
+      return;
+    }
+    if (this.reportedThinkingEffort !== reasoningEffort) {
+      this.reportedThinkingEffort = reasoningEffort;
+      this.emit(
+        streamDiagnostic(
+          "kimi_thinking_effort_unsupported",
+          `Thinking effort "${reasoningEffort}" is not supported; keeping the configured level.`
+        )
+      );
+    }
+  }
+
   // Full access (user order 2026-07-17): native sessions run without
   // tool-permission cards. CLI 0.26.0 accepts
   // `{configId: "mode", value: "yolo"}` (verified live — a Bash-using turn
@@ -183,7 +222,12 @@ export class KimiNativeSessionRuntime {
       });
   }
 
-  async prompt(text: string, model?: string): Promise<void> {
+  async prompt(
+    text: string,
+    model?: string,
+    reasoningEffort?: string
+  ): Promise<void> {
+    this.applyThinkingEffort(reasoningEffort);
     const sessionId = await this.open();
     if (model) {
       // The Core session model arrives with the turn; select it before the

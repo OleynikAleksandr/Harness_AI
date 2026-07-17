@@ -124,9 +124,14 @@ export class KimiNativeSessionDriver {
   async sendMessage(
     sessionId: string,
     content: string,
-    model?: string
+    model?: string,
+    reasoningEffort?: string
   ): Promise<void> {
-    await this.requireEntry(sessionId).runtime.prompt(content, model);
+    await this.requireEntry(sessionId).runtime.prompt(
+      content,
+      model,
+      reasoningEffort
+    );
   }
 
   subscribe(sessionId: string, listener: (event: unknown) => void): () => void {

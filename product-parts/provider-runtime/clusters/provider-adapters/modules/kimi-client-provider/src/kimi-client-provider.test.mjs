@@ -47,8 +47,8 @@ const source = readFileSync(
       '    globalThis.__kimiNativeCalls.push(["resume", sessionId, options.workspacePath]);',
       "    return Promise.resolve(sessionId);",
       "  },",
-      "  sendMessage: (sessionId, content, model) => {",
-      '    globalThis.__kimiNativeCalls.push(["send", sessionId, content, model ?? null]);',
+      "  sendMessage: (sessionId, content, model, reasoningEffort) => {",
+      '    globalThis.__kimiNativeCalls.push(["send", sessionId, content, model ?? null, reasoningEffort ?? null]);',
       "    return Promise.resolve();",
       "  },",
       "  stopSession: (sessionId) => {",
@@ -256,7 +256,10 @@ try {
   });
   assert.equal(nativeSessionId, "kimi-native-test-1");
   adapter.subscribe(nativeSessionId, () => undefined);
-  await adapter.sendMessage(nativeSessionId, "go native", { model: "k3" });
+  await adapter.sendMessage(nativeSessionId, "go native", {
+    model: "k3",
+    reasoningEffort: "max",
+  });
   await adapter.closeSession(nativeSessionId);
   await adapter.respondToInteraction(nativeSessionId, {
     interactionId: "kimi-interaction:1",
@@ -268,7 +271,7 @@ try {
   assert.deepEqual(globalThis.__kimiNativeCalls, [
     ["create", "/ws"],
     ["subscribe", "kimi-native-test-1"],
-    ["send", "kimi-native-test-1", "go native", "k3"],
+    ["send", "kimi-native-test-1", "go native", "k3", "max"],
     ["stop", "kimi-native-test-1"],
     ["respond", "kimi-native-test-1", "selected"],
     ["resume", "kimi-native-test-1", "/ws"],

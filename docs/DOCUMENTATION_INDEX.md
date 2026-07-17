@@ -185,6 +185,15 @@ readiness registry, liveness checker, and workspace provisioner modules.
   per-agent result delivery into child sessions, stop-time terminalization
   of running subagent calls, the live 3-agent dist smoke and the packaged
   `app.asar` checksum with binary-grep proof.
+- `docs/evidence/kimi-native-access-package-2026-07-17.md` — Kimi native
+  access-and-home packaging evidence for the post-swarm user order: native
+  sessions open in the CLI's full-access mode (`{mode, "yolo"}` verified,
+  zero permission cards on a Bash turn), run with `HOME` in the
+  Claude/Codex-parity workspace provider home with symlinked auth, keep the
+  usage/swarm readers on the workspace store, persist the session-id map
+  and delete the mapped native session directory with the Harness session;
+  includes the live dist smoke and the packaged `app.asar` checksum with
+  binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

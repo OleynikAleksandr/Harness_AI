@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task22",
-  "expectedCommitMessage": "chore: package Kimi native access build",
+  "currentTaskId": "harness-ai.phase8.stream1.task23",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -221,6 +221,6 @@
 80. [DONE] Git Commit: `feat: enable Kimi native full access mode` (hash: self)
 81. [DONE] `harness-ai.phase8.stream1.task21` Run Kimi native sessions in the workspace provider home like Claude/Codex: resolve `<workspace>/.harness/runtime/providers/kimi/home` through the provider-home manager, bootstrap it before spawn (symlink `credentials`/`device_id` to the real `~/.kimi-code` so auth stays shared, copy `config.toml`/`tui.toml` if missing), spawn the CLI with `HOME` overridden so the session store lands inside the workspace, point the usage and swarm-progress readers at the workspace store, persist the `providerSessionId -> acpSessionId` map next to the store, and delete the mapped native session directory in `deleteSessionArtifacts` so removing a Harness session removes its native JSONL (scope — this task is explicitly split as 4 functional files because the home bootstrap, the runtime wiring, the driver surface and the adapter deletion each own one side: `kimi-native-session/src/kimi-workspace-home.ts, kimi-native-session/src/kimi-native-session-runtime.ts, kimi-native-session/src/kimi-native-session-facade.ts, kimi-client-provider/src/kimi-client-provider-facade.ts` + paired tests/docs; expected commit: `feat: run Kimi native sessions in workspace home`). Result: Completed in commit `feat: run Kimi native sessions in workspace home`.
 82. [DONE] Git Commit: `feat: run Kimi native sessions in workspace home` (hash: self)
-83. [IN_PROGRESS] `harness-ai.phase8.stream1.task22` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native access build`).
-84. [TODO] Git Commit: `chore: package Kimi native access build` (hash: TBD)
-85. [TODO] `harness-ai.phase8.stream1.task23` User verifies in the packaged app: a native Kimi session runs without permission cards (full access), its native session store lives under `<workspace>/.harness/runtime/providers/kimi/home` (nothing new appears in `~/.kimi-code/sessions/`), deleting the Harness session removes the native session directory, swarm visibility keeps working, and accepts the documented thinking limitation (completion: user-acceptance; scope: user workflow; expected commit: none).
+83. [DONE] `harness-ai.phase8.stream1.task22` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native access build`). Result: Completed in commit `chore: package Kimi native access build`.
+84. [DONE] Git Commit: `chore: package Kimi native access build` (hash: self)
+85. [IN_PROGRESS] `harness-ai.phase8.stream1.task23` User verifies in the packaged app: a native Kimi session runs without permission cards (full access), its native session store lives under `<workspace>/.harness/runtime/providers/kimi/home` (nothing new appears in `~/.kimi-code/sessions/`), deleting the Harness session removes the native session directory, swarm visibility keeps working, and accepts the documented thinking limitation (completion: user-acceptance; scope: user workflow; expected commit: none).

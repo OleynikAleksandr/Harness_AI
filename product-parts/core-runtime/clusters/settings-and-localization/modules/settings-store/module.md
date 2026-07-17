@@ -59,6 +59,13 @@ Own global and workspace settings persistence.
   exchanges only the string connection fields, so these two keys live purely
   in the settings files. Like every provider, the stored continuity threshold
   has no runtime consumer yet — it is settings truth for the Settings surface.
+  Since the 2026-07-17 native thinking stream the section also carries
+  `reasoningByModel` (workspace-projected like Codex/Grok): normalization
+  offers `low`/`high`/`max` for every catalog model with `high` as the
+  default (`KIMI_REASONING_EFFORTS_BY_MODEL`), and
+  `buildProviderTurnOptions` hands the per-model level to the `kimi-client`
+  adapter — the native driver writes it into the workspace-home config
+  before the CLI spawns.
 - The `glm-client` provider has its dedicated `providers.glmClient` section
   for the universal-client GLM endpoint: `apiKey`, `defaultModel`, and
   `reasoningEffort`. It is key-only (`baseUrl` is owned by the GLM dialect

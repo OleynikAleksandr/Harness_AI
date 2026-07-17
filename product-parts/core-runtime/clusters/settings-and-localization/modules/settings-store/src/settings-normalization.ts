@@ -66,6 +66,17 @@ export const GROK_REASONING_EFFORTS_BY_MODEL: Record<
 };
 const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
 const KIMI_CLIENT_MODEL_IDS = KIMI_CLIENT_MODELS.map((model) => model.id);
+// Native Kimi thinking levels (verified live on CLI 0.26.0, 2026-07-17):
+// the workspace-home config declares `support_efforts = ["low","high","max"]`
+// and the level is written per session before the CLI spawns; `high` is the
+// default the home bootstrap ships.
+const KIMI_DEFAULT_REASONING_EFFORT: ReasoningEffort = "high";
+export const KIMI_REASONING_EFFORTS_BY_MODEL: Record<
+  string,
+  readonly ReasoningEffort[]
+> = Object.fromEntries(
+  KIMI_CLIENT_MODEL_IDS.map((modelId) => [modelId, ["low", "high", "max"]])
+);
 const GLM_CLIENT_MODEL_IDS = [
   "glm-5.2",
   "glm-5.1",
@@ -129,6 +140,21 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   if (!KIMI_CLIENT_MODEL_IDS.includes(next.providers.kimiClient.defaultModel)) {
     next.providers.kimiClient.defaultModel = "kimi-for-coding";
   }
+  if (!isRecord(next.providers.kimiClient.reasoningByModel)) {
+    next.providers.kimiClient.reasoningByModel = {};
+  }
+  next.providers.kimiClient.reasoningByModel = Object.fromEntries(
+    KIMI_CLIENT_MODEL_IDS.map((modelId) => {
+      const efforts = KIMI_REASONING_EFFORTS_BY_MODEL[modelId] ?? [];
+      const configured = next.providers.kimiClient.reasoningByModel[modelId];
+      return [
+        modelId,
+        efforts.includes(configured)
+          ? configured
+          : KIMI_DEFAULT_REASONING_EFFORT,
+      ];
+    })
+  );
   if (!GLM_CLIENT_MODEL_IDS.includes(next.providers.glmClient.defaultModel)) {
     next.providers.glmClient.defaultModel = "glm-5.2";
   }

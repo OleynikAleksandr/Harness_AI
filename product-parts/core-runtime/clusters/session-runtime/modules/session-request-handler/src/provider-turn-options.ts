@@ -26,6 +26,17 @@ export function buildProviderTurnOptions(
       ...(reasoningEffort ? { reasoningEffort } : {}),
     };
   }
+  if (session.providerId === "kimi-client") {
+    // The native driver writes the level into the workspace-home config
+    // before the CLI spawns; managed sessions ignore the option today.
+    const kimi = settings.providers.kimiClient;
+    const reasoningEffort =
+      session.reasoningEffort ?? kimi.reasoningByModel[session.model];
+    return {
+      model: session.model,
+      ...(reasoningEffort ? { reasoningEffort } : {}),
+    };
+  }
   if (session.providerId !== "codex") {
     return { model: session.model };
   }

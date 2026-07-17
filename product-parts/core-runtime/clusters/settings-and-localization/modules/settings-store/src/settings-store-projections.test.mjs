@@ -11,14 +11,15 @@ const projectionsSource = readFileSync(
 );
 
 // Kimi keeps the key-only onboarding shape plus the common auto-update and
-// session-continuity settings with Codex-equivalent defaults.
+// session-continuity settings with Codex-equivalent defaults, and the
+// per-model native thinking levels.
 assert.match(
   facadeSource,
-  /kimiClient: ProviderClientKeySettings &\s*Pick<ProviderCommonSettings, "autoUpdate" \| "sessionContinuity">/u
+  /kimiClient: ProviderClientKeySettings &\s*Pick<ProviderCommonSettings, "autoUpdate" \| "sessionContinuity"> & \{\s*reasoningByModel: Record<string, ReasoningEffort>;\s*\}/u
 );
 assert.match(
   facadeSource,
-  /kimiClient: \{\s*apiKey: "",\s*autoUpdate: \{ enabled: false \},\s*defaultModel: "kimi-for-coding",\s*sessionContinuity: \{ remainingPercentThreshold: 30 \},\s*\}/u
+  /kimiClient: \{\s*apiKey: "",\s*autoUpdate: \{ enabled: false \},\s*defaultModel: "kimi-for-coding",\s*reasoningByModel: \{\},\s*sessionContinuity: \{ remainingPercentThreshold: 30 \},\s*\}/u
 );
 
 // Auto-update is machine-wide truth (system settings file), the continuity
@@ -37,7 +38,7 @@ assert.match(
 assert.doesNotMatch(systemProjection, /kimiClient\.sessionContinuity/u);
 assert.match(
   workspaceProjection,
-  /kimiClient: \{\s*sessionContinuity: settings\.providers\.kimiClient\.sessionContinuity,\s*\}/u
+  /kimiClient: \{\s*reasoningByModel: settings\.providers\.kimiClient\.reasoningByModel,\s*sessionContinuity: settings\.providers\.kimiClient\.sessionContinuity,\s*\}/u
 );
 assert.doesNotMatch(workspaceProjection, /kimiClient\.autoUpdate/u);
 

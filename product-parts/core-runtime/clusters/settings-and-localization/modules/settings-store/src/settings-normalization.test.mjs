@@ -36,6 +36,19 @@ assert.match(
   source,
   /next\.providers\.grok\.reasoningByModel = Object\.fromEntries/u
 );
+
+// Kimi native thinking levels: every catalog model offers low/high/max and
+// junk or missing entries settle on the high default.
+assert.match(source, /KIMI_REASONING_EFFORTS_BY_MODEL/u);
+assert.match(source, /\[modelId, \["low", "high", "max"\]\]/u);
+assert.match(
+  source,
+  /KIMI_DEFAULT_REASONING_EFFORT: ReasoningEffort = "high"/u
+);
+assert.match(
+  source,
+  /next\.providers\.kimiClient\.reasoningByModel = Object\.fromEntries/u
+);
 assert.doesNotMatch(source, /gpt-5\.2/u);
 assert.match(source, /supportsCodexReasoningSummary/u);
 assert.match(source, /CODEX_MODELS_WITHOUT_REASONING_SUMMARY/u);

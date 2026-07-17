@@ -12,6 +12,11 @@ assert.match(
 );
 assert.match(source, /session\.providerId === "claude"/u);
 assert.match(source, /session\.providerId === "grok"/u);
+assert.match(source, /session\.providerId === "kimi-client"/u);
+assert.match(
+  source,
+  /session\.reasoningEffort \?\? kimi\.reasoningByModel\[session\.model\]/u
+);
 assert.match(
   source,
   /session\.reasoningEffort \?\? grok\.reasoningByModel\[session\.model\]/u

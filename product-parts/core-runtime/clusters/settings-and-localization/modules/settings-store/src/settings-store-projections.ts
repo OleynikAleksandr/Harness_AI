@@ -64,6 +64,7 @@ export function workspaceSettingsFrom(
         reasoningByModel: settings.providers.grok.reasoningByModel,
       },
       kimiClient: {
+        reasoningByModel: settings.providers.kimiClient.reasoningByModel,
         sessionContinuity: settings.providers.kimiClient.sessionContinuity,
       },
       localModels: {

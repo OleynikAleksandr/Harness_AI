@@ -73,13 +73,23 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   `Agent`/`AgentSwarm` tool calls, because the Kimi ACP stream has no
   dedicated subagent discriminators (verified live on CLI 0.26.0): spawn on
   the tool call with a synthetic `kimi-agent-<toolCallId>` child id parented
-  by the Core-visible provider session id, the task from the settled
-  `rawInput.description`/`prompt`, the agent role from the result's
-  `actual_subagent_type` line and the terminal status from the
-  completed/failed tool update (one launched child per tool call — an
-  AgentSwarm call surfaces as a single launch; the CLI exposes no child ACP
-  sessions). This feeds the same Core subagent graph and dialog launch
-  divider Claude/Codex use. The synthetic child ids are marked by
+  by the Core-visible provider session id. The call's input JSON streams
+  only as partial-JSON `content` chunks (`rawInput` settles later for single
+  `Agent` calls and never for swarms — verified on the 2026-07-17 headless
+  probe), so the normalizer accumulates the chunks until the JSON parses and
+  surfaces the parsed `description` as the task (`rawInput` wins when
+  present; a swarm task carries the item count as `<description> (N
+  agents)`). The agent role comes from the result's `actual_subagent_type`
+  line with the parsed `subagent_type` as fallback. A terminal single-Agent
+  update closes the child from the completed/failed status plus the
+  result's `status:` line. A terminal swarm update parses the
+  `<subagent agent_id item outcome>` sections of `agent_swarm_result`,
+  materializes every reported agent as its own child
+  (`kimi-agent-<toolCallId>:<agent_id>`, task = its `item`, spawned under
+  the same call so the divider counter is honest) and closes each with its
+  reported outcome (`completed` -> completed, `aborted` -> interrupted,
+  anything else -> failed) before closing the swarm's root child. This feeds
+  the same Core subagent graph and dialog launch divider Claude/Codex use. The synthetic child ids are marked by
   `isKimiNativeSubagentSessionId` (`kimi-agent-*`): Core's child-session
   adoption binds them onto the parent's adapter, which must serve them as an
   inert channel — a Kimi subagent has no provider channel of its own. The

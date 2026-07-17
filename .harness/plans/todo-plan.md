@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task2",
-  "expectedCommitMessage": "feat: add Kimi ACP session transport",
+  "currentTaskId": "harness-ai.phase7.stream1.task3",
+  "expectedCommitMessage": "feat: add Kimi native session runtime",
   "debt": null
 }
 ```
@@ -65,9 +65,11 @@
 - Each microtask touches no more than 3 functional files unless this plan
   splits it first.
 - Product Part / Cluster / Module filesystem ownership is primary.
-- Kimi remains a universal-client runtime provider. This scope restores only
-  a diagnostic native-CLI capture path and must not resurrect the retired ACP
-  session provider.
+- Kimi session routing is profile-selective since stream 3 (2026-07-17 user
+  order): the built-in `native` profile runs through the installed Kimi CLI
+  over ACP inside the `kimi-client` adapter, every managed profile runs
+  through the universal client. The standalone ACP provider id `kimi` stays
+  retired; the capture path stays diagnostic-only.
 - The capture path must launch the installed Kimi CLI with its default native
   agent wrapping and the selected model, using a temporary cloned provider
   home and the verified reverse-forward bridge algorithm from repository
@@ -148,9 +150,9 @@
 
 29. [DONE] `harness-ai.phase7.stream1.task1` Extend the active scope with the Kimi profile routing stream: native profile -> installed Kimi CLI over ACP with the default agent, any managed profile -> universal client with the materialized profile really applied; record that the provider id stays `kimi-client` and the doc rule "the removed ACP session provider does not return" is superseded by this user order (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add Kimi profile routing stream`). Result: Completed in commit `plan: add Kimi profile routing stream`.
 30. [DONE] Git Commit: `plan: add Kimi profile routing stream` (hash: self)
-31. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Add the `kimi-native-session` module transport layer: supervised `kimi acp` child process against the real `~/.kimi-code` home (no config rewrite, auto-update disabled for session stability), newline JSON-RPC router with request correlation/timeouts/reverse-request dispatch, and wire contracts, following the verified Grok ACP layering; cover process lifecycle and router correlation with tests and register the module in product-tree docs (scope: `kimi-native-session/src/kimi-acp-session-process.ts, kimi-native-session/src/kimi-acp-session-router.ts, kimi-native-session/src/kimi-acp-session-contracts.ts` + paired tests/docs/product-tree; expected commit: `feat: add Kimi ACP session transport`).
-32. [TODO] Git Commit: `feat: add Kimi ACP session transport` (hash: TBD)
-33. [TODO] `harness-ai.phase7.stream1.task3` Add the Kimi native session runtime and event normalizer: initialize -> session/new -> model select (`session/set_config_option`) -> multi-turn `session/prompt` with `session/cancel` stop semantics, and normalize `session/update` notifications (assistant/thought/tool/plan/usage) into Core NormalizedProviderEvents without renderer heuristics; cover turn lifecycle and normalization with tests (scope: `kimi-native-session/src/kimi-native-session-runtime.ts, kimi-native-session/src/kimi-session-event-normalizer.ts` + paired tests/docs; expected commit: `feat: add Kimi native session runtime`).
+31. [DONE] `harness-ai.phase7.stream1.task2` Add the `kimi-native-session` module transport layer: supervised `kimi acp` child process against the real `~/.kimi-code` home (no config rewrite, auto-update disabled for session stability), newline JSON-RPC router with request correlation/timeouts/reverse-request dispatch, and wire contracts, following the verified Grok ACP layering; cover process lifecycle and router correlation with tests and register the module in product-tree docs (scope — this task is explicitly split as 4 functional files because the module facade must exist from the first commit (facade rule + knip entry): `kimi-native-session/src/kimi-acp-session-process.ts, kimi-native-session/src/kimi-acp-session-router.ts, kimi-native-session/src/kimi-acp-session-contracts.ts, kimi-native-session/src/kimi-native-session-facade.ts` + paired tests/docs/product-tree; expected commit: `feat: add Kimi ACP session transport`). Result: Completed in commit `feat: add Kimi ACP session transport`.
+32. [DONE] Git Commit: `feat: add Kimi ACP session transport` (hash: self)
+33. [IN_PROGRESS] `harness-ai.phase7.stream1.task3` Add the Kimi native session runtime and event normalizer: initialize -> session/new -> model select (`session/set_config_option`) -> multi-turn `session/prompt` with `session/cancel` stop semantics, and normalize `session/update` notifications (assistant/thought/tool/plan/usage) into Core NormalizedProviderEvents without renderer heuristics; cover turn lifecycle and normalization with tests (scope: `kimi-native-session/src/kimi-native-session-runtime.ts, kimi-native-session/src/kimi-session-event-normalizer.ts` + paired tests/docs; expected commit: `feat: add Kimi native session runtime`).
 34. [TODO] Git Commit: `feat: add Kimi native session runtime` (hash: TBD)
 35. [TODO] `harness-ai.phase7.stream1.task4` Add the Kimi interaction bridge and the module facade: allowlisted ACP permission/reverse requests map to sanitized Core provider interactions with fail-closed decisions, and the facade exposes the session driver surface (create/resume/send/subscribe/stop/delete/respond) the provider adapter will consume; cover bridge mapping and facade lifecycle with tests (scope: `kimi-native-session/src/kimi-interaction-bridge.ts, kimi-native-session/src/kimi-native-session-facade.ts` + paired tests/docs; expected commit: `feat: bridge Kimi native session interactions`).
 36. [TODO] Git Commit: `feat: bridge Kimi native session interactions` (hash: TBD)

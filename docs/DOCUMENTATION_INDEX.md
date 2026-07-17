@@ -157,6 +157,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   25-tool native schema set, raw/Markdown interpretation, redaction and
   temporary-home cleanup; includes pre-package and packaged Settings UI smokes,
   the macOS arm64 package identity and the packaged `app.asar` checksum.
+- `docs/evidence/kimi-settings-cards-package-2026-07-17.md` — Kimi settings
+  parity stream packaging evidence: Kimi Versions (single CLI row on the
+  native `kimi upgrade` channel) and Kimi Session Continuity cards, the live
+  backend version-status check on the installed CLI `0.26.0`, commit gates,
+  the packaged `app.asar` checksum and binary-grep proof that the new code
+  is inside the package.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

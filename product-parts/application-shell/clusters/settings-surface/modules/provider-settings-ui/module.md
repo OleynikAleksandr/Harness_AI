@@ -31,7 +31,11 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   renderer does not duplicate provider model ids. Below the model card the
   Kimi tab mounts the shared `ProviderVersionsCard` in its CLI-only Kimi form
   (single `Kimi CLI` row; auto-update toggle bound to
-  `providers.kimiClient.autoUpdate.enabled`). The retired ACP thinking
+  `providers.kimiClient.autoUpdate.enabled`) and the shared
+  `SessionContinuityCard` bound to
+  `providers.kimiClient.sessionContinuity.remainingPercentThreshold` (title
+  `settings.provider.kimiClient.sessionContinuity`; like the other providers
+  the stored threshold has no runtime consumer yet). The retired ACP thinking
   toggles remain absent after the kimi-provider retirement (2026-07-05 user
   order). The GLM
   tab binds `GlmClientApiKeyCard` to `providers.glmClient.apiKey` (prefix

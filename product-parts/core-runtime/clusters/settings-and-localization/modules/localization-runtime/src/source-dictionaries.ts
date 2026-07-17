@@ -46,6 +46,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.provider.defaultModel": "Default Model",
     "settings.provider.kimiClient.apiKey": "Kimi For Coding API Key",
     "settings.provider.kimiClient.defaultModel": "Kimi Default model",
+    "settings.provider.kimiClient.sessionContinuity": "Kimi Session Continuity",
     "settings.provider.localModels": "Local Models",
     "settings.provider.localModelsClient.connection": "Local Models Server",
     "settings.provider.localModelsClient.contextLength": "Context Length",

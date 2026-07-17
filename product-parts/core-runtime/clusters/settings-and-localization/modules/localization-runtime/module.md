@@ -46,7 +46,10 @@ materialization, bootstrap payload reuse, and bundle state.
   `settings.provider.kimiClient.defaultModel` in `ui_labels`, plus
   `.defaultModel.description` and the three
   `.model.<model-id>.description` entries (`kimi-for-coding`,
-  `kimi-for-coding-highspeed`, `k3`) in `ui_helper_text`.
+  `kimi-for-coding-highspeed`, `k3`) in `ui_helper_text`. The Kimi Session
+  Continuity card title (`settings.provider.kimiClient.sessionContinuity`)
+  is part of the approved `ui_labels` dictionary; its description and field
+  label reuse the shared `settings.provider.sessionContinuity.*` strings.
 - The provider Versions auto-update helper copy has a CLI-only variant
   (`settings.provider.versions.autoUpdate.cli.description`) in
   `ui_helper_text` for providers without an SDK entry — the Kimi Versions

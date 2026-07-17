@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task5",
-  "expectedCommitMessage": "feat: show Kimi session continuity card",
+  "currentTaskId": "harness-ai.phase6.stream1.task6",
+  "expectedCommitMessage": "chore: package Kimi settings cards build",
   "debt": null
 }
 ```
@@ -124,8 +124,8 @@
 21. [DONE] Git Commit: `feat: serve Kimi CLI version status` (hash: self)
 22. [DONE] `harness-ai.phase6.stream1.task4` Render the Kimi Versions card in Settings -> Kimi with a single CLI row (no SDK row), the shared warning banner and the auto-update toggle wired to the new Kimi settings key, reusing the shared versions card component; cover CLI-only rendering with tests and synchronize provider-settings-ui/localization docs (scope — this task is explicitly split as 4 functional files because the shared update handler's provider type widens with the card: `provider-settings-ui/src/provider-version-controls.tsx, provider-settings-ui/src/settings-tab-content.tsx, provider-settings-ui/src/settings-surface-facade.tsx, localization-runtime/src/source-dictionaries.ts` + paired tests/docs; expected commit: `feat: show Kimi versions card in Settings`). Result: Completed in commit `feat: show Kimi versions card in Settings`.
 23. [DONE] Git Commit: `feat: show Kimi versions card in Settings` (hash: self)
-24. [IN_PROGRESS] `harness-ai.phase6.stream1.task5` Render the Kimi Session Continuity card in Settings -> Kimi bound to the stored threshold with a localized title, reusing the shared continuity card component; cover the card wiring with tests and synchronize provider-settings-ui/localization docs (scope: `provider-settings-ui/src/settings-tab-content.tsx, localization-runtime/src/source-dictionaries.ts` + paired tests/docs; expected commit: `feat: show Kimi session continuity card`).
-25. [TODO] Git Commit: `feat: show Kimi session continuity card` (hash: TBD)
-26. [TODO] `harness-ai.phase6.stream1.task6` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi settings cards build`).
+24. [DONE] `harness-ai.phase6.stream1.task5` Render the Kimi Session Continuity card in Settings -> Kimi bound to the stored threshold with a localized title, reusing the shared continuity card component; cover the card wiring with tests and synchronize provider-settings-ui/localization docs (scope: `provider-settings-ui/src/settings-tab-content.tsx, localization-runtime/src/source-dictionaries.ts` + paired tests/docs; expected commit: `feat: show Kimi session continuity card`). Result: Completed in commit `feat: show Kimi session continuity card`.
+25. [DONE] Git Commit: `feat: show Kimi session continuity card` (hash: self)
+26. [IN_PROGRESS] `harness-ai.phase6.stream1.task6` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi settings cards build`).
 27. [TODO] Git Commit: `chore: package Kimi settings cards build` (hash: TBD)
 28. [TODO] `harness-ai.phase6.stream1.task7` User verifies Settings -> Kimi shows the Kimi Versions card (single CLI row with real current/latest/update behavior) and the Kimi Session Continuity threshold that persists across restarts (completion: user-acceptance; scope: user workflow; expected commit: none).

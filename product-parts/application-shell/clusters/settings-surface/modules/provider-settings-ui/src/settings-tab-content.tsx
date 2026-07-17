@@ -249,6 +249,23 @@ export function SettingsTabContent({
           snapshot={versions}
           updatingTargets={versionUpdatingTargets}
         />
+        <SessionContinuityCard
+          onChange={(value) =>
+            update((next) => {
+              next.providers.kimiClient.sessionContinuity.remainingPercentThreshold =
+                value;
+            })
+          }
+          title={t(
+            "ui_labels",
+            "settings.provider.kimiClient.sessionContinuity",
+            "Kimi Session Continuity"
+          )}
+          value={
+            settings.providers.kimiClient.sessionContinuity
+              .remainingPercentThreshold
+          }
+        />
       </div>
     );
   }

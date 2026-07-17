@@ -22,8 +22,11 @@ const source = readFileSync(
     'const createBuiltinToolSource = () => ({ execute: () => Promise.resolve({ output: "" }), list: () => ["read_file", "web_fetch", "echo"].map((name) => ({ description: name, name, parametersSchema: {}, qualifiedName: name, source: "builtin" })), source: "builtin" });\n'
   )
   .replace(
-    /import \{\n\s*isKimiNativeSessionId,\n\s*isKimiNativeSubagentSessionId,\n\s*kimiNativeSessionDriver,\n\} from[^\n]*\n/u,
+    /import \{\n\s*deleteKimiNativeSessionArtifacts,\n\s*isKimiNativeSessionId,\n\s*isKimiNativeSubagentSessionId,\n\s*kimiNativeSessionDriver,\n\} from[^\n]*\n/u,
     [
+      "const deleteKimiNativeSessionArtifacts = (providerSessionId, workspacePath) => {",
+      '  globalThis.__kimiNativeCalls.push(["artifacts", providerSessionId, workspacePath]);',
+      "};",
       "const isKimiNativeSessionId = (sessionId) =>",
       '  sessionId.startsWith("kimi-native-");',
       "const isKimiNativeSubagentSessionId = (sessionId) =>",
@@ -261,7 +264,7 @@ try {
     outcome: "selected",
   });
   await adapter.resumeSession(nativeSessionId, "/ws");
-  await adapter.deleteSessionArtifacts(nativeSessionId);
+  await adapter.deleteSessionArtifacts(nativeSessionId, "/ws");
   assert.deepEqual(globalThis.__kimiNativeCalls, [
     ["create", "/ws"],
     ["subscribe", "kimi-native-test-1"],
@@ -270,6 +273,7 @@ try {
     ["respond", "kimi-native-test-1", "selected"],
     ["resume", "kimi-native-test-1", "/ws"],
     ["delete", "kimi-native-test-1"],
+    ["artifacts", "kimi-native-test-1", "/ws"],
   ]);
 
   // Managed profile sessions stay on the universal client and really apply

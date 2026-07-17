@@ -73,8 +73,13 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
 - Native routing: `createSession` with `profileKind: "native"` returns the
   driver's `kimi-native-<uuid>` session id; every later adapter call for
   such an id (send with the per-turn Core model, subscribe, Stop as
-  turn-cancel, delete as child shutdown, `respondToInteraction` for CLI
-  permission asks) forwards to the `kimi-native-session` facade. Synthetic
+  turn-cancel, delete as child shutdown plus workspace-store cleanup —
+  `deleteSessionArtifacts` removes the mapped native session directory from
+  `<workspace>/.harness/runtime/providers/kimi/home` via
+  `deleteKimiNativeSessionArtifacts`, so removing a Harness session leaves
+  no native JSONL garbage (2026-07-17 user order) —
+  `respondToInteraction` for CLI permission asks) forwards to the
+  `kimi-native-session` facade. Synthetic
   subagent ids (`kimi-agent-*`, marked by `isKimiNativeSubagentSessionId`)
   are served as an inert channel: subscribe returns a no-op unsubscribe,
   stop/delete are no-ops, resume echoes the id and sendMessage refuses

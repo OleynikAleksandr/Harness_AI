@@ -47,6 +47,11 @@ export {
   readKimiSessionTokenUsage,
 } from "./kimi-session-usage-reader.js";
 export { KimiSubagentNormalizer } from "./kimi-subagent-normalizer.js";
+export {
+  deleteKimiNativeSessionArtifacts,
+  type KimiWorkspaceHome,
+  prepareKimiWorkspaceHome,
+} from "./kimi-workspace-home.js";
 
 const KIMI_NATIVE_SESSION_ID_PREFIX = "kimi-native-";
 const KIMI_SUBAGENT_SESSION_ID_PREFIX = "kimi-agent-";

@@ -11,6 +11,23 @@ const root = await mkdtemp(path.join(tmpdir(), "kimi-native-driver-"));
 try {
   const buildDir = path.join(root, "build");
   await mkdir(buildDir, { recursive: true });
+  const homeManagerSource = readFileSync(
+    new URL(
+      "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts",
+      import.meta.url
+    ),
+    "utf8"
+  );
+  writeFileSync(
+    path.join(buildDir, "provider-home-manager-facade.js"),
+    ts.transpileModule(homeManagerSource, {
+      compilerOptions: {
+        module: ts.ModuleKind.ES2022,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText,
+    "utf8"
+  );
   for (const filename of [
     "kimi-acp-session-contracts.ts",
     "kimi-acp-session-router.ts",
@@ -19,6 +36,7 @@ try {
     "kimi-session-event-normalizer.ts",
     "kimi-session-usage-reader.ts",
     "kimi-swarm-progress-reader.ts",
+    "kimi-workspace-home.ts",
     "kimi-native-session-runtime.ts",
     "kimi-interaction-bridge.ts",
     "kimi-native-session-facade.ts",
@@ -35,7 +53,10 @@ try {
     }).outputText;
     writeFileSync(
       path.join(buildDir, filename.replace(/\.ts$/u, ".js")),
-      compiled,
+      compiled.replaceAll(
+        "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
+        "./provider-home-manager-facade.js"
+      ),
       "utf8"
     );
   }

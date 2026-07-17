@@ -20,8 +20,15 @@ import {
 } from "./kimi-session-usage-reader.js";
 import type { KimiLiveSwarmAgent } from "./kimi-subagent-normalizer.js";
 import { readKimiSwarmAgents } from "./kimi-swarm-progress-reader.js";
+import {
+  type KimiWorkspaceHome,
+  prepareKimiWorkspaceHome,
+  recordKimiSessionMapping,
+} from "./kimi-workspace-home.js";
 
 export interface KimiNativeSessionRuntimeOptions {
+  // Test/DI override for the workspace provider-home bootstrap.
+  readonly homePreparer?: (workspacePath: string) => KimiWorkspaceHome;
   readonly model?: string;
   readonly onEvent: (event: KimiNativeSessionEvent) => void;
   readonly onReverseRequest?: KimiAcpReverseRequestHandler;
@@ -61,14 +68,21 @@ export class KimiNativeSessionRuntime {
   private readonly options: KimiNativeSessionRuntimeOptions;
   private swarmPollTimer: NodeJS.Timeout | null = null;
   private turnActive = false;
+  private readonly workspaceHome: KimiWorkspaceHome;
 
   constructor(options: KimiNativeSessionRuntimeOptions) {
     this.options = options;
     if (options.providerSessionId) {
       this.normalizer.bindParentSession(options.providerSessionId);
     }
+    // Claude/Codex parity: the child runs with HOME inside the workspace so
+    // the native session store lands there; auth links to the real home.
+    this.workspaceHome = (options.homePreparer ?? prepareKimiWorkspaceHome)(
+      options.workspacePath
+    );
     this.channel = new KimiAcpSessionProcess({
       cwd: options.workspacePath,
+      environment: { HOME: this.workspaceHome.homePath },
       onExit: (exit) => this.handleExit(exit),
       onNotification: (notification) => this.handleNotification(notification),
       onProtocolError: (error) =>
@@ -113,6 +127,15 @@ export class KimiNativeSessionRuntime {
       throw new Error("Kimi ACP session/new returned no sessionId");
     }
     this.acpSessionId = sessionId;
+    if (this.options.providerSessionId) {
+      // Deletion after a Core restart resolves the CLI store id from this
+      // persisted pair (the ids are minted by different owners).
+      recordKimiSessionMapping(
+        this.workspaceHome,
+        this.options.providerSessionId,
+        sessionId
+      );
+    }
     if (this.options.model) {
       await this.applyModel(this.options.model);
     }
@@ -230,10 +253,14 @@ export class KimiNativeSessionRuntime {
     if (callIds.length !== 1) {
       return;
     }
-    const reader = this.options.swarmAgentReader ?? readKimiSwarmAgents;
+    const agents = this.options.swarmAgentReader
+      ? this.options.swarmAgentReader(acpSessionId)
+      : readKimiSwarmAgents(acpSessionId, {
+          sessionsRoot: this.workspaceHome.sessionsRoot,
+        });
     for (const event of this.normalizer.registerLiveSwarmAgents(
       callIds[0],
-      reader(acpSessionId)
+      agents
     )) {
       this.emit(event);
     }
@@ -242,9 +269,11 @@ export class KimiNativeSessionRuntime {
   // The CLI streams no usage_update; after every turn the session-store
   // truth (latest usage.record of the main agent) feeds the status panel.
   private emitTurnTokenUsage(acpSessionId: string): void {
-    const usage = (this.options.usageReader ?? readKimiSessionTokenUsage)(
-      acpSessionId
-    );
+    const usage = this.options.usageReader
+      ? this.options.usageReader(acpSessionId)
+      : readKimiSessionTokenUsage(acpSessionId, {
+          sessionsRoot: this.workspaceHome.sessionsRoot,
+        });
     if (!usage) {
       return;
     }

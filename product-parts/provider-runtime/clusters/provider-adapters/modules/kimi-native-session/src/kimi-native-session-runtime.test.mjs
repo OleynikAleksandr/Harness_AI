@@ -25,6 +25,23 @@ try {
     "export {};\n",
     "utf8"
   );
+  const homeManagerSource = readFileSync(
+    new URL(
+      "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts",
+      import.meta.url
+    ),
+    "utf8"
+  );
+  writeFileSync(
+    path.join(buildDir, "provider-home-manager-facade.js"),
+    ts.transpileModule(homeManagerSource, {
+      compilerOptions: {
+        module: ts.ModuleKind.ES2022,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText,
+    "utf8"
+  );
   for (const filename of [
     "kimi-acp-session-contracts.ts",
     "kimi-acp-session-router.ts",
@@ -33,6 +50,7 @@ try {
     "kimi-session-event-normalizer.ts",
     "kimi-session-usage-reader.ts",
     "kimi-swarm-progress-reader.ts",
+    "kimi-workspace-home.ts",
     "kimi-native-session-runtime.ts",
   ]) {
     const source = readFileSync(
@@ -47,10 +65,15 @@ try {
     }).outputText;
     writeFileSync(
       path.join(buildDir, filename.replace(/\.ts$/u, ".js")),
-      compiled.replaceAll(
-        "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js",
-        "../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js"
-      ),
+      compiled
+        .replaceAll(
+          "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js",
+          "../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js"
+        )
+        .replaceAll(
+          "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
+          "./provider-home-manager-facade.js"
+        ),
       "utf8"
     );
   }
@@ -435,6 +458,21 @@ try {
       event.providerSessionId === "kimi-agent-sw1:agent-0"
   );
   assert.equal(agentZeroStatuses.at(-1).status, "completed");
+
+  // The workspace provider home received the session mapping the deletion
+  // path resolves the CLI store id from.
+  const mapPath = path.join(
+    root,
+    ".harness",
+    "runtime",
+    "providers",
+    "kimi",
+    "home",
+    ".kimi-code",
+    "harness-session-map.json"
+  );
+  const sessionMap = JSON.parse(readFileSync(mapPath, "utf8"));
+  assert.equal(sessionMap["kimi-native-parent-sw"], "kimi-s-3");
 
   console.log("kimi native session runtime tests passed");
 } finally {

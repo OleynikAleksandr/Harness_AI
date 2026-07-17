@@ -366,7 +366,7 @@
             {
               "id": "kimi-native-session",
               "name": "Kimi Native Session",
-              "purpose": "Native ACP session channel for the kimi-client adapter: supervised `kimi acp` child (default agent, real ~/.kimi-code home, self-update pinned off) with JSON-RPC correlation serving native-profile sessions; managed profiles stay on the universal client."
+              "purpose": "Native ACP session channel for the kimi-client adapter: supervised `kimi acp` child (default agent, full-access mode, self-update pinned off) running in the workspace provider home (.harness/runtime/providers/kimi/home, auth symlinked to the real ~/.kimi-code) with JSON-RPC correlation serving native-profile sessions; managed profiles stay on the universal client."
             },
             {
               "id": "glm-client-provider",

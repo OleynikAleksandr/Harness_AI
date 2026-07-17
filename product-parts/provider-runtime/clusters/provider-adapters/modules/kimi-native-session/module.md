@@ -4,9 +4,15 @@
 
 Own the native ACP session channel for Kimi: the profile-selective session
 path that runs sessions of the built-in `native` profile through the
-installed Kimi CLI (`kimi acp`, default agent, the user's real `~/.kimi-code`
-home; no cloned home and no base-URL rewrite — those remain capture-only
-mechanics of `kimi-native-capture`). Managed profiles never enter this
+installed Kimi CLI (`kimi acp`, default agent). Since the 2026-07-17 user
+order the child runs with `HOME` pointing at the Claude/Codex-parity
+workspace provider home (`<workspace>/.harness/runtime/providers/kimi/home`,
+resolved through the provider-home manager): the CLI session store lands
+inside the workspace instead of the global `~/.kimi-code/sessions/`, auth
+stays shared through `credentials`/`device_id` symlinks into the real home,
+`config.toml`/`tui.toml` are copied once, and the CLI binary keeps resolving
+from the real home. No base-URL rewrite happens here — that remains a
+capture-only mechanic of `kimi-native-capture`. Managed profiles never enter this
 module: the Kimi ACP surface cannot verifiably change prompt or tooling
 (model selection only via `session/set_config_option`), so every non-native
 profile stays on the Core universal client (2026-07-17 user order, plan
@@ -22,8 +28,13 @@ session-id marker `isKimiNativeSessionId`) and re-exports the supervised
 process channel (`KimiAcpSessionProcess`, `resolveKimiSessionCommand`), the
 JSON-RPC router (`KimiAcpSessionRouter`), the wire contracts, the session
 runtime (`KimiNativeSessionRuntime`), the stream normalizer
-(`KimiSessionEventNormalizer`) and the permission bridge
-(`KimiInteractionBridge`).
+(`KimiSessionEventNormalizer`), the permission bridge
+(`KimiInteractionBridge`) and the workspace-home tooling
+(`prepareKimiWorkspaceHome`, `deleteKimiNativeSessionArtifacts` — the
+adapter's `deleteSessionArtifacts` removes the mapped native session
+directory from the workspace store, Claude-parity cleanup driven by the
+persisted `harness-session-map.json` pairing of the Harness provider
+session id with the CLI store id).
 
 ## Session Driver And Interaction Bridge
 
@@ -126,9 +137,11 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
 
 ## Inputs
 
-- Workspace path (child cwd) and optional environment overrides.
+- Workspace path (child cwd and the root of the workspace provider home)
+  and optional environment overrides.
 - The installed Kimi CLI (`~/.kimi-code/bin/kimi`, PATH fallback) and the
-  user's real Kimi provider home/auth.
+  user's real Kimi auth (`credentials`/`device_id`), shared into the
+  workspace home by symlink.
 - JSON-RPC lines from the CLI stdout: responses, notifications and
   CLI-initiated reverse requests.
 
@@ -149,15 +162,15 @@ runtime (`KimiNativeSessionRuntime`), the stream normalizer
   (`kimi-session-usage-reader.ts`): the CLI streams no `usage_update`
   notifications (verified on 0.26.0), so after every native turn the runtime
   reads the latest `usage.record`/`step.end` row of the main agent's
-  `wire.jsonl` in the CLI session store
-  (`~/.kimi-code/sessions/<wd_*>/<acpSessionId>/agents/main/`) and emits the
-  shared `token_usage` stream event with
+  `wire.jsonl` in the workspace session store
+  (`<workspace home>/.kimi-code/sessions/<wd_*>/<acpSessionId>/agents/main/`)
+  and emits the shared `token_usage` stream event with
   `used = inputOther + output + inputCacheRead + inputCacheCreation`,
   `cached = inputCacheRead` and the verified `262144` native context limit.
 - Live swarm progress (`kimi-swarm-progress-reader.ts`): the ACP stream is
   silent while an AgentSwarm executes (verified on the 2026-07-17 headless
-  probe), so during an active turn the runtime polls the CLI session store
-  every 2 s for `agents/agent-<n>/` homes and registers each observed agent
+  probe), so during an active turn the runtime polls the workspace session
+  store every 2 s for `agents/agent-<n>/` homes and registers each observed agent
   through the normalizer as a live running child (task = the delegated
   prompt from the agent wire's first `turn.prompt` row, stripped of leading
   context tags). Polling attributes agents only while exactly one swarm is

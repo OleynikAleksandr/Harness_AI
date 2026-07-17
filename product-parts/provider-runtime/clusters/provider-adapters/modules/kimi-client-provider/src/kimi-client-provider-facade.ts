@@ -32,6 +32,7 @@ import {
 import type { NormalizedProviderEvent } from "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js";
 import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import {
+  deleteKimiNativeSessionArtifacts,
   isKimiNativeSessionId,
   isKimiNativeSubagentSessionId,
   kimiNativeSessionDriver,
@@ -259,13 +260,23 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   }
 
   // Full cleanup for a removed session: drop the in-memory history; a native
-  // session also stops its CLI child.
-  deleteSessionArtifacts(providerSessionId: string): Promise<void> | void {
+  // session also stops its CLI child and removes its session directory from
+  // the workspace provider home (Claude-parity — no native JSONL garbage).
+  deleteSessionArtifacts(
+    providerSessionId: string,
+    workspacePath?: string
+  ): Promise<void> | void {
     if (isKimiNativeSubagentSessionId(providerSessionId)) {
       return;
     }
     if (isKimiNativeSessionId(providerSessionId)) {
-      return kimiNativeSessionDriver.deleteSession(providerSessionId);
+      return kimiNativeSessionDriver
+        .deleteSession(providerSessionId)
+        .then(() => {
+          if (workspacePath) {
+            deleteKimiNativeSessionArtifacts(providerSessionId, workspacePath);
+          }
+        });
     }
     this.sessions.delete(providerSessionId);
   }

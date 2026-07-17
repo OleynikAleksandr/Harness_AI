@@ -92,3 +92,36 @@ Implementation commits:
 увидеть разделитель «Subagents launched», в нижней панели — контекстное
 окно/Cache/Turns, в верхней — лимиты 5h/Weekly; ограничение thinking
 принято как документированное поведение CLI 0.26.0.
+
+## Adoption Fix Repackage (same day)
+
+Ретест пользователя на telemetry-сборке: сабагенты не видны, диалог молчит
+до конца хода. Причина (подтверждена по session JSONL воркспейса Test_md +
+коду): Core создавал child-сессию и «усыновлял» её на родительский адаптер
+вызовом `adapter.subscribe("kimi-agent-<toolCallId>")`; адаптер такие
+синтетические id не распознавал и бросал `Unknown kimi-client session` —
+исключение убивало публикацию `session:subagent-call` (разделитель) и
+обрывало доставку остальных событий батча (тишина). В JSONL: child-файл
+`session-subagent-*` создан, `session:subagent-call` в родителе
+отсутствует.
+
+Fix `fix: adopt Kimi synthetic subagent channels`
+(`53c6ceb15d13a08088c47823a51ce706975a4838`):
+
+- `kimi-client` адаптер обслуживает `kimi-agent-*`
+  (`isKimiNativeSubagentSessionId`) как инертный канал: subscribe -> no-op
+  unsubscribe, stop/delete -> no-op, resume -> echo id, sendMessage ->
+  честный отказ (у сабагента нет собственного provider-канала).
+- Драйвер нативных сессий изолирует ошибки слушателей: один бросающий
+  потребитель больше не рвёт доставку остальным и не валит нативный ход.
+- Тесты: adoption-поверхности адаптера для `kimi-agent-*` не бросают и не
+  трогают драйвер; бросающий listener в driver-фан-ауте не мешает доставке
+  (полный permission-цикл проходит при «ядовитом» слушателе).
+
+Repackage:
+
+- Timestamp: `2026-07-17 15:46 +0200`.
+- SHA-256:
+  `30de6558f62f1a367e85cd80e44e50c4585fadce955d7bf2be442981032bb159`.
+- Binary grep: `isKimiNativeSubagentSessionId` — 7 совпадений в `app.asar`.
+- `npm run package:mac` — exit 0.

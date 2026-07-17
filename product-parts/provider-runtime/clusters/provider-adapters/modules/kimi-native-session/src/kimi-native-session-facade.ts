@@ -22,3 +22,8 @@ export {
   KimiAcpSessionRouter,
   type KimiAcpSessionRouterOptions,
 } from "./kimi-acp-session-router.js";
+export {
+  KimiNativeSessionRuntime,
+  type KimiNativeSessionRuntimeOptions,
+} from "./kimi-native-session-runtime.js";
+export { KimiSessionEventNormalizer } from "./kimi-session-event-normalizer.js";

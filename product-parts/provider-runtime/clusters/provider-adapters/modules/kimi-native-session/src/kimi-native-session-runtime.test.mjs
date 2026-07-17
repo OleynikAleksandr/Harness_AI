@@ -1,0 +1,244 @@
+import assert from "node:assert/strict";
+import { readFileSync, writeFileSync } from "node:fs";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import ts from "typescript";
+
+const root = await mkdtemp(path.join(tmpdir(), "kimi-native-runtime-"));
+
+try {
+  const buildDir = path.join(root, "build", "kimi-native-session", "src");
+  const normalizerContractDir = path.join(
+    root,
+    "build",
+    "provider-events-and-translation",
+    "modules",
+    "provider-event-normalizer",
+    "src"
+  );
+  await mkdir(buildDir, { recursive: true });
+  await mkdir(normalizerContractDir, { recursive: true });
+  writeFileSync(
+    path.join(normalizerContractDir, "provider-event-normalizer-facade.js"),
+    "export {};\n",
+    "utf8"
+  );
+  for (const filename of [
+    "kimi-acp-session-contracts.ts",
+    "kimi-acp-session-router.ts",
+    "kimi-acp-session-process.ts",
+    "kimi-session-event-normalizer.ts",
+    "kimi-native-session-runtime.ts",
+  ]) {
+    const source = readFileSync(
+      new URL(`./${filename}`, import.meta.url),
+      "utf8"
+    );
+    const compiled = ts.transpileModule(source, {
+      compilerOptions: {
+        module: ts.ModuleKind.ES2022,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText;
+    writeFileSync(
+      path.join(buildDir, filename.replace(/\.ts$/u, ".js")),
+      compiled.replaceAll(
+        "../../../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js",
+        "../../provider-events-and-translation/modules/provider-event-normalizer/src/provider-event-normalizer-facade.js"
+      ),
+      "utf8"
+    );
+  }
+  const { KimiSessionEventNormalizer } = await import(
+    pathToFileURL(path.join(buildDir, "kimi-session-event-normalizer.js")).href
+  );
+  const { KimiNativeSessionRuntime } = await import(
+    pathToFileURL(path.join(buildDir, "kimi-native-session-runtime.js")).href
+  );
+
+  // Normalizer: chunk buffering, tool flushing, usage mapping.
+  const normalizer = new KimiSessionEventNormalizer();
+  const asUpdate = (update) => ({
+    method: "session/update",
+    params: { sessionId: "kimi-s-1", update },
+  });
+  assert.deepEqual(
+    normalizer.normalizeNotification(
+      asUpdate({
+        content: { text: "short thought" },
+        sessionUpdate: "agent_thought_chunk",
+      })
+    ),
+    []
+  );
+  const toolFlush = normalizer.normalizeNotification(
+    asUpdate({
+      sessionUpdate: "tool_call",
+      status: "in_progress",
+      title: "Read",
+      toolCallId: "call-1",
+    })
+  );
+  assert.equal(toolFlush[0].type, "dialog_message");
+  assert.equal(toolFlush[0].role, "thinking");
+  assert.equal(toolFlush[0].content, "short thought");
+  assert.equal(toolFlush[1].type, "stream_event");
+  assert.equal(toolFlush[1].data.kind, "kimi_tool_call");
+  assert.equal(toolFlush[1].data.toolName, "Read");
+
+  const longText = `${"word ".repeat(200)}end.`;
+  const bigFlush = normalizer.normalizeNotification(
+    asUpdate({
+      content: { text: longText },
+      sessionUpdate: "agent_message_chunk",
+    })
+  );
+  assert.equal(bigFlush.length, 1);
+  assert.equal(bigFlush[0].role, "assistant");
+
+  const usage = normalizer.normalizeNotification(
+    asUpdate({ sessionUpdate: "usage_update", size: 262_144, used: 2048 })
+  );
+  assert.deepEqual(usage[0].data, {
+    kind: "token_usage",
+    tokenUsage: { limit: 262_144, used: 2048 },
+  });
+
+  normalizer.normalizeNotification(
+    asUpdate({
+      content: { text: "tail answer" },
+      sessionUpdate: "agent_message_chunk",
+    })
+  );
+  const turnEnd = normalizer.flushTurnEnd();
+  assert.equal(turnEnd[0].content, "tail answer");
+
+  // Runtime against a scripted fake `kimi acp` server: full native turn.
+  const fakeCli = path.join(root, "fake-kimi-acp-session.mjs");
+  await writeFile(
+    fakeCli,
+    [
+      'import { createInterface } from "node:readline";',
+      "const write = (payload) => {",
+      '  process.stdout.write(JSON.stringify(payload) + "\\n");',
+      "};",
+      "const update = (sessionUpdate, extra) => {",
+      "  write({",
+      '    jsonrpc: "2.0",',
+      '    method: "session/update",',
+      '    params: { sessionId: "kimi-s-1", update: { sessionUpdate, ...extra } },',
+      "  });",
+      "};",
+      "const rl = createInterface({ input: process.stdin });",
+      'rl.on("line", (line) => {',
+      "  const message = JSON.parse(line);",
+      '  if (message.method === "initialize") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: { protocolVersion: 1 } });',
+      "  }",
+      '  if (message.method === "session/new") {',
+      '    write({ id: message.id, jsonrpc: "2.0", result: { sessionId: "kimi-s-1" } });',
+      "  }",
+      '  if (message.method === "session/set_config_option") {',
+      "    globalThis.selectedModel = message.params.value;",
+      '    write({ id: message.id, jsonrpc: "2.0", result: {} });',
+      "  }",
+      '  if (message.method === "session/prompt") {',
+      '    update("agent_thought_chunk", { content: { text: "thinking about it" } });',
+      '    update("agent_message_chunk", { content: { text: "Hello from" } });',
+      '    update("agent_message_chunk", { content: { text: " native Kimi." } });',
+      '    update("tool_call", { status: "in_progress", title: "Read", toolCallId: "c1" });',
+      '    update("tool_call_update", { status: "completed", toolCallId: "c1" });',
+      '    update("usage_update", { size: 262144, used: 4096 });',
+      "    write({",
+      "      id: message.id,",
+      '      jsonrpc: "2.0",',
+      '      result: { model: globalThis.selectedModel ?? null, stopReason: "end_turn" },',
+      "    });",
+      "  }",
+      "});",
+    ].join("\n"),
+    "utf8"
+  );
+
+  const events = [];
+  const runtime = new KimiNativeSessionRuntime({
+    model: "k3",
+    onEvent: (event) => events.push(event),
+    processOverrides: { command: process.execPath, commandArgs: [fakeCli] },
+    workspacePath: root,
+  });
+  const acpSessionId = await runtime.open();
+  assert.equal(acpSessionId, "kimi-s-1");
+  assert.equal(runtime.isOpen, true);
+  await runtime.prompt("hello");
+  await runtime.cancelTurn();
+  await runtime.close();
+  assert.equal(runtime.isOpen, false);
+
+  const types = events.map((event) =>
+    event.type === "stream_event" ? `stream:${event.data.kind}` : event.type
+  );
+  assert.deepEqual(types, [
+    "turn_started",
+    "dialog_message",
+    "dialog_message",
+    "stream:kimi_tool_call",
+    "stream:kimi_tool_result",
+    "stream:token_usage",
+    "turn_completed",
+  ]);
+  const thinkingMessage = events.find(
+    (event) => event.type === "dialog_message" && event.role === "thinking"
+  );
+  assert.equal(thinkingMessage.content, "thinking about it");
+  const assistantMessage = events.find(
+    (event) => event.type === "dialog_message" && event.role === "assistant"
+  );
+  assert.equal(assistantMessage.content, "Hello from native Kimi.");
+  const completion = events.at(-1);
+  assert.equal(completion.message, "end_turn");
+
+  // Unexpected CLI death during a turn surfaces turn_failed + stream_error.
+  const dyingCli = path.join(root, "fake-kimi-dying.mjs");
+  await writeFile(
+    dyingCli,
+    [
+      'import { createInterface } from "node:readline";',
+      "const rl = createInterface({ input: process.stdin });",
+      'rl.on("line", (line) => {',
+      "  const message = JSON.parse(line);",
+      '  if (message.method === "initialize") {',
+      "    process.stdout.write(",
+      '      JSON.stringify({ id: message.id, jsonrpc: "2.0", result: {} }) + "\\n"',
+      "    );",
+      "  }",
+      '  if (message.method === "session/new") {',
+      "    process.stdout.write(",
+      '      JSON.stringify({ id: message.id, jsonrpc: "2.0", result: { sessionId: "s-2" } }) + "\\n"',
+      "    );",
+      "  }",
+      '  if (message.method === "session/prompt") {',
+      "    process.exit(5);",
+      "  }",
+      "});",
+    ].join("\n"),
+    "utf8"
+  );
+  const failureEvents = [];
+  const failingRuntime = new KimiNativeSessionRuntime({
+    onEvent: (event) => failureEvents.push(event),
+    processOverrides: { command: process.execPath, commandArgs: [dyingCli] },
+    workspacePath: root,
+  });
+  await failingRuntime.prompt("boom");
+  const failureTypes = failureEvents.map((event) => event.type);
+  assert.ok(failureTypes.includes("turn_failed"));
+  assert.ok(failureTypes.includes("stream_error"));
+  await failingRuntime.close();
+
+  console.log("kimi native session runtime tests passed");
+} finally {
+  await rm(root, { force: true, recursive: true });
+}

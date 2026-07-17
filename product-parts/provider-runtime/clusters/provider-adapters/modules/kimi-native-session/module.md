@@ -16,11 +16,36 @@ provider.
 
 ## Public Facade
 
-`src/kimi-native-session-facade.ts`. With the transport slice it re-exports
-the supervised process channel (`KimiAcpSessionProcess`,
-`resolveKimiSessionCommand`), the JSON-RPC router (`KimiAcpSessionRouter`)
-and the wire contracts; the session runtime, event normalizer and
-interaction bridge extend this surface in the same stream.
+`src/kimi-native-session-facade.ts`. It re-exports the supervised process
+channel (`KimiAcpSessionProcess`, `resolveKimiSessionCommand`), the JSON-RPC
+router (`KimiAcpSessionRouter`), the wire contracts, the session runtime
+(`KimiNativeSessionRuntime`) and the stream normalizer
+(`KimiSessionEventNormalizer`); the interaction bridge and the adapter-facing
+driver surface extend this facade in the same stream.
+
+## Session Runtime And Stream Normalization
+
+- `KimiNativeSessionRuntime` is one immutable binding: one runtime = one
+  `kimi acp` child = one native CLI session. `open()` performs
+  `initialize` -> `session/new` and best-effort model selection through
+  `session/set_config_option` (the only config the Kimi ACP surface accepts;
+  a refusal emits a diagnostic stream event and keeps the native session).
+  `prompt()` emits `turn_started`, sends `session/prompt` with a
+  30-minute turn timeout, flushes buffered text and emits `turn_completed`
+  (with the CLI `stopReason` as the message) or `turn_failed`.
+  `cancelTurn()` sends the `session/cancel` notification and keeps the CLI
+  session alive for resume-on-send; `close()` stops the child. An unexpected
+  child death rejects the in-flight prompt (=> `turn_failed`) and emits
+  `stream_error`.
+- `KimiSessionEventNormalizer` maps verified `session/update` discriminators
+  onto Core `NormalizedProviderEvent`s without renderer heuristics:
+  `agent_message_chunk`/`agent_thought_chunk` buffer into readable
+  `dialog_message` blocks using the sentence-boundary thresholds proven by
+  the retired ACP provider (flush at 900 chars, or 360 at a sentence
+  boundary; tools and turn end flush everything), `tool_call` /
+  `tool_call_update` become `kimi_tool_call`/`kimi_tool_result` stream
+  events, `usage_update` (`used`/`size`) becomes the shared `token_usage`
+  stream event, and unknown updates surface as diagnostic stream events.
 
 ## Inputs
 

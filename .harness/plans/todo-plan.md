@@ -8,7 +8,7 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task7",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -128,4 +128,4 @@
 25. [DONE] Git Commit: `feat: show Kimi session continuity card` (hash: self)
 26. [DONE] `harness-ai.phase6.stream1.task6` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi settings cards build`). Result: Completed in commit `chore: package Kimi settings cards build`.
 27. [DONE] Git Commit: `chore: package Kimi settings cards build` (hash: self)
-28. [IN_PROGRESS] `harness-ai.phase6.stream1.task7` User verifies Settings -> Kimi shows the Kimi Versions card (single CLI row with real current/latest/update behavior) and the Kimi Session Continuity threshold that persists across restarts (completion: user-acceptance; scope: user workflow; expected commit: none).
+28. [DONE] `harness-ai.phase6.stream1.task7` User verifies Settings -> Kimi shows the Kimi Versions card (single CLI row with real current/latest/update behavior) and the Kimi Session Continuity threshold that persists across restarts (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User accepted Kimi settings parity cards (Versions CLI row + Session Continuity) in packaged app Acceptance Commit: `chore: record plan acceptance kimi-native-request-capture-2026-07-16`.

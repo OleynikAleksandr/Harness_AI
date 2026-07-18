@@ -1,3 +1,5 @@
+import { kimiClientModelContextLength } from "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
+
 export interface ProviderStatusPanelCapabilities {
   readonly rollbackPreserveFirstUserTurns: number | null;
   readonly showCache: boolean;
@@ -20,9 +22,10 @@ export function defaultProviderTokenLimit(
     return model === "grok-4.5" ? 500_000 : 200_000;
   }
   if (providerId === "kimi-client") {
-    // The verified Kimi Coding Plan native context window (config
-    // max_context_size); real usage events override it per turn.
-    return 262_144;
+    // Core-catalog context per model (k3 is a 1M-context model, K2.7 stays
+    // at 262144 — verified live 2026-07-18); real usage events override it
+    // per turn.
+    return kimiClientModelContextLength(model);
   }
   return providerId.startsWith("glm-") ? 262_144 : 200_000;
 }

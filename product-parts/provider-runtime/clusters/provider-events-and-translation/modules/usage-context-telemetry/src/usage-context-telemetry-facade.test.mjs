@@ -10,12 +10,33 @@ const statusPanelSource = readFileSync(
   new URL("./usage-context-status-panel.ts", import.meta.url),
   "utf8"
 );
-const statusPanelCompiled = ts.transpileModule(statusPanelSource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
+const descriptorCompiled = ts.transpileModule(
+  readFileSync(
+    new URL(
+      "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.ts",
+      import.meta.url
+    ),
+    "utf8"
+  ),
+  {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  }
+).outputText;
+const descriptorUrl = `data:text/javascript;base64,${Buffer.from(descriptorCompiled).toString("base64")}`;
+const statusPanelCompiled = ts
+  .transpileModule(statusPanelSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  })
+  .outputText.replaceAll(
+    "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js",
+    descriptorUrl
+  );
 const statusPanelUrl = `data:text/javascript;base64,${Buffer.from(statusPanelCompiled).toString("base64")}`;
 const limitScopesCompiled = ts.transpileModule(
   readFileSync(
@@ -107,6 +128,20 @@ const kimi = usageContextTelemetryFacade.createTelemetry({
   providerId: "kimi-client",
 });
 assert.equal(kimi.tokenUsage.limit, 262_144);
+// Core-catalog per-model context: k3 is a 1M-context model (verified live
+// 2026-07-18), unknown config-aliased ids fall back to the K2.7 window.
+const kimiK3 = usageContextTelemetryFacade.createTelemetry({
+  model: "k3",
+  provider: "Kimi",
+  providerId: "kimi-client",
+});
+assert.equal(kimiK3.tokenUsage.limit, 1_048_576);
+const kimiCustom = usageContextTelemetryFacade.createTelemetry({
+  model: "my-custom-alias",
+  provider: "Kimi",
+  providerId: "kimi-client",
+});
+assert.equal(kimiCustom.tokenUsage.limit, 262_144);
 assert.equal(kimi.statusPanelCapabilities.showCache, true);
 assert.equal(kimi.statusPanelCapabilities.showTurns, true);
 assert.equal(kimi.statusPanelCapabilities.rollbackPreserveFirstUserTurns, null);

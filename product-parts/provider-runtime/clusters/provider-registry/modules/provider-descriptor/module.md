@@ -44,10 +44,16 @@ Own model/reasoning capabilities and UI metadata for providers.
   CLI has no independent reasoning selector.
 - Client endpoint model catalog: `getClientModels(providerId)`
   returns renderer-safe `ProviderModelDescriptor` (`{ id, label,
-  description? }`) entries. `KIMI_CLIENT_MODELS` is the shared Core/provider-
+  description?, contextLength? }`) entries. `KIMI_CLIENT_MODELS` is the
+  shared Core/provider-
   runtime source consumed by normalization and UI surfaces; its live-verified
   2026-07-16 Coding Plan catalog is `kimi-for-coding` (K2.7 Coding),
-  `kimi-for-coding-highspeed` (K2.7 Coding HighSpeed), and `k3` (K3).
+  `kimi-for-coding-highspeed` (K2.7 Coding HighSpeed), and `k3` (K3). The
+  descriptors carry the live-verified 2026-07-18 native context windows
+  (both K2.7 models 262144, `k3` 1048576 — a 1M-context model), resolved
+  per model through `kimiClientModelContextLength(model)` with
+  `KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH` (the K2.7 window) for
+  config-aliased ids outside the catalog.
   `glm-client` carries the
   Core-owned GLM coding-plan catalog (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). Multi-model client providers resolve their selected

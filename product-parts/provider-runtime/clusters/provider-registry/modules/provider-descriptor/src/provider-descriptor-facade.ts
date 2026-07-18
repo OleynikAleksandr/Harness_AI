@@ -44,31 +44,49 @@ export type NativeCaptureReasoningEffort =
   | "ultra";
 
 export interface ProviderModelDescriptor {
+  // Native context window in tokens, when the provider catalog declares it.
+  readonly contextLength?: number;
   readonly description?: string;
   readonly id: string;
   readonly label: string;
 }
 
 // Verified Kimi Coding Plan catalog returned by GET /coding/v1/models for the
-// current subscription key on 2026-07-16. This is provider-runtime truth; UI
-// surfaces consume these descriptors instead of inventing model ids locally.
+// current subscription key (context lengths re-verified live 2026-07-18:
+// k3 is a 1M-context model, both K2.7 models stay at 262144). This is
+// provider-runtime truth; UI surfaces consume these descriptors instead of
+// inventing model ids locally.
 export const KIMI_CLIENT_MODELS: readonly ProviderModelDescriptor[] = [
   {
+    contextLength: 262_144,
     description: "Standard K2.7 coding model.",
     id: "kimi-for-coding",
     label: "K2.7 Coding",
   },
   {
+    contextLength: 262_144,
     description: "Stable high-speed K2.7 coding model.",
     id: "kimi-for-coding-highspeed",
     label: "K2.7 Coding HighSpeed",
   },
   {
+    contextLength: 1_048_576,
     description: "Latest Kimi coding model available on the Allegretto plan.",
     id: "k3",
     label: "K3",
   },
 ];
+
+// Catalog-fallback Kimi context window: the K2.7 value doubles as the limit
+// for model ids outside the Core catalog (config-aliased custom models).
+export const KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH = 262_144;
+
+export function kimiClientModelContextLength(model: string): number {
+  return (
+    KIMI_CLIENT_MODELS.find((descriptor) => descriptor.id === model)
+      ?.contextLength ?? KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH
+  );
+}
 
 // Model catalog for universal-client endpoint providers.
 const CLIENT_PROVIDER_MODELS: Readonly<

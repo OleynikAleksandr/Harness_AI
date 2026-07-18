@@ -203,6 +203,14 @@ readiness registry, liveness checker, and workspace provisioner modules.
   default model) and its fix (bootstrap appends the missing `[models.*]`
   sections; wire proof that a native session really runs on `k3`), plus
   the packaged `app.asar` checksum with binary-grep proof.
+- `docs/evidence/kimi-native-thinking-package-2026-07-18.md` — Kimi native
+  thinking packaging evidence: the user-driven research that overturned the
+  "provider-side limitation" verdict (the migrated legacy config lacked the
+  `[thinking]` section and model capabilities; the ACP `thinking=on` option
+  overrides the configured level), the full effort pipeline
+  (config declarations, adapter→driver→runtime plumbing, settings routing,
+  Settings/panel UI, the eager-open relaunch fix trio) and the live k3/max
+  smoke, plus the packaged `app.asar` checksum with binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

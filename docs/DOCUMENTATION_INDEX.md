@@ -147,6 +147,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   ссылку на подробное evidence и обязательный final result.
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,
   provider migration, UI fixes, runtime behavior, smoke checks and retests.
+- `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
+  the turn-timer scope: current `ElapsedTotal` behavior, turn-state event
+  journal as the persistent timing source, the `turn-timing` Core module and
+  `turn-timer` UI module design, and the derivation rules (repeated
+  `running`, unclosed turn on shutdown, Total semantics).
 - `docs/evidence/claude-status-panel-turns-package-2026-07-18.md` — Claude
   status panel Turns parity packaging evidence: the one-line
   `statusPanelCapabilities.showTurns` fix for `claude` (the adapter already

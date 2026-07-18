@@ -153,6 +153,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   emitted `turn_completed` and Core already accumulated `turnCount`), the
   extended telemetry facade test, the packaged `app.asar` checksum and the
   extracted-file proof that the new condition is inside the package.
+- `docs/evidence/codex-panel-rollback-removal-package-2026-07-18.md` — Codex
+  panel Rollback removal packaging evidence: the rollback-action/cache-anchor
+  set split in `statusPanelCapabilities` (Codex keeps `Cache: 0`, Cache and
+  Turns but no Rollback block; Grok untouched; Core rollback plumbing stays
+  wired behind the capability), the extended telemetry facade test, the
+  packaged `app.asar` checksum and the extracted-file proof.
 - `docs/evidence/kimi-model-selection-package-2026-07-16.md` — live Kimi
   three-model catalog/turn evidence, Core routing and Settings/new-session
   selection contract, automated gates, packaged `app.asar` checksum and

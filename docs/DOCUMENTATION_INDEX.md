@@ -227,6 +227,13 @@ readiness registry, liveness checker, and workspace provisioner modules.
   catalog context lengths, live model-context reader, workspace-home
   context truth, native-session routing, live CDN update channel) and the
   packaged `app.asar` checksum with binary-grep proof.
+- `docs/evidence/kimi-upgrade-fallback-package-2026-07-18.md` — Kimi native
+  upgrade fallback packaging evidence: the silent-Update defect (`kimi
+  upgrade` refuses to self-update a native standalone-binary install and
+  exits 0), the vendor-installer fallback fix with honest failure, the live
+  proof run (installer really updated 0.26.0 -> 0.27.0, ACP handshake on
+  0.27.0 compatible, swarm still not exposed over ACP) and the packaged
+  `app.asar` checksum with binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

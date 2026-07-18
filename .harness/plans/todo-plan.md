@@ -8,7 +8,7 @@
   "planId": "claude-status-panel-turns-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task3",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -113,4 +113,4 @@
 9. [DONE] Git Commit: `feat: hide Rollback control from Codex session status panel` (hash: self)
 10. [DONE] `harness-ai.phase5.stream1.task2` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `chore: package Codex panel Rollback removal build`). Result: Completed in commit `chore: package Codex panel Rollback removal build`.
 11. [DONE] Git Commit: `chore: package Codex panel Rollback removal build` (hash: self)
-12. [IN_PROGRESS] `harness-ai.phase5.stream1.task3` User retests the Codex session status panel in the packaged app: no Rollback block; Model/effort/Tokens/Cache/Turns chips stay intact with `Cache: 0` from session start (completion: user-acceptance; scope: user workflow; expected commit: none).
+12. [DONE] `harness-ai.phase5.stream1.task3` User retests the Codex session status panel in the packaged app: no Rollback block; Model/effort/Tokens/Cache/Turns chips stay intact with `Cache: 0` from session start (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — Codex panel verified in packaged app: no Rollback block, Cache/Turns intact Acceptance Commit: `chore: record plan acceptance claude-status-panel-turns-2026-07-18`.

@@ -219,6 +219,14 @@ readiness registry, liveness checker, and workspace provisioner modules.
   the dead-swarm fallback, divider-aware bottom anchor, one-row flex status
   panel without the rollback-probe modifier) and the packaged `app.asar`
   checksum with binary-grep proof.
+- `docs/evidence/kimi-context-update-package-2026-07-18.md` — Kimi context
+  and update-channel packaging evidence: the live Coding Plan catalog
+  research (k3 is a 1M-context model; "K3 Swarm" is the CLI swarm mode,
+  not exposed over ACP 0.26.0), the quartered-k3-window and frozen
+  update-state defects, the five-commit stream that fixed them (Core
+  catalog context lengths, live model-context reader, workspace-home
+  context truth, native-session routing, live CDN update channel) and the
+  packaged `app.asar` checksum with binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

@@ -53,6 +53,7 @@ export type KimiThinkingEffort = (typeof KIMI_THINKING_EFFORTS)[number];
 const DEFAULT_THINKING_EFFORT: KimiThinkingEffort = "high";
 const DEPRECATED_DEFAULT_THINKING_PATTERN = /^\s*default_thinking\s*=.*$\n?/gmu;
 const THINKING_EFFORT_LINE_PATTERN = /^\s*effort\s*=\s*".*"\s*$/mu;
+const THINKING_EFFORT_VALUE_PATTERN = /^effort\s*=\s*"([^"]*)"$/u;
 
 export interface KimiWorkspaceHome {
   // The `HOME` value for the spawned CLI child.
@@ -88,6 +89,36 @@ export function prepareKimiWorkspaceHome(
   ensureCatalogModelSections(path.join(configDir, "config.toml"));
   ensureThinkingDeclarations(path.join(configDir, "config.toml"));
   return { homePath, sessionsRoot: path.join(configDir, "sessions") };
+}
+
+// The level currently configured in the workspace-home config — the runtime
+// seeds its applied level from this so an eager-opened session skips the
+// relaunch when the requested level already matches.
+export function readKimiThinkingEffort(home: KimiWorkspaceHome): string | null {
+  try {
+    const source = readFileSync(
+      path.join(home.homePath, KIMI_CONFIG_DIRNAME, "config.toml"),
+      "utf8"
+    );
+    const lines = source.split("\n");
+    const headerIndex = lines.findIndex((line) => line.trim() === "[thinking]");
+    if (headerIndex < 0) {
+      return null;
+    }
+    for (let index = headerIndex + 1; index < lines.length; index += 1) {
+      const trimmed = lines[index].trim();
+      if (trimmed.startsWith("[")) {
+        return null;
+      }
+      const match = trimmed.match(THINKING_EFFORT_VALUE_PATTERN);
+      if (match) {
+        return match[1];
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 // Set the per-session thinking level: the CLI reads `[thinking].effort` at

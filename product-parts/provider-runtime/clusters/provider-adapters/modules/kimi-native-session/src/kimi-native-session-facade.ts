@@ -53,6 +53,7 @@ export {
   type KimiThinkingEffort,
   type KimiWorkspaceHome,
   prepareKimiWorkspaceHome,
+  readKimiThinkingEffort,
   writeKimiThinkingEffort,
 } from "./kimi-workspace-home.js";
 

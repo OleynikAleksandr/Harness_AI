@@ -226,10 +226,12 @@ try {
   const types = events.map((event) =>
     event.type === "stream_event" ? `stream:${event.data.kind}` : event.type
   );
+  // No kimi_thinking_unavailable: the workspace-home config owns thinking,
+  // so the ACP thinking=on request is deliberately not sent (it would
+  // override the configured level with the CLI default).
   assert.deepEqual(types, [
-    "stream:kimi_acp_notification",
-    "stream:kimi_thinking_unavailable",
     "turn_started",
+    "stream:kimi_acp_notification",
     "dialog_message",
     "dialog_message",
     "stream:kimi_tool_call",
@@ -247,12 +249,6 @@ try {
       event.data.method === "harness_test/mode"
   );
   assert.equal(modeEcho.data.raw.value, "yolo");
-  const thinkingDiagnostic = events.find(
-    (event) =>
-      event.type === "stream_event" &&
-      event.data.kind === "kimi_thinking_unavailable"
-  );
-  assert.match(thinkingDiagnostic.data.message, /Internal error/u);
   assert.deepEqual(usageReads, ["kimi-s-1"]);
   const storeUsage = events.filter(
     (event) =>

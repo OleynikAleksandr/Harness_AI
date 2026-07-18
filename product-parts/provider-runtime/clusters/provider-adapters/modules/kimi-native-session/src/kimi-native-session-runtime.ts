@@ -23,6 +23,7 @@ import { readKimiSwarmAgents } from "./kimi-swarm-progress-reader.js";
 import {
   type KimiWorkspaceHome,
   prepareKimiWorkspaceHome,
+  readKimiThinkingEffort,
   recordKimiSessionMapping,
   writeKimiThinkingEffort,
 } from "./kimi-workspace-home.js";
@@ -65,6 +66,7 @@ export class KimiNativeSessionRuntime {
   private acpSessionId: string | null = null;
   private appliedModel: string | null = null;
   private appliedThinkingEffort: string | null = null;
+  private everPrompted = false;
   private reportedThinkingEffort: string | null = null;
   private readonly channel: KimiAcpSessionProcess;
   private readonly normalizer = new KimiSessionEventNormalizer();
@@ -83,6 +85,7 @@ export class KimiNativeSessionRuntime {
     this.workspaceHome = (options.homePreparer ?? prepareKimiWorkspaceHome)(
       options.workspacePath
     );
+    this.appliedThinkingEffort = readKimiThinkingEffort(this.workspaceHome);
     this.channel = new KimiAcpSessionProcess({
       cwd: options.workspacePath,
       environment: { HOME: this.workspaceHome.homePath },
@@ -148,15 +151,17 @@ export class KimiNativeSessionRuntime {
   }
 
   // The thinking LEVEL is read by the CLI once at process start
-  // (`[thinking].effort` in the workspace-home config), so the level from
-  // the first turn's Core options is written right before the first spawn
-  // and stays fixed for the session lifetime. A level arriving later (or an
-  // unsupported one) surfaces one honest diagnostic per distinct value.
-  private applyThinkingEffort(reasoningEffort?: string): void {
+  // (`[thinking].effort` in the workspace-home config) and the driver opens
+  // the CLI eagerly at createSession — so before the FIRST prompt a
+  // differing level relaunches the still-empty child (no history yet) with
+  // the level written; after the first real turn the level is fixed for the
+  // session lifetime and a differing (or unsupported) level surfaces one
+  // honest diagnostic per distinct value.
+  private async applyThinkingEffort(reasoningEffort?: string): Promise<void> {
     if (!reasoningEffort || reasoningEffort === this.appliedThinkingEffort) {
       return;
     }
-    if (this.acpSessionId) {
+    if (this.everPrompted) {
       if (this.reportedThinkingEffort !== reasoningEffort) {
         this.reportedThinkingEffort = reasoningEffort;
         this.emit(
@@ -167,6 +172,11 @@ export class KimiNativeSessionRuntime {
         );
       }
       return;
+    }
+    if (this.acpSessionId) {
+      // Eagerly opened at create: the config was already read. The session
+      // has no history yet, so a clean relaunch applies the level.
+      await this.close();
     }
     if (writeKimiThinkingEffort(this.workspaceHome, reasoningEffort)) {
       this.appliedThinkingEffort = reasoningEffort;
@@ -203,14 +213,18 @@ export class KimiNativeSessionRuntime {
       });
   }
 
-  // Best-effort thinking: `session/new` advertises the thinking select
-  // (off|on), but CLI 0.26.0 rejects enabling it ("Internal error") and
-  // config-aliased models drop the option entirely. The request is still
-  // sent once per session so future CLI/model combinations that accept it
-  // start emitting agent_thought_chunk (already normalized into thinking
-  // bubbles) with no Harness change; a refusal surfaces one honest
-  // diagnostic and keeps the native session alive.
+  // Thinking activation. When the workspace-home config owns thinking (the
+  // bootstrap wrote a `[thinking]` section — `appliedThinkingEffort` seeded
+  // from it), the session already starts ON at the configured level and the
+  // ACP `thinking=on` option must NOT be sent: it would override the level
+  // with the CLI's default `high` (verified live 2026-07-18: config `max` +
+  // `set_config_option {thinking,"on"}` => wire `thinkingEffort: high`).
+  // Only a home without a config section falls back to the best-effort
+  // request; a refusal surfaces one honest diagnostic and keeps the session.
   private async requestThinking(sessionId: string): Promise<void> {
+    if (this.appliedThinkingEffort) {
+      return;
+    }
     await this.channel
       .request("session/set_config_option", {
         configId: "thinking",
@@ -227,8 +241,9 @@ export class KimiNativeSessionRuntime {
     model?: string,
     reasoningEffort?: string
   ): Promise<void> {
-    this.applyThinkingEffort(reasoningEffort);
+    await this.applyThinkingEffort(reasoningEffort);
     const sessionId = await this.open();
+    this.everPrompted = true;
     if (model) {
       // The Core session model arrives with the turn; select it before the
       // prompt when it differs from what the CLI session already applied.
@@ -343,6 +358,10 @@ export class KimiNativeSessionRuntime {
   async close(): Promise<void> {
     this.stopSwarmPolling();
     this.acpSessionId = null;
+    // A relaunched child starts a fresh CLI session: the model must be
+    // re-applied there (proven live: a kept appliedModel silently left the
+    // relaunch on the default model).
+    this.appliedModel = null;
     await this.channel.stop();
   }
 

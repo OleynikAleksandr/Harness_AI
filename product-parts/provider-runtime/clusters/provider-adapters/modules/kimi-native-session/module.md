@@ -86,20 +86,28 @@ session id with the CLI store id).
   0.26.0 with zero `session/request_permission` on a Bash-using turn; a
   future CLI refusing it surfaces one honest
   `kimi_full_access_unavailable` diagnostic and the fail-closed interaction
-  bridge still answers whatever the CLI asks) and a best-effort thinking
-  request (`{configId: "thinking", value: "on"}`): `session/new` advertises the
-  thinking select, but CLI 0.26.0 rejects enabling it (`Internal error`) and
-  config-aliased models drop the option entirely, so a refusal surfaces one
-  honest `kimi_thinking_unavailable` diagnostic — future CLI/model
-  combinations that accept the option start emitting `agent_thought_chunk`
-  (already normalized into thinking bubbles) with no Harness change.
+  bridge still answers whatever the CLI asks). Thinking activation: when the
+  workspace-home config owns thinking (the bootstrap wrote a `[thinking]`
+  section) the session already starts ON at the configured level, and the
+  ACP `thinking=on` option is deliberately NOT sent — it would override the
+  level with the CLI default `high` (verified live 2026-07-18: config `max`
+  + `set_config_option {thinking,"on"}` => wire `thinkingEffort: high`);
+  only a home without the section falls back to the best-effort
+  `thinking=on` request with the honest `kimi_thinking_unavailable`
+  diagnostic on refusal. `agent_thought_chunk` notifications are normalized
+  into thinking bubbles.
   `prompt(text, model?, reasoningEffort?)` applies the per-turn Core session
   model the same best-effort way when it differs from the already-applied
-  one (the driver forwards `ProviderTurnOptions.model`), writes the turn's
-  reasoning effort into the workspace-home config before the first spawn
-  (the CLI reads the level once at process start; a level arriving after
-  start surfaces one `kimi_thinking_effort_locked` diagnostic per distinct
-  value and an unsupported level one `kimi_thinking_effort_unsupported`),
+  one (the driver forwards `ProviderTurnOptions.model`) and applies the
+  turn's reasoning effort: the CLI reads the level once at process start,
+  and the driver opens eagerly at createSession, so before the FIRST prompt
+  a differing level relaunches the still-empty child (no history yet) with
+  the level written first — the relaunch resets the applied model so the
+  fresh CLI session re-applies it (proven live: a kept applied model
+  silently left the relaunch on the default model); after the first real
+  turn the level is fixed (one `kimi_thinking_effort_locked` diagnostic per
+  distinct later value, `kimi_thinking_effort_unsupported` for levels
+  outside the supported set),
   emits `turn_started`, sends `session/prompt` with a
   30-minute turn timeout, flushes buffered text and emits `turn_completed`
   (with the CLI `stopReason` as the message) or `turn_failed`.

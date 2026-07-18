@@ -54,6 +54,7 @@ try {
   const {
     deleteKimiNativeSessionArtifacts,
     prepareKimiWorkspaceHome,
+    readKimiThinkingEffort,
     recordKimiSessionMapping,
     writeKimiThinkingEffort,
   } = await import(
@@ -134,8 +135,10 @@ try {
   );
 
   // The per-session effort writer replaces only the effort line and rejects
-  // unsupported levels.
+  // unsupported levels; the reader mirrors the configured level.
+  assert.equal(readKimiThinkingEffort(home), "high");
   assert.equal(writeKimiThinkingEffort(home, "max"), true);
+  assert.equal(readKimiThinkingEffort(home), "max");
   assert.match(
     readFileSync(path.join(configDir, "config.toml"), "utf8"),
     /\[thinking\]\nenabled = true\neffort = "max"\nkeep = "all"/u

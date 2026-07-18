@@ -131,8 +131,9 @@ try {
   assert.ok(refusalKinds.includes("kimi_full_access_unavailable"));
   assert.equal(refusalEvents.at(-1).type, "turn_completed");
 
-  // Thinking effort: the first turn's level lands in the workspace-home
-  // config before the CLI spawns; later differing levels surface the locked
+  // Thinking effort: the driver opens eagerly at create, so the first
+  // turn's differing level relaunches the still-empty child with the level
+  // written; after the first real turn differing levels surface the locked
   // diagnostic; unsupported levels are refused with a diagnostic.
   const effortEvents = [];
   const effortRuntime = new KimiNativeSessionRuntime({
@@ -141,6 +142,7 @@ try {
     usageReader: () => null,
     workspacePath: root,
   });
+  await effortRuntime.open();
   await effortRuntime.prompt("first turn", undefined, "max");
   const homeConfigPath = path.join(
     root,
@@ -158,7 +160,13 @@ try {
   const effortKinds = effortEvents
     .filter((event) => event.type === "stream_event")
     .map((event) => event.data.kind);
-  assert.ok(effortKinds.includes("kimi_thinking_effort_locked"));
+  // The pre-first-turn relaunch applied "max" without a locked diagnostic;
+  // only the post-turn "low" locks.
+  assert.equal(
+    effortKinds.filter((kind) => kind === "kimi_thinking_effort_locked").length,
+    1
+  );
+  assert.match(readFileSync(homeConfigPath, "utf8"), /effort = "max"/u);
 
   const unsupportedEvents = [];
   const unsupportedRuntime = new KimiNativeSessionRuntime({

@@ -8,7 +8,7 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task41",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -268,4 +268,4 @@
 115. [DONE] Git Commit: `fix: keep status panel chips on one row` (hash: self)
 116. [DONE] `harness-ai.phase8.stream1.task40` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi acceptance fixes build`). Result: Completed in commit `chore: package Kimi acceptance fixes build`.
 117. [DONE] Git Commit: `chore: package Kimi acceptance fixes build` (hash: self)
-118. [IN_PROGRESS] `harness-ai.phase8.stream1.task41` User verifies in the packaged app: a 3-agent AgentSwarm registers exactly 3 subagents (no root card, divider count 3), the dialog autoscrolls to the launch divider when it appears, the status panel keeps Model/effort/Tokens/Cache/Turns on one row (no Rollback for Kimi), while thinking bubbles, effort selection, full access, workspace store, deletion, model selection and swarm visibility keep working (completion: user-acceptance; scope: user workflow; expected commit: none).
+118. [DONE] `harness-ai.phase8.stream1.task41` User verifies in the packaged app: a 3-agent AgentSwarm registers exactly 3 subagents (no root card, divider count 3), the dialog autoscrolls to the launch divider when it appears, the status panel keeps Model/effort/Tokens/Cache/Turns on one row (no Rollback for Kimi), while thinking bubbles, effort selection, full access, workspace store, deletion, model selection and swarm visibility keep working (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User confirmed the plan 100% on build 648aadce: exactly 3 subagents without the root card, divider autoscroll works, status panel chips on one row Acceptance Commit: `chore: record plan acceptance kimi-native-request-capture-2026-07-16`.

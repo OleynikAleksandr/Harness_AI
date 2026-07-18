@@ -159,6 +159,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   Turns but no Rollback block; Grok untouched; Core rollback plumbing stays
   wired behind the capability), the extended telemetry facade test, the
   packaged `app.asar` checksum and the extracted-file proof.
+- `docs/evidence/grok-panel-rollback-removal-package-2026-07-18.md` — Grok
+  panel Rollback removal packaging evidence: `ROLLBACK_ACTION_PROVIDER_IDS`
+  emptied so no provider panel surfaces Rollback anymore (Codex/Grok keep the
+  `Cache: 0` anchor and Cache/Turns; Core intents stay wired), the updated
+  telemetry facade test, the packaged `app.asar` checksum and the
+  extracted-file proof.
 - `docs/evidence/kimi-model-selection-package-2026-07-16.md` — live Kimi
   three-model catalog/turn evidence, Core routing and Settings/new-session
   selection contract, automated gates, packaged `app.asar` checksum and

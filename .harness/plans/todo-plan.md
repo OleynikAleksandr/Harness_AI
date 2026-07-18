@@ -8,8 +8,8 @@
   "planId": "claude-status-panel-turns-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": "chore: package Grok panel Rollback removal build",
+  "currentTaskId": "harness-ai.phase6.stream1.task3",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -129,6 +129,6 @@
 
 13. [DONE] `harness-ai.phase6.stream1.task1` Empty the rollback-action provider set in the Core status-panel capability contract so Grok also publishes `rollbackPreserveFirstUserTurns: null`, keep the `Cache: 0` anchor and Cache/Turns chips for Codex/Grok, update the telemetry facade test, and sync the panel-contract docs (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-status-panel.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`; expected commit: `feat: hide Rollback control from Grok session status panel`). Result: Completed in commit `feat: hide Rollback control from Grok session status panel`.
 14. [DONE] Git Commit: `feat: hide Rollback control from Grok session status panel` (hash: self)
-15. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `chore: package Grok panel Rollback removal build`).
-16. [TODO] Git Commit: `chore: package Grok panel Rollback removal build` (hash: TBD)
-17. [TODO] `harness-ai.phase6.stream1.task3` User retests the Grok session status panel in the packaged app: no Rollback block; Model/effort/Tokens/Cache/Turns chips stay intact with `Cache: 0` from session start (completion: user-acceptance; scope: user workflow; expected commit: none).
+15. [DONE] `harness-ai.phase6.stream1.task2` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `chore: package Grok panel Rollback removal build`). Result: Completed in commit `chore: package Grok panel Rollback removal build`.
+16. [DONE] Git Commit: `chore: package Grok panel Rollback removal build` (hash: self)
+17. [IN_PROGRESS] `harness-ai.phase6.stream1.task3` User retests the Grok session status panel in the packaged app: no Rollback block; Model/effort/Tokens/Cache/Turns chips stay intact with `Cache: 0` from session start (completion: user-acceptance; scope: user workflow; expected commit: none).

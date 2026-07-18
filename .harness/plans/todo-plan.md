@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase9.stream1.task43",
+  "expectedCommitMessage": "feat: declare Kimi model context lengths in Core catalog",
   "debt": null
 }
 ```
@@ -67,6 +67,21 @@
   (the reasoning badge became a sixth chip in the five-column
   `session-status` grid; Codex survives only via its seven-column rollback
   modifier).
+- **Planning source (stream 6):** user order 2026-07-18 after accepting the
+  defect fixes: bring the honest k3 context window into the app and fix the
+  Kimi Versions card missing the released CLI 0.27.0. Research findings:
+  the Coding Plan catalog (`GET https://api.kimi.com/coding/v1/models`,
+  Bearer key) declares `k3` at `context_length` 1048576 while both K2.7
+  models stay at 262144 — our workspace-home bootstrap wrote 262144 for k3,
+  quartering its window; no separate swarm model exists ("K3 Swarm" in the
+  Kimi desktop app is the CLI swarm mode, which ACP 0.26.0 does not expose:
+  `session/set_config_option` routes only model/mode/thinking). The
+  Versions card read only the passive `~/.kimi-code/updates/latest.json`
+  state file, which the CLI refreshes on its own launches — our sessions
+  run in workspace homes with auto-update pinned off, so the file froze at
+  0.26.0 while the CDN channel `https://code.kimi.com/kimi-code/latest.json`
+  (302 redirect, then JSON manifest) already publishes 0.27.0. Packaging
+  the finished stream is pre-authorized by the same order.
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Readable architecture projection:** `.harness/product-tree/product-tree.md`.
@@ -269,3 +284,23 @@
 116. [DONE] `harness-ai.phase8.stream1.task40` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi acceptance fixes build`). Result: Completed in commit `chore: package Kimi acceptance fixes build`.
 117. [DONE] Git Commit: `chore: package Kimi acceptance fixes build` (hash: self)
 118. [DONE] `harness-ai.phase8.stream1.task41` User verifies in the packaged app: a 3-agent AgentSwarm registers exactly 3 subagents (no root card, divider count 3), the dialog autoscrolls to the launch divider when it appears, the status panel keeps Model/effort/Tokens/Cache/Turns on one row (no Rollback for Kimi), while thinking bubbles, effort selection, full access, workspace store, deletion, model selection and swarm visibility keep working (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User confirmed the plan 100% on build 648aadce: exactly 3 subagents without the root card, divider autoscroll works, status panel chips on one row Acceptance Commit: `chore: record plan acceptance kimi-native-request-capture-2026-07-16`.
+
+## Phase 9 - Kimi Context And Update Channel (owner: Codex, updated: 2026-07-18)
+
+### Stream: Catalog Context Truth And Live Update Channel
+
+119. [DONE] `harness-ai.phase9.stream1.task42` Extend the active scope with the Kimi context and update-channel stream approved by the user on 2026-07-18: the k3 native context becomes the honest 1M from the Coding Plan catalog (`GET /coding/v1/models` — verified live: k3 `context_length` 1048576, both K2.7 models 262144, no separate swarm model exists; "K3 Swarm" is the CLI swarm mode, not exposed over ACP on 0.26.0) and the Kimi Versions card stops missing released CLI updates (0.27.0 is live on the CDN channel `https://code.kimi.com/kimi-code/latest.json` behind a 302 redirect while the passive `~/.kimi-code/updates/latest.json` state file froze at 0.26.0 — our sessions run in workspace homes with auto-update pinned off, so the CLI never refreshes it); packaging the result is pre-authorized by the same order (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add Kimi context and update channel stream`). Result: Completed in commit `plan: add Kimi context and update channel stream`.
+120. [DONE] Git Commit: `plan: add Kimi context and update channel stream` (hash: self)
+121. [IN_PROGRESS] `harness-ai.phase9.stream1.task43` Declare Kimi model context lengths in the Core catalog: `ProviderModelDescriptor` gains an optional `contextLength`, the three `KIMI_CLIENT_MODELS` carry the live-verified values (262144 / 262144 / 1048576) with a `kimiClientModelContextLength(model)` resolver, and the status-panel default token limit for `kimi-client` resolves per model through it so a fresh k3 session starts at 1M before the first turn (scope: `provider-descriptor/src/provider-descriptor-facade.ts, usage-context-telemetry/src/usage-context-status-panel.ts` + paired tests/docs; expected commit: `feat: declare Kimi model context lengths in Core catalog`).
+122. [TODO] Git Commit: `feat: declare Kimi model context lengths in Core catalog` (hash: TBD)
+123. [TODO] `harness-ai.phase9.stream1.task44` Add the live Kimi model-context reader: `kimi-model-catalog.ts` fetches `GET https://api.kimi.com/coding/v1/models` with the shared key resolution (Harness auth store -> CLI config-TOML fallback, exported from the usage-limits module), parses `{id, context_length}` rows, merges them over the Core-catalog fallback values and memoizes the result per process with a TTL so offline starts stay instant; cover payload parsing, merge/fallback and memoization with tests and synchronize module docs (scope: `kimi-client-provider/src/kimi-model-catalog.ts, kimi-client-provider/src/kimi-usage-limits.ts` + paired tests/docs; expected commit: `feat: read live Kimi model contexts`).
+124. [TODO] Git Commit: `feat: read live Kimi model contexts` (hash: TBD)
+125. [TODO] `harness-ai.phase9.stream1.task45` Write per-model context truth into the workspace home and the usage reader: `prepareKimiWorkspaceHome` accepts a `modelContexts` map, generated catalog sections take their `max_context_size` from it, a new upsert refreshes `max_context_size` on existing catalog-model sections of the managed workspace config when the truth differs (the 2026-07-17 bootstrap wrote 262144 for k3, quartering its real 1M window), and `readKimiSessionTokenUsage`/`parseKimiWireUsage` accept an explicit `limit` so the emitted `token_usage` reflects the session's model; cover generation, upsert idempotence and the limit plumbing with tests and synchronize module docs (scope: `kimi-native-session/src/kimi-workspace-home.ts, kimi-native-session/src/kimi-session-usage-reader.ts` + paired tests/docs; expected commit: `feat: write Kimi per-model context truth`).
+126. [TODO] Git Commit: `feat: write Kimi per-model context truth` (hash: TBD)
+127. [TODO] `harness-ai.phase9.stream1.task46` Route the resolved model contexts through the native session path: the kimi-client adapter resolves the live/merged contexts once per session start and passes them in `ProviderSessionStartOptions` handling, the driver start options gain `modelContexts`, and the runtime feeds them to the workspace-home prepare and resolves the per-turn usage limit from the applied model (scope — this task is explicitly split as 3 functional files because the adapter wiring, the driver surface and the runtime consumption each own one side: `kimi-client-provider/src/kimi-client-provider-facade.ts, kimi-native-session/src/kimi-native-session-facade.ts, kimi-native-session/src/kimi-native-session-runtime.ts` + paired tests/docs; expected commit: `feat: route Kimi model contexts to native sessions`).
+128. [TODO] Git Commit: `feat: route Kimi model contexts to native sessions` (hash: TBD)
+129. [TODO] `harness-ai.phase9.stream1.task47` Check the live Kimi CLI update channel in the Versions card: `readKimiCliVersionStatus` fetches the CLI's own CDN manifest `https://code.kimi.com/kimi-code/latest.json` (redirect-following, 3s abort, injectable fetch for tests), takes `version` when it parses as a release string and falls back to the passive `updates/latest.json` state file offline, so a released CLI update shows as available even though workspace-home sessions never refresh the state file; cover manifest parsing, timeout fallback and offline fallback with tests and synchronize module docs (scope: `kimi-native-capture/src/kimi-native-capture-facade.ts` + paired tests/docs; expected commit: `feat: check live Kimi update channel`).
+130. [TODO] Git Commit: `feat: check live Kimi update channel` (hash: TBD)
+131. [TODO] `harness-ai.phase9.stream1.task48` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-18 order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi context and update build`).
+132. [TODO] Git Commit: `chore: package Kimi context and update build` (hash: TBD)
+133. [TODO] `harness-ai.phase9.stream1.task49` User verifies in the packaged app: a native k3 session shows the 1M context window in the status panel (before and after the first turn), K2.7 sessions keep 262144, the Kimi Versions card reports 0.27.0 as available and its Update button performs the native upgrade, and existing behavior (thinking, effort, swarm visibility, workspace store) keeps working (completion: user-acceptance; scope: user workflow; expected commit: none).

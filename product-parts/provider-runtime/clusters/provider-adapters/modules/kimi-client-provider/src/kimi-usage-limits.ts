@@ -34,6 +34,21 @@ export interface KimiUsageLimitsEvent {
 const KIMI_USAGE_ENDPOINT = "https://api.kimi.com/coding/v1/usages";
 const TOML_API_KEY_PATTERN = /^\s*api_key\s*=\s*"([^"]+)"/mu;
 
+// Shared Coding Plan key resolution: the Harness kimi-client auth store
+// first, the CLI config-TOML `api_key` as the native-profile fallback. The
+// model-catalog reader reuses it for `GET /coding/v1/models`.
+export function resolveKimiApiKey(
+  overrides: { readonly apiKey?: string; readonly configPath?: string } = {}
+): string | null {
+  return (
+    overrides.apiKey ??
+    providerAuthStoreFacade.getApiKey("kimi-client") ??
+    readTomlApiKey(
+      overrides.configPath ?? path.join(homedir(), ".kimi-code", "config.toml")
+    )
+  );
+}
+
 export async function readKimiUsageLimitsEvent(
   overrides: {
     readonly apiKey?: string;
@@ -41,12 +56,7 @@ export async function readKimiUsageLimitsEvent(
     readonly fetchImpl?: typeof fetch;
   } = {}
 ): Promise<KimiUsageLimitsEvent | null> {
-  const apiKey =
-    overrides.apiKey ??
-    providerAuthStoreFacade.getApiKey("kimi-client") ??
-    readTomlApiKey(
-      overrides.configPath ?? path.join(homedir(), ".kimi-code", "config.toml")
-    );
+  const apiKey = resolveKimiApiKey(overrides);
   if (!apiKey) {
     return null;
   }

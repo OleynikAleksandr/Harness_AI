@@ -96,7 +96,10 @@ const source = readFileSync(
   .replace(
     /import \{ readKimiUsageLimitsEvent \}[^\n]*\n/u,
     "const readKimiUsageLimitsEvent = () => Promise.resolve(globalThis.__kimiLimitsTestEvent ?? null);\n"
-  );
+  )
+  // The model-catalog re-export would pull the real module (and its network
+  // path) into the tmp build; the facade itself does not consume it here.
+  .replace(/export \{[^}]*\} from "\.\/kimi-model-catalog\.js";\n/u, "");
 
 const compiled = ts.transpileModule(source, {
   compilerOptions: {

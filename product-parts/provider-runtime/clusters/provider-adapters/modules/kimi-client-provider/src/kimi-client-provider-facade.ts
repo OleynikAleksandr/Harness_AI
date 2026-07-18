@@ -52,6 +52,13 @@ import {
 } from "./kimi-managed-profile-application.js";
 import { readKimiUsageLimitsEvent } from "./kimi-usage-limits.js";
 
+export {
+  fetchKimiModelContexts,
+  type KimiModelContexts,
+  parseKimiModelContexts,
+  resolveKimiModelContexts,
+} from "./kimi-model-catalog.js";
+
 // Backward-compatible fallback for legacy callers that do not pass Core's
 // immutable session model in ProviderTurnOptions.
 export const KIMI_MODEL = "kimi-for-coding";

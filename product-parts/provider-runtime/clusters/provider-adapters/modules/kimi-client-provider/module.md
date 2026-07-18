@@ -96,7 +96,18 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
   `limits[0].detail` -> 5h bucket, `usage` -> weekly bucket; numeric API
   fields arrive as strings). Core calls it on bind-ready and after every
   completed turn for both native and client sessions; failures resolve to
-  no broadcast (the panel keeps its pending state).
+  no broadcast (the panel keeps its pending state). The key resolution is
+  exported as `resolveKimiApiKey` and shared with the model-catalog reader.
+- Model catalog (`kimi-model-catalog.ts`, verified live 2026-07-18):
+  `resolveKimiModelContexts` reads `GET https://api.kimi.com/coding/v1/models`
+  with the same key resolution, parses `{id, context_length}` rows (k3
+  1048576 — a 1M-context model, both K2.7 models 262144), merges the live
+  rows over the Core-catalog fallback
+  (`KIMI_CLIENT_MODELS`/`kimiClientModelContextLength`) and memoizes a
+  successful read per process for 15 minutes; offline reads return the
+  fallback immediately and retry on the next call. The facade re-exports
+  the reader surface; the native session path consumes the merged map for
+  workspace-home config truth and per-turn usage limits.
 
 ## Owned Paths
 

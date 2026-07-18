@@ -197,13 +197,92 @@ max_context_size = 262144
     currentVersion: null,
     latestVersion: null,
   });
-  await upgradeKimiCli(fakeKimi);
   assert.deepEqual(readFileSync(kimiArgsLog, "utf8").trim().split("\n"), [
     "--version",
     "--version",
     "--version",
-    "upgrade",
   ]);
+
+  // Upgrade flows run against a version-file-backed fake CLI: `--version`
+  // reads the file, `upgrade` bumps it only when the self-update flag file
+  // exists (package-manager installs); a native install leaves it untouched
+  // exactly like the real CLI ("Auto-update is not supported", exit 0).
+  const upgradeVersionFile = path.join(sourceConfigDir, "fake-version.txt");
+  const selfUpdateFlag = path.join(sourceConfigDir, "self-update-enabled");
+  const fakeUpgradeKimi = path.join(sourceConfigDir, "fake-upgrade-kimi.sh");
+  await writeFile(
+    fakeUpgradeKimi,
+    [
+      "#!/bin/sh",
+      `if [ "$1" = "--version" ]; then cat "${upgradeVersionFile}"; exit 0; fi`,
+      `if [ "$1" = "upgrade" ]; then`,
+      `  if [ -f "${selfUpdateFlag}" ]; then printf "0.99.9" > "${upgradeVersionFile}"; fi`,
+      "  exit 0",
+      "fi",
+    ].join("\n"),
+    { mode: 0o755 }
+  );
+  const throwingInstaller = () =>
+    Promise.reject(new Error("installer must not run"));
+
+  // 1. A package-manager install self-updates: no installer involved.
+  await writeFile(upgradeVersionFile, "0.98.0", "utf8");
+  await writeFile(selfUpdateFlag, "", "utf8");
+  await upgradeKimiCli(fakeUpgradeKimi, {
+    runNativeInstaller: throwingInstaller,
+  });
+  assert.equal(readFileSync(upgradeVersionFile, "utf8"), "0.99.9");
+
+  // 2. A native install refuses self-update: the vendor installer runs and
+  // the version must move.
+  await rm(selfUpdateFlag, { force: true });
+  await writeFile(upgradeVersionFile, "0.98.0", "utf8");
+  let installerRuns = 0;
+  await upgradeKimiCli(fakeUpgradeKimi, {
+    fetchImpl: () =>
+      Promise.resolve({
+        json: () => Promise.resolve({ version: "0.99.2" }),
+        ok: true,
+      }),
+    runNativeInstaller: () => {
+      installerRuns += 1;
+      writeFileSync(upgradeVersionFile, "0.99.2", "utf8");
+      return Promise.resolve();
+    },
+  });
+  assert.equal(installerRuns, 1);
+  assert.equal(readFileSync(upgradeVersionFile, "utf8"), "0.99.2");
+
+  // 3. Already current (channel equals the installed version) and offline
+  // checks stay clean no-ops without touching the installer.
+  await upgradeKimiCli(fakeUpgradeKimi, {
+    fetchImpl: () =>
+      Promise.resolve({
+        json: () => Promise.resolve({ version: "0.99.2" }),
+        ok: true,
+      }),
+    runNativeInstaller: throwingInstaller,
+  });
+  await upgradeKimiCli(fakeUpgradeKimi, {
+    fetchImpl: () => Promise.reject(new Error("offline")),
+    runNativeInstaller: throwingInstaller,
+  });
+
+  // 4. An installer run that changes nothing rejects honestly so the card
+  // shows the failure instead of a silent no-op.
+  await writeFile(upgradeVersionFile, "0.98.0", "utf8");
+  await assert.rejects(
+    () =>
+      upgradeKimiCli(fakeUpgradeKimi, {
+        fetchImpl: () =>
+          Promise.resolve({
+            json: () => Promise.resolve({ version: "0.99.2" }),
+            ok: true,
+          }),
+        runNativeInstaller: () => Promise.resolve(),
+      }),
+    /did not change the installed version/u
+  );
 
   console.log("kimi native capture tests passed");
 } finally {

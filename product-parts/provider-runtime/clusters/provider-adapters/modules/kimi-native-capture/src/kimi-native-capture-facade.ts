@@ -221,11 +221,60 @@ async function fetchKimiChannelLatestVersion(
   }
 }
 
-export async function upgradeKimiCli(kimiCommand?: string): Promise<void> {
-  await execFileAsync(kimiCommand ?? resolveKimiCommand(), ["upgrade"], {
+// The official installer command `kimi upgrade` itself prints for native
+// installs (verified 2026-07-18: non-interactive, installs into
+// `~/.kimi-code`, no sudo).
+const KIMI_NATIVE_INSTALL_COMMAND =
+  "curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash";
+
+// `kimi upgrade` self-updates only package-manager installs. On a native
+// (standalone binary) install it prints "Detected install source: native
+// (windows). Auto-update is not supported on this platform." and exits 0
+// without changing anything — the card's Update looked successful while
+// Current never moved (2026-07-18 defect). When the version did not change
+// and the CDN channel really advertises a different release, the vendor
+// installer runs; a still-unchanged version afterwards rejects honestly.
+// An already-current or offline check stays a clean no-op.
+export async function upgradeKimiCli(
+  kimiCommand?: string,
+  overrides: {
+    readonly fetchImpl?: typeof fetch;
+    readonly runNativeInstaller?: () => Promise<void>;
+  } = {}
+): Promise<void> {
+  const command = kimiCommand ?? resolveKimiCommand();
+  const before = readKimiVersion(command);
+  await execFileAsync(command, ["upgrade"], {
     maxBuffer: KIMI_UPGRADE_MAX_BUFFER_BYTES,
     timeout: KIMI_UPGRADE_TIMEOUT_MS,
   });
+  if (readKimiVersion(command) !== before) {
+    return;
+  }
+  const channelLatest = await fetchKimiChannelLatestVersion(
+    overrides.fetchImpl
+  );
+  if (!channelLatest || channelLatest === before) {
+    return;
+  }
+  await (overrides.runNativeInstaller ?? runKimiNativeInstaller)();
+  const after = readKimiVersion(command);
+  if (after === before) {
+    throw new Error(
+      `Kimi CLI update did not change the installed version (still ${after ?? "unknown"}).`
+    );
+  }
+}
+
+async function runKimiNativeInstaller(): Promise<void> {
+  await execFileAsync(
+    "bash",
+    ["-c", `set -o pipefail; ${KIMI_NATIVE_INSTALL_COMMAND}`],
+    {
+      maxBuffer: KIMI_UPGRADE_MAX_BUFFER_BYTES,
+      timeout: KIMI_UPGRADE_TIMEOUT_MS,
+    }
+  );
 }
 
 function readKimiLatestKnownVersion(updateStatePath: string): string | null {

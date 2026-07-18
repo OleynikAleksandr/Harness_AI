@@ -35,7 +35,19 @@ fallback. The state file alone missed released updates: the CLI refreshes
 it only on its own launches, and Harness native sessions run in workspace
 homes with auto-update pinned off, so it froze at 0.26.0 while the channel
 published 0.27.0 (2026-07-18 defect). `upgradeKimiCli()`
-runs the native `kimi upgrade` command. Both resolve the same
+runs the native `kimi upgrade` command and compares the installed version
+before/after: a native (standalone binary) install refuses to self-update —
+the CLI prints "Detected install source: native (windows). Auto-update is
+not supported on this platform." and exits 0, so the card's Update looked
+successful while Current never moved (second 2026-07-18 defect). When the
+version did not change and the CDN channel really advertises a different
+release, the vendor installer the CLI itself prints runs
+(`curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash`; verified
+live: non-interactive, installs into `~/.kimi-code`, backs up the old
+binary, checksum-verified — the run updated 0.26.0 -> 0.27.0 and the ACP
+handshake on 0.27.0 stays compatible). A still-unchanged version
+afterwards rejects honestly, while already-current and offline checks stay
+clean no-ops. Both resolve the same
 `~/.kimi-code/bin/kimi` (PATH fallback) install the capture driver uses and
 accept explicit overrides for tests.
 

@@ -28,6 +28,10 @@ assert.match(
   /session\.reasoningEffort \?\?\s+settings\.providers\.grok\.reasoningByModel\[session\.model\]/u
 );
 assert.match(
+  source,
+  /session\.reasoningEffort \?\?\s+settings\.providers\.kimiClient\.reasoningByModel\[session\.model\]/u
+);
+assert.match(
   providerPickerSource,
   /case "grok":\s+return settings\.providers\.grok\.defaultModel/u
 );

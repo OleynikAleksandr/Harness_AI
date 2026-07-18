@@ -144,12 +144,16 @@ export function ModelRows({
   note,
   onChange,
   options,
+  rowControl,
   value,
 }: {
   description: string;
   note?: string;
   onChange: (value: string) => void;
   options: readonly ModelRowsOption[];
+  // Optional per-row control (e.g. a reasoning select) rendered next to the
+  // model choice, in the Grok-card row layout.
+  rowControl?: (optionId: string) => ReactNode;
   value: string;
 }) {
   const resolvedOptions = options.map(normalizeModelOption);
@@ -157,24 +161,40 @@ export function ModelRows({
     <>
       <p className="settings-description">{description}</p>
       <div className="settings-list">
-        {resolvedOptions.map((option) => (
-          <button
-            aria-pressed={option.id === value}
-            className={
-              option.id === value
-                ? "active settings-model-row"
-                : "settings-model-row"
-            }
-            key={option.id}
-            onClick={() => onChange(option.id)}
-            type="button"
-          >
-            <span className="settings-model-title">{option.label}</span>
-            {option.description ? (
-              <p className="settings-model-description">{option.description}</p>
-            ) : null}
-          </button>
-        ))}
+        {resolvedOptions.map((option) => {
+          const rowClassName =
+            option.id === value
+              ? "active settings-model-row"
+              : "settings-model-row";
+          const choice = (
+            <button
+              aria-pressed={option.id === value}
+              className={rowControl ? "settings-model-choice" : rowClassName}
+              key={rowControl ? undefined : option.id}
+              onClick={() => onChange(option.id)}
+              type="button"
+            >
+              <span className="settings-model-title">{option.label}</span>
+              {option.description ? (
+                <p className="settings-model-description">
+                  {option.description}
+                </p>
+              ) : null}
+            </button>
+          );
+          if (!rowControl) {
+            return choice;
+          }
+          return (
+            <div
+              className={`${rowClassName} settings-model-row--with-control`}
+              key={option.id}
+            >
+              {choice}
+              <div className="settings-row-select">{rowControl(option.id)}</div>
+            </div>
+          );
+        })}
       </div>
       {note ? <p className="settings-note">{note}</p> : null}
     </>

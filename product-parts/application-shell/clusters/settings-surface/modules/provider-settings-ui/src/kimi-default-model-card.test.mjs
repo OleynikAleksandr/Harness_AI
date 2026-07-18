@@ -25,4 +25,32 @@ assert.match(
 assert.match(kimiTabSource, /PROVIDER_MODEL_OPTIONS\.kimiClient/u);
 assert.match(kimiTabSource, /settings\.provider\.kimiClient\.defaultModel/u);
 
+// Reasoning select per model row (native thinking level), bound to the
+// workspace-projected kimiClient.reasoningByModel like the Grok card.
+assert.match(kimiTabSource, /KIMI_REASONING_EFFORTS_BY_MODEL/u);
+assert.match(kimiTabSource, /<ReasoningEffortSelect/u);
+assert.match(
+  kimiTabSource,
+  /next\.providers\.kimiClient\.reasoningByModel\[modelId\] =/u
+);
+
+// The shared row-control slot flows through DefaultModelCard into ModelRows.
+const providerCardsSource = readFileSync(
+  new URL("./settings-provider-cards.tsx", import.meta.url),
+  "utf8"
+);
+const referenceControlsSource = readFileSync(
+  new URL("./settings-reference-controls.tsx", import.meta.url),
+  "utf8"
+);
+assert.match(
+  providerCardsSource,
+  /rowControl\?: Parameters<typeof ModelRows>/u
+);
+assert.match(
+  referenceControlsSource,
+  /rowControl\?: \(optionId: string\) => ReactNode/u
+);
+assert.match(referenceControlsSource, /settings-model-row--with-control/u);
+
 console.log("Kimi default model card tests passed");

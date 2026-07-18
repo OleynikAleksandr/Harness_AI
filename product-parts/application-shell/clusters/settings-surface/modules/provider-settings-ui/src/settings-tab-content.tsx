@@ -1,3 +1,4 @@
+import { KIMI_REASONING_EFFORTS_BY_MODEL } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProfileSettingsUiFacade } from "../../profile-settings-ui/src/profile-settings-ui-facade.js";
@@ -24,6 +25,7 @@ import {
   type UpdatableProviderId,
   type VersionTarget,
 } from "./provider-version-controls.js";
+import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
 import { SessionContinuityCard } from "./session-continuity-card.js";
 import {
   PROVIDER_MODEL_OPTIONS,
@@ -216,7 +218,7 @@ export function SettingsTabContent({
           description={t(
             "ui_helper_text",
             "settings.provider.kimiClient.defaultModel.description",
-            "Choose the Kimi model used by the universal client when new sessions start."
+            "Choose the Kimi model used when new sessions start. Reasoning sets the native thinking effort a new session launches with."
           )}
           onChange={(defaultModel) =>
             update((next) => {
@@ -228,6 +230,30 @@ export function SettingsTabContent({
             "settings.provider.kimiClient.model",
             PROVIDER_MODEL_OPTIONS.kimiClient
           )}
+          rowControl={(modelId) => {
+            const efforts = KIMI_REASONING_EFFORTS_BY_MODEL[modelId] ?? [];
+            const effort =
+              settings.providers.kimiClient.reasoningByModel[modelId] ??
+              efforts[0];
+            if (!effort) {
+              return <span>Provider managed</span>;
+            }
+            return (
+              <>
+                <span>Reasoning</span>
+                <ReasoningEffortSelect
+                  onChange={(value) =>
+                    update((next) => {
+                      next.providers.kimiClient.reasoningByModel[modelId] =
+                        value;
+                    })
+                  }
+                  value={effort}
+                  values={efforts}
+                />
+              </>
+            );
+          }}
           title={t(
             "ui_labels",
             "settings.provider.kimiClient.defaultModel",

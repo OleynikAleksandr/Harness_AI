@@ -30,6 +30,7 @@ export function DefaultModelCard({
   note,
   onChange,
   options,
+  rowControl,
   title,
   value,
 }: {
@@ -37,6 +38,7 @@ export function DefaultModelCard({
   note?: string;
   onChange: (value: string) => void;
   options: Parameters<typeof ModelRows>[0]["options"];
+  rowControl?: Parameters<typeof ModelRows>[0]["rowControl"];
   title: string;
   value: string;
 }) {
@@ -47,6 +49,7 @@ export function DefaultModelCard({
         note={note}
         onChange={onChange}
         options={options}
+        {...(rowControl ? { rowControl } : {})}
         value={value}
       />
     </SettingsCard>

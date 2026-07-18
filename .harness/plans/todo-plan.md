@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task32",
-  "expectedCommitMessage": "feat: show Kimi reasoning in Settings and panel",
+  "currentTaskId": "harness-ai.phase8.stream1.task33",
+  "expectedCommitMessage": "chore: package Kimi native thinking build",
   "debt": null
 }
 ```
@@ -239,8 +239,8 @@
 98. [DONE] Git Commit: `feat: apply Kimi native thinking effort` (hash: self)
 99. [DONE] `harness-ai.phase8.stream1.task31` Route the Kimi reasoning effort from settings like Codex/Grok: add `kimiClient.reasoningByModel` (workspace-projected, default empty) with `KIMI_REASONING_EFFORTS` (`low`/`high`/`max`, default `high`) in normalization, and resolve it in `buildProviderTurnOptions` for `kimi-client` sessions (scope — this task is explicitly split as 4 functional files because the store shape, its normalization, the projection split and the turn-options resolver each own one side: `settings-store/src/settings-store-facade.ts, settings-store/src/settings-normalization.ts, settings-store/src/settings-store-projections.ts, session-request-handler/src/provider-turn-options.ts` + paired tests/docs; expected commit: `feat: route Kimi reasoning effort from settings`). Result: Completed in commit `feat: route Kimi reasoning effort from settings`.
 100. [DONE] Git Commit: `feat: route Kimi reasoning effort from settings` (hash: self)
-101. [IN_PROGRESS] `harness-ai.phase8.stream1.task32` Surface the Kimi reasoning choice: the Settings Kimi default-model rows gain a Reasoning select (low/high/max, like the Grok card) bound to `kimiClient.reasoningByModel`, and the session panel model badge shows the Kimi effort like Codex/Grok; localize the new strings (scope: `provider-settings-ui/src/settings-tab-content.tsx, session-window/src/reference-session-panels.tsx, localization-runtime/src/source-dictionaries.ts` + paired tests/docs; expected commit: `feat: show Kimi reasoning in Settings and panel`).
-102. [TODO] Git Commit: `feat: show Kimi reasoning in Settings and panel` (hash: TBD)
-103. [TODO] `harness-ai.phase8.stream1.task33` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native thinking build`).
+101. [DONE] `harness-ai.phase8.stream1.task32` Surface the Kimi reasoning choice: the shared `ModelRows` gains an optional per-row control slot (reused verbatim by `DefaultModelCard`), the Settings Kimi default-model rows use it for a Reasoning select (low/high/max, like the Grok card) bound to `kimiClient.reasoningByModel`, and the session panel model badge shows the Kimi effort like Codex/Grok; no new localization strings (the Grok card's Reasoning label is plain) (scope — this task is explicitly split as 4 functional files because the row-control slot flows through the shared component chain into the tab and the panel badge is renderer-side display of the settings snapshot: `provider-settings-ui/src/settings-reference-controls.tsx, provider-settings-ui/src/settings-provider-cards.tsx, provider-settings-ui/src/settings-tab-content.tsx, session-window/src/reference-session-panels.tsx` + paired tests/docs; expected commit: `feat: show Kimi reasoning in Settings and panel`). Result: Completed in commit `feat: show Kimi reasoning in Settings and panel`.
+102. [DONE] Git Commit: `feat: show Kimi reasoning in Settings and panel` (hash: self)
+103. [IN_PROGRESS] `harness-ai.phase8.stream1.task33` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi native thinking build`).
 104. [TODO] Git Commit: `chore: package Kimi native thinking build` (hash: TBD)
 105. [TODO] `harness-ai.phase8.stream1.task34` User verifies in the packaged app: a native Kimi session shows live Thinking bubbles, the Settings Kimi card offers low/high/max per model and the chosen effort is applied to new sessions (wire `llm.request` carries it) and shown in the session panel, while full access, workspace store, deletion, model selection and swarm visibility keep working (completion: user-acceptance; scope: user workflow; expected commit: none).

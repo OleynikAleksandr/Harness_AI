@@ -28,7 +28,14 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `providers.kimiClient.defaultModel`. The card consumes the shared
   provider-descriptor catalog (`kimi-for-coding`,
   `kimi-for-coding-highspeed`, `k3`) through `PROVIDER_MODEL_OPTIONS`, so the
-  renderer does not duplicate provider model ids. Below the model card the
+  renderer does not duplicate provider model ids. Since the 2026-07-17
+  native thinking stream every Kimi model row also carries a Reasoning
+  select (the shared `ModelRows`/`DefaultModelCard` gained an optional
+  per-row control slot in the Grok-card row layout): the levels come from
+  Core's `KIMI_REASONING_EFFORTS_BY_MODEL` (`low`/`high`/`max`) and the
+  choice binds to the workspace-projected
+  `providers.kimiClient.reasoningByModel` — the native driver launches each
+  new session with that level. Below the model card the
   Kimi tab mounts the shared `ProviderVersionsCard` in its CLI-only Kimi form
   (single `Kimi CLI` row; auto-update toggle bound to
   `providers.kimiClient.autoUpdate.enabled`) and the shared

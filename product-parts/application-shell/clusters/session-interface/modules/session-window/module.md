@@ -24,7 +24,10 @@ Render the transcript/dialog layout and session chrome.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels
   use the Core settings-store capability resolver; Grok labels use its
-  Core-selected per-model effort and disappear for provider-managed Composer.
+  Core-selected per-model effort and disappear for provider-managed Composer;
+  Kimi labels show the Core-selected per-model native thinking level
+  (`providers.kimiClient.reasoningByModel`, session override first) since
+  the 2026-07-17 native thinking stream.
 - Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
 - Core-owned provider readiness descriptors and live `provider:status` events.
 - Ephemeral Core `session:provider-interaction` and resolved events. The session

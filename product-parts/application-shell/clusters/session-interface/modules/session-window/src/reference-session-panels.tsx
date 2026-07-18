@@ -305,6 +305,12 @@ function resolveReasoningLabel(
       settings.providers.grok.reasoningByModel[session.model];
     return effort ? `(${effort})` : null;
   }
+  if (session.providerId === "kimi-client") {
+    const effort =
+      session.reasoningEffort ??
+      settings.providers.kimiClient.reasoningByModel[session.model];
+    return effort ? `(${effort})` : null;
+  }
   if (session.providerId === "openrouter-client") {
     return settings.providers.openRouter.endpointTag
       ? `(${settings.providers.openRouter.endpointTag})`

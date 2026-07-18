@@ -26,8 +26,15 @@ Since the 2026-07-17 Kimi settings parity stream the facade also owns the Kimi
 CLI version tooling for the provider-versions surface (the CLI is a standalone
 binary, not an npm/pip package): `readKimiCliVersionStatus()` returns
 `{ currentVersion, latestVersion }` — current from `kimi --version`, latest
-from the `~/.kimi-code/updates/latest.json` update-state file the CLI itself
-refreshes against its CDN channel on every launch — and `upgradeKimiCli()`
+from a live read of the CLI's own CDN update channel
+(`https://code.kimi.com/kimi-code/latest.json`, a 302 redirect followed by
+the `{version, publishedAt, rollout[]}` manifest; 3s abort, non-release
+version strings rejected) with the passive
+`~/.kimi-code/updates/latest.json` update-state file as the offline
+fallback. The state file alone missed released updates: the CLI refreshes
+it only on its own launches, and Harness native sessions run in workspace
+homes with auto-update pinned off, so it froze at 0.26.0 while the channel
+published 0.27.0 (2026-07-18 defect). `upgradeKimiCli()`
 runs the native `kimi upgrade` command. Both resolve the same
 `~/.kimi-code/bin/kimi` (PATH fallback) install the capture driver uses and
 accept explicit overrides for tests.

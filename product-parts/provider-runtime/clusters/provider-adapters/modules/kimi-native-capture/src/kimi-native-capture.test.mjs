@@ -146,7 +146,31 @@ max_context_size = 262144
     `#!/bin/sh\necho "$@" >> "${kimiArgsLog}"\necho "0.98.0"\n`,
     { mode: 0o755 }
   );
+  // The live CDN channel wins over the passive state file (manifest shape
+  // replayed from the 2026-07-18 probe: 302 redirect, then JSON).
+  const channelStatus = await readKimiCliVersionStatus({
+    fetchImpl: () =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            publishedAt: "2026-07-17T13:17:41Z",
+            rollout: [{ delaySeconds: 0, percent: 100 }],
+            schemaVersion: 1,
+            version: "0.27.0",
+          }),
+        ok: true,
+      }),
+    kimiCommand: fakeKimi,
+    updateStatePath: path.join(updatesDir, "latest.json"),
+  });
+  assert.deepEqual(channelStatus, {
+    currentVersion: "0.98.0",
+    latestVersion: "0.27.0",
+  });
+  // An unreachable channel falls back to the state file; a manifest without
+  // a release version string does too.
   const versionStatus = await readKimiCliVersionStatus({
+    fetchImpl: () => Promise.reject(new Error("offline")),
     kimiCommand: fakeKimi,
     updateStatePath: path.join(updatesDir, "latest.json"),
   });
@@ -154,7 +178,18 @@ max_context_size = 262144
     currentVersion: "0.98.0",
     latestVersion: "0.99.1",
   });
+  const junkManifestStatus = await readKimiCliVersionStatus({
+    fetchImpl: () =>
+      Promise.resolve({
+        json: () => Promise.resolve({ version: "not-a-version" }),
+        ok: true,
+      }),
+    kimiCommand: fakeKimi,
+    updateStatePath: path.join(updatesDir, "latest.json"),
+  });
+  assert.equal(junkManifestStatus.latestVersion, "0.99.1");
   const missingStatus = await readKimiCliVersionStatus({
+    fetchImpl: () => Promise.reject(new Error("offline")),
     kimiCommand: path.join(sourceConfigDir, "missing-kimi"),
     updateStatePath: path.join(updatesDir, "absent.json"),
   });
@@ -164,6 +199,8 @@ max_context_size = 262144
   });
   await upgradeKimiCli(fakeKimi);
   assert.deepEqual(readFileSync(kimiArgsLog, "utf8").trim().split("\n"), [
+    "--version",
+    "--version",
     "--version",
     "upgrade",
   ]);

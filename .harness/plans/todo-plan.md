@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task47",
-  "expectedCommitMessage": "feat: check live Kimi update channel",
+  "currentTaskId": "harness-ai.phase9.stream1.task48",
+  "expectedCommitMessage": "chore: package Kimi context and update build",
   "debt": null
 }
 ```
@@ -299,8 +299,8 @@
 126. [DONE] Git Commit: `feat: write Kimi per-model context truth` (hash: self)
 127. [DONE] `harness-ai.phase9.stream1.task46` Route the resolved model contexts through the native session path: the kimi-client adapter resolves the live/merged contexts once per session start and passes them in `ProviderSessionStartOptions` handling, the driver start options gain `modelContexts`, and the runtime feeds them to the workspace-home prepare and resolves the per-turn usage limit from the applied model (scope — this task is explicitly split as 3 functional files because the adapter wiring, the driver surface and the runtime consumption each own one side: `kimi-client-provider/src/kimi-client-provider-facade.ts, kimi-native-session/src/kimi-native-session-facade.ts, kimi-native-session/src/kimi-native-session-runtime.ts` + paired tests/docs; expected commit: `feat: route Kimi model contexts to native sessions`). Result: Completed in commit `feat: route Kimi model contexts to native sessions`.
 128. [DONE] Git Commit: `feat: route Kimi model contexts to native sessions` (hash: self)
-129. [IN_PROGRESS] `harness-ai.phase9.stream1.task47` Check the live Kimi CLI update channel in the Versions card: `readKimiCliVersionStatus` fetches the CLI's own CDN manifest `https://code.kimi.com/kimi-code/latest.json` (redirect-following, 3s abort, injectable fetch for tests), takes `version` when it parses as a release string and falls back to the passive `updates/latest.json` state file offline, so a released CLI update shows as available even though workspace-home sessions never refresh the state file; cover manifest parsing, timeout fallback and offline fallback with tests and synchronize module docs (scope: `kimi-native-capture/src/kimi-native-capture-facade.ts` + paired tests/docs; expected commit: `feat: check live Kimi update channel`).
-130. [TODO] Git Commit: `feat: check live Kimi update channel` (hash: TBD)
-131. [TODO] `harness-ai.phase9.stream1.task48` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-18 order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi context and update build`).
+129. [DONE] `harness-ai.phase9.stream1.task47` Check the live Kimi CLI update channel in the Versions card: `readKimiCliVersionStatus` fetches the CLI's own CDN manifest `https://code.kimi.com/kimi-code/latest.json` (redirect-following, 3s abort, injectable fetch for tests), takes `version` when it parses as a release string and falls back to the passive `updates/latest.json` state file offline, so a released CLI update shows as available even though workspace-home sessions never refresh the state file; cover manifest parsing, timeout fallback and offline fallback with tests and synchronize module docs (scope: `kimi-native-capture/src/kimi-native-capture-facade.ts` + paired tests/docs; expected commit: `feat: check live Kimi update channel`). Result: Completed in commit `feat: check live Kimi update channel`.
+130. [DONE] Git Commit: `feat: check live Kimi update channel` (hash: self)
+131. [IN_PROGRESS] `harness-ai.phase9.stream1.task48` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-18 order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi context and update build`).
 132. [TODO] Git Commit: `chore: package Kimi context and update build` (hash: TBD)
 133. [TODO] `harness-ai.phase9.stream1.task49` User verifies in the packaged app: a native k3 session shows the 1M context window in the status panel (before and after the first turn), K2.7 sessions keep 262144, the Kimi Versions card reports 0.27.0 as available and its Update button performs the native upgrade, and existing behavior (thinking, effort, swarm visibility, workspace store) keeps working (completion: user-acceptance; scope: user workflow; expected commit: none).

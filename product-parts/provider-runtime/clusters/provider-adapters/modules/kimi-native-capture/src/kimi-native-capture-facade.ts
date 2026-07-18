@@ -150,11 +150,16 @@ export interface KimiCliVersionStatus {
 
 // Kimi CLI version tooling for the provider-versions surface. The CLI is a
 // standalone binary (no npm package): the current version comes from
-// `kimi --version`, the latest version from the update-state file the CLI
-// itself refreshes against its CDN channel on every launch, and updates run
-// the native `kimi upgrade` command.
+// `kimi --version`, the latest version from a live read of the CLI's own
+// CDN update channel with the passive update-state file as the offline
+// fallback, and updates run the native `kimi upgrade` command. The state
+// file alone is not enough: the CLI refreshes it only on its own launches,
+// and Harness runs native sessions in workspace homes with auto-update
+// pinned off, so the file froze at 0.26.0 while the channel already
+// published 0.27.0 (2026-07-18 defect).
 export async function readKimiCliVersionStatus(
   overrides: {
+    readonly fetchImpl?: typeof fetch;
     readonly kimiCommand?: string;
     readonly updateStatePath?: string;
   } = {}
@@ -163,15 +168,57 @@ export async function readKimiCliVersionStatus(
   const updateStatePath =
     overrides.updateStatePath ??
     path.join(homedir(), KIMI_CONFIG_DIRNAME, "updates", "latest.json");
-  const currentVersion = await execFileAsync(command, ["--version"], {
-    timeout: KIMI_VERSION_TIMEOUT_MS,
-  })
-    .then(({ stdout }) => stdout.trim() || null)
-    .catch(() => null);
+  const [currentVersion, channelLatest] = await Promise.all([
+    execFileAsync(command, ["--version"], {
+      timeout: KIMI_VERSION_TIMEOUT_MS,
+    })
+      .then(({ stdout }) => stdout.trim() || null)
+      .catch(() => null),
+    fetchKimiChannelLatestVersion(overrides.fetchImpl),
+  ]);
   return {
     currentVersion,
-    latestVersion: readKimiLatestKnownVersion(updateStatePath),
+    latestVersion: channelLatest ?? readKimiLatestKnownVersion(updateStatePath),
   };
+}
+
+const KIMI_UPDATE_CHANNEL_URL = "https://code.kimi.com/kimi-code/latest.json";
+// Mirrors the CLI's own CDN fetch budget; the channel answers with a 302
+// redirect before the JSON manifest, so the fetch must follow redirects
+// (Node fetch does by default).
+const KIMI_UPDATE_CHANNEL_TIMEOUT_MS = 3000;
+const RELEASE_VERSION_PATTERN = /^\d+\.\d+\.\d+(?:[-+][\w.-]+)?$/u;
+
+// The channel manifest is `{version, publishedAt, rollout[]}` (unknown
+// fields ignored, like the CLI's own non-strict schema); anything that does
+// not parse as a release version string degrades to null so the state-file
+// fallback answers.
+async function fetchKimiChannelLatestVersion(
+  fetchImpl?: typeof fetch
+): Promise<string | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(),
+    KIMI_UPDATE_CHANNEL_TIMEOUT_MS
+  );
+  timer.unref?.();
+  try {
+    const response = await (fetchImpl ?? fetch)(KIMI_UPDATE_CHANNEL_URL, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const manifest = (await response.json()) as { version?: unknown };
+    const version =
+      typeof manifest?.version === "string" ? manifest.version.trim() : "";
+    return RELEASE_VERSION_PATTERN.test(version) ? version : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function upgradeKimiCli(kimiCommand?: string): Promise<void> {

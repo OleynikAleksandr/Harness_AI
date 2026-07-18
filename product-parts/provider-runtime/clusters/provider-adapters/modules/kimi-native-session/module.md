@@ -118,15 +118,21 @@ session id with the CLI store id).
 - `KimiSubagentNormalizer` synthesizes the provider-neutral subagent
   lifecycle (`subagent_control`/`subagent_session`/`subagent_status`) from
   `Agent`/`AgentSwarm` tool calls, because the Kimi ACP stream has no
-  dedicated subagent discriminators (verified live on CLI 0.26.0): spawn on
-  the tool call with a synthetic `kimi-agent-<toolCallId>` child id parented
-  by the Core-visible provider session id. The call's input JSON streams
+  dedicated subagent discriminators (verified live on CLI 0.26.0). A single
+  `Agent` call IS the subagent and spawns on the tool call with a synthetic
+  `kimi-agent-<toolCallId>` child id parented by the Core-visible provider
+  session id; a swarm spawns nothing on the tool call and materializes only
+  its real agents (`kimi-agent-<toolCallId>:<agent_id>`), so a 3-agent
+  swarm registers exactly 3 subagents — the former root child inflated the
+  count to 4 and opened as a card carrying nothing but the terse swarm
+  summary (2026-07-18 acceptance defect). The call's input JSON streams
   only as partial-JSON `content` chunks (`rawInput` settles later for single
   `Agent` calls and never for swarms — verified on the 2026-07-17 headless
   probe), so the normalizer accumulates the chunks until the JSON parses and
   surfaces the parsed `description` as the task (`rawInput` wins when
   present; a swarm task carries the item count as `<description> (N
-  agents)`). The agent role comes from the result's `actual_subagent_type`
+  agents)` and reaches the dialog as the agents' spawn prompt). The agent
+  role comes from the result's `actual_subagent_type`
   line with the parsed `subagent_type` as fallback. A terminal single-Agent
   update closes the child from the completed/failed status plus the
   result's `status:` line. A terminal swarm update parses the
@@ -135,12 +141,15 @@ session id with the CLI store id).
   (`kimi-agent-<toolCallId>:<agent_id>`, task = its `item`, spawned under
   the same call so the divider counter is honest) and closes each with its
   reported outcome (`completed` -> completed, `aborted` -> interrupted,
-  anything else -> failed) before closing the swarm's root child. Terminal
-  events carry the contract's `result` text — the per-agent section body for
-  swarm agents, the `<summary>` line for the swarm's root child and the
-  post-`[summary]` body for a single Agent — which Core publishes once as
-  the finished child's assistant message, so clicking a finished agent card
-  shows its outcome. While a
+  anything else -> failed). A swarm that reaches its terminal update with
+  no agent at all (never observed by live polling, empty result) falls back
+  to materializing the root child once, terminally, so a swarm that died
+  before starting stays visible instead of vanishing from the dialog.
+  Terminal events carry the contract's `result` text — the per-agent
+  section body for swarm agents, the `<summary>` line (or trimmed result
+  text) for the fallback root child and the post-`[summary]` body for a
+  single Agent — which Core publishes once as the finished child's
+  assistant message, so clicking a finished agent card shows its outcome. While a
   swarm still runs the normalizer also accepts live registrations from the
   session-store poller (`liveSwarmCallIds`/`registerLiveSwarmAgents`,
   proxied through `KimiSessionEventNormalizer`): every store-observed agent

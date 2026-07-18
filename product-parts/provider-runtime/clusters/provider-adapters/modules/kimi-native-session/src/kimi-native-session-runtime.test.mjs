@@ -394,12 +394,24 @@ try {
       event.receiverProviderSessionIds[0] === "kimi-agent-sw1:agent-0"
   );
   assert.ok(liveSpawnIndex >= 0);
-  const rootTerminalIndex = swarmEvents.findIndex(
+  // Live polling registers the agent before the terminal swarm batch closes
+  // it, and the swarm root child never materializes (the run registers
+  // exactly its real agents).
+  const agentZeroTerminalIndex = swarmEvents.findIndex(
     (event) =>
       event.type === "subagent_status" &&
-      event.providerSessionId === "kimi-agent-sw1"
+      event.providerSessionId === "kimi-agent-sw1:agent-0"
   );
-  assert.ok(liveSpawnIndex < rootTerminalIndex);
+  assert.ok(agentZeroTerminalIndex >= 0);
+  assert.ok(liveSpawnIndex < agentZeroTerminalIndex);
+  assert.equal(
+    swarmEvents.some(
+      (event) =>
+        event.providerSessionId === "kimi-agent-sw1" ||
+        event.receiverProviderSessionIds?.[0] === "kimi-agent-sw1"
+    ),
+    false
+  );
   const agentZeroStatuses = swarmEvents.filter(
     (event) =>
       event.type === "subagent_status" &&

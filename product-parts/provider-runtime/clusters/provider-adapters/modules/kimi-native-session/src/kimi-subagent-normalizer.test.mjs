@@ -128,20 +128,33 @@ try {
     []
   );
 
-  // A failed result maps to a failed lifecycle.
+  // A swarm spawn stays silent (no root card), and a swarm that dies before
+  // producing any agent falls back to one terminal root child so the failure
+  // stays visible.
   const failing = new KimiSubagentNormalizer();
   failing.bindParentSession("kimi-native-parent-2");
-  failing.normalizeToolUpdate({
-    sessionUpdate: "tool_call",
-    status: "pending",
-    title: "AgentSwarm",
-    toolCallId: "swarm-1",
-  });
+  assert.deepEqual(
+    failing.normalizeToolUpdate({
+      sessionUpdate: "tool_call",
+      status: "pending",
+      title: "AgentSwarm",
+      toolCallId: "swarm-1",
+    }),
+    []
+  );
   const failed = failing.normalizeToolUpdate({
     sessionUpdate: "tool_call_update",
     status: "failed",
     toolCallId: "swarm-1",
   });
+  assert.deepEqual(
+    failed.map((event) => event.type),
+    ["subagent_control", "subagent_session", "subagent_status"]
+  );
+  assert.deepEqual(failed[0].receiverProviderSessionIds, [
+    "kimi-agent-swarm-1",
+  ]);
+  assert.equal(failed[1].status, "failed");
   assert.equal(failed.at(-1).status, "failed");
 
   // AgentSwarm sequence replayed from the 2026-07-17 headless probe: the
@@ -149,16 +162,16 @@ try {
   // the terminal update carries per-agent <subagent> sections.
   const swarm = new KimiSubagentNormalizer();
   swarm.bindParentSession("kimi-native-parent-4");
-  const swarmSpawn = swarm.normalizeToolUpdate({
-    sessionUpdate: "tool_call",
-    status: "pending",
-    title: "AgentSwarm",
-    toolCallId: "swarm-9",
-  });
-  assert.equal(swarmSpawn.length, 2);
-  assert.deepEqual(swarmSpawn[0].receiverProviderSessionIds, [
-    "kimi-agent-swarm-9",
-  ]);
+  // No root card for a swarm: a 3-agent run must register 3 subagents.
+  assert.deepEqual(
+    swarm.normalizeToolUpdate({
+      sessionUpdate: "tool_call",
+      status: "pending",
+      title: "AgentSwarm",
+      toolCallId: "swarm-9",
+    }),
+    []
+  );
   assert.deepEqual(
     swarm.normalizeToolUpdate({
       content: [
@@ -176,23 +189,25 @@ try {
     }),
     []
   );
-  const parsedTask = swarm.normalizeToolUpdate({
-    content: [
-      {
-        content: {
-          text: ' "b.md"], "prompt_template": "Read {{item}}", "subagent_type": "explore"}',
-          type: "text",
+  // The parsed input updates the tracked task silently (there is no root
+  // child to announce it); it surfaces as the live agents' spawn prompt.
+  assert.deepEqual(
+    swarm.normalizeToolUpdate({
+      content: [
+        {
+          content: {
+            text: ' "b.md"], "prompt_template": "Read {{item}}", "subagent_type": "explore"}',
+            type: "text",
+          },
+          type: "content",
         },
-        type: "content",
-      },
-    ],
-    sessionUpdate: "tool_call_update",
-    status: "in_progress",
-    toolCallId: "swarm-9",
-  });
-  assert.equal(parsedTask.length, 1);
-  assert.equal(parsedTask[0].type, "subagent_session");
-  assert.equal(parsedTask[0].task, "Read files in parallel (2 agents)");
+      ],
+      sessionUpdate: "tool_call_update",
+      status: "in_progress",
+      toolCallId: "swarm-9",
+    }),
+    []
+  );
 
   // Live polling registers store-observed agents while the swarm runs; the
   // duplicate registration is a no-op.
@@ -205,6 +220,7 @@ try {
   assert.deepEqual(liveSpawns[0].receiverProviderSessionIds, [
     "kimi-agent-swarm-9:agent-0",
   ]);
+  assert.equal(liveSpawns[0].prompt, "Read files in parallel (2 agents)");
   assert.equal(liveSpawns[1].type, "subagent_session");
   assert.equal(liveSpawns[1].task, "Read a.md now");
   assert.equal(liveSpawns[1].agentRole, "explore");
@@ -248,7 +264,6 @@ try {
     terminalStatuses.get("kimi-agent-swarm-9:agent-1"),
     "interrupted"
   );
-  assert.equal(terminalStatuses.get("kimi-agent-swarm-9"), "completed");
   const agentZeroSessions = swarmTerminal.filter(
     (event) =>
       event.type === "subagent_session" &&
@@ -257,12 +272,16 @@ try {
   assert.equal(agentZeroSessions[0].agentRole, "explore");
   assert.equal(agentZeroSessions[0].task, "a.md");
   assert.equal(agentZeroSessions[0].result, "Alpha summary");
-  const rootTerminalSession = swarmTerminal.find(
-    (event) =>
-      event.type === "subagent_session" &&
-      event.providerSessionId === "kimi-agent-swarm-9"
+  // The swarm produced real agents, so no root child appears anywhere in the
+  // terminal batch — the run registers exactly its agents.
+  assert.equal(
+    swarmTerminal.some(
+      (event) =>
+        event.providerSessionId === "kimi-agent-swarm-9" ||
+        event.receiverProviderSessionIds?.[0] === "kimi-agent-swarm-9"
+    ),
+    false
   );
-  assert.equal(rootTerminalSession.result, "completed: 1, aborted: 1");
   assert.deepEqual(swarm.liveSwarmCallIds(), []);
   assert.deepEqual(
     swarm.registerLiveSwarmAgents("swarm-9", [

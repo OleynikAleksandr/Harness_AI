@@ -13,9 +13,13 @@ import { isKimiAcpRecord } from "./kimi-acp-session-contracts.js";
 // result as `<subagent agent_id item outcome>text</subagent>` sections. This
 // normalizer accumulates the streamed input until it parses, surfaces the
 // parsed description as the task, and synthesizes the provider-neutral
-// subagent lifecycle (`kimi-agent-<toolCallId>` for the call itself plus
-// `kimi-agent-<toolCallId>:<agent_id>` per swarm agent) so the dialog shows
-// the same launch divider as Claude/Codex.
+// subagent lifecycle so the dialog shows the same launch divider as
+// Claude/Codex. A single `Agent` call IS the subagent and materializes as
+// `kimi-agent-<toolCallId>`; a swarm materializes only its real agents
+// (`kimi-agent-<toolCallId>:<agent_id>`) — a root child would register a
+// 3-agent swarm as 4 subagents and open as a card carrying nothing but the
+// terse swarm summary. The root child survives solely as the terminal
+// fallback for a swarm that died before producing any agent.
 const SUBAGENT_TOOL_TITLES = new Set(["Agent", "AgentSwarm"]);
 const SUBAGENT_ROLE_PATTERN = /actual_subagent_type:\s*([\w-]+)/u;
 const SUBAGENT_RESULT_STATUS_PATTERN = /(?:^|\n)status:\s*([\w-]+)/u;
@@ -95,7 +99,9 @@ export class KimiSubagentNormalizer {
     const task = readTask(update) ?? taskFromParsedInput(entry);
     if (task && task !== entry.task) {
       entry.task = task;
-      events.push(sessionEvent(parent, entry.childId, "running", task, null));
+      if (!entry.swarm) {
+        events.push(sessionEvent(parent, entry.childId, "running", task, null));
+      }
     }
     if (isTerminalUpdate) {
       entry.terminal = true;
@@ -158,15 +164,19 @@ export class KimiSubagentNormalizer {
       return [];
     }
     const childId = `kimi-agent-${toolCallId}`;
+    const swarm = title === "AgentSwarm";
     this.tracked.set(toolCallId, {
       agents: new Map(),
       childId,
       inputText: "",
       parsedInput: null,
-      swarm: title === "AgentSwarm",
+      swarm,
       task: null,
       terminal: false,
     });
+    if (swarm) {
+      return [];
+    }
     return [
       spawnControl(parent, toolCallId, childId, null),
       sessionEvent(parent, childId, "running", null, null),
@@ -231,8 +241,11 @@ export class KimiSubagentNormalizer {
   }
 
   // A terminal swarm update materializes every reported agent as its own
-  // child (spawning the ones live polling never saw) and closes the swarm's
-  // root child; `aborted` agents surface as `interrupted`, not `failed`.
+  // child (spawning the ones live polling never saw) and closes each with
+  // its reported outcome; `aborted` agents surface as `interrupted`, not
+  // `failed`. The swarm's root child never materializes — except as the
+  // fallback for a swarm that died before producing any agent, which would
+  // otherwise vanish from the dialog without a trace.
   private swarmTerminalEvents(
     parent: string,
     toolCallId: string,
@@ -263,19 +276,25 @@ export class KimiSubagentNormalizer {
         );
       }
     }
-    const rootStatus: ProviderSubagentStatus =
-      updateStatus === "failed" ? "failed" : "completed";
-    events.push(
-      sessionEvent(
-        parent,
-        entry.childId,
-        rootStatus,
-        entry.task,
-        role,
-        resultText.match(SWARM_SUMMARY_PATTERN)?.[1]?.trim() ?? null
-      ),
-      statusEvent(entry.childId, rootStatus)
-    );
+    if (entry.agents.size === 0) {
+      const rootStatus: ProviderSubagentStatus =
+        updateStatus === "failed" ? "failed" : "completed";
+      const summary =
+        resultText.match(SWARM_SUMMARY_PATTERN)?.[1]?.trim() ??
+        (resultText.trim() ? resultText.trim() : null);
+      events.push(
+        spawnControl(parent, toolCallId, entry.childId, entry.task),
+        sessionEvent(
+          parent,
+          entry.childId,
+          rootStatus,
+          entry.task,
+          role,
+          summary
+        ),
+        statusEvent(entry.childId, rootStatus)
+      );
+    }
     return events;
   }
 }

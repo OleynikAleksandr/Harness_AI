@@ -52,7 +52,10 @@ Render the transcript/dialog layout and session chrome.
   two-turn warmup/cache-anchor policy. Rollback forwards that preserved count
   to Core while idle; Core derives depth, validates the binding and restores
   transcript plus telemetry. Providers without a capability keep only their
-  supported status fields, without renderer-owned provider allowlists. The
+  supported status fields, without renderer-owned provider allowlists. Claude
+  and Kimi receive the same Model/effort/Tokens/Cache/Turns chips without
+  Rollback (Claude Turns enabled 2026-07-18; both count turns from
+  Core/provider `turn_completed` events). The
   panel lays its chips out as one flex row where the Tokens chip is the only
   flexible cell, so every provider chip set — with or without the reasoning
   badge and Rollback — stays on a single line; the former fixed-column grid

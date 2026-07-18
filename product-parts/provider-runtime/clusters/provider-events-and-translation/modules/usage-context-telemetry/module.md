@@ -42,7 +42,10 @@ Own usage limits and context-window signals derived from provider events.
   limit tables: pending state `loading`, provider scope `kimi:global` and
   the five-hour window labels (the Kimi Coding Plan `/coding/v1/usages`
   window is 300 minutes), fed by the Kimi adapter's `refreshUsageLimits`
-  broadcast.
+  broadcast. Since 2026-07-18 the Claude panel shows Turns too (Cache was
+  already visible, rollback stays unavailable): Claude turns count from the
+  adapter's structured `turn_completed` events exactly like the other
+  providers.
 - Core-owned `turnCount` follows a provider-normalized numeric turn field when
   one is present and otherwise advances only on structured `turn_completed`
   events. Restored snapshots are normalized through the same facade, so older

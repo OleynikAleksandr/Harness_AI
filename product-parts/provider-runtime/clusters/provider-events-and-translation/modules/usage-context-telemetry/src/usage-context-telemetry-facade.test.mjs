@@ -271,6 +271,12 @@ const claude = usageContextTelemetryFacade.createTelemetry({
 assert.equal(claude.providerScopeKey, "claude:global");
 assert.equal(claude.tokenDisplay.value, "0 (100%)");
 assert.equal(claude.cacheDisplay, null);
+assert.equal(claude.statusPanelCapabilities.showCache, true);
+assert.equal(claude.statusPanelCapabilities.showTurns, true);
+assert.equal(
+  claude.statusPanelCapabilities.rollbackPreserveFirstUserTurns,
+  null
+);
 
 const claudeLiveUsage = usageContextTelemetryFacade.applyProviderEvent(claude, {
   data: {
@@ -297,6 +303,16 @@ const claudeMidTurn = usageContextTelemetryFacade.applyProviderEvent(
 assert.equal(claudeMidTurn.tokenUsage.limit, 200_000);
 assert.equal(claudeMidTurn.tokenDisplay.value, "27,900 (86%)");
 assert.equal(claudeMidTurn.cacheDisplay?.value, "27,500");
+
+// Claude turns count from structured turn_completed events exactly like the
+// other providers (the adapter emits one per finished user turn).
+const claudeTurn = usageContextTelemetryFacade.applyProviderEvent(
+  claudeMidTurn,
+  {
+    type: "turn_completed",
+  }
+);
+assert.equal(claudeTurn.turnCount, 1);
 
 // Regression (2026-07-14 acceptance): telemetry restored from persisted
 // session history written by an older build may miss newer token-usage keys

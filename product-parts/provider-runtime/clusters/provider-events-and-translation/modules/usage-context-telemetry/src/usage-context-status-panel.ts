@@ -36,13 +36,17 @@ export function providerStatusPanelCapabilities(
   const supportsRollback = ROLLBACK_PROVIDER_IDS.has(providerId);
   return {
     rollbackPreserveFirstUserTurns: supportsRollback ? 2 : null,
-    // Kimi native turns report inputCacheRead from the CLI session store;
-    // turns count from turn_completed like the other providers.
+    // Kimi native turns report inputCacheRead from the CLI session store.
+    // Claude and Kimi turns count from turn_completed like the rollback
+    // providers; Claude shows the Turns chip without rollback support.
     showCache:
       supportsRollback ||
       providerId === "claude" ||
       providerId === "kimi-client",
-    showTurns: supportsRollback || providerId === "kimi-client",
+    showTurns:
+      supportsRollback ||
+      providerId === "claude" ||
+      providerId === "kimi-client",
   };
 }
 

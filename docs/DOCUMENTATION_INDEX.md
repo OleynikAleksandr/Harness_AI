@@ -147,6 +147,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   ссылку на подробное evidence и обязательный final result.
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,
   provider migration, UI fixes, runtime behavior, smoke checks and retests.
+- `docs/evidence/claude-status-panel-turns-package-2026-07-18.md` — Claude
+  status panel Turns parity packaging evidence: the one-line
+  `statusPanelCapabilities.showTurns` fix for `claude` (the adapter already
+  emitted `turn_completed` and Core already accumulated `turnCount`), the
+  extended telemetry facade test, the packaged `app.asar` checksum and the
+  extracted-file proof that the new condition is inside the package.
 - `docs/evidence/kimi-model-selection-package-2026-07-16.md` — live Kimi
   three-model catalog/turn evidence, Core routing and Settings/new-session
   selection contract, automated gates, packaged `app.asar` checksum and

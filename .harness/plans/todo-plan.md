@@ -8,7 +8,7 @@
   "planId": "claude-status-panel-turns-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -66,24 +66,13 @@
 
 ### Stream: Capability Contract
 
-1. [DONE] `harness-ai.phase1.stream1.task1` Enable the Turns chip for Result: Completed in commit `feat: show Turns chip in Claude session status panel`.
-   Claude sessions in the Core status-panel capability contract, cover the
-   capability and the `turn_completed` increment in the telemetry facade test,
-   and sync the module documentation (scope:
-   `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-status-panel.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/module.md`;
-   expected commit: `feat: show Turns chip in Claude session status panel`).
+1. [DONE] `harness-ai.phase1.stream1.task1` Enable the Turns chip for Claude sessions in the Core status-panel capability contract, cover the capability and the `turn_completed` increment in the telemetry facade test, and sync the module documentation (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-status-panel.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/module.md`; expected commit: `feat: show Turns chip in Claude session status panel`). Result: Completed in commit `feat: show Turns chip in Claude session status panel`.
 2. [DONE] Git Commit: `feat: show Turns chip in Claude session status panel` (hash: self)
 
 ## Phase 2 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-18)
 
 ### Stream: Package And Retest
 
-3. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user
-   verification (`npm run package:mac`, user-confirmed) and record evidence
-   (scope: `docs/evidence/**, .harness/plans/todo-plan.md`; expected commit:
-   `chore: package Claude status panel Turns build`).
-4. [TODO] Git Commit: `chore: package Claude status panel Turns build` (hash: TBD)
-5. [TODO] `harness-ai.phase2.stream1.task2` User retests the Claude session
-   status panel in the packaged app: the Turns chip appears beside Cache and
-   advances by one per completed user request → agent answer cycle
-   (completion: user-acceptance; scope: user workflow; expected commit: none).
+3. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `chore: package Claude status panel Turns build`). Result: Completed in commit `chore: package Claude status panel Turns build`.
+4. [DONE] Git Commit: `chore: package Claude status panel Turns build` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the Claude session status panel in the packaged app: the Turns chip appears beside Cache and advances by one per completed user request → agent answer cycle (completion: user-acceptance; scope: user workflow; expected commit: none).

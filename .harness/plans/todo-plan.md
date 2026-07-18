@@ -8,8 +8,8 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task40",
-  "expectedCommitMessage": "chore: package Kimi acceptance fixes build",
+  "currentTaskId": "harness-ai.phase8.stream1.task41",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -266,6 +266,6 @@
 113. [DONE] Git Commit: `fix: autoscroll to subagent launch divider` (hash: self)
 114. [DONE] `harness-ai.phase8.stream1.task39` Keep the status panel on one row: replace the fixed five/seven-column `session-status` grid with a single-row flex layout where the Tokens chip is the only flexible cell (`flex: 1 1 auto; min-width: 0`) and every other chip keeps its size, so Model/effort/Tokens/Cache/Turns (+Rollback where capable) share one line for every provider; drop the now-dead `session-status--codex-rollback-probe` modifier from the component and the stylesheet including its narrow-viewport rules (the narrow layout keeps stacking via the flex column fallback); cover the single-class rendering with tests and synchronize module docs (scope: `session-window/src/reference-session-panels.tsx, session-window/src/session-window.css` + paired tests/docs; expected commit: `fix: keep status panel chips on one row`). Result: Completed in commit `fix: keep status panel chips on one row`.
 115. [DONE] Git Commit: `fix: keep status panel chips on one row` (hash: self)
-116. [IN_PROGRESS] `harness-ai.phase8.stream1.task40` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi acceptance fixes build`).
-117. [TODO] Git Commit: `chore: package Kimi acceptance fixes build` (hash: TBD)
-118. [TODO] `harness-ai.phase8.stream1.task41` User verifies in the packaged app: a 3-agent AgentSwarm registers exactly 3 subagents (no root card, divider count 3), the dialog autoscrolls to the launch divider when it appears, the status panel keeps Model/effort/Tokens/Cache/Turns on one row (no Rollback for Kimi), while thinking bubbles, effort selection, full access, workspace store, deletion, model selection and swarm visibility keep working (completion: user-acceptance; scope: user workflow; expected commit: none).
+116. [DONE] `harness-ai.phase8.stream1.task40` After explicit user confirmation, package the app for user verification (`npm run package:mac`) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi acceptance fixes build`). Result: Completed in commit `chore: package Kimi acceptance fixes build`.
+117. [DONE] Git Commit: `chore: package Kimi acceptance fixes build` (hash: self)
+118. [IN_PROGRESS] `harness-ai.phase8.stream1.task41` User verifies in the packaged app: a 3-agent AgentSwarm registers exactly 3 subagents (no root card, divider count 3), the dialog autoscrolls to the launch divider when it appears, the status panel keeps Model/effort/Tokens/Cache/Turns on one row (no Rollback for Kimi), while thinking bubbles, effort selection, full access, workspace store, deletion, model selection and swarm visibility keep working (completion: user-acceptance; scope: user workflow; expected commit: none).

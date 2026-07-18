@@ -211,6 +211,14 @@ readiness registry, liveness checker, and workspace provisioner modules.
   (config declarations, adapter→driver→runtime plumbing, settings routing,
   Settings/panel UI, the eager-open relaunch fix trio) and the live k3/max
   smoke, plus the packaged `app.asar` checksum with binary-grep proof.
+- `docs/evidence/kimi-acceptance-fixes-package-2026-07-18.md` — Kimi
+  acceptance-defect fixes packaging evidence: the three rejected-acceptance
+  defects (the synthesized AgentSwarm root card inflating 3 agents to 4,
+  dialog autoscroll ignoring the subagent launch divider, the status-panel
+  Turns chip wrapping to a second row), their fixes (no swarm root except
+  the dead-swarm fallback, divider-aware bottom anchor, one-row flex status
+  panel without the rollback-probe modifier) and the packaged `app.asar`
+  checksum with binary-grep proof.
 - `docs/evidence/plan-user-acceptance-command-2026-07-16.md` — plan
   orchestrator contract for explicit `completion: user-acceptance` tasks,
   guarded acceptance commits and separate user-directed archival.

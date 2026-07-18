@@ -8,7 +8,7 @@
   "planId": "kimi-native-request-capture-2026-07-16",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task53",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -310,4 +310,4 @@
 137. [DONE] Git Commit: `fix: run Kimi native installer on upgrade` (hash: self)
 138. [DONE] `harness-ai.phase9.stream1.task52` Package the app for user verification (`npm run package:mac`; packaging pre-authorized by the user's 2026-07-18 order) and record package evidence (scope: `docs/evidence/**, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `chore: package Kimi upgrade fallback build`). Result: Completed in commit `chore: package Kimi upgrade fallback build`.
 139. [DONE] Git Commit: `chore: package Kimi upgrade fallback build` (hash: self)
-140. [IN_PROGRESS] `harness-ai.phase9.stream1.task53` User verifies in the packaged app: the Kimi Versions Update button really updates the CLI (Current becomes 0.27.0 after the run), the k3 1M context window and K2.7 262144 keep showing, and existing behavior (thinking, effort, swarm visibility, workspace store) keeps working (completion: user-acceptance; scope: user workflow; expected commit: none).
+140. [DONE] `harness-ai.phase9.stream1.task53` User verifies in the packaged app: the Kimi Versions Update button really updates the CLI (Current becomes 0.27.0 after the run), the k3 1M context window and K2.7 262144 keep showing, and existing behavior (thinking, effort, swarm visibility, workspace store) keeps working (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User confirmed everything works on build bedf7378 (Update really installs, 1M k3 window, 0.27.0 CLI) and ordered scope closeout Acceptance Commit: `chore: record plan acceptance kimi-native-request-capture-2026-07-16`.

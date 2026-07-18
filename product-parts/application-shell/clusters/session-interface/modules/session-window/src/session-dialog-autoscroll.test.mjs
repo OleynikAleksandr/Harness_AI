@@ -62,7 +62,12 @@ function container({ bubbles, clientHeight, scrollHeight, scrollTop = 0 }) {
       return { top: 0 };
     },
     querySelectorAll(selector) {
-      assert.equal(selector, ".session-dialog__message");
+      // The bottom anchor must see the subagent launch divider too, not
+      // only message bubbles (2026-07-18 acceptance defect).
+      assert.equal(
+        selector,
+        ".session-dialog__message, .session-subagent-divider"
+      );
       return bubbles;
     },
   };
@@ -119,4 +124,18 @@ assert.equal(
     })
   ),
   240
+);
+
+// A subagent launch divider sitting below the last bubble is the lowest
+// anchored element: the scroll target must reveal it, exactly as if it were
+// a bubble (both selectors resolve through the same query).
+assert.equal(
+  resolveLowestDialogBubbleBottomScrollTop(
+    container({
+      bubbles: [bubble(240), bubble(380), bubble(430)],
+      clientHeight: 300,
+      scrollHeight: 480,
+    })
+  ),
+  154
 );

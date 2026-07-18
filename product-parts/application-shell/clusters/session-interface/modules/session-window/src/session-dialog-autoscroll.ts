@@ -4,7 +4,11 @@ import type { SessionMessage } from "../../../../../../core-runtime/clusters/ses
 const AUTO_SCROLL_EPSILON = 32;
 const BUBBLE_SHADOW_RESERVE_PX = 24;
 const HASH_MODULUS = 4_294_967_291;
-const BUBBLE_SELECTOR = ".session-dialog__message";
+// The bottom anchor tracks every timeline element the dialog renders, not
+// just message bubbles: the subagent launch divider appears below the last
+// bubble and must scroll into view too (2026-07-18 acceptance defect).
+const SCROLL_ANCHOR_SELECTOR =
+  ".session-dialog__message, .session-subagent-divider";
 
 export function useSessionDialogAutoscroll(
   displayMessages: readonly SessionMessage[]
@@ -103,7 +107,7 @@ export function useSessionDialogAutoscroll(
       }
     });
     for (const child of Array.from(
-      container.querySelectorAll(BUBBLE_SELECTOR)
+      container.querySelectorAll(SCROLL_ANCHOR_SELECTOR)
     )) {
       observer.observe(child);
     }
@@ -175,7 +179,7 @@ function resolveLowestBubbleBottom(container: HTMLElement): number | null {
   const containerTop = container.getBoundingClientRect().top;
   let bottom: number | null = null;
   for (const bubble of Array.from(
-    container.querySelectorAll<HTMLElement>(BUBBLE_SELECTOR)
+    container.querySelectorAll<HTMLElement>(SCROLL_ANCHOR_SELECTOR)
   )) {
     const bubbleBottom =
       bubble.getBoundingClientRect().bottom -

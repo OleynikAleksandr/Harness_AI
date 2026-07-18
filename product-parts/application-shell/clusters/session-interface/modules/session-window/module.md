@@ -112,10 +112,13 @@ Render the transcript/dialog layout and session chrome.
   visible common prefix and animates only the new suffix.
 - The dialog autoscroll mirrors the CodeAI Hub reference bottom-lock behavior:
   while the user has not intentionally scrolled away, the scroll target is the
-  bottom boundary of the lowest visible message bubble plus enough reserve for
-  the bubble shadow. A `ResizeObserver` watches visible bubbles and repins when
-  an earlier thinking bubble grows after a later assistant bubble already
-  exists.
+  bottom boundary of the lowest anchored timeline element plus enough reserve
+  for the bubble shadow. The anchor selector covers message bubbles AND the
+  subagent launch divider (`.session-subagent-divider`) — the divider renders
+  below the last bubble when a swarm launches, and a bubble-only anchor left
+  it out of view (2026-07-18 acceptance defect). A `ResizeObserver` watches
+  the same elements and repins when an earlier thinking bubble grows after a
+  later assistant bubble already exists.
 - `session-dialog-panel.tsx` merges translated/coalesced messages with
   `CoreSubagentCall.createdAt` entries into one timestamp-ordered timeline.
   Consecutive subagent launches collapse into one `SubagentLaunchDivider`

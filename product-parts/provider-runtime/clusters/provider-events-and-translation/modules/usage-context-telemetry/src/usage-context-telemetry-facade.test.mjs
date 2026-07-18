@@ -94,8 +94,9 @@ assert.equal(grok.tokenUsage.limit, 500_000);
 assert.equal(grok.tokenDisplay.value, "0 (100%)");
 assert.equal(grok.cacheDisplay?.value, "0");
 assert.equal(grok.statusPanelCapabilities.showTurns, true);
-// Grok keeps the full Rollback contract untouched.
-assert.equal(grok.statusPanelCapabilities.rollbackPreserveFirstUserTurns, 2);
+// Grok's Rollback action is hidden too (2026-07-18 user order): no provider
+// surfaces it anymore; the Core intents stay wired behind the capability.
+assert.equal(grok.statusPanelCapabilities.rollbackPreserveFirstUserTurns, null);
 const grokCompleted = usageContextTelemetryFacade.applyProviderEvent(grok, {
   type: "turn_completed",
 });

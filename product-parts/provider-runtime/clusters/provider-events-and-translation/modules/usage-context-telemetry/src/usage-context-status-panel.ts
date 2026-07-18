@@ -6,11 +6,11 @@ export interface ProviderStatusPanelCapabilities {
   readonly showTurns: boolean;
 }
 
-// Providers whose status panel surfaces the Rollback action. Codex keeps the
-// Core rollback intent wired, but its panel action is hidden since
-// 2026-07-18 (user order: the Codex panel matches Claude/Kimi —
-// Model/effort/Tokens/Cache/Turns).
-const ROLLBACK_ACTION_PROVIDER_IDS = new Set(["grok"]);
+// Providers whose status panel surfaces the Rollback action: none since
+// 2026-07-18 (user order hid Codex first and Grok right after — every panel
+// shows Model/effort/Tokens/Cache/Turns only). The Core rollback intents for
+// Codex and Grok stay wired behind the capability.
+const ROLLBACK_ACTION_PROVIDER_IDS = new Set<string>([]);
 
 // Providers whose status panel anchors the Cache chip at `Cache: 0` from
 // session start and shows the Cache/Turns chips.
@@ -44,8 +44,8 @@ export function providerStatusPanelCapabilities(
 ): ProviderStatusPanelCapabilities {
   const supportsRollbackAction = ROLLBACK_ACTION_PROVIDER_IDS.has(providerId);
   // Kimi native turns report inputCacheRead from the CLI session store.
-  // Claude, Kimi and Codex count turns from turn_completed like Grok; Codex
-  // shows the Cache/Turns chips without the Rollback action.
+  // Claude, Kimi, Codex and Grok count turns from turn_completed; every
+  // provider shows the Cache/Turns chips without the Rollback action.
   const showsCacheAndTurns =
     CACHE_ANCHOR_PROVIDER_IDS.has(providerId) ||
     providerId === "claude" ||

@@ -8,7 +8,7 @@
   "planId": "claude-status-panel-turns-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -93,4 +93,4 @@
 
 ### Stream: Packaged Retest
 
-7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` User retests the Claude session status panel in the packaged app: the Turns chip appears beside Cache and advances by one per completed user request → agent answer cycle (completion: user-acceptance; scope: user workflow; expected commit: none).
+7. [DONE] `harness-ai.phase4.stream1.task1` User retests the Claude session status panel in the packaged app: the Turns chip appears beside Cache and advances by one per completed user request → agent answer cycle (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — Claude Turns verified in packaged app: chip shows and counts turns correctly Acceptance Commit: `chore: record plan acceptance claude-status-panel-turns-2026-07-18`.

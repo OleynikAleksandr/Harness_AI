@@ -48,6 +48,11 @@ assert.match(source, /onRollbackTurns\?\.\(preserveFirstUserTurns \?\? 0\)/u);
 assert.match(source, /telemetry\.status === "idle"/u);
 assert.match(source, /capabilities\.showTurns/u);
 assert.match(source, /capabilities\.showCache/u);
+// The status panel renders one class for every provider: the flex row keeps
+// all chips on one line, so the former rollback-probe grid modifier is gone
+// (2026-07-18 acceptance defect: Turns wrapped to a second row for Kimi).
+assert.match(source, /className="session-status session-panel"/u);
+assert.doesNotMatch(source, /session-status--codex-rollback-probe/u);
 assert.match(facadeSource, /rollbackSessionTurns\(\{/u);
 assert.match(facadeSource, /preserveFirstUserTurns,/u);
 assert.match(facadeSource, /-turn anchor/u);

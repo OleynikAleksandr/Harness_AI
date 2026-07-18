@@ -1552,22 +1552,23 @@ strong {
   white-space: nowrap;
 }
 
+/* One flex row for every provider chip set: the Tokens chip is the only
+   flexible cell, so Model/effort/Cache/Turns (+Rollback where capable) stay
+   on one line regardless of how many chips a provider shows. The former
+   fixed-column grid wrapped Turns to a second row once the reasoning badge
+   became a sixth chip (2026-07-18 acceptance defect). */
 .session-status {
-  display: grid;
-  grid-template-columns: auto auto auto minmax(0, 1fr) auto;
+  display: flex;
   gap: 10px;
   align-items: center;
   min-height: 56px;
   padding: 10px 14px;
 }
 
-.session-status--codex-rollback-probe {
-  grid-template-columns: auto auto auto minmax(0, 1fr) auto auto auto;
-}
-
 .session-status-chip,
 .session-status-button {
   display: inline-flex;
+  flex: none;
   align-items: center;
   min-height: 36px;
   padding: 0 14px;
@@ -1614,6 +1615,10 @@ strong {
   color: #9ca3a7;
 }
 
+.session-status-chip--limits {
+  flex: 1 1 auto;
+}
+
 .session-status-chip--turns strong,
 .session-status-chip--cache strong,
 .session-status-chip--limits strong {
@@ -1640,15 +1645,13 @@ strong {
   }
 
   .session-id-bar,
-  .session-status,
   .session-input__row {
     grid-template-columns: 1fr;
   }
 
-  .session-status--codex-rollback-probe .session-status-chip--turns,
-  .session-status--codex-rollback-probe .session-status-chip--limits,
-  .session-status--codex-rollback-probe .session-status-button--rollback {
-    grid-column: auto;
+  .session-status {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .session-dialog__scroll {

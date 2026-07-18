@@ -169,13 +169,7 @@ export function ReferenceStatusPanel({
       telemetry.status === "idle"
   );
   return (
-    <section
-      className={
-        showRollback
-          ? "session-status session-status--codex-rollback-probe session-panel"
-          : "session-status session-panel"
-      }
-    >
+    <section className="session-status session-panel">
       <span className="session-status-chip session-status-chip--label">
         {t("ui_labels", "session.status.model", "Model:")}
       </span>

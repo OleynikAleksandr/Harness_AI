@@ -52,7 +52,12 @@ Render the transcript/dialog layout and session chrome.
   two-turn warmup/cache-anchor policy. Rollback forwards that preserved count
   to Core while idle; Core derives depth, validates the binding and restores
   transcript plus telemetry. Providers without a capability keep only their
-  supported status fields, without renderer-owned provider allowlists.
+  supported status fields, without renderer-owned provider allowlists. The
+  panel lays its chips out as one flex row where the Tokens chip is the only
+  flexible cell, so every provider chip set — with or without the reasoning
+  badge and Rollback — stays on a single line; the former fixed-column grid
+  (with a Codex rollback modifier) wrapped Turns to a second row once the
+  Kimi reasoning badge became a sixth chip (2026-07-18 acceptance defect).
 - The session window owns refresh of the browser localization runtime payload
   and passes that refresh callback to Settings, so save/reset can show newly
   materialized localized copy without reopening the app shell.

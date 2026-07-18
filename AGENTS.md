@@ -23,6 +23,7 @@
 - Сверь `Current Task`, `Expected Commit` и scope текущей строки в `.harness/plans/todo-plan.md`.
 - Если нужный файл вне scope, сначала добавь микро-задачу и отдельную строку `Git Commit: ...`.
 - Каждая микро-задача должна иметь пару пунктов: implementation task и отдельный `Git Commit: ...`.
+- Строка задачи в плане — логическая строка: её можно переносить на indented continuation lines. Оркестратор читает `expected commit:` и `completion:` маркеры со всей логической строки, а `Result:`-записи дописывает в её конец.
 - Каждая микро-задача должна затрагивать не более 3 функциональных файлов, если plan явно не разбил работу иначе.
 - Active plan является machine-managed state. Не редактируй task status, commit status, hash и state block вручную, кроме плановой миграции/ремонта.
 - Штатный commit workflow:

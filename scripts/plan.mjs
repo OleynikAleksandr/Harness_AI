@@ -19,7 +19,11 @@ const DEFAULT_ACCEPTANCE_NOTE =
 const COMMIT_MESSAGE_LINE_REGEX = /\r?\n/u;
 const ESCAPE_REGEX = /[.*+?^${}()|[\]\\]/gu;
 const EXPECTED_COMMIT_REGEX = /expected commit:\s*`([^`]+)`/u;
-const NEXT_TASK_REGEX = /\n(\d+)\. \[TODO\] `([^`]+)` ([^\n]+)/u;
+// A task row is a logical row: its first line plus any indented continuation
+// lines. Wrapped rows keep their `expected commit:` / `completion:` markers
+// readable, and machine-appended Result records land at the end of the row.
+const NEXT_TASK_REGEX =
+  /\n(\d+)\. \[TODO\] `([^`]+)` ([^\n]+(?:\n[ \t]+[^\n]+)*)/u;
 const STATE_RE =
   /<!-- harness-plan-state:start -->\n```json\n([\s\S]*?)\n```\n<!-- harness-plan-state:end -->/u;
 
@@ -187,7 +191,8 @@ export function markAcceptanceDone(text, state, note = "") {
   const currentTaskPattern = new RegExp(
     "^(\\d+\\. )\\[IN_PROGRESS\\]( `" +
       escapeRegExp(state.currentTaskId) +
-      "`[^\\n]*)$",
+      // Logical row: first line plus indented continuation lines.
+      "`[^\\n]*(?:\\n[ \\t]+[^\\n]*)*)$",
     "mu"
   );
   const currentTaskMatch = text.match(currentTaskPattern);
@@ -229,7 +234,8 @@ export function markCommitDone(text, state, message) {
   const currentTaskPattern = new RegExp(
     "(\\d+\\. )\\[IN_PROGRESS\\]( `" +
       escapeRegExp(state.currentTaskId) +
-      "`[^\\n]*)",
+      // Logical row: first line plus indented continuation lines.
+      "`[^\\n]*(?:\\n[ \\t]+[^\\n]*)*)",
     "u"
   );
   nextText = nextText.replace(

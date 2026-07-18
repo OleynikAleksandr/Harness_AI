@@ -36,6 +36,9 @@
 
 - The active plan is the recovery owner for this workspace.
 - Every implementation task has a paired `Git Commit: ...` line.
+- A task row is a logical row: it may wrap onto indented continuation lines.
+  The orchestrator reads `expected commit:` / `completion:` markers across the
+  whole logical row and appends `Result:` records at its end.
 - Each microtask touches no more than 3 functional files unless this plan splits it first.
 - Product Part / Cluster / Module filesystem ownership is primary.
 - CodeAI Hub may be read as reference material, but modules are not copied wholesale.

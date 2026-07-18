@@ -8,7 +8,7 @@
   "planId": "claude-status-panel-turns-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -69,10 +69,28 @@
 1. [DONE] `harness-ai.phase1.stream1.task1` Enable the Turns chip for Claude sessions in the Core status-panel capability contract, cover the capability and the `turn_completed` increment in the telemetry facade test, and sync the module documentation (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-status-panel.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/module.md`; expected commit: `feat: show Turns chip in Claude session status panel`). Result: Completed in commit `feat: show Turns chip in Claude session status panel`.
 2. [DONE] Git Commit: `feat: show Turns chip in Claude session status panel` (hash: self)
 
-## Phase 2 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-18)
+## Phase 2 - Package (owner: Codex, updated: 2026-07-18)
 
 ### Stream: Package And Retest
 
 3. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `chore: package Claude status panel Turns build`). Result: Completed in commit `chore: package Claude status panel Turns build`.
 4. [DONE] Git Commit: `chore: package Claude status panel Turns build` (hash: self)
-5. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the Claude session status panel in the packaged app: the Turns chip appears beside Cache and advances by one per completed user request → agent answer cycle (completion: user-acceptance; scope: user workflow; expected commit: none).
+
+## Phase 3 - Plan Orchestrator Multi-Line Hardening (owner: Codex, updated: 2026-07-18)
+
+### Stream: Logical Task Rows
+
+> Plan migration 2026-07-18 (user-approved, variant 2): the plan orchestrator
+> silently dropped `expected commit` / `completion: user-acceptance` markers
+> written on continuation lines of wrapped task rows and inserted `Result:`
+> mid-text. Fix the parser to treat a task row as its first line plus indented
+> continuation lines instead of documenting a single-line rule in AGENTS.md.
+
+5. [DONE] `harness-ai.phase3.stream1.task1` Parse multi-line task rows in the plan orchestrator (logical row = first line + indented continuation lines for `NEXT_TASK_REGEX`, `markCommitDone` and `markAcceptanceDone`; `Result:`/acceptance records append at the end of the logical row), cover wrapped-row parsing/Result placement with tests, and sync the plan-format docs (scope: `scripts/plan.mjs, scripts/plan-multiline.test.mjs, AGENTS.md, .harness/plans/todo-plan.template.md`; expected commit: `fix: parse multi-line task rows in plan orchestrator`). Result: Completed in commit `fix: parse multi-line task rows in plan orchestrator`.
+6. [DONE] Git Commit: `fix: parse multi-line task rows in plan orchestrator` (hash: self)
+
+## Phase 4 - User Acceptance (owner: User, updated: 2026-07-18)
+
+### Stream: Packaged Retest
+
+7. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` User retests the Claude session status panel in the packaged app: the Turns chip appears beside Cache and advances by one per completed user request → agent answer cycle (completion: user-acceptance; scope: user workflow; expected commit: none).

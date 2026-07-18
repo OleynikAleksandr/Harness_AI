@@ -9,8 +9,9 @@ export interface KimiSessionTokenUsage {
   readonly used: number;
 }
 
-// Verified native context window of the Coding Plan models (mirrors the CLI
-// config `max_context_size`).
+// Verified K2.7 native context window — the fallback when the caller does
+// not pass the session model's window (k3 is a 1M-context model; the
+// runtime resolves the limit per applied model from the merged catalog).
 const KIMI_NATIVE_CONTEXT_LIMIT = 262_144;
 
 // The CLI sends no live `usage_update` notifications (verified on 0.26.0);
@@ -21,7 +22,7 @@ const KIMI_NATIVE_CONTEXT_LIMIT = 262_144;
 // provider-reported `inputCacheRead`.
 export function readKimiSessionTokenUsage(
   acpSessionId: string,
-  overrides: { readonly sessionsRoot?: string } = {}
+  overrides: { readonly limit?: number; readonly sessionsRoot?: string } = {}
 ): KimiSessionTokenUsage | null {
   const sessionsRoot =
     overrides.sessionsRoot ?? path.join(homedir(), ".kimi-code", "sessions");
@@ -30,14 +31,15 @@ export function readKimiSessionTokenUsage(
     return null;
   }
   try {
-    return parseKimiWireUsage(readFileSync(wirePath, "utf8"));
+    return parseKimiWireUsage(readFileSync(wirePath, "utf8"), overrides.limit);
   } catch {
     return null;
   }
 }
 
 export function parseKimiWireUsage(
-  source: string
+  source: string,
+  limit: number = KIMI_NATIVE_CONTEXT_LIMIT
 ): KimiSessionTokenUsage | null {
   let latest: Record<string, unknown> | null = null;
   for (const line of source.split("\n")) {
@@ -76,7 +78,7 @@ export function parseKimiWireUsage(
     readCount(latest.output) +
     readCount(latest.inputCacheCreation) +
     cached;
-  return { cached, limit: KIMI_NATIVE_CONTEXT_LIMIT, used };
+  return { cached, limit, used };
 }
 
 function locateMainWire(

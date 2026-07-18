@@ -14,11 +14,18 @@ stays shared through `credentials`/`device_id` symlinks into the real home,
 from the real home. On every prepare the bootstrap also appends the missing
 Core-catalog `[models.*]` sections (`kimi-for-coding-highspeed`, `k3` —
 provider inherited from the user's own model section,
-`max_context_size = 262144`) to the copied config, because the CLI accepts
+`max_context_size` from the caller's merged `modelContexts` map with the
+verified K2.7 `262144` as the no-map fallback) to the copied config,
+because the CLI accepts
 `session/set_config_option {model}` only for ids declared in `config.toml`
 (verified live: without the section every native session silently ran the
 default `kimi-for-coding`); existing sections and user edits stay
-untouched. The bootstrap further declares thinking (2026-07-17 research —
+untouched. A managed context upsert then refreshes `max_context_size` on
+the catalog-model sections whenever the map's truth differs (live-verified
+2026-07-18: `k3` is a 1M-context model — `context_length` 1048576 in
+`GET /coding/v1/models` — while the 2026-07-17 bootstrap wrote 262144,
+quartering the window the CLI compacts against); only that field on the
+catalog sections is touched, matching values rewrite nothing. The bootstrap further declares thinking (2026-07-17 research —
 `kimi-for-coding` IS a thinking model; without Thinking the service routes
 to K2.6, and the refusals came from the migrated legacy config): it strips
 the deprecated `default_thinking` key from the copy, injects
@@ -205,7 +212,9 @@ session id with the CLI store id).
   (`<workspace home>/.kimi-code/sessions/<wd_*>/<acpSessionId>/agents/main/`)
   and emits the shared `token_usage` stream event with
   `used = inputOther + output + inputCacheRead + inputCacheCreation`,
-  `cached = inputCacheRead` and the verified `262144` native context limit.
+  `cached = inputCacheRead` and the session model's context window passed
+  by the caller (`k3` 1048576, K2.7 262144 from the merged catalog; the
+  verified K2.7 `262144` stays the no-argument fallback).
 - Live swarm progress (`kimi-swarm-progress-reader.ts`): the ACP stream is
   silent while an AgentSwarm executes (verified on the 2026-07-17 headless
   probe), so during an active turn the runtime polls the workspace session

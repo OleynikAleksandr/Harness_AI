@@ -54,6 +54,7 @@ const DEFAULT_THINKING_EFFORT: KimiThinkingEffort = "high";
 const DEPRECATED_DEFAULT_THINKING_PATTERN = /^\s*default_thinking\s*=.*$\n?/gmu;
 const THINKING_EFFORT_LINE_PATTERN = /^\s*effort\s*=\s*".*"\s*$/mu;
 const THINKING_EFFORT_VALUE_PATTERN = /^effort\s*=\s*"([^"]*)"$/u;
+const MODEL_CONTEXT_LINE_PATTERN = /^\s*max_context_size\s*=/u;
 
 export interface KimiWorkspaceHome {
   // The `HOME` value for the spawned CLI child.
@@ -64,6 +65,11 @@ export interface KimiWorkspaceHome {
 }
 
 export interface KimiWorkspaceHomeOverrides {
+  // Per-model native context windows (the Core catalog merged with the live
+  // Coding Plan catalog). Generated sections and the managed context upsert
+  // take their `max_context_size` from this map; missing ids keep the
+  // verified K2.7 window.
+  readonly modelContexts?: Readonly<Record<string, number>>;
   // Test override for the real `~/.kimi-code` the bootstrap links against.
   readonly realKimiConfigDir?: string;
 }
@@ -86,7 +92,12 @@ export function prepareKimiWorkspaceHome(
   for (const entry of COPIED_ENTRIES) {
     copyIfMissing(path.join(realConfigDir, entry), path.join(configDir, entry));
   }
-  ensureCatalogModelSections(path.join(configDir, "config.toml"));
+  const modelContexts = overrides.modelContexts ?? {};
+  ensureCatalogModelSections(
+    path.join(configDir, "config.toml"),
+    modelContexts
+  );
+  ensureCatalogContextSizes(path.join(configDir, "config.toml"), modelContexts);
   ensureThinkingDeclarations(path.join(configDir, "config.toml"));
   return { homePath, sessionsRoot: path.join(configDir, "sessions") };
 }
@@ -225,7 +236,10 @@ function upsertThinkingSection(source: string, effort: string): string {
 // Append-only on every prepare: existing sections and user edits stay
 // untouched; the provider name is inherited from the user's own model
 // section so the appended entries route through the same subscription.
-function ensureCatalogModelSections(configPath: string): void {
+function ensureCatalogModelSections(
+  configPath: string,
+  modelContexts: Readonly<Record<string, number>>
+): void {
   let source: string;
   try {
     source = readFileSync(configPath, "utf8");
@@ -242,9 +256,73 @@ function ensureCatalogModelSections(configPath: string): void {
     source.match(PROVIDER_LINE_PATTERN)?.[1] ?? "kimi-for-coding";
   const blocks = missing.map(
     (modelId) =>
-      `\n[models.${modelId}]\nprovider = "${provider}"\nmodel = "${modelId}"\nmax_context_size = ${KIMI_NATIVE_CONTEXT_LIMIT}\n${MODEL_THINKING_LINES.join("\n")}\ndefault_effort = "${DEFAULT_THINKING_EFFORT}"\n`
+      `\n[models.${modelId}]\nprovider = "${provider}"\nmodel = "${modelId}"\nmax_context_size = ${modelContexts[modelId] ?? KIMI_NATIVE_CONTEXT_LIMIT}\n${MODEL_THINKING_LINES.join("\n")}\ndefault_effort = "${DEFAULT_THINKING_EFFORT}"\n`
   );
   writeFileSync(configPath, `${source.trimEnd()}\n${blocks.join("")}`, "utf8");
+}
+
+// The workspace-home config is a managed copy: when the catalog context
+// window differs from what a catalog-model section declares, the section is
+// brought back to the truth (the 2026-07-17 bootstrap wrote 262144 for k3,
+// quartering its real 1M window — the CLI compacts against this value).
+// Only `max_context_size` on the catalog-model sections is touched; user
+// sections and every other field stay as they are.
+function ensureCatalogContextSizes(
+  configPath: string,
+  modelContexts: Readonly<Record<string, number>>
+): void {
+  let source: string;
+  try {
+    source = readFileSync(configPath, "utf8");
+  } catch {
+    return;
+  }
+  let next = source;
+  for (const modelId of CATALOG_MODEL_IDS) {
+    const contextSize = modelContexts[modelId];
+    if (typeof contextSize === "number" && contextSize > 0) {
+      next = upsertModelContextSize(next, modelId, contextSize);
+    }
+  }
+  if (next !== source) {
+    writeFileSync(configPath, next, "utf8");
+  }
+}
+
+function upsertModelContextSize(
+  source: string,
+  modelId: string,
+  contextSize: number
+): string {
+  const lines = source.split("\n");
+  const headerIndex = lines.findIndex((line) => {
+    const trimmed = line.trim();
+    return (
+      trimmed === `[models.${modelId}]` || trimmed === `[models."${modelId}"]`
+    );
+  });
+  if (headerIndex < 0) {
+    return source;
+  }
+  let end = lines.length;
+  for (let index = headerIndex + 1; index < lines.length; index += 1) {
+    if (lines[index].trim().startsWith("[")) {
+      end = index;
+      break;
+    }
+  }
+  const contextLine = `max_context_size = ${contextSize}`;
+  for (let index = headerIndex + 1; index < end; index += 1) {
+    if (MODEL_CONTEXT_LINE_PATTERN.test(lines[index])) {
+      if (lines[index].trim() === contextLine) {
+        return source;
+      }
+      lines[index] = contextLine;
+      return lines.join("\n");
+    }
+  }
+  lines.splice(headerIndex + 1, 0, contextLine);
+  return lines.join("\n");
 }
 
 function hasModelSection(source: string, modelId: string): boolean {

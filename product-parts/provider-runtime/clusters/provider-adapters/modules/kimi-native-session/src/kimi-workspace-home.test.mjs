@@ -166,6 +166,52 @@ try {
     1
   );
 
+  // Passing the merged catalog contexts refreshes `max_context_size` on the
+  // managed catalog-model sections in place (the 2026-07-17 bootstrap wrote
+  // 262144 for k3, quartering its real 1M window); matching values and every
+  // other field stay untouched, and the upsert is idempotent.
+  prepareKimiWorkspaceHome(workspacePath, {
+    modelContexts: { k3: 1_048_576, "kimi-for-coding": 262_144 },
+    realKimiConfigDir: realConfigDir,
+  });
+  const contextUpserted = readFileSync(
+    path.join(configDir, "config.toml"),
+    "utf8"
+  );
+  assert.match(
+    contextUpserted,
+    /\[models\.k3\]\nprovider = "kimi-prov"\nmodel = "k3"\nmax_context_size = 1048576\n/u
+  );
+  assert.match(
+    contextUpserted,
+    /\[models\.kimi-for-coding-highspeed\]\nprovider = "kimi-prov"\nmodel = "kimi-for-coding-highspeed"\nmax_context_size = 262144\n/u
+  );
+  assert.match(contextUpserted, /# local tweak/u);
+  prepareKimiWorkspaceHome(workspacePath, {
+    modelContexts: { k3: 1_048_576 },
+    realKimiConfigDir: realConfigDir,
+  });
+  assert.equal(
+    readFileSync(path.join(configDir, "config.toml"), "utf8"),
+    contextUpserted
+  );
+
+  // A fresh workspace prepared with the contexts generates the k3 section
+  // at the honest 1M window right away.
+  const workspaceFresh = path.join(root, "workspace-fresh");
+  await mkdir(workspaceFresh, { recursive: true });
+  const freshHome = prepareKimiWorkspaceHome(workspaceFresh, {
+    modelContexts: { k3: 1_048_576 },
+    realKimiConfigDir: realConfigDir,
+  });
+  assert.match(
+    readFileSync(
+      path.join(freshHome.homePath, ".kimi-code", "config.toml"),
+      "utf8"
+    ),
+    /\[models\.k3\]\nprovider = "kimi-prov"\nmodel = "k3"\nmax_context_size = 1048576\n/u
+  );
+
   // Deletion resolves the CLI store id from the persisted mapping and
   // removes exactly that session directory.
   const sessionDir = path.join(

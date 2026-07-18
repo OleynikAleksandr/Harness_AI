@@ -50,6 +50,10 @@ try {
   assert.equal(parseKimiWireUsage('{"type":"llm.request"}'), null);
   assert.equal(parseKimiWireUsage(""), null);
 
+  // The caller passes the session model's window (k3 is a 1M-context
+  // model); the K2.7 value stays the no-argument fallback.
+  assert.equal(parseKimiWireUsage(wire, 1_048_576).limit, 1_048_576);
+
   // Reader locates sessions/<wd_*>/<acpSessionId>/agents/main/wire.jsonl.
   const sessionsRoot = path.join(root, "sessions");
   const acpSessionId = "session_test-1234";

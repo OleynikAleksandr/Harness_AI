@@ -14,6 +14,7 @@ turn state, live assistant chunk/timeline read-models, and UI session snapshots.
 - `session-event-stream`
 - `session-snapshot-projector`
 - `session-reasoning-display`
+- `turn-timing`
 
 `session-history-store` and `turn-lifecycle` were scaffolded as `module.md`-only
 placeholders early in the project and never implemented; they were removed

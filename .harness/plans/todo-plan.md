@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task2",
-  "expectedCommitMessage": "feat: add core turn-timing derivation module",
+  "currentTaskId": "harness-ai.phase1.stream1.task3",
+  "expectedCommitMessage": "feat: add session turn-timer UI module",
   "debt": null
 }
 ```
@@ -73,16 +73,16 @@
    `docs/evidence/turn-timer-planning-2026-07-18.md, docs/DOCUMENTATION_INDEX.md`;
    expected commit: `docs: plan session turn timer and active total`). Result: Completed in commit `docs: plan session turn timer and active total`.
 2. [DONE] Git Commit: `docs: plan session turn timer and active total` (hash: self)
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task2` Create the Core `turn-timing`
+3. [DONE] `harness-ai.phase1.stream1.task2` Create the Core `turn-timing`
    module: a facade exposing the pure `deriveTurnTiming(events, sessionId)`
    contract over persisted `session:turn-state` events (closed running→idle
    pairs accumulate `activeMs`; repeated `running` events extend the same
    turn; a trailing unclosed `running` from a previous app run is ignored)
    plus module and ownership docs (scope:
    `product-parts/core-runtime/clusters/session-runtime/modules/turn-timing/src/turn-timing-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/turn-timing/module.md, product-parts/core-runtime/clusters/session-runtime/cluster.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`;
-   expected commit: `feat: add core turn-timing derivation module`).
-4. [TODO] Git Commit: `feat: add core turn-timing derivation module` (hash: TBD)
-5. [TODO] `harness-ai.phase1.stream1.task3` Create the `turn-timer` UI module
+   expected commit: `feat: add core turn-timing derivation module`). Result: Completed in commit `feat: add core turn-timing derivation module`.
+4. [DONE] Git Commit: `feat: add core turn-timing derivation module` (hash: self)
+5. [IN_PROGRESS] `harness-ai.phase1.stream1.task3` Create the `turn-timer` UI module
    in session-interface (after the `input-controls` small-module pattern): a
    facade with `TurnTimer` (input-row timer, rendered only while a turn runs)
    and `SessionTotalTimer` (footer-right sum of completed turns) plus module

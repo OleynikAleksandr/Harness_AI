@@ -59,6 +59,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `session-event-stream`: provider-neutral Core session events for Application Shell projections.
 - `session-snapshot-projector`: read model for the Electron session UI.
 - `session-reasoning-display`: projects provider-visible reasoning/thinking into Core dialog messages.
+- `turn-timing`: derives per-turn active time and open-turn start from the persisted `session:turn-state` event log.
 
 ### Session Profiles
 

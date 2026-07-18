@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task4",
-  "expectedCommitMessage": "feat: run session input timers from turn lifecycle",
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "chore: package session turn timer build",
   "debt": null
 }
 ```
@@ -90,21 +90,21 @@
    `product-parts/application-shell/clusters/session-interface/modules/turn-timer/src/turn-timer-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/turn-timer/module.md, product-parts/application-shell/clusters/session-interface/cluster.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`;
    expected commit: `feat: add session turn-timer UI module`). Result: Completed in commit `feat: add session turn-timer UI module`.
 6. [DONE] Git Commit: `feat: add session turn-timer UI module` (hash: self)
-7. [IN_PROGRESS] `harness-ai.phase1.stream1.task4` Wire the timers into the session
+7. [DONE] `harness-ai.phase1.stream1.task4` Wire the timers into the session
    window: derive per-session timing from Core events in
    `session-window-facade.tsx` via `deriveTurnTiming`, replace `ElapsedTotal`
    with `SessionTotalTimer`, render `TurnTimer` on the right side of the
    input row while the panel is disabled, add the CSS, and sync the
    session-window module doc (scope:
    `product-parts/application-shell/clusters/session-interface/modules/session-window/src/reference-session-panels.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`;
-   expected commit: `feat: run session input timers from turn lifecycle`).
-8. [TODO] Git Commit: `feat: run session input timers from turn lifecycle` (hash: TBD)
+   expected commit: `feat: run session input timers from turn lifecycle`). Result: Completed in commit `feat: run session input timers from turn lifecycle`.
+8. [DONE] Git Commit: `feat: run session input timers from turn lifecycle` (hash: self)
 
 ## Phase 2 - Package & User Acceptance (owner: Codex + User, updated: 2026-07-18)
 
 ### Stream: Package And Retest
 
-9. [TODO] `harness-ai.phase2.stream1.task1` Package the app for user
+9. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user
    verification (`npm run package:mac`, user-confirmed) and record evidence
    (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
    expected commit: `chore: package session turn timer build`).

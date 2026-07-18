@@ -21,6 +21,15 @@ Render the transcript/dialog layout and session chrome.
 - Running state is tracked as a set of Core session ids. Concurrent parent and
   child turns therefore cannot overwrite one shared running-session scalar;
   the composer remains disabled until its own session becomes idle.
+- Per-session turn timing comes from the Core event log only: the facade keeps
+  a journal of `session:turn-state` events per session id (persisted log
+  replayed on session activation plus live `onEvent` appends, merged
+  chronologically without duplicates) and derives `{ activeMs, runningSince }`
+  through the Core `turn-timing` module's `deriveTurnTiming`. The renderer
+  never computes durations itself; ticking and formatting live in the
+  `turn-timer` UI module. A trailing open turn from a previous app run
+  (orphaned `running`) is shown only when the session id is also in the live
+  `runningSessionIds` set, otherwise `TurnTimer` receives `null`.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels
   use the Core settings-store capability resolver; Grok labels use its
@@ -154,8 +163,15 @@ Render the transcript/dialog layout and session chrome.
   orange drag overlay, an outlined 36px action button that shows the play ▶ when
   idle and the red stop square while the agent works, a pulsing wait-copy overlay
   ("Agent is working… Please wait.") over the field — light `rgba(206,211,217,1)`
-  at a 0.55–0.9 pulse so it stays readable on the dark field — and a monospace
-  `total:` timer in the footer right. The Stop button calls Core `stopTurn`.
+  at a 0.55–0.9 pulse so it stays readable on the dark field — and turn timers
+  driven by the Core turn lifecycle. While a turn runs, the `turn-timer`
+  module's `TurnTimer` renders a monospace `turn: HHh MMm SSs` clock
+  (`.session-input__turn`) inside the input row between the textarea and the
+  ▶/Stop action button; it disappears when the turn ends. The footer right
+  holds `SessionTotalTimer` (`.session-input__total`), the static summed
+  duration of every completed turn (`activeMs` from the Core `turn-timing`
+  derivation) — it no longer counts from session creation. The Stop button
+  calls Core `stopTurn`.
 
 ## Text Hierarchy
 
@@ -163,7 +179,7 @@ Render the transcript/dialog layout and session chrome.
   names, panel/section headers, message role labels, telemetry and id-bar labels)
   `font-weight: 500`, and secondary roles (section kickers, message meta and
   timestamps, telemetry counters, provider/mode card meta, the input hint and
-  token total, the status label) italic + `font-weight: 300`, dimmed to
+  the turn/total timers, the status label) italic + `font-weight: 300`, dimmed to
   `--pm-text-muted`. Provider-tinted role colours, semantic/accent colours, the
   message body, reasoning/thinking content and input-typed text are left
   untouched. The bare element resets (`button/h*/strong { font-weight: 300 }`)

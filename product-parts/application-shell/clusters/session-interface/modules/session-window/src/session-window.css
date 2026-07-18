@@ -1552,6 +1552,26 @@ strong {
   white-space: nowrap;
 }
 
+/* In-row per-turn timer between the textarea and the action button. Mirrors
+   `.session-input__total` typography; `align-self: center` keeps it on the
+   action-button axis without stretching the textarea auto-height row. */
+.session-input__turn {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  align-self: center;
+  justify-content: flex-end;
+  margin-right: var(--session-timer-right);
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: rgba(140, 140, 140, 1);
+  white-space: nowrap;
+}
+
 /* One flex row for every provider chip set: the Tokens chip is the only
    flexible cell, so Model/effort/Cache/Turns (+Rollback where capable) stay
    on one line regardless of how many chips a provider shows. The former
@@ -1705,6 +1725,7 @@ strong {
 .session-dialog__timestamp,
 .session-input__hint,
 .session-input__total,
+.session-input__turn,
 .session-status-chip--label {
   font-style: italic;
   font-weight: 300;

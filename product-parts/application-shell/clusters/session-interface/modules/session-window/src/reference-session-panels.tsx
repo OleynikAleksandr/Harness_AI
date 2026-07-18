@@ -1,9 +1,15 @@
-import { type CSSProperties, useEffect, useState } from "react";
+import { ChevronRight } from "lucide-react";
+import { type CSSProperties, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { SessionTelemetry } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import type { TurnTiming } from "../../../../../../core-runtime/clusters/session-runtime/modules/turn-timing/src/turn-timing-facade.js";
 import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import {
+  SessionTotalTimer,
+  TurnTimer,
+} from "../../turn-timer/src/turn-timer-facade.js";
 import { SessionInputTextarea } from "./session-input-textarea.js";
 
 export { DialogPanel } from "./session-dialog-panel.js";
@@ -37,12 +43,12 @@ export function ReferenceInputPanel({
   disabled,
   onStop,
   onSubmit,
-  session,
+  timing,
 }: {
   disabled: boolean;
   onStop?: () => void;
   onSubmit: (text: string) => void | Promise<void>;
-  session: CoreSession | undefined;
+  timing: TurnTiming;
 }) {
   const { t } = useBrowserLocalization();
   const [draft, setDraft] = useState("");
@@ -91,6 +97,7 @@ export function ReferenceInputPanel({
           value={draft}
           waitCopy={draft.length === 0 ? waitCopy : null}
         />
+        <TurnTimer runningSince={timing.runningSince} />
         <div className="session-input__action">
           {showStop ? (
             <button
@@ -138,7 +145,7 @@ export function ReferenceInputPanel({
           )}
         </span>
         <div className="session-input__footer-right">
-          <ElapsedTotal createdAt={session?.createdAt} />
+          <SessionTotalTimer activeMs={timing.activeMs} />
         </div>
       </div>
     </form>
@@ -262,18 +269,6 @@ function resolveIdLabel(
     ? t("messages_for_the_user", "session.id.pending", "ID: pending...")
     : t("messages_for_the_user", "session.id.unavailable", "ID: unavailable");
 }
-function ElapsedTotal({ createdAt }: { createdAt: string | undefined }) {
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
-  return (
-    <span className="session-input__total">
-      total: {formatElapsed(createdAt, now)}
-    </span>
-  );
-}
 function resolveReasoningLabel(
   session: CoreSession | undefined,
   settings: HarnessSettings | null
@@ -317,20 +312,72 @@ const isCodexProvider = (providerId: string | undefined): boolean =>
 function shortenId(id: string): string {
   return `${id.slice(0, 8)}...`;
 }
-function formatElapsed(createdAt: string | undefined, now: number): string {
-  if (!createdAt) {
-    return "00h 00m 00s";
-  }
-  const startedAt = Date.parse(createdAt);
-  if (!Number.isFinite(startedAt)) {
-    return "00h 00m 00s";
-  }
-  const totalSeconds = Math.max(0, Math.floor((now - startedAt) / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(
-    2,
-    "0"
-  )}m ${String(seconds).padStart(2, "0")}s`;
+export function SubagentSessionHeader({
+  onOpenParent,
+  parentSession,
+  session,
+}: {
+  onOpenParent: (sessionId: string) => void | Promise<void>;
+  parentSession: CoreSession | undefined;
+  session: CoreSession;
+}) {
+  const { t } = useBrowserLocalization();
+  const metadata = [
+    session.agentNickname,
+    session.agentRole,
+    session.model,
+    session.reasoningEffort,
+  ].filter(Boolean);
+  return (
+    <section className="session-subagent-header session-panel">
+      <div className="session-subagent-header__breadcrumb">
+        {parentSession ? (
+          <button
+            onClick={() => onOpenParent(parentSession.id)}
+            title={parentSession.title}
+            type="button"
+          >
+            {parentSession.title}
+          </button>
+        ) : (
+          <span>
+            {t(
+              "messages_for_the_user",
+              "session.subagent.parentUnavailable",
+              "Parent session unavailable"
+            )}
+          </span>
+        )}
+        <ChevronRight aria-hidden="true" size={14} />
+        <strong>{session.title}</strong>
+      </div>
+      <div className="session-subagent-header__body">
+        <div>
+          <span className="session-subagent-header__eyebrow">
+            {t("ui_labels", "session.subagent.task", "Delegated task")}
+          </span>
+          <p>{session.delegatedTask ?? session.title}</p>
+        </div>
+        <span
+          className={`session-subagent-header__status session-subagent-header__status--${session.subagentStatus ?? "pending"}`}
+        >
+          {t(
+            "ui_labels",
+            `session.subagent.status.${session.subagentStatus ?? "pending"}`,
+            session.subagentStatus ?? "pending"
+          )}
+        </span>
+      </div>
+      <div className="session-subagent-header__meta">
+        <span>{metadata.join(" · ")}</span>
+        <span>
+          {t(
+            "ui_helper_text",
+            "session.subagent.readOnly",
+            "Read-only live subagent session"
+          )}
+        </span>
+      </div>
+    </section>
+  );
 }

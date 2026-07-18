@@ -1,15 +1,12 @@
-import { ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
+import type { SessionCoreEvent } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import { sessionSnapshotProjectorFacade } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import { deriveTurnTiming } from "../../../../../../core-runtime/clusters/session-runtime/modules/turn-timing/src/turn-timing-facade.js";
 import type { LocalizationRuntimePayload } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
-import {
-  BrowserLocalizationProvider,
-  useBrowserLocalization,
-} from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
 import {
@@ -22,6 +19,7 @@ import {
   ReferenceInputPanel,
   ReferenceStatusPanel,
   SessionIdPanel,
+  SubagentSessionHeader,
 } from "./reference-session-panels.js";
 import { SessionProfileStep } from "./session-profile-step.js";
 import { isProviderStatusEvent, noop } from "./session-window-core-events.js";
@@ -53,6 +51,9 @@ export function SessionWindowFacade() {
     useState<HarnessSettings | null>(null);
   const [localizationPayload, setLocalizationPayload] =
     useState<LocalizationRuntimePayload | null>(null);
+  const [turnEventsBySession, setTurnEventsBySession] = useState<
+    Record<string, SessionCoreEvent[]>
+  >({});
   const grokInteractions = useGrokInteractionState();
   const {
     activeSession,
@@ -81,6 +82,15 @@ export function SessionWindowFacade() {
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
     initialSnapshot.workspace;
+  const activeTimingSessionId = activeSession?.id ?? "";
+  const turnTiming = useMemo(
+    () =>
+      deriveTurnTiming(
+        turnEventsBySession[activeTimingSessionId] ?? [],
+        activeTimingSessionId
+      ),
+    [turnEventsBySession, activeTimingSessionId]
+  );
   const refreshSettingsSnapshot = useCallback(
     async (workspacePath?: string) => {
       const snapshot = await window.harnessCore?.getSettings(workspacePath);
@@ -136,6 +146,15 @@ export function SessionWindowFacade() {
       }
       grokInteractions.applyEvent(event);
       applyEvent(event);
+      if (event.type === "session:turn-state") {
+        setTurnEventsBySession((current) => ({
+          ...current,
+          [event.payload.sessionId]: mergeTurnEvents(
+            current[event.payload.sessionId],
+            [event]
+          ),
+        }));
+      }
       if (
         event.type === "session:created" ||
         event.type === "session:updated"
@@ -154,6 +173,26 @@ export function SessionWindowFacade() {
     refreshSettingsSnapshot,
     grokInteractions.applyEvent,
   ]);
+
+  // Replays the persisted Core turn-state log into the journal on session
+  // switch; merging keeps events already appended live.
+  useEffect(() => {
+    if (!activeTimingSessionId) {
+      return;
+    }
+    window.harnessCore
+      ?.getSessionEvents(activeTimingSessionId)
+      .then((events) => {
+        setTurnEventsBySession((current) => ({
+          ...current,
+          [activeTimingSessionId]: mergeTurnEvents(
+            current[activeTimingSessionId],
+            events ?? []
+          ),
+        }));
+      })
+      .catch(noop);
+  }, [activeTimingSessionId]);
 
   function openProviderPicker() {
     setIsProviderPickerOpen(true);
@@ -368,7 +407,13 @@ export function SessionWindowFacade() {
                 disabled={runningSessionId === activeSession.id}
                 onStop={() => stopActiveTurn(activeSession.id)}
                 onSubmit={appendUserMessage}
-                session={activeSession}
+                timing={{
+                  activeMs: turnTiming.activeMs,
+                  runningSince:
+                    runningSessionId === activeSession.id
+                      ? turnTiming.runningSince
+                      : null,
+                }}
               />
             )}
             <ReferenceStatusPanel
@@ -427,72 +472,26 @@ export function SessionWindowFacade() {
   );
 }
 
-function SubagentSessionHeader({
-  onOpenParent,
-  parentSession,
-  session,
-}: {
-  onOpenParent: (sessionId: string) => void | Promise<void>;
-  parentSession: CoreSession | undefined;
-  session: CoreSession;
-}) {
-  const { t } = useBrowserLocalization();
-  const metadata = [
-    session.agentNickname,
-    session.agentRole,
-    session.model,
-    session.reasoningEffort,
-  ].filter(Boolean);
-  return (
-    <section className="session-subagent-header session-panel">
-      <div className="session-subagent-header__breadcrumb">
-        {parentSession ? (
-          <button
-            onClick={() => onOpenParent(parentSession.id)}
-            title={parentSession.title}
-            type="button"
-          >
-            {parentSession.title}
-          </button>
-        ) : (
-          <span>
-            {t(
-              "messages_for_the_user",
-              "session.subagent.parentUnavailable",
-              "Parent session unavailable"
-            )}
-          </span>
-        )}
-        <ChevronRight aria-hidden="true" size={14} />
-        <strong>{session.title}</strong>
-      </div>
-      <div className="session-subagent-header__body">
-        <div>
-          <span className="session-subagent-header__eyebrow">
-            {t("ui_labels", "session.subagent.task", "Delegated task")}
-          </span>
-          <p>{session.delegatedTask ?? session.title}</p>
-        </div>
-        <span
-          className={`session-subagent-header__status session-subagent-header__status--${session.subagentStatus ?? "pending"}`}
-        >
-          {t(
-            "ui_labels",
-            `session.subagent.status.${session.subagentStatus ?? "pending"}`,
-            session.subagentStatus ?? "pending"
-          )}
-        </span>
-      </div>
-      <div className="session-subagent-header__meta">
-        <span>{metadata.join(" · ")}</span>
-        <span>
-          {t(
-            "ui_helper_text",
-            "session.subagent.readOnly",
-            "Read-only live subagent session"
-          )}
-        </span>
-      </div>
-    </section>
-  );
+// Merges replayed history with live-appended `session:turn-state` events:
+// duplicates collapse and the result stays chronological for `deriveTurnTiming`.
+function mergeTurnEvents(
+  existing: readonly SessionCoreEvent[] | undefined,
+  incoming: readonly SessionCoreEvent[]
+): SessionCoreEvent[] {
+  const merged = [...(existing ?? [])];
+  const seen = new Set(merged.map(turnEventKey));
+  for (const event of incoming) {
+    const key = turnEventKey(event);
+    if (event.type === "session:turn-state" && !seen.has(key)) {
+      seen.add(key);
+      merged.push(event);
+    }
+  }
+  return merged.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+}
+
+function turnEventKey(event: SessionCoreEvent): string {
+  return event.type === "session:turn-state"
+    ? `${event.payload.sessionId}|${event.payload.state}|${event.timestamp}`
+    : `${event.type}|${event.timestamp}`;
 }

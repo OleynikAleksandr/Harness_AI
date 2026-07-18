@@ -56,6 +56,11 @@
               "purpose": "Message input, Stop/Play controls, and busy/lock display."
             },
             {
+              "id": "turn-timer",
+              "name": "Turn Timer",
+              "purpose": "Pure-display session turn timers: the per-turn input-row timer and the footer-right total of completed turns, rendered from Core-derived timing props."
+            },
+            {
               "id": "session-telemetry",
               "name": "Session Telemetry",
               "purpose": "Usage limits, context window, and provider/model status surfaces."

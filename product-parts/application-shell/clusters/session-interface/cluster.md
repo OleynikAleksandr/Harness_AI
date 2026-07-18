@@ -10,6 +10,7 @@ timeline contracts for display.
 
 - `session-window`
 - `input-controls`
+- `turn-timer`
 - `session-telemetry`
 - `session-sidebar`
 

@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task3",
-  "expectedCommitMessage": "feat: add session turn-timer UI module",
+  "currentTaskId": "harness-ai.phase1.stream1.task4",
+  "expectedCommitMessage": "feat: run session input timers from turn lifecycle",
   "debt": null
 }
 ```
@@ -82,15 +82,15 @@
    `product-parts/core-runtime/clusters/session-runtime/modules/turn-timing/src/turn-timing-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/turn-timing/module.md, product-parts/core-runtime/clusters/session-runtime/cluster.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`;
    expected commit: `feat: add core turn-timing derivation module`). Result: Completed in commit `feat: add core turn-timing derivation module`.
 4. [DONE] Git Commit: `feat: add core turn-timing derivation module` (hash: self)
-5. [IN_PROGRESS] `harness-ai.phase1.stream1.task3` Create the `turn-timer` UI module
+5. [DONE] `harness-ai.phase1.stream1.task3` Create the `turn-timer` UI module
    in session-interface (after the `input-controls` small-module pattern): a
    facade with `TurnTimer` (input-row timer, rendered only while a turn runs)
    and `SessionTotalTimer` (footer-right sum of completed turns) plus module
    and ownership docs (scope:
    `product-parts/application-shell/clusters/session-interface/modules/turn-timer/src/turn-timer-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/turn-timer/module.md, product-parts/application-shell/clusters/session-interface/cluster.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`;
-   expected commit: `feat: add session turn-timer UI module`).
-6. [TODO] Git Commit: `feat: add session turn-timer UI module` (hash: TBD)
-7. [TODO] `harness-ai.phase1.stream1.task4` Wire the timers into the session
+   expected commit: `feat: add session turn-timer UI module`). Result: Completed in commit `feat: add session turn-timer UI module`.
+6. [DONE] Git Commit: `feat: add session turn-timer UI module` (hash: self)
+7. [IN_PROGRESS] `harness-ai.phase1.stream1.task4` Wire the timers into the session
    window: derive per-session timing from Core events in
    `session-window-facade.tsx` via `deriveTurnTiming`, replace `ElapsedTotal`
    with `SessionTotalTimer`, render `TurnTimer` on the right side of the

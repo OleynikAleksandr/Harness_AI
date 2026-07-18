@@ -25,6 +25,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 - `session-window`: transcript/dialog layout, session chrome, next-session mode panel, Core-provided localizedContent reveal from Core read models, and GFM markdown rendering of assistant replies.
 - `input-controls`: message input, Stop/Play controls, busy/lock display, and user intent submission only.
+- `turn-timer`: pure-display session turn timers — the per-turn input-row timer and the footer-right total of completed turns, rendered from Core-derived timing props.
 - `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
 - `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry.
 

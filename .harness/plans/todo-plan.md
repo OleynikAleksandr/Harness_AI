@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task1",
-  "expectedCommitMessage": "chore: package session turn timer build",
+  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -104,12 +104,12 @@
 
 ### Stream: Package And Retest
 
-9. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Package the app for user
+9. [DONE] `harness-ai.phase2.stream1.task1` Package the app for user
    verification (`npm run package:mac`, user-confirmed) and record evidence
    (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
-   expected commit: `chore: package session turn timer build`).
-10. [TODO] Git Commit: `chore: package session turn timer build` (hash: TBD)
-11. [TODO] `harness-ai.phase2.stream1.task2` User retests the session input
+   expected commit: `chore: package session turn timer build`). Result: Completed in commit `chore: package session turn timer build`.
+10. [DONE] Git Commit: `chore: package session turn timer build` (hash: self)
+11. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the session input
     panel in the packaged app for every provider: sending a message locks the
     input and starts the in-row turn timer; when the turn ends the timer
     disappears and its value folds into the footer Total; Total equals the

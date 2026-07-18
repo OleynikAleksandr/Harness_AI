@@ -152,6 +152,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   journal as the persistent timing source, the `turn-timing` Core module and
   `turn-timer` UI module design, and the derivation rules (repeated
   `running`, unclosed turn on shutdown, Total semantics).
+- `docs/evidence/turn-timer-package-2026-07-18.md` — turn-timer packaging
+  evidence: the three implementation commits (Core `turn-timing` derivation,
+  `turn-timer` UI module, session-window wiring), the packaged `app.asar`
+  checksum, the binary proof that `deriveTurnTiming` and the timer CSS hooks
+  are inside the package, and the per-provider retest checklist.
 - `docs/evidence/claude-status-panel-turns-package-2026-07-18.md` — Claude
   status panel Turns parity packaging evidence: the one-line
   `statusPanelCapabilities.showTurns` fix for `claude` (the adapter already

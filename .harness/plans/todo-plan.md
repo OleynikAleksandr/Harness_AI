@@ -8,8 +8,8 @@
   "planId": "claude-status-panel-turns-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase5.stream1.task2",
+  "expectedCommitMessage": "chore: package Codex panel Rollback removal build",
   "debt": null
 }
 ```
@@ -94,3 +94,23 @@
 ### Stream: Packaged Retest
 
 7. [DONE] `harness-ai.phase4.stream1.task1` User retests the Claude session status panel in the packaged app: the Turns chip appears beside Cache and advances by one per completed user request → agent answer cycle (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — Claude Turns verified in packaged app: chip shows and counts turns correctly Acceptance Commit: `chore: record plan acceptance claude-status-panel-turns-2026-07-18`.
+
+## Phase 5 - Codex Panel Rollback Removal (owner: Codex + User, updated: 2026-07-18)
+
+### Stream: Panel Parity
+
+> Added 2026-07-18 by direct user order after accepting the Claude Turns
+> stream: remove the Rollback block from the Codex session status panel so it
+> matches the Claude/Kimi panels (Model / effort / Tokens / Cache / Turns).
+> Investigation finding: the Rollback button renders solely from
+> `statusPanelCapabilities.rollbackPreserveFirstUserTurns !== null`; the same
+> `ROLLBACK_PROVIDER_IDS` set also feeds the `Cache: 0` anchor and the
+> Cache/Turns visibility, so the sets must be split. Core rollback plumbing
+> (`session-rollback.ts`, codex `thread/rollback`) stays wired but unreachable
+> from UI; Grok keeps the full Rollback contract.
+
+8. [DONE] `harness-ai.phase5.stream1.task1` Split the rollback-action and cache-anchor provider sets in the Core status-panel capability contract so Codex keeps Cache/Turns and the `Cache: 0` anchor but no longer publishes `rollbackPreserveFirstUserTurns`, update the telemetry facade test, and sync the panel-contract docs (scope: `product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-status-panel.ts, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/src/usage-context-telemetry-facade.test.mjs, product-parts/provider-runtime/clusters/provider-events-and-translation/modules/usage-context-telemetry/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, docs/architecture/CodexCacheAnchorThread.md`; expected commit: `feat: hide Rollback control from Codex session status panel`). Result: Completed in commit `feat: hide Rollback control from Codex session status panel`.
+9. [DONE] Git Commit: `feat: hide Rollback control from Codex session status panel` (hash: self)
+10. [IN_PROGRESS] `harness-ai.phase5.stream1.task2` Package the app for user verification (`npm run package:mac`, user-confirmed) and record evidence (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `chore: package Codex panel Rollback removal build`).
+11. [TODO] Git Commit: `chore: package Codex panel Rollback removal build` (hash: TBD)
+12. [TODO] `harness-ai.phase5.stream1.task3` User retests the Codex session status panel in the packaged app: no Rollback block; Model/effort/Tokens/Cache/Turns chips stay intact with `Cache: 0` from session start (completion: user-acceptance; scope: user workflow; expected commit: none).

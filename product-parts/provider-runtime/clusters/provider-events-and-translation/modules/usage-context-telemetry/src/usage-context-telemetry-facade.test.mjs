@@ -75,7 +75,14 @@ assert.equal(codex.limitRows[0].text, "Session ...");
 assert.equal(codex.limitRows[1].text, "Weekly ...");
 assert.equal(codex.turnCount, 0);
 assert.equal(codex.statusPanelCapabilities.showTurns, true);
-assert.equal(codex.statusPanelCapabilities.rollbackPreserveFirstUserTurns, 2);
+// Codex keeps the `Cache: 0` anchor and the Cache/Turns chips, but its panel
+// no longer surfaces the Rollback action (hidden 2026-07-18 by user order;
+// the Core rollback intent stays wired for Codex behind the capability).
+assert.equal(codex.statusPanelCapabilities.showCache, true);
+assert.equal(
+  codex.statusPanelCapabilities.rollbackPreserveFirstUserTurns,
+  null
+);
 
 const grok = usageContextTelemetryFacade.createTelemetry({
   model: "grok-4.5",
@@ -87,6 +94,8 @@ assert.equal(grok.tokenUsage.limit, 500_000);
 assert.equal(grok.tokenDisplay.value, "0 (100%)");
 assert.equal(grok.cacheDisplay?.value, "0");
 assert.equal(grok.statusPanelCapabilities.showTurns, true);
+// Grok keeps the full Rollback contract untouched.
+assert.equal(grok.statusPanelCapabilities.rollbackPreserveFirstUserTurns, 2);
 const grokCompleted = usageContextTelemetryFacade.applyProviderEvent(grok, {
   type: "turn_completed",
 });

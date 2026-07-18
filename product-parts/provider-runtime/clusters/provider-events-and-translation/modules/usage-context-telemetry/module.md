@@ -27,9 +27,15 @@ Own usage limits and context-window signals derived from provider events.
   Providers without that signal keep the field `null`.
 - Core-owned `statusPanelCapabilities` declares whether a provider session
   exposes Cache, Turns and Rollback, including the number of warmup turns that
-  rollback must preserve. Codex and Grok both publish the full contract with a
+  rollback must preserve. Grok publishes the full contract with a
   two-turn anchor; the renderer does not branch on provider ids or infer these
-  capabilities from transcript text. Since the 2026-07-17 Kimi telemetry
+  capabilities from transcript text. Codex publishes Cache/Turns with the
+  `Cache: 0` anchor but no Rollback action since 2026-07-18 (user order: the
+  Codex panel matches Claude/Kimi — Model/effort/Tokens/Cache/Turns); the
+  Core rollback intent stays wired for Codex behind the capability, and the
+  rollback-action set (`grok`) is deliberately separate from the
+  cache-anchor/cache-turns set (`codex`, `grok`) so hiding the action cannot
+  break the anchor. Since the 2026-07-17 Kimi telemetry
   stream `kimi-client` shows Cache and Turns too (rollback stays
   unavailable): its cached counter starts at `0`, the default token limit
   resolves per model through the Core-catalog

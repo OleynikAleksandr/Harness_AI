@@ -489,6 +489,13 @@ projection, а не ручное удаление строк из JSONL.
 что именно для Codex app-server уже подтверждён `thread/rollback` и сохранение
 cache-anchor prefix после удаления dynamic turns.
 
+> Обновление 2026-07-18: по прямому приказу пользователя кнопка `Rollback`
+> скрыта из status panel Codex (панель приведена к набору Claude/Kimi —
+> Model/effort/Tokens/Cache/Turns). Описанный ниже UI-зонд остаётся
+> историческим контрактом кнопки; сам Core-owned Codex rollback intent,
+> `thread/rollback` plumbing и этот ручной сценарий проверки остаются
+> рабочими, но из UI панели Codex теперь недостижимы.
+
 Минимальный UI-зонд для Codex-сессии:
 
 - в status panel сессии показать Core-owned `Tokens` и, когда provider его

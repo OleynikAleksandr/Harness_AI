@@ -43,19 +43,21 @@ Render the transcript/dialog layout and session chrome.
   Core-computed truth from `get-provider-versions`.
 - Session dialog, input, status, empty-state, and role labels resolve through
   the shared browser localization provider with fallback strings.
-- The session status panel renders only Core telemetry truth. Codex and Grok
-  receive the identical lower-panel contract and ordering: applied Model,
+- The session status panel renders only Core telemetry truth. Grok
+  receives the full lower-panel contract and ordering: applied Model,
   supported reasoning effort, Tokens, Cache, Turns and Rollback. `turnCount`
   comes from Core/provider events rather than counting user messages in the
-  renderer; `Cache: 0` is visible from session start for both providers.
+  renderer; `Cache: 0` is visible from session start for Codex and Grok.
   `statusPanelCapabilities` controls field/action visibility and supplies the
   two-turn warmup/cache-anchor policy. Rollback forwards that preserved count
   to Core while idle; Core derives depth, validates the binding and restores
   transcript plus telemetry. Providers without a capability keep only their
-  supported status fields, without renderer-owned provider allowlists. Claude
-  and Kimi receive the same Model/effort/Tokens/Cache/Turns chips without
-  Rollback (Claude Turns enabled 2026-07-18; both count turns from
-  Core/provider `turn_completed` events). The
+  supported status fields, without renderer-owned provider allowlists. Codex,
+  Claude and Kimi receive the same Model/effort/Tokens/Cache/Turns chips
+  without Rollback (Claude Turns enabled and the Codex Rollback action hidden
+  2026-07-18 by user order; turns count from Core/provider `turn_completed`
+  events, and the Codex Core rollback intent stays wired behind the hidden
+  action). The
   panel lays its chips out as one flex row where the Tokens chip is the only
   flexible cell, so every provider chip set — with or without the reasoning
   badge and Rollback — stays on a single line; the former fixed-column grid
@@ -196,7 +198,9 @@ Render the transcript/dialog layout and session chrome.
   `respondProviderInteraction`. Cancel/close is an explicit `cancelled`
   decision; no native browser alert/prompt/confirm is used. The dialog is
   session-scoped and disappears only after the matching Core resolved event.
-- Enabled Rollback control in the Codex/Grok status panel. It dispatches only
+- Enabled Rollback control in the Grok status panel (the Codex panel action
+  is hidden since 2026-07-18 by user order while its Core intent stays wired
+  behind the capability). It dispatches only
   the raw `{ sessionId, preserveFirstUserTurns }` intent supplied by Core
   telemetry capabilities, keeps
   renderer code out of rollback-depth calculation, shows controlled transcript

@@ -6,10 +6,19 @@ export interface ProviderStatusPanelCapabilities {
   readonly showTurns: boolean;
 }
 
-const ROLLBACK_PROVIDER_IDS = new Set(["codex", "grok"]);
+// Providers whose status panel surfaces the Rollback action. Codex keeps the
+// Core rollback intent wired, but its panel action is hidden since
+// 2026-07-18 (user order: the Codex panel matches Claude/Kimi —
+// Model/effort/Tokens/Cache/Turns).
+const ROLLBACK_ACTION_PROVIDER_IDS = new Set(["grok"]);
+
+// Providers whose status panel anchors the Cache chip at `Cache: 0` from
+// session start and shows the Cache/Turns chips.
+const CACHE_ANCHOR_PROVIDER_IDS = new Set(["codex", "grok"]);
 
 export function defaultProviderCachedTokens(providerId: string): number | null {
-  return ROLLBACK_PROVIDER_IDS.has(providerId) || providerId === "kimi-client"
+  return CACHE_ANCHOR_PROVIDER_IDS.has(providerId) ||
+    providerId === "kimi-client"
     ? 0
     : null;
 }
@@ -33,20 +42,18 @@ export function defaultProviderTokenLimit(
 export function providerStatusPanelCapabilities(
   providerId: string
 ): ProviderStatusPanelCapabilities {
-  const supportsRollback = ROLLBACK_PROVIDER_IDS.has(providerId);
+  const supportsRollbackAction = ROLLBACK_ACTION_PROVIDER_IDS.has(providerId);
+  // Kimi native turns report inputCacheRead from the CLI session store.
+  // Claude, Kimi and Codex count turns from turn_completed like Grok; Codex
+  // shows the Cache/Turns chips without the Rollback action.
+  const showsCacheAndTurns =
+    CACHE_ANCHOR_PROVIDER_IDS.has(providerId) ||
+    providerId === "claude" ||
+    providerId === "kimi-client";
   return {
-    rollbackPreserveFirstUserTurns: supportsRollback ? 2 : null,
-    // Kimi native turns report inputCacheRead from the CLI session store.
-    // Claude and Kimi turns count from turn_completed like the rollback
-    // providers; Claude shows the Turns chip without rollback support.
-    showCache:
-      supportsRollback ||
-      providerId === "claude" ||
-      providerId === "kimi-client",
-    showTurns:
-      supportsRollback ||
-      providerId === "claude" ||
-      providerId === "kimi-client",
+    rollbackPreserveFirstUserTurns: supportsRollbackAction ? 2 : null,
+    showCache: showsCacheAndTurns,
+    showTurns: showsCacheAndTurns,
   };
 }
 

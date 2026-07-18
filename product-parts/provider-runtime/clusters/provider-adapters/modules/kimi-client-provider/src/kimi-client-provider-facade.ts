@@ -50,6 +50,7 @@ import {
   buildKimiManagedSystemMessages,
   selectKimiManagedTools,
 } from "./kimi-managed-profile-application.js";
+import { resolveKimiModelContexts } from "./kimi-model-catalog.js";
 import { readKimiUsageLimitsEvent } from "./kimi-usage-limits.js";
 
 export {
@@ -124,10 +125,15 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   ): Promise<string> {
     if (options?.profileKind === "native") {
       // Native profile = the vendor CLI itself: the session runs on the
-      // kimi-native-session ACP driver, not the universal client.
-      return kimiNativeSessionDriver.createSession({
-        workspacePath: workspacePath ?? this.defaultWorkspacePath,
-      });
+      // kimi-native-session ACP driver, not the universal client. The merged
+      // model-context map rides along so the workspace-home config and the
+      // per-turn usage limit carry each model's honest window (k3 is 1M).
+      return resolveKimiModelContexts().then((modelContexts) =>
+        kimiNativeSessionDriver.createSession({
+          modelContexts,
+          workspacePath: workspacePath ?? this.defaultWorkspacePath,
+        })
+      );
     }
     const sessionId = `kimi-client-${randomUUID()}`;
     this.ensureSession(sessionId, workspacePath, options);
@@ -148,9 +154,12 @@ export class KimiClientProviderFacade implements ProviderAdapter {
       return Promise.resolve(sessionId);
     }
     if (isKimiNativeSessionId(sessionId)) {
-      return kimiNativeSessionDriver.resumeSession(sessionId, {
-        workspacePath: workspacePath ?? this.defaultWorkspacePath,
-      });
+      return resolveKimiModelContexts().then((modelContexts) =>
+        kimiNativeSessionDriver.resumeSession(sessionId, {
+          modelContexts,
+          workspacePath: workspacePath ?? this.defaultWorkspacePath,
+        })
+      );
     }
     this.ensureSession(sessionId, workspacePath, options);
     return Promise.resolve(sessionId);

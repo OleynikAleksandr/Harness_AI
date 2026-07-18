@@ -30,8 +30,17 @@ import {
 
 export interface KimiNativeSessionRuntimeOptions {
   // Test/DI override for the workspace provider-home bootstrap.
-  readonly homePreparer?: (workspacePath: string) => KimiWorkspaceHome;
+  readonly homePreparer?: (
+    workspacePath: string,
+    overrides?: {
+      readonly modelContexts?: Readonly<Record<string, number>>;
+    }
+  ) => KimiWorkspaceHome;
   readonly model?: string;
+  // Per-model native context windows (merged Core + live Coding Plan
+  // catalog): the workspace-home bootstrap writes them into config truth
+  // and the per-turn usage limit resolves through them.
+  readonly modelContexts?: Readonly<Record<string, number>>;
   readonly onEvent: (event: KimiNativeSessionEvent) => void;
   readonly onReverseRequest?: KimiAcpReverseRequestHandler;
   // Test/DI overrides for the supervised child (command, args, timeouts).
@@ -83,7 +92,8 @@ export class KimiNativeSessionRuntime {
     // Claude/Codex parity: the child runs with HOME inside the workspace so
     // the native session store lands there; auth links to the real home.
     this.workspaceHome = (options.homePreparer ?? prepareKimiWorkspaceHome)(
-      options.workspacePath
+      options.workspacePath,
+      options.modelContexts ? { modelContexts: options.modelContexts } : {}
     );
     this.appliedThinkingEffort = readKimiThinkingEffort(this.workspaceHome);
     this.channel = new KimiAcpSessionProcess({
@@ -325,12 +335,23 @@ export class KimiNativeSessionRuntime {
     }
   }
 
+  // The session model's native window from the merged catalog: the applied
+  // model wins, the start model covers the pre-apply window, unknown ids
+  // fall back to the reader's verified K2.7 default.
+  private resolveContextLimit(): number | null {
+    const model = this.appliedModel ?? this.options.model ?? null;
+    const limit = model ? this.options.modelContexts?.[model] : undefined;
+    return typeof limit === "number" && limit > 0 ? limit : null;
+  }
+
   // The CLI streams no usage_update; after every turn the session-store
   // truth (latest usage.record of the main agent) feeds the status panel.
   private emitTurnTokenUsage(acpSessionId: string): void {
+    const contextLimit = this.resolveContextLimit();
     const usage = this.options.usageReader
       ? this.options.usageReader(acpSessionId)
       : readKimiSessionTokenUsage(acpSessionId, {
+          ...(contextLimit === null ? {} : { limit: contextLimit }),
           sessionsRoot: this.workspaceHome.sessionsRoot,
         });
     if (!usage) {

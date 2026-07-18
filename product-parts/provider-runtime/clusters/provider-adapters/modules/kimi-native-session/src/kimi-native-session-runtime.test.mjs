@@ -376,18 +376,50 @@ try {
     ].join("\n"),
     "utf8"
   );
+  // A session-store wire for the fake CLI's session id: the turn-end usage
+  // must carry the session model's window from the merged catalog map.
+  const swarmWireDir = path.join(
+    root,
+    ".harness",
+    "runtime",
+    "providers",
+    "kimi",
+    "home",
+    ".kimi-code",
+    "sessions",
+    "wd_ctx",
+    "kimi-s-3",
+    "agents",
+    "main"
+  );
+  await mkdir(swarmWireDir, { recursive: true });
+  writeFileSync(
+    path.join(swarmWireDir, "wire.jsonl"),
+    '{"type":"usage.record","usage":{"inputOther":100,"output":20,"inputCacheRead":300,"inputCacheCreation":0}}\n',
+    "utf8"
+  );
   const swarmEvents = [];
   const swarmRuntime = new KimiNativeSessionRuntime({
+    model: "k3-test",
+    modelContexts: { "k3-test": 777_000 },
     onEvent: (event) => swarmEvents.push(event),
     processOverrides: { command: process.execPath, commandArgs: [swarmCli] },
     providerSessionId: "kimi-native-parent-sw",
     swarmAgentReader: () => [{ agentId: "agent-0", prompt: "Scan a.md" }],
     swarmPollIntervalMs: 20,
-    usageReader: () => null,
     workspacePath: root,
   });
   await swarmRuntime.prompt("run the swarm");
   await swarmRuntime.close();
+  const swarmUsageEvents = swarmEvents.filter(
+    (event) =>
+      event.type === "stream_event" && event.data.kind === "token_usage"
+  );
+  assert.deepEqual(swarmUsageEvents.at(-1).data.tokenUsage, {
+    cached: 300,
+    limit: 777_000,
+    used: 420,
+  });
   const liveSpawnIndex = swarmEvents.findIndex(
     (event) =>
       event.type === "subagent_control" &&

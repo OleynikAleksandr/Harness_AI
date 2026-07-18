@@ -49,7 +49,10 @@ provider.
 
 `src/kimi-native-session-facade.ts`. It owns the adapter-facing session
 driver (`KimiNativeSessionDriver`, singleton `kimiNativeSessionDriver`,
-session-id marker `isKimiNativeSessionId`) and re-exports the supervised
+session-id marker `isKimiNativeSessionId`; start options carry the
+adapter-resolved `modelContexts` map — merged Core + live Coding Plan
+catalog — through the runtime into the workspace-home bootstrap and the
+per-turn usage limit) and re-exports the supervised
 process channel (`KimiAcpSessionProcess`, `resolveKimiSessionCommand`), the
 JSON-RPC router (`KimiAcpSessionRouter`), the wire contracts, the session
 runtime (`KimiNativeSessionRuntime`), the stream normalizer

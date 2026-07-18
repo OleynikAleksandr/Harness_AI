@@ -77,6 +77,9 @@ export function isKimiNativeSubagentSessionId(sessionId: string): boolean {
 
 export interface KimiNativeSessionStartOptions {
   readonly model?: string;
+  // Per-model native context windows (merged Core + live Coding Plan
+  // catalog) for the workspace-home config and the per-turn usage limit.
+  readonly modelContexts?: Readonly<Record<string, number>>;
   readonly workspacePath: string;
 }
 
@@ -194,6 +197,9 @@ export class KimiNativeSessionDriver {
     const bridge = new KimiInteractionBridge({ emit: broadcast });
     const runtime = new KimiNativeSessionRuntime({
       ...(startOptions.model ? { model: startOptions.model } : {}),
+      ...(startOptions.modelContexts
+        ? { modelContexts: startOptions.modelContexts }
+        : {}),
       onEvent: broadcast,
       onReverseRequest: (request) => bridge.handle(request),
       ...(this.options.processOverrides

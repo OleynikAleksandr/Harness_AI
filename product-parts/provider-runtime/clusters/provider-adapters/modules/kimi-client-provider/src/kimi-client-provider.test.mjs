@@ -33,7 +33,7 @@ const source = readFileSync(
       '  sessionId.startsWith("kimi-agent-");',
       "const kimiNativeSessionDriver = {",
       "  createSession: (options) => {",
-      '    globalThis.__kimiNativeCalls.push(["create", options.workspacePath]);',
+      '    globalThis.__kimiNativeCalls.push(["create", options.workspacePath, options.modelContexts]);',
       '    return Promise.resolve("kimi-native-test-1");',
       "  },",
       "  deleteSession: (sessionId) => {",
@@ -44,7 +44,7 @@ const source = readFileSync(
       '    globalThis.__kimiNativeCalls.push(["respond", sessionId, decision.outcome]);',
       "  },",
       "  resumeSession: (sessionId, options) => {",
-      '    globalThis.__kimiNativeCalls.push(["resume", sessionId, options.workspacePath]);',
+      '    globalThis.__kimiNativeCalls.push(["resume", sessionId, options.workspacePath, options.modelContexts]);',
       "    return Promise.resolve(sessionId);",
       "  },",
       "  sendMessage: (sessionId, content, model, reasoningEffort) => {",
@@ -97,8 +97,12 @@ const source = readFileSync(
     /import \{ readKimiUsageLimitsEvent \}[^\n]*\n/u,
     "const readKimiUsageLimitsEvent = () => Promise.resolve(globalThis.__kimiLimitsTestEvent ?? null);\n"
   )
-  // The model-catalog re-export would pull the real module (and its network
-  // path) into the tmp build; the facade itself does not consume it here.
+  // The model-catalog module would pull the real network path into the tmp
+  // build: the import becomes a knob-driven mock, the re-export drops.
+  .replace(
+    /import \{ resolveKimiModelContexts \} from "\.\/kimi-model-catalog\.js";\n/u,
+    "const resolveKimiModelContexts = () => Promise.resolve(globalThis.__kimiModelContextsTest ?? {});\n"
+  )
   .replace(/export \{[^}]*\} from "\.\/kimi-model-catalog\.js";\n/u, "");
 
 const compiled = ts.transpileModule(source, {
@@ -253,7 +257,9 @@ try {
   // --- Profile-selective routing ---
   globalThis.__kimiClientTestFail = false;
 
-  // Native profile sessions delegate every adapter surface to the ACP driver.
+  // Native profile sessions delegate every adapter surface to the ACP driver;
+  // the resolved model-context map rides along on create and resume.
+  globalThis.__kimiModelContextsTest = { k3: 1_048_576 };
   const nativeSessionId = await adapter.createSession("/ws", {
     profileKind: "native",
   });
@@ -272,12 +278,12 @@ try {
   await adapter.resumeSession(nativeSessionId, "/ws");
   await adapter.deleteSessionArtifacts(nativeSessionId, "/ws");
   assert.deepEqual(globalThis.__kimiNativeCalls, [
-    ["create", "/ws"],
+    ["create", "/ws", { k3: 1_048_576 }],
     ["subscribe", "kimi-native-test-1"],
     ["send", "kimi-native-test-1", "go native", "k3", "max"],
     ["stop", "kimi-native-test-1"],
     ["respond", "kimi-native-test-1", "selected"],
-    ["resume", "kimi-native-test-1", "/ws"],
+    ["resume", "kimi-native-test-1", "/ws", { k3: 1_048_576 }],
     ["delete", "kimi-native-test-1"],
     ["artifacts", "kimi-native-test-1", "/ws"],
   ]);

@@ -66,14 +66,42 @@ Core process, оба работают из нового `Harness AI.app/Contents
 
 1. Запустить Kimi native-profile задачу, которая создаёт один Agent или K3
    Swarm.
-2. Пока child работает, открыть его диалог: reasoning и assistant text должны
-   появляться из wire без ожидания terminal result.
+2. Пока child работает, открыть его диалог: Harness должен показывать честный
+   native running state. После завершения child его сохранённые reasoning и
+   assistant text должны появиться из wire.
 3. Проверить status panel child: Tokens/context, Cache и Turns должны получать
    реальные значения; terminal status должен перейти в idle.
 4. После завершения убедиться, что итоговый assistant result не продублирован.
 5. Перезапустить приложение и снова открыть child: transcript не должен
    удвоиться после replay.
-6. Убедиться, что primary Kimi session продолжает работать без регрессии.
+6. Убедиться, что primary Kimi session продолжает работать без регрессии и
+   один assistant turn отображается одной плашкой: номера списка (`1.`, `8.`)
+   не отделяются от следующего за ними текста на границе stream buffer.
+
+## Acceptance Defect Follow-up Package (2026-07-19)
+
+- Пользователь отдельно подтвердил новую package-сборку после screenshot
+  acceptance defect.
+- Implementation commit:
+  `539330de` — `fix: coalesce kimi native assistant chunks`.
+- Команда: `npm run package:mac` — exit 0; runtime TypeScript и renderer build
+  завершились успешно, Vite преобразовал 322 модуля.
+- Артефакт: `release/mac-arm64/Harness AI.app` (unsigned macOS arm64).
+- `app.asar`: timestamp `2026-07-19 15:16:02 +0200`, size `32390028` bytes.
+- SHA-256 `app.asar`:
+  `410d0875c95660f3b974bfce10900b7ee61d984a7f4c601a39f9a92d3761cb5e`.
+- Упакованный
+  `dist/runtime/.../kimi-session-event-normalizer.js` извлечён из `app.asar`:
+  SHA-256
+  `6ea3112e2539c4900443e06ce3fbeb9a45ad1e3145775bbaa984ff032d8ddf4b`
+  точно совпал с текущим build runtime. Извлечённый файл содержит оба новых
+  контракта: сохранение `bufferedContent` без assistant trim и
+  `tag: "live"` для Core coalescing.
+- Свежий пакет запущен через `open`; основной Electron process и Core process
+  работают из нового `Harness AI.app/Contents/Resources/app.asar`.
+- Commit gates для `539330de` прошли без обхода hooks: architecture, lint,
+  Knip, typecheck и полный набор из 133 тестов, включая отдельный regression
+  test на artificial flush сразу после `1.` и `8.`.
 
 User acceptance остаётся отдельной текущей задачей плана; scope остаётся
 `ACTIVE` и не архивируется автоматически.

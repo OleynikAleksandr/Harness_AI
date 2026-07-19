@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream3.task2",
-  "expectedCommitMessage": "chore: package kimi assistant message fix",
+  "currentTaskId": "harness-ai.phase3.stream3.task3",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -180,13 +180,13 @@
     `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-session-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-assistant-message-coalescing.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/kimi-subagent-session-parity-2026-07-19.md`;
     expected commit: `fix: coalesce kimi native assistant chunks`). Result: Completed in commit `fix: coalesce kimi native assistant chunks`.
 23. [DONE] Git Commit: `fix: coalesce kimi native assistant chunks` (hash: self)
-24. [IN_PROGRESS] `harness-ai.phase3.stream3.task2` After explicit user confirmation,
+24. [DONE] `harness-ai.phase3.stream3.task2` After explicit user confirmation,
     rebuild the macOS package containing the native Kimi assistant-message
     fix and update packaged evidence (scope:
     `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
-    expected commit: `chore: package kimi assistant message fix`).
-25. [TODO] Git Commit: `chore: package kimi assistant message fix` (hash: TBD)
-26. [TODO] `harness-ai.phase3.stream3.task3` User retests Kimi native and
+    expected commit: `chore: package kimi assistant message fix`). Result: Completed in commit `chore: package kimi assistant message fix`.
+25. [DONE] Git Commit: `chore: package kimi assistant message fix` (hash: self)
+26. [IN_PROGRESS] `harness-ai.phase3.stream3.task3` User retests Kimi native and
     subagent session dialogs in the rebuilt app: native-Kimi running state is
     honest, the completed assistant turn renders as one dialog message with
     numbered-list markers attached to their text, the status panel shows real

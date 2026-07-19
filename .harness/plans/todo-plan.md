@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task2",
-  "expectedCommitMessage": "feat: add kimi subagent wire reader module",
+  "currentTaskId": "harness-ai.phase3.stream1.task3",
+  "expectedCommitMessage": "feat: stream kimi subagent wire events to child sessions",
   "debt": null
 }
 ```
@@ -128,7 +128,7 @@
     `docs/evidence/kimi-subagent-session-parity-2026-07-19.md, docs/DOCUMENTATION_INDEX.md`;
     expected commit: `docs: plan kimi subagent session parity`). Result: Completed in commit `docs: plan kimi subagent session parity`.
 13. [DONE] Git Commit: `docs: plan kimi subagent session parity` (hash: self)
-14. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Create the `kimi-subagent-wire`
+14. [DONE] `harness-ai.phase3.stream1.task2` Create the `kimi-subagent-wire`
     module in provider-adapters: a facade that resolves a child provider
     session id (`kimi-agent-<n>:tool_…`, single-Agent fallback via the
     session `state.json` agents map) to its `agents/agent-<n>/wire.jsonl` and
@@ -139,9 +139,9 @@
     inputCacheCreation + inputCacheRead`, `cached = inputCacheRead`, native
     `turnCount`) — plus module and ownership docs (scope:
     `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-subagent-wire/src/kimi-subagent-wire-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-subagent-wire/module.md, product-parts/provider-runtime/clusters/provider-adapters/cluster.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`;
-    expected commit: `feat: add kimi subagent wire reader module`).
-15. [TODO] Git Commit: `feat: add kimi subagent wire reader module` (hash: TBD)
-16. [TODO] `harness-ai.phase3.stream1.task3` Wire the child channel: the
+    expected commit: `feat: add kimi subagent wire reader module`). Result: Completed in commit `feat: add kimi subagent wire reader module`.
+15. [DONE] Git Commit: `feat: add kimi subagent wire reader module` (hash: self)
+16. [IN_PROGRESS] `harness-ai.phase3.stream1.task3` Wire the child channel: the
     `kimi-native-session` driver tails the resolved agent wire for each
     subscribed child and broadcasts child-addressed provider events;
     `kimi-client-provider-facade` delegates `kimi-agent-*` subscribe/resume

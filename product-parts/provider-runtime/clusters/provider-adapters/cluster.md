@@ -13,6 +13,7 @@ Owns fresh Harness AI provider adapters for every MVP provider.
 - `kimi-client-provider`
 - `kimi-native-capture`
 - `kimi-native-session`
+- `kimi-subagent-wire`
 - `glm-client-provider`
 - `openrouter-client-provider`
 - `local-models-client-provider`
@@ -29,8 +30,12 @@ adapter: sessions of the built-in `native` profile run through the
 `kimi-native-session` ACP backend (installed CLI, default agent, real
 provider home), while every managed profile stays on the Core universal
 client — the Kimi ACP surface cannot verifiably change prompt or tooling.
-The universal client remains the single production session path for the
-other client endpoints. `kimi-native-capture` stays a diagnostic driver for
+`kimi-subagent-wire` complements that native path: the ACP stream is silent
+about subagent internals, so it resolves each synthesized `kimi-agent-*`
+child id to the sub-agent's own `wire.jsonl` in the CLI session store and
+tails it into the standard dialog/turn/token-usage provider events the Core
+pipeline already routes. The universal client remains the single production
+session path for the other client endpoints. `kimi-native-capture` stays a diagnostic driver for
 the installed Kimi CLI's default-agent request; it is not a session adapter.
 The older consumed `src/reference/**` runtime corpus lives on in git
 history.

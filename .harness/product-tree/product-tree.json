@@ -379,6 +379,11 @@
               "purpose": "Native ACP session channel for the kimi-client adapter: supervised `kimi acp` child (default agent, full-access mode, self-update pinned off) running in the workspace provider home (.harness/runtime/providers/kimi/home, auth symlinked to the real ~/.kimi-code) with JSON-RPC correlation serving native-profile sessions; managed profiles stay on the universal client."
             },
             {
+              "id": "kimi-subagent-wire",
+              "name": "Kimi Subagent Wire",
+              "purpose": "Sub-agent wire reader for synthesized Kimi child sessions: resolves a `kimi-agent-*` child provider session id to the child agent's `wire.jsonl` in the CLI session store (spawn-prompt matching plus state.json fallback) and tails it incrementally into standard dialog_message / turn lifecycle / token_usage provider events with deterministic wire-line ids."
+            },
+            {
               "id": "glm-client-provider",
               "name": "GLM Client Provider",
               "purpose": "Thin GLM endpoint for the Core universal client: Z.ai coding dialect specifics (api.z.ai/api/coding/paas/v4, Accept-Language, reasoning_content, GLM extraBody params) and the ClientTurnRequest builder the Core agent loop runs."

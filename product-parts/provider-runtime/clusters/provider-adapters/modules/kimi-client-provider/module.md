@@ -81,11 +81,18 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
   `respondToInteraction` for CLI permission asks) forwards to the
   `kimi-native-session` facade. Synthetic
   subagent ids (`kimi-agent-*`, marked by `isKimiNativeSubagentSessionId`)
-  are served as an inert channel: subscribe returns a no-op unsubscribe,
-  stop/delete are no-ops, resume echoes the id and sendMessage refuses
-  honestly — Core adopts synthesized children onto this adapter and an
+  delegate subscribe and resume to the same driver, which serves the child
+  a real channel tailing its own `agents/agent-<n>/wire.jsonl` from the
+  CLI session store (2026-07-19 parity work — reasoning bubbles, assistant
+  text, token usage and the turn lifecycle now reach the child dialog
+  through the unmodified Core pipeline; resume stays a no-op because the
+  channel replays the wire from offset 0 on subscribe). Stop/delete stay
+  no-ops and sendMessage refuses honestly — Core adopts synthesized
+  children onto this adapter and an
   unknown-session throw here used to kill the subagent-call publication and
-  the rest of the event batch (2026-07-17 retest defect). The standalone ACP
+  the rest of the event batch (2026-07-17 retest defect), so when no live
+  parent runtime claims the child the driver degrades the subscription to
+  an inert no-op instead of throwing. The standalone ACP
   provider id `kimi` stays retired — routing lives inside `kimi-client`.
 - Usage limits (`kimi-usage-limits.ts`, verified live 2026-07-17):
   `refreshUsageLimits` reads `GET https://api.kimi.com/coding/v1/usages`

@@ -122,6 +122,23 @@ export class KimiSubagentNormalizer {
       .map(([toolCallId]) => toolCallId);
   }
 
+  // Whether this session minted the given synthesized child id — a root
+  // child or one of a swarm's agent children. The driver routes child
+  // subscriptions to the owning runtime through this.
+  ownsSubagent(childId: string): boolean {
+    for (const entry of this.tracked.values()) {
+      if (entry.childId === childId) {
+        return true;
+      }
+      for (const agent of entry.agents.values()) {
+        if (agent.childId === childId) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   // Register agents the session-store poller observed for a running swarm:
   // every unseen agent spawns as a running child so the launch divider grows
   // live. Terminal statuses stay with the swarm result.

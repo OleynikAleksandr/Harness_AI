@@ -12,7 +12,10 @@ durable child truth is the CLI session store: each sub-agent writes its own
 resolves a child provider session id to that wire and tails it
 incrementally, normalizing wire rows into the standard provider events the
 unmodified Core pipeline already routes (`routeProviderEvent` → reasoning
-display, telemetry, turn state).
+display, telemetry, turn state). The polling consumer is the child wire
+channel of the sibling `kimi-native-session` module
+(`kimi-subagent-wire-channel.ts`): it resolves on subscribe, re-reads on
+the runtime's swarm-poll cadence and drains at terminal.
 
 ## Public Facade
 

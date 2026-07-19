@@ -47,6 +47,12 @@ export class KimiSessionEventNormalizer {
     return this.subagents.liveSwarmCallIds();
   }
 
+  // Whether this session minted the given synthesized `kimi-agent-*` child
+  // id — the driver routes child wire-channel subscriptions by this.
+  ownsSubagent(childId: string): boolean {
+    return this.subagents.ownsSubagent(childId);
+  }
+
   registerLiveSwarmAgents(
     toolCallId: string,
     agents: readonly KimiLiveSwarmAgent[]

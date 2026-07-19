@@ -168,8 +168,10 @@ session id with the CLI store id).
   jumping at the end. This feeds the same Core subagent graph and dialog
   launch divider Claude/Codex use. The synthetic child ids are marked by
   `isKimiNativeSubagentSessionId` (`kimi-agent-*`): Core's child-session
-  adoption binds them onto the parent's adapter, which must serve them as an
-  inert channel — a Kimi subagent has no provider channel of its own. The
+  adoption binds them onto the parent's adapter, and the driver routes
+  each child subscription to the runtime whose normalizer minted the id
+  (`ownsSubagent`) — a Kimi subagent has no ACP process of its own, but it
+  does have its own wire (see the child wire channel below). The
   driver's listener fan-out isolates consumer failures (one throwing
   listener cannot break delivery to the others or tear down the native turn
   mid-batch; proven live on the 2026-07-17 retest).
@@ -230,6 +232,28 @@ session id with the CLI store id).
   state — an agent wire has no reliable terminal row (a follow-up
   `turn.prompt` revives a finished-looking agent), so terminal statuses
   come from the swarm result or the turn end.
+- Child wire channel (`kimi-subagent-wire-channel.ts`, 2026-07-19 parity
+  work): the driver's `subscribe("kimi-agent-*")` attaches the child to
+  its own `agents/agent-<n>/wire.jsonl` through the `kimi-subagent-wire`
+  module, so the child's dialog, turn lifecycle and telemetry stream live
+  (reasoning bubbles included) instead of the former inert no-op. The
+  driver routes the subscription to the runtime whose subagent normalizer
+  minted the id; that runtime pumps the channel hub on the existing 2 s
+  swarm-poll cadence (no extra timer), forwards terminal child statuses
+  from its own event stream (`observeEvent`) and settles terminal children
+  at turn end (`finishTurn`). Subscribe replays the wire from offset 0 —
+  deterministic wire ids keep the replay idempotent downstream — and a
+  wire the store cannot attribute yet resolves on a later poll. A terminal
+  child is drained once more and, when its last turn stayed open
+  (`turn_started` without `turn_completed`), closed with a synthesized
+  `turn_completed` (`<childId>:wire:drain:turn_completed`, deliberately
+  carrying no native turnCount so Core counts exactly one extra turn for
+  the interrupted one) to move the child's telemetry out of `running`; the
+  tailer then stops. `unsubscribe` drops the channel. When no live runtime
+  claims the child (Core restart before the parent re-spawns it, or a
+  parent entry rebuilt after a CLI crash losing its normalizer state) the
+  subscription degrades to an inert no-op — adoption must not fail, and
+  the child keeps its persisted history plus the terminal result message.
 
 ## Owned Paths
 

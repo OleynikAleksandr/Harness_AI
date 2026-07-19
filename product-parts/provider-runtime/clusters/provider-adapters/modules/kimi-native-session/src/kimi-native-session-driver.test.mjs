@@ -35,6 +35,7 @@ try {
     "kimi-subagent-normalizer.ts",
     "kimi-session-event-normalizer.ts",
     "kimi-session-usage-reader.ts",
+    "kimi-subagent-wire-channel.ts",
     "kimi-swarm-progress-reader.ts",
     "kimi-workspace-home.ts",
     "kimi-native-session-runtime.ts",
@@ -53,10 +54,36 @@ try {
     }).outputText;
     writeFileSync(
       path.join(buildDir, filename.replace(/\.ts$/u, ".js")),
-      compiled.replaceAll(
-        "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
-        "./provider-home-manager-facade.js"
-      ),
+      compiled
+        .replaceAll(
+          "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
+          "./provider-home-manager-facade.js"
+        )
+        .replaceAll(
+          "../../kimi-subagent-wire/src/kimi-subagent-wire-facade.js",
+          "./kimi-subagent-wire-facade.js"
+        ),
+      "utf8"
+    );
+  }
+  // The child channel reads through the sibling kimi-subagent-wire module;
+  // its sources join the flat build from the neighboring module directory.
+  for (const filename of [
+    "kimi-subagent-wire-facade.ts",
+    "kimi-subagent-wire-resolve.ts",
+  ]) {
+    const source = readFileSync(
+      new URL(`../../kimi-subagent-wire/src/${filename}`, import.meta.url),
+      "utf8"
+    );
+    writeFileSync(
+      path.join(buildDir, filename.replace(/\.ts$/u, ".js")),
+      ts.transpileModule(source, {
+        compilerOptions: {
+          module: ts.ModuleKind.ES2022,
+          target: ts.ScriptTarget.ES2022,
+        },
+      }).outputText,
       "utf8"
     );
   }

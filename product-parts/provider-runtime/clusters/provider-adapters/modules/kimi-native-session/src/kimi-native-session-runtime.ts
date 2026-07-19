@@ -19,6 +19,7 @@ import {
   readKimiSessionTokenUsage,
 } from "./kimi-session-usage-reader.js";
 import type { KimiLiveSwarmAgent } from "./kimi-subagent-normalizer.js";
+import { KimiSubagentWireChannelHub } from "./kimi-subagent-wire-channel.js";
 import { readKimiSwarmAgents } from "./kimi-swarm-progress-reader.js";
 import {
   type KimiWorkspaceHome,
@@ -80,6 +81,7 @@ export class KimiNativeSessionRuntime {
   private readonly channel: KimiAcpSessionProcess;
   private readonly normalizer = new KimiSessionEventNormalizer();
   private readonly options: KimiNativeSessionRuntimeOptions;
+  private readonly subagentChannels: KimiSubagentWireChannelHub;
   private swarmPollTimer: NodeJS.Timeout | null = null;
   private turnActive = false;
   private readonly workspaceHome: KimiWorkspaceHome;
@@ -96,6 +98,10 @@ export class KimiNativeSessionRuntime {
       options.modelContexts ? { modelContexts: options.modelContexts } : {}
     );
     this.appliedThinkingEffort = readKimiThinkingEffort(this.workspaceHome);
+    this.subagentChannels = new KimiSubagentWireChannelHub({
+      readAcpSessionId: () => this.acpSessionId,
+      sessionsRoot: this.workspaceHome.sessionsRoot,
+    });
     this.channel = new KimiAcpSessionProcess({
       cwd: options.workspacePath,
       environment: { HOME: this.workspaceHome.homePath },
@@ -294,6 +300,17 @@ export class KimiNativeSessionRuntime {
     }
   }
 
+  // Synthesized-child wire channel entry points the driver routes to.
+  ownsSubagent(providerSessionId: string): boolean {
+    return this.normalizer.ownsSubagent(providerSessionId);
+  }
+  subscribeSubagent(
+    providerSessionId: string,
+    listener: (event: unknown) => void
+  ): () => void {
+    return this.subagentChannels.subscribe(providerSessionId, listener);
+  }
+
   // Live swarm progress: while a turn runs, poll the CLI session store for
   // spawned swarm agents (the ACP stream is silent during swarm execution).
   // Attribution needs exactly one running swarm — the store's agent homes
@@ -315,9 +332,11 @@ export class KimiNativeSessionRuntime {
       clearInterval(this.swarmPollTimer);
       this.swarmPollTimer = null;
     }
+    this.subagentChannels.finishTurn();
   }
 
   private pollSwarmAgents(acpSessionId: string): void {
+    this.subagentChannels.pump();
     const callIds = this.normalizer.liveSwarmCallIds();
     if (callIds.length !== 1) {
       return;
@@ -446,6 +465,7 @@ export class KimiNativeSessionRuntime {
   }
 
   private emit(event: KimiNativeSessionEvent): void {
+    this.subagentChannels.observeEvent(event);
     this.options.onEvent(event);
   }
 }

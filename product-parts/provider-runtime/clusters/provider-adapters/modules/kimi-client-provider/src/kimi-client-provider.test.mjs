@@ -322,22 +322,23 @@ try {
   ]);
 
   // Core adopts synthesized subagent children onto the parent's adapter:
-  // every surface serves the synthetic `kimi-agent-*` id inertly instead of
-  // throwing (the old unknown-session error killed the subagent-call
-  // publication and the rest of the event batch).
+  // subscribe and resume delegate to the native driver's child wire
+  // channel, while the remaining surfaces stay inert instead of throwing
+  // (the old unknown-session error killed the subagent-call publication
+  // and the rest of the event batch).
   const childId = "kimi-agent-0:tool_x1";
-  const inertUnsubscribe = adapter.subscribe(childId, () => undefined);
-  assert.equal(typeof inertUnsubscribe, "function");
-  inertUnsubscribe();
+  const callsBeforeChild = globalThis.__kimiNativeCalls.length;
+  const childUnsubscribe = adapter.subscribe(childId, () => undefined);
+  assert.equal(typeof childUnsubscribe, "function");
+  childUnsubscribe();
   assert.equal(await adapter.resumeSession(childId, "/ws"), childId);
   await adapter.closeSession(childId);
   await adapter.deleteSessionArtifacts(childId);
   await assert.rejects(() => adapter.sendMessage(childId, "hi"), /read-only/u);
-  assert.ok(
-    !globalThis.__kimiNativeCalls.some((call) =>
-      String(call[1] ?? "").startsWith("kimi-agent-")
-    )
-  );
+  assert.deepEqual(globalThis.__kimiNativeCalls.slice(callsBeforeChild), [
+    ["subscribe", childId],
+    ["resume", childId, "/ws", undefined],
+  ]);
 
   // Usage limits broadcast to the top panel with the provider session id.
   globalThis.__kimiLimitsTestEvent = {

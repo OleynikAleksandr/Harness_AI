@@ -121,6 +121,11 @@ export class KimiNativeSessionDriver {
     sessionId: string,
     startOptions: KimiNativeSessionStartOptions
   ): Promise<string> {
+    if (isKimiNativeSubagentSessionId(sessionId)) {
+      // A synthesized child has no process of its own to resume; its live
+      // channel attaches on subscribe and replays the wire from offset 0.
+      return sessionId;
+    }
     await this.ensureEntry(sessionId, startOptions);
     return sessionId;
   }
@@ -139,9 +144,33 @@ export class KimiNativeSessionDriver {
   }
 
   subscribe(sessionId: string, listener: (event: unknown) => void): () => void {
+    if (isKimiNativeSubagentSessionId(sessionId)) {
+      return this.subscribeSubagent(sessionId, listener);
+    }
     const listeners = this.requireEntry(sessionId).listeners;
     listeners.add(listener);
     return () => listeners.delete(listener);
+  }
+
+  // Synthesized children (`kimi-agent-*`) have no ACP process of their own:
+  // the runtime whose subagent normalizer minted the id tails the child's
+  // own wire.jsonl and streams the normalized events (see
+  // kimi-subagent-wire-channel.ts). When no live runtime claims the child —
+  // a Core restart re-subscribes children before the parent re-spawns them,
+  // or the parent entry was rebuilt after a CLI crash and lost its
+  // normalizer state — the subscription degrades to an inert no-op instead
+  // of an unknown-session error: the adoption must not fail, and the child
+  // keeps its persisted history plus the terminal result message.
+  private subscribeSubagent(
+    sessionId: string,
+    listener: (event: unknown) => void
+  ): () => void {
+    for (const entry of this.sessions.values()) {
+      if (entry.runtime.ownsSubagent(sessionId)) {
+        return entry.runtime.subscribeSubagent(sessionId, listener);
+      }
+    }
+    return () => undefined;
   }
 
   // Stop semantics: cancel the in-flight turn and pending permissions, keep

@@ -150,8 +150,11 @@ export class KimiClientProviderFacade implements ProviderAdapter {
     options?: ProviderSessionStartOptions
   ): Promise<string> {
     if (isKimiNativeSubagentSessionId(sessionId)) {
-      // Synthetic subagent ids have no provider channel to resume.
-      return Promise.resolve(sessionId);
+      // Synthesized child: resume is a driver no-op; the live wire channel
+      // attaches on subscribe and replays the child's wire from offset 0.
+      return kimiNativeSessionDriver.resumeSession(sessionId, {
+        workspacePath: workspacePath ?? this.defaultWorkspacePath,
+      });
     }
     if (isKimiNativeSessionId(sessionId)) {
       return resolveKimiModelContexts().then((modelContexts) =>
@@ -224,10 +227,11 @@ export class KimiClientProviderFacade implements ProviderAdapter {
   subscribe(sessionId: string, listener: ProviderEventListener): () => void {
     if (isKimiNativeSubagentSessionId(sessionId)) {
       // Core adopts synthesized children onto the parent's adapter; the
-      // child has no channel of its own, so adoption gets an inert
-      // subscription instead of an unknown-session error (which used to
-      // kill the subagent-call publication and the rest of the batch).
-      return () => undefined;
+      // driver serves the child a real channel tailing its own wire.jsonl
+      // (a Kimi subagent has no ACP process of its own). Adoption must not
+      // fail: with no live parent runtime claiming the child the driver
+      // degrades to an inert no-op instead of an unknown-session error.
+      return kimiNativeSessionDriver.subscribe(sessionId, listener);
     }
     if (isKimiNativeSessionId(sessionId)) {
       return kimiNativeSessionDriver.subscribe(sessionId, listener);

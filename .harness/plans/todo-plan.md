@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task3",
-  "expectedCommitMessage": "feat: stream kimi subagent wire events to child sessions",
+  "currentTaskId": "harness-ai.phase3.stream1.task4",
+  "expectedCommitMessage": "feat: dedupe kimi subagent transcript replay",
   "debt": null
 }
 ```
@@ -141,7 +141,7 @@
     `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-subagent-wire/src/kimi-subagent-wire-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-subagent-wire/module.md, product-parts/provider-runtime/clusters/provider-adapters/cluster.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`;
     expected commit: `feat: add kimi subagent wire reader module`). Result: Completed in commit `feat: add kimi subagent wire reader module`.
 15. [DONE] Git Commit: `feat: add kimi subagent wire reader module` (hash: self)
-16. [IN_PROGRESS] `harness-ai.phase3.stream1.task3` Wire the child channel: the
+16. [DONE] `harness-ai.phase3.stream1.task3` Wire the child channel: the
     `kimi-native-session` driver tails the resolved agent wire for each
     subscribed child and broadcasts child-addressed provider events;
     `kimi-client-provider-facade` delegates `kimi-agent-*` subscribe/resume
@@ -149,9 +149,9 @@
     `routeProviderEvent` pipeline projects messages, telemetry and turn-state
     into child sessions; sync module docs (scope:
     `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`;
-    expected commit: `feat: stream kimi subagent wire events to child sessions`).
-17. [TODO] Git Commit: `feat: stream kimi subagent wire events to child sessions` (hash: TBD)
-18. [TODO] `harness-ai.phase3.stream1.task4` Core reconciliation: make
+    expected commit: `feat: stream kimi subagent wire events to child sessions`). Result: Completed in commit `feat: stream kimi subagent wire events to child sessions`.
+17. [DONE] Git Commit: `feat: stream kimi subagent wire events to child sessions` (hash: self)
+18. [IN_PROGRESS] `harness-ai.phase3.stream1.task4` Core reconciliation: make
     `session:message` appends idempotent by message id in the session event
     stream (restart-safe wire replay with deterministic ids) and skip the
     synthetic terminal result message when the wire already delivered

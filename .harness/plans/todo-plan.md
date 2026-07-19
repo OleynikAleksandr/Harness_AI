@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": "feat: add kimi subagent wire reader module",
   "debt": null
 }
 ```
@@ -17,20 +17,23 @@
 
 ## Context Pack For This Cycle
 
-- **Planning source:** user request 2026-07-18 — replace the ever-running
-  `total:` session timer with a per-turn timer inside the input row (starts on
-  send, ends on turn end, folds into Total) so Total shows the agent's summed
-  active work time; identical for every provider; implemented as dedicated
-  facade modules.
-- **Planning document:** `docs/evidence/turn-timer-planning-2026-07-18.md`.
+- **Planning source:** user request 2026-07-19 — Kimi subagent session dialogs
+  are deficient versus native agent sessions: no context window / cache /
+  turns in the status panel and no reasoning display; native CLI wire logs
+  (`agents/agent-<n>/wire.jsonl`) contain everything, our persisted
+  `session-subagent-*.jsonl` do not. Fix by ingesting agent wire logs into
+  child sessions through a real channel instead of the inert subscription.
+- **Planning document:** `docs/evidence/kimi-subagent-session-parity-2026-07-19.md`.
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
 - **Architecture truth:** `.harness/product-tree/product-tree.json`.
 - **Readable architecture projection:** `.harness/product-tree/product-tree.md`.
 - **Read this context before implementation:**
-  - `docs/evidence/turn-timer-planning-2026-07-18.md`
-  - `product-parts/application-shell/clusters/session-interface/modules/session-window/module.md`
-  - `product-parts/application-shell/clusters/session-interface/modules/input-controls/module.md`
+  - `docs/evidence/kimi-subagent-session-parity-2026-07-19.md`
+  - `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md`
+  - `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`
   - `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/module.md`
+  - `product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md`
+  - `docs/architecture/SubagentSessions.md`
 
 ## Execution Rules
 
@@ -115,3 +118,58 @@
     disappears and its value folds into the footer Total; Total equals the
     summed active agent work time and no longer counts from session creation
     (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User accepted turn timer: packaged app retest passed for all providers Acceptance Commit: `chore: record plan acceptance turn-timer-2026-07-18`.
+
+## Phase 3 - Kimi Subagent Session Parity (owner: Codex, updated: 2026-07-19)
+
+### Stream: Subagent Wire Ingestion
+
+12. [DONE] `harness-ai.phase3.stream1.task1` Record the Kimi subagent session
+    parity planning evidence and catalog it in the documentation index (scope:
+    `docs/evidence/kimi-subagent-session-parity-2026-07-19.md, docs/DOCUMENTATION_INDEX.md`;
+    expected commit: `docs: plan kimi subagent session parity`). Result: Completed in commit `docs: plan kimi subagent session parity`.
+13. [DONE] Git Commit: `docs: plan kimi subagent session parity` (hash: self)
+14. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Create the `kimi-subagent-wire`
+    module in provider-adapters: a facade that resolves a child provider
+    session id (`kimi-agent-<n>:tool_…`, single-Agent fallback via the
+    session `state.json` agents map) to its `agents/agent-<n>/wire.jsonl` and
+    incrementally normalizes wire records into standard provider events —
+    thinking/assistant `dialog_message` with deterministic wire-offset ids,
+    `turn_started`/`turn_completed` from `turn.prompt` / turn-scoped
+    `usage.record`, and `token_usage` (`used = inputOther + output +
+    inputCacheCreation + inputCacheRead`, `cached = inputCacheRead`, native
+    `turnCount`) — plus module and ownership docs (scope:
+    `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-subagent-wire/src/kimi-subagent-wire-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-subagent-wire/module.md, product-parts/provider-runtime/clusters/provider-adapters/cluster.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md`;
+    expected commit: `feat: add kimi subagent wire reader module`).
+15. [TODO] Git Commit: `feat: add kimi subagent wire reader module` (hash: TBD)
+16. [TODO] `harness-ai.phase3.stream1.task3` Wire the child channel: the
+    `kimi-native-session` driver tails the resolved agent wire for each
+    subscribed child and broadcasts child-addressed provider events;
+    `kimi-client-provider-facade` delegates `kimi-agent-*` subscribe/resume
+    to the driver instead of the inert no-op so the standard
+    `routeProviderEvent` pipeline projects messages, telemetry and turn-state
+    into child sessions; sync module docs (scope:
+    `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`;
+    expected commit: `feat: stream kimi subagent wire events to child sessions`).
+17. [TODO] Git Commit: `feat: stream kimi subagent wire events to child sessions` (hash: TBD)
+18. [TODO] `harness-ai.phase3.stream1.task4` Core reconciliation: make
+    `session:message` appends idempotent by message id in the session event
+    stream (restart-safe wire replay with deterministic ids) and skip the
+    synthetic terminal result message when the wire already delivered
+    assistant content to the child; sync module and architecture docs (scope:
+    `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, docs/architecture/SubagentSessions.md`;
+    expected commit: `feat: dedupe kimi subagent transcript replay`).
+19. [TODO] Git Commit: `feat: dedupe kimi subagent transcript replay` (hash: TBD)
+
+### Stream: Package And Retest
+
+20. [TODO] `harness-ai.phase3.stream2.task1` Package the app for user
+    verification (`npm run package:mac`, user-confirmed) and record evidence
+    (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
+    expected commit: `chore: package kimi subagent parity build`).
+21. [TODO] Git Commit: `chore: package kimi subagent parity build` (hash: TBD)
+22. [TODO] `harness-ai.phase3.stream2.task2` User retests Kimi subagent
+    session dialogs in the packaged app: while a subagent runs its dialog
+    streams thinking and assistant text; the status panel shows real context
+    window / cache / turns; telemetry status settles to idle at the end; no
+    duplicate result message; main-session behavior unchanged (completion:
+    user-acceptance; scope: user workflow; expected commit: none).

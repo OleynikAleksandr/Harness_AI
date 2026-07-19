@@ -152,6 +152,14 @@ readiness registry, liveness checker, and workspace provisioner modules.
   journal as the persistent timing source, the `turn-timing` Core module and
   `turn-timer` UI module design, and the derivation rules (repeated
   `running`, unclosed turn on shutdown, Total semantics).
+- `docs/evidence/kimi-subagent-session-parity-2026-07-19.md` — planning
+  document for the Kimi subagent session parity scope: native vs persisted
+  session comparison (wire logs `agents/agent-<n>/wire.jsonl` carry thinking,
+  text and per-turn usage; our `session-subagent-*.jsonl` carry one result
+  message and stub telemetry), the four broken pipeline links (silent ACP
+  stream, inert `kimi-agent-*` subscription, status-only synthesized
+  lifecycle, stub telemetry), the no-UI-change render contract, and the
+  `kimi-subagent-wire` ingestion design with idempotent replay.
 - `docs/evidence/turn-timer-package-2026-07-18.md` — turn-timer packaging
   evidence: the three implementation commits (Core `turn-timing` derivation,
   `turn-timer` UI module, session-window wiring), the packaged `app.asar`

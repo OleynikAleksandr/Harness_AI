@@ -8,7 +8,7 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream3.task3",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -186,10 +186,10 @@
     `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
     expected commit: `chore: package kimi assistant message fix`). Result: Completed in commit `chore: package kimi assistant message fix`.
 25. [DONE] Git Commit: `chore: package kimi assistant message fix` (hash: self)
-26. [IN_PROGRESS] `harness-ai.phase3.stream3.task3` User retests Kimi native and
+26. [DONE] `harness-ai.phase3.stream3.task3` User retests Kimi native and
     subagent session dialogs in the rebuilt app: native-Kimi running state is
     honest, the completed assistant turn renders as one dialog message with
     numbered-list markers attached to their text, the status panel shows real
     context window / cache / turns, telemetry settles to idle, and no
     duplicate result message appears (completion: user-acceptance; scope: user
-    workflow; expected commit: none).
+    workflow; expected commit: none). Result: User acceptance recorded — Пользователь подтвердил: пакет работает корректно, итоговый ответ Kimi отображается одной плашкой без разрыва нумерованного списка. Acceptance Commit: `chore: record plan acceptance turn-timer-2026-07-18`.

@@ -149,6 +149,7 @@ try {
   );
   assert.equal(bigFlush.length, 1);
   assert.equal(bigFlush[0].role, "assistant");
+  assert.equal(bigFlush[0].tag, "live");
 
   const usage = normalizer.normalizeNotification(
     asUpdate({ sessionUpdate: "usage_update", size: 262_144, used: 2048 })

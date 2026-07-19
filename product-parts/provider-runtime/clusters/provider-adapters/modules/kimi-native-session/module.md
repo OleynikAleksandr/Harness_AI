@@ -181,7 +181,12 @@ session id with the CLI store id).
   `agent_message_chunk`/`agent_thought_chunk` buffer into readable
   `dialog_message` blocks using the sentence-boundary thresholds proven by
   the retired ACP provider (flush at 900 chars, or 360 at a sentence
-  boundary; tools and turn end flush everything), `tool_call` /
+  boundary; tools and turn end flush everything). Those thresholds are only
+  transport batching: every assistant block preserves its exact boundary
+  whitespace and carries `tag: "live"`, so the shared Core live-message
+  coalescer renders all consecutive blocks from one answer as one dialog
+  message. A flush after a numbered-list marker therefore cannot place the
+  marker and its text into different bubbles. `tool_call` /
   `tool_call_update` become `kimi_tool_call`/`kimi_tool_result` stream
   events, `usage_update` (`used`/`size`) becomes the shared `token_usage`
   stream event, and unknown updates surface as diagnostic stream events.

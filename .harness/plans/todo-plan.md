@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream2.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase3.stream3.task2",
+  "expectedCommitMessage": "chore: package kimi assistant message fix",
   "debt": null
 }
 ```
@@ -167,9 +167,29 @@
     (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
     expected commit: `chore: package kimi subagent parity build`). Result: Completed in commit `chore: package kimi subagent parity build`.
 21. [DONE] Git Commit: `chore: package kimi subagent parity build` (hash: self)
-22. [IN_PROGRESS] `harness-ai.phase3.stream2.task2` User retests Kimi subagent
-    session dialogs in the packaged app: while a subagent runs its dialog
-    streams thinking and assistant text; the status panel shows real context
-    window / cache / turns; telemetry status settles to idle at the end; no
-    duplicate result message; main-session behavior unchanged (completion:
-    user-acceptance; scope: user workflow; expected commit: none).
+### Stream: Packaged Acceptance Defect — Assistant Message Boundaries
+
+22. [DONE] `harness-ai.phase3.stream3.task1` Fix the packaged native
+    Kimi acceptance defect where the semantic stream buffer publishes one
+    assistant turn as several unrelated dialog messages and trims the exact
+    whitespace at those artificial boundaries (for example `1.` and `8.`
+    detach from their list text). Mark every flushed assistant block as one
+    live stream, preserve its boundary whitespace, and prove the existing
+    Core coalescer projects the blocks as one message; sync the module and
+    parity evidence (scope:
+    `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-session-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-assistant-message-coalescing.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/kimi-subagent-session-parity-2026-07-19.md`;
+    expected commit: `fix: coalesce kimi native assistant chunks`). Result: Completed in commit `fix: coalesce kimi native assistant chunks`.
+23. [DONE] Git Commit: `fix: coalesce kimi native assistant chunks` (hash: self)
+24. [IN_PROGRESS] `harness-ai.phase3.stream3.task2` After explicit user confirmation,
+    rebuild the macOS package containing the native Kimi assistant-message
+    fix and update packaged evidence (scope:
+    `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
+    expected commit: `chore: package kimi assistant message fix`).
+25. [TODO] Git Commit: `chore: package kimi assistant message fix` (hash: TBD)
+26. [TODO] `harness-ai.phase3.stream3.task3` User retests Kimi native and
+    subagent session dialogs in the rebuilt app: native-Kimi running state is
+    honest, the completed assistant turn renders as one dialog message with
+    numbered-list markers attached to their text, the status panel shows real
+    context window / cache / turns, telemetry settles to idle, and no
+    duplicate result message appears (completion: user-acceptance; scope: user
+    workflow; expected commit: none).

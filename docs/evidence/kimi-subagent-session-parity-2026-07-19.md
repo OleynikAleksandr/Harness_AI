@@ -12,6 +12,24 @@ compared with the native agent sessions:
 Native agent sessions contain everything; we do not transfer it into our
 sessions shown in dialogs.
 
+Acceptance follow-up on 2026-07-19 refined the native parity boundary: Kimi
+0.27 persists a child's thinking/text content only when that child finishes,
+and the native Kimi app likewise shows a running animation rather than a live
+child transcript. Live child deltas do exist on the optional Kimi Server
+WebSocket transport, but replacing ACP solely for that UI difference is
+deferred in favor of the universal-client profile/agent path. Native ACP
+acceptance therefore requires an honest running state followed by the complete
+child transcript, not behavior the native app itself does not expose.
+
+The same follow-up found a separate main native-session defect: one final ACP
+assistant answer was split into several bubbles at the normalizer's 360/900
+character batching thresholds. Because each block lacked the shared `live`
+marker and was trimmed independently, numbered-list markers such as `1.` and
+`8.` could land at the bottom of one bubble while their text started the next.
+The corrected contract marks every assistant flush `tag: "live"` and preserves
+the exact inter-block whitespace; the existing Core live-message coalescer then
+projects the complete turn as one bubble.
+
 ## Data Comparison (verified against live files)
 
 Native CLI session store:
@@ -158,11 +176,13 @@ Facade responsibilities:
 
 ## Acceptance Criteria
 
-1. While a Kimi subagent runs, its dialog streams thinking bubbles and
-   assistant text live; reasoning persists after app restart.
+1. While a Kimi subagent runs, Harness shows the honest native running state;
+   after Kimi persists the child content at completion, the complete thinking
+   and assistant transcript appears and survives app restart.
 2. Subagent status panel shows real Tokens (used/limit/%), Cache, and Turns
    from `agents/agent-<n>/wire.jsonl` usage records.
 3. Subagent telemetry status leaves `running` and settles to idle when the
    subagent terminates; no duplicate result message.
-4. Main-session behavior unchanged (no regression in
-   `session-kimi-client-*.jsonl` flow or its tests).
+4. One main native-Kimi assistant turn renders as one dialog message even when
+   semantic batching flushes it several times; exact whitespace survives each
+   artificial boundary, so numbered-list markers stay attached to their text.

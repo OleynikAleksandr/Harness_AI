@@ -19,8 +19,11 @@ export type KimiNativeSessionEvent =
 // Verified Kimi ACP stream discriminators (`session/update`): assistant and
 // thought text arrive as chunks, tools as call/update pairs, token usage as
 // `usage_update` with `used`/`size`. Chunk buffering reuses the
-// sentence-boundary thresholds proven by the retired ACP provider so the
-// dialog receives readable blocks instead of token spray.
+// sentence-boundary thresholds proven by the retired ACP provider so Core
+// receives bounded live chunks instead of token spray. Assistant chunks keep
+// their exact whitespace and carry `tag: "live"`: the shared Core projection
+// then coalesces every consecutive chunk from the turn into one dialog
+// message, so a buffer boundary can never detach a list marker from its text.
 const FLUSH_MIN_CHARS = 900;
 const BOUNDARY_MIN_CHARS = 360;
 const BOUNDARY_REGEX = /(?:\n\n|[.!?。！？]\s*)$/u;
@@ -140,16 +143,18 @@ export class KimiSessionEventNormalizer {
   }
 
   private flush(role: BufferedRole): NormalizedProviderEvent[] {
-    const content = this.buffers[role].join("").trim();
+    const bufferedContent = this.buffers[role].join("");
     this.buffers[role].length = 0;
-    if (!content) {
+    if (!bufferedContent.trim()) {
       return [];
     }
+    const content =
+      role === "assistant" ? bufferedContent : bufferedContent.trim();
     return [
       {
         content,
         role: role === "thinking" ? "thinking" : "assistant",
-        ...(role === "thinking" ? { tag: "thinking" } : {}),
+        ...(role === "thinking" ? { tag: "thinking" } : { tag: "live" }),
         timestamp: nowIso(),
         type: "dialog_message",
         uuid: randomUUID(),

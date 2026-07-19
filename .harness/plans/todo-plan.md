@@ -8,7 +8,7 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -109,9 +109,9 @@
    (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
    expected commit: `chore: package session turn timer build`). Result: Completed in commit `chore: package session turn timer build`.
 10. [DONE] Git Commit: `chore: package session turn timer build` (hash: self)
-11. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` User retests the session input
+11. [DONE] `harness-ai.phase2.stream1.task2` User retests the session input
     panel in the packaged app for every provider: sending a message locks the
     input and starts the in-row turn timer; when the turn ends the timer
     disappears and its value folds into the footer Total; Total equals the
     summed active agent work time and no longer counts from session creation
-    (completion: user-acceptance; scope: user workflow; expected commit: none).
+    (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User accepted turn timer: packaged app retest passed for all providers Acceptance Commit: `chore: record plan acceptance turn-timer-2026-07-18`.

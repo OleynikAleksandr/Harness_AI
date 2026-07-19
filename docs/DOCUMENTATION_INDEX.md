@@ -38,12 +38,13 @@ proposal is accepted, reconcile it with live code/provider evidence, move the
 resulting contract into `docs/architecture/**`, and only then create the active
 implementation plan.
 
-- `docs/proposals/ProfileStudio.md` — Profile Studio target proposal combining
-  Native Request Capture, provider/model-specific baseline curation, profile
-  authoring, skill and instruction libraries, deterministic compilation,
-  inspection/evaluation, immutable publication, and Session Normalizer. The
-  document records open decisions and a discussion roadmap; it is not the
-  contract of the current implementation.
+- `docs/proposals/ProfileStudio.md` — first-stage Profile Studio proposal:
+  Native and Custom Request Capture, agent-authored provider+model-specific
+  Custom Profiles assembled from readable prompt components, exact provider
+  tool subsets, user approval and manual session selection; Claude reduction,
+  Codex prompt-only limits, and full 25-tool Kimi parity on the universal
+  client. Normalizer, manual editing, revisions and automatic routing remain
+  explicitly outside this proposal.
 
 ## Architecture
 

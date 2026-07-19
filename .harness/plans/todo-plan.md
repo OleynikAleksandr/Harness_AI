@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "docs: refocus profile studio proposal",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -75,5 +75,5 @@
 
 ### Stream: Custom Profile Foundation
 
-7. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Rewrite the Profile Studio proposal around the accepted first-stage product contract and align its documentation-index summary (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: refocus profile studio proposal`).
-8. [TODO] Git Commit: `docs: refocus profile studio proposal` (hash: TBD)
+7. [DONE] `harness-ai.phase3.stream1.task1` Rewrite the Profile Studio proposal around the accepted first-stage product contract and align its documentation-index summary (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: refocus profile studio proposal`). Result: Completed in commit `docs: refocus profile studio proposal`.
+8. [DONE] Git Commit: `docs: refocus profile studio proposal` (hash: self)

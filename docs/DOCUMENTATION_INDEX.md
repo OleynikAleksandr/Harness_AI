@@ -29,6 +29,22 @@ relevant to the active task.
 - `.harness/plans/archive/*.md` — archived closed-scope plans; historical only.
 - `.harness/product-tree/product-tree.md` — readable product tree projection.
 
+## Proposals
+
+Documents under `docs/proposals/**` are non-authoritative target designs that
+still require user discussion and explicit decisions. They must not be treated
+as current runtime truth or used to start implementation directly. Once a
+proposal is accepted, reconcile it with live code/provider evidence, move the
+resulting contract into `docs/architecture/**`, and only then create the active
+implementation plan.
+
+- `docs/proposals/ProfileStudio.md` — Profile Studio target proposal combining
+  Native Request Capture, provider/model-specific baseline curation, profile
+  authoring, skill and instruction libraries, deterministic compilation,
+  inspection/evaluation, immutable publication, and Session Normalizer. The
+  document records open decisions and a discussion roadmap; it is not the
+  contract of the current implementation.
+
 ## Architecture
 
 - `docs/architecture/ClaudeSubagentSessions.md` — Claude subagent

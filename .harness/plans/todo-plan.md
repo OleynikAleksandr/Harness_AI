@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task1",
-  "expectedCommitMessage": "docs: add profile studio architecture proposal",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -61,5 +61,5 @@
 
 ### Stream: Documentation Lifecycle
 
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task1` Import the Profile Studio discussion document as a non-authoritative proposal and register `docs/proposals/**` as the lifecycle stage before accepted architecture and implementation planning (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md, AGENTS.md`; expected commit: `docs: add profile studio architecture proposal`).
-4. [TODO] Git Commit: `docs: add profile studio architecture proposal` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream1.task1` Import the Profile Studio discussion document as a non-authoritative proposal and register `docs/proposals/**` as the lifecycle stage before accepted architecture and implementation planning (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md, AGENTS.md`; expected commit: `docs: add profile studio architecture proposal`). Result: Completed in commit `docs: add profile studio architecture proposal`.
+4. [DONE] Git Commit: `docs: add profile studio architecture proposal` (hash: self)

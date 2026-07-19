@@ -86,6 +86,9 @@
 - Product tree source: `.harness/product-tree/product-tree.json`.
 - Product tree readable projection: `.harness/product-tree/product-tree.md`.
 - Documentation catalog: `docs/DOCUMENTATION_INDEX.md`.
+- Architecture proposals awaiting discussion: `docs/proposals/**`; these are
+  non-authoritative and must be reconciled with live truth and promoted into
+  `docs/architecture/**` before implementation planning.
 - Architecture/planning docs: `docs/architecture/**`.
 - Verification evidence: `docs/evidence/**`.
 - Runtime state, provider homes, auth residue, caches and logs: ignored local state only.

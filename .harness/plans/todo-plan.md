@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream2.task1",
-  "expectedCommitMessage": "chore: package kimi subagent parity build",
+  "currentTaskId": "harness-ai.phase3.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -162,12 +162,12 @@
 
 ### Stream: Package And Retest
 
-20. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Package the app for user
+20. [DONE] `harness-ai.phase3.stream2.task1` Package the app for user
     verification (`npm run package:mac`, user-confirmed) and record evidence
     (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
-    expected commit: `chore: package kimi subagent parity build`).
-21. [TODO] Git Commit: `chore: package kimi subagent parity build` (hash: TBD)
-22. [TODO] `harness-ai.phase3.stream2.task2` User retests Kimi subagent
+    expected commit: `chore: package kimi subagent parity build`). Result: Completed in commit `chore: package kimi subagent parity build`.
+21. [DONE] Git Commit: `chore: package kimi subagent parity build` (hash: self)
+22. [IN_PROGRESS] `harness-ai.phase3.stream2.task2` User retests Kimi subagent
     session dialogs in the packaged app: while a subagent runs its dialog
     streams thinking and assistant text; the status panel shows real context
     window / cache / turns; telemetry status settles to idle at the end; no

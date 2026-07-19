@@ -255,6 +255,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   the dead-swarm fallback, divider-aware bottom anchor, one-row flex status
   panel without the rollback-probe modifier) and the packaged `app.asar`
   checksum with binary-grep proof.
+- `docs/evidence/kimi-subagent-parity-package-2026-07-19.md` — Kimi subagent
+  session parity packaging evidence: native child wire ingestion for
+  reasoning/transcript/telemetry/turn lifecycle, Core restart-replay dedupe
+  and terminal-result reconciliation, the unsigned arm64 `app.asar` checksum,
+  extracted-runtime hash parity with `dist`, launched-package proof and the
+  manual user-retest checklist.
 - `docs/evidence/kimi-context-update-package-2026-07-18.md` — Kimi context
   and update-channel packaging evidence: the live Coding Plan catalog
   research (k3 is a 1M-context model; "K3 Swarm" is the CLI swarm mode,

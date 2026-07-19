@@ -123,10 +123,17 @@ export interface SessionHistoryRef {
 export class SessionEventStreamFacade {
   private readonly events: SessionCoreEvent[] = [];
   private readonly listeners = new Set<SessionCoreEventListener>();
+  private readonly messageFingerprintsBySession = new Map<
+    string,
+    Set<string>
+  >();
   private readonly sessionEventFiles = new Map<string, string>();
   private readonly loadedEventFiles = new Set<string>();
 
   publish(event: SessionCoreEvent): void {
+    if (!this.rememberMessageFingerprint(event)) {
+      return;
+    }
     this.events.push(event);
     this.appendHistoryEvent(event);
     for (const listener of this.listeners) {
@@ -166,6 +173,7 @@ export class SessionEventStreamFacade {
   clear(): void {
     this.events.length = 0;
     this.listeners.clear();
+    this.messageFingerprintsBySession.clear();
     this.sessionEventFiles.clear();
     this.loadedEventFiles.clear();
   }
@@ -179,6 +187,7 @@ export class SessionEventStreamFacade {
       this.loadedEventFiles.delete(eventFile);
       this.sessionEventFiles.delete(sessionId);
     }
+    this.messageFingerprintsBySession.delete(sessionId);
     // Drop in-memory events so a later append cannot recreate the file.
     for (let index = this.events.length - 1; index >= 0; index -= 1) {
       if (this.events[index].payload.sessionId === sessionId) {
@@ -238,10 +247,36 @@ export class SessionEventStreamFacade {
     this.loadedEventFiles.add(eventFile);
     for (const line of readFileSync(eventFile, "utf8").split("\n")) {
       const event = parseEvent(line);
-      if (event) {
+      if (event && this.rememberMessageFingerprint(event)) {
         this.events.push(event);
       }
     }
+  }
+
+  // Stable provider replay may repeat a persisted message after restart.
+  // The Core identity includes role/tag/source text as well as id: an exact
+  // replay is ignored, while genuinely changed content with the same
+  // provider id remains a normal append (the existing history-recovery
+  // contract used by Codex live-tail completion).
+  private rememberMessageFingerprint(event: SessionCoreEvent): boolean {
+    if (event.type !== "session:message") {
+      return true;
+    }
+    const sessionId = event.payload.sessionId;
+    const fingerprints =
+      this.messageFingerprintsBySession.get(sessionId) ?? new Set<string>();
+    const fingerprint = JSON.stringify([
+      event.payload.id,
+      event.payload.role,
+      event.payload.tag ?? null,
+      event.payload.text,
+    ]);
+    if (fingerprints.has(fingerprint)) {
+      return false;
+    }
+    fingerprints.add(fingerprint);
+    this.messageFingerprintsBySession.set(sessionId, fingerprints);
+    return true;
   }
 }
 

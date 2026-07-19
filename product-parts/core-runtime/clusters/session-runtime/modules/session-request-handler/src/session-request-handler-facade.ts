@@ -145,6 +145,10 @@ export class SessionRequestHandlerFacade {
           parentSession
         ),
       getSession: (sessionId) => this.sessions.get(sessionId),
+      hasAssistantMessage: (id) =>
+        !!this.messagesBySession
+          .get(id)
+          ?.some(({ role }) => role === "assistant"),
       getSubagentCall: (parentSessionId, callId) =>
         this.getSubagentCall(parentSessionId, callId),
       listSessions: () => this.listSessions(),
@@ -479,7 +483,6 @@ export class SessionRequestHandlerFacade {
       type: "session:telemetry",
     });
   }
-
   private updateTelemetry(
     sessionId: string,
     apply: (current: ProviderUsageTelemetry) => ProviderUsageTelemetry
@@ -489,10 +492,8 @@ export class SessionRequestHandlerFacade {
       this.setTelemetry(sessionId, apply(current));
     }
   }
-
   async refreshUsageLimits(sessionId: string): Promise<void> {
     await this.providerBindingLifecycle.refreshUsageLimits(sessionId);
   }
 }
-
 export const sessionRequestHandlerFacade = new SessionRequestHandlerFacade();

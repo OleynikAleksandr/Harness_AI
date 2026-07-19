@@ -69,6 +69,7 @@ interface SessionSubagentLifecycleDependencies {
     parentSessionId: string,
     callId: string
   ) => CoreSubagentCall | undefined;
+  readonly hasAssistantMessage: (sessionId: string) => boolean;
   readonly listSessions: () => CoreSession[];
   readonly publishChildResultMessage: (message: CoreSessionMessage) => void;
   readonly publishSubagentCall: (event: SessionCoreEvent) => void;
@@ -177,20 +178,27 @@ export class SessionSubagentLifecycle {
       timestamp: event.timestamp,
       title: event.title,
     });
-    // A synthesized child has no provider channel to stream its content;
-    // the provider hands the final result with the terminal event and Core
-    // publishes it once, on the live transition into a terminal status.
+    // Some providers hand Core a fallback result before the child's terminal
+    // status drains its live transcript channel. Defer the fallback to the
+    // end of this provider event batch: wire-delivered assistant content wins,
+    // while a channel-less synthesized child still gets its result once.
+    const result = event.result;
     if (
-      event.result &&
+      result &&
       TERMINAL_SUBAGENT_STATUSES.has(event.status) &&
       !wasTerminal
     ) {
-      this.deps.publishChildResultMessage({
-        id: createId("message-subagent"),
-        role: "assistant",
-        sessionId: child.id,
-        text: event.result,
-        timestamp: event.timestamp,
+      queueMicrotask(() => {
+        if (this.deps.hasAssistantMessage(child.id)) {
+          return;
+        }
+        this.deps.publishChildResultMessage({
+          id: createId("message-subagent"),
+          role: "assistant",
+          sessionId: child.id,
+          text: result,
+          timestamp: event.timestamp,
+        });
       });
     }
     this.updateParentCall(child, event.timestamp);

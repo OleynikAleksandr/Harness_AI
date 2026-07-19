@@ -32,6 +32,20 @@ firstStream.publish({
   timestamp: "2026-06-27T00:00:00.000Z",
   type: "session:message",
 });
+// Exact stable-message replay is idempotent even when its event timestamp
+// differs; it neither enters memory nor appends a second JSONL row.
+firstStream.publish({
+  payload: {
+    id: "message-test",
+    role: "user",
+    sessionId: session.id,
+    text: "hello",
+    timestamp: "2026-06-27T00:00:00.000Z",
+  },
+  timestamp: "2026-06-27T00:00:00.500Z",
+  type: "session:message",
+});
+assert.equal(firstStream.listEvents(session.id).length, 1);
 firstStream.publish({
   payload: {
     sessionId: session.id,
@@ -167,7 +181,6 @@ assert.equal(
   40
 );
 
-// deleteSessionEvents removes the file, clears in-memory events, and is idempotent.
 const eventFile = join(
   workspacePath,
   ".harness",
@@ -175,6 +188,50 @@ const eventFile = join(
   "events",
   `${encodeURIComponent(session.id)}.jsonl`
 );
+const historyBeforeRestartReplay = readFileSync(eventFile, "utf8");
+let replayNotifications = 0;
+secondStream.subscribe(() => {
+  replayNotifications += 1;
+});
+secondStream.publish({
+  payload: {
+    id: "message-test",
+    role: "user",
+    sessionId: session.id,
+    text: "hello",
+    timestamp: "2026-06-27T00:00:00.000Z",
+  },
+  timestamp: "2026-06-27T01:00:00.000Z",
+  type: "session:message",
+});
+assert.equal(replayNotifications, 0);
+assert.equal(readFileSync(eventFile, "utf8"), historyBeforeRestartReplay);
+
+// Same provider id with genuinely changed source text remains an update,
+// preserving the established history-recovery/live-tail contract.
+secondStream.publish({
+  payload: {
+    id: "message-test",
+    role: "user",
+    sessionId: session.id,
+    text: "hello, recovered tail",
+    timestamp: "2026-06-27T01:00:01.000Z",
+  },
+  timestamp: "2026-06-27T01:00:01.000Z",
+  type: "session:message",
+});
+assert.equal(replayNotifications, 1);
+assert.ok(
+  secondStream
+    .listEvents(session.id)
+    .some(
+      (event) =>
+        event.type === "session:message" &&
+        event.payload.text === "hello, recovered tail"
+    )
+);
+
+// deleteSessionEvents removes the file, clears in-memory events, and is idempotent.
 assert.equal(existsSync(eventFile), true);
 firstStream.deleteSessionEvents(session.id);
 assert.equal(existsSync(eventFile), false);

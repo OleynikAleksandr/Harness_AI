@@ -68,7 +68,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Completed provider messages with the same stable id, role, tag and source
   text are idempotent in Core. This prevents app-server history replay from
   duplicating a persisted child transcript on later restarts while preserving
-  live-tail completion and genuinely changed content.
+  live-tail completion and genuinely changed content. The request handler
+  filters replay against its restored message read model, and the underlying
+  session event stream independently refuses the same exact fingerprint before
+  listener delivery or JSONL append.
 - Provider bindings are promoted from temporary ids to real provider session ids in Core before later turns are dispatched, so resumed provider turns never depend on renderer state.
 - Usage limits can be refreshed by Core when a session dialog is hydrated, so provider limit rows such as Kimi 5h/weekly recover even when the original binding-time read was unavailable. Reference-compatible provider telemetry payloads without a provider event `type` are still accepted for telemetry before typed event routing begins.
 - Session mode metadata is stored on the Core session. The only active runtime behavior in this scope is `Native · Raw`; managed/normalized selections may be visualized by clients but are not applied to provider dispatch until a later Core contract enables them.
@@ -111,12 +114,13 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   publishes stable `CoreSubagentCall` snapshots (the lifecycle builds its
   `session:subagent-call` envelope itself; the facade only forwards it to the
   event stream).
-  When a `subagent_session` event carries a provider-handed `result` text
-  (synthesized children — e.g. Kimi swarm agents — have no provider channel
-  to stream their content), the lifecycle publishes it exactly once as the
-  child's assistant message through the facade's message pipeline, on the
-  child's live transition into a terminal status; replays and repeated
-  terminal events cannot duplicate it.
+  When a `subagent_session` event carries a provider-handed `result` text, the
+  lifecycle defers that fallback to the end of the current provider event
+  batch. If the child's live channel delivered any assistant content during
+  its terminal drain (the Kimi child-wire path), that transcript wins and the
+  synthetic result is skipped; a genuinely channel-less child still receives
+  the fallback exactly once. Replays and repeated terminal events cannot
+  duplicate it.
   Historical `subagent_session` metadata also recomputes its parent call after
   enriching the child, so a restored terminal thread cannot leave the timeline
   call in `running`.

@@ -68,6 +68,27 @@ Grok adapter регистрирует child ACP id до передачи spawn �
 процесса остаётся неизменным. История Grok CLI не читается Harness-парсером и
 renderer не распознаёт субагентов по тексту.
 
+### Kimi native profile
+
+Kimi CLI 0.26.0 не передаёт внутренний transcript субагента через ACP, поэтому
+provider truth для дочернего диалога берётся из нативного session store:
+`agents/agent-<n>/wire.jsonl`. `kimi-subagent-wire` сопоставляет синтетический
+`kimi-agent-*` id с конкретным agent wire и нормализует `turn.prompt`,
+`content.part` (think/text) и turn-scoped `usage.record` в обычные provider
+events. `kimi-native-session` даёт adopted child реальную read-only подписку и
+читает wire инкрементально; renderer и Core event router остаются общими для
+всех providers.
+
+Повторная подписка после restart читает wire с начала. Детерминированные ids и
+Core fingerprint `(session, id, role, tag, source text)` не позволяют точному
+replay повторно попасть в память, listener fan-out или append-only JSONL, но
+изменённый текст с тем же provider id остаётся допустимым recovery update.
+Terminal `subagent_session` может прийти перед `subagent_status`, который
+запускает последний wire drain; поэтому Core откладывает синтетический
+provider `result` до конца текущего event batch. Если wire успел доставить
+assistant content, fallback не публикуется; без живого child-канала он
+сохраняется как единственный итоговый ответ.
+
 ## Core read model
 
 `CoreSession` получает добавочные поля:

@@ -8,8 +8,8 @@
   "planId": "turn-timer-2026-07-18",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task4",
-  "expectedCommitMessage": "feat: dedupe kimi subagent transcript replay",
+  "currentTaskId": "harness-ai.phase3.stream2.task1",
+  "expectedCommitMessage": "chore: package kimi subagent parity build",
   "debt": null
 }
 ```
@@ -151,18 +151,18 @@
     `product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/module.md`;
     expected commit: `feat: stream kimi subagent wire events to child sessions`). Result: Completed in commit `feat: stream kimi subagent wire events to child sessions`.
 17. [DONE] Git Commit: `feat: stream kimi subagent wire events to child sessions` (hash: self)
-18. [IN_PROGRESS] `harness-ai.phase3.stream1.task4` Core reconciliation: make
+18. [DONE] `harness-ai.phase3.stream1.task4` Core reconciliation: make
     `session:message` appends idempotent by message id in the session event
     stream (restart-safe wire replay with deterministic ids) and skip the
     synthetic terminal result message when the wire already delivered
     assistant content to the child; sync module and architecture docs (scope:
-    `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, docs/architecture/SubagentSessions.md`;
-    expected commit: `feat: dedupe kimi subagent transcript replay`).
-19. [TODO] Git Commit: `feat: dedupe kimi subagent transcript replay` (hash: TBD)
+    `product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-event-stream/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, docs/architecture/SubagentSessions.md`;
+    expected commit: `feat: dedupe kimi subagent transcript replay`). Result: Completed in commit `feat: dedupe kimi subagent transcript replay`.
+19. [DONE] Git Commit: `feat: dedupe kimi subagent transcript replay` (hash: self)
 
 ### Stream: Package And Retest
 
-20. [TODO] `harness-ai.phase3.stream2.task1` Package the app for user
+20. [IN_PROGRESS] `harness-ai.phase3.stream2.task1` Package the app for user
     verification (`npm run package:mac`, user-confirmed) and record evidence
     (scope: `docs/evidence/**, .harness/plans/todo-plan.md, docs/DOCUMENTATION_INDEX.md`;
     expected commit: `chore: package kimi subagent parity build`).

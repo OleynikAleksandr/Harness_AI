@@ -29,6 +29,11 @@ appearing after Core restart.
 - Core message translation metadata: `translationState`, `localizedContent`,
   and `session:message_translation` patch events.
 - Consecutive assistant messages tagged `live` coalesced for session replay/readback.
+- Exact `session:message` replays (same session + stable id + role + tag +
+  source text) are rejected before the in-memory stream, listener fan-out and
+  JSONL append. Fingerprints are rebuilt while loading history, so provider
+  replay stays idempotent across Core restarts; changed source content under
+  the same provider id remains a normal history-recovery update.
 - Persisted `session:subagent-call` timeline items with stable creation
   position, child Core session ids, delegated task, model/reasoning and live
   status. Repeated snapshots for the same call coalesce at the original

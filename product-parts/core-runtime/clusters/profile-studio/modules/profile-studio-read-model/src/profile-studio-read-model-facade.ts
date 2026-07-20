@@ -210,6 +210,7 @@ function buildOverview(
     canApprove:
       profile.target.providerId !== "kimi-client" &&
       profile.lifecycleStatus === "draft" &&
+      Boolean(profile.nativeCaptureDonor) &&
       promptReady,
     contentHash: profile.contentHash,
     creatorSessionId: profile.creatorSessionId,

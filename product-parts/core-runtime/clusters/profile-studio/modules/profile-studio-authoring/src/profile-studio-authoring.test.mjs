@@ -32,12 +32,17 @@ async function writeCapture({
   directory = captureRoot,
   modelId = "opus",
   providerId = "claude",
+  toolNames = ["Read", "Glob", "Grep"],
 } = {}) {
   const stem = `${captureId}-native-request`;
   const rawPath = path.join(directory, `${stem}.jsonl`);
   const diagnosticsPath = path.join(directory, `${stem}.diagnostics.jsonl`);
   const request = {
-    body: { model: modelId, system: "Native prompt", tools: [] },
+    body: {
+      model: modelId,
+      system: "Native prompt",
+      tools: toolNames.map((name) => ({ name })),
+    },
     method: "POST",
     path: "/v1/messages",
     target: "api.example.test",
@@ -181,6 +186,20 @@ try {
   assert.equal(duplicateTools.ok, false);
   assert.match(duplicateTools.error, /unique/u);
 
+  const outsideDonorSubset = await authoring.applyCreatorSnapshot({
+    profileId: "draft-1",
+    snapshot: {
+      ...creatorSnapshot(capture.rawPath),
+      toolSelection: {
+        mode: "claude-subset",
+        tools: [{ name: "Write" }],
+      },
+    },
+  });
+  assert.equal(outsideDonorSubset.ok, false);
+  assert.match(outsideDonorSubset.error, /absent from the Native Capture/u);
+  assert.equal(claude.applied.length, 1);
+
   const codex = createLifecycle("codex", "gpt-5.6-sol");
   const codexAuthoring = new ProfileStudioAuthoringFacade({
     captureRootDirectory: captureRoot,
@@ -200,6 +219,7 @@ try {
     captureId: "capture-kimi",
     modelId: "k3",
     providerId: "kimi",
+    toolNames: ["ReadFile"],
   });
   const kimi = createLifecycle("kimi-client", "k3");
   const kimiAuthoring = new ProfileStudioAuthoringFacade({

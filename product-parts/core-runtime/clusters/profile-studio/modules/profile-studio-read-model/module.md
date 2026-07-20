@@ -22,6 +22,11 @@ computed from the current universal built-in tool source (currently 9) against
 the captured Native ceiling (25), displayed as `9/25`; renderer code does not
 count tools or infer readiness.
 
+Approval readiness requires both prompt parts and a bound, authoring-validated
+Native Capture donor. Kimi remains blocked independently. The renderer only
+submits the exact content hash when Core says the current Draft can be
+approved.
+
 ## Public Facade
 
 `ProfileStudioReadModelFacade`

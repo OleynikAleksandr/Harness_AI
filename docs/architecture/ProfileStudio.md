@@ -242,8 +242,11 @@ interface ProfileCreatorTurnResult {
 - a draft is a full snapshot, never an ambiguous free-text patch;
 - authoring facade validates before atomic write;
 - invalid output changes nothing and produces a controlled repair notice;
-- `request-approval` produces a Core-owned user interaction;
-- only its direct user action calls the approval command.
+- `request-approval` is the agent's structured signal that its full snapshot
+  is ready for review; it does not mutate lifecycle state;
+- Overview exposes the approval action only when the Core read model confirms
+  both prompt parts, validated donor provenance and provider capability; only
+  that direct user action calls the exact-hash approval command.
 
 Renderer never parses free-form Claude text to derive document/lifecycle
 truth.
@@ -353,7 +356,8 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
 
 - Core `profile-studio` lifecycle and controlled authoring facades are
   **APPLIED**, including raw donor containment/provider/model/capture-hash
-  validation and honest provider tool modes;
+  validation, Claude selected-tool containment in the raw donor inventory and
+  honest provider tool modes;
 - fixed isolated Claude/Opus/high creator spec, inline context, empty
   settings/tools and full-snapshot JSON Schema parser are **APPLIED**;
 - Core provider/model/profile/Overview/Prompt/Tools read models with Claude
@@ -377,14 +381,19 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   are **APPLIED**;
 - fixed creator agent/session runtime, raw provider event interception,
   controlled assistant projection, atomic full-snapshot authoring and one
-  bounded automatic repair turn are **APPLIED**; approval interaction is
-  **NOT APPLIED**;
+  bounded automatic repair turn are **APPLIED**; Overview exact-hash approval
+  is **APPLIED** and requires both prompt parts plus a validated donor;
 - typed target/profile/inspector/Create/Approve Core RPC, Electron/preload
   forwarding, renderer bridge types and isolated `profile-studio:updated`
   subscription are **APPLIED**;
 - reusable `SessionSurfaceFacade` is **APPLIED** and the ordinary Session
   Window and Profile Studio shell consume it with the existing panels/class
   names;
+- Claude Studio application is **APPLIED**: the compiled two-part prompt fully
+  replaces the SDK system prompt, `settingSources` is empty, the validated
+  donor-native tool names become the exact SDK whitelist, and these facts are
+  recorded in the immutable applied profile snapshot; legacy Claude v1
+  category mapping remains unchanged;
 - accepted HTML prototype exists only in ignored runtime state;
 - current v1 Session Profiles remain selectable in ordinary new-session flow;
   the old Settings Profile Creator entry/module is **RETIRED**, while its

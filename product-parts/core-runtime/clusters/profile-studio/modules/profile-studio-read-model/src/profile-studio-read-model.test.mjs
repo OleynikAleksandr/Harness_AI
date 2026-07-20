@@ -54,20 +54,23 @@ const profileCatalog = {
   },
 };
 
-function createReadModel(providerId, modelId, tools = []) {
+function createReadModel(providerId, modelId, tools = [], hasDonor = true) {
+  const nativeCaptureDonor = hasDonor
+    ? {
+        artifactPath: "/captures/native.jsonl",
+        captureId: "capture-1",
+        modelId,
+        providerId,
+        requestHash: "sha256-request",
+      }
+    : null;
   const passport = {
     authoring: "profile-studio",
     creatorSessionId: "session-creator-1",
     description: "Planning workflow",
     model: modelId,
     name: "Planning Documents",
-    nativeCaptureDonor: {
-      artifactPath: "/captures/native.jsonl",
-      captureId: "capture-1",
-      modelId,
-      providerId,
-      requestHash: "sha256-request",
-    },
+    nativeCaptureDonor,
     provider: providerId,
     purpose: "Prepare planning evidence",
     schemaVersion: 2,
@@ -172,6 +175,15 @@ assert.deepEqual(claudeInspector.snapshot.tools.selectedTools, [
   { name: "Read" },
   { name: "Glob" },
 ]);
+
+const claudeWithoutDonor = await createReadModel(
+  "claude",
+  "opus",
+  [{ name: "Read" }],
+  false
+).getInspector("draft-1");
+assert.equal(claudeWithoutDonor.ok, true);
+assert.equal(claudeWithoutDonor.snapshot.overview.canApprove, false);
 
 const codexInspector = await createReadModel("codex", "gpt-5.6-sol", [
   { name: "ignored" },

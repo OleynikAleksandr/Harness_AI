@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "feat: apply claude studio profiles",
+  "currentTaskId": "harness-ai.phase7.stream1.task2",
+  "expectedCommitMessage": "feat: enforce studio provider capability gates",
   "debt": null
 }
 ```
@@ -143,10 +143,10 @@
 
 ### Stream: Honest Valid Profiles
 
-37. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Apply Studio Claude prompt and validated native tool-name subset through the existing Claude managed profile route and record exact application truth (scope: up to 3 Claude/profile functional files plus related docs; expected commit: `feat: apply claude studio profiles`).
-38. [TODO] Git Commit: `feat: apply claude studio profiles` (hash: TBD)
+37. [DONE] `harness-ai.phase7.stream1.task1` Apply Studio Claude prompt and validated native tool-name subset through the existing Claude managed profile route and record exact application truth (scope: up to 3 Claude/profile functional files plus related docs; expected commit: `feat: apply claude studio profiles`). Result: Completed in commit `feat: apply claude studio profiles`.
+38. [DONE] Git Commit: `feat: apply claude studio profiles` (hash: self)
 
-39. [TODO] `harness-ai.phase7.stream1.task2` Preserve Codex prompt-only application with fixed-tool read model and enforce Kimi Draft-only validation until universal-client 25-tool parity exists (scope: up to 3 provider/profile functional files plus related docs; expected commit: `feat: enforce studio provider capability gates`).
+39. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Preserve Codex prompt-only application with fixed-tool read model and enforce Kimi Draft-only validation until universal-client 25-tool parity exists (scope: up to 3 provider/profile functional files plus related docs; expected commit: `feat: enforce studio provider capability gates`).
 40. [TODO] Git Commit: `feat: enforce studio provider capability gates` (hash: TBD)
 
 ## Phase 8 - Integrated Build Evidence (owner: Codex, updated: 2026-07-20)

@@ -46,9 +46,14 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Harness-specific workspace prompt injection is a focused additive helper around the migrated SDK prompt so Claude receives workspace path and `AGENTS.md` without relying on renderer state or native filesystem discovery.
 
 - Session profile application layer (`claude-profile-application.ts`):
-  managed payloads replace the workflow `systemPrompt`, set `tools` to the
-  category-mapped whitelist and keep SDK isolation (`settingSources: []`)
-  so profile instructions stay the only workflow truth; native switches
+  managed payloads replace the full `systemPrompt` and explicitly keep SDK
+  isolation (`settingSources: []`) so profile instructions stay the only
+  workflow truth. Studio payloads carrying structured tools set the SDK
+  `tools` option to their exact validated Native names (direct `name` or
+  OpenAI-shape `function.name`); malformed/duplicate names fail the provider
+  bind rather than silently widening or partially applying the profile. Legacy
+  v1 payloads without explicit tools retain the category-mapped whitelist.
+  Native switches
   prompt/tools to the `claude_code` presets AND restores the vendor setting
   sources `["user", "project", "local"]` per the Native restoration
   contract (docs/architecture/SessionProfiles.md): the SDK loads workspace
@@ -60,10 +65,10 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   isolation and auth stay Harness process policy in both modes; legacy
   sessions (no profile kind) keep the pre-profile hardcoded
   prompt/whitelist and isolation untouched. Applied details (`mode`,
-  `profileId`, `contentHash`, `toolWhitelist`, native `settingSources`)
-  return to Core via `ProviderSessionStartResult` for the immutable
-  snapshot.
-- Category mapping (categories only filter Claude's OWN native tools):
+  `profileId`, `contentHash`, `systemPrompt: full-replacement`, `toolMode`,
+  exact `toolWhitelist`, managed/native `settingSources`) return to Core via
+  `ProviderSessionStartResult` for the immutable snapshot.
+- Legacy category mapping (categories only filter Claude's OWN native tools):
   `file-read` -> Read, Glob, Grep; `file-write` -> Write, Edit; `shell` ->
   Bash; `web` -> WebSearch, WebFetch; `git`/`tests` -> no dedicated Claude
   tools (follow the shell category via Bash).

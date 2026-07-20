@@ -108,15 +108,60 @@ export function applyClaudeSessionProfile(
   if (!payload) {
     return;
   }
-  const toolWhitelist = mapClaudeToolCategories(payload.toolingCategories);
+  const explicitToolWhitelist = readExplicitClaudeToolNames(payload.tools);
+  const toolWhitelist =
+    explicitToolWhitelist ?? mapClaudeToolCategories(payload.toolingCategories);
+  const toolMode = explicitToolWhitelist
+    ? "explicit-native-subset"
+    : "category-map";
   options.systemPrompt = payload.prompt;
   options.tools = toolWhitelist;
+  options.settingSources = [];
   return {
     contentHash: payload.contentHash,
     mode: "managed",
     profileId: payload.profileId,
+    settingSources: [],
+    systemPrompt: "full-replacement",
+    toolMode,
     toolWhitelist,
   };
+}
+
+function readExplicitClaudeToolNames(
+  tools: SessionProfilePayload["tools"]
+): string[] | null {
+  if (tools === undefined) {
+    return null;
+  }
+  const names = tools.map(readStructuredToolName);
+  if (names.some((name) => !name)) {
+    throw new Error(
+      "Claude managed profile contains a tool descriptor without a name."
+    );
+  }
+  if (new Set(names).size !== names.length) {
+    throw new Error("Claude managed profile tool names must be unique.");
+  }
+  return names;
+}
+
+function readStructuredToolName(
+  tool: Readonly<Record<string, unknown>>
+): string {
+  const directName = typeof tool.name === "string" ? tool.name.trim() : "";
+  if (directName) {
+    return directName;
+  }
+  const functionDefinition = tool.function;
+  return isRecord(functionDefinition) &&
+    typeof functionDefinition.name === "string"
+    ? functionDefinition.name.trim()
+    : "";
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function computeClaudeProfileDetails(

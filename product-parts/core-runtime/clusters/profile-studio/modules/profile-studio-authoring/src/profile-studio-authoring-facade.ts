@@ -91,9 +91,17 @@ export class ProfileStudioAuthoringFacade {
           modelId: current.profile.target.modelId,
           providerId: current.profile.target.providerId,
         })
-      : { ok: true as const, reference: null };
+      : { ok: true as const, reference: null, toolNames: undefined };
     if (!donor.ok) {
       return donor;
+    }
+    const subsetIssue = validateDonorToolSubset(
+      current.profile.target.providerId,
+      request.snapshot.toolSelection,
+      donor.toolNames
+    );
+    if (subsetIssue) {
+      return { error: subsetIssue, ok: false };
     }
     return this.lifecycle.applyDraftSnapshot({
       profileId: request.profileId,
@@ -124,6 +132,7 @@ export class ProfileStudioAuthoringFacade {
           readonly providerId: string;
           readonly requestHash: string;
         };
+        readonly toolNames: ReadonlySet<string>;
       }
   > {
     let captureRoot: string;
@@ -216,6 +225,7 @@ export class ProfileStudioAuthoringFacade {
           .update(JSON.stringify(captured.request))
           .digest("hex"),
       },
+      toolNames: readCapturedToolNames(captured.request),
     };
   }
 }
@@ -267,6 +277,42 @@ function validateToolSelection(
     return "Selected tool names must be unique.";
   }
   return;
+}
+
+function validateDonorToolSubset(
+  providerId: ProfileStudioProviderId,
+  selection: ProfileStudioToolSelection,
+  donorToolNames: ReadonlySet<string> | undefined
+): string | undefined {
+  if (
+    providerId !== "claude" ||
+    selection.tools === null ||
+    donorToolNames === undefined
+  ) {
+    return;
+  }
+  const missing = selection.tools
+    .map(readToolName)
+    .filter((name) => !donorToolNames.has(name));
+  return missing.length > 0
+    ? `Selected Claude tools are absent from the Native Capture donor: ${missing.join(", ")}.`
+    : undefined;
+}
+
+function readCapturedToolNames(request: unknown): ReadonlySet<string> {
+  if (!(isPlainRecord(request) && isPlainRecord(request.body))) {
+    return new Set();
+  }
+  const tools = request.body.tools;
+  if (!Array.isArray(tools)) {
+    return new Set();
+  }
+  return new Set(
+    tools
+      .filter(isPlainRecord)
+      .map(readToolName)
+      .filter((name) => Boolean(name))
+  );
 }
 
 function readToolName(tool: StructuredTool): string {

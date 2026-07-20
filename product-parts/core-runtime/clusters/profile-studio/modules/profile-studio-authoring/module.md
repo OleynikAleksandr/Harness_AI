@@ -17,6 +17,11 @@ capture id and sha256 request hash provenance. Markdown and diagnostics-only
 paths, symlink escapes, malformed/incomplete captures and mismatched targets
 change nothing.
 
+For Claude, once a donor is bound, every selected tool name must occur in that
+raw captured request's Native tool array. A proposed foreign name rejects the
+whole snapshot. Draft discussion may still proceed before a donor is chosen;
+approval readiness is withheld by the read model until provenance exists.
+
 The module does not expose filesystem tools to the creator, assign Valid,
 judge behavioral quality or implement Custom Capture. Kimi tool selection is
 an authorable candidate only; a later capability gate still blocks approval.
@@ -37,7 +42,8 @@ an authorable candidate only; a later capability gate still blocks approval.
 ## Outputs
 
 - A normalized lifecycle update containing two prompt parts, purpose,
-  validated donor provenance and provider-appropriate structured tools.
+  validated donor provenance and provider-appropriate structured tools,
+  including Claude's donor-verified exact Native subset.
 - Structured validation errors with no partial write.
 
 ## Owned Paths

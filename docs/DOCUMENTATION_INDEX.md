@@ -56,6 +56,12 @@ implementation plan.
 
 ## Architecture
 
+- `docs/architecture/ProfileStudio.md` — accepted Profile Studio MVP
+  architecture and active implementation contract: separate Core Runtime and
+  Application Shell clusters with facade modules, Studio v2 provider/model
+  lifecycle, fixed Claude/Opus/high creator agent with structured authoring,
+  shared production Session Surface, accepted single-window UI, provider
+  capability gates and explicit APPLIED-state tracking.
 - `docs/architecture/ClaudeSubagentSessions.md` — Claude subagent
   sessions plan: file-based subagent observer in claude-provider
   (meta.json + agent JSONL tail), provider-neutral subagent events

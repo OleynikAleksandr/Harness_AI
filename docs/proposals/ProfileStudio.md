@@ -6,11 +6,11 @@
 пользователем 20 июля 2026 года как основа для дальнейшего проектирования и
 создания production-интерфейса.
 
-Статус implementation planning: пользователь подтвердил отдельные
-cluster/module/facade boundaries и фиксированного Claude Profile Creator Agent.
-Discussion-ready MVP-контракт вынесен в
-`docs/evidence/ProfileStudioMvpImplementation.md` для явной архитектурной
-приёмки до любых production source changes.
+Статус implementation planning: MVP-контракт принят пользователем 20 июля
+2026 года и для active implementation slice перенесён в authoritative
+`docs/architecture/ProfileStudio.md`. Этот proposal остаётся источником более
+широкой будущей идеи; только промотированный MVP contract разрешён текущему
+плану `profile-studio-mvp-2026-07-20`.
 
 Документ не является контрактом текущей кодовой базы или active
 implementation plan. Он фиксирует согласованную продуктовую идею первого

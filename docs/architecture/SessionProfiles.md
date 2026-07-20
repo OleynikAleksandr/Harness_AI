@@ -1,5 +1,29 @@
 # Профили сессий (Session Profiles)
 
+## Profile Studio v2 implementation contract (2026-07-20)
+
+Принятый provider/model-scoped authoring/lifecycle contract вынесен в
+`docs/architecture/ProfileStudio.md` и реализуется active plan
+`profile-studio-mvp-2026-07-20`.
+
+Этот документ продолжает описывать live v1 runtime до применения каждого
+Studio slice. После реализации:
+
+- v1 provider-only profiles остаются readable legacy data;
+- Studio v2 добавляет обязательные `schemaVersion: 2`,
+  `authoring: profile-studio`, exact `provider + model`, creator session id и
+  отдельный Draft/Valid approval lifecycle;
+- `system-prompt.md` и `custom-instructions.md` становятся двумя source parts
+  Studio prompt;
+- Studio v2 materialization не добавляет workspace `AGENTS.md`, Skills или
+  generic wrapper;
+- Studio profile listing и ordinary valid-profile picker используют exact
+  provider/model compatibility;
+- существующий Settings parse-validity не равен Studio user approval.
+
+Точные cluster/module/facade boundaries, creator structured output, UI mode и
+provider capability gates определены в `docs/architecture/ProfileStudio.md`.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

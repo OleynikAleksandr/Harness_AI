@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase1.stream1.task1",
-  "expectedCommitMessage": "docs: promote profile studio mvp architecture",
+  "currentTaskId": "harness-ai.phase2.stream1.task1",
+  "expectedCommitMessage": "feat: add studio v2 profile storage",
   "debt": null
 }
 ```
@@ -68,14 +68,14 @@
 
 ### Stream: Accepted Contract
 
-3. [IN_PROGRESS] `harness-ai.phase1.stream1.task1` Promote the accepted MVP contract into current architecture: add Profile Studio architecture, reconcile Session Profiles v2/legacy boundaries, mark the proposal as promoted for this implementation slice and register the architecture document (scope: `docs/architecture/ProfileStudio.md, docs/architecture/SessionProfiles.md, docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: promote profile studio mvp architecture`).
-4. [TODO] Git Commit: `docs: promote profile studio mvp architecture` (hash: TBD)
+3. [DONE] `harness-ai.phase1.stream1.task1` Promote the accepted MVP contract into current architecture: add Profile Studio architecture, reconcile Session Profiles v2/legacy boundaries, mark the proposal as promoted for this implementation slice and register the architecture document (scope: `docs/architecture/ProfileStudio.md, docs/architecture/SessionProfiles.md, docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: promote profile studio mvp architecture`). Result: Completed in commit `docs: promote profile studio mvp architecture`.
+4. [DONE] Git Commit: `docs: promote profile studio mvp architecture` (hash: self)
 
 ## Phase 2 - Studio V2 Profile Documents (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Session Profiles Compatibility
 
-5. [TODO] `harness-ai.phase2.stream1.task1` Extend `profile-store` with Studio v2 passport/model/lifecycle metadata and Draft-tolerant two-part documents while preserving v1 parsing unchanged (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-document-parser.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs` plus related docs; expected commit: `feat: add studio v2 profile storage`).
+5. [IN_PROGRESS] `harness-ai.phase2.stream1.task1` Extend `profile-store` with Studio v2 passport/model/lifecycle metadata and Draft-tolerant two-part documents while preserving v1 parsing unchanged (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-document-parser.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs` plus related docs; expected commit: `feat: add studio v2 profile storage`).
 6. [TODO] Git Commit: `feat: add studio v2 profile storage` (hash: TBD)
 
 7. [TODO] `harness-ai.phase2.stream1.task2` Add atomic Studio draft creation/update operations to `profile-authoring`, using `system-prompt.md`, `custom-instructions.md` and optional `tools.json` without external-editor ownership (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs` plus related docs; expected commit: `feat: add studio profile authoring operations`).

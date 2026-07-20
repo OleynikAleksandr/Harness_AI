@@ -59,6 +59,10 @@ already supplies this as `agentMessage.phase`; direct/custom providers that do
 not have an equivalent upstream phase must add their own adapter-level
 sentinel or continuation protocol.
 
+Claude additionally exposes raw Agent SDK JSON Schema results as a generic
+`structured_output` provider event. Core workflow owners validate its shape;
+the adapter does not specialize it for Profile Studio or parse renderer text.
+
 Native collaboration is normalized at the same boundary. Codex app-server
 `subAgentActivity` (plus the legacy `collabAgentToolCall` shape), child
 `thread/started`, child turn lifecycle, and `thread/status/changed`

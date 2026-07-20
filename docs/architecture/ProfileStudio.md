@@ -371,8 +371,10 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   **APPLIED** through existing session-profile facades;
 - Studio v2 two-part wrapper-free materialization and target/tools/donor hash
   are **APPLIED**;
-- fixed creator agent/session runtime is **APPLIED**; structured result routing,
-  atomic authoring/repair and approval interaction are **NOT APPLIED**;
+- fixed creator agent/session runtime, raw provider event interception,
+  controlled assistant projection, atomic full-snapshot authoring and one
+  bounded automatic repair turn are **APPLIED**; approval interaction is
+  **NOT APPLIED**;
 - reusable `SessionSurfaceFacade` is **NOT APPLIED**;
 - accepted HTML prototype exists only in ignored runtime state;
 - current v1 Session Profiles and Settings Profile Creator remain live.

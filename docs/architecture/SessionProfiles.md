@@ -61,6 +61,14 @@ HARNESS_AI_HOME-aware `ProfileStudio/workspace`. Этот workspace index
 восстанавливается независимо от пользовательских workspaces; каждый creator
 turn после create/resume снова получает Studio JSON Schema.
 
+APPLIED creator-result route: Claude сохраняет raw JSON Schema object в
+provider-neutral `structured_output` event. Core перехватывает его только для
+purpose `profile-creator`, валидирует через Profile Studio Agent parser,
+показывает только контролируемый `assistantResponse` и атомарно передаёт
+полный snapshot в Studio authoring. Rejected output не меняет документы и
+получает не более одного автоматического repair turn, поэтому бесконечный
+repair loop невозможен.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

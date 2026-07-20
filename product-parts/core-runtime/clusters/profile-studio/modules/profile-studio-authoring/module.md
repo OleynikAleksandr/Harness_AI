@@ -28,6 +28,8 @@ an authorable candidate only; a later capability gate still blocks approval.
 ## Inputs
 
 - `ProfileStudioLifecycleFacade` get/apply commands.
+- Complete snapshots accepted by the creator-result handler only after the
+  Profile Creator JSON Schema/parser boundary succeeds.
 - Profile id plus complete `ProfileStudioCreatorSnapshot`.
 - Optional configured Capture root; defaults to
   `~/.harness-ai/logs/native-request-capture` (`HARNESS_AI_HOME` aware).

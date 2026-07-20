@@ -256,7 +256,7 @@
             {
               "id": "profile-studio-agent",
               "name": "Profile Studio Agent",
-              "purpose": "Fixed isolated Claude/Opus/high creator turn spec with complete inline context, persistent dedicated-workspace session dispatch, no ambient settings/tools, and full-snapshot JSON Schema validation."
+              "purpose": "Fixed isolated Claude/Opus/high creator turn spec, persistent dedicated-workspace dispatch, raw structured-result validation and bounded repair with no ambient settings/tools."
             },
             {
               "id": "profile-studio-read-model",

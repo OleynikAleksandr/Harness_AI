@@ -24,7 +24,10 @@ Session Runtime consumes this facade through its explicit
 `createProfileCreatorSession()` path. It persists `systemPrompt` as a managed
 session-profile snapshot, restores the dedicated Studio session index, and
 reapplies this facade's fixed output schema and Claude model/reasoning options
-on every dispatch after create or resume.
+on every dispatch after create or resume. Its result handler validates raw
+provider structured output here before publishing `assistantResponse` or
+passing a complete draft to the authoring facade; free-form dialog text is
+never an authoring input.
 
 ## Public Facade
 

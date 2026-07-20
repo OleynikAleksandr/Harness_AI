@@ -60,6 +60,9 @@ into `product-parts/**` as real module code.
 - Create and restore persistent Profile Creator sessions in the dedicated
   HARNESS_AI_HOME-aware Studio workspace, preserving their managed system
   prompt and applying the fixed structured-output schema on every turn.
+- Validate Claude raw structured results only for Profile Creator sessions,
+  publish controlled dialog text, atomically apply complete snapshots and
+  bound automatic repair so rejected output cannot mutate profile documents.
 - Project Profile Studio target/profile/inspector read models from Core truth,
   including Claude subset, Codex fixed and Kimi 9/25 Draft-only capability
   states.

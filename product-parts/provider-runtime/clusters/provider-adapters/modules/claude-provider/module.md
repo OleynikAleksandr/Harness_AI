@@ -19,6 +19,10 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 ## Outputs
 
 - Provider events from the migrated Claude Agent SDK session/runtime path.
+- A provider-neutral `structured_output` event carrying the raw JSON object
+  returned by any Agent SDK `outputFormat` schema. Existing workflow-specific
+  projection remains additive; Provider Runtime does not interpret Profile
+  Studio fields or mutate profile state.
 - Visible thinking/reasoning dialog messages emitted by the migrated Claude stream router and thinking dialog emitter.
 - Provider usage/context telemetry.
 - Claude usage-limit telemetry read by this provider module through the

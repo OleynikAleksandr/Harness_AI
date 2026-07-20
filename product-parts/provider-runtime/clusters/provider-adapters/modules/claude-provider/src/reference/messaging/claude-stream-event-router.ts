@@ -134,6 +134,7 @@ export class ClaudeStreamEventRouter {
     this.clearThinkingMessage(session);
     await this.emitThinkingChunks(session, message);
     const normalizedMessage = normalizeStructuredOutputMessage(message);
+    this.emitRawStructuredOutput(session, normalizedMessage);
     const structured =
       parseWorkflowStructuredOutputFromResultMessage(normalizedMessage);
     if (!structured) {
@@ -148,6 +149,24 @@ export class ClaudeStreamEventRouter {
     if (responseText) {
       this.emitAssistantText(session, message, responseText);
     }
+  }
+
+  private emitRawStructuredOutput(
+    session: ActiveSession,
+    message: ClaudeStreamMessage
+  ): void {
+    const output = message.structured_output;
+    if (!(output && typeof output === "object" && !Array.isArray(output))) {
+      return;
+    }
+    session.eventEmitter.emit("message", {
+      output,
+      provider: this.providerId,
+      sessionId: session.sessionId,
+      timestamp: new Date().toISOString(),
+      type: "structured_output",
+      uuid: `${message.uuid ?? crypto.randomUUID()}::raw_structured_output`,
+    });
   }
 
   private async handleStreamEventInternal(

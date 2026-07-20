@@ -10,6 +10,7 @@ import type {
   CoreSessionMessageTranslationPatch,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
 import { sessionReasoningDisplayFacade } from "../../session-reasoning-display/src/session-reasoning-display-facade.js";
+import { profileCreatorResultHandler } from "./profile-creator-result-handler.js";
 import { readPromotedProviderSessionId } from "./provider-session-id-promotion.js";
 import { sessionProviderInteractionLifecycle } from "./session-provider-interaction-lifecycle.js";
 import { resolveReasoningTranslationSettingsSnapshot } from "./session-reasoning-translation-settings.js";
@@ -62,6 +63,9 @@ export function routeProviderEvent(
   event: unknown
 ): void {
   if (!isRecord(event)) {
+    return;
+  }
+  if (profileCreatorResultHandler.handle(context, sessionId, event)) {
     return;
   }
   if (isProviderSubagentEvent(event)) {

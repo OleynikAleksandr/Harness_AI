@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task3",
-  "expectedCommitMessage": "feat: apply profile creator structured results",
+  "currentTaskId": "harness-ai.phase4.stream1.task4",
+  "expectedCommitMessage": "feat: expose profile studio core bridge",
   "debt": null
 }
 ```
@@ -113,10 +113,10 @@
 23. [DONE] `harness-ai.phase4.stream1.task2` Allow Core to create fixed managed Claude creator sessions in the dedicated HARNESS_AI_HOME-aware Studio workspace and supply the Studio output schema on every creator turn/resume (scope: up to 3 session-runtime/profile-studio functional files plus related docs; expected commit: `feat: run persistent profile creator sessions`). Result: Completed in commit `feat: run persistent profile creator sessions`.
 24. [DONE] Git Commit: `feat: run persistent profile creator sessions` (hash: self)
 
-25. [IN_PROGRESS] `harness-ai.phase4.stream1.task3` Route Claude structured creator results into controlled assistant text, full-snapshot validation/application and repair notices without parsing free-form renderer text (scope: up to 3 Core/provider functional files plus related docs; expected commit: `feat: apply profile creator structured results`).
-26. [TODO] Git Commit: `feat: apply profile creator structured results` (hash: TBD)
+25. [DONE] `harness-ai.phase4.stream1.task3` Route Claude structured creator results into controlled assistant text, full-snapshot validation/application and repair notices without parsing free-form renderer text (scope: up to 3 Core/provider functional files plus related docs; expected commit: `feat: apply profile creator structured results`). Result: Completed in commit `feat: apply profile creator structured results`.
+26. [DONE] Git Commit: `feat: apply profile creator structured results` (hash: self)
 
-27. [TODO] `harness-ai.phase4.stream1.task4` Expose typed Profile Studio list/get/create/approve commands and update events through Core runtime API, Electron bridge and renderer contract (scope: core runtime RPC, preload bridge, renderer bridge types plus related docs; expected commit: `feat: expose profile studio core bridge`).
+27. [IN_PROGRESS] `harness-ai.phase4.stream1.task4` Expose typed Profile Studio list/get/create/approve commands and update events through Core runtime API, Electron bridge and renderer contract (scope: core runtime RPC, preload bridge, renderer bridge types plus related docs; expected commit: `feat: expose profile studio core bridge`).
 28. [TODO] Git Commit: `feat: expose profile studio core bridge` (hash: TBD)
 
 ## Phase 5 - Reusable Session Surface (owner: Codex, updated: 2026-07-20)

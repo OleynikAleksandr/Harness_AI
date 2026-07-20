@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase8.stream1.task1",
-  "expectedCommitMessage": "docs: record profile studio mvp build",
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": "docs: package profile studio mvp",
   "debt": null
 }
 ```
@@ -158,14 +158,14 @@
 
 ### Stream: Production Build
 
-43. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Run the production build after implementation, verify the Studio contracts in built renderer/runtime artifacts and record integration evidence without packaging yet (scope: `docs/evidence/profile-studio-mvp-build-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record profile studio mvp build`).
-44. [TODO] Git Commit: `docs: record profile studio mvp build` (hash: TBD)
+43. [DONE] `harness-ai.phase8.stream1.task1` Run the production build after implementation, verify the Studio contracts in built renderer/runtime artifacts and record integration evidence without packaging yet (scope: `docs/evidence/profile-studio-mvp-build-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record profile studio mvp build`). Result: Completed in commit `docs: record profile studio mvp build`.
+44. [DONE] Git Commit: `docs: record profile studio mvp build` (hash: self)
 
 ## Phase 9 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-20)
 
 ### Stream: macOS Package
 
-45. [TODO] `harness-ai.phase9.stream1.task1` Build the user-authorized unsigned macOS package, verify `release/mac-arm64/Harness AI.app` and packaged `app.asar`, launch the rebuilt package and record package identity/retest checklist (scope: `docs/evidence/profile-studio-mvp-package-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio mvp`).
+45. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Build the user-authorized unsigned macOS package, verify `release/mac-arm64/Harness AI.app` and packaged `app.asar`, launch the rebuilt package and record package identity/retest checklist (scope: `docs/evidence/profile-studio-mvp-package-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio mvp`).
 46. [TODO] Git Commit: `docs: package profile studio mvp` (hash: TBD)
 
 47. [TODO] `harness-ai.phase9.stream1.task2` User tests the packaged Profile Studio workflow: single-window entry/return, provider/model scoping, Draft creation, persistent Claude creator conversation, Core-backed inspector, approval/hash lifecycle, valid Claude/Codex picker application, honest Kimi block and unchanged ordinary sessions (completion: user-acceptance; scope: user workflow; expected commit: none).

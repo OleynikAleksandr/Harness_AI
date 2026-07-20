@@ -192,6 +192,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   module/facade ownership, fixed Claude/Opus creator agent, provider/model
   Draft/Valid lifecycle, structured Core authoring, reusable standard session
   surface, honest inspector states, legacy migration and acceptance gates.
+- `docs/evidence/profile-studio-mvp-build-2026-07-20.md` — production-build
+  evidence for the implemented Profile Studio MVP: final source revision,
+  enforced gates, 145-test result, fresh renderer/runtime artifacts, exact
+  provider/model routing proof and intentional pre-package limitations.
 - `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
   the turn-timer scope: current `ElapsedTotal` behavior, turn-state event
   journal as the persistent timing source, the `turn-timing` Core module and

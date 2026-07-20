@@ -364,7 +364,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   the dedicated HARNESS_AI_HOME-aware workspace, persisted prompt snapshot,
   empty tools/settings and Studio output schema on every create/resume
   dispatch;
-- Application Shell `profile-studio` cluster is **NOT APPLIED**;
+- Application Shell `profile-studio` cluster, snapshot-driven sidebar and
+  read-only inspector facades are **APPLIED**; the single-window shell/mode
+  composition is **NOT APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are

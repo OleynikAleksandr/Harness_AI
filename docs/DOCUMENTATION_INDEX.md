@@ -31,8 +31,9 @@ relevant to the active task.
 - `product-parts/**/{product-part.md,cluster.md,module.md}` — live ownership,
   public facade and boundary documentation for every implemented Product Part,
   Cluster and Module; includes the active Core/Application Shell Profile Studio
-  modules as they are applied and the shared Session Surface module reused by
-  the ordinary shell and Profile Studio.
+  modules as they are applied, including the snapshot-driven Studio sidebar
+  and read-only inspector, and the shared Session Surface module reused by the
+  ordinary shell and Profile Studio.
 
 ## Proposals
 

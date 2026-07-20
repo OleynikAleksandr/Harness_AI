@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task1",
-  "expectedCommitMessage": "feat: add profile studio sidebar and inspector",
+  "currentTaskId": "harness-ai.phase6.stream1.task2",
+  "expectedCommitMessage": "feat: add profile studio application mode",
   "debt": null
 }
 ```
@@ -130,10 +130,10 @@
 
 ### Stream: Accepted UI Baseline
 
-31. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Create the Application Shell `profile-studio` cluster with facade-owned sidebar and inspector modules driven only by Core snapshots, including accepted provider/model/profile rows and three read-only tabs (scope: sidebar facade, inspector facade, shared Studio CSS plus cluster/module docs, Application Shell product-part doc and Product Tree; expected commit: `feat: add profile studio sidebar and inspector`).
-32. [TODO] Git Commit: `feat: add profile studio sidebar and inspector` (hash: TBD)
+31. [DONE] `harness-ai.phase6.stream1.task1` Create the Application Shell `profile-studio` cluster with facade-owned sidebar and inspector modules driven only by Core snapshots, including accepted provider/model/profile rows and three read-only tabs (scope: sidebar facade, inspector facade, shared Studio CSS plus cluster/module docs, Application Shell product-part doc and Product Tree; expected commit: `feat: add profile studio sidebar and inspector`). Result: Completed in commit `feat: add profile studio sidebar and inspector`.
+32. [DONE] Git Commit: `feat: add profile studio sidebar and inspector` (hash: self)
 
-33. [TODO] `harness-ai.phase6.stream1.task2` Add the `profile-studio-shell` facade and single-window mode switch beside Settings, reuse `SessionSurfaceFacade`, restore ordinary workspace/session mode and exclude detached windows (scope: profile-studio shell facade, session-window integration, focused mode test plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio application mode`).
+33. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Add the `profile-studio-shell` facade and single-window mode switch beside Settings, reuse `SessionSurfaceFacade`, restore ordinary workspace/session mode and exclude detached windows (scope: profile-studio shell facade, session-window integration, focused mode test plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio application mode`).
 34. [TODO] Git Commit: `feat: add profile studio application mode` (hash: TBD)
 
 35. [TODO] `harness-ai.phase6.stream1.task3` Remove the old Settings Profile Creator authoring entry while preserving legacy runtime profiles, translations and normal session picker compatibility (scope: settings tab composition, profile-settings facade/registration, focused test plus related docs; expected commit: `refactor: retire settings profile creator entry`).

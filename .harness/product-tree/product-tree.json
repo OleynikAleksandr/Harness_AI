@@ -78,6 +78,23 @@
           ]
         },
         {
+          "id": "profile-studio",
+          "name": "Profile Studio",
+          "purpose": "Core-snapshot-driven provider/model Profile Studio presentation with compatible creator-session rows and a read-only three-tab inspector.",
+          "modules": [
+            {
+              "id": "profile-studio-sidebar",
+              "name": "Profile Studio Sidebar",
+              "purpose": "Provider/model target selection, Draft creation, compatible Draft/Valid creator-session rows, and return intent from Core snapshots."
+            },
+            {
+              "id": "profile-studio-inspector",
+              "name": "Profile Studio Inspector",
+              "purpose": "Read-only Overview, Custom System Prompt and Custom System Tools projection with exact-hash approval intent."
+            }
+          ]
+        },
+        {
           "id": "settings-surface",
           "name": "Settings Surface",
           "purpose": "Provider, localization, recovery, and session profile settings UI. It edits settings through Core contracts only.",

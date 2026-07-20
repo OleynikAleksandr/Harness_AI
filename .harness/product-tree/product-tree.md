@@ -30,6 +30,11 @@ Application Shell submits user input, displays Core read models/events, manages 
 - `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
 - `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry.
 
+### Profile Studio
+
+- `profile-studio-sidebar`: provider/model target selection, Draft creation, compatible Draft/Valid creator-session rows, and return intent from Core snapshots.
+- `profile-studio-inspector`: read-only Overview, Custom System Prompt and Custom System Tools projection with exact-hash approval intent.
+
 ### Settings Surface
 
 - `provider-settings-ui`: provider cards, auth/model/reasoning controls submitted through Core contracts.

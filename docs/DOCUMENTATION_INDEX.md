@@ -42,6 +42,9 @@ implementation plan.
   a single-window Studio mode with provider/model-scoped persistent Profile
   Creator sessions, a standard Harness AI session surface and a compact tabbed
   inspector with `Overview`, `Custom System Prompt` and `Custom System Tools`;
+  its interactive UI approach is an accepted baseline preserved locally under
+  `.harness/runtime/prototypes/profile-studio-ui/`, while the proposal as a
+  whole remains non-authoritative;
   a two-part prompt made from a reduced Native foundation and concise Custom
   additions; explicit Native Capture donor provenance, exact provider tool
   subsets, agent-internal Custom Capture repair through a separate diagnostic

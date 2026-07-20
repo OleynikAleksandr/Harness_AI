@@ -2,6 +2,10 @@
 
 Статус: архитектурное предложение для обсуждения, уточнено 20 июля 2026 года.
 
+Статус UI-baseline: интерфейсный подход интерактивного прототипа принят
+пользователем 20 июля 2026 года как основа для дальнейшего проектирования и
+создания production-интерфейса.
+
 Документ не является контрактом текущей кодовой базы или active
 implementation plan. Он фиксирует согласованную продуктовую идею первого
 этапа Profile Studio и отделяет её от функций, которые будут обсуждаться
@@ -567,6 +571,57 @@ provider ceilings. Её точный состав и визуализация о
 На первом этапе нет ручного textarea/file editor. Пользователь изменяет draft
 через диалог с Agent и проверяет точный результат до подтверждения.
 
+### 10.8 Принятый интерактивный прототип
+
+Интерактивный прототип принят пользователем 20 июля 2026 года как UI-baseline
+для дальнейшего создания интерфейса Profile Studio. Принят именно
+**интерфейсный подход и его информационная архитектура**, а не все примерные
+значения, тексты и детали будущей production-реализации.
+
+Локальная исполняемая копия сохранена в ignored runtime state проекта:
+
+- корень: `.harness/runtime/prototypes/profile-studio-ui/`;
+- основной экран: `src/App.jsx`;
+- визуальные стили: `src/styles.css`;
+- отчёт визуальной проверки: `design-qa.md`;
+- принятые состояния: `artifacts/overview.png`,
+  `artifacts/custom-system-prompt.png` и
+  `artifacts/custom-system-tools.png`;
+- сопоставление с исходным визуальным направлением:
+  `artifacts/qa-comparison.png`.
+
+Запуск прототипа из корня repository:
+
+```bash
+cd .harness/runtime/prototypes/profile-studio-ui
+npm ci
+npm run dev -- --host 127.0.0.1 --port 4173 --strictPort
+```
+
+В прототипе работают переключение трёх вкладок, выбор и создание profile
+session, открытие полного текста prompt и перевод обсуждения выбранной части в
+composer центральной сессии.
+
+Зафиксированный UI-baseline включает:
+
+1. единый main-window mode вместо отдельного окна или Settings flow;
+2. provider/model-scoped sidebar со списком самостоятельных Profile Creator
+   Agent sessions и статусами `Draft`/`Valid`;
+3. неизменённую по базовой структуре обычную Harness AI session в центре;
+4. компактный правый inspector ровно с тремя вкладками `Overview`,
+   `Custom System Prompt` и `Custom System Tools`;
+5. две read-only части Custom System Prompt: сокращённую Native-основу и
+   краткие Custom-дополнения;
+6. изменение профиля только через диалог с Profile Creator Agent;
+7. отсутствие вкладок `Components` и `Capture`; Capture остаётся отдельным
+   диагностическим интерфейсом.
+
+Прототип не является production-кодом и сам по себе не переводит весь этот
+proposal в `docs/architecture/**`. До implementation plan отдельно предстоит
+согласовать точное содержимое `Custom System Tools`, отдельный Capture
+interface, реальные Core read models/commands, окончательный copy и адаптацию
+принятой композиции к production design tokens и размерам окна.
+
 ## 11. Core ownership
 
 Единый режим Profile Studio остаётся Application Shell surface. Истина
@@ -635,11 +690,13 @@ Renderer не:
 
 Это discussion roadmap, а не implementation todo-plan.
 
-### Этап A — UI contract на прототипе
+### Этап A — UI contract на прототипе (интерфейсный подход принят)
 
-- Single-window Studio mode и возврат к workspaces/sessions.
-- Provider/model-scoped sidebar и profile-to-session mapping.
-- Точное содержимое вкладок `Custom System Prompt` и `Custom System Tools`.
+- Приняты single-window Studio mode и возврат к workspaces/sessions.
+- Приняты provider/model-scoped sidebar и profile-to-session mapping.
+- Приняты вкладки `Overview`, `Custom System Prompt` и `Custom System Tools`,
+  а также двухчастное read-only представление prompt.
+- Предстоит согласовать точное содержимое `Custom System Tools`.
 - Отдельный Capture interface и его точка входа вне inspector tabs.
 - Явный пользовательский переход `Draft` → `Valid` через диалог.
 

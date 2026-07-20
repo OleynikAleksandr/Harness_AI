@@ -187,12 +187,12 @@
         {
           "id": "session-profiles",
           "name": "Session Profiles",
-          "purpose": "Runtime-selectable session profile truth: user-editable profile documents, catalog/selection with the virtual Native profile, provider-neutral payload materialization, and profile authoring.",
+          "purpose": "Runtime-selectable session profile truth: legacy v1 and Studio v2 provider/model documents, catalog/selection with the virtual Native profile, provider-neutral payload materialization, and profile authoring.",
           "modules": [
             {
               "id": "profile-store",
               "name": "Profile Store",
-              "purpose": "User-editable session profile documents on disk: Profiles root resolution, document layout, provider-scoped first-access seeds, and the shared profile type model."
+              "purpose": "Session profile documents on disk: Profiles root resolution, legacy v1 compatibility, Studio v2 provider/model passports with Draft-tolerant two-part prompt sources, provider-scoped seeds, and shared profile types."
             },
             {
               "id": "profile-catalog",

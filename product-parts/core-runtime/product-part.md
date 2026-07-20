@@ -44,6 +44,9 @@ into `product-parts/**` as real module code.
 - Own native request capture artifacts: raw upstream-request JSONL, separate
   diagnostics JSONL, and readable Markdown reports for profile-verification
   payload groups.
+- Persist and validate Profile Studio v2 provider/model passports and their
+  separate Draft-tolerant prompt source documents without turning renderer
+  state into profile truth.
 
 ## Out Of Scope
 

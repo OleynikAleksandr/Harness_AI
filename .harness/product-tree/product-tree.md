@@ -64,7 +64,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 ### Session Profiles
 
-- `profile-store`: user-editable session profile documents on disk — Profiles root resolution, document layout, provider-scoped first-access seeds, and the shared profile type model.
+- `profile-store`: session profile documents on disk — Profiles root resolution, legacy v1 compatibility, Studio v2 provider/model passports with Draft-tolerant two-part prompt sources, provider-scoped seeds, and shared profile types.
 - `profile-catalog`: profile selection truth — catalog read models, virtual Native profile, per-provider applicability, and session-creation resolution with structured errors.
 - `profile-materializer`: provider-neutral session profile payload — applied prompt with the system wrapper, effective tooling categories, and applied-content hash.
 - `profile-authoring`: profile creation and editing truth — document templates, create-profile operation with derived ids, and editor path resolution.

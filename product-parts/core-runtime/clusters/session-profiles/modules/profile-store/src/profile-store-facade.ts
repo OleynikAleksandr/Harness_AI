@@ -8,6 +8,7 @@ import {
 import { homedir } from "node:os";
 import path from "node:path";
 import {
+  isSessionProfileStudioPassport,
   parseSessionProfilePassport,
   parseSessionProfilePromptBody,
   parseSessionProfileTooling,
@@ -22,10 +23,14 @@ import { loadNativeRequestBundle } from "./profile-native-request-loader.js";
 import { SEED_SESSION_PROFILES } from "./seed/seed-profiles.js";
 
 export {
+  isSessionProfileStudioPassport,
   resolveSessionProfileScope,
   SESSION_PROFILE_TOOLING_CATEGORIES,
+  type SessionProfileNativeCaptureDonorReference,
   type SessionProfilePassport,
   type SessionProfileScope,
+  type SessionProfileStudioLifecycleStatus,
+  type SessionProfileStudioPassport,
   type SessionProfileTooling,
   type SessionProfileToolingCategory,
 } from "./profile-document-parser.js";
@@ -59,6 +64,7 @@ export interface SessionProfileDocumentPaths {
 }
 
 export interface SessionProfile {
+  readonly customInstructionsBody: string;
   readonly documents: SessionProfileDocumentPaths;
   readonly id: string;
   readonly nativeRequest?: SessionProfileNativeRequestBundle;
@@ -219,24 +225,20 @@ export class ProfileStoreFacade {
       SESSION_PROFILE_PASSPORT_FILE_NAME,
       issues
     );
-    const promptText = await readDocument(
-      documents.promptPath,
-      SESSION_PROFILE_PROMPT_FILE_NAME,
-      issues
-    );
     if (issues.length > 0) {
       return { failure: { documents, id: profileId, issues }, ok: false };
     }
     const passportResult = parseSessionProfilePassport(passportText ?? "");
-    const promptResult = parseSessionProfilePromptBody(promptText ?? "");
-    issues.push(...passportResult.issues, ...promptResult.issues);
-    if (
-      issues.length > 0 ||
-      !passportResult.passport ||
-      promptResult.promptBody === undefined
-    ) {
+    issues.push(...passportResult.issues);
+    if (issues.length > 0 || !passportResult.passport) {
       return { failure: { documents, id: profileId, issues }, ok: false };
     }
+    const { customInstructionsBody, promptBody } =
+      await this.loadProfilePromptParts(
+        documents,
+        passportResult.passport,
+        issues
+      );
     const tooling = await this.loadProfileTooling(
       documents,
       passportResult.passport,
@@ -249,23 +251,19 @@ export class ProfileStoreFacade {
     return {
       ok: true,
       profile: {
+        customInstructionsBody,
         documents,
         id: profileId,
         ...(nativeRequest ? { nativeRequest } : {}),
         passport: passportResult.passport,
-        promptBody: promptResult.promptBody,
+        promptBody,
         scope: resolveSessionProfileScope(passportResult.passport),
         tooling,
       },
     };
   }
 
-  /**
-   * Watches the profiles root for file changes (best-effort: an unwatchable
-   * root never crashes Core). The root is created first so the watcher works
-   * before first-access seeding. Returns an unsubscribe that closes the
-   * watcher and drops any pending debounced notification.
-   */
+  /** Watches the profiles root and returns a best-effort unsubscribe. */
   watchProfiles(listener: () => void): () => void {
     let debounceTimer: NodeJS.Timeout | null = null;
     let watcher: FSWatcher | null = null;
@@ -371,7 +369,10 @@ export class ProfileStoreFacade {
     passport: SessionProfilePassport,
     issues: string[]
   ): Promise<SessionProfileTooling> {
-    if (passport.provider === "codex") {
+    if (
+      isSessionProfileStudioPassport(passport) ||
+      passport.provider === "codex"
+    ) {
       return buildDefaultSessionProfileTooling();
     }
     const toolingText = await readDocument(
@@ -382,6 +383,47 @@ export class ProfileStoreFacade {
     const toolingResult = parseSessionProfileTooling(toolingText ?? "");
     issues.push(...toolingResult.issues);
     return toolingResult.tooling ?? buildDefaultSessionProfileTooling();
+  }
+
+  private async loadProfilePromptParts(
+    documents: SessionProfileDocumentPaths,
+    passport: SessionProfilePassport,
+    issues: string[]
+  ): Promise<{ customInstructionsBody: string; promptBody: string }> {
+    if (!isSessionProfileStudioPassport(passport)) {
+      const promptText = await readDocument(
+        documents.promptPath,
+        SESSION_PROFILE_PROMPT_FILE_NAME,
+        issues
+      );
+      const promptResult = parseSessionProfilePromptBody(promptText ?? "");
+      issues.push(...promptResult.issues);
+      return {
+        customInstructionsBody:
+          (await readOptionalDocument(documents.customInstructionsPath)) ?? "",
+        promptBody: promptResult.promptBody ?? "",
+      };
+    }
+    const [promptText, customInstructionsText] = await Promise.all([
+      readOptionalDocument(documents.promptPath),
+      readOptionalDocument(documents.customInstructionsPath),
+    ]);
+    if (passport.status === "valid") {
+      requireCompleteStudioPromptPart(
+        promptText,
+        SESSION_PROFILE_PROMPT_FILE_NAME,
+        issues
+      );
+      requireCompleteStudioPromptPart(
+        customInstructionsText,
+        SESSION_PROFILE_CUSTOM_INSTRUCTIONS_FILE_NAME,
+        issues
+      );
+    }
+    return {
+      customInstructionsBody: customInstructionsText ?? "",
+      promptBody: promptText ?? "",
+    };
   }
 }
 
@@ -395,6 +437,28 @@ async function readDocument(
   } catch {
     issues.push(`${fileLabel}: file is missing or unreadable.`);
     return;
+  }
+}
+
+async function readOptionalDocument(
+  filePath: string
+): Promise<string | undefined> {
+  try {
+    return await fs.readFile(filePath, "utf8");
+  } catch {
+    return;
+  }
+}
+
+function requireCompleteStudioPromptPart(
+  text: string | undefined,
+  fileLabel: string,
+  issues: string[]
+): void {
+  if (text === undefined) {
+    issues.push(`${fileLabel}: file is missing or unreadable.`);
+  } else if (!text.trim()) {
+    issues.push(`${fileLabel}: the Studio prompt part is empty.`);
   }
 }
 

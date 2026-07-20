@@ -24,6 +24,12 @@ Studio slice. После реализации:
 Точные cluster/module/facade boundaries, creator structured output, UI mode и
 provider capability gates определены в `docs/architecture/ProfileStudio.md`.
 
+APPLIED storage slice: `profile-store` уже различает legacy v1 и Studio v2,
+валидирует exact provider/model passport, creator-session binding и donor
+provenance, возвращает две prompt source parts раздельно и допускает их
+незаполненность только для `draft`. Authoring, Studio catalog и v2
+materialization применяются последующими slices active plan.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

@@ -14,11 +14,40 @@ export type SessionProfileToolingCategory =
 
 export type SessionProfileScope = "individual" | "universal";
 
-export interface SessionProfilePassport {
+interface SessionProfilePassportBase {
   readonly description: string;
   readonly name: string;
+}
+
+export interface SessionProfileLegacyPassport
+  extends SessionProfilePassportBase {
   readonly provider?: string;
 }
+
+export type SessionProfileStudioLifecycleStatus = "draft" | "valid";
+
+export interface SessionProfileNativeCaptureDonorReference {
+  readonly artifactPath: string;
+  readonly captureId: string;
+  readonly modelId: string;
+  readonly providerId: string;
+  readonly requestHash: string;
+}
+
+export interface SessionProfileStudioPassport
+  extends SessionProfilePassportBase {
+  readonly authoring: "profile-studio";
+  readonly creatorSessionId: string;
+  readonly model: string;
+  readonly nativeCaptureDonor: SessionProfileNativeCaptureDonorReference | null;
+  readonly provider: string;
+  readonly schemaVersion: 2;
+  readonly status: SessionProfileStudioLifecycleStatus;
+}
+
+export type SessionProfilePassport =
+  | SessionProfileLegacyPassport
+  | SessionProfileStudioPassport;
 
 export interface SessionProfileTooling {
   readonly categories: Readonly<Record<SessionProfileToolingCategory, boolean>>;
@@ -60,6 +89,12 @@ export function resolveSessionProfileScope(
   return passport.provider?.trim() ? "individual" : "universal";
 }
 
+export function isSessionProfileStudioPassport(
+  passport: SessionProfilePassport
+): passport is SessionProfileStudioPassport {
+  return "schemaVersion" in passport && passport.schemaVersion === 2;
+}
+
 export function parseSessionProfilePassport(
   yamlText: string
 ): SessionProfilePassportParseResult {
@@ -74,6 +109,13 @@ export function parseSessionProfilePassport(
     issues.push('profile.yaml: "name" must be a non-empty string.');
   }
   const description = readTrimmedString(record.description) ?? "";
+  if (record.schemaVersion !== undefined) {
+    return parseStudioPassport(
+      record,
+      { description, name: name ?? "" },
+      issues
+    );
+  }
   let provider: string | undefined;
   if (record.provider !== undefined) {
     provider = readTrimmedString(record.provider);
@@ -92,6 +134,120 @@ export function parseSessionProfilePassport(
       ? { description, name, provider }
       : { description, name },
   };
+}
+
+function parseStudioPassport(
+  record: Record<string, unknown>,
+  base: SessionProfilePassportBase,
+  commonIssues: string[]
+): SessionProfilePassportParseResult {
+  const issues = [...commonIssues];
+  if (record.schemaVersion !== 2) {
+    issues.push('profile.yaml: "schemaVersion" must be 2 for Studio profiles.');
+  }
+  if (record.authoring !== "profile-studio") {
+    issues.push(
+      'profile.yaml: "authoring" must be "profile-studio" for schemaVersion 2.'
+    );
+  }
+  const provider = readRequiredString(record, "provider", issues);
+  const model = readRequiredString(record, "model", issues);
+  const creatorSessionId = readRequiredString(
+    record,
+    "creatorSessionId",
+    issues
+  );
+  const status = readStudioLifecycleStatus(record.status, issues);
+  const nativeCaptureDonor = readNativeCaptureDonor(
+    record.nativeCaptureDonor,
+    issues
+  );
+  if (
+    issues.length > 0 ||
+    record.schemaVersion !== 2 ||
+    record.authoring !== "profile-studio" ||
+    !provider ||
+    !model ||
+    !creatorSessionId ||
+    !status ||
+    nativeCaptureDonor === undefined
+  ) {
+    return { issues };
+  }
+  return {
+    issues,
+    passport: {
+      ...base,
+      authoring: "profile-studio",
+      creatorSessionId,
+      model,
+      nativeCaptureDonor,
+      provider,
+      schemaVersion: 2,
+      status,
+    },
+  };
+}
+
+function readStudioLifecycleStatus(
+  value: unknown,
+  issues: string[]
+): SessionProfileStudioLifecycleStatus | undefined {
+  if (value === "draft" || value === "valid") {
+    return value;
+  }
+  issues.push('profile.yaml: "status" must be "draft" or "valid".');
+  return;
+}
+
+function readNativeCaptureDonor(
+  value: unknown,
+  issues: string[]
+): SessionProfileNativeCaptureDonorReference | null | undefined {
+  if (value === null) {
+    return null;
+  }
+  if (!isPlainRecord(value)) {
+    issues.push(
+      'profile.yaml: "nativeCaptureDonor" must be null or a provenance mapping.'
+    );
+    return;
+  }
+  const donorIssues: string[] = [];
+  const artifactPath = readRequiredString(value, "artifactPath", donorIssues, {
+    prefix: "nativeCaptureDonor",
+  });
+  const captureId = readRequiredString(value, "captureId", donorIssues, {
+    prefix: "nativeCaptureDonor",
+  });
+  const modelId = readRequiredString(value, "modelId", donorIssues, {
+    prefix: "nativeCaptureDonor",
+  });
+  const providerId = readRequiredString(value, "providerId", donorIssues, {
+    prefix: "nativeCaptureDonor",
+  });
+  const requestHash = readRequiredString(value, "requestHash", donorIssues, {
+    prefix: "nativeCaptureDonor",
+  });
+  issues.push(...donorIssues);
+  if (!(artifactPath && captureId && modelId && providerId && requestHash)) {
+    return;
+  }
+  return { artifactPath, captureId, modelId, providerId, requestHash };
+}
+
+function readRequiredString(
+  record: Record<string, unknown>,
+  key: string,
+  issues: string[],
+  options: { readonly prefix?: string } = {}
+): string | undefined {
+  const value = readTrimmedString(record[key]);
+  if (!value) {
+    const field = options.prefix ? `${options.prefix}.${key}` : key;
+    issues.push(`profile.yaml: "${field}" must be a non-empty string.`);
+  }
+  return value;
 }
 
 export function parseSessionProfileTooling(

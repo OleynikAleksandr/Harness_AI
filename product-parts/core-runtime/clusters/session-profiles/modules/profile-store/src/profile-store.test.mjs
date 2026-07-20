@@ -26,6 +26,25 @@ async function writeProfile(rootDirectory, id, documents) {
   }
 }
 
+function studioPassport({
+  model = "opus",
+  nativeCaptureDonor = ["nativeCaptureDonor: null"],
+  status = "draft",
+} = {}) {
+  return [
+    "schemaVersion: 2",
+    "authoring: profile-studio",
+    "name: Studio Profile",
+    "description: Provider/model draft.",
+    "provider: claude",
+    `model: ${model}`,
+    `status: ${status}`,
+    "creatorSessionId: session-claude-studio",
+    ...nativeCaptureDonor,
+    "",
+  ].join("\n");
+}
+
 // Transpiled modules must live inside the repo so the bare "yaml" import
 // resolves against the project node_modules; .harness/runtime is ignored
 // local state.
@@ -93,6 +112,32 @@ try {
     "profile.yaml": "name: Missing Tooling\n",
     "system-prompt.md": "Prompt.\n",
   });
+  await writeProfile(profilesRoot, "studio-draft", {
+    "profile.yaml": studioPassport(),
+  });
+  await writeProfile(profilesRoot, "studio-valid", {
+    "custom-instructions.md": "Use the agreed planning workflow.\n",
+    "profile.yaml": studioPassport({
+      nativeCaptureDonor: [
+        "nativeCaptureDonor:",
+        "  artifactPath: /captures/claude-opus.jsonl",
+        "  captureId: capture-1",
+        "  modelId: opus",
+        "  providerId: claude",
+        "  requestHash: sha256-request",
+      ],
+      status: "valid",
+    }),
+    "system-prompt.md": "Reduced Claude foundation.\n",
+    "tools.json": '[{"name":"Read"}]\n',
+  });
+  await writeProfile(profilesRoot, "studio-missing-model", {
+    "profile.yaml": studioPassport({ model: "" }),
+  });
+  await writeProfile(profilesRoot, "studio-valid-incomplete", {
+    "profile.yaml": studioPassport({ status: "valid" }),
+    "system-prompt.md": "Reduced foundation.\n",
+  });
   await mkdir(path.join(profilesRoot, ".hidden"), { recursive: true });
 
   const store = new ProfileStoreFacade({ profilesRootDirectory: profilesRoot });
@@ -100,12 +145,20 @@ try {
 
   assert.deepEqual(
     scan.profiles.map((profile) => profile.id),
-    ["codeai-workflow-claude", "codex-nested", "review"]
+    [
+      "codeai-workflow-claude",
+      "codex-nested",
+      "review",
+      "studio-draft",
+      "studio-valid",
+    ]
   );
   assert.deepEqual(scan.invalid.map((failure) => failure.id).sort(), [
     "broken-yaml",
     "empty-prompt",
     "missing-tooling",
+    "studio-missing-model",
+    "studio-valid-incomplete",
     "unknown-category",
   ]);
 
@@ -134,12 +187,47 @@ try {
     path.join(profilesRoot, "Codex", "codex-nested")
   );
 
+  const studioDraft = scan.profiles.find(
+    (profile) => profile.id === "studio-draft"
+  );
+  assert.equal(studioDraft.passport.schemaVersion, 2);
+  assert.equal(studioDraft.passport.authoring, "profile-studio");
+  assert.equal(studioDraft.passport.provider, "claude");
+  assert.equal(studioDraft.passport.model, "opus");
+  assert.equal(studioDraft.passport.status, "draft");
+  assert.equal(studioDraft.passport.nativeCaptureDonor, null);
+  assert.equal(studioDraft.promptBody, "");
+  assert.equal(studioDraft.customInstructionsBody, "");
+  assert.equal(studioDraft.tooling.categories.shell, true);
+
+  const studioValid = scan.profiles.find(
+    (profile) => profile.id === "studio-valid"
+  );
+  assert.equal(studioValid.passport.status, "valid");
+  assert.deepEqual(studioValid.passport.nativeCaptureDonor, {
+    artifactPath: "/captures/claude-opus.jsonl",
+    captureId: "capture-1",
+    modelId: "opus",
+    providerId: "claude",
+    requestHash: "sha256-request",
+  });
+  assert.equal(studioValid.promptBody, "Reduced Claude foundation.\n");
+  assert.equal(
+    studioValid.customInstructionsBody,
+    "Use the agreed planning workflow.\n"
+  );
+
   const issueText = (id) =>
     scan.invalid.find((failure) => failure.id === id).issues.join(" ");
   assert.match(issueText("broken-yaml"), /invalid YAML/u);
   assert.match(issueText("unknown-category"), /unknown category "shall"/u);
   assert.match(issueText("empty-prompt"), /prompt body is empty/u);
   assert.match(issueText("missing-tooling"), /missing or unreadable/u);
+  assert.match(issueText("studio-missing-model"), /"model"/u);
+  assert.match(
+    issueText("studio-valid-incomplete"),
+    /custom-instructions\.md: file is missing or unreadable/u
+  );
 
   const paths = store.resolveDocumentPaths("review");
   assert.equal(

@@ -9,8 +9,11 @@ can still be read directly under `Profiles/`, while new provider-scoped
 profiles may live under a namespace such as `Profiles/Codex/<profileId>/`
 while keeping the same profile id; the namespace
 is not part of the id, so duplicate ids across namespaces are invalid product
-data), and the shared profile type model (legacy universal vs individual scope
-via the optional passport `provider` field, tooling category vocabulary v1).
+data), and the shared profile type model. That model now preserves legacy v1
+universal/individual scope while also parsing the Studio v2 discriminated
+passport (`schemaVersion: 2`, `authoring: profile-studio`, exact provider/model,
+Draft/Valid status, creator-session binding and immutable Native Capture donor
+provenance).
 
 The module scans the profiles root, parses and validates the required profile
 documents (`profile.yaml`, `system-prompt.md`, and `tooling.yaml` for every
@@ -45,6 +48,14 @@ Seeding runs only when the root contains no profile directories at all; user
 files are never overwritten and deleting a single seeded profile does not
 resurrect it.
 
+Studio v2 parsing is deliberately Draft-tolerant: a Draft with missing or empty
+`system-prompt.md` and `custom-instructions.md` remains readable so the creator
+conversation can progressively author it. A passport marked `valid` requires
+both source parts to exist and contain text. Studio profiles use `tools.json`
+and never require legacy `tooling.yaml`; malformed present JSON remains a
+storage validation failure. The facade returns both prompt source parts
+separately and does not compile them.
+
 ## Public Facade
 
 `ProfileStoreFacade`
@@ -62,12 +73,15 @@ resurrect it.
 - Resolved per-profile document paths (`profile.yaml`, `system-prompt.md`,
   `tooling.yaml` when profile-owned, plus optional `custom-instructions.md`,
   `input-prefix.json`, `request-template.json`, `tools.json`).
-- Shared session profile type model: passport (name, description, optional
-  `provider`), tooling category vocabulary v1 (`file-read`, `file-write`,
-  `shell`, `web`, `git`, `tests`), profile scope (`universal` |
-  `individual`).
+- Shared session profile type model: legacy passport (name, description,
+  optional `provider`) or Studio v2 passport (exact provider/model,
+  Draft/Valid, creator session and donor provenance), tooling category
+  vocabulary v1 (`file-read`, `file-write`, `shell`, `web`, `git`, `tests`),
+  profile scope (`universal` | `individual`).
 - Scanned profile list: valid `SessionProfile` entries (passport, prompt
-  body, normalized profile-owned tooling categories or the Codex app-server
+  body, separate custom-instructions body, normalized profile-owned tooling
+  categories or the Codex app-server/Studio default category model,
+  Draft-tolerant Studio source documents,
   default category model, optional native request bundle, scope, document paths) plus
   `SessionProfileValidationFailure` entries with human-readable issues
   (missing/unreadable file, invalid YAML, non-mapping top level, missing

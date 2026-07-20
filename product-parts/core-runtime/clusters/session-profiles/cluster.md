@@ -13,7 +13,13 @@ creation, validity status). Codex app-server provider-scoped profiles are
 prompt-only profiles and do not own a `tooling.yaml` sidecar; app-server
 process startup flags and its internal registry own that tool surface.
 
-Contract source: `docs/architecture/SessionProfiles.md`.
+The storage boundary additionally reads Studio v2 exact provider/model
+passports and their separate Native-foundation/custom-instructions prompt
+parts. Draft source parts may be incomplete; a stored `valid` passport must
+have both. Existing v1 parsing and runtime selection remain unchanged.
+
+Contract sources: `docs/architecture/SessionProfiles.md` and the accepted
+Studio extension in `docs/architecture/ProfileStudio.md`.
 
 ## Owned Modules
 

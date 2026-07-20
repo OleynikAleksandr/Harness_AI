@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase11.stream1.task1",
+  "expectedCommitMessage": "docs: plan profile studio mvp implementation",
   "debt": null
 }
 ```
@@ -119,3 +119,23 @@
 
 19. [DONE] `harness-ai.phase9.stream1.task1` Preserve the accepted runnable Profile Studio prototype under `.harness/runtime/prototypes/profile-studio-ui/**` and update the main proposal plus documentation catalog with the approved UI baseline, accepted boundaries, launch/reference paths and remaining non-accepted details (scope: `.harness/runtime/prototypes/profile-studio-ui/**, docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record accepted profile studio ui prototype`). Result: Completed in commit `docs: record accepted profile studio ui prototype`.
 20. [DONE] Git Commit: `docs: record accepted profile studio ui prototype` (hash: self)
+
+## Phase 10 - Implementation Planning Authorization (owner: Codex, updated: 2026-07-20)
+
+### Stream: Agreed MVP Direction
+
+21. [DONE] `harness-ai.phase10.stream1.task1` Add the user-authorized Profile Studio implementation-planning slice: Profile Studio is represented by new cluster/module/facade boundaries, the first Profile Creator Agent is a fixed Claude agent, the existing Harness session surface is reused, and declarative UI states must remain honest Core-backed read models rather than non-working controls (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add profile studio implementation planning slice`). Result: Completed in commit `plan: add profile studio implementation planning slice`.
+22. [DONE] Git Commit: `plan: add profile studio implementation planning slice` (hash: self)
+
+## Phase 11 - MVP Architecture Planning Document (owner: Codex, updated: 2026-07-20)
+
+### Stream: Cluster And Vertical Slice Contract
+
+23. [IN_PROGRESS] `harness-ai.phase11.stream1.task1` Create the discussion-ready Profile Studio MVP implementation planning document with explicit Core Runtime and Application Shell `profile-studio` clusters, facade-owned modules, fixed Claude Profile Creator Agent, provider/model-scoped Draft/Valid lifecycle, persistent creator-session identity, restricted authoring commands, reusable standard session surface, honest inspector states, migration from the current provider-only/external-editor Profile Creator, implementation slices and acceptance gates; align the main proposal and documentation catalog with this new planning artifact (scope: `docs/evidence/ProfileStudioMvpImplementation.md, docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: plan profile studio mvp implementation`).
+24. [TODO] Git Commit: `docs: plan profile studio mvp implementation` (hash: TBD)
+
+## Phase 12 - Planning Document Acceptance (owner: User, updated: 2026-07-20)
+
+### Stream: Architecture Review
+
+25. [TODO] `harness-ai.phase12.stream1.task1` User reviews and explicitly accepts or amends the Profile Studio MVP implementation planning document before any production implementation plan or source-code changes begin (completion: user-acceptance; scope: user workflow; expected commit: none).

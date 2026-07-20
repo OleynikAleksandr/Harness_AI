@@ -354,8 +354,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
 - both `profile-studio` clusters are **NOT APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
-- Studio v2 atomic Draft authoring is **APPLIED** through `profile-authoring`;
-  exact Studio catalog and v2 materialization are **NOT APPLIED**;
+- Studio v2 atomic Draft authoring and exact provider/model catalog are
+  **APPLIED** through existing session-profile facades;
+- Studio v2 materialization is **NOT APPLIED**;
 - fixed creator agent/session is **NOT APPLIED**;
 - reusable `SessionSurfaceFacade` is **NOT APPLIED**;
 - accepted HTML prototype exists only in ignored runtime state;

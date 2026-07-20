@@ -10,6 +10,13 @@ but are not offered for new sessions), and the session-creation resolution
 contract — "no selection => Native" as the guaranteed fallback, "selected but
 broken/inapplicable => structured error, never a silent fallback".
 
+The facade also owns the separate Profile Studio catalog. Its target is exact
+`provider + model`; it contains only parsable Studio v2 profiles (both Draft
+and Valid) and never contains virtual Native, Synthetic Native or legacy v1
+profiles. Ordinary pickers hide every Studio Draft and expose a Studio Valid
+entry only when the caller supplies the exact model id. Resolution repeats
+the status/model checks so a stale UI selection cannot bypass Core truth.
+
 ## Public Facade
 
 `ProfileCatalogFacade`
@@ -19,6 +26,8 @@ broken/inapplicable => structured error, never a silent fallback".
 - `ProfileStoreFacade` (constructor injection) for scanning, loading and
   first-access seeding (both listing entrypoints trigger seeding).
 - Provider id of the session being created.
+- Optional exact model id for Studio-aware ordinary picker/resolution calls.
+- Exact provider/model target for Studio listing.
 - The user's profile selection (`profileId`, optional).
 
 ## Outputs
@@ -33,15 +42,21 @@ broken/inapplicable => structured error, never a silent fallback".
   ids: `claude`, `codex`, `grok`, `kimi-client`, `glm-client`,
   `openrouter-client`, and `local-models-client`. Retired ids such as `kimi`
   and `glm-native` are not supported targets.
+- `listStudioProfilesForTarget({ providerId, modelId })` — Studio-only exact
+  target list with lifecycle status, creator-session binding and purpose; no
+  Native or legacy rows.
+- `listProfilesForProvider(providerId, modelId?)` preserves legacy behavior;
+  the optional model admits only exact-model Studio `Valid` rows.
 - Grok is managed-profile eligible because its adapter now proves both the
   system prompt override and effective restricted tooling after session
   creation. Native remains the first/fallback entry; a Grok-scoped managed
   profile is offered only when its passport declares `provider: grok`.
-- `resolveForSession({ profileId?, providerId })` —
+- `resolveForSession({ profileId?, providerId, modelId? })` —
   `{ ok: true, kind: "native" }` for no/native selection;
   `{ ok: true, kind: "managed", profile }` for an applicable valid profile;
   `{ ok: false, error }` for broken, missing, legacy universal, or
-  inapplicable selections and for managed selections on unsupported providers.
+  inapplicable selections, Studio Draft/wrong-model selections, and managed
+  selections on unsupported providers.
 
 ## Owned Paths
 

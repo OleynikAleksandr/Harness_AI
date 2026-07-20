@@ -20,6 +20,9 @@ have both. Existing v1 parsing and runtime selection remain unchanged.
 The authoring boundary can now create and atomically replace Studio Draft
 directories from complete agent-produced snapshots; this route never opens an
 external editor and never assigns `Valid`.
+The catalog exposes a separate exact provider/model Studio list with no Native
+or legacy rows, while the ordinary provider picker preserves v1 behavior and
+admits only exact-model Studio `Valid` profiles.
 
 Contract sources: `docs/architecture/SessionProfiles.md` and the accepted
 Studio extension in `docs/architecture/ProfileStudio.md`.

@@ -24,6 +24,40 @@ const buildDirectory = await mkdtemp(
 );
 const profilesRoot = await mkdtemp(path.join(tmpdir(), "harness-catalog-"));
 
+async function writeStudioProfile({ id, model, status }) {
+  const profileDirectory = path.join(profilesRoot, "Claude", id);
+  await mkdir(profileDirectory, { recursive: true });
+  await writeFile(
+    path.join(profileDirectory, "profile.yaml"),
+    [
+      "schemaVersion: 2",
+      "authoring: profile-studio",
+      `name: ${id}`,
+      "description: Studio catalog profile.",
+      `purpose: Purpose for ${id}`,
+      "provider: claude",
+      `model: ${model}`,
+      `status: ${status}`,
+      `creatorSessionId: session-${id}`,
+      "nativeCaptureDonor: null",
+      "",
+    ].join("\n"),
+    "utf8"
+  );
+  if (status === "valid") {
+    await writeFile(
+      path.join(profileDirectory, "system-prompt.md"),
+      `Foundation for ${id}.\n`,
+      "utf8"
+    );
+    await writeFile(
+      path.join(profileDirectory, "custom-instructions.md"),
+      `Custom instructions for ${id}.\n`,
+      "utf8"
+    );
+  }
+}
+
 try {
   await mkdir(path.join(buildDirectory, "profile-store", "src", "seed"), {
     recursive: true,
@@ -61,7 +95,6 @@ try {
     compile(new URL("./profile-catalog-facade.ts", import.meta.url)),
     "utf8"
   );
-
   const { ProfileStoreFacade } = await import(
     pathToFileURL(
       path.join(
@@ -89,6 +122,21 @@ try {
   const catalog = new ProfileCatalogFacade({ profileStore });
 
   await profileStore.ensureSeededProfiles();
+  await writeStudioProfile({
+    id: "draft-opus",
+    model: "opus",
+    status: "draft",
+  });
+  await writeStudioProfile({
+    id: "valid-opus",
+    model: "opus",
+    status: "valid",
+  });
+  await writeStudioProfile({
+    id: "valid-sonnet",
+    model: "sonnet",
+    status: "valid",
+  });
   await mkdir(path.join(profilesRoot, "review"), { recursive: true });
   await writeFile(
     path.join(profilesRoot, "review", "profile.yaml"),
@@ -132,6 +180,48 @@ try {
   assert.ok(claudeIds.includes("codeai-workflow-claude"));
   assert.ok(!claudeIds.includes("codeai-workflow-kimi"));
   assert.ok(!claudeIds.includes("codeai-workflow-glm-native"));
+  assert.ok(!claudeIds.includes("draft-opus"));
+  assert.ok(!claudeIds.includes("valid-opus"));
+
+  // Studio listing is exact provider/model and excludes Native/legacy data.
+  const opusStudioEntries = await catalog.listStudioProfilesForTarget({
+    modelId: "opus",
+    providerId: "claude",
+  });
+  assert.deepEqual(
+    opusStudioEntries.map((entry) => [entry.id, entry.status]),
+    [
+      ["draft-opus", "draft"],
+      ["valid-opus", "valid"],
+    ]
+  );
+  assert.ok(
+    opusStudioEntries.every(
+      (entry) => entry.provider === "claude" && entry.model === "opus"
+    )
+  );
+  const sonnetStudioEntries = await catalog.listStudioProfilesForTarget({
+    modelId: "sonnet",
+    providerId: "claude",
+  });
+  assert.deepEqual(
+    sonnetStudioEntries.map((entry) => entry.id),
+    ["valid-sonnet"]
+  );
+  const codexStudioEntries = await catalog.listStudioProfilesForTarget({
+    modelId: "opus",
+    providerId: "codex",
+  });
+  assert.deepEqual(codexStudioEntries, []);
+
+  // Ordinary picker admits only Valid Studio entries for the exact model.
+  const claudeOpusPicker = await catalog.listProfilesForProvider(
+    "claude",
+    "opus"
+  );
+  assert.ok(claudeOpusPicker.some((entry) => entry.id === "valid-opus"));
+  assert.ok(!claudeOpusPicker.some((entry) => entry.id === "draft-opus"));
+  assert.ok(!claudeOpusPicker.some((entry) => entry.id === "valid-sonnet"));
 
   const codexEntries = await catalog.listProfilesForProvider("codex");
   const codexIds = codexEntries.map((entry) => entry.id);
@@ -197,6 +287,33 @@ try {
   assert.equal(grokManaged.ok, true);
   assert.equal(grokManaged.kind, "managed");
   assert.equal(grokManaged.profile.passport.provider, "grok");
+
+  const studioWithoutModel = await catalog.resolveForSession({
+    profileId: "valid-opus",
+    providerId: "claude",
+  });
+  assert.equal(studioWithoutModel.ok, false);
+  assert.match(studioWithoutModel.error, /requires that exact model/u);
+  const studioWrongModel = await catalog.resolveForSession({
+    modelId: "sonnet",
+    profileId: "valid-opus",
+    providerId: "claude",
+  });
+  assert.equal(studioWrongModel.ok, false);
+  const studioDraftResolution = await catalog.resolveForSession({
+    modelId: "opus",
+    profileId: "draft-opus",
+    providerId: "claude",
+  });
+  assert.equal(studioDraftResolution.ok, false);
+  assert.match(studioDraftResolution.error, /Draft/u);
+  const studioManaged = await catalog.resolveForSession({
+    modelId: "opus",
+    profileId: "valid-opus",
+    providerId: "claude",
+  });
+  assert.equal(studioManaged.ok, true);
+  assert.equal(studioManaged.kind, "managed");
 
   const legacyUniversal = await catalog.resolveForSession({
     profileId: "review",

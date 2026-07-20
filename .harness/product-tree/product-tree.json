@@ -197,7 +197,7 @@
             {
               "id": "profile-catalog",
               "name": "Profile Catalog",
-              "purpose": "Profile selection truth: catalog read models, virtual Native profile, per-provider applicability, and session-creation resolution with structured errors."
+              "purpose": "Profile selection truth: legacy provider picker with virtual Native, exact provider/model Studio-only catalogs, and Core-enforced Draft/Valid session resolution."
             },
             {
               "id": "profile-materializer",

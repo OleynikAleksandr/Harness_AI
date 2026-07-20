@@ -36,6 +36,12 @@ agent-produced snapshot. Он атомарно заменяет две prompt pa
 `tools.json`, сохраняет purpose/donor metadata, не открывает VS Code и не
 может присвоить `Valid`.
 
+APPLIED catalog slice: `listStudioProfilesForTarget()` возвращает только
+Studio v2 profiles при точном provider/model match — без Native, Synthetic
+Native и legacy v1. Обычный provider picker сохраняет v1-поведение, скрывает
+Studio Draft и допускает Studio Valid только при exact model; Core повторяет
+эти проверки при resolution.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

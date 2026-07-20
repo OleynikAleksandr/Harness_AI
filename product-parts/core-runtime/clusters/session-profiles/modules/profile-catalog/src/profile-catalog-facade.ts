@@ -1,6 +1,8 @@
-import type {
-  ProfileStoreFacade,
-  SessionProfile,
+import {
+  isSessionProfileStudioPassport,
+  type ProfileStoreFacade,
+  type SessionProfile,
+  type SessionProfileStudioLifecycleStatus,
 } from "../../profile-store/src/profile-store-facade.js";
 
 export const NATIVE_SESSION_PROFILE_ID = "native";
@@ -30,9 +32,22 @@ export interface SessionProfileCatalogEntry {
   readonly id: string;
   readonly issues: readonly string[];
   readonly kind: SessionProfileCatalogEntryKind;
+  readonly model?: string;
   readonly name: string;
   readonly provider?: string;
+  readonly studioStatus?: SessionProfileStudioLifecycleStatus;
   readonly valid: boolean;
+}
+
+export interface SessionProfileStudioCatalogEntry {
+  readonly creatorSessionId: string;
+  readonly description: string;
+  readonly id: string;
+  readonly model: string;
+  readonly name: string;
+  readonly provider: string;
+  readonly purpose: string;
+  readonly status: SessionProfileStudioLifecycleStatus;
 }
 
 export type SessionProfileResolution =
@@ -78,7 +93,8 @@ export class ProfileCatalogFacade {
 
   /** Applicable profiles for the session-creation picker, Native first. */
   async listProfilesForProvider(
-    providerId: string
+    providerId: string,
+    modelId?: string
   ): Promise<readonly SessionProfileCatalogEntry[]> {
     const all = await this.listAllProfiles();
     if (!isProfileSupportedProvider(providerId)) {
@@ -87,8 +103,33 @@ export class ProfileCatalogFacade {
     return all.filter(
       (entry) =>
         entry.kind === "native" ||
-        isProviderProfileApplicable(providerId, entry.provider)
+        (isProviderProfileApplicable(providerId, entry.provider) &&
+          isPickerCompatibleStudioEntry(entry, modelId))
     );
+  }
+
+  /** Studio-only profiles for one exact target; Native and legacy stay out. */
+  async listStudioProfilesForTarget(request: {
+    readonly modelId: string;
+    readonly providerId: string;
+  }): Promise<readonly SessionProfileStudioCatalogEntry[]> {
+    const providerId = request.providerId.trim();
+    const modelId = request.modelId.trim();
+    if (!(providerId && modelId)) {
+      return [];
+    }
+    const scan = await this.profileStore.listProfiles();
+    return scan.profiles.flatMap((profile) => {
+      const passport = profile.passport;
+      if (
+        !isSessionProfileStudioPassport(passport) ||
+        passport.provider !== providerId ||
+        passport.model !== modelId
+      ) {
+        return [];
+      }
+      return [toStudioCatalogEntry(profile)];
+    });
   }
 
   /**
@@ -98,6 +139,7 @@ export class ProfileCatalogFacade {
    * fallback (docs/architecture/SessionProfiles.md, session start contract).
    */
   async resolveForSession(request: {
+    readonly modelId?: string;
     readonly profileId?: string;
     readonly providerId: string;
   }): Promise<SessionProfileResolution> {
@@ -139,6 +181,23 @@ export class ProfileCatalogFacade {
         ok: false,
       };
     }
+    if (isSessionProfileStudioPassport(profile.passport)) {
+      if (profile.passport.status !== "valid") {
+        return {
+          error: `Studio profile "${profileId}" is Draft and cannot be applied to an ordinary session.`,
+          ok: false,
+        };
+      }
+      if (
+        !request.modelId ||
+        profile.passport.model !== request.modelId.trim()
+      ) {
+        return {
+          error: `Studio profile "${profileId}" is for model "${profile.passport.model}" and requires that exact model selection.`,
+          ok: false,
+        };
+      }
+    }
     return { kind: "managed", ok: true, profile };
   }
 }
@@ -159,17 +218,50 @@ function isProviderProfileApplicable(
   return profileProvider === providerId;
 }
 
+function isPickerCompatibleStudioEntry(
+  entry: SessionProfileCatalogEntry,
+  modelId: string | undefined
+): boolean {
+  if (!entry.studioStatus) {
+    return true;
+  }
+  return entry.studioStatus === "valid" && entry.model === modelId?.trim();
+}
+
 function toCatalogEntry(profile: SessionProfile): SessionProfileCatalogEntry {
+  const studioPassport = isSessionProfileStudioPassport(profile.passport)
+    ? profile.passport
+    : undefined;
   return {
     description: profile.passport.description,
     id: profile.id,
     issues: [],
     kind: profile.scope,
     name: profile.passport.name,
+    ...(studioPassport ? { model: studioPassport.model } : {}),
     ...(profile.passport.provider
       ? { provider: profile.passport.provider }
       : {}),
+    ...(studioPassport ? { studioStatus: studioPassport.status } : {}),
     valid: true,
+  };
+}
+
+function toStudioCatalogEntry(
+  profile: SessionProfile
+): SessionProfileStudioCatalogEntry {
+  if (!isSessionProfileStudioPassport(profile.passport)) {
+    throw new Error(`Profile "${profile.id}" is not a Studio profile.`);
+  }
+  return {
+    creatorSessionId: profile.passport.creatorSessionId,
+    description: profile.passport.description,
+    id: profile.id,
+    model: profile.passport.model,
+    name: profile.passport.name,
+    provider: profile.passport.provider,
+    purpose: profile.passport.purpose,
+    status: profile.passport.status,
   };
 }
 

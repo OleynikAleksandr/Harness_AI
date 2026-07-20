@@ -76,6 +76,10 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `capture-proxy`: MITM CONNECT proxy that terminates TLS with a diagnostic cert, reads the provider's full request, filters the target endpoint from background traffic, and supports the forward-transit capture path required by Codex app-server WebSocket transport; also owns the Kimi native-CLI reverse-forward bridge for a client that ignores proxy env.
 - `capture-orchestrator`: command-level orchestration of model/reasoning-qualified native request capture — selects the CONNECT proxy or Kimi reverse bridge, wires the capture transport and artifact writer, invokes the provider diagnostic capture driver, and returns the artifact paths.
 
+### Profile Studio
+
+- `profile-studio-lifecycle`: immutable Draft identity, exact provider/model and creator-session binding, deterministic content-hash approval, and edit-to-Draft transition truth.
+
 ### Universal Client
 
 - `client-contract`: shared client contract types — turn request / messages / tool-calls, tool descriptor with a source abstraction (built-in now, MCP/skill reserved), per-provider dialect capability profile, client output-event and error model, and tool-name namespacing. Core-owned universal client for the OpenAI-shape provider four (Kimi/GLM/Local/OpenRouter); MCP/skills/subagents are reserved extension points, not MVP.

@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task1",
-  "expectedCommitMessage": "feat: add profile studio lifecycle facade",
+  "currentTaskId": "harness-ai.phase3.stream1.task2",
+  "expectedCommitMessage": "feat: add profile studio authoring facade",
   "debt": null
 }
 ```
@@ -91,10 +91,10 @@
 
 ### Stream: Lifecycle And Agent Authoring
 
-13. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Create the Core Runtime `profile-studio` cluster and `profile-studio-lifecycle` module/class facade with immutable Draft identity, exact content-hash approval, edit-to-Draft transition and profile↔creator-session binding (scope: lifecycle facade/test only plus new cluster/module docs, Core product-part doc and Product Tree; expected commit: `feat: add profile studio lifecycle facade`).
-14. [TODO] Git Commit: `feat: add profile studio lifecycle facade` (hash: TBD)
+13. [DONE] `harness-ai.phase3.stream1.task1` Create the Core Runtime `profile-studio` cluster and `profile-studio-lifecycle` module/class facade with immutable Draft identity, exact content-hash approval, edit-to-Draft transition and profile↔creator-session binding; add the narrow session-profile facade command that persists Core-approved `Valid` without exposing approval to the agent (scope: lifecycle facade/test and `profile-authoring-facade.ts` plus new cluster/module docs, Core product-part doc and Product Tree; expected commit: `feat: add profile studio lifecycle facade`). Result: Completed in commit `feat: add profile studio lifecycle facade`.
+14. [DONE] Git Commit: `feat: add profile studio lifecycle facade` (hash: self)
 
-15. [TODO] `harness-ai.phase3.stream1.task2` Add the `profile-studio-authoring` module/class facade that validates and atomically applies complete agent-produced snapshots through session-profile facades, including donor-path containment and honest provider tool modes (scope: authoring facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio authoring facade`).
+15. [IN_PROGRESS] `harness-ai.phase3.stream1.task2` Add the `profile-studio-authoring` module/class facade that validates and atomically applies complete agent-produced snapshots through session-profile facades, including donor-path containment and honest provider tool modes (scope: authoring facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio authoring facade`).
 16. [TODO] Git Commit: `feat: add profile studio authoring facade` (hash: TBD)
 
 17. [TODO] `harness-ai.phase3.stream1.task3` Add the `profile-studio-agent` module/class facade with fixed Claude/Opus/high identity, isolated inline instructions, JSON Schema full-snapshot output contract and no ambient settings/filesystem tools (scope: agent facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio agent facade`).

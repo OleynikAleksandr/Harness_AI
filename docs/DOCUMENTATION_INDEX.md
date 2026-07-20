@@ -28,6 +28,10 @@ relevant to the active task.
 - `.harness/plans/todo-plan.template.md` — template for a new active scope.
 - `.harness/plans/archive/*.md` — archived closed-scope plans; historical only.
 - `.harness/product-tree/product-tree.md` — readable product tree projection.
+- `product-parts/**/{product-part.md,cluster.md,module.md}` — live ownership,
+  public facade and boundary documentation for every implemented Product Part,
+  Cluster and Module; includes the active Core/Application Shell Profile Studio
+  modules as they are applied.
 
 ## Proposals
 

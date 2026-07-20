@@ -13,6 +13,7 @@ contracts, not through direct module imports.
 - `workspace-architecture`
 - `session-runtime`
 - `session-profiles`
+- `profile-studio`
 - `provider-network-capture`
 - `universal-client`
 - `settings-and-localization`
@@ -47,6 +48,9 @@ into `product-parts/**` as real module code.
 - Persist and validate Profile Studio v2 provider/model passports and their
   separate Draft-tolerant prompt source documents without turning renderer
   state into profile truth.
+- Own Profile Studio lifecycle truth: immutable Draft identity, exact
+  provider/model and creator-session binding, content-hash approval and
+  edit-to-Draft transitions through class facades.
 
 ## Out Of Scope
 

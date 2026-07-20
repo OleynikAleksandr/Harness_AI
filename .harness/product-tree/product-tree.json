@@ -239,6 +239,18 @@
           ]
         },
         {
+          "id": "profile-studio",
+          "name": "Profile Studio",
+          "purpose": "Core-owned provider/model Profile Studio workflow: immutable Draft lifecycle, creator-session binding, controlled agent authoring and inspector read models.",
+          "modules": [
+            {
+              "id": "profile-studio-lifecycle",
+              "name": "Profile Studio Lifecycle",
+              "purpose": "Immutable Draft identity, exact target/session binding, deterministic content-hash approval and edit-to-Draft transition truth."
+            }
+          ]
+        },
+        {
           "id": "universal-client",
           "name": "Universal Client",
           "purpose": "Core-owned universal client for OpenAI-shape providers (Kimi, GLM, Local Models, OpenRouter): the agent loop, tool registry and built-in tool execution, SSE + dialect streaming, and provider output-event mapping. Provider endpoints are thin Provider-Runtime modules on this core; MCP/skills/subagents are reserved extension points, not MVP.",

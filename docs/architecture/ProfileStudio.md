@@ -351,7 +351,9 @@ Core.
 
 At the start of plan `profile-studio-mvp-2026-07-20`:
 
-- both `profile-studio` clusters are **NOT APPLIED**;
+- Core `profile-studio` cluster and its lifecycle facade are **APPLIED**;
+- Core authoring/agent/read-model modules and the Application Shell
+  `profile-studio` cluster are **NOT APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are

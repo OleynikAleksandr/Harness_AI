@@ -53,6 +53,9 @@ filesystem access through this facade.
   without launching an editor.
 - `updateStudioDraft(request)` — validates and atomically replaces all managed
   Studio documents; every accepted agent edit remains `draft`.
+- `markStudioDraftValid(profileId)` — narrow Core lifecycle command that
+  atomically changes only the Studio passport status after external exact-hash
+  verification; it is not part of the creator-agent authoring contract.
 
 ## Owned Paths
 

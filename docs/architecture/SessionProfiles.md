@@ -48,6 +48,12 @@ Workspace `AGENTS.md`, Skills, date/language context и generic wrapper не
 добавляются; hash покрывает prompt, effective tools, exact target и donor
 provenance. V1 materialization не изменён.
 
+APPLIED lifecycle consumer: Core `ProfileStudioLifecycleFacade` использует
+только публичные session-profile facades, связывает immutable Draft с exact
+target и creator session, сравнивает direct approval с текущим deterministic
+hash и вызывает узкий `markStudioDraftValid()` только после совпадения.
+Следующий controlled snapshot снова записывает `status: draft`.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

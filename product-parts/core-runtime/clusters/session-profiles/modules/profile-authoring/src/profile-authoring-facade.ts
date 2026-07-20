@@ -155,6 +155,7 @@ export class ProfileAuthoringFacade {
       nativeCaptureDonor: null,
       provider: request.provider,
       purpose: request.purpose?.trim() ?? "",
+      status: "draft",
     });
     try {
       await replaceStudioDirectory(
@@ -202,6 +203,7 @@ export class ProfileAuthoringFacade {
       nativeCaptureDonor: request.snapshot.nativeCaptureDonor,
       provider: loadedPassport.provider,
       purpose: request.snapshot.purpose.trim(),
+      status: "draft",
     });
     try {
       await replaceStudioDirectory(
@@ -219,6 +221,46 @@ export class ProfileAuthoringFacade {
         id: request.profileId,
         ok: true,
       };
+    } catch (error) {
+      return { error: describeWriteFailure(error), ok: false };
+    }
+  }
+
+  async markStudioDraftValid(
+    profileId: string
+  ): Promise<StudioProfileAuthoringResult> {
+    const loaded = await this.profileStore.loadProfile(profileId);
+    if (!loaded.ok) {
+      return { error: `Studio profile "${profileId}" is invalid.`, ok: false };
+    }
+    const passport = loaded.profile.passport;
+    if (
+      !(
+        isSessionProfileStudioPassport(passport) &&
+        isStudioProviderId(passport.provider)
+      )
+    ) {
+      return {
+        error: `Profile "${profileId}" is not a Studio profile.`,
+        ok: false,
+      };
+    }
+    const passportText = buildStudioPassport({
+      creatorSessionId: passport.creatorSessionId,
+      description: passport.description,
+      model: passport.model,
+      name: passport.name,
+      nativeCaptureDonor: passport.nativeCaptureDonor,
+      provider: passport.provider,
+      purpose: passport.purpose,
+      status: "valid",
+    });
+    try {
+      await replaceFileAtomically(
+        loaded.profile.documents.passportPath,
+        passportText
+      );
+      return { documents: loaded.profile.documents, id: profileId, ok: true };
     } catch (error) {
       return { error: describeWriteFailure(error), ok: false };
     }
@@ -287,6 +329,7 @@ interface StudioPassportTemplate {
   readonly nativeCaptureDonor: SessionProfileNativeCaptureDonorReference | null;
   readonly provider: "claude" | "codex" | "kimi-client";
   readonly purpose: string;
+  readonly status: "draft" | "valid";
 }
 
 interface StudioDirectorySnapshot {
@@ -305,7 +348,7 @@ function buildStudioPassport(template: StudioPassportTemplate): string {
     purpose: template.purpose,
     provider: template.provider,
     model: template.model,
-    status: "draft",
+    status: template.status,
     creatorSessionId: template.creatorSessionId,
     nativeCaptureDonor: template.nativeCaptureDonor,
   });
@@ -406,6 +449,19 @@ async function writeStudioDirectory(
           ),
         ]),
   ]);
+}
+
+async function replaceFileAtomically(
+  filePath: string,
+  content: string
+): Promise<void> {
+  const temporaryPath = `${filePath}.${randomUUID()}.tmp`;
+  try {
+    await fs.writeFile(temporaryPath, content, "utf8");
+    await fs.rename(temporaryPath, filePath);
+  } finally {
+    await fs.rm(temporaryPath, { force: true });
+  }
 }
 
 function describeWriteFailure(error: unknown): string {

@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "docs: align profile studio with discussed ui",
   "debt": null
 }
 ```
@@ -77,3 +77,17 @@
 
 7. [DONE] `harness-ai.phase3.stream1.task1` Rewrite the Profile Studio proposal around the accepted first-stage product contract and align its documentation-index summary (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: refocus profile studio proposal`). Result: Completed in commit `docs: refocus profile studio proposal`.
 8. [DONE] Git Commit: `docs: refocus profile studio proposal` (hash: self)
+
+## Phase 4 - UI Discussion Plan (owner: Codex, updated: 2026-07-20)
+
+### Stream: Confirmed Product Surface
+
+9. [DONE] `harness-ai.phase4.stream1.task1` Add the confirmed Profile Studio UI discussion slice: a single-window application mode, provider/model-scoped creator sessions, Draft/Valid lifecycle, agent-internal Custom Capture, manual behavioral validation and the simplified Overview contract (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add profile studio ui discussion slice`). Result: Completed in commit `plan: add profile studio ui discussion slice`.
+10. [DONE] Git Commit: `plan: add profile studio ui discussion slice` (hash: self)
+
+## Phase 5 - Proposal UI Alignment (owner: Codex, updated: 2026-07-20)
+
+### Stream: Discussed Interface Contract
+
+11. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Align the Profile Studio proposal and documentation catalog with the confirmed sidebar, standard creator-session surface, compact inspector, Native Capture donor provenance, automatic textual Custom Capture repair and manual user validation decisions (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: align profile studio with discussed ui`).
+12. [TODO] Git Commit: `docs: align profile studio with discussed ui` (hash: TBD)

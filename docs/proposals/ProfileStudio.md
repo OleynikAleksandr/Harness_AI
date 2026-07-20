@@ -6,6 +6,12 @@
 пользователем 20 июля 2026 года как основа для дальнейшего проектирования и
 создания production-интерфейса.
 
+Статус implementation planning: пользователь подтвердил отдельные
+cluster/module/facade boundaries и фиксированного Claude Profile Creator Agent.
+Discussion-ready MVP-контракт вынесен в
+`docs/evidence/ProfileStudioMvpImplementation.md` для явной архитектурной
+приёмки до любых production source changes.
+
 Документ не является контрактом текущей кодовой базы или active
 implementation plan. Он фиксирует согласованную продуктовую идею первого
 этапа Profile Studio и отделяет её от функций, которые будут обсуждаться
@@ -803,8 +809,10 @@ Normalizer, автоматический выбор, динамическую с
 1. Физический формат каталога provider+model profile.
 2. Точные имена и provider-specific placement двух частей Custom System Prompt.
 3. Контракт draft identity до утверждения пользователем.
-4. Provider/model Profile Creator Agent для первой реализации.
-5. Точные authoring tools специализированного агента.
+4. Принять или скорректировать точную creator runtime configuration:
+   `claude` / `opus` / `high`.
+5. Принять предложенную structured full-snapshot authoring boundary вместо
+   unrestricted filesystem tools.
 6. Точный Core contract команды, переводящей профиль из `Draft` в `Valid` после
    подтверждения пользователя в диалоге.
 7. Состав и визуализация вкладки `Custom System Tools`.

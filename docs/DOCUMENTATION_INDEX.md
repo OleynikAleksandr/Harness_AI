@@ -39,12 +39,15 @@ resulting contract into `docs/architecture/**`, and only then create the active
 implementation plan.
 
 - `docs/proposals/ProfileStudio.md` — first-stage Profile Studio proposal:
-  Native and Custom Request Capture, agent-authored provider+model-specific
-  Custom Profiles assembled from readable prompt components, exact provider
-  tool subsets, user approval and manual session selection; Claude reduction,
-  Codex prompt-only limits, and full 25-tool Kimi parity on the universal
-  client. Normalizer, manual editing, revisions and automatic routing remain
-  explicitly outside this proposal.
+  a single-window Studio mode with provider/model-scoped persistent Profile
+  Creator sessions, a standard Harness AI session surface and a compact tabbed
+  inspector; agent-authored Custom Profiles assembled from readable prompt
+  components, explicit Native Capture donor provenance, exact provider tool
+  subsets, agent-internal Custom Capture repair, manual behavioral validation
+  and `Draft`/`Valid` approval. It also records Claude reduction, Codex
+  prompt-only limits and full 25-tool Kimi parity on the universal client.
+  Normalizer, manual editing, formal behavioral benchmarks, revisions and
+  automatic routing remain explicitly outside this proposal.
 
 ## Architecture
 

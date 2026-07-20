@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "docs: align profile studio with discussed ui",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -89,5 +89,5 @@
 
 ### Stream: Discussed Interface Contract
 
-11. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Align the Profile Studio proposal and documentation catalog with the confirmed sidebar, standard creator-session surface, compact inspector, Native Capture donor provenance, automatic textual Custom Capture repair and manual user validation decisions (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: align profile studio with discussed ui`).
-12. [TODO] Git Commit: `docs: align profile studio with discussed ui` (hash: TBD)
+11. [DONE] `harness-ai.phase5.stream1.task1` Align the Profile Studio proposal and documentation catalog with the confirmed sidebar, standard creator-session surface, compact inspector, Native Capture donor provenance, automatic textual Custom Capture repair and manual user validation decisions (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: align profile studio with discussed ui`). Result: Completed in commit `docs: align profile studio with discussed ui`.
+12. [DONE] Git Commit: `docs: align profile studio with discussed ui` (hash: self)

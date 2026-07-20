@@ -48,7 +48,7 @@
             {
               "id": "session-window",
               "name": "Session Window",
-              "purpose": "Ordinary workspace/session shell, state subscriptions, next-session mode flow and overlays around the shared Session Surface."
+              "purpose": "Ordinary workspace/session shell, state subscriptions, next-session mode flow, single-window Profile Studio mode switch and overlays around the shared Session Surface."
             },
             {
               "id": "session-surface",
@@ -73,7 +73,7 @@
             {
               "id": "session-sidebar",
               "name": "Session Sidebar",
-              "purpose": "Workspace switcher, workspace session list, next-session mode entry, session rename, and Settings entry."
+              "purpose": "Workspace switcher, workspace session list, next-session mode entry, session rename, Settings entry and Profile Studio entry."
             }
           ]
         },
@@ -91,6 +91,11 @@
               "id": "profile-studio-inspector",
               "name": "Profile Studio Inspector",
               "purpose": "Read-only Overview, Custom System Prompt and Custom System Tools projection with exact-hash approval intent."
+            },
+            {
+              "id": "profile-studio-shell",
+              "name": "Profile Studio Shell",
+              "purpose": "Single-window three-column Studio composition, Core snapshot/action forwarding, creator-session activation and return to ordinary sessions."
             }
           ]
         },

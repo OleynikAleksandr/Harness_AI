@@ -24,6 +24,9 @@ implementation modules in-process.
   central column without duplicating dialog/input/telemetry rendering.
 - Present Core-owned Profile Studio targets, compatible Draft/Valid
   profile-session rows and the read-only Overview/Prompt/Tools inspector.
+- Switch the main window between ordinary workspace/session navigation and the
+  three-column Profile Studio composition while detached sessions remain
+  session-only.
 - Present Core-owned recursive subagent session trees and submit open, detach,
   rename and regenerate-title intents without deriving orchestration state.
 - Resolve browser display copy through Core-provided localization payloads.

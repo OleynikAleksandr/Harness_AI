@@ -3,7 +3,8 @@
 ## Responsibility
 
 Own workspace switcher, selected-workspace recursive session tree, session
-rename UI, and Settings entry.
+rename UI, Settings entry and the one-click Profile Studio mode entry beside
+Settings.
 
 ## Public Facade
 
@@ -52,6 +53,8 @@ rename UI, and Settings entry.
   "delete works every other time" (second acceptance finding 2026-07-13,
   verified live via DevTools in the packaged app).
 - Settings navigation intent.
+- Profile Studio navigation intent. The entry exists only in the ordinary
+  sidebar; detached session windows do not render this facade.
 - Sidebar, workspace menu, session context menu, and Settings entry copy
   resolved through the shared browser localization provider.
 

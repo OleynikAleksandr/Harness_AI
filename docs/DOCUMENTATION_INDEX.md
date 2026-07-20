@@ -32,8 +32,9 @@ relevant to the active task.
   public facade and boundary documentation for every implemented Product Part,
   Cluster and Module; includes the active Core/Application Shell Profile Studio
   modules as they are applied, including the snapshot-driven Studio sidebar
-  and read-only inspector, and the shared Session Surface module reused by the
-  ordinary shell and Profile Studio.
+  and read-only inspector, its single-window shell/mode composition, and the
+  shared Session Surface module reused by the ordinary shell and Profile
+  Studio.
 
 ## Proposals
 

@@ -23,17 +23,18 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 ### Session Interface
 
-- `session-window`: ordinary workspace/session shell, state subscriptions, next-session mode flow and overlays around the shared Session Surface.
+- `session-window`: ordinary workspace/session shell, state subscriptions, next-session mode flow, single-window Profile Studio mode switch and overlays around the shared Session Surface.
 - `session-surface`: reusable SessionId, dialog timeline, subagent header, composer/Stop/timing and provider status composition driven by Core state.
 - `input-controls`: message input, Stop/Play controls, busy/lock display, and user intent submission only.
 - `turn-timer`: pure-display session turn timers — the per-turn input-row timer and the footer-right total of completed turns, rendered from Core-derived timing props.
 - `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
-- `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry.
+- `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry and Profile Studio entry.
 
 ### Profile Studio
 
 - `profile-studio-sidebar`: provider/model target selection, Draft creation, compatible Draft/Valid creator-session rows, and return intent from Core snapshots.
 - `profile-studio-inspector`: read-only Overview, Custom System Prompt and Custom System Tools projection with exact-hash approval intent.
+- `profile-studio-shell`: single-window three-column Studio composition, Core snapshot/action forwarding, creator-session activation and return to ordinary sessions.
 
 ### Settings Surface
 

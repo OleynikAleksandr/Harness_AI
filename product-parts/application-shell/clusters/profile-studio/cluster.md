@@ -11,9 +11,7 @@ remain in Core Runtime.
 
 - `profile-studio-sidebar`
 - `profile-studio-inspector`
-
-The `profile-studio-shell` composition module is added by the next active-plan
-slice. Until then these two facades are not mounted in the application window.
+- `profile-studio-shell`
 
 ## Facade Rule
 

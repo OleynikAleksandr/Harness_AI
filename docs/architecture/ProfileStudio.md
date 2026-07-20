@@ -364,9 +364,11 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   the dedicated HARNESS_AI_HOME-aware workspace, persisted prompt snapshot,
   empty tools/settings and Studio output schema on every create/resume
   dispatch;
-- Application Shell `profile-studio` cluster, snapshot-driven sidebar and
-  read-only inspector facades are **APPLIED**; the single-window shell/mode
-  composition is **NOT APPLIED**;
+- Application Shell `profile-studio` cluster, snapshot-driven sidebar,
+  read-only inspector and single-window shell/mode composition are **APPLIED**;
+  the ordinary sidebar provides one-click entry beside Settings, return
+  restores the user workspace session list, and detached windows cannot enter
+  Studio;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are
@@ -381,8 +383,8 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   forwarding, renderer bridge types and isolated `profile-studio:updated`
   subscription are **APPLIED**;
 - reusable `SessionSurfaceFacade` is **APPLIED** and the ordinary Session
-  Window consumes it with the existing panels/class names; Studio shell
-  consumption is **NOT APPLIED**;
+  Window and Profile Studio shell consume it with the existing panels/class
+  names;
 - accepted HTML prototype exists only in ignored runtime state;
 - current v1 Session Profiles and Settings Profile Creator remain live.
 

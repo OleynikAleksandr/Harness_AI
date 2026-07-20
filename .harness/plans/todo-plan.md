@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task2",
-  "expectedCommitMessage": "feat: add profile studio application mode",
+  "currentTaskId": "harness-ai.phase6.stream1.task3",
+  "expectedCommitMessage": "refactor: retire settings profile creator entry",
   "debt": null
 }
 ```
@@ -133,10 +133,10 @@
 31. [DONE] `harness-ai.phase6.stream1.task1` Create the Application Shell `profile-studio` cluster with facade-owned sidebar and inspector modules driven only by Core snapshots, including accepted provider/model/profile rows and three read-only tabs (scope: sidebar facade, inspector facade, shared Studio CSS plus cluster/module docs, Application Shell product-part doc and Product Tree; expected commit: `feat: add profile studio sidebar and inspector`). Result: Completed in commit `feat: add profile studio sidebar and inspector`.
 32. [DONE] Git Commit: `feat: add profile studio sidebar and inspector` (hash: self)
 
-33. [IN_PROGRESS] `harness-ai.phase6.stream1.task2` Add the `profile-studio-shell` facade and single-window mode switch beside Settings, reuse `SessionSurfaceFacade`, restore ordinary workspace/session mode and exclude detached windows (scope: profile-studio shell facade, session-window integration, focused mode test plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio application mode`).
-34. [TODO] Git Commit: `feat: add profile studio application mode` (hash: TBD)
+33. [DONE] `harness-ai.phase6.stream1.task2` Add the `profile-studio-shell` facade and single-window mode switch beside Settings, reuse `SessionSurfaceFacade`, restore ordinary workspace/session mode and exclude detached windows (scope: up to 4 functional files — profile-studio shell facade, shared Studio CSS, session-window integration and session-sidebar entry — plus focused mode test, cluster/module docs and Product Tree; expected commit: `feat: add profile studio application mode`). Result: Completed in commit `feat: add profile studio application mode`.
+34. [DONE] Git Commit: `feat: add profile studio application mode` (hash: self)
 
-35. [TODO] `harness-ai.phase6.stream1.task3` Remove the old Settings Profile Creator authoring entry while preserving legacy runtime profiles, translations and normal session picker compatibility (scope: settings tab composition, profile-settings facade/registration, focused test plus related docs; expected commit: `refactor: retire settings profile creator entry`).
+35. [IN_PROGRESS] `harness-ai.phase6.stream1.task3` Remove the old Settings Profile Creator authoring entry while preserving legacy runtime profiles, translations and normal session picker compatibility (scope: settings tab composition, profile-settings facade/registration, focused test plus related docs; expected commit: `refactor: retire settings profile creator entry`).
 36. [TODO] Git Commit: `refactor: retire settings profile creator entry` (hash: TBD)
 
 ## Phase 7 - Provider Capability Application (owner: Codex, updated: 2026-07-20)

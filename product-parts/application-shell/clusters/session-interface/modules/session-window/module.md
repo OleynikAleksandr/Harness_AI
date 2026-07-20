@@ -7,6 +7,12 @@ central transcript/dialog/input/status composition is delegated unchanged to
 `SessionSurfaceFacade`, so Profile Studio can reuse it without copying hooks or
 panels.
 
+The facade also owns the top-level `sessions`/`studio` application-mode switch.
+Entering Studio loads persistent creator sessions from the dedicated
+`profile-studio` workspace into the existing session controller; returning
+reloads the prior user workspace. Detached session windows never expose the
+switch.
+
 ## Public Facade
 
 `SessionWindowFacade`
@@ -49,10 +55,10 @@ panels.
 - The shared `vite-env.d.ts` bridge contract models Native Request Capture
   `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
   that expose no independent reasoning selector.
-- The shared bridge types also declare the Core Profile Studio target,
-  compatible profile, inspector, Draft creation, exact-hash approval and
-  isolated update-subscription contracts. Session Window does not consume
-  those commands/events; the later Studio shell uses the same declaration.
+- The shared bridge types declare the Core Profile Studio target, compatible
+  profile, inspector, Draft creation, exact-hash approval and isolated
+  update-subscription contracts. Session Window mounts the Studio shell; that
+  facade consumes the bridge without moving lifecycle truth into the renderer.
 - The `ProviderVersionsSnapshot` bridge type carries `kimi: { cli }` without a
   `packageName` (the Kimi CLI is a standalone binary, not an npm package) and
   `updateProviderVersion` accepts `provider: "kimi"`; the snapshot stays

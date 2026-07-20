@@ -7,6 +7,7 @@ import type { HarnessSettings } from "../../../../../../core-runtime/clusters/se
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { ProfileStudioShellFacade } from "../../../../profile-studio/modules/profile-studio-shell/src/profile-studio-shell-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
 import { SessionSurfaceFacade } from "../../session-surface/src/session-surface-facade.js";
@@ -38,6 +39,9 @@ export function SessionWindowFacade() {
   );
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
+  const [applicationMode, setApplicationMode] = useState<"sessions" | "studio">(
+    "sessions"
+  );
   const [profileStepProvider, setProfileStepProvider] =
     useState<ProviderDescriptor | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -200,6 +204,29 @@ export function SessionWindowFacade() {
     refreshLocalizationPayload().catch(noop);
   }
 
+  async function openProfileStudio() {
+    if (detachedMode) {
+      return;
+    }
+    setIsSettingsOpen(false);
+    setIsProviderPickerOpen(false);
+    setProfileStepProvider(null);
+    setApplicationMode("studio");
+    const studioSessions =
+      (await window.harnessCore?.listSessions("profile-studio")) ?? [];
+    for (const session of [...studioSessions].reverse()) {
+      addSessionToState(session);
+    }
+    if (studioSessions[0]) {
+      await selectSession(studioSessions[0].id);
+    }
+  }
+
+  async function returnToSessions() {
+    setApplicationMode("sessions");
+    await refreshSessions(activeWorkspace.id);
+  }
+
   async function appendUserMessage(text: string) {
     const result = await window.harnessCore?.sendMessage({
       sessionId: activeSessionId,
@@ -343,88 +370,105 @@ export function SessionWindowFacade() {
   const shellClassName = detachedMode
     ? "harness-app-shell harness-app-shell--detached"
     : "harness-app-shell";
+  const studioSessions = sessions.filter(
+    (session) => session.sessionPurpose?.type === "profile-creator"
+  );
+  const sessionSurface = {
+    messages,
+    onOpenSession: selectSession,
+    onRollbackTurns: (preserveFirstUserTurns: number) =>
+      activeSession &&
+      rollbackActiveSessionTurns(activeSession.id, preserveFirstUserTurns),
+    onStop: () => activeSession && stopActiveTurn(activeSession.id),
+    onSubmit: appendUserMessage,
+    rollbackPending: rollbackSessionId === activeSession?.id,
+    running: runningSessionId === activeSession?.id,
+    session: activeSession,
+    sessions,
+    settings: settingsSnapshot,
+    subagentCalls,
+    telemetry,
+    timing: {
+      activeMs: turnTiming.activeMs,
+      runningSince:
+        runningSessionId === activeSession?.id ? turnTiming.runningSince : null,
+    },
+    workspaceRoot: activeWorkspace.path,
+  };
   return (
     <BrowserLocalizationProvider payload={localizationPayload}>
       <div className={shellClassName}>
-        {detachedMode ? null : (
-          <SessionSidebarFacade
-            activeSessionId={activeSession?.id ?? ""}
-            isWorkspaceMenuOpen={isWorkspaceMenuOpen}
-            onAddWorkspace={addWorkspace}
-            onCreateSession={openProviderPicker}
-            onDeleteSession={deleteSession}
-            onDetachSession={detachSession}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            onRegenerateSessionTitle={regenerateSessionTitle}
-            onRenameSession={renameSession}
-            onSelectSession={selectSession}
-            onSelectWorkspace={selectWorkspace}
-            onToggleWorkspaceMenu={() =>
-              setIsWorkspaceMenuOpen((current) => !current)
-            }
-            sessions={sessions}
-            workspace={activeWorkspace}
-            workspaces={workspaces}
-          />
-        )}
-
-        <SessionSurfaceFacade
-          messages={messages}
-          onOpenSession={selectSession}
-          onRollbackTurns={(preserveFirstUserTurns) =>
-            activeSession &&
-            rollbackActiveSessionTurns(activeSession.id, preserveFirstUserTurns)
-          }
-          onStop={() => activeSession && stopActiveTurn(activeSession.id)}
-          onSubmit={appendUserMessage}
-          rollbackPending={rollbackSessionId === activeSession?.id}
-          running={runningSessionId === activeSession?.id}
-          session={activeSession}
-          sessions={sessions}
-          settings={settingsSnapshot}
-          subagentCalls={subagentCalls}
-          telemetry={telemetry}
-          timing={{
-            activeMs: turnTiming.activeMs,
-            runningSince:
-              runningSessionId === activeSession?.id
-                ? turnTiming.runningSince
-                : null,
-          }}
-          workspaceRoot={activeWorkspace?.path}
-        />
-
-        {profileStepProvider ? (
-          <SessionProfileStep
-            onBack={() => {
-              setProfileStepProvider(null);
-              openProviderPicker();
+        {applicationMode === "studio" && !detachedMode ? (
+          <ProfileStudioShellFacade
+            onAddCreatorSession={addSessionToState}
+            onReturn={returnToSessions}
+            onSelectCreatorSession={selectSession}
+            sessionSurface={{
+              ...sessionSurface,
+              session:
+                activeSession?.sessionPurpose?.type === "profile-creator"
+                  ? activeSession
+                  : undefined,
+              sessions: studioSessions,
             }}
-            onClose={() => setProfileStepProvider(null)}
-            onStart={(profileId) =>
-              createSession(profileStepProvider, profileId)
-            }
-            provider={profileStepProvider}
           />
-        ) : null}
-        {isProviderPickerOpen ? (
-          <ProviderPicker
-            onClose={() => setIsProviderPickerOpen(false)}
-            onSelect={chooseProviderForNewSession}
-            providers={providerOptions}
-            settings={settingsSnapshot}
-          />
-        ) : null}
-
-        <ProviderSettingsUiFacade
-          isOpen={isSettingsOpen}
-          onClose={closeSettings}
-          onLocalizationRuntimeRefresh={refreshLocalizationPayload}
-        />
-        <ActiveGrokInteractionPanel
-          sessionId={activeSession?.id}
-          state={grokInteractions}
-        />
+        ) : (
+          <>
+            {detachedMode ? null : (
+              <SessionSidebarFacade
+                activeSessionId={activeSession?.id ?? ""}
+                isWorkspaceMenuOpen={isWorkspaceMenuOpen}
+                onAddWorkspace={addWorkspace}
+                onCreateSession={openProviderPicker}
+                onDeleteSession={deleteSession}
+                onDetachSession={detachSession}
+                onOpenProfileStudio={openProfileStudio}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                onRegenerateSessionTitle={regenerateSessionTitle}
+                onRenameSession={renameSession}
+                onSelectSession={selectSession}
+                onSelectWorkspace={selectWorkspace}
+                onToggleWorkspaceMenu={() =>
+                  setIsWorkspaceMenuOpen((current) => !current)
+                }
+                sessions={sessions}
+                workspace={activeWorkspace}
+                workspaces={workspaces}
+              />
+            )}
+            <SessionSurfaceFacade {...sessionSurface} />
+            {profileStepProvider ? (
+              <SessionProfileStep
+                onBack={() => {
+                  setProfileStepProvider(null);
+                  openProviderPicker();
+                }}
+                onClose={() => setProfileStepProvider(null)}
+                onStart={(profileId) =>
+                  createSession(profileStepProvider, profileId)
+                }
+                provider={profileStepProvider}
+              />
+            ) : null}
+            {isProviderPickerOpen ? (
+              <ProviderPicker
+                onClose={() => setIsProviderPickerOpen(false)}
+                onSelect={chooseProviderForNewSession}
+                providers={providerOptions}
+                settings={settingsSnapshot}
+              />
+            ) : null}
+            <ProviderSettingsUiFacade
+              isOpen={isSettingsOpen}
+              onClose={closeSettings}
+              onLocalizationRuntimeRefresh={refreshLocalizationPayload}
+            />
+            <ActiveGrokInteractionPanel
+              sessionId={activeSession?.id}
+              state={grokInteractions}
+            />
+          </>
+        )}
       </div>
     </BrowserLocalizationProvider>
   );

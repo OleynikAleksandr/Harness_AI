@@ -1,4 +1,10 @@
-import { ChevronDown, FolderPlus, Plus, Settings } from "lucide-react";
+import {
+  ChevronDown,
+  FolderPlus,
+  PanelsTopLeft,
+  Plus,
+  Settings,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
@@ -12,6 +18,7 @@ interface SessionSidebarProps {
   onCreateSession: () => void;
   onDeleteSession: (sessionId: string) => void;
   onDetachSession: (sessionId: string) => void;
+  onOpenProfileStudio: () => void;
   onOpenSettings: () => void;
   onRegenerateSessionTitle?: (sessionId: string) => Promise<string | null>;
   onRenameSession?: (
@@ -37,6 +44,7 @@ export function SessionSidebarFacade({
   onDeleteSession,
   onDetachSession,
   onOpenSettings,
+  onOpenProfileStudio,
   onRegenerateSessionTitle,
   onRenameSession,
   onSelectSession,
@@ -327,15 +335,26 @@ export function SessionSidebarFacade({
         </nav>
       </div>
 
-      <button
-        className="settings-entry"
-        onClick={onOpenSettings}
-        title={t("ui_labels", "settings.title", "Settings")}
-        type="button"
-      >
-        <Settings aria-hidden="true" size={16} />
-        <span>{t("ui_labels", "settings.title", "Settings")}</span>
-      </button>
+      <div className="profile-studio-entry-group">
+        <button
+          className="settings-entry"
+          onClick={onOpenProfileStudio}
+          title="Profile Studio"
+          type="button"
+        >
+          <PanelsTopLeft aria-hidden="true" size={16} />
+          <span>Profile Studio</span>
+        </button>
+        <button
+          className="settings-entry"
+          onClick={onOpenSettings}
+          title={t("ui_labels", "settings.title", "Settings")}
+          type="button"
+        >
+          <Settings aria-hidden="true" size={16} />
+          <span>{t("ui_labels", "settings.title", "Settings")}</span>
+        </button>
+      </div>
       {renameTarget && onRenameSession ? (
         <div className="session-rename-layer">
           <button

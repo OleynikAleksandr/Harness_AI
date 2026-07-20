@@ -51,7 +51,7 @@ const facadeSource = readFileSync(
   new URL("./session-window-facade.tsx", import.meta.url),
   "utf8"
 );
-assert.match(facadeSource, /workspaceRoot=\{activeWorkspace\?\.path\}/u);
+assert.match(facadeSource, /workspaceRoot: activeWorkspace\.path/u);
 assert.match(
   stylesSource,
   /\.session-dialog__content--markdown a \{[^}]*display: inline-block/u

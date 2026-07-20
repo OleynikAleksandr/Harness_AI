@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "docs: simplify profile studio prompt surfaces",
   "debt": null
 }
 ```
@@ -91,3 +91,17 @@
 
 11. [DONE] `harness-ai.phase5.stream1.task1` Align the Profile Studio proposal and documentation catalog with the confirmed sidebar, standard creator-session surface, compact inspector, Native Capture donor provenance, automatic textual Custom Capture repair and manual user validation decisions (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: align profile studio with discussed ui`). Result: Completed in commit `docs: align profile studio with discussed ui`.
 12. [DONE] Git Commit: `docs: align profile studio with discussed ui` (hash: self)
+
+## Phase 6 - Prompt Surface Discussion Plan (owner: Codex, updated: 2026-07-20)
+
+### Stream: Confirmed Two-Part Prompt Contract
+
+13. [DONE] `harness-ai.phase6.stream1.task1` Add the confirmed Profile Studio discussion slice: the Custom System Prompt consists only of a reduced Native foundation and concise Custom additions, Custom System Tools remain separate, and Capture moves out of the inspector tabs into a separately discussed diagnostic interface (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add profile studio prompt surface slice`). Result: Completed in commit `plan: add profile studio prompt surface slice`.
+14. [DONE] Git Commit: `plan: add profile studio prompt surface slice` (hash: self)
+
+## Phase 7 - Proposal Prompt Surface Alignment (owner: Codex, updated: 2026-07-20)
+
+### Stream: Custom System Prompt And Tools
+
+15. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Align the Profile Studio proposal and documentation catalog with the two-part Custom System Prompt, separate Custom System Tools surface, and removal of Capture from the inspector tabs pending a separate interface decision (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: simplify profile studio prompt surfaces`).
+16. [TODO] Git Commit: `docs: simplify profile studio prompt surfaces` (hash: TBD)

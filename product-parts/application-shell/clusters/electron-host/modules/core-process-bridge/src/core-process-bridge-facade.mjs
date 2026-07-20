@@ -3,6 +3,13 @@ import { createCoreProcessSupervisor } from "./core-process-supervisor.mjs";
 
 const IPC_TO_RPC = {
   "harness-ai:core:create-session": "create-session",
+  "harness-ai:core:list-profile-studio-targets": "list-profile-studio-targets",
+  "harness-ai:core:list-profile-studio-profiles":
+    "list-profile-studio-profiles",
+  "harness-ai:core:get-profile-studio-profile": "get-profile-studio-profile",
+  "harness-ai:core:create-profile-studio-draft": "create-profile-studio-draft",
+  "harness-ai:core:approve-profile-studio-draft":
+    "approve-profile-studio-draft",
   "harness-ai:core:delete-session": "delete-session",
   "harness-ai:core:ensure-glossary-file": "ensure-glossary-file",
   "harness-ai:core:list-session-profiles": "list-session-profiles",

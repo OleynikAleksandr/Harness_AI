@@ -66,6 +66,9 @@ into `product-parts/**` as real module code.
 - Project Profile Studio target/profile/inspector read models from Core truth,
   including Claude subset, Codex fixed and Kimi 9/25 Draft-only capability
   states.
+- Expose typed Profile Studio list/get/create/approve RPC commands and
+  profile-file update events; creation couples a Draft with its persistent
+  creator session and approval preserves Core hash/capability gates.
 
 ## Out Of Scope
 

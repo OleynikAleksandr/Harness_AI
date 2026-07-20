@@ -375,6 +375,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   controlled assistant projection, atomic full-snapshot authoring and one
   bounded automatic repair turn are **APPLIED**; approval interaction is
   **NOT APPLIED**;
+- typed target/profile/inspector/Create/Approve Core RPC, Electron/preload
+  forwarding, renderer bridge types and isolated `profile-studio:updated`
+  subscription are **APPLIED**;
 - reusable `SessionSurfaceFacade` is **NOT APPLIED**;
 - accepted HTML prototype exists only in ignored runtime state;
 - current v1 Session Profiles and Settings Profile Creator remain live.

@@ -25,6 +25,12 @@ interface ProviderStatusEvent {
   type: "provider:status";
 }
 
+interface ProfileStudioUpdatedEvent {
+  profileId: string | null;
+  reason: "profile-files-changed";
+  type: "profile-studio:updated";
+}
+
 interface ProviderVersionEntry {
   currentVersion: null | string;
   latestVersion: null | string;
@@ -48,6 +54,42 @@ interface Window {
           session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
         }
       | { error: string; ok: false }
+    >;
+    listProfileStudioTargets(): Promise<{
+      ok: true;
+      targets: readonly import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-read-model/src/profile-studio-read-model-facade.js").ProfileStudioTargetProvider[];
+    }>;
+    listProfileStudioProfiles(request: {
+      modelId: string;
+      providerId: import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-lifecycle/src/profile-studio-lifecycle-facade.js").ProfileStudioProviderId;
+    }): Promise<
+      | {
+          ok: true;
+          profiles: readonly import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-read-model/src/profile-studio-read-model-facade.js").ProfileStudioProfileRow[];
+        }
+      | { error: string; ok: false }
+    >;
+    getProfileStudioProfile(request: {
+      profileId: string;
+    }): Promise<
+      import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-read-model/src/profile-studio-read-model-facade.js").ProfileStudioInspectorResult
+    >;
+    createProfileStudioDraft(request: {
+      modelId: string;
+      providerId: import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-lifecycle/src/profile-studio-lifecycle-facade.js").ProfileStudioProviderId;
+    }): Promise<
+      | {
+          ok: true;
+          profile: import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-lifecycle/src/profile-studio-lifecycle-facade.js").ProfileStudioProfile;
+          session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
+        }
+      | { error: string; ok: false }
+    >;
+    approveProfileStudioDraft(request: {
+      contentHash: string;
+      profileId: string;
+    }): Promise<
+      import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-lifecycle/src/profile-studio-lifecycle-facade.js").ProfileStudioLifecycleResult
     >;
     deleteSession(
       sessionId: string
@@ -164,6 +206,9 @@ interface Window {
           | import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent
           | ProviderStatusEvent
       ) => void
+    ): () => void;
+    onProfileStudioUpdated(
+      listener: (event: ProfileStudioUpdatedEvent) => void
     ): () => void;
     saveProviderSystemSettings(request: {
       providerId: string;

@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase4.stream1.task4",
-  "expectedCommitMessage": "feat: expose profile studio core bridge",
+  "currentTaskId": "harness-ai.phase5.stream1.task1",
+  "expectedCommitMessage": "refactor: extract reusable session surface",
   "debt": null
 }
 ```
@@ -116,14 +116,14 @@
 25. [DONE] `harness-ai.phase4.stream1.task3` Route Claude structured creator results into controlled assistant text, full-snapshot validation/application and repair notices without parsing free-form renderer text (scope: up to 3 Core/provider functional files plus related docs; expected commit: `feat: apply profile creator structured results`). Result: Completed in commit `feat: apply profile creator structured results`.
 26. [DONE] Git Commit: `feat: apply profile creator structured results` (hash: self)
 
-27. [IN_PROGRESS] `harness-ai.phase4.stream1.task4` Expose typed Profile Studio list/get/create/approve commands and update events through Core runtime API, Electron bridge and renderer contract (scope: core runtime RPC, preload bridge, renderer bridge types plus related docs; expected commit: `feat: expose profile studio core bridge`).
-28. [TODO] Git Commit: `feat: expose profile studio core bridge` (hash: TBD)
+27. [DONE] `harness-ai.phase4.stream1.task4` Expose typed Profile Studio list/get/create/approve commands and update events through Core runtime API, Electron bridge and renderer contract (scope: Core Profile Studio RPC helper/composition, Core runtime dispatch, Electron IPC map, preload bridge and renderer bridge types plus related docs; up to 5 functional files; expected commit: `feat: expose profile studio core bridge`). Result: Completed in commit `feat: expose profile studio core bridge`.
+28. [DONE] Git Commit: `feat: expose profile studio core bridge` (hash: self)
 
 ## Phase 5 - Reusable Session Surface (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Existing Interface Reuse
 
-29. [TODO] `harness-ai.phase5.stream1.task1` Create the `session-surface` module/facade from the existing central SessionId/Dialog/Input/Status composition and make ordinary Session Window consume it without visual or runtime behavior changes (scope: new session-surface facade, session-window-facade.tsx, focused regression test plus cluster/module docs and Product Tree; expected commit: `refactor: extract reusable session surface`).
+29. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Create the `session-surface` module/facade from the existing central SessionId/Dialog/Input/Status composition and make ordinary Session Window consume it without visual or runtime behavior changes (scope: new session-surface facade, session-window-facade.tsx, focused regression test plus cluster/module docs and Product Tree; expected commit: `refactor: extract reusable session surface`).
 30. [TODO] Git Commit: `refactor: extract reusable session surface` (hash: TBD)
 
 ## Phase 6 - Application Shell Profile Studio Cluster (owner: Codex, updated: 2026-07-20)

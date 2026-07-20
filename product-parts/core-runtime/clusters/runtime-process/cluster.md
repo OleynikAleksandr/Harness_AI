@@ -19,8 +19,9 @@ cluster. It must not import Core implementation modules directly.
 - `GET /api/v1/health` and `GET /api/v1/status` report process readiness.
 - `POST /api/v1/shutdown` stops Core through the supervisor contract.
 - `POST /api/v1/rpc` executes Core-owned workspace, session, settings,
-  provider, local-model and provider-version actions.
-- `GET /api/v1/events` streams Core session events to Application Shell.
+  provider, local-model, provider-version and Profile Studio actions.
+- `GET /api/v1/events` streams Core session events and isolated Profile Studio
+  update notifications to Application Shell.
 
 ## Ownership
 

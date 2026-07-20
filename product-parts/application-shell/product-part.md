@@ -25,6 +25,8 @@ implementation modules in-process.
 - Render Core-provided `localizedContent` patches for translated reasoning
   without rewriting Core source message text.
 - Forward user input and settings changes to Core contracts.
+- Forward Profile Studio commands and its isolated update stream without
+  composing lifecycle/read-model truth in Electron or renderer code.
 - Start, stop, restart, health-check, or connect to the Core process.
 - Open workspace file links in Visual Studio Code.
 

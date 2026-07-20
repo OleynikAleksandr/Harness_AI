@@ -70,6 +70,10 @@ modules or own Core truth.
   `harness-ai:core:open-session-profile-file` map to the Core
   `list-session-profiles`/`create-session-profile`/`open-session-profile-file`
   methods in `IPC_TO_RPC`.
+- Profile Studio forwarding is also transport-only: target/profile list,
+  inspector get, Draft+creator-session create and exact-hash approve IPC
+  channels map one-to-one to their Core RPC methods. Core update events are
+  relayed unchanged.
 
 ## Owned Paths
 

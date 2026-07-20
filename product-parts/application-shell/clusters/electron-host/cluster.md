@@ -3,7 +3,8 @@
 ## Boundary
 
 Owns the Electron main process, Core Runtime process bridge, full app relaunch,
-and file-link launch behavior.
+file-link launch behavior and transport-only Profile Studio RPC/event
+forwarding.
 
 ## Owned Modules
 

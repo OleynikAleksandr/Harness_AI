@@ -12,6 +12,16 @@ contextBridge.exposeInMainWorld("harnessFilePaths", {
 contextBridge.exposeInMainWorld("harnessCore", {
   createSession: (request) =>
     ipcRenderer.invoke("harness-ai:core:create-session", request),
+  listProfileStudioTargets: () =>
+    ipcRenderer.invoke("harness-ai:core:list-profile-studio-targets"),
+  listProfileStudioProfiles: (request) =>
+    ipcRenderer.invoke("harness-ai:core:list-profile-studio-profiles", request),
+  getProfileStudioProfile: (request) =>
+    ipcRenderer.invoke("harness-ai:core:get-profile-studio-profile", request),
+  createProfileStudioDraft: (request) =>
+    ipcRenderer.invoke("harness-ai:core:create-profile-studio-draft", request),
+  approveProfileStudioDraft: (request) =>
+    ipcRenderer.invoke("harness-ai:core:approve-profile-studio-draft", request),
   deleteSession: (sessionId) =>
     ipcRenderer.invoke("harness-ai:core:delete-session", sessionId),
   ensureGlossaryFile: () =>
@@ -53,7 +63,22 @@ contextBridge.exposeInMainWorld("harnessCore", {
   respondProviderInteraction: (request) =>
     ipcRenderer.invoke("harness-ai:core:respond-provider-interaction", request),
   onEvent: (listener) => {
-    const handler = (_event, payload) => listener(payload);
+    const handler = (_event, payload) => {
+      if (payload?.type !== "profile-studio:updated") {
+        listener(payload);
+      }
+    };
+    ipcRenderer.on("harness-ai:core-event", handler);
+    return () => {
+      ipcRenderer.removeListener("harness-ai:core-event", handler);
+    };
+  },
+  onProfileStudioUpdated: (listener) => {
+    const handler = (_event, payload) => {
+      if (payload?.type === "profile-studio:updated") {
+        listener(payload);
+      }
+    };
     ipcRenderer.on("harness-ai:core-event", handler);
     return () => {
       ipcRenderer.removeListener("harness-ai:core-event", handler);

@@ -46,6 +46,10 @@ Render the transcript/dialog layout and session chrome.
 - The shared `vite-env.d.ts` bridge contract models Native Request Capture
   `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
   that expose no independent reasoning selector.
+- The shared bridge types also declare the Core Profile Studio target,
+  compatible profile, inspector, Draft creation, exact-hash approval and
+  isolated update-subscription contracts. Session Window does not consume
+  those commands/events; the later Studio shell uses the same declaration.
 - The `ProviderVersionsSnapshot` bridge type carries `kimi: { cli }` without a
   `packageName` (the Kimi CLI is a standalone binary, not an npm package) and
   `updateProviderVersion` accepts `provider: "kimi"`; the snapshot stays

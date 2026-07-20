@@ -26,6 +26,7 @@ import {
   captureNativeRequestRpcResult,
   listCapturableModelsRpcResult,
 } from "./core-native-capture-rpc.js";
+import { coreProfileStudioRpcFacade } from "./core-profile-studio-rpc.js";
 import {
   type CoreEventListener,
   CoreProviderLifecycle,
@@ -75,6 +76,11 @@ export class CoreRuntimeApi {
       this.providerLifecycle.addStatusListener(listener);
     const unsubscribeProfiles = sessionProfileStore.watchProfiles(() => {
       listener({ type: SESSION_PROFILES_UPDATED_EVENT_TYPE });
+      listener({
+        profileId: null,
+        reason: "profile-files-changed",
+        type: "profile-studio:updated",
+      });
     });
     return () => {
       unsubscribeSession();
@@ -103,6 +109,16 @@ export class CoreRuntimeApi {
         return providerRegistryFacade.listProviders();
       case "create-session":
         return sessionRequestHandlerFacade.createSession(payload as never);
+      case "list-profile-studio-targets":
+        return coreProfileStudioRpcFacade.listTargets();
+      case "list-profile-studio-profiles":
+        return coreProfileStudioRpcFacade.listProfiles(payload);
+      case "get-profile-studio-profile":
+        return coreProfileStudioRpcFacade.getProfile(payload);
+      case "create-profile-studio-draft":
+        return coreProfileStudioRpcFacade.createDraft(payload);
+      case "approve-profile-studio-draft":
+        return coreProfileStudioRpcFacade.approveDraft(payload);
       case "delete-session": {
         // The request-handler cascade is the single cleanup route: it closes
         // bindings and removes provider artifacts, event JSONL and reasoning

@@ -2,14 +2,16 @@
 
 ## Boundary
 
-Owns settings UI for providers, localization, reasoning translation, recovery controls, and session profile management.
+Owns settings UI for providers, localization, reasoning translation and
+recovery controls. Session profile authoring moved to the separate Profile
+Studio application mode; the ordinary new-session picker remains in
+`session-interface`.
 
 ## Owned Modules
 
 - `provider-settings-ui`
 - `localization-settings-ui`
 - `recovery-controls-ui`
-- `profile-settings-ui`
 
 ## Facade Rule
 

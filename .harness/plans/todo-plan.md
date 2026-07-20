@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase6.stream1.task3",
-  "expectedCommitMessage": "refactor: retire settings profile creator entry",
+  "currentTaskId": "harness-ai.phase7.stream1.task1",
+  "expectedCommitMessage": "feat: apply claude studio profiles",
   "debt": null
 }
 ```
@@ -136,14 +136,14 @@
 33. [DONE] `harness-ai.phase6.stream1.task2` Add the `profile-studio-shell` facade and single-window mode switch beside Settings, reuse `SessionSurfaceFacade`, restore ordinary workspace/session mode and exclude detached windows (scope: up to 4 functional files — profile-studio shell facade, shared Studio CSS, session-window integration and session-sidebar entry — plus focused mode test, cluster/module docs and Product Tree; expected commit: `feat: add profile studio application mode`). Result: Completed in commit `feat: add profile studio application mode`.
 34. [DONE] Git Commit: `feat: add profile studio application mode` (hash: self)
 
-35. [IN_PROGRESS] `harness-ai.phase6.stream1.task3` Remove the old Settings Profile Creator authoring entry while preserving legacy runtime profiles, translations and normal session picker compatibility (scope: settings tab composition, profile-settings facade/registration, focused test plus related docs; expected commit: `refactor: retire settings profile creator entry`).
-36. [TODO] Git Commit: `refactor: retire settings profile creator entry` (hash: TBD)
+35. [DONE] `harness-ai.phase6.stream1.task3` Remove the old Settings Profile Creator authoring entry while preserving legacy runtime profiles, translations and normal session picker compatibility (scope: up to 5 functional files — settings tab model/content and the three legacy profile-settings UI sources — plus focused retirement/picker test, module registration removal and related docs; expected commit: `refactor: retire settings profile creator entry`). Result: Completed in commit `refactor: retire settings profile creator entry`.
+36. [DONE] Git Commit: `refactor: retire settings profile creator entry` (hash: self)
 
 ## Phase 7 - Provider Capability Application (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Honest Valid Profiles
 
-37. [TODO] `harness-ai.phase7.stream1.task1` Apply Studio Claude prompt and validated native tool-name subset through the existing Claude managed profile route and record exact application truth (scope: up to 3 Claude/profile functional files plus related docs; expected commit: `feat: apply claude studio profiles`).
+37. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Apply Studio Claude prompt and validated native tool-name subset through the existing Claude managed profile route and record exact application truth (scope: up to 3 Claude/profile functional files plus related docs; expected commit: `feat: apply claude studio profiles`).
 38. [TODO] Git Commit: `feat: apply claude studio profiles` (hash: TBD)
 
 39. [TODO] `harness-ai.phase7.stream1.task2` Preserve Codex prompt-only application with fixed-tool read model and enforce Kimi Draft-only validation until universal-client 25-tool parity exists (scope: up to 3 provider/profile functional files plus related docs; expected commit: `feat: enforce studio provider capability gates`).

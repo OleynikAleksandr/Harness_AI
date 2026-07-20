@@ -1,7 +1,6 @@
 import { KIMI_REASONING_EFFORTS_BY_MODEL } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
-import { ProfileSettingsUiFacade } from "../../profile-settings-ui/src/profile-settings-ui-facade.js";
 import { ClaudeDefaultModelCard } from "./claude-default-model-card.js";
 import {
   GlmClientApiKeyCard,
@@ -83,10 +82,6 @@ export function SettingsTabContent({
   versionUpdatingTargets,
 }: SettingsTabContentProps) {
   const { t } = useBrowserLocalization();
-  if (activeTab === "profileCreator") {
-    return <ProfileSettingsUiFacade />;
-  }
-
   if (activeTab === "general") {
     return (
       <div className="settings-reference-stack">

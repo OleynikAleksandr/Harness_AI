@@ -102,7 +102,7 @@
         {
           "id": "settings-surface",
           "name": "Settings Surface",
-          "purpose": "Provider, localization, recovery, and session profile settings UI. It edits settings through Core contracts only.",
+          "purpose": "Provider, localization, and recovery settings UI. Profile authoring belongs to Profile Studio; this surface edits settings through Core contracts only.",
           "modules": [
             {
               "id": "provider-settings-ui",
@@ -118,11 +118,6 @@
               "id": "recovery-controls-ui",
               "name": "Recovery Controls UI",
               "purpose": "Core restart and recovery action surface."
-            },
-            {
-              "id": "profile-settings-ui",
-              "name": "Profile Settings UI",
-              "purpose": "Profile Creator settings tab for provider-scoped session profile management."
             }
           ]
         },

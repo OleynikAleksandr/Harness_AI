@@ -341,9 +341,9 @@ Core.
 - v1 files are not deleted or rewritten;
 - v1 profiles keep working in ordinary sessions;
 - Studio lists only v2 records;
-- old Settings Profile Creator may coexist only during intermediate source
-  slices;
-- final acceptance package removes the old Settings authoring entry;
+- old Settings Profile Creator was allowed only during intermediate source
+  slices and is now removed from the live product tree;
+- the final acceptance package must contain no old Settings authoring entry;
 - no existing profile is automatically promoted to Studio `Valid`;
 - manual legacy/synthetic migration is a later scope.
 
@@ -386,7 +386,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   Window and Profile Studio shell consume it with the existing panels/class
   names;
 - accepted HTML prototype exists only in ignored runtime state;
-- current v1 Session Profiles and Settings Profile Creator remain live.
+- current v1 Session Profiles remain selectable in ordinary new-session flow;
+  the old Settings Profile Creator entry/module is **RETIRED**, while its
+  localization strings and Core compatibility contracts remain intact.
 
 This section is updated in the same commits that apply each slice.
 

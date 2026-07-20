@@ -19,7 +19,8 @@ implementation modules in-process.
 ## Responsibilities
 
 - Own the desktop application window and renderer surface.
-- Present classic chat sessions, workspace selection, session lists, and settings from Core read models.
+- Present classic chat sessions, workspace selection, session lists, and
+  provider/general settings from Core read models.
 - Reuse one `SessionSurfaceFacade` for the ordinary window and Profile Studio
   central column without duplicating dialog/input/telemetry rendering.
 - Present Core-owned Profile Studio targets, compatible Draft/Valid

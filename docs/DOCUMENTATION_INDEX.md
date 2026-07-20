@@ -34,7 +34,8 @@ relevant to the active task.
   modules as they are applied, including the snapshot-driven Studio sidebar
   and read-only inspector, its single-window shell/mode composition, and the
   shared Session Surface module reused by the ordinary shell and Profile
-  Studio.
+  Studio. The former Settings `profile-settings-ui` module is retired and no
+  longer part of the live product tree.
 
 ## Proposals
 

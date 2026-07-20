@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task4",
-  "expectedCommitMessage": "feat: materialize studio profile prompts",
+  "currentTaskId": "harness-ai.phase3.stream1.task1",
+  "expectedCommitMessage": "feat: add profile studio lifecycle facade",
   "debt": null
 }
 ```
@@ -84,14 +84,14 @@
 9. [DONE] `harness-ai.phase2.stream1.task3` Add exact provider+model Studio catalog filtering, keep raw Native/legacy profiles out of Studio listings and keep legacy provider-only session behavior unchanged (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs` plus related docs; expected commit: `feat: add studio provider model catalog`). Result: Completed in commit `feat: add studio provider model catalog`.
 10. [DONE] Git Commit: `feat: add studio provider model catalog` (hash: self)
 
-11. [IN_PROGRESS] `harness-ai.phase2.stream1.task4` Materialize Studio v2 prompt from its two source documents with deterministic content hash and no workspace AGENTS/Skills/generic wrapper, while preserving v1 materialization (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` plus related docs; expected commit: `feat: materialize studio profile prompts`).
-12. [TODO] Git Commit: `feat: materialize studio profile prompts` (hash: TBD)
+11. [DONE] `harness-ai.phase2.stream1.task4` Materialize Studio v2 prompt from its two source documents with deterministic content hash and no workspace AGENTS/Skills/generic wrapper, while preserving v1 materialization (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` plus related docs; expected commit: `feat: materialize studio profile prompts`). Result: Completed in commit `feat: materialize studio profile prompts`.
+12. [DONE] Git Commit: `feat: materialize studio profile prompts` (hash: self)
 
 ## Phase 3 - Core Profile Studio Cluster (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Lifecycle And Agent Authoring
 
-13. [TODO] `harness-ai.phase3.stream1.task1` Create the Core Runtime `profile-studio` cluster and `profile-studio-lifecycle` module/class facade with immutable Draft identity, exact content-hash approval, edit-to-Draft transition and profile↔creator-session binding (scope: lifecycle facade/test only plus new cluster/module docs, Core product-part doc and Product Tree; expected commit: `feat: add profile studio lifecycle facade`).
+13. [IN_PROGRESS] `harness-ai.phase3.stream1.task1` Create the Core Runtime `profile-studio` cluster and `profile-studio-lifecycle` module/class facade with immutable Draft identity, exact content-hash approval, edit-to-Draft transition and profile↔creator-session binding (scope: lifecycle facade/test only plus new cluster/module docs, Core product-part doc and Product Tree; expected commit: `feat: add profile studio lifecycle facade`).
 14. [TODO] Git Commit: `feat: add profile studio lifecycle facade` (hash: TBD)
 
 15. [TODO] `harness-ai.phase3.stream1.task2` Add the `profile-studio-authoring` module/class facade that validates and atomically applies complete agent-produced snapshots through session-profile facades, including donor-path containment and honest provider tool modes (scope: authoring facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio authoring facade`).

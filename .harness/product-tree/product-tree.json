@@ -202,7 +202,7 @@
             {
               "id": "profile-materializer",
               "name": "Profile Materializer",
-              "purpose": "Provider-neutral session profile payload: applied prompt with the system wrapper, effective tooling categories, and applied-content hash."
+              "purpose": "Provider-neutral profile payload: unchanged legacy wrappers plus Studio v2 two-part prompt compilation with no ambient instructions and a target/tools/donor content hash."
             },
             {
               "id": "profile-authoring",

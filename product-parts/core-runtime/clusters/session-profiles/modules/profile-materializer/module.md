@@ -16,6 +16,14 @@ assembled payload is what the applied profile snapshot freezes at create; it
 is never rebuilt from live data afterwards
 (`docs/architecture/SessionProfiles.md`).
 
+Studio v2 uses a separate deterministic branch: trim and join
+`system-prompt.md`, one blank line, then `custom-instructions.md`. It ignores
+every session wrapper input, including workspace path, `AGENTS.md`, language
+and date, and does not add a generic workflow skeleton. Its content hash covers
+the compiled two-part prompt, effective structured tools, exact provider/model
+target and immutable Native Capture donor provenance. Legacy v1 and synthetic
+native materialization remain byte-for-byte on their previous branches.
+
 ## Public Facade
 
 `ProfileMaterializerFacade`
@@ -27,6 +35,8 @@ is never rebuilt from live data afterwards
   optional workspace path, chat/artifact languages, and workspace
   instructions content supplied by the caller when the channel does not
   inject them natively.
+- For Studio v2, the context is intentionally ignored; both stored prompt
+  source parts and structured tools/provenance are the complete input.
 
 ## Outputs
 
@@ -37,6 +47,8 @@ is never rebuilt from live data afterwards
   are absent. Native bundle profiles may also output `inputPrefix`,
   `requestTemplate`, and `tools` for adapters that can send provider-native
   structured request data.
+- Studio v2 output has no ambient wrapper and carries a deterministic hash over
+  its two prompt parts plus target/tools/donor truth.
 
 ## Owned Paths
 

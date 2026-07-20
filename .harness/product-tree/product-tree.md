@@ -66,7 +66,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 - `profile-store`: session profile documents on disk — Profiles root resolution, legacy v1 compatibility, Studio v2 provider/model passports with Draft-tolerant two-part prompt sources, provider-scoped seeds, and shared profile types.
 - `profile-catalog`: profile selection truth — legacy provider picker with virtual Native, exact provider/model Studio-only catalogs, and Core-enforced Draft/Valid session resolution.
-- `profile-materializer`: provider-neutral session profile payload — applied prompt with the system wrapper, effective tooling categories, and applied-content hash.
+- `profile-materializer`: provider-neutral profile payload — unchanged legacy wrappers plus Studio v2 two-part prompt compilation with no ambient instructions and a target/tools/donor content hash.
 - `profile-authoring`: profile creation truth — legacy templates/editor paths plus atomic agent-owned Studio v2 Draft creation and full-snapshot replacement without external-editor access.
 
 ### Provider Network Capture

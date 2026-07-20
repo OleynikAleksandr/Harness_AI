@@ -356,7 +356,8 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are
   **APPLIED** through existing session-profile facades;
-- Studio v2 materialization is **NOT APPLIED**;
+- Studio v2 two-part wrapper-free materialization and target/tools/donor hash
+  are **APPLIED**;
 - fixed creator agent/session is **NOT APPLIED**;
 - reusable `SessionSurfaceFacade` is **NOT APPLIED**;
 - accepted HTML prototype exists only in ignored runtime state;

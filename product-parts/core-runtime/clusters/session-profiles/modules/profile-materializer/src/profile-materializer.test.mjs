@@ -159,4 +159,84 @@ assert.ok(
     nativePayload.prompt.indexOf("Base native rules.")
 );
 
+const studioProfile = {
+  ...profile,
+  customInstructionsBody: "Keep only planning-document instructions.\n",
+  id: "draft-planning",
+  nativeRequest: {
+    tools: [{ name: "Read" }, { name: "Glob" }],
+  },
+  passport: {
+    authoring: "profile-studio",
+    creatorSessionId: "session-studio-1",
+    description: "Planning workflow.",
+    model: "opus",
+    name: "Planning Documents",
+    nativeCaptureDonor: {
+      artifactPath: "/captures/claude-opus.jsonl",
+      captureId: "capture-1",
+      modelId: "opus",
+      providerId: "claude",
+      requestHash: "sha256-request",
+    },
+    provider: "claude",
+    purpose: "Create planning documents",
+    schemaVersion: 2,
+    status: "valid",
+  },
+  promptBody: "Reduced native planning foundation.\n",
+};
+
+const studioPayload = materializer.materialize(studioProfile, {
+  artifactLanguage: "ru",
+  chatLanguage: "ru",
+  sessionStartDate: startDate,
+  workspaceInstructions: "This AGENTS text must never be appended.",
+  workspacePath: "/user/workspace",
+});
+
+assert.equal(
+  studioPayload.prompt,
+  "Reduced native planning foundation.\n\nKeep only planning-document instructions."
+);
+assert.ok(!studioPayload.prompt.includes("# Harness Session Context"));
+assert.ok(!studioPayload.prompt.includes("AGENTS"));
+assert.deepEqual(studioPayload.tools, [{ name: "Read" }, { name: "Glob" }]);
+
+// Studio hashes ignore session wrapper context but cover both parts, tools,
+// exact target and donor provenance.
+const studioDifferentContext = materializer.materialize(studioProfile, {
+  sessionStartDate: new Date("2030-01-01T00:00:00Z"),
+  workspaceInstructions: "Different ambient instructions.",
+  workspacePath: "/different/workspace",
+});
+assert.equal(studioDifferentContext.contentHash, studioPayload.contentHash);
+const studioEditedCustom = materializer.materialize(
+  {
+    ...studioProfile,
+    customInstructionsBody: "Changed custom instructions.\n",
+  },
+  { sessionStartDate: startDate }
+);
+assert.notEqual(studioEditedCustom.contentHash, studioPayload.contentHash);
+const studioEditedTools = materializer.materialize(
+  { ...studioProfile, nativeRequest: { tools: [{ name: "Read" }] } },
+  { sessionStartDate: startDate }
+);
+assert.notEqual(studioEditedTools.contentHash, studioPayload.contentHash);
+const studioEditedDonor = materializer.materialize(
+  {
+    ...studioProfile,
+    passport: {
+      ...studioProfile.passport,
+      nativeCaptureDonor: {
+        ...studioProfile.passport.nativeCaptureDonor,
+        requestHash: "sha256-other-request",
+      },
+    },
+  },
+  { sessionStartDate: startDate }
+);
+assert.notEqual(studioEditedDonor.contentHash, studioPayload.contentHash);
+
 console.log("profile-materializer tests: OK");

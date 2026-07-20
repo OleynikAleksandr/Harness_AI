@@ -23,6 +23,9 @@ external editor and never assigns `Valid`.
 The catalog exposes a separate exact provider/model Studio list with no Native
 or legacy rows, while the ordinary provider picker preserves v1 behavior and
 admits only exact-model Studio `Valid` profiles.
+Studio v2 materialization compiles only its two stored prompt parts, forwards
+the effective structured tools and hashes target/donor provenance; it never
+adds workspace `AGENTS.md`, Skills, date/language context or a generic wrapper.
 
 Contract sources: `docs/architecture/SessionProfiles.md` and the accepted
 Studio extension in `docs/architecture/ProfileStudio.md`.

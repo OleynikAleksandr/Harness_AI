@@ -42,6 +42,12 @@ Native и legacy v1. Обычный provider picker сохраняет v1-пов
 Studio Draft и допускает Studio Valid только при exact model; Core повторяет
 эти проверки при resolution.
 
+APPLIED materialization slice: Studio v2 prompt детерминированно состоит
+только из `system-prompt.md`, пустой строки и `custom-instructions.md`.
+Workspace `AGENTS.md`, Skills, date/language context и generic wrapper не
+добавляются; hash покрывает prompt, effective tools, exact target и donor
+provenance. V1 materialization не изменён.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

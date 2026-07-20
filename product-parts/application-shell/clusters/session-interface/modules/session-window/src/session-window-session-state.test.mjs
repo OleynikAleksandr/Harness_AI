@@ -9,6 +9,13 @@ const facadeSource = readFileSync(
   new URL("./session-window-facade.tsx", import.meta.url),
   "utf8"
 );
+const surfaceSource = readFileSync(
+  new URL(
+    "../../session-surface/src/session-surface-facade.tsx",
+    import.meta.url
+  ),
+  "utf8"
+);
 
 assert.match(source, /useSessionWindowSessionState/u);
 assert.match(source, /window\.harnessCore\?\.getSessionEvents/u);
@@ -29,8 +36,8 @@ assert.match(source, /window\.harnessCore\?\.regenerateSessionTitle/u);
 assert.match(facadeSource, /useSessionWindowSessionState\(\{/u);
 assert.match(facadeSource, /event\.type === "session:created"/u);
 assert.match(facadeSource, /event\.type === "session:updated"/u);
-assert.match(facadeSource, /<SubagentSessionHeader/u);
-assert.match(facadeSource, /isSubagentSession \? null/u);
+assert.match(surfaceSource, /<SubagentSessionHeader/u);
+assert.match(surfaceSource, /isSubagentSession \? null/u);
 // The dialog card is informational only; open/detach controls live in the
 // sidebar tree (docs/architecture/ClaudeSubagentSessions.md, section 5).
 assert.doesNotMatch(facadeSource, /onOpenSubagent/u);

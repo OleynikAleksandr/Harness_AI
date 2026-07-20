@@ -378,7 +378,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
 - typed target/profile/inspector/Create/Approve Core RPC, Electron/preload
   forwarding, renderer bridge types and isolated `profile-studio:updated`
   subscription are **APPLIED**;
-- reusable `SessionSurfaceFacade` is **NOT APPLIED**;
+- reusable `SessionSurfaceFacade` is **APPLIED** and the ordinary Session
+  Window consumes it with the existing panels/class names; Studio shell
+  consumption is **NOT APPLIED**;
 - accepted HTML prototype exists only in ignored runtime state;
 - current v1 Session Profiles and Settings Profile Creator remain live.
 

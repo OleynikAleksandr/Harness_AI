@@ -2,13 +2,14 @@
 
 ## Boundary
 
-Owns the classic chat session renderer, input controls, telemetry surface and
-left sidebar. It consumes Core session role/tag, parent-child and subagent
-timeline contracts for display.
+Owns the reusable central chat surface, ordinary session shell, input controls,
+telemetry and left sidebar. It consumes Core session role/tag, parent-child and
+subagent timeline contracts for display.
 
 ## Owned Modules
 
 - `session-window`
+- `session-surface`
 - `input-controls`
 - `turn-timer`
 - `session-telemetry`

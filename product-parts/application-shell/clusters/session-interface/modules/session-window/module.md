@@ -2,7 +2,10 @@
 
 ## Responsibility
 
-Render the transcript/dialog layout and session chrome.
+Own the ordinary workspace/session shell and its state subscriptions. The
+central transcript/dialog/input/status composition is delegated unchanged to
+`SessionSurfaceFacade`, so Profile Studio can reuse it without copying hooks or
+panels.
 
 ## Public Facade
 

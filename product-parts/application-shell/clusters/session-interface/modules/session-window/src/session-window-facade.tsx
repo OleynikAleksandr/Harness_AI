@@ -9,18 +9,12 @@ import type { ProviderDescriptor } from "../../../../../../provider-runtime/clus
 import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
+import { SessionSurfaceFacade } from "../../session-surface/src/session-surface-facade.js";
 import {
   ActiveGrokInteractionPanel,
   useGrokInteractionState,
 } from "./grok-interaction-panel.js";
 import { ProviderPicker, resolveProviderModel } from "./provider-picker.js";
-import {
-  DialogPanel,
-  ReferenceInputPanel,
-  ReferenceStatusPanel,
-  SessionIdPanel,
-  SubagentSessionHeader,
-} from "./reference-session-panels.js";
 import { SessionProfileStep } from "./session-profile-step.js";
 import { isProviderStatusEvent, noop } from "./session-window-core-events.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
@@ -346,10 +340,6 @@ export function SessionWindowFacade() {
       await refreshSessions(activeWorkspace.id);
     }
   }
-  const parentSession = activeSession?.parentSessionId
-    ? sessions.find((session) => session.id === activeSession.parentSessionId)
-    : undefined;
-  const isSubagentSession = activeSession?.sessionKind === "subagent";
   const shellClassName = detachedMode
     ? "harness-app-shell harness-app-shell--detached"
     : "harness-app-shell";
@@ -378,63 +368,31 @@ export function SessionWindowFacade() {
           />
         )}
 
-        {activeSession ? (
-          <main
-            className={
-              isSubagentSession
-                ? "session-reference-shell session-reference-shell--subagent"
-                : "session-reference-shell"
-            }
-          >
-            <SessionIdPanel session={activeSession} telemetry={telemetry} />
-            {isSubagentSession ? (
-              <SubagentSessionHeader
-                onOpenParent={selectSession}
-                parentSession={parentSession}
-                session={activeSession}
-              />
-            ) : null}
-            <DialogPanel
-              messages={messages}
-              providerId={activeSession.providerId}
-              providerName={activeSession.providerName}
-              sessions={sessions}
-              subagentCalls={subagentCalls}
-              workspaceRoot={activeWorkspace?.path}
-            />
-            {isSubagentSession ? null : (
-              <ReferenceInputPanel
-                disabled={runningSessionId === activeSession.id}
-                onStop={() => stopActiveTurn(activeSession.id)}
-                onSubmit={appendUserMessage}
-                timing={{
-                  activeMs: turnTiming.activeMs,
-                  runningSince:
-                    runningSessionId === activeSession.id
-                      ? turnTiming.runningSince
-                      : null,
-                }}
-              />
-            )}
-            <ReferenceStatusPanel
-              onRollbackTurns={(preserveFirstUserTurns) =>
-                rollbackActiveSessionTurns(
-                  activeSession.id,
-                  preserveFirstUserTurns
-                )
-              }
-              rollbackPending={rollbackSessionId === activeSession.id}
-              session={activeSession}
-              settings={settingsSnapshot}
-              telemetry={telemetry}
-            />
-          </main>
-        ) : (
-          <main
-            aria-label="Session workspace"
-            className="session-empty-workspace"
-          />
-        )}
+        <SessionSurfaceFacade
+          messages={messages}
+          onOpenSession={selectSession}
+          onRollbackTurns={(preserveFirstUserTurns) =>
+            activeSession &&
+            rollbackActiveSessionTurns(activeSession.id, preserveFirstUserTurns)
+          }
+          onStop={() => activeSession && stopActiveTurn(activeSession.id)}
+          onSubmit={appendUserMessage}
+          rollbackPending={rollbackSessionId === activeSession?.id}
+          running={runningSessionId === activeSession?.id}
+          session={activeSession}
+          sessions={sessions}
+          settings={settingsSnapshot}
+          subagentCalls={subagentCalls}
+          telemetry={telemetry}
+          timing={{
+            activeMs: turnTiming.activeMs,
+            runningSince:
+              runningSessionId === activeSession?.id
+                ? turnTiming.runningSince
+                : null,
+          }}
+          workspaceRoot={activeWorkspace?.path}
+        />
 
         {profileStepProvider ? (
           <SessionProfileStep

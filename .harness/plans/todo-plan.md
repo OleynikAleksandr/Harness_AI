@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase5.stream1.task1",
-  "expectedCommitMessage": "refactor: extract reusable session surface",
+  "currentTaskId": "harness-ai.phase6.stream1.task1",
+  "expectedCommitMessage": "feat: add profile studio sidebar and inspector",
   "debt": null
 }
 ```
@@ -123,14 +123,14 @@
 
 ### Stream: Existing Interface Reuse
 
-29. [IN_PROGRESS] `harness-ai.phase5.stream1.task1` Create the `session-surface` module/facade from the existing central SessionId/Dialog/Input/Status composition and make ordinary Session Window consume it without visual or runtime behavior changes (scope: new session-surface facade, session-window-facade.tsx, focused regression test plus cluster/module docs and Product Tree; expected commit: `refactor: extract reusable session surface`).
-30. [TODO] Git Commit: `refactor: extract reusable session surface` (hash: TBD)
+29. [DONE] `harness-ai.phase5.stream1.task1` Create the `session-surface` module/facade from the existing central SessionId/Dialog/Input/Status composition and make ordinary Session Window consume it without visual or runtime behavior changes (scope: new session-surface facade, session-window-facade.tsx, focused regression test plus cluster/module docs and Product Tree; expected commit: `refactor: extract reusable session surface`). Result: Completed in commit `refactor: extract reusable session surface`.
+30. [DONE] Git Commit: `refactor: extract reusable session surface` (hash: self)
 
 ## Phase 6 - Application Shell Profile Studio Cluster (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Accepted UI Baseline
 
-31. [TODO] `harness-ai.phase6.stream1.task1` Create the Application Shell `profile-studio` cluster with facade-owned sidebar and inspector modules driven only by Core snapshots, including accepted provider/model/profile rows and three read-only tabs (scope: sidebar facade, inspector facade, shared Studio CSS plus cluster/module docs, Application Shell product-part doc and Product Tree; expected commit: `feat: add profile studio sidebar and inspector`).
+31. [IN_PROGRESS] `harness-ai.phase6.stream1.task1` Create the Application Shell `profile-studio` cluster with facade-owned sidebar and inspector modules driven only by Core snapshots, including accepted provider/model/profile rows and three read-only tabs (scope: sidebar facade, inspector facade, shared Studio CSS plus cluster/module docs, Application Shell product-part doc and Product Tree; expected commit: `feat: add profile studio sidebar and inspector`).
 32. [TODO] Git Commit: `feat: add profile studio sidebar and inspector` (hash: TBD)
 
 33. [TODO] `harness-ai.phase6.stream1.task2` Add the `profile-studio-shell` facade and single-window mode switch beside Settings, reuse `SessionSurfaceFacade`, restore ordinary workspace/session mode and exclude detached windows (scope: profile-studio shell facade, session-window integration, focused mode test plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio application mode`).

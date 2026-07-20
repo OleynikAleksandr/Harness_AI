@@ -43,12 +43,17 @@
         {
           "id": "session-interface",
           "name": "Session Interface",
-          "purpose": "Classic chat session surface and session chrome. It submits user input and renders Core read models only.",
+          "purpose": "Reusable central chat surface plus ordinary session chrome. It submits user input and renders Core read models only.",
           "modules": [
             {
               "id": "session-window",
               "name": "Session Window",
-              "purpose": "Transcript/dialog layout, session chrome, next-session mode panel, Core-provided localizedContent reveal, and GFM markdown rendering of assistant replies."
+              "purpose": "Ordinary workspace/session shell, state subscriptions, next-session mode flow and overlays around the shared Session Surface."
+            },
+            {
+              "id": "session-surface",
+              "name": "Session Surface",
+              "purpose": "Reusable SessionId, dialog timeline, subagent header, composer/Stop/timing and provider status composition driven by Core state."
             },
             {
               "id": "input-controls",

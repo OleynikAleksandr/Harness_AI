@@ -19,6 +19,8 @@ implementation modules in-process.
 
 - Own the desktop application window and renderer surface.
 - Present classic chat sessions, workspace selection, session lists, and settings from Core read models.
+- Reuse one `SessionSurfaceFacade` for the ordinary window and Profile Studio
+  central column without duplicating dialog/input/telemetry rendering.
 - Present Core-owned recursive subagent session trees and submit open, detach,
   rename and regenerate-title intents without deriving orchestration state.
 - Resolve browser display copy through Core-provided localization payloads.

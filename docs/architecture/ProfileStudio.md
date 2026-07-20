@@ -356,8 +356,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   validation and honest provider tool modes;
 - fixed isolated Claude/Opus/high creator spec, inline context, empty
   settings/tools and full-snapshot JSON Schema parser are **APPLIED**;
-- Core read-model module and the Application Shell
-  `profile-studio` cluster are **NOT APPLIED**;
+- Core provider/model/profile/Overview/Prompt/Tools read models with Claude
+  subset, Codex fixed and current Kimi 9/25 Draft-only truth are **APPLIED**;
+- Application Shell `profile-studio` cluster is **NOT APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are

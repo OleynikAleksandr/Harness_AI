@@ -9,8 +9,9 @@ facades from `session-profiles`, session runtime, provider descriptors and
 Native Request Capture; it never asks renderer code to scan files, infer state
 or parse agent prose.
 
-Applied slices: `profile-studio-lifecycle`, `profile-studio-authoring` and
-`profile-studio-agent`.
+All four planned Core modules are applied: `profile-studio-lifecycle`,
+`profile-studio-authoring`, `profile-studio-agent` and
+`profile-studio-read-model`.
 Lifecycle mints immutable Draft
 ids, preserves exact target/session binding, computes the materialized content
 hash, accepts approval only for that hash and returns every later full-snapshot
@@ -21,6 +22,8 @@ Authoring validates complete creator snapshots, honest provider tool modes and
 contained raw Native Capture donor truth before delegating one atomic update.
 Agent owns the fixed Claude/Opus/high isolated runtime spec, inline complete
 context and full-snapshot JSON Schema/parse contract.
+Read model supplies provider/model targets, compatible creator-session rows and
+Core-owned Overview/Prompt/Tools snapshots with honest provider capabilities.
 
 Contract source: `docs/architecture/ProfileStudio.md`.
 
@@ -29,10 +32,7 @@ Contract source: `docs/architecture/ProfileStudio.md`.
 - `profile-studio-lifecycle`
 - `profile-studio-authoring`
 - `profile-studio-agent`
-
-## Accepted Next Modules (Not Yet Applied)
-
-- `profile-studio-read-model` (planned in the active implementation scope)
+- `profile-studio-read-model`
 
 ## Facade Rule
 

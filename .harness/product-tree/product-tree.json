@@ -257,6 +257,11 @@
               "id": "profile-studio-agent",
               "name": "Profile Studio Agent",
               "purpose": "Fixed isolated Claude/Opus/high creator turn spec with complete inline context, no ambient settings/tools, and full-snapshot JSON Schema validation."
+            },
+            {
+              "id": "profile-studio-read-model",
+              "name": "Profile Studio Read Model",
+              "purpose": "Provider/model targets, compatible creator-session rows and Core-owned Overview/Prompt/Tools snapshots with honest Claude/Codex/Kimi capability states."
             }
           ]
         },

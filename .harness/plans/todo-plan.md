@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task4",
-  "expectedCommitMessage": "feat: add profile studio read model facade",
+  "currentTaskId": "harness-ai.phase4.stream1.task1",
+  "expectedCommitMessage": "feat: persist profile creator session purpose",
   "debt": null
 }
 ```
@@ -100,14 +100,14 @@
 17. [DONE] `harness-ai.phase3.stream1.task3` Add the `profile-studio-agent` module/class facade with fixed Claude/Opus/high identity, isolated inline instructions, JSON Schema full-snapshot output contract and no ambient settings/filesystem tools (scope: agent facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio agent facade`). Result: Completed in commit `feat: add profile studio agent facade`.
 18. [DONE] Git Commit: `feat: add profile studio agent facade` (hash: self)
 
-19. [IN_PROGRESS] `harness-ai.phase3.stream1.task4` Add the `profile-studio-read-model` module/class facade for target catalogs, compatible creator sessions and Overview/Prompt/Tools snapshots with Claude subset, Codex fixed and Kimi Draft-only capability truth (scope: read-model facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio read model facade`).
-20. [TODO] Git Commit: `feat: add profile studio read model facade` (hash: TBD)
+19. [DONE] `harness-ai.phase3.stream1.task4` Add the `profile-studio-read-model` module/class facade for target catalogs, compatible creator sessions and Overview/Prompt/Tools snapshots with Claude subset, Codex fixed and Kimi Draft-only capability truth (scope: read-model facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio read model facade`). Result: Completed in commit `feat: add profile studio read model facade`.
+20. [DONE] Git Commit: `feat: add profile studio read model facade` (hash: self)
 
 ## Phase 4 - Creator Session Runtime (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Persistent Standard Session
 
-21. [TODO] `harness-ai.phase4.stream1.task1` Persist optional `profile-creator` session purpose and profile id without overloading primary/subagent session kind, including restore compatibility (scope: `session-request-handler-types.ts, session-history-store.ts, session-history-store.test.mjs` plus related docs; expected commit: `feat: persist profile creator session purpose`).
+21. [IN_PROGRESS] `harness-ai.phase4.stream1.task1` Persist optional `profile-creator` session purpose and profile id without overloading primary/subagent session kind, including restore compatibility (scope: `session-request-handler-types.ts, session-history-store.ts, session-history-store.test.mjs` plus related docs; expected commit: `feat: persist profile creator session purpose`).
 22. [TODO] Git Commit: `feat: persist profile creator session purpose` (hash: TBD)
 
 23. [TODO] `harness-ai.phase4.stream1.task2` Allow Core to create fixed managed Claude creator sessions in the dedicated HARNESS_AI_HOME-aware Studio workspace and supply the Studio output schema on every creator turn/resume (scope: up to 3 session-runtime/profile-studio functional files plus related docs; expected commit: `feat: run persistent profile creator sessions`).

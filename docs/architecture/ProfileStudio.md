@@ -359,8 +359,11 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
 - Core provider/model/profile/Overview/Prompt/Tools read models with Claude
   subset, Codex fixed and current Kimi 9/25 Draft-only truth are **APPLIED**;
 - optional `profile-creator` session purpose/profile binding is **APPLIED** in
-  Core types and backward-compatible session-index restore; fixed creator
-  session creation/dispatch is **NOT APPLIED**;
+  Core types and backward-compatible session-index restore;
+- fixed managed Claude/Opus/high creator session creation is **APPLIED** with
+  the dedicated HARNESS_AI_HOME-aware workspace, persisted prompt snapshot,
+  empty tools/settings and Studio output schema on every create/resume
+  dispatch;
 - Application Shell `profile-studio` cluster is **NOT APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
@@ -368,7 +371,8 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   **APPLIED** through existing session-profile facades;
 - Studio v2 two-part wrapper-free materialization and target/tools/donor hash
   are **APPLIED**;
-- fixed creator agent/session is **NOT APPLIED**;
+- fixed creator agent/session runtime is **APPLIED**; structured result routing,
+  atomic authoring/repair and approval interaction are **NOT APPLIED**;
 - reusable `SessionSurfaceFacade` is **NOT APPLIED**;
 - accepted HTML prototype exists only in ignored runtime state;
 - current v1 Session Profiles and Settings Profile Creator remain live.

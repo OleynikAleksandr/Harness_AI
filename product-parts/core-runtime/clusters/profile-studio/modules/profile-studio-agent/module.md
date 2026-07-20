@@ -20,6 +20,12 @@ one of the three honest provider tool modes and nullable donor artifact path.
 `parseTurnResult()` repeats shape validation before Core can forward the
 snapshot to controlled authoring; renderer text is never parsed for state.
 
+Session Runtime consumes this facade through its explicit
+`createProfileCreatorSession()` path. It persists `systemPrompt` as a managed
+session-profile snapshot, restores the dedicated Studio session index, and
+reapplies this facade's fixed output schema and Claude model/reasoning options
+on every dispatch after create or resume.
+
 ## Public Facade
 
 `ProfileStudioAgentFacade`

@@ -21,7 +21,9 @@ stage.
 Authoring validates complete creator snapshots, honest provider tool modes and
 contained raw Native Capture donor truth before delegating one atomic update.
 Agent owns the fixed Claude/Opus/high isolated runtime spec, inline complete
-context and full-snapshot JSON Schema/parse contract.
+context and full-snapshot JSON Schema/parse contract. Session Runtime now
+creates and restores its managed creator sessions in the dedicated Studio
+workspace and attaches the schema to every creator dispatch.
 Read model supplies provider/model targets, compatible creator-session rows and
 Core-owned Overview/Prompt/Tools snapshots with honest provider capabilities.
 

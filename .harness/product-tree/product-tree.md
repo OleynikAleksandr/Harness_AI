@@ -80,7 +80,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 - `profile-studio-lifecycle`: immutable Draft identity, exact provider/model and creator-session binding, deterministic content-hash approval, and edit-to-Draft transition truth.
 - `profile-studio-authoring`: validates complete creator snapshots, honest provider tool modes, and contained raw Native Capture provenance before managed lifecycle updates.
-- `profile-studio-agent`: fixed isolated Claude/Opus/high creator turn spec with complete inline context, no ambient settings/tools, and full-snapshot JSON Schema validation.
+- `profile-studio-agent`: fixed isolated Claude/Opus/high creator turn spec with complete inline context, persistent dedicated-workspace session dispatch, no ambient settings/tools, and full-snapshot JSON Schema validation.
 - `profile-studio-read-model`: provider/model targets, compatible creator-session rows, and Core-owned Overview/Prompt/Tools snapshots with honest Claude/Codex/Kimi capability states.
 
 ### Universal Client

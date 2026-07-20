@@ -57,6 +57,9 @@ into `product-parts/**` as real module code.
 - Supply a fixed isolated Claude/Opus/high Profile Creator turn contract with
   all authoring context and JSON Schema inline and no ambient settings or
   executable tools.
+- Create and restore persistent Profile Creator sessions in the dedicated
+  HARNESS_AI_HOME-aware Studio workspace, preserving their managed system
+  prompt and applying the fixed structured-output schema on every turn.
 - Project Profile Studio target/profile/inspector read models from Core truth,
   including Claude subset, Codex fixed and Kimi 9/25 Draft-only capability
   states.

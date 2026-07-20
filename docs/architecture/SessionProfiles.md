@@ -54,6 +54,13 @@ target и creator session, сравнивает direct approval с текущи�
 hash и вызывает узкий `markStudioDraftValid()` только после совпадения.
 Следующий controlled snapshot снова записывает `status: draft`.
 
+APPLIED creator-session runtime: отдельный Core command создаёт persistent
+primary-сессию с purpose `profile-creator`, фиксированным Claude/Opus/high,
+managed prompt snapshot, пустым tool whitelist и отдельным
+HARNESS_AI_HOME-aware `ProfileStudio/workspace`. Этот workspace index
+восстанавливается независимо от пользовательских workspaces; каждый creator
+turn после create/resume снова получает Studio JSON Schema.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

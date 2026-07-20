@@ -12,6 +12,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 
 - Workspace id/path.
 - Session id or provider selection.
+- Profile Studio creator-session assembly request with a pre-minted session
+  id and the complete `ProfileStudioAgentContext`; this is a separate Core
+  command path, not a renderer-authored provider/settings request.
 - Raw user message payload.
 - Raw Core title intents: manual rename (`sessionId`, `title`) and automatic
   title regeneration (`sessionId`).
@@ -55,6 +58,14 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   The first supported purpose is `{ type: "profile-creator", profileId }`;
   session-index restore validates and preserves it while sessions created
   before the field remain valid. Creator sessions stay `sessionKind: primary`.
+- `createProfileCreatorSession()` materializes the fixed Profile Creator spec
+  as an immutable managed Claude profile: model `opus`, reasoning `high`,
+  empty tool whitelist/settings sources and the HARNESS_AI_HOME-aware
+  `ProfileStudio/workspace`. That workspace index is restored independently
+  from the registered user-workspace list.
+- Every creator dispatch, including the first dispatch after process restart,
+  bypasses ordinary workspace settings and carries the fixed Studio JSON
+  Schema plus the Claude applied-turn model/reasoning contract.
 - Provider dispatch requests through the provider adapter contract.
 - Session errors and lifecycle state.
 - Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.
@@ -78,7 +89,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   listener delivery or JSONL append.
 - Provider bindings are promoted from temporary ids to real provider session ids in Core before later turns are dispatched, so resumed provider turns never depend on renderer state.
 - Usage limits can be refreshed by Core when a session dialog is hydrated, so provider limit rows such as Kimi 5h/weekly recover even when the original binding-time read was unavailable. Reference-compatible provider telemetry payloads without a provider event `type` are still accepted for telemetry before typed event routing begins.
-- Session mode metadata is stored on the Core session. The only active runtime behavior in this scope is `Native · Raw`; managed/normalized selections may be visualized by clients but are not applied to provider dispatch until a later Core contract enables them.
+- Session mode metadata is stored on the Core session. Native and resolved
+  managed profile snapshots are both applied through provider bindings;
+  request normalization remains outside the current runtime contract.
 - The provider session id is persisted on the Core session record (`providerSessionId`) whenever a binding is published (`publishBinding`), covering both the initial bind and later promotions (e.g. Claude `realSessionId`). This keeps the persisted id equal to the id the provider uses in its artifact filename, so a removed session can locate and delete its provider-owned artifacts without parsing the event log, even after a core restart.
 - Deleting a Core session calls the provider adapter's optional `deleteSessionArtifacts(providerSessionId, workspacePath)` hook after closing the live binding, using the live provider session id or the persisted `providerSessionId` fallback.
 - `stopTurn(sessionId)` matches the reference Stop: it unsubscribes the binding, calls `adapter.closeSession(providerSessionId)` (which interrupts the in-flight turn — Claude `interrupt`, Kimi `cancel`), invalidates the runtime binding, and flips turn-state to idle. The persisted `providerSessionId` stays on the session. Because the unsubscribe races ahead of the provider's terminal subagent events (proven live on Kimi: swarm cards stayed `running` forever after Stop), the stop also settles every still-running/pending subagent child in the stopped session's tree as `interrupted` through the normal subagent lifecycle, so parent call snapshots recompute with the same monotonic rules as live events; already-finished children keep their statuses.

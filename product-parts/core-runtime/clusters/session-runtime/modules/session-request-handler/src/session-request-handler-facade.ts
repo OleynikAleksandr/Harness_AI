@@ -11,7 +11,12 @@ import {
   type CoreSubagentCall,
   sessionEventStreamFacade,
 } from "../../session-event-stream/src/session-event-stream-facade.js";
-import { resolveNextSessionMode } from "./next-session-mode.js";
+import {
+  buildOrdinaryCoreSession,
+  buildProfileCreatorSession,
+  type CreateProfileCreatorSessionRequest,
+  includeProfileStudioWorkspace,
+} from "./session-creation.js";
 import {
   restoreSessionHistory as restoreHistory,
   restoreTelemetryHistory as restoreTelemetry,
@@ -50,6 +55,7 @@ import { SessionSubagentLifecycle } from "./session-subagent-lifecycle.js";
 import { sessionTitleService } from "./session-title-service.js";
 import { SessionTurnStop } from "./session-turn-stop.js";
 
+export type { CreateProfileCreatorSessionRequest } from "./session-creation.js";
 export type { CoreSession } from "./session-request-handler-types.js";
 export class SessionRequestHandlerFacade {
   private readonly bindingFacade: ProviderSessionBindingFacadeLike;
@@ -160,41 +166,23 @@ export class SessionRequestHandlerFacade {
   async createSession(
     request: CreateCoreSessionRequest
   ): Promise<CoreSessionActionResult> {
-    const nextSessionMode = resolveNextSessionMode(request.nextSessionMode);
-    // Snapshot is captured exactly once at create; broken selection rejects.
-    const resolution = await this.profileResolver.resolveAppliedProfile({
-      nextSessionMode,
-      providerId: request.providerId,
-      workspacePath: request.workspacePath,
-    });
-    if (!resolution.ok) {
-      return { error: resolution.error, ok: false };
+    const result = await buildOrdinaryCoreSession(
+      request,
+      this.profileResolver
+    );
+    return result.ok ? this.activateCreatedSession(result.session) : result;
+  }
+  async createProfileCreatorSession(
+    request: CreateProfileCreatorSessionRequest
+  ): Promise<CoreSessionActionResult> {
+    const result = await buildProfileCreatorSession(request);
+    if (!result.ok) {
+      return result;
     }
-    const now = new Date().toISOString();
-    const session: CoreSession = {
-      appliedProfile: resolution.appliedProfile,
-      createdAt: now,
-      id: createId(`session-${request.providerId}`),
-      model: request.model,
-      nextSessionMode,
-      providerId: request.providerId,
-      providerName: request.providerName,
-      sessionKind: "primary",
-      title: request.title ?? `${request.providerName} session`,
-      titleOrigin: "default",
-      updatedAt: now,
-      workspaceId: request.workspaceId,
-    };
-    if (request.workspacePath) {
-      session.workspacePath = request.workspacePath;
+    if (this.sessions.has(result.session.id)) {
+      return { error: "Creator session id already exists.", ok: false };
     }
-    this.rememberCreatedSession(session, "idle");
-    this.providerBindingLifecycle
-      .bindProviderSession(session)
-      .catch((error: unknown) => {
-        this.publishError(session.id, stringifyError(error));
-      });
-    return { ok: true, session };
+    return this.activateCreatedSession(result.session);
   }
   sendMessage(request: SendCoreMessageRequest): CoreSessionActionResult {
     const session = this.sessions.get(request.sessionId);
@@ -300,7 +288,7 @@ export class SessionRequestHandlerFacade {
       messagesBySession: this.messagesBySession,
       sessions: this.sessions,
       telemetryBySession: this.telemetryBySession,
-      workspaces,
+      workspaces: includeProfileStudioWorkspace(workspaces),
     });
     return this.listSessions();
   }
@@ -350,6 +338,18 @@ export class SessionRequestHandlerFacade {
       session,
       session.subagentStatus === "running" ? "running" : "idle"
     );
+  }
+
+  private activateCreatedSession(
+    session: CoreSession
+  ): CoreSessionActionResult {
+    this.rememberCreatedSession(session, "idle");
+    this.providerBindingLifecycle
+      .bindProviderSession(session)
+      .catch((error: unknown) => {
+        this.publishError(session.id, stringifyError(error));
+      });
+    return { ok: true, session };
   }
 
   private rememberCreatedSession(

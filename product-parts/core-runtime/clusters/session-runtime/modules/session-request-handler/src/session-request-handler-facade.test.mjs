@@ -17,6 +17,10 @@ const bindingLifecycleSource = readFileSync(
   new URL("./session-provider-binding-lifecycle.ts", import.meta.url),
   "utf8"
 );
+const creationSource = readFileSync(
+  new URL("./session-creation.ts", import.meta.url),
+  "utf8"
+);
 const rollbackSource = readFileSync(
   new URL("./session-rollback.ts", import.meta.url),
   "utf8"
@@ -52,7 +56,7 @@ assert.match(
 // The applied profile snapshot is captured at create via the resolver
 // (Native fallback lives in session-profile-resolution.ts) and adapter
 // details are recorded once.
-assert.match(source, /appliedProfile: resolution\.appliedProfile/u);
+assert.match(creationSource, /appliedProfile: resolution\.appliedProfile/u);
 const resolutionSource = readFileSync(
   new URL("./session-profile-resolution.ts", import.meta.url),
   "utf8"
@@ -137,15 +141,15 @@ assert.match(rollbackSource, /type: "session:messages-replaced"/u);
 
 // Managed resolution activates at create through the profile resolver and
 // the adapter receives the snapshot-built payload.
-assert.match(source, /this\.profileResolver\.resolveAppliedProfile\(/u);
+assert.match(creationSource, /profileResolver\.resolveAppliedProfile\(/u);
 assert.match(
   bindingLifecycleSource,
   /buildSessionProfilePayload\(session\.appliedProfile\)/u
 );
 assert.match(source, /async createSession\(/u);
 assert.equal(source.split("\n").length <= 500, true);
-assert.match(source, /sessionKind: "primary"/u);
-assert.match(source, /titleOrigin: "default"/u);
+assert.match(creationSource, /sessionKind: "primary"/u);
+assert.match(creationSource, /titleOrigin: "default"/u);
 assert.match(source, /sessionTitleService\.applyInitialAutoTitle/u);
 assert.match(source, /renameSession\(request: RenameCoreSessionRequest\)/u);
 assert.match(source, /regenerateSessionTitle\(/u);

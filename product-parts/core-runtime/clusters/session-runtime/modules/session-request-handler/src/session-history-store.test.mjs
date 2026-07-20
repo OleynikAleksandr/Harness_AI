@@ -55,6 +55,23 @@ writeFileSync(
       sessionKind: "subagent",
       subagentStatus: "running",
     },
+    {
+      ...base,
+      id: "profile-creator-valid",
+      providerId: "claude",
+      providerName: "Claude",
+      sessionKind: "primary",
+      sessionPurpose: {
+        profileId: "draft-abc123",
+        type: "profile-creator",
+      },
+      workspaceId: "profile-studio",
+    },
+    {
+      ...base,
+      id: "profile-creator-invalid",
+      sessionPurpose: { type: "profile-creator" },
+    },
   ]),
   "utf8"
 );
@@ -62,11 +79,16 @@ writeFileSync(
 const restored = readWorkspaceSessionIndex(workspacePath);
 assert.deepEqual(
   restored.map((session) => session.id),
-  ["legacy-root", "child-valid"]
+  ["legacy-root", "child-valid", "profile-creator-valid"]
 );
 assert.equal(restored[0].sessionKind, "primary");
 assert.equal(restored[0].titleOrigin, "default");
 assert.equal(restored[1].parentSessionId, "legacy-root");
 assert.equal(restored[1].subagentStatus, "running");
+assert.equal(restored[2].sessionKind, "primary");
+assert.deepEqual(restored[2].sessionPurpose, {
+  profileId: "draft-abc123",
+  type: "profile-creator",
+});
 
 rmSync(workspacePath, { force: true, recursive: true });

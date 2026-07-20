@@ -155,7 +155,7 @@
             {
               "id": "session-request-handler",
               "name": "Session Request Handler",
-              "purpose": "Core-owned create/resume/send/stop routing, provider dispatch, and next-session mode truth for session actions."
+              "purpose": "Core-owned create/resume/send/stop routing, provider dispatch, next-session mode truth, and backward-compatible persisted session-purpose metadata including Profile Creator binding."
             },
             {
               "id": "provider-session-binding",

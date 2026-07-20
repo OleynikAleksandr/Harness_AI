@@ -57,6 +57,7 @@ function isCoreSession(value: unknown): value is CoreSession {
       value.sessionKind === "subagent") &&
     (value.sessionKind !== "subagent" ||
       typeof value.parentSessionId === "string") &&
+    isSessionPurpose(value.sessionPurpose) &&
     (value.subagentStatus === undefined ||
       isSubagentStatus(value.subagentStatus)) &&
     (value.titleOrigin === undefined ||
@@ -64,6 +65,18 @@ function isCoreSession(value: unknown): value is CoreSession {
       value.titleOrigin === "auto" ||
       value.titleOrigin === "manual") &&
     isAppliedProfileSnapshot(value.appliedProfile)
+  );
+}
+
+function isSessionPurpose(value: unknown): boolean {
+  if (value === undefined) {
+    return true;
+  }
+  return (
+    isRecord(value) &&
+    value.type === "profile-creator" &&
+    typeof value.profileId === "string" &&
+    Boolean(value.profileId.trim())
   );
 }
 

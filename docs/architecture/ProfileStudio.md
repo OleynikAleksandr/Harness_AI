@@ -358,6 +358,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   settings/tools and full-snapshot JSON Schema parser are **APPLIED**;
 - Core provider/model/profile/Overview/Prompt/Tools read models with Claude
   subset, Codex fixed and current Kimi 9/25 Draft-only truth are **APPLIED**;
+- optional `profile-creator` session purpose/profile binding is **APPLIED** in
+  Core types and backward-compatible session-index restore; fixed creator
+  session creation/dispatch is **NOT APPLIED**;
 - Application Shell `profile-studio` cluster is **NOT APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;

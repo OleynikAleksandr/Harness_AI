@@ -33,6 +33,13 @@ export type CoreSessionKind = "primary" | "subagent";
 export type CoreSessionTitleOrigin = "default" | "auto" | "manual";
 export type CoreSubagentStatus = ProviderSubagentStatus;
 
+export interface ProfileCreatorSessionPurpose {
+  readonly profileId: string;
+  readonly type: "profile-creator";
+}
+
+export type CoreSessionPurpose = ProfileCreatorSessionPurpose;
+
 export interface CoreSession {
   agentNickname?: string;
   agentRole?: string;
@@ -51,6 +58,7 @@ export interface CoreSession {
   providerSessionId?: string;
   reasoningEffort?: string;
   sessionKind?: CoreSessionKind;
+  sessionPurpose?: CoreSessionPurpose;
   subagentCallId?: string;
   subagentStatus?: CoreSubagentStatus;
   title: string;
@@ -65,6 +73,7 @@ export interface CreateCoreSessionRequest {
   nextSessionMode?: unknown;
   providerId: ProviderId;
   providerName: string;
+  sessionPurpose?: CoreSessionPurpose;
   title?: string;
   workspaceId: string;
   workspacePath?: string;

@@ -55,7 +55,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 ### Session Runtime
 
 - `session-registry`: session metadata, create/open/rename.
-- `session-request-handler`: Core-owned create/resume/send/stop routing, provider dispatch, and next-session mode truth for session actions.
+- `session-request-handler`: Core-owned create/resume/send/stop routing, provider dispatch, next-session mode truth, and backward-compatible persisted session-purpose metadata including Profile Creator binding.
 - `provider-session-binding`: Core session to provider session id and binding state.
 - `session-event-stream`: provider-neutral Core session events for Application Shell projections.
 - `session-snapshot-projector`: read model for the Electron session UI.

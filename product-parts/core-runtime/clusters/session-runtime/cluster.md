@@ -5,6 +5,9 @@
 Owns session metadata, parent-child subagent graph truth, next-session mode,
 append-only JSONL history, provider session bindings, provider id promotion,
 turn state, live assistant chunk/timeline read-models, and UI session snapshots.
+Structural session kind remains primary/subagent; optional persisted purpose
+metadata can identify a Profile Studio creator session and its bound profile
+without changing tree semantics.
 
 ## Owned Modules
 

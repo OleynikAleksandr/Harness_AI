@@ -51,6 +51,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   optional for persisted sessions created before this contract; restore
   normalizes those records to `primary`/`default`, while new sessions receive
   explicit values.
+- Optional `CoreSession.sessionPurpose` is independent from structural kind.
+  The first supported purpose is `{ type: "profile-creator", profileId }`;
+  session-index restore validates and preserves it while sessions created
+  before the field remain valid. Creator sessions stay `sessionKind: primary`.
 - Provider dispatch requests through the provider adapter contract.
 - Session errors and lifecycle state.
 - Provider-visible reasoning projected through `session-reasoning-display` into `thinking` dialog messages before UI snapshots.

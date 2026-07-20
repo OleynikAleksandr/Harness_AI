@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase9.stream1.task1",
+  "expectedCommitMessage": "docs: record accepted profile studio ui prototype",
   "debt": null
 }
 ```
@@ -105,3 +105,17 @@
 
 15. [DONE] `harness-ai.phase7.stream1.task1` Align the Profile Studio proposal and documentation catalog with the two-part Custom System Prompt, separate Custom System Tools surface, and removal of Capture from the inspector tabs pending a separate interface decision (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: simplify profile studio prompt surfaces`). Result: Completed in commit `docs: simplify profile studio prompt surfaces`.
 16. [DONE] Git Commit: `docs: simplify profile studio prompt surfaces` (hash: self)
+
+## Phase 8 - Accepted UI Baseline Plan (owner: Codex, updated: 2026-07-20)
+
+### Stream: Prototype Acceptance
+
+17. [DONE] `harness-ai.phase8.stream1.task1` Add the user-approved Profile Studio interface approach as an accepted prototype baseline: preserve the runnable prototype under ignored workspace runtime state and record its exact structural and interaction contract in the main Profile Studio proposal without promoting the still-discussed full proposal into current architecture (scope: `.harness/plans/todo-plan.md`; expected commit: `plan: add accepted profile studio ui baseline slice`). Result: Completed in commit `plan: add accepted profile studio ui baseline slice`.
+18. [DONE] Git Commit: `plan: add accepted profile studio ui baseline slice` (hash: self)
+
+## Phase 9 - Accepted UI Baseline Record (owner: Codex, updated: 2026-07-20)
+
+### Stream: Main Proposal Reference
+
+19. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Preserve the accepted runnable Profile Studio prototype under `.harness/runtime/prototypes/profile-studio-ui/**` and update the main proposal plus documentation catalog with the approved UI baseline, accepted boundaries, launch/reference paths and remaining non-accepted details (scope: `.harness/runtime/prototypes/profile-studio-ui/**, docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record accepted profile studio ui prototype`).
+20. [TODO] Git Commit: `docs: record accepted profile studio ui prototype` (hash: TBD)

@@ -196,6 +196,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   evidence for the implemented Profile Studio MVP: final source revision,
   enforced gates, 145-test result, fresh renderer/runtime artifacts, exact
   provider/model routing proof and intentional pre-package limitations.
+- `docs/evidence/profile-studio-mvp-package-2026-07-20.md` — user-authorized
+  macOS package evidence: exact app/app.asar identity and checksum, packaged
+  Profile Studio/Codex/Kimi proof, successful launch and the manual acceptance
+  checklist for the current MVP boundary.
 - `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
   the turn-timer scope: current `ElapsedTotal` behavior, turn-state event
   journal as the persistent timing source, the `turn-timing` Core module and

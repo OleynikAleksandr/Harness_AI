@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task1",
-  "expectedCommitMessage": "docs: package profile studio mvp",
+  "currentTaskId": "harness-ai.phase9.stream1.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -165,7 +165,7 @@
 
 ### Stream: macOS Package
 
-45. [IN_PROGRESS] `harness-ai.phase9.stream1.task1` Build the user-authorized unsigned macOS package, verify `release/mac-arm64/Harness AI.app` and packaged `app.asar`, launch the rebuilt package and record package identity/retest checklist (scope: `docs/evidence/profile-studio-mvp-package-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio mvp`).
-46. [TODO] Git Commit: `docs: package profile studio mvp` (hash: TBD)
+45. [DONE] `harness-ai.phase9.stream1.task1` Build the user-authorized unsigned macOS package, verify `release/mac-arm64/Harness AI.app` and packaged `app.asar`, launch the rebuilt package and record package identity/retest checklist (scope: `docs/evidence/profile-studio-mvp-package-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio mvp`). Result: Completed in commit `docs: package profile studio mvp`.
+46. [DONE] Git Commit: `docs: package profile studio mvp` (hash: self)
 
-47. [TODO] `harness-ai.phase9.stream1.task2` User tests the packaged Profile Studio workflow: single-window entry/return, provider/model scoping, Draft creation, persistent Claude creator conversation, Core-backed inspector, approval/hash lifecycle, valid Claude/Codex picker application, honest Kimi block and unchanged ordinary sessions (completion: user-acceptance; scope: user workflow; expected commit: none).
+47. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` User tests the packaged Profile Studio workflow: single-window entry/return, provider/model scoping, Draft creation, persistent Claude creator conversation, Core-backed inspector, approval/hash lifecycle, valid Claude/Codex picker application, honest Kimi block and unchanged ordinary sessions (completion: user-acceptance; scope: user workflow; expected commit: none).

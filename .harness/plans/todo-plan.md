@@ -8,7 +8,7 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream1.task1",
+  "currentTaskId": null,
   "expectedCommitMessage": null,
   "debt": null
 }
@@ -138,4 +138,4 @@
 
 ### Stream: Architecture Review
 
-25. [IN_PROGRESS] `harness-ai.phase12.stream1.task1` User reviews and explicitly accepts or amends the Profile Studio MVP implementation planning document before any production implementation plan or source-code changes begin (completion: user-acceptance; scope: user workflow; expected commit: none).
+25. [DONE] `harness-ai.phase12.stream1.task1` User reviews and explicitly accepts or amends the Profile Studio MVP implementation planning document before any production implementation plan or source-code changes begin (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — Пользователь утвердил Profile Studio MVP implementation planning и приказал создать новый implementation plan Acceptance Commit: `chore: record plan acceptance profile-studio-proposal-2026-07-19`.

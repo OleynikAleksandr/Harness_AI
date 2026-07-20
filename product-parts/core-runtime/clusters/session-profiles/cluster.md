@@ -17,6 +17,9 @@ The storage boundary additionally reads Studio v2 exact provider/model
 passports and their separate Native-foundation/custom-instructions prompt
 parts. Draft source parts may be incomplete; a stored `valid` passport must
 have both. Existing v1 parsing and runtime selection remain unchanged.
+The authoring boundary can now create and atomically replace Studio Draft
+directories from complete agent-produced snapshots; this route never opens an
+external editor and never assigns `Valid`.
 
 Contract sources: `docs/architecture/SessionProfiles.md` and the accepted
 Studio extension in `docs/architecture/ProfileStudio.md`.

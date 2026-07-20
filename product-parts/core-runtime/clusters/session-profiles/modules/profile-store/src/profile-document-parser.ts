@@ -41,6 +41,7 @@ export interface SessionProfileStudioPassport
   readonly model: string;
   readonly nativeCaptureDonor: SessionProfileNativeCaptureDonorReference | null;
   readonly provider: string;
+  readonly purpose: string;
   readonly schemaVersion: 2;
   readonly status: SessionProfileStudioLifecycleStatus;
 }
@@ -157,6 +158,7 @@ function parseStudioPassport(
     "creatorSessionId",
     issues
   );
+  const purpose = readOptionalString(record, "purpose", issues) ?? "";
   const status = readStudioLifecycleStatus(record.status, issues);
   const nativeCaptureDonor = readNativeCaptureDonor(
     record.nativeCaptureDonor,
@@ -183,6 +185,7 @@ function parseStudioPassport(
       model,
       nativeCaptureDonor,
       provider,
+      purpose,
       schemaVersion: 2,
       status,
     },
@@ -248,6 +251,21 @@ function readRequiredString(
     issues.push(`profile.yaml: "${field}" must be a non-empty string.`);
   }
   return value;
+}
+
+function readOptionalString(
+  record: Record<string, unknown>,
+  key: string,
+  issues: string[]
+): string | undefined {
+  if (record[key] === undefined || record[key] === null) {
+    return;
+  }
+  if (typeof record[key] !== "string") {
+    issues.push(`profile.yaml: "${key}" must be a string when present.`);
+    return;
+  }
+  return record[key].trim();
 }
 
 export function parseSessionProfileTooling(

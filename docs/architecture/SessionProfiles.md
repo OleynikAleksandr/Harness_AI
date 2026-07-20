@@ -30,6 +30,12 @@ provenance, возвращает две prompt source parts раздельно �
 незаполненность только для `draft`. Authoring, Studio catalog и v2
 materialization применяются последующими slices active plan.
 
+APPLIED authoring slice: legacy Settings authoring пока сохранён, а новый
+Studio route создаёт provider-namespaced Draft и принимает только полный
+agent-produced snapshot. Он атомарно заменяет две prompt parts и optional
+`tools.json`, сохраняет purpose/donor metadata, не открывает VS Code и не
+может присвоить `Valid`.
+
 ## Решение
 
 Harness AI позволит пользователю выбирать **профиль сессии** до старта

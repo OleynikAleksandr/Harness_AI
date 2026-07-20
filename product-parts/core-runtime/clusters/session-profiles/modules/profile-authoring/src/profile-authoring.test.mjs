@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -141,6 +141,104 @@ try {
 
   // Unicode names derive usable directory ids.
   assert.equal(deriveProfileId("Ревью Архитектуры"), "ревью-архитектуры");
+
+  // Studio creation writes a provider/model Draft without opening an editor.
+  const studioCreated = await authoring.createStudioDraft({
+    creatorSessionId: "session-claude-studio-1",
+    model: "opus",
+    profileId: "draft-1234",
+    provider: "claude",
+  });
+  assert.equal(studioCreated.ok, true);
+  assert.equal(
+    studioCreated.documents.profileDirectory,
+    path.join(profilesRoot, "Claude", "draft-1234")
+  );
+  const studioDraft = await profileStore.loadProfile("draft-1234");
+  assert.equal(studioDraft.ok, true);
+  assert.equal(studioDraft.profile.passport.schemaVersion, 2);
+  assert.equal(studioDraft.profile.passport.model, "opus");
+  assert.equal(studioDraft.profile.passport.status, "draft");
+  assert.equal(studioDraft.profile.passport.purpose, "");
+  assert.equal(studioDraft.profile.promptBody, "");
+  assert.equal(studioDraft.profile.customInstructionsBody, "");
+
+  // Agent output is a complete snapshot and replaces all Studio documents.
+  const studioUpdated = await authoring.updateStudioDraft({
+    profileId: "draft-1234",
+    snapshot: {
+      customInstructions: "Prepare a decision-ready planning document.\n",
+      description: "Planning-document workflow",
+      name: "Planning Documents",
+      nativeCaptureDonor: {
+        artifactPath: "/captures/claude-opus.jsonl",
+        captureId: "capture-1",
+        modelId: "opus",
+        providerId: "claude",
+        requestHash: "sha256-request",
+      },
+      purpose: "Discuss scope and write planning evidence",
+      systemPrompt: "Reduced Claude planning foundation.\n",
+      tools: [{ name: "Read" }],
+    },
+  });
+  assert.equal(studioUpdated.ok, true);
+  const updatedDraft = await profileStore.loadProfile("draft-1234");
+  assert.equal(updatedDraft.ok, true);
+  assert.equal(updatedDraft.profile.passport.name, "Planning Documents");
+  assert.equal(
+    updatedDraft.profile.passport.purpose,
+    "Discuss scope and write planning evidence"
+  );
+  assert.equal(updatedDraft.profile.passport.status, "draft");
+  assert.equal(
+    updatedDraft.profile.promptBody,
+    "Reduced Claude planning foundation.\n"
+  );
+  assert.equal(
+    updatedDraft.profile.customInstructionsBody,
+    "Prepare a decision-ready planning document.\n"
+  );
+  assert.deepEqual(updatedDraft.profile.nativeRequest.tools, [
+    { name: "Read" },
+  ]);
+
+  // Invalid snapshots do not mutate the last accepted full snapshot.
+  const promptBeforeInvalidUpdate = readFileSync(
+    updatedDraft.profile.documents.promptPath,
+    "utf8"
+  );
+  const invalidStudioUpdate = await authoring.updateStudioDraft({
+    profileId: "draft-1234",
+    snapshot: {
+      customInstructions: "Changed",
+      description: "Changed",
+      name: "   ",
+      nativeCaptureDonor: null,
+      purpose: "Changed",
+      systemPrompt: "Changed",
+      tools: null,
+    },
+  });
+  assert.equal(invalidStudioUpdate.ok, false);
+  assert.equal(
+    readFileSync(updatedDraft.profile.documents.promptPath, "utf8"),
+    promptBeforeInvalidUpdate
+  );
+  assert.deepEqual(
+    (await readdir(path.join(profilesRoot, "Claude"))).filter((name) =>
+      name.includes(".staging-")
+    ),
+    []
+  );
+
+  const unsafeStudioId = await authoring.createStudioDraft({
+    creatorSessionId: "session-claude-studio-2",
+    model: "opus",
+    profileId: "../escape",
+    provider: "claude",
+  });
+  assert.equal(unsafeStudioId.ok, false);
 
   // Editor paths delegate to the store layout.
   const paths = authoring.resolveDocumentPaths("my-deep-review");

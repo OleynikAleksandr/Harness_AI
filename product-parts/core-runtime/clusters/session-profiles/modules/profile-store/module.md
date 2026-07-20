@@ -13,7 +13,8 @@ data), and the shared profile type model. That model now preserves legacy v1
 universal/individual scope while also parsing the Studio v2 discriminated
 passport (`schemaVersion: 2`, `authoring: profile-studio`, exact provider/model,
 Draft/Valid status, creator-session binding and immutable Native Capture donor
-provenance).
+provenance). The optional agent-authored `purpose` is normalized to an empty
+string until the creator conversation defines it.
 
 The module scans the profiles root, parses and validates the required profile
 documents (`profile.yaml`, `system-prompt.md`, and `tooling.yaml` for every

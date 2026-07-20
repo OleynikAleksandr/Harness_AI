@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase2.stream1.task2",
-  "expectedCommitMessage": "feat: add studio profile authoring operations",
+  "currentTaskId": "harness-ai.phase2.stream1.task3",
+  "expectedCommitMessage": "feat: add studio provider model catalog",
   "debt": null
 }
 ```
@@ -78,10 +78,10 @@
 5. [DONE] `harness-ai.phase2.stream1.task1` Extend `profile-store` with Studio v2 passport/model/lifecycle metadata and Draft-tolerant two-part documents while preserving v1 parsing unchanged (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-document-parser.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-store.test.mjs` plus related docs; expected commit: `feat: add studio v2 profile storage`). Result: Completed in commit `feat: add studio v2 profile storage`.
 6. [DONE] Git Commit: `feat: add studio v2 profile storage` (hash: self)
 
-7. [IN_PROGRESS] `harness-ai.phase2.stream1.task2` Add atomic Studio draft creation/update operations to `profile-authoring`, using `system-prompt.md`, `custom-instructions.md` and optional `tools.json` without external-editor ownership (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs` plus related docs; expected commit: `feat: add studio profile authoring operations`).
-8. [TODO] Git Commit: `feat: add studio profile authoring operations` (hash: TBD)
+7. [DONE] `harness-ai.phase2.stream1.task2` Add atomic Studio draft creation/update operations to `profile-authoring`, using `system-prompt.md`, `custom-instructions.md` and optional `tools.json` without external-editor ownership, and persist the agent-authored purpose in the Studio passport (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-authoring/src/profile-authoring.test.mjs, product-parts/core-runtime/clusters/session-profiles/modules/profile-store/src/profile-document-parser.ts` plus related docs; expected commit: `feat: add studio profile authoring operations`). Result: Completed in commit `feat: add studio profile authoring operations`.
+8. [DONE] Git Commit: `feat: add studio profile authoring operations` (hash: self)
 
-9. [TODO] `harness-ai.phase2.stream1.task3` Add exact provider+model Studio catalog filtering, keep raw Native/legacy profiles out of Studio listings and keep legacy provider-only session behavior unchanged (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs` plus related docs; expected commit: `feat: add studio provider model catalog`).
+9. [IN_PROGRESS] `harness-ai.phase2.stream1.task3` Add exact provider+model Studio catalog filtering, keep raw Native/legacy profiles out of Studio listings and keep legacy provider-only session behavior unchanged (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-catalog/src/profile-catalog.test.mjs` plus related docs; expected commit: `feat: add studio provider model catalog`).
 10. [TODO] Git Commit: `feat: add studio provider model catalog` (hash: TBD)
 
 11. [TODO] `harness-ai.phase2.stream1.task4` Materialize Studio v2 prompt from its two source documents with deterministic content hash and no workspace AGENTS/Skills/generic wrapper, while preserving v1 materialization (scope: `product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer-facade.ts, product-parts/core-runtime/clusters/session-profiles/modules/profile-materializer/src/profile-materializer.test.mjs` plus related docs; expected commit: `feat: materialize studio profile prompts`).

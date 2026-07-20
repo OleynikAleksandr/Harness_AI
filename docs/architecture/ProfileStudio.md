@@ -383,6 +383,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are
   **APPLIED** through existing session-profile facades;
+- the ordinary session profile step, Core list RPC and immutable create-time
+  resolver now carry one exact selected model end to end, so a Studio Valid
+  row is shown and applied only for its provider/model target — **APPLIED**;
 - Studio v2 two-part wrapper-free materialization and target/tools/donor hash
   are **APPLIED**;
 - fixed creator agent/session runtime, raw provider event interception,

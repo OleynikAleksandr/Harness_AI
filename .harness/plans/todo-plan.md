@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream2.task1",
-  "expectedCommitMessage": "fix: route studio model through session picker",
+  "currentTaskId": "harness-ai.phase8.stream1.task1",
+  "expectedCommitMessage": "docs: record profile studio mvp build",
   "debt": null
 }
 ```
@@ -151,14 +151,14 @@
 
 ### Stream: Exact Model Session Routing
 
-41. [IN_PROGRESS] `harness-ai.phase7.stream2.task1` Route the resolved provider model through the ordinary profile picker RPC and immutable session-profile resolution so Valid Studio entries appear only for, and start only with, the exact selected provider/model target (scope: up to 6 functional files — session-window model prop, session profile step, renderer bridge type, Core profile-list RPC, session creation and session-profile resolution — plus focused tests and related docs; expected commit: `fix: route studio model through session picker`).
-42. [TODO] Git Commit: `fix: route studio model through session picker` (hash: TBD)
+41. [DONE] `harness-ai.phase7.stream2.task1` Route the resolved provider model through the ordinary profile picker RPC and immutable session-profile resolution so Valid Studio entries appear only for, and start only with, the exact selected provider/model target (scope: up to 6 functional files — session-window model prop, session profile step, renderer bridge type, Core profile-list RPC, session creation and session-profile resolution — plus focused tests and related docs; expected commit: `fix: route studio model through session picker`). Result: Completed in commit `fix: route studio model through session picker`.
+42. [DONE] Git Commit: `fix: route studio model through session picker` (hash: self)
 
 ## Phase 8 - Integrated Build Evidence (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Production Build
 
-43. [TODO] `harness-ai.phase8.stream1.task1` Run the production build after implementation, verify the Studio contracts in built renderer/runtime artifacts and record integration evidence without packaging yet (scope: `docs/evidence/profile-studio-mvp-build-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record profile studio mvp build`).
+43. [IN_PROGRESS] `harness-ai.phase8.stream1.task1` Run the production build after implementation, verify the Studio contracts in built renderer/runtime artifacts and record integration evidence without packaging yet (scope: `docs/evidence/profile-studio-mvp-build-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record profile studio mvp build`).
 44. [TODO] Git Commit: `docs: record profile studio mvp build` (hash: TBD)
 
 ## Phase 9 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-20)

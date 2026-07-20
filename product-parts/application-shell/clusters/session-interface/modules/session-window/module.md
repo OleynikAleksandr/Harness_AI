@@ -46,7 +46,11 @@ switch.
   Kimi labels show the Core-selected per-model native thinking level
   (`providers.kimiClient.reasoningByModel`, session override first) since
   the 2026-07-17 native thinking stream.
-- Core-owned next-session mode selection. The current active behavior is always `Native · Raw`; managed/normalized choices are rendered as preview-only labels.
+- Core-owned next-session mode selection. The ordinary new-session flow first
+  resolves the provider's selected model from the Core settings snapshot, then
+  requests profiles for that exact provider/model target. Native stays the
+  fallback; a selected managed profile id and the same model are submitted to
+  Core for session creation.
 - Core-owned provider readiness descriptors and live `provider:status` events.
 - Ephemeral Core `session:provider-interaction` and resolved events. The session
   window keeps at most the latest pending interaction per Core session and
@@ -59,6 +63,9 @@ switch.
   profile, inspector, Draft creation, exact-hash approval and isolated
   update-subscription contracts. Session Window mounts the Studio shell; that
   facade consumes the bridge without moving lifecycle truth into the renderer.
+- The ordinary `listSessionProfiles` bridge request carries both provider id
+  and exact model id. The renderer does not derive compatibility locally; it
+  only displays the filtered Core catalog and submits the selected id.
 - The `ProviderVersionsSnapshot` bridge type carries `kimi: { cli }` without a
   `packageName` (the Kimi CLI is a standalone binary, not an npm package) and
   `updateProviderVersion` accepts `provider: "kimi"`; the snapshot stays

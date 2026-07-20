@@ -25,7 +25,7 @@ const profileAuthoring = new ProfileAuthoringFacade({
 });
 
 /**
- * Catalog read model for the picker and the Profile Creator tab. Listing
+ * Catalog read model for the ordinary session picker. Listing
  * triggers first-access seeding inside the catalog; the per-provider last
  * selection and AutoNormalizer flags come from Core settings memory so the
  * renderer never owns preselection truth.
@@ -40,9 +40,10 @@ export async function listSessionProfilesRpcResult(payload: unknown): Promise<
     }
 > {
   try {
+    const modelId = readPayloadString(payload, "modelId");
     const providerId = readPayloadString(payload, "providerId");
     const profiles = providerId
-      ? await profileCatalog.listProfilesForProvider(providerId)
+      ? await profileCatalog.listProfilesForProvider(providerId, modelId)
       : await profileCatalog.listAllProfiles();
     const memory = await readSessionProfileMemory();
     return {

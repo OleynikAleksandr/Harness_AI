@@ -22,7 +22,9 @@ directories from complete agent-produced snapshots; this route never opens an
 external editor and never assigns `Valid`.
 The catalog exposes a separate exact provider/model Studio list with no Native
 or legacy rows, while the ordinary provider picker preserves v1 behavior and
-admits only exact-model Studio `Valid` profiles.
+admits only exact-model Studio `Valid` profiles. The runtime picker RPC and
+session resolver both carry that same model id, so a stale client selection
+cannot bypass the target check.
 Studio v2 materialization compiles only its two stored prompt parts, forwards
 the effective structured tools and hashes target/donor provenance; it never
 adds workspace `AGENTS.md`, Skills, date/language context or a generic wrapper.

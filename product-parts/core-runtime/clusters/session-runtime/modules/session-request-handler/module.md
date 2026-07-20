@@ -207,7 +207,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   resolves a managed selection only with a concrete profile id (requestMode
   stays `raw` until the normalizer exists), `session-profile-resolution.ts`
   (`SessionProfileResolver`) resolves it through `profile-catalog` +
-  `profile-materializer` into the frozen snapshot, a broken selection
+  `profile-materializer` into the frozen snapshot using the immutable model
+  requested for that new session. A Studio profile therefore resolves only
+  for its exact provider/model target; a broken or incompatible selection
   rejects `createSession` with a structured error (no silent fallback), and
   `buildSessionProfilePayload` rebuilds the adapter payload strictly from
   the snapshot for both create and resume. `createSession` is async because

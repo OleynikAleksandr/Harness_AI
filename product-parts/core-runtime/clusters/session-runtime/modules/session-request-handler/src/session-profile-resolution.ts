@@ -8,6 +8,7 @@ import type { AppliedProfileSnapshot } from "./session-request-handler-types.js"
 
 export interface SessionProfileResolverLike {
   resolveAppliedProfile(request: {
+    readonly modelId: string;
     readonly nextSessionMode: NextSessionMode;
     readonly providerId: string;
     readonly workspacePath?: string;
@@ -46,6 +47,7 @@ export class SessionProfileResolver implements SessionProfileResolverLike {
   }
 
   async resolveAppliedProfile(request: {
+    readonly modelId: string;
     readonly nextSessionMode: NextSessionMode;
     readonly providerId: string;
     readonly workspacePath?: string;
@@ -62,6 +64,7 @@ export class SessionProfileResolver implements SessionProfileResolverLike {
       return { appliedProfile: NATIVE_APPLIED_PROFILE, ok: true };
     }
     const resolution = await this.catalog.resolveForSession({
+      modelId: request.modelId,
       profileId: nextSessionMode.managedProfileId,
       providerId: request.providerId,
     });

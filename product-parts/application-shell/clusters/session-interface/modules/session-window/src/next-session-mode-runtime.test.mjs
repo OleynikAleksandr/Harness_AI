@@ -23,9 +23,10 @@ assert.match(windowSource, /SessionProfileStep/u);
 // The profile step is Core-read-model driven: list + preselection from Core.
 assert.match(
   stepSource,
-  /listSessionProfiles\(\{ providerId: provider\.id \}\)/u
+  /listSessionProfiles\(\{ modelId: model, providerId: provider\.id \}\)/u
 );
 assert.match(stepSource, /lastSelectedProfileByProvider\[provider\.id\]/u);
+assert.match(windowSource, /model=\{resolveProviderModel\(/u);
 
 // The legacy Next Session Mode panel/dialog is gone: the profile step owns
 // the selection surface.

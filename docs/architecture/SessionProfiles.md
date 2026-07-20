@@ -40,7 +40,11 @@ APPLIED catalog slice: `listStudioProfilesForTarget()` возвращает то
 Studio v2 profiles при точном provider/model match — без Native, Synthetic
 Native и legacy v1. Обычный provider picker сохраняет v1-поведение, скрывает
 Studio Draft и допускает Studio Valid только при exact model; Core повторяет
-эти проверки при resolution.
+эти проверки при resolution. Ordinary picker передаёт модель из того же
+Core settings snapshot, который определяет модель новой сессии;
+`list-session-profiles`, `buildOrdinaryCoreSession()` и
+`SessionProfileResolver` проводят этот model id до каталога без renderer-owned
+эвристик.
 
 APPLIED materialization slice: Studio v2 prompt детерминированно состоит
 только из `system-prompt.md`, пустой строки и `custom-instructions.md`.
@@ -735,7 +739,8 @@ Core фактически применённые provider-specific details (whit
 (диспетчер `core-runtime-api.ts` → `IPC_TO_RPC` в
 `core-process-bridge-facade.mjs` → `preload.cjs` → типы `vite-env.d.ts`):
 
-- `list-session-profiles` → каталог (read model) для обычного session picker
+- `list-session-profiles` → exact provider/model каталог (read model) для
+  обычного session picker
   (при первом вызове триггерит сидирование): профили с именем/описанием,
   типом универсальный/индивидуальный, применимостью по провайдерам и
   статусом валидности; Native первым.

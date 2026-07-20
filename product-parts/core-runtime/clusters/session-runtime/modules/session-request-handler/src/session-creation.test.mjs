@@ -15,6 +15,7 @@ const turnOptionsSource = readFileSync(
 );
 
 assert.match(creationSource, /new ProfileStudioAgentFacade\(\)/u);
+assert.match(creationSource, /modelId: request\.model/u);
 assert.match(creationSource, /model: spec\.modelId/u);
 assert.match(creationSource, /providerId: spec\.providerId/u);
 assert.match(creationSource, /reasoningEffort: spec\.reasoningEffort/u);

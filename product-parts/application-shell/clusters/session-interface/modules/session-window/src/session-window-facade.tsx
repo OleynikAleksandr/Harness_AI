@@ -21,7 +21,6 @@ import { isProviderStatusEvent, noop } from "./session-window-core-events.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
 import { useSessionWindowSessionState } from "./session-window-session-state.js";
 import "./session-window.css";
-
 export function SessionWindowFacade() {
   const initialSnapshot = useMemo(
     () => sessionSnapshotProjectorFacade.getSnapshot(),
@@ -191,19 +190,16 @@ export function SessionWindowFacade() {
       })
       .catch(noop);
   }, [activeTimingSessionId]);
-
   function openProviderPicker() {
     setIsProviderPickerOpen(true);
     refreshSettingsSnapshot().catch(noop);
     window.harnessCore?.listProviders().then(setProviderOptions).catch(noop);
   }
-
   function closeSettings() {
     setIsSettingsOpen(false);
     refreshSettingsSnapshot().catch(noop);
     refreshLocalizationPayload().catch(noop);
   }
-
   async function openProfileStudio() {
     if (detachedMode) {
       return;
@@ -439,6 +435,10 @@ export function SessionWindowFacade() {
             <SessionSurfaceFacade {...sessionSurface} />
             {profileStepProvider ? (
               <SessionProfileStep
+                model={resolveProviderModel(
+                  profileStepProvider,
+                  settingsSnapshot
+                )}
                 onBack={() => {
                   setProfileStepProvider(null);
                   openProviderPicker();

@@ -42,6 +42,7 @@ export async function buildOrdinaryCoreSession(
 ): Promise<CoreSessionActionResult> {
   const nextSessionMode = resolveNextSessionMode(request.nextSessionMode);
   const resolution = await profileResolver.resolveAppliedProfile({
+    modelId: request.model,
     nextSessionMode,
     providerId: request.providerId,
     workspacePath: request.workspacePath,

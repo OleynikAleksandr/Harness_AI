@@ -20,6 +20,11 @@ assert.doesNotMatch(rpcSource, /const profileStore =/u);
 assert.match(rpcSource, /sessionProfileStore\.loadProfile\(profileId\)/u);
 assert.match(rpcSource, /loaded\.profile\.documents/u);
 assert.match(rpcSource, /loaded\.failure\.documents/u);
+assert.match(rpcSource, /readPayloadString\(payload, "modelId"\)/u);
+assert.match(
+  rpcSource,
+  /profileCatalog\.listProfilesForProvider\(providerId, modelId\)/u
+);
 
 // subscribe() forwards watcher notifications as core events and unsubscribes.
 assert.match(apiSource, /sessionProfileStore\.watchProfiles\(/u);

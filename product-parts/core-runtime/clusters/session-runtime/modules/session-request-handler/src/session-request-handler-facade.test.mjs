@@ -62,6 +62,7 @@ const resolutionSource = readFileSync(
   "utf8"
 );
 assert.match(resolutionSource, /kind: "native"/u);
+assert.match(resolutionSource, /modelId: request\.modelId/u);
 assert.match(resolutionSource, /never rereads profile files/u);
 assert.match(source, /private recordAppliedProfileApplication\(/u);
 assert.match(

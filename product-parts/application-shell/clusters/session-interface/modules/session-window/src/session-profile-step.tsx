@@ -21,11 +21,13 @@ function isSessionProfilesUpdatedEvent(event: unknown): boolean {
  * only submits the user's choice (docs/architecture/SessionProfiles.md).
  */
 export function SessionProfileStep({
+  model,
   onBack,
   onClose,
   onStart,
   provider,
 }: {
+  model: string;
   onBack: () => void;
   onClose: () => void;
   onStart: (profileId: string) => Promise<string | null>;
@@ -43,7 +45,7 @@ export function SessionProfileStep({
     (preserveSelection: boolean) => {
       let cancelled = false;
       window.harnessCore
-        ?.listSessionProfiles({ providerId: provider.id })
+        ?.listSessionProfiles({ modelId: model, providerId: provider.id })
         .then((result) => {
           if (cancelled || !result) {
             return;
@@ -80,7 +82,7 @@ export function SessionProfileStep({
         cancelled = true;
       };
     },
-    [provider.id]
+    [model, provider.id]
   );
 
   useEffect(() => loadProfiles(false), [loadProfiles]);

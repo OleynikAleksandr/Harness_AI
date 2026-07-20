@@ -97,7 +97,10 @@ interface Window {
     ensureGlossaryFile(): Promise<
       { error: string; ok: false } | { filePath: string; ok: true }
     >;
-    listSessionProfiles(request?: { providerId?: string }): Promise<
+    listSessionProfiles(request?: {
+      modelId?: string;
+      providerId?: string;
+    }): Promise<
       | {
           autoNormalizerByProvider: Readonly<Record<string, boolean>>;
           lastSelectedProfileByProvider: Readonly<Record<string, string>>;

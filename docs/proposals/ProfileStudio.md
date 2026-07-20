@@ -11,7 +11,8 @@ implementation plan. Он фиксирует согласованную прод
 
 **Profile Studio позволяет специализированному Profile Creator Agent в диалоге
 с пользователем собрать для выбранной пары `provider + model` читаемый Custom
-Profile из сокращённого System Prompt и релевантного System Tooling, сверить
+Profile из сокращённого `Custom System Prompt` и релевантных
+`Custom System Tools`, сверить
 фактически отправленный запрос с этой сборкой и только после ручной проверки и
 явного утверждения пользователя пометить профиль как `Valid`.**
 
@@ -29,10 +30,10 @@ Profile из сокращённого System Prompt и релевантного 
 
 У provider-facing запроса есть два главных управляемых слоя:
 
-1. **System Prompt** — приоритетные инструкции, роль, workflow, ограничения и
-   критерии результата.
-2. **System Tooling** — структурные объявления доступных модели инструментов и
-   реальные исполнители этих инструментов.
+1. **Custom System Prompt** — приоритетные инструкции, роль, workflow,
+   ограничения и критерии результата.
+2. **Custom System Tools** — структурные объявления доступных модели
+   инструментов и реальные исполнители этих инструментов.
 
 `AGENTS.md`, Skills, проектные инструкции и другие текстовые материалы часто
 приходят ниже системного профиля или читаются агентом уже в процессе работы.
@@ -43,12 +44,14 @@ Custom Profile использует другую модель:
 
 - всё, что агент обязан знать для своего класса задач, заранее включается в
   итоговый system prompt;
-- итоговый system prompt собирается из отдельных читаемых документов профиля;
+- итоговый Custom System Prompt собирается ровно из двух читаемых частей:
+  сокращённой Native-основы и кратких Custom-дополнений;
 - необходимые инструкции из `AGENTS.md`, Skills или других материалов могут
-  быть перенесены в профильные компоненты, но runtime не заставляет основного
-  агента искать или читать исходные документы;
+  быть перенесены в Custom-дополнения, но runtime не заставляет основного агента
+  искать или читать исходные документы;
 - модели объявляется только релевантный набор реально исполняемых tools;
-- пользователь до запуска видит точный compiled prompt и точный tool set.
+- пользователь до запуска видит обе части Custom System Prompt и точный Custom
+  System Tools set.
 
 Размещение самого пользовательского задания внутри system prompt, а не только
 в user message, остаётся отдельным измеряемым экспериментом. Это не принятое
@@ -100,8 +103,8 @@ Native Profile не редактируется в Profile Studio. Он испо�
 
 ```text
 Custom Profile
-  = compiled System Prompt
-  + effective System Tooling
+  = Custom System Prompt
+  + Custom System Tools
   + provider/model/route identity
 ```
 
@@ -307,13 +310,14 @@ tools через Studio при этом остаётся вне первого �
 способом, что Claude: prompt сокращается и дополняется, tools уменьшаются до
 релевантного exact subset.
 
-## 7. Сборный Custom Profile
+## 7. Двухчастный Custom System Prompt
 
-Custom Profile не должен быть монолитным текстом, зашитым в исходный код.
+Custom System Prompt не является монолитным текстом, зашитым в исходный код, и
+не дробится на произвольное число пользовательских компонентов.
 
-Профиль хранится как набор пользовательских документов под Harness home. Эти
-документы создают Profile Creator Agent и пользователь в диалоге; пользователь
-может прочитать каждый документ и итоговую сборку.
+Он состоит ровно из двух читаемых документов под Harness home. Документы
+создаёт и изменяет Profile Creator Agent по результатам диалога с пользователем;
+пользователь может прочитать обе части, но не редактирует их вручную.
 
 Логическая модель:
 
@@ -321,35 +325,38 @@ Custom Profile не должен быть монолитным текстом, �
 Profile passport
 Target provider/model identity
 Native Capture donor provenance
-Ordered prompt components
-Tool selection
-Captured tool schemas
-Composition manifest
-Compiled system prompt preview
+Custom System Prompt
+  1. Reduced Native foundation
+  2. Custom additions
+Custom System Tools selection and schemas
 Creator session identity
 Draft / Valid status
 ```
 
-Точный физический формат и имена файлов остаются решением следующего
-implementation planning. Обязательные инварианты уже определены:
+Точные имена файлов остаются решением следующего implementation planning.
+Обязательные инварианты уже определены:
 
-- каждый prompt-компонент является обычным читаемым Markdown;
-- порядок и placement компонентов заданы машинно-читаемым manifest;
-- Profile Creator Agent может добавлять новые профильные компоненты, которых
-  не было в Native prompt;
-- один компонент может содержать перенесённые правила из `AGENTS.md`, Skills
-  или другого source material;
+- Native-основа является обычным читаемым Markdown, полученным сокращением и
+  переформатированием выбранного donor prompt;
+- на первом шаге агент удаляет из Native-основы инструкции и workflows «на все
+  случаи жизни», не относящиеся к основному назначению создаваемого профиля;
+- Custom-дополнения являются вторым читаемым Markdown и содержат только то, чего
+  не хватает сокращённой основе для конкретного класса задач;
+- необходимые правила и навыки из `AGENTS.md`, Skills или другого source
+  material кратко переносятся именно в Custom-дополнения;
+- порядок фиксирован: сначала Native-основа, затем Custom-дополнения; отдельный
+  composition manifest для произвольного числа блоков на первом этапе не нужен;
 - итоговый prompt не содержит Harness provenance/debug labels, если они не
   являются инструкциями модели;
 - compilation детерминирована и не вызывает LLM;
-- один и тот же draft всегда даёт одинаковые compiled prompt/tools;
+- один и тот же pair документов всегда даёт одинаковый compiled prompt;
 - structured tools остаются отдельным request layer и не сериализуются в
   system prompt;
 - managed route не должен повторно подмешивать `AGENTS.md`, Skills или другие
-  component sources, уже материализованные в Custom Profile; если конкретный
-  provider channel не позволяет отключить такой нижележащий контекст, Studio
-  показывает его как честный fixed channel ceiling, а внутренняя проверка
-  фиксирует фактическое дублирование;
+  instruction sources, уже материализованные в Custom System Prompt; если
+  конкретный provider channel не позволяет отключить такой нижележащий контекст,
+  Studio показывает его как честный fixed channel ceiling, а внутренняя
+  проверка фиксирует фактическое дублирование;
 - каждый профиль связан с одной сохраняемой Profile Creator Agent session;
 - profile status меняется с `Draft` на `Valid` только после явного подтверждения
   пользователя;
@@ -360,8 +367,9 @@ implementation planning. Обязательные инварианты уже о
 `Codex/codex-app-server-synthetic-native-custom` доказывает минимальную часть
 этой модели: Core уже умеет читать отдельные `system-prompt.md` и
 `custom-instructions.md`, вставлять custom instructions в captured baseline и
-фиксировать hash результата. Profile Studio обобщает этот механизм с одного
-hardcoded файла и одной точки вставки до набора упорядоченных компонентов.
+фиксировать hash результата. Profile Studio сохраняет эту двухчастную модель,
+но делает выбор донора, сокращение Native-основы и создание Custom-дополнений
+provider/model-specific работой Profile Creator Agent.
 
 ## 8. Profile Creator Agent
 
@@ -375,16 +383,20 @@ Agent:
 3. пользователь описывает назначение профиля;
 4. агент вместе с пользователем выбирает Native Capture donor и изучает
    совместимый tool inventory целевой модели;
-5. агент задаёт уточняющие вопросы;
-6. агент предлагает, какие prompt blocks убрать, сохранить или добавить;
-7. агент предлагает релевантный tool subset в пределах provider ceiling;
-8. агент создаёт или обновляет draft-компоненты;
-9. пользователь читает компоненты, compiled preview и diff;
-10. агент детерминированно собирает draft, сам запускает Custom Capture и
+5. агент анализирует donor prompt и предлагает, какие инструкции сохранить,
+   сократить, переформатировать или удалить;
+6. после обсуждения агент создаёт сокращённую Native-основу;
+7. агент и пользователь определяют, каких инструкций и навыков в ней не хватает
+   для конкретного класса задач;
+8. агент кратко формулирует их в Custom-дополнениях;
+9. агент предлагает релевантный Custom System Tools set в пределах provider
+   ceiling;
+10. пользователь читает обе части Custom System Prompt и Custom System Tools;
+11. агент детерминированно собирает draft, сам запускает Custom Capture и
     исправляет обнаруженные несовпадения;
-11. пользователь и агент формулируют и выполняют ручные поведенческие проверки;
-12. пользователь просит дальнейшие изменения или явно подтверждает профиль;
-13. только после подтверждения профиль получает статус `Valid`.
+12. пользователь и агент формулируют и выполняют ручные поведенческие проверки;
+13. пользователь просит дальнейшие изменения или явно подтверждает профиль;
+14. только после подтверждения профиль получает статус `Valid`.
 
 Каждый профиль в списке Studio является точкой входа в собственную Profile
 Creator Agent session. Выбор существующего профиля возобновляет эту сессию и
@@ -399,8 +411,8 @@ Agent не получает свободный filesystem access. Он рабо�
 - прочитать явно выбранный пользователем source material через ограниченный
   Core read contract;
 - создать draft для выбранных provider/model;
-- перечислить и прочитать prompt components;
-- создать или заменить draft component;
+- прочитать и заменить сокращённую Native-основу;
+- прочитать и заменить Custom-дополнения;
 - выбрать exact tools из разрешённого inventory;
 - запросить deterministic compilation;
 - получить validation issues и compiled preview;
@@ -441,14 +453,15 @@ Open Profile Studio mode
 2. Create a persistent Profile Creator Agent session
 3. Describe intended class of tasks
 4. Select and record the Native Capture donor
-5. Discuss prompt reduction and added instructions
-6. Discuss exact tool subset
-7. Inspect readable components and compiled prompt/tools
-8. Agent runs Custom Capture and repairs request mismatches internally
-9. User and agent devise and run manual behavioral checks
-10. User explicitly confirms the profile
-11. Profile status changes from Draft to Valid
-12. Valid profile appears in the compatible manual session picker
+5. Reduce and reformat the Native foundation
+6. Identify missing task-specific instructions and write concise Custom additions
+7. Discuss exact Custom System Tools
+8. Inspect both prompt parts and the effective tools
+9. Agent runs Custom Capture and repairs request mismatches internally
+10. User and agent devise and run manual behavioral checks
+11. User explicitly confirms the profile
+12. Profile status changes from Draft to Valid
+13. Valid profile appears in the compatible manual session picker
 ```
 
 Profile Studio не выбирает профиль за пользователя. При создании обычной
@@ -502,22 +515,21 @@ composer, execution controls и telemetry. Меняется специализи
 Справа от сессии находится компактный инспектор выбранного профиля с вкладками:
 
 - `Overview`;
-- `Components`;
-- `Prompt`;
-- `Tools`;
-- `Capture`.
+- `Custom System Prompt`;
+- `Custom System Tools`.
 
-Состав вкладок уточняется последовательно на прототипе. Принятый контракт
-`Overview` описан ниже; остальные вкладки пока не считаются окончательно
-спроектированными.
+`Components` не является отдельной пользовательской вкладкой: Custom System
+Prompt имеет только две фиксированные части. `Capture` также не является
+вкладкой инспектора. Capture требует отдельного диагностического интерфейса;
+его точка входа, возможно кнопка в `Overview`, будет обсуждаться отдельно.
 
 ### 10.5 Overview
 
 Overview показывает только краткое состояние, которое нужно для ориентации:
 
 - назначение профиля;
-- количество и краткую сводку компонентов;
-- количество и краткую сводку effective tools;
+- краткое состояние Native-основы и Custom-дополнений;
+- количество и краткую сводку Custom System Tools;
 - provenance-карточку **«Основан на Native Capture»** с точной identity реально
   выбранного донора;
 - текущий status `Draft` или `Valid`.
@@ -529,10 +541,28 @@ Overview показывает только краткое состояние, к
 - автоматического verification result;
 - процента соответствия или benchmark score.
 
-Механическая Custom Capture-проверка выполняется агентом автоматически и при
-необходимости может быть исследована в отдельной вкладке `Capture`, контракт
-которой ещё предстоит обсудить. Поведенческая валидация проходит вручную в
-центральной сессии, а итоговое подтверждение пользователь даёт в диалоге.
+Механическая Custom Capture-проверка выполняется агентом автоматически.
+Диагностические artifacts при необходимости открываются в отдельном Capture
+interface, а не внутри вкладок Profile Studio. Поведенческая валидация проходит
+вручную в центральной сессии, а итоговое подтверждение пользователь даёт в
+диалоге.
+
+### 10.6 Custom System Prompt
+
+Вкладка показывает в режиме чтения ровно две части:
+
+1. сокращённую Native-основу с provenance выбранного donor capture;
+2. краткие Custom-дополнения для конкретного класса задач.
+
+Обсуждение и изменение обеих частей происходит в центральной сессии с Profile
+Creator Agent. Отдельный экран механически склеенного prompt не нужен: он не
+содержит информации сверх этих двух согласованных частей.
+
+### 10.7 Custom System Tools
+
+Вкладка показывает effective structured tool set создаваемого профиля и честные
+provider ceilings. Её точный состав и визуализация обсуждаются следующим
+отдельным шагом на прототипе.
 
 На первом этапе нет ручного textarea/file editor. Пользователь изменяет draft
 через диалог с Agent и проверяет точный результат до подтверждения.
@@ -549,7 +579,7 @@ Overview показывает только краткое состояние, к
 | Agent-internal Custom Capture и mechanical comparison | Core capture modules |
 | Profile documents и validation | `session-profiles/profile-store` |
 | Restricted draft mutations | Core profile-authoring API |
-| Deterministic component compilation | Core profile compiler/materializer |
+| Deterministic two-part prompt compilation | Core profile compiler/materializer |
 | Profile catalog и provider/model compatibility | Core profile catalog |
 | Profile ↔ creator session identity, Draft/Valid state | Core profile lifecycle |
 | Native Capture donor identity и provenance | Core profile lifecycle/capture read model |
@@ -588,8 +618,8 @@ Renderer не:
 - model-scoped profile identity и filtering;
 - связь каждого профиля с собственной сохраняемой Profile Creator Agent session;
 - Core-owned статусы `Draft` и `Valid` с явным user confirmation gate;
-- нескольких упорядоченных prompt components вместо одного hardcoded
-  `custom-instructions.md`;
+- provider/model-specific сокращённой Native-основы и Custom-дополнений вместо
+  одного hardcoded `custom-instructions.md`;
 - restricted Profile Creator Agent authoring API;
 - agent-first Studio conversation в стандартном session interface;
 - единый Application Shell mode с Studio sidebar и компактным inspector;
@@ -609,7 +639,8 @@ Renderer не:
 
 - Single-window Studio mode и возврат к workspaces/sessions.
 - Provider/model-scoped sidebar и profile-to-session mapping.
-- Точное содержимое вкладок `Components`, `Prompt`, `Tools` и `Capture`.
+- Точное содержимое вкладок `Custom System Prompt` и `Custom System Tools`.
+- Отдельный Capture interface и его точка входа вне inspector tabs.
 - Явный пользовательский переход `Draft` → `Valid` через диалог.
 
 ### Этап B — Capture contract
@@ -623,7 +654,7 @@ Renderer не:
 ### Этап C — Profile composition contract
 
 - Provider+model passport.
-- Формат нескольких prompt components и composition manifest.
+- Формат сокращённой Native-основы и Custom-дополнений с фиксированным порядком.
 - Exact tool inventory и subset selection.
 - Deterministic compiler output и validation schema.
 - Applied snapshot compatibility.
@@ -669,8 +700,10 @@ Normalizer, автоматический выбор, динамическую с
   provenance не подменяется identity целевой модели.
 - Profile Creator Agent создаёт draft только через Core authoring API.
 - Каждый профиль связан с собственной сохраняемой creator session.
-- Пользователь может прочитать каждый prompt-компонент.
-- Compiled system prompt детерминирован и видим до запуска.
+- Пользователь может отдельно прочитать сокращённую Native-основу и
+  Custom-дополнения.
+- Compiled Custom System Prompt детерминирован и состоит только из этих двух
+  согласованных частей.
 - Effective tool set детерминирован и содержит только registered executors.
 - Claude Profile Creator Agent автоматически сверяет prompt и выбранный native
   tool subset с Custom Capture и исправляет расхождения.
@@ -711,18 +744,19 @@ Normalizer, автоматический выбор, динамическую с
 ## 16. Оставшиеся решения перед implementation plan
 
 1. Физический формат каталога provider+model profile.
-2. Формат prompt components и composition manifest.
+2. Точные имена и provider-specific placement двух частей Custom System Prompt.
 3. Контракт draft identity до утверждения пользователем.
 4. Provider/model Profile Creator Agent для первой реализации.
 5. Точные authoring tools специализированного агента.
 6. Точный Core contract команды, переводящей профиль из `Draft` в `Valid` после
    подтверждения пользователя в диалоге.
-7. Состав и визуализация вкладок `Components`, `Prompt`, `Tools` и `Capture`.
-8. Схема внутреннего expected-vs-observed Custom Capture diff для агента.
-9. Как связать captured artifact с конкретным draft content hash.
-10. Набор parity tests для каждого из 25 Kimi tools.
-11. Первый класс Custom Profiles и ручные task fixtures.
-12. Отдельный эксперимент по размещению user task в system prompt.
+7. Состав и визуализация вкладки `Custom System Tools`.
+8. Отдельный Capture interface и точка входа в него, возможно из `Overview`.
+9. Схема внутреннего expected-vs-observed Custom Capture diff для агента.
+10. Как связать captured artifact с конкретным draft content hash.
+11. Набор parity tests для каждого из 25 Kimi tools.
+12. Первый класс Custom Profiles и ручные task fixtures.
+13. Отдельный эксперимент по размещению user task в system prompt.
 
 Каждое из этих решений сначала обсуждается и фиксируется в planning document
 под `docs/evidence/**`. Только после принятия документа создаётся active

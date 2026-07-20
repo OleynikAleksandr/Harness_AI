@@ -8,8 +8,8 @@
   "planId": "profile-studio-proposal-2026-07-19",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task1",
-  "expectedCommitMessage": "docs: simplify profile studio prompt surfaces",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -103,5 +103,5 @@
 
 ### Stream: Custom System Prompt And Tools
 
-15. [IN_PROGRESS] `harness-ai.phase7.stream1.task1` Align the Profile Studio proposal and documentation catalog with the two-part Custom System Prompt, separate Custom System Tools surface, and removal of Capture from the inspector tabs pending a separate interface decision (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: simplify profile studio prompt surfaces`).
-16. [TODO] Git Commit: `docs: simplify profile studio prompt surfaces` (hash: TBD)
+15. [DONE] `harness-ai.phase7.stream1.task1` Align the Profile Studio proposal and documentation catalog with the two-part Custom System Prompt, separate Custom System Tools surface, and removal of Capture from the inspector tabs pending a separate interface decision (scope: `docs/proposals/ProfileStudio.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: simplify profile studio prompt surfaces`). Result: Completed in commit `docs: simplify profile studio prompt surfaces`.
+16. [DONE] Git Commit: `docs: simplify profile studio prompt surfaces` (hash: self)

@@ -104,7 +104,7 @@ export class ProfileCatalogFacade {
       (entry) =>
         entry.kind === "native" ||
         (isProviderProfileApplicable(providerId, entry.provider) &&
-          isPickerCompatibleStudioEntry(entry, modelId))
+          isPickerCompatibleStudioEntry(entry, providerId, modelId))
     );
   }
 
@@ -182,6 +182,13 @@ export class ProfileCatalogFacade {
       };
     }
     if (isSessionProfileStudioPassport(profile.passport)) {
+      if (request.providerId === "kimi-client") {
+        return {
+          error:
+            "Kimi Studio profiles remain Draft-only until the universal client reaches 25/25 Native tool executor parity.",
+          ok: false,
+        };
+      }
       if (profile.passport.status !== "valid") {
         return {
           error: `Studio profile "${profileId}" is Draft and cannot be applied to an ordinary session.`,
@@ -220,12 +227,17 @@ function isProviderProfileApplicable(
 
 function isPickerCompatibleStudioEntry(
   entry: SessionProfileCatalogEntry,
+  providerId: string,
   modelId: string | undefined
 ): boolean {
   if (!entry.studioStatus) {
     return true;
   }
-  return entry.studioStatus === "valid" && entry.model === modelId?.trim();
+  return (
+    providerId !== "kimi-client" &&
+    entry.studioStatus === "valid" &&
+    entry.model === modelId?.trim()
+  );
 }
 
 function toCatalogEntry(profile: SessionProfile): SessionProfileCatalogEntry {

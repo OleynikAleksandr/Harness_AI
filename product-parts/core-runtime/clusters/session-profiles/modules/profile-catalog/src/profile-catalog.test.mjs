@@ -24,8 +24,9 @@ const buildDirectory = await mkdtemp(
 );
 const profilesRoot = await mkdtemp(path.join(tmpdir(), "harness-catalog-"));
 
-async function writeStudioProfile({ id, model, status }) {
-  const profileDirectory = path.join(profilesRoot, "Claude", id);
+async function writeStudioProfile({ id, model, provider = "claude", status }) {
+  const providerDirectory = provider === "kimi-client" ? "Kimi" : "Claude";
+  const profileDirectory = path.join(profilesRoot, providerDirectory, id);
   await mkdir(profileDirectory, { recursive: true });
   await writeFile(
     path.join(profileDirectory, "profile.yaml"),
@@ -35,7 +36,7 @@ async function writeStudioProfile({ id, model, status }) {
       `name: ${id}`,
       "description: Studio catalog profile.",
       `purpose: Purpose for ${id}`,
-      "provider: claude",
+      `provider: ${provider}`,
       `model: ${model}`,
       `status: ${status}`,
       `creatorSessionId: session-${id}`,
@@ -135,6 +136,12 @@ try {
   await writeStudioProfile({
     id: "valid-sonnet",
     model: "sonnet",
+    status: "valid",
+  });
+  await writeStudioProfile({
+    id: "invalidly-valid-kimi",
+    model: "k3",
+    provider: "kimi-client",
     status: "valid",
   });
   await mkdir(path.join(profilesRoot, "review"), { recursive: true });
@@ -249,6 +256,14 @@ try {
     kimiEntries.map((entry) => entry.id),
     [NATIVE_SESSION_PROFILE_ID]
   );
+  const kimiK3Entries = await catalog.listProfilesForProvider(
+    "kimi-client",
+    "k3"
+  );
+  assert.deepEqual(
+    kimiK3Entries.map((entry) => entry.id),
+    [NATIVE_SESSION_PROFILE_ID]
+  );
 
   // Broken profiles appear in the management list with their issues.
   await mkdir(path.join(profilesRoot, "broken"), { recursive: true });
@@ -351,6 +366,14 @@ try {
   });
   assert.equal(kimiManaged.ok, false);
   assert.match(kimiManaged.error, /legacy universal/u);
+  const invalidlyValidKimiStudio = await catalog.resolveForSession({
+    modelId: "k3",
+    profileId: "invalidly-valid-kimi",
+    providerId: "kimi-client",
+  });
+  assert.equal(invalidlyValidKimiStudio.ok, false);
+  assert.match(invalidlyValidKimiStudio.error, /Draft-only/u);
+  assert.match(invalidlyValidKimiStudio.error, /25\/25/u);
 
   const missing = await catalog.resolveForSession({
     profileId: "does-not-exist",

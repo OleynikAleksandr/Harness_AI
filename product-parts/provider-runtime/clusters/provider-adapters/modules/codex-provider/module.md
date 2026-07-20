@@ -119,12 +119,13 @@ the shared process.
   managed and synthetic-native sessions send the frozen snapshot prompt as
   `baseInstructions` on `thread/start`/`thread/resume` (full replacement of the
   built-in instructions); raw Native omits it so the vendor CLI runs untouched;
-  legacy sessions pass no options at all. Tooling categories are an MVP no-op:
+  legacy sessions pass no options at all. Tooling categories are not applied:
   tool availability is fixed by the shared app-server process `--disable`
   flags, and restarting that shared process per profile would invalidate
-  other sessions' thread bindings — the effective process profile key is
-  recorded in the applied details (`ProviderSessionStartResult`) as
-  groundwork for a future per-profile process pool.
+  other sessions' thread bindings. The applied details
+  (`ProviderSessionStartResult`) record the exact
+  `baseInstructions full-replacement` prompt route, `provider-fixed` tool mode,
+  effective process profile key and app-server process-tool ceiling.
 
 - Native request capture (`codex-native-request-capture-service.ts`,
   reached through the adapter's `captureNativeRequest`): a record-only

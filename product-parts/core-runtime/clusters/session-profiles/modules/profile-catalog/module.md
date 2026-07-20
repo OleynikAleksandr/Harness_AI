@@ -16,6 +16,11 @@ and Valid) and never contains virtual Native, Synthetic Native or legacy v1
 profiles. Ordinary pickers hide every Studio Draft and expose a Studio Valid
 entry only when the caller supplies the exact model id. Resolution repeats
 the status/model checks so a stale UI selection cannot bypass Core truth.
+Kimi Studio candidates remain visible in the Studio-only target list as Draft
+work, but the ordinary picker and resolution centrally reject every Kimi
+Studio entry even if its stored status was manually changed to `Valid`. This
+gate remains until the universal client reaches all 25 captured Native tool
+executors.
 
 ## Public Facade
 
@@ -46,7 +51,9 @@ the status/model checks so a stale UI selection cannot bypass Core truth.
   target list with lifecycle status, creator-session binding and purpose; no
   Native or legacy rows.
 - `listProfilesForProvider(providerId, modelId?)` preserves legacy behavior;
-  the optional model admits only exact-model Studio `Valid` rows.
+  the optional model admits only exact-model Studio `Valid` rows. Kimi Studio
+  rows are never admitted to this ordinary picker before 25/25 executor
+  parity.
 - Grok is managed-profile eligible because its adapter now proves both the
   system prompt override and effective restricted tooling after session
   creation. Native remains the first/fallback entry; a Grok-scoped managed
@@ -56,7 +63,9 @@ the status/model checks so a stale UI selection cannot bypass Core truth.
   `{ ok: true, kind: "managed", profile }` for an applicable valid profile;
   `{ ok: false, error }` for broken, missing, legacy universal, or
   inapplicable selections, Studio Draft/wrong-model selections, and managed
-  selections on unsupported providers.
+  selections on unsupported providers. Kimi Studio selections are rejected
+  with the explicit Draft-only 25/25 parity reason regardless of stored
+  lifecycle status.
 
 ## Owned Paths
 

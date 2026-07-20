@@ -362,6 +362,12 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   settings/tools and full-snapshot JSON Schema parser are **APPLIED**;
 - Core provider/model/profile/Overview/Prompt/Tools read models with Claude
   subset, Codex fixed and current Kimi 9/25 Draft-only truth are **APPLIED**;
+- Codex managed application records the exact `baseInstructions`
+  full-replacement route and provider-fixed app-server tools in applied
+  details; Kimi Studio candidates remain visible for authoring but are
+  centrally excluded from the ordinary picker and rejected during resolution
+  even if a stored passport was manually changed to `Valid` — both are
+  **APPLIED**;
 - optional `profile-creator` session purpose/profile binding is **APPLIED** in
   Core types and backward-compatible session-index restore;
 - fixed managed Claude/Opus/high creator session creation is **APPLIED** with

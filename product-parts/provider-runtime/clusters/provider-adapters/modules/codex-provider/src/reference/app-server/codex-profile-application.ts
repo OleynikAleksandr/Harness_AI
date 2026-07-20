@@ -8,12 +8,11 @@ import type {
  * Codex profile application layer (docs/architecture/SessionProfiles.md):
  * the managed prompt travels as `baseInstructions` on thread/start and
  * thread/resume (full replacement of the built-in instructions); native
- * omits it so the vendor CLI runs untouched. Tooling categories are an MVP
- * no-op — tool availability is fixed by the shared app-server process
+ * omits it so the vendor CLI runs untouched. Tooling categories are not
+ * applied — tool availability is fixed by the shared app-server process
  * `--disable` flags, and restarting that shared process per profile would
- * invalidate other sessions' thread bindings; the effective process profile
- * key is recorded in the snapshot as groundwork for a future per-profile
- * process pool.
+ * invalidate other sessions' thread bindings. Applied details therefore
+ * expose the effective process profile key and the provider-fixed ceiling.
  */
 export interface CodexSessionProfileState {
   readonly kind: "managed" | "native";
@@ -61,6 +60,8 @@ export function computeCodexProfileDetails(
     mode: "managed",
     processProfileKey,
     profileId: state.payload.profileId,
-    tooling: "no-op (MVP; future per-profile process pool)",
+    systemPrompt: "baseInstructions full-replacement",
+    toolMode: "provider-fixed",
+    tooling: "app-server process tools (no per-thread control)",
   };
 }

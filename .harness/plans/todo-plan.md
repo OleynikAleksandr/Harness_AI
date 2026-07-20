@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase7.stream1.task2",
-  "expectedCommitMessage": "feat: enforce studio provider capability gates",
+  "currentTaskId": "harness-ai.phase7.stream2.task1",
+  "expectedCommitMessage": "fix: route studio model through session picker",
   "debt": null
 }
 ```
@@ -146,21 +146,26 @@
 37. [DONE] `harness-ai.phase7.stream1.task1` Apply Studio Claude prompt and validated native tool-name subset through the existing Claude managed profile route and record exact application truth (scope: up to 3 Claude/profile functional files plus related docs; expected commit: `feat: apply claude studio profiles`). Result: Completed in commit `feat: apply claude studio profiles`.
 38. [DONE] Git Commit: `feat: apply claude studio profiles` (hash: self)
 
-39. [IN_PROGRESS] `harness-ai.phase7.stream1.task2` Preserve Codex prompt-only application with fixed-tool read model and enforce Kimi Draft-only validation until universal-client 25-tool parity exists (scope: up to 3 provider/profile functional files plus related docs; expected commit: `feat: enforce studio provider capability gates`).
-40. [TODO] Git Commit: `feat: enforce studio provider capability gates` (hash: TBD)
+39. [DONE] `harness-ai.phase7.stream1.task2` Preserve Codex prompt-only application with fixed-tool read model and enforce Kimi Draft-only validation until universal-client 25-tool parity exists (scope: up to 2 functional files — central profile-catalog capability gate and Codex applied-detail projection — plus focused tests and related docs; expected commit: `feat: enforce studio provider capability gates`). Result: Completed in commit `feat: enforce studio provider capability gates`.
+40. [DONE] Git Commit: `feat: enforce studio provider capability gates` (hash: self)
+
+### Stream: Exact Model Session Routing
+
+41. [IN_PROGRESS] `harness-ai.phase7.stream2.task1` Route the resolved provider model through the ordinary profile picker RPC and immutable session-profile resolution so Valid Studio entries appear only for, and start only with, the exact selected provider/model target (scope: up to 6 functional files — session-window model prop, session profile step, renderer bridge type, Core profile-list RPC, session creation and session-profile resolution — plus focused tests and related docs; expected commit: `fix: route studio model through session picker`).
+42. [TODO] Git Commit: `fix: route studio model through session picker` (hash: TBD)
 
 ## Phase 8 - Integrated Build Evidence (owner: Codex, updated: 2026-07-20)
 
 ### Stream: Production Build
 
-41. [TODO] `harness-ai.phase8.stream1.task1` Run the production build after implementation, verify the Studio contracts in built renderer/runtime artifacts and record integration evidence without packaging yet (scope: `docs/evidence/profile-studio-mvp-build-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record profile studio mvp build`).
-42. [TODO] Git Commit: `docs: record profile studio mvp build` (hash: TBD)
+43. [TODO] `harness-ai.phase8.stream1.task1` Run the production build after implementation, verify the Studio contracts in built renderer/runtime artifacts and record integration evidence without packaging yet (scope: `docs/evidence/profile-studio-mvp-build-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: record profile studio mvp build`).
+44. [TODO] Git Commit: `docs: record profile studio mvp build` (hash: TBD)
 
 ## Phase 9 - Package And User Acceptance (owner: Codex + User, updated: 2026-07-20)
 
 ### Stream: macOS Package
 
-43. [TODO] `harness-ai.phase9.stream1.task1` Build the user-authorized unsigned macOS package, verify `release/mac-arm64/Harness AI.app` and packaged `app.asar`, launch the rebuilt package and record package identity/retest checklist (scope: `docs/evidence/profile-studio-mvp-package-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio mvp`).
-44. [TODO] Git Commit: `docs: package profile studio mvp` (hash: TBD)
+45. [TODO] `harness-ai.phase9.stream1.task1` Build the user-authorized unsigned macOS package, verify `release/mac-arm64/Harness AI.app` and packaged `app.asar`, launch the rebuilt package and record package identity/retest checklist (scope: `docs/evidence/profile-studio-mvp-package-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio mvp`).
+46. [TODO] Git Commit: `docs: package profile studio mvp` (hash: TBD)
 
-45. [TODO] `harness-ai.phase9.stream1.task2` User tests the packaged Profile Studio workflow: single-window entry/return, provider/model scoping, Draft creation, persistent Claude creator conversation, Core-backed inspector, approval/hash lifecycle, valid Claude/Codex picker application, honest Kimi block and unchanged ordinary sessions (completion: user-acceptance; scope: user workflow; expected commit: none).
+47. [TODO] `harness-ai.phase9.stream1.task2` User tests the packaged Profile Studio workflow: single-window entry/return, provider/model scoping, Draft creation, persistent Claude creator conversation, Core-backed inspector, approval/hash lifecycle, valid Claude/Codex picker application, honest Kimi block and unchanged ordinary sessions (completion: user-acceptance; scope: user workflow; expected commit: none).

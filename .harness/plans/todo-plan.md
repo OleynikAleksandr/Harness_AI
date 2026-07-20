@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase3.stream1.task3",
-  "expectedCommitMessage": "feat: add profile studio agent facade",
+  "currentTaskId": "harness-ai.phase3.stream1.task4",
+  "expectedCommitMessage": "feat: add profile studio read model facade",
   "debt": null
 }
 ```
@@ -97,10 +97,10 @@
 15. [DONE] `harness-ai.phase3.stream1.task2` Add the `profile-studio-authoring` module/class facade that validates and atomically applies complete agent-produced snapshots through session-profile facades, including donor-path containment and honest provider tool modes (scope: authoring facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio authoring facade`). Result: Completed in commit `feat: add profile studio authoring facade`.
 16. [DONE] Git Commit: `feat: add profile studio authoring facade` (hash: self)
 
-17. [IN_PROGRESS] `harness-ai.phase3.stream1.task3` Add the `profile-studio-agent` module/class facade with fixed Claude/Opus/high identity, isolated inline instructions, JSON Schema full-snapshot output contract and no ambient settings/filesystem tools (scope: agent facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio agent facade`).
-18. [TODO] Git Commit: `feat: add profile studio agent facade` (hash: TBD)
+17. [DONE] `harness-ai.phase3.stream1.task3` Add the `profile-studio-agent` module/class facade with fixed Claude/Opus/high identity, isolated inline instructions, JSON Schema full-snapshot output contract and no ambient settings/filesystem tools (scope: agent facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio agent facade`). Result: Completed in commit `feat: add profile studio agent facade`.
+18. [DONE] Git Commit: `feat: add profile studio agent facade` (hash: self)
 
-19. [TODO] `harness-ai.phase3.stream1.task4` Add the `profile-studio-read-model` module/class facade for target catalogs, compatible creator sessions and Overview/Prompt/Tools snapshots with Claude subset, Codex fixed and Kimi Draft-only capability truth (scope: read-model facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio read model facade`).
+19. [IN_PROGRESS] `harness-ai.phase3.stream1.task4` Add the `profile-studio-read-model` module/class facade for target catalogs, compatible creator sessions and Overview/Prompt/Tools snapshots with Claude subset, Codex fixed and Kimi Draft-only capability truth (scope: read-model facade/test only plus cluster/module docs and Product Tree; expected commit: `feat: add profile studio read model facade`).
 20. [TODO] Git Commit: `feat: add profile studio read model facade` (hash: TBD)
 
 ## Phase 4 - Creator Session Runtime (owner: Codex, updated: 2026-07-20)

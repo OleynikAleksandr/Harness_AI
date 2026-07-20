@@ -54,6 +54,9 @@ into `product-parts/**` as real module code.
 - Validate complete Profile Creator snapshots, provider-specific tool modes
   and contained Native Capture raw/diagnostic provenance before any managed
   profile mutation.
+- Supply a fixed isolated Claude/Opus/high Profile Creator turn contract with
+  all authoring context and JSON Schema inline and no ambient settings or
+  executable tools.
 
 ## Out Of Scope
 

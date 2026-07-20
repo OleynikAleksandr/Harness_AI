@@ -252,6 +252,11 @@
               "id": "profile-studio-authoring",
               "name": "Profile Studio Authoring",
               "purpose": "Validate complete creator snapshots, honest provider tool modes and contained raw Native Capture provenance before managed lifecycle updates."
+            },
+            {
+              "id": "profile-studio-agent",
+              "name": "Profile Studio Agent",
+              "purpose": "Fixed isolated Claude/Opus/high creator turn spec with complete inline context, no ambient settings/tools, and full-snapshot JSON Schema validation."
             }
           ]
         },

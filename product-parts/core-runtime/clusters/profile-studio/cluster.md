@@ -9,22 +9,25 @@ facades from `session-profiles`, session runtime, provider descriptors and
 Native Request Capture; it never asks renderer code to scan files, infer state
 or parse agent prose.
 
-Current applied slice: `profile-studio-lifecycle`. It mints immutable Draft
+Applied slices: `profile-studio-lifecycle` and `profile-studio-authoring`.
+Lifecycle mints immutable Draft
 ids, preserves exact target/session binding, computes the materialized content
 hash, accepts approval only for that hash and returns every later full-snapshot
 edit to Draft. Approval metadata is derived from the controlled passport
 transition; direct/manual profile editing and recovery are outside this first
 stage.
+Authoring validates complete creator snapshots, honest provider tool modes and
+contained raw Native Capture donor truth before delegating one atomic update.
 
 Contract source: `docs/architecture/ProfileStudio.md`.
 
 ## Owned Modules
 
 - `profile-studio-lifecycle`
+- `profile-studio-authoring`
 
 ## Accepted Next Modules (Not Yet Applied)
 
-- `profile-studio-authoring` (planned in the active implementation scope)
 - `profile-studio-agent` (planned in the active implementation scope)
 - `profile-studio-read-model` (planned in the active implementation scope)
 

@@ -351,8 +351,10 @@ Core.
 
 At the start of plan `profile-studio-mvp-2026-07-20`:
 
-- Core `profile-studio` cluster and its lifecycle facade are **APPLIED**;
-- Core authoring/agent/read-model modules and the Application Shell
+- Core `profile-studio` lifecycle and controlled authoring facades are
+  **APPLIED**, including raw donor containment/provider/model/capture-hash
+  validation and honest provider tool modes;
+- Core agent/read-model modules and the Application Shell
   `profile-studio` cluster are **NOT APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;

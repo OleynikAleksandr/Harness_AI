@@ -247,6 +247,11 @@
               "id": "profile-studio-lifecycle",
               "name": "Profile Studio Lifecycle",
               "purpose": "Immutable Draft identity, exact target/session binding, deterministic content-hash approval and edit-to-Draft transition truth."
+            },
+            {
+              "id": "profile-studio-authoring",
+              "name": "Profile Studio Authoring",
+              "purpose": "Validate complete creator snapshots, honest provider tool modes and contained raw Native Capture provenance before managed lifecycle updates."
             }
           ]
         },

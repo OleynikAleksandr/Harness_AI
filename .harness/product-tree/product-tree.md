@@ -79,6 +79,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 ### Profile Studio
 
 - `profile-studio-lifecycle`: immutable Draft identity, exact provider/model and creator-session binding, deterministic content-hash approval, and edit-to-Draft transition truth.
+- `profile-studio-authoring`: validates complete creator snapshots, honest provider tool modes, and contained raw Native Capture provenance before managed lifecycle updates.
 
 ### Universal Client
 

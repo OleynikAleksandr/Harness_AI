@@ -51,6 +51,9 @@ into `product-parts/**` as real module code.
 - Own Profile Studio lifecycle truth: immutable Draft identity, exact
   provider/model and creator-session binding, content-hash approval and
   edit-to-Draft transitions through class facades.
+- Validate complete Profile Creator snapshots, provider-specific tool modes
+  and contained Native Capture raw/diagnostic provenance before any managed
+  profile mutation.
 
 ## Out Of Scope
 

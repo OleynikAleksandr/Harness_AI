@@ -19,7 +19,9 @@ materialization, bootstrap payload reuse, and bundle state.
   part of the approved English dictionaries.
 - The dedicated Profile Studio Settings tab source strings are approved here:
   `settings.tab.profileStudio`, the Default Profile Creator Agent card/field
-  labels, and its application-wide managed-identity helper copy.
+  labels, and its application-wide provider-backed helper copy. Session-profile
+  helper text names `~/.harness-ai/ProfileStudio/Profiles` as the only current
+  user-owned profile root.
 - The Settings glossary card copy (`settings.localization.glossaryTerms.description`,
   `settings.localization.glossary.prefilled`) shows one example of each glossary
   line format — a plain do-not-translate term and a `Term - Desired translation`

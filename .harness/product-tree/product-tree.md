@@ -39,7 +39,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 ### Settings Surface
 
 - `provider-settings-ui`: provider cards, auth/model/reasoning controls submitted through Core contracts.
-- `profile-studio-settings-ui`: application-wide default managed Profile Creator Agent selector backed by Core settings.
+- `profile-studio-settings-ui`: application-wide default Profile Creator Agent provider selector backed by Core settings and fixed catalog metadata.
 - `localization-settings-ui`: UI language and reasoning translation controls submitted through Core contracts.
 - `recovery-controls-ui`: Core restart/recovery action surface backed by a real Core process stop/start lifecycle.
 

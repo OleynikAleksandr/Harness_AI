@@ -21,10 +21,10 @@ const tabContentSource = readFileSync(
 );
 
 assert.match(source, /PROFILE_CREATOR_AGENT_OPTIONS/u);
-assert.match(source, /ProfileCreatorAgentId/u);
+assert.match(source, /ProfileCreatorAgentProviderId/u);
 assert.match(source, /settings\.profileStudio\.defaultCreatorAgent/u);
 assert.match(source, /settings\.profileStudio\.creatorAgent/u);
-assert.match(source, /selected\.providerId/u);
+assert.match(source, /selected\.id/u);
 assert.match(source, /selected\.model/u);
 assert.match(source, /selected\.reasoningEffort/u);
 assert.match(
@@ -35,7 +35,7 @@ assert.match(tabContentSource, /activeTab === "profileStudio"/u);
 assert.match(tabContentSource, /ProfileStudioSettingsUiFacade/u);
 assert.match(
   tabContentSource,
-  /next\.profileStudio\.defaultCreatorAgentId = defaultCreatorAgentId/u
+  /next\.profileStudio\.defaultCreatorAgentProviderId =\s+defaultCreatorAgentProviderId/u
 );
 
 console.log("Profile Studio settings UI tests: OK");

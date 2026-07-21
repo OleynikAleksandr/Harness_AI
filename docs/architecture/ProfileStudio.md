@@ -87,11 +87,13 @@ Core cluster composes only public facades from:
 - Claude adapter through normal Core provider routing.
 
 The machine-wide default Profile Creator Agent is Core-owned settings truth,
-not a Studio-sidebar choice. `profileStudio.defaultCreatorAgentId` is persisted
-in system settings and resolves through the managed agent option catalog. The
-first option is `codex-profile-creator-agent`, fixed to Codex / GPT-5.6 Sol /
-high. Renderer clients select a managed identity and do not independently
-compose provider, model or reasoning combinations.
+not a Studio-sidebar choice.
+`profileStudio.defaultCreatorAgentProviderId` persists only the provider id in
+system settings and resolves through the managed agent option catalog. The
+first value is `codex`, displayed as `Codex Profile Creator Agent` and fixed to
+GPT-5.6 Sol / high. There is no second redundant managed-agent id. Renderer
+clients select the provider-backed catalog entry and do not independently
+compose model or reasoning combinations.
 
 The Application Shell exposes this infrequently changed value in a dedicated
 Settings tab named `Profile Studio`, immediately before `General`. The tab

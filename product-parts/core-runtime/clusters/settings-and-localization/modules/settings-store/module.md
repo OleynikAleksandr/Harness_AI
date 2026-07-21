@@ -17,11 +17,13 @@ Own global and workspace settings persistence.
 
 - Settings snapshot.
 - Persisted settings update.
-- Machine-wide Profile Studio defaults. `profileStudio.defaultCreatorAgentId`
-  persists in the system settings file and normalizes to the Core-owned
-  `codex-profile-creator-agent` option when absent or invalid. The first option
-  fixes its execution identity at Codex / GPT-5.6 Sol / high; renderer clients
-  consume this catalog instead of reconstructing agent capabilities.
+- Machine-wide Profile Studio defaults.
+  `profileStudio.defaultCreatorAgentProviderId` persists only the selected
+  provider id in the system settings file and normalizes to `codex` when
+  absent or invalid. The Core-owned option catalog associates that provider
+  with the human label `Codex Profile Creator Agent` and the fixed execution
+  identity GPT-5.6 Sol / high; renderer clients do not persist a second,
+  redundant managed-agent id.
 - Provider default paths normalized to Harness namespaces for active settings
   sections.
 - Localization translation engine ids resolved as `uiEngineId` and

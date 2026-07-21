@@ -1,10 +1,10 @@
 import { PROFILE_CREATOR_AGENT_OPTIONS } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
-import type { ProfileCreatorAgentId } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import type { ProfileCreatorAgentProviderId } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
 interface ProfileStudioSettingsUiFacadeProps {
-  onChange: (agentId: ProfileCreatorAgentId) => void;
-  value: ProfileCreatorAgentId;
+  onChange: (providerId: ProfileCreatorAgentProviderId) => void;
+  value: ProfileCreatorAgentProviderId;
 }
 
 export function ProfileStudioSettingsUiFacade({
@@ -65,7 +65,7 @@ export function ProfileStudioSettingsUiFacade({
         </label>
         {selected ? (
           <p className="settings-helper">
-            {`Provider: ${selected.providerId} · Model: ${selected.model} · Reasoning: ${selected.reasoningEffort}`}
+            {`Provider: ${selected.id} · Model: ${selected.model} · Reasoning: ${selected.reasoningEffort}`}
           </p>
         ) : null}
       </section>

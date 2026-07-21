@@ -8,15 +8,14 @@ import type {
 export const PROFILE_CREATOR_AGENT_OPTIONS: readonly ProfileCreatorAgentOption[] =
   [
     {
-      id: "codex-profile-creator-agent",
+      id: "codex",
       label: "Codex Profile Creator Agent",
       model: "gpt-5.6-sol",
-      providerId: "codex",
       reasoningEffort: "high",
     },
   ];
 
-const PROFILE_CREATOR_AGENT_IDS: readonly string[] =
+const PROFILE_CREATOR_AGENT_PROVIDER_IDS: readonly string[] =
   PROFILE_CREATOR_AGENT_OPTIONS.map((option) => option.id);
 
 const CLAUDE_MODEL_ALIASES = ["sonnet", "opus", "haiku"];
@@ -102,11 +101,11 @@ const GLM_CLIENT_MODEL_IDS = [
 export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   const next = structuredClone(settings);
   if (
-    !PROFILE_CREATOR_AGENT_IDS.includes(
-      next.profileStudio.defaultCreatorAgentId
+    !PROFILE_CREATOR_AGENT_PROVIDER_IDS.includes(
+      next.profileStudio.defaultCreatorAgentProviderId
     )
   ) {
-    next.profileStudio.defaultCreatorAgentId = "codex-profile-creator-agent";
+    next.profileStudio.defaultCreatorAgentProviderId = "codex";
   }
   if (!CLAUDE_MODEL_ALIASES.includes(next.providers.claude.defaultModel)) {
     next.providers.claude.defaultModel = "sonnet";

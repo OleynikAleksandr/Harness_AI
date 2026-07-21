@@ -11,13 +11,14 @@ Settings rather than in the everyday profile creation workflow.
 
 ## Inputs
 
-- Core-owned `profileStudio.defaultCreatorAgentId` settings value.
+- Core-owned `profileStudio.defaultCreatorAgentProviderId` settings value.
 - Core-owned managed Profile Creator Agent option catalog.
 
 ## Outputs
 
-- Default Profile Creator Agent selection intent. The first available option is
-  `codex-profile-creator-agent`, fixed to Codex / GPT-5.6 Sol / high.
+- Default Profile Creator Agent provider selection intent. The first available
+  value is `codex`; its catalog label is `Codex Profile Creator Agent` and its
+  execution identity is fixed to GPT-5.6 Sol / high.
 - Exact provider, model and reasoning metadata for the selected managed option.
 
 The facade edits only the Settings draft passed by the parent surface. Normal

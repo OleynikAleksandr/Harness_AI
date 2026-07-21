@@ -120,8 +120,10 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - The old `Profile Creator` authoring tab and `profile-settings-ui` authoring
   module are retired. A new non-authoring `Profile Studio` settings tab appears
   immediately before General and delegates only the application-wide default
-  Creator Agent choice to `ProfileStudioSettingsUiFacade`; profile creation
-  itself remains in the separate Profile Studio application mode. Existing
+  Creator Agent provider choice to `ProfileStudioSettingsUiFacade`; the
+  settings draft persists `defaultCreatorAgentProviderId`, while label/model/
+  reasoning metadata comes from the Core catalog. Profile creation itself
+  remains in the separate Profile Studio application mode. Existing
   `settings.profileCreator.*` localization entries and legacy Core profile
   contracts remain for compatibility, while the ordinary new-session picker
   continues to consume the Core catalog.

@@ -86,12 +86,13 @@ export function SettingsTabContent({
   if (activeTab === "profileStudio") {
     return (
       <ProfileStudioSettingsUiFacade
-        onChange={(defaultCreatorAgentId) =>
+        onChange={(defaultCreatorAgentProviderId) =>
           update((next) => {
-            next.profileStudio.defaultCreatorAgentId = defaultCreatorAgentId;
+            next.profileStudio.defaultCreatorAgentProviderId =
+              defaultCreatorAgentProviderId;
           })
         }
-        value={settings.profileStudio.defaultCreatorAgentId}
+        value={settings.profileStudio.defaultCreatorAgentProviderId}
       />
     );
   }

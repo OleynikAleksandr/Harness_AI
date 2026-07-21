@@ -23,13 +23,12 @@ export type ReasoningEffort =
   | "ultra"
   | "ultracode";
 
-export type ProfileCreatorAgentId = "codex-profile-creator-agent";
+export type ProfileCreatorAgentProviderId = "codex";
 
 export interface ProfileCreatorAgentOption {
-  id: ProfileCreatorAgentId;
+  id: ProfileCreatorAgentProviderId;
   label: string;
   model: string;
-  providerId: "codex";
   reasoningEffort: ReasoningEffort;
 }
 
@@ -60,7 +59,7 @@ export interface HarnessSettings {
     };
   };
   profileStudio: {
-    defaultCreatorAgentId: ProfileCreatorAgentId;
+    defaultCreatorAgentProviderId: ProfileCreatorAgentProviderId;
   };
   providers: {
     claude: ProviderCommonSettings & {
@@ -157,7 +156,7 @@ const DEFAULT_SETTINGS: HarnessSettings = {
     },
   },
   profileStudio: {
-    defaultCreatorAgentId: "codex-profile-creator-agent",
+    defaultCreatorAgentProviderId: "codex",
   },
   providers: {
     claude: {

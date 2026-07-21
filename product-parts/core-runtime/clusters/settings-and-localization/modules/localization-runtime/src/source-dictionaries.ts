@@ -274,7 +274,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.provider.localModels.empty":
       "No local models are currently visible to Core. Start the local server and load a model.",
     "settings.profileCreator.description":
-      "Session profiles define the workflow instructions and tooling categories a new session starts with. Profile documents live in ~/.harness-ai/Profiles and are plain files owned by you.",
+      "Session profiles define the workflow instructions and tooling categories a new session starts with. Profile documents live in ~/.harness-ai/ProfileStudio/Profiles and are plain files owned by you.",
     "settings.profileCreator.namePlaceholder": "e.g. Deep Review",
     "settings.profileCreator.applicability.universal":
       "Existing legacy profile; not available for new sessions",

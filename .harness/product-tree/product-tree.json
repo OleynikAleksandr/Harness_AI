@@ -112,7 +112,7 @@
             {
               "id": "profile-studio-settings-ui",
               "name": "Profile Studio Settings UI",
-              "purpose": "Application-wide default managed Profile Creator Agent selector backed by Core settings."
+              "purpose": "Application-wide default Profile Creator Agent provider selector backed by Core settings and fixed catalog metadata."
             },
             {
               "id": "localization-settings-ui",

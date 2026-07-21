@@ -31,6 +31,8 @@ const systemProjection = projectionsSource.slice(
 const workspaceProjection = projectionsSource.slice(
   projectionsSource.indexOf("function workspaceSettingsFrom")
 );
+assert.match(systemProjection, /profileStudio: settings\.profileStudio/u);
+assert.doesNotMatch(workspaceProjection, /profileStudio/u);
 assert.match(
   systemProjection,
   /kimiClient: \{\s*apiKey: settings\.providers\.kimiClient\.apiKey,\s*autoUpdate: settings\.providers\.kimiClient\.autoUpdate,\s*defaultModel: settings\.providers\.kimiClient\.defaultModel,\s*\}/u

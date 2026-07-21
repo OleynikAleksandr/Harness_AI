@@ -13,6 +13,21 @@ const localizationSyncKeySource = facadeSource.slice(
   facadeSource.indexOf("function localizationSyncKey")
 );
 
+assert.match(source, /PROFILE_CREATOR_AGENT_OPTIONS/u);
+assert.match(source, /id: "codex-profile-creator-agent"/u);
+assert.match(source, /label: "Codex Profile Creator Agent"/u);
+assert.match(source, /model: "gpt-5\.6-sol"/u);
+assert.match(source, /providerId: "codex"/u);
+assert.match(source, /reasoningEffort: "high"/u);
+assert.match(
+  source,
+  /next\.profileStudio\.defaultCreatorAgentId = "codex-profile-creator-agent"/u
+);
+assert.match(
+  facadeSource,
+  /profileStudio: \{\n\s+defaultCreatorAgentId: "codex-profile-creator-agent",\n\s+\}/u
+);
+
 assert.match(source, /CODEX_REASONING_EFFORTS_BY_MODEL/u);
 assert.match(
   source,

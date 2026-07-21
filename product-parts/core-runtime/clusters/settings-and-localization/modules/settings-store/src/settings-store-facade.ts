@@ -23,6 +23,16 @@ export type ReasoningEffort =
   | "ultra"
   | "ultracode";
 
+export type ProfileCreatorAgentId = "codex-profile-creator-agent";
+
+export interface ProfileCreatorAgentOption {
+  id: ProfileCreatorAgentId;
+  label: string;
+  model: string;
+  providerId: "codex";
+  reasoningEffort: ReasoningEffort;
+}
+
 export interface LocalizationCategorySettings {
   artifactsForTheUser: string;
   interactiveTemplates: string;
@@ -48,6 +58,9 @@ export interface HarnessSettings {
       uiEngineId: string;
       workflowTermsPolicy: LocalizationWorkflowTermsPolicy;
     };
+  };
+  profileStudio: {
+    defaultCreatorAgentId: ProfileCreatorAgentId;
   };
   providers: {
     claude: ProviderCommonSettings & {
@@ -142,6 +155,9 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       uiEngineId: "google-gtx",
       workflowTermsPolicy: "keep_english",
     },
+  },
+  profileStudio: {
+    defaultCreatorAgentId: "codex-profile-creator-agent",
   },
   providers: {
     claude: {

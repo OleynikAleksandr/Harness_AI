@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase13.stream2.task1",
+  "expectedCommitMessage": "feat: add profile studio settings tab",
   "debt": null
 }
 ```
@@ -216,3 +216,15 @@
 64. [DONE] Git Commit: `docs: package profile studio reentry race repair` (hash: self)
 
 65. [DONE] `harness-ai.phase12.stream2.task2` User retests the packaged Profile Studio workflow: create/select a Draft, return to ordinary sessions, reopen Studio and see the same provider/model/profile plus the complete standard session surface; then confirm managed deletion still works (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — Пользователь подтвердил удаление профиля и восстановление сессии Profile Studio после повторного входа Acceptance Commit: `chore: record plan acceptance profile-studio-mvp-2026-07-20`.
+
+## Phase 13 - Default Profile Creator Agent Setting (owner: Codex + User, updated: 2026-07-21)
+
+### Stream: Core-Owned Creator Agent Choice
+
+66. [DONE] `harness-ai.phase13.stream1.task1` Add the Core-owned system setting for the default Profile Creator Agent with the first managed option `codex-profile-creator-agent` (`Codex / GPT-5.6 Sol / high`), deterministic fallback normalization and system-level persistence (scope: up to 3 functional files — settings store facade, normalization and persistence projection — plus focused tests and related docs; expected commit: `feat: add default profile creator agent setting`). Result: Completed in commit `feat: add default profile creator agent setting`.
+67. [DONE] Git Commit: `feat: add default profile creator agent setting` (hash: self)
+
+### Stream: Dedicated Settings Tab
+
+68. [IN_PROGRESS] `harness-ai.phase13.stream2.task1` Add a dedicated `Profile Studio` Settings tab immediately before `General` and a working Default Profile Creator Agent selector backed only by the Core settings snapshot; expose the single Codex option and its fixed provider/model/reasoning metadata without adding the control to the everyday Studio workflow (scope: up to 3 functional files — Profile Studio settings UI facade, tab registry and tab content composition — plus focused tests, new module docs, cluster docs and Product Tree; expected commit: `feat: add profile studio settings tab`).
+69. [TODO] Git Commit: `feat: add profile studio settings tab` (hash: TBD)

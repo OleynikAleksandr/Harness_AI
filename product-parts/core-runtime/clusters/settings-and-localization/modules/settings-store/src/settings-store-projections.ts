@@ -15,6 +15,7 @@ export function systemSettingsFrom(settings: HarnessSettings): SettingsPatch {
       coreControls: settings.general.coreControls,
       localization: settings.general.localization,
     },
+    profileStudio: settings.profileStudio,
     providers: {
       claude: { autoUpdate: settings.providers.claude.autoUpdate },
       codex: { autoUpdate: settings.providers.codex.autoUpdate },

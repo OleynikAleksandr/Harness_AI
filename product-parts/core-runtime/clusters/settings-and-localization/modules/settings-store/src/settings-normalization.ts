@@ -1,8 +1,23 @@
 import { KIMI_CLIENT_MODELS } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 import type {
   HarnessSettings,
+  ProfileCreatorAgentOption,
   ReasoningEffort,
 } from "./settings-store-facade.js";
+
+export const PROFILE_CREATOR_AGENT_OPTIONS: readonly ProfileCreatorAgentOption[] =
+  [
+    {
+      id: "codex-profile-creator-agent",
+      label: "Codex Profile Creator Agent",
+      model: "gpt-5.6-sol",
+      providerId: "codex",
+      reasoningEffort: "high",
+    },
+  ];
+
+const PROFILE_CREATOR_AGENT_IDS: readonly string[] =
+  PROFILE_CREATOR_AGENT_OPTIONS.map((option) => option.id);
 
 const CLAUDE_MODEL_ALIASES = ["sonnet", "opus", "haiku"];
 const CLAUDE_THINKING_EFFORTS = [
@@ -86,6 +101,13 @@ const GLM_CLIENT_MODEL_IDS = [
 ];
 export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   const next = structuredClone(settings);
+  if (
+    !PROFILE_CREATOR_AGENT_IDS.includes(
+      next.profileStudio.defaultCreatorAgentId
+    )
+  ) {
+    next.profileStudio.defaultCreatorAgentId = "codex-profile-creator-agent";
+  }
   if (!CLAUDE_MODEL_ALIASES.includes(next.providers.claude.defaultModel)) {
     next.providers.claude.defaultModel = "sonnet";
   }

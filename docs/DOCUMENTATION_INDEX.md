@@ -204,6 +204,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged-acceptance repair for the hidden creator session and empty inspector
   after Draft creation: root causes, exact-target creator binding, new
   app/app.asar identity, known Claude OAuth failure and focused retest steps.
+- `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md` —
+  packaged repair for creator-session re-entry and managed profile deletion:
+  Core containment/session cleanup, in-app confirmation, exact app/app.asar
+  identity, launch proof and focused persistence/delete retest steps.
 - `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
   the turn-timer scope: current `ElapsedTotal` behavior, turn-state event
   journal as the persistent timing source, the `turn-timing` Core module and

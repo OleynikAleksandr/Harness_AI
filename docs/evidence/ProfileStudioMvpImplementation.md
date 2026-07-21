@@ -4,6 +4,12 @@
 
 Дата: 20 июля 2026 года.
 
+Дополнение 21 июля 2026 года: packaged acceptance отменила исходное решение о
+фиксированном Claude/Opus creator runtime. Для новых Draft сама creator-сессия
+исполняется на provider/model, выбранных в Profile Studio. Текущая runtime
+правда находится в `docs/architecture/ProfileStudio.md`; пункты ниже о
+фиксированном Claude/Opus сохранены как история исходного planning baseline.
+
 Источники:
 
 - `docs/proposals/ProfileStudio.md`;

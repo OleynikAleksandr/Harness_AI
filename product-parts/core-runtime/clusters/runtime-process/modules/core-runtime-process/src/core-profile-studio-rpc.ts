@@ -62,7 +62,7 @@ export class CoreProfileStudioRpcFacade {
     if (!target.ok) {
       return target;
     }
-    const sessionId = `session-claude-${randomUUID()}`;
+    const sessionId = `session-${target.target.providerId}-${randomUUID()}`;
     const draft = await profileLifecycle.createDraft({
       creatorSessionId: sessionId,
       modelId: target.target.modelId,

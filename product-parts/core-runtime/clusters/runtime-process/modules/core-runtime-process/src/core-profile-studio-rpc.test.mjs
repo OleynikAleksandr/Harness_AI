@@ -38,6 +38,10 @@ for (const method of [
 assert.match(rpcSource, /class CoreProfileStudioRpcFacade/u);
 assert.match(rpcSource, /profileLifecycle\.createDraft\(\{/u);
 assert.match(rpcSource, /createProfileCreatorSession\(\{/u);
+assert.match(
+  rpcSource,
+  /`session-\$\{target\.target\.providerId\}-\$\{randomUUID\(\)\}`/u
+);
 assert.match(rpcSource, /providerId === "kimi-client"/u);
 assert.match(rpcSource, /content hash are required/u);
 assert.match(apiSource, /type: "profile-studio:updated"/u);

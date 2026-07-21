@@ -31,10 +31,10 @@ export interface ProfileStudioAgentContext {
 }
 
 export interface ProfileStudioAgentTurnSpec {
-  readonly modelId: "opus";
+  readonly modelId: string;
   readonly outputSchema: Readonly<Record<string, unknown>>;
-  readonly providerId: "claude";
-  readonly reasoningEffort: "high";
+  readonly providerId: ProfileStudioProviderId;
+  readonly reasoningEffort?: "high";
   readonly settingSources: readonly [];
   readonly systemPrompt: string;
   readonly tools: readonly [];
@@ -105,11 +105,12 @@ export class ProfileStudioAgentFacade {
   buildTurnSpec(
     context: ProfileStudioAgentContext
   ): ProfileStudioAgentTurnSpec {
+    const { modelId, providerId } = context.target;
     return {
-      modelId: "opus",
+      modelId,
       outputSchema: PROFILE_CREATOR_OUTPUT_SCHEMA,
-      providerId: "claude",
-      reasoningEffort: "high",
+      providerId,
+      ...(providerId === "kimi-client" ? {} : { reasoningEffort: "high" }),
       settingSources: [],
       systemPrompt: buildInlineSystemPrompt(context),
       tools: [],

@@ -4,7 +4,7 @@
 
 Owns Core Runtime truth for the provider/model-scoped Profile Studio workflow:
 Draft/Valid lifecycle, creator-session binding, controlled structured
-authoring, fixed creator-agent contract and UI read models. It composes public
+authoring, target-bound creator-agent contract and UI read models. It composes public
 facades from `session-profiles`, session runtime, provider descriptors and
 Native Request Capture; it never asks renderer code to scan files, infer state
 or parse agent prose.
@@ -20,8 +20,9 @@ transition; direct/manual profile editing and recovery are outside this first
 stage.
 Authoring validates complete creator snapshots, honest provider tool modes and
 contained raw Native Capture donor truth before delegating one atomic update.
-Agent owns the fixed Claude/Opus/high isolated runtime spec, inline complete
-context and full-snapshot JSON Schema/parse contract. Session Runtime now
+Agent owns the selected provider/model isolated runtime spec, inline complete
+context and full-snapshot JSON Schema/parse contract. Claude/Codex creator
+targets use high reasoning; Kimi keeps provider-managed reasoning. Session Runtime now
 creates and restores its managed creator sessions in the dedicated Studio
 workspace, attaches the schema to every creator dispatch, and applies valid
 raw structured results through controlled authoring with a bounded repair

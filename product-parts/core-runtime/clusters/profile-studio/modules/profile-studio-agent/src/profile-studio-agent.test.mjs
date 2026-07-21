@@ -69,6 +69,22 @@ try {
     "nextAction",
   ]);
 
+  const codexSpec = facade.buildTurnSpec({
+    ...context,
+    target: { modelId: "gpt-5.6-sol", providerId: "codex" },
+  });
+  assert.equal(codexSpec.providerId, "codex");
+  assert.equal(codexSpec.modelId, "gpt-5.6-sol");
+  assert.equal(codexSpec.reasoningEffort, "high");
+
+  const kimiSpec = facade.buildTurnSpec({
+    ...context,
+    target: { modelId: "k3", providerId: "kimi-client" },
+  });
+  assert.equal(kimiSpec.providerId, "kimi-client");
+  assert.equal(kimiSpec.modelId, "k3");
+  assert.equal(kimiSpec.reasoningEffort, undefined);
+
   const validResult = facade.parseTurnResult({
     assistantResponse: "I reduced the donor and added planning rules.",
     draft: {

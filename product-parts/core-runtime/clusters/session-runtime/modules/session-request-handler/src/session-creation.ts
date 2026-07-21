@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import {
   type ProfileStudioAgentContext,
   ProfileStudioAgentFacade,
+  type ProfileStudioAgentTurnSpec,
 } from "../../../../profile-studio/modules/profile-studio-agent/src/profile-studio-agent-facade.js";
 import { resolveNextSessionMode } from "./next-session-mode.js";
 import type { SessionProfileResolverLike } from "./session-profile-resolution.js";
@@ -116,8 +117,10 @@ export async function buildProfileCreatorSession(
         requestMode: "raw",
       },
       providerId: spec.providerId,
-      providerName: "Claude",
-      reasoningEffort: spec.reasoningEffort,
+      providerName: profileCreatorProviderName(spec.providerId),
+      ...(spec.reasoningEffort
+        ? { reasoningEffort: spec.reasoningEffort }
+        : {}),
       sessionKind: "primary",
       sessionPurpose: {
         profileId: request.context.profileId,
@@ -138,20 +141,43 @@ export function buildProfileCreatorTurnOptions(
   if (session.sessionPurpose?.type !== "profile-creator") {
     return null;
   }
+  const isClaude = session.providerId === "claude";
   return {
-    __codeaiAppliedTurnConfig: {
-      modelId: profileCreatorContractSpec.modelId,
-      providerId: "claudeCodeCli",
-      reasoningEffort: profileCreatorContractSpec.reasoningEffort,
-      thinkingDisplaySyncEnabled: true,
-      thinkingEnabled: true,
-    },
-    model: profileCreatorContractSpec.modelId,
+    ...(isClaude
+      ? {
+          __codeaiAppliedTurnConfig: {
+            modelId: session.model,
+            providerId: "claudeCodeCli",
+            ...(session.reasoningEffort
+              ? { reasoningEffort: session.reasoningEffort }
+              : {}),
+            thinkingDisplaySyncEnabled: true,
+            thinkingEnabled: true,
+          },
+        }
+      : {}),
+    model: session.model,
     outputSchema: profileCreatorContractSpec.outputSchema,
-    reasoningEffort: profileCreatorContractSpec.reasoningEffort,
-    thinkingDisplaySyncEnabled: true,
-    thinkingEnabled: true,
+    ...(session.reasoningEffort
+      ? { reasoningEffort: session.reasoningEffort }
+      : {}),
+    ...(isClaude
+      ? { thinkingDisplaySyncEnabled: true, thinkingEnabled: true }
+      : {}),
   };
+}
+
+function profileCreatorProviderName(
+  providerId: ProfileStudioAgentTurnSpec["providerId"]
+): string {
+  switch (providerId) {
+    case "claude":
+      return "Claude";
+    case "codex":
+      return "Codex";
+    default:
+      return "Kimi";
+  }
 }
 
 export function includeProfileStudioWorkspace(

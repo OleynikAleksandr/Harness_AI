@@ -54,13 +54,13 @@ into `product-parts/**` as real module code.
 - Validate complete Profile Creator snapshots, provider-specific tool modes
   and contained Native Capture raw/diagnostic provenance before any managed
   profile mutation.
-- Supply a fixed isolated Claude/Opus/high Profile Creator turn contract with
-  all authoring context and JSON Schema inline and no ambient settings or
-  executable tools.
+- Supply a target-bound isolated Profile Creator turn contract on the
+  provider/model selected in Studio, with all authoring context and JSON Schema
+  inline and no ambient settings or managed executable tools.
 - Create and restore persistent Profile Creator sessions in the dedicated
   HARNESS_AI_HOME-aware Studio workspace, preserving their managed system
   prompt and applying the fixed structured-output schema on every turn.
-- Validate Claude raw structured results only for Profile Creator sessions,
+- Validate normalized raw structured results only for Profile Creator sessions,
   publish controlled dialog text, atomically apply complete snapshots and
   bound automatic repair so rejected output cannot mutate profile documents.
 - Project Profile Studio target/profile/inspector read models from Core truth,

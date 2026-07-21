@@ -74,7 +74,7 @@ Product-Part-scoped кластерами. Это не один cross-boundary mo
 | Module | Public facade | Ownership |
 | --- | --- | --- |
 | `profile-studio-lifecycle` | `ProfileStudioLifecycleFacade` class | immutable Draft identity, profile↔creator-session binding, lifecycle gates, approval/content hash |
-| `profile-studio-agent` | `ProfileStudioAgentFacade` class | fixed Claude/Opus/high creator configuration, inline prompt, output schema, creator session contract |
+| `profile-studio-agent` | `ProfileStudioAgentFacade` class | selected provider/model creator configuration, inline prompt, output schema, creator session contract |
 | `profile-studio-authoring` | `ProfileStudioAuthoringFacade` class | full-snapshot validation, donor containment, atomic document application |
 | `profile-studio-read-model` | `ProfileStudioReadModelFacade` class | targets, compatible profiles/sessions, Overview/Prompt/Tools snapshots, capability reasons |
 
@@ -150,7 +150,7 @@ description: ""
 provider: claude
 model: opus
 status: draft
-creatorSessionId: session-claude-...
+creatorSessionId: session-<provider>-...
 nativeCaptureDonor: null
 ```
 
@@ -218,8 +218,10 @@ sessionPurpose?: {
 
 ## 7. Structured authoring
 
-Every Claude creator turn receives target identity, current draft, donor
-content when bound and authoring rules inline. The output schema is:
+Every creator turn receives target identity, current draft, donor content when
+bound and authoring rules inline. The selected target provider/model is also
+the execution identity for the creator session. Claude/Codex use high
+reasoning; Kimi leaves reasoning provider-managed. The output schema is:
 
 ```ts
 interface ProfileCreatorTurnResult {
@@ -358,7 +360,7 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   **APPLIED**, including raw donor containment/provider/model/capture-hash
   validation, Claude selected-tool containment in the raw donor inventory and
   honest provider tool modes;
-- fixed isolated Claude/Opus/high creator spec, inline context, empty
+- selected provider/model creator spec, inline context, empty managed
   settings/tools and full-snapshot JSON Schema parser are **APPLIED**;
 - Core provider/model/profile/Overview/Prompt/Tools read models with Claude
   subset, Codex fixed and current Kimi 9/25 Draft-only truth are **APPLIED**;
@@ -370,10 +372,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   **APPLIED**;
 - optional `profile-creator` session purpose/profile binding is **APPLIED** in
   Core types and backward-compatible session-index restore;
-- fixed managed Claude/Opus/high creator session creation is **APPLIED** with
-  the dedicated HARNESS_AI_HOME-aware workspace, persisted prompt snapshot,
-  empty tools/settings and Studio output schema on every create/resume
-  dispatch;
+- selected-target creator session creation is **APPLIED** with the dedicated
+  HARNESS_AI_HOME-aware workspace, persisted prompt snapshot, empty managed
+  tools/settings and Studio output schema on every create/resume dispatch;
 - Application Shell `profile-studio` cluster, snapshot-driven sidebar,
   read-only inspector and single-window shell/mode composition are **APPLIED**;
   the ordinary sidebar provides one-click entry beside Settings, return
@@ -393,7 +394,7 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   row is shown and applied only for its provider/model target — **APPLIED**;
 - Studio v2 two-part wrapper-free materialization and target/tools/donor hash
   are **APPLIED**;
-- fixed creator agent/session runtime, raw provider event interception,
+- target-bound creator agent/session runtime, raw provider event interception,
   controlled assistant projection, atomic full-snapshot authoring and one
   bounded automatic repair turn are **APPLIED**; Overview exact-hash approval
   is **APPLIED** and requires both prompt parts plus a validated donor;
@@ -422,7 +423,8 @@ The feature is ready for package testing only when:
 1. normal sessions are unchanged;
 2. Studio opens/returns in one window;
 3. targets and compatibility come from Core;
-4. Create produces one Draft and one persistent Claude creator session;
+4. Create produces one Draft and one persistent creator session on the exact
+   selected provider/model;
 5. structured output updates real two-part documents atomically;
 6. inspector updates from Core events;
 7. approval binds exact hash and edits return it to Draft;

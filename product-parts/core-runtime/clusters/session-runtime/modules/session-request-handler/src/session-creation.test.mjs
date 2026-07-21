@@ -18,6 +18,7 @@ assert.match(creationSource, /new ProfileStudioAgentFacade\(\)/u);
 assert.match(creationSource, /modelId: request\.model/u);
 assert.match(creationSource, /model: spec\.modelId/u);
 assert.match(creationSource, /providerId: spec\.providerId/u);
+assert.match(creationSource, /profileCreatorProviderName\(spec\.providerId\)/u);
 assert.match(creationSource, /reasoningEffort: spec\.reasoningEffort/u);
 assert.match(creationSource, /workspaceId: spec\.workspaceId/u);
 assert.match(creationSource, /workspacePath: spec\.workspacePath/u);
@@ -26,6 +27,7 @@ assert.match(creationSource, /toolingCategories: \{\}/u);
 assert.match(creationSource, /tools: \[\]/u);
 assert.match(creationSource, /type: "profile-creator"/u);
 assert.match(creationSource, /outputSchema: profileCreatorContractSpec/u);
+assert.match(creationSource, /model: session\.model/u);
 assert.match(creationSource, /providerId: "claudeCodeCli"/u);
 assert.match(creationSource, /includeProfileStudioWorkspace/u);
 

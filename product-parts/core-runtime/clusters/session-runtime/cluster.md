@@ -8,8 +8,8 @@ turn state, live assistant chunk/timeline read-models, and UI session snapshots.
 Structural session kind remains primary/subagent; optional persisted purpose
 metadata can identify a Profile Studio creator session and its bound profile
 without changing tree semantics. The request-handler owns the dedicated
-persistent Studio workspace route and ensures fixed Claude/Opus/high creator
-turn options survive normal provider resume. It also intercepts raw structured
+persistent Studio workspace route and ensures selected target provider/model
+creator turn options survive normal provider resume. It also intercepts raw structured
 results only for creator-purpose sessions and routes validated full snapshots
 to Profile Studio authoring with a bounded automatic repair attempt. Ordinary
 session creation resolves a managed Studio profile against the exact requested

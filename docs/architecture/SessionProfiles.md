@@ -59,11 +59,12 @@ hash и вызывает узкий `markStudioDraftValid()` только пос
 Следующий controlled snapshot снова записывает `status: draft`.
 
 APPLIED creator-session runtime: отдельный Core command создаёт persistent
-primary-сессию с purpose `profile-creator`, фиксированным Claude/Opus/high,
-managed prompt snapshot, пустым tool whitelist и отдельным
+primary-сессию с purpose `profile-creator` на выбранных в Studio
+provider/model, managed prompt snapshot, пустым managed tool list и отдельным
 HARNESS_AI_HOME-aware `ProfileStudio/workspace`. Этот workspace index
-восстанавливается независимо от пользовательских workspaces; каждый creator
-turn после create/resume снова получает Studio JSON Schema.
+восстанавливается независимо от пользовательских workspaces; Claude/Codex
+используют high reasoning, Kimi оставляет reasoning провайдеру, а каждый
+creator turn после create/resume снова получает Studio JSON Schema.
 
 APPLIED creator-result route: Claude сохраняет raw JSON Schema object в
 provider-neutral `structured_output` event. Core перехватывает его только для

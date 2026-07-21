@@ -40,7 +40,8 @@ state.
 - Typed Profile Studio RPC composition lives in
   `core-profile-studio-rpc.ts`: target/profile/inspector reads use Core
   facades, Create couples one Draft with one pre-minted persistent creator
-  session, and Approve forwards the exact content hash while blocking Kimi
+  session whose id/provider/model reflect the selected target, and Approve
+  forwards the exact content hash while blocking Kimi
   until its capability ceiling is satisfied. Profile-file changes publish a
   separate `profile-studio:updated` event; Runtime Process does not derive UI
   state from documents.

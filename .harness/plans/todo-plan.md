@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase14.stream3.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase15.stream1.task2",
+  "expectedCommitMessage": "docs: define profile creator bootstrap architecture",
   "debt": null
 }
 ```
@@ -18,6 +18,8 @@
 ## Context Pack For This Cycle
 
 - **Planning source:** `docs/evidence/ProfileStudioMvpImplementation.md`.
+- **Continuation planning source:**
+  `docs/evidence/ProfileStudioCreatorAgentBootstrap.md`.
 - **Accepted UI baseline:** `docs/proposals/ProfileStudio.md` and ignored
   `.harness/runtime/prototypes/profile-studio-ui/`.
 - **Documentation catalog:** `docs/DOCUMENTATION_INDEX.md`.
@@ -27,6 +29,7 @@
   - `docs/DOCUMENTATION_INDEX.md`
   - `.harness/product-tree/product-tree.md`
   - `docs/evidence/ProfileStudioMvpImplementation.md`
+  - `docs/evidence/ProfileStudioCreatorAgentBootstrap.md`
   - `docs/architecture/SessionProfiles.md`
   - `docs/proposals/ProfileStudio.md`
 
@@ -246,4 +249,47 @@
 74. [DONE] `harness-ai.phase14.stream3.task1` Stop the packaged app, remove the disposable legacy `Profiles` root and Profile Studio creator sessions, create the clean `ProfileStudio/Profiles` and `ProfileStudio/CreatorAgents/Codex` directories, build/package/launch the user-authorized unsigned macOS app and record exact package identity plus the focused storage/Settings retest checklist (scope: `docs/evidence/profile-studio-storage-reset-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio storage reset`). Result: Completed in commit `docs: package profile studio storage reset`.
 75. [DONE] Git Commit: `docs: package profile studio storage reset` (hash: self)
 
-76. [IN_PROGRESS] `harness-ai.phase14.stream3.task2` User verifies the rebuilt package starts with an empty target-profile catalog and no restored Creator sessions, while Settings → Profile Studio shows Codex Profile Creator Agent with Codex / GPT-5.6 Sol / high (completion: user-acceptance; scope: user workflow; expected commit: none).
+76. [DONE] `harness-ai.phase14.stream3.task2` User verifies the rebuilt package starts with an empty target-profile catalog and no restored Creator sessions, while Settings → Profile Studio shows Codex Profile Creator Agent with Codex / GPT-5.6 Sol / high (completion: user-acceptance; scope: user workflow; expected commit: none). Result: Superseded without acceptance by the user-directed Capture-first Creator Agent continuation; final verification moves to `harness-ai.phase16.stream1.task2`.
+
+## Phase 15 - Capture-First Profile Creator Agent (owner: Codex, updated: 2026-07-21)
+
+### Stream: Planning And Accepted Runtime Contract
+
+77. [DONE] `harness-ai.phase15.stream1.task1` Record the agreed Capture-first Creator Agent workflow, raw JSONL donor contract, semantic provider-aware analysis, composite Codex agent profile, Core-generated first message, module split, failure behavior and package acceptance boundary; register the planning source (scope: `docs/evidence/ProfileStudioCreatorAgentBootstrap.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: plan profile creator bootstrap`). Result: Completed in commit `docs: plan profile creator bootstrap`.
+78. [DONE] Git Commit: `docs: plan profile creator bootstrap` (hash: self)
+
+79. [IN_PROGRESS] `harness-ai.phase15.stream1.task2` Promote the accepted continuation into current Profile Studio architecture before production changes: separate Creator Agent execution identity from target identity, make raw Capture the sole donor, define the two new Core module/facade boundaries, first-message authority and honest deferred Custom Capture boundary (scope: `docs/architecture/ProfileStudio.md, docs/architecture/SessionProfiles.md, docs/proposals/ProfileStudio.md` plus Product Tree/catalog projections; expected commit: `docs: define profile creator bootstrap architecture`).
+80. [TODO] Git Commit: `docs: define profile creator bootstrap architecture` (hash: TBD)
+
+### Stream: Composite Creator Agent Profile
+
+81. [TODO] `harness-ai.phase15.stream2.task1` Add the Core Runtime `profile-studio-creator-profile` module/class facade that resolves the selected provider-owned profile below `ProfileStudio/CreatorAgents`, validates `system-prompt.md`, `custom-instructions.md`, declarative `tools.json` and `initial-user-message.md`, composes the exact two-part system prompt and renders only Core-supplied message placeholders with no inline/ambient fallback (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: load composite profile creator agent`).
+82. [TODO] Git Commit: `feat: load composite profile creator agent` (hash: TBD)
+
+83. [TODO] `harness-ai.phase15.stream2.task2` Finalize the user-space Codex Creator Agent components: revise Custom Instructions for semantic raw-JSONL analysis and marker-drift risks, add the readable initial user-message template, preserve the fresh Native prompt/tooling components, and wire `profile-studio-agent`/session creation to the settings-selected Codex GPT-5.6 Sol/high identity independently of the target provider/model (scope: `~/.harness-ai/ProfileStudio/CreatorAgents/Codex/**` plus up to 3 profile-studio/session-runtime functional files and related docs; expected commit: `feat: compose codex profile creator runtime`).
+84. [TODO] Git Commit: `feat: compose codex profile creator runtime` (hash: TBD)
+
+### Stream: Capture-First Bootstrap And First Turn
+
+85. [TODO] `harness-ai.phase15.stream3.task1` Add the Core Runtime `profile-studio-creator-bootstrap` module/class facade that owns Capture-first preparation, target→capture-channel mapping, raw JSONL containment/completion/identity validation, capture id/hash provenance and immutable first-assignment inputs without parsing provider prompt/tool markers (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: add profile creator capture bootstrap`).
+86. [TODO] Git Commit: `feat: add profile creator capture bootstrap` (hash: TBD)
+
+87. [TODO] `harness-ai.phase15.stream3.task2` Recompose the Core Create Profile RPC so one raw intent preflights the selected Creator Agent, runs a fresh target Native Capture, creates/binds the Draft and Codex creator session only after success, publishes and dispatches exactly one rendered first user message, preserves the session on provider errors and never asks renderer/user to locate Capture artifacts (scope: up to 3 functional files — Core Profile Studio RPC/composition, reusable native-capture entry and session dispatch — plus focused tests and related docs; expected commit: `feat: start capture first profile creator sessions`).
+88. [TODO] Git Commit: `feat: start capture first profile creator sessions` (hash: TBD)
+
+89. [TODO] `harness-ai.phase15.stream3.task3` Extend structured target-profile authoring so Codex `codex-fixed` stores the exact extracted Native inventory as `declarative-only` tooling while runtime application remains fixed, preserve Claude subset/Kimi candidate honesty, and keep agent-authored profile documents atomic and Draft-only (scope: up to 3 functional files — Profile Studio agent schema, authoring validation and read model/application projection — plus focused tests and related docs; expected commit: `feat: persist declarative codex tooling`).
+90. [TODO] Git Commit: `feat: persist declarative codex tooling` (hash: TBD)
+
+### Stream: Honest Application Shell State
+
+91. [TODO] `harness-ai.phase15.stream4.task1` Make the existing Create Profile control render the Core-owned capture/preflight pending state and structured failure without local workflow logic, then converge on the returned selected Draft/session/inspector while preserving delete and leave/re-entry behavior (scope: up to 3 Application Shell Profile Studio functional files plus focused tests and related docs; expected commit: `feat: show profile creator preparation state`).
+92. [TODO] Git Commit: `feat: show profile creator preparation state` (hash: TBD)
+
+## Phase 16 - Creator Agent Package And User Acceptance (owner: Codex + User, updated: 2026-07-21)
+
+### Stream: Rebuilt macOS Package
+
+93. [TODO] `harness-ai.phase16.stream1.task1` Build and package the user-authorized unsigned macOS application, verify the composite Codex Creator Agent profile loader, fresh target Capture, Core-generated first-message dispatch and restore contracts inside `app.asar`, launch the package and record exact identity plus the focused retest checklist (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator bootstrap`).
+94. [TODO] Git Commit: `docs: package profile creator bootstrap` (hash: TBD)
+
+95. [TODO] `harness-ai.phase16.stream1.task2` User retests in the packaged app: choose a target, click Create Profile once, observe Capture preparation, receive a selected persistent creator session with the Core-generated raw JSONL assignment, get the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without manual Capture/file selection, then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none).

@@ -197,6 +197,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   module/facade ownership, fixed Claude/Opus creator agent, provider/model
   Draft/Valid lifecycle, structured Core authoring, reusable standard session
   surface, honest inspector states, legacy migration and acceptance gates.
+- `docs/evidence/ProfileStudioCreatorAgentBootstrap.md` — accepted continuation
+  planning for the Capture-first Profile Creator workflow: user-space composite
+  Codex Creator Agent profile, raw JSONL as the only authoritative donor,
+  semantic provider-aware analysis by the agent, Core-generated first message,
+  fixed/declarative Codex tooling, module ownership, failure contracts and the
+  rebuilt-package acceptance path.
 - `docs/evidence/profile-studio-mvp-build-2026-07-20.md` — production-build
   evidence for the implemented Profile Studio MVP: final source revision,
   enforced gates, 145-test result, fresh renderer/runtime artifacts, exact

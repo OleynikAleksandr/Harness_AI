@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream3.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase12.stream2.task1",
+  "expectedCommitMessage": "docs: package profile studio reentry race repair",
   "debt": null
 }
 ```
@@ -203,4 +203,16 @@
 59. [DONE] `harness-ai.phase11.stream3.task1` Rebuild the already user-authorized unsigned macOS package, verify creator-session re-entry and managed profile deletion in `app.asar`, launch the rebuilt application and record the focused retest checklist (scope: `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio lifecycle repair`). Result: Completed in commit `docs: package profile studio lifecycle repair`.
 60. [DONE] Git Commit: `docs: package profile studio lifecycle repair` (hash: self)
 
-61. [IN_PROGRESS] `harness-ai.phase11.stream3.task2` User retests the packaged Profile Studio workflow: create and converse in a Draft, return to ordinary sessions, reopen Studio and see the same provider/model/profile/session transcript, then delete the profile through the in-app confirmation and verify both the row and creator session stay absent after another re-entry (completion: user-acceptance; scope: user workflow; expected commit: none).
+## Phase 12 - Profile Studio Re-entry Race (owner: Codex + User, updated: 2026-07-21)
+
+### Stream: Workspace-Scoped Session State
+
+61. [DONE] `harness-ai.phase12.stream1.task1` Prevent ordinary-workspace session refreshes from replacing the Profile Studio session list during entry: route Core session events through an immediately updated application-mode authority and ignore stale list responses whose workspace no longer owns the shared session controller (scope: up to 2 functional files — Session Window event routing and shared session-state refresh guards — plus focused tests and related docs; expected commit: `fix: prevent profile studio session refresh races`). Result: Completed in commit `fix: prevent profile studio session refresh races`.
+62. [DONE] Git Commit: `fix: prevent profile studio session refresh races` (hash: self)
+
+### Stream: Rebuilt Acceptance Package
+
+63. [IN_PROGRESS] `harness-ai.phase12.stream2.task1` Rebuild the already user-authorized unsigned macOS package, verify the workspace-scoped re-entry guard in `app.asar`, launch the rebuilt package and append focused evidence for the rejected and repaired package (scope: `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md`; expected commit: `docs: package profile studio reentry race repair`).
+64. [TODO] Git Commit: `docs: package profile studio reentry race repair` (hash: TBD)
+
+65. [TODO] `harness-ai.phase12.stream2.task2` User retests the packaged Profile Studio workflow: create/select a Draft, return to ordinary sessions, reopen Studio and see the same provider/model/profile plus the complete standard session surface; then confirm managed deletion still works (completion: user-acceptance; scope: user workflow; expected commit: none).

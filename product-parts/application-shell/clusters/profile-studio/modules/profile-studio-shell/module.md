@@ -46,6 +46,9 @@ The ordinary Session Window owns entry and return:
 - before Studio is mounted, its session controller is replaced with the full
   persisted list from the dedicated `profile-studio` workspace rather than
   mixing that list with ordinary workspace sessions;
+- the application-mode event authority changes to Studio before that async
+  restore begins, and stale list responses from the previous ordinary
+  workspace are rejected by the shared session controller;
 - the newest restored creator session seeds the exact provider, model and
   profile row, so its transcript remains selected after return and re-entry;
 - return reloads the previously selected user workspace/session list;

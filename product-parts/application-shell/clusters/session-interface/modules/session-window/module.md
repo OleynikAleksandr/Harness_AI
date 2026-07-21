@@ -32,6 +32,11 @@ Detached session windows never expose the switch.
   Profile Studio refreshes the reserved `profile-studio` workspace. This keeps
   creator sessions from being overwritten by an unrelated ordinary workspace
   refresh and keeps the live child tree/header current during ordinary turns.
+  The event route uses an immediately updated mode authority during entry/
+  return transitions, while the shared session-state hook records its current
+  owner workspace and discards any late list response for an older owner. Thus
+  an in-flight ordinary refresh cannot erase a restored Studio session before
+  the Studio surface mounts.
 - Running state is tracked as a set of Core session ids. Concurrent parent and
   child turns therefore cannot overwrite one shared running-session scalar;
   the composer remains disabled until its own session becomes idle.

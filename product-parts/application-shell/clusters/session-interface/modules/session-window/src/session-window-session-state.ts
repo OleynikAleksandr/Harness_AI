@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type {
   CoreSubagentCall,
   SessionCoreEvent,
@@ -44,6 +44,7 @@ export function useSessionWindowSessionState(options: {
   const [runningSessionIds, setRunningSessionIds] = useState<
     ReadonlySet<string>
   >(new Set());
+  const sessionListWorkspaceIdRef = useRef(activeWorkspaceId);
   const activeSession =
     sessions.find((session) => session.id === activeSessionId) ??
     (detachedMode ? undefined : sessions[0]);
@@ -80,7 +81,11 @@ export function useSessionWindowSessionState(options: {
 
   const refreshSessions = useCallback(
     async (workspaceId: string, preferredSessionId?: string) => {
+      sessionListWorkspaceIdRef.current = workspaceId;
       const loaded = await window.harnessCore?.listSessions(workspaceId);
+      if (sessionListWorkspaceIdRef.current !== workspaceId) {
+        return;
+      }
       const nextSessions = loaded ?? [];
       setSessions(nextSessions);
       let nextActiveSessionId = nextSessions[0]?.id ?? "";
@@ -100,6 +105,9 @@ export function useSessionWindowSessionState(options: {
 
   const refreshSessionList = useCallback(async (workspaceId: string) => {
     const loaded = await window.harnessCore?.listSessions(workspaceId);
+    if (sessionListWorkspaceIdRef.current !== workspaceId) {
+      return;
+    }
     setSessions(loaded ?? []);
   }, []);
 

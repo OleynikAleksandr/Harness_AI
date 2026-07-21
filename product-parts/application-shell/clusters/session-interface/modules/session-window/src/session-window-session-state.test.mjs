@@ -30,12 +30,19 @@ assert.match(source, /setRunningSessionIds/u);
 assert.match(source, /runningSessionIds\.has\(activeSessionDataId\)/u);
 assert.match(source, /setRollbackSessionId/u);
 assert.match(source, /refreshSessionList/u);
+assert.match(source, /sessionListWorkspaceIdRef/u);
+assert.match(source, /sessionListWorkspaceIdRef\.current !== workspaceId/u);
 assert.match(source, /candidate\.id !== session\.id/u);
 assert.match(source, /window\.harnessCore\?\.renameSession/u);
 assert.match(source, /window\.harnessCore\?\.regenerateSessionTitle/u);
 assert.match(facadeSource, /useSessionWindowSessionState\(\{/u);
 assert.match(facadeSource, /event\.type === "session:created"/u);
 assert.match(facadeSource, /event\.type === "session:updated"/u);
+assert.match(facadeSource, /applicationModeRef\.current === "studio"/u);
+assert.match(
+  facadeSource,
+  /applicationModeRef\.current = "studio";\s+await refreshSessions\("profile-studio"\)/u
+);
 assert.match(surfaceSource, /<SubagentSessionHeader/u);
 assert.match(surfaceSource, /isSubagentSession \? null/u);
 // The dialog card is informational only; open/detach controls live in the

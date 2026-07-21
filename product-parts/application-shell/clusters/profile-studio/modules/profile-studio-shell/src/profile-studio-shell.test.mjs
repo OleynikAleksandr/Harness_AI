@@ -59,10 +59,7 @@ assert.match(
 );
 assert.match(sessionWindowSource, /onReturn=\{returnToSessions\}/u);
 assert.match(sessionWindowSource, /refreshSessions\(activeWorkspace\.id\)/u);
-assert.match(
-  sessionWindowSource,
-  /applicationMode === "studio" \? "profile-studio" : activeWorkspaceId/u
-);
+assert.match(sessionWindowSource, /applicationModeRef\.current === "studio"/u);
 assert.match(shellSource, /resolveInitialSelection/u);
 assert.match(shellSource, /initialCreatorSessionRef/u);
 assert.match(shellSource, /profileId: session\.sessionPurpose\.profileId/u);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SessionCoreEvent } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import { sessionSnapshotProjectorFacade } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import { deriveTurnTiming } from "../../../../../../core-runtime/clusters/session-runtime/modules/turn-timing/src/turn-timing-facade.js";
@@ -41,6 +41,7 @@ export function SessionWindowFacade() {
   const [applicationMode, setApplicationMode] = useState<"sessions" | "studio">(
     "sessions"
   );
+  const applicationModeRef = useRef<"sessions" | "studio">("sessions");
   const [profileStepProvider, setProfileStepProvider] =
     useState<ProviderDescriptor | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -157,14 +158,15 @@ export function SessionWindowFacade() {
         event.type === "session:updated"
       ) {
         refreshSessionList(
-          applicationMode === "studio" ? "profile-studio" : activeWorkspaceId
+          applicationModeRef.current === "studio"
+            ? "profile-studio"
+            : activeWorkspaceId
         ).catch(noop);
       }
     });
   }, [
     detachedMode,
     activeWorkspaceId,
-    applicationMode,
     applyEvent,
     initialSnapshot.workspace,
     refreshLocalizationPayload,
@@ -207,11 +209,13 @@ export function SessionWindowFacade() {
     setIsSettingsOpen(false);
     setIsProviderPickerOpen(false);
     setProfileStepProvider(null);
+    applicationModeRef.current = "studio";
     await refreshSessions("profile-studio");
     setApplicationMode("studio");
   }
 
   async function returnToSessions() {
+    applicationModeRef.current = "sessions";
     setApplicationMode("sessions");
     await refreshSessions(activeWorkspace.id);
   }

@@ -315,6 +315,11 @@ reason comes from Core.
   exact provider/model/profile binding; returning and reopening therefore
   restores the same standard session transcript instead of resetting the
   Studio target;
+- mode transitions update the session-event routing authority before the
+  asynchronous list request starts, and the shared session controller rejects
+  any late response from a workspace that no longer owns it; ordinary and
+  Studio list refreshes therefore cannot overwrite each other during entry or
+  return;
 - Studio sidebar provides `Вернуться к рабочим пространствам и сессиям`;
 - each created profile row exposes Delete through an in-app confirmation
   dialog that explicitly includes the bound Profile Creator Agent session;

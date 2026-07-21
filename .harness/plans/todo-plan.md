@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase12.stream2.task1",
-  "expectedCommitMessage": "docs: package profile studio reentry race repair",
+  "currentTaskId": "harness-ai.phase12.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -212,7 +212,7 @@
 
 ### Stream: Rebuilt Acceptance Package
 
-63. [IN_PROGRESS] `harness-ai.phase12.stream2.task1` Rebuild the already user-authorized unsigned macOS package, verify the workspace-scoped re-entry guard in `app.asar`, launch the rebuilt package and append focused evidence for the rejected and repaired package (scope: `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md`; expected commit: `docs: package profile studio reentry race repair`).
-64. [TODO] Git Commit: `docs: package profile studio reentry race repair` (hash: TBD)
+63. [DONE] `harness-ai.phase12.stream2.task1` Rebuild the already user-authorized unsigned macOS package, verify the workspace-scoped re-entry guard in `app.asar`, launch the rebuilt package and append focused evidence for the rejected and repaired package (scope: `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md`; expected commit: `docs: package profile studio reentry race repair`). Result: Completed in commit `docs: package profile studio reentry race repair`.
+64. [DONE] Git Commit: `docs: package profile studio reentry race repair` (hash: self)
 
-65. [TODO] `harness-ai.phase12.stream2.task2` User retests the packaged Profile Studio workflow: create/select a Draft, return to ordinary sessions, reopen Studio and see the same provider/model/profile plus the complete standard session surface; then confirm managed deletion still works (completion: user-acceptance; scope: user workflow; expected commit: none).
+65. [IN_PROGRESS] `harness-ai.phase12.stream2.task2` User retests the packaged Profile Studio workflow: create/select a Draft, return to ordinary sessions, reopen Studio and see the same provider/model/profile plus the complete standard session surface; then confirm managed deletion still works (completion: user-acceptance; scope: user workflow; expected commit: none).

@@ -36,7 +36,7 @@ Studio and that created profiles had no delete operation.
   Electron package from source revision
   `13adebf33b32cf3388ee7c61a7c6688bee512036`.
 
-Package identity:
+First lifecycle package identity (deletion accepted, re-entry rejected):
 
 - application: `release/mac-arm64/Harness AI.app`;
 - packaged renderer: `/dist/renderer/assets/index-DZapb0fC.js` and
@@ -74,3 +74,63 @@ process `59513` and renderer process `59562`.
 
 Deleting a Studio profile is intentionally destructive after confirmation; the
 first-stage product does not implement profile rollback or recovery.
+
+## Re-entry Race Repair Package
+
+The user accepted deletion but rejected creator-session re-entry with
+screenshots at 2026-07-21 11:18. The exact Codex Draft row and inspector were
+restored, while the center column was completely blank.
+
+Persisted runtime evidence proved that no profile/session data was lost:
+
+- profile `draft-605a89d3-a418-4233-a557-69a6db405ca2` still referenced
+  creator session `session-codex-6d80ed91-1add-4518-ba2b-646c0c81fde3`;
+- the session index still contained provider `codex`, model `gpt-5.6-sol`,
+  workspace `profile-studio` and the same profile id;
+- the session event JSONL still contained creation, binding and telemetry
+  events.
+
+Root cause: `openProfileStudio()` waited for Studio hydration before changing
+the React application-mode state. During that interval, the live
+`session:updated` subscription still routed a list refresh to the ordinary
+workspace. A late ordinary response then replaced the newly restored Studio
+session array; profile/inspector state remained independently correct, so only
+the central `SessionSurfaceFacade` disappeared.
+
+Commit `131ee203` (`fix: prevent profile studio session refresh races`) closes
+both sides of the race:
+
+- a synchronous application-mode ref changes event routing to
+  `profile-studio` before async hydration begins;
+- the shared session-state hook records the workspace currently owning its
+  list and discards every late response for a previous workspace;
+- the same ownership rule protects the reverse Studio-to-ordinary transition.
+
+All commit gates passed again with `Tests: OK (145)`. Duplication thresholds,
+production audit (`0` vulnerabilities), links and production build also
+passed before repackaging from source revision
+`131ee2033087793cf185a5c78aaee157bc9675df`.
+
+Second package identity (supersedes the rejected package above):
+
+- application: `release/mac-arm64/Harness AI.app`;
+- renderer: `/dist/renderer/assets/index-CXgCvZ3B.js` and
+  `/dist/renderer/assets/index-CpxuFWS7.css`;
+- `app.asar` size: `32488237` bytes;
+- `app.asar` modification time: `2026-07-21T11:23:53+0200`;
+- SHA-256:
+  `10561ef79ccc69151965d061af66f67ecdfdf59bc8d5a5e9ec9110f0874bc42a`.
+
+The rebuilt package launched with main process `80129`, Core process `80290`
+and renderer process `80312`. A live UI check against the preserved Codex
+Draft completed this exact sequence:
+
+1. open Profile Studio — standard session header, transcript, input and status
+   panel rendered beside the matching profile/inspector;
+2. return to ordinary workspaces/sessions;
+3. reopen Profile Studio — the same central session surface and exact
+   Codex/GPT-5.6 Sol profile/inspector rendered again.
+
+The restored Codex session separately reports `no rollout found for thread
+id` during provider resume. That provider-binding condition does not remove the
+session surface and is not treated as part of this renderer race repair.

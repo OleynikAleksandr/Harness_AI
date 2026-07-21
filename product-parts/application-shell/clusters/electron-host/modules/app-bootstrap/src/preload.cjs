@@ -22,6 +22,11 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:create-profile-studio-draft", request),
   approveProfileStudioDraft: (request) =>
     ipcRenderer.invoke("harness-ai:core:approve-profile-studio-draft", request),
+  deleteProfileStudioProfile: (request) =>
+    ipcRenderer.invoke(
+      "harness-ai:core:delete-profile-studio-profile",
+      request
+    ),
   deleteSession: (sessionId) =>
     ipcRenderer.invoke("harness-ai:core:delete-session", sessionId),
   ensureGlossaryFile: () =>

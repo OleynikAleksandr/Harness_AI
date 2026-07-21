@@ -91,6 +91,11 @@ interface Window {
     }): Promise<
       import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-lifecycle/src/profile-studio-lifecycle-facade.js").ProfileStudioLifecycleResult
     >;
+    deleteProfileStudioProfile(request: {
+      profileId: string;
+    }): Promise<
+      import("../../../../../../core-runtime/clusters/profile-studio/modules/profile-studio-lifecycle/src/profile-studio-lifecycle-facade.js").ProfileStudioDeleteResult
+    >;
     deleteSession(
       sessionId: string
     ): Promise<{ ok: true } | { error: string; ok: false }>;

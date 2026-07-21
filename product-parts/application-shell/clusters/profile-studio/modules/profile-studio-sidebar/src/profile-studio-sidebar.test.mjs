@@ -17,8 +17,13 @@ assert.match(sidebarSource, /Profile Studio/u);
 assert.match(sidebarSource, /Создать профиль/u);
 assert.match(sidebarSource, /Вернуться к рабочим пространствам и сессиям/u);
 assert.match(sidebarSource, /onSelectProfile\(profile\)/u);
+assert.match(sidebarSource, /onDeleteProfile\(deleteCandidate\)/u);
+assert.match(sidebarSource, /Удалить профиль\?/u);
+assert.match(sidebarSource, /aria-modal="true"/u);
+assert.match(sidebarSource, /<Trash2/u);
 assert.match(sidebarSource, /profile\.status/u);
 assert.doesNotMatch(sidebarSource, /window\.harnessCore/u);
+assert.doesNotMatch(sidebarSource, /window\.(?:alert|confirm|prompt)/u);
 assert.doesNotMatch(sidebarSource, /Native Profile/u);
 
 for (const tab of ["Overview", "Custom System Prompt", "Custom System Tools"]) {

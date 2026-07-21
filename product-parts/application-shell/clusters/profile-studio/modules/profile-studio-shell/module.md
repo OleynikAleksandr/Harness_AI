@@ -15,8 +15,8 @@ coordination without owning profile or session truth.
 - The existing `SessionSurfaceFacade` in the center.
 - `ProfileStudioInspectorFacade` on the right.
 
-The shell loads typed target/profile/inspector snapshots, forwards Create and
-exact-hash Approve commands, and subscribes to the isolated
+The shell loads typed target/profile/inspector snapshots, forwards Create,
+Delete and exact-hash Approve commands, and subscribes to the isolated
 `profile-studio:updated` stream. It never scans profile files, compiles prompts,
 validates provider capability or interprets creator structured output.
 
@@ -32,6 +32,11 @@ Refreshing the compatible profile list may reconcile that row but must not
 clear an inspector snapshot when the selected id did not change. Provider
 binding failure is rendered inside the standard session surface; it does not
 remove the session or inspector.
+
+A successful Delete response removes the exact row immediately and selects
+the next compatible profile/session, or clears both center and inspector when
+none remain. The shell submits only the profile id; Core owns v2 validation,
+document removal and bound creator-session cleanup.
 
 ## Application Mode
 

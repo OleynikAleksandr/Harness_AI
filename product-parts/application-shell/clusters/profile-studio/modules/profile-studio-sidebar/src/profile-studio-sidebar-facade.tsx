@@ -1,4 +1,5 @@
-import { ArrowLeft, FilePlus2, UserRoundCog } from "lucide-react";
+import { ArrowLeft, FilePlus2, Trash2, UserRoundCog } from "lucide-react";
+import { useEffect, useState } from "react";
 import type {
   ProfileStudioProfileRow,
   ProfileStudioTargetProvider,
@@ -7,7 +8,11 @@ import "../../../src/profile-studio.css";
 
 export interface ProfileStudioSidebarFacadeProps {
   readonly createPending: boolean;
+  readonly deletePendingProfileId: string | null;
   readonly onCreateProfile: () => void | Promise<void>;
+  readonly onDeleteProfile: (
+    profile: ProfileStudioProfileRow
+  ) => Promise<boolean>;
   readonly onReturn: () => void;
   readonly onSelectModel: (modelId: string) => void;
   readonly onSelectProfile: (profile: ProfileStudioProfileRow) => void;
@@ -23,7 +28,9 @@ export interface ProfileStudioSidebarFacadeProps {
 
 export function ProfileStudioSidebarFacade({
   createPending,
+  deletePendingProfileId,
   onCreateProfile,
+  onDeleteProfile,
   onReturn,
   onSelectModel,
   onSelectProfile,
@@ -34,10 +41,25 @@ export function ProfileStudioSidebarFacade({
   selectedProviderId,
   targets,
 }: ProfileStudioSidebarFacadeProps) {
+  const [deleteCandidate, setDeleteCandidate] =
+    useState<ProfileStudioProfileRow | null>(null);
   const selectedProvider = targets.find(
     (target) => target.id === selectedProviderId
   );
   const canCreate = Boolean(selectedProvider && selectedModelId);
+
+  useEffect(() => {
+    if (!deleteCandidate) {
+      return;
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape" && !deletePendingProfileId) {
+        setDeleteCandidate(null);
+      }
+    }
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [deleteCandidate, deletePendingProfileId]);
 
   return (
     <aside aria-label="Profile Studio" className="profile-studio-sidebar">
@@ -118,24 +140,38 @@ export function ProfileStudioSidebarFacade({
         </header>
         <nav aria-label="Совместимые профили">
           {profiles.map((profile) => (
-            <button
-              aria-current={
-                profile.id === selectedProfileId ? "page" : undefined
-              }
+            <div
               className={
                 profile.id === selectedProfileId
-                  ? "profile-studio-sidebar__profile is-active"
-                  : "profile-studio-sidebar__profile"
+                  ? "profile-studio-sidebar__profile-row is-active"
+                  : "profile-studio-sidebar__profile-row"
               }
               key={profile.id}
-              onClick={() => onSelectProfile(profile)}
               title={profile.description || profile.purpose}
-              type="button"
             >
-              <UserRoundCog aria-hidden="true" size={16} />
-              <span>{profile.name}</span>
-              <ProfileStatusBadge status={profile.status} />
-            </button>
+              <button
+                aria-current={
+                  profile.id === selectedProfileId ? "page" : undefined
+                }
+                className="profile-studio-sidebar__profile"
+                onClick={() => onSelectProfile(profile)}
+                type="button"
+              >
+                <UserRoundCog aria-hidden="true" size={16} />
+                <span>{profile.name}</span>
+                <ProfileStatusBadge status={profile.status} />
+              </button>
+              <button
+                aria-label={`Удалить профиль ${profile.name}`}
+                className="profile-studio-sidebar__delete"
+                disabled={deletePendingProfileId === profile.id}
+                onClick={() => setDeleteCandidate(profile)}
+                title="Удалить профиль"
+                type="button"
+              >
+                <Trash2 aria-hidden="true" size={15} />
+              </button>
+            </div>
           ))}
           {profiles.length === 0 ? (
             <p className="profile-studio-sidebar__empty">
@@ -153,6 +189,51 @@ export function ProfileStudioSidebarFacade({
         <ArrowLeft aria-hidden="true" size={17} />
         Вернуться к рабочим пространствам и сессиям
       </button>
+      {deleteCandidate ? (
+        <div className="profile-studio-delete-layer">
+          <button
+            aria-label="Закрыть подтверждение удаления"
+            className="profile-studio-delete-backdrop"
+            disabled={Boolean(deletePendingProfileId)}
+            onClick={() => setDeleteCandidate(null)}
+            type="button"
+          />
+          <section
+            aria-labelledby="profile-studio-delete-title"
+            aria-modal="true"
+            className="profile-studio-delete-dialog"
+            role="dialog"
+          >
+            <h2 id="profile-studio-delete-title">Удалить профиль?</h2>
+            <p>
+              Профиль «{deleteCandidate.name}» и связанная с ним сессия Profile
+              Creator Agent будут удалены.
+            </p>
+            <div className="profile-studio-delete-actions">
+              <button
+                disabled={Boolean(deletePendingProfileId)}
+                onClick={() => setDeleteCandidate(null)}
+                type="button"
+              >
+                Отмена
+              </button>
+              <button
+                className="is-danger"
+                disabled={Boolean(deletePendingProfileId)}
+                onClick={async () => {
+                  const deleted = await onDeleteProfile(deleteCandidate);
+                  if (deleted) {
+                    setDeleteCandidate(null);
+                  }
+                }}
+                type="button"
+              >
+                {deletePendingProfileId ? "Удаление…" : "Удалить"}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </aside>
   );
 }

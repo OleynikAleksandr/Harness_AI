@@ -10,6 +10,8 @@ const IPC_TO_RPC = {
   "harness-ai:core:create-profile-studio-draft": "create-profile-studio-draft",
   "harness-ai:core:approve-profile-studio-draft":
     "approve-profile-studio-draft",
+  "harness-ai:core:delete-profile-studio-profile":
+    "delete-profile-studio-profile",
   "harness-ai:core:delete-session": "delete-session",
   "harness-ai:core:ensure-glossary-file": "ensure-glossary-file",
   "harness-ai:core:list-session-profiles": "list-session-profiles",

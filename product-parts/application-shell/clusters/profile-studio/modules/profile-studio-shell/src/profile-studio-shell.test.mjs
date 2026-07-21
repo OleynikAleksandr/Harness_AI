@@ -32,6 +32,7 @@ assert.match(shellSource, /listProfileStudioProfiles/u);
 assert.match(shellSource, /getProfileStudioProfile/u);
 assert.match(shellSource, /createProfileStudioDraft/u);
 assert.match(shellSource, /approveProfileStudioDraft/u);
+assert.match(shellSource, /deleteProfileStudioProfile/u);
 assert.match(shellSource, /onProfileStudioUpdated/u);
 assert.match(shellSource, /selectionChanged/u);
 assert.match(shellSource, /setProfiles\(\(current\) => \[/u);
@@ -65,5 +66,7 @@ assert.match(
 assert.match(shellSource, /resolveInitialSelection/u);
 assert.match(shellSource, /initialCreatorSessionRef/u);
 assert.match(shellSource, /profileId: session\.sessionPurpose\.profileId/u);
+assert.match(shellSource, /deletePendingProfileId/u);
+assert.match(shellSource, /selectProfile\(remainingProfiles\[0\] \?\? null\)/u);
 
 console.log("profile-studio shell tests: OK");

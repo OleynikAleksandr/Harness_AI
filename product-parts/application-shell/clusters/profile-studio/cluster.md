@@ -4,8 +4,9 @@
 
 Owns the Application Shell presentation of provider/model-scoped Profile
 Studio. It renders only typed Core targets, compatible profile rows and
-inspector snapshots; lifecycle, authoring, capability and persistence truth
-remain in Core Runtime.
+inspector snapshots, and forwards confirmed create/delete/approve intents;
+lifecycle, authoring, capability, deletion and persistence truth remain in
+Core Runtime.
 
 ## Owned Modules
 

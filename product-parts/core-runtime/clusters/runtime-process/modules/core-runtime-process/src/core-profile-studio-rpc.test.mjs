@@ -30,6 +30,7 @@ for (const method of [
   "get-profile-studio-profile",
   "create-profile-studio-draft",
   "approve-profile-studio-draft",
+  "delete-profile-studio-profile",
 ]) {
   assert.match(apiSource, new RegExp(`case "${method}"`, "u"));
   assert.match(bridgeSource, new RegExp(`core:${method}`, "u"));
@@ -43,7 +44,6 @@ assert.match(
   /`session-\$\{target\.target\.providerId\}-\$\{randomUUID\(\)\}`/u
 );
 assert.match(rpcSource, /providerId === "kimi-client"/u);
-assert.match(apiSource, /case "delete-profile-studio-profile"/u);
 assert.match(rpcSource, /profileLifecycle\.deleteProfile\(profileId\)/u);
 assert.match(rpcSource, /sessionRequestHandlerFacade\.deleteSession/u);
 assert.match(rpcSource, /content hash are required/u);

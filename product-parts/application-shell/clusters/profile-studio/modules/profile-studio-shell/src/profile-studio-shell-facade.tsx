@@ -42,6 +42,9 @@ export function ProfileStudioShellFacade({
   const [inspector, setInspector] =
     useState<ProfileStudioInspectorSnapshot | null>(null);
   const [createPending, setCreatePending] = useState(false);
+  const [deletePendingProfileId, setDeletePendingProfileId] = useState<
+    string | null
+  >(null);
   const [approvalPending, setApprovalPending] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -250,6 +253,35 @@ export function ProfileStudioShellFacade({
     }
   }
 
+  async function deleteProfile(
+    profile: ProfileStudioProfileRow
+  ): Promise<boolean> {
+    setDeletePendingProfileId(profile.id);
+    setError(null);
+    try {
+      const result = await window.harnessCore?.deleteProfileStudioProfile({
+        profileId: profile.id,
+      });
+      if (!result?.ok) {
+        setError(result?.error ?? "Core runtime bridge is unavailable.");
+        return false;
+      }
+      const remainingProfiles = profiles.filter(
+        (candidate) => candidate.id !== profile.id
+      );
+      setProfiles(remainingProfiles);
+      if (selectedProfileIdRef.current === profile.id) {
+        selectProfile(remainingProfiles[0] ?? null);
+      }
+      return true;
+    } catch (cause) {
+      setError(errorMessage(cause));
+      return false;
+    } finally {
+      setDeletePendingProfileId(null);
+    }
+  }
+
   const selectedProfile =
     profiles.find((profile) => profile.id === selectedProfileId) ?? null;
   const selectedCreatorSession =
@@ -261,7 +293,9 @@ export function ProfileStudioShellFacade({
     <section aria-label="Profile Studio" className="profile-studio-shell">
       <ProfileStudioSidebarFacade
         createPending={createPending}
+        deletePendingProfileId={deletePendingProfileId}
         onCreateProfile={createProfile}
+        onDeleteProfile={deleteProfile}
         onReturn={onReturn}
         onSelectModel={selectModel}
         onSelectProfile={selectProfile}

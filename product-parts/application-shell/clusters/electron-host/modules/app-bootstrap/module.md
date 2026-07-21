@@ -38,9 +38,9 @@ Own Electron lifecycle, window creation, and local application startup.
   (session profile picker/authoring surface), typed in the session window
   `vite-env.d.ts`.
 - `window.harnessCore` exposes typed Profile Studio target/list/get/create/
-  approve commands. `onProfileStudioUpdated()` receives only Studio update
-  events, while ordinary `onEvent()` filters them out so the existing session
-  surface continues to consume only its established Core event union.
+  approve/delete commands. `onProfileStudioUpdated()` receives only Studio
+  update events, while ordinary `onEvent()` filters them out so the existing
+  session surface continues to consume only its established Core event union.
 - `window.harnessCore` also exposes `captureNativeRequest(request)` and
   `listCapturableModels()` for the Native Request Capture Settings card,
   bridged to the Core `capture-native-request` / `list-capturable-models`

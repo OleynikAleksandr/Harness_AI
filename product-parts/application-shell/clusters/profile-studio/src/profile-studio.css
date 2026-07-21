@@ -179,20 +179,31 @@
   overflow-y: auto;
 }
 
+.profile-studio-sidebar__profile-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+}
+
 .profile-studio-sidebar__profile {
   display: grid;
   grid-template-columns: 17px minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   width: 100%;
-  min-height: 40px;
+  min-height: 38px;
   padding: 8px 9px;
   color: var(--pm-text-secondary);
   text-align: left;
   cursor: pointer;
   background: transparent;
-  border: 1px solid transparent !important;
-  border-radius: 7px;
+  border-radius: 0;
 }
 
 .profile-studio-sidebar__profile > span:nth-child(2) {
@@ -201,11 +212,45 @@
   white-space: nowrap;
 }
 
-.profile-studio-sidebar__profile:hover,
-.profile-studio-sidebar__profile.is-active {
+.profile-studio-sidebar__profile-row:hover,
+.profile-studio-sidebar__profile-row.is-active {
   color: var(--pm-text-primary);
   background: rgba(66, 201, 162, 0.1);
-  border-color: rgba(66, 201, 162, 0.35) !important;
+  border-color: rgba(66, 201, 162, 0.35);
+}
+
+.profile-studio-sidebar__profile-row:hover .profile-studio-sidebar__profile,
+.profile-studio-sidebar__profile-row.is-active
+  .profile-studio-sidebar__profile {
+  color: var(--pm-text-primary);
+}
+
+.profile-studio-sidebar__delete {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--pm-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border-radius: 6px;
+  opacity: 0;
+}
+
+.profile-studio-sidebar__profile-row:hover .profile-studio-sidebar__delete,
+.profile-studio-sidebar__delete:focus-visible {
+  opacity: 1;
+}
+
+.profile-studio-sidebar__delete:hover {
+  color: #ef8588;
+  background: rgba(160, 54, 60, 0.17);
+}
+
+.profile-studio-sidebar__delete:disabled {
+  cursor: default;
+  opacity: 0.45;
 }
 
 .profile-studio-status {
@@ -251,6 +296,76 @@
 .profile-studio-sidebar__return:hover {
   color: var(--pm-text-primary);
   border-color: var(--pm-border-strong) !important;
+}
+
+.profile-studio-delete-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.profile-studio-delete-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: default;
+  background: rgba(3, 6, 10, 0.76);
+}
+
+.profile-studio-delete-dialog {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 11px;
+  width: min(420px, 100%);
+  padding: 18px;
+  color: var(--pm-text-primary);
+  background: var(--pm-bg-secondary);
+  border: 1px solid var(--pm-border-strong);
+  border-radius: 10px;
+  box-shadow: var(--pm-shadow-soft);
+}
+
+.profile-studio-delete-dialog h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.profile-studio-delete-dialog p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pm-text-secondary);
+}
+
+.profile-studio-delete-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 3px;
+}
+
+.profile-studio-delete-actions button {
+  min-height: 34px;
+  padding: 0 14px;
+  color: var(--pm-text-primary);
+  cursor: pointer;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 7px;
+}
+
+.profile-studio-delete-actions button.is-danger {
+  color: #ffd9d6;
+  background: #391d20;
+  border-color: #8b3f43;
+}
+
+.profile-studio-delete-actions button:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 
 .profile-studio-inspector {

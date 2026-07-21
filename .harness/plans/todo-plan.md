@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream2.task2",
-  "expectedCommitMessage": "feat: add profile studio delete control",
+  "currentTaskId": "harness-ai.phase11.stream3.task1",
+  "expectedCommitMessage": "docs: package profile studio lifecycle repair",
   "debt": null
 }
 ```
@@ -195,12 +195,12 @@
 55. [DONE] `harness-ai.phase11.stream2.task1` Add one Core-owned delete operation for a Studio profile that validates the v2 Studio identity, removes its contained profile documents and cleans up the bound creator session through the existing Session Runtime cascade (scope: up to 3 functional files — Profile Studio lifecycle/RPC and Core Runtime dispatch — plus focused tests and related docs; expected commit: `feat: delete profile studio profiles`). Result: Completed in commit `feat: delete profile studio profiles`.
 56. [DONE] Git Commit: `feat: delete profile studio profiles` (hash: self)
 
-57. [IN_PROGRESS] `harness-ai.phase11.stream2.task2` Expose the Core delete operation through the Electron bridge and add a working per-profile delete action with an in-app confirmation dialog, pending/error state and immediate selection/list/session convergence (scope: up to 6 functional files — Core process bridge, preload, renderer contract, Studio shell/sidebar and shared CSS — plus focused tests and related docs; expected commit: `feat: add profile studio delete control`).
-58. [TODO] Git Commit: `feat: add profile studio delete control` (hash: TBD)
+57. [DONE] `harness-ai.phase11.stream2.task2` Expose the Core delete operation through the Electron bridge and add a working per-profile delete action with an in-app confirmation dialog, pending/error state and immediate selection/list/session convergence (scope: up to 6 functional files — Core process bridge, preload, renderer contract, Studio shell/sidebar and shared CSS — plus focused tests and related docs; expected commit: `feat: add profile studio delete control`). Result: Completed in commit `feat: add profile studio delete control`.
+58. [DONE] Git Commit: `feat: add profile studio delete control` (hash: self)
 
 ### Stream: Rebuilt Acceptance Package
 
-59. [TODO] `harness-ai.phase11.stream3.task1` Rebuild the already user-authorized unsigned macOS package, verify creator-session re-entry and managed profile deletion in `app.asar`, launch the rebuilt application and record the focused retest checklist (scope: `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio lifecycle repair`).
+59. [IN_PROGRESS] `harness-ai.phase11.stream3.task1` Rebuild the already user-authorized unsigned macOS package, verify creator-session re-entry and managed profile deletion in `app.asar`, launch the rebuilt application and record the focused retest checklist (scope: `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio lifecycle repair`).
 60. [TODO] Git Commit: `docs: package profile studio lifecycle repair` (hash: TBD)
 
 61. [TODO] `harness-ai.phase11.stream3.task2` User retests the packaged Profile Studio workflow: create and converse in a Draft, return to ordinary sessions, reopen Studio and see the same provider/model/profile/session transcript, then delete the profile through the in-app confirmation and verify both the row and creator session stay absent after another re-entry (completion: user-acceptance; scope: user workflow; expected commit: none).

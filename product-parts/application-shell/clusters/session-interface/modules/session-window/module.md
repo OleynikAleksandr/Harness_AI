@@ -65,9 +65,10 @@ Detached session windows never expose the switch.
   `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
   that expose no independent reasoning selector.
 - The shared bridge types declare the Core Profile Studio target, compatible
-  profile, inspector, Draft creation, exact-hash approval and isolated
-  update-subscription contracts. Session Window mounts the Studio shell; that
-  facade consumes the bridge without moving lifecycle truth into the renderer.
+  profile, inspector, Draft creation, exact-hash approval, managed deletion
+  and isolated update-subscription contracts. Session Window mounts the Studio
+  shell; that facade consumes the bridge without moving lifecycle truth into
+  the renderer.
 - The ordinary `listSessionProfiles` bridge request carries both provider id
   and exact model id. The renderer does not derive compatibility locally; it
   only displays the filtered Core catalog and submits the selected id.

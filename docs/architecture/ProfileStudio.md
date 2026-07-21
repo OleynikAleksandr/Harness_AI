@@ -95,7 +95,7 @@ Core cluster composes only public facades from:
 | Module | Public facade | Ownership |
 | --- | --- | --- |
 | `profile-studio-shell` | `ProfileStudioShellFacade` | single-window mode and three-column composition |
-| `profile-studio-sidebar` | `ProfileStudioSidebarFacade` | provider/model target, Create, compatible Draft/Valid creator sessions, return action |
+| `profile-studio-sidebar` | `ProfileStudioSidebarFacade` | provider/model target, Create, compatible Draft/Valid creator sessions, confirmed Delete and return action |
 | `profile-studio-inspector` | `ProfileStudioInspectorFacade` | read-only Overview, Custom System Prompt and Custom System Tools tabs |
 
 Application Shell forwards raw commands and renders Core snapshots. It does
@@ -316,6 +316,10 @@ reason comes from Core.
   restores the same standard session transcript instead of resetting the
   Studio target;
 - Studio sidebar provides `Вернуться к рабочим пространствам и сессиям`;
+- each created profile row exposes Delete through an in-app confirmation
+  dialog that explicitly includes the bound Profile Creator Agent session;
+  after Core success the next compatible row/session is selected, or the
+  center and inspector become empty when none remain;
 - detached session windows do not expose Studio mode;
 - center uses `SessionSurfaceFacade`;
 - right inspector has exactly:

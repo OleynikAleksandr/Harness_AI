@@ -25,8 +25,11 @@ switch.
   metadata. The renderer upserts snapshots by stable call id and does not infer
   spawn activity from message text.
 - Core `session:created` / `session:updated` notifications refresh the visible
-  session index without replacing the active selection. This keeps the live
-  child tree and child header current while a parent turn continues.
+  session index for the active application mode without replacing the active
+  selection: ordinary mode refreshes the selected user workspace, while
+  Profile Studio refreshes the reserved `profile-studio` workspace. This keeps
+  creator sessions from being overwritten by an unrelated ordinary workspace
+  refresh and keeps the live child tree/header current during ordinary turns.
 - Running state is tracked as a set of Core session ids. Concurrent parent and
   child turns therefore cannot overwrite one shared running-session scalar;
   the composer remains disabled until its own session becomes idle.

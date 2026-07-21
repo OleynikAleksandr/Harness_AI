@@ -156,12 +156,15 @@ export function SessionWindowFacade() {
         event.type === "session:created" ||
         event.type === "session:updated"
       ) {
-        refreshSessionList(activeWorkspaceId).catch(noop);
+        refreshSessionList(
+          applicationMode === "studio" ? "profile-studio" : activeWorkspaceId
+        ).catch(noop);
       }
     });
   }, [
     detachedMode,
     activeWorkspaceId,
+    applicationMode,
     applyEvent,
     initialSnapshot.workspace,
     refreshLocalizationPayload,
@@ -170,9 +173,6 @@ export function SessionWindowFacade() {
     refreshSettingsSnapshot,
     grokInteractions.applyEvent,
   ]);
-
-  // Replays the persisted Core turn-state log into the journal on session
-  // switch; merging keeps events already appended live.
   useEffect(() => {
     if (!activeTimingSessionId) {
       return;

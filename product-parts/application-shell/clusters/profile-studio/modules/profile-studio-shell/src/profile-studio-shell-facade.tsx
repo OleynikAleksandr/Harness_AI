@@ -49,9 +49,12 @@ export function ProfileStudioShellFacade({
   const selectProfile = useCallback(
     (profile: ProfileStudioProfileRow | null) => {
       const profileId = profile?.id ?? null;
+      const selectionChanged = selectedProfileIdRef.current !== profileId;
       selectedProfileIdRef.current = profileId;
       setSelectedProfileId(profileId);
-      setInspector(null);
+      if (selectionChanged) {
+        setInspector(null);
+      }
       if (profile) {
         onSelectCreatorSession(profile.creatorSessionId);
       }
@@ -197,9 +200,20 @@ export function ProfileStudioShellFacade({
         setError(result?.error ?? "Core runtime bridge is unavailable.");
         return;
       }
-      selectedProfileIdRef.current = result.profile.profileId;
-      setSelectedProfileId(result.profile.profileId);
+      const createdProfile: ProfileStudioProfileRow = {
+        creatorSessionId: result.profile.creatorSessionId,
+        description: result.profile.description,
+        id: result.profile.profileId,
+        name: result.profile.name,
+        purpose: result.profile.purpose,
+        status: result.profile.lifecycleStatus,
+      };
+      setProfiles((current) => [
+        createdProfile,
+        ...current.filter((profile) => profile.id !== createdProfile.id),
+      ]);
       onAddCreatorSession(result.session);
+      selectProfile(createdProfile);
       setRefreshKey((current) => current + 1);
     } catch (cause) {
       setError(errorMessage(cause));

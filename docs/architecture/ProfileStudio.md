@@ -379,6 +379,11 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   the ordinary sidebar provides one-click entry beside Settings, return
   restores the user workspace session list, and detached windows cannot enter
   Studio;
+- packaged-acceptance repair makes successful Draft creation one convergent UI
+  transition: the returned row and persistent creator session activate
+  immediately, Studio-mode session events refresh only the reserved workspace,
+  and same-id catalog reconciliation cannot erase the loaded inspector —
+  **APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are

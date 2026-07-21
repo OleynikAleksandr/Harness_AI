@@ -33,6 +33,12 @@ assert.match(shellSource, /getProfileStudioProfile/u);
 assert.match(shellSource, /createProfileStudioDraft/u);
 assert.match(shellSource, /approveProfileStudioDraft/u);
 assert.match(shellSource, /onProfileStudioUpdated/u);
+assert.match(shellSource, /selectionChanged/u);
+assert.match(shellSource, /setProfiles\(\(current\) => \[/u);
+assert.match(
+  shellSource,
+  /onAddCreatorSession\(result\.session\);\s+selectProfile\(createdProfile\)/u
+);
 assert.doesNotMatch(shellSource, /DialogPanel/u);
 assert.doesNotMatch(shellSource, /ReferenceInputPanel/u);
 
@@ -45,5 +51,9 @@ assert.match(
 );
 assert.match(sessionWindowSource, /onReturn=\{returnToSessions\}/u);
 assert.match(sessionWindowSource, /refreshSessions\(activeWorkspace\.id\)/u);
+assert.match(
+  sessionWindowSource,
+  /applicationMode === "studio" \? "profile-studio" : activeWorkspaceId/u
+);
 
 console.log("profile-studio shell tests: OK");

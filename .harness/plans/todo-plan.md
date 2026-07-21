@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase9.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase10.stream1.task2",
+  "expectedCommitMessage": "fix: bind profile creator to selected target",
   "debt": null
 }
 ```
@@ -168,4 +168,19 @@
 45. [DONE] `harness-ai.phase9.stream1.task1` Build the user-authorized unsigned macOS package, verify `release/mac-arm64/Harness AI.app` and packaged `app.asar`, launch the rebuilt package and record package identity/retest checklist (scope: `docs/evidence/profile-studio-mvp-package-2026-07-20.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio mvp`). Result: Completed in commit `docs: package profile studio mvp`.
 46. [DONE] Git Commit: `docs: package profile studio mvp` (hash: self)
 
-47. [IN_PROGRESS] `harness-ai.phase9.stream1.task2` User tests the packaged Profile Studio workflow: single-window entry/return, provider/model scoping, Draft creation, persistent Claude creator conversation, Core-backed inspector, approval/hash lifecycle, valid Claude/Codex picker application, honest Kimi block and unchanged ordinary sessions (completion: user-acceptance; scope: user workflow; expected commit: none).
+## Phase 10 - Packaged Acceptance Defects (owner: Codex + User, updated: 2026-07-21)
+
+### Stream: Atomic Draft Activation
+
+47. [DONE] `harness-ai.phase10.stream1.task1` Repair the packaged create workflow so one successful Draft RPC immediately activates its persisted creator session, keeps Studio sessions in the shared session state, selects the new profile and renders its Core inspector without refresh races even when provider binding fails (scope: up to 2 functional files — Session Window event refresh routing and Profile Studio shell create/select convergence — plus focused tests and related docs; expected commit: `fix: activate profile studio draft sessions`). Result: Completed in commit `fix: activate profile studio draft sessions`.
+48. [DONE] Git Commit: `fix: activate profile studio draft sessions` (hash: self)
+
+49. [IN_PROGRESS] `harness-ai.phase10.stream1.task2` Bind a newly created Profile Creator session to the provider/model selected in Profile Studio instead of the fixed Claude/Opus execution identity, while keeping the existing inline creator system prompt/output schema and leaving the unagreed automatic first user turn out of this slice (scope: up to 3 functional files — Profile Studio agent spec, creator-session assembly/turn options and Core Studio session id/provider mapping — plus focused tests and related docs; expected commit: `fix: bind profile creator to selected target`).
+50. [TODO] Git Commit: `fix: bind profile creator to selected target` (hash: TBD)
+
+### Stream: Rebuilt Acceptance Package
+
+51. [TODO] `harness-ai.phase10.stream2.task1` Rebuild the user-authorized unsigned macOS package, verify the repaired create/select/session/inspector contracts in `app.asar`, launch the rebuilt application and record a focused retest checklist (scope: `docs/evidence/profile-studio-activation-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio activation repair`).
+52. [TODO] Git Commit: `docs: package profile studio activation repair` (hash: TBD)
+
+53. [TODO] `harness-ai.phase10.stream2.task2` User retests the packaged Profile Studio workflow: create one target-scoped Draft, see its selected-provider/model creator session and user-writable standard interface immediately, see all inspector tabs immediately, observe provider-binding errors without losing either surface, return/reopen persistence, then continue the remaining authoring/approval acceptance flow (completion: user-acceptance; scope: user workflow; expected commit: none).

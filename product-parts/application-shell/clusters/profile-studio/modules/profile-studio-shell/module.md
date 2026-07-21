@@ -25,6 +25,14 @@ ordinary session controller. The shell displays that session only after the
 selected row and active session binding agree, preventing transcript content
 from another profile appearing below a newly selected header.
 
+A successful Create response is applied as one UI transition: the returned
+Draft row is inserted and selected immediately, the returned persisted creator
+session is added/activated, and the inspector loads for the same profile id.
+Refreshing the compatible profile list may reconcile that row but must not
+clear an inspector snapshot when the selected id did not change. Provider
+binding failure is rendered inside the standard session surface; it does not
+remove the session or inspector.
+
 ## Application Mode
 
 The ordinary Session Window owns entry and return:

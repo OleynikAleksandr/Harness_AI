@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream2.task1",
-  "expectedCommitMessage": "docs: package profile studio activation repair",
+  "currentTaskId": "harness-ai.phase10.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -180,7 +180,7 @@
 
 ### Stream: Rebuilt Acceptance Package
 
-51. [IN_PROGRESS] `harness-ai.phase10.stream2.task1` Rebuild the user-authorized unsigned macOS package, verify the repaired create/select/session/inspector contracts in `app.asar`, launch the rebuilt application and record a focused retest checklist (scope: `docs/evidence/profile-studio-activation-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio activation repair`).
-52. [TODO] Git Commit: `docs: package profile studio activation repair` (hash: TBD)
+51. [DONE] `harness-ai.phase10.stream2.task1` Rebuild the user-authorized unsigned macOS package, verify the repaired create/select/session/inspector contracts in `app.asar`, launch the rebuilt application and record a focused retest checklist (scope: `docs/evidence/profile-studio-activation-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio activation repair`). Result: Completed in commit `docs: package profile studio activation repair`.
+52. [DONE] Git Commit: `docs: package profile studio activation repair` (hash: self)
 
-53. [TODO] `harness-ai.phase10.stream2.task2` User retests the packaged Profile Studio workflow: create one target-scoped Draft, see its selected-provider/model creator session and user-writable standard interface immediately, see all inspector tabs immediately, observe provider-binding errors without losing either surface, return/reopen persistence, then continue the remaining authoring/approval acceptance flow (completion: user-acceptance; scope: user workflow; expected commit: none).
+53. [IN_PROGRESS] `harness-ai.phase10.stream2.task2` User retests the packaged Profile Studio workflow: create one target-scoped Draft, see its selected-provider/model creator session and user-writable standard interface immediately, see all inspector tabs immediately, observe provider-binding errors without losing either surface, return/reopen persistence, then continue the remaining authoring/approval acceptance flow (completion: user-acceptance; scope: user workflow; expected commit: none).

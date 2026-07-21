@@ -200,6 +200,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   macOS package evidence: exact app/app.asar identity and checksum, packaged
   Profile Studio/Codex/Kimi proof, successful launch and the manual acceptance
   checklist for the current MVP boundary.
+- `docs/evidence/profile-studio-activation-repair-package-2026-07-21.md` —
+  packaged-acceptance repair for the hidden creator session and empty inspector
+  after Draft creation: root causes, exact-target creator binding, new
+  app/app.asar identity, known Claude OAuth failure and focused retest steps.
 - `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
   the turn-timer scope: current `ElapsedTotal` behavior, turn-state event
   journal as the persistent timing source, the `turn-timing` Core module and

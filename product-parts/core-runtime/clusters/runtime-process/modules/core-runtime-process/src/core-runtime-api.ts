@@ -119,6 +119,8 @@ export class CoreRuntimeApi {
         return coreProfileStudioRpcFacade.createDraft(payload);
       case "approve-profile-studio-draft":
         return coreProfileStudioRpcFacade.approveDraft(payload);
+      case "delete-profile-studio-profile":
+        return coreProfileStudioRpcFacade.deleteProfile(payload);
       case "delete-session": {
         // The request-handler cascade is the single cleanup route: it closes
         // bindings and removes provider artifacts, event JSONL and reasoning

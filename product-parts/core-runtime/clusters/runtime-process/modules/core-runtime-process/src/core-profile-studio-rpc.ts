@@ -131,6 +131,27 @@ export class CoreProfileStudioRpcFacade {
     }
     return profileLifecycle.approveDraft({ contentHash, profileId });
   }
+
+  async deleteProfile(payload: unknown): Promise<unknown> {
+    const profileId = readProfileId(payload);
+    if (!profileId) {
+      return {
+        error: "Profile Studio profile id is required.",
+        ok: false,
+      };
+    }
+    const deleted = await profileLifecycle.deleteProfile(profileId);
+    if (!deleted.ok) {
+      return deleted;
+    }
+    const sessionDeleted = sessionRequestHandlerFacade.deleteSession(
+      deleted.creatorSessionId
+    );
+    if (!(sessionDeleted.ok || sessionDeleted.error === "Session not found")) {
+      return sessionDeleted;
+    }
+    return deleted;
+  }
 }
 
 function initialToolSelection(

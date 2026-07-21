@@ -28,8 +28,8 @@ state.
 - Shutdown request from the local supervisor/client.
 - Core RPC envelope from the Application Shell client.
 - Provider version/update requests and local-model discovery requests.
-- Raw Profile Studio list/get/create/approve intents from the transport-only
-  Application Shell bridge.
+- Raw Profile Studio list/get/create/approve/delete intents from the
+  transport-only Application Shell bridge.
 
 ## Outputs
 
@@ -42,9 +42,12 @@ state.
   facades, Create couples one Draft with one pre-minted persistent creator
   session whose id/provider/model reflect the selected target, and Approve
   forwards the exact content hash while blocking Kimi
-  until its capability ceiling is satisfied. Profile-file changes publish a
-  separate `profile-studio:updated` event; Runtime Process does not derive UI
-  state from documents.
+  until its capability ceiling is satisfied. Delete accepts one profile id,
+  delegates validated Studio document removal to lifecycle/authoring, then
+  passes the returned creator-session id through the existing Session Runtime
+  cleanup cascade; an already-absent bound session is idempotent. Profile-file
+  changes publish a separate `profile-studio:updated` event; Runtime Process
+  does not derive UI state from documents.
 - `respond-provider-interaction` forwards a validated user decision to Core's
   pending-interaction lifecycle; Runtime Process never constructs native
   provider or ACP response payloads.

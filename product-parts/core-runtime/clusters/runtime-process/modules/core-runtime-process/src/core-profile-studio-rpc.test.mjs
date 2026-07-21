@@ -43,6 +43,9 @@ assert.match(
   /`session-\$\{target\.target\.providerId\}-\$\{randomUUID\(\)\}`/u
 );
 assert.match(rpcSource, /providerId === "kimi-client"/u);
+assert.match(apiSource, /case "delete-profile-studio-profile"/u);
+assert.match(rpcSource, /profileLifecycle\.deleteProfile\(profileId\)/u);
+assert.match(rpcSource, /sessionRequestHandlerFacade\.deleteSession/u);
 assert.match(rpcSource, /content hash are required/u);
 assert.match(apiSource, /type: "profile-studio:updated"/u);
 assert.match(preloadSource, /onProfileStudioUpdated/u);

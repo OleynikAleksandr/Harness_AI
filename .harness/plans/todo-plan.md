@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase11.stream2.task1",
-  "expectedCommitMessage": "feat: delete profile studio profiles",
+  "currentTaskId": "harness-ai.phase11.stream2.task2",
+  "expectedCommitMessage": "feat: add profile studio delete control",
   "debt": null
 }
 ```
@@ -192,10 +192,10 @@
 
 ### Stream: Managed Profile Deletion
 
-55. [IN_PROGRESS] `harness-ai.phase11.stream2.task1` Add one Core-owned delete operation for a Studio profile that validates the v2 Studio identity, removes its profile documents and cleans up the bound creator session through the existing Session Runtime cascade (scope: up to 4 functional files — profile authoring, Profile Studio lifecycle/RPC and Core Runtime dispatch — plus focused tests and related docs; expected commit: `feat: delete profile studio profiles`).
-56. [TODO] Git Commit: `feat: delete profile studio profiles` (hash: TBD)
+55. [DONE] `harness-ai.phase11.stream2.task1` Add one Core-owned delete operation for a Studio profile that validates the v2 Studio identity, removes its contained profile documents and cleans up the bound creator session through the existing Session Runtime cascade (scope: up to 3 functional files — Profile Studio lifecycle/RPC and Core Runtime dispatch — plus focused tests and related docs; expected commit: `feat: delete profile studio profiles`). Result: Completed in commit `feat: delete profile studio profiles`.
+56. [DONE] Git Commit: `feat: delete profile studio profiles` (hash: self)
 
-57. [TODO] `harness-ai.phase11.stream2.task2` Expose the Core delete operation through the Electron bridge and add a working per-profile delete action with an in-app confirmation dialog, pending/error state and immediate selection/list/session convergence (scope: up to 6 functional files — Core process bridge, preload, renderer contract, Studio shell/sidebar and shared CSS — plus focused tests and related docs; expected commit: `feat: add profile studio delete control`).
+57. [IN_PROGRESS] `harness-ai.phase11.stream2.task2` Expose the Core delete operation through the Electron bridge and add a working per-profile delete action with an in-app confirmation dialog, pending/error state and immediate selection/list/session convergence (scope: up to 6 functional files — Core process bridge, preload, renderer contract, Studio shell/sidebar and shared CSS — plus focused tests and related docs; expected commit: `feat: add profile studio delete control`).
 58. [TODO] Git Commit: `feat: add profile studio delete control` (hash: TBD)
 
 ### Stream: Rebuilt Acceptance Package

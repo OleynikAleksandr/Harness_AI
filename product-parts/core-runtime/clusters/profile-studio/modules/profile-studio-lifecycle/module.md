@@ -17,8 +17,12 @@ hash; a subsequent controlled authoring write rewrites the passport as Draft.
 
 The facade also resolves profile by creator session and derives created,
 updated and approved timestamps from managed directory/passport filesystem
-metadata. It does not create sessions, parse Claude output or decide provider
-capability readiness.
+metadata. `deleteProfile()` preserves the bound creator-session id in its
+result, validates that the loaded Studio v2 directory remains inside the
+profiles root and removes that exact directory. Runtime Process then sends the
+session id through the existing Session Runtime delete cascade. The lifecycle
+facade does not create or delete sessions itself, parse provider output or
+decide provider capability readiness.
 
 ## Public Facade
 
@@ -40,6 +44,8 @@ capability readiness.
 - Structured lifecycle errors; no silent approval, fallback or identity
   mutation.
 - `getProfileIdForCreatorSession()` persistent binding lookup.
+- `deleteProfile()` structured profile id plus creator-session id result after
+  validated Studio document deletion.
 
 ## Owned Paths
 

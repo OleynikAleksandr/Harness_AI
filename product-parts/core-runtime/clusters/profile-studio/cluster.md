@@ -15,9 +15,11 @@ All four planned Core modules are applied: `profile-studio-lifecycle`,
 Lifecycle mints immutable Draft
 ids, preserves exact target/session binding, computes the materialized content
 hash, accepts approval only for that hash and returns every later full-snapshot
-edit to Draft. Approval metadata is derived from the controlled passport
-transition; direct/manual profile editing and recovery are outside this first
-stage.
+edit to Draft. It also coordinates deletion of a validated Studio v2 profile
+with cleanup of its bound creator session through Session Runtime; this route
+cannot target legacy or Native profiles. Approval metadata is derived from the
+controlled passport transition; direct/manual profile editing and recovery are
+outside this first stage.
 Authoring validates complete creator snapshots, honest provider tool modes and
 contained raw Native Capture donor truth before delegating one atomic update.
 Agent owns the selected provider/model isolated runtime spec, inline complete

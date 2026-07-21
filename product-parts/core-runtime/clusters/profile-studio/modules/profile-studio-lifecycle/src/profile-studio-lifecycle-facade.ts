@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
+import path from "node:path";
 import type {
   ProfileAuthoringFacade,
   StudioProfileDraftSnapshot,
@@ -37,6 +38,14 @@ export type ProfileStudioLifecycleResult =
   | { readonly error: string; readonly ok: false }
   | { readonly ok: true; readonly profile: ProfileStudioProfile };
 
+export type ProfileStudioDeleteResult =
+  | { readonly error: string; readonly ok: false }
+  | {
+      readonly creatorSessionId: string;
+      readonly ok: true;
+      readonly profileId: string;
+    };
+
 interface ProfileStudioLifecycleFacadeOptions {
   readonly idFactory?: () => string;
   readonly profileAuthoring: Pick<
@@ -46,7 +55,7 @@ interface ProfileStudioLifecycleFacadeOptions {
   readonly profileMaterializer: Pick<ProfileMaterializerFacade, "materialize">;
   readonly profileStore: Pick<
     ProfileStoreFacade,
-    "listProfiles" | "loadProfile"
+    "listProfiles" | "loadProfile" | "rootDirectory"
   >;
 }
 
@@ -141,6 +150,36 @@ export class ProfileStudioLifecycleFacade {
       return approved;
     }
     return this.getProfile(request.profileId);
+  }
+
+  async deleteProfile(profileId: string): Promise<ProfileStudioDeleteResult> {
+    const loaded = await this.loadStudioProfile(profileId);
+    if (!loaded.ok) {
+      return loaded;
+    }
+    const creatorSessionId = loaded.profile.passport.creatorSessionId;
+    const profileDirectory = loaded.profile.documents.profileDirectory;
+    const relativeDirectory = path.relative(
+      this.profileStore.rootDirectory,
+      profileDirectory
+    );
+    if (
+      !relativeDirectory ||
+      relativeDirectory.startsWith(`..${path.sep}`) ||
+      path.isAbsolute(relativeDirectory)
+    ) {
+      return {
+        error: `Studio profile "${profileId}" is outside the profiles root.`,
+        ok: false,
+      };
+    }
+    try {
+      await fs.rm(profileDirectory, { recursive: true });
+      return { creatorSessionId, ok: true, profileId };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      return { error: `Could not delete Studio profile: ${reason}`, ok: false };
+    }
   }
 
   async getProfile(profileId: string): Promise<ProfileStudioLifecycleResult> {

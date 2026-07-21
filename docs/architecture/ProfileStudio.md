@@ -73,7 +73,7 @@ Product-Part-scoped кластерами. Это не один cross-boundary mo
 
 | Module | Public facade | Ownership |
 | --- | --- | --- |
-| `profile-studio-lifecycle` | `ProfileStudioLifecycleFacade` class | immutable Draft identity, profile↔creator-session binding, lifecycle gates, approval/content hash |
+| `profile-studio-lifecycle` | `ProfileStudioLifecycleFacade` class | immutable Draft identity, profile↔creator-session binding, lifecycle gates, approval/content hash and managed Studio deletion |
 | `profile-studio-agent` | `ProfileStudioAgentFacade` class | selected provider/model creator configuration, inline prompt, output schema, creator session contract |
 | `profile-studio-authoring` | `ProfileStudioAuthoringFacade` class | full-snapshot validation, donor containment, atomic document application |
 | `profile-studio-read-model` | `ProfileStudioReadModelFacade` class | targets, compatible profiles/sessions, Overview/Prompt/Tools snapshots, capability reasons |
@@ -215,6 +215,10 @@ sessionPurpose?: {
   `~/.harness-ai/ProfileStudio/workspace`;
 - restart restores transcript and profile binding;
 - Studio session list is independent of the currently selected user workspace.
+- deleting a Studio profile validates its v2 identity, removes only its
+  contained profile directory and cleans its bound creator session through the
+  standard Session Runtime delete cascade; legacy/Native profiles are outside
+  this command.
 
 ## 7. Structured authoring
 
@@ -339,6 +343,7 @@ Required typed intents/read models:
 - list exact-compatible Studio profiles;
 - get one inspector snapshot;
 - create Draft and creator session;
+- delete one Studio profile and its bound creator session;
 - send/resume through normal session commands;
 - approve exact content hash;
 - receive `profile-studio:updated` events.

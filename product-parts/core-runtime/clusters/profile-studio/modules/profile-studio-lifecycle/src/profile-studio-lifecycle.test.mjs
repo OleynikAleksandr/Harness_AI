@@ -193,6 +193,24 @@ try {
     "draft-abc123"
   );
 
+  const legacyProfile = await profileAuthoring.createProfile({
+    name: "Legacy Keep",
+    provider: "claude",
+  });
+  assert.equal(legacyProfile.ok, true);
+  const rejectedLegacyDelete =
+    await restoredLifecycle.deleteProfile("legacy-keep");
+  assert.equal(rejectedLegacyDelete.ok, false);
+  assert.equal((await profileStore.loadProfile("legacy-keep")).ok, true);
+
+  const deleted = await restoredLifecycle.deleteProfile("draft-abc123");
+  assert.deepEqual(deleted, {
+    creatorSessionId: "session-creator-1",
+    ok: true,
+    profileId: "draft-abc123",
+  });
+  assert.equal((await restoredLifecycle.getProfile("draft-abc123")).ok, false);
+
   console.log("profile-studio-lifecycle tests: OK");
 } finally {
   await rm(buildDirectory, { force: true, recursive: true });

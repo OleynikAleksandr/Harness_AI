@@ -102,12 +102,17 @@
         {
           "id": "settings-surface",
           "name": "Settings Surface",
-          "purpose": "Provider, localization, and recovery settings UI. Profile authoring belongs to Profile Studio; this surface edits settings through Core contracts only.",
+          "purpose": "Provider, Profile Studio default, localization, and recovery settings UI. Profile authoring belongs to Profile Studio; this surface edits settings through Core contracts only.",
           "modules": [
             {
               "id": "provider-settings-ui",
               "name": "Provider Settings UI",
               "purpose": "Provider cards, auth/model/reasoning controls."
+            },
+            {
+              "id": "profile-studio-settings-ui",
+              "name": "Profile Studio Settings UI",
+              "purpose": "Application-wide default managed Profile Creator Agent selector backed by Core settings."
             },
             {
               "id": "localization-settings-ui",

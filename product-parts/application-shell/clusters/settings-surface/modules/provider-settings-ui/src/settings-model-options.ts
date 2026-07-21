@@ -9,6 +9,7 @@ export type SettingsTabId =
   | "glmClient"
   | "localModels"
   | "openRouter"
+  | "profileStudio"
   | "general";
 
 export const SETTINGS_TABS: ReadonlyArray<{
@@ -22,6 +23,7 @@ export const SETTINGS_TABS: ReadonlyArray<{
   { id: "glmClient", label: "GLM" },
   { id: "localModels", label: "Local Models" },
   { id: "openRouter", label: "OpenRouter" },
+  { id: "profileStudio", label: "Profile Studio" },
   { id: "general", label: "General" },
 ];
 

@@ -17,6 +17,9 @@ materialization, bootstrap payload reuse, and bundle state.
 - Approved English source dictionaries shipped as TypeScript exports.
 - Settings shell, provider tab and first shared provider-card source strings are
   part of the approved English dictionaries.
+- The dedicated Profile Studio Settings tab source strings are approved here:
+  `settings.tab.profileStudio`, the Default Profile Creator Agent card/field
+  labels, and its application-wide managed-identity helper copy.
 - The Settings glossary card copy (`settings.localization.glossaryTerms.description`,
   `settings.localization.glossary.prefilled`) shows one example of each glossary
   line format — a plain do-not-translate term and a `Term - Desired translation`

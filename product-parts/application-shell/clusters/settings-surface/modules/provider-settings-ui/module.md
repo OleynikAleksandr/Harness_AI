@@ -117,9 +117,11 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Settings shell copy, provider tab labels, and the first shared provider-card
   labels/helpers resolve through the browser localization provider and approved
   source dictionary ids.
-- The old `Profile Creator` tab and `profile-settings-ui` authoring module are
-  retired. `SETTINGS_TABS` ends at General; profile creation now belongs to the
-  separate Profile Studio application mode. Existing
+- The old `Profile Creator` authoring tab and `profile-settings-ui` authoring
+  module are retired. A new non-authoring `Profile Studio` settings tab appears
+  immediately before General and delegates only the application-wide default
+  Creator Agent choice to `ProfileStudioSettingsUiFacade`; profile creation
+  itself remains in the separate Profile Studio application mode. Existing
   `settings.profileCreator.*` localization entries and legacy Core profile
   contracts remain for compatibility, while the ordinary new-session picker
   continues to consume the Core catalog.

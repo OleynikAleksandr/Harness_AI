@@ -10,6 +10,9 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.resetDefaults": "Reset to Defaults",
     "settings.saveChanges": "Save Changes",
     "settings.sections": "Settings sections",
+    "settings.profileStudio.creatorAgent": "Creator Agent",
+    "settings.profileStudio.defaultCreatorAgent":
+      "Default Profile Creator Agent",
     "settings.coreControls": "App Controls",
     "settings.coreControls.restart": "Restart App",
     "settings.coreControls.restartStatus": "Restart app status",
@@ -85,6 +88,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.tab.kimi": "Kimi",
     "settings.tab.localModels": "Local Models",
     "settings.tab.openRouter": "OpenRouter",
+    "settings.tab.profileStudio": "Profile Studio",
     "settings.tab.profileCreator": "Profile Creator",
     "settings.thinking": "Thinking",
     "settings.thinking.displaySync": "Thinking Display Sync",
@@ -156,6 +160,8 @@ const UI_LABELS_SOURCE_DICTIONARY = {
 const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
   category: "ui_helper_text",
   entries: {
+    "settings.profileStudio.defaultCreatorAgent.description":
+      "Choose the managed Creator Agent identity saved as the application-wide Profile Studio default.",
     "settings.nativeCapture.description":
       "Capture a provider's native request locally for reference. Runs a diagnostic probe through the native capture path, records the upstream request plus readable profile-relevant payload groups, and writes local sensitive artifacts for verification.",
     "settings.localization.description":

@@ -93,6 +93,12 @@ first option is `codex-profile-creator-agent`, fixed to Codex / GPT-5.6 Sol /
 high. Renderer clients select a managed identity and do not independently
 compose provider, model or reasoning combinations.
 
+The Application Shell exposes this infrequently changed value in a dedicated
+Settings tab named `Profile Studio`, immediately before `General`. The tab
+renders the managed agent selector and exact catalog metadata; it does not
+contain profile authoring controls and the ordinary Studio sidebar stays
+focused on the frequently changed target provider/model workflow.
+
 ### 3.2 Application Shell
 
 Путь:

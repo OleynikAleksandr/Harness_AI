@@ -162,6 +162,11 @@ Application Shell browser localization docs live under
 `product-parts/application-shell/clusters/browser-localization/**` and follow
 the same cluster/module contract.
 
+Profile Studio's infrequently changed default Creator Agent setting is owned by
+`product-parts/application-shell/clusters/settings-surface/modules/profile-studio-settings-ui/module.md`;
+interactive profile authoring remains documented under the separate
+Application Shell Profile Studio cluster.
+
 These files are code-adjacent contracts. When behavior, ownership, facade
 surface, process boundary, provider semantics, UI display contract or runtime
 state changes, update every affected product-part/cluster/module document in

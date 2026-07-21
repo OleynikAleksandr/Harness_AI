@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase13.stream2.task1",
-  "expectedCommitMessage": "feat: add profile studio settings tab",
+  "currentTaskId": null,
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -226,5 +226,5 @@
 
 ### Stream: Dedicated Settings Tab
 
-68. [IN_PROGRESS] `harness-ai.phase13.stream2.task1` Add a dedicated `Profile Studio` Settings tab immediately before `General` and a working Default Profile Creator Agent selector backed only by the Core settings snapshot; expose the single Codex option and its fixed provider/model/reasoning metadata without adding the control to the everyday Studio workflow (scope: up to 3 functional files — Profile Studio settings UI facade, tab registry and tab content composition — plus focused tests, new module docs, cluster docs and Product Tree; expected commit: `feat: add profile studio settings tab`).
-69. [TODO] Git Commit: `feat: add profile studio settings tab` (hash: TBD)
+68. [DONE] `harness-ai.phase13.stream2.task1` Add a dedicated `Profile Studio` Settings tab immediately before `General` and a working Default Profile Creator Agent selector backed only by the Core settings snapshot; expose the single Codex option and its fixed provider/model/reasoning metadata without adding the control to the everyday Studio workflow (scope: up to 4 functional files — Profile Studio settings UI facade, tab registry, tab content composition and localization source dictionary — plus focused tests, new module docs, cluster docs and Product Tree; expected commit: `feat: add profile studio settings tab`). Result: Completed in commit `feat: add profile studio settings tab`.
+69. [DONE] Git Commit: `feat: add profile studio settings tab` (hash: self)

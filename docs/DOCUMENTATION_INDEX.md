@@ -213,6 +213,10 @@ readiness registry, liveness checker, and workspace provisioner modules.
   packaged repair for creator-session re-entry and managed profile deletion:
   Core containment/session cleanup, in-app confirmation, exact app/app.asar
   identity, launch proof and focused persistence/delete retest steps.
+- `docs/evidence/profile-studio-storage-reset-package-2026-07-21.md` — clean
+  Profile Studio storage reset and package evidence: canonical target/Creator
+  Agent roots, provider-only default setting, removed seeds, recoverable
+  runtime cleanup, exact app/app.asar identity and focused retest steps.
 - `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
   the turn-timer scope: current `ElapsedTotal` behavior, turn-state event
   journal as the persistent timing source, the `turn-timing` Core module and

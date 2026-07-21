@@ -25,19 +25,16 @@ const buildDirectory = await mkdtemp(
 const profilesRoot = await mkdtemp(path.join(tmpdir(), "harness-authoring-"));
 
 try {
-  await mkdir(path.join(buildDirectory, "profile-store", "src", "seed"), {
+  await mkdir(path.join(buildDirectory, "profile-authoring", "src"), {
     recursive: true,
   });
-  await mkdir(path.join(buildDirectory, "profile-authoring", "src"), {
+  await mkdir(path.join(buildDirectory, "profile-store", "src"), {
     recursive: true,
   });
   const storeFiles = [
     "profile-document-parser.ts",
     "profile-native-request-loader.ts",
     "profile-store-facade.ts",
-    "seed/codeai-workflow-seed-prompts.ts",
-    "seed/codex-synthetic-native-seed-prompt.ts",
-    "seed/seed-profiles.ts",
   ];
   for (const file of storeFiles) {
     await writeFile(

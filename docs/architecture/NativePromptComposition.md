@@ -155,7 +155,7 @@ text.
 ## 7. Native-профиль как управляемый снимок
 
 - Native/synthetic baseline становится обычным профилем в
-  `~/.harness-ai/Profiles/<Provider>/<profileId>/`. Для Codex текущий эталон:
+  `~/.harness-ai/ProfileStudio/Profiles/<Provider>/<profileId>/`. Для Codex текущий эталон:
   `Profiles/Codex/codex-synthetic-native/` с `profile.yaml`,
   `system-prompt.md`, `tooling.yaml`, `request-template.json` и `tools.json`.
 - Кнопка **«Обновить Native Profile»** (Settings → General, рядом с Native Request

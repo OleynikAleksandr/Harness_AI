@@ -3,8 +3,9 @@
 ## Boundary
 
 Owns runtime-selectable session profile truth: user-editable profile
-documents on disk (provider-scoped profiles, optional provider namespaces such
-as `Profiles/Codex/**`, plus read-only legacy
+documents on disk under `~/.harness-ai/ProfileStudio/Profiles/**`
+(provider-scoped profiles, optional provider namespaces such as
+`Profiles/Codex/**`, plus read-only legacy
 universal profile parsing), catalog/selection truth with the virtual Native
 profile, provider-neutral session profile payload materialization, optional
 native request sidecars (`input-prefix.json`, `request-template.json`,
@@ -41,8 +42,10 @@ Studio extension in `docs/architecture/ProfileStudio.md`.
 
 ## Facade Rule
 
-Profile files under `~/.harness-ai/Profiles/**` are read and validated only
-inside this cluster. Adapters never read profile files: they receive the
+Profile files under `~/.harness-ai/ProfileStudio/Profiles/**` are read and
+validated only inside this cluster. The empty root remains empty until an
+explicit Profile Studio authoring action writes a profile. Adapters never read
+profile files: they receive the
 provider-neutral `SessionProfilePayload` from Core, including any frozen
 native request sidecars, and translate it into their channel form in their own
 profile application layers. Renderer/client code only displays Core-provided

@@ -219,7 +219,7 @@
             {
               "id": "profile-store",
               "name": "Profile Store",
-              "purpose": "Session profile documents on disk: Profiles root resolution, legacy v1 compatibility, Studio v2 provider/model passports with Draft-tolerant two-part prompt sources, provider-scoped seeds, and shared profile types."
+              "purpose": "Session profile documents on disk: ProfileStudio/Profiles root resolution, legacy v1 compatibility, Studio v2 provider/model passports with Draft-tolerant two-part prompt sources, explicit authoring-only content, and shared profile types."
             },
             {
               "id": "profile-catalog",

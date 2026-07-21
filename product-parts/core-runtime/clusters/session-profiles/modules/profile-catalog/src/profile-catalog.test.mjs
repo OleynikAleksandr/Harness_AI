@@ -59,20 +59,39 @@ async function writeStudioProfile({ id, model, provider = "claude", status }) {
   }
 }
 
+async function writeLegacyProviderProfile({ id, provider, providerDirectory }) {
+  const profileDirectory = path.join(profilesRoot, providerDirectory, id);
+  await mkdir(profileDirectory, { recursive: true });
+  await writeFile(
+    path.join(profileDirectory, "profile.yaml"),
+    `name: ${id}\ndescription: Explicit provider profile.\nprovider: ${provider}\n`,
+    "utf8"
+  );
+  await writeFile(
+    path.join(profileDirectory, "system-prompt.md"),
+    `Instructions for ${id}.\n`,
+    "utf8"
+  );
+  if (provider !== "codex") {
+    await writeFile(
+      path.join(profileDirectory, "tooling.yaml"),
+      "categories:\n  file-read: on\n  shell: on\n",
+      "utf8"
+    );
+  }
+}
+
 try {
-  await mkdir(path.join(buildDirectory, "profile-store", "src", "seed"), {
+  await mkdir(path.join(buildDirectory, "profile-catalog", "src"), {
     recursive: true,
   });
-  await mkdir(path.join(buildDirectory, "profile-catalog", "src"), {
+  await mkdir(path.join(buildDirectory, "profile-store", "src"), {
     recursive: true,
   });
   const storeFiles = [
     "profile-document-parser.ts",
     "profile-native-request-loader.ts",
     "profile-store-facade.ts",
-    "seed/codeai-workflow-seed-prompts.ts",
-    "seed/codex-synthetic-native-seed-prompt.ts",
-    "seed/seed-profiles.ts",
   ];
   for (const file of storeFiles) {
     await writeFile(
@@ -122,7 +141,22 @@ try {
   });
   const catalog = new ProfileCatalogFacade({ profileStore });
 
-  await profileStore.ensureSeededProfiles();
+  await writeLegacyProviderProfile({
+    id: "codeai-workflow-claude",
+    provider: "claude",
+    providerDirectory: "Claude",
+  });
+  await writeLegacyProviderProfile({
+    id: "codex-app-server-synthetic-native",
+    provider: "codex",
+    providerDirectory: "Codex",
+  });
+  await writeLegacyProviderProfile({
+    id: "codex-app-server-synthetic-native-custom",
+    provider: "codex",
+    providerDirectory: "Codex",
+  });
+
   await writeStudioProfile({
     id: "draft-opus",
     model: "opus",
@@ -185,8 +219,6 @@ try {
   const claudeIds = claudeEntries.map((entry) => entry.id);
   assert.ok(!claudeIds.includes("review"));
   assert.ok(claudeIds.includes("codeai-workflow-claude"));
-  assert.ok(!claudeIds.includes("codeai-workflow-kimi"));
-  assert.ok(!claudeIds.includes("codeai-workflow-glm-native"));
   assert.ok(!claudeIds.includes("draft-opus"));
   assert.ok(!claudeIds.includes("valid-opus"));
 

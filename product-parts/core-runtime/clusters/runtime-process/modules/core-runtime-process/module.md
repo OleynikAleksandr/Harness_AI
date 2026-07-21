@@ -171,7 +171,7 @@ state.
 - Session profile RPCs (`core-session-profile-rpc.ts`, the
   `ensure-glossary-file` four-layer pattern): `list-session-profiles`
   (exact provider/model catalog read model + per-provider
-  last-selection/AutoNormalizer memory; triggers first-access seeding),
+  last-selection/AutoNormalizer memory; listing never creates profiles),
   `create-session-profile` (templates,
   universal or individual), `open-session-profile-file` (document path for
   the external-editor action; Native has no files). All return

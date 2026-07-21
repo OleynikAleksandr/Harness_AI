@@ -20,7 +20,6 @@ import {
   type SessionProfileTooling,
 } from "./profile-document-parser.js";
 import { loadNativeRequestBundle } from "./profile-native-request-loader.js";
-import { SEED_SESSION_PROFILES } from "./seed/seed-profiles.js";
 
 export {
   isSessionProfileStudioPassport,
@@ -100,7 +99,11 @@ interface ProfileDirectoryRef {
 }
 
 export function resolveSessionProfilesRootDirectory(): string {
-  return path.join(harnessHome(), SESSION_PROFILES_ROOT_DIRECTORY_NAME);
+  return path.join(
+    harnessHome(),
+    "ProfileStudio",
+    SESSION_PROFILES_ROOT_DIRECTORY_NAME
+  );
 }
 
 export class ProfileStoreFacade {
@@ -148,55 +151,6 @@ export class ProfileStoreFacade {
       toolingPath: documentPath(SESSION_PROFILE_TOOLING_FILE_NAME),
       toolsPath: documentPath(SESSION_PROFILE_TOOLS_FILE_NAME),
     };
-  }
-
-  /**
-   * Seeds the standard profile set exactly once: only when the profiles root
-   * has no profile directories at all (first access, or a user-initiated
-   * factory reset by deleting the root). Existing user files are never
-   * touched, and deleting an individual seeded profile does not resurrect it.
-   */
-  async ensureSeededProfiles(): Promise<boolean> {
-    const existing = await this.listProfileDirectoryIds();
-    if (existing.length > 0) {
-      return false;
-    }
-    for (const seed of SEED_SESSION_PROFILES) {
-      const documents = this.resolveDocumentPaths(seed.id, {
-        providerDirectory: seed.providerDirectory,
-      });
-      await fs.mkdir(documents.profileDirectory, { recursive: true });
-      await fs.writeFile(documents.passportPath, seed.passportYaml, "utf8");
-      await fs.writeFile(documents.promptPath, seed.promptBody, "utf8");
-      if (seed.toolingYaml !== undefined) {
-        await fs.writeFile(documents.toolingPath, seed.toolingYaml, "utf8");
-      }
-      if (seed.customInstructions !== undefined) {
-        await fs.writeFile(
-          documents.customInstructionsPath,
-          seed.customInstructions,
-          "utf8"
-        );
-      }
-      if (seed.inputPrefixJson !== undefined) {
-        await fs.writeFile(
-          documents.inputPrefixPath,
-          seed.inputPrefixJson,
-          "utf8"
-        );
-      }
-      if (seed.requestTemplateJson !== undefined) {
-        await fs.writeFile(
-          documents.requestTemplatePath,
-          seed.requestTemplateJson,
-          "utf8"
-        );
-      }
-      if (seed.toolsJson !== undefined) {
-        await fs.writeFile(documents.toolsPath, seed.toolsJson, "utf8");
-      }
-    }
-    return true;
   }
 
   async listProfiles(): Promise<SessionProfileScanResult> {

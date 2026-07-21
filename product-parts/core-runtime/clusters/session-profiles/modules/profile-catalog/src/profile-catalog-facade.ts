@@ -82,7 +82,6 @@ export class ProfileCatalogFacade {
 
   /** All profiles for management surfaces (Profile Creator), Native first. */
   async listAllProfiles(): Promise<readonly SessionProfileCatalogEntry[]> {
-    await this.profileStore.ensureSeededProfiles();
     const scan = await this.profileStore.listProfiles();
     return [
       NATIVE_CATALOG_ENTRY,
@@ -153,7 +152,6 @@ export class ProfileCatalogFacade {
         ok: false,
       };
     }
-    await this.profileStore.ensureSeededProfiles();
     const result = await this.profileStore.loadProfile(profileId);
     if (!result.ok) {
       const issues = result.failure.issues.join(" ");

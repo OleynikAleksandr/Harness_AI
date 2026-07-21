@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": null,
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase14.stream2.task1",
+  "expectedCommitMessage": "refactor: simplify creator agent provider setting",
   "debt": null
 }
 ```
@@ -228,3 +228,22 @@
 
 68. [DONE] `harness-ai.phase13.stream2.task1` Add a dedicated `Profile Studio` Settings tab immediately before `General` and a working Default Profile Creator Agent selector backed only by the Core settings snapshot; expose the single Codex option and its fixed provider/model/reasoning metadata without adding the control to the everyday Studio workflow (scope: up to 4 functional files — Profile Studio settings UI facade, tab registry, tab content composition and localization source dictionary — plus focused tests, new module docs, cluster docs and Product Tree; expected commit: `feat: add profile studio settings tab`). Result: Completed in commit `feat: add profile studio settings tab`.
 69. [DONE] Git Commit: `feat: add profile studio settings tab` (hash: self)
+
+## Phase 14 - Clean Profile Studio Storage (owner: Codex + User, updated: 2026-07-21)
+
+### Stream: Canonical Profile Roots
+
+70. [DONE] `harness-ai.phase14.stream1.task1` Make `ProfileStudio/Profiles` the only HARNESS_AI_HOME-aware target-profile root, remove first-access seed generation and all seed call sites, and keep catalog/watch/authoring behavior empty until Profile Studio creates real profiles (scope: up to 4 functional files — profile store, retired seed source, profile catalog and Core session-profile RPC — plus focused tests and all related architecture/module/Product Tree documentation; expected commit: `refactor: reset profile studio profile storage`). Result: Completed in commit `refactor: reset profile studio profile storage`.
+71. [DONE] Git Commit: `refactor: reset profile studio profile storage` (hash: self)
+
+### Stream: Provider-Only Creator Agent Choice
+
+72. [IN_PROGRESS] `harness-ai.phase14.stream2.task1` Remove the redundant managed-agent id and persist only `profileStudio.defaultCreatorAgentProviderId = codex`; keep the human label and fixed GPT-5.6 Sol/high metadata in the Core-owned option catalog and bind the Settings selector to the provider id (scope: up to 4 functional files — settings store, normalization, Profile Studio settings facade and Settings tab composition — plus focused tests and related docs; expected commit: `refactor: simplify creator agent provider setting`).
+73. [TODO] Git Commit: `refactor: simplify creator agent provider setting` (hash: TBD)
+
+### Stream: Clean Runtime And Test Package
+
+74. [TODO] `harness-ai.phase14.stream3.task1` Stop the packaged app, remove the disposable legacy `Profiles` root and Profile Studio creator sessions, create the clean `ProfileStudio/Profiles` and `ProfileStudio/CreatorAgents/Codex` directories, build/package/launch the user-authorized unsigned macOS app and record exact package identity plus the focused storage/Settings retest checklist (scope: `docs/evidence/profile-studio-storage-reset-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio storage reset`).
+75. [TODO] Git Commit: `docs: package profile studio storage reset` (hash: TBD)
+
+76. [TODO] `harness-ai.phase14.stream3.task2` User verifies the rebuilt package starts with an empty target-profile catalog and no restored Creator sessions, while Settings → Profile Studio shows Codex Profile Creator Agent with Codex / GPT-5.6 Sol / high (completion: user-acceptance; scope: user workflow; expected commit: none).

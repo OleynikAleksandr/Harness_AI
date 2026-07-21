@@ -134,16 +134,25 @@ parse agent output.
 
 ## 4. Profile format v2
 
-Studio расширяет существующий `~/.harness-ai/Profiles/**` формат без
-destructive migration v1 profiles.
+Profile Studio владеет отдельным пользовательским корнем. В рамках текущей
+single-user разработки прежний каталог не мигрируется и не читается:
+каноническим является только `~/.harness-ai/ProfileStudio/Profiles/**`.
 
 ```text
-~/.harness-ai/Profiles/<provider-namespace>/<profileId>/
-  profile.yaml
-  system-prompt.md
-  custom-instructions.md
-  tools.json                 # optional/provider-dependent
+~/.harness-ai/ProfileStudio/
+  Profiles/<provider-namespace>/<profileId>/
+    profile.yaml
+    system-prompt.md
+    custom-instructions.md
+    tools.json                 # optional/provider-dependent
+  CreatorAgents/Codex/         # отдельный класс профилей Creator Agent
+  workspace/                   # состояние сессий Profile Studio
 ```
+
+Каталог целевых профилей сканирует только `Profiles/**`; профили Creator
+Agent хранятся отдельно и не могут появиться среди создаваемых профилей.
+Profile Store ничего не сидирует: пустой каталог остаётся пустым до явного
+создания профиля через Studio.
 
 Semantics:
 

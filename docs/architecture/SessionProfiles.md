@@ -84,10 +84,10 @@ Harness AI позволит пользователю выбирать **проф
 
 - Профилями владеет **новый кластер Core Runtime** (`session-profiles`).
 - Контент профилей живёт в **пользовательских файлах** под
-  `~/.harness-ai/Profiles/**` (`HARNESS_AI_HOME`), потому что профили
+  `~/.harness-ai/ProfileStudio/Profiles/**` (`HARNESS_AI_HOME`), потому что профили
   применяются в любом workspace. Универсальные профили лежат прямо в корне,
   а профили конкретного провайдера могут лежать в отдельном namespace,
-  например `~/.harness-ai/Profiles/Codex/<profileId>/`; id профиля при этом
+  например `~/.harness-ai/ProfileStudio/Profiles/Codex/<profileId>/`; id профиля при этом
   остаётся `<profileId>`, чтобы сохранённые выборы и сессии не зависели от
   физического пути.
 - Профиль — **один универсальный комплект документов** (системный промпт +
@@ -277,7 +277,7 @@ kebab-case id. Базово у него есть три документа:
   инструментов («читай файлы и ищи по коду», а не «используй инструмент
   Read»): так текст остаётся честно универсальным, а конкретные имена
   инструментов модель получает из схем своего канала. Это правило авторинга
-  всех seed-профилей и рекомендация автору в шаблоне.
+  всех явно создаваемых профилей и рекомендация автору в шаблоне.
 - **Native-профиль виртуален**: у него нет каталога на диске. Он всегда
   присутствует, всегда первый в списке и означает «дефолт канала, без
   вмешательства».
@@ -332,31 +332,23 @@ native/managed применения. Это было подтверждено Co
 ## Схема хранения
 
 ```
-~/.harness-ai/Profiles/                  <- юзерспейс-корень HARNESS_AI_HOME
-  plan-document/                         <- универсальный профиль
-    profile.yaml                         <- паспорт
-    system-prompt.md                     <- всё тело файла = системный промпт
-    tooling.yaml                         <- переключатели категорий туллинга
-  todo-plan-deterministic/ ...
-  review/ ...
-  architecture-spec/ ...
-  codeai-workflow-claude/                <- индивидуальный (provider: claude)
-    profile.yaml
-    system-prompt.md
-    tooling.yaml
-  Codex/                                <- Codex app-server namespace
-    codex-app-server-synthetic-native/  <- индивидуальный (provider: codex)
-      profile.yaml
-      system-prompt.md                  <- exact captured body.instructions
-    codex-app-server-synthetic-native-custom/
-      profile.yaml
-      system-prompt.md
-      custom-instructions.md            <- inserted into system prompt body
-      tooling.yaml
-      input-prefix.json                 <- captured static body.input prefix
-      request-template.json
-      tools.json
+~/.harness-ai/ProfileStudio/
+  Profiles/                              <- единственный каталог target profiles
+    Codex/                               <- provider namespace
+      <profileId>/
+        profile.yaml                     <- паспорт
+        system-prompt.md                 <- Native-основа
+        custom-instructions.md           <- Custom-дополнения
+        tools.json                       <- optional/provider-dependent
+  CreatorAgents/
+    Codex/                               <- отдельные профили Creator Agent
+  workspace/                             <- Creator sessions Studio
 ```
+
+`profile-store` читает только `ProfileStudio/Profiles/**`. Пустой каталог не
+наполняется автоматически; содержимое появляется только после явного
+authoring-действия Profile Studio. `CreatorAgents/**` не входит в каталог
+целевых профилей.
 
 `profile.yaml` (паспорт):
 
@@ -550,30 +542,23 @@ native этого провайдера. Создание и приёмка — �
 провайдера (для сверки или показа) — отдельная тема, сознательно вне scope
 этого документа.
 
-Примечание — **breaking-переход с отдельной приёмкой**: для Claude и Kimi
-Native — это изменение поведения относительно сегодняшнего (сейчас они
-всегда работают на захардкоженном CodeAI workflow-промпте/whitelist).
-Политика миграции: (1) текущее поведение сохраняется как выбираемые
-индивидуальные seed-профили `codeai-workflow-*` (по одному на
-Claude/Kimi/GLM Native, точные текущие тексты), прежний режим не теряется;
-(2) переключение
-дефолта «нет выбора ⇒ Native» включается только вместе с резолюцией профилей
-и проходит отдельный user acceptance gate с packaged-app evidence (Фаза F
-дорожной карты); (3) сессии, созданные до фичи, работают в legacy-режиме
-через миграционный контракт snapshot (см. «Контракт старта сессии»).
+Текущий development-контракт — **clean break без миграции**. Старый
+`~/.harness-ai/Profiles` не читается, стандартный набор не восстанавливается,
+а удалённые профили не воскресают. Native остаётся виртуальным fallback;
+реальные custom/synthetic профили создаются только через Profile Studio.
 
 ## Новый кластер: `session-profiles` (Core Runtime)
 
 `product-parts/core-runtime/clusters/session-profiles/`, четыре модуля,
 каждый за своим фасадом:
 
-1. **`profile-store`** — правда диска. Резолвит корень `Profiles/` внутри
-   harness home (тот же подход к резолву home, что и у
+1. **`profile-store`** — правда диска. Резолвит корень
+   `ProfileStudio/Profiles/` внутри harness home (тот же подход к резолву home, что и у
    `resolveCoreLocalizationRootDirectory()`), сканирует каталоги профилей,
    парсит паспорт/туллинг/промпт, валидирует с человекочитаемыми ошибками
-   (неизвестная категория, отсутствующий файл, синтаксис YAML), сидирует
-   стандартный набор профилей при первом обращении, отдаёт пути файлов для
-   открытия в редакторе. Владеет YAML-зависимостью.
+   (неизвестная категория, отсутствующий файл, синтаксис YAML) и отдаёт пути
+   файлов для открытия в редакторе. Сканирование и watch никогда не создают
+   профильный контент. Модуль владеет YAML-зависимостью.
 2. **`profile-catalog`** — правда выбора. Строит каталог (read model) для UI
    (паспорта + тип универсальный/индивидуальный + применимость по
    провайдерам + статус валидности), всегда добавляет виртуальный Native
@@ -636,7 +621,7 @@ Claude/Kimi/GLM Native, точные текущие тексты), прежни�
   раньше активации managed-резолюции — managed-сессия не может стартовать
   раньше, чем её snapshot переживает рестарт Core.
 - **Resume работает только со snapshot.** Возобновление никогда не
-  перечитывает user-editable файлы из `~/.harness-ai/Profiles/**`: payload
+  перечитывает user-editable файлы из `~/.harness-ai/ProfileStudio/Profiles/**`: payload
   восстанавливается из snapshot и провайдер-нативного персистентного
   состояния сессии/треда (thread id, session id, agent-артефакты). Причина:
   провайдер-сторона long-lived сессии (thread/cache/context у Claude, Codex,
@@ -694,8 +679,8 @@ Core фактически применённые provider-specific details (whit
   `systemPrompt = payload.prompt`,
   `tools = mapCategories(payload.categories)`; native ⇒ оба пресета.
   Захардкоженные `CODEAI_CLAUDE_WORKFLOW_SYSTEM_PROMPT` /
-  `CODEAI_CLAUDE_WORKFLOW_TOOLS` перестают быть достижимыми дефолтами, их
-  контент переезжает в seed-профили.
+  `CODEAI_CLAUDE_WORKFLOW_TOOLS` не становятся автоматически созданными
+  профилями; нужный baseline автор явно формирует в Profile Studio.
 - **GLM Native**: `buildRequestBody()`/`streamTurn()` принимают текст
   промпта и отфильтрованное подмножество схем инструментов; слой применения
   профиля в адаптере добавляет к managed-промпту GLM-специфичный
@@ -814,39 +799,12 @@ Creator Agent; перечисленные ниже v1 действия сохр�
   профилей в MVP не входит в UI (files-first: каталог можно удалить руками,
   snapshot-контракт делает это безопасным для уже созданных сессий).
 
-## Seed-профили
+## Автоматическое наполнение каталога
 
-Seed-профили — стандартный стартовый набор, который приложение создаёт при
-первом обращении (как глоссарий создаётся с предзаполненными терминами);
-контент пишется на английском при реализации и ревьюится пользователем
-(после этого файлы принадлежат пользователю):
-
-1. `plan-document` (универсальный) — построение структурированного
-   планового документа.
-2. `todo-plan-deterministic` (универсальный) — детерминированный
-   machine-managed todo-план.
-3. `review` (универсальный) — ревью кода/архитектуры.
-4. `architecture-spec` (универсальный) — спецификации product parts /
-   clusters / modules (один профиль; разница между уровнями спецификаций —
-   содержание запроса, а не другой туллинг).
-5. `codeai-workflow-claude` (индивидуальный) — активное managed-поведение
-   Claude с точным workflow-промптом. Старые `codeai-workflow-kimi` и
-   `codeai-workflow-glm-native` больше не сидируются, потому что их provider
-   ids (`kimi`, `glm-native`) удалены; Kimi/GLM client-four profiles
-   переопределяются в Phase 5 synthetic-native через новые live ids.
-6. `codex-app-server-synthetic-native` (индивидуальный Codex app-server,
-   физически `Profiles/Codex/codex-app-server-synthetic-native`) — prompt-only
-   baseline с тем же captured `body.instructions`; `request-template.json` и
-   `tools.json` отсутствуют, потому что список инструментов и их описания
-   приходят из native app-server tool registry, а не из профиля.
-7. `codex-app-server-synthetic-native-custom` (индивидуальный Codex
-   app-server, физически
-   `Profiles/Codex/codex-app-server-synthetic-native-custom`) — тот же
-   prompt-only baseline плюс `custom-instructions.md`; структурные native tool
-   declarations по-прежнему не хранятся в профиле и не передаются через
-   `baseInstructions`.
-
-Плюс виртуальная запись `native` (не на диске).
+Автоматического наполнения нет. Первый запуск, сканирование и watch создают
+только сам каталог при технической необходимости, но не создают ни одного
+профиля. В каталоге появляется только результат явного authoring-действия.
+Виртуальная запись `native` существует в read model и на диск не пишется.
 
 ## Вне scope (этого цикла)
 

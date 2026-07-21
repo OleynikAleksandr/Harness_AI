@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -56,14 +56,10 @@ const buildDirectory = await mkdtemp(
 const profilesRoot = await mkdtemp(path.join(tmpdir(), "harness-profiles-"));
 
 try {
-  await mkdir(path.join(buildDirectory, "seed"), { recursive: true });
   for (const file of [
     "profile-document-parser.ts",
     "profile-native-request-loader.ts",
     "profile-store-facade.ts",
-    "seed/codeai-workflow-seed-prompts.ts",
-    "seed/codex-synthetic-native-seed-prompt.ts",
-    "seed/seed-profiles.ts",
   ]) {
     await writeFile(
       path.join(buildDirectory, file.replace(/\.ts$/u, ".js")),
@@ -71,10 +67,25 @@ try {
       "utf8"
     );
   }
-  const { ProfileStoreFacade, SESSION_PROFILE_TOOLING_CATEGORIES } =
-    await import(
-      pathToFileURL(path.join(buildDirectory, "profile-store-facade.js")).href
-    );
+  const {
+    ProfileStoreFacade,
+    resolveSessionProfilesRootDirectory,
+    SESSION_PROFILE_TOOLING_CATEGORIES,
+  } = await import(
+    pathToFileURL(path.join(buildDirectory, "profile-store-facade.js")).href
+  );
+
+  const previousHarnessHome = process.env.HARNESS_AI_HOME;
+  process.env.HARNESS_AI_HOME = profilesRoot;
+  assert.equal(
+    resolveSessionProfilesRootDirectory(),
+    path.join(profilesRoot, "ProfileStudio", "Profiles")
+  );
+  if (previousHarnessHome === undefined) {
+    Reflect.deleteProperty(process.env, "HARNESS_AI_HOME");
+  } else {
+    process.env.HARNESS_AI_HOME = previousHarnessHome;
+  }
 
   await writeProfile(profilesRoot, "review", {
     "profile.yaml":
@@ -249,90 +260,6 @@ try {
   const emptyScan = await missingRootStore.listProfiles();
   assert.deepEqual(emptyScan.profiles, []);
   assert.deepEqual(emptyScan.invalid, []);
-
-  // Seeding: first access populates the standard set, all valid.
-  const seededRoot = await mkdtemp(path.join(tmpdir(), "harness-seeded-"));
-  try {
-    const seededStore = new ProfileStoreFacade({
-      profilesRootDirectory: seededRoot,
-    });
-    assert.equal(await seededStore.ensureSeededProfiles(), true);
-    const seededScan = await seededStore.listProfiles();
-    assert.deepEqual(seededScan.invalid, []);
-    assert.deepEqual(
-      seededScan.profiles.map((profile) => profile.id),
-      [
-        "codeai-workflow-claude",
-        "codex-app-server-synthetic-native",
-        "codex-app-server-synthetic-native-custom",
-      ]
-    );
-    const claudeSeed = seededScan.profiles.find(
-      (profile) => profile.id === "codeai-workflow-claude"
-    );
-    assert.equal(claudeSeed.scope, "individual");
-    assert.equal(claudeSeed.passport.provider, "claude");
-    const codexAppServerSeed = seededScan.profiles.find(
-      (profile) => profile.id === "codex-app-server-synthetic-native"
-    );
-    assert.equal(codexAppServerSeed.scope, "individual");
-    assert.equal(codexAppServerSeed.passport.provider, "codex");
-    assert.equal(existsSync(codexAppServerSeed.documents.toolingPath), false);
-    assert.equal(codexAppServerSeed.nativeRequest, undefined);
-    assert.equal(
-      codexAppServerSeed.documents.profileDirectory,
-      path.join(seededRoot, "Codex", "codex-app-server-synthetic-native")
-    );
-    assert.equal(codexAppServerSeed.tooling.categories.shell, true);
-    const codexAppServerCustomSeed = seededScan.profiles.find(
-      (profile) => profile.id === "codex-app-server-synthetic-native-custom"
-    );
-    assert.equal(codexAppServerCustomSeed.passport.provider, "codex");
-    assert.equal(
-      existsSync(codexAppServerCustomSeed.documents.toolingPath),
-      false
-    );
-    assert.equal(
-      codexAppServerCustomSeed.documents.profileDirectory,
-      path.join(seededRoot, "Codex", "codex-app-server-synthetic-native-custom")
-    );
-    assert.match(
-      codexAppServerCustomSeed.nativeRequest.customInstructions,
-      /# Harness AI Agent Instructions/u
-    );
-    assert.equal(codexAppServerCustomSeed.nativeRequest.inputPrefix, undefined);
-    assert.equal(codexAppServerCustomSeed.nativeRequest.tools, undefined);
-    assert.equal(
-      codexAppServerCustomSeed.nativeRequest.requestTemplate,
-      undefined
-    );
-    // Re-seeding never overwrites user files and does not resurrect deletions.
-    await writeFile(
-      path.join(seededRoot, "codeai-workflow-claude", "system-prompt.md"),
-      "User edited.\n",
-      "utf8"
-    );
-    await rm(
-      path.join(seededRoot, "Codex", "codex-app-server-synthetic-native"),
-      { force: true, recursive: true }
-    );
-    assert.equal(await seededStore.ensureSeededProfiles(), false);
-    const rescanned = await seededStore.listProfiles();
-    assert.equal(
-      rescanned.profiles.find(
-        (profile) => profile.id === "codeai-workflow-claude"
-      ).promptBody,
-      "User edited.\n"
-    );
-    assert.equal(
-      rescanned.profiles.some(
-        (profile) => profile.id === "codex-synthetic-native"
-      ),
-      false
-    );
-  } finally {
-    await rm(seededRoot, { force: true, recursive: true });
-  }
 
   // Watching: file changes under the root arrive as one debounced
   // notification, and unsubscribe stops further notifications.

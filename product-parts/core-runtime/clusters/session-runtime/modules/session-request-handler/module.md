@@ -195,7 +195,7 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   native request sidecars (`inputPrefix`, `requestTemplate`, `tools`) so
   native-bundle sessions resume with the same provider-facing payload.
   Resume rebuilds adapter input from the snapshot and never rereads
-  `~/.harness-ai/Profiles/**`; sessions persisted before this feature have no
+  `~/.harness-ai/ProfileStudio/Profiles/**`; sessions persisted before this feature have no
   snapshot and keep legacy no-payload behavior.
 - Session restore helpers live in `session-history-restore.ts`; Codex rollback
   validation/pruning lives in `session-rollback.ts` so the facade stays under

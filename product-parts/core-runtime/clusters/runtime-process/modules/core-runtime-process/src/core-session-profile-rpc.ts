@@ -25,8 +25,7 @@ const profileAuthoring = new ProfileAuthoringFacade({
 });
 
 /**
- * Catalog read model for the ordinary session picker. Listing
- * triggers first-access seeding inside the catalog; the per-provider last
+ * Catalog read model for the ordinary session picker. The per-provider last
  * selection and AutoNormalizer flags come from Core settings memory so the
  * renderer never owns preselection truth.
  */
@@ -65,7 +64,6 @@ export async function createSessionProfileRpcResult(
   | { error: string; ok: false }
 > {
   try {
-    await sessionProfileStore.ensureSeededProfiles();
     const provider = readPayloadString(payload, "provider");
     const result = await profileAuthoring.createProfile({
       name: readPayloadString(payload, "name") ?? "",
@@ -96,7 +94,6 @@ export async function openSessionProfileFileRpcResult(
         ok: false,
       };
     }
-    await sessionProfileStore.ensureSeededProfiles();
     const loaded = await sessionProfileStore.loadProfile(profileId);
     const documents = loaded.ok
       ? loaded.profile.documents

@@ -40,15 +40,12 @@ const profilesRoot = await mkdtemp(
 try {
   const storeBuild = path.join(buildDirectory, "profile-store", "src");
   const authoringBuild = path.join(buildDirectory, "profile-authoring", "src");
-  await mkdir(path.join(storeBuild, "seed"), { recursive: true });
+  await mkdir(storeBuild, { recursive: true });
   await mkdir(authoringBuild, { recursive: true });
   for (const file of [
     "profile-document-parser.ts",
     "profile-native-request-loader.ts",
     "profile-store-facade.ts",
-    "seed/codeai-workflow-seed-prompts.ts",
-    "seed/codex-synthetic-native-seed-prompt.ts",
-    "seed/seed-profiles.ts",
   ]) {
     await writeFile(
       path.join(storeBuild, file.replace(/\.ts$/u, ".js")),

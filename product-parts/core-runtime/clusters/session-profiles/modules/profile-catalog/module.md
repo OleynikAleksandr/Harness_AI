@@ -28,8 +28,8 @@ executors.
 
 ## Inputs
 
-- `ProfileStoreFacade` (constructor injection) for scanning, loading and
-  first-access seeding (both listing entrypoints trigger seeding).
+- `ProfileStoreFacade` (constructor injection) for scanning and loading the
+  explicit on-disk profile catalog; listing never creates profile content.
 - Provider id of the session being created.
 - Optional exact model id for Studio-aware ordinary picker/resolution calls.
 - Exact provider/model target for Studio listing.

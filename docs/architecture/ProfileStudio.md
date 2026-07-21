@@ -306,6 +306,11 @@ reason comes from Core.
 - `Profile Studio` button lives beside `Settings` in the ordinary sidebar;
 - one click replaces workspace/session navigation with Studio mode in the same
   window;
+- entry first restores the complete reserved `profile-studio` session list,
+  then initializes the sidebar from the newest persisted creator session's
+  exact provider/model/profile binding; returning and reopening therefore
+  restores the same standard session transcript instead of resetting the
+  Studio target;
 - Studio sidebar provides `Вернуться к рабочим пространствам и сессиям`;
 - detached session windows do not expose Studio mode;
 - center uses `SessionSurfaceFacade`;

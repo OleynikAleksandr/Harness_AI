@@ -46,6 +46,7 @@ export function ProfileStudioShellFacade({
   const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const selectedProfileIdRef = useRef<string | null>(null);
+  const initialCreatorSessionRef = useRef(sessionSurface.session);
   const selectProfile = useCallback(
     (profile: ProfileStudioProfileRow | null) => {
       const profileId = profile?.id ?? null;
@@ -71,7 +72,11 @@ export function ProfileStudioShellFacade({
           return;
         }
         setTargets(result.targets);
-        const initial = firstTarget(result.targets);
+        const initial = resolveInitialSelection(
+          result.targets,
+          initialCreatorSessionRef.current
+        );
+        selectedProfileIdRef.current = initial?.profileId ?? null;
         setSelectedProviderId(initial?.providerId ?? null);
         setSelectedModelId(initial?.modelId ?? "");
       })
@@ -298,6 +303,29 @@ function firstTarget(targets: readonly ProfileStudioTargetProvider[]): {
     }
   }
   return null;
+}
+
+function resolveInitialSelection(
+  targets: readonly ProfileStudioTargetProvider[],
+  session: CoreSession | undefined
+): {
+  readonly modelId: string;
+  readonly profileId: string | null;
+  readonly providerId: ProfileStudioTargetProvider["id"];
+} | null {
+  if (session?.sessionPurpose?.type === "profile-creator") {
+    const provider = targets.find((target) => target.id === session.providerId);
+    const model = provider?.models.find((item) => item.id === session.model);
+    if (provider && model) {
+      return {
+        modelId: model.id,
+        profileId: session.sessionPurpose.profileId,
+        providerId: provider.id,
+      };
+    }
+  }
+  const target = firstTarget(targets);
+  return target ? { ...target, profileId: null } : null;
 }
 
 function errorMessage(cause: unknown): string {

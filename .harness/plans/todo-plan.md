@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase10.stream2.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase11.stream2.task1",
+  "expectedCommitMessage": "feat: delete profile studio profiles",
   "debt": null
 }
 ```
@@ -183,4 +183,24 @@
 51. [DONE] `harness-ai.phase10.stream2.task1` Rebuild the user-authorized unsigned macOS package, verify the repaired create/select/session/inspector contracts in `app.asar`, launch the rebuilt application and record a focused retest checklist (scope: `docs/evidence/profile-studio-activation-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio activation repair`). Result: Completed in commit `docs: package profile studio activation repair`.
 52. [DONE] Git Commit: `docs: package profile studio activation repair` (hash: self)
 
-53. [IN_PROGRESS] `harness-ai.phase10.stream2.task2` User retests the packaged Profile Studio workflow: create one target-scoped Draft, see its selected-provider/model creator session and user-writable standard interface immediately, see all inspector tabs immediately, observe provider-binding errors without losing either surface, return/reopen persistence, then continue the remaining authoring/approval acceptance flow (completion: user-acceptance; scope: user workflow; expected commit: none).
+## Phase 11 - Profile Lifecycle Acceptance Defects (owner: Codex + User, updated: 2026-07-21)
+
+### Stream: Persistent Creator Session
+
+53. [DONE] `harness-ai.phase11.stream1.task1` Restore the dedicated Profile Studio workspace as one coherent session list before entering Studio, and initialize the sidebar to the exact provider/model/profile of the newest persisted creator session so its standard session surface survives return and re-entry (scope: up to 2 functional files — Session Window entry routing and Profile Studio shell initial target selection — plus focused tests and related docs; expected commit: `fix: restore profile studio sessions on reentry`). Result: Completed in commit `fix: restore profile studio sessions on reentry`.
+54. [DONE] Git Commit: `fix: restore profile studio sessions on reentry` (hash: self)
+
+### Stream: Managed Profile Deletion
+
+55. [IN_PROGRESS] `harness-ai.phase11.stream2.task1` Add one Core-owned delete operation for a Studio profile that validates the v2 Studio identity, removes its profile documents and cleans up the bound creator session through the existing Session Runtime cascade (scope: up to 4 functional files — profile authoring, Profile Studio lifecycle/RPC and Core Runtime dispatch — plus focused tests and related docs; expected commit: `feat: delete profile studio profiles`).
+56. [TODO] Git Commit: `feat: delete profile studio profiles` (hash: TBD)
+
+57. [TODO] `harness-ai.phase11.stream2.task2` Expose the Core delete operation through the Electron bridge and add a working per-profile delete action with an in-app confirmation dialog, pending/error state and immediate selection/list/session convergence (scope: up to 6 functional files — Core process bridge, preload, renderer contract, Studio shell/sidebar and shared CSS — plus focused tests and related docs; expected commit: `feat: add profile studio delete control`).
+58. [TODO] Git Commit: `feat: add profile studio delete control` (hash: TBD)
+
+### Stream: Rebuilt Acceptance Package
+
+59. [TODO] `harness-ai.phase11.stream3.task1` Rebuild the already user-authorized unsigned macOS package, verify creator-session re-entry and managed profile deletion in `app.asar`, launch the rebuilt application and record the focused retest checklist (scope: `docs/evidence/profile-studio-lifecycle-repair-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile studio lifecycle repair`).
+60. [TODO] Git Commit: `docs: package profile studio lifecycle repair` (hash: TBD)
+
+61. [TODO] `harness-ai.phase11.stream3.task2` User retests the packaged Profile Studio workflow: create and converse in a Draft, return to ordinary sessions, reopen Studio and see the same provider/model/profile/session transcript, then delete the profile through the in-app confirmation and verify both the row and creator session stay absent after another re-entry (completion: user-acceptance; scope: user workflow; expected commit: none).

@@ -38,8 +38,11 @@ remove the session or inspector.
 The ordinary Session Window owns entry and return:
 
 - `Profile Studio` beside Settings enters this mode;
-- restored creator sessions come from the dedicated `profile-studio`
-  workspace;
+- before Studio is mounted, its session controller is replaced with the full
+  persisted list from the dedicated `profile-studio` workspace rather than
+  mixing that list with ordinary workspace sessions;
+- the newest restored creator session seeds the exact provider, model and
+  profile row, so its transcript remains selected after return and re-entry;
 - return reloads the previously selected user workspace/session list;
 - detached-session windows do not render the ordinary sidebar and therefore
   cannot enter Studio mode.

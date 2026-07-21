@@ -207,15 +207,8 @@ export function SessionWindowFacade() {
     setIsSettingsOpen(false);
     setIsProviderPickerOpen(false);
     setProfileStepProvider(null);
+    await refreshSessions("profile-studio");
     setApplicationMode("studio");
-    const studioSessions =
-      (await window.harnessCore?.listSessions("profile-studio")) ?? [];
-    for (const session of [...studioSessions].reverse()) {
-      addSessionToState(session);
-    }
-    if (studioSessions[0]) {
-      await selectSession(studioSessions[0].id);
-    }
   }
 
   async function returnToSessions() {

@@ -8,10 +8,12 @@ central transcript/dialog/input/status composition is delegated unchanged to
 panels.
 
 The facade also owns the top-level `sessions`/`studio` application-mode switch.
-Entering Studio loads persistent creator sessions from the dedicated
-`profile-studio` workspace into the existing session controller; returning
-reloads the prior user workspace. Detached session windows never expose the
-switch.
+Entering Studio first replaces the session controller state with the complete
+persistent creator-session list from the dedicated `profile-studio` workspace
+and only then mounts Studio; returning replaces it again with the prior user
+workspace. This prevents mixed workspace lists and lets the Studio shell seed
+the exact provider/model/profile from the newest restored creator session.
+Detached session windows never expose the switch.
 
 ## Public Facade
 

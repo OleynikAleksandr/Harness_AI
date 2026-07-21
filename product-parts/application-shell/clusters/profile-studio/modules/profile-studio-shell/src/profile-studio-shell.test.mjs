@@ -44,7 +44,14 @@ assert.doesNotMatch(shellSource, /ReferenceInputPanel/u);
 
 assert.match(sessionSidebarSource, /onOpenProfileStudio/u);
 assert.match(sessionSidebarSource, />Profile Studio</u);
-assert.match(sessionWindowSource, /listSessions\("profile-studio"\)/u);
+assert.match(
+  sessionWindowSource,
+  /await refreshSessions\("profile-studio"\);\s+setApplicationMode\("studio"\)/u
+);
+assert.doesNotMatch(
+  sessionWindowSource,
+  /for \(const session of \[\.\.\.studioSessions\]\.reverse\(\)\)/u
+);
 assert.match(
   sessionWindowSource,
   /applicationMode === "studio" && !detachedMode/u
@@ -55,5 +62,8 @@ assert.match(
   sessionWindowSource,
   /applicationMode === "studio" \? "profile-studio" : activeWorkspaceId/u
 );
+assert.match(shellSource, /resolveInitialSelection/u);
+assert.match(shellSource, /initialCreatorSessionRef/u);
+assert.match(shellSource, /profileId: session\.sessionPurpose\.profileId/u);
 
 console.log("profile-studio shell tests: OK");

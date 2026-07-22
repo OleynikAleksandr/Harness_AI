@@ -4,14 +4,14 @@
 
 Owns Core Runtime truth for the provider/model-scoped Profile Studio workflow:
 Draft/Valid lifecycle, creator-session binding, controlled structured
-authoring, target-bound creator-agent contract and UI read models. It composes public
-facades from `session-profiles`, session runtime, provider descriptors and
-Native Request Capture; it never asks renderer code to scan files, infer state
-or parse agent prose.
+authoring, composite creator-agent profile loading and UI read models. It
+composes public facades from `session-profiles`, session runtime, provider
+descriptors and Native Request Capture; it never asks renderer code to scan
+files, infer state or parse agent prose.
 
-All four planned Core modules are applied: `profile-studio-lifecycle`,
+Five Core modules are applied: `profile-studio-lifecycle`,
 `profile-studio-authoring`, `profile-studio-agent` and
-`profile-studio-read-model`.
+`profile-studio-read-model`, plus `profile-studio-creator-profile`.
 Lifecycle mints immutable Draft
 ids, preserves exact target/session binding, computes the materialized content
 hash, accepts approval only for that hash and returns every later full-snapshot
@@ -31,6 +31,10 @@ raw structured results through controlled authoring with a bounded repair
 turn on rejection.
 Read model supplies provider/model targets, compatible creator-session rows and
 Core-owned Overview/Prompt/Tools snapshots with honest provider capabilities.
+Creator profile loading resolves the settings-selected HARNESS_AI_HOME-aware
+four-component profile, validates it without fallbacks, composes its exact
+two-part effective system prompt and renders only supported Core assignment
+placeholders.
 
 Contract source: `docs/architecture/ProfileStudio.md`.
 
@@ -40,6 +44,7 @@ Contract source: `docs/architecture/ProfileStudio.md`.
 - `profile-studio-authoring`
 - `profile-studio-agent`
 - `profile-studio-read-model`
+- `profile-studio-creator-profile`
 
 ## Facade Rule
 

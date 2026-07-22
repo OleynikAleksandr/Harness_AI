@@ -289,6 +289,11 @@
               "id": "profile-studio-read-model",
               "name": "Profile Studio Read Model",
               "purpose": "Provider/model targets, compatible creator-session rows and Core-owned Overview/Prompt/Tools snapshots with honest Claude/Codex/Kimi capability states."
+            },
+            {
+              "id": "profile-studio-creator-profile",
+              "name": "Profile Studio Creator Profile",
+              "purpose": "Resolve and validate the settings-selected four-component Creator Agent profile, compose its exact two-part system prompt and render only Core-owned initial-assignment placeholders."
             }
           ]
         },

@@ -481,9 +481,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
 Accepted Capture-first continuation awaiting the implementation rows of the
 active plan:
 
-- `profile-studio-creator-profile` and `profile-studio-creator-bootstrap`
-  boundaries above are authoritative but enter the Product Tree only when
-  their live modules land;
+- `profile-studio-creator-profile` is **APPLIED** and appears in the Product
+  Tree; `profile-studio-creator-bootstrap` remains authoritative and enters the
+  tree when its live module lands;
 - the current target-bound inline Creator Agent prompt/session route is being
   replaced by the settings-selected composite Codex route;
 - manual donor-path selection is being replaced by fresh Core-owned Capture

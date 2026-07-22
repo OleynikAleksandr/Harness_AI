@@ -54,9 +54,12 @@ into `product-parts/**` as real module code.
 - Validate complete Profile Creator snapshots, provider-specific tool modes
   and contained Native Capture raw/diagnostic provenance before any managed
   profile mutation.
-- Supply a target-bound isolated Profile Creator turn contract on the
-  provider/model selected in Studio, with all authoring context and JSON Schema
-  inline and no ambient settings or managed executable tools.
+- Load the settings-selected Profile Creator Agent from four validated
+  HARNESS_AI_HOME-aware components, compose its exact two-part system prompt
+  with no inline/ambient fallback and render its Core-owned first-message
+  placeholders.
+- Supply an isolated Profile Creator turn contract with target authoring
+  context and JSON Schema while keeping execution identity separate.
 - Create and restore persistent Profile Creator sessions in the dedicated
   HARNESS_AI_HOME-aware Studio workspace, preserving their managed system
   prompt and applying the fixed structured-output schema on every turn.

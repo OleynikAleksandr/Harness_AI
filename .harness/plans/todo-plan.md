@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase17.stream2.task1",
-  "expectedCommitMessage": "docs: package profile creator schema repair",
+  "currentTaskId": "harness-ai.phase17.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -306,7 +306,7 @@
 
 ### Stream: Rebuilt Repair Package
 
-100. [IN_PROGRESS] `harness-ai.phase17.stream2.task1` After explicit user authorization for another package build, rebuild the unsigned macOS application, verify the repaired schema contract in `app.asar`, launch it and append exact package identity plus the focused first-turn retest to the existing Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator schema repair`).
-101. [TODO] Git Commit: `docs: package profile creator schema repair` (hash: TBD)
+100. [DONE] `harness-ai.phase17.stream2.task1` After explicit user authorization for another package build, rebuild the unsigned macOS application, verify the repaired schema contract in `app.asar`, launch it and append exact package identity plus the focused first-turn retest to the existing Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator schema repair`). Result: Completed in commit `docs: package profile creator schema repair`.
+101. [DONE] Git Commit: `docs: package profile creator schema repair` (hash: self)
 
-102. [TODO] `harness-ai.phase17.stream2.task2` User retests the rebuilt package with Claude / Opus / medium: Create Profile completes Capture, creates the persistent Draft/session, dispatches the Core first message and receives the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without `invalid_json_schema`; then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none).
+102. [IN_PROGRESS] `harness-ai.phase17.stream2.task2` User retests the rebuilt package with Claude / Opus / medium: Create Profile completes Capture, creates the persistent Draft/session, dispatches the Core first message and receives the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without `invalid_json_schema`; then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none).

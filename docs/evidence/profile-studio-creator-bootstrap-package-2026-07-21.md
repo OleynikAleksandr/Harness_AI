@@ -102,3 +102,80 @@ Core Runtime process и renderer process.
 8. Удалить тестовый Draft штатной кнопкой и подтвердить, что связанная Creator
    Session больше не восстанавливается.
 
+## Отклонённая проверка первого turn
+
+Пользовательская проверка первой сборки 2026-07-22 подтвердила корректную
+часть Capture-first workflow для target `claude` / `opus` / `medium`:
+
+- Core записал свежий Native Request Capture;
+- создал и выбрал Draft
+  `draft-f3670188-5676-47e4-a4f1-06414e7db323`;
+- создал обычную Creator Session;
+- отправил первое user-role сообщение с точным raw JSONL path и SHA-256.
+
+Первый turn Creator Agent не стартовал. Codex вернул HTTP 400
+`invalid_json_schema`, потому что `toolSelection` внутри
+`codex_output_schema` использовал запрещённый keyword `oneOf`. Это локализовало
+дефект в structured-output контракте после уже успешно выполненного Capture и
+session bootstrap; пакет не был принят.
+
+## Codex Structured Output Schema Repair Package
+
+Commit `ff480677` (`fix: make profile creator schema codex compatible`)
+заменяет provider-variant schema на единый строгий envelope:
+
+- `mode`: `claude-subset | codex-fixed | kimi-candidate`;
+- `runtimeEffect`: `declarative-only | null`;
+- `toolsJson`: JSON-текст полного массива provider tool declarations.
+
+Схема больше не содержит `oneOf`, `const`, `minLength` или массивов
+произвольных object items. Core разбирает `toolsJson`, отклоняет невалидный
+JSON, проверяет provider/runtime mode и продолжает передавать в authoring
+обычный структурированный `ProfileStudioToolSelection`. Формат сохраняемого
+target `tools.json` не изменился.
+
+Обновлённый
+`~/.harness-ai/ProfileStudio/CreatorAgents/Codex/custom-instructions.md`
+явно описывает этот transport contract:
+
+- size: `9475` bytes;
+- SHA-256:
+  `978c42cf4c83dd2fa3f13865218bc36a290044a99c75e99bc823a10f28f3e179`.
+
+Ремонт и связанная документация прошли обязательные commit gates и
+`Tests: OK (148)`. После отдельного подтверждения пользователя выполнены
+production build и `npm run package:mac` из revision
+`ff480677`:
+
+- application: `release/mac-arm64/Harness AI.app`;
+- bundle identifier: `ai.harness.desktop`;
+- renderer: `/dist/renderer/assets/index-BNUhS4UG.js` и
+  `/dist/renderer/assets/index-BKDwbUw6.css`;
+- `app.asar` size: `32503533` bytes;
+- `app.asar` modification time: `2026-07-22T10:39:00+0200`;
+- SHA-256:
+  `07f8cbf3b257aa4ca93bd10f245bf832fd544cec4c65a987f590d8111fe78c6b`.
+
+Распаковка нового `app.asar` подтвердила в compiled
+`profile-studio-agent-facade.js`:
+
+- `toolsJson`: присутствует;
+- Core parser `parseToolsJson`: присутствует;
+- `oneOf`: отсутствует;
+- schema keyword `const`: отсутствует.
+
+Пакет успешно запущен: main process `92315`, Core Runtime process `92329`,
+renderer process `92334`.
+
+### Фокус повторной проверки
+
+1. Удалить отклонённый Draft, чтобы новая сессия получила обновлённый
+   `custom-instructions.md` с самого первого turn.
+2. Снова выбрать Claude / Opus / medium и нажать «Создать профиль» один раз.
+3. Дождаться Capture, нового выбранного Draft/session и Core-generated первого
+   сообщения.
+4. Убедиться, что вместо `invalid_json_schema` появляется первый ответ Codex
+   Profile Creator Agent с кратким результатом анализа Capture и началом
+   purpose interview.
+5. Выйти из Studio, вернуться и проверить восстановление Draft, сессии и
+   переписки; затем проверить штатное удаление.

@@ -15,6 +15,13 @@ coordination without owning profile or session truth.
 - The existing `SessionSurfaceFacade` in the center.
 - `ProfileStudioInspectorFacade` on the right.
 
+Two shell-owned vertical separators resize those three panes horizontally.
+Pointer capture keeps dragging stable outside the six-pixel handle; keyboard
+Left/Right arrows provide the same operation, double-click restores the side's
+default width, and `ResizeObserver` reapplies left/right/center minimum bounds
+when the application window changes size. Pane widths are presentation state
+only and never enter Core profile/session truth.
+
 The shell loads typed target/profile/inspector snapshots, forwards Create,
 Delete and exact-hash Approve commands, and subscribes to the isolated
 `profile-studio:updated` stream. It never scans profile files, compiles prompts,

@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase18.stream2.task1",
-  "expectedCommitMessage": "feat: resize profile studio panes",
+  "currentTaskId": "harness-ai.phase18.stream3.task1",
+  "expectedCommitMessage": "docs: package profile creator language and resize",
   "debt": null
 }
 ```
@@ -320,12 +320,12 @@
 
 ### Stream: Three-Pane Horizontal Resize
 
-105. [IN_PROGRESS] `harness-ai.phase18.stream2.task1` Add two accessible horizontal drag separators owned by the Profile Studio shell, resize left sidebar / central standard session / right inspector within explicit minimum and viewport bounds, remove child fixed-width conflicts and cover pointer/keyboard/layout contracts without changing Core workflow state (scope: up to 3 functional files — Profile Studio Shell facade, shared Studio CSS and focused shell test — plus related module/architecture docs; expected commit: `feat: resize profile studio panes`).
-106. [TODO] Git Commit: `feat: resize profile studio panes` (hash: TBD)
+105. [DONE] `harness-ai.phase18.stream2.task1` Add two accessible horizontal drag separators owned by the Profile Studio shell, resize left sidebar / central standard session / right inspector within explicit minimum and viewport bounds, remove child fixed-width conflicts and cover pointer/keyboard/layout contracts without changing Core workflow state (scope: up to 3 functional files — Profile Studio Shell facade, shared Studio CSS and focused shell test — plus related module/architecture docs; expected commit: `feat: resize profile studio panes`). Result: Completed in commit `feat: resize profile studio panes`.
+106. [DONE] Git Commit: `feat: resize profile studio panes` (hash: self)
 
 ### Stream: Rebuilt Acceptance Package
 
-107. [TODO] `harness-ai.phase18.stream3.task1` Build the user-authorized unsigned macOS package, verify the Core language directive and two resizers inside `app.asar`, launch it and append exact identity plus focused language/resize retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator language and resize`).
+107. [IN_PROGRESS] `harness-ai.phase18.stream3.task1` Build the user-authorized unsigned macOS package, verify the Core language directive and two resizers inside `app.asar`, launch it and append exact identity plus focused language/resize retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator language and resize`).
 108. [TODO] Git Commit: `docs: package profile creator language and resize` (hash: TBD)
 
 109. [TODO] `harness-ai.phase18.stream3.task2` User retests the rebuilt package: a fresh Creator Agent speaks the system-Settings communication language from its first answer; both Studio dividers resize left/sidebar, center/session and right/inspector safely; Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).

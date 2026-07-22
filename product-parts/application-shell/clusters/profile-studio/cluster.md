@@ -13,6 +13,11 @@ renderer does not divide Capture into local stages or locate artifacts; it
 only freezes the chosen target, shows the Core-operation explanation and
 renders the returned structured failure or converged success.
 
+The shell owns two accessible presentation-only separators between the three
+columns. They resize the left target/profile sidebar and right inspector while
+the reused central session surface absorbs the remaining width; explicit
+minimum bounds prevent any divider from collapsing another pane.
+
 ## Owned Modules
 
 - `profile-studio-sidebar`

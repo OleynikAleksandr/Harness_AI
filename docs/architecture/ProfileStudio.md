@@ -115,7 +115,7 @@ focused on the frequently changed target provider/model workflow.
 
 | Module | Public facade | Ownership |
 | --- | --- | --- |
-| `profile-studio-shell` | `ProfileStudioShellFacade` | single-window mode and three-column composition |
+| `profile-studio-shell` | `ProfileStudioShellFacade` | single-window mode, three-column composition and two accessible horizontal-resize boundaries |
 | `profile-studio-sidebar` | `ProfileStudioSidebarFacade` | provider/model target, Create, compatible Draft/Valid creator sessions, confirmed Delete and return action |
 | `profile-studio-inspector` | `ProfileStudioInspectorFacade` | read-only Overview, Custom System Prompt and Custom System Tools tabs |
 
@@ -388,6 +388,10 @@ reason comes from Core.
   center and inspector become empty when none remain;
 - detached session windows do not expose Studio mode;
 - center uses `SessionSurfaceFacade`;
+- two vertical separators let the user resize all three panes horizontally:
+  pointer drag and keyboard arrows adjust the left sidebar or right inspector,
+  the center session takes the remaining width, and shell-owned minimum bounds
+  prevent pane collapse during drag or window resize;
 - right inspector has exactly:
   - `Overview`;
   - `Custom System Prompt`;
@@ -457,6 +461,7 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   tools/settings and Studio output schema on every create/resume dispatch;
 - Application Shell `profile-studio` cluster, snapshot-driven sidebar,
   read-only inspector and single-window shell/mode composition are **APPLIED**;
+  both three-column boundaries are presentation-only accessible resizers;
   the ordinary sidebar provides one-click entry beside Settings, return
   restores the user workspace session list, and detached windows cannot enter
   Studio;

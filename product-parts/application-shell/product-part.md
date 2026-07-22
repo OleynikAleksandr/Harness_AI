@@ -28,6 +28,9 @@ implementation modules in-process.
 - Switch the main window between ordinary workspace/session navigation and the
   three-column Profile Studio composition while detached sessions remain
   session-only.
+- Let users resize both boundaries of the three-column Profile Studio
+  composition with pointer or keyboard controls while keeping pane geometry
+  presentation-only.
 - Present Core-owned recursive subagent session trees and submit open, detach,
   rename and regenerate-title intents without deriving orchestration state.
 - Resolve browser display copy through Core-provided localization payloads.

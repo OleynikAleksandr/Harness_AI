@@ -12,6 +12,7 @@ import {
 import { ProfileStudioInspectorFacade } from "../../profile-studio-inspector/src/profile-studio-inspector-facade.js";
 import { ProfileStudioSidebarFacade } from "../../profile-studio-sidebar/src/profile-studio-sidebar-facade.js";
 import "../../../src/profile-studio.css";
+import { ProfileStudioPaneLayout } from "./profile-studio-pane-layout.js";
 
 export interface ProfileStudioShellFacadeProps {
   readonly onAddCreatorSession: (session: CoreSession) => void;
@@ -297,40 +298,48 @@ export function ProfileStudioShellFacade({
       : undefined;
 
   return (
-    <section aria-label="Profile Studio" className="profile-studio-shell">
-      <ProfileStudioSidebarFacade
-        createError={createError}
-        createPending={createPending}
-        deletePendingProfileId={deletePendingProfileId}
-        onCreateProfile={createProfile}
-        onDeleteProfile={deleteProfile}
-        onReturn={onReturn}
-        onSelectModel={selectModel}
-        onSelectProfile={selectProfile}
-        onSelectProvider={selectProvider}
-        profiles={profiles}
-        selectedModelId={selectedModelId}
-        selectedProfileId={selectedProfileId}
-        selectedProviderId={selectedProviderId}
-        targets={targets}
-      />
-      <SessionSurfaceFacade
-        {...sessionSurface}
-        session={selectedCreatorSession}
-        workspaceRoot={selectedCreatorSession?.workspacePath}
-      />
-      <ProfileStudioInspectorFacade
-        approvalPending={approvalPending}
-        onApprove={approveDraft}
-        profile={selectedProfile}
-        snapshot={inspector}
-      />
-      {error ? (
-        <div className="profile-studio-shell__error" role="alert">
-          {error}
-        </div>
-      ) : null}
-    </section>
+    <ProfileStudioPaneLayout
+      center={
+        <SessionSurfaceFacade
+          {...sessionSurface}
+          session={selectedCreatorSession}
+          workspaceRoot={selectedCreatorSession?.workspacePath}
+        />
+      }
+      left={
+        <ProfileStudioSidebarFacade
+          createError={createError}
+          createPending={createPending}
+          deletePendingProfileId={deletePendingProfileId}
+          onCreateProfile={createProfile}
+          onDeleteProfile={deleteProfile}
+          onReturn={onReturn}
+          onSelectModel={selectModel}
+          onSelectProfile={selectProfile}
+          onSelectProvider={selectProvider}
+          profiles={profiles}
+          selectedModelId={selectedModelId}
+          selectedProfileId={selectedProfileId}
+          selectedProviderId={selectedProviderId}
+          targets={targets}
+        />
+      }
+      overlay={
+        error ? (
+          <div className="profile-studio-shell__error" role="alert">
+            {error}
+          </div>
+        ) : null
+      }
+      right={
+        <ProfileStudioInspectorFacade
+          approvalPending={approvalPending}
+          onApprove={approveDraft}
+          profile={selectedProfile}
+          snapshot={inspector}
+        />
+      }
+    />
   );
 }
 

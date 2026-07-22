@@ -5,6 +5,14 @@ const shellSource = readFileSync(
   new URL("./profile-studio-shell-facade.tsx", import.meta.url),
   "utf8"
 );
+const paneLayoutSource = readFileSync(
+  new URL("./profile-studio-pane-layout.tsx", import.meta.url),
+  "utf8"
+);
+const studioStyles = readFileSync(
+  new URL("../../../src/profile-studio.css", import.meta.url),
+  "utf8"
+);
 const sessionWindowSource = readFileSync(
   new URL(
     "../../../../session-interface/modules/session-window/src/session-window-facade.tsx",
@@ -27,6 +35,19 @@ for (const facade of [
 ]) {
   assert.match(shellSource, new RegExp(`<${facade}`, "u"));
 }
+assert.match(shellSource, /<ProfileStudioPaneLayout/u);
+assert.equal((paneLayoutSource.match(/<PaneResizer/gu) ?? []).length, 2);
+assert.match(paneLayoutSource, /<hr/u);
+assert.match(paneLayoutSource, /aria-orientation="vertical"/u);
+assert.match(paneLayoutSource, /aria-valuenow=\{value\}/u);
+assert.match(paneLayoutSource, /setPointerCapture/u);
+assert.match(paneLayoutSource, /onPointerCancel=\{endResize\}/u);
+assert.match(paneLayoutSource, /ResizeObserver/u);
+assert.match(paneLayoutSource, /ArrowLeft/u);
+assert.match(paneLayoutSource, /ArrowRight/u);
+assert.match(studioStyles, /var\(--profile-studio-left-pane, 248px\)/u);
+assert.match(studioStyles, /var\(--profile-studio-right-pane, 370px\)/u);
+assert.match(studioStyles, /cursor: col-resize/u);
 assert.match(shellSource, /listProfileStudioTargets/u);
 assert.match(shellSource, /listProfileStudioProfiles/u);
 assert.match(shellSource, /getProfileStudioProfile/u);

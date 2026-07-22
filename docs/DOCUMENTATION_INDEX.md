@@ -232,7 +232,8 @@ readiness registry, liveness checker, and workspace provisioner modules.
   Codex profile, Core-owned fresh Native Capture and first-message dispatch,
   declarative Codex target tooling, rejected `oneOf` first-turn evidence,
   Codex-compatible `toolsJson` schema repair, Core-owned Settings communication
-  language, accessible three-pane resize, exact app/app.asar identities and
+  language, accessible three-pane resize, provider-normalized Codex
+  `structured_output` response projection, exact app/app.asar identities and
   the focused manual acceptance checklist.
 - `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
   the turn-timer scope: current `ElapsedTotal` behavior, turn-state event

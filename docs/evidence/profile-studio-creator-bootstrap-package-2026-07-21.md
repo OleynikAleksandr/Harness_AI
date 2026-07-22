@@ -253,3 +253,71 @@ renderer process `13056`.
    double-click reset, затем изменить ширину всего окна.
 6. Убедиться, что Capture, создание/выбор Draft, leave/re-entry и удаление
    продолжают работать.
+
+## Codex Structured Response Projection Package
+
+Повторная пользовательская проверка language/resize package подтвердила
+русский язык Creator Agent и работу обеих изменяемых границ. Следующий дефект
+был локализован в Codex structured-output projection: app-server возвращал
+результат `outputSchema` как сериализованный JSON финального `agentMessage`, и
+общий dialog projector показывал целиком `assistantResponse` / `draft` /
+`nextAction` вместе с литералами `\n`.
+
+Commit `6e3072b4` (`fix: normalize codex structured output`) исправляет маршрут
+на provider boundary:
+
+- Codex facade отмечает только turn, в котором Core действительно передал
+  `outputSchema`;
+- отдельный внутренний agent-message projector разбирает финальный JSON только
+  такого turn и публикует provider-neutral `structured_output`;
+- сериализованный JSON не попадает в обычный dialog projector;
+- Core использует существующий `ProfileCreatorResultHandler`, проверяет объект
+  через `ProfileStudioAgentFacade` и публикует только `assistantResponse`;
+- JSON decoding превращает `\n` в настоящие переносы строк до сохранения
+  session message;
+- обычный Codex turn без `outputSchema` сохраняет прежний `dialog_message`
+  route без JSON parsing.
+
+Поведенческий probe подтвердил оба маршрута на одном projector state:
+schema-bound JSON дал один `structured_output` с
+`Строка 1\n\n- пункт` как реальным многострочным значением, следующий обычный
+ответ дал один стандартный `dialog_message`. Implementation commit прошёл
+architecture, Ultracite, Knip, typecheck, docs-sync и `Tests: OK (148)`.
+
+Production build и `npm run package:mac` из revision `6e3072b4` создали:
+
+- application: `release/mac-arm64/Harness AI.app`;
+- bundle identifier: `ai.harness.desktop`;
+- renderer: `/dist/renderer/assets/index-DimWUakc.js` и
+  `/dist/renderer/assets/index-DGrvNM_0.css`;
+- transformed renderer modules: `337`;
+- `app.asar` size: `32509655` bytes;
+- `app.asar` modification time: `2026-07-22T12:25:43+0200`;
+- SHA-256:
+  `06c2f6ab2c253712fec0f362318f313454b1d27c7234c3b155a361c3948c76ee`.
+
+Распаковка нового `app.asar` подтвердила compiled runtime markers:
+
+- `state.structuredOutputExpected = outputSchema !== undefined`;
+- `projectCompletedCodexAgentMessage`;
+- `type: "structured_output"` внутри Codex projector;
+- Core publication через `parsed.result.assistantResponse`.
+
+Пакет успешно запущен: main process `48591`, Core Runtime process `48723`,
+renderer process `48768`.
+
+### Фокус повторной проверки форматирования
+
+1. Можно продолжить существующую Creator Session или создать новый Draft;
+   новый system prompt для этого исправления не требуется.
+2. Отправить агенту следующее сообщение и дождаться полного ответа.
+3. Убедиться, что сообщение начинается непосредственно с текста ответа и не
+   содержит видимые поля `{"assistantResponse":`, `"draft"` или
+   `"nextAction"`.
+4. Проверить, что абзацы и списки отображаются реальными переносами строк, а
+   не символами `\n`.
+5. Старые уже сохранённые JSON-сообщения могут остаться в истории без
+   ретроактивного переписывания; все новые schema-bound ответы должны быть
+   чистыми.
+6. Подтвердить, что русский язык и обе изменяемые границы панелей продолжают
+   работать.

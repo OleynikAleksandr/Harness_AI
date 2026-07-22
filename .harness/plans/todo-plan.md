@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase19.stream2.task1",
-  "expectedCommitMessage": "docs: package codex creator response projection",
+  "currentTaskId": "harness-ai.phase19.stream2.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -339,7 +339,7 @@
 
 ### Stream: Rebuilt Acceptance Package
 
-112. [IN_PROGRESS] `harness-ai.phase19.stream2.task1` Build the user-authorized unsigned macOS package, verify the normalized Codex structured-output projection in `app.asar`, launch it and append exact package identity plus focused formatting retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package codex creator response projection`).
-113. [TODO] Git Commit: `docs: package codex creator response projection` (hash: TBD)
+112. [DONE] `harness-ai.phase19.stream2.task1` Build the user-authorized unsigned macOS package, verify the normalized Codex structured-output projection in `app.asar`, launch it and append exact package identity plus focused formatting retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package codex creator response projection`). Result: Completed in commit `docs: package codex creator response projection`.
+113. [DONE] Git Commit: `docs: package codex creator response projection` (hash: self)
 
-114. [TODO] `harness-ai.phase19.stream2.task2` User retests the rebuilt package: Profile Creator responses contain only readable `assistantResponse` text with real paragraph/list line breaks and no visible JSON envelope; Russian language, both pane resizers, Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).
+114. [IN_PROGRESS] `harness-ai.phase19.stream2.task2` User retests the rebuilt package: Profile Creator responses contain only readable `assistantResponse` text with real paragraph/list line breaks and no visible JSON envelope; Russian language, both pane resizers, Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).

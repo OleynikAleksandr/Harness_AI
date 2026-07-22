@@ -16,8 +16,9 @@ there is no Native or legacy row.
   deterministic compiled prompt;
 - Custom System Tools: selected structured tools and provider capability mode.
 
-Capability truth is explicit: Claude has an editable native subset, Codex
-tools are fixed/read-only, and Kimi is candidate/Draft-only. Kimi's blocker is
+Capability truth is explicit: Claude has an editable native subset; Codex
+shows the stored captured inventory as declarative-only/read-only while its
+app-server runtime tools remain fixed; Kimi is candidate/Draft-only. Kimi's blocker is
 computed from the current universal built-in tool source (currently 9) against
 the captured Native ceiling (25), displayed as `9/25`; renderer code does not
 count tools or infer readiness.

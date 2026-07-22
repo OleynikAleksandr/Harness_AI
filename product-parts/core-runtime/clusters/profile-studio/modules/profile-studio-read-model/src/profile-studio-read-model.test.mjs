@@ -186,12 +186,20 @@ assert.equal(claudeWithoutDonor.ok, true);
 assert.equal(claudeWithoutDonor.snapshot.overview.canApprove, false);
 
 const codexInspector = await createReadModel("codex", "gpt-5.6-sol", [
-  { name: "ignored" },
+  { name: "exec" },
+  { name: "wait" },
 ]).getInspector("draft-1");
 assert.equal(codexInspector.ok, true);
 assert.equal(codexInspector.snapshot.tools.mode, "fixed");
 assert.equal(codexInspector.snapshot.tools.editable, false);
-assert.deepEqual(codexInspector.snapshot.tools.selectedTools, []);
+assert.match(
+  codexInspector.snapshot.tools.providerCeiling,
+  /Declarative-only inventory/u
+);
+assert.deepEqual(codexInspector.snapshot.tools.selectedTools, [
+  { name: "exec" },
+  { name: "wait" },
+]);
 
 const kimiInspector = await createReadModel("kimi-client", "k3", [
   { name: "ReadFile" },

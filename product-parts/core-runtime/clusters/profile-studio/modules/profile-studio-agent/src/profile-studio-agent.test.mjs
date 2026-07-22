@@ -85,6 +85,29 @@ try {
   assert.equal(discussionOnly.ok, true);
   assert.equal(discussionOnly.result.draft, null);
 
+  const codexDraft = facade.parseTurnResult({
+    assistantResponse: "The fixed Codex inventory is preserved declaratively.",
+    draft: {
+      customInstructions: "Create planning documents.",
+      description: "Planning workflow",
+      donorReference: { artifactPath: "/captures/codex.jsonl" },
+      name: "Codex Planning",
+      purpose: "Prepare planning evidence",
+      systemPrompt: "Reduced Codex foundation.",
+      toolSelection: {
+        mode: "codex-fixed",
+        runtimeEffect: "declarative-only",
+        tools: [{ name: "exec" }, { name: "wait" }],
+      },
+    },
+    nextAction: "continue",
+  });
+  assert.equal(codexDraft.ok, true);
+  assert.deepEqual(codexDraft.result.draft.toolSelection.tools, [
+    { name: "exec" },
+    { name: "wait" },
+  ]);
+
   const incomplete = facade.parseTurnResult({
     assistantResponse: "Incomplete",
     draft: { name: "Only a name" },
@@ -102,7 +125,7 @@ try {
       name: "Name",
       purpose: "Purpose",
       systemPrompt: "Prompt",
-      toolSelection: { mode: "codex-fixed", tools: [] },
+      toolSelection: { mode: "codex-fixed", tools: null },
     },
     nextAction: "continue",
   });

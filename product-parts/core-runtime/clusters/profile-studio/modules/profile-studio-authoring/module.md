@@ -22,6 +22,11 @@ raw captured request's Native tool array. A proposed foreign name rejects the
 whole snapshot. Draft discussion may still proceed before a donor is chosen;
 approval readiness is withheld by the read model until provenance exists.
 
+For Codex, a non-empty exact inventory with unique names is persisted to
+`tools.json` only when the structured result marks it
+`runtimeEffect: declarative-only`. This inventory is readable provenance; it
+does not become a per-profile app-server tool replacement or subset.
+
 The module does not expose filesystem tools to the creator, assign Valid,
 judge behavioral quality or implement Custom Capture. Kimi tool selection is
 an authorable candidate only; a later capability gate still blocks approval.
@@ -43,7 +48,8 @@ an authorable candidate only; a later capability gate still blocks approval.
 
 - A normalized lifecycle update containing two prompt parts, purpose,
   validated donor provenance and provider-appropriate structured tools,
-  including Claude's donor-verified exact Native subset.
+  including Claude's donor-verified exact Native subset and Codex's
+  declarative-only captured inventory.
 - Structured validation errors with no partial write.
 
 ## Owned Paths

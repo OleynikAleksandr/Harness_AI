@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase15.stream3.task3",
-  "expectedCommitMessage": "feat: persist declarative codex tooling",
+  "currentTaskId": "harness-ai.phase15.stream4.task1",
+  "expectedCommitMessage": "feat: show profile creator preparation state",
   "debt": null
 }
 ```
@@ -277,12 +277,12 @@
 87. [DONE] `harness-ai.phase15.stream3.task2` Recompose the Core Create Profile RPC so one raw intent preflights the selected Creator Agent, runs a fresh target Native Capture, creates/binds the Draft and Codex creator session only after success, publishes and dispatches exactly one rendered first user message, preserves the session on provider errors and never asks renderer/user to locate Capture artifacts (scope: up to 3 functional files — Core Profile Studio RPC/composition, reusable native-capture entry and session dispatch — plus focused tests and related docs; expected commit: `feat: start capture first profile creator sessions`). Result: Completed in commit `feat: start capture first profile creator sessions`.
 88. [DONE] Git Commit: `feat: start capture first profile creator sessions` (hash: self)
 
-89. [IN_PROGRESS] `harness-ai.phase15.stream3.task3` Extend structured target-profile authoring so Codex `codex-fixed` stores the exact extracted Native inventory as `declarative-only` tooling while runtime application remains fixed, preserve Claude subset/Kimi candidate honesty, and keep agent-authored profile documents atomic and Draft-only (scope: up to 3 functional files — Profile Studio agent schema, authoring validation and read model/application projection — plus focused tests and related docs; expected commit: `feat: persist declarative codex tooling`).
-90. [TODO] Git Commit: `feat: persist declarative codex tooling` (hash: TBD)
+89. [DONE] `harness-ai.phase15.stream3.task3` Extend structured target-profile authoring so Codex `codex-fixed` stores the exact extracted Native inventory as `declarative-only` tooling while runtime application remains fixed, preserve Claude subset/Kimi candidate honesty, and keep agent-authored profile documents atomic and Draft-only (scope: up to 3 functional files — Profile Studio agent schema, authoring validation and read model/application projection — plus focused tests and related docs; expected commit: `feat: persist declarative codex tooling`). Result: Completed in commit `feat: persist declarative codex tooling`.
+90. [DONE] Git Commit: `feat: persist declarative codex tooling` (hash: self)
 
 ### Stream: Honest Application Shell State
 
-91. [TODO] `harness-ai.phase15.stream4.task1` Make the existing Create Profile control render the Core-owned capture/preflight pending state and structured failure without local workflow logic, then converge on the returned selected Draft/session/inspector while preserving delete and leave/re-entry behavior (scope: up to 3 Application Shell Profile Studio functional files plus focused tests and related docs; expected commit: `feat: show profile creator preparation state`).
+91. [IN_PROGRESS] `harness-ai.phase15.stream4.task1` Make the existing Create Profile control render the Core-owned capture/preflight pending state and structured failure without local workflow logic, then converge on the returned selected Draft/session/inspector while preserving delete and leave/re-entry behavior (scope: up to 3 Application Shell Profile Studio functional files plus focused tests and related docs; expected commit: `feat: show profile creator preparation state`).
 92. [TODO] Git Commit: `feat: show profile creator preparation state` (hash: TBD)
 
 ## Phase 16 - Creator Agent Package And User Acceptance (owner: Codex + User, updated: 2026-07-21)

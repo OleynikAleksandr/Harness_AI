@@ -21,7 +21,9 @@ export interface ProfileStudioAgentContext {
     readonly name: string;
     readonly purpose: string;
     readonly systemPrompt: string;
-    readonly toolSelection: ProfileStudioToolSelection;
+    readonly toolSelection:
+      | ProfileStudioToolSelection
+      | { readonly mode: "codex-fixed"; readonly tools: null };
   };
   readonly donorContent: unknown | null;
   readonly profileId: string;
@@ -84,9 +86,9 @@ const PROFILE_CREATOR_OUTPUT_SCHEMA = {
             systemPrompt: { type: "string" },
             toolSelection: {
               oneOf: [
-                toolSelectionSchema("claude-subset", "array"),
-                toolSelectionSchema("codex-fixed", "null"),
-                toolSelectionSchema("kimi-candidate", "array"),
+                toolSelectionSchema("claude-subset"),
+                codexToolSelectionSchema(),
+                toolSelectionSchema("kimi-candidate"),
               ],
             },
           },
@@ -170,17 +172,31 @@ export function resolveProfileStudioWorkspacePath(): string {
   return path.join(harnessHome, "ProfileStudio", "workspace");
 }
 
-function toolSelectionSchema(mode: string, toolsType: "array" | "null") {
+function toolSelectionSchema(mode: string) {
   return {
     additionalProperties: false,
     properties: {
       mode: { const: mode, type: "string" },
-      tools:
-        toolsType === "array"
-          ? { items: { type: "object" }, type: "array" }
-          : { type: "null" },
+      tools: { items: { type: "object" }, type: "array" },
     },
     required: ["mode", "tools"],
+    type: "object",
+  } as const;
+}
+
+function codexToolSelectionSchema() {
+  return {
+    additionalProperties: false,
+    properties: {
+      mode: { const: "codex-fixed", type: "string" },
+      runtimeEffect: { const: "declarative-only", type: "string" },
+      tools: {
+        items: { type: "object" },
+        minItems: 1,
+        type: "array",
+      },
+    },
+    required: ["mode", "runtimeEffect", "tools"],
     type: "object",
   } as const;
 }
@@ -240,8 +256,21 @@ function parseToolSelection(
   if (!isPlainRecord(value)) {
     return { ok: false };
   }
-  if (value.mode === "codex-fixed" && value.tools === null) {
-    return { ok: true, value: { mode: "codex-fixed", tools: null } };
+  if (
+    value.mode === "codex-fixed" &&
+    value.runtimeEffect === "declarative-only" &&
+    Array.isArray(value.tools) &&
+    value.tools.length > 0 &&
+    value.tools.every(isPlainRecord)
+  ) {
+    return {
+      ok: true,
+      value: {
+        mode: "codex-fixed",
+        runtimeEffect: "declarative-only",
+        tools: value.tools,
+      },
+    };
   }
   if (
     !(

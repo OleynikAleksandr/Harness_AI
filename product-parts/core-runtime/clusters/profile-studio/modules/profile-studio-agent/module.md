@@ -19,6 +19,9 @@ schema for create and resumed turns.
 The JSON Schema requires `assistantResponse`, discussion-only or complete
 `draft`, and `continue | request-approval`. Drafts require every profile field,
 one of the three honest provider tool modes and nullable donor artifact path.
+Codex structured output must include a non-empty captured inventory together
+with `runtimeEffect: declarative-only`; the schema no longer represents fixed
+Codex tools as `null`.
 `parseTurnResult()` repeats shape validation before Core can forward the
 snapshot to controlled authoring; renderer text is never parsed for state.
 

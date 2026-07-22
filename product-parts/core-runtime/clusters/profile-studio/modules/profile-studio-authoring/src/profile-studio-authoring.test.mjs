@@ -167,7 +167,11 @@ try {
     profileId: "draft-1",
     snapshot: {
       ...creatorSnapshot(null),
-      toolSelection: { mode: "codex-fixed", tools: null },
+      toolSelection: {
+        mode: "codex-fixed",
+        runtimeEffect: "declarative-only",
+        tools: [{ name: "exec" }],
+      },
     },
   });
   assert.equal(wrongClaudeMode.ok, false);
@@ -209,11 +213,18 @@ try {
     profileId: "draft-codex",
     snapshot: {
       ...creatorSnapshot(null),
-      toolSelection: { mode: "codex-fixed", tools: null },
+      toolSelection: {
+        mode: "codex-fixed",
+        runtimeEffect: "declarative-only",
+        tools: [{ name: "exec" }, { name: "wait" }],
+      },
     },
   });
   assert.equal(codexApplied.ok, true);
-  assert.equal(codex.applied[0].snapshot.tools, null);
+  assert.deepEqual(codex.applied[0].snapshot.tools, [
+    { name: "exec" },
+    { name: "wait" },
+  ]);
 
   const kimiCapture = await writeCapture({
     captureId: "capture-kimi",

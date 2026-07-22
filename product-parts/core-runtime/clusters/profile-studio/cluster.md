@@ -23,6 +23,8 @@ controlled passport transition; direct/manual profile editing and recovery are
 outside this first stage.
 Authoring validates complete creator snapshots, honest provider tool modes and
 contained raw Native Capture donor truth before delegating one atomic update.
+Codex snapshots preserve a non-empty captured inventory marked
+declarative-only; provider application remains fixed.
 Agent owns the settings-selected Codex execution spec and full-snapshot JSON
 Schema/parse contract. Its system prompt is the exact output of the creator
 profile loader; target/Capture context is not appended to that prompt. Session

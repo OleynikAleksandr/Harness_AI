@@ -490,8 +490,9 @@ active plan:
 - fresh Core-owned target Capture, pre-Draft validation and exactly one
   Core-generated first user message are **APPLIED** through the ordinary
   persistent session dispatch path;
-- Codex target tooling will be persisted as declarative-only inventory while
-  the runtime app-server registry remains fixed;
+- Codex target tooling persistence and inspector projection are **APPLIED**:
+  the captured inventory is stored as `declarative-only` while the runtime
+  app-server registry remains fixed;
 - Custom Capture remains explicitly deferred.
 
 This section is updated in the same commits that apply each slice.

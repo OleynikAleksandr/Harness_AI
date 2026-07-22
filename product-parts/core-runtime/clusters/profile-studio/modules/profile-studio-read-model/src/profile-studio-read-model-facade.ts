@@ -184,8 +184,9 @@ export class ProfileStudioReadModelFacade {
           blockReason: null,
           editable: false,
           mode: "fixed",
-          providerCeiling: "Codex app-server tools are fixed",
-          selectedTools: [],
+          providerCeiling:
+            "Declarative-only inventory; Codex app-server tools remain fixed",
+          selectedTools,
         };
       default: {
         const executorCount = this.options.universalToolSource.list().length;

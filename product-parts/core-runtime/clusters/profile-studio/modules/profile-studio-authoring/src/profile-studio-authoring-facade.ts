@@ -15,7 +15,11 @@ export type ProfileStudioToolSelection =
       readonly mode: "claude-subset";
       readonly tools: readonly StructuredTool[];
     }
-  | { readonly mode: "codex-fixed"; readonly tools: null }
+  | {
+      readonly mode: "codex-fixed";
+      readonly runtimeEffect: "declarative-only";
+      readonly tools: readonly StructuredTool[];
+    }
   | {
       readonly mode: "kimi-candidate";
       readonly tools: readonly StructuredTool[];
@@ -261,8 +265,11 @@ function validateToolSelection(
   if (selection.mode !== expectedMode) {
     return `Tool mode "${selection.mode}" is not valid for ${providerId}.`;
   }
-  if (selection.tools === null) {
-    return;
+  if (
+    selection.mode === "codex-fixed" &&
+    selection.runtimeEffect !== "declarative-only"
+  ) {
+    return "Codex tooling must be marked declarative-only.";
   }
   if (
     !(Array.isArray(selection.tools) && selection.tools.every(isPlainRecord))
@@ -284,11 +291,7 @@ function validateDonorToolSubset(
   selection: ProfileStudioToolSelection,
   donorToolNames: ReadonlySet<string> | undefined
 ): string | undefined {
-  if (
-    providerId !== "claude" ||
-    selection.tools === null ||
-    donorToolNames === undefined
-  ) {
+  if (providerId !== "claude" || donorToolNames === undefined) {
     return;
   }
   const missing = selection.tools

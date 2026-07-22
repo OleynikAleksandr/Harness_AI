@@ -15,7 +15,16 @@ const turnOptionsSource = readFileSync(
 );
 
 assert.match(creationSource, /new ProfileStudioAgentFacade\(\)/u);
+assert.match(creationSource, /new ProfileStudioCreatorProfileFacade\(\)/u);
+assert.match(creationSource, /defaultCreatorAgentProviderId/u);
+assert.match(creationSource, /PROFILE_CREATOR_AGENT_OPTIONS\.find/u);
+assert.match(creationSource, /creatorProfileLoader\.load/u);
 assert.match(creationSource, /modelId: request\.model/u);
+assert.match(creationSource, /modelId: creatorOption\.model/u);
+assert.match(
+  creationSource,
+  /systemPrompt: creatorProfile\.effectiveSystemPrompt/u
+);
 assert.match(creationSource, /model: spec\.modelId/u);
 assert.match(creationSource, /providerId: spec\.providerId/u);
 assert.match(creationSource, /profileCreatorProviderName\(spec\.providerId\)/u);
@@ -26,9 +35,11 @@ assert.match(creationSource, /kind: "managed"/u);
 assert.match(creationSource, /toolingCategories: \{\}/u);
 assert.match(creationSource, /tools: \[\]/u);
 assert.match(creationSource, /type: "profile-creator"/u);
-assert.match(creationSource, /outputSchema: profileCreatorContractSpec/u);
+assert.match(
+  creationSource,
+  /outputSchema: profileStudioAgent\.getOutputSchema/u
+);
 assert.match(creationSource, /model: session\.model/u);
-assert.match(creationSource, /providerId: "claudeCodeCli"/u);
 assert.match(creationSource, /includeProfileStudioWorkspace/u);
 
 assert.match(facadeSource, /async createProfileCreatorSession\(/u);

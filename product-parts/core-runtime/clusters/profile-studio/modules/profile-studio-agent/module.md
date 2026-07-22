@@ -2,19 +2,19 @@
 
 ## Responsibility
 
-Own the Profile Creator Agent contract. A newly created creator session uses
-the exact provider/model target selected in Profile Studio. Claude and Codex
-targets use reasoning `high`; Kimi keeps provider-managed reasoning. Every
-target uses reserved workspace id `profile-studio` and the HARNESS_AI_HOME-aware
-isolated `ProfileStudio/workspace` path. Settings sources and managed tools are
-empty arrays, so workspace CLAUDE/AGENTS/Skills, project settings, filesystem,
-shell and web tools cannot become hidden inputs.
+Own the provider-neutral Profile Creator structured-output contract and the
+settings-selected Creator Agent turn spec. The first execution identity is
+always Codex / `gpt-5.6-sol` / `high`, independently of the target provider and
+model being authored. Every creator session uses reserved workspace id
+`profile-studio` and the HARNESS_AI_HOME-aware isolated
+`ProfileStudio/workspace` path.
 
-`buildTurnSpec()` constructs the complete authoring instruction and embeds the
-exact target, current full draft and validated donor content inline. The agent
-is told to begin by reducing the donor Native system prompt, then add concise
-task-specific instructions, preserve exactly two source parts, return a full
-snapshot rather than a patch and never assign Valid.
+`buildTurnSpec()` accepts only the resolved execution identity and exact
+effective system prompt loaded by `profile-studio-creator-profile`. It does not
+append target/draft JSON, inline fallback instructions, AGENTS/Skills, project
+settings, or managed tool substitutions. Dynamic target/Capture facts belong
+to the separate first user message. `getOutputSchema()` exposes the stable
+schema for create and resumed turns.
 
 The JSON Schema requires `assistantResponse`, discussion-only or complete
 `draft`, and `continue | request-approval`. Drafts require every profile field,
@@ -23,10 +23,11 @@ one of the three honest provider tool modes and nullable donor artifact path.
 snapshot to controlled authoring; renderer text is never parsed for state.
 
 Session Runtime consumes this facade through its explicit
-`createProfileCreatorSession()` path. It persists `systemPrompt` as a managed
-session-profile snapshot, restores the dedicated Studio session index, and
-reapplies this facade's output schema plus the persisted target model/provider
-turn options on every dispatch after create or resume. Its result handler
+`createProfileCreatorSession()` path. It resolves the Core setting and managed
+agent catalog, loads the four user-space components, persists the composed
+system prompt as a managed session-profile snapshot, restores the dedicated
+Studio session index, and reapplies this facade's output schema plus the
+persisted Codex model/reasoning on every dispatch after create or resume. Its result handler
 validates normalized raw provider structured output here before publishing `assistantResponse` or
 passing a complete draft to the authoring facade; free-form dialog text is
 never an authoring input.
@@ -37,15 +38,16 @@ never an authoring input.
 
 ## Inputs
 
-- `ProfileStudioAgentContext`: immutable profile id, exact provider/model,
-  current full draft and optional validated donor content.
+- Settings-selected execution identity and the already validated/composed
+  system prompt.
 - Provider structured output returned for a creator turn when that adapter
   exposes the normalized `structured_output` event.
 
 ## Outputs
 
-- Target-bound `ProfileStudioAgentTurnSpec` with provider/model/reasoning/workspace,
-  inline system prompt, empty settings/tools and JSON Schema.
+- Codex `ProfileStudioAgentTurnSpec` with model/reasoning/workspace, exact
+  composite system prompt, empty settings/runtime-tool overrides and JSON
+  Schema.
 - Validated `ProfileCreatorTurnResult` or a controlled parse error.
 
 ## Owned Paths

@@ -58,15 +58,18 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   The first supported purpose is `{ type: "profile-creator", profileId }`;
   session-index restore validates and preserves it while sessions created
   before the field remain valid. Creator sessions stay `sessionKind: primary`.
-- `createProfileCreatorSession()` materializes the target-bound Profile Creator
-  spec as an immutable managed profile on the provider/model selected in
-  Studio. Claude/Codex use reasoning `high`; Kimi keeps provider-managed
-  reasoning. Every target keeps an empty managed tool list/settings sources
-  and the HARNESS_AI_HOME-aware `ProfileStudio/workspace`. That workspace index
-  is restored independently from the registered user-workspace list.
+- `createProfileCreatorSession()` resolves the Core-owned default Creator Agent
+  setting and catalog, loads the validated composite user-space profile and
+  materializes it as an immutable managed session profile. The first identity
+  is Codex / `gpt-5.6-sol` / `high`, independently of the authored target.
+  Runtime tool overrides/settings sources stay empty because Codex app-server
+  tooling is fixed; the captured declaration inventory participates in the
+  snapshot hash as declarative provenance. The HARNESS_AI_HOME-aware
+  `ProfileStudio/workspace` index is restored independently from registered
+  user workspaces.
 - Every creator dispatch, including the first dispatch after process restart,
   bypasses ordinary workspace model selection and carries the Studio JSON
-  Schema plus the persisted creator-session provider/model turn contract.
+  Schema plus the persisted Creator Agent provider/model/reasoning contract.
 - Raw `structured_output` provider events are intercepted only for
   `profile-creator` sessions. Core validates them through
   `ProfileStudioAgentFacade`, publishes only `assistantResponse` into the

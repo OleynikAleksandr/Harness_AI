@@ -87,7 +87,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 - `profile-studio-lifecycle`: immutable Draft identity, exact provider/model and creator-session binding, deterministic content-hash approval, and edit-to-Draft transition truth.
 - `profile-studio-authoring`: validates complete creator snapshots, honest provider tool modes, and contained raw Native Capture provenance before managed lifecycle updates.
-- `profile-studio-agent`: fixed isolated Claude/Opus/high creator turn spec, persistent dedicated-workspace dispatch, raw structured-result validation and bounded repair with no ambient settings/tools.
+- `profile-studio-agent`: settings-selected Codex/GPT-5.6-Sol/high creator turn spec with the exact loaded composite prompt, persistent dedicated-workspace dispatch, structured-result validation, and no ambient instruction fallback.
 - `profile-studio-read-model`: provider/model targets, compatible creator-session rows, and Core-owned Overview/Prompt/Tools snapshots with honest Claude/Codex/Kimi capability states.
 - `profile-studio-creator-profile`: resolves and validates the settings-selected HARNESS_AI_HOME-aware four-component Creator Agent profile, composes its exact two-part system prompt, and renders only Core-owned initial-assignment placeholders.
 

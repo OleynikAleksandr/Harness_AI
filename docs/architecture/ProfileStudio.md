@@ -484,8 +484,9 @@ active plan:
 - `profile-studio-creator-profile` is **APPLIED** and appears in the Product
   Tree; `profile-studio-creator-bootstrap` remains authoritative and enters the
   tree when its live module lands;
-- the current target-bound inline Creator Agent prompt/session route is being
-  replaced by the settings-selected composite Codex route;
+- settings-selected composite Codex execution, four-component user-space
+  profile and exact two-part managed system prompt are **APPLIED**; target
+  identity is no longer the creator execution identity;
 - manual donor-path selection is being replaced by fresh Core-owned Capture
   and one Core-generated first user message;
 - Codex target tooling will be persisted as declarative-only inventory while

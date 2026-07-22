@@ -27,29 +27,14 @@ process.env.HARNESS_AI_HOME = "/tmp/harness-profile-studio-test";
 
 try {
   const facade = new ProfileStudioAgentFacade();
-  const context = {
-    currentDraft: {
-      customInstructions: "Current custom instructions.",
-      description: "Planning workflow",
-      donorReference: { artifactPath: "/captures/claude-opus.jsonl" },
-      name: "Planning Documents",
-      purpose: "Prepare planning evidence",
-      systemPrompt: "Current reduced foundation.",
-      toolSelection: {
-        mode: "claude-subset",
-        tools: [{ name: "Read" }],
-      },
-    },
-    donorContent: {
-      system: "Full native donor prompt",
-      tools: [{ name: "Read" }, { name: "Bash" }],
-    },
-    profileId: "draft-1",
-    target: { modelId: "opus", providerId: "claude" },
-  };
-  const spec = facade.buildTurnSpec(context);
-  assert.equal(spec.providerId, "claude");
-  assert.equal(spec.modelId, "opus");
+  const spec = facade.buildTurnSpec({
+    modelId: "gpt-5.6-sol",
+    providerId: "codex",
+    reasoningEffort: "high",
+    systemPrompt: "Native Codex prompt\n\nProfile Creator instructions",
+  });
+  assert.equal(spec.providerId, "codex");
+  assert.equal(spec.modelId, "gpt-5.6-sol");
   assert.equal(spec.reasoningEffort, "high");
   assert.deepEqual(spec.settingSources, []);
   assert.deepEqual(spec.tools, []);
@@ -59,31 +44,18 @@ try {
     path.join("/tmp/harness-profile-studio-test", "ProfileStudio", "workspace")
   );
   assert.equal(spec.workspacePath, resolveProfileStudioWorkspacePath());
-  assert.match(spec.systemPrompt, /PROFILE CONTEXT/u);
-  assert.match(spec.systemPrompt, /Full native donor prompt/u);
-  assert.match(spec.systemPrompt, /never a\s+patch/u);
-  assert.match(spec.systemPrompt, /Never mark a\s+profile Valid/u);
+  assert.equal(
+    spec.systemPrompt,
+    "Native Codex prompt\n\nProfile Creator instructions"
+  );
+  assert.doesNotMatch(spec.systemPrompt, /PROFILE CONTEXT/u);
   assert.deepEqual(spec.outputSchema.required, [
     "assistantResponse",
     "draft",
     "nextAction",
   ]);
 
-  const codexSpec = facade.buildTurnSpec({
-    ...context,
-    target: { modelId: "gpt-5.6-sol", providerId: "codex" },
-  });
-  assert.equal(codexSpec.providerId, "codex");
-  assert.equal(codexSpec.modelId, "gpt-5.6-sol");
-  assert.equal(codexSpec.reasoningEffort, "high");
-
-  const kimiSpec = facade.buildTurnSpec({
-    ...context,
-    target: { modelId: "k3", providerId: "kimi-client" },
-  });
-  assert.equal(kimiSpec.providerId, "kimi-client");
-  assert.equal(kimiSpec.modelId, "k3");
-  assert.equal(kimiSpec.reasoningEffort, undefined);
+  assert.equal(facade.getOutputSchema(), spec.outputSchema);
 
   const validResult = facade.parseTurnResult({
     assistantResponse: "I reduced the donor and added planning rules.",

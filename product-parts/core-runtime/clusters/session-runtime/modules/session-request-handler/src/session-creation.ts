@@ -4,7 +4,14 @@ import {
   type ProfileStudioAgentContext,
   ProfileStudioAgentFacade,
   type ProfileStudioAgentTurnSpec,
+  resolveProfileStudioWorkspacePath,
 } from "../../../../profile-studio/modules/profile-studio-agent/src/profile-studio-agent-facade.js";
+import {
+  type ProfileStudioCreatorProfile,
+  ProfileStudioCreatorProfileFacade,
+} from "../../../../profile-studio/modules/profile-studio-creator-profile/src/profile-studio-creator-profile-facade.js";
+import { PROFILE_CREATOR_AGENT_OPTIONS } from "../../../../settings-and-localization/modules/settings-store/src/settings-normalization.js";
+import { SettingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { resolveNextSessionMode } from "./next-session-mode.js";
 import type { SessionProfileResolverLike } from "./session-profile-resolution.js";
 import { createId } from "./session-request-handler-runtime-utils.js";
@@ -16,20 +23,8 @@ import type {
 
 const PROFILE_CREATOR_AGENT_PROFILE_ID = "profile-studio-creator-agent";
 const profileStudioAgent = new ProfileStudioAgentFacade();
-const profileCreatorContractSpec = profileStudioAgent.buildTurnSpec({
-  currentDraft: {
-    customInstructions: "",
-    description: "",
-    donorReference: null,
-    name: "Profile Creator",
-    purpose: "",
-    systemPrompt: "",
-    toolSelection: { mode: "claude-subset", tools: [] },
-  },
-  donorContent: null,
-  profileId: "profile-studio-runtime-contract",
-  target: { modelId: "opus", providerId: "claude" },
-});
+const creatorProfileLoader = new ProfileStudioCreatorProfileFacade();
+const settingsStore = new SettingsStoreFacade();
 
 export interface CreateProfileCreatorSessionRequest {
   readonly context: ProfileStudioAgentContext;
@@ -83,15 +78,41 @@ export async function buildProfileCreatorSession(
       ok: false,
     };
   }
-  const spec = profileStudioAgent.buildTurnSpec(request.context);
+  const selectedProviderId =
+    settingsStore.getSettings().profileStudio.defaultCreatorAgentProviderId;
+  const creatorOption = PROFILE_CREATOR_AGENT_OPTIONS.find(
+    (option) => option.id === selectedProviderId
+  );
+  if (!(creatorOption && creatorOption.reasoningEffort === "high")) {
+    return {
+      error: "Selected Profile Creator Agent configuration is unavailable.",
+      ok: false,
+    };
+  }
+  let creatorProfile: ProfileStudioCreatorProfile;
+  try {
+    creatorProfile = await creatorProfileLoader.load(selectedProviderId);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : String(error),
+      ok: false,
+    };
+  }
+  const spec = profileStudioAgent.buildTurnSpec({
+    modelId: creatorOption.model,
+    providerId: creatorOption.id,
+    reasoningEffort: creatorOption.reasoningEffort,
+    systemPrompt: creatorProfile.effectiveSystemPrompt,
+  });
   await fs.mkdir(spec.workspacePath, { recursive: true });
   const now = new Date().toISOString();
   const contentHash = createHash("sha256")
     .update(
       JSON.stringify({
+        declarativeTools: creatorProfile.toolDeclarations,
         prompt: spec.systemPrompt,
         settingSources: spec.settingSources,
-        tools: spec.tools,
+        runtimeTools: spec.tools,
       })
     )
     .digest("hex");
@@ -102,7 +123,7 @@ export async function buildProfileCreatorSession(
         contentHash,
         kind: "managed",
         profileId: PROFILE_CREATOR_AGENT_PROFILE_ID,
-        profileName: "Profile Creator Agent",
+        profileName: creatorOption.label,
         prompt: spec.systemPrompt,
         toolingCategories: {},
         tools: [],
@@ -141,49 +162,25 @@ export function buildProfileCreatorTurnOptions(
   if (session.sessionPurpose?.type !== "profile-creator") {
     return null;
   }
-  const isClaude = session.providerId === "claude";
   return {
-    ...(isClaude
-      ? {
-          __codeaiAppliedTurnConfig: {
-            modelId: session.model,
-            providerId: "claudeCodeCli",
-            ...(session.reasoningEffort
-              ? { reasoningEffort: session.reasoningEffort }
-              : {}),
-            thinkingDisplaySyncEnabled: true,
-            thinkingEnabled: true,
-          },
-        }
-      : {}),
     model: session.model,
-    outputSchema: profileCreatorContractSpec.outputSchema,
+    outputSchema: profileStudioAgent.getOutputSchema(),
     ...(session.reasoningEffort
       ? { reasoningEffort: session.reasoningEffort }
-      : {}),
-    ...(isClaude
-      ? { thinkingDisplaySyncEnabled: true, thinkingEnabled: true }
       : {}),
   };
 }
 
 function profileCreatorProviderName(
-  providerId: ProfileStudioAgentTurnSpec["providerId"]
+  _providerId: ProfileStudioAgentTurnSpec["providerId"]
 ): string {
-  switch (providerId) {
-    case "claude":
-      return "Claude";
-    case "codex":
-      return "Codex";
-    default:
-      return "Kimi";
-  }
+  return "Codex";
 }
 
 export function includeProfileStudioWorkspace(
   workspaces: readonly { readonly path: string }[]
 ): { path: string }[] {
-  const studioPath = profileCreatorContractSpec.workspacePath;
+  const studioPath = resolveProfileStudioWorkspacePath();
   return workspaces.some((workspace) => workspace.path === studioPath)
     ? [...workspaces]
     : [...workspaces, { path: studioPath }];

@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase15.stream2.task2",
-  "expectedCommitMessage": "feat: compose codex profile creator runtime",
+  "currentTaskId": "harness-ai.phase15.stream3.task1",
+  "expectedCommitMessage": "feat: add profile creator capture bootstrap",
   "debt": null
 }
 ```
@@ -266,12 +266,12 @@
 81. [DONE] `harness-ai.phase15.stream2.task1` Add the Core Runtime `profile-studio-creator-profile` module/class facade that resolves the selected provider-owned profile below `ProfileStudio/CreatorAgents`, validates `system-prompt.md`, `custom-instructions.md`, declarative `tools.json` and `initial-user-message.md`, composes the exact two-part system prompt and renders only Core-supplied message placeholders with no inline/ambient fallback (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: load composite profile creator agent`). Result: Completed in commit `feat: load composite profile creator agent`.
 82. [DONE] Git Commit: `feat: load composite profile creator agent` (hash: self)
 
-83. [IN_PROGRESS] `harness-ai.phase15.stream2.task2` Finalize the user-space Codex Creator Agent components: revise Custom Instructions for semantic raw-JSONL analysis and marker-drift risks, add the readable initial user-message template, preserve the fresh Native prompt/tooling components, and wire `profile-studio-agent`/session creation to the settings-selected Codex GPT-5.6 Sol/high identity independently of the target provider/model (scope: `~/.harness-ai/ProfileStudio/CreatorAgents/Codex/**` plus up to 3 profile-studio/session-runtime functional files and related docs; expected commit: `feat: compose codex profile creator runtime`).
-84. [TODO] Git Commit: `feat: compose codex profile creator runtime` (hash: TBD)
+83. [DONE] `harness-ai.phase15.stream2.task2` Finalize the user-space Codex Creator Agent components: revise Custom Instructions for semantic raw-JSONL analysis and marker-drift risks, add the readable initial user-message template, preserve the fresh Native prompt/tooling components, and wire `profile-studio-agent`/session creation to the settings-selected Codex GPT-5.6 Sol/high identity independently of the target provider/model (scope: `~/.harness-ai/ProfileStudio/CreatorAgents/Codex/**` plus up to 3 profile-studio/session-runtime functional files and related docs; expected commit: `feat: compose codex profile creator runtime`). Result: Completed in commit `feat: compose codex profile creator runtime`.
+84. [DONE] Git Commit: `feat: compose codex profile creator runtime` (hash: self)
 
 ### Stream: Capture-First Bootstrap And First Turn
 
-85. [TODO] `harness-ai.phase15.stream3.task1` Add the Core Runtime `profile-studio-creator-bootstrap` module/class facade that owns Capture-first preparation, target→capture-channel mapping, raw JSONL containment/completion/identity validation, capture id/hash provenance and immutable first-assignment inputs without parsing provider prompt/tool markers (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: add profile creator capture bootstrap`).
+85. [IN_PROGRESS] `harness-ai.phase15.stream3.task1` Add the Core Runtime `profile-studio-creator-bootstrap` module/class facade that owns Capture-first preparation, target→capture-channel mapping, raw JSONL containment/completion/identity validation, capture id/hash provenance and immutable first-assignment inputs without parsing provider prompt/tool markers (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: add profile creator capture bootstrap`).
 86. [TODO] Git Commit: `feat: add profile creator capture bootstrap` (hash: TBD)
 
 87. [TODO] `harness-ai.phase15.stream3.task2` Recompose the Core Create Profile RPC so one raw intent preflights the selected Creator Agent, runs a fresh target Native Capture, creates/binds the Draft and Codex creator session only after success, publishes and dispatches exactly one rendered first user message, preserves the session on provider errors and never asks renderer/user to locate Capture artifacts (scope: up to 3 functional files — Core Profile Studio RPC/composition, reusable native-capture entry and session dispatch — plus focused tests and related docs; expected commit: `feat: start capture first profile creator sessions`).

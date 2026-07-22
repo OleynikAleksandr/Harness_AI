@@ -58,13 +58,13 @@ target и creator session, сравнивает direct approval с текущи�
 hash и вызывает узкий `markStudioDraftValid()` только после совпадения.
 Следующий controlled snapshot снова записывает `status: draft`.
 
-CURRENT creator-session runtime создаёт persistent primary-сессию с purpose
+APPLIED creator-session runtime создаёт persistent primary-сессию с purpose
 `profile-creator` и отдельным HARNESS_AI_HOME-aware
 `ProfileStudio/workspace`; этот workspace index восстанавливается независимо
 от пользовательских workspaces. Принятый Capture-first continuation заменяет
 target-bound execution identity на system setting: первый вариант — Codex /
 `gpt-5.6-sol` / `high`, независимо от provider/model создаваемого профиля.
-Managed prompt snapshot должен состоять только из загруженных
+Managed prompt snapshot состоит только из загруженных
 `CreatorAgents/Codex/system-prompt.md` и `custom-instructions.md`, а Codex
 native tools остаются fixed runtime registry с декларативным `tools.json`.
 Каждый creator turn по-прежнему получает Studio JSON Schema.

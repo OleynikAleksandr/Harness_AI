@@ -283,7 +283,7 @@
             {
               "id": "profile-studio-agent",
               "name": "Profile Studio Agent",
-              "purpose": "Fixed isolated Claude/Opus/high creator turn spec, persistent dedicated-workspace dispatch, raw structured-result validation and bounded repair with no ambient settings/tools."
+              "purpose": "Settings-selected Codex/GPT-5.6-Sol/high creator turn spec with the exact loaded composite prompt, persistent dedicated-workspace dispatch, structured-result validation and no ambient instruction fallback."
             },
             {
               "id": "profile-studio-read-model",

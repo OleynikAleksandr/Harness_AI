@@ -4,6 +4,7 @@ import type {
   ProfileStudioCreatorSnapshot,
   ProfileStudioToolSelection,
 } from "../../profile-studio-authoring/src/profile-studio-authoring-facade.js";
+import type { ProfileStudioCreatorAgentProviderId } from "../../profile-studio-creator-profile/src/profile-studio-creator-profile-facade.js";
 import type { ProfileStudioProviderId } from "../../profile-studio-lifecycle/src/profile-studio-lifecycle-facade.js";
 
 export interface ProfileCreatorTurnResult {
@@ -33,13 +34,20 @@ export interface ProfileStudioAgentContext {
 export interface ProfileStudioAgentTurnSpec {
   readonly modelId: string;
   readonly outputSchema: Readonly<Record<string, unknown>>;
-  readonly providerId: ProfileStudioProviderId;
-  readonly reasoningEffort?: "high";
+  readonly providerId: ProfileStudioCreatorAgentProviderId;
+  readonly reasoningEffort: "high";
   readonly settingSources: readonly [];
   readonly systemPrompt: string;
   readonly tools: readonly [];
   readonly workspaceId: "profile-studio";
   readonly workspacePath: string;
+}
+
+export interface ProfileStudioAgentExecutionProfile {
+  readonly modelId: string;
+  readonly providerId: ProfileStudioCreatorAgentProviderId;
+  readonly reasoningEffort: "high";
+  readonly systemPrompt: string;
 }
 
 export type ProfileCreatorTurnParseResult =
@@ -103,20 +111,23 @@ const PROFILE_CREATOR_OUTPUT_SCHEMA = {
 
 export class ProfileStudioAgentFacade {
   buildTurnSpec(
-    context: ProfileStudioAgentContext
+    executionProfile: ProfileStudioAgentExecutionProfile
   ): ProfileStudioAgentTurnSpec {
-    const { modelId, providerId } = context.target;
     return {
-      modelId,
+      modelId: executionProfile.modelId,
       outputSchema: PROFILE_CREATOR_OUTPUT_SCHEMA,
-      providerId,
-      ...(providerId === "kimi-client" ? {} : { reasoningEffort: "high" }),
+      providerId: executionProfile.providerId,
+      reasoningEffort: executionProfile.reasoningEffort,
       settingSources: [],
-      systemPrompt: buildInlineSystemPrompt(context),
+      systemPrompt: executionProfile.systemPrompt,
       tools: [],
       workspaceId: "profile-studio",
       workspacePath: resolveProfileStudioWorkspacePath(),
     };
+  }
+
+  getOutputSchema(): Readonly<Record<string, unknown>> {
+    return PROFILE_CREATOR_OUTPUT_SCHEMA;
   }
 
   parseTurnResult(value: unknown): ProfileCreatorTurnParseResult {
@@ -157,34 +168,6 @@ export function resolveProfileStudioWorkspacePath(): string {
   const harnessHome =
     process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai");
   return path.join(harnessHome, "ProfileStudio", "workspace");
-}
-
-function buildInlineSystemPrompt(context: ProfileStudioAgentContext): string {
-  return `You are the Harness AI Profile Creator Agent.
-
-Your only job is to discuss and author one provider/model-specific Custom
-Profile with the user. Start from the supplied Native Capture donor when it is
-present: reduce and reformat its system prompt to the target task, removing
-general-purpose instructions. Then discuss what short custom instructions and
-skills are still missing for that task and add them to the custom part.
-
-The profile always has exactly two prompt source parts:
-1. systemPrompt: the reduced Native foundation.
-2. customInstructions: concise task-specific additions.
-
-Do not use or request AGENTS.md, CLAUDE.md, Skills, project settings or other
-ambient instruction files. You have no filesystem, shell, web or provider
-tools. Everything authoritative for this turn is inline below. Never mark a
-profile Valid; only the user can approve the exact current content hash.
-
-Return JSON matching the supplied schema. A discussion-only turn uses
-draft=null. When proposing changes, return the entire draft snapshot, never a
-patch. Use request-approval only when the full snapshot is ready for the
-user's direct approval. Tool mode must match the target: claude-subset,
-codex-fixed or kimi-candidate.
-
-PROFILE CONTEXT (authoritative inline JSON):
-${JSON.stringify(context, null, 2)}`;
 }
 
 function toolSelectionSchema(mode: string, toolsType: "array" | "null") {

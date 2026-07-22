@@ -22,13 +22,13 @@ controlled passport transition; direct/manual profile editing and recovery are
 outside this first stage.
 Authoring validates complete creator snapshots, honest provider tool modes and
 contained raw Native Capture donor truth before delegating one atomic update.
-Agent owns the selected provider/model isolated runtime spec, inline complete
-context and full-snapshot JSON Schema/parse contract. Claude/Codex creator
-targets use high reasoning; Kimi keeps provider-managed reasoning. Session Runtime now
-creates and restores its managed creator sessions in the dedicated Studio
+Agent owns the settings-selected Codex execution spec and full-snapshot JSON
+Schema/parse contract. Its system prompt is the exact output of the creator
+profile loader; target/Capture context is not appended to that prompt. Session
+Runtime creates and restores managed creator sessions in the dedicated Studio
 workspace, attaches the schema to every creator dispatch, and applies valid
-raw structured results through controlled authoring with a bounded repair
-turn on rejection.
+raw structured results through controlled authoring with a bounded repair turn
+on rejection.
 Read model supplies provider/model targets, compatible creator-session rows and
 Core-owned Overview/Prompt/Tools snapshots with honest provider capabilities.
 Creator profile loading resolves the settings-selected HARNESS_AI_HOME-aware

@@ -452,6 +452,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   immediately, Studio-mode session events refresh only the reserved workspace,
   and same-id catalog reconciliation cannot erase the loaded inspector —
   **APPLIED**;
+- Studio re-entry resolves provider/model from the selected profile's
+  structured Core target rather than the now-independent Creator Agent session
+  identity, preserving Claude/Codex/Kimi selection — **APPLIED**;
 - Studio v2 storage parsing is **APPLIED**: exact provider/model passports,
   creator-session/donor metadata and Draft-tolerant two-part sources are live;
 - Studio v2 atomic Draft authoring and exact provider/model catalog are

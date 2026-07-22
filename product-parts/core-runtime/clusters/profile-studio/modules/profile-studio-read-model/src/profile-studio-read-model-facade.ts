@@ -42,6 +42,10 @@ export interface ProfileStudioInspectorSnapshot {
     readonly donorLabel: string;
     readonly profileId: string;
     readonly purpose: string;
+    readonly target: {
+      readonly modelId: string;
+      readonly providerId: ProfileStudioProviderId;
+    };
     readonly targetLabel: string;
   };
   readonly prompt: {
@@ -220,6 +224,7 @@ function buildOverview(
       : "Native Capture donor не выбран",
     profileId: profile.profileId,
     purpose: profile.purpose,
+    target: profile.target,
     targetLabel: `${profile.target.providerId} / ${profile.target.modelId}`,
   };
 }

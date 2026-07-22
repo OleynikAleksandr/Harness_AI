@@ -57,7 +57,9 @@ The ordinary Session Window owns entry and return:
   restore begins, and stale list responses from the previous ordinary
   workspace are rejected by the shared session controller;
 - the newest restored creator session seeds the exact provider, model and
-  profile row, so its transcript remains selected after return and re-entry;
+  profile row from the bound profile's Core inspector target, not from the
+  independent Creator Agent execution identity, so Claude/Kimi Drafts remain
+  selected even though the first Creator Agent always runs on Codex;
 - return reloads the previously selected user workspace/session list;
 - detached-session windows do not render the ordinary sidebar and therefore
   cannot enter Studio mode.

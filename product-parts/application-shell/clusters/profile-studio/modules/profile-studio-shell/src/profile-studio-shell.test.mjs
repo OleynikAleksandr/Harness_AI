@@ -66,6 +66,10 @@ assert.match(sessionWindowSource, /applicationModeRef\.current === "studio"/u);
 assert.match(shellSource, /resolveInitialSelection/u);
 assert.match(shellSource, /initialCreatorSessionRef/u);
 assert.match(shellSource, /profileId: session\.sessionPurpose\.profileId/u);
+assert.match(shellSource, /profile\.snapshot\.overview\.target/u);
+assert.match(shellSource, /storedTarget\?\.providerId/u);
+assert.match(shellSource, /storedTarget\?\.modelId/u);
+assert.doesNotMatch(shellSource, /target\.id === session\.providerId/u);
 assert.match(shellSource, /deletePendingProfileId/u);
 assert.match(shellSource, /selectProfile\(remainingProfiles\[0\] \?\? null\)/u);
 

@@ -95,7 +95,7 @@
             {
               "id": "profile-studio-shell",
               "name": "Profile Studio Shell",
-              "purpose": "Single-window three-column Studio composition, Core snapshot/action forwarding, Capture-first Create convergence, creator-session activation and return to ordinary sessions."
+              "purpose": "Single-window three-column Studio composition, Core snapshot/action forwarding, Capture-first Create convergence, profile-target-based creator-session restoration and return to ordinary sessions."
             }
           ]
         },
@@ -288,7 +288,7 @@
             {
               "id": "profile-studio-read-model",
               "name": "Profile Studio Read Model",
-              "purpose": "Provider/model targets, compatible creator-session rows and Core-owned Overview/Prompt/Tools snapshots with Claude subsets, declarative-only fixed Codex inventories and Kimi Draft-only truth."
+              "purpose": "Provider/model targets, compatible creator-session rows and Core-owned Overview/Prompt/Tools snapshots with structured target identity, Claude subsets, declarative-only fixed Codex inventories and Kimi Draft-only truth."
             },
             {
               "id": "profile-studio-creator-profile",

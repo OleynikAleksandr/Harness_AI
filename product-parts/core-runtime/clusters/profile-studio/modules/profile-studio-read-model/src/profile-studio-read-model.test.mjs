@@ -160,6 +160,10 @@ assert.equal(rows[0].status, "draft");
 const claudeInspector = await claudeReadModel.getInspector("draft-1");
 assert.equal(claudeInspector.ok, true);
 assert.equal(claudeInspector.snapshot.overview.canApprove, true);
+assert.deepEqual(claudeInspector.snapshot.overview.target, {
+  modelId: "opus",
+  providerId: "claude",
+});
 assert.match(claudeInspector.snapshot.overview.donorLabel, /capture-1/u);
 assert.equal(
   claudeInspector.snapshot.prompt.nativeFoundation,

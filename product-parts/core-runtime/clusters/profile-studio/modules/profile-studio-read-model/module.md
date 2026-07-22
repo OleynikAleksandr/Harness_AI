@@ -11,7 +11,8 @@ there is no Native or legacy row.
 `getInspector()` composes the three accepted tabs from Core data:
 
 - Overview: exact target, purpose, Draft/Valid, content hash, creator session,
-  «Основан на Native Capture …» provenance and Core-derived approval readiness;
+  structured target identity, «Основан на Native Capture …» provenance and
+  Core-derived approval readiness;
 - Custom System Prompt: stored Native foundation, stored Custom additions and
   deterministic compiled prompt;
 - Custom System Tools: selected structured tools and provider capability mode.

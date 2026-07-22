@@ -71,15 +71,18 @@ export function ProfileStudioShellFacade({
     let cancelled = false;
     window.harnessCore
       ?.listProfileStudioTargets()
-      .then((result) => {
+      .then(async (result) => {
         if (cancelled) {
           return;
         }
         setTargets(result.targets);
-        const initial = resolveInitialSelection(
+        const initial = await resolveInitialSelection(
           result.targets,
           initialCreatorSessionRef.current
         );
+        if (cancelled) {
+          return;
+        }
         selectedProfileIdRef.current = initial?.profileId ?? null;
         setSelectedProviderId(initial?.providerId ?? null);
         setSelectedModelId(initial?.modelId ?? "");
@@ -344,17 +347,25 @@ function firstTarget(targets: readonly ProfileStudioTargetProvider[]): {
   return null;
 }
 
-function resolveInitialSelection(
+async function resolveInitialSelection(
   targets: readonly ProfileStudioTargetProvider[],
   session: CoreSession | undefined
-): {
+): Promise<{
   readonly modelId: string;
   readonly profileId: string | null;
   readonly providerId: ProfileStudioTargetProvider["id"];
-} | null {
+} | null> {
   if (session?.sessionPurpose?.type === "profile-creator") {
-    const provider = targets.find((target) => target.id === session.providerId);
-    const model = provider?.models.find((item) => item.id === session.model);
+    const profile = await window.harnessCore?.getProfileStudioProfile({
+      profileId: session.sessionPurpose.profileId,
+    });
+    const storedTarget = profile?.ok ? profile.snapshot.overview.target : null;
+    const provider = targets.find(
+      (target) => target.id === storedTarget?.providerId
+    );
+    const model = provider?.models.find(
+      (item) => item.id === storedTarget?.modelId
+    );
     if (provider && model) {
       return {
         modelId: model.id,

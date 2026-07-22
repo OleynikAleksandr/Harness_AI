@@ -321,3 +321,71 @@ renderer process `48768`.
    чистыми.
 6. Подтвердить, что русский язык и обе изменяемые границы панелей продолжают
    работать.
+
+Пользовательская проверка отклонила этот пакет: финальный `final_answer`
+отображался правильно, но два `agentMessage.phase=commentary` того же turn
+были сохранены как сырые JSON envelopes. Session evidence зафиксировал их с
+`tag: "commentary"`, тогда как финальный event уже имел id suffix
+`structured_output::profile_creator_response`.
+
+## Codex Creator Commentary Projection Package
+
+Commit `849e65b3` (`fix: normalize creator commentary output`) расширяет
+нормализацию на все schema-bound сообщения Codex turn:
+
+- валидный JSON `commentary` становится phase-marked `structured_output`, но
+  не снимает ожидание финального результата;
+- Core валидирует его тем же `ProfileStudioAgentFacade`, публикует только
+  декодированный `assistantResponse` и сохраняет визуальный tag `commentary`;
+- Core завершает обработку промежуточной фазы до `applyCreatorSnapshot`,
+  очистки pending repair или запуска нового repair turn;
+- финальный `structured_output` по-прежнему снимает ожидание, может применить
+  полный Draft и владеет bounded repair;
+- обычные Codex commentary без `outputSchema` остаются стандартными
+  `dialog_message`.
+
+Поведенческий тест проводит на одном turn state сначала commentary JSON, затем
+final JSON: первый event имеет `phase: commentary`, отдаёт чистый русский
+`assistantResponse` и сохраняет `structuredOutputExpected: true`; второй имеет
+`phase: final_answer` и переводит expectation в `false`. Implementation commit
+прошёл architecture, Ultracite, Knip, typecheck, docs-sync и
+`Tests: OK (148)`.
+
+Production build и `npm run package:mac` из revision `849e65b3` создали:
+
+- application: `release/mac-arm64/Harness AI.app`;
+- bundle identifier: `ai.harness.desktop`;
+- renderer: `/dist/renderer/assets/index-DimWUakc.js` и
+  `/dist/renderer/assets/index-DGrvNM_0.css`;
+- transformed renderer modules: `337`;
+- `app.asar` size: `32510272` bytes;
+- `app.asar` modification time: `2026-07-22T12:39:19+0200`;
+- SHA-256:
+  `e2d3fa96d5b33f8cd5a29f9de41a1d1ec20073d59e03e2cef0916f7afdb75cca`.
+
+Распаковка `app.asar` подтвердила:
+
+- Codex projector вызывает `buildStructuredOutput(..., "commentary")` и не
+  сбрасывает final expectation на этой ветке;
+- final branch вызывает `buildStructuredOutput(..., "final_answer")` после
+  `structuredOutputExpected = false`;
+- Core определяет `event.phase === "commentary"`, публикует response с
+  `tag: "commentary"` и возвращается до `parsed.result.draft`.
+
+Пакет успешно запущен: main process `66519`, Core Runtime process `66651`,
+renderer process `66696`.
+
+### Фокус повторной проверки нескольких сообщений
+
+1. Продолжить текущую Creator Session или создать новый Draft.
+2. Отправить содержательный запрос, при котором агент публикует несколько
+   промежуточных сообщений до финального ответа.
+3. Проверить каждое новое сообщение: оно должно начинаться непосредственно с
+   текста `assistantResponse`, без `{"assistantResponse":`, `"draft"` и
+   `"nextAction"`.
+4. Проверить реальные переносы строк во всех промежуточных и финальном
+   сообщениях.
+5. Убедиться, что промежуточные карточки сохранили commentary-оформление, а
+   финальный ответ остаётся обычной карточкой Codex.
+6. Старые сырые JSON-сообщения в уже сохранённой истории не переписываются;
+   проверяются только сообщения, полученные после запуска этого пакета.

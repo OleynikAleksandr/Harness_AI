@@ -487,8 +487,9 @@ active plan:
 - settings-selected composite Codex execution, four-component user-space
   profile and exact two-part managed system prompt are **APPLIED**; target
   identity is no longer the creator execution identity;
-- manual donor-path selection is being replaced by fresh Core-owned Capture
-  and one Core-generated first user message;
+- fresh Core-owned target Capture, pre-Draft validation and exactly one
+  Core-generated first user message are **APPLIED** through the ordinary
+  persistent session dispatch path;
 - Codex target tooling will be persisted as declarative-only inventory while
   the runtime app-server registry remains fixed;
 - Custom Capture remains explicitly deferred.

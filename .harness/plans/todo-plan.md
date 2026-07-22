@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase15.stream3.task2",
-  "expectedCommitMessage": "feat: start capture first profile creator sessions",
+  "currentTaskId": "harness-ai.phase15.stream3.task3",
+  "expectedCommitMessage": "feat: persist declarative codex tooling",
   "debt": null
 }
 ```
@@ -274,10 +274,10 @@
 85. [DONE] `harness-ai.phase15.stream3.task1` Add the Core Runtime `profile-studio-creator-bootstrap` module/class facade that owns Capture-first preparation, target→capture-channel mapping, raw JSONL containment/completion/identity validation, capture id/hash provenance and immutable first-assignment inputs without parsing provider prompt/tool markers (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: add profile creator capture bootstrap`). Result: Completed in commit `feat: add profile creator capture bootstrap`.
 86. [DONE] Git Commit: `feat: add profile creator capture bootstrap` (hash: self)
 
-87. [IN_PROGRESS] `harness-ai.phase15.stream3.task2` Recompose the Core Create Profile RPC so one raw intent preflights the selected Creator Agent, runs a fresh target Native Capture, creates/binds the Draft and Codex creator session only after success, publishes and dispatches exactly one rendered first user message, preserves the session on provider errors and never asks renderer/user to locate Capture artifacts (scope: up to 3 functional files — Core Profile Studio RPC/composition, reusable native-capture entry and session dispatch — plus focused tests and related docs; expected commit: `feat: start capture first profile creator sessions`).
-88. [TODO] Git Commit: `feat: start capture first profile creator sessions` (hash: TBD)
+87. [DONE] `harness-ai.phase15.stream3.task2` Recompose the Core Create Profile RPC so one raw intent preflights the selected Creator Agent, runs a fresh target Native Capture, creates/binds the Draft and Codex creator session only after success, publishes and dispatches exactly one rendered first user message, preserves the session on provider errors and never asks renderer/user to locate Capture artifacts (scope: up to 3 functional files — Core Profile Studio RPC/composition, reusable native-capture entry and session dispatch — plus focused tests and related docs; expected commit: `feat: start capture first profile creator sessions`). Result: Completed in commit `feat: start capture first profile creator sessions`.
+88. [DONE] Git Commit: `feat: start capture first profile creator sessions` (hash: self)
 
-89. [TODO] `harness-ai.phase15.stream3.task3` Extend structured target-profile authoring so Codex `codex-fixed` stores the exact extracted Native inventory as `declarative-only` tooling while runtime application remains fixed, preserve Claude subset/Kimi candidate honesty, and keep agent-authored profile documents atomic and Draft-only (scope: up to 3 functional files — Profile Studio agent schema, authoring validation and read model/application projection — plus focused tests and related docs; expected commit: `feat: persist declarative codex tooling`).
+89. [IN_PROGRESS] `harness-ai.phase15.stream3.task3` Extend structured target-profile authoring so Codex `codex-fixed` stores the exact extracted Native inventory as `declarative-only` tooling while runtime application remains fixed, preserve Claude subset/Kimi candidate honesty, and keep agent-authored profile documents atomic and Draft-only (scope: up to 3 functional files — Profile Studio agent schema, authoring validation and read model/application projection — plus focused tests and related docs; expected commit: `feat: persist declarative codex tooling`).
 90. [TODO] Git Commit: `feat: persist declarative codex tooling` (hash: TBD)
 
 ### Stream: Honest Application Shell State

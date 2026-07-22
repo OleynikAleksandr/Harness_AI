@@ -70,6 +70,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Every creator dispatch, including the first dispatch after process restart,
   bypasses ordinary workspace model selection and carries the Studio JSON
   Schema plus the persisted Creator Agent provider/model/reasoning contract.
+  After Capture, Runtime Process submits the rendered initial assignment via
+  the same `sendMessage()` path, so it is persisted as an ordinary user message
+  before provider dispatch; asynchronous provider errors preserve the Draft,
+  session and transcript.
 - Raw `structured_output` provider events are intercepted only for
   `profile-creator` sessions. Core validates them through
   `ProfileStudioAgentFacade`, publishes only `assistantResponse` into the

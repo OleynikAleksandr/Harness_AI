@@ -69,7 +69,7 @@ Managed prompt snapshot состоит только из загруженных
 native tools остаются fixed runtime registry с декларативным `tools.json`.
 Каждый creator turn по-прежнему получает Studio JSON Schema.
 
-Перед созданием Draft/session Core запускает fresh Native Request Capture для
+APPLIED: перед созданием Draft/session Core запускает fresh Native Request Capture для
 target и проверяет raw JSONL containment, completion, identity, capture id и
 hash. Core не извлекает prompt/tools по provider-specific JSON labels:
 semantic separation выполняет Creator Agent. После успешного Capture Core

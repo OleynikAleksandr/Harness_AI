@@ -39,9 +39,12 @@ state.
 - Server-sent Core events and RPC results.
 - Typed Profile Studio RPC composition lives in
   `core-profile-studio-rpc.ts`: target/profile/inspector reads use Core
-  facades, Create couples one Draft with one pre-minted persistent creator
-  session whose id/provider/model reflect the selected target, and Approve
-  forwards the exact content hash while blocking Kimi
+  facades. Create first preflights the settings-selected composite Creator
+  Agent profile, reuses the native-capture entry for a fresh target Capture,
+  validates its raw provenance, then couples one Draft with one pre-minted
+  persistent Codex creator session and dispatches exactly one Core-rendered
+  first user message. Target provider/model remain authoring context rather
+  than creator execution identity. Approve forwards the exact content hash while blocking Kimi
   until its capability ceiling is satisfied. Delete accepts one profile id,
   delegates validated Studio document removal to lifecycle/authoring, then
   passes the returned creator-session id through the existing Session Runtime
@@ -214,6 +217,8 @@ state.
   `kimi-native-capture` and never enters `PROVIDER_IDS` or
   `buildProviderAdapterInstance`; other providers return
   `provider_not_supported`.
+  The same typed function is reused in-process by Profile Studio bootstrap;
+  renderer code never starts a second capture workflow or locates artifacts.
   Its Codex list mirrors the app-server-visible GPT-5.6 Sol/Terra/Luna-first
   order and omits retired GPT-5.2.
   Its Kimi list is `kimi-for-coding`, `kimi-for-coding-highspeed`, `k3` with

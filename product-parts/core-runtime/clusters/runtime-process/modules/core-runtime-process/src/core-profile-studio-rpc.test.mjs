@@ -37,11 +37,20 @@ for (const method of [
 }
 
 assert.match(rpcSource, /class CoreProfileStudioRpcFacade/u);
+assert.match(rpcSource, /new ProfileStudioCreatorProfileFacade\(\)/u);
+assert.match(rpcSource, /new ProfileStudioCreatorBootstrapFacade\(\{/u);
+assert.match(rpcSource, /captureNativeRequestRpcResult/u);
+assert.match(rpcSource, /creatorProfileLoader\.load\(creatorProviderId\)/u);
+assert.match(rpcSource, /creatorBootstrap\.prepare\(\{/u);
 assert.match(rpcSource, /profileLifecycle\.createDraft\(\{/u);
 assert.match(rpcSource, /createProfileCreatorSession\(\{/u);
-assert.match(
-  rpcSource,
-  /`session-\$\{target\.target\.providerId\}-\$\{randomUUID\(\)\}`/u
+assert.match(rpcSource, /`session-profile-creator-\$\{randomUUID\(\)\}`/u);
+assert.match(rpcSource, /renderInitialUserMessage/u);
+assert.match(rpcSource, /rawCaptureSha256/u);
+assert.match(rpcSource, /sessionRequestHandlerFacade\.sendMessage\(\{/u);
+assert.equal(
+  rpcSource.match(/sessionRequestHandlerFacade\.sendMessage\(\{/gu)?.length,
+  1
 );
 assert.match(rpcSource, /providerId === "kimi-client"/u);
 assert.match(rpcSource, /profileLifecycle\.deleteProfile\(profileId\)/u);

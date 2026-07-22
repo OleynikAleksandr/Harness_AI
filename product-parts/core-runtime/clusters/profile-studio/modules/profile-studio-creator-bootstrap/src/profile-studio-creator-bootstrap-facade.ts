@@ -66,14 +66,26 @@ export class ProfileStudioCreatorBootstrapFacade {
     request: ProfileStudioCreatorCaptureRequest
   ): Promise<ProfileStudioCreatorBootstrapResult> {
     const captureProviderId = mapTargetToCaptureProvider(request.providerId);
-    const capture = await this.captureRunner.capture({
-      modelId: request.modelId,
-      providerId: captureProviderId,
-      ...(request.reasoningEffort
-        ? { reasoningEffort: request.reasoningEffort }
-        : {}),
-      workspacePath: request.workspacePath,
-    });
+    let capture: Awaited<
+      ReturnType<ProfileStudioNativeCaptureRunner["capture"]>
+    >;
+    try {
+      capture = await this.captureRunner.capture({
+        modelId: request.modelId,
+        providerId: captureProviderId,
+        ...(request.reasoningEffort
+          ? { reasoningEffort: request.reasoningEffort }
+          : {}),
+        workspacePath: request.workspacePath,
+      });
+    } catch (error) {
+      return {
+        error: `Native Request Capture failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        ok: false,
+      };
+    }
     if (!(capture.ok && capture.jsonlPath)) {
       return {
         error: `Native Request Capture failed: ${capture.error ?? "unknown error"}`,

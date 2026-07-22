@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { providerDescriptorFacade } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
+import { resolveProfileStudioWorkspacePath } from "../../../../profile-studio/modules/profile-studio-agent/src/profile-studio-agent-facade.js";
+import { ProfileStudioCreatorBootstrapFacade } from "../../../../profile-studio/modules/profile-studio-creator-bootstrap/src/profile-studio-creator-bootstrap-facade.js";
+import {
+  type ProfileStudioCreatorProfile,
+  ProfileStudioCreatorProfileFacade,
+} from "../../../../profile-studio/modules/profile-studio-creator-profile/src/profile-studio-creator-profile-facade.js";
 import {
   ProfileStudioLifecycleFacade,
   type ProfileStudioProviderId,
@@ -13,7 +19,9 @@ import {
   ProfileStoreFacade,
 } from "../../../../session-profiles/modules/profile-store/src/profile-store-facade.js";
 import { sessionRequestHandlerFacade } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
+import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { createBuiltinToolSource } from "../../../../universal-client/modules/builtin-tools/src/builtin-tools-facade.js";
+import { captureNativeRequestRpcResult } from "./core-native-capture-rpc.js";
 
 const profileStore = new ProfileStoreFacade();
 const profileMaterializer = new ProfileMaterializerFacade();
@@ -29,6 +37,20 @@ const profileReadModel = new ProfileStudioReadModelFacade({
   profileStore,
   providerDescriptor: providerDescriptorFacade,
   universalToolSource: createBuiltinToolSource(),
+});
+const creatorProfileLoader = new ProfileStudioCreatorProfileFacade();
+const creatorBootstrap = new ProfileStudioCreatorBootstrapFacade({
+  captureRunner: {
+    capture: ({ modelId, providerId, reasoningEffort, workspacePath }) =>
+      captureNativeRequestRpcResult(
+        {
+          model: modelId,
+          providerId,
+          ...(reasoningEffort ? { reasoningEffort } : {}),
+        },
+        workspacePath
+      ),
+  },
 });
 
 export class CoreProfileStudioRpcFacade {
@@ -62,7 +84,27 @@ export class CoreProfileStudioRpcFacade {
     if (!target.ok) {
       return target;
     }
-    const sessionId = `session-${target.target.providerId}-${randomUUID()}`;
+    const creatorProviderId =
+      settingsStoreFacade.getSettings().profileStudio
+        .defaultCreatorAgentProviderId;
+    let creatorProfile: ProfileStudioCreatorProfile;
+    try {
+      creatorProfile = await creatorProfileLoader.load(creatorProviderId);
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : String(error),
+        ok: false,
+      };
+    }
+    const capture = await creatorBootstrap.prepare({
+      modelId: target.target.modelId,
+      providerId: target.target.providerId,
+      workspacePath: resolveProfileStudioWorkspacePath(),
+    });
+    if (!capture.ok) {
+      return capture;
+    }
+    const sessionId = `session-profile-creator-${randomUUID()}`;
     const draft = await profileLifecycle.createDraft({
       creatorSessionId: sessionId,
       modelId: target.target.modelId,
@@ -105,7 +147,31 @@ export class CoreProfileStudioRpcFacade {
     if (!session.ok) {
       return session;
     }
-    return { ok: true, profile: draft.profile, session: session.session };
+    const initialMessage = creatorProfileLoader.renderInitialUserMessage(
+      creatorProfile,
+      {
+        captureId: capture.provenance.captureId,
+        profileId: draft.profile.profileId,
+        rawCapturePath: capture.provenance.rawCapturePath,
+        rawCaptureSha256: capture.provenance.rawCaptureSha256,
+        targetModelId: capture.provenance.targetModelId,
+        targetProviderId: capture.provenance.targetProviderId,
+        targetReasoning: capture.provenance.targetReasoning,
+      }
+    );
+    const dispatched = sessionRequestHandlerFacade.sendMessage({
+      sessionId,
+      text: initialMessage,
+    });
+    if (!dispatched.ok) {
+      return dispatched;
+    }
+    return {
+      capture: capture.provenance,
+      ok: true,
+      profile: draft.profile,
+      session: dispatched.session,
+    };
   }
 
   async approveDraft(payload: unknown): Promise<unknown> {

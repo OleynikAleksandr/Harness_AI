@@ -6,6 +6,8 @@ Owns the mechanical Capture-first preparation that must succeed before Core
 creates a target Draft or Creator Agent session. It maps Studio target ids to
 diagnostic capture channels (`kimi-client` to `kimi`), invokes a supplied
 Native Capture runner and validates the resulting raw artifact.
+Thrown provider/bootstrap failures are normalized to the same structured
+pre-Draft failure result as ordinary Capture errors.
 
 Validation is limited to Core-owned envelope facts: HARNESS_AI_HOME capture
 root containment after symlink resolution, readable JSONL records, successful

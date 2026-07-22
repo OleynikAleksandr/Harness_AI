@@ -148,6 +148,22 @@ try {
     ok: false,
   });
 
+  const thrown = await new ProfileStudioCreatorBootstrapFacade({
+    captureRunner: {
+      capture() {
+        return Promise.reject(new Error("provider bootstrap broke"));
+      },
+    },
+  }).prepare({
+    modelId: "gpt-5.6-sol",
+    providerId: "codex",
+    workspacePath: "/workspace",
+  });
+  assert.deepEqual(thrown, {
+    error: "Native Request Capture failed: provider bootstrap broke",
+    ok: false,
+  });
+
   console.log("profile-studio-creator-bootstrap tests: OK");
 } finally {
   rmSync(harnessHome, { force: true, recursive: true });

@@ -83,9 +83,12 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   `ProfileStudioAgentFacade`, publishes only `assistantResponse` into the
   ordinary dialog and sends complete snapshots through controlled atomic
   authoring. Claude supplies the object directly; Codex provider runtime
-  converts its schema-bound final JSON message into the same event before the
-  ordinary dialog projector, so JSON envelope fields and escaped newline
-  markers never become session messages. Invalid schema or authoring results leave files unchanged,
+  converts phase-marked schema-bound commentary/final JSON into the same event
+  before the ordinary dialog projector, so envelope fields and escaped newline
+  markers never become session messages. Valid commentary publishes only its
+  decoded response with the `commentary` tag; it cannot apply a Draft, clear a
+  pending final repair or start repair while the current turn is still
+  running. Invalid final schema or authoring results leave files unchanged,
   publish a system repair notice and enqueue at most one automatic
   schema-bound repair turn; a second invalid repair stops instead of looping.
 - Provider dispatch requests through the provider adapter contract.

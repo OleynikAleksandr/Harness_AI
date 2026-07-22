@@ -22,8 +22,8 @@ provider-backed translation engines composed by Core Runtime only.
   collaboration/subagent lifecycle events when a provider exposes them.
 - Preserve provider structured-output results as provider-neutral events so
   Core workflow modules can validate them without renderer/free-form text
-  parsing. This includes raw Claude objects and Codex final schema-bound JSON
-  decoded at the app-server adapter boundary.
+  parsing. This includes raw Claude objects and phase-marked Codex commentary
+  plus final schema-bound JSON decoded at the app-server adapter boundary.
 - Own the official Grok Build ACP adapter and preserve the boundary between
   SuperGrok subscription auth and separately billed xAI API routes.
 

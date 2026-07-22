@@ -60,6 +60,26 @@ const state = {
   assistantTextByItemId: new Map(),
   structuredOutputExpected: true,
 };
+const commentaryProjection = projectCompletedCodexAgentMessage(
+  "thread-1",
+  {
+    id: "message-commentary",
+    phase: "commentary",
+    text: JSON.stringify({
+      assistantResponse: "Промежуточный ответ",
+      draft: null,
+      nextAction: "continue",
+    }),
+  },
+  state
+);
+assert.equal(commentaryProjection.type, "structured_output");
+assert.equal(commentaryProjection.phase, "commentary");
+assert.equal(
+  commentaryProjection.output.assistantResponse,
+  "Промежуточный ответ"
+);
+assert.equal(state.structuredOutputExpected, true);
 const structuredProjection = projectCompletedCodexAgentMessage(
   "thread-1",
   {
@@ -74,6 +94,7 @@ const structuredProjection = projectCompletedCodexAgentMessage(
   state
 );
 assert.equal(structuredProjection.type, "structured_output");
+assert.equal(structuredProjection.phase, "final_answer");
 assert.equal(
   structuredProjection.output.assistantResponse,
   "Строка 1\n\n- пункт"
@@ -94,7 +115,17 @@ assert.equal(ordinaryProjection.content, "Обычный ответ");
 assert.match(handlerSource, /class ProfileCreatorResultHandler/u);
 assert.match(handlerSource, /sessionPurpose\?\.type !== "profile-creator"/u);
 assert.match(handlerSource, /this\.agent\.parseTurnResult\(event\.output\)/u);
+assert.match(
+  handlerSource,
+  /const commentary = event\.phase === "commentary"/u
+);
+assert.match(handlerSource, /if \(commentary\) \{\s+return true;\s+\}/u);
+assert.match(handlerSource, /commentary \? \{ tag: "commentary" \} : \{\}/u);
 assert.match(handlerSource, /applyCreatorSnapshot\(\{/u);
+assert.ok(
+  handlerSource.indexOf("if (commentary)") <
+    handlerSource.indexOf("if (parsed.result.draft)")
+);
 assert.match(handlerSource, /role: "assistant"/u);
 assert.match(handlerSource, /role: "system"/u);
 assert.match(handlerSource, /draft unchanged/u);

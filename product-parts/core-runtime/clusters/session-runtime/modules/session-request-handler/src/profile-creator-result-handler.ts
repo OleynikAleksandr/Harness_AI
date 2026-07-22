@@ -64,18 +64,26 @@ export class ProfileCreatorResultHandler {
     ) {
       return false;
     }
+    const commentary = event.phase === "commentary";
     const parsed = this.agent.parseTurnResult(event.output);
     if (!parsed.ok) {
+      if (commentary) {
+        return true;
+      }
       this.rejectAndRepair(context, session, event, parsed.error);
       return true;
     }
-    this.repairPendingSessions.delete(sessionId);
     this.publishAssistantResponse(
       context,
       sessionId,
       event,
-      parsed.result.assistantResponse
+      parsed.result.assistantResponse,
+      commentary
     );
+    if (commentary) {
+      return true;
+    }
+    this.repairPendingSessions.delete(sessionId);
     if (parsed.result.draft) {
       this.authoring
         .applyCreatorSnapshot({
@@ -98,7 +106,8 @@ export class ProfileCreatorResultHandler {
     context: ProfileCreatorResultContext,
     sessionId: string,
     event: Record<string, unknown>,
-    text: string
+    text: string,
+    commentary: boolean
   ): void {
     if (!text.trim()) {
       return;
@@ -107,6 +116,7 @@ export class ProfileCreatorResultHandler {
       id: `${readEventId(event)}::profile_creator_response`,
       role: "assistant",
       sessionId,
+      ...(commentary ? { tag: "commentary" } : {}),
       text,
       timestamp: readEventTimestamp(event),
     });

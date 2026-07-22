@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase19.stream2.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase20.stream2.task1",
+  "expectedCommitMessage": "docs: package creator commentary projection",
   "debt": null
 }
 ```
@@ -342,4 +342,18 @@
 112. [DONE] `harness-ai.phase19.stream2.task1` Build the user-authorized unsigned macOS package, verify the normalized Codex structured-output projection in `app.asar`, launch it and append exact package identity plus focused formatting retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package codex creator response projection`). Result: Completed in commit `docs: package codex creator response projection`.
 113. [DONE] Git Commit: `docs: package codex creator response projection` (hash: self)
 
-114. [IN_PROGRESS] `harness-ai.phase19.stream2.task2` User retests the rebuilt package: Profile Creator responses contain only readable `assistantResponse` text with real paragraph/list line breaks and no visible JSON envelope; Russian language, both pane resizers, Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).
+114. [DONE] `harness-ai.phase19.stream2.task2` User retests the rebuilt package: Profile Creator responses contain only readable `assistantResponse` text with real paragraph/list line breaks and no visible JSON envelope; Russian language, both pane resizers, Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none). Result: Rejected on 2026-07-22 — final `final_answer` is decoded correctly, but schema-bound Codex `commentary` agent messages still reach the transcript as visible `assistantResponse` / `draft` / `nextAction` JSON envelopes; acceptance moves to Phase 20.
+
+## Phase 20 - Creator Commentary Response Projection (owner: Codex + User, updated: 2026-07-22)
+
+### Stream: Structured Progress Messages
+
+115. [DONE] `harness-ai.phase20.stream1.task1` Normalize schema-bound Codex `commentary` agent messages into phase-marked `structured_output` events while keeping the turn's final-output expectation active; make Core publish only their decoded `assistantResponse` and forbid commentary from applying Draft snapshots or starting automatic repair, while preserving final authoring and ordinary Codex commentary (scope: up to 2 production functional files — Codex agent-message projector and Profile Creator result handler — plus focused test and related provider/Core/architecture/evidence docs; expected commit: `fix: normalize creator commentary output`). Result: Completed in commit `fix: normalize creator commentary output`.
+116. [DONE] Git Commit: `fix: normalize creator commentary output` (hash: self)
+
+### Stream: Rebuilt Acceptance Package
+
+117. [IN_PROGRESS] `harness-ai.phase20.stream2.task1` Build the user-authorized unsigned macOS package, verify phase-marked Codex commentary projection and final-only authoring in `app.asar`, launch it and append exact package identity plus focused multi-message retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package creator commentary projection`).
+118. [TODO] Git Commit: `docs: package creator commentary projection` (hash: TBD)
+
+119. [TODO] `harness-ai.phase20.stream2.task2` User retests the rebuilt package: every intermediate and final Profile Creator response contains only decoded `assistantResponse` text with real line breaks and no visible JSON envelope; only the final structured result can author the Draft, while Russian language and Studio pane resizing remain working (completion: user-acceptance; scope: user workflow; expected commit: none).

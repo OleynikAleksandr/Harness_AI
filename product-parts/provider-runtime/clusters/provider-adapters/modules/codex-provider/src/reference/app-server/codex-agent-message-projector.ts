@@ -16,6 +16,7 @@ export type CodexAgentMessageEvent =
     }
   | {
       readonly output: Readonly<Record<string, unknown>>;
+      readonly phase: "commentary" | "final_answer";
       readonly provider: "codex";
       readonly threadId: string;
       readonly timestamp: string;
@@ -44,6 +45,12 @@ export function projectCompletedCodexAgentMessage(
     return null;
   }
   if (phase === "commentary") {
+    if (state.structuredOutputExpected) {
+      const output = parseStructuredObject(content);
+      if (output) {
+        return buildStructuredOutput(threadId, itemId, output, "commentary");
+      }
+    }
     return buildDialogMessage(content, itemId, "commentary");
   }
   if (!(phase === "final_answer" || phase === null)) {
@@ -53,17 +60,27 @@ export function projectCompletedCodexAgentMessage(
     state.structuredOutputExpected = false;
     const output = parseStructuredObject(content);
     if (output) {
-      return {
-        output,
-        provider: "codex",
-        threadId,
-        timestamp: new Date().toISOString(),
-        type: "structured_output",
-        uuid: `${itemId ?? crypto.randomUUID()}::structured_output`,
-      };
+      return buildStructuredOutput(threadId, itemId, output, "final_answer");
     }
   }
   return buildDialogMessage(content, itemId);
+}
+
+function buildStructuredOutput(
+  threadId: string,
+  itemId: string | null,
+  output: Readonly<Record<string, unknown>>,
+  phase: "commentary" | "final_answer"
+): CodexAgentMessageEvent {
+  return {
+    output,
+    phase,
+    provider: "codex",
+    threadId,
+    timestamp: new Date().toISOString(),
+    type: "structured_output",
+    uuid: `${itemId ?? crypto.randomUUID()}::structured_output`,
+  };
 }
 
 function buildDialogMessage(

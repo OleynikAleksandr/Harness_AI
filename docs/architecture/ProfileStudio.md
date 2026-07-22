@@ -290,13 +290,15 @@ declarations. Core разбирает и проверяет его, после �
 `runtimeEffect` обязан быть `declarative-only` только для `codex-fixed`; для
 Claude и Kimi он равен `null`.
 
-Codex app-server возвращает результат `outputSchema` как JSON-текст финального
-`agentMessage`, а не как отдельный native event. Codex adapter запоминает факт
-schema-bound turn, разбирает только его финальный JSON и до общего dialog
-projector публикует provider-neutral `structured_output`. Поэтому Core получает
-объект, показывает только `assistantResponse` с настоящими переносами строк и
-не сохраняет в transcript видимые `draft` / `nextAction` поля. Обычные Codex
-ответы без `outputSchema` проходят прежним dialog route без JSON parsing.
+Codex app-server возвращает результат `outputSchema` как JSON-текст
+`commentary` и финальных `agentMessage`, а не как отдельный native event. Codex
+adapter запоминает факт schema-bound turn, разбирает эти сообщения и до общего
+dialog projector публикует phase-marked provider-neutral `structured_output`.
+Промежуточный event не снимает ожидание финального. Core показывает из каждого
+только `assistantResponse` с настоящими переносами строк, но лишь финальный
+result может применить Draft или запустить bounded repair. Видимые `draft` /
+`nextAction` поля не сохраняются в transcript. Обычные Codex ответы без
+`outputSchema` проходят прежним dialog route без JSON parsing.
 
 - assistant text appears through the normal dialog pipeline;
 - `draft: null` is discussion only;
@@ -495,9 +497,10 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   are **APPLIED**;
 - target-bound creator agent/session runtime, raw provider event interception,
   controlled assistant projection, atomic full-snapshot authoring and one
-  bounded automatic repair turn are **APPLIED**; Codex schema-bound final JSON
-  is normalized by its provider adapter before the dialog projector, so only
-  decoded `assistantResponse` reaches the Creator transcript; Overview
+  bounded automatic repair turn are **APPLIED**; Codex schema-bound commentary
+  and final JSON are normalized by its provider adapter before the dialog
+  projector, so only decoded `assistantResponse` reaches the Creator transcript
+  and only the final phase can author or repair; Overview
   exact-hash approval is **APPLIED** and requires both prompt parts plus a
   validated donor;
 - typed target/profile/inspector/Create/Approve Core RPC, Electron/preload

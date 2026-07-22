@@ -61,11 +61,12 @@ sentinel or continuation protocol.
 
 Claude exposes raw Agent SDK JSON Schema results as a generic
 `structured_output` provider event. Codex app-server exposes the same logical
-result as serialized JSON in the final `agentMessage`; when and only when Core
-sent `turn/start.outputSchema`, the Codex adapter parses that final message and
-emits the same provider-neutral event instead of a raw JSON dialog message.
-Core workflow owners validate the resulting object; adapters do not specialize
-it for Profile Studio and renderer text is never parsed.
+result as serialized JSON in `commentary` and final `agentMessage` items; when
+and only when Core sent `turn/start.outputSchema`, the Codex adapter parses
+those messages and emits phase-marked provider-neutral events instead of raw
+JSON dialog messages. Intermediate events keep the final schema expectation
+active. Core workflow owners validate the resulting object; adapters do not
+specialize it for Profile Studio and renderer text is never parsed.
 
 Native collaboration is normalized at the same boundary. Codex app-server
 `subAgentActivity` (plus the legacy `collabAgentToolCall` shape), child

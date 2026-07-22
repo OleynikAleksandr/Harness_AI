@@ -227,6 +227,11 @@ readiness registry, liveness checker, and workspace provisioner modules.
   Profile Studio storage reset and package evidence: canonical target/Creator
   Agent roots, provider-only default setting, removed seeds, recoverable
   runtime cleanup, exact app/app.asar identity and focused retest steps.
+- `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md` —
+  packaged Capture-first Profile Creator Agent evidence: composite user-space
+  Codex profile, Core-owned fresh Native Capture and first-message dispatch,
+  declarative Codex target tooling, exact app/app.asar identity and the focused
+  manual acceptance checklist.
 - `docs/evidence/turn-timer-planning-2026-07-18.md` — planning document for
   the turn-timer scope: current `ElapsedTotal` behavior, turn-state event
   journal as the persistent timing source, the `turn-timing` Core module and

@@ -74,22 +74,33 @@ const PROFILE_CREATOR_OUTPUT_SCHEMA = {
                 {
                   additionalProperties: false,
                   properties: {
-                    artifactPath: { minLength: 1, type: "string" },
+                    artifactPath: { type: "string" },
                   },
                   required: ["artifactPath"],
                   type: "object",
                 },
               ],
             },
-            name: { minLength: 1, type: "string" },
+            name: { type: "string" },
             purpose: { type: "string" },
             systemPrompt: { type: "string" },
             toolSelection: {
-              oneOf: [
-                toolSelectionSchema("claude-subset"),
-                codexToolSelectionSchema(),
-                toolSelectionSchema("kimi-candidate"),
-              ],
+              additionalProperties: false,
+              properties: {
+                mode: {
+                  enum: ["claude-subset", "codex-fixed", "kimi-candidate"],
+                  type: "string",
+                },
+                runtimeEffect: {
+                  anyOf: [
+                    { type: "null" },
+                    { enum: ["declarative-only"], type: "string" },
+                  ],
+                },
+                toolsJson: { type: "string" },
+              },
+              required: ["mode", "runtimeEffect", "toolsJson"],
+              type: "object",
             },
           },
           required: [
@@ -172,35 +183,6 @@ export function resolveProfileStudioWorkspacePath(): string {
   return path.join(harnessHome, "ProfileStudio", "workspace");
 }
 
-function toolSelectionSchema(mode: string) {
-  return {
-    additionalProperties: false,
-    properties: {
-      mode: { const: mode, type: "string" },
-      tools: { items: { type: "object" }, type: "array" },
-    },
-    required: ["mode", "tools"],
-    type: "object",
-  } as const;
-}
-
-function codexToolSelectionSchema() {
-  return {
-    additionalProperties: false,
-    properties: {
-      mode: { const: "codex-fixed", type: "string" },
-      runtimeEffect: { const: "declarative-only", type: "string" },
-      tools: {
-        items: { type: "object" },
-        minItems: 1,
-        type: "array",
-      },
-    },
-    required: ["mode", "runtimeEffect", "tools"],
-    type: "object",
-  } as const;
-}
-
 function parseCreatorDraft(value: unknown):
   | { readonly error: string; readonly ok: false }
   | {
@@ -256,35 +238,50 @@ function parseToolSelection(
   if (!isPlainRecord(value)) {
     return { ok: false };
   }
+  const tools = parseToolsJson(value.toolsJson);
+  if (!tools) {
+    return { ok: false };
+  }
   if (
     value.mode === "codex-fixed" &&
     value.runtimeEffect === "declarative-only" &&
-    Array.isArray(value.tools) &&
-    value.tools.length > 0 &&
-    value.tools.every(isPlainRecord)
+    tools.length > 0
   ) {
     return {
       ok: true,
       value: {
         mode: "codex-fixed",
         runtimeEffect: "declarative-only",
-        tools: value.tools,
+        tools,
       },
     };
   }
   if (
     !(
       (value.mode === "claude-subset" || value.mode === "kimi-candidate") &&
-      Array.isArray(value.tools) &&
-      value.tools.every(isPlainRecord)
+      value.runtimeEffect === null
     )
   ) {
     return { ok: false };
   }
   return {
     ok: true,
-    value: { mode: value.mode, tools: value.tools },
+    value: { mode: value.mode, tools },
   };
+}
+
+function parseToolsJson(
+  value: unknown
+): readonly Record<string, unknown>[] | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  try {
+    const tools: unknown = JSON.parse(value);
+    return Array.isArray(tools) && tools.every(isPlainRecord) ? tools : null;
+  } catch {
+    return null;
+  }
 }
 
 function parseDonorReference(value: unknown):

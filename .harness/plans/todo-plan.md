@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase16.stream1.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase17.stream2.task1",
+  "expectedCommitMessage": "docs: package profile creator schema repair",
   "debt": null
 }
 ```
@@ -295,4 +295,18 @@
 95. [DONE] `harness-ai.phase16.stream1.task1` Build and package the user-authorized unsigned macOS application, verify the composite Codex Creator Agent profile loader, fresh target Capture, Core-generated first-message dispatch and restore contracts inside `app.asar`, launch the package and record exact identity plus the focused retest checklist (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator bootstrap`). Result: Completed in commit `docs: package profile creator bootstrap`.
 96. [DONE] Git Commit: `docs: package profile creator bootstrap` (hash: self)
 
-97. [IN_PROGRESS] `harness-ai.phase16.stream1.task2` User retests in the packaged app: choose a target, click Create Profile once, observe Capture preparation, receive a selected persistent creator session with the Core-generated raw JSONL assignment, get the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without manual Capture/file selection, then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none).
+97. [DONE] `harness-ai.phase16.stream1.task2` User retests in the packaged app: choose a target, click Create Profile once, observe Capture preparation, receive a selected persistent creator session with the Core-generated raw JSONL assignment, get the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without manual Capture/file selection, then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none). Result: Rejected on 2026-07-22 — Capture, Draft, session and Core-generated first message succeeded for Claude / Opus / medium, but Codex rejected the first turn because `toolSelection.oneOf` is not permitted in `codex_output_schema`; acceptance moves to Phase 17 after schema repair.
+
+## Phase 17 - Codex Structured Output Schema Repair (owner: Codex + User, updated: 2026-07-22)
+
+### Stream: Strict Schema And Core Parsing
+
+98. [DONE] `harness-ai.phase17.stream1.task1` Replace the unsupported provider-variant `oneOf` and arbitrary nested tool objects with one Codex-compatible strict `toolSelection` envelope carrying validated JSON text; parse it back into the existing provider-specific Core snapshot, preserve authoring/storage behavior and cover the exact rejected-schema regression (scope: up to 2 functional files — Profile Studio Agent facade and focused test — plus its module and related architecture docs; expected commit: `fix: make profile creator schema codex compatible`). Result: Completed in commit `fix: make profile creator schema codex compatible`.
+99. [DONE] Git Commit: `fix: make profile creator schema codex compatible` (hash: self)
+
+### Stream: Rebuilt Repair Package
+
+100. [IN_PROGRESS] `harness-ai.phase17.stream2.task1` After explicit user authorization for another package build, rebuild the unsigned macOS application, verify the repaired schema contract in `app.asar`, launch it and append exact package identity plus the focused first-turn retest to the existing Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator schema repair`).
+101. [TODO] Git Commit: `docs: package profile creator schema repair` (hash: TBD)
+
+102. [TODO] `harness-ai.phase17.stream2.task2` User retests the rebuilt package with Claude / Opus / medium: Create Profile completes Capture, creates the persistent Draft/session, dispatches the Core first message and receives the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without `invalid_json_schema`; then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none).

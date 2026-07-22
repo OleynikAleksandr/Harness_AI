@@ -54,6 +54,13 @@ try {
     "draft",
     "nextAction",
   ]);
+  assert.doesNotMatch(JSON.stringify(spec.outputSchema), /"oneOf"/u);
+  assert.doesNotMatch(JSON.stringify(spec.outputSchema), /"const"/u);
+  assert.deepEqual(
+    spec.outputSchema.properties.draft.anyOf[1].properties.toolSelection
+      .required,
+    ["mode", "runtimeEffect", "toolsJson"]
+  );
 
   assert.equal(facade.getOutputSchema(), spec.outputSchema);
 
@@ -68,7 +75,8 @@ try {
       systemPrompt: "Reduced native planning foundation.",
       toolSelection: {
         mode: "claude-subset",
-        tools: [{ name: "Read" }],
+        runtimeEffect: null,
+        toolsJson: JSON.stringify([{ name: "Read" }]),
       },
     },
     nextAction: "request-approval",
@@ -97,7 +105,7 @@ try {
       toolSelection: {
         mode: "codex-fixed",
         runtimeEffect: "declarative-only",
-        tools: [{ name: "exec" }, { name: "wait" }],
+        toolsJson: JSON.stringify([{ name: "exec" }, { name: "wait" }]),
       },
     },
     nextAction: "continue",
@@ -125,11 +133,34 @@ try {
       name: "Name",
       purpose: "Purpose",
       systemPrompt: "Prompt",
-      toolSelection: { mode: "codex-fixed", tools: null },
+      toolSelection: {
+        mode: "codex-fixed",
+        runtimeEffect: "declarative-only",
+        toolsJson: "not-json",
+      },
     },
     nextAction: "continue",
   });
   assert.equal(invalidToolShape.ok, false);
+
+  const invalidRuntimeEffect = facade.parseTurnResult({
+    assistantResponse: "Invalid runtime effect",
+    draft: {
+      customInstructions: "Custom",
+      description: "Description",
+      donorReference: null,
+      name: "Name",
+      purpose: "Purpose",
+      systemPrompt: "Prompt",
+      toolSelection: {
+        mode: "claude-subset",
+        runtimeEffect: "declarative-only",
+        toolsJson: "[]",
+      },
+    },
+    nextAction: "continue",
+  });
+  assert.equal(invalidRuntimeEffect.ok, false);
 
   console.log("profile-studio-agent tests: OK");
 } finally {

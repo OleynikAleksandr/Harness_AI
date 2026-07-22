@@ -267,12 +267,24 @@ interface ProfileCreatorTurnResult {
     purpose: string;
     systemPrompt: string;
     customInstructions: string;
-    toolSelection: ProfileStudioToolSelection;
+    toolSelection: {
+      mode: "claude-subset" | "codex-fixed" | "kimi-candidate";
+      runtimeEffect: "declarative-only" | null;
+      toolsJson: string;
+    };
     donorReference: ProposedDonorReference | null;
   };
   nextAction: "continue" | "request-approval";
 }
 ```
+
+Внешняя structured-output схема намеренно использует один строгий
+Codex-compatible envelope без `oneOf` и без массивов произвольных JSON
+objects. `toolsJson` содержит сериализованный JSON-массив полных provider tool
+declarations. Core разбирает и проверяет его, после чего передаёт в authoring
+обычный `ProfileStudioToolSelection` и сохраняет нормальный `tools.json`.
+`runtimeEffect` обязан быть `declarative-only` только для `codex-fixed`; для
+Claude и Kimi он равен `null`.
 
 - assistant text appears through the normal dialog pipeline;
 - `draft: null` is discussion only;

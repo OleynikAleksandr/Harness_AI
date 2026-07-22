@@ -12,11 +12,15 @@
 широкой будущей идеи; только промотированный MVP contract разрешён текущему
 плану `profile-studio-mvp-2026-07-20`.
 
-Принятая корректировка от 21 июля 2026 года: для нового Draft Profile Creator
-Agent session исполняется на точных provider/model, выбранных в Studio. Это
-отменяет прежний fixed `claude` / `opus` / `high` planning choice и пункт 4
-раздела 16; автоматический первый user turn остаётся отдельным обсуждением
-workflow.
+Принятая корректировка от 21 июля 2026 года была уточнена последующим
+Capture-first решением и промотирована в `docs/architecture/ProfileStudio.md`:
+target provider/model определяет создаваемый профиль и Native Capture, но не
+execution identity Creator Agent. Первый default Creator Agent — Codex /
+`gpt-5.6-sol` / `high`, его системный профиль собирается из четырёх читаемых
+user-space components, а первое user-role сообщение автоматически формирует
+Core после fresh target Capture. Описанные ниже ручной выбор donor и
+обязательный автоматический Custom Capture являются более широкой будущей
+идеей и не входят в текущий implementation slice.
 
 Документ не является контрактом текущей кодовой базы или active
 implementation plan. Он фиксирует согласованную продуктовую идею первого
@@ -395,11 +399,11 @@ provider/model-specific работой Profile Creator Agent.
 Agent:
 
 1. пользователь выбирает provider и model;
-2. Studio создаёт отдельную сохраняемую Profile Creator Agent session;
-3. пользователь описывает назначение профиля;
-4. агент вместе с пользователем выбирает Native Capture donor и изучает
-   совместимый tool inventory целевой модели;
-5. агент анализирует donor prompt и предлагает, какие инструкции сохранить,
+2. Core загружает settings-selected составной Creator Agent profile;
+3. Core автоматически запускает fresh Native Capture целевой модели;
+4. после успешного Capture Studio создаёт Draft и отдельную сохраняемую
+   Profile Creator Agent session и отправляет первое динамическое сообщение;
+5. агент семантически анализирует raw JSONL donor и предлагает, какие инструкции сохранить,
    сократить, переформатировать или удалить;
 6. после обсуждения агент создаёт сокращённую Native-основу;
 7. агент и пользователь определяют, каких инструкций и навыков в ней не хватает
@@ -408,11 +412,13 @@ Agent:
 9. агент предлагает релевантный Custom System Tools set в пределах provider
    ceiling;
 10. пользователь читает обе части Custom System Prompt и Custom System Tools;
-11. агент детерминированно собирает draft, сам запускает Custom Capture и
-    исправляет обнаруженные несовпадения;
+11. агент детерминированно собирает draft;
 12. пользователь и агент формулируют и выполняют ручные поведенческие проверки;
 13. пользователь просит дальнейшие изменения или явно подтверждает профиль;
 14. только после подтверждения профиль получает статус `Valid`.
+
+Custom Capture и automatic expected-vs-wire repair отложены до отдельного
+контракта. Их отсутствие не маскируется декларативной кнопкой или статусом.
 
 Каждый профиль в списке Studio является точкой входа в собственную Profile
 Creator Agent session. Выбор существующего профиля возобновляет эту сессию и
@@ -448,10 +454,13 @@ Core валидирует все записи. Agent не может:
 - читать произвольные, не выбранные пользователем workspace-файлы через
   authoring API.
 
-Провайдер и модель самого Profile Creator Agent, его точный system prompt и
-authoring tool schemas будут выбраны при implementation planning. Они не
-меняют ownership: решения о сохранении, compilation и публикации принадлежат
-Core, а не модели.
+Провайдер и модель Profile Creator Agent выбираются редкой Core setting.
+Первый каталог содержит Codex / `gpt-5.6-sol` / `high`; target identity не
+подменяет эту execution identity. Exact effective system prompt загружается
+из `CreatorAgents/Codex/system-prompt.md` и `custom-instructions.md`, а
+`initial-user-message.md` остаётся отдельным Core-rendered user message.
+Решения о Capture, сохранении, compilation и публикации принадлежат Core, а
+не модели.
 
 ## 9. Пользовательский workflow первого этапа
 
@@ -643,7 +652,9 @@ interface, реальные Core read models/commands, окончательны�
 | --- | --- |
 | Proxy, TLS, capture orchestration, raw artifacts | `provider-network-capture` |
 | Native capture command и evidence read model | Core capture modules |
-| Agent-internal Custom Capture и mechanical comparison | Core capture modules |
+| Fresh target Native Capture и raw-artifact validation | `profile-studio-creator-bootstrap` + `provider-network-capture` |
+| Composite Creator Agent profile и first-message template | `profile-studio-creator-profile` |
+| Agent-internal Custom Capture и mechanical comparison (deferred) | future Core capture contract |
 | Profile documents и validation | `session-profiles/profile-store` |
 | Restricted draft mutations | Core profile-authoring API |
 | Deterministic two-part prompt compilation | Core profile compiler/materializer |

@@ -4,7 +4,10 @@
 
 Дата принятия: 20 июля 2026 года.
 
-Planning source: `docs/evidence/ProfileStudioMvpImplementation.md`.
+Planning sources:
+
+- `docs/evidence/ProfileStudioMvpImplementation.md`;
+- `docs/evidence/ProfileStudioCreatorAgentBootstrap.md`.
 
 UI baseline: `.harness/runtime/prototypes/profile-studio-ui/` и раздел 10.8
 `docs/proposals/ProfileStudio.md`.
@@ -41,13 +44,14 @@ Target provider/model:
 
 Profile Creator runtime:
 
-- provider: `claude`;
-- model: `opus`;
-- reasoning: `high`;
-- managed isolated system prompt;
-- `settingSources: []`;
-- no ambient `AGENTS.md`, `CLAUDE.md`, Skills;
-- no unrestricted filesystem/shell/web tools;
+- execution identity выбирается редкой Core-owned setting независимо от
+  target identity;
+- первый каталог содержит только `Codex Profile Creator Agent`:
+  `codex` / `gpt-5.6-sol` / `high`;
+- effective system prompt загружается из составного user-space profile;
+- `settingSources: []` и no ambient `AGENTS.md`, `CLAUDE.md`, Skills;
+- Native Codex app-server tools не заменяются: captured `tools.json` является
+  декларативной частью профиля Creator Agent;
 - JSON Schema full-snapshot structured output.
 
 Не входят:
@@ -77,6 +81,8 @@ Product-Part-scoped кластерами. Это не один cross-boundary mo
 | `profile-studio-agent` | `ProfileStudioAgentFacade` class | selected provider/model creator configuration, inline prompt, output schema, creator session contract |
 | `profile-studio-authoring` | `ProfileStudioAuthoringFacade` class | full-snapshot validation, donor containment, atomic document application |
 | `profile-studio-read-model` | `ProfileStudioReadModelFacade` class | targets, compatible profiles/sessions, Overview/Prompt/Tools snapshots, capability reasons |
+| `profile-studio-creator-profile` | `ProfileStudioCreatorProfileFacade` class | selected Creator Agent profile resolution, four-component validation, exact two-part system-prompt composition and first-message template rendering |
+| `profile-studio-creator-bootstrap` | `ProfileStudioCreatorBootstrapFacade` class | Capture-first preparation, target capture-channel mapping, raw artifact validation, capture provenance/hash and immutable initial assignment inputs |
 
 Core cluster composes only public facades from:
 
@@ -84,7 +90,7 @@ Core cluster composes only public facades from:
 - `session-runtime`;
 - `provider-network-capture`;
 - `provider-descriptor`;
-- Claude adapter through normal Core provider routing.
+- selected Creator Agent adapter through normal Core provider routing.
 
 The machine-wide default Profile Creator Agent is Core-owned settings truth,
 not a Studio-sidebar choice.
@@ -246,10 +252,11 @@ sessionPurpose?: {
 
 ## 7. Structured authoring
 
-Every creator turn receives target identity, current draft, donor content when
-bound and authoring rules inline. The selected target provider/model is also
-the execution identity for the creator session. Claude/Codex use high
-reasoning; Kimi leaves reasoning provider-managed. The output schema is:
+Every creator turn receives target identity, current draft, exact donor
+provenance and authoring rules from the loaded composite Creator Agent
+profile. Target provider/model is authoring context only and never determines
+the creator session execution identity. The first managed option always runs
+as Codex / GPT-5.6 Sol / high. The output schema is:
 
 ```ts
 interface ProfileCreatorTurnResult {
@@ -304,26 +311,40 @@ For Studio v2, materializer does not append:
 
 V1 behavior remains unchanged.
 
-## 9. Native Capture donor
+## 9. Capture-first Creator Agent bootstrap
 
-The final Capture interface is out of scope. The initial functional route is:
+One `Create Profile` intent is a Core-owned sequential operation:
 
-1. Draft starts with no donor.
-2. User can paste an existing capture artifact path into the creator dialog.
-3. Agent proposes a donor reference in structured output.
-4. Core accepts only artifacts under the known Native Capture root.
-5. Core reads raw JSONL truth, validates capture identity and stores immutable
-   provenance plus request hash.
-6. Overview shows the donor or an honest missing state.
+1. resolve the exact target and settings-selected Creator Agent;
+2. load and validate `system-prompt.md`, `custom-instructions.md`,
+   `tools.json` and `initial-user-message.md` from
+   `ProfileStudio/CreatorAgents/<Provider>/`;
+3. run a fresh Native Request Capture for the target provider/model/reasoning;
+4. validate completion, target identity, capture-root containment, readable
+   JSONL, capture id and SHA-256 without parsing prompt/tool field markers;
+5. create and bind the Draft and persistent creator session;
+6. render exactly one first user-role assignment and dispatch it through the
+   ordinary session pipeline.
 
-Readable Markdown is display evidence, not capture truth.
+Raw `*-native-request.jsonl` is the sole donor source of truth. Readable
+Markdown and diagnostics remain derived human/diagnostic artifacts. Core does
+not heuristically extract a target system prompt or target tooling before the
+agent's semantic analysis. The Creator Agent reads only the exact raw path
+provided by Core and treats provider field-name/nesting drift as expected.
+
+If Creator Agent preflight or Capture validation fails, no unprepared session
+is created. If the first provider turn fails, the already created Draft,
+session and first message remain persistent and visible.
+
+Custom Capture is a separate deferred capability. This slice neither exposes
+it as an inspector tab nor claims automatic expected-vs-wire verification.
 
 ## 10. Provider capability contract
 
 | Target | Prompt | Tools | Validation |
 | --- | --- | --- | --- |
 | Claude | two-part full replacement | validated subset of donor native tool ids | `Valid` allowed after Core validation + user approval |
-| Codex | two-part `baseInstructions` replacement | provider-fixed/read-only | prompt-only `Valid` allowed with explicit fixed ceiling |
+| Codex | two-part `baseInstructions` replacement | exact captured inventory stored as `declarative-only`; runtime remains provider-fixed | prompt-only `Valid` allowed with explicit fixed ceiling |
 | Kimi | authorable candidate | current universal client has 9 executors vs captured 25 | Draft-only; `Valid` blocked until 25/25 parity |
 
 UI cannot show 25 effective Kimi tools while runtime executes nine. The block
@@ -457,6 +478,20 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   the old Settings Profile Creator entry/module is **RETIRED**, while its
   localization strings and Core compatibility contracts remain intact.
 
+Accepted Capture-first continuation awaiting the implementation rows of the
+active plan:
+
+- `profile-studio-creator-profile` and `profile-studio-creator-bootstrap`
+  boundaries above are authoritative but enter the Product Tree only when
+  their live modules land;
+- the current target-bound inline Creator Agent prompt/session route is being
+  replaced by the settings-selected composite Codex route;
+- manual donor-path selection is being replaced by fresh Core-owned Capture
+  and one Core-generated first user message;
+- Codex target tooling will be persisted as declarative-only inventory while
+  the runtime app-server registry remains fixed;
+- Custom Capture remains explicitly deferred.
+
 This section is updated in the same commits that apply each slice.
 
 ## 15. Acceptance boundary
@@ -466,13 +501,14 @@ The feature is ready for package testing only when:
 1. normal sessions are unchanged;
 2. Studio opens/returns in one window;
 3. targets and compatibility come from Core;
-4. Create produces one Draft and one persistent creator session on the exact
-   selected provider/model;
+4. Create performs a fresh target Capture, then produces one Draft and one
+   persistent creator session on the settings-selected Creator Agent identity;
 5. structured output updates real two-part documents atomically;
 6. inspector updates from Core events;
 7. approval binds exact hash and edits return it to Draft;
 8. valid Claude/Codex profiles appear only for exact model and apply prompts;
 9. Codex fixed tools and Kimi Draft-only block are honest;
-10. no ambient workspace instructions or unrestricted tools reach creator;
+10. no ambient workspace instructions reach creator, and its effective prompt
+    equals the two loaded profile parts while Codex tools remain native-fixed;
 11. old Settings authoring entry is absent;
 12. Custom Capture/benchmark/Normalizer are not simulated.

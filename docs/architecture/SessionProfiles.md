@@ -1,6 +1,6 @@
 # Профили сессий (Session Profiles)
 
-## Profile Studio v2 implementation contract (2026-07-20)
+## Profile Studio v2 implementation contract (updated 2026-07-21)
 
 Принятый provider/model-scoped authoring/lifecycle contract вынесен в
 `docs/architecture/ProfileStudio.md` и реализуется active plan
@@ -58,13 +58,24 @@ target и creator session, сравнивает direct approval с текущи�
 hash и вызывает узкий `markStudioDraftValid()` только после совпадения.
 Следующий controlled snapshot снова записывает `status: draft`.
 
-APPLIED creator-session runtime: отдельный Core command создаёт persistent
-primary-сессию с purpose `profile-creator` на выбранных в Studio
-provider/model, managed prompt snapshot, пустым managed tool list и отдельным
-HARNESS_AI_HOME-aware `ProfileStudio/workspace`. Этот workspace index
-восстанавливается независимо от пользовательских workspaces; Claude/Codex
-используют high reasoning, Kimi оставляет reasoning провайдеру, а каждый
-creator turn после create/resume снова получает Studio JSON Schema.
+CURRENT creator-session runtime создаёт persistent primary-сессию с purpose
+`profile-creator` и отдельным HARNESS_AI_HOME-aware
+`ProfileStudio/workspace`; этот workspace index восстанавливается независимо
+от пользовательских workspaces. Принятый Capture-first continuation заменяет
+target-bound execution identity на system setting: первый вариант — Codex /
+`gpt-5.6-sol` / `high`, независимо от provider/model создаваемого профиля.
+Managed prompt snapshot должен состоять только из загруженных
+`CreatorAgents/Codex/system-prompt.md` и `custom-instructions.md`, а Codex
+native tools остаются fixed runtime registry с декларативным `tools.json`.
+Каждый creator turn по-прежнему получает Studio JSON Schema.
+
+Перед созданием Draft/session Core запускает fresh Native Request Capture для
+target и проверяет raw JSONL containment, completion, identity, capture id и
+hash. Core не извлекает prompt/tools по provider-specific JSON labels:
+semantic separation выполняет Creator Agent. После успешного Capture Core
+публикует ровно одно первое user-role сообщение из
+`initial-user-message.md`; оно содержит target identity, profile/capture ids,
+точный raw path и SHA-256 и сохраняется в обычной session history.
 
 APPLIED creator-result route: Claude сохраняет raw JSON Schema object в
 provider-neutral `structured_output` event. Core перехватывает его только для
@@ -341,14 +352,19 @@ native/managed применения. Это было подтверждено Co
         custom-instructions.md           <- Custom-дополнения
         tools.json                       <- optional/provider-dependent
   CreatorAgents/
-    Codex/                               <- отдельные профили Creator Agent
+    Codex/                               <- selected Creator Agent profile
+      system-prompt.md                   <- fresh full Native foundation
+      custom-instructions.md             <- stable semantic authoring workflow
+      tools.json                         <- declarative native-fixed inventory
+      initial-user-message.md            <- Core-rendered assignment template
   workspace/                             <- Creator sessions Studio
 ```
 
 `profile-store` читает только `ProfileStudio/Profiles/**`. Пустой каталог не
 наполняется автоматически; содержимое появляется только после явного
 authoring-действия Profile Studio. `CreatorAgents/**` не входит в каталог
-целевых профилей.
+целевых профилей и разрешается отдельным Core facade. Составной профиль
+Creator Agent никогда не становится selectable target profile.
 
 `profile.yaml` (паспорт):
 

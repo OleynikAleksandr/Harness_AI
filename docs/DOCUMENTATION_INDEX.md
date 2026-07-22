@@ -55,8 +55,9 @@ implementation plan.
   whole remains non-authoritative;
   a two-part prompt made from a reduced Native foundation and concise Custom
   additions; explicit Native Capture donor provenance, exact provider tool
-  subsets, agent-internal Custom Capture repair through a separate diagnostic
-  interface, manual behavioral validation and `Draft`/`Valid` approval. It also
+  subsets, the promoted Capture-first correction, manual behavioral validation
+  and `Draft`/`Valid` approval. The broader proposal still records a future
+  Custom Capture repair route through a separate diagnostic interface. It also
   records Claude reduction, Codex prompt-only limits and full 25-tool Kimi
   parity on the universal client. Normalizer, manual editing, formal behavioral
   benchmarks, revisions and automatic routing remain explicitly outside this
@@ -64,10 +65,11 @@ implementation plan.
 
 ## Architecture
 
-- `docs/architecture/ProfileStudio.md` — accepted Profile Studio MVP
-  architecture and active implementation contract: separate Core Runtime and
+- `docs/architecture/ProfileStudio.md` — accepted Profile Studio MVP and
+  Capture-first continuation architecture: separate Core Runtime and
   Application Shell clusters with facade modules, Studio v2 provider/model
-  lifecycle, fixed Claude/Opus/high creator agent with structured authoring,
+  lifecycle, settings-selected composite Codex Creator Agent, automatic fresh
+  target Capture and Core-generated first message, structured authoring,
   shared production Session Surface, accepted single-window UI, provider
   capability gates and explicit APPLIED-state tracking.
 - `docs/architecture/ClaudeSubagentSessions.md` — Claude subagent

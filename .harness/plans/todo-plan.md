@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase15.stream1.task2",
-  "expectedCommitMessage": "docs: define profile creator bootstrap architecture",
+  "currentTaskId": "harness-ai.phase15.stream2.task1",
+  "expectedCommitMessage": "feat: load composite profile creator agent",
   "debt": null
 }
 ```
@@ -258,12 +258,12 @@
 77. [DONE] `harness-ai.phase15.stream1.task1` Record the agreed Capture-first Creator Agent workflow, raw JSONL donor contract, semantic provider-aware analysis, composite Codex agent profile, Core-generated first message, module split, failure behavior and package acceptance boundary; register the planning source (scope: `docs/evidence/ProfileStudioCreatorAgentBootstrap.md, docs/DOCUMENTATION_INDEX.md, .harness/plans/todo-plan.md`; expected commit: `docs: plan profile creator bootstrap`). Result: Completed in commit `docs: plan profile creator bootstrap`.
 78. [DONE] Git Commit: `docs: plan profile creator bootstrap` (hash: self)
 
-79. [IN_PROGRESS] `harness-ai.phase15.stream1.task2` Promote the accepted continuation into current Profile Studio architecture before production changes: separate Creator Agent execution identity from target identity, make raw Capture the sole donor, define the two new Core module/facade boundaries, first-message authority and honest deferred Custom Capture boundary (scope: `docs/architecture/ProfileStudio.md, docs/architecture/SessionProfiles.md, docs/proposals/ProfileStudio.md` plus Product Tree/catalog projections; expected commit: `docs: define profile creator bootstrap architecture`).
-80. [TODO] Git Commit: `docs: define profile creator bootstrap architecture` (hash: TBD)
+79. [DONE] `harness-ai.phase15.stream1.task2` Promote the accepted continuation into current Profile Studio architecture before production changes: separate Creator Agent execution identity from target identity, make raw Capture the sole donor, define the two new Core module/facade boundaries, first-message authority and honest deferred Custom Capture boundary (scope: `docs/architecture/ProfileStudio.md, docs/architecture/SessionProfiles.md, docs/proposals/ProfileStudio.md` plus Product Tree/catalog projections; expected commit: `docs: define profile creator bootstrap architecture`). Result: Completed in commit `docs: define profile creator bootstrap architecture`.
+80. [DONE] Git Commit: `docs: define profile creator bootstrap architecture` (hash: self)
 
 ### Stream: Composite Creator Agent Profile
 
-81. [TODO] `harness-ai.phase15.stream2.task1` Add the Core Runtime `profile-studio-creator-profile` module/class facade that resolves the selected provider-owned profile below `ProfileStudio/CreatorAgents`, validates `system-prompt.md`, `custom-instructions.md`, declarative `tools.json` and `initial-user-message.md`, composes the exact two-part system prompt and renders only Core-supplied message placeholders with no inline/ambient fallback (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: load composite profile creator agent`).
+81. [IN_PROGRESS] `harness-ai.phase15.stream2.task1` Add the Core Runtime `profile-studio-creator-profile` module/class facade that resolves the selected provider-owned profile below `ProfileStudio/CreatorAgents`, validates `system-prompt.md`, `custom-instructions.md`, declarative `tools.json` and `initial-user-message.md`, composes the exact two-part system prompt and renders only Core-supplied message placeholders with no inline/ambient fallback (scope: new module facade/test plus module/cluster/product-part/Product Tree documentation; expected commit: `feat: load composite profile creator agent`).
 82. [TODO] Git Commit: `feat: load composite profile creator agent` (hash: TBD)
 
 83. [TODO] `harness-ai.phase15.stream2.task2` Finalize the user-space Codex Creator Agent components: revise Custom Instructions for semantic raw-JSONL analysis and marker-drift risks, add the readable initial user-message template, preserve the fresh Native prompt/tooling components, and wire `profile-studio-agent`/session creation to the settings-selected Codex GPT-5.6 Sol/high identity independently of the target provider/model (scope: `~/.harness-ai/ProfileStudio/CreatorAgents/Codex/**` plus up to 3 profile-studio/session-runtime functional files and related docs; expected commit: `feat: compose codex profile creator runtime`).

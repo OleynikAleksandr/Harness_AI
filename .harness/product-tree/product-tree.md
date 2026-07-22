@@ -32,9 +32,9 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 ### Profile Studio
 
-- `profile-studio-sidebar`: provider/model target selection, Draft creation, compatible Draft/Valid creator-session rows, and return intent from Core snapshots.
+- `profile-studio-sidebar`: provider/model target selection, honest Capture-preparation pending/error state, Draft creation, compatible Draft/Valid creator-session rows, managed deletion, and return intent from Core snapshots.
 - `profile-studio-inspector`: read-only Overview, Custom System Prompt and Custom System Tools projection with exact-hash approval intent.
-- `profile-studio-shell`: single-window three-column Studio composition, Core snapshot/action forwarding, creator-session activation and return to ordinary sessions.
+- `profile-studio-shell`: single-window three-column Studio composition, Core snapshot/action forwarding, Capture-first Create convergence, creator-session activation, and return to ordinary sessions.
 
 ### Settings Surface
 

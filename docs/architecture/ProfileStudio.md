@@ -444,6 +444,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   the ordinary sidebar provides one-click entry beside Settings, return
   restores the user workspace session list, and detached windows cannot enter
   Studio;
+- Create now renders one honest Core Capture-preparation state, freezes its
+  selected target and keeps structured preflight/Capture failures beside the
+  control without locally reconstructing workflow stages — **APPLIED**;
 - packaged-acceptance repair makes successful Draft creation one convergent UI
   transition: the returned row and persistent creator session activate
   immediately, Studio-mode session events refresh only the reserved workspace,

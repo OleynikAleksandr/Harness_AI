@@ -42,6 +42,7 @@ export function ProfileStudioShellFacade({
   const [inspector, setInspector] =
     useState<ProfileStudioInspectorSnapshot | null>(null);
   const [createPending, setCreatePending] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [deletePendingProfileId, setDeletePendingProfileId] = useState<
     string | null
   >(null);
@@ -183,6 +184,7 @@ export function ProfileStudioShellFacade({
     setSelectedModelId(provider?.models[0]?.id ?? "");
     setProfiles([]);
     selectProfile(null);
+    setCreateError(null);
     setError(null);
   }
 
@@ -190,6 +192,7 @@ export function ProfileStudioShellFacade({
     setSelectedModelId(modelId);
     setProfiles([]);
     selectProfile(null);
+    setCreateError(null);
     setError(null);
   }
 
@@ -198,6 +201,7 @@ export function ProfileStudioShellFacade({
       return;
     }
     setCreatePending(true);
+    setCreateError(null);
     setError(null);
     try {
       const result = await window.harnessCore?.createProfileStudioDraft({
@@ -205,7 +209,7 @@ export function ProfileStudioShellFacade({
         providerId: selectedProviderId,
       });
       if (!result?.ok) {
-        setError(result?.error ?? "Core runtime bridge is unavailable.");
+        setCreateError(result?.error ?? "Core runtime bridge is unavailable.");
         return;
       }
       const createdProfile: ProfileStudioProfileRow = {
@@ -224,7 +228,7 @@ export function ProfileStudioShellFacade({
       selectProfile(createdProfile);
       setRefreshKey((current) => current + 1);
     } catch (cause) {
-      setError(errorMessage(cause));
+      setCreateError(errorMessage(cause));
     } finally {
       setCreatePending(false);
     }
@@ -292,6 +296,7 @@ export function ProfileStudioShellFacade({
   return (
     <section aria-label="Profile Studio" className="profile-studio-shell">
       <ProfileStudioSidebarFacade
+        createError={createError}
         createPending={createPending}
         deletePendingProfileId={deletePendingProfileId}
         onCreateProfile={createProfile}

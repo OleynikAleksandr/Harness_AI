@@ -8,6 +8,11 @@ inspector snapshots, and forwards confirmed create/delete/approve intents;
 lifecycle, authoring, capability, deletion and persistence truth remain in
 Core Runtime.
 
+Create preparation is rendered as the pending state of one Core RPC. The
+renderer does not divide Capture into local stages or locate artifacts; it
+only freezes the chosen target, shows the Core-operation explanation and
+renders the returned structured failure or converged success.
+
 ## Owned Modules
 
 - `profile-studio-sidebar`

@@ -1,4 +1,10 @@
-import { ArrowLeft, FilePlus2, Trash2, UserRoundCog } from "lucide-react";
+import {
+  ArrowLeft,
+  FilePlus2,
+  LoaderCircle,
+  Trash2,
+  UserRoundCog,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import type {
   ProfileStudioProfileRow,
@@ -7,6 +13,7 @@ import type {
 import "../../../src/profile-studio.css";
 
 export interface ProfileStudioSidebarFacadeProps {
+  readonly createError: string | null;
   readonly createPending: boolean;
   readonly deletePendingProfileId: string | null;
   readonly onCreateProfile: () => void | Promise<void>;
@@ -27,6 +34,7 @@ export interface ProfileStudioSidebarFacadeProps {
 }
 
 export function ProfileStudioSidebarFacade({
+  createError,
   createPending,
   deletePendingProfileId,
   onCreateProfile,
@@ -77,6 +85,7 @@ export function ProfileStudioSidebarFacade({
         <label>
           <span>Provider</span>
           <select
+            disabled={createPending}
             onChange={(event) =>
               onSelectProvider(
                 event.currentTarget.value as ProfileStudioTargetProvider["id"]
@@ -98,7 +107,7 @@ export function ProfileStudioSidebarFacade({
         <label>
           <span>Model</span>
           <select
-            disabled={!selectedProvider}
+            disabled={!selectedProvider || createPending}
             onChange={(event) => onSelectModel(event.currentTarget.value)}
             value={selectedModelId}
           >
@@ -123,11 +132,30 @@ export function ProfileStudioSidebarFacade({
         type="button"
       >
         <FilePlus2 aria-hidden="true" size={17} />
-        {createPending ? "Создание…" : "Создать профиль"}
+        {createPending ? "Подготовка Capture…" : "Создать профиль"}
       </button>
-      <small className="profile-studio-sidebar__create-note">
-        Откроет новую сессию с Profile Creator Agent
-      </small>
+      {createPending ? (
+        <div
+          aria-live="polite"
+          className="profile-studio-sidebar__preparation"
+          role="status"
+        >
+          <LoaderCircle aria-hidden="true" size={15} />
+          <span>
+            Core записывает свежий Native Request Capture. Draft и сессия
+            появятся только после успешной проверки.
+          </span>
+        </div>
+      ) : (
+        <small className="profile-studio-sidebar__create-note">
+          Откроет новую сессию с Profile Creator Agent
+        </small>
+      )}
+      {createError ? (
+        <p className="profile-studio-sidebar__create-error" role="alert">
+          {createError}
+        </p>
+      ) : null}
 
       <section className="profile-studio-sidebar__profiles">
         <header>
@@ -154,6 +182,7 @@ export function ProfileStudioSidebarFacade({
                   profile.id === selectedProfileId ? "page" : undefined
                 }
                 className="profile-studio-sidebar__profile"
+                disabled={createPending}
                 onClick={() => onSelectProfile(profile)}
                 type="button"
               >
@@ -164,7 +193,9 @@ export function ProfileStudioSidebarFacade({
               <button
                 aria-label={`Удалить профиль ${profile.name}`}
                 className="profile-studio-sidebar__delete"
-                disabled={deletePendingProfileId === profile.id}
+                disabled={
+                  createPending || deletePendingProfileId === profile.id
+                }
                 onClick={() => setDeleteCandidate(profile)}
                 title="Удалить профиль"
                 type="button"

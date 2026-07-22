@@ -20,6 +20,13 @@ Delete and exact-hash Approve commands, and subscribes to the isolated
 `profile-studio:updated` stream. It never scans profile files, compiles prompts,
 validates provider capability or interprets creator structured output.
 
+While one Create RPC is pending, the shell exposes that single Core operation
+as preparation state and freezes target switching. A structured preflight or
+Capture failure remains attached to the Create control and does not invent a
+Draft/session. Once Core returns success, the existing atomic row/session/
+inspector convergence runs unchanged; later provider-turn failures belong to
+the standard session surface.
+
 Profile selection activates the row's persistent creator session through the
 ordinary session controller. The shell displays that session only after the
 selected row and active session binding agree, preventing transcript content

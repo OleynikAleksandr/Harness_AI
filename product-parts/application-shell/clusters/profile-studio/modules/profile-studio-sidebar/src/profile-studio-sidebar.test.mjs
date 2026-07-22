@@ -15,6 +15,12 @@ const inspectorSource = readFileSync(
 
 assert.match(sidebarSource, /Profile Studio/u);
 assert.match(sidebarSource, /Создать профиль/u);
+assert.match(sidebarSource, /Подготовка Capture…/u);
+assert.match(sidebarSource, /Core записывает свежий Native Request Capture/u);
+assert.match(sidebarSource, /role="status"/u);
+assert.match(sidebarSource, /profile-studio-sidebar__create-error/u);
+assert.match(sidebarSource, /role="alert"/u);
+assert.match(sidebarSource, /disabled=\{createPending\}/u);
 assert.match(sidebarSource, /Вернуться к рабочим пространствам и сессиям/u);
 assert.match(sidebarSource, /onSelectProfile\(profile\)/u);
 assert.match(sidebarSource, /onDeleteProfile\(deleteCandidate\)/u);

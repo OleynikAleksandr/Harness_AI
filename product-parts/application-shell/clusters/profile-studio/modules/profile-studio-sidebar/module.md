@@ -13,12 +13,16 @@ profile-session rows supplied by Core Runtime.
 
 - Core `ProfileStudioTargetProvider` snapshots.
 - Exact-target `ProfileStudioProfileRow` snapshots.
-- Selected provider, model and profile ids plus create/delete pending state.
+- Selected provider, model and profile ids plus create/delete pending state and
+  the latest structured Create failure.
 
 ## Outputs
 
 - Provider/model selection intents.
 - Create Draft intent for the selected target.
+- Honest `Core записывает свежий Native Request Capture` pending feedback;
+  provider/model and profile-row controls are frozen until that one request
+  settles, and an error is shown beside the control.
 - Profile selection carrying the bound persistent creator-session row.
 - Delete intent only after an in-app confirmation dialog identifies both the
   profile and its bound Profile Creator Agent session; native browser dialogs

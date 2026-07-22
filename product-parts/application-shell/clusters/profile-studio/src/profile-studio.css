@@ -136,6 +136,39 @@
   color: var(--pm-help-text-color);
 }
 
+.profile-studio-sidebar__preparation {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+  margin: -2px 2px 0;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--pm-accent-strong);
+}
+
+.profile-studio-sidebar__preparation svg {
+  margin-top: 1px;
+  animation: profile-studio-spin 1s linear infinite;
+}
+
+.profile-studio-sidebar__create-error {
+  padding: 7px 8px;
+  margin: -4px 2px 0;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #ffd9d6;
+  background: rgba(112, 34, 39, 0.42);
+  border: 1px solid rgba(176, 72, 77, 0.65);
+  border-radius: 6px;
+}
+
+@keyframes profile-studio-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .profile-studio-sidebar__create,
 .profile-studio-sidebar__return {
   display: flex;

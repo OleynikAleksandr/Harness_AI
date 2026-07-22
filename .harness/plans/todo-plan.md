@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase18.stream3.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase19.stream2.task1",
+  "expectedCommitMessage": "docs: package codex creator response projection",
   "debt": null
 }
 ```
@@ -328,4 +328,18 @@
 107. [DONE] `harness-ai.phase18.stream3.task1` Build the user-authorized unsigned macOS package, verify the Core language directive and two resizers inside `app.asar`, launch it and append exact identity plus focused language/resize retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator language and resize`). Result: Completed in commit `docs: package profile creator language and resize`.
 108. [DONE] Git Commit: `docs: package profile creator language and resize` (hash: self)
 
-109. [IN_PROGRESS] `harness-ai.phase18.stream3.task2` User retests the rebuilt package: a fresh Creator Agent speaks the system-Settings communication language from its first answer; both Studio dividers resize left/sidebar, center/session and right/inspector safely; Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).
+109. [DONE] `harness-ai.phase18.stream3.task2` User retests the rebuilt package: a fresh Creator Agent speaks the system-Settings communication language from its first answer; both Studio dividers resize left/sidebar, center/session and right/inspector safely; Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none). Result: Rejected on 2026-07-22 — Settings-selected Russian and both horizontal pane resizers work, but Codex JSON Schema output is rendered as the raw `assistantResponse` / `draft` / `nextAction` JSON envelope with escaped newline markers; acceptance moves to Phase 19.
+
+## Phase 19 - Codex Structured Response Projection (owner: Codex + User, updated: 2026-07-22)
+
+### Stream: Provider-Normalized Structured Output
+
+110. [DONE] `harness-ai.phase19.stream1.task1` Normalize a Codex `outputSchema` final agent message at the provider-adapter boundary into the existing `structured_output` event, suppress the serialized JSON dialog message, preserve real newlines inside parsed `assistantResponse` and keep ordinary Codex final answers unchanged (scope: up to 3 production functional files — Codex app-server facade, event router and agent-message projector — plus focused test, Codex/session-request-handler module and related architecture/evidence docs; expected commit: `fix: normalize codex structured output`). Result: Completed in commit `fix: normalize codex structured output`.
+111. [DONE] Git Commit: `fix: normalize codex structured output` (hash: self)
+
+### Stream: Rebuilt Acceptance Package
+
+112. [IN_PROGRESS] `harness-ai.phase19.stream2.task1` Build the user-authorized unsigned macOS package, verify the normalized Codex structured-output projection in `app.asar`, launch it and append exact package identity plus focused formatting retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package codex creator response projection`).
+113. [TODO] Git Commit: `docs: package codex creator response projection` (hash: TBD)
+
+114. [TODO] `harness-ai.phase19.stream2.task2` User retests the rebuilt package: Profile Creator responses contain only readable `assistantResponse` text with real paragraph/list line breaks and no visible JSON envelope; Russian language, both pane resizers, Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).

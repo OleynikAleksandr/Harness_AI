@@ -20,8 +20,10 @@ provider-backed translation engines composed by Core Runtime only.
 - Own provider-specific runtime prompts or native project-instruction startup before requests reach external SDKs or CLIs.
 - Normalize provider events for Core Runtime, including structured native
   collaboration/subagent lifecycle events when a provider exposes them.
-- Preserve raw provider structured-output objects as provider-neutral events
-  so Core workflow modules can validate them without free-form text parsing.
+- Preserve provider structured-output results as provider-neutral events so
+  Core workflow modules can validate them without renderer/free-form text
+  parsing. This includes raw Claude objects and Codex final schema-bound JSON
+  decoded at the app-server adapter boundary.
 - Own the official Grok Build ACP adapter and preserve the boundary between
   SuperGrok subscription auth and separately billed xAI API routes.
 

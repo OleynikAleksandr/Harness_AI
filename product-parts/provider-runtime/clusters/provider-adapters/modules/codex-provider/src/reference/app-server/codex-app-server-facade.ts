@@ -295,28 +295,35 @@ export class CodexAppServerFacade {
         ? turnOptions.outputSchema
         : undefined;
     const modelSwitchInputItem = buildModelSwitchInputItem(turnOptions);
-    const response = await this.process.request<Record<string, unknown>>(
-      "turn/start",
-      {
-        threadId,
-        input: [
-          ...(modelSwitchInputItem ? [modelSwitchInputItem] : []),
-          {
-            type: "text",
-            text: content,
-            text_elements: [],
-          },
-        ],
-        cwd: state.workspacePath,
-        model: modelId,
-        effort: reasoningEffort,
-        ...buildCodexReasoningSummaryParams(
-          modelId,
-          resolveTurnReasoningSummaryMode()
-        ),
-        ...(outputSchema === undefined ? {} : { outputSchema }),
-      }
-    );
+    state.structuredOutputExpected = outputSchema !== undefined;
+    let response: Record<string, unknown>;
+    try {
+      response = await this.process.request<Record<string, unknown>>(
+        "turn/start",
+        {
+          threadId,
+          input: [
+            ...(modelSwitchInputItem ? [modelSwitchInputItem] : []),
+            {
+              type: "text",
+              text: content,
+              text_elements: [],
+            },
+          ],
+          cwd: state.workspacePath,
+          model: modelId,
+          effort: reasoningEffort,
+          ...buildCodexReasoningSummaryParams(
+            modelId,
+            resolveTurnReasoningSummaryMode()
+          ),
+          ...(outputSchema === undefined ? {} : { outputSchema }),
+        }
+      );
+    } catch (error) {
+      state.structuredOutputExpected = false;
+      throw error;
+    }
     const turn = isRecord(response.turn) ? response.turn : null;
     const turnId = asString(turn?.id);
     if (turnId) {
@@ -390,6 +397,7 @@ export class CodexAppServerFacade {
       assistantTextByItemId: new Map<string, string>(),
       listeners: new Set<(payload: unknown) => void>(),
       reasoningSummariesByItemId: new Map<string, string[]>(),
+      structuredOutputExpected: false,
       workspacePath: workspacePath ?? this.workspace.workspacePath,
     };
     this.sessions.set(threadId, state);

@@ -290,6 +290,14 @@ declarations. Core разбирает и проверяет его, после �
 `runtimeEffect` обязан быть `declarative-only` только для `codex-fixed`; для
 Claude и Kimi он равен `null`.
 
+Codex app-server возвращает результат `outputSchema` как JSON-текст финального
+`agentMessage`, а не как отдельный native event. Codex adapter запоминает факт
+schema-bound turn, разбирает только его финальный JSON и до общего dialog
+projector публикует provider-neutral `structured_output`. Поэтому Core получает
+объект, показывает только `assistantResponse` с настоящими переносами строк и
+не сохраняет в transcript видимые `draft` / `nextAction` поля. Обычные Codex
+ответы без `outputSchema` проходят прежним dialog route без JSON parsing.
+
 - assistant text appears through the normal dialog pipeline;
 - `draft: null` is discussion only;
 - a draft is a full snapshot, never an ambiguous free-text patch;
@@ -487,8 +495,11 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
   are **APPLIED**;
 - target-bound creator agent/session runtime, raw provider event interception,
   controlled assistant projection, atomic full-snapshot authoring and one
-  bounded automatic repair turn are **APPLIED**; Overview exact-hash approval
-  is **APPLIED** and requires both prompt parts plus a validated donor;
+  bounded automatic repair turn are **APPLIED**; Codex schema-bound final JSON
+  is normalized by its provider adapter before the dialog projector, so only
+  decoded `assistantResponse` reaches the Creator transcript; Overview
+  exact-hash approval is **APPLIED** and requires both prompt parts plus a
+  validated donor;
 - typed target/profile/inspector/Create/Approve Core RPC, Electron/preload
   forwarding, renderer bridge types and isolated `profile-studio:updated`
   subscription are **APPLIED**;

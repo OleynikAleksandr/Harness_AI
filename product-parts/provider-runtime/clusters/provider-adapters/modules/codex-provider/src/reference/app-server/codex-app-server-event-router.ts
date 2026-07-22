@@ -3,6 +3,7 @@ import type {
   CodexUsageLimits,
   CodexUsageLimitsStreamPayload,
 } from "../types.js";
+import { projectCompletedCodexAgentMessage } from "./codex-agent-message-projector.js";
 import {
   buildUsageLimits,
   buildUsageLimitsPayload,
@@ -20,6 +21,7 @@ export interface AppServerSessionState {
   readonly assistantTextByItemId: Map<string, string>;
   readonly listeners: Set<(payload: unknown) => void>;
   readonly reasoningSummariesByItemId: Map<string, string[]>;
+  structuredOutputExpected: boolean;
   workspacePath: string;
 }
 
@@ -314,36 +316,18 @@ export class CodexAppServerEventRouter {
       return;
     }
     if (itemType === "agentMessage") {
-      this.handleCompletedAgentMessage(threadId, item);
+      const message = projectCompletedCodexAgentMessage(
+        threadId,
+        item,
+        this.deps.ensureSessionState(threadId)
+      );
+      if (message) {
+        this.deps.emit(threadId, message);
+      }
       return;
     }
     if (itemType === "reasoning") {
       this.handleCompletedReasoning(threadId, item);
-    }
-  }
-
-  private handleCompletedAgentMessage(
-    threadId: string,
-    item: Record<string, unknown>
-  ): void {
-    const itemId = asString(item.id);
-    const phase = asString(item.phase);
-    const state = this.deps.ensureSessionState(threadId);
-    const text =
-      asText(item.text) ??
-      (itemId ? (state.assistantTextByItemId.get(itemId) ?? null) : null);
-    if (itemId) {
-      state.assistantTextByItemId.delete(itemId);
-    }
-    if (!text) {
-      return;
-    }
-    if (phase === "commentary") {
-      this.emitDialogMessage(threadId, "assistant", text, itemId, "commentary");
-      return;
-    }
-    if (phase === "final_answer" || phase === null) {
-      this.emitDialogMessage(threadId, "assistant", text, itemId);
     }
   }
 

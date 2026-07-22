@@ -50,6 +50,12 @@ the shared process.
 ## Outputs
 
 - Normalized provider events.
+- When Core supplies `turn/start.outputSchema`, the app-server still returns
+  the schema result as serialized JSON in its final `agentMessage`. The adapter
+  records that exact turn intent, parses only that final schema-bound message
+  and emits one provider-neutral `structured_output` event instead of a raw
+  JSON dialog message. Parsed string fields therefore reach Core with actual
+  newline characters; ordinary Codex final answers remain unchanged.
 - Structured Codex collaboration notifications normalized without reading
   rollout text: current `subAgentActivity(kind=started)` items become
   `subagent_control`, while legacy `collabAgentToolCall` remains supported;

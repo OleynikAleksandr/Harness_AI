@@ -384,6 +384,10 @@ Create workflow завершается структурированной оши
 - First message survives session restore without duplicate dispatch.
 - Codex fixed tool inventory persists declaratively and is not applied as a
   replacement.
+- A Codex turn carrying `outputSchema` is projected as one normalized
+  `structured_output`: the visible Creator message contains only decoded
+  `assistantResponse`, uses real paragraph/list line breaks and contains no
+  serialized `draft` / `nextAction` envelope.
 - Existing Draft deletion and Studio leave/re-entry remain healthy.
 
 ### Package acceptance
@@ -397,10 +401,12 @@ Create workflow завершается структурированной оши
 5. видит первое user message с точным raw JSONL path/capture id/hash;
 6. получает первый ответ `Codex Profile Creator Agent` на
    `gpt-5.6-sol/high`;
-7. убеждается, что агент исследовал Capture и начал интервью, не потребовав
+7. видит только читаемый `assistantResponse` с нормальными переносами строк,
+   без JSON-обёртки `assistantResponse` / `draft` / `nextAction`;
+8. убеждается, что агент исследовал Capture и начал интервью, не потребовав
    ручного Capture или выбора файла;
-8. выходит из Studio, возвращается и видит ту же session/history;
-9. подтверждает, что удаление Draft по-прежнему удаляет связанную session.
+9. выходит из Studio, возвращается и видит ту же session/history;
+10. подтверждает, что удаление Draft по-прежнему удаляет связанную session.
 
 ## 11. Вне текущего среза
 

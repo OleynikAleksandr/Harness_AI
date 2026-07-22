@@ -481,9 +481,9 @@ At the start of plan `profile-studio-mvp-2026-07-20`:
 Accepted Capture-first continuation awaiting the implementation rows of the
 active plan:
 
-- `profile-studio-creator-profile` is **APPLIED** and appears in the Product
-  Tree; `profile-studio-creator-bootstrap` remains authoritative and enters the
-  tree when its live module lands;
+- `profile-studio-creator-profile` and `profile-studio-creator-bootstrap` are
+  **APPLIED** and appear in the Product Tree; the bootstrap facade validates
+  mechanical raw-Capture provenance without provider semantic parsing;
 - settings-selected composite Codex execution, four-component user-space
   profile and exact two-part managed system prompt are **APPLIED**; target
   identity is no longer the creator execution identity;

@@ -9,9 +9,10 @@ composes public facades from `session-profiles`, session runtime, provider
 descriptors and Native Request Capture; it never asks renderer code to scan
 files, infer state or parse agent prose.
 
-Five Core modules are applied: `profile-studio-lifecycle`,
+Six Core modules are applied: `profile-studio-lifecycle`,
 `profile-studio-authoring`, `profile-studio-agent` and
-`profile-studio-read-model`, plus `profile-studio-creator-profile`.
+`profile-studio-read-model`, plus `profile-studio-creator-profile` and
+`profile-studio-creator-bootstrap`.
 Lifecycle mints immutable Draft
 ids, preserves exact target/session binding, computes the materialized content
 hash, accepts approval only for that hash and returns every later full-snapshot
@@ -35,6 +36,9 @@ Creator profile loading resolves the settings-selected HARNESS_AI_HOME-aware
 four-component profile, validates it without fallbacks, composes its exact
 two-part effective system prompt and renders only supported Core assignment
 placeholders.
+Creator bootstrap maps the target to its diagnostic Native channel and
+validates the fresh raw artifact's Core envelope, containment, completion,
+identity and hash without parsing provider prompt/tool structures.
 
 Contract source: `docs/architecture/ProfileStudio.md`.
 
@@ -45,6 +49,7 @@ Contract source: `docs/architecture/ProfileStudio.md`.
 - `profile-studio-agent`
 - `profile-studio-read-model`
 - `profile-studio-creator-profile`
+- `profile-studio-creator-bootstrap`
 
 ## Facade Rule
 

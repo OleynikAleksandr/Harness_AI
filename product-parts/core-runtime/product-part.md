@@ -58,6 +58,9 @@ into `product-parts/**` as real module code.
   HARNESS_AI_HOME-aware components, compose its exact two-part system prompt
   with no inline/ambient fallback and render its Core-owned first-message
   placeholders.
+- Prepare Profile Creator sessions through fresh target Native Capture and
+  validate only Core envelope facts, canonical containment, completion,
+  identity and hash while leaving provider prompt/tool semantics to the agent.
 - Supply an isolated Profile Creator turn contract with target authoring
   context and JSON Schema while keeping execution identity separate.
 - Create and restore persistent Profile Creator sessions in the dedicated

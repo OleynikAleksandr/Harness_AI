@@ -294,6 +294,11 @@
               "id": "profile-studio-creator-profile",
               "name": "Profile Studio Creator Profile",
               "purpose": "Resolve and validate the settings-selected four-component Creator Agent profile, compose its exact two-part system prompt and render only Core-owned initial-assignment placeholders."
+            },
+            {
+              "id": "profile-studio-creator-bootstrap",
+              "name": "Profile Studio Creator Bootstrap",
+              "purpose": "Run target-channel Native Capture and validate canonical raw artifact containment, completion, identity and hash without parsing provider prompt/tool markers."
             }
           ]
         },

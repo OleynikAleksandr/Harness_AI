@@ -35,9 +35,9 @@ on rejection.
 Read model supplies provider/model targets, compatible creator-session rows and
 Core-owned Overview/Prompt/Tools snapshots with honest provider capabilities.
 Creator profile loading resolves the settings-selected HARNESS_AI_HOME-aware
-four-component profile, validates it without fallbacks, composes its exact
-two-part effective system prompt and renders only supported Core assignment
-placeholders.
+four-component profile, validates it without fallbacks, composes its two-part
+base system prompt plus the Core-owned Settings communication-language
+directive and renders only supported Core assignment placeholders.
 Creator bootstrap maps the target to its diagnostic Native channel and
 validates the fresh raw artifact's Core envelope, containment, completion,
 identity and hash without parsing provider prompt/tool structures.

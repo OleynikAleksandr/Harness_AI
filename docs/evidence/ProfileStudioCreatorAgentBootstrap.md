@@ -94,7 +94,14 @@ Target provider/model выбираются в Profile Studio при каждом
 Core собирает effective Creator Agent system prompt в фиксированном порядке:
 
 1. `system-prompt.md`;
-2. `custom-instructions.md`.
+2. `custom-instructions.md`;
+3. Core-generated custom directive с точным языком общения из system Settings
+   `general.localization.categories.systemFeedback`, с fallback на
+   `defaultLanguage`.
+
+Директива требует использовать выбранный язык во всех вопросах интервью,
+объяснениях, summary и approval request независимо от английского языка
+статических инструкций или первого Core assignment.
 
 Первое user-role сообщение не включается в system prompt. Оно рендерится Core
 из отдельного шаблона для конкретного Draft/Capture.
@@ -116,7 +123,7 @@ App-server tooling остаётся фиксированным; документ
 5. проверяет, что prompt parts и initial-message template не пусты, а
    `tools.json` является валидным JSON;
 6. формирует effective Creator Agent system prompt без AGENTS/Skills/project
-   settings wrapper.
+   settings wrapper и добавляет Core-owned communication-language directive.
 
 Отсутствующий или повреждённый Creator Agent profile останавливает workflow
 до Capture и возвращает одно понятное Core-сообщение. Renderer не ищет файлы и

@@ -62,6 +62,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   setting and catalog, loads the validated composite user-space profile and
   materializes it as an immutable managed session profile. The first identity
   is Codex / `gpt-5.6-sol` / `high`, independently of the authored target.
+  Core resolves the communication language from system Settings
+  `general.localization.categories.systemFeedback`, falls back to
+  `defaultLanguage`, and appends the explicit language directive to the custom
+  portion before hashing/materializing the managed prompt.
   Runtime tool overrides/settings sources stay empty because Codex app-server
   tooling is fixed; the captured declaration inventory participates in the
   snapshot hash as declarative provenance. The HARNESS_AI_HOME-aware

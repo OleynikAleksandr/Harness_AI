@@ -42,6 +42,14 @@ const TEMPLATE_FIELDS = [
 ] as const;
 const PLACEHOLDER_PATTERN = /\{\{([^{}]+)\}\}/gu;
 const UNRESOLVED_PLACEHOLDER_PATTERN = /\{\{[^{}]+\}\}/u;
+const LANGUAGE_NAMES: Readonly<Record<string, string>> = {
+  de: "German",
+  en: "English",
+  es: "Spanish",
+  fr: "French",
+  ru: "Russian",
+  uk: "Ukrainian",
+};
 
 export class ProfileStudioCreatorProfileFacade {
   async load(
@@ -85,6 +93,22 @@ export class ProfileStudioCreatorProfileFacade {
       );
     }
     return rendered.trim();
+  }
+
+  composeEffectiveSystemPrompt(
+    profile: ProfileStudioCreatorProfile,
+    communicationLanguage: string
+  ): string {
+    const languageCode = communicationLanguage.trim().toLowerCase() || "en";
+    const languageName = LANGUAGE_NAMES[languageCode] ?? languageCode;
+    const languageDirective = [
+      "## User communication language",
+      "",
+      `Communicate with the user in ${languageName} (${languageCode}) for every interview question, explanation, summary, and approval request.`,
+      "The language used by these system instructions or by Core's first user-role assignment does not override this requirement.",
+      "Keep code, JSON, file paths, provider/model identifiers, and exact technical terms unchanged when translating them would reduce accuracy.",
+    ].join("\n");
+    return `${profile.effectiveSystemPrompt}\n\n${languageDirective}`;
   }
 }
 

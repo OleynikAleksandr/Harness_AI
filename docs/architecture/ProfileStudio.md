@@ -81,7 +81,7 @@ Product-Part-scoped кластерами. Это не один cross-boundary mo
 | `profile-studio-agent` | `ProfileStudioAgentFacade` class | selected provider/model creator configuration, inline prompt, output schema, creator session contract |
 | `profile-studio-authoring` | `ProfileStudioAuthoringFacade` class | full-snapshot validation, donor containment, atomic document application |
 | `profile-studio-read-model` | `ProfileStudioReadModelFacade` class | targets, compatible profiles/sessions, Overview/Prompt/Tools snapshots, capability reasons |
-| `profile-studio-creator-profile` | `ProfileStudioCreatorProfileFacade` class | selected Creator Agent profile resolution, four-component validation, exact two-part system-prompt composition and first-message template rendering |
+| `profile-studio-creator-profile` | `ProfileStudioCreatorProfileFacade` class | selected Creator Agent profile resolution, four-component validation, two-part base prompt plus Core-generated communication-language directive, and first-message template rendering |
 | `profile-studio-creator-bootstrap` | `ProfileStudioCreatorBootstrapFacade` class | Capture-first preparation, target capture-channel mapping, raw artifact validation, capture provenance/hash and immutable initial assignment inputs |
 
 Core cluster composes only public facades from:
@@ -243,6 +243,10 @@ sessionPurpose?: {
 - workspace id: reserved `profile-studio`;
 - workspace path: HARNESS_AI_HOME-aware
   `~/.harness-ai/ProfileStudio/workspace`;
+- effective prompt appends a Core-generated custom directive for system
+  Settings `general.localization.categories.systemFeedback`, with
+  `defaultLanguage` fallback; static/first-message English never determines
+  the Creator Agent's user-facing language;
 - restart restores transcript and profile binding;
 - Studio session list is independent of the currently selected user workspace.
 - deleting a Studio profile validates its v2 identity, removes only its
@@ -503,8 +507,9 @@ active plan:
   **APPLIED** and appear in the Product Tree; the bootstrap facade validates
   mechanical raw-Capture provenance without provider semantic parsing;
 - settings-selected composite Codex execution, four-component user-space
-  profile and exact two-part managed system prompt are **APPLIED**; target
-  identity is no longer the creator execution identity;
+  profile, two-part base prompt and Core-generated communication-language
+  directive are **APPLIED**; target identity is no longer the creator
+  execution identity;
 - fresh Core-owned target Capture, pre-Draft validation and exactly one
   Core-generated first user message are **APPLIED** through the ordinary
   persistent session dispatch path;

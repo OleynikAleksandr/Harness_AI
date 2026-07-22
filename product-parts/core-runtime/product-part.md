@@ -55,9 +55,9 @@ into `product-parts/**` as real module code.
   and contained Native Capture raw/diagnostic provenance before any managed
   profile mutation.
 - Load the settings-selected Profile Creator Agent from four validated
-  HARNESS_AI_HOME-aware components, compose its exact two-part system prompt
-  with no inline/ambient fallback and render its Core-owned first-message
-  placeholders.
+  HARNESS_AI_HOME-aware components, compose its two-part base system prompt,
+  append the Core-owned Settings communication-language directive with no
+  ambient fallback and render its Core-owned first-message placeholders.
 - Prepare Profile Creator sessions through fresh target Native Capture and
   validate only Core envelope facts, canonical containment, completion,
   identity and hash while leaving provider prompt/tool semantics to the agent.

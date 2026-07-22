@@ -78,8 +78,14 @@ export async function buildProfileCreatorSession(
       ok: false,
     };
   }
+  const settings = settingsStore.getSettings();
   const selectedProviderId =
-    settingsStore.getSettings().profileStudio.defaultCreatorAgentProviderId;
+    settings.profileStudio.defaultCreatorAgentProviderId;
+  const localization = settings.general.localization;
+  const communicationLanguage =
+    localization.categories.systemFeedback.trim() ||
+    localization.defaultLanguage.trim() ||
+    "en";
   const creatorOption = PROFILE_CREATOR_AGENT_OPTIONS.find(
     (option) => option.id === selectedProviderId
   );
@@ -102,7 +108,10 @@ export async function buildProfileCreatorSession(
     modelId: creatorOption.model,
     providerId: creatorOption.id,
     reasoningEffort: creatorOption.reasoningEffort,
-    systemPrompt: creatorProfile.effectiveSystemPrompt,
+    systemPrompt: creatorProfileLoader.composeEffectiveSystemPrompt(
+      creatorProfile,
+      communicationLanguage
+    ),
   });
   await fs.mkdir(spec.workspacePath, { recursive: true });
   const now = new Date().toISOString();

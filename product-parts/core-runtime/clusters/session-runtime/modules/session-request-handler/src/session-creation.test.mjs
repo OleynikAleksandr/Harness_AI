@@ -17,14 +17,17 @@ const turnOptionsSource = readFileSync(
 assert.match(creationSource, /new ProfileStudioAgentFacade\(\)/u);
 assert.match(creationSource, /new ProfileStudioCreatorProfileFacade\(\)/u);
 assert.match(creationSource, /defaultCreatorAgentProviderId/u);
+assert.match(creationSource, /categories\.systemFeedback\.trim\(\)/u);
+assert.match(creationSource, /defaultLanguage\.trim\(\)/u);
 assert.match(creationSource, /PROFILE_CREATOR_AGENT_OPTIONS\.find/u);
 assert.match(creationSource, /creatorProfileLoader\.load/u);
 assert.match(creationSource, /modelId: request\.model/u);
 assert.match(creationSource, /modelId: creatorOption\.model/u);
 assert.match(
   creationSource,
-  /systemPrompt: creatorProfile\.effectiveSystemPrompt/u
+  /systemPrompt: creatorProfileLoader\.composeEffectiveSystemPrompt/u
 );
+assert.match(creationSource, /communicationLanguage/u);
 assert.match(creationSource, /model: spec\.modelId/u);
 assert.match(creationSource, /providerId: spec\.providerId/u);
 assert.match(creationSource, /profileCreatorProviderName\(spec\.providerId\)/u);

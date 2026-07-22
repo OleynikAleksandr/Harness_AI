@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase17.stream2.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase18.stream2.task1",
+  "expectedCommitMessage": "feat: resize profile studio panes",
   "debt": null
 }
 ```
@@ -309,4 +309,23 @@
 100. [DONE] `harness-ai.phase17.stream2.task1` After explicit user authorization for another package build, rebuild the unsigned macOS application, verify the repaired schema contract in `app.asar`, launch it and append exact package identity plus the focused first-turn retest to the existing Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator schema repair`). Result: Completed in commit `docs: package profile creator schema repair`.
 101. [DONE] Git Commit: `docs: package profile creator schema repair` (hash: self)
 
-102. [IN_PROGRESS] `harness-ai.phase17.stream2.task2` User retests the rebuilt package with Claude / Opus / medium: Create Profile completes Capture, creates the persistent Draft/session, dispatches the Core first message and receives the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without `invalid_json_schema`; then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none).
+102. [DONE] `harness-ai.phase17.stream2.task2` User retests the rebuilt package with Claude / Opus / medium: Create Profile completes Capture, creates the persistent Draft/session, dispatches the Core first message and receives the first Codex GPT-5.6 Sol/high Profile Creator Agent interview response without `invalid_json_schema`; then verify leave/re-entry and managed deletion (completion: user-acceptance; scope: user workflow; expected commit: none). Result: Rejected on 2026-07-22 — the session and Creator Agent now run, but the agent answers in English instead of the Settings-selected user language, and the three-column Studio layout has no horizontal resize controls; acceptance moves to Phase 18.
+
+## Phase 18 - Creator Language And Resizable Studio Panes (owner: Codex + User, updated: 2026-07-22)
+
+### Stream: Core-Owned Communication Language
+
+103. [DONE] `harness-ai.phase18.stream1.task1` Resolve Profile Creator communication language from system Settings `general.localization.categories.systemFeedback` with `defaultLanguage` fallback, append an explicit Core-generated language directive to the custom portion of the effective Creator Agent system prompt, include it in the managed content hash and cover exact language/fallback composition (scope: up to 3 functional files — Creator Profile facade, Session Creation and focused tests — plus related module/architecture docs; expected commit: `fix: localize profile creator communication`). Result: Completed in commit `fix: localize profile creator communication`.
+104. [DONE] Git Commit: `fix: localize profile creator communication` (hash: self)
+
+### Stream: Three-Pane Horizontal Resize
+
+105. [IN_PROGRESS] `harness-ai.phase18.stream2.task1` Add two accessible horizontal drag separators owned by the Profile Studio shell, resize left sidebar / central standard session / right inspector within explicit minimum and viewport bounds, remove child fixed-width conflicts and cover pointer/keyboard/layout contracts without changing Core workflow state (scope: up to 3 functional files — Profile Studio Shell facade, shared Studio CSS and focused shell test — plus related module/architecture docs; expected commit: `feat: resize profile studio panes`).
+106. [TODO] Git Commit: `feat: resize profile studio panes` (hash: TBD)
+
+### Stream: Rebuilt Acceptance Package
+
+107. [TODO] `harness-ai.phase18.stream3.task1` Build the user-authorized unsigned macOS package, verify the Core language directive and two resizers inside `app.asar`, launch it and append exact identity plus focused language/resize retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator language and resize`).
+108. [TODO] Git Commit: `docs: package profile creator language and resize` (hash: TBD)
+
+109. [TODO] `harness-ai.phase18.stream3.task2` User retests the rebuilt package: a fresh Creator Agent speaks the system-Settings communication language from its first answer; both Studio dividers resize left/sidebar, center/session and right/inspector safely; Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).

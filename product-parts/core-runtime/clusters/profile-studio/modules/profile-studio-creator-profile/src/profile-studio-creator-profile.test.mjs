@@ -72,6 +72,15 @@ try {
   ]);
   assert.equal(profile.directoryPath, profilePath);
 
+  const localizedPrompt = facade.composeEffectiveSystemPrompt(profile, "ru");
+  assert.match(localizedPrompt, /User communication language/u);
+  assert.match(localizedPrompt, /in Russian \(ru\)/u);
+  assert.match(localizedPrompt, /first user-role assignment/u);
+  assert.match(
+    facade.composeEffectiveSystemPrompt(profile, ""),
+    /in English \(en\)/u
+  );
+
   const message = facade.renderInitialUserMessage(profile, {
     captureId: "capture-1",
     profileId: "draft-1",

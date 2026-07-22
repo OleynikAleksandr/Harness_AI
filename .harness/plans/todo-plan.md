@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase18.stream3.task1",
-  "expectedCommitMessage": "docs: package profile creator language and resize",
+  "currentTaskId": "harness-ai.phase18.stream3.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -325,7 +325,7 @@
 
 ### Stream: Rebuilt Acceptance Package
 
-107. [IN_PROGRESS] `harness-ai.phase18.stream3.task1` Build the user-authorized unsigned macOS package, verify the Core language directive and two resizers inside `app.asar`, launch it and append exact identity plus focused language/resize retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator language and resize`).
-108. [TODO] Git Commit: `docs: package profile creator language and resize` (hash: TBD)
+107. [DONE] `harness-ai.phase18.stream3.task1` Build the user-authorized unsigned macOS package, verify the Core language directive and two resizers inside `app.asar`, launch it and append exact identity plus focused language/resize retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package profile creator language and resize`). Result: Completed in commit `docs: package profile creator language and resize`.
+108. [DONE] Git Commit: `docs: package profile creator language and resize` (hash: self)
 
-109. [TODO] `harness-ai.phase18.stream3.task2` User retests the rebuilt package: a fresh Creator Agent speaks the system-Settings communication language from its first answer; both Studio dividers resize left/sidebar, center/session and right/inspector safely; Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).
+109. [IN_PROGRESS] `harness-ai.phase18.stream3.task2` User retests the rebuilt package: a fresh Creator Agent speaks the system-Settings communication language from its first answer; both Studio dividers resize left/sidebar, center/session and right/inspector safely; Capture, persistence, re-entry and deletion remain working (completion: user-acceptance; scope: user workflow; expected commit: none).

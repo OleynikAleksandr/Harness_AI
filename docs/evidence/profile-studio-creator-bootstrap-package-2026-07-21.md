@@ -179,3 +179,77 @@ renderer process `92334`.
    purpose interview.
 5. Выйти из Studio, вернуться и проверить восстановление Draft, сессии и
    переписки; затем проверить штатное удаление.
+
+## Communication Language And Three-Pane Resize Package
+
+Повторная пользовательская проверка schema-repair package подтвердила, что
+Creator Session теперь запускается и агент работает. Пакет не был принят по
+двум следующим причинам: агент отвечал на английском, а границы трёх колонок
+Profile Studio нельзя было изменять.
+
+Commit `246e6256` (`fix: localize profile creator communication`) добавляет
+Core-owned языковой контракт:
+
+- при создании Creator Session Core читает system Settings
+  `general.localization.categories.systemFeedback`;
+- пустое значение использует `defaultLanguage`, затем безопасный `en`;
+- Creator Profile facade добавляет в custom-часть materialized system prompt
+  точное имя и код языка;
+- директива требует использовать этот язык для каждого вопроса интервью,
+  объяснения, summary и approval request независимо от английского языка
+  статических инструкций и первого Core assignment;
+- итоговый prompt вместе с директивой входит в immutable managed content hash.
+
+Commit `348396c7` (`feat: resize profile studio panes`) добавляет два
+presentation-only separator между левым sidebar, центральной стандартной
+сессией и правым inspector:
+
+- pointer drag использует pointer capture;
+- Left/Right keyboard arrows изменяют ширину сфокусированной границы;
+- double-click возвращает соответствующую side pane к default width;
+- `ResizeObserver` и явные minimum widths не позволяют divider схлопнуть
+  соседние панели при drag или изменении размера окна;
+- геометрия остаётся renderer state и не входит в Core profile/session truth.
+
+Оба implementation commits прошли plan validation, architecture, Ultracite,
+Knip, typecheck, docs-sync и `Tests: OK (148)`. Пользователь явно разрешил
+новую package-сборку. `npm run build` и `npm run package:mac` из revision
+`348396c7` создали:
+
+- application: `release/mac-arm64/Harness AI.app`;
+- bundle identifier: `ai.harness.desktop`;
+- renderer: `/dist/renderer/assets/index-DimWUakc.js` и
+  `/dist/renderer/assets/index-DGrvNM_0.css`;
+- transformed renderer modules: `337`;
+- `app.asar` size: `32507561` bytes;
+- `app.asar` modification time: `2026-07-22T10:58:06+0200`;
+- SHA-256:
+  `6bc522bd0c8c4e5a9a5b218ae5ea7ff810d482aaf75f49502c35049a267fa486`.
+
+Распаковка `app.asar` подтвердила:
+
+- Core Session Creation читает `categories.systemFeedback` и вызывает
+  `composeEffectiveSystemPrompt`;
+- compiled Creator Profile содержит `User communication language`, названия
+  поддерживаемых языков и правило о first user-role assignment;
+- renderer содержит `ResizeObserver`, `setPointerCapture`, обе Arrow keys,
+  `aria-orientation`, `aria-valuenow` и double-click handlers;
+- CSS содержит обе pane variables и `cursor: col-resize`.
+
+Пакет успешно запущен: main process `12991`, Core Runtime process `13005`,
+renderer process `13056`.
+
+### Фокус повторной проверки языка и layout
+
+1. Удалить старый тестовый Draft и создать новый Claude / Opus / medium, чтобы
+   новая Creator Session получила заново materialized system prompt.
+2. Проверить, что первый и следующие ответы Creator Agent используют язык
+   `System Feedback`, выбранный в Settings → General → Localization.
+3. Перетащить левую границу: левый sidebar меняется, центральная сессия
+   занимает оставшееся место, правый inspector сохраняет ширину.
+4. Перетащить правую границу: inspector меняется, центральная сессия снова
+   адаптируется; панели не схлопываются на minimum limits.
+5. Сфокусировать каждый divider клавиатурой, проверить Left/Right arrows и
+   double-click reset, затем изменить ширину всего окна.
+6. Убедиться, что Capture, создание/выбор Draft, leave/re-entry и удаление
+   продолжают работать.

@@ -11,11 +11,15 @@ resolved through the provider-home manager): the CLI session store lands
 inside the workspace instead of the global `~/.kimi-code/sessions/`, auth
 stays shared through `credentials`/`device_id` symlinks into the real home,
 `config.toml`/`tui.toml` are copied once, and the CLI binary keeps resolving
-from the real home. On every prepare the bootstrap also appends the missing
-Core-catalog `[models.*]` sections (`kimi-for-coding-highspeed`, `k3` —
-provider inherited from the user's own model section,
-`max_context_size` from the caller's merged `modelContexts` map with the
-verified K2.7 `262144` as the no-map fallback) to the copied config,
+from the real home. On every prepare the bootstrap also appends a missing
+`[models.*]` section for every model of the Core-served Kimi catalog
+(`providerDescriptorFacade.getKimiClientModels()`, refreshed live from
+`GET /coding/v1/models` by `kimi-client-provider` — so newly published
+models such as `k3.1-pro` become selectable without a code change). Dotted
+ids are written as quoted TOML keys (`[models."k3.1-pro"]`); the provider is
+inherited from the user's own model section, and `max_context_size` comes
+from the caller's `modelContexts` map, then the catalog row's context, with
+`262144` as the last fallback. These sections go into the copied config,
 because the CLI accepts
 `session/set_config_option {model}` only for ids declared in `config.toml`
 (verified live: without the section every native session silently ran the
@@ -29,10 +33,11 @@ catalog sections is touched, matching values rewrite nothing. The bootstrap furt
 `kimi-for-coding` IS a thinking model; without Thinking the service routes
 to K2.6, and the refusals came from the migrated legacy config): it strips
 the deprecated `default_thinking` key from the copy, injects
-`capabilities = ["thinking", "tool_use"]` +
-`support_efforts = ["low", "high", "max"]` into catalog model sections that
-declare none, adds the same fields plus `default_effort` to generated
-sections, and upserts a `[thinking]` section (`enabled = true`,
+`capabilities = ["thinking", "tool_use"]` plus `support_efforts` from the
+catalog row's efforts into catalog model sections that declare none (a model
+without efforts, K2.7 Code Highspeed, declares thinking only), adds the same
+fields plus `default_effort` (the row default, `high` otherwise) to
+generated sections, and upserts a `[thinking]` section (`enabled = true`,
 `keep = "all"`, default effort `high`). A `[thinking]` section without an
 `effort` line — the layout the Kimi CLI config migration of 2026-09-09 leaves
 (`enabled = true` only, effort moved to per-model `default_effort`) — gains

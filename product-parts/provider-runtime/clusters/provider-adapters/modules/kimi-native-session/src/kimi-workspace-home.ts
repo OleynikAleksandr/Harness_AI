@@ -12,6 +12,10 @@ import {
 import { homedir } from "node:os";
 import path from "node:path";
 import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
+import {
+  type ProviderModelDescriptor,
+  providerDescriptorFacade,
+} from "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 import { isKimiAcpRecord } from "./kimi-acp-session-contracts.js";
 
 // Claude/Codex parity for the native Kimi CLI backend: sessions run with
@@ -25,16 +29,15 @@ const KIMI_CONFIG_DIRNAME = ".kimi-code";
 const LINKED_ENTRIES = ["credentials", "device_id"];
 const COPIED_ENTRIES = ["config.toml", "tui.toml"];
 const SESSION_MAP_FILENAME = "harness-session-map.json";
-// Mirror of the Core Coding Plan catalog (provider-descriptor
-// KIMI_CLIENT_MODELS). The CLI accepts `session/set_config_option {model}`
-// only for ids declared in config.toml (`Model "k3" is not configured in
-// config.toml` — verified live on 0.26.0), and a stock user config declares
-// only the default model, so the bootstrap appends the missing sections.
-const CATALOG_MODEL_IDS = [
-  "kimi-for-coding",
-  "kimi-for-coding-highspeed",
-  "k3",
-];
+// The CLI accepts `session/set_config_option {model}` only for ids declared
+// in config.toml (`Model "k3" is not configured in config.toml` — verified
+// live on 0.26.0 and again on 2.4.1, 2026-11-02), and a stock user config
+// declares only the models the CLI itself synced, so the bootstrap appends a
+// section for every model of the Core-served Kimi catalog
+// (provider-descriptor, refreshed live from GET /coding/v1/models).
+const catalogModels = (): readonly ProviderModelDescriptor[] =>
+  providerDescriptorFacade.getKimiClientModels();
+const BARE_TOML_KEY_PATTERN = /^[A-Za-z0-9_-]+$/u;
 const KIMI_NATIVE_CONTEXT_LIMIT = 262_144;
 const PROVIDER_LINE_PATTERN = /^\s*provider\s*=\s*"([^"]+)"/mu;
 // Thinking declarations (verified live on CLI 0.26.0, 2026-07-17): the CLI
@@ -44,10 +47,17 @@ const PROVIDER_LINE_PATTERN = /^\s*provider\s*=\s*"([^"]+)"/mu;
 // kimi-for-coding is a thinking model (without Thinking the service routes
 // to K2.6). The effort LEVEL comes from `[thinking].effort`, read once at
 // CLI process start; the ACP option only toggles off/on.
-const MODEL_THINKING_LINES = [
-  'capabilities = ["thinking", "tool_use"]',
-  'support_efforts = ["low", "high", "max"]',
-];
+// Efforts follow the catalog row: models without selectable efforts (K2.7
+// Code Highspeed) declare thinking only, so the CLI keeps them `on`.
+function modelThinkingLines(model: ProviderModelDescriptor): string[] {
+  const efforts = model.reasoningEfforts ?? [];
+  return efforts.length > 0
+    ? [
+        'capabilities = ["thinking", "tool_use"]',
+        `support_efforts = [${efforts.map((effort) => `"${effort}"`).join(", ")}]`,
+      ]
+    : ['capabilities = ["thinking", "tool_use"]'];
+}
 export const KIMI_THINKING_EFFORTS = ["low", "high", "max"] as const;
 export type KimiThinkingEffort = (typeof KIMI_THINKING_EFFORTS)[number];
 const DEFAULT_THINKING_EFFORT: KimiThinkingEffort = "high";
@@ -176,8 +186,8 @@ function ensureThinkingDeclarations(configPath: string): void {
     return;
   }
   let next = source.replace(DEPRECATED_DEFAULT_THINKING_PATTERN, "");
-  for (const modelId of CATALOG_MODEL_IDS) {
-    next = injectModelThinkingLines(next, modelId);
+  for (const model of catalogModels()) {
+    next = injectModelThinkingLines(next, model);
   }
   if (thinkingEffortOf(next) === null) {
     next = upsertThinkingSection(next, DEFAULT_THINKING_EFFORT);
@@ -189,12 +199,15 @@ function ensureThinkingDeclarations(configPath: string): void {
 
 // Insert the thinking declarations right below the section header when the
 // section exists and declares no capabilities yet.
-function injectModelThinkingLines(source: string, modelId: string): string {
+function injectModelThinkingLines(
+  source: string,
+  model: ProviderModelDescriptor
+): string {
   const lines = source.split("\n");
   const headerIndex = lines.findIndex((line) => {
     const trimmed = line.trim();
     return (
-      trimmed === `[models.${modelId}]` || trimmed === `[models."${modelId}"]`
+      trimmed === `[models.${model.id}]` || trimmed === `[models."${model.id}"]`
     );
   });
   if (headerIndex < 0) {
@@ -211,7 +224,7 @@ function injectModelThinkingLines(source: string, modelId: string): string {
   if (body.some((line) => line.trim().startsWith("capabilities"))) {
     return source;
   }
-  lines.splice(headerIndex + 1, 0, ...MODEL_THINKING_LINES);
+  lines.splice(headerIndex + 1, 0, ...modelThinkingLines(model));
   return lines.join("\n");
 }
 
@@ -255,18 +268,28 @@ function ensureCatalogModelSections(
   } catch {
     return;
   }
-  const missing = CATALOG_MODEL_IDS.filter(
-    (modelId) => !hasModelSection(source, modelId)
+  const missing = catalogModels().filter(
+    (model) => !hasModelSection(source, model.id)
   );
   if (missing.length === 0) {
     return;
   }
   const provider =
     source.match(PROVIDER_LINE_PATTERN)?.[1] ?? "kimi-for-coding";
-  const blocks = missing.map(
-    (modelId) =>
-      `\n[models.${modelId}]\nprovider = "${provider}"\nmodel = "${modelId}"\nmax_context_size = ${modelContexts[modelId] ?? KIMI_NATIVE_CONTEXT_LIMIT}\n${MODEL_THINKING_LINES.join("\n")}\ndefault_effort = "${DEFAULT_THINKING_EFFORT}"\n`
-  );
+  const blocks = missing.map((model) => {
+    // Dotted ids (`k3.1-pro`) must be quoted, or TOML reads nested tables.
+    const key = BARE_TOML_KEY_PATTERN.test(model.id)
+      ? model.id
+      : `"${model.id}"`;
+    const contextSize =
+      modelContexts[model.id] ??
+      model.contextLength ??
+      KIMI_NATIVE_CONTEXT_LIMIT;
+    const defaultEffort = model.reasoningEfforts?.length
+      ? `default_effort = "${model.defaultReasoningEffort ?? DEFAULT_THINKING_EFFORT}"\n`
+      : "";
+    return `\n[models.${key}]\nprovider = "${provider}"\nmodel = "${model.id}"\nmax_context_size = ${contextSize}\n${modelThinkingLines(model).join("\n")}\n${defaultEffort}`;
+  });
   writeFileSync(configPath, `${source.trimEnd()}\n${blocks.join("")}`, "utf8");
 }
 
@@ -287,10 +310,10 @@ function ensureCatalogContextSizes(
     return;
   }
   let next = source;
-  for (const modelId of CATALOG_MODEL_IDS) {
-    const contextSize = modelContexts[modelId];
+  for (const model of catalogModels()) {
+    const contextSize = modelContexts[model.id];
     if (typeof contextSize === "number" && contextSize > 0) {
-      next = upsertModelContextSize(next, modelId, contextSize);
+      next = upsertModelContextSize(next, model.id, contextSize);
     }
   }
   if (next !== source) {

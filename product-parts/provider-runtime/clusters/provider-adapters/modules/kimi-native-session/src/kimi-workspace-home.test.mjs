@@ -11,6 +11,13 @@ const root = await mkdtemp(path.join(tmpdir(), "kimi-workspace-home-"));
 try {
   const buildDir = path.join(root, "build");
   await mkdir(buildDir, { recursive: true });
+  // Core-served Kimi catalog stub (provider-descriptor): the models the
+  // workspace home declares in the CLI config.
+  writeFileSync(
+    path.join(buildDir, "provider-descriptor-stub.js"),
+    'export const providerDescriptorFacade = { getKimiClientModels: () => globalThis.__kimiTestCatalog ?? ["kimi-for-coding", "kimi-for-coding-highspeed", "k3"].map((id) => ({ defaultReasoningEffort: "high", id, label: id, reasoningEfforts: ["low", "high", "max"] })) };\n',
+    "utf8"
+  );
   const homeManagerSource = readFileSync(
     new URL(
       "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts",
@@ -44,10 +51,15 @@ try {
     }).outputText;
     writeFileSync(
       path.join(buildDir, filename.replace(/\.ts$/u, ".js")),
-      compiled.replaceAll(
-        "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
-        "./provider-home-manager-facade.js"
-      ),
+      compiled
+        .replaceAll(
+          "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
+          "./provider-home-manager-facade.js"
+        )
+        .replaceAll(
+          "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js",
+          "./provider-descriptor-stub.js"
+        ),
       "utf8"
     );
   }
@@ -246,6 +258,38 @@ try {
     /\[thinking\]\neffort = "high"\nenabled = true\n/u
   );
   assert.equal(readKimiThinkingEffort(migratedHome), "high");
+
+  // Every model of the served live catalog gets a section: dotted ids are
+  // quoted TOML keys, the catalog context and efforts are used, and a model
+  // without efforts declares thinking only.
+  globalThis.__kimiTestCatalog = [
+    {
+      contextLength: 1_048_576,
+      defaultReasoningEffort: "high",
+      id: "k3.1-pro",
+      label: "K3.1 Pro",
+      reasoningEfforts: ["low", "high", "max"],
+    },
+    { contextLength: 262_144, id: "kimi-for-coding-highspeed", label: "HS" },
+  ];
+  const workspaceLive = path.join(root, "workspace-live");
+  await mkdir(workspaceLive, { recursive: true });
+  const liveHome = prepareKimiWorkspaceHome(workspaceLive, {
+    realKimiConfigDir: migratedConfigDir,
+  });
+  const liveConfig = readFileSync(
+    path.join(liveHome.homePath, ".kimi-code", "config.toml"),
+    "utf8"
+  );
+  assert.match(
+    liveConfig,
+    /\[models\."k3\.1-pro"\]\nprovider = "managed:kimi-code"\nmodel = "k3\.1-pro"\nmax_context_size = 1048576\ncapabilities = \["thinking", "tool_use"\]\nsupport_efforts = \["low", "high", "max"\]\ndefault_effort = "high"\n/u
+  );
+  assert.match(
+    liveConfig,
+    /\[models\.kimi-for-coding-highspeed\]\nprovider = "managed:kimi-code"\nmodel = "kimi-for-coding-highspeed"\nmax_context_size = 262144\ncapabilities = \["thinking", "tool_use"\]\n(?!support_efforts)/u
+  );
+  globalThis.__kimiTestCatalog = undefined;
 
   // Deletion resolves the CLI store id from the persisted mapping and
   // removes exactly that session directory.

@@ -13,6 +13,13 @@ try {
   // and the full native-session driver stack for the end-to-end flow.
   const buildDir = path.join(root, "build");
   await mkdir(buildDir, { recursive: true });
+  // Core-served Kimi catalog stub (provider-descriptor): the models the
+  // workspace home declares in the CLI config.
+  writeFileSync(
+    path.join(buildDir, "provider-descriptor-stub.js"),
+    'export const providerDescriptorFacade = { getKimiClientModels: () => globalThis.__kimiTestCatalog ?? ["kimi-for-coding", "kimi-for-coding-highspeed", "k3"].map((id) => ({ defaultReasoningEffort: "high", id, label: id, reasoningEfforts: ["low", "high", "max"] })) };\n',
+    "utf8"
+  );
   const homeManagerSource = readFileSync(
     new URL(
       "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts",
@@ -56,6 +63,10 @@ try {
         .replaceAll(
           "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
           "./provider-home-manager-facade.js"
+        )
+        .replaceAll(
+          "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js",
+          "./provider-descriptor-stub.js"
         )
         .replaceAll(
           "../../kimi-subagent-wire/src/kimi-subagent-wire-facade.js",

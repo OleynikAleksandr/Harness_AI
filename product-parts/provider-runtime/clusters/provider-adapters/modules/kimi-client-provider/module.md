@@ -47,9 +47,10 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
 - `KimiClientProviderFacade`: the `ProviderAdapter` on the universal client.
   Each turn uses `ProviderTurnOptions.model` supplied from `session.model`;
   legacy/empty callers fall back to `KIMI_MODEL`. The provider catalog and
-  settings normalization constrain visible choices to `kimi-for-coding`,
-  `kimi-for-coding-highspeed`, and `k3`. No `temperature` is sent, which keeps
-  K3 on its provider-required default value `1`.
+  settings normalization constrain visible choices to the Kimi catalog the
+  provider descriptor serves (live Coding Plan models, see Model catalog
+  below). No `temperature` is sent, which keeps K3 on its provider-required
+  default value `1`.
   Sessions are in-memory: each keeps its message history and carries the
   final in-turn history returned by `runClientTurn` (assistant + tool
   messages included) into the next turn. Turn events map through
@@ -105,16 +106,29 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
   completed turn for both native and client sessions; failures resolve to
   no broadcast (the panel keeps its pending state). The key resolution is
   exported as `resolveKimiApiKey` and shared with the model-catalog reader.
-- Model catalog (`kimi-model-catalog.ts`, verified live 2026-07-18):
-  `resolveKimiModelContexts` reads `GET https://api.kimi.com/coding/v1/models`
-  with the same key resolution, parses `{id, context_length}` rows (k3
-  1048576 — a 1M-context model, both K2.7 models 262144), merges the live
-  rows over the Core-catalog fallback
-  (`KIMI_CLIENT_MODELS`/`kimiClientModelContextLength`) and memoizes a
-  successful read per process for 15 minutes; offline reads return the
-  fallback immediately and retry on the next call. The facade re-exports
-  the reader surface; the native session path consumes the merged map for
-  workspace-home config truth and per-turn usage limits.
+- Live model catalog (`kimi-model-catalog.ts`, verified live 2026-11-02):
+  `refreshKimiModelCatalog` reads `GET https://api.kimi.com/coding/v1/models`
+  with the same key resolution and parses every row into a
+  `ProviderModelDescriptor`: `id`, `label` from `display_name` (the id when
+  absent), `contextLength` from `context_length`, and `reasoningEfforts` /
+  `defaultReasoningEffort` from `think_efforts` (`support: true`) or the
+  older `reasoning.effort` shape; rows without an id are skipped. A
+  successful read replaces the catalog served by
+  `providerDescriptorFacade.setKimiClientModels` — the live list is
+  authoritative, so new models (K3.1 Pro) appear and withdrawn ones vanish
+  without a code change — and is persisted in the endpoint's row shape to
+  `<HARNESS_AI_HOME or ~/.harness-ai>/providers/kimi-client/model-catalog.json`
+  (`{ data, fetchedAt }`). The persisted file is applied synchronously once
+  per process before the first live read, so an offline start serves the last
+  known catalog; with no file the verified `KIMI_CLIENT_MODELS` fallback
+  stays served. A successful read is memoized for 15 minutes; failed reads
+  keep the served catalog and retry on the next call. Core calls
+  `refreshKimiModelCatalog` first in `CoreRuntimeApi.initialize()`.
+  `resolveKimiModelContexts` refreshes the same way and returns the served
+  catalog's per-model context windows (`KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH`
+  for rows without one); the native session path consumes that map for
+  workspace-home config truth and per-turn usage limits. The facade
+  re-exports `refreshKimiModelCatalog` and `resolveKimiModelContexts`.
 
 ## Owned Paths
 

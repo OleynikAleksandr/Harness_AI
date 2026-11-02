@@ -39,21 +39,30 @@ Own model/reasoning capabilities and UI metadata for providers.
   native CLI `--effort` values `low/medium/high/xhigh/max` for Sonnet, Opus,
   and Haiku. Claude `ultracode` is intentionally absent because it is a
   separate session-orchestration setting, not an effort value.
-  Kimi reuses the three-model `KIMI_CLIENT_MODELS` catalog and exposes an
-  empty reasoning list with `defaultReasoningEffort: null` because the native
-  CLI has no independent reasoning selector.
+  Kimi follows the served Kimi catalog (see below) and exposes an
+  empty reasoning list with `defaultReasoningEffort: null` because capture
+  preserves the provider default effort; `getCaptureProviderIds()` lists
+  `claude`, `codex`, `kimi`.
 - Client endpoint model catalog: `getClientModels(providerId)`
   returns renderer-safe `ProviderModelDescriptor` (`{ id, label,
-  description?, contextLength? }`) entries. `KIMI_CLIENT_MODELS` is the
-  shared Core/provider-
-  runtime source consumed by normalization and UI surfaces; its live-verified
-  2026-07-16 Coding Plan catalog is `kimi-for-coding` (K2.7 Coding),
-  `kimi-for-coding-highspeed` (K2.7 Coding HighSpeed), and `k3` (K3). The
-  descriptors carry the live-verified 2026-07-18 native context windows
-  (both K2.7 models 262144, `k3` 1048576 — a 1M-context model), resolved
-  per model through `kimiClientModelContextLength(model)` with
-  `KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH` (the K2.7 window) for
-  config-aliased ids outside the catalog.
+  description?, contextLength?, reasoningEfforts?, defaultReasoningEffort? }`)
+  entries. The Kimi catalog is Core-owned and live: the module holds the
+  served list, `getKimiClientModels()` / `getClientModels("kimi-client")`
+  return it, and `setKimiClientModels(models)` replaces it (an empty list is
+  ignored so a broken read never removes every model). The
+  `kimi-client-provider` live catalog reader applies the persisted and then
+  the live `GET /coding/v1/models` catalog. `KIMI_CLIENT_MODELS` is the
+  verified offline fallback served until then — the 2026-11-02 Coding Plan
+  rows: `kimi-for-coding` (K2.8 Preview, 1048576, efforts low/high/max,
+  default max), `kimi-for-coding-highspeed` (K2.7 Code Highspeed, 262144, no
+  efforts), `k3` (K3, 1048576), `k3-256k` (K3-256k, 262144), `k3.1-pro`
+  (K3.1 Pro, 1048576) and `k3.1-pro-highspeed` (K3.1 Pro Highspeed 2x Usage
+  Cost, 1048576), the K3 family with efforts low/high/max, default high.
+  Settings normalization and the Settings UI still import this fallback list
+  directly. Context windows resolve per model through
+  `kimiClientModelContextLength(model)` against the served catalog, with
+  `KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH` (262144) for config-aliased ids
+  outside it.
   `glm-client` carries the
   Core-owned GLM coding-plan catalog (`glm-5.2`, `glm-5.1`, `glm-5-turbo`,
   `glm-4.7`, `glm-4.6`). Multi-model client providers resolve their selected

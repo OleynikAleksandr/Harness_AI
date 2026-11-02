@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream1.task1",
-  "expectedCommitMessage": "feat: discover kimi models from live catalog",
+  "currentTaskId": "harness-ai.phase21.stream1.task2",
+  "expectedCommitMessage": "feat: configure live kimi models in workspace home",
   "debt": null
 }
 ```
@@ -386,9 +386,9 @@ Kimi CLI 2.4.1 accepts only model ids declared in its `config.toml`.
 
 ### Stream: Core-Owned Live Catalog
 
-122. [IN_PROGRESS] `harness-ai.phase21.stream1.task1` Make the Kimi model catalog Core-owned and live: parse full `/coding/v1/models` rows (id, display name, context window, supported and default thinking efforts), persist the last successful catalog under the Harness product home, serve it through the provider-descriptor facade with a refreshed verified fallback list, and refresh it on Core start (scope: up to 3 production functional files — Kimi model catalog, provider descriptor facade and Core start wiring — plus focused tests and related provider/Core docs; expected commit: `feat: discover kimi models from live catalog`).
-123. [TODO] Git Commit: `feat: discover kimi models from live catalog` (hash: TBD)
-124. [TODO] `harness-ai.phase21.stream1.task2` Declare every live catalog model in the Kimi workspace-home CLI config with its live context window and efforts, so native sessions can select newly discovered models (scope: up to 2 production functional files — Kimi workspace home and its caller — plus focused tests and kimi-native-session docs; expected commit: `feat: configure live kimi models in workspace home`).
+122. [DONE] `harness-ai.phase21.stream1.task1` Make the Kimi model catalog Core-owned and live: parse full `/coding/v1/models` rows (id, display name, context window, supported and default thinking efforts), persist the last successful catalog under the Harness product home, serve it through the provider-descriptor facade with a refreshed verified fallback list, and refresh it on Core start (scope: up to 3 production functional files — Kimi model catalog, provider descriptor facade and Core start wiring — plus the kimi-client-provider facade re-export line, focused tests and related provider/Core docs; expected commit: `feat: discover kimi models from live catalog`). Result: Completed in commit `feat: discover kimi models from live catalog`.
+123. [DONE] Git Commit: `feat: discover kimi models from live catalog` (hash: self)
+124. [IN_PROGRESS] `harness-ai.phase21.stream1.task2` Declare every live catalog model in the Kimi workspace-home CLI config with its live context window and efforts, so native sessions can select newly discovered models (scope: up to 2 production functional files — Kimi workspace home and its caller — plus focused tests and kimi-native-session docs; expected commit: `feat: configure live kimi models in workspace home`).
 125. [TODO] Git Commit: `feat: configure live kimi models in workspace home` (hash: TBD)
 
 ### Stream: Settings Surfaces

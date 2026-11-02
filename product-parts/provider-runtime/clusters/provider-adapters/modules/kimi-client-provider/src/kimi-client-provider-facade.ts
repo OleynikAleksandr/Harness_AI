@@ -54,9 +54,8 @@ import { resolveKimiModelContexts } from "./kimi-model-catalog.js";
 import { readKimiUsageLimitsEvent } from "./kimi-usage-limits.js";
 
 export {
-  fetchKimiModelContexts,
   type KimiModelContexts,
-  parseKimiModelContexts,
+  refreshKimiModelCatalog,
   resolveKimiModelContexts,
 } from "./kimi-model-catalog.js";
 

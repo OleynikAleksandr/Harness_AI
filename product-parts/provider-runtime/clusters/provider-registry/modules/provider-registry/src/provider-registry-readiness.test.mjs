@@ -98,7 +98,14 @@ assert.deepEqual(
   providerDescriptorFacade
     .getClientModels("kimi-client")
     .map((model) => model.id),
-  ["kimi-for-coding", "kimi-for-coding-highspeed", "k3"]
+  [
+    "kimi-for-coding",
+    "kimi-for-coding-highspeed",
+    "k3",
+    "k3-256k",
+    "k3.1-pro",
+    "k3.1-pro-highspeed",
+  ]
 );
 assert.deepEqual(providerDescriptorFacade.getCaptureProviderIds(), [
   "claude",
@@ -107,7 +114,14 @@ assert.deepEqual(providerDescriptorFacade.getCaptureProviderIds(), [
 ]);
 assert.deepEqual(
   providerDescriptorFacade.getCapturableModels("kimi").map((model) => model.id),
-  ["kimi-for-coding", "kimi-for-coding-highspeed", "k3"]
+  [
+    "kimi-for-coding",
+    "kimi-for-coding-highspeed",
+    "k3",
+    "k3-256k",
+    "k3.1-pro",
+    "k3.1-pro-highspeed",
+  ]
 );
 assert.equal(
   providerDescriptorFacade.getCapturableModel("kimi", "k3")

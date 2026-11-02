@@ -46,44 +46,78 @@ export type NativeCaptureReasoningEffort =
 export interface ProviderModelDescriptor {
   // Native context window in tokens, when the provider catalog declares it.
   readonly contextLength?: number;
+  // Provider default thinking effort, when the catalog declares efforts.
+  readonly defaultReasoningEffort?: string;
   readonly description?: string;
   readonly id: string;
   readonly label: string;
+  // Thinking efforts the provider accepts for this model; absent when the
+  // model has no selectable effort.
+  readonly reasoningEfforts?: readonly string[];
 }
 
-// Verified Kimi Coding Plan catalog returned by GET /coding/v1/models for the
-// current subscription key (context lengths re-verified live 2026-07-18:
-// k3 is a 1M-context model, both K2.7 models stay at 262144). This is
-// provider-runtime truth; UI surfaces consume these descriptors instead of
-// inventing model ids locally.
+// Verified Kimi Coding Plan catalog: the rows GET /coding/v1/models returned
+// for the subscription key on 2026-11-02 (display names, context windows and
+// `think_efforts`). It is only the offline fallback — Core replaces it with
+// the live catalog through `setKimiClientModels` (kimi-client-provider
+// `kimi-model-catalog`), so newly published models appear without a code
+// change. This is provider-runtime truth; UI surfaces consume these
+// descriptors instead of inventing model ids locally.
+const KIMI_EFFORTS = ["low", "high", "max"] as const;
 export const KIMI_CLIENT_MODELS: readonly ProviderModelDescriptor[] = [
   {
-    contextLength: 262_144,
-    description: "Standard K2.7 coding model.",
+    contextLength: 1_048_576,
+    defaultReasoningEffort: "max",
     id: "kimi-for-coding",
-    label: "K2.7 Coding",
+    label: "K2.8 Preview",
+    reasoningEfforts: KIMI_EFFORTS,
   },
   {
     contextLength: 262_144,
-    description: "Stable high-speed K2.7 coding model.",
     id: "kimi-for-coding-highspeed",
-    label: "K2.7 Coding HighSpeed",
+    label: "K2.7 Code Highspeed",
   },
   {
     contextLength: 1_048_576,
-    description: "Latest Kimi coding model available on the Allegretto plan.",
+    defaultReasoningEffort: "high",
     id: "k3",
     label: "K3",
+    reasoningEfforts: KIMI_EFFORTS,
+  },
+  {
+    contextLength: 262_144,
+    defaultReasoningEffort: "high",
+    id: "k3-256k",
+    label: "K3-256k",
+    reasoningEfforts: KIMI_EFFORTS,
+  },
+  {
+    contextLength: 1_048_576,
+    defaultReasoningEffort: "high",
+    id: "k3.1-pro",
+    label: "K3.1 Pro",
+    reasoningEfforts: KIMI_EFFORTS,
+  },
+  {
+    contextLength: 1_048_576,
+    defaultReasoningEffort: "high",
+    id: "k3.1-pro-highspeed",
+    label: "K3.1 Pro Highspeed 2x Usage Cost",
+    reasoningEfforts: KIMI_EFFORTS,
   },
 ];
 
-// Catalog-fallback Kimi context window: the K2.7 value doubles as the limit
-// for model ids outside the Core catalog (config-aliased custom models).
+// Catalog-fallback Kimi context window for model ids outside the catalog
+// (config-aliased custom models).
 export const KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH = 262_144;
+
+// The Kimi catalog Core currently serves: the verified fallback until the
+// persisted or live catalog is applied.
+let kimiClientModels: readonly ProviderModelDescriptor[] = KIMI_CLIENT_MODELS;
 
 export function kimiClientModelContextLength(model: string): number {
   return (
-    KIMI_CLIENT_MODELS.find((descriptor) => descriptor.id === model)
+    kimiClientModels.find((descriptor) => descriptor.id === model)
       ?.contextLength ?? KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH
   );
 }
@@ -99,7 +133,6 @@ const CLIENT_PROVIDER_MODELS: Readonly<
     { id: "glm-4.7", label: "GLM 4.7" },
     { id: "glm-4.6", label: "GLM 4.6" },
   ],
-  "kimi-client": KIMI_CLIENT_MODELS,
 };
 
 // Models offered in the Native Request Capture UI, per capture provider.
@@ -174,12 +207,6 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
         "high"
       ),
     ],
-    // Kimi exposes no independent reasoning control in the native CLI. The
-    // three ids are the verified Coding Plan catalog; capture materializes a
-    // temporary CLI alias and preserves the provider default for each model.
-    kimi: KIMI_CLIENT_MODELS.map((model) =>
-      capturableModel(model.id, model.label, [], null)
-    ),
   };
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
@@ -201,6 +228,14 @@ export class ProviderDescriptorFacade {
   }
 
   getCapturableModels(providerId: string): readonly CapturableModel[] {
+    if (providerId === "kimi") {
+      // Kimi capture follows the served Coding Plan catalog. Capture
+      // materializes a temporary CLI alias and preserves the provider
+      // default effort, so no reasoning choice is offered.
+      return kimiClientModels.map((model) =>
+        capturableModel(model.id, model.label, [], null)
+      );
+    }
     return CAPTURABLE_MODELS[providerId] ?? [];
   }
 
@@ -216,11 +251,26 @@ export class ProviderDescriptorFacade {
   }
 
   getCaptureProviderIds(): readonly string[] {
-    return Object.keys(CAPTURABLE_MODELS);
+    return [...Object.keys(CAPTURABLE_MODELS), "kimi"];
   }
 
   getClientModels(providerId: string): readonly ProviderModelDescriptor[] {
+    if (providerId === "kimi-client") {
+      return kimiClientModels;
+    }
     return CLIENT_PROVIDER_MODELS[providerId] ?? [];
+  }
+
+  getKimiClientModels(): readonly ProviderModelDescriptor[] {
+    return kimiClientModels;
+  }
+
+  // Applies the persisted or live Kimi catalog. An empty list keeps the
+  // current catalog so a broken read never removes every model.
+  setKimiClientModels(models: readonly ProviderModelDescriptor[]): void {
+    if (models.length > 0) {
+      kimiClientModels = models;
+    }
   }
 }
 

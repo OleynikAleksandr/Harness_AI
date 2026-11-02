@@ -307,11 +307,18 @@ snake_case):
 ### 3.7 Каталог моделей
 
 - Core-owned каталог в `provider-descriptor`; UI ничего не выдумывает.
-- Kimi: live-каталог текущего Coding Plan ключа перепроверен 2026-07-16 через
-  `GET /coding/v1/models` и содержит `kimi-for-coding` (K2.7 Coding),
-  `kimi-for-coding-highspeed` (K2.7 Coding HighSpeed Stable) и `k3` (K3).
-  Все три id входят в Core-каталог; неизвестное сохранённое значение
-  нормализуется обратно к `kimi-for-coding`. Выбор фиксируется в Core session
+- Kimi: каталог живой. `kimi-client-provider` читает
+  `GET /coding/v1/models` текущего Coding Plan ключа при старте Core и при
+  старте native-сессии (не чаще раза в 15 минут), применяет его к
+  `provider-descriptor` и сохраняет последний удачный ответ в
+  `~/.harness-ai/providers/kimi-client/model-catalog.json`, поэтому новые
+  модели появляются без правки кода, а офлайн-старт видит последний известный
+  каталог. Резервный `KIMI_CLIENT_MODELS` — проверенные 2026-11-02 строки:
+  `kimi-for-coding` (K2.8 Preview), `kimi-for-coding-highspeed`
+  (K2.7 Code Highspeed), `k3`, `k3-256k`, `k3.1-pro`, `k3.1-pro-highspeed`.
+  Нормализация настроек и Settings UI пока сверяются с резервным списком;
+  неизвестное сохранённое значение нормализуется обратно к
+  `kimi-for-coding`. Выбор фиксируется в Core session
   snapshot и передаётся Kimi-адаптеру с каждым ходом; K3 получает вендорский
   default `temperature: 1`, потому что общий клиент не отправляет этот параметр.
 - GLM: статический enum из доки (glm-5.2 default, glm-5.1, glm-5-turbo,

@@ -130,10 +130,11 @@ const grokComposer = usageContextTelemetryFacade.createTelemetry({
 assert.equal(grokComposer.tokenUsage.limit, 200_000);
 
 // Kimi shows the full panel since the 2026-07-17 telemetry stream: the
-// verified 262144 native context default, cache from the CLI session store
-// and turn counting; rollback stays unavailable.
+// catalog native context (K2.7 Code Highspeed 262144, verified 2026-11-02),
+// cache from the CLI session store and turn counting; rollback stays
+// unavailable.
 const kimi = usageContextTelemetryFacade.createTelemetry({
-  model: "kimi-for-coding",
+  model: "kimi-for-coding-highspeed",
   provider: "Kimi",
   providerId: "kimi-client",
 });

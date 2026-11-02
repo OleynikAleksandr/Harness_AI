@@ -26,8 +26,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `settings.provider.kimiClient`, card title
   `settings.provider.kimiClient.apiKey`) above a `DefaultModelCard` bound to
   `providers.kimiClient.defaultModel`. The card consumes the shared
-  provider-descriptor catalog (`kimi-for-coding`,
-  `kimi-for-coding-highspeed`, `k3`) through `PROVIDER_MODEL_OPTIONS`, so the
+  provider-descriptor `KIMI_CLIENT_MODELS` fallback catalog (the verified
+  2026-11-02 Coding Plan models) through `PROVIDER_MODEL_OPTIONS`, so the
   renderer does not duplicate provider model ids. Since the 2026-07-17
   native thinking stream every Kimi model row also carries a Reasoning
   select (the shared `ModelRows`/`DefaultModelCard` gained an optional
@@ -178,8 +178,9 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `grok-4.5` with `High/Medium/Low` and `grok-composer-2.5-fast` with honest
   provider-managed reasoning. It also uses the shared session-continuity card;
   no renderer capability inference or direct CLI call occurs.
-- The Kimi default-model card renders K2.7 Coding, K2.7 Coding HighSpeed and
-  K3 from the provider-descriptor catalog and updates only
+- The Kimi default-model card renders the `KIMI_CLIENT_MODELS` fallback
+  catalog labels (K2.8 Preview, K2.7 Code Highspeed, K3, K3-256k, K3.1 Pro,
+  K3.1 Pro Highspeed 2x Usage Cost) and updates only
   `providers.kimiClient.defaultModel`. Its title, helper copy and model-row
   descriptions resolve through the browser localization provider and approved
   `settings.provider.kimiClient.defaultModel*` / `.model.*.description` keys.

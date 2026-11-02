@@ -38,10 +38,10 @@ Own usage limits and context-window signals derived from provider events.
   break the anchor. Since the 2026-07-17 Kimi telemetry
   stream `kimi-client` shows Cache and Turns too (rollback stays
   unavailable): its cached counter starts at `0`, the default token limit
-  resolves per model through the Core-catalog
-  `kimiClientModelContextLength` (both K2.7 models 262144, `k3` 1048576 —
-  live-verified 2026-07-18; unknown config-aliased ids fall back to the
-  K2.7 window), cached
+  resolves per model through `kimiClientModelContextLength` against the
+  served live Kimi catalog (e.g. `kimi-for-coding` and `k3` 1048576,
+  `kimi-for-coding-highspeed` 262144 — verified 2026-11-02; unknown
+  config-aliased ids fall back to 262144), cached
   values arrive as `inputCacheRead` from the CLI session-store usage the
   native session runtime emits per turn, and turns advance on
   `turn_completed` like the other providers. `kimi-client` also joins the

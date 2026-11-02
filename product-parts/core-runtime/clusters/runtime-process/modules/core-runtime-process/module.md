@@ -146,7 +146,10 @@ state.
   `glm-client`, `local-models-client` and `openrouter-client`:
   their adapters register at startup and RPC provider-id validation accepts
   them. Kimi resolves the immutable Core session model from per-turn options
-  (`kimi-for-coding`, `kimi-for-coding-highspeed`, or `k3`); GLM resolves its selected model and reasoning
+  (an id of the served Kimi catalog); `CoreRuntimeApi.initialize()` first
+  calls `refreshKimiModelCatalog()` (kimi-client-provider facade) so the
+  persisted Kimi catalog applies synchronously before settings and adapters
+  read it and the live catalog refresh finishes in the background; GLM resolves its selected model and reasoning
   effort from Core settings per turn while the adapter pins only the GLM
   dialect; Local Models resolves its selected model and server connection
   (base URL + optional key) from Core settings per turn while the adapter pins
@@ -221,7 +224,7 @@ state.
   renderer code never starts a second capture workflow or locates artifacts.
   Its Codex list mirrors the app-server-visible GPT-5.6 Sol/Terra/Luna-first
   order and omits retired GPT-5.2.
-  Its Kimi list is `kimi-for-coding`, `kimi-for-coding-highspeed`, `k3` with
+  Its Kimi list is the served Kimi catalog (live Coding Plan models) with
   no reasoning selector; an explicit Kimi reasoning value is rejected rather
   than silently downgraded.
   The adapter builder is factored out of

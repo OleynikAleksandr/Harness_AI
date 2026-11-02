@@ -1,23 +1,26 @@
-import {
-  CODEX_REASONING_EFFORTS_BY_MODEL,
-  resolveCodexReasoningEffort,
-} from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
-import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import type {
+  HarnessSettings,
+  SettingsModelOption,
+} from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { useTranslatedModelDescriptions } from "./provider-model-catalog-hooks.js";
 import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
-import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
 interface CodexDefaultModelCardProps {
+  // Live Codex catalog served by Core (`listProviderModelCatalogs`).
+  models: readonly SettingsModelOption[];
   provider: HarnessSettings["providers"]["codex"];
   update: (mutator: (next: HarnessSettings) => void) => void;
 }
 
 export function CodexDefaultModelCard({
+  models,
   provider,
   update,
 }: CodexDefaultModelCardProps) {
   const { t } = useBrowserLocalization();
+  const descriptions = useTranslatedModelDescriptions(models);
   return (
     <SettingsCard title="Codex Default model">
       <p className="settings-description">
@@ -42,12 +45,12 @@ export function CodexDefaultModelCard({
         }
       />
       <div className="settings-list">
-        {PROVIDER_MODEL_OPTIONS.codex.map((option) => {
-          const efforts = CODEX_REASONING_EFFORTS_BY_MODEL[option.id] ?? [];
-          const resolvedEffort = resolveCodexReasoningEffort(
-            option.id,
-            provider.reasoningByModel[option.id]
-          );
+        {models.map((option) => {
+          // Core normalization keeps one effort per catalog model.
+          const effort =
+            provider.reasoningByModel[option.id] ??
+            option.defaultReasoningEffort;
+          const description = descriptions[option.id] ?? option.description;
           return (
             <div
               className={
@@ -68,17 +71,13 @@ export function CodexDefaultModelCard({
                 type="button"
               >
                 <span className="settings-model-title">{option.label}</span>
-                <p className="settings-model-description">
-                  {t(
-                    "ui_helper_text",
-                    `settings.provider.codex.model.${option.id}.description`,
-                    option.description
-                  )}
-                </p>
+                {description ? (
+                  <p className="settings-model-description">{description}</p>
+                ) : null}
               </button>
               <div className="settings-row-select">
                 <span>Reasoning</span>
-                {resolvedEffort ? (
+                {effort ? (
                   <ReasoningEffortSelect
                     onChange={(value) =>
                       update((next) => {
@@ -86,8 +85,8 @@ export function CodexDefaultModelCard({
                           value;
                       })
                     }
-                    value={resolvedEffort}
-                    values={efforts}
+                    value={effort}
+                    values={option.reasoningEfforts}
                   />
                 ) : (
                   <span>Not adjustable</span>

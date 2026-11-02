@@ -151,7 +151,13 @@ state.
   `refreshCodexModelCatalog()` (codex-provider facade) and
   `refreshClaudeModelCatalog()` (claude-provider facade) so each persisted
   live model catalog applies synchronously before settings and adapters
-  read it and the live refreshes finish in the background; GLM resolves its selected model and reasoning
+  read it and the live refreshes finish in the background. The
+  `list-provider-model-catalogs` RPC awaits the same three refreshes
+  (`Promise.allSettled`, memoized for their 15-minute TTL, a failed read
+  keeps the served catalog) and returns
+  `settingsStoreFacade.listProviderModelCatalogs()` —
+  `{claude, codex, kimiClient}` Settings model rows with per-model efforts
+  and defaults; GLM resolves its selected model and reasoning
   effort from Core settings per turn while the adapter pins only the GLM
   dialect; Local Models resolves its selected model and server connection
   (base URL + optional key) from Core settings per turn while the adapter pins

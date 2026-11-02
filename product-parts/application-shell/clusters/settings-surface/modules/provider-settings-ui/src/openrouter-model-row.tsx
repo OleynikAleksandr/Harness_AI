@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import type { OpenRouterModelSearchResult } from "./openrouter-model-search.js";
 
 export function OpenRouterModelRow({
@@ -27,46 +26,4 @@ export function OpenRouterModelRow({
       ) : null}
     </button>
   );
-}
-
-export function useTranslatedOpenRouterDescriptions(
-  models: readonly OpenRouterModelSearchResult[]
-): Record<string, string> {
-  const [translated, setTranslated] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const descriptions = models.filter((model) => model.description.trim());
-    if (descriptions.length === 0) {
-      setTranslated({});
-      return;
-    }
-    let cancelled = false;
-    Promise.all(
-      descriptions.map(async (model) => {
-        const result = await window.harnessCore?.translateDynamicText({
-          category: "reasoning",
-          text: model.description,
-        });
-        return [
-          model.id,
-          result?.ok ? result.text : model.description,
-        ] as const;
-      })
-    )
-      .then((entries) => {
-        if (!cancelled) {
-          setTranslated(Object.fromEntries(entries));
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setTranslated({});
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [models]);
-
-  return translated;
 }

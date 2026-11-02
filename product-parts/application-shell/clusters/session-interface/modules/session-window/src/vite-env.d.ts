@@ -11,6 +11,8 @@ interface ProviderSystemSettings {
 
 type HarnessSettings =
   import("../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js").HarnessSettings;
+type ProviderModelCatalogs =
+  import("../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js").ProviderModelCatalogs;
 type LocalizationRuntimePayload =
   import("../../../../../../core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js").LocalizationRuntimePayload;
 
@@ -177,6 +179,7 @@ interface Window {
       | { ok: true; versions: ProviderVersionsSnapshot }
       | { error: string; ok: false }
     >;
+    listProviderModelCatalogs(): Promise<ProviderModelCatalogs>;
     listProviders(): Promise<
       import("../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js").ProviderDescriptor[]
     >;

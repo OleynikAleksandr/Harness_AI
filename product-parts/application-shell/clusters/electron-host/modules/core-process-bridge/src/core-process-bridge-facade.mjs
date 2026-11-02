@@ -27,6 +27,8 @@ const IPC_TO_RPC = {
   "harness-ai:core:get-provider-versions": "get-provider-versions",
   "harness-ai:core:get-session-events": "get-session-events",
   "harness-ai:core:get-settings": "get-settings",
+  "harness-ai:core:list-provider-model-catalogs":
+    "list-provider-model-catalogs",
   "harness-ai:core:list-providers": "list-providers",
   "harness-ai:core:list-sessions": "list-sessions",
   "harness-ai:core:list-workspaces": "list-workspaces",

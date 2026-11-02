@@ -57,6 +57,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:get-provider-versions"),
   listSessions: (workspaceId) =>
     ipcRenderer.invoke("harness-ai:core:list-sessions", workspaceId),
+  listProviderModelCatalogs: () =>
+    ipcRenderer.invoke("harness-ai:core:list-provider-model-catalogs"),
   listProviders: () => ipcRenderer.invoke("harness-ai:core:list-providers"),
   listWorkspaces: () => ipcRenderer.invoke("harness-ai:core:list-workspaces"),
   rebuildLocalization: () =>

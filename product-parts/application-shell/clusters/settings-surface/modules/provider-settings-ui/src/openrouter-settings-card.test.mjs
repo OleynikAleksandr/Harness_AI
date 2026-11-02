@@ -29,4 +29,4 @@ const rowSource = readFileSync(
   "utf8"
 );
 assert.match(rowSource, /export function OpenRouterModelRow/u);
-assert.match(rowSource, /export function useTranslatedOpenRouterDescriptions/u);
+assert.match(source, /useTranslatedModelDescriptions\(models\)/u);

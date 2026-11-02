@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream2.task1",
-  "expectedCommitMessage": "feat: show live provider models in settings",
+  "currentTaskId": "harness-ai.phase21.stream3.task1",
+  "expectedCommitMessage": "docs: package live provider model catalogs",
   "debt": null
 }
 ```
@@ -411,11 +411,11 @@ Codex app-server 0.166.0 `model/list` returns every model with `displayName`,
 
 ### Stream: Settings Surfaces
 
-130. [IN_PROGRESS] `harness-ai.phase21.stream2.task1` Make Core settings normalization and the Claude, Codex and Kimi settings tabs use the served live catalogs: model ids, labels, descriptions and per-model reasoning efforts come from Core through a `list-provider-model-catalogs` RPC instead of static renderer imports, and saved legacy ids normalize onto the served catalog (scope: settings normalization, Core RPC/bridge/preload wiring and the Claude/Codex/Kimi settings cards, plus focused tests and related settings docs; expected commit: `feat: show live provider models in settings`).
-131. [TODO] Git Commit: `feat: show live provider models in settings` (hash: TBD)
+130. [DONE] `harness-ai.phase21.stream2.task1` Make Core settings normalization and the Claude, Codex and Kimi settings tabs use the served live catalogs: model ids, labels, descriptions and per-model reasoning efforts come from Core through a `list-provider-model-catalogs` RPC instead of static renderer imports, and saved legacy ids normalize onto the served catalog (scope: settings normalization, Core RPC/bridge/preload wiring and the Claude/Codex/Kimi settings cards, plus focused tests and related settings docs; expected commit: `feat: show live provider models in settings`). Result: Completed in commit `feat: show live provider models in settings`.
+131. [DONE] Git Commit: `feat: show live provider models in settings` (hash: self)
 
 ### Stream: Rebuilt Acceptance Package
 
-132. [TODO] `harness-ai.phase21.stream3.task1` Build the user-authorized unsigned macOS package, verify the live Kimi, Codex and Claude catalogs in `app.asar`, install and launch it and record package identity plus focused retest steps in new package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package live provider model catalogs`).
+132. [IN_PROGRESS] `harness-ai.phase21.stream3.task1` Build the user-authorized unsigned macOS package, verify the live Kimi, Codex and Claude catalogs in `app.asar`, install and launch it and record package identity plus focused retest steps in new package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package live provider model catalogs`).
 133. [TODO] Git Commit: `docs: package live provider model catalogs` (hash: TBD)
 134. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

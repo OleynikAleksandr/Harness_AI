@@ -2,6 +2,10 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import type { ProviderId } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import {
+  listProviderModelCatalogs,
+  type ProviderModelCatalogs,
+} from "./settings-model-catalogs.js";
 import { normalizeSettings } from "./settings-normalization.js";
 import {
   logCoreSettingsSnapshot,
@@ -12,6 +16,11 @@ import {
   systemSettingsFrom,
   workspaceSettingsFrom,
 } from "./settings-store-projections.js";
+
+export type {
+  ProviderModelCatalogs,
+  SettingsModelOption,
+} from "./settings-model-catalogs.js";
 
 export type LocalizationWorkflowTermsPolicy = "keep_english" | "translate";
 export type ReasoningEffort =
@@ -165,8 +174,9 @@ const DEFAULT_SETTINGS: HarnessSettings = {
       thinkingByModel: { sonnet: "medium" },
     },
     codex: {
-      ...commonProvider("gpt-5.4-mini"),
-      reasoningByModel: { "gpt-5.4-mini": "medium" },
+      // Normalization resolves the default against the live Codex catalog.
+      ...commonProvider("gpt-6.1-sol"),
+      reasoningByModel: {},
       reasoningSummaryEnabled: true,
     },
     grok: {
@@ -235,6 +245,12 @@ export class SettingsStoreFacade {
     );
     logCoreSettingsSnapshot("settings.get", workspacePath, settings);
     return settings;
+  }
+
+  // Current Claude/Codex/Kimi model catalogs (live when Core read them) with
+  // per-model effort lists and defaults, for the Settings model cards.
+  listProviderModelCatalogs(): ProviderModelCatalogs {
+    return listProviderModelCatalogs();
   }
 
   getProviderModel(

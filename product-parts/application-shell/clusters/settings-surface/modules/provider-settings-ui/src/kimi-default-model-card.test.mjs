@@ -14,20 +14,27 @@ const kimiTabSource = tabContentSource.slice(
   tabContentSource.indexOf('if (activeTab === "glmClient")')
 );
 
-assert.match(modelOptionsSource, /import \{ KIMI_CLIENT_MODELS \}/u);
-assert.match(modelOptionsSource, /kimiClient: KIMI_CLIENT_MODELS/u);
+// Kimi rows come from the live catalog Core serves.
+assert.doesNotMatch(modelOptionsSource, /KIMI_CLIENT_MODELS/u);
+assert.doesNotMatch(modelOptionsSource, /kimiClient:/u);
 assert.match(kimiTabSource, /<KimiClientApiKeyCard/u);
 assert.match(kimiTabSource, /<DefaultModelCard/u);
 assert.match(
   kimiTabSource,
   /next\.providers\.kimiClient\.defaultModel = defaultModel/u
 );
-assert.match(kimiTabSource, /PROVIDER_MODEL_OPTIONS\.kimiClient/u);
+assert.match(kimiTabSource, /modelCatalogs\.kimiClient\.map\(\(model\) =>/u);
+assert.match(
+  tabContentSource,
+  /useTranslatedModelDescriptions\(\s*modelCatalogs\.kimiClient\s*\)/u
+);
 assert.match(kimiTabSource, /settings\.provider\.kimiClient\.defaultModel/u);
 
 // Reasoning select per model row (native thinking level), bound to the
 // workspace-projected kimiClient.reasoningByModel like the Grok card.
-assert.match(kimiTabSource, /KIMI_REASONING_EFFORTS_BY_MODEL/u);
+assert.doesNotMatch(kimiTabSource, /KIMI_REASONING_EFFORTS_BY_MODEL/u);
+assert.match(kimiTabSource, /model\?\.reasoningEfforts \?\? \[\]/u);
+assert.match(kimiTabSource, /model\?\.defaultReasoningEffort/u);
 assert.match(kimiTabSource, /<ReasoningEffortSelect/u);
 assert.match(
   kimiTabSource,

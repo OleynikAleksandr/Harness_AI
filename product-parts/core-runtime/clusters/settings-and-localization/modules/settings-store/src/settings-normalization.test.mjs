@@ -27,21 +27,24 @@ assert.match(
   /profileStudio: \{\n\s+defaultCreatorAgentProviderId: "codex",\n\s+\}/u
 );
 
-assert.match(source, /CODEX_REASONING_EFFORTS_BY_MODEL/u);
+// Claude, Codex and Kimi follow the live catalogs Core serves.
+assert.doesNotMatch(source, /CODEX_REASONING_EFFORTS_BY_MODEL/u);
+assert.doesNotMatch(source, /CLAUDE_REASONING_EFFORTS_BY_MODEL/u);
+assert.doesNotMatch(source, /KIMI_REASONING_EFFORTS_BY_MODEL/u);
+assert.doesNotMatch(source, /resolveCodexReasoningEffort/u);
+assert.match(source, /const catalogs = listProviderModelCatalogs\(\);/u);
 assert.match(
   source,
-  /"gpt-5\.6-sol": \["low", "medium", "high", "xhigh", "max", "ultra"\]/u
+  /next\.providers\.codex\.reasoningByModel = normalizeCatalogEfforts\(/u
 );
 assert.match(
   source,
-  /"gpt-5\.6-terra": \["low", "medium", "high", "xhigh", "max", "ultra"\]/u
+  /next\.providers\.claude\.thinkingByModel = normalizeCatalogEfforts\(/u
 );
 assert.match(
   source,
-  /"gpt-5\.6-luna": \["low", "medium", "high", "xhigh", "max"\]/u
+  /next\.providers\.kimiClient\.reasoningByModel = normalizeCatalogEfforts\(/u
 );
-assert.match(source, /"gpt-5\.3-codex-spark": "high"/u);
-assert.match(source, /defaultModel = "gpt-5\.6-sol"/u);
 assert.match(source, /GROK_REASONING_EFFORTS_BY_MODEL/u);
 assert.match(source, /"grok-4\.5": \["high", "medium", "low"\]/u);
 assert.match(source, /"grok-composer-2\.5-fast": \[\]/u);
@@ -51,40 +54,12 @@ assert.match(
   /next\.providers\.grok\.reasoningByModel = Object\.fromEntries/u
 );
 
-// Kimi native thinking levels: every catalog model offers low/high/max and
-// junk or missing entries settle on the high default.
-assert.match(source, /KIMI_REASONING_EFFORTS_BY_MODEL/u);
-assert.match(source, /\[modelId, \["low", "high", "max"\]\]/u);
-assert.match(
-  source,
-  /KIMI_DEFAULT_REASONING_EFFORT: ReasoningEffort = "high"/u
-);
-assert.match(
-  source,
-  /next\.providers\.kimiClient\.reasoningByModel = Object\.fromEntries/u
-);
 assert.doesNotMatch(source, /gpt-5\.2/u);
 assert.match(source, /supportsCodexReasoningSummary/u);
 assert.match(source, /CODEX_MODELS_WITHOUT_REASONING_SUMMARY/u);
-assert.match(source, /resolveCodexReasoningEffort/u);
-assert.match(source, /return null/u);
 assert.match(source, /GLM_CLIENT_MODEL_IDS/u);
-assert.match(source, /KIMI_CLIENT_MODELS/u);
-assert.match(source, /KIMI_CLIENT_MODEL_IDS/u);
-assert.match(
-  source,
-  /!KIMI_CLIENT_MODEL_IDS\.includes\(next\.providers\.kimiClient\.defaultModel\)/u
-);
-assert.match(
-  source,
-  /next\.providers\.kimiClient\.defaultModel = "kimi-for-coding"/u
-);
 assert.match(source, /next\.providers\.glmClient\.defaultModel = "glm-5\.2"/u);
 assert.match(source, /next\.providers\.glmClient\.reasoningEffort = "max"/u);
-assert.match(
-  source,
-  /next\.providers\.codex\.reasoningByModel = Object\.fromEntries/u
-);
 assert.match(
   facadeSource,
   /glmClient: \{\n\s+apiKey: "",\n\s+defaultModel: "glm-5\.2",\n\s+reasoningEffort: "max",\n\s+\}/u

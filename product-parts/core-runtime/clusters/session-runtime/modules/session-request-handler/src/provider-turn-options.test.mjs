@@ -35,10 +35,12 @@ assert.doesNotMatch(source, /glmOpenCode/u);
 assert.doesNotMatch(source, /"glm-native"/u);
 assert.doesNotMatch(source, /"openrouter"/u);
 assert.doesNotMatch(source, /session\.providerId === "kimi"/u);
+// Codex turns read the effort normalization resolved per live catalog model.
 assert.match(
   source,
-  /resolveCodexReasoningEffort\(\s*session\.model,\s*codex\.reasoningByModel\[session\.model\]\s*\)/u
+  /const reasoningEffort = codex\.reasoningByModel\[session\.model\];/u
 );
+assert.doesNotMatch(source, /resolveCodexReasoningEffort/u);
 assert.match(
   source,
   /\.\.\.\(reasoningEffort \? \{ reasoningEffort \} : \{\}\)/u

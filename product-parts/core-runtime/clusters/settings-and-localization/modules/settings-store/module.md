@@ -68,8 +68,9 @@ Own global and workspace settings persistence.
   has no runtime consumer yet — it is settings truth for the Settings surface.
   Since the 2026-07-17 native thinking stream the section also carries
   `reasoningByModel` (workspace-projected like Codex/Grok): normalization
-  offers `low`/`high`/`max` for every catalog model with `high` as the
-  default (`KIMI_REASONING_EFFORTS_BY_MODEL`), and
+  keeps one level per live Kimi catalog model that declares efforts (the
+  model's own list, default the catalog default, else `high`; see Live
+  Provider Model Catalogs below), and
   `buildProviderTurnOptions` hands the per-model level to the `kimi-client`
   adapter — the native driver writes it into the workspace-home config
   before the CLI spawns.
@@ -113,11 +114,38 @@ Own global and workspace settings persistence.
 ## Reasoning Effort Contract
 
 - Owns the `ReasoningEffort` type: `low`, `medium`, `high`, `xhigh`, `max`, `ultra`, `ultracode`.
-- `ultracode` mirrors the Claude CLI orchestration mode (xhigh + dynamic workflows).
+- `ultracode` mirrors the Claude CLI orchestration mode (xhigh + dynamic workflows). It stays a valid `providers.claude.thinking.effort` / GLM value, but no live Claude catalog model offers it as a per-model level (the Claude adapter accepts only `low`..`max`), so Settings no longer shows it.
 - `ultra` is the Codex app-server effort id for maximum reasoning with automatic task delegation; it is distinct from Claude `ultracode`.
-- `CLAUDE_REASONING_EFFORTS_BY_MODEL` (exported from `settings-normalization`, not the `node:fs`-backed facade, so the renderer can import it without bundling persistence) is the source of truth for which efforts each Claude alias exposes: Opus full set + ultracode, Sonnet without xhigh, Haiku none. The settings UI reads this map to filter the per-model selector.
-- `normalizeSettings` validates per-model Claude efforts against the whitelist and falls back to the provider default effort when a stored value is unknown.
-- Codex does not reuse Claude effort ranks. `CODEX_REASONING_EFFORTS_BY_MODEL` and `resolveCodexReasoningEffort` own the picker-visible Codex app-server capabilities: GPT-5.6 Sol and Terra expose `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`; GPT-5.6 Luna stops at `max`; GPT-5.5, GPT-5.4, GPT-5.4 Mini, and GPT-5.3 Codex Spark stop at `xhigh`. The GPT-5.6 family defaults to `medium`, while Spark follows the provider default `high`. Retired GPT-5.2 settings normalize to the provider-default GPT-5.6 Sol. `supportsCodexReasoningSummary` records Codex model summary support separately; Spark keeps reasoning effort control but disables per-turn reasoning summaries.
+- `supportsCodexReasoningSummary` records Codex model summary support separately; Spark keeps reasoning effort control but disables per-turn reasoning summaries.
+
+## Live Provider Model Catalogs
+
+- `settings-model-catalogs` (persistence-free, so the renderer bundle may
+  import its types) turns the provider-descriptor catalogs Core serves —
+  live Claude `supportedModels()`, Codex `model/list` and Kimi
+  `/coding/v1/models` rows, or their verified fallbacks — into
+  `SettingsModelOption` rows: `id`, `label`, optional `description`, the
+  model's own `reasoningEfforts` (limited to `low`/`medium`/`high`/`xhigh`/
+  `max`/`ultra`) and `defaultReasoningEffort` (catalog default, else
+  `medium`, else `high`, else the first level; `null` without efforts).
+- `listProviderModelCatalogs()` (also `settingsStoreFacade.
+  listProviderModelCatalogs()`) returns `{claude, codex, kimiClient}`; the
+  Core RPC `list-provider-model-catalogs` refreshes the live catalogs first
+  and serves this to the Settings model cards.
+- `normalizeSettings` resolves `defaultModel` against the catalog
+  (`normalizeCatalogDefaultModel`): a stored id is kept, a legacy bare
+  Claude alias maps to its 1M-context id (`opus` → `opus[1m]`), otherwise the
+  preferred default (`sonnet` for Claude, `kimi-for-coding` for Kimi) when
+  listed, else the first catalog model (Codex always takes the first one).
+- `normalizeCatalogEfforts` rebuilds `claude.thinkingByModel`,
+  `codex.reasoningByModel` and `kimiClient.reasoningByModel`: one level per
+  effort-capable catalog model — the stored level (also under the legacy
+  bare id) when the model supports it, else the model default; models
+  without effort selection and ids outside the catalog are dropped. Turn
+  options and the session panel read these normalized values directly, so
+  no caller re-derives Codex efforts.
+- The Codex `DEFAULT_SETTINGS` entry starts on `gpt-6.1-sol` with an empty
+  `reasoningByModel`; normalization fills it from the catalog.
 - `providers.grok` stores the Core-selected default model and per-model native
   reasoning values. The verified installed catalog is `grok-4.5` (default,
   `high/medium/low`, default `high`) and `grok-composer-2.5-fast` (provider-

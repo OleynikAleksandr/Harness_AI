@@ -30,7 +30,10 @@ modules or own Core truth.
   reaches the Core-owned turn cancellation, and
   `harness-ai:core:get-localization-runtime-payload` →
   `get-localization-runtime-payload`, so renderer localization receives the
-  Core materialized browser bundles instead of falling back to English. It also
+  Core materialized browser bundles instead of falling back to English, and
+  `harness-ai:core:list-provider-model-catalogs` →
+  `list-provider-model-catalogs`, so the Settings model cards receive the live
+  Claude/Codex/Kimi catalogs Core serves. It also
   forwards `harness-ai:core:translate-dynamic-text` →
   `translate-dynamic-text` for provider-returned text that must be translated by
   Core instead of the renderer, and `harness-ai:core:ensure-glossary-file` →

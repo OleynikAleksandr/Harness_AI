@@ -47,6 +47,10 @@ Own Electron lifecycle, window creation, and local application startup.
   methods through the core-process bridge and typed in `vite-env.d.ts`, where
   a model's default reasoning effort is nullable when the provider exposes no
   reasoning selector.
+- `window.harnessCore.listProviderModelCatalogs()` returns the Core-served
+  Claude/Codex/Kimi Settings model rows (`ProviderModelCatalogs` from the
+  settings-store facade, typed in `vite-env.d.ts`) through the
+  `list-provider-model-catalogs` bridge method.
 - `window.harnessCore.rollbackSessionTurns({ sessionId, numTurns })` exposes
   only the raw Codex/Grok rollback intent to the renderer; Core owns provider
   validation, strategy and transcript refresh.

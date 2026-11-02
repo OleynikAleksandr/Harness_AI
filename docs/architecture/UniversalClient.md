@@ -316,9 +316,11 @@ snake_case):
   каталог. Резервный `KIMI_CLIENT_MODELS` — проверенные 2026-11-02 строки:
   `kimi-for-coding` (K2.8 Preview), `kimi-for-coding-highspeed`
   (K2.7 Code Highspeed), `k3`, `k3-256k`, `k3.1-pro`, `k3.1-pro-highspeed`.
-  Нормализация настроек и Settings UI пока сверяются с резервным списком;
-  неизвестное сохранённое значение нормализуется обратно к
-  `kimi-for-coding`. Выбор фиксируется в Core session
+  Нормализация настроек и Settings UI берут текущий (живой) каталог через
+  `settings-model-catalogs` в settings-store и RPC
+  `list-provider-model-catalogs`; неизвестное сохранённое значение
+  нормализуется к `kimi-for-coding`, если он есть в каталоге, иначе к первой
+  модели каталога. Уровни рассуждений берутся из `think_efforts` модели. Выбор фиксируется в Core session
   snapshot и передаётся Kimi-адаптеру с каждым ходом; K3 получает вендорский
   default `temperature: 1`, потому что общий клиент не отправляет этот параметр.
 - GLM: статический enum из доки (glm-5.2 default, glm-5.1, glm-5-turbo,

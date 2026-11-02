@@ -189,13 +189,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.localization.workflowTerms":
       "`Workflow Terms` now follow `UI Labels`, and `Default Language (English)` is the reset state for every category.",
     "settings.provider.claude.defaultModel.description":
-      "Choose the Claude alias used when new sessions start. Each model stores its own thinking level.",
-    "settings.provider.claude.model.haiku.description":
-      "Fastest alias for quick answers and prototyping.",
-    "settings.provider.claude.model.opus.description":
-      "Most powerful option for complex agentic workloads.",
-    "settings.provider.claude.model.sonnet.description":
-      "Best fit for everyday tasks.",
+      "Choose the Claude model used when new sessions start. Each model stores its own thinking level.",
     "settings.provider.claude.newSessions.note":
       "Applies only to newly created Claude sessions.",
     "settings.provider.claude.thinking.dialog.description":
@@ -208,20 +202,6 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Automatically check and update the CLI when the Core starts. Manual updates are available below.",
     "settings.provider.codex.defaultModel.description":
       "Select which Codex model to use when starting new sessions. Each model stores its own reasoning effort level.",
-    "settings.provider.codex.model.gpt-5.6-sol.description":
-      "Latest frontier agentic coding model",
-    "settings.provider.codex.model.gpt-5.6-terra.description":
-      "Balanced agentic coding model for everyday work",
-    "settings.provider.codex.model.gpt-5.6-luna.description":
-      "Fast and affordable agentic coding model",
-    "settings.provider.codex.model.gpt-5.3-codex-spark.description":
-      "Ultra-fast coding model",
-    "settings.provider.codex.model.gpt-5.4-mini.description":
-      "Small, fast, and cost-efficient model for simpler coding tasks",
-    "settings.provider.codex.model.gpt-5.4.description":
-      "Strong model for everyday coding",
-    "settings.provider.codex.model.gpt-5.5.description":
-      "Frontier model for complex coding, research, and real-world work",
     "settings.provider.codex.newSessions.note":
       "Changes apply when creating a new Codex session.",
     "settings.provider.codex.reasoningSummary.description":
@@ -232,12 +212,6 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Paste a Kimi For Coding API key from the Kimi Code Console at kimi.com. A Kimi Code subscription allows up to 5 keys; each key is shown only once when created.",
     "settings.provider.kimiClient.defaultModel.description":
       "Choose the Kimi model used by the universal client when new sessions start.",
-    "settings.provider.kimiClient.model.kimi-for-coding.description":
-      "Standard K2.7 coding model.",
-    "settings.provider.kimiClient.model.kimi-for-coding-highspeed.description":
-      "Stable high-speed K2.7 coding model.",
-    "settings.provider.kimiClient.model.k3.description":
-      "Latest Kimi coding model available on the Allegretto plan.",
     "settings.provider.sessionContinuity.description":
       "When the remaining context window drops to or below this percentage, Harness AI can automatically wrap up the current session and start a new one. Default: 30%.",
     "settings.provider.glmClient.defaultModel.description":

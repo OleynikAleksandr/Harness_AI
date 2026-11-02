@@ -1,4 +1,3 @@
-import { KIMI_REASONING_EFFORTS_BY_MODEL } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProfileStudioSettingsUiFacade } from "../../profile-studio-settings-ui/src/profile-studio-settings-ui-facade.js";
@@ -19,6 +18,10 @@ import {
   OpenRouterModelEndpointPicker,
   OpenRouterSettingsCard,
 } from "./openrouter-settings-card.js";
+import {
+  useProviderModelCatalogs,
+  useTranslatedModelDescriptions,
+} from "./provider-model-catalog-hooks.js";
 import {
   ProviderVersionsCard,
   type ProviderVersionsSnapshot,
@@ -83,6 +86,10 @@ export function SettingsTabContent({
   versionUpdatingTargets,
 }: SettingsTabContentProps) {
   const { t } = useBrowserLocalization();
+  const modelCatalogs = useProviderModelCatalogs();
+  const kimiDescriptions = useTranslatedModelDescriptions(
+    modelCatalogs.kimiClient
+  );
   if (activeTab === "profileStudio") {
     return (
       <ProfileStudioSettingsUiFacade
@@ -120,7 +127,11 @@ export function SettingsTabContent({
     const provider = settings.providers.claude;
     return (
       <div className="settings-reference-stack">
-        <ClaudeDefaultModelCard provider={provider} update={update} />
+        <ClaudeDefaultModelCard
+          models={modelCatalogs.claude}
+          provider={provider}
+          update={update}
+        />
         <ProviderVersionsCard
           autoUpdate={provider.autoUpdate.enabled}
           error={versionError}
@@ -157,7 +168,11 @@ export function SettingsTabContent({
     const provider = settings.providers.codex;
     return (
       <div className="settings-reference-stack">
-        <CodexDefaultModelCard provider={provider} update={update} />
+        <CodexDefaultModelCard
+          models={modelCatalogs.codex}
+          provider={provider}
+          update={update}
+        />
         <ProviderVersionsCard
           autoUpdate={provider.autoUpdate.enabled}
           error={versionError}
@@ -235,16 +250,21 @@ export function SettingsTabContent({
               next.providers.kimiClient.defaultModel = defaultModel;
             })
           }
-          options={localizeModelOptions(
-            t,
-            "settings.provider.kimiClient.model",
-            PROVIDER_MODEL_OPTIONS.kimiClient
-          )}
+          options={modelCatalogs.kimiClient.map((model) => ({
+            description: kimiDescriptions[model.id] ?? model.description,
+            id: model.id,
+            label: model.label,
+          }))}
           rowControl={(modelId) => {
-            const efforts = KIMI_REASONING_EFFORTS_BY_MODEL[modelId] ?? [];
+            // Live Kimi catalog efforts; Core normalization keeps one level
+            // per catalog model.
+            const model = modelCatalogs.kimiClient.find(
+              (option) => option.id === modelId
+            );
+            const efforts = model?.reasoningEfforts ?? [];
             const effort =
               settings.providers.kimiClient.reasoningByModel[modelId] ??
-              efforts[0];
+              model?.defaultReasoningEffort;
             if (!effort) {
               return <span>Provider managed</span>;
             }

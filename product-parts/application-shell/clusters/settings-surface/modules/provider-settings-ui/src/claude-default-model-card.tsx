@@ -1,27 +1,33 @@
-import { CLAUDE_REASONING_EFFORTS_BY_MODEL } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
-import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import type {
+  HarnessSettings,
+  SettingsModelOption,
+} from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { useTranslatedModelDescriptions } from "./provider-model-catalog-hooks.js";
 import { ReasoningEffortSelect } from "./reasoning-effort-select.js";
-import { PROVIDER_MODEL_OPTIONS } from "./settings-model-options.js";
 import { SettingsCard, SettingsToggle } from "./settings-reference-controls.js";
 
 interface ClaudeDefaultModelCardProps {
+  // Live Claude catalog served by Core (`listProviderModelCatalogs`).
+  models: readonly SettingsModelOption[];
   provider: HarnessSettings["providers"]["claude"];
   update: (mutator: (next: HarnessSettings) => void) => void;
 }
 
 export function ClaudeDefaultModelCard({
+  models,
   provider,
   update,
 }: ClaudeDefaultModelCardProps) {
   const { t } = useBrowserLocalization();
+  const descriptions = useTranslatedModelDescriptions(models);
   return (
     <SettingsCard title="Claude Default model">
       <p className="settings-description">
         {t(
           "ui_helper_text",
           "settings.provider.claude.defaultModel.description",
-          "Choose the Claude alias used when new sessions start. Each model stores its own thinking level."
+          "Choose the Claude model used when new sessions start. Each model stores its own thinking level."
         )}
       </p>
       <SettingsToggle
@@ -53,8 +59,12 @@ export function ClaudeDefaultModelCard({
         }
       />
       <div className="settings-list">
-        {PROVIDER_MODEL_OPTIONS.claude.map((option) => {
-          const efforts = CLAUDE_REASONING_EFFORTS_BY_MODEL[option.id] ?? [];
+        {models.map((option) => {
+          // Core normalization keeps one effort per catalog model.
+          const effort =
+            provider.thinkingByModel[option.id] ??
+            option.defaultReasoningEffort;
+          const description = descriptions[option.id] ?? option.description;
           return (
             <div
               className={
@@ -75,17 +85,13 @@ export function ClaudeDefaultModelCard({
                 type="button"
               >
                 <span className="settings-model-title">{option.label}</span>
-                <p className="settings-model-description">
-                  {t(
-                    "ui_helper_text",
-                    `settings.provider.claude.model.${option.id}.description`,
-                    option.description
-                  )}
-                </p>
+                {description ? (
+                  <p className="settings-model-description">{description}</p>
+                ) : null}
               </button>
               <div className="settings-row-select">
                 <span>Reasoning</span>
-                {efforts.length > 0 ? (
+                {effort ? (
                   <ReasoningEffortSelect
                     disabled={!provider.thinking.enabled}
                     onChange={(effort) =>
@@ -97,8 +103,8 @@ export function ClaudeDefaultModelCard({
                         }
                       })
                     }
-                    value={provider.thinkingByModel[option.id] ?? "medium"}
-                    values={efforts}
+                    value={effort}
+                    values={option.reasoningEfforts}
                   />
                 ) : (
                   <span>Not adjustable</span>

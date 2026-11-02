@@ -85,27 +85,6 @@ assert.match(
 assert.match(
   registry.getMessage(
     "ui_helper_text",
-    "settings.provider.kimiClient.model.kimi-for-coding.description"
-  ),
-  /K2\.7/u
-);
-assert.match(
-  registry.getMessage(
-    "ui_helper_text",
-    "settings.provider.kimiClient.model.kimi-for-coding-highspeed.description"
-  ),
-  /high-speed/u
-);
-assert.match(
-  registry.getMessage(
-    "ui_helper_text",
-    "settings.provider.kimiClient.model.k3.description"
-  ),
-  /Allegretto/u
-);
-assert.match(
-  registry.getMessage(
-    "ui_helper_text",
     "settings.provider.glmClient.apiKey.description"
   ),
   /Z\.ai Coding Plan/u

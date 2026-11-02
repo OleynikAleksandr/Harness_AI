@@ -22,7 +22,12 @@ const coreEventsSource = readFileSync(
   "utf8"
 );
 
-assert.match(source, /resolveCodexReasoningEffort/u);
+// The renderer only reads the Core-normalized Codex effort.
+assert.doesNotMatch(source, /resolveCodexReasoningEffort/u);
+assert.match(
+  source,
+  /const effort = settings\.providers\.codex\.reasoningByModel\[session\.model\];/u
+);
 assert.match(
   source,
   /session\.reasoningEffort \?\?\s+settings\.providers\.grok\.reasoningByModel\[session\.model\]/u

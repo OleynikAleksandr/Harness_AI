@@ -81,8 +81,10 @@ Own model/reasoning capabilities and UI metadata for providers.
   efforts), `k3` (K3, 1048576), `k3-256k` (K3-256k, 262144), `k3.1-pro`
   (K3.1 Pro, 1048576) and `k3.1-pro-highspeed` (K3.1 Pro Highspeed 2x Usage
   Cost, 1048576), the K3 family with efforts low/high/max, default high.
-  Settings normalization and the Settings UI still import this fallback list
-  directly. Context windows resolve per model through
+  Settings normalization and the Settings UI read the served catalog through
+  the settings-store `settings-model-catalogs` projection (Core RPC
+  `list-provider-model-catalogs`), like the Claude and Codex catalogs.
+  Context windows resolve per model through
   `kimiClientModelContextLength(model)` against the served catalog, with
   `KIMI_CLIENT_FALLBACK_CONTEXT_LENGTH` (262144) for config-aliased ids
   outside it.

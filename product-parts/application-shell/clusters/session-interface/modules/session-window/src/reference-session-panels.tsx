@@ -3,7 +3,6 @@ import { type CSSProperties, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { SessionTelemetry } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
 import type { TurnTiming } from "../../../../../../core-runtime/clusters/session-runtime/modules/turn-timing/src/turn-timing-facade.js";
-import { resolveCodexReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import type { HarnessSettings } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import {
@@ -277,10 +276,8 @@ function resolveReasoningLabel(
     return null;
   }
   if (isCodexProvider(session.providerId)) {
-    const effort = resolveCodexReasoningEffort(
-      session.model,
-      settings.providers.codex.reasoningByModel[session.model]
-    );
+    // Core normalization already resolved the effort per catalog model.
+    const effort = settings.providers.codex.reasoningByModel[session.model];
     return effort ? `(${effort})` : null;
   }
   if (session.providerId === "claude") {

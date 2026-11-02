@@ -162,6 +162,8 @@ export class CoreRuntimeApi {
         );
       case "list-capturable-models":
         return listCapturableModelsRpcResult();
+      case "list-provider-model-catalogs":
+        return this.listProviderModelCatalogs();
       case "get-local-models":
         return this.getLocalModels();
       case "set-local-model-context":
@@ -253,6 +255,17 @@ export class CoreRuntimeApi {
       .refreshUsageLimits(sessionId)
       .catch(() => undefined);
     return sessionEventStreamFacade.listEvents(sessionId);
+  }
+
+  // Settings model cards: refresh the live catalogs (memoized for their TTL)
+  // and serve what Core now uses; a failed read keeps the served catalog.
+  private async listProviderModelCatalogs() {
+    await Promise.allSettled([
+      refreshKimiModelCatalog(),
+      refreshCodexModelCatalog(),
+      refreshClaudeModelCatalog(),
+    ]);
+    return settingsStoreFacade.listProviderModelCatalogs();
   }
 
   private async getLocalModels(): Promise<{

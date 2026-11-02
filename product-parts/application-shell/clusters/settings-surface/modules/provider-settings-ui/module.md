@@ -25,15 +25,15 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   `KimiClientApiKeyCard` bound to `providers.kimiClient.apiKey` (prefix
   `settings.provider.kimiClient`, card title
   `settings.provider.kimiClient.apiKey`) above a `DefaultModelCard` bound to
-  `providers.kimiClient.defaultModel`. The card consumes the shared
-  provider-descriptor `KIMI_CLIENT_MODELS` fallback catalog (the verified
-  2026-11-02 Coding Plan models) through `PROVIDER_MODEL_OPTIONS`, so the
-  renderer does not duplicate provider model ids. Since the 2026-07-17
+  `providers.kimiClient.defaultModel`. The rows come from the live Kimi
+  catalog Core serves (`useProviderModelCatalogs`, see Live Model Catalogs
+  below), so the renderer keeps no Kimi model ids. Since the 2026-07-17
   native thinking stream every Kimi model row also carries a Reasoning
   select (the shared `ModelRows`/`DefaultModelCard` gained an optional
-  per-row control slot in the Grok-card row layout): the levels come from
-  Core's `KIMI_REASONING_EFFORTS_BY_MODEL` (`low`/`high`/`max`) and the
-  choice binds to the workspace-projected
+  per-row control slot in the Grok-card row layout): the levels are the
+  catalog model's own `reasoningEfforts` (default its
+  `defaultReasoningEffort`; models without efforts show "Provider managed")
+  and the choice binds to the workspace-projected
   `providers.kimiClient.reasoningByModel` — the native driver launches each
   new session with that level. Below the model card the
   Kimi tab mounts the shared `ProviderVersionsCard` in its CLI-only Kimi form
@@ -220,9 +220,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 
 - `ReasoningEffortSelect` renders its open menu through a React portal on `document.body`, positioned from the trigger's bounding box, so the menu overlays the whole settings dialog instead of being clipped by `overflow: hidden` ancestors or the model-row grid. It closes on outside click, Escape, scroll, or resize.
 - Because the portal renders outside `.settings-backdrop`, the scoped `--ss-*` tokens do not resolve inside it, so `.settings-reasoning-menu` uses literal popup-elevation values instead of tokens: an opaque surface `#313438` (a few steps lighter than the model cards `#232527`, so the menu stands off the surface below it) and a lighter border `#4d5258`. This also keeps the menu fully opaque rather than falling back to `transparent`.
-- The menu options come from `REASONING_EFFORT_OPTIONS`. The optional `values` prop limits the rendered levels to a per-model set; without it, `ultracode` is hidden (Opus-only level).
-- The Claude card reads `CLAUDE_REASONING_EFFORTS_BY_MODEL` from Core `settings-normalization` (a persistence-free module, so the renderer bundle stays clean of `node:fs`) to pass each alias its supported levels (Opus gets ultracode, Sonnet drops xhigh) and renders "Not adjustable" instead of a selector for Haiku.
-- The Codex card reads `CODEX_REASONING_EFFORTS_BY_MODEL` and `resolveCodexReasoningEffort` from the same Core module. Codex selectors show only the levels declared for that Codex model and use Core defaults. Summary support is separate from effort selection; Spark still exposes effort levels but the provider disables per-turn summaries for it.
+- The menu options come from `REASONING_EFFORT_OPTIONS`. The optional `values` prop limits the rendered levels to a per-model set; without it, `ultracode` is hidden.
+- The Claude and Codex cards take a `models` prop: the live catalog rows Core serves (`SettingsModelOption`, see Live Model Catalogs below). Each row's selector shows only that model's `reasoningEfforts`, its value is the Core-normalized `thinkingByModel` / `reasoningByModel` entry (falling back to the row's `defaultReasoningEffort` until the next settings read), and models without efforts (Haiku) render "Not adjustable". Summary support is separate from effort selection.
 - Provider model cards render the model label and description only; the raw model id (which duplicated the label, e.g. "Sonnet" / "sonnet") is no longer shown in the Claude, Codex and reference cards. OpenRouter keeps its `settings-model-id` span because there it carries routing/metric text (e.g. "default routing", endpoint metrics), not a duplicate name.
 - The shared `ProviderVersionsCard` update button shows a `settings-spinner` next to the "Updating to ..." label while a CLI/SDK target is updating (driven by `updatingTargets`), so every provider with manual updates has the same in-progress feedback until the current version refreshes.
 - `ProviderVersionsCard`'s update-risk warning banner and the auto-update
@@ -258,3 +257,21 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 
 - `module.md`
 - `src/**`
+
+## Live Model Catalogs
+
+- `provider-model-catalog-hooks.ts` owns two renderer hooks.
+  `useProviderModelCatalogs()` calls `window.harnessCore.
+  listProviderModelCatalogs()` once per Settings mount (Core refreshes the
+  live Claude/Codex/Kimi catalogs before answering) and returns
+  `{claude, codex, kimiClient}`; until it answers the lists are empty.
+  `SettingsTabContent` calls it and hands the lists to the Claude card, the
+  Codex card and the Kimi `DefaultModelCard`.
+- `useTranslatedModelDescriptions(models)` (formerly the OpenRouter-only
+  `useTranslatedOpenRouterDescriptions`) translates provider-written model
+  descriptions through the Core `translateDynamicText` route; the OpenRouter
+  picker and the live-catalog cards share it. The static
+  `settings.provider.{claude,codex,kimiClient}.model.*.description`
+  dictionary keys are gone.
+- `PROVIDER_MODEL_OPTIONS` keeps only the providers without a live catalog
+  (Grok, GLM).

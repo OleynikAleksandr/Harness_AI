@@ -5,16 +5,14 @@ import {
   type OpenRouterEndpointLatencyResult,
   testOpenRouterEndpointLatency,
 } from "./openrouter-endpoint-latency.js";
-import {
-  OpenRouterModelRow,
-  useTranslatedOpenRouterDescriptions,
-} from "./openrouter-model-row.js";
+import { OpenRouterModelRow } from "./openrouter-model-row.js";
 import {
   loadOpenRouterModelEndpoints,
   type OpenRouterEndpointResult,
   type OpenRouterModelSearchResult,
   searchOpenRouterModels,
 } from "./openrouter-model-search.js";
+import { useTranslatedModelDescriptions } from "./provider-model-catalog-hooks.js";
 import {
   SettingsCard,
   SettingsTextField,
@@ -110,7 +108,7 @@ export function OpenRouterModelEndpointPicker({
   const [resultsCollapsed, setResultsCollapsed] = useState(() =>
     Boolean(value.trim())
   );
-  const translatedDescriptions = useTranslatedOpenRouterDescriptions(models);
+  const translatedDescriptions = useTranslatedModelDescriptions(models);
   const [endpoints, setEndpoints] = useState<OpenRouterEndpointResult[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [endpointsLoading, setEndpointsLoading] = useState(false);

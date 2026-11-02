@@ -51,7 +51,8 @@ Detached session windows never expose the switch.
   `runningSessionIds` set, otherwise `TurnTimer` receives `null`.
 - User interaction events from child controls.
 - Provider settings snapshot for display-only labels. Codex reasoning labels
-  use the Core settings-store capability resolver; Grok labels use its
+  read the Core-normalized `providers.codex.reasoningByModel[session.model]`
+  (one level per live catalog model; the renderer computes no effort); Grok labels use its
   Core-selected per-model effort and disappear for provider-managed Composer;
   Kimi labels show the Core-selected per-model native thinking level
   (`providers.kimiClient.reasoningByModel`, session override first) since

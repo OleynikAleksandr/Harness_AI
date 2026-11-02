@@ -1,4 +1,3 @@
-import { resolveCodexReasoningEffort } from "../../../../settings-and-localization/modules/settings-store/src/settings-normalization.js";
 import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import { buildProfileCreatorTurnOptions } from "./session-creation.js";
 import type { CoreSession } from "./session-request-handler-facade.js";
@@ -46,10 +45,9 @@ export function buildProviderTurnOptions(
     return { model: session.model };
   }
   const codex = settings.providers.codex;
-  const reasoningEffort = resolveCodexReasoningEffort(
-    session.model,
-    codex.reasoningByModel[session.model]
-  );
+  // Normalization already resolved one effort per live catalog model; models
+  // without effort selection (or outside the catalog) send none.
+  const reasoningEffort = codex.reasoningByModel[session.model];
   return {
     model: session.model,
     ...(reasoningEffort ? { reasoningEffort } : {}),

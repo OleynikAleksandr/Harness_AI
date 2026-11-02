@@ -1,5 +1,4 @@
 import type { ReasoningEffort } from "../../../../../../core-runtime/clusters/settings-and-localization/modules/settings-store/src/settings-store-facade.js";
-import { KIMI_CLIENT_MODELS } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 
 export type SettingsTabId =
   | "claude"
@@ -27,63 +26,9 @@ export const SETTINGS_TABS: ReadonlyArray<{
   { id: "general", label: "General" },
 ];
 
+// Static model lists for providers without a live catalog. Claude, Codex and
+// Kimi model choices come from Core (`listProviderModelCatalogs`).
 export const PROVIDER_MODEL_OPTIONS = {
-  claude: [
-    {
-      description: "Best fit for everyday tasks.",
-      id: "sonnet",
-      label: "Sonnet",
-    },
-    {
-      description: "Most powerful option for complex agentic workloads.",
-      id: "opus",
-      label: "Opus",
-    },
-    {
-      description: "Fastest alias for quick answers and prototyping.",
-      id: "haiku",
-      label: "Haiku",
-    },
-  ],
-  codex: [
-    {
-      description: "Latest frontier agentic coding model",
-      id: "gpt-5.6-sol",
-      label: "GPT-5.6 Sol",
-    },
-    {
-      description: "Balanced agentic coding model for everyday work",
-      id: "gpt-5.6-terra",
-      label: "GPT-5.6 Terra",
-    },
-    {
-      description: "Fast and affordable agentic coding model",
-      id: "gpt-5.6-luna",
-      label: "GPT-5.6 Luna",
-    },
-    {
-      description:
-        "Frontier model for complex coding, research, and real-world work",
-      id: "gpt-5.5",
-      label: "GPT-5.5",
-    },
-    {
-      description: "Strong model for everyday coding",
-      id: "gpt-5.4",
-      label: "GPT-5.4",
-    },
-    {
-      description:
-        "Small, fast, and cost-efficient model for simpler coding tasks",
-      id: "gpt-5.4-mini",
-      label: "GPT-5.4 Mini",
-    },
-    {
-      description: "Ultra-fast coding model",
-      id: "gpt-5.3-codex-spark",
-      label: "GPT-5.3-Codex-Spark",
-    },
-  ],
   grok: [
     {
       description:
@@ -98,7 +43,6 @@ export const PROVIDER_MODEL_OPTIONS = {
       label: "Composer 2.5 Fast",
     },
   ],
-  kimiClient: KIMI_CLIENT_MODELS,
   glmClient: [
     {
       description:

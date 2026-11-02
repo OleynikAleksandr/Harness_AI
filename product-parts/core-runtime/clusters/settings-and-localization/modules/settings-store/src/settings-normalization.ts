@@ -1,4 +1,8 @@
-import { KIMI_CLIENT_MODELS } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
+import {
+  listProviderModelCatalogs,
+  normalizeCatalogDefaultModel,
+  normalizeCatalogEfforts,
+} from "./settings-model-catalogs.js";
 import type {
   HarnessSettings,
   ProfileCreatorAgentOption,
@@ -18,7 +22,6 @@ export const PROFILE_CREATOR_AGENT_OPTIONS: readonly ProfileCreatorAgentOption[]
 const PROFILE_CREATOR_AGENT_PROVIDER_IDS: readonly string[] =
   PROFILE_CREATOR_AGENT_OPTIONS.map((option) => option.id);
 
-const CLAUDE_MODEL_ALIASES = ["sonnet", "opus", "haiku"];
 const CLAUDE_THINKING_EFFORTS = [
   "low",
   "medium",
@@ -28,48 +31,6 @@ const CLAUDE_THINKING_EFFORTS = [
   "ultracode",
 ];
 
-// Reasoning effort levels each Claude alias exposes, mirroring the Claude CLI:
-// Opus adds ultracode, Sonnet drops xhigh, Haiku has no effort selection.
-// Lives here (not in the persistence facade) so the renderer can import it
-// without pulling node:fs/os/path into the client bundle.
-export const CLAUDE_REASONING_EFFORTS_BY_MODEL: Record<
-  string,
-  readonly ReasoningEffort[]
-> = {
-  opus: ["low", "medium", "high", "xhigh", "max", "ultracode"],
-  sonnet: ["low", "medium", "high", "max"],
-  haiku: [],
-};
-const CODEX_MODEL_IDS = [
-  "gpt-5.6-sol",
-  "gpt-5.6-terra",
-  "gpt-5.6-luna",
-  "gpt-5.5",
-  "gpt-5.4",
-  "gpt-5.4-mini",
-  "gpt-5.3-codex-spark",
-];
-const CODEX_REASONING_DEFAULTS_BY_MODEL: Record<string, ReasoningEffort> = {
-  "gpt-5.6-sol": "medium",
-  "gpt-5.6-terra": "medium",
-  "gpt-5.6-luna": "medium",
-  "gpt-5.5": "medium",
-  "gpt-5.4": "medium",
-  "gpt-5.4-mini": "medium",
-  "gpt-5.3-codex-spark": "high",
-};
-export const CODEX_REASONING_EFFORTS_BY_MODEL: Record<
-  string,
-  readonly ReasoningEffort[]
-> = {
-  "gpt-5.6-sol": ["low", "medium", "high", "xhigh", "max", "ultra"],
-  "gpt-5.6-terra": ["low", "medium", "high", "xhigh", "max", "ultra"],
-  "gpt-5.6-luna": ["low", "medium", "high", "xhigh", "max"],
-  "gpt-5.5": ["low", "medium", "high", "xhigh"],
-  "gpt-5.4": ["low", "medium", "high", "xhigh"],
-  "gpt-5.4-mini": ["low", "medium", "high", "xhigh"],
-  "gpt-5.3-codex-spark": ["low", "medium", "high", "xhigh"],
-};
 const GROK_MODEL_IDS = ["grok-4.5", "grok-composer-2.5-fast"];
 export const GROK_REASONING_EFFORTS_BY_MODEL: Record<
   string,
@@ -79,18 +40,9 @@ export const GROK_REASONING_EFFORTS_BY_MODEL: Record<
   "grok-composer-2.5-fast": [],
 };
 const CODEX_MODELS_WITHOUT_REASONING_SUMMARY = new Set(["gpt-5.3-codex-spark"]);
-const KIMI_CLIENT_MODEL_IDS = KIMI_CLIENT_MODELS.map((model) => model.id);
-// Native Kimi thinking levels (verified live on CLI 0.26.0, 2026-07-17):
-// the workspace-home config declares `support_efforts = ["low","high","max"]`
-// and the level is written per session before the CLI spawns; `high` is the
-// default the home bootstrap ships.
-const KIMI_DEFAULT_REASONING_EFFORT: ReasoningEffort = "high";
-export const KIMI_REASONING_EFFORTS_BY_MODEL: Record<
-  string,
-  readonly ReasoningEffort[]
-> = Object.fromEntries(
-  KIMI_CLIENT_MODEL_IDS.map((modelId) => [modelId, ["low", "high", "max"]])
-);
+// Claude, Codex and Kimi models, efforts and defaults come from the live
+// provider catalogs Core serves (`settings-model-catalogs`); Sonnet and
+// kimi-for-coding stay the preferred defaults while their catalogs list them.
 const GLM_CLIENT_MODEL_IDS = [
   "glm-5.2",
   "glm-5.1",
@@ -107,38 +59,29 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
   ) {
     next.profileStudio.defaultCreatorAgentProviderId = "codex";
   }
-  if (!CLAUDE_MODEL_ALIASES.includes(next.providers.claude.defaultModel)) {
-    next.providers.claude.defaultModel = "sonnet";
-  }
+  const catalogs = listProviderModelCatalogs();
+  next.providers.claude.defaultModel = normalizeCatalogDefaultModel(
+    catalogs.claude,
+    next.providers.claude.defaultModel,
+    "sonnet"
+  );
   if (
     !CLAUDE_THINKING_EFFORTS.includes(next.providers.claude.thinking.effort)
   ) {
     next.providers.claude.thinking.effort = "medium";
   }
-  if (!isRecord(next.providers.claude.thinkingByModel)) {
-    next.providers.claude.thinkingByModel = {};
-  }
-  for (const modelId of CLAUDE_MODEL_ALIASES) {
-    const effort = next.providers.claude.thinkingByModel[modelId];
-    if (!CLAUDE_THINKING_EFFORTS.includes(effort)) {
-      next.providers.claude.thinkingByModel[modelId] =
-        next.providers.claude.thinking.effort;
-    }
-  }
-  if (!CODEX_MODEL_IDS.includes(next.providers.codex.defaultModel)) {
-    next.providers.codex.defaultModel = "gpt-5.6-sol";
-  }
-  if (!isRecord(next.providers.codex.reasoningByModel)) {
-    next.providers.codex.reasoningByModel = {};
-  }
-  next.providers.codex.reasoningByModel = Object.fromEntries(
-    CODEX_MODEL_IDS.flatMap((modelId) => {
-      const effort = resolveCodexReasoningEffort(
-        modelId,
-        next.providers.codex.reasoningByModel[modelId]
-      );
-      return effort ? [[modelId, effort]] : [];
-    })
+  next.providers.claude.thinkingByModel = normalizeCatalogEfforts(
+    catalogs.claude,
+    next.providers.claude.thinkingByModel
+  );
+  next.providers.codex.defaultModel = normalizeCatalogDefaultModel(
+    catalogs.codex,
+    next.providers.codex.defaultModel,
+    null
+  );
+  next.providers.codex.reasoningByModel = normalizeCatalogEfforts(
+    catalogs.codex,
+    next.providers.codex.reasoningByModel
   );
   if (!GROK_MODEL_IDS.includes(next.providers.grok.defaultModel)) {
     next.providers.grok.defaultModel = "grok-4.5";
@@ -158,23 +101,14 @@ export function normalizeSettings(settings: HarnessSettings): HarnessSettings {
       ];
     })
   );
-  if (!KIMI_CLIENT_MODEL_IDS.includes(next.providers.kimiClient.defaultModel)) {
-    next.providers.kimiClient.defaultModel = "kimi-for-coding";
-  }
-  if (!isRecord(next.providers.kimiClient.reasoningByModel)) {
-    next.providers.kimiClient.reasoningByModel = {};
-  }
-  next.providers.kimiClient.reasoningByModel = Object.fromEntries(
-    KIMI_CLIENT_MODEL_IDS.map((modelId) => {
-      const efforts = KIMI_REASONING_EFFORTS_BY_MODEL[modelId] ?? [];
-      const configured = next.providers.kimiClient.reasoningByModel[modelId];
-      return [
-        modelId,
-        efforts.includes(configured)
-          ? configured
-          : KIMI_DEFAULT_REASONING_EFFORT,
-      ];
-    })
+  next.providers.kimiClient.defaultModel = normalizeCatalogDefaultModel(
+    catalogs.kimiClient,
+    next.providers.kimiClient.defaultModel,
+    "kimi-for-coding"
+  );
+  next.providers.kimiClient.reasoningByModel = normalizeCatalogEfforts(
+    catalogs.kimiClient,
+    next.providers.kimiClient.reasoningByModel
   );
   if (!GLM_CLIENT_MODEL_IDS.includes(next.providers.glmClient.defaultModel)) {
     next.providers.glmClient.defaultModel = "glm-5.2";
@@ -222,22 +156,6 @@ function normalizeContextLengthByModel(value: unknown): Record<string, number> {
         contextLength >= 0
     )
   ) as Record<string, number>;
-}
-
-export function resolveCodexReasoningEffort(
-  modelId: string,
-  storedEffort: ReasoningEffort | undefined
-): ReasoningEffort | null {
-  const efforts = CODEX_REASONING_EFFORTS_BY_MODEL[modelId] ?? [];
-  if (efforts.length === 0) {
-    return null;
-  }
-  if (storedEffort && efforts.includes(storedEffort)) {
-    return storedEffort;
-  }
-  const defaultEffort =
-    CODEX_REASONING_DEFAULTS_BY_MODEL[modelId] ?? efforts[0];
-  return efforts.includes(defaultEffort) ? defaultEffort : efforts[0];
 }
 
 export function supportsCodexReasoningSummary(modelId: string): boolean {

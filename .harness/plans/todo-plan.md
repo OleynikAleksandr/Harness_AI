@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase20.stream2.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase21.stream1.task1",
+  "expectedCommitMessage": "feat: discover kimi models from live catalog",
   "debt": null
 }
 ```
@@ -372,7 +372,7 @@ runs before the acceptance record; the acceptance row moved below unchanged.
 
 ### Stream: Phase 20 User Acceptance
 
-121. [IN_PROGRESS] `harness-ai.phase20.stream2.task2` User retests the rebuilt package: every intermediate and final Profile Creator response contains only decoded `assistantResponse` text with real line breaks and no visible JSON envelope; only the final structured result can author the Draft, while Russian language and Studio pane resizing remain working (completion: user-acceptance; scope: user workflow; expected commit: none).
+121. [DONE] `harness-ai.phase20.stream2.task2` User retests the rebuilt package: every intermediate and final Profile Creator response contains only decoded `assistantResponse` text with real line breaks and no visible JSON envelope; only the final structured result can author the Draft, while Russian language and Studio pane resizing remain working (completion: user-acceptance; scope: user workflow; expected commit: none). Result: User acceptance recorded — User accepted on 2026-11-02: intermediate and final Profile Creator responses show only decoded assistantResponse text with real line breaks and no JSON envelope; only the final result authors the Draft; Russian language and Studio pane resizing work Acceptance Commit: `chore: record plan acceptance profile-studio-mvp-2026-07-20`.
 
 ## Phase 21 - Live Kimi Model Catalog (owner: Claude + User, updated: 2026-11-02)
 
@@ -386,7 +386,7 @@ Kimi CLI 2.4.1 accepts only model ids declared in its `config.toml`.
 
 ### Stream: Core-Owned Live Catalog
 
-122. [TODO] `harness-ai.phase21.stream1.task1` Make the Kimi model catalog Core-owned and live: parse full `/coding/v1/models` rows (id, display name, context window, supported and default thinking efforts), persist the last successful catalog under the Harness product home, serve it through the provider-descriptor facade with a refreshed verified fallback list, and refresh it on Core start (scope: up to 3 production functional files — Kimi model catalog, provider descriptor facade and Core start wiring — plus focused tests and related provider/Core docs; expected commit: `feat: discover kimi models from live catalog`).
+122. [IN_PROGRESS] `harness-ai.phase21.stream1.task1` Make the Kimi model catalog Core-owned and live: parse full `/coding/v1/models` rows (id, display name, context window, supported and default thinking efforts), persist the last successful catalog under the Harness product home, serve it through the provider-descriptor facade with a refreshed verified fallback list, and refresh it on Core start (scope: up to 3 production functional files — Kimi model catalog, provider descriptor facade and Core start wiring — plus focused tests and related provider/Core docs; expected commit: `feat: discover kimi models from live catalog`).
 123. [TODO] Git Commit: `feat: discover kimi models from live catalog` (hash: TBD)
 124. [TODO] `harness-ai.phase21.stream1.task2` Declare every live catalog model in the Kimi workspace-home CLI config with its live context window and efforts, so native sessions can select newly discovered models (scope: up to 2 production functional files — Kimi workspace home and its caller — plus focused tests and kimi-native-session docs; expected commit: `feat: configure live kimi models in workspace home`).
 125. [TODO] Git Commit: `feat: configure live kimi models in workspace home` (hash: TBD)

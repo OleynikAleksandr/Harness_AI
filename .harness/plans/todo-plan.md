@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream3.task1",
-  "expectedCommitMessage": "docs: package live provider model catalogs",
+  "currentTaskId": "harness-ai.phase21.stream3.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -416,6 +416,6 @@ Codex app-server 0.166.0 `model/list` returns every model with `displayName`,
 
 ### Stream: Rebuilt Acceptance Package
 
-132. [IN_PROGRESS] `harness-ai.phase21.stream3.task1` Build the user-authorized unsigned macOS package, verify the live Kimi, Codex and Claude catalogs in `app.asar`, install and launch it and record package identity plus focused retest steps in new package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package live provider model catalogs`).
-133. [TODO] Git Commit: `docs: package live provider model catalogs` (hash: TBD)
-134. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+132. [DONE] `harness-ai.phase21.stream3.task1` Build the user-authorized unsigned macOS package, verify the live Kimi, Codex and Claude catalogs in `app.asar`, install and launch it and record package identity plus focused retest steps in new package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package live provider model catalogs`). Result: Completed in commit `docs: package live provider model catalogs`.
+133. [DONE] Git Commit: `docs: package live provider model catalogs` (hash: self)
+134. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

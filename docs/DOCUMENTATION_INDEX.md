@@ -327,6 +327,12 @@ readiness registry, liveness checker, and workspace provisioner modules.
   default model) and its fix (bootstrap appends the missing `[models.*]`
   sections; wire proof that a native session really runs on `k3`), plus
   the packaged `app.asar` checksum with binary-grep proof.
+- `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md` — live
+  provider model catalogs packaging evidence: Core-owned live Kimi
+  (`/coding/v1/models`), Codex (app-server `model/list`) and Claude
+  (SDK `supportedModels()`) catalogs with persistence and fallbacks, Settings
+  served through `list-provider-model-catalogs`, the live catalog read from the
+  built runtime and the packaged `app.asar` checksum with marker proof.
 - `docs/evidence/kimi-native-thinking-package-2026-07-18.md` — Kimi native
   thinking packaging evidence: the user-driven research that overturned the
   "provider-side limitation" verdict (the migrated legacy config lacked the

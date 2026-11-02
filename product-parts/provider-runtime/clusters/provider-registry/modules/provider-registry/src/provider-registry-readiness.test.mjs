@@ -65,11 +65,11 @@ assert.deepEqual(
     .getCapturableModels("codex")
     .slice(0, 3)
     .map((model) => model.id),
-  ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"]
+  ["gpt-6.1-sol", "gpt-6-astra", "gpt-6.1-terra"]
 );
 assert.deepEqual(
   providerDescriptorFacade
-    .getCapturableModel("codex", "gpt-5.6-sol")
+    .getCapturableModel("codex", "gpt-6.1-sol")
     .reasoningEfforts.map((effort) => effort.id),
   ["low", "medium", "high", "xhigh", "max", "ultra"]
 );
@@ -85,10 +85,15 @@ assert.deepEqual(
     .reasoningEfforts.map((effort) => effort.id),
   ["low", "medium", "high", "xhigh", "max"]
 );
+// Capture keeps each live catalog model's own default effort.
 assert.equal(
-  providerDescriptorFacade.getCapturableModel("codex", "gpt-5.3-codex-spark")
+  providerDescriptorFacade.getCapturableModel("codex", "gpt-6.1-sol")
     .defaultReasoningEffort,
-  "high"
+  "low"
+);
+assert.equal(
+  providerDescriptorFacade.getCapturableModel("codex", "gpt-5.3-codex-spark"),
+  null
 );
 const captureCatalogSource = descriptorSource.slice(
   descriptorSource.indexOf("const CAPTURABLE_MODELS")

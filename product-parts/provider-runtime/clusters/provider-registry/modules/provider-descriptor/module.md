@@ -32,10 +32,10 @@ Own model/reasoning capabilities and UI metadata for providers.
   `getCaptureProviderIds()` lists the providers that offer capture. Model ids
   mirror the provider model catalog so capture can be
   chosen per model (different models can carry different system prompts). The
-  Codex app-server capture catalog follows the live picker order (GPT-5.6
-  Sol/Terra/Luna, 5.5, 5.4, 5.4 Mini, 5.3 Codex Spark) and excludes retired
-  GPT-5.2. Sol/Terra expose `ultra`, Luna stops at `max`, and older Codex
-  models stop at `xhigh`. The Claude interactive capture catalog exposes the
+  Codex app-server capture catalog follows the served live Codex catalog
+  (see below): its order, each model's own effort list (limited to the
+  capture effort values) and its default effort (`medium` when the default
+  is outside the list). The Claude interactive capture catalog exposes the
   native CLI `--effort` values `low/medium/high/xhigh/max` for Sonnet, Opus,
   and Haiku. Claude `ultracode` is intentionally absent because it is a
   separate session-orchestration setting, not an effort value.
@@ -43,6 +43,17 @@ Own model/reasoning capabilities and UI metadata for providers.
   empty reasoning list with `defaultReasoningEffort: null` because capture
   preserves the provider default effort; `getCaptureProviderIds()` lists
   `claude`, `codex`, `kimi`.
+- Live Codex model catalog: `getCodexModels()` returns the served list and
+  `setCodexModels(models)` replaces it (an empty list is ignored); the
+  `codex-provider` live catalog reader applies the persisted and then the
+  live app-server `model/list` catalog. `CODEX_MODELS` is the verified
+  offline fallback — the visible 2026-11-02 rows of codex-cli 0.166.0:
+  `gpt-6.1-sol` (GPT-6.1-Sol, default effort low), `gpt-6-astra`
+  (GPT-6-Astra, medium), `gpt-6.1-terra` (GPT-6.1 Terra, low), `gpt-6-sol`
+  (GPT-6-Sol, medium), `gpt-6-luna` (GPT-6-Luna, medium, efforts up to
+  `max`), `gpt-5.6-sol` (low), `gpt-5.6-terra` (medium) and `gpt-5.6-luna`
+  (medium, up to `max`); the others accept `low` through `ultra`. Settings
+  normalization and the Settings UI still use their own static Codex lists.
 - Client endpoint model catalog: `getClientModels(providerId)`
   returns renderer-safe `ProviderModelDescriptor` (`{ id, label,
   description?, contextLength?, reasoningEfforts?, defaultReasoningEffort? }`)

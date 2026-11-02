@@ -389,9 +389,11 @@
   Claude capture использует только реальные значения интерактивного CLI
   `--effort`: `low/medium/high/xhigh/max`; `ultracode` остаётся отдельным
   orchestration mode и не маскируется под reasoning effort.
-  Codex-каталог capture повторяет picker-visible `model/list`: GPT-5.6 Sol,
-  Terra, Luna, GPT-5.5, GPT-5.4, GPT-5.4 Mini и GPT-5.3 Codex Spark; удалённая
-  GPT-5.2 не показывается. Для выбранной Codex-модели Core передаёт явный
+  Codex-каталог capture — это живой Core-каталог Codex: видимые строки
+  app-server `model/list` (на 2026-11-02 — GPT-6.1-Sol, GPT-6-Astra,
+  GPT-6.1 Terra, GPT-6-Sol, GPT-6-Luna и GPT-5.6 Sol/Terra/Luna) с
+  собственными уровнями reasoning каждой модели; скрытые модели не
+  показываются. Для выбранной Codex-модели Core передаёт явный
   reasoning intent выделенному диагностическому адаптеру; legacy-вызов без
   него использует нормализованный `providers.codex.reasoningByModel[model]`
   из Settings. Поэтому native capture отправляет точный

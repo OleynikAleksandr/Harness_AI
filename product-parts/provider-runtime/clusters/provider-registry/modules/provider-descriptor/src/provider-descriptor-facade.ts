@@ -122,6 +122,80 @@ export function kimiClientModelContextLength(model: string): number {
   );
 }
 
+// Verified Codex catalog: the visible rows the app-server `model/list`
+// request returned on 2026-11-02 (codex-cli 0.166.0). It is only the offline
+// fallback — Core replaces it with the live catalog through `setCodexModels`
+// (codex-provider `codex-model-catalog`).
+const CODEX_ALL_EFFORTS = [
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+  "ultra",
+] as const;
+const CODEX_EFFORTS_TO_MAX = ["low", "medium", "high", "xhigh", "max"] as const;
+export const CODEX_MODELS: readonly ProviderModelDescriptor[] = [
+  {
+    defaultReasoningEffort: "low",
+    description: "Latest workhorse model for coding and everyday work.",
+    id: "gpt-6.1-sol",
+    label: "GPT-6.1-Sol",
+    reasoningEfforts: CODEX_ALL_EFFORTS,
+  },
+  {
+    defaultReasoningEffort: "medium",
+    description: "Frontier intelligence for the most demanding work.",
+    id: "gpt-6-astra",
+    label: "GPT-6-Astra",
+    reasoningEfforts: CODEX_ALL_EFFORTS,
+  },
+  {
+    defaultReasoningEffort: "low",
+    description: "GPT-6.1 Terra Codex model.",
+    id: "gpt-6.1-terra",
+    label: "GPT-6.1 Terra",
+    reasoningEfforts: CODEX_ALL_EFFORTS,
+  },
+  {
+    defaultReasoningEffort: "medium",
+    description: "Previous generation workhorse model.",
+    id: "gpt-6-sol",
+    label: "GPT-6-Sol",
+    reasoningEfforts: CODEX_ALL_EFFORTS,
+  },
+  {
+    defaultReasoningEffort: "medium",
+    description: "Fast and affordable model for easier tasks.",
+    id: "gpt-6-luna",
+    label: "GPT-6-Luna",
+    reasoningEfforts: CODEX_EFFORTS_TO_MAX,
+  },
+  {
+    defaultReasoningEffort: "low",
+    description: "Older generation workhorse model.",
+    id: "gpt-5.6-sol",
+    label: "GPT-5.6-Sol",
+    reasoningEfforts: CODEX_ALL_EFFORTS,
+  },
+  {
+    defaultReasoningEffort: "medium",
+    description: "Older balanced model for straightforward work.",
+    id: "gpt-5.6-terra",
+    label: "GPT-5.6-Terra",
+    reasoningEfforts: CODEX_ALL_EFFORTS,
+  },
+  {
+    defaultReasoningEffort: "medium",
+    description: "Older fast and efficient model.",
+    id: "gpt-5.6-luna",
+    label: "GPT-5.6-Luna",
+    reasoningEfforts: CODEX_EFFORTS_TO_MAX,
+  },
+];
+
+let codexModels: readonly ProviderModelDescriptor[] = CODEX_MODELS;
+
 // Model catalog for universal-client endpoint providers.
 const CLIENT_PROVIDER_MODELS: Readonly<
   Record<string, readonly ProviderModelDescriptor[]>
@@ -142,10 +216,6 @@ const CLIENT_PROVIDER_MODELS: Readonly<
 // kimi-provider retirement (2026-07-05).
 const BASE_REASONING_EFFORTS = ["low", "medium", "high", "xhigh"] as const;
 const REASONING_EFFORTS_WITH_MAX = [...BASE_REASONING_EFFORTS, "max"] as const;
-const REASONING_EFFORTS_WITH_ULTRA = [
-  ...REASONING_EFFORTS_WITH_MAX,
-  "ultra",
-] as const;
 const REASONING_LABELS: Readonly<Record<NativeCaptureReasoningEffort, string>> =
   {
     low: "Low",
@@ -155,6 +225,11 @@ const REASONING_LABELS: Readonly<Record<NativeCaptureReasoningEffort, string>> =
     max: "Max",
     ultra: "Ultra",
   };
+
+const isNativeCaptureReasoningEffort = (
+  effort: string | undefined
+): effort is NativeCaptureReasoningEffort =>
+  effort !== undefined && Object.hasOwn(REASONING_LABELS, effort);
 
 const capturableModel = (
   id: string,
@@ -181,32 +256,6 @@ const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
       capturableModel("opus", "Opus", REASONING_EFFORTS_WITH_MAX),
       capturableModel("haiku", "Haiku", REASONING_EFFORTS_WITH_MAX),
     ],
-    codex: [
-      capturableModel(
-        "gpt-5.6-sol",
-        "GPT-5.6 Sol",
-        REASONING_EFFORTS_WITH_ULTRA
-      ),
-      capturableModel(
-        "gpt-5.6-terra",
-        "GPT-5.6 Terra",
-        REASONING_EFFORTS_WITH_ULTRA
-      ),
-      capturableModel(
-        "gpt-5.6-luna",
-        "GPT-5.6 Luna",
-        REASONING_EFFORTS_WITH_MAX
-      ),
-      capturableModel("gpt-5.5", "GPT-5.5", BASE_REASONING_EFFORTS),
-      capturableModel("gpt-5.4", "GPT-5.4", BASE_REASONING_EFFORTS),
-      capturableModel("gpt-5.4-mini", "GPT-5.4 Mini", BASE_REASONING_EFFORTS),
-      capturableModel(
-        "gpt-5.3-codex-spark",
-        "GPT-5.3-Codex-Spark",
-        BASE_REASONING_EFFORTS,
-        "high"
-      ),
-    ],
   };
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
@@ -228,6 +277,25 @@ export class ProviderDescriptorFacade {
   }
 
   getCapturableModels(providerId: string): readonly CapturableModel[] {
+    if (providerId === "codex") {
+      // Codex app-server capture follows the served live catalog order and
+      // each model's own effort list and default.
+      return codexModels.map((model) => {
+        const efforts = (model.reasoningEfforts ?? []).filter(
+          isNativeCaptureReasoningEffort
+        );
+        const fallbackDefault = efforts.includes("medium") ? "medium" : null;
+        return capturableModel(
+          model.id,
+          model.label,
+          efforts,
+          isNativeCaptureReasoningEffort(model.defaultReasoningEffort) &&
+            efforts.includes(model.defaultReasoningEffort)
+            ? model.defaultReasoningEffort
+            : fallbackDefault
+        );
+      });
+    }
     if (providerId === "kimi") {
       // Kimi capture follows the served Coding Plan catalog. Capture
       // materializes a temporary CLI alias and preserves the provider
@@ -251,7 +319,7 @@ export class ProviderDescriptorFacade {
   }
 
   getCaptureProviderIds(): readonly string[] {
-    return [...Object.keys(CAPTURABLE_MODELS), "kimi"];
+    return [...Object.keys(CAPTURABLE_MODELS), "codex", "kimi"];
   }
 
   getClientModels(providerId: string): readonly ProviderModelDescriptor[] {
@@ -259,6 +327,17 @@ export class ProviderDescriptorFacade {
       return kimiClientModels;
     }
     return CLIENT_PROVIDER_MODELS[providerId] ?? [];
+  }
+
+  getCodexModels(): readonly ProviderModelDescriptor[] {
+    return codexModels;
+  }
+
+  // Applies the persisted or live Codex catalog; an empty list is ignored.
+  setCodexModels(models: readonly ProviderModelDescriptor[]): void {
+    if (models.length > 0) {
+      codexModels = models;
+    }
   }
 
   getKimiClientModels(): readonly ProviderModelDescriptor[] {

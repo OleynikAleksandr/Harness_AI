@@ -90,6 +90,29 @@ the shared process.
 - Model capability lookup for the live picker family: GPT-5.6 Sol/Terra
   support through `ultra`, GPT-5.6 Luna through `max`, and
   GPT-5.5/5.4/5.4 Mini/5.3 Codex Spark through `xhigh`; GPT-5.2 is retired.
+  Models outside that table (the GPT-6.x family of the live catalog) use the
+  default capabilities: reasoning summary and verbosity on, 200000-token
+  window.
+- Live model catalog (`codex-model-catalog.ts`, verified 2026-11-02 on
+  codex-cli 0.166.0): `refreshCodexModelCatalog` starts one short-lived
+  app-server (`CodexAppServerProcess`) under the Harness Codex provider home
+  (`<HARNESS_AI_HOME or ~/.harness-ai>/providers/codex/home`, the same
+  signed-in account), pages through `model/list` with
+  `includeHidden: false` (following `nextCursor`), stops the process and
+  parses every visible row into a `ProviderModelDescriptor` (`id` from
+  `model`, `label` from `displayName`, `description`, `reasoningEfforts`
+  from `supportedReasoningEfforts[].reasoningEffort`,
+  `defaultReasoningEffort`); hidden rows (review/reserve models) are
+  skipped. A successful read replaces the catalog served through
+  `providerDescriptorFacade.setCodexModels` and is persisted in the
+  `model/list` row shape to
+  `<HARNESS_AI_HOME or ~/.harness-ai>/providers/codex/model-catalog.json`;
+  the persisted file is applied synchronously once per process before the
+  first live read, a successful read is memoized for 15 minutes, and a
+  failed read keeps the served catalog. Core calls it first in
+  `CoreRuntimeApi.initialize()`; the facade re-exports
+  `refreshCodexModelCatalog`. Legacy facade callers without a model start
+  on the first served catalog model (previously the retired `gpt-5.4-mini`).
 - Codex app-server `thread/tokenUsage/updated` events preserve the
   provider-reported cached input token count when present, so Core telemetry can
   display cache reuse beside context-window usage.

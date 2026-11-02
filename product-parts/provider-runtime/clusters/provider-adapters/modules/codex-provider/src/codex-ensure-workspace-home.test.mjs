@@ -14,6 +14,14 @@ const source = readFileSync(
   .replace(
     /import \{ CodexProviderAdapter \} from "\.\/reference\/index\.js";\n/u,
     "class CodexProviderAdapter { constructor(options) { this.options = options; } }\n"
+  )
+  .replace(
+    /import \{ providerDescriptorFacade \}[\s\S]*?provider-descriptor-facade\.js";\n/u,
+    'const providerDescriptorFacade = { getCodexModels: () => [{ id: "gpt-6.1-sol", label: "GPT-6.1-Sol" }] };\n'
+  )
+  .replace(
+    /export \{ refreshCodexModelCatalog \} from "\.\/codex-model-catalog\.js";\n/u,
+    ""
   );
 const compiled = ts.transpileModule(source, {
   compilerOptions: {
@@ -25,6 +33,8 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString(
 const { CodexProviderFacade } = await import(moduleUrl);
 
 const facade = new CodexProviderFacade();
+// Without a Core model the facade starts on the first served catalog model.
+assert.equal(facade.options.workspace.defaultModel, "gpt-6.1-sol");
 await facade.ensureWorkspaceHome("/tmp/workspace-a");
 await facade.ensureWorkspaceHome("/tmp/workspace-a");
 

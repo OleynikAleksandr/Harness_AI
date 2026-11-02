@@ -1,8 +1,11 @@
 import { homedir } from "node:os";
 import path from "node:path";
 import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
+import { providerDescriptorFacade } from "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
 import { CodexProviderAdapter } from "./reference/index.js";
 import type { CodexReasoningEffort } from "./reference/types/index.js";
+
+export { refreshCodexModelCatalog } from "./codex-model-catalog.js";
 
 interface CodexProviderOptions {
   defaultModel?: string;
@@ -56,8 +59,12 @@ export class CodexProviderFacade extends CodexProviderAdapter {
   }
 }
 
+// Legacy callers without a model start on the first model of the served
+// Codex catalog (live `model/list` order, catalog default first).
 function normalizeModel(model: string | undefined): string {
-  return model && model !== "cli-default" ? model : "gpt-5.4-mini";
+  return model && model !== "cli-default"
+    ? model
+    : (providerDescriptorFacade.getCodexModels()[0]?.id ?? "gpt-6.1-sol");
 }
 
 function workspaceSettingsPath(workspacePath: string): string {

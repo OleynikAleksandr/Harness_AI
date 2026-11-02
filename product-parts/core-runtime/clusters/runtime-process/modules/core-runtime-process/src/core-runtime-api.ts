@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
+import { refreshCodexModelCatalog } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import { refreshKimiModelCatalog } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import { providerWorkspaceProvisionerFacade } from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.js";
@@ -62,10 +63,11 @@ export class CoreRuntimeApi {
     if (this.initialized) {
       return;
     }
-    // Kimi model catalog: the persisted catalog is applied synchronously
-    // before settings and adapters read it; the live refresh finishes in
-    // the background.
+    // Live provider model catalogs (Kimi, Codex): each persisted catalog is
+    // applied synchronously before settings and adapters read it; the live
+    // refresh finishes in the background.
     refreshKimiModelCatalog().catch(() => undefined);
+    refreshCodexModelCatalog().catch(() => undefined);
     this.restoreState();
     this.providerLifecycle.registerAdapters();
     this.providerLifecycle.subscribeReadiness();

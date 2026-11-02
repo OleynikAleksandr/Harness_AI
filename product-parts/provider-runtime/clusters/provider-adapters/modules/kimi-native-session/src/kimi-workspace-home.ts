@@ -107,29 +107,34 @@ export function prepareKimiWorkspaceHome(
 // relaunch when the requested level already matches.
 export function readKimiThinkingEffort(home: KimiWorkspaceHome): string | null {
   try {
-    const source = readFileSync(
-      path.join(home.homePath, KIMI_CONFIG_DIRNAME, "config.toml"),
-      "utf8"
+    return thinkingEffortOf(
+      readFileSync(
+        path.join(home.homePath, KIMI_CONFIG_DIRNAME, "config.toml"),
+        "utf8"
+      )
     );
-    const lines = source.split("\n");
-    const headerIndex = lines.findIndex((line) => line.trim() === "[thinking]");
-    if (headerIndex < 0) {
-      return null;
-    }
-    for (let index = headerIndex + 1; index < lines.length; index += 1) {
-      const trimmed = lines[index].trim();
-      if (trimmed.startsWith("[")) {
-        return null;
-      }
-      const match = trimmed.match(THINKING_EFFORT_VALUE_PATTERN);
-      if (match) {
-        return match[1];
-      }
-    }
-    return null;
   } catch {
     return null;
   }
+}
+
+function thinkingEffortOf(source: string): string | null {
+  const lines = source.split("\n");
+  const headerIndex = lines.findIndex((line) => line.trim() === "[thinking]");
+  if (headerIndex < 0) {
+    return null;
+  }
+  for (let index = headerIndex + 1; index < lines.length; index += 1) {
+    const trimmed = lines[index].trim();
+    if (trimmed.startsWith("[")) {
+      return null;
+    }
+    const match = trimmed.match(THINKING_EFFORT_VALUE_PATTERN);
+    if (match) {
+      return match[1];
+    }
+  }
+  return null;
 }
 
 // Set the per-session thinking level: the CLI reads `[thinking].effort` at
@@ -158,7 +163,11 @@ export function writeKimiThinkingEffort(
 }
 
 // Strip the deprecated key, declare thinking on the catalog model sections
-// and make sure a `[thinking]` section exists (enabled, default effort).
+// and make sure the `[thinking]` section declares an effort. The Kimi CLI
+// config migration of 2026-09-09 leaves `[thinking]` with only
+// `enabled = true` (effort moved to per-model `default_effort`); without an
+// explicit effort the runtime would send ACP `thinking=on`, which CLI 2.4.1
+// resolves to the model default instead of the Harness-selected level.
 function ensureThinkingDeclarations(configPath: string): void {
   let source: string;
   try {
@@ -170,7 +179,7 @@ function ensureThinkingDeclarations(configPath: string): void {
   for (const modelId of CATALOG_MODEL_IDS) {
     next = injectModelThinkingLines(next, modelId);
   }
-  if (!hasThinkingSection(next)) {
+  if (thinkingEffortOf(next) === null) {
     next = upsertThinkingSection(next, DEFAULT_THINKING_EFFORT);
   }
   if (next !== source) {

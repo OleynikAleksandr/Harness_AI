@@ -212,6 +212,41 @@ try {
     /\[models\.k3\]\nprovider = "kimi-prov"\nmodel = "k3"\nmax_context_size = 1048576\n/u
   );
 
+  // The Kimi CLI config migration of 2026-09-09 leaves `[thinking]` with only
+  // `enabled = true`; the bootstrap adds the default effort into that section
+  // so the runtime keeps owning the level instead of sending `thinking=on`.
+  const migratedConfigDir = path.join(root, "real-kimi-code-migrated");
+  await mkdir(migratedConfigDir, { recursive: true });
+  writeFileSync(
+    path.join(migratedConfigDir, "config.toml"),
+    [
+      'default_model = "kimi-code/kimi-for-coding"',
+      "",
+      '[models."kimi-code/kimi-for-coding"]',
+      'provider = "managed:kimi-code"',
+      'model = "kimi-for-coding"',
+      'default_effort = "max"',
+      "",
+      "[thinking]",
+      "enabled = true",
+      "",
+    ].join("\n"),
+    "utf8"
+  );
+  const workspaceMigrated = path.join(root, "workspace-migrated");
+  await mkdir(workspaceMigrated, { recursive: true });
+  const migratedHome = prepareKimiWorkspaceHome(workspaceMigrated, {
+    realKimiConfigDir: migratedConfigDir,
+  });
+  assert.match(
+    readFileSync(
+      path.join(migratedHome.homePath, ".kimi-code", "config.toml"),
+      "utf8"
+    ),
+    /\[thinking\]\neffort = "high"\nenabled = true\n/u
+  );
+  assert.equal(readKimiThinkingEffort(migratedHome), "high");
+
   // Deletion resolves the CLI store id from the persisted mapping and
   // removes exactly that session directory.
   const sessionDir = path.join(

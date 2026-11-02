@@ -54,6 +54,64 @@ try {
     liveCoalescerModuleUrl
   );
 
+  // Normalizer: chunk buffering, tool flushing, usage mapping.
+  const unitNormalizer = new KimiSessionEventNormalizer();
+  const asNotification = (update) => ({
+    method: "session/update",
+    params: { sessionId: "kimi-s-1", update },
+  });
+  assert.deepEqual(
+    unitNormalizer.normalizeNotification(
+      asNotification({
+        content: { text: "short thought" },
+        sessionUpdate: "agent_thought_chunk",
+      })
+    ),
+    []
+  );
+  const toolFlush = unitNormalizer.normalizeNotification(
+    asNotification({
+      sessionUpdate: "tool_call",
+      status: "in_progress",
+      title: "Read",
+      toolCallId: "call-1",
+    })
+  );
+  assert.equal(toolFlush[0].type, "dialog_message");
+  assert.equal(toolFlush[0].role, "thinking");
+  assert.equal(toolFlush[0].content, "short thought");
+  assert.equal(toolFlush[1].type, "stream_event");
+  assert.equal(toolFlush[1].data.kind, "kimi_tool_call");
+  assert.equal(toolFlush[1].data.toolName, "Read");
+
+  const longText = `${"word ".repeat(200)}end.`;
+  const bigFlush = unitNormalizer.normalizeNotification(
+    asNotification({
+      content: { text: longText },
+      sessionUpdate: "agent_message_chunk",
+    })
+  );
+  assert.equal(bigFlush.length, 1);
+  assert.equal(bigFlush[0].role, "assistant");
+  assert.equal(bigFlush[0].tag, "live");
+
+  const usage = unitNormalizer.normalizeNotification(
+    asNotification({ sessionUpdate: "usage_update", size: 262_144, used: 2048 })
+  );
+  assert.deepEqual(usage[0].data, {
+    kind: "token_usage",
+    tokenUsage: { limit: 262_144, used: 2048 },
+  });
+
+  unitNormalizer.normalizeNotification(
+    asNotification({
+      content: { text: "tail answer" },
+      sessionUpdate: "agent_message_chunk",
+    })
+  );
+  const turnEnd = unitNormalizer.flushTurnEnd();
+  assert.equal(turnEnd[0].content, "tail answer");
+
   const normalizer = new KimiSessionEventNormalizer();
   const asUpdate = (text) => ({
     method: "session/update",

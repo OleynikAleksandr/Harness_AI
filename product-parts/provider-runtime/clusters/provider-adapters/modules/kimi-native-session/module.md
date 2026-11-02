@@ -33,7 +33,13 @@ the deprecated `default_thinking` key from the copy, injects
 `support_efforts = ["low", "high", "max"]` into catalog model sections that
 declare none, adds the same fields plus `default_effort` to generated
 sections, and upserts a `[thinking]` section (`enabled = true`,
-`keep = "all"`, default effort `high`). The effort LEVEL is read by the CLI
+`keep = "all"`, default effort `high`). A `[thinking]` section without an
+`effort` line — the layout the Kimi CLI config migration of 2026-09-09 leaves
+(`enabled = true` only, effort moved to per-model `default_effort`) — gains
+the default `effort = "high"` line, so the workspace home always declares the
+Harness-owned level. Kimi CLI 2.4.1 (verified 2026-11-02) still honors
+`[thinking].effort` and resolves ACP `thinking=on` to the model default
+instead. The effort LEVEL is read by the CLI
 once at process start — `writeKimiThinkingEffort(home, effort)` sets it
 per session right before the first spawn (the ACP `thinking` option only
 toggles off/on; unsupported levels are refused without writing). No base-URL rewrite happens here — that remains a
@@ -98,11 +104,12 @@ session id with the CLI store id).
   `kimi_full_access_unavailable` diagnostic and the fail-closed interaction
   bridge still answers whatever the CLI asks). Thinking activation: when the
   workspace-home config owns thinking (the bootstrap wrote a `[thinking]`
-  section) the session already starts ON at the configured level, and the
+  section with an `effort` line) the session already starts ON at the
+  configured level, and the
   ACP `thinking=on` option is deliberately NOT sent — it would override the
   level with the CLI default `high` (verified live 2026-07-18: config `max`
   + `set_config_option {thinking,"on"}` => wire `thinkingEffort: high`);
-  only a home without the section falls back to the best-effort
+  only a home without a readable config falls back to the best-effort
   `thinking=on` request with the honest `kimi_thinking_unavailable`
   diagnostic on refusal. `agent_thought_chunk` notifications are normalized
   into thinking bubbles.

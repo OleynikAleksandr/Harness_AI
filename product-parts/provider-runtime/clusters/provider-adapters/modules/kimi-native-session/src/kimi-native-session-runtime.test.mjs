@@ -103,70 +103,9 @@ try {
       "utf8"
     );
   }
-  const { KimiSessionEventNormalizer } = await import(
-    pathToFileURL(path.join(buildDir, "kimi-session-event-normalizer.js")).href
-  );
   const { KimiNativeSessionRuntime } = await import(
     pathToFileURL(path.join(buildDir, "kimi-native-session-runtime.js")).href
   );
-
-  // Normalizer: chunk buffering, tool flushing, usage mapping.
-  const normalizer = new KimiSessionEventNormalizer();
-  const asUpdate = (update) => ({
-    method: "session/update",
-    params: { sessionId: "kimi-s-1", update },
-  });
-  assert.deepEqual(
-    normalizer.normalizeNotification(
-      asUpdate({
-        content: { text: "short thought" },
-        sessionUpdate: "agent_thought_chunk",
-      })
-    ),
-    []
-  );
-  const toolFlush = normalizer.normalizeNotification(
-    asUpdate({
-      sessionUpdate: "tool_call",
-      status: "in_progress",
-      title: "Read",
-      toolCallId: "call-1",
-    })
-  );
-  assert.equal(toolFlush[0].type, "dialog_message");
-  assert.equal(toolFlush[0].role, "thinking");
-  assert.equal(toolFlush[0].content, "short thought");
-  assert.equal(toolFlush[1].type, "stream_event");
-  assert.equal(toolFlush[1].data.kind, "kimi_tool_call");
-  assert.equal(toolFlush[1].data.toolName, "Read");
-
-  const longText = `${"word ".repeat(200)}end.`;
-  const bigFlush = normalizer.normalizeNotification(
-    asUpdate({
-      content: { text: longText },
-      sessionUpdate: "agent_message_chunk",
-    })
-  );
-  assert.equal(bigFlush.length, 1);
-  assert.equal(bigFlush[0].role, "assistant");
-  assert.equal(bigFlush[0].tag, "live");
-
-  const usage = normalizer.normalizeNotification(
-    asUpdate({ sessionUpdate: "usage_update", size: 262_144, used: 2048 })
-  );
-  assert.deepEqual(usage[0].data, {
-    kind: "token_usage",
-    tokenUsage: { limit: 262_144, used: 2048 },
-  });
-
-  normalizer.normalizeNotification(
-    asUpdate({
-      content: { text: "tail answer" },
-      sessionUpdate: "agent_message_chunk",
-    })
-  );
-  const turnEnd = normalizer.flushTurnEnd();
-  assert.equal(turnEnd[0].content, "tail answer");
 
   // Runtime against a scripted fake `kimi acp` server: full native turn.
   const fakeCli = path.join(root, "fake-kimi-acp-session.mjs");
@@ -230,9 +169,37 @@ try {
     "utf8"
   );
 
+  // A fixture `~/.kimi-code` keeps the test independent from the developer's
+  // real Kimi config. It uses the migrated CLI layout (2026-09-09): the
+  // `[thinking]` section carries no effort, so the bootstrap must add one.
+  const fixtureKimiConfigDir = path.join(root, "fixture-kimi-code");
+  await mkdir(fixtureKimiConfigDir, { recursive: true });
+  await writeFile(
+    path.join(fixtureKimiConfigDir, "config.toml"),
+    [
+      '[models."kimi-code/kimi-for-coding"]',
+      'provider = "managed:kimi-code"',
+      'model = "kimi-for-coding"',
+      "",
+      "[thinking]",
+      "enabled = true",
+      "",
+    ].join("\n"),
+    "utf8"
+  );
+  const { prepareKimiWorkspaceHome } = await import(
+    pathToFileURL(path.join(buildDir, "kimi-workspace-home.js")).href
+  );
+  const fixtureHomePreparer = (workspacePath, overrides) =>
+    prepareKimiWorkspaceHome(workspacePath, {
+      ...overrides,
+      realKimiConfigDir: fixtureKimiConfigDir,
+    });
+
   const events = [];
   const usageReads = [];
   const runtime = new KimiNativeSessionRuntime({
+    homePreparer: fixtureHomePreparer,
     model: "k3",
     onEvent: (event) => events.push(event),
     processOverrides: { command: process.execPath, commandArgs: [fakeCli] },
@@ -325,6 +292,7 @@ try {
   );
   const failureEvents = [];
   const failingRuntime = new KimiNativeSessionRuntime({
+    homePreparer: fixtureHomePreparer,
     onEvent: (event) => failureEvents.push(event),
     processOverrides: { command: process.execPath, commandArgs: [dyingCli] },
     workspacePath: root,
@@ -427,6 +395,7 @@ try {
   );
   const swarmEvents = [];
   const swarmRuntime = new KimiNativeSessionRuntime({
+    homePreparer: fixtureHomePreparer,
     model: "k3-test",
     modelContexts: { "k3-test": 777_000 },
     onEvent: (event) => swarmEvents.push(event),

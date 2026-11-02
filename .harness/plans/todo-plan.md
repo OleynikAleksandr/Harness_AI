@@ -356,4 +356,48 @@
 117. [DONE] `harness-ai.phase20.stream2.task1` Build the user-authorized unsigned macOS package, verify phase-marked Codex commentary projection and final-only authoring in `app.asar`, launch it and append exact package identity plus focused multi-message retest steps to the Creator Bootstrap package evidence (scope: `docs/evidence/profile-studio-creator-bootstrap-package-2026-07-21.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package creator commentary projection`). Result: Completed in commit `docs: package creator commentary projection`.
 118. [DONE] Git Commit: `docs: package creator commentary projection` (hash: self)
 
-119. [IN_PROGRESS] `harness-ai.phase20.stream2.task2` User retests the rebuilt package: every intermediate and final Profile Creator response contains only decoded `assistantResponse` text with real line breaks and no visible JSON envelope; only the final structured result can author the Draft, while Russian language and Studio pane resizing remain working (completion: user-acceptance; scope: user workflow; expected commit: none).
+### Stream: Kimi CLI 2.4.1 Commit Gate Repair (added 2026-11-02)
+
+Plan repair, user-approved on 2026-11-02: the user confirmed the Phase 20
+package, but the acceptance commit was blocked by the pre-commit suite. The
+Kimi native runtime test copies the real `~/.kimi-code/config.toml`; since the
+Kimi CLI config migration of 2026-09-09 its `[thinking]` section carries only
+`enabled = true` (effort moved to per-model `default_effort`), so Harness reads
+no configured effort, sends ACP `thinking=on` and Kimi CLI 2.4.1 then resolves
+the model default effort instead of the Harness-selected level. This repair
+runs before the acceptance record; the acceptance row moved below unchanged.
+
+119. [DONE] `harness-ai.phase20.stream3.task1` Keep the Harness-owned Kimi thinking effort with the migrated Kimi CLI 2.4.1 config: when the workspace-home `[thinking]` section exists without `effort`, write the default effort into it so the runtime never sends ACP `thinking=on`, and make the native runtime test hermetic through a fixture Kimi config dir instead of the real `~/.kimi-code` (scope: up to 2 production functional files — Kimi workspace home and native session runtime — plus focused tests, kimi-native-session module doc and related provider docs; expected commit: `fix: keep kimi thinking effort with new cli config`). Result: Completed in commit `fix: keep kimi thinking effort with new cli config`.
+120. [DONE] Git Commit: `fix: keep kimi thinking effort with new cli config` (hash: self)
+
+### Stream: Phase 20 User Acceptance
+
+121. [IN_PROGRESS] `harness-ai.phase20.stream2.task2` User retests the rebuilt package: every intermediate and final Profile Creator response contains only decoded `assistantResponse` text with real line breaks and no visible JSON envelope; only the final structured result can author the Draft, while Russian language and Studio pane resizing remain working (completion: user-acceptance; scope: user workflow; expected commit: none).
+
+## Phase 21 - Live Kimi Model Catalog (owner: Claude + User, updated: 2026-11-02)
+
+User request (2026-11-02): new Kimi models (K3.1) must appear without code
+edits — discover them interactively when possible. Verified live on
+2026-11-02: `GET https://api.kimi.com/coding/v1/models` returns every Coding
+Plan model with `display_name`, `context_length` and `think_efforts`
+(`kimi-for-coding` = K2.8 Preview 1M, `kimi-for-coding-highspeed` = K2.7
+262K, `k3` 1M, `k3-256k` 262K, `k3.1-pro` 1M, `k3.1-pro-highspeed` 1M), while
+Kimi CLI 2.4.1 accepts only model ids declared in its `config.toml`.
+
+### Stream: Core-Owned Live Catalog
+
+122. [TODO] `harness-ai.phase21.stream1.task1` Make the Kimi model catalog Core-owned and live: parse full `/coding/v1/models` rows (id, display name, context window, supported and default thinking efforts), persist the last successful catalog under the Harness product home, serve it through the provider-descriptor facade with a refreshed verified fallback list, and refresh it on Core start (scope: up to 3 production functional files — Kimi model catalog, provider descriptor facade and Core start wiring — plus focused tests and related provider/Core docs; expected commit: `feat: discover kimi models from live catalog`).
+123. [TODO] Git Commit: `feat: discover kimi models from live catalog` (hash: TBD)
+124. [TODO] `harness-ai.phase21.stream1.task2` Declare every live catalog model in the Kimi workspace-home CLI config with its live context window and efforts, so native sessions can select newly discovered models (scope: up to 2 production functional files — Kimi workspace home and its caller — plus focused tests and kimi-native-session docs; expected commit: `feat: configure live kimi models in workspace home`).
+125. [TODO] Git Commit: `feat: configure live kimi models in workspace home` (hash: TBD)
+
+### Stream: Settings Surfaces
+
+126. [TODO] `harness-ai.phase21.stream2.task1` Make Core settings normalization and the Kimi settings tab use the live catalog: model ids and per-model thinking efforts come from Core, and the renderer reads them through a Core RPC instead of a static import (scope: up to 3 production functional files — settings normalization, Core settings RPC and Kimi settings model options — plus focused tests and related settings docs; expected commit: `feat: show live kimi models in settings`).
+127. [TODO] Git Commit: `feat: show live kimi models in settings` (hash: TBD)
+
+### Stream: Rebuilt Acceptance Package
+
+128. [TODO] `harness-ai.phase21.stream3.task1` Build the user-authorized unsigned macOS package, verify the live Kimi catalog in `app.asar`, launch it and record package identity plus focused retest steps in new package evidence (scope: `docs/evidence/kimi-live-model-catalog-package-2026-11-02.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package live kimi model catalog`).
+129. [TODO] Git Commit: `docs: package live kimi model catalog` (hash: TBD)
+130. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi settings tab lists the live Coding Plan models including K3.1 Pro, a native Kimi session starts on a newly discovered model and the selected thinking effort is applied (completion: user-acceptance; scope: user workflow; expected commit: none).

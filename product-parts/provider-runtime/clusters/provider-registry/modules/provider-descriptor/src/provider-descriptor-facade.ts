@@ -122,6 +122,41 @@ export function kimiClientModelContextLength(model: string): number {
   );
 }
 
+// Verified Claude catalog: the `supportedModels()` rows (minus the
+// `default` alias) the Harness-installed Claude Agent SDK 0.3.207 returned on
+// 2026-11-02. It is only the offline fallback — Core replaces it with the
+// live catalog through `setClaudeModels` (claude-provider
+// `claude-model-catalog`). Ids are the values the SDK accepts as `model`.
+const CLAUDE_EFFORTS = ["low", "medium", "high", "xhigh", "max"] as const;
+export const CLAUDE_MODELS: readonly ProviderModelDescriptor[] = [
+  {
+    description: "Opus 4.8 with 1M context · Best for everyday, complex tasks",
+    id: "opus[1m]",
+    label: "Opus",
+    reasoningEfforts: CLAUDE_EFFORTS,
+  },
+  {
+    description:
+      "Fable 5 · Most capable for your hardest and longest-running tasks",
+    id: "claude-fable-5[1m]",
+    label: "Fable",
+    reasoningEfforts: CLAUDE_EFFORTS,
+  },
+  {
+    description: "Sonnet 5 · Efficient for routine tasks",
+    id: "sonnet",
+    label: "Sonnet",
+    reasoningEfforts: CLAUDE_EFFORTS,
+  },
+  {
+    description: "Haiku 4.5 · Fastest for quick answers",
+    id: "haiku",
+    label: "Haiku",
+  },
+];
+
+let claudeModels: readonly ProviderModelDescriptor[] = CLAUDE_MODELS;
+
 // Verified Codex catalog: the visible rows the app-server `model/list`
 // request returned on 2026-11-02 (codex-cli 0.166.0). It is only the offline
 // fallback — Core replaces it with the live catalog through `setCodexModels`
@@ -214,8 +249,6 @@ const CLIENT_PROVIDER_MODELS: Readonly<
 // per model. Ids mirror the provider model catalog. Capture covers the two
 // native vendor channels. The ACP Kimi capture channel left with the
 // kimi-provider retirement (2026-07-05).
-const BASE_REASONING_EFFORTS = ["low", "medium", "high", "xhigh"] as const;
-const REASONING_EFFORTS_WITH_MAX = [...BASE_REASONING_EFFORTS, "max"] as const;
 const REASONING_LABELS: Readonly<Record<NativeCaptureReasoningEffort, string>> =
   {
     low: "Low",
@@ -246,17 +279,30 @@ const capturableModel = (
   })),
 });
 
-const CAPTURABLE_MODELS: Readonly<Record<string, readonly CapturableModel[]>> =
-  {
-    // Claude Code 2.1.207 exposes these five values through the interactive
-    // CLI's --effort flag for every captured alias. `ultracode` is a separate
-    // session orchestration setting, not a reasoning-effort value.
-    claude: [
-      capturableModel("sonnet", "Sonnet", REASONING_EFFORTS_WITH_MAX),
-      capturableModel("opus", "Opus", REASONING_EFFORTS_WITH_MAX),
-      capturableModel("haiku", "Haiku", REASONING_EFFORTS_WITH_MAX),
-    ],
-  };
+// Capture providers in UI order; each capture catalog follows that
+// provider's served live model catalog.
+const CAPTURE_PROVIDER_IDS = ["claude", "codex", "kimi"] as const;
+
+// A live catalog model as a capture choice: its own effort list (limited to
+// the capture effort values) and default effort, `medium` when the catalog
+// declares none in the list.
+const capturableFromCatalog = (
+  model: ProviderModelDescriptor
+): CapturableModel => {
+  const efforts = (model.reasoningEfforts ?? []).filter(
+    isNativeCaptureReasoningEffort
+  );
+  const fallbackDefault = efforts.includes("medium") ? "medium" : null;
+  return capturableModel(
+    model.id,
+    model.label,
+    efforts,
+    isNativeCaptureReasoningEffort(model.defaultReasoningEffort) &&
+      efforts.includes(model.defaultReasoningEffort)
+      ? model.defaultReasoningEffort
+      : fallbackDefault
+  );
+};
 
 const HTTP_COMPATIBLE_PROVIDER_IDS = new Set([
   // Universal-client endpoint: key-only auth from Core settings, no provider home.
@@ -277,24 +323,14 @@ export class ProviderDescriptorFacade {
   }
 
   getCapturableModels(providerId: string): readonly CapturableModel[] {
+    // Claude interactive CLI `--effort` and Codex app-server capture follow
+    // the served live catalogs. Claude `ultracode` is a separate session
+    // orchestration setting, not a capture effort value.
+    if (providerId === "claude") {
+      return claudeModels.map(capturableFromCatalog);
+    }
     if (providerId === "codex") {
-      // Codex app-server capture follows the served live catalog order and
-      // each model's own effort list and default.
-      return codexModels.map((model) => {
-        const efforts = (model.reasoningEfforts ?? []).filter(
-          isNativeCaptureReasoningEffort
-        );
-        const fallbackDefault = efforts.includes("medium") ? "medium" : null;
-        return capturableModel(
-          model.id,
-          model.label,
-          efforts,
-          isNativeCaptureReasoningEffort(model.defaultReasoningEffort) &&
-            efforts.includes(model.defaultReasoningEffort)
-            ? model.defaultReasoningEffort
-            : fallbackDefault
-        );
-      });
+      return codexModels.map(capturableFromCatalog);
     }
     if (providerId === "kimi") {
       // Kimi capture follows the served Coding Plan catalog. Capture
@@ -304,7 +340,7 @@ export class ProviderDescriptorFacade {
         capturableModel(model.id, model.label, [], null)
       );
     }
-    return CAPTURABLE_MODELS[providerId] ?? [];
+    return [];
   }
 
   getCapturableModel(
@@ -319,7 +355,7 @@ export class ProviderDescriptorFacade {
   }
 
   getCaptureProviderIds(): readonly string[] {
-    return [...Object.keys(CAPTURABLE_MODELS), "codex", "kimi"];
+    return CAPTURE_PROVIDER_IDS;
   }
 
   getClientModels(providerId: string): readonly ProviderModelDescriptor[] {
@@ -327,6 +363,17 @@ export class ProviderDescriptorFacade {
       return kimiClientModels;
     }
     return CLIENT_PROVIDER_MODELS[providerId] ?? [];
+  }
+
+  getClaudeModels(): readonly ProviderModelDescriptor[] {
+    return claudeModels;
+  }
+
+  // Applies the persisted or live Claude catalog; an empty list is ignored.
+  setClaudeModels(models: readonly ProviderModelDescriptor[]): void {
+    if (models.length > 0) {
+      claudeModels = models;
+    }
   }
 
   getCodexModels(): readonly ProviderModelDescriptor[] {

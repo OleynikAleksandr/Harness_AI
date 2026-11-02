@@ -204,6 +204,30 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   onto `~/.harness-ai/providers/claude/home` while sessions live in the
   workspace-local provider home.
 
+## Live Model Catalog
+
+- `claude-model-catalog.ts` (verified 2026-11-02 on Claude Agent SDK
+  0.3.207): `refreshClaudeModelCatalog` imports the Harness-installed SDK
+  (`<HARNESS_AI_HOME or ~/.harness-ai>/providers/claude/sdk/.../sdk.mjs`),
+  opens one idle `query` (no prompt is ever sent) with the provider auth
+  environment (`HOME` -> `<harness home>/providers/claude/home`,
+  `CLAUDE_USE_CLI_AUTH`, `CLAUDE_SUBSCRIPTION_MODE`, `ANTHROPIC_API_KEY` and
+  `CLAUDECODE` stripped, the SDK's own platform executable, no setting
+  sources), reads `supportedModels()` within 30 seconds and closes the
+  query. Every row except the `default` alias becomes a
+  `ProviderModelDescriptor`: `id` from `value` (the id the SDK accepts as
+  `model`, e.g. `opus[1m]`, `claude-fable-5[1m]`, `sonnet`, `haiku`),
+  `label` from `displayName`, `description`, and `reasoningEfforts` from
+  `supportedEffortLevels` (Haiku has none). A successful read replaces the
+  catalog served through `providerDescriptorFacade.setClaudeModels` and is
+  persisted in the SDK row shape to
+  `<HARNESS_AI_HOME or ~/.harness-ai>/providers/claude/model-catalog.json`;
+  the persisted file is applied synchronously once per process before the
+  first live read, a successful read is memoized for 15 minutes, and a
+  failed read (SDK not installed, auth missing, timeout) keeps the served
+  catalog. Core calls it first in `CoreRuntimeApi.initialize()`; the facade
+  re-exports `refreshClaudeModelCatalog`.
+
 ## Owned Paths
 
 - `module.md`

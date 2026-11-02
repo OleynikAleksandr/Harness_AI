@@ -35,14 +35,26 @@ Own model/reasoning capabilities and UI metadata for providers.
   Codex app-server capture catalog follows the served live Codex catalog
   (see below): its order, each model's own effort list (limited to the
   capture effort values) and its default effort (`medium` when the default
-  is outside the list). The Claude interactive capture catalog exposes the
-  native CLI `--effort` values `low/medium/high/xhigh/max` for Sonnet, Opus,
-  and Haiku. Claude `ultracode` is intentionally absent because it is a
-  separate session-orchestration setting, not an effort value.
+  is outside the list). The Claude interactive capture catalog follows the
+  served live Claude catalog the same way (CLI `--effort` values from each
+  model's `supportedEffortLevels`; Haiku has none). Claude `ultracode` is
+  intentionally absent because it is a separate session-orchestration
+  setting, not an effort value.
   Kimi follows the served Kimi catalog (see below) and exposes an
   empty reasoning list with `defaultReasoningEffort: null` because capture
   preserves the provider default effort; `getCaptureProviderIds()` lists
   `claude`, `codex`, `kimi`.
+- Live Claude model catalog: `getClaudeModels()` returns the served list
+  and `setClaudeModels(models)` replaces it (an empty list is ignored); the
+  `claude-provider` live catalog reader applies the persisted and then the
+  live SDK `supportedModels()` catalog. `CLAUDE_MODELS` is the verified
+  offline fallback — the 2026-11-02 rows of the Harness-installed SDK
+  0.3.207: `opus[1m]` (Opus 4.8, 1M context), `claude-fable-5[1m]`
+  (Fable 5), `sonnet` (Sonnet 5), each with efforts
+  `low/medium/high/xhigh/max`, and `haiku` (Haiku 4.5, no efforts). Capture
+  and Profile Studio Claude targets therefore use these ids (`opus[1m]`
+  instead of the former `opus` alias). Settings normalization and the
+  Settings UI still use their own static Claude alias list.
 - Live Codex model catalog: `getCodexModels()` returns the served list and
   `setCodexModels(models)` replaces it (an empty list is ignored); the
   `codex-provider` live catalog reader applies the persisted and then the

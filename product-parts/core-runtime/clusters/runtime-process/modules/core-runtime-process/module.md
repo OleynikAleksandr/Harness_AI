@@ -147,8 +147,9 @@ state.
   their adapters register at startup and RPC provider-id validation accepts
   them. Kimi resolves the immutable Core session model from per-turn options
   (an id of the served Kimi catalog); `CoreRuntimeApi.initialize()` first
-  calls `refreshKimiModelCatalog()` (kimi-client-provider facade) and
-  `refreshCodexModelCatalog()` (codex-provider facade) so each persisted
+  calls `refreshKimiModelCatalog()` (kimi-client-provider facade),
+  `refreshCodexModelCatalog()` (codex-provider facade) and
+  `refreshClaudeModelCatalog()` (claude-provider facade) so each persisted
   live model catalog applies synchronously before settings and adapters
   read it and the live refreshes finish in the background; GLM resolves its selected model and reasoning
   effort from Core settings per turn while the adapter pins only the GLM

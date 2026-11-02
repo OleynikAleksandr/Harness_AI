@@ -2,6 +2,9 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { readClaudeUsageLimitsPayload } from "./claude-usage-limits-reader.js";
+
+export { refreshClaudeModelCatalog } from "./claude-model-catalog.js";
+
 import { ensureClaudeProviderHomeAuthFiles } from "./reference/auth/claude-auth-home-bridge.js";
 import {
   ClaudeProviderAdapter,

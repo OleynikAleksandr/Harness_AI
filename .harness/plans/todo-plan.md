@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream4.task2",
-  "expectedCommitMessage": "feat: discover claude models from sdk",
+  "currentTaskId": "harness-ai.phase21.stream2.task1",
+  "expectedCommitMessage": "feat: show live provider models in settings",
   "debt": null
 }
 ```
@@ -406,12 +406,12 @@ Codex app-server 0.166.0 `model/list` returns every model with `displayName`,
 
 126. [DONE] `harness-ai.phase21.stream4.task1` Make the Codex model catalog Core-owned and live: read visible models from the Codex app-server `model/list` through the Harness Codex provider home, persist the last successful catalog under the Harness product home, serve it through the provider-descriptor facade (capture and Profile Studio follow it) with a refreshed verified fallback, and refresh it on Core start (scope: up to 3 production functional files — new Codex model catalog reader, provider descriptor facade and Core start wiring — plus the codex-provider facade re-export and its catalog-based default-model fallback (was the retired `gpt-5.4-mini`), focused tests and related provider/Core docs; expected commit: `feat: discover codex models from app-server`). Result: Completed in commit `feat: discover codex models from app-server`.
 127. [DONE] Git Commit: `feat: discover codex models from app-server` (hash: self)
-128. [IN_PROGRESS] `harness-ai.phase21.stream4.task2` Make the Claude model catalog Core-owned and live: read `supportedModels()` from the Harness Claude Agent SDK, persist and serve it through the provider-descriptor facade (Fable included; Opus keeps the Harness `ultracode` session-orchestration option) with a refreshed verified fallback, and refresh it on Core start (scope: up to 3 production functional files — new Claude model catalog reader, provider descriptor facade and Core start wiring — plus the claude-provider facade re-export, focused tests and related provider/Core docs; expected commit: `feat: discover claude models from sdk`).
-129. [TODO] Git Commit: `feat: discover claude models from sdk` (hash: TBD)
+128. [DONE] `harness-ai.phase21.stream4.task2` Make the Claude model catalog Core-owned and live: read `supportedModels()` from the Harness Claude Agent SDK, persist and serve it through the provider-descriptor facade (Fable included; Opus keeps the Harness `ultracode` session-orchestration option) with a refreshed verified fallback, and refresh it on Core start (scope: up to 3 production functional files — new Claude model catalog reader, provider descriptor facade and Core start wiring — plus the claude-provider facade re-export, focused tests and related provider/Core docs; expected commit: `feat: discover claude models from sdk`). Result: Completed in commit `feat: discover claude models from sdk`.
+129. [DONE] Git Commit: `feat: discover claude models from sdk` (hash: self)
 
 ### Stream: Settings Surfaces
 
-130. [TODO] `harness-ai.phase21.stream2.task1` Make Core settings normalization and the Claude, Codex and Kimi settings tabs use the served live catalogs: model ids, labels, descriptions and per-model reasoning efforts come from Core through a `list-provider-model-catalogs` RPC instead of static renderer imports, and saved legacy ids normalize onto the served catalog (scope: settings normalization, Core RPC/bridge/preload wiring and the Claude/Codex/Kimi settings cards, plus focused tests and related settings docs; expected commit: `feat: show live provider models in settings`).
+130. [IN_PROGRESS] `harness-ai.phase21.stream2.task1` Make Core settings normalization and the Claude, Codex and Kimi settings tabs use the served live catalogs: model ids, labels, descriptions and per-model reasoning efforts come from Core through a `list-provider-model-catalogs` RPC instead of static renderer imports, and saved legacy ids normalize onto the served catalog (scope: settings normalization, Core RPC/bridge/preload wiring and the Claude/Codex/Kimi settings cards, plus focused tests and related settings docs; expected commit: `feat: show live provider models in settings`).
 131. [TODO] Git Commit: `feat: show live provider models in settings` (hash: TBD)
 
 ### Stream: Rebuilt Acceptance Package

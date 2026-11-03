@@ -24,6 +24,8 @@ type CodexModelPageReader = ((cursor: string | null) => Promise<unknown>) & {
 
 interface CodexModelCatalogOverrides {
   readonly catalogPath?: string;
+  // Re-read even inside the TTL (after the Codex CLI was updated).
+  readonly force?: boolean;
   readonly listModels?: CodexModelPageReader;
   readonly now?: number;
 }
@@ -106,7 +108,8 @@ export async function fetchCodexModelCatalog(
 // the app-server when the previous successful read is older than the TTL.
 // A successful read is applied to the provider descriptor and persisted; a
 // failed one keeps the served catalog and retries on the next call. Core
-// calls this on start.
+// calls this on start, and with `force` right after a Codex CLI update: the
+// models `model/list` returns come from the installed CLI.
 export async function refreshCodexModelCatalog(
   overrides: CodexModelCatalogOverrides = {}
 ): Promise<readonly ProviderModelDescriptor[]> {
@@ -117,7 +120,7 @@ export async function refreshCodexModelCatalog(
     providerDescriptorFacade.setCodexModels(readPersistedCatalog(catalogPath));
   }
   const now = overrides.now ?? Date.now();
-  if (liveExpiresAt > now) {
+  if (!overrides.force && liveExpiresAt > now) {
     return providerDescriptorFacade.getCodexModels();
   }
   const live = await fetchCodexModelCatalog(overrides);

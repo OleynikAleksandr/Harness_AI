@@ -109,8 +109,10 @@ the shared process.
   `<HARNESS_AI_HOME or ~/.harness-ai>/providers/codex/model-catalog.json`;
   the persisted file is applied synchronously once per process before the
   first live read, a successful read is memoized for 15 minutes, and a
-  failed read keeps the served catalog. Core calls it first in
-  `CoreRuntimeApi.initialize()`; the facade re-exports
+  failed read keeps the served catalog. `refreshCodexModelCatalog({ force:
+  true })` re-reads inside the TTL; Core uses it right after a Codex CLI
+  update, because the rows come from the installed CLI. Core calls it first
+  in `CoreRuntimeApi.initialize()`; the facade re-exports
   `refreshCodexModelCatalog`. Legacy facade callers without a model start
   on the first served catalog model (previously the retired `gpt-5.4-mini`).
 - Codex app-server `thread/tokenUsage/updated` events preserve the

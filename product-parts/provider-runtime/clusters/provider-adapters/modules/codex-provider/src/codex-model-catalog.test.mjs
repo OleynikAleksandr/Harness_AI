@@ -239,9 +239,31 @@ try {
   });
   assert.deepEqual(providerDescriptorFacade.getCodexModels(), liveModels);
 
+  // `force` re-reads inside the TTL (right after a Codex CLI update).
+  const forcedAt = 1000 + 17 * 60 * 1000;
+  await refreshCodexModelCatalog({
+    catalogPath,
+    listModels: countingReader,
+    now: forcedAt,
+  });
+  const readsBeforeForce = reads;
+  await refreshCodexModelCatalog({
+    catalogPath,
+    listModels: countingReader,
+    now: forcedAt + 1000,
+  });
+  assert.equal(reads, readsBeforeForce);
+  await refreshCodexModelCatalog({
+    catalogPath,
+    force: true,
+    listModels: countingReader,
+    now: forcedAt + 2000,
+  });
+  assert.ok(reads > readsBeforeForce);
+
   // The persisted catalog round-trips: an offline restart serves it.
   const persisted = JSON.parse(readFileSync(catalogPath, "utf8"));
-  assert.equal(persisted.fetchedAt, new Date(1000).toISOString());
+  assert.equal(persisted.fetchedAt, new Date(forcedAt + 2000).toISOString());
   providerDescriptorFacade.setCodexModels(CODEX_MODELS);
   const restartPath = path.join(buildDir, "restart", "model-catalog.json");
   await mkdir(path.dirname(restartPath), { recursive: true });

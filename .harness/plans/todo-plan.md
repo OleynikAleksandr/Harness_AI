@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream3.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase21.stream6.task2",
+  "expectedCommitMessage": "feat: update harness and global provider installs",
   "debt": null
 }
 ```
@@ -451,6 +451,25 @@ returned a reduced list. The user chose to show only the four aliases.
 140. [DONE] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`). Result: Completed in commit `docs: package claude sdk freshness`.
 141. [DONE] Git Commit: `docs: package claude sdk freshness` (hash: self)
 
+### Stream: Harness And Global Provider Updates (added 2026-11-03)
+
+User request 2026-11-03: Harness keeps its own Claude SDK current, and the
+same update also refreshes the global installs for Claude and Codex.
+Verified: Claude has three installs — the Harness SDK copy sessions use
+(`~/.harness-ai/providers/claude/sdk`), the global npm SDK
+(`~/.npm-global`, 0.3.316) and the native `claude` CLI; Codex has no Harness
+copy — sessions spawn the global `codex` CLI (0.166.0), whose `model/list`
+feeds the live Codex catalog, and the Codex SDK row is the global
+`@openai/codex-sdk`. The auto-update toggles promise "update the CLI and SDK
+when the Core starts" but only Claude's SDK half is wired.
+
+142. [DONE] `harness-ai.phase21.stream6.task1` Let the Codex model catalog re-read inside its TTL: `refreshCodexModelCatalog({ force: true })`, used right after a Codex CLI update (scope: codex-provider `codex-model-catalog.ts`, plus focused tests and codex-provider docs; expected commit: `feat: force codex model catalog refresh`). Result: Completed in commit `feat: force codex model catalog refresh`.
+143. [DONE] Git Commit: `feat: force codex model catalog refresh` (hash: self)
+144. [IN_PROGRESS] `harness-ai.phase21.stream6.task2` One Core update route per provider target for the Settings buttons and the auto-update toggles: the Claude SDK target updates the Harness SDK and the global npm SDK and re-reads the Claude catalog, the Codex CLI target runs `codex update` and re-reads the Codex catalog, and on Core start the Claude and Codex toggles update every outdated CLI/SDK install (scope: core-runtime-process `core-provider-tools.ts`, `core-claude-sdk-updates.ts`, `core-runtime-api.ts`, plus focused tests and core-runtime-process/settings docs; expected commit: `feat: update harness and global provider installs`).
+145. [TODO] Git Commit: `feat: update harness and global provider installs` (hash: TBD)
+146. [TODO] `harness-ai.phase21.stream3.task4` Build the user-authorized unsigned macOS package, verify the combined update route against the real Claude and Codex installs, launch it and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package provider install updates`).
+147. [TODO] Git Commit: `docs: package provider install updates` (hash: TBD)
+
 ### Stream: Phase 21 User Acceptance
 
-142. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+148. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

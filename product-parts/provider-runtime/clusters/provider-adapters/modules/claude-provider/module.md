@@ -207,8 +207,9 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 ## Live Model Catalog
 
 - `claude-model-catalog.ts` (verified 2026-11-03 on Claude Agent SDK
-  0.3.317 in the packaged app): `refreshClaudeModelCatalog` imports the Harness-installed SDK
-  (`<HARNESS_AI_HOME or ~/.harness-ai>/providers/claude/sdk/.../sdk.mjs`),
+  0.3.317 in the packaged app): `refreshClaudeModelCatalog` imports the global npm Claude Agent SDK the
+  sessions use (`<npm prefix -g>/lib/node_modules/@anthropic-ai/
+  claude-agent-sdk/sdk.mjs`),
   opens one idle `query` (no prompt is ever sent) with the provider auth
   environment (`HOME` -> `<harness home>/providers/claude/home`,
   `CLAUDE_USE_CLI_AUTH`, `CLAUDE_SUBSCRIPTION_MODE`, `ANTHROPIC_API_KEY` and
@@ -228,7 +229,7 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   first live read, a successful read is memoized for 15 minutes, and a
   failed read (SDK not installed, auth missing, timeout) keeps the served
   catalog. `refreshClaudeModelCatalog({ force: true })` re-reads inside the
-  TTL; Core uses it right after the Harness SDK was updated so the new SDK's
+  TTL; Core uses it right after the Claude SDK was updated so the new SDK's
   descriptions replace the memoized ones. Core calls it first in
   `CoreRuntimeApi.initialize()`; the facade re-exports
   `refreshClaudeModelCatalog`.
@@ -243,22 +244,30 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   variables) and gets a reduced list; the packaged app's clean environment
   gets the full one.
 
-## Harness SDK Updates
+## Claude SDK Install
 
-- `claude-sdk-updates.ts` owns the Harness SDK copy the sessions and the
-  catalog run on: `harnessClaudeSdkPrefix()`
-  (`<HARNESS_AI_HOME or ~/.harness-ai>/providers/claude/sdk`),
-  `harnessClaudeSdkDirectory()` (`<prefix>/lib/node_modules/@anthropic-ai/
-  claude-agent-sdk`, no `lib` on Windows), `readHarnessClaudeSdkVersion()`
-  (the installed `package.json` version, `null` when absent) and
-  `updateHarnessClaudeSdk()` (`npm install -g
-  @anthropic-ai/claude-agent-sdk@latest --force` with `NPM_CONFIG_PREFIX` set
-  to the Harness prefix — the same route the session installer uses for the
-  first install — returning the version now on disk; npm errors propagate).
-  The facade re-exports `readHarnessClaudeSdkVersion` and
-  `updateHarnessClaudeSdk`; Core routes the Settings SDK version row, its
-  update button and the Claude auto-update through them (the same update
-  also refreshes the user's global npm SDK).
+- Claude runs like Codex (user decision 2026-11-03): one shared install of
+  the program, session data in the Harness provider homes. Sessions keep
+  `HOME` = `<workspace>/.harness/runtime/providers/claude/home` (projects,
+  history, auth bridge), while the program is the user's global npm Claude
+  Agent SDK and its bundled platform binary; the former Harness-private copy
+  under `~/.harness-ai/providers/claude/sdk` is no longer used.
+- `claude-sdk-updates.ts` owns that install: `claudeSdkPrefix()` resolves
+  `npm prefix -g` once per process (it honours the user's `.npmrc` and
+  `npm_config_prefix`; the GUI PATH gets the Homebrew/system npm locations
+  added) and falls back to the former Harness prefix only when npm cannot
+  answer; `claudeSdkDirectory()` is `<prefix>/lib/node_modules/@anthropic-ai/
+  claude-agent-sdk` (no `lib` on Windows); `readClaudeSdkVersion()` reads the
+  installed `package.json` version (`null` when absent); `updateClaudeSdk()`
+  runs `npm install -g @anthropic-ai/claude-agent-sdk@latest --force` with
+  that prefix pinned and returns the version now on disk (npm errors
+  propagate).
+- `ClaudeProviderFacade` passes `claudeSdkDirectory()` as the session
+  installer path, so `SDKInstaller.ensureInstalled()` finds the global SDK
+  (`npm list -g`) or, when it is missing, installs it globally; the live
+  catalog reader imports the same SDK. The facade re-exports
+  `readClaudeSdkVersion` and `updateClaudeSdk`; Core routes the Settings SDK
+  version row, its update button and the Claude auto-update through them.
 
 ## Owned Paths
 

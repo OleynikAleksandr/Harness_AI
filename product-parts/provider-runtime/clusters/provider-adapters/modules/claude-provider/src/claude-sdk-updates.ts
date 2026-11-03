@@ -1,17 +1,26 @@
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { runNpmCommand } from "./reference/installer/npm-runner.js";
 
-// The Claude Agent SDK Harness sessions and the live model catalog run on is
-// installed once into the Harness provider prefix
-// (`~/.harness-ai/providers/claude/sdk`), not into the global npm prefix. Its
-// bundled CLI decides which models the `opus`/`sonnet`/`haiku` aliases mean
-// and the `supportedModels()` descriptions, so keeping model labels current
-// means updating this copy in place.
+// Claude runs like Codex (user decision 2026-11-03): sessions and the live
+// model catalog use the user's global npm Claude Agent SDK (`npm prefix -g`),
+// one shared install updated once, while session data stays in the Harness
+// provider homes. The SDK's bundled CLI decides what the `opus`/`fable`/
+// `sonnet`/`haiku` aliases mean and the `supportedModels()` labels, so
+// keeping model labels current means updating this install.
 
 const PACKAGE_NAME = "@anthropic-ai/claude-agent-sdk";
+const NPM_EXECUTABLE = process.platform === "win32" ? "npm.cmd" : "npm";
+const NPM_PREFIX_TIMEOUT_MS = 15_000;
+// macOS GUI apps start without the shell PATH; same candidates as the npm
+// runner.
+const GUI_NPM_PATHS =
+  process.platform === "darwin"
+    ? ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin"]
+    : [];
 
 type NpmRunner = (
   args: readonly string[],
@@ -23,17 +32,21 @@ interface ClaudeSdkUpdateOverrides {
   readonly runNpm?: NpmRunner;
 }
 
-export function harnessClaudeSdkPrefix(): string {
-  const home =
-    process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai");
-  return path.join(home, "providers", "claude", "sdk");
+let resolvedPrefix: string | null = null;
+
+// The global npm prefix (`npm prefix -g`, honouring the user's `.npmrc` and
+// `npm_config_prefix`), resolved once per process. When npm cannot answer,
+// the former Harness-private prefix keeps Claude working.
+export function claudeSdkPrefix(): string {
+  if (resolvedPrefix === null) {
+    resolvedPrefix = readGlobalNpmPrefix() ?? legacyHarnessPrefix();
+  }
+  return resolvedPrefix;
 }
 
 // `<prefix>/lib/node_modules/@anthropic-ai/claude-agent-sdk` (no `lib` on
-// Windows), matching where the session installer puts the package.
-export function harnessClaudeSdkDirectory(
-  prefix: string = harnessClaudeSdkPrefix()
-): string {
+// Windows), where `npm install -g` puts the package.
+export function claudeSdkDirectory(prefix: string = claudeSdkPrefix()): string {
   return path.join(
     prefix,
     ...(process.platform === "win32" ? [] : ["lib"]),
@@ -43,13 +56,13 @@ export function harnessClaudeSdkDirectory(
   );
 }
 
-export function readHarnessClaudeSdkVersion(
-  prefix: string = harnessClaudeSdkPrefix()
+export function readClaudeSdkVersion(
+  prefix: string = claudeSdkPrefix()
 ): string | null {
   try {
     const manifest: unknown = JSON.parse(
       readFileSync(
-        path.join(harnessClaudeSdkDirectory(prefix), "package.json"),
+        path.join(claudeSdkDirectory(prefix), "package.json"),
         "utf8"
       )
     );
@@ -65,14 +78,14 @@ export function readHarnessClaudeSdkVersion(
   }
 }
 
-// Installs the latest published SDK into the Harness prefix (the same
-// `npm install -g` with a prefix override the session installer uses) and
-// returns the installed version. Errors propagate to the caller.
-export async function updateHarnessClaudeSdk(
+// Installs the latest published SDK into that prefix (`npm install -g` with
+// the prefix pinned, the route the session installer uses for a first
+// install) and returns the installed version. Errors propagate.
+export async function updateClaudeSdk(
   overrides: ClaudeSdkUpdateOverrides = {}
 ): Promise<string | null> {
-  const prefix = overrides.prefix ?? harnessClaudeSdkPrefix();
-  await mkdir(path.join(prefix, "lib", "node_modules"), { recursive: true });
+  const prefix = overrides.prefix ?? claudeSdkPrefix();
+  await mkdir(path.dirname(claudeSdkDirectory(prefix)), { recursive: true });
   const env = {
     ...process.env,
     NPM_CONFIG_PREFIX: prefix,
@@ -82,15 +95,41 @@ export async function updateHarnessClaudeSdk(
     ["install", "-g", `${PACKAGE_NAME}@latest`, "--force"],
     env
   );
-  return readHarnessClaudeSdkVersion(prefix);
+  return readClaudeSdkVersion(prefix);
+}
+
+function readGlobalNpmPrefix(): string | null {
+  try {
+    const pathEntries = (process.env.PATH ?? "")
+      .split(path.delimiter)
+      .filter(Boolean);
+    const prefix = execFileSync(NPM_EXECUTABLE, ["prefix", "-g"], {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: [...new Set([...pathEntries, ...GUI_NPM_PATHS])].join(
+          path.delimiter
+        ),
+      },
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: NPM_PREFIX_TIMEOUT_MS,
+      windowsHide: true,
+    }).trim();
+    return prefix.length > 0 ? prefix : null;
+  } catch {
+    return null;
+  }
+}
+
+function legacyHarnessPrefix(): string {
+  const home =
+    process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai");
+  return path.join(home, "providers", "claude", "sdk");
 }
 
 function runNpm(
   args: readonly string[],
   env: NodeJS.ProcessEnv
 ): Promise<unknown> {
-  return runNpmCommand(args, {
-    env,
-    npmExecutable: process.platform === "win32" ? "npm.cmd" : "npm",
-  });
+  return runNpmCommand(args, { env, npmExecutable: NPM_EXECUTABLE });
 }

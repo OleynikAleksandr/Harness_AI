@@ -80,11 +80,11 @@ state.
   installed CLI — Codex has no Harness copy, sessions spawn the global
   `codex`). The Claude SDK target updates both Claude SDK installs — the
   Harness copy the sessions and the live model catalog run on
-  (`updateHarnessClaudeSdk`) and the global npm SDK (`npm install -g`) — and
+  (`updateClaudeSdk`) and the global npm SDK (`npm install -g`) — and
   then re-reads the Claude catalog with `refreshClaudeModelCatalog({ force:
   true })`; one failing install does not skip the other or the refresh. Other
   SDK targets use `npm install -g <pkg>@latest`. The Claude SDK version row
-  reports the Harness copy (`readHarnessClaudeSdkVersion`, latest from the
+  reports the Harness copy (`readClaudeSdkVersion`, latest from the
   npm registry). `core-claude-sdk-updates.ts` owns that policy:
   `updateClaudeSdkInstalls`, `isInstallOutdated` (a published version
   differs from an existing install; missing installs are never installed)

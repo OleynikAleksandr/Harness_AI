@@ -14,6 +14,7 @@ const testSource = [
   'const path = { join: (...parts) => parts.join("/") };',
   'const homedir = () => "/home/test";',
   "const readClaudeUsageLimitsPayload = () => null;",
+  'const claudeSdkDirectory = () => "/npm-global/lib/node_modules/@anthropic-ai/claude-agent-sdk";',
   'const providerHomeManagerFacade = { resolveProviderHome: ({ providerId, workspacePath }) => workspacePath + "/.harness/runtime/providers/" + providerId + "/home" };',
   "const ensureClaudeProviderHomeAuthFiles = async (providerHomePath) => globalThis.__claudeHomeCalls.push(providerHomePath);",
   source,

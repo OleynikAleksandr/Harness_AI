@@ -1,13 +1,11 @@
-import { homedir } from "node:os";
 import path from "node:path";
 import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { readClaudeUsageLimitsPayload } from "./claude-usage-limits-reader.js";
 
 export { refreshClaudeModelCatalog } from "./claude-model-catalog.js";
-export {
-  readHarnessClaudeSdkVersion,
-  updateHarnessClaudeSdk,
-} from "./claude-sdk-updates.js";
+export { readClaudeSdkVersion, updateClaudeSdk } from "./claude-sdk-updates.js";
+
+import { claudeSdkDirectory } from "./claude-sdk-updates.js";
 
 import { ensureClaudeProviderHomeAuthFiles } from "./reference/auth/claude-auth-home-bridge.js";
 import {
@@ -35,39 +33,12 @@ export class ClaudeProviderFacade extends ClaudeProviderAdapter {
     process.env.HARNESS_CLAUDE_HOME = providerHome;
     process.env.CODEAI_CLAUDE_HOME = providerHome;
     super({
+      // The global npm SDK (`npm prefix -g`), shared like the Codex CLI;
+      // session data stays in the Harness provider home above.
       installerPaths: {
-        linux: path.join(
-          homedir(),
-          ".harness-ai",
-          "providers",
-          "claude",
-          "sdk",
-          "lib",
-          "node_modules",
-          "@anthropic-ai",
-          "claude-agent-sdk"
-        ),
-        macOS: path.join(
-          homedir(),
-          ".harness-ai",
-          "providers",
-          "claude",
-          "sdk",
-          "lib",
-          "node_modules",
-          "@anthropic-ai",
-          "claude-agent-sdk"
-        ),
-        windows: path.join(
-          homedir(),
-          ".harness-ai",
-          "providers",
-          "claude",
-          "sdk",
-          "node_modules",
-          "@anthropic-ai",
-          "claude-agent-sdk"
-        ),
+        linux: claudeSdkDirectory(),
+        macOS: claudeSdkDirectory(),
+        windows: claudeSdkDirectory(),
       },
       usageLimitsFacade: claudeUsageLimitsBridge,
       workspace: {

@@ -2,9 +2,9 @@ import { exec } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import {
-  readHarnessClaudeSdkVersion,
+  readClaudeSdkVersion,
   refreshClaudeModelCatalog,
-  updateHarnessClaudeSdk,
+  updateClaudeSdk,
 } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { refreshCodexModelCatalog } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import {
@@ -140,7 +140,7 @@ export async function updateProviderTarget(
     await updateClaudeSdkInstalls({
       refreshCatalog: () => refreshClaudeModelCatalog({ force: true }),
       updateGlobal: () => installLatestGlobalPackage(packageName),
-      updateHarness: () => updateHarnessClaudeSdk(),
+      updateHarness: () => updateClaudeSdk(),
     });
     return;
   }
@@ -189,7 +189,7 @@ async function readProviderInstallStatuses(): Promise<ProviderInstallStatus[]> {
       target: "cli",
     },
     {
-      installedVersions: [readHarnessClaudeSdkVersion(), claudeSdkGlobal],
+      installedVersions: [readClaudeSdkVersion(), claudeSdkGlobal],
       latestVersion: claudeSdkLatest,
       provider: "claude",
       target: "sdk",
@@ -211,7 +211,7 @@ async function readProviderInstallStatuses(): Promise<ProviderInstallStatus[]> {
 
 async function readHarnessClaudeSdkPackageVersion() {
   return {
-    currentVersion: readHarnessClaudeSdkVersion(),
+    currentVersion: readClaudeSdkVersion(),
     latestVersion: await readLatestVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
     packageName: PROVIDER_PACKAGE_MAP.claude.sdk,
   };

@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream3.task4",
-  "expectedCommitMessage": "docs: package provider install updates",
+  "currentTaskId": "harness-ai.phase21.stream7.task2",
+  "expectedCommitMessage": "feat: update the single claude sdk install",
   "debt": null
 }
 ```
@@ -467,9 +467,20 @@ when the Core starts" but only Claude's SDK half is wired.
 143. [DONE] Git Commit: `feat: force codex model catalog refresh` (hash: self)
 144. [DONE] `harness-ai.phase21.stream6.task2` One Core update route per provider target for the Settings buttons and the auto-update toggles: the Claude SDK target updates the Harness SDK and the global npm SDK and re-reads the Claude catalog, the Codex CLI target runs `codex update` and re-reads the Codex catalog, and on Core start the Claude and Codex toggles update every outdated CLI/SDK install (scope: core-runtime-process `core-provider-tools.ts`, `core-claude-sdk-updates.ts`, `core-runtime-api.ts`, plus focused tests and core-runtime-process/settings docs; expected commit: `feat: update harness and global provider installs`). Result: Completed in commit `feat: update harness and global provider installs`.
 145. [DONE] Git Commit: `feat: update harness and global provider installs` (hash: self)
-146. [IN_PROGRESS] `harness-ai.phase21.stream3.task4` Build the user-authorized unsigned macOS package, verify the combined update route against the real Claude and Codex installs, launch it and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package provider install updates`).
-147. [TODO] Git Commit: `docs: package provider install updates` (hash: TBD)
+Decision 2026-11-03 (after the shared update route landed): the user chose
+to run Claude like Codex — one shared install instead of a private Harness
+SDK copy. Sessions keep their Harness provider homes
+(`<workspace>/.harness/runtime/providers/claude/home`); only the program the
+sessions run moves to the global npm Claude Agent SDK (`npm prefix -g`,
+here `~/.npm-global`), so one update serves the terminal-side SDK and Harness.
+
+146. [DONE] `harness-ai.phase21.stream7.task1` Run Claude sessions and the live model catalog on the global npm Claude Agent SDK: resolve the install from `npm prefix -g` (cached; the former Harness prefix only when npm cannot answer), and point the session installer, the catalog reader and the SDK version/update helpers at it (scope: claude-provider `claude-sdk-updates.ts`, `claude-model-catalog.ts`, `claude-provider-facade.ts`, plus focused tests and claude-provider docs; expected commit: `feat: run claude on the global sdk`). Result: Completed in commit `feat: run claude on the global sdk`.
+147. [DONE] Git Commit: `feat: run claude on the global sdk` (hash: self)
+148. [IN_PROGRESS] `harness-ai.phase21.stream7.task2` Treat the Claude SDK as one install in the Core update route and auto-update: the SDK target updates the global SDK once and re-reads the Claude catalog, and the version row and outdated check read that single install (scope: core-runtime-process `core-provider-tools.ts`, `core-claude-sdk-updates.ts`, plus focused tests and core-runtime-process/settings docs; expected commit: `feat: update the single claude sdk install`).
+149. [TODO] Git Commit: `feat: update the single claude sdk install` (hash: TBD)
+150. [TODO] `harness-ai.phase21.stream3.task4` Build the user-authorized unsigned macOS package, verify the combined update route against the real Claude and Codex installs, launch it and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package provider install updates`).
+151. [TODO] Git Commit: `docs: package provider install updates` (hash: TBD)
 
 ### Stream: Phase 21 User Acceptance
 
-148. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+152. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

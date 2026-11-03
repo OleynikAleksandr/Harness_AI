@@ -134,17 +134,14 @@ try {
     toolsSource,
     /updateGlobal: \(\) => installLatestGlobalPackage\(packageName\)/u
   );
-  assert.match(
-    toolsSource,
-    /updateHarness: \(\) => updateHarnessClaudeSdk\(\)/u
-  );
+  assert.match(toolsSource, /updateHarness: \(\) => updateClaudeSdk\(\)/u);
   assert.match(
     toolsSource,
     /provider === "codex"\) \{\s+await refreshCodexModelCatalog\(\{ force: true \}\);/u
   );
   assert.match(
     toolsSource,
-    /installedVersions: \[readHarnessClaudeSdkVersion\(\), claudeSdkGlobal\]/u
+    /installedVersions: \[readClaudeSdkVersion\(\), claudeSdkGlobal\]/u
   );
   assert.match(toolsSource, /readHarnessClaudeSdkPackageVersion\(\)/u);
   assert.match(

@@ -28,24 +28,24 @@ try {
     ),
     "utf8"
   );
-  process.env.HARNESS_AI_HOME = path.join(buildDir, "harness-home");
+  // The install is the global npm prefix (`npm prefix -g`, which follows
+  // `npm_config_prefix`), resolved once per process.
+  const globalPrefix = path.join(buildDir, "npm-global");
+  process.env.npm_config_prefix = globalPrefix;
   const {
-    harnessClaudeSdkDirectory,
-    harnessClaudeSdkPrefix,
-    readHarnessClaudeSdkVersion,
-    updateHarnessClaudeSdk,
+    claudeSdkDirectory,
+    claudeSdkPrefix,
+    readClaudeSdkVersion,
+    updateClaudeSdk,
   } = await import(
     pathToFileURL(path.join(buildDir, "claude-sdk-updates.js")).href
   );
-
-  // The Harness prefix lives under the product home, not the global npm one.
-  const prefix = harnessClaudeSdkPrefix();
+  const prefix = claudeSdkPrefix();
+  assert.equal(prefix, globalPrefix);
+  process.env.npm_config_prefix = path.join(buildDir, "changed");
+  assert.equal(claudeSdkPrefix(), globalPrefix);
   assert.equal(
-    prefix,
-    path.join(buildDir, "harness-home", "providers", "claude", "sdk")
-  );
-  assert.equal(
-    harnessClaudeSdkDirectory(prefix),
+    claudeSdkDirectory(prefix),
     path.join(
       prefix,
       "lib",
@@ -54,10 +54,10 @@ try {
       "claude-agent-sdk"
     )
   );
-  assert.equal(readHarnessClaudeSdkVersion(), null);
+  assert.equal(readClaudeSdkVersion(), null);
 
   const writeVersion = (version) => {
-    const directory = harnessClaudeSdkDirectory(prefix);
+    const directory = claudeSdkDirectory(prefix);
     mkdirSync(directory, { recursive: true });
     writeFileSync(
       path.join(directory, "package.json"),
@@ -65,13 +65,13 @@ try {
       "utf8"
     );
   };
-  writeVersion("0.3.207");
-  assert.equal(readHarnessClaudeSdkVersion(), "0.3.207");
+  writeVersion("0.3.316");
+  assert.equal(readClaudeSdkVersion(), "0.3.316");
 
-  // The update installs the latest package into the Harness prefix and
-  // reports the version now on disk.
+  // The update installs the latest package into that prefix and reports the
+  // version now on disk.
   const calls = [];
-  const installed = await updateHarnessClaudeSdk({
+  const installed = await updateClaudeSdk({
     runNpm: (args, env) => {
       calls.push({ args, prefix: env.NPM_CONFIG_PREFIX });
       writeVersion("0.3.317");
@@ -93,7 +93,7 @@ try {
 
   // npm failures propagate to the caller.
   await assert.rejects(
-    updateHarnessClaudeSdk({
+    updateClaudeSdk({
       runNpm: () => Promise.reject(new Error("registry down")),
     }),
     /registry down/u

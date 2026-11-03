@@ -6,10 +6,7 @@ import {
   type ProviderModelDescriptor,
   providerDescriptorFacade,
 } from "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
-import {
-  harnessClaudeSdkDirectory,
-  harnessClaudeSdkPrefix,
-} from "./claude-sdk-updates.js";
+import { claudeSdkDirectory, claudeSdkPrefix } from "./claude-sdk-updates.js";
 import { resolveClaudeAgentSdkExecutablePath } from "./reference/installer/sdk-executable-path.js";
 
 // Live Claude model catalog (verified 2026-11-03 on Claude Agent SDK
@@ -20,11 +17,11 @@ import { resolveClaudeAgentSdkExecutablePath } from "./reference/installer/sdk-e
 // family alias rows through the provider descriptor, so new Claude releases
 // replace the labels without a code change. A process started inside a
 // Claude Code session inherits that session's environment and receives a
-// reduced list; the packaged app does not. The read runs the
-// Harness-installed SDK under the Harness Claude provider home with CLI auth,
-// like the sessions do. The last successful read is persisted under the
-// Harness product home and applied first on every start; the verified
-// descriptor list is the fallback when nothing was ever read.
+// reduced list; the packaged app does not. The read runs the global npm SDK
+// the sessions use (`claude-sdk-updates`) under the Harness Claude provider
+// home with CLI auth, like the sessions do. The last successful read is
+// persisted under the Harness product home and applied first on every start;
+// the verified descriptor list is the fallback when nothing was ever read.
 
 type ClaudeModelReader = () => Promise<unknown>;
 
@@ -139,7 +136,7 @@ export async function refreshClaudeModelCatalog(
 // provider home: the CLI answers `supportedModels()` from its initialize
 // handshake, then the query is closed.
 async function listModelsThroughSdk(): Promise<unknown> {
-  const sdkDirectory = harnessClaudeSdkDirectory();
+  const sdkDirectory = claudeSdkDirectory();
   // Native import: a transpiled direct import(file://) would become require.
   const dynamicImport = new Function("url", "return import(url);") as (
     url: string
@@ -164,7 +161,7 @@ async function listModelsThroughSdk(): Promise<unknown> {
       pathToClaudeCodeExecutable: resolveClaudeAgentSdkExecutablePath({
         arch: process.arch,
         moduleDirectory: sdkDirectory,
-        npmPrefix: harnessClaudeSdkPrefix(),
+        npmPrefix: claudeSdkPrefix(),
         platform: process.platform,
       }),
       settingSources: [],

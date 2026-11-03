@@ -49,7 +49,7 @@ Own model/reasoning capabilities and UI metadata for providers.
   `claude-provider` live catalog reader applies the persisted and then the
   live SDK `supportedModels()` catalog (family aliases only).
   `CLAUDE_MODELS` is the verified offline fallback — the alias rows the
-  Harness-installed SDK 0.3.317 returned in the packaged app on 2026-11-03:
+  Claude Agent SDK 0.3.317 returned in the packaged app on 2026-11-03:
   `opus` (Opus 5.5), `fable` (Fable 5.1), `sonnet` (Sonnet 5.5) and `haiku`
   (Haiku 5.5), each with efforts `low/medium/high/xhigh/max`. Capture,
   Profile Studio Claude targets and Settings use these alias ids; each alias

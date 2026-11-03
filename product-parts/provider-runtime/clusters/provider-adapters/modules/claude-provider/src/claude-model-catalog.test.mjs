@@ -182,8 +182,10 @@ try {
     }),
     null
   );
-  // The default reader fails closed when the Harness SDK is not installed.
+  // The default reader fails closed when the global SDK is not installed
+  // (`npm prefix -g` follows `npm_config_prefix`).
   process.env.HARNESS_AI_HOME = path.join(buildDir, "empty-harness-home");
+  process.env.npm_config_prefix = path.join(buildDir, "empty-npm-prefix");
   assert.equal(await fetchClaudeModelCatalog(), null);
 
   // Offline first start serves the verified alias fallback; a

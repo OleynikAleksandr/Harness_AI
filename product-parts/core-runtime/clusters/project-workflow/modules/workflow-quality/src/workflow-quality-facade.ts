@@ -5,6 +5,14 @@ import {
   WorkflowError,
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
+import {
+  configuredProfile,
+  type DriftReport,
+  type InstallResult,
+  type ProfileInput,
+  profileDrift,
+  runInstalls,
+} from "./quality-apply.js";
 import { missingContracts } from "./quality-builtins.js";
 import {
   type CheckDefinition,
@@ -30,6 +38,11 @@ import {
   selectChecks,
 } from "./quality-runner.js";
 
+export type {
+  DriftReport,
+  InstallResult,
+  ProfileInput,
+} from "./quality-apply.js";
 export type {
   CheckDefinition,
   CheckInput,
@@ -169,6 +182,34 @@ export class WorkflowQualityFacade {
       workflowGitFacade.localPath(root, "verification", `${reference}.json`)
     );
     return text === null ? null : JSON.parse(text);
+  }
+
+  /** The configuration `apply` would write, without installing anything. */
+  previewProfile(root: string, input: ProfileInput): WorkflowConfig {
+    return configuredProfile(this.readConfig(root), input);
+  }
+
+  /**
+   * `quality:apply`: validates the profile, runs approved install commands
+   * and writes the CONFIGURED configuration. The `quality` commit is made
+   * by the Workflow Kit facade.
+   */
+  applyProfile(
+    root: string,
+    input: ProfileInput,
+    env: NodeJS.ProcessEnv = process.env
+  ): { config: WorkflowConfig; installs: InstallResult[] } {
+    const config = this.previewProfile(root, input);
+    const installs = runInstalls(root, input, env);
+    this.writeConfig(root, config);
+    return { config, installs };
+  }
+
+  drift(
+    root: string,
+    config: WorkflowConfig = this.readConfig(root)
+  ): DriftReport {
+    return profileDrift(root, config);
   }
 
   writeConfig(root: string, config: WorkflowConfig): void {

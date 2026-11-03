@@ -7,10 +7,8 @@ The project quality profile of the Workflow Kit:
   documentation contracts, budgets, file policy and autopilot limit;
 - validation of every check definition;
 - stack detection and the ecosystem catalog that proposes a profile;
-- running the checks of a stage, the Kit builtins and the evidence records.
-
-Profile application is added to this module by a later task of the active
-plan.
+- running the checks of a stage, the Kit builtins and the evidence records;
+- applying a chosen profile (`quality:apply`) and profile drift.
 
 ## Public Facade
 
@@ -137,6 +135,30 @@ plan.
   passes the check and reports the waiver. `missingContracts(config,
   files)` exposes the same list.
 
+## Profile Application (`quality-apply.ts`)
+
+- Input `ProfileInput`: `{stacks, packageManager?, install?, checks,
+  approval?, docs?, policy?}` — the `profile` of a proposal plus the user's
+  approval and optional documentation contracts and file policy.
+- `previewProfile(root, input)` returns the configuration `applyProfile`
+  would write: status `CONFIGURED`, the input checks normalized and
+  validated, followed by the builtin checks of the current configuration;
+  `docs` replaces the contracts when given, `policy` merges into the
+  current policy. Errors: `PROFILE_INVALID` (no stacks, no checks list, an
+  id reserved by a builtin), `UNKNOWN_STACK`, `CONFIG_SCHEMA`.
+- `applyProfile(root, input, env)`:
+  1. builds and validates the configuration (nothing runs on failure);
+  2. runs the `install` commands in order without a shell (15 min each);
+     they need `approval` of at least 10 characters (`INSTALL_APPROVAL`);
+     the first failure stops with `INSTALL_FAILED` and the configuration
+     stays unchanged;
+  3. writes the configuration and returns `{config, installs}`.
+  The `quality` commit with the profile, manifests and lock files is made by
+  the Workflow Kit facade.
+- `drift(root, config?)` returns `{status, added, missing}`: `discovery` for
+  an unconfigured profile, otherwise detected stacks absent from the
+  profile (`added`) and profile stacks without manifests (`missing`).
+
 ## Evidence
 
 - `recordEvidence(root, transactionId, reports)` writes
@@ -162,3 +184,6 @@ Node built-ins only.
 - `src/workflow-quality-runner.test.mjs` — stage selection, assigned and
   service checks, `{files}` and `appliesTo`, timeout and missing tools,
   every builtin, the waiver and evidence records.
+- `src/workflow-quality-apply.test.mjs` — approval, validation before
+  installs, failed install, builtins kept, policy and contracts, re-apply,
+  drift.

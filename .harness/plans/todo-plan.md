@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p4.t4",
-  "expectedCommitMessage": "feat: apply workflow quality profiles",
+  "currentTaskId": "harness-ai.wk.p5.t1",
+  "expectedCommitMessage": "feat: build bounded workflow recovery packets",
   "debt": null
 }
 ```
@@ -74,12 +74,12 @@
 24. [DONE] Git Commit: `feat: detect project stacks and quality catalog` (hash: self)
 25. [DONE] `harness-ai.wk.p4.t3` Add the check runner (prepare/commit/push/delivery stages, `{files}` expansion, appliesTo, timeouts, evidence records) and built-in checks (`kit:file-lines`, `kit:doc-size`, `kit:docs-contracts`, `kit:md-links`); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: run workflow quality checks and builtins`). Result: Completed in commit `feat: run workflow quality checks and builtins`.
 26. [DONE] Git Commit: `feat: run workflow quality checks and builtins` (hash: self)
-27. [IN_PROGRESS] `harness-ai.wk.p4.t4` Add `quality:apply` (validation, approved install commands, CONFIGURED state) and drift comparison; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: apply workflow quality profiles`).
-28. [TODO] Git Commit: `feat: apply workflow quality profiles` (hash: TBD)
+27. [DONE] `harness-ai.wk.p4.t4` Add `quality:apply` (validation, approved install commands, CONFIGURED state) and drift comparison; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: apply workflow quality profiles`). Result: Completed in commit `feat: apply workflow quality profiles`.
+28. [DONE] Git Commit: `feat: apply workflow quality profiles` (hash: self)
 
 ## Phase 5 - Recovery And Autopilot Decision (owner: Claude, updated: 2026-11-03)
 
-29. [TODO] `harness-ai.wk.p5.t1` Create the `workflow-recovery` module: section builders and priority budget assembly with references and no silent truncation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**, product tree, cluster.md`; expected commit: `feat: build bounded workflow recovery packets`).
+29. [IN_PROGRESS] `harness-ai.wk.p5.t1` Create the `workflow-recovery` module: section builders and priority budget assembly with references and no silent truncation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**, product tree, cluster.md`; expected commit: `feat: build bounded workflow recovery packets`).
 30. [TODO] Git Commit: `feat: build bounded workflow recovery packets` (hash: TBD)
 31. [TODO] `harness-ai.wk.p5.t2` Add `WorkflowRecoveryFacade`: text/json packets, session-start hook output per client with `HARNESS_WORKFLOW_RECOVERY=host` suppression, show-task/history helpers; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**`; expected commit: `feat: add workflow recovery facade and session start hook`).
 32. [TODO] Git Commit: `feat: add workflow recovery facade and session start hook` (hash: TBD)

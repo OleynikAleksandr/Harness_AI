@@ -370,6 +370,11 @@
               "id": "workflow-plan",
               "name": "Workflow Plan",
               "purpose": "Plan model (scope, rounds, tasks), validation, Markdown plan document and state transitions."
+            },
+            {
+              "id": "workflow-git",
+              "name": "Workflow Git",
+              "purpose": "Git queries, working-tree changes, trailer history, transactional task commits, commit reference resolution and repair."
             }
           ]
         }

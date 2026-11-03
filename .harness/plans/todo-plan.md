@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p3.t1",
-  "expectedCommitMessage": "feat: add workflow git runner and trailer history",
+  "currentTaskId": "harness-ai.wk.p3.t2",
+  "expectedCommitMessage": "feat: add transactional workflow commits",
   "debt": null
 }
 ```
@@ -59,9 +59,9 @@
 
 ## Phase 3 - Git And Transactions (owner: Claude, updated: 2026-11-03)
 
-15. [IN_PROGRESS] `harness-ai.wk.p3.t1` Create the `workflow-git` module: git runner, working-tree changes, history with trailer parsing, identity check, `WorkflowGitFacade`; tests on temporary repositories (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**, product tree, cluster.md`; expected commit: `feat: add workflow git runner and trailer history`).
-16. [TODO] Git Commit: `feat: add workflow git runner and trailer history` (hash: TBD)
-17. [TODO] `harness-ai.wk.p3.t2` Add the commit transaction: journal, task file baseline/selection with excluded changes, candidate tree, trailers, failure rollback of plan and index, confirmation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**`; expected commit: `feat: add transactional workflow commits`).
+15. [DONE] `harness-ai.wk.p3.t1` Create the `workflow-git` module: git runner, working-tree changes, history with trailer parsing, identity check, `WorkflowGitFacade`; tests on temporary repositories (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**, product tree, cluster.md`; expected commit: `feat: add workflow git runner and trailer history`). Result: Completed in commit `feat: add workflow git runner and trailer history`.
+16. [DONE] Git Commit: `feat: add workflow git runner and trailer history` (hash: self)
+17. [IN_PROGRESS] `harness-ai.wk.p3.t2` Add the commit transaction: journal, task file baseline/selection with excluded changes, candidate tree, trailers, failure rollback of plan and index, confirmation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**`; expected commit: `feat: add transactional workflow commits`).
 18. [TODO] Git Commit: `feat: add transactional workflow commits` (hash: TBD)
 19. [TODO] `harness-ai.wk.p3.t3` Add task-to-commit reference resolution and repair (finish/retry/cancel/projection/defer-docs with repair ids); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**`; expected commit: `feat: resolve workflow commit references and repair`).
 20. [TODO] Git Commit: `feat: resolve workflow commit references and repair` (hash: TBD)

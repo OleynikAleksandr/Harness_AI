@@ -1,0 +1,120 @@
+import {
+  type WorkflowPlatformFacade,
+  workflowPlatformFacade,
+} from "../../workflow-platform/src/workflow-platform-facade.js";
+import {
+  type CommitRecord,
+  readChanges,
+  readCommitPaths,
+  readHistory,
+  type WorkingTreeChanges,
+} from "./git-history.js";
+import { GitRunner } from "./git-runner.js";
+
+export type { CommitRecord, WorkingTreeChanges } from "./git-history.js";
+export type { GitOptions, GitOutput } from "./git-runner.js";
+
+export interface GitIdentity {
+  email: string;
+  name: string;
+}
+
+/**
+ * Public boundary of the workflow-git module: git queries, the transactional
+ * task commit, commit reference resolution and repair.
+ */
+export class WorkflowGitFacade {
+  readonly git: GitRunner;
+  readonly platform: WorkflowPlatformFacade;
+
+  constructor(
+    platform: WorkflowPlatformFacade = workflowPlatformFacade,
+    env: NodeJS.ProcessEnv = process.env
+  ) {
+    this.platform = platform;
+    this.git = new GitRunner(platform, env);
+  }
+
+  isRepository(path: string): boolean {
+    return this.git.succeeds(path, ["rev-parse", "--is-inside-work-tree"]);
+  }
+
+  topLevel(path: string): string {
+    return this.git.text(path, ["rev-parse", "--show-toplevel"]);
+  }
+
+  init(root: string, branch = "main"): void {
+    this.git.run(root, ["init", "-q", `--initial-branch=${branch}`]);
+  }
+
+  /** Full HEAD SHA, or null in a repository without commits. */
+  head(root: string): string | null {
+    const output = this.git.run(root, ["rev-parse", "--verify", "-q", "HEAD"], {
+      allowFailure: true,
+    });
+    return output.status === 0 ? output.stdout.trim() : null;
+  }
+
+  identity(root: string): GitIdentity | null {
+    const name = this.git
+      .run(root, ["config", "user.name"], { allowFailure: true })
+      .stdout.trim();
+    const email = this.git
+      .run(root, ["config", "user.email"], { allowFailure: true })
+      .stdout.trim();
+    return name && email ? { email, name } : null;
+  }
+
+  changes(root: string): WorkingTreeChanges {
+    return readChanges(this.git, root);
+  }
+
+  history(root: string, from: string | null, tip = "HEAD"): CommitRecord[] {
+    return readHistory(this.git, root, from, tip);
+  }
+
+  commitPaths(root: string, sha: string): string[] {
+    return readCommitPaths(this.git, root, sha);
+  }
+
+  isAncestor(root: string, ancestor: string, descendant: string): boolean {
+    return this.git.succeeds(root, [
+      "merge-base",
+      "--is-ancestor",
+      ancestor,
+      descendant,
+    ]);
+  }
+
+  /** File content at a revision (`:path` reads the index); null when absent. */
+  show(root: string, revision: string, path: string): string | null {
+    const output = this.git.run(root, ["show", `${revision}:${path}`], {
+      allowFailure: true,
+    });
+    return output.status === 0 ? output.stdout : null;
+  }
+
+  config(root: string, key: string): string | null {
+    const value = this.git
+      .run(root, ["config", "--get", key], { allowFailure: true })
+      .stdout.trim();
+    return value === "" ? null : value;
+  }
+
+  setConfig(root: string, key: string, value: string): void {
+    this.git.run(root, ["config", key, value]);
+  }
+
+  /** Absolute path of a path inside the git directory (e.g. `hooks`, `index`). */
+  gitPath(root: string, name: string): string {
+    const value = this.git.text(root, [
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-path",
+      name,
+    ]);
+    return value;
+  }
+}
+
+export const workflowGitFacade = new WorkflowGitFacade();

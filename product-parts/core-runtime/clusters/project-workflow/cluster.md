@@ -28,14 +28,18 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
 - `workflow-platform` — OS-neutral paths, atomic files, locks, process
   runner, runtime resolution, launcher texts and the shared `WorkflowError`.
 - `workflow-plan` — plan model, validation, document and transitions.
+- `workflow-git` — git queries, history, transactional commits, references
+  and repair.
 
-Further modules (`workflow-git`, `workflow-quality`,
+Further modules ( `workflow-quality`,
 `workflow-recovery`, `workflow-autopilot`, `workflow-kit`,
 `workflow-installer`, `workflow-host`) are added by the active plan in that
 order.
 
 ## Test Support
 
-`workflow-platform/src/workflow-test-build.mjs` transpiles the requested
-cluster modules into `.harness/runtime/<label>-test-*` for every module test
-of this cluster.
+- `workflow-platform/src/workflow-test-build.mjs` transpiles the requested
+  cluster modules into `.harness/runtime/<label>-test-*` for every module
+  test of this cluster.
+- `workflow-git/src/workflow-git-test-repo.mjs` gives tests a git
+  environment without the hook `GIT_*` variables.

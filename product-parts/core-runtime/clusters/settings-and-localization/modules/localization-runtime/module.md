@@ -108,7 +108,7 @@ materialization, bootstrap payload reuse, and bundle state.
   `sidebar.openProject`, `sidebar.projectDoctor`), the New/Open Project
   dialog (`project.setup.*`), Project Doctor (`project.doctor.*`, one label
   per doctor check id and status), the workflow status strip
-  (`workflow.strip.*`) and one label per autopilot stop reason
+  (`workflow.strip.*`, including `workflow.strip.label`) and one label per autopilot stop reason
   (`workflow.autopilot.reason.<reason>`); `ui_helper_text` explains every
   inspected folder state (`project.state.<STATE>`, `project.state.nested`)
   and the dialogs; `messages_for_the_user` holds

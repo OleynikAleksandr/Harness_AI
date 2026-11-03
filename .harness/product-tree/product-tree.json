@@ -113,6 +113,11 @@
               "id": "project-doctor-panel",
               "name": "Project Doctor Panel",
               "purpose": "Core doctor report of the active workspace (checks, statuses, next actions) and the safe fix."
+            },
+            {
+              "id": "workflow-status-strip",
+              "name": "Workflow Status Strip",
+              "purpose": "Kit scope, task and progress of the active workspace and the per-session autopilot switch with its last stop reason, kept current by Core events."
             }
           ]
         },

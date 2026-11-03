@@ -169,6 +169,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "workflow.autopilot.reason.user-message": "Paused for your message",
     "workflow.strip.autopilot": "Autopilot",
     "workflow.strip.continuing": "Continuing",
+    "workflow.strip.label": "Workflow",
     "workflow.strip.next": "Next",
     "workflow.strip.noScope": "No active scope",
     "workflow.strip.progress": "Progress",

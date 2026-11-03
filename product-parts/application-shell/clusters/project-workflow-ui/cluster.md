@@ -16,6 +16,8 @@ doctor and autopilot truth stay in Core
   Project (folder, Core inspection, install/update/open, Open Without Kit).
 - `project-doctor-panel` — the Core doctor report of the active workspace
   and the safe fix.
+- `workflow-status-strip` — scope, task, progress and the autopilot switch
+  with its last stop reason, kept current by Core events.
 
 ## Shared Assets
 

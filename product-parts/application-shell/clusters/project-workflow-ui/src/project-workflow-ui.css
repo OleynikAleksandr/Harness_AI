@@ -194,3 +194,64 @@
   font-family: var(--pm-font-family);
   color: var(--pm-text-muted);
 }
+
+.workflow-status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 6px 14px;
+  font-size: 12px;
+  background: var(--pm-bg-secondary);
+  border-bottom: 1px solid var(--pm-border-color);
+}
+
+.workflow-status-item {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.workflow-status-item small,
+.workflow-autopilot-state {
+  color: var(--pm-text-muted);
+}
+
+.workflow-status-item strong {
+  max-width: 360px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.workflow-status-autopilot {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.workflow-autopilot-switch {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3px 9px;
+  font: inherit;
+  color: var(--pm-text-secondary);
+  cursor: pointer;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 999px;
+}
+
+.workflow-autopilot-switch.is-on {
+  color: var(--pm-text-primary);
+  background: var(--pm-accent-strong);
+  border-color: var(--pm-accent-strong);
+}
+
+.workflow-autopilot-error {
+  color: #f08a85;
+}

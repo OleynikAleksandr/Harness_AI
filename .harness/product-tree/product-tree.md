@@ -40,6 +40,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 - `project-setup-dialog`: New Project (parent folder + name) and Open Project (folder, Core inspection, install/update/open, Open Without Kit) through the Core bridge.
 - `project-doctor-panel`: Core doctor report of the active workspace (checks, statuses, next actions) and the safe fix.
+- `workflow-status-strip`: Kit scope, task and progress of the active workspace and the per-session autopilot switch with its last stop reason, kept current by Core events.
 
 ### Settings Surface
 

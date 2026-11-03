@@ -225,6 +225,15 @@ Detached session windows never expose the switch.
 - The `.start-new-session-button` resets `font-style: normal` so it stays upright
   inside its now-italic `.sidebar-section-header` container.
 
+- Workspace state lives in `session-window-workspaces.ts`
+  (`useSessionWindowWorkspaces`): the workspace list, the active workspace
+  and the workspace menu mirror the Core registry. `applyWorkspaceList`
+  applies the start-up `listWorkspaces` snapshot, `selectWorkspace` and
+  `addWorkspace` forward the user's choice to Core, and
+  `activateWorkspace(workspace)` shows a workspace Core already selected.
+  After every switch the facade's `reloadWorkspaceData` reloads settings,
+  localization and the session list of that workspace.
+
 ## Outputs
 
 - Rendered chat session surface.

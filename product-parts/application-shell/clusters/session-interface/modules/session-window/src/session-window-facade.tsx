@@ -20,6 +20,7 @@ import { SessionProfileStep } from "./session-profile-step.js";
 import { isProviderStatusEvent, noop } from "./session-window-core-events.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
 import { useSessionWindowSessionState } from "./session-window-session-state.js";
+import { useSessionWindowWorkspaces } from "./session-window-workspaces.js";
 import "./session-window.css";
 export function SessionWindowFacade() {
   const initialSnapshot = useMemo(
@@ -30,13 +31,20 @@ export function SessionWindowFacade() {
   const [providerOptions, setProviderOptions] = useState<ProviderDescriptor[]>(
     []
   );
-  const [workspaces, setWorkspaces] = useState<HarnessWorkspace[]>([
-    initialSnapshot.workspace,
-  ]);
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(
-    detachedMode?.workspaceId ?? initialSnapshot.workspace.id
-  );
-  const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
+  const {
+    activeWorkspace,
+    activeWorkspaceId,
+    addWorkspace,
+    applyWorkspaceList,
+    isWorkspaceMenuOpen,
+    selectWorkspace,
+    toggleWorkspaceMenu,
+    workspaces,
+  } = useSessionWindowWorkspaces({
+    detachedMode,
+    initialWorkspace: initialSnapshot.workspace,
+    onWorkspaceActivated: reloadWorkspaceData,
+  });
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
   const [applicationMode, setApplicationMode] = useState<"sessions" | "studio">(
     "sessions"
@@ -77,9 +85,6 @@ export function SessionWindowFacade() {
     detachedMode,
     initialSnapshot,
   });
-  const activeWorkspace =
-    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
-    initialSnapshot.workspace;
   const activeTimingSessionId = activeSession?.id ?? "";
   const turnTiming = useMemo(
     () =>
@@ -111,14 +116,7 @@ export function SessionWindowFacade() {
     window.harnessCore
       ?.listWorkspaces()
       .then((snapshot) => {
-        setWorkspaces(snapshot.workspaces);
-        const workspaceId =
-          detachedMode?.workspaceId ?? snapshot.activeWorkspaceId;
-        const workspace =
-          snapshot.workspaces.find((item) => item.id === workspaceId) ??
-          snapshot.workspaces[0] ??
-          initialSnapshot.workspace;
-        setActiveWorkspaceId(workspace.id);
+        const workspace = applyWorkspaceList(snapshot);
         refreshSettingsSnapshot(workspace.path).catch(noop);
         refreshLocalizationPayload().catch(noop);
         refreshSessions(workspace.id, detachedMode?.sessionId).catch(noop);
@@ -168,7 +166,7 @@ export function SessionWindowFacade() {
     detachedMode,
     activeWorkspaceId,
     applyEvent,
-    initialSnapshot.workspace,
+    applyWorkspaceList,
     refreshLocalizationPayload,
     refreshSessionList,
     refreshSessions,
@@ -315,38 +313,11 @@ export function SessionWindowFacade() {
     return null;
   }
 
-  async function selectWorkspace(workspaceId: string) {
-    if (detachedMode) {
-      return;
-    }
-    const result = await window.harnessCore?.selectWorkspace(workspaceId);
-    if (!result?.ok) {
-      return;
-    }
-    setActiveWorkspaceId(result.workspace.id);
-    setIsWorkspaceMenuOpen(false);
-    await refreshSettingsSnapshot(result.workspace.path);
+  // Workspace-scoped data after a workspace switch (called by the hook).
+  async function reloadWorkspaceData(workspace: HarnessWorkspace) {
+    await refreshSettingsSnapshot(workspace.path);
     await refreshLocalizationPayload();
-    await refreshSessions(result.workspace.id);
-  }
-
-  async function addWorkspace() {
-    if (detachedMode) {
-      return;
-    }
-    const result = await window.harnessCore?.pickWorkspaceFolder();
-    if (!result?.ok) {
-      return;
-    }
-    const snapshot = await window.harnessCore?.listWorkspaces();
-    if (snapshot) {
-      setWorkspaces(snapshot.workspaces);
-    }
-    setActiveWorkspaceId(result.workspace.id);
-    setIsWorkspaceMenuOpen(false);
-    await refreshSettingsSnapshot(result.workspace.path);
-    await refreshLocalizationPayload();
-    await refreshSessions(result.workspace.id);
+    await refreshSessions(workspace.id);
   }
 
   async function detachSession(sessionId: string) {
@@ -421,9 +392,7 @@ export function SessionWindowFacade() {
                 onRenameSession={renameSession}
                 onSelectSession={selectSession}
                 onSelectWorkspace={selectWorkspace}
-                onToggleWorkspaceMenu={() =>
-                  setIsWorkspaceMenuOpen((current) => !current)
-                }
+                onToggleWorkspaceMenu={toggleWorkspaceMenu}
                 sessions={sessions}
                 workspace={activeWorkspace}
                 workspaces={workspaces}

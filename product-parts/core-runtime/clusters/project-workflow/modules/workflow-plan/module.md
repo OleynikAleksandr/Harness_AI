@@ -77,6 +77,24 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
   - at most one `IN_PROGRESS` task, which equals `currentTaskId`;
   - `delivery` is `IN_PROGRESS` exactly while some task is not `DONE`.
 
+## Plan Document (`plan-document.ts`)
+
+- `render(plan)` writes the document that lives at `PLAN_PATH`
+  (`.harness/plans/todo-plan.md`). It consists of:
+  - a title;
+  - the JSON state between `<!-- harness-workflow:begin -->` and
+    `<!-- harness-workflow:end -->` in one fenced `json` block;
+  - a readable projection: state, objective, acceptance, and rounds with
+    their tasks and digests.
+- `parse(text, {projection})` checks the markers (`PLAN_MARKERS`) and the
+  JSON (`PLAN_JSON`), then validates the plan. With `projection` (the
+  default) the whole text must equal `render(plan)`. A manual edit fails
+  with `PLAN_PROJECTION`, and `repair` rebuilds the text. CRLF line endings
+  are accepted.
+- `isPlanDocument(text)` distinguishes Workflow Kit plans from legacy plans.
+- `read(root)` returns `null` when there is no plan file. `write(root,
+  plan)` writes atomically through the platform facade.
+
 ## Owned Paths
 
 - `module.md`

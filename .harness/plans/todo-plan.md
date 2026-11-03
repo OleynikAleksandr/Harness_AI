@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p2.t4",
-  "expectedCommitMessage": "feat: render and parse workflow plan documents",
+  "currentTaskId": "harness-ai.wk.p2.t5",
+  "expectedCommitMessage": "feat: add workflow plan transitions and service tasks",
   "debt": null
 }
 ```
@@ -50,9 +50,9 @@
 6. [DONE] Git Commit: `feat: add cross-platform process runner and launchers` (hash: self)
 7. [DONE] `harness-ai.wk.p2.t3` Create the `workflow-plan` module: plan/scope/round/task model types and full validation (schema, ids, dependencies order and cycles, service task rules, delivery states); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**, product tree, cluster.md`; expected commit: `feat: add workflow plan model and validation`). Result: Completed in commit `feat: add workflow plan model and validation`.
 8. [DONE] Git Commit: `feat: add workflow plan model and validation` (hash: self)
-9. [IN_PROGRESS] `harness-ai.wk.p2.t4` Add plan document render/parse (JSON between `harness-workflow` markers + readable projection, projection tamper detection) and `WorkflowPlanFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: render and parse workflow plan documents`).
-10. [TODO] Git Commit: `feat: render and parse workflow plan documents` (hash: TBD)
-11. [TODO] `harness-ai.wk.p2.t5` Add plan transitions: scope create, task start/block/unblock, mark done, delivery state recompute, automatic QUALITY and DOCS service task insertion; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: add workflow plan transitions and service tasks`).
+9. [DONE] `harness-ai.wk.p2.t4` Add plan document render/parse (JSON between `harness-workflow` markers + readable projection, projection tamper detection) and `WorkflowPlanFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: render and parse workflow plan documents`). Result: Completed in commit `feat: render and parse workflow plan documents`.
+10. [DONE] Git Commit: `feat: render and parse workflow plan documents` (hash: self)
+11. [IN_PROGRESS] `harness-ai.wk.p2.t5` Add plan transitions: scope create, task start/block/unblock, mark done, delivery state recompute, automatic QUALITY and DOCS service task insertion; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: add workflow plan transitions and service tasks`).
 12. [TODO] Git Commit: `feat: add workflow plan transitions and service tasks` (hash: TBD)
 13. [TODO] `harness-ai.wk.p2.t6` Add rounds lifecycle: plan extend (new/open round, before, fixes link, DOCS deferral), round digest validation, accept, close, carryover; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: add workflow plan rounds and acceptance lifecycle`).
 14. [TODO] Git Commit: `feat: add workflow plan rounds and acceptance lifecycle` (hash: TBD)

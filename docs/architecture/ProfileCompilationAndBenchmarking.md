@@ -149,8 +149,8 @@ Specialization выбирает дополнительные source materials и
 Примеры:
 
 - `AGENTS.md`;
-- `.harness/plans/todo-plan.md`;
-- `.harness/plans/todo-plan.template.md`;
+- `.harness/plans/todo-plan.md` (план Workflow Kit) и recovery packet
+  `scripts/workflow recover`;
 - `docs/architecture/SessionProfiles.md`;
 - `docs/architecture/SessionProfilesV2.md`;
 - `docs/architecture/NativePromptComposition.md`;
@@ -338,14 +338,14 @@ Write tools могут быть выключены.
 
 ### 6.3 Plan Author
 
-Преобразует утвержденный architecture doc в active plan по шаблону
-`.harness/plans/todo-plan.template.md`.
+Преобразует утвержденный architecture doc в active plan: JSON-вход
+`scripts/workflow scope:create --input <file.json>` (Workflow Kit).
 
 Основные обязанности:
 
 - сохранить plan-first lifecycle;
 - разбить scope на микрозадачи;
-- дать каждой микрозадаче paired `Git Commit`;
+- дать каждой микрозадаче ожидаемое сообщение коммита (`commitMessage`);
 - удерживать лимит функциональных файлов;
 - добавить package/user acceptance task, если изменение видно пользователю;
 - не дублировать quality gates отдельной задачей.
@@ -354,9 +354,9 @@ Default tools:
 
 - read;
 - search;
-- write plan;
-- `npm run plan:status`;
-- `npm run plan:validate`.
+- write scope input;
+- `scripts/workflow status`;
+- `scripts/workflow validate`.
 
 ### 6.4 Plan Reviewer
 
@@ -376,7 +376,7 @@ Default tools:
 
 - read;
 - search;
-- `npm run plan:validate`.
+- `scripts/workflow validate`.
 
 Write tools выключены по умолчанию.
 
@@ -386,14 +386,15 @@ Write tools выключены по умолчанию.
 
 Основные обязанности:
 
-- читать `.harness/plans/todo-plan.md` и `npm run plan:status` на старте;
-- следовать только `Current Task`;
+- на старте получать recovery packet Workflow Kit
+  (`scripts/workflow recover`);
+- следовать только текущей задаче (`task:start <ID>`);
 - не трогать файлы вне scope без добавления микрозадачи;
 - делать code changes;
 - обновлять релевантную документацию;
 - запускать targeted tests;
-- коммитить через `npm run plan:commit -- "<expected commit message>"`;
-- не архивировать scope без прямого приказа пользователя.
+- коммитить через `scripts/workflow commit --task <ID>`;
+- не закрывать scope (`scripts/workflow close`) без прямого приказа пользователя.
 
 Default tools:
 

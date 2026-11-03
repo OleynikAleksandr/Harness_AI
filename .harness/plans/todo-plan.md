@@ -7,7 +7,7 @@
   "lastClosed": null,
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 5,
+  "revision": 7,
   "rounds": [
     {
       "digest": {
@@ -24,7 +24,25 @@
       "title": "Legacy plan workflow-kit-2026-11-03"
     },
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "AGENTS.md: English project rules plus the managed Workflow Kit section",
+          ".harness/workflow/config.json: Harness quality profile and module.md docs contracts",
+          "docs/architecture/OVERVIEW.md: product parts, process model and main contracts"
+        ],
+        "decisions": [
+          "Legacy plan.mjs, check-docs-sync and their npm scripts removed; AGENTS.md project rules rewritten in English around the managed Kit section.",
+          "Kit bundle excluded from Biome, the architecture line limit and jscpd; policy.maxFileLines left null because check-architecture enforces 500 lines.",
+          "DOCUMENTATION_INDEX.md split: the evidence catalog moved to docs/evidence/EVIDENCE_INDEX.md and EVIDENCE_INDEX_2.md to meet the 28 KB document budget.",
+          "The legacy todo-plan.template.md stays as a historical file because .harness/plans/** is Kit-managed."
+        ],
+        "references": [
+          "docs/architecture/workflow-kit/WorkflowKit.md",
+          "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+          "docs/architecture/workflow-kit/WorkflowKitQuality.md#9"
+        ],
+        "result": "Workflow Kit 2.0 delivered as the Core project-workflow cluster (plan, transactional commits, recovery, quality profile, installer, doctor, autopilot, host) with Core RPC, provider workspace context and the New/Open Project, Doctor and status-strip UI; Harness AI itself now runs on the Kit with the Harness quality profile."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -154,13 +172,18 @@
         "harness-ai.wk.p12.t3"
       ],
       "docsWaiver": null,
-      "files": [],
+      "files": [
+        "README.md",
+        "docs/architecture/CodexCacheAnchorThread.md",
+        "docs/architecture/OVERVIEW.md",
+        "docs/architecture/ProfileCompilationAndBenchmarking.md"
+      ],
       "fixes": null,
       "id": "DOCS-R1",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile README, product part/cluster docs, product tree and architecture docs with the delivered kit",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -196,8 +219,8 @@
 - Scope: workflow-kit-2026-11-03 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 2/4
-- Revision: 5
+- Progress: 3/4
+- Revision: 7
 
 ## Objective
 
@@ -222,11 +245,14 @@ Digest: Legacy plan workflow-kit-2026-11-03: 41 tasks were done before the move 
 - [DONE] harness-ai.wk.p12.t3 — Rewrite AGENTS.md/CLAUDE.md around the kit section, update the index and plan template, remove `scripts/plan.mjs`, `scripts/check-docs-sync.mjs`, their tests and `plan:*` scripts (work)
   - Commit: chore: retire legacy plan scripts
   - Files: AGENTS.md, CLAUDE.md, README.md, biome.jsonc, docs/DOCUMENTATION_INDEX.md, docs/evidence/EVIDENCE_INDEX.md, docs/evidence/EVIDENCE_INDEX_2.md, package.json, scripts/check-architecture.mjs, scripts/check-docs-sync.mjs, scripts/check-docs-sync.test.mjs, scripts/plan-accept.test.mjs, scripts/plan-archive.test.mjs, scripts/plan-multiline.test.mjs, scripts/plan.mjs
-- [TODO] DOCS-R1 — Reconcile README, product part/cluster docs, product tree and architecture docs with the delivered kit (docs)
+- [DONE] DOCS-R1 — Reconcile README, product part/cluster docs, product tree and architecture docs with the delivered kit (docs)
   - Commit: docs: reconcile project documentation for the workflow kit
+  - Files: README.md, docs/architecture/CodexCacheAnchorThread.md, docs/architecture/OVERVIEW.md, docs/architecture/ProfileCompilationAndBenchmarking.md
   - Depends on: harness-ai.wk.p12.t2, harness-ai.wk.p12.t3
 - [TODO] harness-ai.wk.p13.t2 — Package the macOS app (`npm run package:mac`, confirmed by the user's release request) and record evidence (delivery)
   - Commit: chore: package workflow kit release
   - Depends on: DOCS-R1
+
+Digest: Workflow Kit 2.0 delivered as the Core project-workflow cluster (plan, transactional commits, recovery, quality profile, installer, doctor, autopilot, host) with Core RPC, provider workspace context and the New/Open Project, Doctor and status-strip UI; Harness AI itself now runs on the Kit with the Harness quality profile.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

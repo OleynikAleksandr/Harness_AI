@@ -10,6 +10,12 @@
 - рабочее состояние восстанавливается из `todo-plan.md`, git, diffs и документов проекта;
 - static prefix переиспользуется через OpenAI prompt cache.
 
+> Примечание (Workflow Kit, 2026-11-03): в Harness AI `todo-plan.md` —
+> план Workflow Kit (`.harness/plans/todo-plan.md`). Агент не правит его
+> вручную: состояние читается через `scripts/workflow recover`, а
+> «обновление плана» в этом документе означает команды Kit
+> (`task:start`, `commit --task`, `plan:extend`).
+
 ## Основная модель
 
 ```text

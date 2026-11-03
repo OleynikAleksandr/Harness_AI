@@ -38,3 +38,9 @@ Use `npm run package:mac` when a change must be tested in
 launched from this repository's packaged app path before rebuilding `app.asar`.
 This prevents an already-running packaged Core from continuing to serve an old
 runtime after the package has been rebuilt.
+
+The package also carries the Workflow Kit bundle
+(`dist/workflow-kit/workflow.mjs`, built by `npm run build:workflow-kit` as part
+of `npm run build`) as the `workflow-kit` resource. Core runs it with the
+Electron binary as Node (`ELECTRON_RUN_AS_NODE=1`) to inspect, install, update
+and diagnose projects opened through New Project / Open Project.

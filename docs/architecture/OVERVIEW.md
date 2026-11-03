@@ -1,5 +1,53 @@
 # Harness AI — Architecture Overview
 
-Describe the main parts of the system, their responsibilities and the
-contracts between them. The DOCS task of every round keeps this document
-in line with the code.
+Harness AI is a standalone Electron application for software-product
+development through a classic chat surface. The code follows a strict
+Product Part / Cluster / Module tree (`.harness/product-tree/product-tree.md`);
+every module owns its `module.md` and `src/**` and is reached through a
+public facade.
+
+## Product Parts
+
+| Product Part | Role | Main clusters |
+|---|---|---|
+| `application-shell` | Electron window, preload bridge and React renderer. Displays Core read models and passes user input; never owns product truth. | `electron-host`, `session-interface`, `project-workflow-ui`, `settings-surface`, `profile-studio`, `browser-localization` |
+| `core-runtime` | Out-of-process local authority: workspaces, sessions, settings, localization, profiles, capture and project workflow. | `runtime-process`, `workspace-architecture`, `session-runtime`, `session-profiles`, `profile-studio`, `project-workflow`, `settings-and-localization`, `universal-client`, `provider-network-capture` |
+| `provider-runtime` | Provider adapters (Claude, Codex, Kimi, OpenRouter, GLM, local models, Grok), provider homes/auth, readiness and event normalisation. Composed by Core only. | `provider-registry`, `provider-readiness`, `provider-adapters`, `provider-home-and-auth`, `provider-events-and-translation` |
+
+## Process Model
+
+```text
+Electron main (app-bootstrap, core-process-bridge)
+  ├─ renderer (React)  ⇄ preload IPC ⇄ Electron main
+  └─ Core process (ELECTRON_RUN_AS_NODE) ⇄ JSON-RPC over stdio
+        ├─ session runtime → provider adapters → provider CLIs/SDKs
+        └─ workflow host  → Workflow Kit bundle (workflow.mjs) per project
+```
+
+- The Electron host supervises one Core process and relays IPC channels to
+  Core RPC methods (`core-process-bridge-facade.mjs`).
+- Core publishes events (session, provider, `workflow:status`,
+  `workflow:autopilot`) that the renderer only displays.
+
+## Main Contracts
+
+- **Core RPC** (`core-runtime-api.ts`): workspaces, sessions, settings,
+  localization, profiles and project workflow methods (`workflow-*`).
+- **Provider contract** (`provider-adapter-contract`): session start/resume,
+  turns, normalised events; `workspaceContext` carries the Workflow Kit
+  recovery packet into the provider system prompt.
+- **Workflow Kit** (`docs/architecture/workflow-kit/WorkflowKit.md`): one
+  TypeScript cluster (`project-workflow`) that installs a development process
+  into any project — plan, transactional task commits, bounded recovery,
+  quality profile and Git hooks. The same code is bundled into
+  `.harness/workflow/runtime/workflow.mjs` inside each project and runs
+  without Harness from hooks and agent terminals.
+- **Autopilot**: Core continues a session to the next plan task only on the
+  Kit's decision (`autopilot:status`), within `autopilot.maxContinues`.
+
+## Development Process Of This Repository
+
+Harness AI itself is developed with the Workflow Kit: the plan is
+`.harness/plans/todo-plan.md`, checks come from
+`.harness/workflow/config.json`, and commits go through `scripts/workflow`.
+The DOCS task of every round keeps this overview in line with the code.

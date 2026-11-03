@@ -48,6 +48,13 @@ and Phase 3 in `.harness/plans/todo-plan.md`.
   in-memory state. Session history does not persist across a Core restart
   (client MVP).
 
+- Workflow Kit context: `createSession`/`resumeSession` accept
+  `ProviderSessionStartOptions`; when a new in-memory history starts and
+  Core passed `workspaceContext`, the history opens with it as a system
+  message (`workspaceContextSystemMessages` from the adapter contract), so
+  every turn carries it. A history that already exists in memory keeps its
+  first context; the autopilot turn text carries the fresh packet.
+
 ## Owned Paths
 
 - `module.md`

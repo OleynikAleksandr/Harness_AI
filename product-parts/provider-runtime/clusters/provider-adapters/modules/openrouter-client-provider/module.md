@@ -51,6 +51,13 @@ normalization.
   `runClientTurn`; Stop aborts the in-flight turn and keeps history so the
   next send resumes the conversation.
 
+- Workflow Kit context: `createSession`/`resumeSession` accept
+  `ProviderSessionStartOptions`; when a new in-memory history starts and
+  Core passed `workspaceContext`, the history opens with it as a system
+  message (`workspaceContextSystemMessages` from the adapter contract), so
+  every turn carries it. A history that already exists in memory keeps its
+  first context; the autopilot turn text carries the fresh packet.
+
 ## Owned Paths
 
 - `module.md`

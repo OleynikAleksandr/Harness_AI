@@ -130,6 +130,13 @@ and the Phase 2 Kimi rollout/migration note in `.harness/plans/todo-plan.md`.
   workspace-home config truth and per-turn usage limits. The facade
   re-exports `refreshKimiModelCatalog` and `resolveKimiModelContexts`.
 
+- Workflow Kit context: a new universal-client history (managed or legacy,
+  not the native ACP driver) opens with the managed profile system message
+  first and then the `workspaceContext` system message
+  (`workspaceContextSystemMessages` from the adapter contract). A history
+  that already exists in memory keeps its first context. Kimi native
+  sessions ignore the field in this release.
+
 ## Owned Paths
 
 - `module.md`

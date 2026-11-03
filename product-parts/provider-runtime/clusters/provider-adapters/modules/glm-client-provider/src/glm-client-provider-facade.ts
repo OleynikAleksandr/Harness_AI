@@ -27,7 +27,9 @@ import { providerAuthStoreFacade } from "../../../../provider-home-and-auth/modu
 import type {
   ProviderAdapter,
   ProviderEventListener,
+  ProviderSessionStartOptions,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { workspaceContextSystemMessages } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 
 export const GLM_DEFAULT_MODEL = "glm-5.2";
 
@@ -86,14 +88,21 @@ export class GlmClientProviderFacade implements ProviderAdapter {
     this.registry.registerSource(createBuiltinToolSource());
   }
 
-  createSession(workspacePath?: string): Promise<string> {
+  createSession(
+    workspacePath?: string,
+    options?: ProviderSessionStartOptions
+  ): Promise<string> {
     const sessionId = `glm-client-${randomUUID()}`;
-    this.ensureSession(sessionId, workspacePath);
+    this.ensureSession(sessionId, workspacePath, options);
     return Promise.resolve(sessionId);
   }
 
-  resumeSession(sessionId: string, workspacePath?: string): Promise<string> {
-    this.ensureSession(sessionId, workspacePath);
+  resumeSession(
+    sessionId: string,
+    workspacePath?: string,
+    options?: ProviderSessionStartOptions
+  ): Promise<string> {
+    this.ensureSession(sessionId, workspacePath, options);
     return Promise.resolve(sessionId);
   }
 
@@ -149,12 +158,17 @@ export class GlmClientProviderFacade implements ProviderAdapter {
     this.sessions.delete(providerSessionId);
   }
 
-  private ensureSession(sessionId: string, workspacePath?: string): void {
+  private ensureSession(
+    sessionId: string,
+    workspacePath?: string,
+    options?: ProviderSessionStartOptions
+  ): void {
     if (!this.sessions.has(sessionId)) {
       this.sessions.set(sessionId, {
         abort: null,
         listeners: new Set(),
-        messages: [],
+        // A new history opens with the Workflow Kit context, if any.
+        messages: workspaceContextSystemMessages(options),
         workspacePath: workspacePath ?? this.defaultWorkspacePath,
       });
     }

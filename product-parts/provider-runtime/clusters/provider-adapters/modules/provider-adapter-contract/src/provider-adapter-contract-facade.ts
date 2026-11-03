@@ -118,6 +118,18 @@ export interface ProviderSessionStartOptions {
 }
 
 /**
+ * Opening system message of a universal-client history that carries the
+ * Workflow Kit context; empty when the session has none. Client providers
+ * put it after their own profile system message when a history starts.
+ */
+export function workspaceContextSystemMessages(
+  options?: ProviderSessionStartOptions
+): { content: string; role: "system" }[] {
+  const context = options?.workspaceContext?.trim();
+  return context ? [{ content: context, role: "system" }] : [];
+}
+
+/**
  * Actually-applied provider-specific application details returned to Core
  * for the immutable applied profile snapshot (e.g. Claude tool whitelist,
  * Codex process/tooling profile key, Kimi immutable artifact key/path, GLM

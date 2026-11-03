@@ -11,6 +11,10 @@ const source = readFileSync(
   "utf8"
 )
   .replace(
+    /import \{ workspaceContextSystemMessages \}[^\n]*\n/u,
+    'const workspaceContextSystemMessages = (options) => { const context = options?.workspaceContext?.trim(); return context ? [{ content: context, role: "system" }] : []; };\n'
+  )
+  .replace(
     /import \{ providerAuthStoreFacade \}[^\n]*\n/u,
     "const providerAuthStoreFacade = { getApiKey: () => globalThis.__orClientTestApiKey ?? null, getBaseUrl: () => globalThis.__orClientTestBaseUrl ?? null };\n"
   )
@@ -130,6 +134,19 @@ try {
   globalThis.__orClientTestFail = false;
 
   const adapter = new OpenRouterClientProviderFacade("/ws");
+
+  // Workflow Kit context opens a new history as its system message.
+  const contextSession = await adapter.createSession("/ws", {
+    workspaceContext: "# Workflow\nT1",
+  });
+  await adapter.sendMessage(contextSession, "go");
+  const contextTurn = globalThis.__orClientTestTurns.at(-1);
+  assert.deepEqual(contextTurn.messages[0], {
+    content: "# Workflow\nT1",
+    role: "system",
+  });
+  assert.equal(contextTurn.messages[1].role, "user");
+  globalThis.__orClientTestTurns.length = 0;
   const sessionId = await adapter.createSession();
   assert.ok(sessionId.startsWith("openrouter-client-"));
 

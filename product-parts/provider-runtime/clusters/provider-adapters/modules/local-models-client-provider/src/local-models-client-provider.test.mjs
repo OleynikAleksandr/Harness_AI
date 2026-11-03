@@ -11,6 +11,10 @@ const source = readFileSync(
   "utf8"
 )
   .replace(
+    /import \{ workspaceContextSystemMessages \}[^\n]*\n/u,
+    'const workspaceContextSystemMessages = (options) => { const context = options?.workspaceContext?.trim(); return context ? [{ content: context, role: "system" }] : []; };\n'
+  )
+  .replace(
     /import \{ providerAuthStoreFacade \}[^\n]*\n/u,
     "const providerAuthStoreFacade = { getApiKey: () => globalThis.__localClientTestApiKey ?? null, getBaseUrl: () => globalThis.__localClientTestBaseUrl ?? null };\n"
   )
@@ -139,6 +143,19 @@ try {
   globalThis.__localClientTestFail = false;
 
   const adapter = new LocalModelsClientProviderFacade("/ws");
+
+  // Workflow Kit context opens a new history as its system message.
+  const contextSession = await adapter.createSession("/ws", {
+    workspaceContext: "# Workflow\nT1",
+  });
+  await adapter.sendMessage(contextSession, "go");
+  const contextTurn = globalThis.__localClientTestTurns.at(-1);
+  assert.deepEqual(contextTurn.messages[0], {
+    content: "# Workflow\nT1",
+    role: "system",
+  });
+  assert.equal(contextTurn.messages[1].role, "user");
+  globalThis.__localClientTestTurns.length = 0;
   const sessionId = await adapter.createSession();
   assert.ok(sessionId.startsWith("local-models-client-"));
 

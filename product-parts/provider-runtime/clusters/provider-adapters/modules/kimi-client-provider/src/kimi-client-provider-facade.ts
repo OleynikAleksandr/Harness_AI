@@ -46,6 +46,7 @@ import type {
   ProviderUsageLimitsRefreshRequest,
   SessionProfilePayload,
 } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import { workspaceContextSystemMessages } from "../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   buildKimiManagedSystemMessages,
   selectKimiManagedTools,
@@ -316,8 +317,12 @@ export class KimiClientProviderFacade implements ProviderAdapter {
         abort: null,
         listeners: new Set(),
         // The managed profile prompt opens the history once as its system
-        // message; runClientTurn then carries it forward with the history.
-        messages: buildKimiManagedSystemMessages(profile),
+        // message, followed by the Workflow Kit context; runClientTurn then
+        // carries both forward with the history.
+        messages: [
+          ...buildKimiManagedSystemMessages(profile),
+          ...workspaceContextSystemMessages(options),
+        ],
         profile,
         workspacePath: workspacePath ?? this.defaultWorkspacePath,
       });

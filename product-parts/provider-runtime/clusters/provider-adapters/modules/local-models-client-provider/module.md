@@ -90,6 +90,13 @@ normalization.
   `*.context_length` key; llama.cpp `GET /props` —
   `default_generation_settings.n_ctx`).
 
+- Workflow Kit context: `createSession`/`resumeSession` accept
+  `ProviderSessionStartOptions`; when a new in-memory history starts and
+  Core passed `workspaceContext`, the history opens with it as a system
+  message (`workspaceContextSystemMessages` from the adapter contract), so
+  every turn carries it. A history that already exists in memory keeps its
+  first context; the autopilot turn text carries the fresh packet.
+
 ## Owned Paths
 
 - `module.md`

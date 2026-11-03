@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p9.t4",
-  "expectedCommitMessage": "feat: deliver workflow context to client providers",
+  "currentTaskId": "harness-ai.wk.p10.t1",
+  "expectedCommitMessage": "feat: continue workflow tasks automatically in core",
   "debt": null
 }
 ```
@@ -125,12 +125,12 @@
 60. [DONE] Git Commit: `feat: deliver workflow context to claude sessions` (hash: self)
 61. [DONE] `harness-ai.wk.p9.t3` Codex adapter: `developerInstructions` on thread start/resume and `HARNESS_WORKFLOW_RECOVERY=host` in the app-server env; tests (scope: `codex-provider/src/**`; expected commit: `feat: deliver workflow context to codex sessions`). Result: Completed in commit `feat: deliver workflow context to codex sessions`.
 62. [DONE] Git Commit: `feat: deliver workflow context to codex sessions` (hash: self)
-63. [IN_PROGRESS] `harness-ai.wk.p9.t4` Client providers (OpenRouter, GLM, Local Models, Kimi-client): leading system message with the workspace context; tests (scope: `*-client-provider/src/**`; expected commit: `feat: deliver workflow context to client providers`).
-64. [TODO] Git Commit: `feat: deliver workflow context to client providers` (hash: TBD)
+63. [DONE] `harness-ai.wk.p9.t4` Client providers (OpenRouter, GLM, Local Models, Kimi-client): leading system message with the workspace context; tests (scope: `*-client-provider/src/**`; expected commit: `feat: deliver workflow context to client providers`). Result: Completed in commit `feat: deliver workflow context to client providers`.
+64. [DONE] Git Commit: `feat: deliver workflow context to client providers` (hash: self)
 
 ## Phase 10 - Core Autopilot (owner: Claude, updated: 2026-11-03)
 
-65. [TODO] `harness-ai.wk.p10.t1` Add `session-workflow-autopilot.ts` in session-request-handler: after turn completion decide and send the continue turn with a fresh packet, skip guards (stop, failure, interaction, subagent, creator), loop protection; tests (scope: `session-request-handler/src/**`; expected commit: `feat: continue workflow tasks automatically in core`).
+65. [IN_PROGRESS] `harness-ai.wk.p10.t1` Add `session-workflow-autopilot.ts` in session-request-handler: after turn completion decide and send the continue turn with a fresh packet, skip guards (stop, failure, interaction, subagent, creator), loop protection; tests (scope: `session-request-handler/src/**`; expected commit: `feat: continue workflow tasks automatically in core`).
 66. [TODO] Git Commit: `feat: continue workflow tasks automatically in core` (hash: TBD)
 67. [TODO] `harness-ai.wk.p10.t2` Autopilot RPC (`workflow-autopilot-set/get`) and `workflow:autopilot` events; tests (scope: `core-runtime-process/src/**`; expected commit: `feat: control workflow autopilot through rpc`).
 68. [TODO] Git Commit: `feat: control workflow autopilot through rpc` (hash: TBD)

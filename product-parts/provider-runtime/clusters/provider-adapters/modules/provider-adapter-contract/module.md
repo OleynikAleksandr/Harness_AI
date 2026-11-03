@@ -38,6 +38,9 @@ the provider adapter; cancellation and malformed decisions must fail closed.
   (docs/architecture/workflow-kit/WorkflowKitInstallation.md, section 5.4).
   Adapters that support it add it to the session system context; the
   others ignore it.
+  `workspaceContextSystemMessages(options)` returns the opening system
+  message universal-client providers put into a new history (empty without
+  a context).
 - Provider event subscription.
 - Provider-neutral structured subagent events: `subagent_control` preserves the
   collaboration call position, prompt/model/reasoning and receiver states;

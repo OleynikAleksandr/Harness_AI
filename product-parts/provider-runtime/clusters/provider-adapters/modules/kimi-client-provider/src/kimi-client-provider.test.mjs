@@ -14,6 +14,10 @@ const source = readFileSync(
   "utf8"
 )
   .replace(
+    /import \{ workspaceContextSystemMessages \}[^\n]*\n/u,
+    'const workspaceContextSystemMessages = (options) => { const context = options?.workspaceContext?.trim(); return context ? [{ content: context, role: "system" }] : []; };\n'
+  )
+  .replace(
     /import \{ providerAuthStoreFacade \}[^\n]*\n/u,
     "const providerAuthStoreFacade = { getApiKey: () => globalThis.__kimiClientTestApiKey ?? null };\n"
   )
@@ -311,6 +315,25 @@ try {
     "system",
     "user",
     "assistant",
+    "user",
+  ]);
+
+  // The Workflow Kit context follows the profile system message.
+  const contextSession = await adapter.createSession("/ws", {
+    profile: {
+      contentHash: "hash-1",
+      profileId: "custom-1",
+      profileName: "Custom",
+      prompt: "Act as the workspace butler.",
+      toolingCategories: { "file-read": true },
+    },
+    profileKind: "managed",
+    workspaceContext: "# Workflow\nT1",
+  });
+  await adapter.sendMessage(contextSession, "go");
+  assert.deepEqual(globalThis.__kimiClientTestTurns.at(-1), [
+    "system",
+    "system",
     "user",
   ]);
 

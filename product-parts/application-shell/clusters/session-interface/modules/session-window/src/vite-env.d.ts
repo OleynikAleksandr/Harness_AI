@@ -41,6 +41,7 @@ interface WorkflowPreparedProject {
 }
 
 interface WorkflowAutopilotSnapshot {
+  available: boolean;
   continues: number;
   enabled: boolean;
   lastDecision: WorkflowAutopilotDecision | null;

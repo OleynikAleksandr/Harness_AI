@@ -25,6 +25,8 @@ interface Baseline {
 }
 
 export interface WorkflowAutopilotSnapshot {
+  /** The session can use the autopilot (a primary session with a workspace). */
+  available: boolean;
   continues: number;
   enabled: boolean;
   lastDecision: AutopilotDecision | null;
@@ -102,20 +104,21 @@ export class SessionWorkflowAutopilot {
   /**
    * Turns the autopilot on or off. Turning it on for an idle session
    * evaluates the project at once, so the first task starts without a
-   * user message.
+   * user message. A session that cannot use it stays off.
    */
   async setEnabled(
     sessionId: string,
     enabled: boolean
   ): Promise<WorkflowAutopilotSnapshot> {
     const entry = this.entry(sessionId);
+    const allowed = enabled && eligible(this.binding?.getSession(sessionId));
     entry.state = this.decisions.initialState(
       entry.state.maxContinues,
-      enabled
+      allowed
     );
     entry.lastDecision = null;
     this.publish(sessionId, entry);
-    if (enabled && !entry.running) {
+    if (allowed && !entry.running) {
       await this.evaluate(sessionId, entry, "completed", UNKNOWN_BASELINE);
     }
     return this.snapshot(sessionId, entry);
@@ -269,6 +272,7 @@ export class SessionWorkflowAutopilot {
     entry: SessionEntry
   ): WorkflowAutopilotSnapshot {
     return {
+      available: eligible(this.binding?.getSession(sessionId)),
       continues: entry.state.continues,
       enabled: entry.state.enabled,
       lastDecision: entry.lastDecision,

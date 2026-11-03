@@ -44,7 +44,7 @@ export function useSessionWindowWorkspaces(options: {
     [detachedMode, initialWorkspace]
   );
 
-  /** Shows a workspace Core already selected (added, opened or created). */
+  /** Shows a workspace Core already selected (opened or created project). */
   async function activateWorkspace(workspace: HarnessWorkspace) {
     const snapshot = await window.harnessCore?.listWorkspaces();
     if (snapshot) {
@@ -68,23 +68,12 @@ export function useSessionWindowWorkspaces(options: {
     await onWorkspaceActivated(result.workspace);
   }
 
-  async function addWorkspace() {
-    if (detachedMode) {
-      return;
-    }
-    const result = await window.harnessCore?.pickWorkspaceFolder();
-    if (!result?.ok) {
-      return;
-    }
-    await activateWorkspace(result.workspace);
-  }
-
   return {
     activateWorkspace,
     activeWorkspace,
     activeWorkspaceId,
-    addWorkspace,
     applyWorkspaceList,
+    closeWorkspaceMenu: () => setIsWorkspaceMenuOpen(false),
     isWorkspaceMenuOpen,
     selectWorkspace,
     toggleWorkspaceMenu: () => setIsWorkspaceMenuOpen((current) => !current),

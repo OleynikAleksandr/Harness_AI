@@ -6,6 +6,7 @@ import type {
   SessionMessage,
   SessionTelemetry,
 } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.js";
+import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import {
   appendSessionMessageToState,
   applySessionTranslationPatchToState,
@@ -152,4 +153,44 @@ export function appendAssistantNotice(
 
 export function noop() {
   return undefined;
+}
+
+// Applies a Core provider readiness update to the provider picker options.
+export function withProviderStatus(
+  providers: ProviderDescriptor[],
+  payload: ProviderStatusEvent["payload"]
+): ProviderDescriptor[] {
+  return providers.map((provider) =>
+    provider.id === payload.providerId
+      ? {
+          ...provider,
+          readinessMessage: payload.readinessMessage,
+          readinessStatus: payload.readinessStatus,
+        }
+      : provider
+  );
+}
+
+// Merges replayed history with live-appended `session:turn-state` events:
+// duplicates collapse and the result stays chronological for `deriveTurnTiming`.
+export function mergeTurnEvents(
+  existing: readonly SessionCoreEvent[] | undefined,
+  incoming: readonly SessionCoreEvent[]
+): SessionCoreEvent[] {
+  const merged = [...(existing ?? [])];
+  const seen = new Set(merged.map(turnEventKey));
+  for (const event of incoming) {
+    const key = turnEventKey(event);
+    if (event.type === "session:turn-state" && !seen.has(key)) {
+      seen.add(key);
+      merged.push(event);
+    }
+  }
+  return merged.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+}
+
+function turnEventKey(event: SessionCoreEvent): string {
+  return event.type === "session:turn-state"
+    ? `${event.payload.sessionId}|${event.payload.state}|${event.timestamp}`
+    : `${event.type}|${event.timestamp}`;
 }

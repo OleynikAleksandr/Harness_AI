@@ -266,8 +266,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   autopilot recognises its own text when it is dispatched. Turning it on
   for an idle session evaluates at once (kick-off with an unknown
   baseline); a workspace without the Kit stops with `blocked`. Every change
-  publishes `{type: "workflow:autopilot", sessionId, enabled, continues,
-  maxContinues, running, lastDecision}` to its subscribers (the RPC layer
+  publishes `{type: "workflow:autopilot", sessionId, available, enabled,
+  continues, maxContinues, running, lastDecision}` (`available` is false,
+  and the autopilot stays off, for sessions that cannot use it) to its subscribers (the RPC layer
   relays them). The limit is the decision default of 40 continues.
 
 ## Owned Paths

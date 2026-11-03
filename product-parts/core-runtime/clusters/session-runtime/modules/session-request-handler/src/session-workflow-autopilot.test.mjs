@@ -227,8 +227,11 @@ try {
     assert.equal(sent.length, 1);
     assert.equal(autopilot.get("s1").enabled, false);
 
+    assert.equal(autopilot.get("s1").available, true);
     for (const id of ["sub", "creator"]) {
-      await autopilot.setEnabled(id, true);
+      const refused = await autopilot.setEnabled(id, true);
+      assert.equal(refused.available, false);
+      assert.equal(refused.enabled, false);
       dispatch(id, "x");
       autopilot.turnFinished(id, "completed");
     }

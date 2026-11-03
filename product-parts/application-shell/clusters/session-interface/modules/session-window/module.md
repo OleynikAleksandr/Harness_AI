@@ -239,11 +239,21 @@ Detached session windows never expose the switch.
 - Workspace state lives in `session-window-workspaces.ts`
   (`useSessionWindowWorkspaces`): the workspace list, the active workspace
   and the workspace menu mirror the Core registry. `applyWorkspaceList`
-  applies the start-up `listWorkspaces` snapshot, `selectWorkspace` and
-  `addWorkspace` forward the user's choice to Core, and
-  `activateWorkspace(workspace)` shows a workspace Core already selected.
-  After every switch the facade's `reloadWorkspaceData` reloads settings,
-  localization and the session list of that workspace.
+  applies the start-up `listWorkspaces` snapshot, `selectWorkspace`
+  forwards the user's choice to Core, `activateWorkspace(workspace)` shows a
+  workspace Core already selected (an opened or created project) and
+  `closeWorkspaceMenu` closes the menu. After every switch the facade's
+  `reloadWorkspaceData` reloads settings, localization and the session list
+  of that workspace.
+- Project workflow UI (`project-workflow-ui` cluster): the sidebar items
+  New Project, Open Project and Project Doctor open
+  `ProjectSetupDialogFacade` (mode `new`/`open`) or
+  `ProjectDoctorPanelFacade` for the active workspace; a prepared project is
+  shown through `activateWorkspace`. In the ordinary and detached windows
+  `WorkflowStatusStripFacade` (active workspace and session) sits above the
+  session surface in the `session-main-column` flex column. Event helpers
+  (`withProviderStatus`, `mergeTurnEvents`) live in
+  `session-window-core-events.ts`.
 
 ## Outputs
 

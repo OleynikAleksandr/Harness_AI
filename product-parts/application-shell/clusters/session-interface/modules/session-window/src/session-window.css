@@ -2235,3 +2235,24 @@ strong {
     grid-template-columns: 1fr;
   }
 }
+
+/* The workflow status strip sits above the session surface in one column. */
+.session-main-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+}
+
+.session-main-column > .session-reference-shell,
+.session-main-column > .session-empty-workspace {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+
+@media (max-width: 780px) {
+  .session-main-column {
+    height: auto;
+  }
+}

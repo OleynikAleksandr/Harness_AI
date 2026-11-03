@@ -290,7 +290,7 @@ state.
     {sessionId, enabled}` — the per-session Core autopilot
     (`sessionWorkflowAutopilot` of `session-request-handler`, injectable as
     the `autopilot` dependency); result `{ok: true, autopilot: {sessionId,
-    enabled, continues, maxContinues, running, lastDecision}}`. Turning it
+    available, enabled, continues, maxContinues, running, lastDecision}}`. Turning it
     on for an idle session may start the first task at once.
   Every workspace operation publishes `{type: "workflow:status",
   workspaceId, path, status}`; every autopilot change and decision is

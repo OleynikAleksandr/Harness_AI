@@ -127,7 +127,7 @@ export function WorkflowStatusStripFacade({
           </strong>
         </span>
       ) : null}
-      {sessionId ? (
+      {sessionId && autopilot?.available ? (
         <AutopilotControl
           autopilot={autopilot}
           onToggle={setAutopilotEnabled}

@@ -19,7 +19,11 @@ Settings.
 
 ## Outputs
 
-- Workspace selection/create/open intents.
+- Workspace selection intents. The workspace menu ends with "New
+  Project" (`onNewProject`), "Open Project" (`onOpenProject`, which replaces
+  the former "Add Workspace") and "Project Doctor"
+  (`onOpenProjectDoctor`); the session window opens the project workflow
+  dialogs for them.
 - Session open/create/rename/regenerate-title intents.
 - Recursive parent/child rows with descendant/running counts, automatic
   ancestor expansion for the selected child, and independent open/detach

@@ -1,9 +1,11 @@
 import {
   ChevronDown,
+  FolderOpen,
   FolderPlus,
   PanelsTopLeft,
   Plus,
   Settings,
+  Stethoscope,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
@@ -14,11 +16,13 @@ import { type SessionContextMenuAnchor, SessionTree } from "./session-tree.js";
 interface SessionSidebarProps {
   activeSessionId: string;
   isWorkspaceMenuOpen: boolean;
-  onAddWorkspace: () => void;
   onCreateSession: () => void;
   onDeleteSession: (sessionId: string) => void;
   onDetachSession: (sessionId: string) => void;
+  onNewProject: () => void;
   onOpenProfileStudio: () => void;
+  onOpenProject: () => void;
+  onOpenProjectDoctor: () => void;
   onOpenSettings: () => void;
   onRegenerateSessionTitle?: (sessionId: string) => Promise<string | null>;
   onRenameSession?: (
@@ -39,7 +43,9 @@ export function SessionSidebarFacade({
   sessions,
   activeSessionId,
   isWorkspaceMenuOpen,
-  onAddWorkspace,
+  onNewProject,
+  onOpenProject,
+  onOpenProjectDoctor,
   onCreateSession,
   onDeleteSession,
   onDetachSession,
@@ -284,12 +290,30 @@ export function SessionSidebarFacade({
             ))}
             <button
               className="workspace-menu-item workspace-menu-item--add"
-              onClick={onAddWorkspace}
+              onClick={onNewProject}
               type="button"
             >
               <Plus aria-hidden="true" size={14} />
+              <span>{t("ui_labels", "sidebar.newProject", "New Project")}</span>
+            </button>
+            <button
+              className="workspace-menu-item workspace-menu-item--add"
+              onClick={onOpenProject}
+              type="button"
+            >
+              <FolderOpen aria-hidden="true" size={14} />
               <span>
-                {t("ui_labels", "sidebar.addWorkspace", "Add Workspace")}
+                {t("ui_labels", "sidebar.openProject", "Open Project")}
+              </span>
+            </button>
+            <button
+              className="workspace-menu-item workspace-menu-item--add"
+              onClick={onOpenProjectDoctor}
+              type="button"
+            >
+              <Stethoscope aria-hidden="true" size={14} />
+              <span>
+                {t("ui_labels", "sidebar.projectDoctor", "Project Doctor")}
               </span>
             </button>
           </div>

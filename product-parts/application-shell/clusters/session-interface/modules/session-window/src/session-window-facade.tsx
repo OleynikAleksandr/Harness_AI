@@ -8,6 +8,9 @@ import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/w
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProfileStudioShellFacade } from "../../../../profile-studio/modules/profile-studio-shell/src/profile-studio-shell-facade.js";
+import { ProjectDoctorPanelFacade } from "../../../../project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel-facade.js";
+import { ProjectSetupDialogFacade } from "../../../../project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog-facade.js";
+import { WorkflowStatusStripFacade } from "../../../../project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip-facade.js";
 import { ProviderSettingsUiFacade } from "../../../../settings-surface/modules/provider-settings-ui/src/settings-surface-facade.js";
 import { SessionSidebarFacade } from "../../session-sidebar/src/session-sidebar-facade.js";
 import { SessionSurfaceFacade } from "../../session-surface/src/session-surface-facade.js";
@@ -20,7 +23,9 @@ import { SessionProfileStep } from "./session-profile-step.js";
 import {
   isProjectWorkflowEvent,
   isProviderStatusEvent,
+  mergeTurnEvents,
   noop,
+  withProviderStatus,
 } from "./session-window-core-events.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
 import { useSessionWindowSessionState } from "./session-window-session-state.js";
@@ -37,9 +42,10 @@ export function SessionWindowFacade() {
   );
   const {
     activeWorkspace,
+    activateWorkspace,
     activeWorkspaceId,
-    addWorkspace,
     applyWorkspaceList,
+    closeWorkspaceMenu,
     isWorkspaceMenuOpen,
     selectWorkspace,
     toggleWorkspaceMenu,
@@ -50,6 +56,9 @@ export function SessionWindowFacade() {
     onWorkspaceActivated: reloadWorkspaceData,
   });
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
+  const [projectOverlay, setProjectOverlay] = useState<
+    "doctor" | "new" | "open" | null
+  >(null);
   const [applicationMode, setApplicationMode] = useState<"sessions" | "studio">(
     "sessions"
   );
@@ -319,6 +328,11 @@ export function SessionWindowFacade() {
     await refreshSessions(workspace.id);
   }
 
+  function openProjectOverlay(overlay: "doctor" | "new" | "open") {
+    closeWorkspaceMenu();
+    setProjectOverlay(overlay);
+  }
+
   async function detachSession(sessionId: string) {
     await window.harnessShell?.detachSession({
       sessionId,
@@ -381,11 +395,13 @@ export function SessionWindowFacade() {
               <SessionSidebarFacade
                 activeSessionId={activeSession?.id ?? ""}
                 isWorkspaceMenuOpen={isWorkspaceMenuOpen}
-                onAddWorkspace={addWorkspace}
                 onCreateSession={openProviderPicker}
                 onDeleteSession={deleteSession}
                 onDetachSession={detachSession}
+                onNewProject={() => openProjectOverlay("new")}
                 onOpenProfileStudio={openProfileStudio}
+                onOpenProject={() => openProjectOverlay("open")}
+                onOpenProjectDoctor={() => openProjectOverlay("doctor")}
                 onOpenSettings={() => setIsSettingsOpen(true)}
                 onRegenerateSessionTitle={regenerateSessionTitle}
                 onRenameSession={renameSession}
@@ -397,7 +413,29 @@ export function SessionWindowFacade() {
                 workspaces={workspaces}
               />
             )}
-            <SessionSurfaceFacade {...sessionSurface} />
+            <div className="session-main-column">
+              <WorkflowStatusStripFacade
+                sessionId={activeSession?.id ?? null}
+                workspaceId={activeWorkspace.id}
+              />
+              <SessionSurfaceFacade {...sessionSurface} />
+            </div>
+            {projectOverlay === "new" || projectOverlay === "open" ? (
+              <ProjectSetupDialogFacade
+                mode={projectOverlay}
+                onClose={() => setProjectOverlay(null)}
+                onPrepared={(workspace) => {
+                  setProjectOverlay(null);
+                  activateWorkspace(workspace).catch(noop);
+                }}
+              />
+            ) : null}
+            {projectOverlay === "doctor" ? (
+              <ProjectDoctorPanelFacade
+                onClose={() => setProjectOverlay(null)}
+                workspace={activeWorkspace}
+              />
+            ) : null}
             {profileStepProvider ? (
               <SessionProfileStep
                 model={resolveProviderModel(
@@ -437,44 +475,4 @@ export function SessionWindowFacade() {
       </div>
     </BrowserLocalizationProvider>
   );
-}
-
-// Applies a Core provider readiness update to the provider picker options.
-function withProviderStatus(
-  providers: ProviderDescriptor[],
-  payload: ProviderStatusEvent["payload"]
-): ProviderDescriptor[] {
-  return providers.map((provider) =>
-    provider.id === payload.providerId
-      ? {
-          ...provider,
-          readinessMessage: payload.readinessMessage,
-          readinessStatus: payload.readinessStatus,
-        }
-      : provider
-  );
-}
-
-// Merges replayed history with live-appended `session:turn-state` events:
-// duplicates collapse and the result stays chronological for `deriveTurnTiming`.
-function mergeTurnEvents(
-  existing: readonly SessionCoreEvent[] | undefined,
-  incoming: readonly SessionCoreEvent[]
-): SessionCoreEvent[] {
-  const merged = [...(existing ?? [])];
-  const seen = new Set(merged.map(turnEventKey));
-  for (const event of incoming) {
-    const key = turnEventKey(event);
-    if (event.type === "session:turn-state" && !seen.has(key)) {
-      seen.add(key);
-      merged.push(event);
-    }
-  }
-  return merged.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-}
-
-function turnEventKey(event: SessionCoreEvent): string {
-  return event.type === "session:turn-state"
-    ? `${event.payload.sessionId}|${event.payload.state}|${event.timestamp}`
-    : `${event.type}|${event.timestamp}`;
 }

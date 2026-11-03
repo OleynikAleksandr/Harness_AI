@@ -38,6 +38,8 @@ assert.match(
   /`workflow\.autopilot\.reason\.\$\{stopped\.reason\}`/u
 );
 assert.match(stripSource, /aria-pressed=\{enabled\}/u);
+// Core decides whether the session can use the autopilot.
+assert.match(stripSource, /sessionId && autopilot\?\.available/u);
 assert.match(stripSource, /onToggle\(!enabled\)/u);
 assert.doesNotMatch(stripSource, /window\.(?:alert|confirm|prompt)/u);
 // The strip never decides workflow truth itself.

@@ -30,7 +30,8 @@ The subscription lives in `workflow-status-state.ts` (`useWorkflowStatus`).
 - Scope (`id · status`, objective as the tooltip) or "No active scope";
   the current task (`Task`) or the next task (`Next`); progress
   `done/total`.
-- With an open session: the Autopilot switch (`aria-pressed`), "Continuing"
+- With an open session that Core reports as `available` for the
+  autopilot: the Autopilot switch (`aria-pressed`), "Continuing"
   while an autopilot turn runs, the localized last stop reason
   (`workflow.autopilot.reason.<reason>`, detail as the tooltip, `disabled`
   not shown) and an in-app error when the switch fails.

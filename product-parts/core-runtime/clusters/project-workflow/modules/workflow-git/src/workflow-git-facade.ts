@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
   type WorkflowPlatformFacade,
   workflowPlatformFacade,
@@ -9,10 +10,36 @@ import {
   readHistory,
   type WorkingTreeChanges,
 } from "./git-history.js";
+import { type CommitJournal, localPath, readJournal } from "./git-journal.js";
 import { GitRunner } from "./git-runner.js";
+import {
+  type FileSelection,
+  isKitManagedPath,
+  isPrivatePath,
+  recordBaseline,
+  selectTaskFiles,
+  type TaskBaseline,
+  type TaskIdentity,
+} from "./git-task-files.js";
+import {
+  type CommitRequest,
+  type CommitResult,
+  commitCandidate,
+  confirmedCommit,
+  finishConfirmed,
+  rollbackTransaction,
+} from "./git-transaction.js";
 
 export type { CommitRecord, WorkingTreeChanges } from "./git-history.js";
+export type { CommitJournal, CommitRole } from "./git-journal.js";
+export { LOCAL_DIR } from "./git-journal.js";
 export type { GitOptions, GitOutput } from "./git-runner.js";
+export type {
+  FileSelection,
+  TaskBaseline,
+  TaskIdentity,
+} from "./git-task-files.js";
+export type { CommitRequest, CommitResult } from "./git-transaction.js";
 
 export interface GitIdentity {
   email: string;
@@ -105,6 +132,46 @@ export class WorkflowGitFacade {
     this.git.run(root, ["config", key, value]);
   }
 
+  localPath(root: string, ...parts: string[]): string {
+    return localPath(root, ...parts);
+  }
+
+  isKitManagedPath(file: string): boolean {
+    return isKitManagedPath(file);
+  }
+
+  isPrivatePath(file: string): boolean {
+    return isPrivatePath(file);
+  }
+
+  /** Snapshot of the edits that existed when a task started. */
+  beginTask(root: string, identity: TaskIdentity): TaskBaseline {
+    return recordBaseline(root, identity, this.changes(root).all);
+  }
+
+  selectTaskFiles(
+    root: string,
+    identity: TaskIdentity,
+    explicit?: string[]
+  ): FileSelection {
+    return selectTaskFiles(root, identity, this.changes(root).all, explicit);
+  }
+
+  /** Journaled commit transaction (see module.md). */
+  get transactions(): TransactionApi {
+    return {
+      cancel: (root) => {
+        const journal = readJournal(root);
+        return journal ? rollbackTransaction(this.git, root, journal) : false;
+      },
+      commit: (root, request) =>
+        commitCandidate(this.git, root, request, randomUUID()),
+      confirmed: (root, journal) => confirmedCommit(this.git, root, journal),
+      finish: (root) => finishConfirmed(this.git, root),
+      journal: (root) => readJournal(root),
+    };
+  }
+
   /** Absolute path of a path inside the git directory (e.g. `hooks`, `index`). */
   gitPath(root: string, name: string): string {
     const value = this.git.text(root, [
@@ -115,6 +182,14 @@ export class WorkflowGitFacade {
     ]);
     return value;
   }
+}
+
+export interface TransactionApi {
+  cancel(root: string): boolean;
+  commit(root: string, request: CommitRequest): CommitResult;
+  confirmed(root: string, journal: CommitJournal): string | null;
+  finish(root: string): CommitResult | null;
+  journal(root: string): CommitJournal | null;
 }
 
 export const workflowGitFacade = new WorkflowGitFacade();

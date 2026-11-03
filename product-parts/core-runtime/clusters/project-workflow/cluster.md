@@ -26,9 +26,10 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
 ## Owned Modules
 
 - `workflow-platform` — OS-neutral paths, atomic files, locks, process
-  runner, runtime resolution and launcher texts.
+  runner, runtime resolution, launcher texts and the shared `WorkflowError`.
+- `workflow-plan` — plan model, validation, document and transitions.
 
-Further modules (`workflow-plan`, `workflow-git`, `workflow-quality`,
+Further modules (`workflow-git`, `workflow-quality`,
 `workflow-recovery`, `workflow-autopilot`, `workflow-kit`,
 `workflow-installer`, `workflow-host`) are added by the active plan in that
 order.

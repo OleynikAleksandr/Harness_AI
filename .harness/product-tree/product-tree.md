@@ -112,6 +112,7 @@ Workflow Kit installed into user projects and driven by Core. Spec:
 `docs/architecture/workflow-kit/WorkflowKit.md`.
 
 - `workflow-platform`: OS-neutral paths, atomic files, locks, process runner, runtime resolution and launcher texts for macOS, Windows and Linux.
+- `workflow-plan`: Plan model (scope, rounds, tasks), validation, Markdown plan document and state transitions.
 
 ## Provider Runtime
 

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { WorkflowError } from "./workflow-error.js";
 
 export type WorkflowPlatform = "darwin" | "linux" | "win32";
 
@@ -8,13 +9,9 @@ const DUPLICATE_SLASH_PATTERN = /\/{2,}/gu;
 const TRAILING_SLASH_PATTERN = /\/+$/u;
 const LEADING_DOT_SLASH_PATTERN = /^(?:\.\/)+/u;
 
-export class WorkflowPathError extends Error {
-  readonly code = "UNSAFE_PATH";
-  readonly path: string;
-
+export class WorkflowPathError extends WorkflowError {
   constructor(message: string, offendingPath: string) {
-    super(message);
-    this.path = offendingPath;
+    super("UNSAFE_PATH", message, { path: offendingPath });
   }
 }
 

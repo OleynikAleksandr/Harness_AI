@@ -365,6 +365,11 @@
               "id": "workflow-platform",
               "name": "Workflow Platform",
               "purpose": "OS-neutral paths, atomic files, locks, process runner, runtime resolution and launcher texts for macOS, Windows and Linux."
+            },
+            {
+              "id": "workflow-plan",
+              "name": "Workflow Plan",
+              "purpose": "Plan model (scope, rounds, tasks), validation, Markdown plan document and state transitions."
             }
           ]
         }

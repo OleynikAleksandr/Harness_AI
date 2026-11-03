@@ -16,6 +16,10 @@ can simulate other operating systems.
 
 ## Contract
 
+- `WorkflowError(code, message, details, nextAction)` and `ensure(...)` are
+  the shared structured error of every project-workflow module.
+  `WorkflowPathError` and `WorkflowLockError` extend it.
+
 - `normalizeRelative(path)` returns the canonical form: forward slashes, no
   leading `./`, no trailing slash. It throws `WorkflowPathError`
   (`UNSAFE_PATH`) for absolute paths, drive letters, empty segments, `.` and

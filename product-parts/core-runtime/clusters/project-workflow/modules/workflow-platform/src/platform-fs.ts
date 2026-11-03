@@ -11,6 +11,7 @@ import {
   writeSync,
 } from "node:fs";
 import path from "node:path";
+import { WorkflowError } from "./workflow-error.js";
 
 const RETRYABLE_CODES = new Set(["EPERM", "EBUSY", "EACCES"]);
 const RENAME_ATTEMPTS = 5;
@@ -26,8 +27,15 @@ export interface FileLockOptions {
   staleMs?: number;
 }
 
-export class WorkflowLockError extends Error {
-  readonly code = "LOCKED";
+export class WorkflowLockError extends WorkflowError {
+  constructor(message: string) {
+    super(
+      "LOCKED",
+      message,
+      {},
+      "Wait for the running workflow operation to finish."
+    );
+  }
 }
 
 function sleepSync(milliseconds: number): void {

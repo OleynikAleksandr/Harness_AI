@@ -7,7 +7,7 @@
   "lastClosed": null,
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 7,
+  "revision": 9,
   "rounds": [
     {
       "digest": {
@@ -45,7 +45,7 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Remaining work"
     }
   ],
@@ -93,7 +93,7 @@
         "text": "Migration: harness-ai.wk.p13.t1 → DOCS-R1."
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "workflow-kit-2026-11-03",
     "objective": "Finish the remaining work of workflow-kit-2026-11-03.",
     "spec": "docs/architecture/workflow-kit/WorkflowKit.md",
@@ -193,19 +193,22 @@
       ],
       "checks": [],
       "commitMessage": "chore: package workflow kit release",
-      "confirmation": null,
+      "confirmation": "User request 2026-11-03: implement the Workflow Kit through to a new release build; 'Я жду готового нового релиза.'",
       "context": [],
       "dependencies": [
         "DOCS-R1"
       ],
       "docsWaiver": null,
-      "files": [],
+      "files": [
+        "docs/evidence/EVIDENCE_INDEX_2.md",
+        "docs/evidence/workflow-kit-release-package-2026-11-03.md"
+      ],
       "fixes": null,
       "id": "harness-ai.wk.p13.t2",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Package the macOS app (`npm run package:mac`, confirmed by the user's release request) and record evidence",
       "why": "Migrated from Phase 13 - Documentation, Package And Acceptance (owner: Claude, updated: 2026-11-03); legacy scope: `docs/evidence/**`."
     }
@@ -217,10 +220,10 @@
 ## State
 
 - Scope: workflow-kit-2026-11-03 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 3/4
-- Revision: 7
+- Progress: 4/4
+- Revision: 9
 
 ## Objective
 
@@ -237,7 +240,7 @@ Finish the remaining work of workflow-kit-2026-11-03.
 
 Digest: Legacy plan workflow-kit-2026-11-03: 41 tasks were done before the move to the Workflow Kit (harness-ai.wk.p1.t1 … harness-ai.wk.p12.t1). Their rows stay in the plan of the parent commit of the migration.
 
-### R1 — Remaining work (implementation, OPEN)
+### R1 — Remaining work (implementation, CLOSED)
 
 - [DONE] harness-ai.wk.p12.t2 — Apply the Harness quality profile and docs contracts through the kit (quality)
   - Commit: chore: apply harness quality profile
@@ -249,8 +252,9 @@ Digest: Legacy plan workflow-kit-2026-11-03: 41 tasks were done before the move 
   - Commit: docs: reconcile project documentation for the workflow kit
   - Files: README.md, docs/architecture/CodexCacheAnchorThread.md, docs/architecture/OVERVIEW.md, docs/architecture/ProfileCompilationAndBenchmarking.md
   - Depends on: harness-ai.wk.p12.t2, harness-ai.wk.p12.t3
-- [TODO] harness-ai.wk.p13.t2 — Package the macOS app (`npm run package:mac`, confirmed by the user's release request) and record evidence (delivery)
+- [DONE] harness-ai.wk.p13.t2 — Package the macOS app (`npm run package:mac`, confirmed by the user's release request) and record evidence (delivery)
   - Commit: chore: package workflow kit release
+  - Files: docs/evidence/EVIDENCE_INDEX_2.md, docs/evidence/workflow-kit-release-package-2026-11-03.md
   - Depends on: DOCS-R1
 
 Digest: Workflow Kit 2.0 delivered as the Core project-workflow cluster (plan, transactional commits, recovery, quality profile, installer, doctor, autopilot, host) with Core RPC, provider workspace context and the New/Open Project, Doctor and status-strip UI; Harness AI itself now runs on the Kit with the Harness quality profile.

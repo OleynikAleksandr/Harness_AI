@@ -290,3 +290,6 @@ document budget. Part 1: `EVIDENCE_INDEX.md`.
 Evidence documents are not the source of truth for future behavior. They are
 proof of what was checked in a specific scope. When a new verification slice is
 added, add a new evidence file and keep this index entry valid.
+- `docs/evidence/workflow-kit-release-package-2026-11-03.md` — Workflow Kit
+  release: `npm run package:mac`, packaged `workflow-kit` resource, Kit
+  inspect/install/status/doctor smoke on the packaged binary and app launch.

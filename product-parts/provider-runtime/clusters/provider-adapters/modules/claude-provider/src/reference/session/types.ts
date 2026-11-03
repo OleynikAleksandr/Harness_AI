@@ -56,6 +56,8 @@ export interface ActiveSession {
   structuredOutputSchema?: Record<string, unknown> | null;
   structuredOutputUuids?: Set<string>;
   turnQueue?: ClaudeTurnQueueState;
+  // Workflow Kit recovery packet from Core, added after the system prompt.
+  workspaceContext?: string;
   readonly workspacePath: string;
 }
 

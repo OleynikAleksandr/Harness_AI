@@ -68,6 +68,14 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   `profileId`, `contentHash`, `systemPrompt: full-replacement`, `toolMode`,
   exact `toolWhitelist`, managed/native `settingSources`) return to Core via
   `ProviderSessionStartResult` for the immutable snapshot.
+- Workflow Kit context (`claude-workspace-context.ts`): `createSession` and
+  `resumeSession` keep `ProviderSessionStartOptions.workspaceContext` on the
+  active session. After the profile layer, `appendClaudeWorkspaceContext`
+  adds it to the system prompt: native sessions get it as the `append` of
+  the `claude_code` preset, managed and legacy string prompts end with it.
+  Every Claude process gets `HARNESS_WORKFLOW_RECOVERY=host`, so the
+  project SessionStart hook (loaded by native sessions from
+  `.claude/settings.json`) returns no duplicate context.
 - Legacy category mapping (categories only filter Claude's OWN native tools):
   `file-read` -> Read, Glob, Grep; `file-write` -> Write, Edit; `shell` ->
   Bash; `web` -> WebSearch, WebFetch; `git`/`tests` -> no dedicated Claude

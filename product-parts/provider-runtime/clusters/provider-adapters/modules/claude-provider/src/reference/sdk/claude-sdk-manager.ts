@@ -32,6 +32,10 @@ import type {
   ClaudeSettingsSnapshot,
   ThinkingSettings,
 } from "./claude-sdk-manager-types.js";
+import {
+  appendClaudeWorkspaceContext,
+  CLAUDE_HOST_RECOVERY_ENV,
+} from "./claude-workspace-context.js";
 import { buildClaudeWorkspaceSystemPrompt } from "./claude-workspace-system-prompt.js";
 
 export type QueryFunction = (payload: {
@@ -110,6 +114,7 @@ export class ClaudeSDKManager {
     const { session, tempId } =
       this.deps.sessions.createSession(actualWorkspacePath);
     const profileState = resolveClaudeSessionProfileState(startOptions);
+    session.workspaceContext = startOptions?.workspaceContext;
     if (!profileState) {
       return tempId;
     }
@@ -133,6 +138,9 @@ export class ClaudeSDKManager {
     const session = this.deps.sessions.getSession(sessionId);
     if (session && profileState) {
       session.sessionProfile = profileState;
+    }
+    if (session) {
+      session.workspaceContext = startOptions?.workspaceContext;
     }
     this.proactiveUsageLimitsRefresh(sessionId);
     return sessionId;
@@ -275,13 +283,14 @@ export class ClaudeSDKManager {
       settingSources: [...runtimeProfile.settingSources],
       systemPrompt: buildClaudeWorkspaceSystemPrompt(session.workspacePath),
       tools: [...runtimeProfile.toolNames],
-      env: this.resolveAuthEnvironment(),
+      env: { ...this.resolveAuthEnvironment(), ...CLAUDE_HOST_RECOVERY_ENV },
       pathToClaudeCodeExecutable: this.deps.installer.getExecutablePath(),
     };
     // Session profile application (managed payload or native presets)
     // replaces the legacy hardcoded prompt/whitelist above; legacy sessions
     // without profile state keep it untouched.
     applyClaudeSessionProfile(options, session.sessionProfile);
+    appendClaudeWorkspaceContext(options, session.workspaceContext);
     if (resolvedModel) {
       options.model = resolvedModel;
     }

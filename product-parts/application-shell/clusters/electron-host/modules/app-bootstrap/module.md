@@ -58,6 +58,14 @@ Own Electron lifecycle, window creation, and local application startup.
   exposes only a typed user decision for a Core-published blocking provider
   interaction. Raw Grok reverse-request payloads and ACP response construction
   remain outside the preload surface.
+- `window.harnessCore` exposes the project workflow surface:
+  `pickProjectFolder()` and `pickProjectParent()` (native directory pickers
+  that return `{canceled, path}`), `inspectProjectFolder(request)`,
+  `prepareProject(request)`, `getWorkflowStatus(request)`,
+  `runProjectDoctor(request)`, `getWorkflowAutopilot(request)` and
+  `setWorkflowAutopilot(request)`, bridged one-to-one to the Core
+  `workflow-*` methods. Inspection, installation, status and autopilot truth
+  stay in Core.
 - `window.harnessCore.renameSession({ sessionId, title })` and
   `regenerateSessionTitle({ sessionId })` expose only user intent; title
   derivation, validation, persistence and manual-lock truth remain in Core.

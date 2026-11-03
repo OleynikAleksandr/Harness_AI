@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p8.t2",
-  "expectedCommitMessage": "feat: ship workflow kit bundle and project folder pickers",
+  "currentTaskId": "harness-ai.wk.p8.t3",
+  "expectedCommitMessage": "feat: expose project workflow rpc in core",
   "debt": null
 }
 ```
@@ -112,9 +112,9 @@
 
 51. [DONE] `harness-ai.wk.p8.t1` Create the `workflow-host` module: bundle and runtime resolution, async child-process command runner with JSON protocol and timeouts, runtime file writing; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/**, product tree, cluster.md`; expected commit: `feat: run workflow kit commands from core`). Result: Completed in commit `feat: run workflow kit commands from core`.
 52. [DONE] Git Commit: `feat: run workflow kit commands from core` (hash: self)
-53. [IN_PROGRESS] `harness-ai.wk.p8.t2` Electron host: ship the bundle via extraResources, pass bundle/Electron runtime env to Core, add project folder/parent pickers to the bridge and preload; tests (scope: `core-process-supervisor.mjs, core-process-bridge-facade.mjs, preload.cjs, package.json`; expected commit: `feat: ship workflow kit bundle and project folder pickers`).
-54. [TODO] Git Commit: `feat: ship workflow kit bundle and project folder pickers` (hash: TBD)
-55. [TODO] `harness-ai.wk.p8.t3` Core RPC `core-project-workflow-rpc.ts` (inspect, prepare-project, status, doctor) wired into `CoreRuntimeApi` with `workflow:status` events; tests (scope: `core-runtime-process/src/**`; expected commit: `feat: expose project workflow rpc in core`).
+53. [DONE] `harness-ai.wk.p8.t2` Electron host: ship the bundle via extraResources, pass bundle/Electron runtime env to Core, add project folder/parent pickers to the bridge and preload; tests (scope: `core-process-supervisor.mjs, core-process-bridge-facade.mjs, preload.cjs, package.json`; expected commit: `feat: ship workflow kit bundle and project folder pickers`). Result: Completed in commit `feat: ship workflow kit bundle and project folder pickers`.
+54. [DONE] Git Commit: `feat: ship workflow kit bundle and project folder pickers` (hash: self)
+55. [IN_PROGRESS] `harness-ai.wk.p8.t3` Core RPC `core-project-workflow-rpc.ts` (inspect, prepare-project, status, doctor) wired into `CoreRuntimeApi` with `workflow:status` events; tests (scope: `core-runtime-process/src/**`; expected commit: `feat: expose project workflow rpc in core`).
 56. [TODO] Git Commit: `feat: expose project workflow rpc in core` (hash: TBD)
 
 ## Phase 9 - Provider Context Delivery (owner: Claude, updated: 2026-11-03)

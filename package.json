@@ -82,6 +82,15 @@
       "product-parts/application-shell/clusters/electron-host/modules/vscode-link-opener/src/**",
       "package.json"
     ],
+    "extraResources": [
+      {
+        "from": "dist/workflow-kit",
+        "to": "workflow-kit",
+        "filter": [
+          "workflow.mjs"
+        ]
+      }
+    ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "identity": null,

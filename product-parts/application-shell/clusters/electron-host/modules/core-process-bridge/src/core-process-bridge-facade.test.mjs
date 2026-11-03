@@ -60,3 +60,33 @@ assert.match(supervisorSource, /"\/api\/v1\/shutdown"/u);
 // Restart must force-terminate a hung core, not rely on HTTP shutdown alone.
 assert.match(supervisorSource, /process\.kill/u);
 assert.match(supervisorSource, /SIGKILL/u);
+
+// Workflow Kit: Core gets the bundle and the Electron runtime; the bridge
+// forwards project workflow RPC and only picks folders.
+assert.match(supervisorSource, /HARNESS_WORKFLOW_KIT_BUNDLE/u);
+assert.match(supervisorSource, /HARNESS_ELECTRON_NODE: process\.execPath/u);
+assert.match(supervisorSource, /"workflow-kit"/u);
+assert.match(supervisorSource, /"dist\/workflow-kit"/u);
+for (const method of [
+  "workflow-inspect",
+  "workflow-prepare-project",
+  "workflow-status",
+  "workflow-doctor",
+  "workflow-autopilot-get",
+  "workflow-autopilot-set",
+]) {
+  assert.match(
+    source,
+    new RegExp(`"harness-ai:core:${method}":\\s*"${method}"`, "u")
+  );
+  assert.match(preloadSource, new RegExp(`harness-ai:core:${method}"`, "u"));
+}
+assert.match(source, /harness-ai:core:pick-project-folder/u);
+assert.match(source, /harness-ai:core:pick-project-parent/u);
+const pickFolderSource = source.slice(
+  source.indexOf("async function pickFolder"),
+  source.indexOf("function createCoreClient")
+);
+assert.doesNotMatch(pickFolderSource, /coreClient/u);
+assert.match(preloadSource, /pickProjectFolder: \(\)/u);
+assert.match(preloadSource, /pickProjectParent: \(\)/u);

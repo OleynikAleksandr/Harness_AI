@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 const DEFAULT_CORE_HOST = "127.0.0.1";
@@ -20,6 +21,8 @@ export function createCoreProcessSupervisor(repositoryRoot, options = {}) {
     repositoryRoot,
     "dist/runtime/product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.js"
   );
+  const workflowKitBundle =
+    options.workflowKitBundle ?? resolveWorkflowKitBundle(repositoryRoot);
 
   return {
     getConnectionInfo() {
@@ -40,6 +43,9 @@ export function createCoreProcessSupervisor(repositoryRoot, options = {}) {
           CORE_HOST: host,
           CORE_PORT: String(port),
           ELECTRON_RUN_AS_NODE: "1",
+          // Core runs Workflow Kit commands with this Electron binary as Node.
+          HARNESS_ELECTRON_NODE: process.execPath,
+          HARNESS_WORKFLOW_KIT_BUNDLE: workflowKitBundle,
         },
         stdio: "ignore",
       });
@@ -63,6 +69,17 @@ export function createCoreProcessSupervisor(repositoryRoot, options = {}) {
       return this.start();
     },
   };
+}
+
+// Packaged apps ship the bundle in Resources/workflow-kit (extraResources);
+// development uses the repository build output.
+function resolveWorkflowKitBundle(repositoryRoot) {
+  const packaged = process.resourcesPath
+    ? join(process.resourcesPath, "workflow-kit")
+    : null;
+  return packaged && existsSync(packaged)
+    ? packaged
+    : join(repositoryRoot, "dist/workflow-kit");
 }
 
 async function readHealth(baseUrl) {

@@ -102,6 +102,22 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:rollback-session-turns", request),
   pickWorkspaceFolder: () =>
     ipcRenderer.invoke("harness-ai:core:pick-workspace-folder"),
+  pickProjectFolder: () =>
+    ipcRenderer.invoke("harness-ai:core:pick-project-folder"),
+  pickProjectParent: () =>
+    ipcRenderer.invoke("harness-ai:core:pick-project-parent"),
+  inspectProjectFolder: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-inspect", request),
+  prepareProject: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-prepare-project", request),
+  getWorkflowStatus: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-status", request),
+  runProjectDoctor: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-doctor", request),
+  getWorkflowAutopilot: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-autopilot-get", request),
+  setWorkflowAutopilot: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-autopilot-set", request),
   restartCore: () => ipcRenderer.invoke("harness-ai:core:restart"),
   saveSettings: (request) =>
     ipcRenderer.invoke("harness-ai:core:save-settings", request),

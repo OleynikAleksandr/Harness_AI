@@ -48,6 +48,12 @@ const IPC_TO_RPC = {
   "harness-ai:core:stop-turn": "stop-turn",
   "harness-ai:core:translate-dynamic-text": "translate-dynamic-text",
   "harness-ai:core:update-provider-version": "update-provider-version",
+  "harness-ai:core:workflow-autopilot-get": "workflow-autopilot-get",
+  "harness-ai:core:workflow-autopilot-set": "workflow-autopilot-set",
+  "harness-ai:core:workflow-doctor": "workflow-doctor",
+  "harness-ai:core:workflow-inspect": "workflow-inspect",
+  "harness-ai:core:workflow-prepare-project": "workflow-prepare-project",
+  "harness-ai:core:workflow-status": "workflow-status",
 };
 const EVENT_STREAM_RECONNECT_MS = 1000;
 
@@ -79,6 +85,14 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     }
     return coreClient.rpc("add-workspace", result.filePaths[0]);
   });
+
+  // Project pickers only return a path; Core inspects and prepares it.
+  ipcMain.handle("harness-ai:core:pick-project-folder", () =>
+    pickFolder("Open Project")
+  );
+  ipcMain.handle("harness-ai:core:pick-project-parent", () =>
+    pickFolder("Select Parent Folder")
+  );
 
   ipcMain.handle("harness-ai:core:restart", async () => {
     stopEventStream();
@@ -121,6 +135,17 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
     },
   };
   return bridge;
+}
+
+async function pickFolder(buttonLabel) {
+  const result = await dialog.showOpenDialog({
+    buttonLabel,
+    properties: ["openDirectory", "createDirectory"],
+  });
+  if (result.canceled || !result.filePaths[0]) {
+    return { canceled: true, path: null };
+  }
+  return { canceled: false, path: result.filePaths[0] };
 }
 
 function createCoreClient(connectionInfo) {

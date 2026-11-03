@@ -55,6 +55,20 @@ modules or own Core truth.
   Session naming follows the same transport-only contract:
   `harness-ai:core:rename-session` → `rename-session` and
   `harness-ai:core:regenerate-session-title` → `regenerate-session-title`.
+- Project workflow forwarding is transport-only as well:
+  `harness-ai:core:workflow-inspect`, `workflow-prepare-project`,
+  `workflow-status`, `workflow-doctor`, `workflow-autopilot-get` and
+  `workflow-autopilot-set` map one-to-one to the Core methods of the same
+  names. The project pickers `harness-ai:core:pick-project-folder` ("Open
+  Project") and `harness-ai:core:pick-project-parent` ("Select Parent
+  Folder") open a native directory dialog and return only
+  `{canceled, path}`; Core inspects, installs and registers the project.
+- The supervisor starts Core with `HARNESS_ELECTRON_NODE` (the Electron
+  binary, used by Core with `ELECTRON_RUN_AS_NODE=1` to run Workflow Kit
+  commands) and `HARNESS_WORKFLOW_KIT_BUNDLE`: `Resources/workflow-kit` of
+  the packaged app (electron-builder `extraResources` from
+  `dist/workflow-kit`), otherwise `dist/workflow-kit` of the repository.
+  The `workflowKitBundle` supervisor option overrides the path.
 - Real Core process restart through health and shutdown contracts. `stop()` first
   asks the core to shut down over HTTP, then force-terminates the process by pid
   (SIGTERM escalating to SIGKILL) when a hung core ignores the request, so

@@ -10,6 +10,10 @@ const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_ENDPOINT_TAG = "default";
 const DEFAULT_TIMEOUT_MS = 20_000;
 const TRAILING_SLASHES_PATTERN = /\/+$/u;
+// A pinned endpoint can disappear from OpenRouter (404 "No endpoints found")
+// or be rate-limited upstream (429); the request is retried once on
+// OpenRouter default routing instead of failing the translation.
+const DEFAULT_ROUTING_RETRY_STATUSES = new Set([404, 429]);
 
 interface OpenRouterTranslationEngineOptions {
   readonly apiKey?: string;
@@ -60,25 +64,38 @@ export class OpenRouterTranslationEngine implements ProviderTranslationEngine {
       request.timeoutMs ?? DEFAULT_TIMEOUT_MS
     );
     try {
-      const response = await fetch(
-        `${this.baseUrl}${OPENROUTER_CHAT_COMPLETIONS_PATH}`,
-        {
-          body: JSON.stringify(this.buildRequestBody(request)),
-          headers: {
-            authorization: `Bearer ${this.apiKey}`,
-            "content-type": "application/json",
-            "x-title": "Harness AI",
-          },
-          method: "POST",
-          signal: controller.signal,
-        }
+      let response = await this.postCompletion(
+        request,
+        this.pinnedEndpointTag(),
+        controller.signal
       );
+      if (
+        !response.ok &&
+        this.pinnedEndpointTag() &&
+        DEFAULT_ROUTING_RETRY_STATUSES.has(response.status)
+      ) {
+        this.warn(
+          "OpenRouter pinned endpoint unavailable; using default routing",
+          {
+            endpointTag: this.endpointTag,
+            status: response.status,
+          }
+        );
+        response = await this.postCompletion(
+          request,
+          undefined,
+          controller.signal
+        );
+      }
 
       if (!response.ok) {
         this.warn("OpenRouter translation returned non-OK", {
           status: response.status,
         });
-        return this.fallbackResult(request, "non_ok_response");
+        return this.fallbackResult(
+          request,
+          `non_ok_response_${response.status}`
+        );
       }
 
       const payload =
@@ -100,8 +117,32 @@ export class OpenRouterTranslationEngine implements ProviderTranslationEngine {
     }
   }
 
+  private pinnedEndpointTag(): string | undefined {
+    return this.endpointTag && this.endpointTag !== DEFAULT_ENDPOINT_TAG
+      ? this.endpointTag
+      : undefined;
+  }
+
+  private postCompletion(
+    request: ProviderTranslationRequest,
+    endpointTag: string | undefined,
+    signal: AbortSignal
+  ): Promise<Response> {
+    return fetch(`${this.baseUrl}${OPENROUTER_CHAT_COMPLETIONS_PATH}`, {
+      body: JSON.stringify(this.buildRequestBody(request, endpointTag)),
+      headers: {
+        authorization: `Bearer ${this.apiKey}`,
+        "content-type": "application/json",
+        "x-title": "Harness AI",
+      },
+      method: "POST",
+      signal,
+    });
+  }
+
   private buildRequestBody(
-    request: ProviderTranslationRequest
+    request: ProviderTranslationRequest,
+    endpointTag: string | undefined
   ): Record<string, unknown> {
     return {
       messages: [
@@ -117,8 +158,8 @@ export class OpenRouterTranslationEngine implements ProviderTranslationEngine {
       model: this.model,
       stream: false,
       temperature: 0,
-      ...(this.endpointTag && this.endpointTag !== DEFAULT_ENDPOINT_TAG
-        ? { provider: { allow_fallbacks: false, order: [this.endpointTag] } }
+      ...(endpointTag
+        ? { provider: { allow_fallbacks: false, order: [endpointTag] } }
         : {}),
     };
   }

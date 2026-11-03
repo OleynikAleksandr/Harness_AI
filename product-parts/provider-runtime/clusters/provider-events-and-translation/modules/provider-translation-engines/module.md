@@ -23,6 +23,15 @@ behavior as `google-gtx` on transport, auth, or empty-response failures. It
 never performs tool calls or session/agentic behavior — it is a pure
 request/response translation transport.
 
+A profile endpoint tag other than `default` pins the request to that
+OpenRouter endpoint (`provider: { allow_fallbacks: false, order: [tag] }`).
+Endpoints come and go on OpenRouter (2026-11-03: `google-vertex` disappeared
+from `google/gemini-2.5-flash-lite` after the latency check had picked it), so
+when the pinned endpoint answers 404 (no endpoint) or 429 (rate-limited
+upstream) the engine retries the request once on OpenRouter default routing.
+Any other non-OK answer, or a failing retry, falls back with the HTTP status
+in the error code (`non_ok_response_<status>`, e.g. `non_ok_response_404`).
+
 The OpenRouter system instruction repeats the same target-language preservation
 rule for every selected model: if the input is already in the target language,
 the model must return it unchanged and must not translate it into another

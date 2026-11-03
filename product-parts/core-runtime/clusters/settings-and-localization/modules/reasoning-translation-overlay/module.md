@@ -26,7 +26,7 @@ next translation.
 Every finished translation settles its message with one patch
 (`translateVisibleReasoningMessage` / `publishDisplayMessages`): a successful
 translation carries `localizedContent`; a failed one (`fallback`, e.g. an
-OpenRouter `non_ok_response`) carries no `localizedContent`, so clients leave
+OpenRouter `non_ok_response_<status>`) carries no `localizedContent`, so clients leave
 the pending state and show the source reasoning instead of an empty Thinking
 block. Both outcomes are still recorded in the overlay sidecar.
 

@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream3.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase21.stream9.task2",
+  "expectedCommitMessage": "fix: flag unavailable openrouter endpoints",
   "debt": null
 }
 ```
@@ -503,6 +503,20 @@ renderer drops the pending state and shows the source text.
 156. [DONE] `harness-ai.phase21.stream8.task2` Settle failed reasoning translations in Core: the overlay facade publishes a patch without `localizedContent` on fallback, and the session event stream and snapshot projector patch contracts make `localizedContent` optional (scope: reasoning-translation-overlay `reasoning-translation-overlay-facade.ts`, session-event-stream `session-event-stream-facade.ts`, session-snapshot-projector `session-snapshot-projector-facade.ts`, plus focused tests and module docs; expected commit: `fix: settle failed reasoning translations`). Result: Completed in commit `fix: settle failed reasoning translations`.
 157. [DONE] Git Commit: `fix: settle failed reasoning translations` (hash: self)
 
+User retest 2026-11-03 (after the fallback fix): English reasoning still
+was not translated. The reasoning translation profile is pinned to the
+OpenRouter endpoint `google-vertex` for `google/gemini-2.5-flash-lite` with
+`allow_fallbacks: false`; the endpoint existed when the latency check picked
+it, but OpenRouter has since removed it (only `google-ai-studio`,
+`/flex`, `/priority` remain), so every request answers 404 and is logged as a
+bare `non_ok_response`. The Settings picker shows no selected row for the
+stale tag, so nothing reveals it.
+
+158. [DONE] `harness-ai.phase21.stream9.task1` OpenRouter translation engine: when a pinned endpoint answers 404 (no endpoint) or 429 (rate-limited), retry once on OpenRouter default routing, and record the HTTP status in the fallback error code (`non_ok_response_<status>`) (scope: provider-translation-engines `openrouter-translation-engine.ts`, plus focused tests and provider-translation-engines/reasoning-translation-overlay docs; expected commit: `fix: route translations around missing endpoints`). Result: Completed in commit `fix: route translations around missing endpoints`.
+159. [DONE] Git Commit: `fix: route translations around missing endpoints` (hash: self)
+160. [IN_PROGRESS] `harness-ai.phase21.stream9.task2` OpenRouter Settings picker: show a stored endpoint tag that the live endpoint list no longer contains as a selected row marked unavailable (scope: provider-settings-ui `openrouter-settings-card.tsx` (split if it exceeds 500 lines), plus focused tests and provider-settings-ui docs; expected commit: `fix: flag unavailable openrouter endpoints`).
+161. [TODO] Git Commit: `fix: flag unavailable openrouter endpoints` (hash: TBD)
+
 ### Stream: Phase 21 User Acceptance
 
-158. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+162. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

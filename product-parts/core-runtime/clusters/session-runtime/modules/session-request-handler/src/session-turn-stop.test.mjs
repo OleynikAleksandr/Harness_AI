@@ -31,6 +31,13 @@ try {
       "utf8"
     );
   }
+  // The Core autopilot is notified of the stop; a stub records it.
+  globalThis.__autopilotCancelled = [];
+  writeFileSync(
+    path.join(buildDir, "session-workflow-autopilot.js"),
+    "export const sessionWorkflowAutopilot = { turnCancelled: (id) => globalThis.__autopilotCancelled.push(id) };\n",
+    "utf8"
+  );
   const { SessionTurnStop } = await import(
     pathToFileURL(path.join(buildDir, "session-turn-stop.js")).href
   );
@@ -99,6 +106,7 @@ try {
   assert.deepEqual(calls.closed, ["kimi-native-p1"]);
   assert.deepEqual(calls.deleted, ["parent"]);
   assert.deepEqual(calls.idle, ["parent"]);
+  assert.deepEqual(globalThis.__autopilotCancelled, ["parent"]);
 
   // Only the still-running descendants of the stopped session settle as
   // interrupted; finished children and other sessions' trees stay untouched.

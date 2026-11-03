@@ -113,6 +113,10 @@ try {
   assert.equal(created.code, 0, created.stdout);
   assert.equal(json(created).result.scopeId, "cli-1");
   assert.equal(json(run(["status"], "", sub)).result.nextTask.id, "N");
+  const autopilot = json(run(["autopilot:status"], "", sub)).result;
+  assert.equal(autopilot.nextTask.id, "N");
+  assert.equal(autopilot.scope, "ACTIVE");
+  assert.equal(autopilot.transactionPending, false);
   const text = run(["status", "--format=text"]);
   assert.match(text.stdout, /scope: cli-1 ACTIVE, result IN_PROGRESS/u);
   assert.match(text.stdout, /next: N \[work\] Notes/u);

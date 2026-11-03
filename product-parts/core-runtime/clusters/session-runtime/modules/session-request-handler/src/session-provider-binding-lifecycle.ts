@@ -16,6 +16,7 @@ import {
 } from "./session-provider-event-router.js";
 import {
   ADAPTER_NOT_REGISTERED,
+  createId,
   resolveBindingUnavailableMessage,
   stringifyError,
 } from "./session-request-handler-runtime-utils.js";
@@ -25,6 +26,10 @@ import type {
   ProviderRuntimeBinding,
   ProviderSessionBindingFacadeLike,
 } from "./session-request-handler-types.js";
+import {
+  type SessionWorkflowAutopilot,
+  sessionWorkflowAutopilot,
+} from "./session-workflow-autopilot.js";
 import { resolveWorkflowWorkspaceContext } from "./session-workflow-context.js";
 
 interface SessionProviderBindingLifecycleDependencies {
@@ -61,13 +66,21 @@ interface SessionProviderBindingLifecycleDependencies {
     sessionId: string,
     event: unknown
   ) => void;
+  /** Core autopilot executor; defaults to the shared instance. */
+  readonly workflowAutopilot?: SessionWorkflowAutopilot;
 }
 
 export class SessionProviderBindingLifecycle {
+  private readonly autopilot: SessionWorkflowAutopilot;
   private readonly deps: SessionProviderBindingLifecycleDependencies;
 
   constructor(deps: SessionProviderBindingLifecycleDependencies) {
     this.deps = deps;
+    this.autopilot = deps.workflowAutopilot ?? sessionWorkflowAutopilot;
+    this.autopilot.attach({
+      getSession: deps.getSession,
+      send: (sessionId, text) => this.sendAutopilotTurn(sessionId, text),
+    });
   }
 
   async bindProviderSession(session: CoreSession): Promise<void> {
@@ -147,6 +160,7 @@ export class SessionProviderBindingLifecycle {
     session: CoreSession,
     text: string
   ): Promise<void> {
+    this.autopilot.turnDispatched(session, text);
     let binding = this.deps.runtimeBindings.get(session.id);
     if (!binding) {
       await this.bindProviderSession(session);
@@ -219,11 +233,37 @@ export class SessionProviderBindingLifecycle {
     routeProviderEvent(this.providerEventRouterContext(), sessionId, event);
   }
 
+  /**
+   * The autopilot's continue turn follows the user-message route: the text
+   * is published as a user message, the session runs, and the provider
+   * receives it.
+   */
+  private sendAutopilotTurn(sessionId: string, text: string): void {
+    const session = this.deps.getSession(sessionId);
+    if (!session) {
+      return;
+    }
+    this.deps.publishMessage({
+      id: createId("message-user"),
+      role: "user",
+      sessionId,
+      text,
+      timestamp: new Date().toISOString(),
+    });
+    this.deps.publishTurnState(sessionId, "running");
+    this.dispatchProviderMessage(session, text).catch((error: unknown) => {
+      this.deps.publishError(sessionId, stringifyError(error));
+      this.deps.publishTurnState(sessionId, "idle");
+    });
+  }
+
   private providerEventRouterContext(): ProviderEventRouterContext {
     return {
       getBinding: (sessionId) => this.deps.runtimeBindings.get(sessionId),
       getSession: this.deps.getSession,
       handleSubagentEvent: this.deps.handleSubagentEvent,
+      onTurnFinished: (sessionId, outcome) =>
+        this.autopilot.turnFinished(sessionId, outcome),
       markBindingReady: (sessionId, providerId, providerSessionId) =>
         this.deps.publishBinding(
           this.deps.bindingFacade.markReady(

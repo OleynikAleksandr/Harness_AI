@@ -5,6 +5,7 @@ import type {
   CoreSessionActionResult,
   ProviderRuntimeBinding,
 } from "./session-request-handler-types.js";
+import { sessionWorkflowAutopilot } from "./session-workflow-autopilot.js";
 
 interface TurnStopDeps {
   deleteBinding(sessionId: string): void;
@@ -44,6 +45,8 @@ export class SessionTurnStop {
     }
     this.interruptRunningChildren(sessionId);
     this.deps.publishIdle(sessionId);
+    // A stopped turn ends the autopilot chain (`turn-error`).
+    sessionWorkflowAutopilot.turnCancelled(sessionId);
     return { ok: true, session };
   }
 

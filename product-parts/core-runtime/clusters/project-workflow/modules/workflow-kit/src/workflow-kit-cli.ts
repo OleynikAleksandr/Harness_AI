@@ -71,6 +71,10 @@ function ownBundle(
 }
 
 const COMMANDS: Readonly<Record<string, CommandSpec>> = {
+  "autopilot:status": {
+    run: ({ kit, root }) => kit.autopilotStatus(root),
+    usage: "autopilot:status",
+  },
   accept: {
     run: ({ args, kit, root }) => kit.accept(root, requiredFlag(args, "note")),
     usage: 'accept --note "<the user\'s words>"',

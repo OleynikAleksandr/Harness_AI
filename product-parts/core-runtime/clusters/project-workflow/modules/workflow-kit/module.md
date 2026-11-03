@@ -129,7 +129,8 @@ managed hooks.
 - The project root is `--root`, else `HARNESS_WORKFLOW_ROOT`, else the git
   top level of the working directory, else the working directory. Input
   files resolve against the working directory.
-- Commands: `status`, `validate`, `recover [--event]`, `show-task <ID>`,
+- Commands: `status`, `autopilot:status` (the status the Harness Core
+  autopilot decides on), `validate`, `recover [--event]`, `show-task <ID>`,
   `history [--task] [--round]`, `scope:create --input`,
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,

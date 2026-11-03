@@ -247,6 +247,29 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   goes to the adapter as `ProviderSessionStartOptions.workspaceContext`; a
   failing or absent Kit leaves the option out and never fails the bind.
 
+- Workflow Kit autopilot (`session-workflow-autopilot.ts`,
+  `SessionWorkflowAutopilot`, shared instance `sessionWorkflowAutopilot`):
+  the in-memory executor of the pure `workflow-autopilot` decision, off by
+  default per session. `SessionProviderBindingLifecycle` attaches to it
+  (injectable as `workflowAutopilot`) and reports every
+  `dispatchProviderMessage` (`turnDispatched`); the provider event router
+  reports `turn_completed` as `completed` and `turn_failed`/`stream_error`
+  as `error` through the optional `onTurnFinished` context member;
+  `SessionTurnStop` reports a Stop (`turnCancelled`). Only primary sessions
+  without a `sessionPurpose` and with a workspace take part. When a turn
+  starts with the autopilot on, the Kit `autopilot:status` gives the
+  baseline (plan revision, HEAD); when it ends, the status after the turn,
+  the outcome and whether the user wrote during a running turn
+  (`user-message`) go to `decide`. A `continue` decision sends the decision
+  text with a fresh `recover --event resume` packet through the user
+  message route (published user message, running state, dispatch); the
+  autopilot recognises its own text when it is dispatched. Turning it on
+  for an idle session evaluates at once (kick-off with an unknown
+  baseline); a workspace without the Kit stops with `blocked`. Every change
+  publishes `{type: "workflow:autopilot", sessionId, enabled, continues,
+  maxContinues, running, lastDecision}` to its subscribers (the RPC layer
+  relays them). The limit is the decision default of 40 continues.
+
 ## Owned Paths
 
 - `module.md`

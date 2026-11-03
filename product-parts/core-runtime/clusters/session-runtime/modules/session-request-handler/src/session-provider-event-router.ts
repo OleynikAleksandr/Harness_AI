@@ -37,6 +37,11 @@ export interface ProviderEventRouterContext {
     providerId: CoreSession["providerId"],
     providerSessionId: string
   ) => void;
+  /** A provider turn ended; the Core autopilot decides what follows. */
+  readonly onTurnFinished?: (
+    sessionId: string,
+    outcome: "completed" | "error"
+  ) => void;
   readonly publishError: (sessionId: string, error: string) => void;
   readonly publishMessage: (
     message: CoreSessionMessage
@@ -115,14 +120,17 @@ export function routeProviderEvent(
   if (event.type === "turn_completed") {
     context.publishTurnState(sessionId, "idle");
     context.refreshUsageLimits(sessionId);
+    context.onTurnFinished?.(sessionId, "completed");
     return;
   }
   if (event.type === "turn_failed") {
     context.publishTurnState(sessionId, "idle");
+    context.onTurnFinished?.(sessionId, "error");
     return;
   }
   if (event.type === "stream_error") {
     context.publishTurnState(sessionId, "idle");
+    context.onTurnFinished?.(sessionId, "error");
     context.publishError(
       sessionId,
       readString(event.message) ?? "Provider turn failed"

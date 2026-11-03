@@ -14,6 +14,7 @@ implementation modules in-process.
 - `browser-localization`
 - `session-interface`
 - `profile-studio`
+- `project-workflow-ui`
 - `settings-surface`
 
 ## Responsibilities
@@ -36,6 +37,8 @@ implementation modules in-process.
 - Resolve browser display copy through Core-provided localization payloads.
 - Render Core-provided `localizedContent` patches for translated reasoning
   without rewriting Core source message text.
+- Create and open projects, show the project doctor and the workflow status
+  strip from Core Workflow Kit read models (`project-workflow-ui`).
 - Forward user input and settings changes to Core contracts.
 - Forward Profile Studio commands and its isolated update stream without
   composing lifecycle/read-model truth in Electron or renderer code.

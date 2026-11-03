@@ -36,6 +36,10 @@ Application Shell submits user input, displays Core read models/events, manages 
 - `profile-studio-inspector`: read-only Overview, Custom System Prompt and Custom System Tools projection with exact-hash approval intent.
 - `profile-studio-shell`: single-window three-column Studio composition, Core snapshot/action forwarding, Capture-first Create convergence, profile-target-based creator-session restoration, and return to ordinary sessions.
 
+### Project Workflow UI
+
+- `project-setup-dialog`: New Project (parent folder + name) and Open Project (folder, Core inspection, install/update/open, Open Without Kit) through the Core bridge.
+
 ### Settings Surface
 
 - `provider-settings-ui`: provider cards, auth/model/reasoning controls submitted through Core contracts.

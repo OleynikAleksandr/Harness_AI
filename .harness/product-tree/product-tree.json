@@ -100,6 +100,18 @@
           ]
         },
         {
+          "id": "project-workflow-ui",
+          "name": "Project Workflow UI",
+          "purpose": "Core-read-model presentation of the Workflow Kit: New/Open Project dialog, project doctor and workflow status strip.",
+          "modules": [
+            {
+              "id": "project-setup-dialog",
+              "name": "Project Setup Dialog",
+              "purpose": "New Project (parent folder + name) and Open Project (folder, Core inspection, install/update/open, Open Without Kit) through the Core bridge."
+            }
+          ]
+        },
+        {
           "id": "settings-surface",
           "name": "Settings Surface",
           "purpose": "Provider, Profile Studio default, localization, and recovery settings UI. Profile authoring belongs to Profile Studio; this surface edits settings through Core contracts only.",

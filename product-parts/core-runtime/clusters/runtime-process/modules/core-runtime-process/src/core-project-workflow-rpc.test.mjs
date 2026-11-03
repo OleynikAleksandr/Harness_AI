@@ -288,6 +288,39 @@ try {
     ).code,
     "HOST_SPAWN"
   );
+  // Open Without Kit: registers the folder, installs nothing, any state.
+  host.calls.length = 0;
+  const plain = await rpc.invoke("workflow-prepare-project", {
+    install: false,
+    mode: "open",
+    path: "/open/git",
+  });
+  assert.equal(plain.ok, true);
+  assert.equal(plain.install, null);
+  assert.equal(
+    host.calls.some((call) => call[0] === "install"),
+    false
+  );
+  assert.equal(
+    (
+      await rpc.invoke("workflow-prepare-project", {
+        install: false,
+        mode: "open",
+        path: "/open/pilot",
+      })
+    ).ok,
+    true
+  );
+  assert.equal(
+    (
+      await rpc.invoke("workflow-prepare-project", {
+        install: false,
+        mode: "open",
+        path: "/open/none",
+      })
+    ).code,
+    "FOLDER_MISSING"
+  );
   const before = added.length;
   const broken = await rpc.invoke("workflow-prepare-project", {
     mode: "open",

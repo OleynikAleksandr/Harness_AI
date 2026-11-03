@@ -274,7 +274,10 @@ state.
     folder; a missing one is `FOLDER_MISSING`. Workflow Pilot or a folder
     inside another repository is `UNSUPPORTED_FOLDER`. Inspect actions
     `create`, `install` and `install-migrate` install, `update` updates,
-    `open` and `doctor` install nothing. Then the existing `add-workspace`
+    `open` and `doctor` install nothing. With `mode: "open"` and
+    `install: false` ("Open Without Kit") nothing is installed and any
+    existing folder is registered, as before the Kit. Then the existing
+    `add-workspace`
     route registers and selects the folder, the host runtime file is
     written and the status is published. Result `{ok: true, inspect,
     install, status, workspace}`; a failed install registers nothing;

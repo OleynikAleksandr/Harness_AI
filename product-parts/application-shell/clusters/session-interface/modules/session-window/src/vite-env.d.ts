@@ -298,6 +298,7 @@ interface Window {
       path: string;
     }): Promise<WorkflowKitOutcome<WorkflowInspectResult>>;
     prepareProject(request: {
+      install?: boolean;
       mode: "new" | "open";
       name?: string;
       path: string;

@@ -145,6 +145,10 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 - `open`, `doctor` — ничего не устанавливается;
 - `unsupported` — отказ.
 
+`install: false` с `mode: "open"` («Открыть без Kit») регистрирует любую
+существующую папку, ничего не устанавливая. Так сохраняется прежнее
+поведение «Add Workspace».
+
 Затем папка регистрируется как workspace. Методы `workflow-*` обрабатывает
 `CoreProjectWorkflowRpc` (`core-project-workflow-rpc.ts`).
 

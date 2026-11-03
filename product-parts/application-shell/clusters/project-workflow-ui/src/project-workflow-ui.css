@@ -1,0 +1,145 @@
+/* Project workflow UI: New/Open Project dialog, Project Doctor and the
+   workflow status strip. Uses the shared --pm-* dark theme tokens. */
+
+.project-workflow-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(7, 10, 15, 0.82);
+}
+
+.project-workflow-card {
+  display: grid;
+  gap: 14px;
+  width: min(620px, 100%);
+  max-height: min(720px, 92vh);
+  padding: 18px;
+  overflow: auto;
+  color: var(--pm-text-primary);
+  background: var(--pm-bg-panel);
+  border: 1px solid var(--pm-border-strong);
+  border-radius: 8px;
+  box-shadow: var(--pm-shadow-soft);
+}
+
+.project-workflow-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.project-workflow-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.project-workflow-description {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--pm-text-muted);
+}
+
+.project-workflow-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.project-workflow-field > span {
+  color: var(--pm-text-secondary);
+}
+
+.project-workflow-field input {
+  padding: 7px 9px;
+  font: inherit;
+  color: var(--pm-text-primary);
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 6px;
+}
+
+.project-workflow-folder {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.project-workflow-folder code {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 6px;
+}
+
+.project-workflow-state {
+  padding: 8px 10px;
+  margin: 0;
+  font-size: 13px;
+  background: var(--pm-bg-secondary);
+  border-left: 3px solid var(--pm-accent);
+  border-radius: 4px;
+}
+
+.project-workflow-state--unsupported,
+.project-workflow-state--create {
+  border-left-color: #d9534f;
+}
+
+.project-workflow-error {
+  margin: 0;
+  font-size: 13px;
+  color: #f08a85;
+  white-space: pre-wrap;
+}
+
+.project-workflow-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.project-workflow-pending {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--pm-text-muted);
+}
+
+.project-workflow-primary,
+.project-workflow-secondary {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--pm-text-primary);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.project-workflow-primary {
+  background: var(--pm-accent-strong);
+  border: 1px solid var(--pm-accent-strong);
+}
+
+.project-workflow-secondary {
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+}
+
+.project-workflow-primary:disabled,
+.project-workflow-secondary:disabled {
+  cursor: default;
+  opacity: 0.55;
+}

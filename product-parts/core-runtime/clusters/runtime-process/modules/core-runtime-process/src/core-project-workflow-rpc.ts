@@ -242,17 +242,23 @@ export class CoreProjectWorkflowRpc {
     if (!inspected.ok) {
       return inspected;
     }
-    const refused = refusal(inspected.result, target.mode);
+    // "Open Without Kit" registers any existing folder, as before the Kit.
+    const withoutKit = target.mode === "open" && record.install === false;
+    const refused =
+      withoutKit && inspected.result.action !== "create"
+        ? null
+        : refusal(inspected.result, target.mode);
     if (refused) {
       return refused;
     }
     let install: InstallOutcome | null = null;
     const action = inspected.result.action;
     if (
-      action === "create" ||
-      action === "install" ||
-      action === "install-migrate" ||
-      action === "update"
+      !withoutKit &&
+      (action === "create" ||
+        action === "install" ||
+        action === "install-migrate" ||
+        action === "update")
     ) {
       const installed = await host.install(target.target, {
         name: target.name || undefined,

@@ -1,7 +1,4 @@
 #!/bin/sh
-set -e
-
-npm run plan:validate
-npm run check:dup
-npm run check:security
-npm run check:links
+# workflow-kit:begin
+"$(git rev-parse --show-toplevel)/scripts/workflow" git-hook pre-push "$@" || exit $?
+# workflow-kit:end

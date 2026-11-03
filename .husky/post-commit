@@ -1,4 +1,4 @@
 #!/bin/sh
-set -e
-
-node scripts/plan.mjs post-commit
+# workflow-kit:begin
+"$(git rev-parse --show-toplevel)/scripts/workflow" git-hook post-commit "$@" || exit $?
+# workflow-kit:end

@@ -1,0 +1,102 @@
+{
+  "files": [
+    {
+      "executable": false,
+      "kind": "owned",
+      "path": ".harness/workflow/runtime/workflow.mjs",
+      "sha256": "a372630d1d75b8f045804955c17a81eb35bc217a660716c8c74cb73c481da04b"
+    },
+    {
+      "executable": true,
+      "kind": "owned",
+      "path": "scripts/workflow",
+      "sha256": "44ef38fb0ad55c726e8ee36d9987f2aaa630f7ce785726b54f87d7a20ceac99c"
+    },
+    {
+      "executable": false,
+      "kind": "owned",
+      "path": "scripts/workflow.cmd",
+      "sha256": "bc539cd7152e5d4be8dd565f97551473e579718e87596d8a78033fddd8ff81a2"
+    },
+    {
+      "executable": false,
+      "kind": "owned",
+      "path": "scripts/workflow.ps1",
+      "sha256": "146ae19797175b0aba21e72cb57acb0f30913dab456ec3595c9f61e9e0e1e21d"
+    },
+    {
+      "executable": true,
+      "kind": "section",
+      "path": ".husky/pre-commit",
+      "sha256": "c7a5509ff2dfca202705d029823fac760f31520603cd2261a691ebc6ce833476"
+    },
+    {
+      "executable": true,
+      "kind": "section",
+      "path": ".husky/commit-msg",
+      "sha256": "ac04e0784173de8f0f3f5c728342fa47386ad138986078c38b5b84640d8c06a1"
+    },
+    {
+      "executable": true,
+      "kind": "section",
+      "path": ".husky/post-commit",
+      "sha256": "5b67aee9e6b19de7195986363c3f9b5e424a6d55fe5544dfc30dfeb9f24ba3af"
+    },
+    {
+      "executable": true,
+      "kind": "section",
+      "path": ".husky/pre-push",
+      "sha256": "b92f971507e69165e21d2259fd61a87ba77f52911ff024e60014cbc0f42703df"
+    },
+    {
+      "executable": false,
+      "kind": "section",
+      "path": "AGENTS.md",
+      "sha256": "6590f9cc2372a0cf5e588c6b4344e0d189b1c81a9116c5f3a53de36496e1386d"
+    },
+    {
+      "executable": false,
+      "kind": "line",
+      "path": "CLAUDE.md",
+      "sha256": "918b1c90559355ef78f33fdf3562f2b021ef8bdfd8a5c8415e5decd44934de55"
+    },
+    {
+      "executable": false,
+      "kind": "json",
+      "path": ".codex/hooks.json",
+      "sha256": "f1db89e517d3a9e3e49e97579625e53371919882f24e047ce963608e62b03cc5"
+    },
+    {
+      "executable": false,
+      "kind": "json",
+      "path": ".claude/settings.json",
+      "sha256": "01703b1a346f2561e91e27992a673bd2eeab11388236387559e6ee35bfbc5318"
+    },
+    {
+      "executable": false,
+      "kind": "section",
+      "path": ".gitignore",
+      "sha256": "c17cf3af4d588ea61f70900edeb8c62050df40a064426e6aa90a86daceeb4771"
+    },
+    {
+      "executable": false,
+      "kind": "section",
+      "path": ".gitattributes",
+      "sha256": "2c00894a2f4493d5773f4bdcda4d54ea14acdfc3e700bffc005b936d8c30369d"
+    },
+    {
+      "executable": false,
+      "kind": "create",
+      "path": "README.md",
+      "sha256": null
+    },
+    {
+      "executable": false,
+      "kind": "create",
+      "path": "docs/architecture/OVERVIEW.md",
+      "sha256": null
+    }
+  ],
+  "schema": "harness-workflow-manifest/1",
+  "version": "2.0.0"
+}

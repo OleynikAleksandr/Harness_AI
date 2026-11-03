@@ -25,3 +25,9 @@ release/
 .DS_Store
 .idea/
 .vscode/
+
+# workflow-kit:begin
+# Workflow Kit local state
+.harness/workflow/local/
+.harness/runtime/
+# workflow-kit:end

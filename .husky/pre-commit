@@ -1,18 +1,4 @@
 #!/bin/sh
-set -e
-
-npm run plan:validate
-
-STAGED_FILE_LIST=$(mktemp)
-trap 'rm -f "$STAGED_FILE_LIST"' EXIT
-git diff --cached --name-only --diff-filter=ACMR -z > "$STAGED_FILE_LIST"
-if [ -s "$STAGED_FILE_LIST" ]; then
-  xargs -0 npx ultracite fix < "$STAGED_FILE_LIST"
-  git add --pathspec-from-file="$STAGED_FILE_LIST" --pathspec-file-nul
-fi
-
-npm run check:architecture
-npm run lint
-npm run check:knip
-npm run typecheck
-npm test
+# workflow-kit:begin
+"$(git rev-parse --show-toplevel)/scripts/workflow" git-hook pre-commit "$@" || exit $?
+# workflow-kit:end

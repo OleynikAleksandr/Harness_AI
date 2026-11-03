@@ -90,3 +90,69 @@ architecture, Ultracite, Knip, typecheck, docs-sync и полный набор �
    Highspeed «Provider managed».
 4. Новая Kimi-сессия на K3.1 Pro с выбранным уровнем стартует и отвечает.
 5. Новые сессии Codex (GPT-6.x) и Claude (Fable) стартуют на выбранной модели.
+
+## Пересборка 2026-11-03: свежесть Claude SDK и только алиасы
+
+### Что сообщил пользователь и что нашлось
+
+- Подписи Claude в Settings устарели («Opus 4.8», «Fable 5», «Sonnet 5»,
+  «Haiku 4.5»). Причина: Harness один раз ставил Claude Agent SDK в
+  `~/.harness-ai/providers/claude/sdk` и больше его не обновлял (0.3.207), а
+  строка SDK и кнопка обновления в Settings работали с глобальным npm-пакетом
+  (0.3.316). Переключатель автообновления не имел потребителя в Core.
+- Вчерашнее «живое» чтение Claude из терминала было искажено: процесс внутри
+  сессии Claude Code наследует её окружение (`ANTHROPIC_BASE_URL`, данные
+  аккаунта) и получает урезанный список. Упакованное приложение запускается с
+  чистым окружением и получает полный список; данные Claude в таблице выше
+  относятся к тому искажённому чтению.
+- «Authentication required» у Kimi — истёкший OAuth-вход Kimi CLI: CLI 2.4.1
+  после отказа сервера в обновлении токена записал пустые токены в общий
+  `~/.kimi-code/credentials/kimi-code.json`. Пользователь заново вошёл
+  (`kimi login`), изменений кода не потребовалось.
+
+### Исправления
+
+- `feat: update harness claude sdk in place` — claude-provider читает версию
+  Harness SDK, обновляет его в Harness prefix и умеет принудительно
+  перечитывать каталог (`force`).
+- `feat: auto-update claude sdk and model labels` — строка SDK Claude в Settings
+  и её кнопка работают с Harness SDK; после обновления каталог перечитывается
+  сразу; при включённом автообновлении Claude ядро на старте обновляет SDK,
+  если опубликована новая версия, и перечитывает каталог.
+- `fix: show only claude alias models` — по решению пользователя Core отдаёт
+  только алиасы семейств; закреплённые версии не показываются. Сохранённые id
+  с суффиксом `[1m]` сопоставляются с алиасом (`opus[1m]` → `opus`).
+
+### Проверка
+
+Harness Claude SDK обновлён через маршрут ядра
+`updateProviderSdk("claude", "sdk")` собранного runtime: 0.3.207 → 0.3.317;
+строка версий Settings вернула `currentVersion` и `latestVersion` `0.3.317`.
+
+Ответ SDK 0.3.317 в упакованном приложении: алиасы `opus` «Opus 5.5»,
+`fable` «Fable 5.1», `sonnet` «Sonnet 5.5», `haiku` «Haiku 5.5» (все с
+уровнями low..max) и восемь закреплённых версий (Opus 5/4.8/4.7/4.6,
+Sonnet 5/4.6, Fable 5, Haiku 4.5).
+
+`npm run package:mac` из revision
+`9c1fedba04f0abe073a18cb815f4637fe08d6768`:
+
+- renderer: `dist/renderer/assets/index-DEE35EBW.js`,
+  `dist/renderer/assets/index-DGrvNM_0.css`;
+- `app.asar` size: `32542877` bytes;
+- `app.asar` modification time: `2026-11-03T08:41:54+0100`;
+- SHA-256:
+  `52dd4ce20de82c36fb7c13d917ddbeb42a464e359b4b4f1d9c4f0cd55b0d7af9`.
+
+Пакет запущен: main process `23900`, Core Runtime process `23907`. При старте
+Core живьём прочитал каталог (`fetchedAt` `2026-11-03T07:42:01.705Z`) и
+сохранил ровно четыре алиаса: Opus 5.5, Fable 5.1, Sonnet 5.5, Haiku 5.5.
+
+### Шаги ручной проверки
+
+1. Settings → Claude: четыре строки — Opus 5.5, Fable 5.1, Sonnet 5.5,
+   Haiku 5.5, у каждой свой выбор уровня рассуждений.
+2. Settings → Claude → версии: строка SDK показывает 0.3.317.
+3. Включить автообновление Claude: при следующем выходе SDK подписи сменятся
+   после перезапуска Harness.
+4. Новая сессия Claude на Fable 5.1 запускается и отвечает.

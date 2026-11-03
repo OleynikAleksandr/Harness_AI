@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream3.task3",
-  "expectedCommitMessage": "docs: package claude sdk freshness",
+  "currentTaskId": "harness-ai.phase21.stream3.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -448,9 +448,9 @@ returned a reduced list. The user chose to show only the four aliases.
 
 138. [DONE] `harness-ai.phase21.stream5.task3` Serve only the Claude alias models (ids without a version once the context suffix is dropped), refresh the verified fallback to the clean-environment alias rows and normalize saved suffixed ids (`opus[1m]`) onto the alias catalog (scope: claude-provider `claude-model-catalog.ts`, provider-descriptor `provider-descriptor-facade.ts`, settings-store `settings-model-catalogs.ts`, plus focused tests and related docs; expected commit: `fix: show only claude alias models`). Result: Completed in commit `fix: show only claude alias models`.
 139. [DONE] Git Commit: `fix: show only claude alias models` (hash: self)
-140. [IN_PROGRESS] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`).
-141. [TODO] Git Commit: `docs: package claude sdk freshness` (hash: TBD)
+140. [DONE] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`). Result: Completed in commit `docs: package claude sdk freshness`.
+141. [DONE] Git Commit: `docs: package claude sdk freshness` (hash: self)
 
 ### Stream: Phase 21 User Acceptance
 
-142. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+142. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

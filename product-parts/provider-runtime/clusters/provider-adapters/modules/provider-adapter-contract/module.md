@@ -32,7 +32,12 @@ the provider adapter; cancellation and malformed decisions must fail closed.
   categories, profile identity, content hash, and optional native request
   `requestTemplate`/`tools` sidecars) materialized by Core; an absent payload
   keeps the adapter's current behavior
-  (docs/architecture/SessionProfiles.md).
+  (docs/architecture/SessionProfiles.md). The same options carry an
+  optional `workspaceContext` string: the Workflow Kit recovery packet Core
+  computes for a workspace with the Kit
+  (docs/architecture/workflow-kit/WorkflowKitInstallation.md, section 5.4).
+  Adapters that support it add it to the session system context; the
+  others ignore it.
 - Provider event subscription.
 - Provider-neutral structured subagent events: `subagent_control` preserves the
   collaboration call position, prompt/model/reasoning and receiver states;

@@ -236,6 +236,17 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   resolution reads profile documents from disk. The applied profile reaches
   the UI read model as `CoreSession.appliedProfile` in session RPC payloads.
 
+- Workflow Kit context (`session-workflow-context.ts`): before
+  `createSession`/`resumeSession`, `bindProviderSession` asks
+  `resolveWorkflowWorkspaceContext(session)` (injectable as the
+  `resolveWorkspaceContext` dependency) for the recovery packet. Only primary
+  sessions without a `sessionPurpose` and with a workspace whose Kit is
+  installed (the host finds the project bundle) get it; the Kit runs
+  `recover --event startup` for a new provider session and `--event resume`
+  when a `providerSessionId` exists, with a 20 s timeout. The packet text
+  goes to the adapter as `ProviderSessionStartOptions.workspaceContext`; a
+  failing or absent Kit leaves the option out and never fails the bind.
+
 ## Owned Paths
 
 - `module.md`

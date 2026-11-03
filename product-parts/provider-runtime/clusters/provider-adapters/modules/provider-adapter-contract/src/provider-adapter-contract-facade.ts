@@ -109,6 +109,12 @@ export interface ProviderSessionStartOptions {
    * the adapter's pre-profile behavior untouched.
    */
   readonly profileKind?: "managed" | "native";
+  /**
+   * Workflow Kit recovery packet of the workspace, computed by Core when the
+   * workspace has the Kit. Adapters that support it add it to the session's
+   * system context; others ignore it.
+   */
+  readonly workspaceContext?: string;
 }
 
 /**

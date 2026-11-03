@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p9.t1",
-  "expectedCommitMessage": "feat: pass workflow recovery context to provider sessions",
+  "currentTaskId": "harness-ai.wk.p9.t2",
+  "expectedCommitMessage": "feat: deliver workflow context to claude sessions",
   "debt": null
 }
 ```
@@ -119,9 +119,9 @@
 
 ## Phase 9 - Provider Context Delivery (owner: Claude, updated: 2026-11-03)
 
-57. [IN_PROGRESS] `harness-ai.wk.p9.t1` Add `ProviderSessionStartOptions.workspaceContext` and compute the recovery packet in `bindProviderSession` for workspaces with the kit; tests (scope: `provider-adapter-contract, session-request-handler`; expected commit: `feat: pass workflow recovery context to provider sessions`).
-58. [TODO] Git Commit: `feat: pass workflow recovery context to provider sessions` (hash: TBD)
-59. [TODO] `harness-ai.wk.p9.t2` Claude adapter: append workspace context to native/managed/legacy prompts and pass `HARNESS_WORKFLOW_RECOVERY=host`; tests (scope: `claude-provider/src/**`; expected commit: `feat: deliver workflow context to claude sessions`).
+57. [DONE] `harness-ai.wk.p9.t1` Add `ProviderSessionStartOptions.workspaceContext` and compute the recovery packet in `bindProviderSession` for workspaces with the kit; tests (scope: `provider-adapter-contract, session-request-handler`; expected commit: `feat: pass workflow recovery context to provider sessions`). Result: Completed in commit `feat: pass workflow recovery context to provider sessions`.
+58. [DONE] Git Commit: `feat: pass workflow recovery context to provider sessions` (hash: self)
+59. [IN_PROGRESS] `harness-ai.wk.p9.t2` Claude adapter: append workspace context to native/managed/legacy prompts and pass `HARNESS_WORKFLOW_RECOVERY=host`; tests (scope: `claude-provider/src/**`; expected commit: `feat: deliver workflow context to claude sessions`).
 60. [TODO] Git Commit: `feat: deliver workflow context to claude sessions` (hash: TBD)
 61. [TODO] `harness-ai.wk.p9.t3` Codex adapter: `developerInstructions` on thread start/resume and `HARNESS_WORKFLOW_RECOVERY=host` in the app-server env; tests (scope: `codex-provider/src/**`; expected commit: `feat: deliver workflow context to codex sessions`).
 62. [TODO] Git Commit: `feat: deliver workflow context to codex sessions` (hash: TBD)

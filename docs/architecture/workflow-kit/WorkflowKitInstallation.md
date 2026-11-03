@@ -156,7 +156,11 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 - Контракт адаптера расширяется полем
   `ProviderSessionStartOptions.workspaceContext?: string`. Core вычисляет
   пакет в `bindProviderSession` и передаёт его в `createSession` и
-  `resumeSession`.
+  `resumeSession`. Для новой сессии провайдера используется событие
+  `startup`, для возобновления — `resume`. Таймаут — 20 секунд. Пакет
+  получают только основные сессии. Субагенты и сессии Profile Creator его не
+  получают. Если Kit не установлен или вернул ошибку, сессия стартует без
+  контекста.
 - Как адаптеры используют поле:
   - **Claude** — добавляет его к системному промпту (native: `append` к
     пресету `claude_code`; managed и legacy: в конец строки);

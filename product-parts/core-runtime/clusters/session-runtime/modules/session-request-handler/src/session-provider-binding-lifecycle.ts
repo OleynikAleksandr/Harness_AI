@@ -25,6 +25,7 @@ import type {
   ProviderRuntimeBinding,
   ProviderSessionBindingFacadeLike,
 } from "./session-request-handler-types.js";
+import { resolveWorkflowWorkspaceContext } from "./session-workflow-context.js";
 
 interface SessionProviderBindingLifecycleDependencies {
   readonly bindingFacade: ProviderSessionBindingFacadeLike;
@@ -51,6 +52,10 @@ interface SessionProviderBindingLifecycleDependencies {
     sessionId: string,
     appliedProfileApplication?: Readonly<Record<string, unknown>>
   ) => void;
+  /** Workflow Kit recovery packet for a start or resume; defaults to the Kit host. */
+  readonly resolveWorkspaceContext?: (
+    session: CoreSession
+  ) => Promise<string | undefined>;
   readonly runtimeBindings: Map<string, ProviderRuntimeBinding>;
   readonly updateTelemetryFromProvider: (
     sessionId: string,
@@ -81,9 +86,21 @@ export class SessionProviderBindingLifecycle {
     try {
       await adapter.initialize?.();
       const profilePayload = buildSessionProfilePayload(session.appliedProfile);
-      const startOptions = session.appliedProfile
-        ? { profile: profilePayload, profileKind: session.appliedProfile.kind }
-        : undefined;
+      const workspaceContext = await (
+        this.deps.resolveWorkspaceContext ?? resolveWorkflowWorkspaceContext
+      )(session);
+      const startOptions =
+        session.appliedProfile || workspaceContext
+          ? {
+              ...(session.appliedProfile
+                ? {
+                    profile: profilePayload,
+                    profileKind: session.appliedProfile.kind,
+                  }
+                : {}),
+              ...(workspaceContext ? { workspaceContext } : {}),
+            }
+          : undefined;
       const startOutcome =
         session.providerSessionId && adapter.resumeSession
           ? await adapter.resumeSession(

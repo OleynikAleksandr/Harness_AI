@@ -19,6 +19,7 @@ import {
   WorkflowRecoveryFacade,
 } from "../../workflow-recovery/src/workflow-recovery-facade.js";
 import type { KitContext } from "./kit-context.js";
+import { type HookResult, runGitHook } from "./kit-hooks.js";
 import {
   applyQuality,
   detectQuality,
@@ -55,6 +56,8 @@ import {
   type TaskStart,
 } from "./kit-task.js";
 
+export type { GitHookName, HookResult } from "./kit-hooks.js";
+export { GIT_HOOKS } from "./kit-hooks.js";
 export type { QualityApplied } from "./kit-quality.js";
 export type {
   CarryoverInput,
@@ -195,6 +198,11 @@ export class WorkflowKitFacade {
 
   qualityStatus(root: string): ReturnType<typeof qualityStatus> {
     return qualityStatus(this.context(root));
+  }
+
+  /** `git-hook <name>`: handlers of the managed git hooks. */
+  gitHook(root: string, name: string, args: string[] = []): HookResult {
+    return runGitHook(this.context(root), name, args);
   }
 
   repair(

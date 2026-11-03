@@ -30,9 +30,10 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
 - `workflow-plan` — plan model, validation, document and transitions.
 - `workflow-git` — git queries, history, transactional commits, references
   and repair.
+- `workflow-quality` — project quality profile: configuration, stack
+  detection, check catalog, check execution and profile application.
 
-Further modules ( `workflow-quality`,
-`workflow-recovery`, `workflow-autopilot`, `workflow-kit`,
+Further modules (`workflow-recovery`, `workflow-autopilot`, `workflow-kit`,
 `workflow-installer`, `workflow-host`) are added by the active plan in that
 order.
 

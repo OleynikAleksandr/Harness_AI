@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p4.t1",
-  "expectedCommitMessage": "feat: add workflow quality configuration",
+  "currentTaskId": "harness-ai.wk.p4.t2",
+  "expectedCommitMessage": "feat: detect project stacks and quality catalog",
   "debt": null
 }
 ```
@@ -68,9 +68,9 @@
 
 ## Phase 4 - Quality Profile (owner: Claude, updated: 2026-11-03)
 
-21. [IN_PROGRESS] `harness-ai.wk.p4.t1` Create the `workflow-quality` module: config schema and defaults (`.harness/workflow/config.json`: quality, docs contracts, budgets, policy, autopilot) and `WorkflowQualityFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**, product tree, cluster.md`; expected commit: `feat: add workflow quality configuration`).
-22. [TODO] Git Commit: `feat: add workflow quality configuration` (hash: TBD)
-23. [TODO] `harness-ai.wk.p4.t2` Add stack detection (manifests, lock files, package manager) and the ecosystem catalog (node, python, go, rust, dotnet, swift, jvm) producing proposals; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: detect project stacks and quality catalog`).
+21. [DONE] `harness-ai.wk.p4.t1` Create the `workflow-quality` module: config schema and defaults (`.harness/workflow/config.json`: quality, docs contracts, budgets, policy, autopilot) and `WorkflowQualityFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**, product tree, cluster.md`; expected commit: `feat: add workflow quality configuration`). Result: Completed in commit `feat: add workflow quality configuration`.
+22. [DONE] Git Commit: `feat: add workflow quality configuration` (hash: self)
+23. [IN_PROGRESS] `harness-ai.wk.p4.t2` Add stack detection (manifests, lock files, package manager) and the ecosystem catalog (node, python, go, rust, dotnet, swift, jvm) producing proposals; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: detect project stacks and quality catalog`).
 24. [TODO] Git Commit: `feat: detect project stacks and quality catalog` (hash: TBD)
 25. [TODO] `harness-ai.wk.p4.t3` Add the check runner (prepare/commit/push/delivery stages, `{files}` expansion, appliesTo, timeouts, evidence records) and built-in checks (`kit:file-lines`, `kit:doc-size`, `kit:docs-contracts`, `kit:md-links`); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: run workflow quality checks and builtins`).
 26. [TODO] Git Commit: `feat: run workflow quality checks and builtins` (hash: TBD)

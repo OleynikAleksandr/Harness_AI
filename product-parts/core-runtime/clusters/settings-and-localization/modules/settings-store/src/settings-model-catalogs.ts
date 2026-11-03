@@ -38,8 +38,9 @@ const PREFERRED_DEFAULT_EFFORTS: readonly ReasoningEffort[] = [
   "medium",
   "high",
 ];
-// Claude 1M-context ids carry a `[1m]` suffix (`opus[1m]`); settings saved
-// before the live catalog hold the bare alias (`opus`).
+// Claude 1M-context ids carry a `[1m]` suffix (`opus[1m]`). Saved ids and
+// catalog ids are compared without it, so `opus`, `opus[1m]` and a catalog
+// switching between them resolve to the same model.
 const CONTEXT_SUFFIX_PATTERN = /\[[^\]]*\]$/u;
 
 const isSettingsReasoningEffort = (effort: string): effort is ReasoningEffort =>
@@ -78,7 +79,7 @@ export function listProviderModelCatalogs(): ProviderModelCatalogs {
 }
 
 // The catalog id a stored model id stands for: itself, or the catalog model
-// whose id without the context suffix matches it.
+// whose id matches it once both drop the context suffix.
 function catalogModelId(
   models: readonly SettingsModelOption[],
   storedId: string
@@ -86,10 +87,10 @@ function catalogModelId(
   if (models.some((model) => model.id === storedId)) {
     return storedId;
   }
+  const storedBase = withoutContextSuffix(storedId);
   return (
-    models.find(
-      (model) => model.id.replace(CONTEXT_SUFFIX_PATTERN, "") === storedId
-    )?.id ?? null
+    models.find((model) => withoutContextSuffix(model.id) === storedBase)?.id ??
+    null
   );
 }
 
@@ -112,7 +113,7 @@ export function normalizeCatalogDefaultModel(
 }
 
 // One effort per catalog model that offers effort selection: the stored
-// level (also under the legacy bare id) when the model supports it, else the
+// level (also under an id differing only by the context suffix) when the model supports it, else the
 // model default. Entries for models outside the catalog are dropped.
 export function normalizeCatalogEfforts(
   models: readonly SettingsModelOption[],
@@ -124,8 +125,12 @@ export function normalizeCatalogEfforts(
       if (!model.defaultReasoningEffort) {
         return [];
       }
-      const legacyId = model.id.replace(CONTEXT_SUFFIX_PATTERN, "");
-      const configured = storedById[model.id] ?? storedById[legacyId];
+      const base = withoutContextSuffix(model.id);
+      const configured =
+        storedById[model.id] ??
+        Object.entries(storedById).find(
+          ([storedId]) => withoutContextSuffix(storedId) === base
+        )?.[1];
       return [
         [
           model.id,
@@ -135,6 +140,10 @@ export function normalizeCatalogEfforts(
       ];
     })
   );
+}
+
+function withoutContextSuffix(id: string): string {
+  return id.replace(CONTEXT_SUFFIX_PATTERN, "");
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

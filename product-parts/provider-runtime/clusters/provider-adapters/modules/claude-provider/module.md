@@ -206,19 +206,21 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 
 ## Live Model Catalog
 
-- `claude-model-catalog.ts` (verified 2026-11-02 on Claude Agent SDK
-  0.3.207): `refreshClaudeModelCatalog` imports the Harness-installed SDK
+- `claude-model-catalog.ts` (verified 2026-11-03 on Claude Agent SDK
+  0.3.317 in the packaged app): `refreshClaudeModelCatalog` imports the Harness-installed SDK
   (`<HARNESS_AI_HOME or ~/.harness-ai>/providers/claude/sdk/.../sdk.mjs`),
   opens one idle `query` (no prompt is ever sent) with the provider auth
   environment (`HOME` -> `<harness home>/providers/claude/home`,
   `CLAUDE_USE_CLI_AUTH`, `CLAUDE_SUBSCRIPTION_MODE`, `ANTHROPIC_API_KEY` and
   `CLAUDECODE` stripped, the SDK's own platform executable, no setting
   sources), reads `supportedModels()` within 30 seconds and closes the
-  query. Every row except the `default` alias becomes a
-  `ProviderModelDescriptor`: `id` from `value` (the id the SDK accepts as
-  `model`, e.g. `opus[1m]`, `claude-fable-5[1m]`, `sonnet`, `haiku`),
-  `label` from `displayName`, `description`, and `reasoningEfforts` from
-  `supportedEffortLevels` (Haiku has none). A successful read replaces the
+  query. Only family alias rows are served (user decision 2026-11-03): ids
+  without a version once the `[1m]` context suffix is dropped (`opus`,
+  `fable`, `sonnet`, `haiku`, also `opus[1m]`); the `default` row and pinned
+  versions (`claude-opus-4-8`, `claude-sonnet-5`, …) are skipped. Each kept
+  row becomes a `ProviderModelDescriptor`: `id` from `value` (the id the SDK
+  accepts as `model`), `label` from `displayName`, `description`, and
+  `reasoningEfforts` from `supportedEffortLevels` (none when absent). A successful read replaces the
   catalog served through `providerDescriptorFacade.setClaudeModels` and is
   persisted in the SDK row shape to
   `<HARNESS_AI_HOME or ~/.harness-ai>/providers/claude/model-catalog.json`;
@@ -230,12 +232,16 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   descriptions replace the memoized ones. Core calls it first in
   `CoreRuntimeApi.initialize()`; the facade re-exports
   `refreshClaudeModelCatalog`.
-- Model labels (`Opus`, `Fable`, `Sonnet`, `Haiku`) are Anthropic aliases and
-  stay number-free; which model an alias means and the description text
-  (e.g. "Opus 5.5 · …") come from the CLI bundled with the installed SDK.
-  Verified 2026-11-03: SDK 0.3.207 reports Opus 4.8 / Fable 5 / Sonnet 5 /
-  Haiku 4.5, SDK 0.3.317 reports Opus 5.5 / Fable 5 / Sonnet 5.5 /
-  Haiku 5.5 (Haiku with efforts).
+- Model ids are Anthropic family aliases; which model an alias means and its
+  display name come from the CLI bundled with the installed SDK. Verified
+  2026-11-03 in the packaged app: SDK 0.3.317 lists `opus` "Opus 5.5",
+  `fable` "Fable 5.1", `sonnet` "Sonnet 5.5", `haiku` "Haiku 5.5" (all with
+  efforts) plus eight pinned versions (Opus 5/4.8/4.7/4.6, Sonnet 5/4.6,
+  Fable 5, Haiku 4.5), which are not served; SDK 0.3.207 still meant Opus
+  4.8 / Fable 5 / Sonnet 5 / Haiku 4.5. A reader started inside a Claude Code
+  session inherits that session's environment (`ANTHROPIC_BASE_URL`, account
+  variables) and gets a reduced list; the packaged app's clean environment
+  gets the full one.
 
 ## Harness SDK Updates
 

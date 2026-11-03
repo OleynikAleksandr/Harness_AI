@@ -122,36 +122,38 @@ export function kimiClientModelContextLength(model: string): number {
   );
 }
 
-// Verified Claude catalog: the `supportedModels()` rows (minus the
-// `default` alias) the Harness-installed Claude Agent SDK 0.3.207 returned on
-// 2026-11-02. It is only the offline fallback — Core replaces it with the
-// live catalog through `setClaudeModels` (claude-provider
-// `claude-model-catalog`). Ids are the values the SDK accepts as `model`.
+// Verified Claude catalog: the family alias rows of `supportedModels()` the
+// Harness-installed Claude Agent SDK 0.3.317 returned in the packaged app on
+// 2026-11-03 (pinned version rows are not served). It is only the offline
+// fallback — Core replaces it with the live catalog through `setClaudeModels`
+// (claude-provider `claude-model-catalog`). Ids are the aliases the SDK
+// accepts as `model`; each always means Anthropic's newest model of the
+// family.
 const CLAUDE_EFFORTS = ["low", "medium", "high", "xhigh", "max"] as const;
 export const CLAUDE_MODELS: readonly ProviderModelDescriptor[] = [
   {
-    description: "Opus 4.8 with 1M context · Best for everyday, complex tasks",
-    id: "opus[1m]",
-    label: "Opus",
+    description: "Best for everyday, complex tasks",
+    id: "opus",
+    label: "Opus 5.5",
     reasoningEfforts: CLAUDE_EFFORTS,
   },
   {
-    description:
-      "Fable 5 · Most capable for your hardest and longest-running tasks",
-    id: "claude-fable-5[1m]",
-    label: "Fable",
+    description: "Most capable for your hardest and longest-running tasks",
+    id: "fable",
+    label: "Fable 5.1",
     reasoningEfforts: CLAUDE_EFFORTS,
   },
   {
-    description: "Sonnet 5 · Efficient for routine tasks",
+    description: "Efficient for routine tasks",
     id: "sonnet",
-    label: "Sonnet",
+    label: "Sonnet 5.5",
     reasoningEfforts: CLAUDE_EFFORTS,
   },
   {
-    description: "Haiku 4.5 · Fastest for quick answers",
+    description: "Fastest for quick answers",
     id: "haiku",
-    label: "Haiku",
+    label: "Haiku 5.5",
+    reasoningEfforts: CLAUDE_EFFORTS,
   },
 ];
 

@@ -47,14 +47,13 @@ Own model/reasoning capabilities and UI metadata for providers.
 - Live Claude model catalog: `getClaudeModels()` returns the served list
   and `setClaudeModels(models)` replaces it (an empty list is ignored); the
   `claude-provider` live catalog reader applies the persisted and then the
-  live SDK `supportedModels()` catalog. `CLAUDE_MODELS` is the verified
-  offline fallback — the 2026-11-02 rows of the Harness-installed SDK
-  0.3.207: `opus[1m]` (Opus 4.8, 1M context), `claude-fable-5[1m]`
-  (Fable 5), `sonnet` (Sonnet 5), each with efforts
-  `low/medium/high/xhigh/max`, and `haiku` (Haiku 4.5, no efforts). Capture
-  and Profile Studio Claude targets therefore use these ids (`opus[1m]`
-  instead of the former `opus` alias). Settings normalization and the
-  Settings UI still use their own static Claude alias list.
+  live SDK `supportedModels()` catalog (family aliases only).
+  `CLAUDE_MODELS` is the verified offline fallback — the alias rows the
+  Harness-installed SDK 0.3.317 returned in the packaged app on 2026-11-03:
+  `opus` (Opus 5.5), `fable` (Fable 5.1), `sonnet` (Sonnet 5.5) and `haiku`
+  (Haiku 5.5), each with efforts `low/medium/high/xhigh/max`. Capture,
+  Profile Studio Claude targets and Settings use these alias ids; each alias
+  always means Anthropic's newest model of the family.
 - Live Codex model catalog: `getCodexModels()` returns the served list and
   `setCodexModels(models)` replaces it (an empty list is ignored); the
   `codex-provider` live catalog reader applies the persisted and then the

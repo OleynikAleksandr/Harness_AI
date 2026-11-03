@@ -99,55 +99,71 @@ try {
     pathToFileURL(path.join(buildDir, "provider-descriptor-facade.js")).href
   );
 
-  // Rows replayed from the live 2026-11-02 `supportedModels()` probe: the
-  // `default` alias row is not offered, Haiku has no effort selection.
+  // Rows replayed from the live 2026-11-03 `supportedModels()` read of SDK
+  // 0.3.317 in the packaged app: only the family aliases are served — the
+  // `default` row and pinned versions (`claude-opus-4-8`, `opus-4-6[1m]`)
+  // are skipped; a row without efforts keeps none.
+  const opusDescription = "Best for everyday, complex tasks";
   const liveRows = [
     {
-      description:
-        "Opus 4.8 with 1M context · Best for everyday, complex tasks",
+      description: opusDescription,
       displayName: "Default (recommended)",
       supportedEffortLevels: ["low", "medium", "high", "xhigh", "max"],
       value: "default",
     },
     {
-      description:
-        "Opus 4.8 with 1M context · Best for everyday, complex tasks",
-      displayName: "Opus",
+      description: opusDescription,
+      displayName: "Opus 5.5",
       supportedEffortLevels: ["low", "medium", "high", "xhigh", "max"],
-      value: "opus[1m]",
+      value: "opus",
     },
     {
-      description: "Fable 5.1 · Most capable for your hardest tasks",
-      displayName: "Fable",
+      description: "Most capable for your hardest and longest-running tasks",
+      displayName: "Fable 5.1",
       supportedEffortLevels: ["low", "high", "max"],
-      value: "claude-fable-5-1[1m]",
+      value: "fable",
     },
     {
-      description: "Haiku 4.5 · Fastest for quick answers",
-      displayName: "Haiku",
+      description: "Fastest for quick answers",
+      displayName: "Haiku 5.5",
       value: "haiku",
+    },
+    {
+      description: opusDescription,
+      displayName: "Opus 4.8",
+      supportedEffortLevels: ["low", "medium", "high", "xhigh", "max"],
+      value: "claude-opus-4-8",
+    },
+    {
+      description: opusDescription,
+      displayName: "Opus 4.6",
+      value: "opus-4-6[1m]",
     },
   ];
   const liveModels = [
     {
-      description:
-        "Opus 4.8 with 1M context · Best for everyday, complex tasks",
-      id: "opus[1m]",
-      label: "Opus",
+      description: opusDescription,
+      id: "opus",
+      label: "Opus 5.5",
       reasoningEfforts: ["low", "medium", "high", "xhigh", "max"],
     },
     {
-      description: "Fable 5.1 · Most capable for your hardest tasks",
-      id: "claude-fable-5-1[1m]",
-      label: "Fable",
+      description: "Most capable for your hardest and longest-running tasks",
+      id: "fable",
+      label: "Fable 5.1",
       reasoningEfforts: ["low", "high", "max"],
     },
     {
-      description: "Haiku 4.5 · Fastest for quick answers",
+      description: "Fastest for quick answers",
       id: "haiku",
-      label: "Haiku",
+      label: "Haiku 5.5",
     },
   ];
+  // A 1M-context alias stays an alias.
+  assert.deepEqual(
+    parseClaudeModelCatalog([{ displayName: "Opus", value: "opus[1m]" }]),
+    [{ id: "opus[1m]", label: "Opus" }]
+  );
   assert.deepEqual(parseClaudeModelCatalog(liveRows), liveModels);
   assert.deepEqual(parseClaudeModelCatalog("junk"), []);
   assert.deepEqual(parseClaudeModelCatalog([{ value: "bare" }, {}, "x"]), [
@@ -170,10 +186,13 @@ try {
   process.env.HARNESS_AI_HOME = path.join(buildDir, "empty-harness-home");
   assert.equal(await fetchClaudeModelCatalog(), null);
 
-  // Offline first start serves the verified fallback (Fable included); a
+  // Offline first start serves the verified alias fallback; a
   // live read replaces the served catalog (capture follows it), persists it
   // and memoizes for the TTL; a failed read after expiry keeps it.
-  assert.ok(CLAUDE_MODELS.some((model) => model.label === "Fable"));
+  assert.deepEqual(
+    CLAUDE_MODELS.map((model) => model.id),
+    ["opus", "fable", "sonnet", "haiku"]
+  );
   const offline = () => Promise.reject(new Error("offline"));
   const catalogPath = path.join(buildDir, "home", "model-catalog.json");
   assert.deepEqual(
@@ -206,8 +225,8 @@ try {
   assert.deepEqual(providerDescriptorFacade.getCapturableModels("claude"), [
     {
       defaultReasoningEffort: "medium",
-      id: "opus[1m]",
-      label: "Opus",
+      id: "opus",
+      label: "Opus 5.5",
       reasoningEfforts: [
         { id: "low", label: "Low" },
         { id: "medium", label: "Medium" },
@@ -218,8 +237,8 @@ try {
     },
     {
       defaultReasoningEffort: null,
-      id: "claude-fable-5-1[1m]",
-      label: "Fable",
+      id: "fable",
+      label: "Fable 5.1",
       reasoningEfforts: [
         { id: "low", label: "Low" },
         { id: "high", label: "High" },
@@ -229,7 +248,7 @@ try {
     {
       defaultReasoningEffort: null,
       id: "haiku",
-      label: "Haiku",
+      label: "Haiku 5.5",
       reasoningEfforts: [],
     },
   ]);
@@ -243,9 +262,7 @@ try {
   // `force` re-reads inside the TTL (right after a Harness SDK update) and
   // serves the new SDK's descriptions.
   const updatedRows = liveRows.map((row) =>
-    row.value === "opus[1m]"
-      ? { ...row, description: "Opus 5.5 · Best for everyday, complex tasks" }
-      : row
+    row.value === "opus" ? { ...row, displayName: "Opus 5.6" } : row
   );
   const freshAt = 1000 + 17 * 60 * 1000;
   await refreshClaudeModelCatalog({
@@ -260,8 +277,8 @@ try {
         listModels: () => Promise.resolve(updatedRows),
         now: freshAt + 1000,
       })
-    )[0].description,
-    liveModels[0].description
+    )[0].label,
+    "Opus 5.5"
   );
   assert.equal(
     (
@@ -271,8 +288,8 @@ try {
         listModels: () => Promise.resolve(updatedRows),
         now: freshAt + 2000,
       })
-    )[0].description,
-    "Opus 5.5 · Best for everyday, complex tasks"
+    )[0].label,
+    "Opus 5.6"
   );
 
   // The persisted catalog round-trips: an offline restart serves it.
@@ -283,9 +300,7 @@ try {
   await mkdir(path.dirname(restartPath), { recursive: true });
   writeFileSync(restartPath, JSON.stringify(persisted), "utf8");
   const updatedModels = liveModels.map((model) =>
-    model.id === "opus[1m]"
-      ? { ...model, description: "Opus 5.5 · Best for everyday, complex tasks" }
-      : model
+    model.id === "opus" ? { ...model, label: "Opus 5.6" } : model
   );
   assert.deepEqual(
     await refreshClaudeModelCatalog({

@@ -439,9 +439,18 @@ re-logged in, no code change. The acceptance row moved below unchanged.
 135. [DONE] Git Commit: `feat: update harness claude sdk in place` (hash: self)
 136. [DONE] `harness-ai.phase21.stream5.task2` Route the Claude SDK version row and update button to the Harness SDK, refresh the Claude model catalog right after a successful Claude SDK update, and make the Claude auto-update toggle work: on Core start, when enabled and a newer SDK is published, update the Harness SDK in the background and refresh the catalog (scope: core-runtime-process `core-provider-tools.ts`, `core-runtime-api.ts`, plus focused tests and core-runtime-process/settings docs; expected commit: `feat: auto-update claude sdk and model labels`). Result: Completed in commit `feat: auto-update claude sdk and model labels`.
 137. [DONE] Git Commit: `feat: auto-update claude sdk and model labels` (hash: self)
-138. [IN_PROGRESS] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`).
-139. [TODO] Git Commit: `docs: package claude sdk freshness` (hash: TBD)
+Decision 2026-11-03: the packaged app (clean GUI environment) showed that SDK
+0.3.317 returns the four aliases with versioned display names (`opus` "Opus
+5.5", `fable` "Fable 5.1", `sonnet` "Sonnet 5.5", `haiku` "Haiku 5.5") plus
+eight pinned versions (Opus 5/4.8/4.7/4.6, Sonnet 5/4.6, Fable 5, Haiku 4.5);
+earlier terminal probes inherited this Claude Code session's environment and
+returned a reduced list. The user chose to show only the four aliases.
+
+138. [DONE] `harness-ai.phase21.stream5.task3` Serve only the Claude alias models (ids without a version once the context suffix is dropped), refresh the verified fallback to the clean-environment alias rows and normalize saved suffixed ids (`opus[1m]`) onto the alias catalog (scope: claude-provider `claude-model-catalog.ts`, provider-descriptor `provider-descriptor-facade.ts`, settings-store `settings-model-catalogs.ts`, plus focused tests and related docs; expected commit: `fix: show only claude alias models`). Result: Completed in commit `fix: show only claude alias models`.
+139. [DONE] Git Commit: `fix: show only claude alias models` (hash: self)
+140. [IN_PROGRESS] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`).
+141. [TODO] Git Commit: `docs: package claude sdk freshness` (hash: TBD)
 
 ### Stream: Phase 21 User Acceptance
 
-140. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+142. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

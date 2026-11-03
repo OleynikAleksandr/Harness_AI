@@ -118,6 +118,19 @@ try {
     normalizeCatalogDefaultModel(catalogs.claude, "haiku", "sonnet"),
     "haiku"
   );
+  // A catalog alias without the suffix accepts a saved suffixed id.
+  const aliasCatalog = [
+    { ...catalogs.claude[0], id: "opus" },
+    ...catalogs.claude.slice(1),
+  ];
+  assert.equal(
+    normalizeCatalogDefaultModel(aliasCatalog, "opus[1m]", "sonnet"),
+    "opus"
+  );
+  assert.deepEqual(
+    normalizeCatalogEfforts(aliasCatalog, { "opus[1m]": "max" }),
+    { "claude-fable-5-1[1m]": "high", opus: "max" }
+  );
   assert.equal(
     normalizeCatalogDefaultModel(catalogs.claude, "sonnet", "sonnet"),
     "opus[1m]"
@@ -133,8 +146,9 @@ try {
   assert.equal(normalizeCatalogDefaultModel([], "x", "fallback"), "fallback");
 
   // Efforts: one level per effort-capable catalog model; supported stored
-  // levels survive (also under the legacy bare id), others reset to the
-  // model default, and entries outside the catalog are dropped.
+  // levels survive (also under an id differing by the context suffix),
+  // others reset to the model default, and entries outside the catalog are
+  // dropped.
   assert.deepEqual(
     normalizeCatalogEfforts(catalogs.claude, {
       haiku: "high",

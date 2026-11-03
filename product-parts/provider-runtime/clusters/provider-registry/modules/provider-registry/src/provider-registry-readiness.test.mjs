@@ -81,7 +81,7 @@ assert.deepEqual(
 );
 assert.deepEqual(
   providerDescriptorFacade
-    .getCapturableModel("claude", "opus[1m]")
+    .getCapturableModel("claude", "opus")
     .reasoningEfforts.map((effort) => effort.id),
   ["low", "medium", "high", "xhigh", "max"]
 );

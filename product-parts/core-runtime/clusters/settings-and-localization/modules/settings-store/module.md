@@ -50,9 +50,9 @@ Own global and workspace settings persistence.
   (`ProviderClientKeySettings`: `apiKey` + `defaultModel`), the key-storage
   shape for universal-client endpoints — key-only onboarding, no `baseUrl`
   (the dialect profile owns it), and `defaultModel` validated by normalization
-  against the provider-descriptor `KIMI_CLIENT_MODELS` fallback catalog (the
-  verified 2026-11-02 Coding Plan ids), with unknown legacy values falling back
-  to `kimi-for-coding`. The section persists into the
+  against the served Kimi catalog (live `/coding/v1/models`, else the
+  provider-descriptor `KIMI_CLIENT_MODELS` fallback), with unknown values
+  falling back to `kimi-for-coding` when listed, else the first catalog model. The section persists into the
   system settings file, syncs into the provider-auth-store file
   (`providers/kimi-client/settings.json`) on save like the other key-based
   providers, and reads back through the auth overlay, so
@@ -135,14 +135,15 @@ Own global and workspace settings persistence.
   Core RPC `list-provider-model-catalogs` refreshes the live catalogs first
   and serves this to the Settings model cards.
 - `normalizeSettings` resolves `defaultModel` against the catalog
-  (`normalizeCatalogDefaultModel`): a stored id is kept, a legacy bare
-  Claude alias maps to its 1M-context id (`opus` → `opus[1m]`), otherwise the
+  (`normalizeCatalogDefaultModel`): a stored id is kept, an id differing
+  only by the Claude `[1m]` context suffix maps onto the catalog id
+  (`opus[1m]` ↔ `opus`), otherwise the
   preferred default (`sonnet` for Claude, `kimi-for-coding` for Kimi) when
   listed, else the first catalog model (Codex always takes the first one).
 - `normalizeCatalogEfforts` rebuilds `claude.thinkingByModel`,
   `codex.reasoningByModel` and `kimiClient.reasoningByModel`: one level per
-  effort-capable catalog model — the stored level (also under the legacy
-  bare id) when the model supports it, else the model default; models
+  effort-capable catalog model — the stored level (also under an id
+  differing only by the context suffix) when the model supports it, else the model default; models
   without effort selection and ids outside the catalog are dropped. Turn
   options and the session panel read these normalized values directly, so
   no caller re-derives Codex efforts.

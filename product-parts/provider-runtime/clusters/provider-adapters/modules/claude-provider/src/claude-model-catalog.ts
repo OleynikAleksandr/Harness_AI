@@ -12,12 +12,15 @@ import {
 } from "./claude-sdk-updates.js";
 import { resolveClaudeAgentSdkExecutablePath } from "./reference/installer/sdk-executable-path.js";
 
-// Live Claude model catalog (verified 2026-11-02 on Claude Agent SDK
-// 0.3.207): `query(...).supportedModels()` returns the models the signed-in
-// account can pick, each with `value` (the id the SDK accepts as `model`),
-// `displayName`, `description` and `supportedEffortLevels`. Core serves these
-// rows (minus the `default` alias row) through the provider descriptor, so
-// new Claude models (Fable) appear without a code change. The read runs the
+// Live Claude model catalog (verified 2026-11-03 on Claude Agent SDK
+// 0.3.317 from the packaged app's clean GUI environment):
+// `query(...).supportedModels()` returns the models the signed-in account can
+// pick, each with `value` (the id the SDK accepts as `model`),
+// `displayName`, `description` and `supportedEffortLevels`. Core serves the
+// family alias rows through the provider descriptor, so new Claude releases
+// replace the labels without a code change. A process started inside a
+// Claude Code session inherits that session's environment and receives a
+// reduced list; the packaged app does not. The read runs the
 // Harness-installed SDK under the Harness Claude provider home with CLI auth,
 // like the sessions do. The last successful read is persisted under the
 // Harness product home and applied first on every start; the verified
@@ -49,12 +52,19 @@ const CACHE_TTL_MS = 15 * 60 * 1000;
 const READ_TIMEOUT_MS = 30_000;
 const CATALOG_FILENAME = "model-catalog.json";
 const DEFAULT_ALIAS_VALUE = "default";
+// Claude 1M-context ids carry a `[1m]` suffix (`opus[1m]`).
+const CONTEXT_SUFFIX_PATTERN = /\[[^\]]*\]$/u;
+const VERSION_DIGIT_PATTERN = /\d/u;
 
 let liveExpiresAt = 0;
 let persistedCatalogPath: string | null = null;
 
-// Parses `supportedModels()` rows (also the persisted shape). The `default`
-// row only aliases the recommended model and is not offered separately.
+// Parses `supportedModels()` rows (also the persisted shape). Only the
+// family aliases are served (user decision 2026-11-03): `opus`, `fable`,
+// `sonnet`, `haiku` always resolve to Anthropic's newest model of the family
+// and their display names carry its version ("Opus 5.5"), while pinned rows
+// (`claude-opus-4-8`, ids with a version once the context suffix is dropped)
+// are skipped. The `default` row only aliases the recommended model.
 export function parseClaudeModelCatalog(
   rows: unknown
 ): ProviderModelDescriptor[] {
@@ -64,7 +74,7 @@ export function parseClaudeModelCatalog(
   }
   for (const row of rows) {
     const id = isRecord(row) ? nonEmptyString(row.value) : null;
-    if (!(isRecord(row) && id) || id === DEFAULT_ALIAS_VALUE) {
+    if (!(isRecord(row) && id) || id === DEFAULT_ALIAS_VALUE || !isAlias(id)) {
       continue;
     }
     const reasoningEfforts = Array.isArray(row.supportedEffortLevels)
@@ -226,6 +236,10 @@ function harnessHome(): string {
 
 function defaultCatalogPath(): string {
   return path.join(harnessHome(), "providers", "claude", CATALOG_FILENAME);
+}
+
+function isAlias(id: string): boolean {
+  return !VERSION_DIGIT_PATTERN.test(id.replace(CONTEXT_SUFFIX_PATTERN, ""));
 }
 
 function nonEmptyString(value: unknown): string | null {

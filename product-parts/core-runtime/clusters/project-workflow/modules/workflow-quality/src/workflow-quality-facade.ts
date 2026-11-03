@@ -1,5 +1,6 @@
 import path from "node:path";
 import {
+  ensure,
   WorkflowError,
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
@@ -13,6 +14,13 @@ import {
   validateConfig,
   type WorkflowConfig,
 } from "./quality-config.js";
+import {
+  detectStacks,
+  STACK_ORDER,
+  type StackDetection,
+  type StackId,
+} from "./quality-detect.js";
+import { proposeQuality, type QualityProposal } from "./quality-proposal.js";
 
 export type {
   CheckDefinition,
@@ -23,6 +31,8 @@ export type {
   DocsContract,
   WorkflowConfig,
 } from "./quality-config.js";
+export type { StackDetection, StackId } from "./quality-detect.js";
+export type { ProposalEntry, QualityProposal } from "./quality-proposal.js";
 
 /** Public facade of the workflow-quality module: configuration, detection and checks. */
 export class WorkflowQualityFacade {
@@ -66,6 +76,39 @@ export class WorkflowQualityFacade {
 
   renderConfig(config: WorkflowConfig): string {
     return `${JSON.stringify(validateConfig(config), null, 2)}\n`;
+  }
+
+  /** Ecosystems recognised by detection and the catalog, in priority order. */
+  stacks(): readonly StackId[] {
+    return STACK_ORDER;
+  }
+
+  detect(root: string): StackDetection[] {
+    return detectStacks(root);
+  }
+
+  /**
+   * Proposes a quality profile from detection and the catalog. `stacks`
+   * overrides detection; `which` defaults to a PATH lookup.
+   */
+  propose(
+    root: string,
+    options: { stacks?: string[]; which?: (name: string) => boolean } = {}
+  ): QualityProposal {
+    const unknown = (options.stacks ?? []).filter(
+      (id) => !STACK_ORDER.includes(id as StackId)
+    );
+    ensure(
+      unknown.length === 0,
+      "UNKNOWN_STACK",
+      `Unknown stack: ${unknown.join(", ")}. Known: ${STACK_ORDER.join(", ")}.`
+    );
+    return proposeQuality(root, {
+      stacks: options.stacks as StackId[] | undefined,
+      which:
+        options.which ??
+        ((name) => workflowPlatformFacade.findExecutable(name) !== null),
+    });
   }
 
   writeConfig(root: string, config: WorkflowConfig): void {

@@ -7,7 +7,7 @@
   "lastClosed": null,
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 9,
+  "revision": 10,
   "rounds": [
     {
       "digest": {
@@ -54,7 +54,10 @@
     "acceptance": [
       "The user accepts the delivered result"
     ],
-    "acceptanceNote": null,
+    "acceptanceNote": {
+      "at": "2026-11-03T17:41:00.164Z",
+      "text": "Да, принять и закрыть — сборка от 2026-11-03 принята как база для тестирования; дефекты, недоделки и развитие — в новый план."
+    },
     "approval": {
       "at": "2026-11-03T17:20:06.404Z",
       "text": "Migrated from the legacy plan workflow-kit-2026-11-03 by migrate:harness-plan."
@@ -93,7 +96,7 @@
         "text": "Migration: harness-ai.wk.p13.t1 → DOCS-R1."
       }
     ],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "ACCEPTED",
     "id": "workflow-kit-2026-11-03",
     "objective": "Finish the remaining work of workflow-kit-2026-11-03.",
     "spec": "docs/architecture/workflow-kit/WorkflowKit.md",
@@ -220,10 +223,10 @@
 ## State
 
 - Scope: workflow-kit-2026-11-03 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: ACCEPTED
 - Current task: none
 - Progress: 4/4
-- Revision: 9
+- Revision: 10
 
 ## Objective
 

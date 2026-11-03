@@ -355,6 +355,18 @@
               "purpose": "Visible reasoning translation policy, source hashing, pending state, sidecar overlays, and patch payloads."
             }
           ]
+        },
+        {
+          "id": "project-workflow",
+          "name": "Project Workflow (Workflow Kit)",
+          "purpose": "Workflow Kit: plan, transactional task commits, bounded recovery, quality profile, git hooks, installation, doctor and autopilot decision; bundled into user projects and driven by Core.",
+          "modules": [
+            {
+              "id": "workflow-platform",
+              "name": "Workflow Platform",
+              "purpose": "OS-neutral paths, atomic files, locks, process runner, runtime resolution and launcher texts for macOS, Windows and Linux."
+            }
+          ]
         }
       ]
     },

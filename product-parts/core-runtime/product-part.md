@@ -17,14 +17,17 @@ contracts, not through direct module imports.
 - `provider-network-capture`
 - `universal-client`
 - `settings-and-localization`
+- `project-workflow` — Workflow Kit (plan, transactional commits, recovery,
+  quality profile, installation, doctor, autopilot decision)
 
 `development-orchestrator` and `intent-normalization` were scaffolded as
 `module.md`-only cluster placeholders early in the project and never
 implemented; they were removed from the product tree (2026-07-01) rather than
 kept as unimplemented debt. Plan-first lifecycle and quality gates run today
 through `scripts/*.mjs` and `.husky/**` (see `AGENTS.md`), not a dedicated
-Core Runtime cluster. Re-add a cluster here if either responsibility moves
-into `product-parts/**` as real module code.
+Core Runtime cluster. The `project-workflow` cluster (Workflow Kit) is the
+module-code replacement for that lifecycle; the repository switches to it in
+phase 12 of the active `workflow-kit-2026-11-03` plan.
 
 ## Responsibilities
 

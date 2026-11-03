@@ -106,6 +106,13 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 - `localization-runtime`: approved source dictionaries, glossary protection, browser localization bootstrap, and materialized runtime bundle state.
 - `reasoning-translation-overlay`: visible reasoning translation policy, source hashing, pending state, sidecar overlays, and patch payloads.
 
+### Project Workflow (Workflow Kit)
+
+Workflow Kit installed into user projects and driven by Core. Spec:
+`docs/architecture/workflow-kit/WorkflowKit.md`.
+
+- `workflow-platform`: OS-neutral paths, atomic files, locks, process runner, runtime resolution and launcher texts for macOS, Windows and Linux.
+
 ## Provider Runtime
 
 Independent provider adapters, provider homes/auth, usage telemetry, and provider-backed translation engines composed by Core Runtime only.

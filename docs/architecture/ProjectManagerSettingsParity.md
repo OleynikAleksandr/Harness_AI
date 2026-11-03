@@ -49,5 +49,7 @@ CodeAI Hub remains reference material only. Harness AI owns a new implementation
   reasoning translation engine/language affects future reasoning overlays
   without forcing UI bundle sync.
 - Visible reasoning is hidden while `translationState: "pending"` is active and
-  is revealed from `localizedContent` patch events when translation completes.
+  is revealed from `localizedContent` patch events when translation completes;
+  a failed translation is patched without `localizedContent` and reveals the
+  source text.
 - The packaged unsigned macOS app includes the settings UI.

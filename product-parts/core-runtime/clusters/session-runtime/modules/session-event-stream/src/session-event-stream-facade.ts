@@ -27,8 +27,10 @@ export interface CoreSessionMessage {
   translationState?: CoreSessionTranslationState;
 }
 
+// Without `localizedContent` the patch settles a failed translation: the
+// message leaves the pending state and shows its source text.
 export interface CoreSessionMessageTranslationPatch {
-  localizedContent: string;
+  localizedContent?: string;
   messageId: string;
   sessionId: string;
   sourceHash: string;

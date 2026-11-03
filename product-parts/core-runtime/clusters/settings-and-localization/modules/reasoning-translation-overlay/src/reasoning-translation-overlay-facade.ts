@@ -59,8 +59,11 @@ export interface ReasoningTranslationOverlay {
   readonly targetLanguage: string;
 }
 
+// Every finished translation is settled with one patch; a patch without
+// `localizedContent` reports a failed (fallback) translation, so clients stop
+// waiting and show the source reasoning.
 export interface ReasoningTranslationPatchPayload {
-  readonly localizedContent: string;
+  readonly localizedContent?: string;
   readonly messageId: string;
   readonly sessionId: string;
   readonly sourceHash: string;
@@ -240,11 +243,10 @@ export class ReasoningTranslationOverlayFacade {
     if (request.workspacePath) {
       this.overlayStore.appendOverlay(request.workspacePath, overlay);
     }
-    if (!(overlay.status === "translated" && overlay.localizedContent)) {
-      return null;
-    }
     return {
-      localizedContent: overlay.localizedContent,
+      ...(overlay.status === "translated" && overlay.localizedContent
+        ? { localizedContent: overlay.localizedContent }
+        : {}),
       messageId: overlay.messageId,
       sessionId: overlay.sessionId,
       sourceHash: overlay.sourceHash,

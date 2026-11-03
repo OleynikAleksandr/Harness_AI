@@ -101,9 +101,11 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   OpenRouter connection and translation profile config, so a saved OpenRouter
   reasoning translation model is available whenever `reasoningEngineId`
   selects it.
-- Successful reasoning translations are persisted as sidecar overlays and
-  broadcast as `session:message_translation` patch events; source message `text`
-  remains the canonical transcript.
+- Reasoning translations are persisted as sidecar overlays and broadcast as
+  `session:message_translation` patch events — with `localizedContent` on
+  success, without it on failure so the message leaves the pending state and
+  shows its source text; source message `text` remains the canonical
+  transcript.
 - Assistant live chunks tagged `live` are kept in Core session state so final provider full-text messages can be suppressed or reduced to an unseen live tail before UI display.
 - Completed provider messages with the same stable id, role, tag and source
   text are idempotent in Core. This prevents app-server history replay from

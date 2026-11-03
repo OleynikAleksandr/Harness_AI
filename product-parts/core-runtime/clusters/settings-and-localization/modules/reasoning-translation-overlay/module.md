@@ -23,6 +23,13 @@ source hash still matches the current message text, and keeps the latest
 translated prefix visible while a growing reasoning message is waiting for its
 next translation.
 
+Every finished translation settles its message with one patch
+(`translateVisibleReasoningMessage` / `publishDisplayMessages`): a successful
+translation carries `localizedContent`; a failed one (`fallback`, e.g. an
+OpenRouter `non_ok_response`) carries no `localizedContent`, so clients leave
+the pending state and show the source reasoning instead of an empty Thinking
+block. Both outcomes are still recorded in the overlay sidecar.
+
 The translation engine set is rebuilt per translate call from the settings
 snapshot's `openRouter` config (via `createProviderTranslationEngines`) rather
 than fixed once at construction, so a saved OpenRouter reasoning translation
@@ -40,7 +47,8 @@ constructor (test seam) always takes priority over this per-call resolution.
 ## Outputs
 
 - Translated reasoning overlay.
-- Translation pending/error state.
+- Translation pending/error state; a settle patch for every finished
+  translation (without `localizedContent` when it failed).
 - Source hash used by later projection to ignore stale overlays.
 - Prefix-stable projection for growing reasoning streams.
 

@@ -198,6 +198,28 @@ assert.deepEqual(
   }
 );
 
+// A failed translation still settles the message: the patch carries no
+// `localizedContent`, so clients stop waiting and show the source reasoning.
+assert.deepEqual(
+  await fallbackFacade.translateVisibleReasoningMessage({
+    messageId: "m4",
+    role: "thinking",
+    sessionId: "s1",
+    settings: {
+      categories: { reasoning: "ru" },
+      defaultLanguage: "en",
+      reasoningEngineId: "missing-engine",
+    },
+    sourceText,
+  }),
+  {
+    messageId: "m4",
+    sessionId: "s1",
+    sourceHash: expectedHash,
+    targetLanguage: "ru",
+  }
+);
+
 // The facade exposes the sidecar delete used by the session delete cascade.
 const overlayFacadeSource = readFileSync(
   new URL("./reasoning-translation-overlay-facade.ts", import.meta.url),

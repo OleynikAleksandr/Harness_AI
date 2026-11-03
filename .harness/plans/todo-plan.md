@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream8.task2",
-  "expectedCommitMessage": "fix: settle failed reasoning translations",
+  "currentTaskId": "harness-ai.phase21.stream3.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -500,9 +500,9 @@ renderer drops the pending state and shows the source text.
 
 154. [DONE] `harness-ai.phase21.stream8.task1` Let the renderer apply a translation patch without `localizedContent` as "translation settled": drop the pending state and show the source text (scope: session-window `translated-text-reveal.ts`, plus focused tests and session-window docs; expected commit: `fix: show reasoning when translation falls back`). Result: Completed in commit `fix: show reasoning when translation falls back`.
 155. [DONE] Git Commit: `fix: show reasoning when translation falls back` (hash: self)
-156. [IN_PROGRESS] `harness-ai.phase21.stream8.task2` Settle failed reasoning translations in Core: the overlay facade publishes a patch without `localizedContent` on fallback, and the session event stream and snapshot projector patch contracts make `localizedContent` optional (scope: reasoning-translation-overlay `reasoning-translation-overlay-facade.ts`, session-event-stream `session-event-stream-facade.ts`, session-snapshot-projector `session-snapshot-projector-facade.ts`, plus focused tests and module docs; expected commit: `fix: settle failed reasoning translations`).
-157. [TODO] Git Commit: `fix: settle failed reasoning translations` (hash: TBD)
+156. [DONE] `harness-ai.phase21.stream8.task2` Settle failed reasoning translations in Core: the overlay facade publishes a patch without `localizedContent` on fallback, and the session event stream and snapshot projector patch contracts make `localizedContent` optional (scope: reasoning-translation-overlay `reasoning-translation-overlay-facade.ts`, session-event-stream `session-event-stream-facade.ts`, session-snapshot-projector `session-snapshot-projector-facade.ts`, plus focused tests and module docs; expected commit: `fix: settle failed reasoning translations`). Result: Completed in commit `fix: settle failed reasoning translations`.
+157. [DONE] Git Commit: `fix: settle failed reasoning translations` (hash: self)
 
 ### Stream: Phase 21 User Acceptance
 
-158. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+158. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

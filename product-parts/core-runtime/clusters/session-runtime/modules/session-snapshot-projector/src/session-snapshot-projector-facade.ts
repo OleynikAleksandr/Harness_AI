@@ -22,7 +22,7 @@ export interface SessionMessage {
 }
 
 export interface SessionMessageTranslationPatch {
-  localizedContent: string;
+  localizedContent?: string;
   messageId: string;
   sessionId: string;
   sourceHash: string;
@@ -72,7 +72,8 @@ export class SessionSnapshotProjectorFacade {
       message.id === patch.messageId
         ? {
             ...message,
-            localizedContent: patch.localizedContent,
+            // No `localizedContent`: the translation failed; show the source.
+            localizedContent: patch.localizedContent || undefined,
             translationState: undefined,
           }
         : message

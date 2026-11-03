@@ -56,8 +56,11 @@ Visible reasoning translation follows this same authority split. Provider
 Runtime exposes provider-backed translation engines, but Core resolves the
 reasoning language/engine policy from settings, marks eligible visible
 reasoning messages as pending, stores translated overlays as sidecar records,
-and broadcasts `session:message_translation` patches. The renderer applies
-`localizedContent` for display and must keep source `text` as Core truth.
+and broadcasts `session:message_translation` patches. Every finished
+translation is settled: a failed one is patched without `localizedContent`, so
+the renderer shows the source reasoning instead of waiting forever. The
+renderer applies `localizedContent` for display and must keep source `text` as
+Core truth.
 
 ## Module Direction
 

@@ -27,7 +27,8 @@ appearing after Core restart.
   Core-owned rollback/prune operation while preserving the append-only event log
   as audit history.
 - Core message translation metadata: `translationState`, `localizedContent`,
-  and `session:message_translation` patch events.
+  and `session:message_translation` patch events (`localizedContent` is
+  optional: a patch without it settles a failed translation).
 - Consecutive assistant messages tagged `live` coalesced for session replay/readback.
 - Exact `session:message` replays (same session + stable id + role + tag +
   source text) are rejected before the in-memory stream, listener fan-out and

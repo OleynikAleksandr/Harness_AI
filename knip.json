@@ -2,6 +2,7 @@
   "$schema": "https://unpkg.com/knip@latest/schema.json",
   "entry": [
     "vite.config.ts",
+    "vite.workflow-kit.config.ts",
     "scripts/*.mjs",
     "product-parts/**/src/*-facade.{ts,tsx,mjs,cjs}",
     "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
@@ -13,7 +14,8 @@
   "project": [
     "product-parts/**/*.{ts,tsx,mjs,cjs}",
     "scripts/**/*.mjs",
-    "vite.config.ts"
+    "vite.config.ts",
+    "vite.workflow-kit.config.ts"
   ],
   "ignore": ["dist/**", "release/**", ".harness/runtime/**", ".codeai-hub/**"],
   "ignoreDependencies": ["electron"],

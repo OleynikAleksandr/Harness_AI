@@ -136,7 +136,7 @@
 - Новый release/package build нельзя запускать как release decision без явного подтверждения пользователя.
 - Порядок сборки приложения (важно — это разные артефакты):
   ```bash
-  npm run build        # пересобирает только dist/ (renderer + runtime)
+  npm run build        # пересобирает только dist/ (renderer, runtime и бандл Workflow Kit)
   npm run package:mac  # пересобирает app.asar внутри release/mac-arm64/Harness AI.app
   ```
 - `npm run build` НЕ обновляет упакованное `Harness AI.app`. Запущенное приложение продолжит работать на старом коде из `app.asar`.

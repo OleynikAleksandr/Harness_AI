@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p6.t4",
-  "expectedCommitMessage": "build: bundle the workflow kit for projects",
+  "currentTaskId": "harness-ai.wk.p7.t1",
+  "expectedCommitMessage": "feat: generate workflow kit installation payload",
   "debt": null
 }
 ```
@@ -94,12 +94,12 @@
 38. [DONE] Git Commit: `feat: enforce managed commits through workflow git hooks` (hash: self)
 39. [DONE] `harness-ai.wk.p6.t3` Add the CLI dispatcher entry (`workflow-kit-cli.ts`), argument parsing, JSON/text output, help, error envelope; knip entry; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/**, knip.json`; expected commit: `feat: add workflow kit command line`). Result: Completed in commit `feat: add workflow kit command line`.
 40. [DONE] Git Commit: `feat: add workflow kit command line` (hash: self)
-41. [IN_PROGRESS] `harness-ai.wk.p6.t4` Bundle the CLI into `dist/workflow-kit/workflow.mjs` (second Vite SSR config, `scripts/build-workflow-kit.mjs`, build and dev chain) and smoke-test the bundle end to end in a temporary repository (scope: `vite.workflow-kit.config.ts, scripts/build-workflow-kit.mjs, package.json, scripts/dev-electron.mjs`; expected commit: `build: bundle the workflow kit for projects`).
-42. [TODO] Git Commit: `build: bundle the workflow kit for projects` (hash: TBD)
+41. [DONE] `harness-ai.wk.p6.t4` Bundle the CLI into `dist/workflow-kit/workflow.mjs` (second Vite SSR config, `scripts/build-workflow-kit.mjs`, build and dev chain) and smoke-test the bundle end to end in a temporary repository (scope: `vite.workflow-kit.config.ts, scripts/build-workflow-kit.mjs, package.json, scripts/dev-electron.mjs`; expected commit: `build: bundle the workflow kit for projects`). Result: Completed in commit `build: bundle the workflow kit for projects`.
+42. [DONE] Git Commit: `build: bundle the workflow kit for projects` (hash: self)
 
 ## Phase 7 - Installer And Doctor (owner: Claude, updated: 2026-11-03)
 
-43. [TODO] `harness-ai.wk.p7.t1` Create the `workflow-installer` module: English agent rules (AGENTS managed section), CLAUDE line, provider hook JSON merges, git hook sections, launchers, gitignore/gitattributes sections, skeleton docs, manifest model; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**, product tree, cluster.md`; expected commit: `feat: generate workflow kit installation payload`).
+43. [IN_PROGRESS] `harness-ai.wk.p7.t1` Create the `workflow-installer` module: English agent rules (AGENTS managed section), CLAUDE line, provider hook JSON merges, git hook sections, launchers, gitignore/gitattributes sections, skeleton docs, manifest model; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**, product tree, cluster.md`; expected commit: `feat: generate workflow kit installation payload`).
 44. [TODO] Git Commit: `feat: generate workflow kit installation payload` (hash: TBD)
 45. [TODO] `harness-ai.wk.p7.t2` Add folder inspection (all states incl. legacy Harness plan and Workflow Pilot) and install/update with git init, hooks path, bootstrap transaction; `WorkflowInstallerFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: inspect folders and install the workflow kit`).
 46. [TODO] Git Commit: `feat: inspect folders and install the workflow kit` (hash: TBD)

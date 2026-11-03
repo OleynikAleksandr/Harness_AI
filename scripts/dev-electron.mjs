@@ -14,6 +14,16 @@ if (runtimeBuildStatus !== 0) {
   process.exit(runtimeBuildStatus);
 }
 
+const kitBuild = spawn("npm", ["run", "build:workflow-kit"], {
+  stdio: "inherit",
+});
+const kitBuildStatus = await new Promise((resolve) => {
+  kitBuild.on("exit", (code) => resolve(code ?? 1));
+});
+if (kitBuildStatus !== 0) {
+  process.exit(kitBuildStatus);
+}
+
 const vite = spawn("npm", ["run", "dev:renderer", "--", "--port", "5173"], {
   stdio: "inherit",
 });

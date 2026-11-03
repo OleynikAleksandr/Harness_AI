@@ -146,6 +146,17 @@ managed hooks.
   JSON from stdin input; `git-hook <name> [args]` prints the hook message
   on stderr and exits with the hook code.
 
+## Bundle
+
+`npm run build:workflow-kit` (`scripts/build-workflow-kit.mjs`, part of
+`npm run build` and `npm run dev`) bundles `workflow-kit-cli.ts` with
+`vite.workflow-kit.config.ts` (Vite SSR library mode, target Node 22, not
+minified) into `dist/workflow-kit/workflow.mjs`. Every cluster module is
+inlined; only `node:` built-ins stay external. The script fails when the
+bundle imports anything else, then smoke-tests it in a temporary folder:
+`help`, `status` of a folder without the Kit (`installed: false`) and
+`validate` reporting `NOT_INSTALLED`.
+
 ## Dependencies
 
 `workflow-platform`, `workflow-plan`, `workflow-git`, `workflow-quality`,

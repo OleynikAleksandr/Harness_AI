@@ -14,6 +14,7 @@
   },
   "include": [
     "vite.config.ts",
+    "vite.workflow-kit.config.ts",
     "product-parts/**/*.ts",
     "product-parts/**/*.tsx"
   ]

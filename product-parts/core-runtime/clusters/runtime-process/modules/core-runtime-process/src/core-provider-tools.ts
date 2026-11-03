@@ -6,6 +6,7 @@ import {
   refreshClaudeModelCatalog,
   updateHarnessClaudeSdk,
 } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
+import { refreshCodexModelCatalog } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import {
   readKimiCliVersionStatus,
   upgradeKimiCli,
@@ -18,8 +19,10 @@ import {
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import {
-  autoUpdateClaudeSdk,
-  updateClaudeSdkAndCatalog,
+  type AutoUpdateProviderId,
+  autoUpdateProviderInstalls,
+  type ProviderInstallStatus,
+  updateClaudeSdkInstalls,
 } from "./core-claude-sdk-updates.js";
 
 const execAsync = promisify(exec);
@@ -115,39 +118,95 @@ async function installLatestGlobalPackage(packageName: string): Promise<void> {
   });
 }
 
-// SDK update targets. The Claude SDK row is the Harness-installed copy the
-// sessions and the live model catalog run on (not the global npm package);
-// its update installs into the Harness prefix and re-reads the catalog.
-export async function updateProviderSdk(
+// One update route per provider target, shared by the Settings update
+// buttons and the auto-update toggles. CLI targets run the provider's own
+// self-update (Codex then re-reads its catalog: `model/list` comes from the
+// installed CLI). The Claude SDK target updates the Harness SDK copy the
+// sessions run on and the global npm SDK, then re-reads the Claude catalog;
+// other SDK targets update the global npm package.
+export async function updateProviderTarget(
   provider: unknown,
   target: unknown
 ): Promise<void> {
+  if (target === "cli") {
+    await updateProviderCli(provider);
+    if (provider === "codex") {
+      await refreshCodexModelCatalog({ force: true });
+    }
+    return;
+  }
   const packageName = resolveProviderPackage(provider, target);
   if (packageName === PROVIDER_PACKAGE_MAP.claude.sdk) {
-    await updateClaudeSdkAndCatalog(claudeSdkUpdateSteps());
+    await updateClaudeSdkInstalls({
+      refreshCatalog: () => refreshClaudeModelCatalog({ force: true }),
+      updateGlobal: () => installLatestGlobalPackage(packageName),
+      updateHarness: () => updateHarnessClaudeSdk(),
+    });
     return;
   }
   await installLatestGlobalPackage(packageName);
 }
 
-// Claude auto-update toggle (`providers.claude.autoUpdate.enabled`): on Core
-// start, a newer published SDK is installed into the Harness prefix in the
-// background and the model catalog re-read. Failures leave the installed SDK.
-export function startClaudeSdkAutoUpdate(): void {
-  autoUpdateClaudeSdk({
-    ...claudeSdkUpdateSteps(),
-    enabled:
-      settingsStoreFacade.getSettings().providers.claude.autoUpdate.enabled,
-    readCurrent: () => readHarnessClaudeSdkVersion(),
-    readLatest: () => readLatestVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
-  }).catch(() => undefined);
+// Auto-update toggles (`providers.claude|codex.autoUpdate.enabled`): on Core
+// start, every outdated CLI/SDK install of an enabled provider is updated in
+// the background through `updateProviderTarget`. Failures keep the
+// installed versions; the next start retries.
+export function startProviderAutoUpdates(): void {
+  const providers = settingsStoreFacade.getSettings().providers;
+  const enabled = new Set<AutoUpdateProviderId>(
+    (["claude", "codex"] as const).filter(
+      (provider) => providers[provider].autoUpdate.enabled
+    )
+  );
+  if (enabled.size === 0) {
+    return;
+  }
+  readProviderInstallStatuses()
+    .then((statuses) =>
+      autoUpdateProviderInstalls({
+        enabled,
+        statuses,
+        update: updateProviderTarget,
+      })
+    )
+    .catch(() => undefined);
 }
 
-function claudeSdkUpdateSteps() {
-  return {
-    refreshCatalog: () => refreshClaudeModelCatalog({ force: true }),
-    update: () => updateHarnessClaudeSdk(),
-  };
+async function readProviderInstallStatuses(): Promise<ProviderInstallStatus[]> {
+  const [claudeCli, claudeSdkGlobal, claudeSdkLatest, codexCli, codexSdk] =
+    await Promise.all([
+      readCliPackageVersion("claude"),
+      readInstalledVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+      readLatestVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+      readCliPackageVersion("codex"),
+      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
+    ]);
+  return [
+    {
+      installedVersions: [claudeCli.currentVersion],
+      latestVersion: claudeCli.latestVersion,
+      provider: "claude",
+      target: "cli",
+    },
+    {
+      installedVersions: [readHarnessClaudeSdkVersion(), claudeSdkGlobal],
+      latestVersion: claudeSdkLatest,
+      provider: "claude",
+      target: "sdk",
+    },
+    {
+      installedVersions: [codexCli.currentVersion],
+      latestVersion: codexCli.latestVersion,
+      provider: "codex",
+      target: "cli",
+    },
+    {
+      installedVersions: [codexSdk.currentVersion],
+      latestVersion: codexSdk.latestVersion,
+      provider: "codex",
+      target: "sdk",
+    },
+  ];
 }
 
 async function readHarnessClaudeSdkPackageVersion() {
@@ -158,7 +217,7 @@ async function readHarnessClaudeSdkPackageVersion() {
   };
 }
 
-export async function updateProviderCli(provider: unknown): Promise<void> {
+async function updateProviderCli(provider: unknown): Promise<void> {
   if (provider === "kimi") {
     await upgradeKimiCli();
     return;

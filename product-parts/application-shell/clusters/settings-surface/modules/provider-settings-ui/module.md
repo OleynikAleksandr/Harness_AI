@@ -226,9 +226,11 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - The shared `ProviderVersionsCard` update button shows a `settings-spinner` next to the "Updating to ..." label while a CLI/SDK target is updating (driven by `updatingTargets`), so every provider with manual updates has the same in-progress feedback until the current version refreshes.
 - In the Claude tab the `ProviderVersionsCard` SDK row shows the
   Harness-installed Claude Agent SDK (the copy sessions and the live model
-  catalog use) and its update button updates that copy; Core then re-reads
-  the Claude model catalog, so the model descriptions change after the
-  Settings dialog is reopened.
+  catalog use); its update button updates that copy and the global npm SDK,
+  and the Codex CLI button runs `codex update`; Core then re-reads the
+  provider's model catalog, so the model rows change after the Settings
+  dialog is reopened. The Claude and Codex auto-update toggles make Core
+  apply the same updates on start.
 - `ProviderVersionsCard`'s update-risk warning banner and the auto-update
   toggle's description resolve through the browser localization provider
   (`settings.provider.versions.warning` in `messages_for_the_user`,

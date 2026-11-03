@@ -1,42 +1,81 @@
-// Claude model labels follow the Harness-installed Claude Agent SDK: its
-// bundled CLI decides what the `opus`/`sonnet`/`haiku` aliases mean and the
-// `supportedModels()` descriptions. Updating that SDK (by hand or through
-// the Claude auto-update toggle on Core start) is followed by a forced
-// catalog re-read, so Settings shows the new models without waiting for the
-// catalog TTL. Dependencies are injected so the policy stays testable.
+// Provider install update policy shared by the Settings update buttons and
+// the auto-update toggles. Claude has two SDK installs: the Harness copy the
+// sessions and the live model catalog run on, and the user's global npm
+// SDK; one Claude SDK update refreshes both and then re-reads the model
+// catalog, so the Settings labels follow the new SDK at once. Dependencies
+// are injected so the policy stays testable.
 
 export interface ClaudeSdkUpdateSteps {
   readonly refreshCatalog: () => Promise<unknown>;
-  readonly update: () => Promise<unknown>;
+  readonly updateGlobal: () => Promise<unknown>;
+  readonly updateHarness: () => Promise<unknown>;
 }
 
-export interface ClaudeSdkAutoUpdateSteps extends ClaudeSdkUpdateSteps {
-  readonly enabled: boolean;
-  readonly readCurrent: () => string | null;
-  readonly readLatest: () => Promise<string | null>;
+export type AutoUpdateProviderId = "claude" | "codex";
+export type AutoUpdateTarget = "cli" | "sdk";
+
+export interface ProviderInstallStatus {
+  // Versions of every install the target covers; `null` = not installed.
+  readonly installedVersions: readonly (string | null)[];
+  readonly latestVersion: string | null;
+  readonly provider: AutoUpdateProviderId;
+  readonly target: AutoUpdateTarget;
 }
 
-// Manual update: install, then re-read the catalog.
-export async function updateClaudeSdkAndCatalog(
+// Both installs are attempted even when one fails; the catalog is re-read
+// either way and the first failure is reported afterwards.
+export async function updateClaudeSdkInstalls(
   steps: ClaudeSdkUpdateSteps
 ): Promise<void> {
-  await steps.update();
+  const failures: unknown[] = [];
+  for (const update of [steps.updateHarness, steps.updateGlobal]) {
+    try {
+      await update();
+    } catch (error) {
+      failures.push(error);
+    }
+  }
   await steps.refreshCatalog();
+  if (failures.length > 0) {
+    throw failures[0];
+  }
 }
 
-// Auto-update on Core start: only when the toggle is on and the registry
-// publishes a version other than the installed one (or none is installed).
-// Returns whether an update ran.
-export async function autoUpdateClaudeSdk(
-  steps: ClaudeSdkAutoUpdateSteps
-): Promise<boolean> {
-  if (!steps.enabled) {
-    return false;
+// Outdated = the registry publishes a version and an existing install has a
+// different one. Missing installs are left alone (auto-update never installs
+// something the user did not install).
+export function isInstallOutdated(status: ProviderInstallStatus): boolean {
+  const latest = status.latestVersion;
+  return (
+    Boolean(latest) &&
+    status.installedVersions.some(
+      (version) => version !== null && version !== latest
+    )
+  );
+}
+
+// Auto-update on Core start: for each provider whose toggle is on, update
+// every outdated target one after another; a failed target does not stop
+// the others. Returns the updated `provider:target` keys.
+export async function autoUpdateProviderInstalls(options: {
+  readonly enabled: ReadonlySet<AutoUpdateProviderId>;
+  readonly statuses: readonly ProviderInstallStatus[];
+  readonly update: (
+    provider: AutoUpdateProviderId,
+    target: AutoUpdateTarget
+  ) => Promise<unknown>;
+}): Promise<string[]> {
+  const updated: string[] = [];
+  for (const status of options.statuses) {
+    if (!(options.enabled.has(status.provider) && isInstallOutdated(status))) {
+      continue;
+    }
+    try {
+      await options.update(status.provider, status.target);
+      updated.push(`${status.provider}:${status.target}`);
+    } catch {
+      // The installed version stays; the next Core start retries.
+    }
   }
-  const latest = await steps.readLatest();
-  if (!latest || latest === steps.readCurrent()) {
-    return false;
-  }
-  await updateClaudeSdkAndCatalog(steps);
-  return true;
+  return updated;
 }

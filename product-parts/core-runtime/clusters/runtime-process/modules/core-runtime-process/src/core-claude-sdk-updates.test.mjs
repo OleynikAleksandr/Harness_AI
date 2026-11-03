@@ -33,83 +33,130 @@ try {
     ).outputText,
     "utf8"
   );
-  const { autoUpdateClaudeSdk, updateClaudeSdkAndCatalog } = await import(
+  const {
+    autoUpdateProviderInstalls,
+    isInstallOutdated,
+    updateClaudeSdkInstalls,
+  } = await import(
     pathToFileURL(path.join(buildDir, "core-claude-sdk-updates.js")).href
   );
 
-  const recorder = (current, latest) => {
-    const calls = [];
-    return {
-      calls,
-      readCurrent: () => current,
-      readLatest: () => Promise.resolve(latest),
-      refreshCatalog: () => {
-        calls.push("refresh");
-        return Promise.resolve();
-      },
-      update: () => {
-        calls.push("update");
-        return Promise.resolve();
-      },
+  // A Claude SDK update covers the Harness copy and the global npm SDK, then
+  // re-reads the catalog.
+  const calls = [];
+  const step =
+    (name, fail = false) =>
+    () => {
+      calls.push(name);
+      return fail
+        ? Promise.reject(new Error(`${name} failed`))
+        : Promise.resolve();
     };
-  };
-
-  // Manual update re-reads the catalog after installing.
-  const manual = recorder(null, null);
-  await updateClaudeSdkAndCatalog(manual);
-  assert.deepEqual(manual.calls, ["update", "refresh"]);
-
-  // Auto-update: off, already current, or no registry answer → nothing runs.
-  const off = recorder("0.3.207", "0.3.317");
-  assert.equal(await autoUpdateClaudeSdk({ ...off, enabled: false }), false);
-  assert.deepEqual(off.calls, []);
-  const current = recorder("0.3.317", "0.3.317");
-  assert.equal(await autoUpdateClaudeSdk({ ...current, enabled: true }), false);
-  assert.deepEqual(current.calls, []);
-  const offline = recorder("0.3.207", null);
-  assert.equal(await autoUpdateClaudeSdk({ ...offline, enabled: true }), false);
-  assert.deepEqual(offline.calls, []);
-
-  // A newer published SDK (or a missing install) updates, then refreshes.
-  const stale = recorder("0.3.207", "0.3.317");
-  assert.equal(await autoUpdateClaudeSdk({ ...stale, enabled: true }), true);
-  assert.deepEqual(stale.calls, ["update", "refresh"]);
-  const missing = recorder(null, "0.3.317");
-  assert.equal(await autoUpdateClaudeSdk({ ...missing, enabled: true }), true);
-
-  // A failed install propagates and skips the refresh.
-  const failing = {
-    ...recorder("0.3.207", "0.3.317"),
-    update: () => Promise.reject(new Error("npm failed")),
-  };
+  await updateClaudeSdkInstalls({
+    refreshCatalog: step("refresh"),
+    updateGlobal: step("global"),
+    updateHarness: step("harness"),
+  });
+  assert.deepEqual(calls, ["harness", "global", "refresh"]);
+  // One failing install does not skip the other or the refresh; the failure
+  // is reported afterwards.
+  calls.length = 0;
   await assert.rejects(
-    autoUpdateClaudeSdk({ ...failing, enabled: true }),
-    /npm failed/u
+    updateClaudeSdkInstalls({
+      refreshCatalog: step("refresh"),
+      updateGlobal: step("global"),
+      updateHarness: step("harness", true),
+    }),
+    /harness failed/u
   );
-  assert.deepEqual(failing.calls, []);
+  assert.deepEqual(calls, ["harness", "global", "refresh"]);
 
-  // Wiring: the Claude SDK row and update target the Harness SDK, and Core
-  // starts the auto-update after the catalog refreshes.
+  // Outdated: a published version differs from an existing install; missing
+  // installs and unknown registry answers are left alone.
+  const status = (
+    installedVersions,
+    latestVersion,
+    provider = "claude",
+    target = "sdk"
+  ) => ({
+    installedVersions,
+    latestVersion,
+    provider,
+    target,
+  });
+  assert.equal(
+    isInstallOutdated(status(["0.3.317", "0.3.316"], "0.3.317")),
+    true
+  );
+  assert.equal(
+    isInstallOutdated(status(["0.3.317", "0.3.317"], "0.3.317")),
+    false
+  );
+  assert.equal(isInstallOutdated(status(["0.3.317", null], "0.3.317")), false);
+  assert.equal(isInstallOutdated(status(["0.3.207"], null)), false);
+
+  // Auto-update runs only enabled providers' outdated targets, in order, and
+  // keeps going after a failed target.
+  const updates = [];
+  const updated = await autoUpdateProviderInstalls({
+    enabled: new Set(["claude", "codex"]),
+    statuses: [
+      status(["2.1.316"], "2.1.317", "claude", "cli"),
+      status(["0.3.317", "0.3.316"], "0.3.317", "claude", "sdk"),
+      status(["0.166.0"], "0.167.0", "codex", "cli"),
+      status(["0.9.0"], "0.9.0", "codex", "sdk"),
+    ],
+    update: (provider, target) => {
+      updates.push(`${provider}:${target}`);
+      return provider === "claude" && target === "cli"
+        ? Promise.reject(new Error("claude update failed"))
+        : Promise.resolve();
+    },
+  });
+  assert.deepEqual(updates, ["claude:cli", "claude:sdk", "codex:cli"]);
+  assert.deepEqual(updated, ["claude:sdk", "codex:cli"]);
+  const codexOff = [];
+  await autoUpdateProviderInstalls({
+    enabled: new Set(["claude"]),
+    statuses: [status(["0.166.0"], "0.167.0", "codex", "cli")],
+    update: (provider, target) => {
+      codexOff.push(`${provider}:${target}`);
+      return Promise.resolve();
+    },
+  });
+  assert.deepEqual(codexOff, []);
+
+  // Wiring: buttons and toggles share one route; the Claude SDK target covers
+  // both installs, the Codex CLI target re-reads the Codex catalog, and Core
+  // starts the auto-updates after the catalog refreshes.
+  assert.match(toolsSource, /export async function updateProviderTarget/u);
+  assert.match(
+    toolsSource,
+    /updateGlobal: \(\) => installLatestGlobalPackage\(packageName\)/u
+  );
+  assert.match(
+    toolsSource,
+    /updateHarness: \(\) => updateHarnessClaudeSdk\(\)/u
+  );
+  assert.match(
+    toolsSource,
+    /provider === "codex"\) \{\s+await refreshCodexModelCatalog\(\{ force: true \}\);/u
+  );
+  assert.match(
+    toolsSource,
+    /installedVersions: \[readHarnessClaudeSdkVersion\(\), claudeSdkGlobal\]/u
+  );
   assert.match(toolsSource, /readHarnessClaudeSdkPackageVersion\(\)/u);
-  assert.doesNotMatch(
-    toolsSource,
-    /readPackageVersion\(PROVIDER_PACKAGE_MAP\.claude\.sdk\)/u
-  );
-  assert.match(
-    toolsSource,
-    /refreshCatalog: \(\) => refreshClaudeModelCatalog\(\{ force: true \}\)/u
-  );
-  assert.match(toolsSource, /providers\.claude\.autoUpdate\s*\.enabled/u);
   assert.match(
     apiSource,
-    /refreshClaudeModelCatalog\(\)\.catch\(\(\) => undefined\);\n\s+startClaudeSdkAutoUpdate\(\);/u
+    /refreshClaudeModelCatalog\(\)\.catch\(\(\) => undefined\);\n\s+startProviderAutoUpdates\(\);/u
   );
   assert.match(
     apiSource,
-    /await updateProviderSdk\(request\?\.provider, request\?\.target\);/u
+    /await updateProviderTarget\(request\?\.provider, request\?\.target\);/u
   );
 
-  console.log("core claude sdk update tests passed");
+  console.log("core provider install update tests passed");
 } finally {
   await rm(buildDir, { force: true, recursive: true });
 }

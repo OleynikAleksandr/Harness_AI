@@ -257,7 +257,8 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   first install — returning the version now on disk; npm errors propagate).
   The facade re-exports `readHarnessClaudeSdkVersion` and
   `updateHarnessClaudeSdk`; Core routes the Settings SDK version row, its
-  update button and the Claude auto-update through them.
+  update button and the Claude auto-update through them (the same update
+  also refreshes the user's global npm SDK).
 
 ## Owned Paths
 

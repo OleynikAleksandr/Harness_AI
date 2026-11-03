@@ -39,9 +39,8 @@ import {
   applyLocalModelContext,
   loadLocalModelEntries,
   loadProviderVersions,
-  startClaudeSdkAutoUpdate,
-  updateProviderCli,
-  updateProviderSdk,
+  startProviderAutoUpdates,
+  updateProviderTarget,
 } from "./core-provider-tools.js";
 import {
   createSessionProfileRpcResult,
@@ -70,7 +69,7 @@ export class CoreRuntimeApi {
     refreshKimiModelCatalog().catch(() => undefined);
     refreshCodexModelCatalog().catch(() => undefined);
     refreshClaudeModelCatalog().catch(() => undefined);
-    startClaudeSdkAutoUpdate();
+    startProviderAutoUpdates();
     this.restoreState();
     this.providerLifecycle.registerAdapters();
     this.providerLifecycle.subscribeReadiness();
@@ -398,11 +397,7 @@ export class CoreRuntimeApi {
   }> {
     try {
       const request = readRecord(payload);
-      if (request?.target === "cli") {
-        await updateProviderCli(request?.provider);
-      } else {
-        await updateProviderSdk(request?.provider, request?.target);
-      }
+      await updateProviderTarget(request?.provider, request?.target);
       this.providerLifecycle.registerAdapters();
       return { ok: true, versions: await loadProviderVersions() };
     } catch (error) {

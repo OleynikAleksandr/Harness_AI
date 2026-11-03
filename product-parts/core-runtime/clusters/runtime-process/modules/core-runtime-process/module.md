@@ -71,21 +71,29 @@ state.
   RPC returns a CONTROLLED error with the refreshed entries — the wish stays
   persisted and re-applies on the next session start; the renderer surfaces
   the message and still swaps in the returned catalog.
-  CLI update targets run the provider's own self-update command (`claude update`,
-  `codex update`) so the active install is updated wherever it lives; SDK targets
-  (`updateProviderSdk`) use `npm install -g <pkg>@latest`, except the Claude
-  SDK: its version row reports the Harness-installed SDK the sessions and the
-  live model catalog run on (`readHarnessClaudeSdkVersion`, latest from the
-  npm registry) and its update installs into the Harness prefix
-  (`updateHarnessClaudeSdk`) and then re-reads the Claude model catalog with
-  `refreshClaudeModelCatalog({ force: true })`, so the Settings model
-  descriptions follow the new SDK at once. `core-claude-sdk-updates.ts` owns
-  that update-then-refresh policy and the Claude auto-update decision:
-  `CoreRuntimeApi.initialize()` calls `startClaudeSdkAutoUpdate()` after the
-  catalog refreshes, and when `providers.claude.autoUpdate.enabled` is on and
-  the registry publishes a version other than the installed one, the Harness
-  SDK is updated in the background and the catalog re-read (failures keep the
-  installed SDK). The other providers' auto-update toggles still have no
+  `update-provider-version` and the auto-update toggles share one route,
+  `updateProviderTarget(provider, target)`: CLI targets run the provider's
+  own self-update command (`claude update`, `codex update`, Kimi's native
+  `kimi upgrade`) so the active install is updated wherever it lives, and the
+  Codex CLI target then re-reads the Codex catalog with
+  `refreshCodexModelCatalog({ force: true })` (`model/list` comes from the
+  installed CLI — Codex has no Harness copy, sessions spawn the global
+  `codex`). The Claude SDK target updates both Claude SDK installs — the
+  Harness copy the sessions and the live model catalog run on
+  (`updateHarnessClaudeSdk`) and the global npm SDK (`npm install -g`) — and
+  then re-reads the Claude catalog with `refreshClaudeModelCatalog({ force:
+  true })`; one failing install does not skip the other or the refresh. Other
+  SDK targets use `npm install -g <pkg>@latest`. The Claude SDK version row
+  reports the Harness copy (`readHarnessClaudeSdkVersion`, latest from the
+  npm registry). `core-claude-sdk-updates.ts` owns that policy:
+  `updateClaudeSdkInstalls`, `isInstallOutdated` (a published version
+  differs from an existing install; missing installs are never installed)
+  and `autoUpdateProviderInstalls`. `CoreRuntimeApi.initialize()` calls
+  `startProviderAutoUpdates()` after the catalog refreshes: for Claude and
+  Codex with `providers.<id>.autoUpdate.enabled`, every outdated CLI/SDK
+  install (Claude CLI, Harness + global Claude SDK, Codex CLI, global Codex
+  SDK) is updated one after another in the background; a failed target
+  keeps its version and the next start retries. The Kimi toggle still has no
   runtime consumer. This avoids updating a stale
   `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
   stays first on PATH. OpenCode version/update handling is removed with the

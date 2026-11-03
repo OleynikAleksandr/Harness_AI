@@ -14,12 +14,18 @@ const apiSource = readFileSync(
   new URL("./core-runtime-api.ts", import.meta.url),
   "utf8"
 );
-const compiled = ts.transpileModule(source, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-}).outputText;
+const AUTOPILOT_IMPORT =
+  /import \{[^}]*\} from "[^"]*session-workflow-autopilot\.js";\n/u;
+assert.match(source, AUTOPILOT_IMPORT);
+const compiled = ts.transpileModule(
+  source.replace(AUTOPILOT_IMPORT, "const sessionWorkflowAutopilot = null;\n"),
+  {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  }
+).outputText;
 const buildDir = await mkdtemp(path.join(tmpdir(), "project-workflow-rpc-"));
 
 function fakeHost(states) {
@@ -88,6 +94,8 @@ try {
   );
   assert.equal(WORKFLOW_STATUS_EVENT_TYPE, "workflow:status");
   for (const method of [
+    "workflow-autopilot-get",
+    "workflow-autopilot-set",
     "workflow-inspect",
     "workflow-prepare-project",
     "workflow-status",
@@ -111,7 +119,21 @@ try {
     "/taken/demo": "GIT_NO_KIT",
   });
   const added = [];
+  const autopilotListeners = [];
+  const autopilotCalls = [];
+  const autopilot = {
+    get: (sessionId) => ({ enabled: false, sessionId }),
+    setEnabled: (sessionId, enabled) => {
+      autopilotCalls.push([sessionId, enabled]);
+      return Promise.resolve({ enabled, sessionId });
+    },
+    subscribe: (listener) => {
+      autopilotListeners.push(listener);
+      return () => undefined;
+    },
+  };
   const rpc = new CoreProjectWorkflowRpc({
+    autopilot,
     addWorkspace: (workspacePath) => {
       const workspace = {
         id: `id:${workspacePath}`,
@@ -291,6 +313,45 @@ try {
   assert.equal(doctor.ok, true);
   assert.deepEqual(host.calls[0], ["doctor", "/work/two", true]);
   assert.equal(events.at(-1).workspaceId, "w2");
+
+  // Autopilot switch and its events.
+  assert.equal(
+    (await rpc.invoke("workflow-autopilot-get", {})).code,
+    "INVALID_REQUEST"
+  );
+  assert.deepEqual(
+    await rpc.invoke("workflow-autopilot-get", { sessionId: "s1" }),
+    {
+      autopilot: { enabled: false, sessionId: "s1" },
+      ok: true,
+    }
+  );
+  assert.equal(
+    (
+      await rpc.invoke("workflow-autopilot-set", {
+        enabled: "yes",
+        sessionId: "s1",
+      })
+    ).code,
+    "INVALID_REQUEST"
+  );
+  assert.deepEqual(
+    await rpc.invoke("workflow-autopilot-set", {
+      enabled: true,
+      sessionId: "s1",
+    }),
+    {
+      autopilot: { enabled: true, sessionId: "s1" },
+      ok: true,
+    }
+  );
+  assert.deepEqual(autopilotCalls, [["s1", true]]);
+  autopilotListeners[0]({ sessionId: "s1", type: "workflow:autopilot" });
+  assert.deepEqual(events.at(-1), {
+    sessionId: "s1",
+    type: "workflow:autopilot",
+  });
+
   const count = events.length;
   unsubscribe();
   await rpc.invoke("workflow-status", {});

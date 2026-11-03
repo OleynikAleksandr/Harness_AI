@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p10.t2",
-  "expectedCommitMessage": "feat: control workflow autopilot through rpc",
+  "currentTaskId": "harness-ai.wk.p11.t1",
+  "expectedCommitMessage": "refactor: extract session window workspace state",
   "debt": null
 }
 ```
@@ -132,12 +132,12 @@
 
 65. [DONE] `harness-ai.wk.p10.t1` Add `session-workflow-autopilot.ts` in session-request-handler: after turn completion decide and send the continue turn with a fresh packet, skip guards (stop, failure, interaction, subagent, creator), loop protection; tests (scope: `session-request-handler/src/**`; expected commit: `feat: continue workflow tasks automatically in core`). Result: Completed in commit `feat: continue workflow tasks automatically in core`.
 66. [DONE] Git Commit: `feat: continue workflow tasks automatically in core` (hash: self)
-67. [IN_PROGRESS] `harness-ai.wk.p10.t2` Autopilot RPC (`workflow-autopilot-set/get`) and `workflow:autopilot` events; tests (scope: `core-runtime-process/src/**`; expected commit: `feat: control workflow autopilot through rpc`).
-68. [TODO] Git Commit: `feat: control workflow autopilot through rpc` (hash: TBD)
+67. [DONE] `harness-ai.wk.p10.t2` Autopilot RPC (`workflow-autopilot-set/get`) and `workflow:autopilot` events; tests (scope: `core-runtime-process/src/**`; expected commit: `feat: control workflow autopilot through rpc`). Result: Completed in commit `feat: control workflow autopilot through rpc`.
+68. [DONE] Git Commit: `feat: control workflow autopilot through rpc` (hash: self)
 
 ## Phase 11 - Project Workflow UI (owner: Claude, updated: 2026-11-03)
 
-69. [TODO] `harness-ai.wk.p11.t1` Extract workspace state and actions from `session-window-facade.tsx` into a dedicated hook file without behavior change; tests (scope: `session-window/src/**`; expected commit: `refactor: extract session window workspace state`).
+69. [IN_PROGRESS] `harness-ai.wk.p11.t1` Extract workspace state and actions from `session-window-facade.tsx` into a dedicated hook file without behavior change; tests (scope: `session-window/src/**`; expected commit: `refactor: extract session window workspace state`).
 70. [TODO] Git Commit: `refactor: extract session window workspace state` (hash: TBD)
 71. [TODO] `harness-ai.wk.p11.t2` Renderer typings and event guards for the project workflow API and events, localization source strings; tests (scope: `session-window/src/vite-env.d.ts, session-window-core-events.ts, source-dictionaries`; expected commit: `feat: type project workflow core api in renderer`).
 72. [TODO] Git Commit: `feat: type project workflow core api in renderer` (hash: TBD)

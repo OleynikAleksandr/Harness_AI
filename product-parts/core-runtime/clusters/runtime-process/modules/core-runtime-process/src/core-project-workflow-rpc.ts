@@ -9,6 +9,11 @@ import type {
   InstallOutcome,
 } from "../../../../project-workflow/modules/workflow-installer/src/workflow-installer-facade.js";
 import type { KitStatus } from "../../../../project-workflow/modules/workflow-kit/src/workflow-kit-facade.js";
+import {
+  type SessionWorkflowAutopilot,
+  sessionWorkflowAutopilot,
+  type WorkflowAutopilotSnapshot,
+} from "../../../../session-runtime/modules/session-request-handler/src/session-workflow-autopilot.js";
 import type { HarnessWorkspace } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { CoreEventListener } from "./core-provider-lifecycle.js";
 
@@ -16,6 +21,8 @@ import type { CoreEventListener } from "./core-provider-lifecycle.js";
 export const WORKFLOW_STATUS_EVENT_TYPE = "workflow:status";
 
 const PROJECT_WORKFLOW_METHODS = new Set([
+  "workflow-autopilot-get",
+  "workflow-autopilot-set",
   "workflow-doctor",
   "workflow-inspect",
   "workflow-prepare-project",
@@ -27,6 +34,11 @@ const INVALID_NAME_PATTERN = /[\\/:*?"<>|]/u;
 export interface ProjectWorkflowDependencies {
   /** Registers and selects a workspace (the existing Core route). */
   addWorkspace: (workspacePath: string) => HarnessWorkspace;
+  /** The Core autopilot executor; defaults to the shared instance. */
+  autopilot?: Pick<
+    SessionWorkflowAutopilot,
+    "get" | "setEnabled" | "subscribe"
+  >;
   host: Pick<
     WorkflowHostFacade,
     "doctor" | "inspect" | "install" | "status" | "writeRuntimeFile"
@@ -124,15 +136,27 @@ function refusal(
 
 /**
  * Core RPC for project workflow: folder inspection, project preparation
- * (install or update, then registration as a workspace), Kit status and the
- * project doctor. Every operation on a workspace publishes `workflow:status`.
+ * (install or update, then registration as a workspace), Kit status, the
+ * project doctor and the per-session autopilot switch. Every operation on a
+ * workspace publishes `workflow:status`; autopilot changes and decisions
+ * publish `workflow:autopilot`.
  */
 export class CoreProjectWorkflowRpc {
   private readonly listeners = new Set<CoreEventListener>();
   private readonly dependencies: ProjectWorkflowDependencies;
+  private readonly autopilot: NonNullable<
+    ProjectWorkflowDependencies["autopilot"]
+  >;
 
   constructor(dependencies: ProjectWorkflowDependencies) {
     this.dependencies = dependencies;
+    this.autopilot = dependencies.autopilot ?? sessionWorkflowAutopilot;
+    // Autopilot decisions reach the renderer as `workflow:autopilot` events.
+    this.autopilot.subscribe((event) => {
+      for (const listener of this.listeners) {
+        listener(event);
+      }
+    });
   }
 
   static handles(method: string): boolean {
@@ -164,11 +188,38 @@ export class CoreProjectWorkflowRpc {
           readText(record, "workspaceId"),
           record.fix === true
         );
+      case "workflow-autopilot-get":
+        return Promise.resolve(
+          this.autopilotGet(readText(record, "sessionId"))
+        );
+      case "workflow-autopilot-set":
+        return this.autopilotSet(readText(record, "sessionId"), record.enabled);
       default:
         return Promise.resolve(
           invalid(`Unknown project workflow method: ${method}`)
         );
     }
+  }
+
+  private autopilotGet(
+    sessionId: string
+  ): KitFailure | { autopilot: WorkflowAutopilotSnapshot; ok: true } {
+    return sessionId
+      ? { autopilot: this.autopilot.get(sessionId), ok: true }
+      : invalid("sessionId is required.");
+  }
+
+  private async autopilotSet(
+    sessionId: string,
+    enabled: unknown
+  ): Promise<KitFailure | { autopilot: WorkflowAutopilotSnapshot; ok: true }> {
+    if (!sessionId || typeof enabled !== "boolean") {
+      return invalid("sessionId and a boolean enabled are required.");
+    }
+    return {
+      autopilot: await this.autopilot.setEnabled(sessionId, enabled),
+      ok: true,
+    };
   }
 
   private workspace(workspaceId: string): HarnessWorkspace | null {

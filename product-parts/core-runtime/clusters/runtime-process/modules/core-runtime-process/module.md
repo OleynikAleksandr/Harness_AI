@@ -283,9 +283,16 @@ state.
     file;
   - `workflow-doctor {workspaceId?, fix?}` — the project doctor, then the
     status.
+  - `workflow-autopilot-get {sessionId}` and `workflow-autopilot-set
+    {sessionId, enabled}` — the per-session Core autopilot
+    (`sessionWorkflowAutopilot` of `session-request-handler`, injectable as
+    the `autopilot` dependency); result `{ok: true, autopilot: {sessionId,
+    enabled, continues, maxContinues, running, lastDecision}}`. Turning it
+    on for an idle session may start the first task at once.
   Every workspace operation publishes `{type: "workflow:status",
-  workspaceId, path, status}`; `CoreRuntimeApi.subscribe()` relays it on
-  the same event stream.
+  workspaceId, path, status}`; every autopilot change and decision is
+  relayed as `{type: "workflow:autopilot", ...snapshot}`.
+  `CoreRuntimeApi.subscribe()` relays both on the same event stream.
 
 ## Owned Paths
 

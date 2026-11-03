@@ -103,6 +103,46 @@ Other transaction calls:
   commit.
 - `transactions.cancel(root)` rolls back an unconfirmed preparation.
 
+## Commit References (`git-references.ts`)
+
+`resolveReferences(root, plan, planPath)` maps every task outside legacy
+rounds to one of:
+- `{status: "committed", sha, paths}`;
+- `{status: "pending"}` — inside the current transaction;
+- `{status: "open"}`.
+
+It searches `baselineCommit..HEAD` for implementation commits whose
+`Workflow-Scope`, `Workflow-Task` and `Workflow-Iteration` match the task.
+Errors:
+- `AMBIGUOUS_COMMIT` — several matching commits, or duplicated trailers;
+- `PLAN_COMMIT_MISMATCH` — a `DONE` task without a commit, or a commit for a
+  task that is not `DONE`;
+- `HISTORY_NOT_LINEAR` — a task commit with more than one parent;
+- `COMMIT_SCOPE_MISMATCH` — the commit touches files outside the task's
+  files and the plan;
+- `DEPENDENCY_ORDER` — a dependency commit is not an ancestor. Legacy-round
+  dependencies are exempt.
+
+## Repair (`git-repair.ts`)
+
+`planRepair(root, planPath)` is a dry run. It returns `{kind, message,
+repairId}`, where the id pins HEAD, the plan text and the journal. Kinds:
+- `finish-commit` — a journal whose commit exists;
+- `retry-commit` — a journal whose commit does not exist;
+- `projection` — the readable plan differs from its JSON;
+- `defer-docs` — the current `DOCS` task waits for added work;
+- `none`.
+
+`applyRepair(root, planPath, id)` performs the action. If the id no longer
+matches, it fails with `REPAIR_CHANGED`. A retry rolls the preparation back
+and repeats the same request with the same transaction id; it fails with
+`REPAIR_MANUAL` when state changed concurrently. `cancelRepair` only
+cancels an unconfirmed preparation (`NO_PREPARATION`) and keeps edits.
+
+During rollback the index is restored from `index-before`. If the backup is
+missing, it is restored from the previous HEAD tree, or emptied when there
+was no commit yet.
+
 ## Owned Paths
 
 - `module.md`

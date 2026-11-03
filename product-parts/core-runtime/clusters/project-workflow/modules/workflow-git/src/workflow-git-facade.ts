@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { WorkflowPlan } from "../../workflow-plan/src/workflow-plan-facade.js";
 import {
   type WorkflowPlatformFacade,
   workflowPlatformFacade,
@@ -11,6 +12,14 @@ import {
   type WorkingTreeChanges,
 } from "./git-history.js";
 import { type CommitJournal, localPath, readJournal } from "./git-journal.js";
+import { resolveTaskReferences, type TaskReference } from "./git-references.js";
+import {
+  applyRepair,
+  cancelRepair,
+  planRepair,
+  type RepairOutcome,
+  type RepairPlan,
+} from "./git-repair.js";
 import { GitRunner } from "./git-runner.js";
 import {
   type FileSelection,
@@ -33,6 +42,8 @@ import {
 export type { CommitRecord, WorkingTreeChanges } from "./git-history.js";
 export type { CommitJournal, CommitRole } from "./git-journal.js";
 export { LOCAL_DIR } from "./git-journal.js";
+export type { TaskReference } from "./git-references.js";
+export type { RepairKind, RepairOutcome, RepairPlan } from "./git-repair.js";
 export type { GitOptions, GitOutput } from "./git-runner.js";
 export type {
   FileSelection,
@@ -170,6 +181,37 @@ export class WorkflowGitFacade {
       finish: (root) => finishConfirmed(this.git, root),
       journal: (root) => readJournal(root),
     };
+  }
+
+  /** Maps each task to its commit; throws when plan and history disagree. */
+  resolveReferences(
+    root: string,
+    plan: WorkflowPlan,
+    planPath: string
+  ): Map<string, TaskReference> {
+    return resolveTaskReferences(
+      this.git,
+      root,
+      plan,
+      planPath,
+      readJournal(root)
+    );
+  }
+
+  planRepair(root: string, planPath: string): RepairPlan {
+    return planRepair(this.git, root, planPath);
+  }
+
+  applyRepair(root: string, planPath: string, repairId: string): RepairOutcome {
+    return applyRepair(this.git, root, planPath, repairId);
+  }
+
+  cancelRepair(
+    root: string,
+    planPath: string,
+    repairId: string
+  ): RepairOutcome {
+    return cancelRepair(this.git, root, planPath, repairId);
   }
 
   /** Absolute path of a path inside the git directory (e.g. `hooks`, `index`). */

@@ -1,6 +1,8 @@
 // Test support for the project-workflow cluster: transpiles the TypeScript
-// sources of the requested cluster modules into a temporary directory that
-// keeps the `<module>/src/*.js` layout, so relative `.js` imports resolve.
+// sources of every cluster module into a temporary directory that keeps the
+// `<module>/src/*.js` layout, so relative `.js` imports between modules
+// resolve. The module list names the modules a test needs; all cluster
+// modules are compiled so transitive imports always resolve.
 import { readdirSync, readFileSync } from "node:fs";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -22,11 +24,18 @@ function transpile(file) {
   }).outputText;
 }
 
+function clusterModules(requested) {
+  const present = readdirSync(MODULES_ROOT, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+  return [...new Set([...requested, ...present])];
+}
+
 export async function buildWorkflowModules(modules, label = "workflow") {
   const buildRoot = path.join(process.cwd(), ".harness", "runtime");
   await mkdir(buildRoot, { recursive: true });
   const directory = await mkdtemp(path.join(buildRoot, `${label}-test-`));
-  for (const moduleId of modules) {
+  for (const moduleId of clusterModules(modules)) {
     const sourceDirectory = path.join(MODULES_ROOT, moduleId, "src");
     const targetDirectory = path.join(directory, moduleId, "src");
     await mkdir(targetDirectory, { recursive: true });

@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p3.t3",
-  "expectedCommitMessage": "feat: resolve workflow commit references and repair",
+  "currentTaskId": "harness-ai.wk.p4.t1",
+  "expectedCommitMessage": "feat: add workflow quality configuration",
   "debt": null
 }
 ```
@@ -63,12 +63,12 @@
 16. [DONE] Git Commit: `feat: add workflow git runner and trailer history` (hash: self)
 17. [DONE] `harness-ai.wk.p3.t2` Add the commit transaction: journal, task file baseline/selection with excluded changes, candidate tree, trailers, failure rollback of plan and index, confirmation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**`; expected commit: `feat: add transactional workflow commits`). Result: Completed in commit `feat: add transactional workflow commits`.
 18. [DONE] Git Commit: `feat: add transactional workflow commits` (hash: self)
-19. [IN_PROGRESS] `harness-ai.wk.p3.t3` Add task-to-commit reference resolution and repair (finish/retry/cancel/projection/defer-docs with repair ids); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**`; expected commit: `feat: resolve workflow commit references and repair`).
-20. [TODO] Git Commit: `feat: resolve workflow commit references and repair` (hash: TBD)
+19. [DONE] `harness-ai.wk.p3.t3` Add task-to-commit reference resolution and repair (finish/retry/cancel/projection/defer-docs with repair ids); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**`; expected commit: `feat: resolve workflow commit references and repair`). Result: Completed in commit `feat: resolve workflow commit references and repair`.
+20. [DONE] Git Commit: `feat: resolve workflow commit references and repair` (hash: self)
 
 ## Phase 4 - Quality Profile (owner: Claude, updated: 2026-11-03)
 
-21. [TODO] `harness-ai.wk.p4.t1` Create the `workflow-quality` module: config schema and defaults (`.harness/workflow/config.json`: quality, docs contracts, budgets, policy, autopilot) and `WorkflowQualityFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**, product tree, cluster.md`; expected commit: `feat: add workflow quality configuration`).
+21. [IN_PROGRESS] `harness-ai.wk.p4.t1` Create the `workflow-quality` module: config schema and defaults (`.harness/workflow/config.json`: quality, docs contracts, budgets, policy, autopilot) and `WorkflowQualityFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**, product tree, cluster.md`; expected commit: `feat: add workflow quality configuration`).
 22. [TODO] Git Commit: `feat: add workflow quality configuration` (hash: TBD)
 23. [TODO] `harness-ai.wk.p4.t2` Add stack detection (manifests, lock files, package manager) and the ecosystem catalog (node, python, go, rust, dotnet, swift, jvm) producing proposals; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: detect project stacks and quality catalog`).
 24. [TODO] Git Commit: `feat: detect project stacks and quality catalog` (hash: TBD)

@@ -153,6 +153,8 @@ function rollback(
       indexFile(git, root),
       readFileSync(backup)
     );
+  } else if (journal.beforeHead) {
+    git.run(root, ["read-tree", journal.beforeHead]);
   } else {
     git.run(root, ["read-tree", "--empty"]);
   }

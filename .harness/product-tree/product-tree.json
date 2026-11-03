@@ -380,6 +380,11 @@
               "id": "workflow-quality",
               "name": "Workflow Quality",
               "purpose": "Project quality profile: configuration, stack detection, check catalog, check execution and profile application."
+            },
+            {
+              "id": "workflow-recovery",
+              "name": "Workflow Recovery",
+              "purpose": "Bounded recovery packet: priority sections within a byte budget, references, session-start hook output."
             }
           ]
         }

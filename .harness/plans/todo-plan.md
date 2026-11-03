@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p5.t1",
-  "expectedCommitMessage": "feat: build bounded workflow recovery packets",
+  "currentTaskId": "harness-ai.wk.p5.t2",
+  "expectedCommitMessage": "feat: add workflow recovery facade and session start hook",
   "debt": null
 }
 ```
@@ -79,9 +79,9 @@
 
 ## Phase 5 - Recovery And Autopilot Decision (owner: Claude, updated: 2026-11-03)
 
-29. [IN_PROGRESS] `harness-ai.wk.p5.t1` Create the `workflow-recovery` module: section builders and priority budget assembly with references and no silent truncation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**, product tree, cluster.md`; expected commit: `feat: build bounded workflow recovery packets`).
-30. [TODO] Git Commit: `feat: build bounded workflow recovery packets` (hash: TBD)
-31. [TODO] `harness-ai.wk.p5.t2` Add `WorkflowRecoveryFacade`: text/json packets, session-start hook output per client with `HARNESS_WORKFLOW_RECOVERY=host` suppression, show-task/history helpers; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**`; expected commit: `feat: add workflow recovery facade and session start hook`).
+29. [DONE] `harness-ai.wk.p5.t1` Create the `workflow-recovery` module: section builders and priority budget assembly with references and no silent truncation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**, product tree, cluster.md`; expected commit: `feat: build bounded workflow recovery packets`). Result: Completed in commit `feat: build bounded workflow recovery packets`.
+30. [DONE] Git Commit: `feat: build bounded workflow recovery packets` (hash: self)
+31. [IN_PROGRESS] `harness-ai.wk.p5.t2` Add `WorkflowRecoveryFacade`: text/json packets, session-start hook output per client with `HARNESS_WORKFLOW_RECOVERY=host` suppression, show-task/history helpers; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**`; expected commit: `feat: add workflow recovery facade and session start hook`).
 32. [TODO] Git Commit: `feat: add workflow recovery facade and session start hook` (hash: TBD)
 33. [TODO] `harness-ai.wk.p5.t3` Create the `workflow-autopilot` module: pure continue/stop decision with all stop reasons and the continue turn text; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/**, product tree, cluster.md`; expected commit: `feat: add workflow autopilot decision`).
 34. [TODO] Git Commit: `feat: add workflow autopilot decision` (hash: TBD)

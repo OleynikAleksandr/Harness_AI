@@ -8,8 +8,8 @@ facades of the plan, git, quality and recovery modules and keeps the rule
 "each status changes through a Kit command; each finished task is one Kit
 commit".
 
-It also handles the managed git hooks. The command-line dispatcher and the
-bundle entry are added to this module by later tasks of the active plan.
+It also handles the managed git hooks and owns the command-line dispatcher
+`src/workflow-kit-cli.ts`, the entry of the standalone bundle.
 
 ## Public Facade
 
@@ -118,6 +118,34 @@ managed hooks.
 - Any other name fails with `UNKNOWN_HOOK`; unexpected errors are reported
   with their code instead of a stack trace.
 
+## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`)
+
+- `runCli(argv, io, kit?)` returns the exit code; `io` is `{cwd, env,
+  readStdin, stdout, stderr}`. The file runs `runCli` itself when it is the
+  program entry (the bundle or the compiled file), and not when imported.
+- The project root is `--root`, else `HARNESS_WORKFLOW_ROOT`, else the git
+  top level of the working directory, else the working directory. Input
+  files resolve against the working directory.
+- Commands: `status`, `validate`, `recover [--event]`, `show-task <ID>`,
+  `history [--task] [--round]`, `scope:create --input`,
+  `plan:extend --input [--expected-revision]`,
+  `task:update <ID> --input [--expected-revision]`, `accept --note`,
+  `close --scope --note`, `carryover --input`,
+  `task:start <ID> [--confirmed]`, `task:block --reason`, `task:unblock`,
+  `commit --task [--files] [--digest]`, `docs:commit --files [--message]`,
+  `quality:detect [--stack]`, `quality:apply --input`, `quality:status`,
+  `repair [--apply|--cancel]`, `help`.
+  `--files` and `--stack` take a JSON list or a comma-separated list.
+- Output: `{ok: true, command, result}` as JSON, or `--format text`
+  (status, validation, recovery, task and history texts; JSON otherwise).
+- Errors: `{ok: false, code, message, nextAction, details}` on stdout with
+  exit code 1 (`--format text`: `CODE: message` on stderr). Argument errors
+  are `USAGE`, unknown commands `UNKNOWN_COMMAND`, unreadable inputs
+  `INPUT_UNREADABLE` / `INPUT_JSON`, unexpected errors `INTERNAL`.
+- `hook session-start --client claude|codex` prints the raw SessionStart
+  JSON from stdin input; `git-hook <name> [args]` prints the hook message
+  on stderr and exits with the hook code.
+
 ## Dependencies
 
 `workflow-platform`, `workflow-plan`, `workflow-git`, `workflow-quality`,
@@ -136,3 +164,7 @@ managed hooks.
   only, a failing check rolls back and keeps edits, evidence of the commit
   stage, a check that changes the candidate, DOCS before push, push checks,
   `commit-msg` without a transaction, unknown hooks.
+- `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
+  envelopes, text errors, a folder without the Kit, a whole task from a
+  subdirectory, text output, recovery events, SessionStart and git-hook
+  dispatch, the compiled file run as a program.

@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p6.t3",
-  "expectedCommitMessage": "feat: add workflow kit command line",
+  "currentTaskId": "harness-ai.wk.p6.t4",
+  "expectedCommitMessage": "build: bundle the workflow kit for projects",
   "debt": null
 }
 ```
@@ -92,9 +92,9 @@
 36. [DONE] Git Commit: `feat: add workflow kit cluster facade operations` (hash: self)
 37. [DONE] `harness-ai.wk.p6.t2` Add git hook handlers (pre-commit managed candidate + commit checks, commit-msg, post-commit, pre-push with DOCS and push checks); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/**`; expected commit: `feat: enforce managed commits through workflow git hooks`). Result: Completed in commit `feat: enforce managed commits through workflow git hooks`.
 38. [DONE] Git Commit: `feat: enforce managed commits through workflow git hooks` (hash: self)
-39. [IN_PROGRESS] `harness-ai.wk.p6.t3` Add the CLI dispatcher entry (`workflow-kit-cli.ts`), argument parsing, JSON/text output, help, error envelope; knip entry; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/**, knip.json`; expected commit: `feat: add workflow kit command line`).
-40. [TODO] Git Commit: `feat: add workflow kit command line` (hash: TBD)
-41. [TODO] `harness-ai.wk.p6.t4` Bundle the CLI into `dist/workflow-kit/workflow.mjs` (second Vite SSR config, `scripts/build-workflow-kit.mjs`, build and dev chain) and smoke-test the bundle end to end in a temporary repository (scope: `vite.workflow-kit.config.ts, scripts/build-workflow-kit.mjs, package.json, scripts/dev-electron.mjs`; expected commit: `build: bundle the workflow kit for projects`).
+39. [DONE] `harness-ai.wk.p6.t3` Add the CLI dispatcher entry (`workflow-kit-cli.ts`), argument parsing, JSON/text output, help, error envelope; knip entry; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/**, knip.json`; expected commit: `feat: add workflow kit command line`). Result: Completed in commit `feat: add workflow kit command line`.
+40. [DONE] Git Commit: `feat: add workflow kit command line` (hash: self)
+41. [IN_PROGRESS] `harness-ai.wk.p6.t4` Bundle the CLI into `dist/workflow-kit/workflow.mjs` (second Vite SSR config, `scripts/build-workflow-kit.mjs`, build and dev chain) and smoke-test the bundle end to end in a temporary repository (scope: `vite.workflow-kit.config.ts, scripts/build-workflow-kit.mjs, package.json, scripts/dev-electron.mjs`; expected commit: `build: bundle the workflow kit for projects`).
 42. [TODO] Git Commit: `build: bundle the workflow kit for projects` (hash: TBD)
 
 ## Phase 7 - Installer And Doctor (owner: Claude, updated: 2026-11-03)

@@ -4,6 +4,7 @@
     "vite.config.ts",
     "scripts/*.mjs",
     "product-parts/**/src/*-facade.{ts,tsx,mjs,cjs}",
+    "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
     "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
     "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs",
     "product-parts/application-shell/clusters/session-interface/modules/session-window/src/renderer-entry.tsx",

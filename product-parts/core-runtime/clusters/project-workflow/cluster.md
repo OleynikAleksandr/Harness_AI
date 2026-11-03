@@ -38,9 +38,10 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
 - `workflow-kit` — the cluster facade `WorkflowKitFacade`: status, scope,
   task, commit, acceptance, close, carryover, repair and quality
   operations.
+- `workflow-installer` — installation payload and manifest, inspection,
+  install, doctor and legacy plan migration.
 
-Further modules (`workflow-installer`, `workflow-host`) are added by the active plan in that
-order.
+Module `workflow-host` is added by the active plan.
 
 ## Test Support
 

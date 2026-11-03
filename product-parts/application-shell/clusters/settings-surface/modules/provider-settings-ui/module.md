@@ -160,6 +160,18 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
   selected model itself stays in Core-owned settings. The model row renderer
   and the dynamic description translation hook live in
   `openrouter-model-row.tsx` (split out for the 500-line cap).
+- The endpoint list of that picker is the live OpenRouter endpoint list of
+  the selected model. A stored endpoint tag can disappear from OpenRouter
+  after it was picked (2026-11-03: `google-vertex` left
+  `google/gemini-2.5-flash-lite`); once the list has loaded without error and
+  no longer contains the stored tag, the picker shows it as a selected,
+  disabled row "`<tag>` (unavailable)" with
+  `settings.openRouter.endpointUnavailable.description`, instead of leaving no
+  endpoint selected. `resolveUnavailableEndpointTag`, the
+  `OpenRouterUnavailableEndpointRow` and the endpoint metric/latency format
+  helpers live in `openrouter-endpoint-rows.tsx` (split out for the 500-line
+  cap). The OpenRouter translation engine itself retries a missing pinned
+  endpoint on default routing (provider-translation-engines module).
 - Claude default-model helper copy, thinking descriptions, model descriptions,
   and new-session note resolve through the browser localization provider instead
   of hardcoded Russian text, so Claude follows the same UI Helper Text language

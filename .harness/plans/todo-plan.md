@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream9.task2",
-  "expectedCommitMessage": "fix: flag unavailable openrouter endpoints",
+  "currentTaskId": "harness-ai.phase21.stream3.task2",
+  "expectedCommitMessage": null,
   "debt": null
 }
 ```
@@ -514,9 +514,9 @@ stale tag, so nothing reveals it.
 
 158. [DONE] `harness-ai.phase21.stream9.task1` OpenRouter translation engine: when a pinned endpoint answers 404 (no endpoint) or 429 (rate-limited), retry once on OpenRouter default routing, and record the HTTP status in the fallback error code (`non_ok_response_<status>`) (scope: provider-translation-engines `openrouter-translation-engine.ts`, plus focused tests and provider-translation-engines/reasoning-translation-overlay docs; expected commit: `fix: route translations around missing endpoints`). Result: Completed in commit `fix: route translations around missing endpoints`.
 159. [DONE] Git Commit: `fix: route translations around missing endpoints` (hash: self)
-160. [IN_PROGRESS] `harness-ai.phase21.stream9.task2` OpenRouter Settings picker: show a stored endpoint tag that the live endpoint list no longer contains as a selected row marked unavailable (scope: provider-settings-ui `openrouter-settings-card.tsx` (split if it exceeds 500 lines), plus focused tests and provider-settings-ui docs; expected commit: `fix: flag unavailable openrouter endpoints`).
-161. [TODO] Git Commit: `fix: flag unavailable openrouter endpoints` (hash: TBD)
+160. [DONE] `harness-ai.phase21.stream9.task2` OpenRouter Settings picker: show a stored endpoint tag that the live endpoint list no longer contains as a selected row marked unavailable (scope: provider-settings-ui `openrouter-settings-card.tsx` and the split-out `openrouter-endpoint-rows.tsx` (500-line cap), localization-runtime `source-dictionaries.ts` for the two new source strings, plus focused tests and provider-settings-ui docs; expected commit: `fix: flag unavailable openrouter endpoints`). Result: Completed in commit `fix: flag unavailable openrouter endpoints`.
+161. [DONE] Git Commit: `fix: flag unavailable openrouter endpoints` (hash: self)
 
 ### Stream: Phase 21 User Acceptance
 
-162. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+162. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

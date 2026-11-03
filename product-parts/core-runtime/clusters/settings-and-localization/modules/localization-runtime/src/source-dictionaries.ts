@@ -33,6 +33,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "settings.openRouter.searchRefresh": "Refresh model matches",
     "settings.openRouter.endpoint": "Endpoint",
     "settings.openRouter.endpointAutomatic": "OpenRouter - automatic",
+    "settings.openRouter.endpointUnavailable": "unavailable",
     "settings.openRouter.latency": "OpenRouter Endpoint Latency",
     "settings.openRouter.latency.test": "Test latency",
     "settings.openRouter.profiles": "OpenRouter Profiles",
@@ -243,6 +244,8 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "settings.provider.openRouter.description":
       "Uses OpenRouter chat completions with an exact model slug.",
     "settings.openRouter.defaultRouting.description": "default routing",
+    "settings.openRouter.endpointUnavailable.description":
+      "OpenRouter no longer offers this endpoint for this model. Choose another endpoint.",
     "settings.openRouter.latency.description":
       "Tests this selected model against concrete provider endpoints.",
     "settings.provider.localModels.empty":

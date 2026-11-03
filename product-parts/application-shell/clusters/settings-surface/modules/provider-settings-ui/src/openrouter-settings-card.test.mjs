@@ -30,3 +30,22 @@ const rowSource = readFileSync(
 );
 assert.match(rowSource, /export function OpenRouterModelRow/u);
 assert.match(source, /useTranslatedModelDescriptions\(models\)/u);
+
+// A stored endpoint missing from the live list stays visible as an
+// unavailable selected row (only once endpoints loaded without error).
+assert.match(
+  source,
+  /const unavailableEndpointTag = resolveUnavailableEndpointTag/u
+);
+assert.match(source, /automatic: usesAutomaticEndpoint,/u);
+assert.match(source, /failed: Boolean\(error\),\s*loading: endpointsLoading,/u);
+assert.match(source, /<OpenRouterUnavailableEndpointRow/u);
+assert.match(source, /from "\.\/openrouter-endpoint-rows\.js"/u);
+assert.doesNotMatch(source, /function formatEndpointMetric/u);
+const formatSource = readFileSync(
+  new URL("./openrouter-endpoint-rows.tsx", import.meta.url),
+  "utf8"
+);
+assert.match(formatSource, /export function selectFastestResult/u);
+assert.match(formatSource, /export function resolveUnavailableEndpointTag/u);
+assert.match(formatSource, /settings\.openRouter\.endpointUnavailable/u);

@@ -5,6 +5,13 @@ import {
   type OpenRouterEndpointLatencyResult,
   testOpenRouterEndpointLatency,
 } from "./openrouter-endpoint-latency.js";
+import {
+  formatEndpointMetric,
+  formatLatencyResult,
+  OpenRouterUnavailableEndpointRow,
+  resolveUnavailableEndpointTag,
+  selectFastestResult,
+} from "./openrouter-endpoint-rows.js";
 import { OpenRouterModelRow } from "./openrouter-model-row.js";
 import {
   loadOpenRouterModelEndpoints,
@@ -203,6 +210,13 @@ export function OpenRouterModelEndpointPicker({
     latencyResults.map((result) => [result.endpointTag, result])
   );
   const fastestResult = selectFastestResult(latencyResults);
+  const unavailableEndpointTag = resolveUnavailableEndpointTag({
+    automatic: usesAutomaticEndpoint,
+    endpointTag,
+    endpoints,
+    failed: Boolean(error),
+    loading: endpointsLoading,
+  });
   const hasLatencyTargets =
     endpoints.length > 0 ||
     Boolean(endpointTag && endpointTag !== DEFAULT_ENDPOINT_TAG);
@@ -369,6 +383,9 @@ export function OpenRouterModelEndpointPicker({
                 )}
               </p>
             ) : null}
+            <OpenRouterUnavailableEndpointRow
+              endpointTag={unavailableEndpointTag}
+            />
             {endpoints.map((endpoint) => (
               <button
                 aria-pressed={endpoint.tag === endpointTag}
@@ -451,43 +468,5 @@ export function OpenRouterModelEndpointPicker({
       ) : null}
       {error ? <p className="settings-note">{error}</p> : null}
     </div>
-  );
-}
-
-function formatEndpointMetric(endpoint: OpenRouterEndpointResult): string {
-  const parts: string[] = [];
-  if (endpoint.uptimeLast30m !== null) {
-    parts.push(`${endpoint.uptimeLast30m.toFixed(2)}% uptime`);
-  }
-  if (endpoint.latencyLast30m !== null) {
-    parts.push(`${endpoint.latencyLast30m.toFixed(2)}s`);
-  }
-  if (endpoint.throughputLast30m !== null) {
-    parts.push(`${Math.round(endpoint.throughputLast30m)} tps`);
-  }
-  return parts.length > 0 ? parts.join(" · ") : endpoint.name;
-}
-
-function formatLatencyResult(
-  result: OpenRouterEndpointLatencyResult | undefined
-): string {
-  if (!result) {
-    return "";
-  }
-  if (!result.ok) {
-    return ` · live failed: ${result.error ?? "unknown error"}`;
-  }
-  return ` · live ${result.latencyMs ?? 0} ms`;
-}
-
-function selectFastestResult(
-  results: readonly OpenRouterEndpointLatencyResult[]
-): null | OpenRouterEndpointLatencyResult {
-  return (
-    results
-      .filter((result) => result.ok && result.latencyMs !== null)
-      .sort(
-        (left, right) => (left.latencyMs ?? 0) - (right.latencyMs ?? 0)
-      )[0] ?? null
   );
 }

@@ -4,6 +4,10 @@ import { providerHomeManagerFacade } from "../../../../provider-home-and-auth/mo
 import { readClaudeUsageLimitsPayload } from "./claude-usage-limits-reader.js";
 
 export { refreshClaudeModelCatalog } from "./claude-model-catalog.js";
+export {
+  readHarnessClaudeSdkVersion,
+  updateHarnessClaudeSdk,
+} from "./claude-sdk-updates.js";
 
 import { ensureClaudeProviderHomeAuthFiles } from "./reference/auth/claude-auth-home-bridge.js";
 import {

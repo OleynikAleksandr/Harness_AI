@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream3.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase21.stream5.task2",
+  "expectedCommitMessage": "feat: auto-update claude sdk and model labels",
   "debt": null
 }
 ```
@@ -418,4 +418,30 @@ Codex app-server 0.166.0 `model/list` returns every model with `displayName`,
 
 132. [DONE] `harness-ai.phase21.stream3.task1` Build the user-authorized unsigned macOS package, verify the live Kimi, Codex and Claude catalogs in `app.asar`, install and launch it and record package identity plus focused retest steps in new package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md, docs/DOCUMENTATION_INDEX.md`; expected commit: `docs: package live provider model catalogs`). Result: Completed in commit `docs: package live provider model catalogs`.
 133. [DONE] Git Commit: `docs: package live provider model catalogs` (hash: self)
-134. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+### Stream: Claude SDK Freshness (added 2026-11-03)
+
+Plan repair, user-reported on 2026-11-03 while retesting the Phase 21 package:
+the Claude settings rows show stale descriptions ("Opus 4.8", "Fable 5",
+"Sonnet 5", "Haiku 4.5"). The labels are Anthropic aliases and stay
+number-free; the descriptions come live from `supportedModels()` of the
+Harness-installed Claude Agent SDK, which is still 0.3.207 — Harness installs
+it once into `~/.harness-ai/providers/claude/sdk` and never updates it, while
+the Settings SDK version row and its update button target the global npm
+package (0.3.316). Verified live: SDK 0.3.317 reports Opus 5.5, Sonnet 5.5,
+Haiku 5.5 (now with efforts) and `claude-fable-5[1m]` "Fable 5". The
+`autoUpdate` toggle has no runtime consumer. The user asked to keep the labels
+current automatically whenever Anthropic ships new models. The reported Kimi
+"Authentication required" was an expired Kimi CLI OAuth login (CLI 2.4.1
+tombstoned the shared credentials after a rejected refresh); the user
+re-logged in, no code change. The acceptance row moved below unchanged.
+
+134. [DONE] `harness-ai.phase21.stream5.task1` Give the Claude provider a Harness SDK update route and a forced catalog refresh: read the Harness-installed Claude Agent SDK version, install the latest SDK into the Harness prefix, and let `refreshClaudeModelCatalog({ force: true })` bypass the catalog TTL (scope: claude-provider `claude-sdk-updates.ts`, `claude-model-catalog.ts`, `claude-provider-facade.ts`, plus focused tests and claude-provider docs; expected commit: `feat: update harness claude sdk in place`). Result: Completed in commit `feat: update harness claude sdk in place`.
+135. [DONE] Git Commit: `feat: update harness claude sdk in place` (hash: self)
+136. [IN_PROGRESS] `harness-ai.phase21.stream5.task2` Route the Claude SDK version row and update button to the Harness SDK, refresh the Claude model catalog right after a successful Claude SDK update, and make the Claude auto-update toggle work: on Core start, when enabled and a newer SDK is published, update the Harness SDK in the background and refresh the catalog (scope: core-runtime-process `core-provider-tools.ts`, `core-runtime-api.ts`, plus focused tests and core-runtime-process/settings docs; expected commit: `feat: auto-update claude sdk and model labels`).
+137. [TODO] Git Commit: `feat: auto-update claude sdk and model labels` (hash: TBD)
+138. [TODO] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`).
+139. [TODO] Git Commit: `docs: package claude sdk freshness` (hash: TBD)
+
+### Stream: Phase 21 User Acceptance
+
+140. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

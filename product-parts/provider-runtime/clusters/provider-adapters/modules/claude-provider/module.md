@@ -225,8 +225,33 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   the persisted file is applied synchronously once per process before the
   first live read, a successful read is memoized for 15 minutes, and a
   failed read (SDK not installed, auth missing, timeout) keeps the served
-  catalog. Core calls it first in `CoreRuntimeApi.initialize()`; the facade
-  re-exports `refreshClaudeModelCatalog`.
+  catalog. `refreshClaudeModelCatalog({ force: true })` re-reads inside the
+  TTL; Core uses it right after the Harness SDK was updated so the new SDK's
+  descriptions replace the memoized ones. Core calls it first in
+  `CoreRuntimeApi.initialize()`; the facade re-exports
+  `refreshClaudeModelCatalog`.
+- Model labels (`Opus`, `Fable`, `Sonnet`, `Haiku`) are Anthropic aliases and
+  stay number-free; which model an alias means and the description text
+  (e.g. "Opus 5.5 · …") come from the CLI bundled with the installed SDK.
+  Verified 2026-11-03: SDK 0.3.207 reports Opus 4.8 / Fable 5 / Sonnet 5 /
+  Haiku 4.5, SDK 0.3.317 reports Opus 5.5 / Fable 5 / Sonnet 5.5 /
+  Haiku 5.5 (Haiku with efforts).
+
+## Harness SDK Updates
+
+- `claude-sdk-updates.ts` owns the Harness SDK copy the sessions and the
+  catalog run on: `harnessClaudeSdkPrefix()`
+  (`<HARNESS_AI_HOME or ~/.harness-ai>/providers/claude/sdk`),
+  `harnessClaudeSdkDirectory()` (`<prefix>/lib/node_modules/@anthropic-ai/
+  claude-agent-sdk`, no `lib` on Windows), `readHarnessClaudeSdkVersion()`
+  (the installed `package.json` version, `null` when absent) and
+  `updateHarnessClaudeSdk()` (`npm install -g
+  @anthropic-ai/claude-agent-sdk@latest --force` with `NPM_CONFIG_PREFIX` set
+  to the Harness prefix — the same route the session installer uses for the
+  first install — returning the version now on disk; npm errors propagate).
+  The facade re-exports `readHarnessClaudeSdkVersion` and
+  `updateHarnessClaudeSdk`; Core routes the Settings SDK version row, its
+  update button and the Claude auto-update through them.
 
 ## Owned Paths
 

@@ -6,6 +6,10 @@ import {
   type ProviderModelDescriptor,
   providerDescriptorFacade,
 } from "../../../../provider-registry/modules/provider-descriptor/src/provider-descriptor-facade.js";
+import {
+  harnessClaudeSdkDirectory,
+  harnessClaudeSdkPrefix,
+} from "./claude-sdk-updates.js";
 import { resolveClaudeAgentSdkExecutablePath } from "./reference/installer/sdk-executable-path.js";
 
 // Live Claude model catalog (verified 2026-11-02 on Claude Agent SDK
@@ -23,6 +27,8 @@ type ClaudeModelReader = () => Promise<unknown>;
 
 interface ClaudeModelCatalogOverrides {
   readonly catalogPath?: string;
+  // Re-read even inside the TTL (after the Harness SDK was updated).
+  readonly force?: boolean;
   readonly listModels?: ClaudeModelReader;
   readonly now?: number;
 }
@@ -95,7 +101,8 @@ export async function fetchClaudeModelCatalog(
 // the SDK when the previous successful read is older than the TTL. A
 // successful read is applied to the provider descriptor and persisted; a
 // failed one keeps the served catalog and retries on the next call. Core
-// calls this on start.
+// calls this on start, and with `force` right after a Harness SDK update so
+// the new SDK's model descriptions replace the memoized ones.
 export async function refreshClaudeModelCatalog(
   overrides: ClaudeModelCatalogOverrides = {}
 ): Promise<readonly ProviderModelDescriptor[]> {
@@ -106,7 +113,7 @@ export async function refreshClaudeModelCatalog(
     providerDescriptorFacade.setClaudeModels(readPersistedCatalog(catalogPath));
   }
   const now = overrides.now ?? Date.now();
-  if (liveExpiresAt > now) {
+  if (!overrides.force && liveExpiresAt > now) {
     return providerDescriptorFacade.getClaudeModels();
   }
   const live = await fetchClaudeModelCatalog(overrides);
@@ -122,16 +129,7 @@ export async function refreshClaudeModelCatalog(
 // provider home: the CLI answers `supportedModels()` from its initialize
 // handshake, then the query is closed.
 async function listModelsThroughSdk(): Promise<unknown> {
-  const sdkDirectory = path.join(
-    harnessHome(),
-    "providers",
-    "claude",
-    "sdk",
-    ...(process.platform === "win32" ? [] : ["lib"]),
-    "node_modules",
-    "@anthropic-ai",
-    "claude-agent-sdk"
-  );
+  const sdkDirectory = harnessClaudeSdkDirectory();
   // Native import: a transpiled direct import(file://) would become require.
   const dynamicImport = new Function("url", "return import(url);") as (
     url: string
@@ -156,7 +154,7 @@ async function listModelsThroughSdk(): Promise<unknown> {
       pathToClaudeCodeExecutable: resolveClaudeAgentSdkExecutablePath({
         arch: process.arch,
         moduleDirectory: sdkDirectory,
-        npmPrefix: path.join(harnessHome(), "providers", "claude", "sdk"),
+        npmPrefix: harnessClaudeSdkPrefix(),
         platform: process.platform,
       }),
       settingSources: [],

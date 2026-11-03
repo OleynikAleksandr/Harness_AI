@@ -42,6 +42,33 @@ try {
     "utf8"
   );
   writeFileSync(
+    path.join(buildDir, "npm-runner.js"),
+    ts.transpileModule(
+      readFileSync(
+        new URL("./reference/installer/npm-runner.ts", import.meta.url),
+        "utf8"
+      ),
+      { compilerOptions }
+    ).outputText,
+    "utf8"
+  );
+  writeFileSync(
+    path.join(buildDir, "claude-sdk-updates.js"),
+    ts
+      .transpileModule(
+        readFileSync(
+          new URL("./claude-sdk-updates.ts", import.meta.url),
+          "utf8"
+        ),
+        { compilerOptions }
+      )
+      .outputText.replace(
+        "./reference/installer/npm-runner.js",
+        "./npm-runner.js"
+      ),
+    "utf8"
+  );
+  writeFileSync(
     path.join(buildDir, "claude-model-catalog.js"),
     ts
       .transpileModule(
@@ -213,20 +240,60 @@ try {
   });
   assert.deepEqual(providerDescriptorFacade.getClaudeModels(), liveModels);
 
+  // `force` re-reads inside the TTL (right after a Harness SDK update) and
+  // serves the new SDK's descriptions.
+  const updatedRows = liveRows.map((row) =>
+    row.value === "opus[1m]"
+      ? { ...row, description: "Opus 5.5 · Best for everyday, complex tasks" }
+      : row
+  );
+  const freshAt = 1000 + 17 * 60 * 1000;
+  await refreshClaudeModelCatalog({
+    catalogPath,
+    listModels: () => Promise.resolve(liveRows),
+    now: freshAt,
+  });
+  assert.equal(
+    (
+      await refreshClaudeModelCatalog({
+        catalogPath,
+        listModels: () => Promise.resolve(updatedRows),
+        now: freshAt + 1000,
+      })
+    )[0].description,
+    liveModels[0].description
+  );
+  assert.equal(
+    (
+      await refreshClaudeModelCatalog({
+        catalogPath,
+        force: true,
+        listModels: () => Promise.resolve(updatedRows),
+        now: freshAt + 2000,
+      })
+    )[0].description,
+    "Opus 5.5 · Best for everyday, complex tasks"
+  );
+
   // The persisted catalog round-trips: an offline restart serves it.
   const persisted = JSON.parse(readFileSync(catalogPath, "utf8"));
-  assert.equal(persisted.fetchedAt, new Date(1000).toISOString());
+  assert.equal(persisted.fetchedAt, new Date(freshAt + 2000).toISOString());
   providerDescriptorFacade.setClaudeModels(CLAUDE_MODELS);
   const restartPath = path.join(buildDir, "restart", "model-catalog.json");
   await mkdir(path.dirname(restartPath), { recursive: true });
   writeFileSync(restartPath, JSON.stringify(persisted), "utf8");
+  const updatedModels = liveModels.map((model) =>
+    model.id === "opus[1m]"
+      ? { ...model, description: "Opus 5.5 · Best for everyday, complex tasks" }
+      : model
+  );
   assert.deepEqual(
     await refreshClaudeModelCatalog({
       catalogPath: restartPath,
       listModels: offline,
       now: 5000,
     }),
-    liveModels
+    updatedModels
   );
 
   console.log("claude model catalog tests passed");

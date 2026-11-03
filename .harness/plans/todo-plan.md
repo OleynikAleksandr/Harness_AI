@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream5.task2",
-  "expectedCommitMessage": "feat: auto-update claude sdk and model labels",
+  "currentTaskId": "harness-ai.phase21.stream3.task3",
+  "expectedCommitMessage": "docs: package claude sdk freshness",
   "debt": null
 }
 ```
@@ -437,9 +437,9 @@ re-logged in, no code change. The acceptance row moved below unchanged.
 
 134. [DONE] `harness-ai.phase21.stream5.task1` Give the Claude provider a Harness SDK update route and a forced catalog refresh: read the Harness-installed Claude Agent SDK version, install the latest SDK into the Harness prefix, and let `refreshClaudeModelCatalog({ force: true })` bypass the catalog TTL (scope: claude-provider `claude-sdk-updates.ts`, `claude-model-catalog.ts`, `claude-provider-facade.ts`, plus focused tests and claude-provider docs; expected commit: `feat: update harness claude sdk in place`). Result: Completed in commit `feat: update harness claude sdk in place`.
 135. [DONE] Git Commit: `feat: update harness claude sdk in place` (hash: self)
-136. [IN_PROGRESS] `harness-ai.phase21.stream5.task2` Route the Claude SDK version row and update button to the Harness SDK, refresh the Claude model catalog right after a successful Claude SDK update, and make the Claude auto-update toggle work: on Core start, when enabled and a newer SDK is published, update the Harness SDK in the background and refresh the catalog (scope: core-runtime-process `core-provider-tools.ts`, `core-runtime-api.ts`, plus focused tests and core-runtime-process/settings docs; expected commit: `feat: auto-update claude sdk and model labels`).
-137. [TODO] Git Commit: `feat: auto-update claude sdk and model labels` (hash: TBD)
-138. [TODO] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`).
+136. [DONE] `harness-ai.phase21.stream5.task2` Route the Claude SDK version row and update button to the Harness SDK, refresh the Claude model catalog right after a successful Claude SDK update, and make the Claude auto-update toggle work: on Core start, when enabled and a newer SDK is published, update the Harness SDK in the background and refresh the catalog (scope: core-runtime-process `core-provider-tools.ts`, `core-runtime-api.ts`, plus focused tests and core-runtime-process/settings docs; expected commit: `feat: auto-update claude sdk and model labels`). Result: Completed in commit `feat: auto-update claude sdk and model labels`.
+137. [DONE] Git Commit: `feat: auto-update claude sdk and model labels` (hash: self)
+138. [IN_PROGRESS] `harness-ai.phase21.stream3.task3` Build the user-authorized unsigned macOS package, update the Harness Claude SDK through the packaged app route, verify the refreshed Claude labels and launch it, and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package claude sdk freshness`).
 139. [TODO] Git Commit: `docs: package claude sdk freshness` (hash: TBD)
 
 ### Stream: Phase 21 User Acceptance

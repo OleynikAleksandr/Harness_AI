@@ -224,6 +224,11 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - The Claude and Codex cards take a `models` prop: the live catalog rows Core serves (`SettingsModelOption`, see Live Model Catalogs below). Each row's selector shows only that model's `reasoningEfforts`, its value is the Core-normalized `thinkingByModel` / `reasoningByModel` entry (falling back to the row's `defaultReasoningEffort` until the next settings read), and models without efforts (Haiku) render "Not adjustable". Summary support is separate from effort selection.
 - Provider model cards render the model label and description only; the raw model id (which duplicated the label, e.g. "Sonnet" / "sonnet") is no longer shown in the Claude, Codex and reference cards. OpenRouter keeps its `settings-model-id` span because there it carries routing/metric text (e.g. "default routing", endpoint metrics), not a duplicate name.
 - The shared `ProviderVersionsCard` update button shows a `settings-spinner` next to the "Updating to ..." label while a CLI/SDK target is updating (driven by `updatingTargets`), so every provider with manual updates has the same in-progress feedback until the current version refreshes.
+- In the Claude tab the `ProviderVersionsCard` SDK row shows the
+  Harness-installed Claude Agent SDK (the copy sessions and the live model
+  catalog use) and its update button updates that copy; Core then re-reads
+  the Claude model catalog, so the model descriptions change after the
+  Settings dialog is reopened.
 - `ProviderVersionsCard`'s update-risk warning banner and the auto-update
   toggle's description resolve through the browser localization provider
   (`settings.provider.versions.warning` in `messages_for_the_user`,

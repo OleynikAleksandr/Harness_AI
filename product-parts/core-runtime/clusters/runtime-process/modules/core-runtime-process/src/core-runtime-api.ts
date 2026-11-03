@@ -37,11 +37,11 @@ import {
 } from "./core-provider-lifecycle.js";
 import {
   applyLocalModelContext,
-  installLatestGlobalPackage,
   loadLocalModelEntries,
   loadProviderVersions,
-  resolveProviderPackage,
+  startClaudeSdkAutoUpdate,
   updateProviderCli,
+  updateProviderSdk,
 } from "./core-provider-tools.js";
 import {
   createSessionProfileRpcResult,
@@ -70,6 +70,7 @@ export class CoreRuntimeApi {
     refreshKimiModelCatalog().catch(() => undefined);
     refreshCodexModelCatalog().catch(() => undefined);
     refreshClaudeModelCatalog().catch(() => undefined);
+    startClaudeSdkAutoUpdate();
     this.restoreState();
     this.providerLifecycle.registerAdapters();
     this.providerLifecycle.subscribeReadiness();
@@ -400,11 +401,7 @@ export class CoreRuntimeApi {
       if (request?.target === "cli") {
         await updateProviderCli(request?.provider);
       } else {
-        const packageName = resolveProviderPackage(
-          request?.provider,
-          request?.target
-        );
-        await installLatestGlobalPackage(packageName);
+        await updateProviderSdk(request?.provider, request?.target);
       }
       this.providerLifecycle.registerAdapters();
       return { ok: true, versions: await loadProviderVersions() };

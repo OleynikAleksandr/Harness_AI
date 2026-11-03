@@ -2,6 +2,11 @@ import { exec } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import {
+  readHarnessClaudeSdkVersion,
+  refreshClaudeModelCatalog,
+  updateHarnessClaudeSdk,
+} from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
+import {
   readKimiCliVersionStatus,
   upgradeKimiCli,
 } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-native-capture/src/kimi-native-capture-facade.js";
@@ -12,6 +17,10 @@ import {
 } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/local-models-client-provider/src/local-models-management.js";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
 import { settingsStoreFacade } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
+import {
+  autoUpdateClaudeSdk,
+  updateClaudeSdkAndCatalog,
+} from "./core-claude-sdk-updates.js";
 
 const execAsync = promisify(exec);
 const NPM_COMMAND = process.platform === "win32" ? "npm.cmd" : "npm";
@@ -83,7 +92,7 @@ export async function loadProviderVersions(): Promise<unknown> {
   const [claudeCli, claudeSdk, codexCli, codexSdk, kimiCli] = await Promise.all(
     [
       readCliPackageVersion("claude"),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+      readHarnessClaudeSdkPackageVersion(),
       readCliPackageVersion("codex"),
       readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
       readKimiCliVersionStatus(),
@@ -99,13 +108,54 @@ export async function loadProviderVersions(): Promise<unknown> {
   };
 }
 
-export async function installLatestGlobalPackage(
-  packageName: string
-): Promise<void> {
+async function installLatestGlobalPackage(packageName: string): Promise<void> {
   await execAsync(`${NPM_COMMAND} install -g ${packageName}@latest`, {
     env: buildExecEnv(),
     maxBuffer: EXEC_MAX_BUFFER_BYTES,
   });
+}
+
+// SDK update targets. The Claude SDK row is the Harness-installed copy the
+// sessions and the live model catalog run on (not the global npm package);
+// its update installs into the Harness prefix and re-reads the catalog.
+export async function updateProviderSdk(
+  provider: unknown,
+  target: unknown
+): Promise<void> {
+  const packageName = resolveProviderPackage(provider, target);
+  if (packageName === PROVIDER_PACKAGE_MAP.claude.sdk) {
+    await updateClaudeSdkAndCatalog(claudeSdkUpdateSteps());
+    return;
+  }
+  await installLatestGlobalPackage(packageName);
+}
+
+// Claude auto-update toggle (`providers.claude.autoUpdate.enabled`): on Core
+// start, a newer published SDK is installed into the Harness prefix in the
+// background and the model catalog re-read. Failures leave the installed SDK.
+export function startClaudeSdkAutoUpdate(): void {
+  autoUpdateClaudeSdk({
+    ...claudeSdkUpdateSteps(),
+    enabled:
+      settingsStoreFacade.getSettings().providers.claude.autoUpdate.enabled,
+    readCurrent: () => readHarnessClaudeSdkVersion(),
+    readLatest: () => readLatestVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+  }).catch(() => undefined);
+}
+
+function claudeSdkUpdateSteps() {
+  return {
+    refreshCatalog: () => refreshClaudeModelCatalog({ force: true }),
+    update: () => updateHarnessClaudeSdk(),
+  };
+}
+
+async function readHarnessClaudeSdkPackageVersion() {
+  return {
+    currentVersion: readHarnessClaudeSdkVersion(),
+    latestVersion: await readLatestVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
+    packageName: PROVIDER_PACKAGE_MAP.claude.sdk,
+  };
 }
 
 export async function updateProviderCli(provider: unknown): Promise<void> {
@@ -123,10 +173,7 @@ export async function updateProviderCli(provider: unknown): Promise<void> {
   });
 }
 
-export function resolveProviderPackage(
-  provider: unknown,
-  target: unknown
-): string {
+function resolveProviderPackage(provider: unknown, target: unknown): string {
   const packageMap = PROVIDER_PACKAGE_MAP[provider as ProviderVersionKey];
   const packageName = packageMap?.[target as ProviderUpdateTarget];
   if (!packageName) {

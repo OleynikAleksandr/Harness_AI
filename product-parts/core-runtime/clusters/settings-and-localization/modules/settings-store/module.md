@@ -59,7 +59,9 @@ Own global and workspace settings persistence.
   `getApiKey("kimi-client")` and the Settings UI see one value.
   Since the 2026-07-17 Kimi settings parity stream the section additionally
   carries the common `autoUpdate` (default `{ enabled: false }`, projected
-  into the system settings file like the other providers' auto-update flags)
+  into the system settings file like the other providers' auto-update flags;
+  only the Claude flag has a runtime consumer — Core's Harness Claude SDK
+  auto-update on start)
   and `sessionContinuity` (default `{ remainingPercentThreshold: 30 }`,
   projected into the workspace settings file like `workspaceCommon`) keys via
   `Pick<ProviderCommonSettings, ...>`; the auth-store overlay/sync still

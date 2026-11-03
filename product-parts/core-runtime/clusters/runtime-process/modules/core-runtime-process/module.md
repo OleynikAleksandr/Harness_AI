@@ -73,7 +73,20 @@ state.
   the message and still swaps in the returned catalog.
   CLI update targets run the provider's own self-update command (`claude update`,
   `codex update`) so the active install is updated wherever it lives; SDK targets
-  use `npm install -g <pkg>@latest`. This avoids updating a stale
+  (`updateProviderSdk`) use `npm install -g <pkg>@latest`, except the Claude
+  SDK: its version row reports the Harness-installed SDK the sessions and the
+  live model catalog run on (`readHarnessClaudeSdkVersion`, latest from the
+  npm registry) and its update installs into the Harness prefix
+  (`updateHarnessClaudeSdk`) and then re-reads the Claude model catalog with
+  `refreshClaudeModelCatalog({ force: true })`, so the Settings model
+  descriptions follow the new SDK at once. `core-claude-sdk-updates.ts` owns
+  that update-then-refresh policy and the Claude auto-update decision:
+  `CoreRuntimeApi.initialize()` calls `startClaudeSdkAutoUpdate()` after the
+  catalog refreshes, and when `providers.claude.autoUpdate.enabled` is on and
+  the registry publishes a version other than the installed one, the Harness
+  SDK is updated in the background and the catalog re-read (failures keep the
+  installed SDK). The other providers' auto-update toggles still have no
+  runtime consumer. This avoids updating a stale
   `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
   stays first on PATH. OpenCode version/update handling is removed with the
   embedded runtime migration.

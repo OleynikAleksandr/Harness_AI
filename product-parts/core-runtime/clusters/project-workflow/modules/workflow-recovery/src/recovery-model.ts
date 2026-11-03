@@ -37,6 +37,8 @@ export interface RecoveryInput {
   taskCommits: Record<string, string>;
   transaction: TransactionSummary | null;
   verification: VerificationSummary | null;
+  /** Problems met while gathering the state; shown in the state section. */
+  warnings?: string[];
 }
 
 export interface PacketSection {

@@ -6,12 +6,14 @@ The bounded recovery packet of the Workflow Kit: the working set an agent
 needs to continue the plan after a new session, `/clear` or compaction. Its
 size depends on the current task, not on the length of the plan.
 
-Gathering the state from a project, the session-start hook output and the
-`show-task`/`history` helpers are added by a later task of the active plan.
+It also answers the provider SessionStart hook and the on-demand
+`show-task` and `history` commands.
 
 ## Public Facade
 
-`WorkflowRecoveryFacade` (class, singleton `workflowRecoveryFacade`).
+`WorkflowRecoveryFacade` (class, singleton `workflowRecoveryFacade`). The
+constructor takes a `WorkflowGitFacade`; tests pass one with a clean git
+environment.
 
 ## Contract
 
@@ -60,12 +62,51 @@ Gathering the state from a project, the session-start hook output and the
   text}`.
 - `section(text, heading)` returns a Markdown section or `null`.
 
+## Project Commands (`recovery-gather.ts`, `recovery-commands.ts`)
+
+- `gather(root, event)` reads:
+  - the plan (an empty plan when the file is absent; parse errors throw);
+  - the configuration (`budget.recoveryBytes`, quality status and stacks);
+  - git: HEAD, the pending transaction journal, changes outside the task
+    in progress (its declared files and Kit-managed paths are left out) and
+    the commit of every done task;
+  - the last verification evidence;
+  - documents through `readDocument`, inside the project only.
+  Problems that do not stop the packet become `warnings` shown in the
+  `state` section: not a git repository, inconsistent commit references.
+- `packet(root, event)` = `build(gather(root, event))`;
+  `render(packet, "text" | "json")` is `recover --format`.
+- `sessionStart(root, {client, stdin, env})` is `hook session-start`:
+  - the event is the `source` of the hook input (`startup`, `resume`,
+    `clear`, `compact`; anything else is `startup`);
+  - the answer is `{continue: true, hookSpecificOutput: {hookEventName:
+    "SessionStart", additionalContext}}`;
+  - with `HARNESS_WORKFLOW_RECOVERY=host` (`HOST_RECOVERY_VARIABLE`) the
+    answer has no `additionalContext`, because Harness delivered it;
+  - errors never block the session: the context then names the error code
+    and points to `scripts/workflow doctor`.
+- `showTask(root, id)` — the full task text with `committed: <sha>` for a
+  done task; `UNKNOWN_TASK` otherwise.
+- `history(root, {task?, round?})` — commits since the scope baseline as
+  `{sha, role, taskId, subject}` from the `Workflow-*` trailers (commits
+  without them are `external`), filtered by task or by the tasks of a
+  round, plus a one-line-per-commit text.
+
 ## Dependencies
 
-`workflow-plan` (plan types, plan path). Node built-ins only.
+- `workflow-plan` — plan types, reading the plan.
+- `workflow-git` — HEAD, changes, history, journal, commit references.
+- `workflow-quality` — configuration and verification evidence.
+- `workflow-platform` — files inside the project, `WorkflowError`.
+
+Node built-ins only.
 
 ## Tests
 
-`src/workflow-recovery-packet.test.mjs` — full packet, tight and tiny
-budgets, heading sections, task truncation, every `next` variant, heading
-extraction.
+- `src/workflow-recovery-packet.test.mjs` — full packet, tight and tiny
+  budgets, heading sections, task truncation, every `next` variant, heading
+  extraction.
+- `src/workflow-recovery-project.test.mjs` — a git project: packet without
+  a repository, changes outside the task, JSON output, the SessionStart
+  hook with and without host delivery and with a broken plan, `show-task`,
+  `history`.

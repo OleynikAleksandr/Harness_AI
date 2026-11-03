@@ -66,6 +66,7 @@ export function stateSection(input: RecoveryInput): string {
     `head: ${shortSha(input.head)}`,
     `transaction: ${transaction}`,
     `event: ${input.event}`,
+    ...(input.warnings ?? []).map((warning) => `warning: ${warning}`),
   ].join("\n");
 }
 
@@ -125,15 +126,13 @@ function field(
   return `${name}: ${kept} [truncated: ${removed} bytes, run: ${KIT_COMMAND} show-task ${taskId}]`;
 }
 
-/** Full task text; `cap` limits each long field in UTF-8 bytes. */
-export function taskSection(
-  input: RecoveryInput,
+/** Full text of one task; `cap` limits each long field in UTF-8 bytes. */
+export function describeTask(
+  plan: WorkflowPlan,
+  task: WorkflowTask,
+  taskCommits: Record<string, string>,
   cap: number | null = null
 ): string {
-  const task = focusTask(input.plan);
-  if (!task) {
-    return "none";
-  }
   const lines = [
     `${task.id} [${task.kind}] ${task.status}, round ${task.roundId}, iteration ${task.iteration}`,
     `title: ${task.title}`,
@@ -159,12 +158,24 @@ export function taskSection(
     lines.push(`confirmation: ${task.confirmation}`);
   }
   if (task.fixes) {
-    const original = input.plan.tasks.find((item) => item.id === task.fixes);
+    const original = plan.tasks.find((item) => item.id === task.fixes);
     lines.push(
-      `fixes: ${task.fixes} ${shortSha(input.taskCommits[task.fixes])}${original ? ` — ${original.title}` : ""}`
+      `fixes: ${task.fixes} ${shortSha(taskCommits[task.fixes])}${original ? ` — ${original.title}` : ""}`
     );
   }
+  if (taskCommits[task.id]) {
+    lines.push(`committed: ${taskCommits[task.id]}`);
+  }
   return lines.join("\n");
+}
+
+/** The focus task in full; `cap` limits each long field in UTF-8 bytes. */
+export function taskSection(
+  input: RecoveryInput,
+  cap: number | null = null
+): string {
+  const task = focusTask(input.plan);
+  return task ? describeTask(input.plan, task, input.taskCommits, cap) : "none";
 }
 
 export function upcomingSection(input: RecoveryInput): string {

@@ -156,3 +156,65 @@ Core живьём прочитал каталог (`fetchedAt` `2026-11-03T07:42
 3. Включить автообновление Claude: при следующем выходе SDK подписи сменятся
    после перезапуска Harness.
 4. Новая сессия Claude на Fable 5.1 запускается и отвечает.
+
+## Пересборка 2026-11-03: одна глобальная установка Claude SDK
+
+### Решение пользователя
+
+Claude переведён на схему Codex. Сессии и живой каталог моделей работают на
+одной глобальной npm-установке Claude Agent SDK (`npm prefix -g`, здесь
+`~/.npm-global`). Данные сессий по-прежнему хранятся в home провайдера Harness
+(`<workspace>/.harness/runtime/providers/claude/home`), история — в
+`<workspace>/.harness/sessions/`. Отдельная копия
+`~/.harness-ai/providers/claude/sdk` больше не используется; её не удаляли.
+
+### Маршрут обновления
+
+Кнопки обновления в Settings и переключатели автообновления идут через один
+маршрут `updateProviderTarget`:
+
+- Claude SDK: `updateClaudeSdk` (`npm install -g ... --force`), затем
+  `refreshClaudeModelCatalog({ force: true })`;
+- Codex CLI: `codex update`, затем `refreshCodexModelCatalog({ force: true })`;
+- автообновление при старте Core обновляет устаревшие установки Claude CLI,
+  глобального Claude SDK, Codex CLI и глобального Codex SDK по флагам
+  `providers.<id>.autoUpdate.enabled`.
+
+### Проверка на реальных установках
+
+На момент проверки все установки уже последние: Claude CLI 2.1.317, глобальный
+Claude SDK 0.3.317, Codex CLI 0.166.0, Codex SDK 0.166.0.
+
+Собранный `updateProviderTarget("claude", "sdk")` запускали в чистом окружении
+(`env -i`) с отдельным `HARNESS_AI_HOME`. Результат:
+
+- переустановка глобального SDK прошла за 4289 мс;
+- `loadProviderVersions()` вернул SDK `0.3.317` при latest `0.3.317`;
+- каталог перечитан принудительно, в нём 4 алиаса: Opus 5.5, Fable 5.1,
+  Sonnet 5.5, Haiku 5.5, у каждого уровни low..max.
+
+`npm run package:mac` из revision
+`d598ea52a943dcfbeb2a1c16c5444ebab8939684`:
+
+- renderer: `dist/renderer/assets/index-DEE35EBW.js`,
+  `dist/renderer/assets/index-DGrvNM_0.css`;
+- `app.asar` size: `32546566` bytes;
+- `app.asar` modification time: `2026-11-03T09:07:18+0100`;
+- SHA-256:
+  `1b9e4fdc1d5b4482bb5b9956a3652d32790c3330783b35da1ccb764df1b855f0`.
+
+Пакет запущен: main process `62976`, Core Runtime process `63001`. При старте
+Core прочитал каталог из глобального SDK (`fetchedAt`
+`2026-11-03T08:08:21.031Z`) и сохранил 4 алиаса: Opus 5.5, Fable 5.1,
+Sonnet 5.5 и Haiku 5.5.
+
+### Шаги ручной проверки
+
+1. Settings → Claude → версии: строка SDK показывает 0.3.317 — это глобальная
+   установка, та же, что `npm ls -g @anthropic-ai/claude-agent-sdk`.
+2. Кнопка обновления Claude SDK отрабатывает без ошибки. После повторного
+   открытия Settings модели остаются: Opus 5.5, Fable 5.1, Sonnet 5.5,
+   Haiku 5.5.
+3. Новая сессия Claude запускается и отвечает. Её файлы появляются в
+   `<workspace>/.harness/runtime/providers/claude/home`.
+4. Codex: строка CLI показывает 0.166.0, новая сессия Codex отвечает.

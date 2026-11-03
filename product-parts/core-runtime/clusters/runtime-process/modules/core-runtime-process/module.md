@@ -260,6 +260,33 @@ state.
   `core-provider-adapter-registration.ts` and reused by the shared registry
   wiring.
 
+- Project workflow RPCs (`core-project-workflow-rpc.ts`,
+  `CoreProjectWorkflowRpc`): `CoreRuntimeApi.invoke` routes every method
+  that `CoreProjectWorkflowRpc.handles()` accepts before its own switch.
+  Workflow Kit commands run through `workflowHostFacade` (module
+  `workflow-host`) as child processes; results keep the Kit envelope
+  `{ok: true, command, result} | {ok: false, code, message, nextAction,
+  details}`:
+  - `workflow-inspect {path}` — folder classification (absolute path);
+  - `workflow-prepare-project {mode, path, name?}` — `new`: `path` is the
+    parent folder and `name` the new folder (one segment); the target must
+    be `MISSING` or `EMPTY` (`PROJECT_EXISTS`). `open`: `path` is the
+    folder; a missing one is `FOLDER_MISSING`. Workflow Pilot or a folder
+    inside another repository is `UNSUPPORTED_FOLDER`. Inspect actions
+    `create`, `install` and `install-migrate` install, `update` updates,
+    `open` and `doctor` install nothing. Then the existing `add-workspace`
+    route registers and selects the folder, the host runtime file is
+    written and the status is published. Result `{ok: true, inspect,
+    install, status, workspace}`; a failed install registers nothing;
+  - `workflow-status {workspaceId?}` — Kit status of the workspace (the
+    active one by default; `UNKNOWN_WORKSPACE`), refreshing the runtime
+    file;
+  - `workflow-doctor {workspaceId?, fix?}` — the project doctor, then the
+    status.
+  Every workspace operation publishes `{type: "workflow:status",
+  workspaceId, path, status}`; `CoreRuntimeApi.subscribe()` relays it on
+  the same event stream.
+
 ## Owned Paths
 
 - `module.md`

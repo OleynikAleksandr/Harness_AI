@@ -136,6 +136,18 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 | `workflow-autopilot-set` `{sessionId, enabled}` | включить или выключить автопилот |
 | `workflow-autopilot-get` `{sessionId}` | состояние автопилота и последняя причина остановки |
 
+Для `mode: "new"` поле `path` — родительская папка, а `name` — имя новой
+папки проекта. Целевая папка должна отсутствовать или быть пустой. Для
+`mode: "open"` поле `path` — сама папка. Что делает Core, зависит от
+`action` результата `inspect`:
+- `create`, `install`, `install-migrate` — установка;
+- `update` — обновление;
+- `open`, `doctor` — ничего не устанавливается;
+- `unsupported` — отказ.
+
+Затем папка регистрируется как workspace. Методы `workflow-*` обрабатывает
+`CoreProjectWorkflowRpc` (`core-project-workflow-rpc.ts`).
+
 Событие `workflow:status` публикуется после каждой операции Kit. Событие
 `workflow:autopilot` публикуется при каждом решении автопилота.
 

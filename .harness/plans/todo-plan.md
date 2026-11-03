@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p8.t3",
-  "expectedCommitMessage": "feat: expose project workflow rpc in core",
+  "currentTaskId": "harness-ai.wk.p9.t1",
+  "expectedCommitMessage": "feat: pass workflow recovery context to provider sessions",
   "debt": null
 }
 ```
@@ -114,12 +114,12 @@
 52. [DONE] Git Commit: `feat: run workflow kit commands from core` (hash: self)
 53. [DONE] `harness-ai.wk.p8.t2` Electron host: ship the bundle via extraResources, pass bundle/Electron runtime env to Core, add project folder/parent pickers to the bridge and preload; tests (scope: `core-process-supervisor.mjs, core-process-bridge-facade.mjs, preload.cjs, package.json`; expected commit: `feat: ship workflow kit bundle and project folder pickers`). Result: Completed in commit `feat: ship workflow kit bundle and project folder pickers`.
 54. [DONE] Git Commit: `feat: ship workflow kit bundle and project folder pickers` (hash: self)
-55. [IN_PROGRESS] `harness-ai.wk.p8.t3` Core RPC `core-project-workflow-rpc.ts` (inspect, prepare-project, status, doctor) wired into `CoreRuntimeApi` with `workflow:status` events; tests (scope: `core-runtime-process/src/**`; expected commit: `feat: expose project workflow rpc in core`).
-56. [TODO] Git Commit: `feat: expose project workflow rpc in core` (hash: TBD)
+55. [DONE] `harness-ai.wk.p8.t3` Core RPC `core-project-workflow-rpc.ts` (inspect, prepare-project, status, doctor) wired into `CoreRuntimeApi` with `workflow:status` events; tests (scope: `core-runtime-process/src/**`; expected commit: `feat: expose project workflow rpc in core`). Result: Completed in commit `feat: expose project workflow rpc in core`.
+56. [DONE] Git Commit: `feat: expose project workflow rpc in core` (hash: self)
 
 ## Phase 9 - Provider Context Delivery (owner: Claude, updated: 2026-11-03)
 
-57. [TODO] `harness-ai.wk.p9.t1` Add `ProviderSessionStartOptions.workspaceContext` and compute the recovery packet in `bindProviderSession` for workspaces with the kit; tests (scope: `provider-adapter-contract, session-request-handler`; expected commit: `feat: pass workflow recovery context to provider sessions`).
+57. [IN_PROGRESS] `harness-ai.wk.p9.t1` Add `ProviderSessionStartOptions.workspaceContext` and compute the recovery packet in `bindProviderSession` for workspaces with the kit; tests (scope: `provider-adapter-contract, session-request-handler`; expected commit: `feat: pass workflow recovery context to provider sessions`).
 58. [TODO] Git Commit: `feat: pass workflow recovery context to provider sessions` (hash: TBD)
 59. [TODO] `harness-ai.wk.p9.t2` Claude adapter: append workspace context to native/managed/legacy prompts and pass `HARNESS_WORKFLOW_RECOVERY=host`; tests (scope: `claude-provider/src/**`; expected commit: `feat: deliver workflow context to claude sessions`).
 60. [TODO] Git Commit: `feat: deliver workflow context to claude sessions` (hash: TBD)

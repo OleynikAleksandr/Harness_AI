@@ -10,6 +10,7 @@ import {
   type ProviderId,
   providerRegistryFacade,
 } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
+import { workflowHostFacade } from "../../../../project-workflow/modules/workflow-host/src/workflow-host-facade.js";
 import { sessionEventStreamFacade } from "../../../../session-runtime/modules/session-event-stream/src/session-event-stream-facade.js";
 import { sessionProviderInteractionLifecycle } from "../../../../session-runtime/modules/session-request-handler/src/session-provider-interaction-lifecycle.js";
 import { sessionRequestHandlerFacade } from "../../../../session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
@@ -18,6 +19,7 @@ import {
   settingsStoreFacade,
 } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
 import {
+  type HarnessWorkspace,
   type WorkspaceRegistrySnapshot,
   workspaceRegistryFacade,
 } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
@@ -30,6 +32,7 @@ import {
   listCapturableModelsRpcResult,
 } from "./core-native-capture-rpc.js";
 import { coreProfileStudioRpcFacade } from "./core-profile-studio-rpc.js";
+import { CoreProjectWorkflowRpc } from "./core-project-workflow-rpc.js";
 import {
   type CoreEventListener,
   CoreProviderLifecycle,
@@ -58,6 +61,14 @@ const WORKSPACE_REGISTRY_FILE = join(
 export class CoreRuntimeApi {
   private initialized = false;
   private readonly providerLifecycle = new CoreProviderLifecycle();
+  private readonly projectWorkflow = new CoreProjectWorkflowRpc({
+    addWorkspace: (workspacePath) => this.addWorkspace(workspacePath).workspace,
+    host: workflowHostFacade,
+    workspaces: () => ({
+      active: workspaceRegistryFacade.getActiveWorkspace(),
+      known: workspaceRegistryFacade.getKnownWorkspaces(),
+    }),
+  });
 
   initialize(): void {
     if (this.initialized) {
@@ -83,6 +94,7 @@ export class CoreRuntimeApi {
     const unsubscribeSession = sessionEventStreamFacade.subscribe(listener);
     const unsubscribeProviderStatus =
       this.providerLifecycle.addStatusListener(listener);
+    const unsubscribeWorkflow = this.projectWorkflow.subscribe(listener);
     const unsubscribeProfiles = sessionProfileStore.watchProfiles(() => {
       listener({ type: SESSION_PROFILES_UPDATED_EVENT_TYPE });
       listener({
@@ -94,12 +106,16 @@ export class CoreRuntimeApi {
     return () => {
       unsubscribeSession();
       unsubscribeProviderStatus();
+      unsubscribeWorkflow();
       unsubscribeProfiles();
     };
   }
 
   invoke(method: string, payload: unknown): unknown {
     this.initialize();
+    if (CoreProjectWorkflowRpc.handles(method)) {
+      return this.projectWorkflow.invoke(method, payload);
+    }
     switch (method) {
       case "list-workspaces":
         return {
@@ -226,7 +242,7 @@ export class CoreRuntimeApi {
 
   private addWorkspace(workspacePath: string): {
     ok: true;
-    workspace: unknown;
+    workspace: HarnessWorkspace;
   } {
     const workspace = workspaceRegistryFacade.addWorkspace(workspacePath);
     workspaceRegistryFacade.selectWorkspace(workspace.id);

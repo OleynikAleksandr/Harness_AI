@@ -7,7 +7,7 @@
   "lastClosed": null,
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 1,
+  "revision": 3,
   "rounds": [
     {
       "digest": {
@@ -92,13 +92,15 @@
       "context": [],
       "dependencies": [],
       "docsWaiver": null,
-      "files": [],
+      "files": [
+        ".harness/workflow/config.json"
+      ],
       "fixes": null,
       "id": "harness-ai.wk.p12.t2",
       "iteration": 1,
       "kind": "quality",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Apply the Harness quality profile and docs contracts through the kit",
       "why": "Migrated from Phase 12 - Move Harness AI Onto The Kit (owner: Claude, updated: 2026-11-03); legacy scope: `.harness/workflow/config.json`."
     },
@@ -178,8 +180,8 @@
 - Scope: workflow-kit-2026-11-03 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 0/4
-- Revision: 1
+- Progress: 1/4
+- Revision: 3
 
 ## Objective
 
@@ -198,8 +200,9 @@ Digest: Legacy plan workflow-kit-2026-11-03: 41 tasks were done before the move 
 
 ### R1 — Remaining work (implementation, OPEN)
 
-- [TODO] harness-ai.wk.p12.t2 — Apply the Harness quality profile and docs contracts through the kit (quality)
+- [DONE] harness-ai.wk.p12.t2 — Apply the Harness quality profile and docs contracts through the kit (quality)
   - Commit: chore: apply harness quality profile
+  - Files: .harness/workflow/config.json
 - [TODO] harness-ai.wk.p12.t3 — Rewrite AGENTS.md/CLAUDE.md around the kit section, update the index and plan template, remove `scripts/plan.mjs`, `scripts/check-docs-sync.mjs`, their tests and `plan:*` scripts (work)
   - Commit: chore: retire legacy plan scripts
 - [TODO] DOCS-R1 — Reconcile README, product part/cluster docs, product tree and architecture docs with the delivered kit (docs)

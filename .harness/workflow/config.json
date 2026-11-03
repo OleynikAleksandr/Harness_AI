@@ -7,7 +7,14 @@
     "recoveryBytes": 32000
   },
   "docs": {
-    "contracts": []
+    "contracts": [
+      {
+        "code": "product-parts/{part}/clusters/{cluster}/modules/{module}/src/**",
+        "docs": [
+          "product-parts/{part}/clusters/{cluster}/modules/{module}/module.md"
+        ]
+      }
+    ]
   },
   "policy": {
     "maxFileLines": null,
@@ -15,6 +22,152 @@
   },
   "quality": {
     "checks": [
+      {
+        "id": "ultracite-fix",
+        "role": "format",
+        "stage": "prepare",
+        "required": true,
+        "command": {
+          "executable": "npx",
+          "args": [
+            "ultracite",
+            "fix",
+            "{files}"
+          ]
+        },
+        "timeoutMs": 120000
+      },
+      {
+        "id": "architecture",
+        "role": "architecture",
+        "stage": "commit",
+        "required": true,
+        "command": {
+          "executable": "node",
+          "args": [
+            "scripts/check-architecture.mjs"
+          ]
+        },
+        "timeoutMs": 120000
+      },
+      {
+        "id": "lint",
+        "role": "lint",
+        "stage": "commit",
+        "required": true,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "run",
+            "-s",
+            "lint"
+          ]
+        },
+        "timeoutMs": 300000
+      },
+      {
+        "id": "knip",
+        "role": "custom",
+        "stage": "commit",
+        "required": true,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "run",
+            "-s",
+            "check:knip"
+          ]
+        },
+        "timeoutMs": 300000
+      },
+      {
+        "id": "typecheck",
+        "role": "typecheck",
+        "stage": "commit",
+        "required": true,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "run",
+            "-s",
+            "typecheck"
+          ]
+        },
+        "timeoutMs": 300000
+      },
+      {
+        "id": "tests",
+        "role": "test",
+        "stage": "commit",
+        "required": true,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "test"
+          ]
+        },
+        "timeoutMs": 600000
+      },
+      {
+        "id": "dup",
+        "role": "duplication",
+        "stage": "push",
+        "required": true,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "run",
+            "-s",
+            "check:dup"
+          ]
+        },
+        "timeoutMs": 300000
+      },
+      {
+        "id": "security",
+        "role": "audit",
+        "stage": "push",
+        "required": true,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "run",
+            "-s",
+            "check:security"
+          ]
+        },
+        "timeoutMs": 300000
+      },
+      {
+        "id": "links",
+        "role": "links",
+        "stage": "push",
+        "required": true,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "run",
+            "-s",
+            "check:links"
+          ]
+        },
+        "timeoutMs": 300000
+      },
+      {
+        "id": "package-mac",
+        "role": "package",
+        "stage": "delivery",
+        "required": false,
+        "command": {
+          "executable": "npm",
+          "args": [
+            "run",
+            "package:mac"
+          ]
+        },
+        "timeoutMs": 600000,
+        "evidence": "release/mac-arm64/Harness AI.app is rebuilt from the current commit and launches on macOS arm64."
+      },
       {
         "builtin": "kit:doc-size",
         "id": "kit:doc-size",
@@ -48,9 +201,11 @@
         "timeoutMs": 120000
       }
     ],
-    "packageManager": null,
-    "stacks": [],
-    "status": "DISCOVERY"
+    "packageManager": "npm",
+    "stacks": [
+      "node"
+    ],
+    "status": "CONFIGURED"
   },
   "schema": "harness-workflow-config/1"
 }

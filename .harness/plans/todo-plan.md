@@ -481,6 +481,13 @@ here `~/.npm-global`), so one update serves the terminal-side SDK and Harness.
 150. [DONE] `harness-ai.phase21.stream3.task4` Build the user-authorized unsigned macOS package, verify the combined update route against the real Claude and Codex installs, launch it and append package identity plus retest steps to the Phase 21 package evidence (scope: `docs/evidence/live-provider-model-catalogs-package-2026-11-02.md`; expected commit: `docs: package provider install updates`). Result: Completed in commit `docs: package provider install updates`.
 151. [DONE] Git Commit: `docs: package provider install updates` (hash: self)
 
+User request 2026-11-03: the unused Harness-private Claude SDK copy
+(`~/.harness-ai/providers/claude/sdk`, 358 MB) was deleted on request; the
+code must stop pointing at it.
+
+152. [DONE] `harness-ai.phase21.stream7.task3` Remove the fallback to the deleted Harness-private Claude SDK prefix: when `npm prefix -g` cannot answer, `claudeSdkPrefix()` reports the global npm SDK as unavailable (not cached, retried on the next call) and the version reader shows it as not installed (scope: claude-provider `claude-sdk-updates.ts`, `claude-model-catalog.ts`, plus focused tests and claude-provider docs; expected commit: `fix: drop the harness claude sdk fallback`). Result: Completed in commit `fix: drop the harness claude sdk fallback`.
+153. [DONE] Git Commit: `fix: drop the harness claude sdk fallback` (hash: self)
+
 ### Stream: Phase 21 User Acceptance
 
-152. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+154. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

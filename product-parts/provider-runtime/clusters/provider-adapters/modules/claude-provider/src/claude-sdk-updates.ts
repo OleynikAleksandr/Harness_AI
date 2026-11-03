@@ -1,7 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
-import { homedir } from "node:os";
 import path from "node:path";
 import { runNpmCommand } from "./reference/installer/npm-runner.js";
 
@@ -35,11 +34,15 @@ interface ClaudeSdkUpdateOverrides {
 let resolvedPrefix: string | null = null;
 
 // The global npm prefix (`npm prefix -g`, honouring the user's `.npmrc` and
-// `npm_config_prefix`), resolved once per process. When npm cannot answer,
-// the former Harness-private prefix keeps Claude working.
+// `npm_config_prefix`), resolved once per process. When npm cannot answer
+// there is no global SDK to run: the call throws and the next call asks npm
+// again.
 export function claudeSdkPrefix(): string {
+  resolvedPrefix ??= readGlobalNpmPrefix();
   if (resolvedPrefix === null) {
-    resolvedPrefix = readGlobalNpmPrefix() ?? legacyHarnessPrefix();
+    throw new Error(
+      "Claude Agent SDK is unavailable: `npm prefix -g` did not answer."
+    );
   }
   return resolvedPrefix;
 }
@@ -56,13 +59,15 @@ export function claudeSdkDirectory(prefix: string = claudeSdkPrefix()): string {
   );
 }
 
-export function readClaudeSdkVersion(
-  prefix: string = claudeSdkPrefix()
-): string | null {
+// `null` when the SDK is not installed or npm cannot resolve its prefix.
+export function readClaudeSdkVersion(prefix?: string): string | null {
   try {
     const manifest: unknown = JSON.parse(
       readFileSync(
-        path.join(claudeSdkDirectory(prefix), "package.json"),
+        path.join(
+          claudeSdkDirectory(prefix ?? claudeSdkPrefix()),
+          "package.json"
+        ),
         "utf8"
       )
     );
@@ -119,12 +124,6 @@ function readGlobalNpmPrefix(): string | null {
   } catch {
     return null;
   }
-}
-
-function legacyHarnessPrefix(): string {
-  const home =
-    process.env.HARNESS_AI_HOME?.trim() || path.join(homedir(), ".harness-ai");
-  return path.join(home, "providers", "claude", "sdk");
 }
 
 function runNpm(

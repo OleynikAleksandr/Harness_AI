@@ -166,7 +166,9 @@ Claude переведён на схему Codex. Сессии и живой ка
 `~/.npm-global`). Данные сессий по-прежнему хранятся в home провайдера Harness
 (`<workspace>/.harness/runtime/providers/claude/home`), история — в
 `<workspace>/.harness/sessions/`. Отдельная копия
-`~/.harness-ai/providers/claude/sdk` больше не используется; её не удаляли.
+`~/.harness-ai/providers/claude/sdk` больше не используется. По просьбе
+пользователя её удалили (358 МБ), а резервный путь на неё убрали из кода:
+если `npm prefix -g` не отвечает, SDK считается недоступным.
 
 ### Маршрут обновления
 

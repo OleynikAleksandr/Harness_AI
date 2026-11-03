@@ -27,7 +27,7 @@ type ClaudeModelReader = () => Promise<unknown>;
 
 interface ClaudeModelCatalogOverrides {
   readonly catalogPath?: string;
-  // Re-read even inside the TTL (after the Harness SDK was updated).
+  // Re-read even inside the TTL (after the global SDK was updated).
   readonly force?: boolean;
   readonly listModels?: ClaudeModelReader;
   readonly now?: number;
@@ -108,7 +108,7 @@ export async function fetchClaudeModelCatalog(
 // the SDK when the previous successful read is older than the TTL. A
 // successful read is applied to the provider descriptor and persisted; a
 // failed one keeps the served catalog and retries on the next call. Core
-// calls this on start, and with `force` right after a Harness SDK update so
+// calls this on start, and with `force` right after a global SDK update so
 // the new SDK's model descriptions replace the memoized ones.
 export async function refreshClaudeModelCatalog(
   overrides: ClaudeModelCatalogOverrides = {}

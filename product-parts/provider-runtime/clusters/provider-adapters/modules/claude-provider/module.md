@@ -250,15 +250,20 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   the program, session data in the Harness provider homes. Sessions keep
   `HOME` = `<workspace>/.harness/runtime/providers/claude/home` (projects,
   history, auth bridge), while the program is the user's global npm Claude
-  Agent SDK and its bundled platform binary; the former Harness-private copy
-  under `~/.harness-ai/providers/claude/sdk` is no longer used.
+  Agent SDK and its bundled platform binary. The former Harness-private copy
+  under `~/.harness-ai/providers/claude/sdk` was deleted on request
+  (2026-11-03) and nothing points at it any more.
 - `claude-sdk-updates.ts` owns that install: `claudeSdkPrefix()` resolves
   `npm prefix -g` once per process (it honours the user's `.npmrc` and
   `npm_config_prefix`; the GUI PATH gets the Homebrew/system npm locations
-  added) and falls back to the former Harness prefix only when npm cannot
-  answer; `claudeSdkDirectory()` is `<prefix>/lib/node_modules/@anthropic-ai/
+  added); when npm cannot answer it throws (not cached, so the next call
+  asks npm again) — there is no fallback install, so a Claude session then
+  fails to start with that error and the catalog read keeps the served
+  catalog;
+  `claudeSdkDirectory()` is `<prefix>/lib/node_modules/@anthropic-ai/
   claude-agent-sdk` (no `lib` on Windows); `readClaudeSdkVersion()` reads the
-  installed `package.json` version (`null` when absent); `updateClaudeSdk()`
+  installed `package.json` version (`null` when absent or when npm cannot
+  resolve the prefix); `updateClaudeSdk()`
   runs `npm install -g @anthropic-ai/claude-agent-sdk@latest --force` with
   that prefix pinned and returns the version now on disk (npm errors
   propagate).

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -98,6 +98,36 @@ try {
     }),
     /registry down/u
   );
+
+  // Without an answer from `npm prefix -g` there is no SDK to run: no
+  // fallback install, the version reads as missing, and the next call asks
+  // npm again (a fresh module copy, since the prefix is cached per process).
+  if (process.platform !== "win32") {
+    const fakeBin = path.join(buildDir, "broken-npm");
+    mkdirSync(fakeBin);
+    writeFileSync(path.join(fakeBin, "npm"), "#!/bin/sh\nexit 1\n", "utf8");
+    chmodSync(path.join(fakeBin, "npm"), 0o755);
+    const savedPath = process.env.PATH;
+    process.env.PATH = `${fakeBin}${path.delimiter}${savedPath}`;
+    try {
+      const unavailable = await import(
+        `${pathToFileURL(path.join(buildDir, "claude-sdk-updates.js")).href}?npm=broken`
+      );
+      assert.throws(() => unavailable.claudeSdkPrefix(), /npm prefix -g/u);
+      assert.equal(unavailable.readClaudeSdkVersion(), null);
+      await assert.rejects(
+        unavailable.updateClaudeSdk({ runNpm: () => Promise.resolve() }),
+        /npm prefix -g/u
+      );
+      process.env.PATH = savedPath;
+      assert.equal(
+        unavailable.claudeSdkPrefix(),
+        process.env.npm_config_prefix
+      );
+    } finally {
+      process.env.PATH = savedPath;
+    }
+  }
 
   console.log("claude sdk update tests passed");
 } finally {

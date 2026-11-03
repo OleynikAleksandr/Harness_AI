@@ -135,6 +135,31 @@ assert.equal(
   "Проверяю план."
 );
 
+// A patch without `localizedContent` settles a failed translation: the
+// pending state and any earlier partial translation go, the source shows.
+const settled = applySessionTranslationPatchToState(growingPending, {
+  messageId: "reasoning-1",
+  sessionId,
+  sourceHash: "hash-2",
+  targetLanguage: "ru",
+});
+assert.equal(settled[sessionId][0].translationState, undefined);
+assert.equal(settled[sessionId][0].localizedContent, undefined);
+assert.equal(
+  resolveTranslatedDisplayText(settled[sessionId][0], true),
+  "I am checking the plan. Now I am reading the module."
+);
+const settledFirst = applySessionTranslationPatchToState(firstPending, {
+  messageId: "reasoning-1",
+  sessionId,
+  sourceHash: "hash-1",
+  targetLanguage: "ru",
+});
+assert.equal(
+  resolveTranslatedDisplayText(settledFirst[sessionId][0], true),
+  "I am checking the plan."
+);
+
 const merged = mergeThinkingMessagesForDisplay(growingPending[sessionId]);
 assert.equal(merged.length, 1);
 assert.equal(merged[0].localizedContent, "Проверяю план.");

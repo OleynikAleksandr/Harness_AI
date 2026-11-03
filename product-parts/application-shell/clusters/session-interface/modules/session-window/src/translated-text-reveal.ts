@@ -42,11 +42,16 @@ export function applySessionTranslationPatchToState(
 ): MessagesBySession {
   return {
     ...current,
-    [patch.sessionId]: (current[patch.sessionId] ?? []).map((message) =>
-      message.id === patch.messageId
+    [patch.sessionId]: (current[patch.sessionId] ?? []).map((message) => {
+      if (message.id !== patch.messageId) {
+        return message;
+      }
+      // A patch without `localizedContent` means Core settled a failed
+      // translation: stop waiting and show the source text.
+      return patch.localizedContent
         ? withLocalizedContent(message, patch.localizedContent)
-        : message
-    ),
+        : withSourceText(message);
+    }),
   };
 }
 
@@ -216,6 +221,15 @@ function mergeRepeatedMessage(
     return { ...next, localizedContent: previous.localizedContent };
   }
   return next;
+}
+
+function withSourceText(message: SessionMessage): SessionMessage {
+  const {
+    localizedContent: _localized,
+    translationState: _pending,
+    ...rest
+  } = message;
+  return rest;
 }
 
 function withLocalizedContent(

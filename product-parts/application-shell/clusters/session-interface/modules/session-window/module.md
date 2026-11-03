@@ -159,7 +159,11 @@ Detached session windows never expose the switch.
   renderer while source `text` remains unchanged in state. When a provider
   updates the same reasoning message id with more pending source text, the
   renderer preserves the previous Core-provided `localizedContent` prefix until
-  the next Core translation patch arrives. The translated-text reveal itself is
+  the next Core translation patch arrives. A Core patch without
+  `localizedContent` settles a failed translation: the renderer drops the
+  pending state (and any earlier partial translation) and shows the source
+  reasoning text, so a translation error never leaves an empty Thinking
+  block. The translated-text reveal itself is
   prefix-stable: when localized reasoning grows, it keeps the longest already
   visible common prefix and animates only the new suffix.
 - The dialog autoscroll mirrors the CodeAI Hub reference bottom-lock behavior:

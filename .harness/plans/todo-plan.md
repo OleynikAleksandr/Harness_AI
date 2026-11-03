@@ -8,8 +8,8 @@
   "planId": "profile-studio-mvp-2026-07-20",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.phase21.stream3.task2",
-  "expectedCommitMessage": null,
+  "currentTaskId": "harness-ai.phase21.stream8.task2",
+  "expectedCommitMessage": "fix: settle failed reasoning translations",
   "debt": null
 }
 ```
@@ -488,6 +488,21 @@ code must stop pointing at it.
 152. [DONE] `harness-ai.phase21.stream7.task3` Remove the fallback to the deleted Harness-private Claude SDK prefix: when `npm prefix -g` cannot answer, `claudeSdkPrefix()` reports the global npm SDK as unavailable (not cached, retried on the next call) and the version reader shows it as not installed (scope: claude-provider `claude-sdk-updates.ts`, `claude-model-catalog.ts`, plus focused tests and claude-provider docs; expected commit: `fix: drop the harness claude sdk fallback`). Result: Completed in commit `fix: drop the harness claude sdk fallback`.
 153. [DONE] Git Commit: `fix: drop the harness claude sdk fallback` (hash: self)
 
+User retest 2026-11-03: a Claude xhigh turn showed an empty Thinking block.
+The raw session and the Harness event both carry the summarized thinking
+text (112 chars), but the OpenRouter reasoning translation answered
+`non_ok_response` (status `fallback`); Core publishes a translation patch
+only on success, so the message keeps `translationState: "pending"` and the
+renderer hides pending thinking text forever (also after reopening the
+session). Fix: Core settles every finished translation — on fallback it
+publishes `session:message_translation` without `localizedContent`, and the
+renderer drops the pending state and shows the source text.
+
+154. [DONE] `harness-ai.phase21.stream8.task1` Let the renderer apply a translation patch without `localizedContent` as "translation settled": drop the pending state and show the source text (scope: session-window `translated-text-reveal.ts`, plus focused tests and session-window docs; expected commit: `fix: show reasoning when translation falls back`). Result: Completed in commit `fix: show reasoning when translation falls back`.
+155. [DONE] Git Commit: `fix: show reasoning when translation falls back` (hash: self)
+156. [IN_PROGRESS] `harness-ai.phase21.stream8.task2` Settle failed reasoning translations in Core: the overlay facade publishes a patch without `localizedContent` on fallback, and the session event stream and snapshot projector patch contracts make `localizedContent` optional (scope: reasoning-translation-overlay `reasoning-translation-overlay-facade.ts`, session-event-stream `session-event-stream-facade.ts`, session-snapshot-projector `session-snapshot-projector-facade.ts`, plus focused tests and module docs; expected commit: `fix: settle failed reasoning translations`).
+157. [TODO] Git Commit: `fix: settle failed reasoning translations` (hash: TBD)
+
 ### Stream: Phase 21 User Acceptance
 
-154. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+158. [TODO] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

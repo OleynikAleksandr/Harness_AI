@@ -225,8 +225,8 @@ Render provider cards, auth/model/reasoning controls, and provider status settin
 - Provider model cards render the model label and description only; the raw model id (which duplicated the label, e.g. "Sonnet" / "sonnet") is no longer shown in the Claude, Codex and reference cards. OpenRouter keeps its `settings-model-id` span because there it carries routing/metric text (e.g. "default routing", endpoint metrics), not a duplicate name.
 - The shared `ProviderVersionsCard` update button shows a `settings-spinner` next to the "Updating to ..." label while a CLI/SDK target is updating (driven by `updatingTargets`), so every provider with manual updates has the same in-progress feedback until the current version refreshes.
 - In the Claude tab the `ProviderVersionsCard` SDK row shows the
-  Harness-installed Claude Agent SDK (the copy sessions and the live model
-  catalog use); its update button updates that copy and the global npm SDK,
+  global npm Claude Agent SDK (the one install sessions and the live model
+  catalog use, like the global Codex CLI); its update button updates it,
   and the Codex CLI button runs `codex update`; Core then re-reads the
   provider's model catalog, so the model rows change after the Settings
   dialog is reopened. The Claude and Codex auto-update toggles make Core

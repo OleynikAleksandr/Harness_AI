@@ -22,7 +22,7 @@ import {
   type AutoUpdateProviderId,
   autoUpdateProviderInstalls,
   type ProviderInstallStatus,
-  updateClaudeSdkInstalls,
+  updateClaudeSdkInstall,
 } from "./core-claude-sdk-updates.js";
 
 const execAsync = promisify(exec);
@@ -95,7 +95,7 @@ export async function loadProviderVersions(): Promise<unknown> {
   const [claudeCli, claudeSdk, codexCli, codexSdk, kimiCli] = await Promise.all(
     [
       readCliPackageVersion("claude"),
-      readHarnessClaudeSdkPackageVersion(),
+      readClaudeSdkPackageVersion(),
       readCliPackageVersion("codex"),
       readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
       readKimiCliVersionStatus(),
@@ -121,9 +121,9 @@ async function installLatestGlobalPackage(packageName: string): Promise<void> {
 // One update route per provider target, shared by the Settings update
 // buttons and the auto-update toggles. CLI targets run the provider's own
 // self-update (Codex then re-reads its catalog: `model/list` comes from the
-// installed CLI). The Claude SDK target updates the Harness SDK copy the
-// sessions run on and the global npm SDK, then re-reads the Claude catalog;
-// other SDK targets update the global npm package.
+// installed CLI). The Claude SDK target updates the global npm SDK the
+// sessions run on (one shared install, like the Codex CLI), then re-reads the
+// Claude catalog; other SDK targets update the global npm package.
 export async function updateProviderTarget(
   provider: unknown,
   target: unknown
@@ -137,10 +137,9 @@ export async function updateProviderTarget(
   }
   const packageName = resolveProviderPackage(provider, target);
   if (packageName === PROVIDER_PACKAGE_MAP.claude.sdk) {
-    await updateClaudeSdkInstalls({
+    await updateClaudeSdkInstall({
       refreshCatalog: () => refreshClaudeModelCatalog({ force: true }),
-      updateGlobal: () => installLatestGlobalPackage(packageName),
-      updateHarness: () => updateClaudeSdk(),
+      update: () => updateClaudeSdk(),
     });
     return;
   }
@@ -173,14 +172,12 @@ export function startProviderAutoUpdates(): void {
 }
 
 async function readProviderInstallStatuses(): Promise<ProviderInstallStatus[]> {
-  const [claudeCli, claudeSdkGlobal, claudeSdkLatest, codexCli, codexSdk] =
-    await Promise.all([
-      readCliPackageVersion("claude"),
-      readInstalledVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
-      readLatestVersion(PROVIDER_PACKAGE_MAP.claude.sdk),
-      readCliPackageVersion("codex"),
-      readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
-    ]);
+  const [claudeCli, claudeSdk, codexCli, codexSdk] = await Promise.all([
+    readCliPackageVersion("claude"),
+    readClaudeSdkPackageVersion(),
+    readCliPackageVersion("codex"),
+    readPackageVersion(PROVIDER_PACKAGE_MAP.codex.sdk),
+  ]);
   return [
     {
       installedVersions: [claudeCli.currentVersion],
@@ -189,8 +186,8 @@ async function readProviderInstallStatuses(): Promise<ProviderInstallStatus[]> {
       target: "cli",
     },
     {
-      installedVersions: [readClaudeSdkVersion(), claudeSdkGlobal],
-      latestVersion: claudeSdkLatest,
+      installedVersions: [claudeSdk.currentVersion],
+      latestVersion: claudeSdk.latestVersion,
       provider: "claude",
       target: "sdk",
     },
@@ -209,7 +206,7 @@ async function readProviderInstallStatuses(): Promise<ProviderInstallStatus[]> {
   ];
 }
 
-async function readHarnessClaudeSdkPackageVersion() {
+async function readClaudeSdkPackageVersion() {
   return {
     currentVersion: readClaudeSdkVersion(),
     latestVersion: await readLatestVersion(PROVIDER_PACKAGE_MAP.claude.sdk),

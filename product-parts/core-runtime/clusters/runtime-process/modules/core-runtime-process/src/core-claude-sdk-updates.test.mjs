@@ -36,12 +36,12 @@ try {
   const {
     autoUpdateProviderInstalls,
     isInstallOutdated,
-    updateClaudeSdkInstalls,
+    updateClaudeSdkInstall,
   } = await import(
     pathToFileURL(path.join(buildDir, "core-claude-sdk-updates.js")).href
   );
 
-  // A Claude SDK update covers the Harness copy and the global npm SDK, then
+  // A Claude SDK update installs the one shared (global npm) SDK, then
   // re-reads the catalog.
   const calls = [];
   const step =
@@ -52,24 +52,22 @@ try {
         ? Promise.reject(new Error(`${name} failed`))
         : Promise.resolve();
     };
-  await updateClaudeSdkInstalls({
+  await updateClaudeSdkInstall({
     refreshCatalog: step("refresh"),
-    updateGlobal: step("global"),
-    updateHarness: step("harness"),
+    update: step("update"),
   });
-  assert.deepEqual(calls, ["harness", "global", "refresh"]);
-  // One failing install does not skip the other or the refresh; the failure
-  // is reported afterwards.
+  assert.deepEqual(calls, ["update", "refresh"]);
+  // A failing install still re-reads the catalog; the failure is reported
+  // afterwards.
   calls.length = 0;
   await assert.rejects(
-    updateClaudeSdkInstalls({
+    updateClaudeSdkInstall({
       refreshCatalog: step("refresh"),
-      updateGlobal: step("global"),
-      updateHarness: step("harness", true),
+      update: step("update", true),
     }),
-    /harness failed/u
+    /update failed/u
   );
-  assert.deepEqual(calls, ["harness", "global", "refresh"]);
+  assert.deepEqual(calls, ["update", "refresh"]);
 
   // Outdated: a published version differs from an existing install; missing
   // installs and unknown registry answers are left alone.
@@ -102,7 +100,7 @@ try {
     enabled: new Set(["claude", "codex"]),
     statuses: [
       status(["2.1.316"], "2.1.317", "claude", "cli"),
-      status(["0.3.317", "0.3.316"], "0.3.317", "claude", "sdk"),
+      status(["0.3.316"], "0.3.317", "claude", "sdk"),
       status(["0.166.0"], "0.167.0", "codex", "cli"),
       status(["0.9.0"], "0.9.0", "codex", "sdk"),
     ],
@@ -126,24 +124,21 @@ try {
   });
   assert.deepEqual(codexOff, []);
 
-  // Wiring: buttons and toggles share one route; the Claude SDK target covers
-  // both installs, the Codex CLI target re-reads the Codex catalog, and Core
+  // Wiring: buttons and toggles share one route; the Claude SDK target updates
+  // the one shared install, the Codex CLI target re-reads the Codex catalog, and Core
   // starts the auto-updates after the catalog refreshes.
   assert.match(toolsSource, /export async function updateProviderTarget/u);
-  assert.match(
-    toolsSource,
-    /updateGlobal: \(\) => installLatestGlobalPackage\(packageName\)/u
-  );
-  assert.match(toolsSource, /updateHarness: \(\) => updateClaudeSdk\(\)/u);
+  assert.match(toolsSource, /update: \(\) => updateClaudeSdk\(\)/u);
+  assert.doesNotMatch(toolsSource, /updateHarness|updateGlobal/u);
   assert.match(
     toolsSource,
     /provider === "codex"\) \{\s+await refreshCodexModelCatalog\(\{ force: true \}\);/u
   );
   assert.match(
     toolsSource,
-    /installedVersions: \[readClaudeSdkVersion\(\), claudeSdkGlobal\]/u
+    /installedVersions: \[claudeSdk\.currentVersion\]/u
   );
-  assert.match(toolsSource, /readHarnessClaudeSdkPackageVersion\(\)/u);
+  assert.match(toolsSource, /readClaudeSdkPackageVersion\(\)/u);
   assert.match(
     apiSource,
     /refreshClaudeModelCatalog\(\)\.catch\(\(\) => undefined\);\n\s+startProviderAutoUpdates\(\);/u

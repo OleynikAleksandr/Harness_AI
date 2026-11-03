@@ -1,14 +1,12 @@
 // Provider install update policy shared by the Settings update buttons and
-// the auto-update toggles. Claude has two SDK installs: the Harness copy the
-// sessions and the live model catalog run on, and the user's global npm
-// SDK; one Claude SDK update refreshes both and then re-reads the model
-// catalog, so the Settings labels follow the new SDK at once. Dependencies
-// are injected so the policy stays testable.
+// the auto-update toggles. Claude runs like Codex on one shared install (the
+// global npm Claude Agent SDK); a Claude SDK update installs it and then
+// re-reads the model catalog, so the Settings labels follow the new SDK at
+// once. Dependencies are injected so the policy stays testable.
 
 export interface ClaudeSdkUpdateSteps {
   readonly refreshCatalog: () => Promise<unknown>;
-  readonly updateGlobal: () => Promise<unknown>;
-  readonly updateHarness: () => Promise<unknown>;
+  readonly update: () => Promise<unknown>;
 }
 
 export type AutoUpdateProviderId = "claude" | "codex";
@@ -22,22 +20,20 @@ export interface ProviderInstallStatus {
   readonly target: AutoUpdateTarget;
 }
 
-// Both installs are attempted even when one fails; the catalog is re-read
-// either way and the first failure is reported afterwards.
-export async function updateClaudeSdkInstalls(
+// The catalog is re-read even when the install fails (a partial npm run may
+// still have changed the SDK); the failure is reported afterwards.
+export async function updateClaudeSdkInstall(
   steps: ClaudeSdkUpdateSteps
 ): Promise<void> {
-  const failures: unknown[] = [];
-  for (const update of [steps.updateHarness, steps.updateGlobal]) {
-    try {
-      await update();
-    } catch (error) {
-      failures.push(error);
-    }
+  let failure: unknown = null;
+  try {
+    await steps.update();
+  } catch (error) {
+    failure = error;
   }
   await steps.refreshCatalog();
-  if (failures.length > 0) {
-    throw failures[0];
+  if (failure !== null) {
+    throw failure;
   }
 }
 

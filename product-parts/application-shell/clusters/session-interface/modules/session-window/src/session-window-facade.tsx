@@ -17,7 +17,11 @@ import {
 } from "./grok-interaction-panel.js";
 import { ProviderPicker, resolveProviderModel } from "./provider-picker.js";
 import { SessionProfileStep } from "./session-profile-step.js";
-import { isProviderStatusEvent, noop } from "./session-window-core-events.js";
+import {
+  isProjectWorkflowEvent,
+  isProviderStatusEvent,
+  noop,
+} from "./session-window-core-events.js";
 import { resolveDetachedSessionMode } from "./session-window-routing.js";
 import { useSessionWindowSessionState } from "./session-window-session-state.js";
 import { useSessionWindowWorkspaces } from "./session-window-workspaces.js";
@@ -122,22 +126,21 @@ export function SessionWindowFacade() {
         refreshSessions(workspace.id, detachedMode?.sessionId).catch(noop);
       })
       .catch(noop);
+    // Profile Studio lists its creator sessions, the ordinary shell the
+    // sessions of the active workspace.
+    const sessionListOwner = (workspaceId: string) =>
+      applicationModeRef.current === "studio" ? "profile-studio" : workspaceId;
     return window.harnessCore?.onEvent((event) => {
       if (isProviderStatusEvent(event)) {
         if (event.payload.workspaceId !== activeWorkspaceId) {
           return;
         }
         setProviderOptions((current) =>
-          current.map((provider) =>
-            provider.id === event.payload.providerId
-              ? {
-                  ...provider,
-                  readinessMessage: event.payload.readinessMessage,
-                  readinessStatus: event.payload.readinessStatus,
-                }
-              : provider
-          )
+          withProviderStatus(current, event.payload)
         );
+        return;
+      }
+      if (isProjectWorkflowEvent(event)) {
         return;
       }
       grokInteractions.applyEvent(event);
@@ -155,11 +158,7 @@ export function SessionWindowFacade() {
         event.type === "session:created" ||
         event.type === "session:updated"
       ) {
-        refreshSessionList(
-          applicationModeRef.current === "studio"
-            ? "profile-studio"
-            : activeWorkspaceId
-        ).catch(noop);
+        refreshSessionList(sessionListOwner(activeWorkspaceId)).catch(noop);
       }
     });
   }, [
@@ -437,6 +436,22 @@ export function SessionWindowFacade() {
         )}
       </div>
     </BrowserLocalizationProvider>
+  );
+}
+
+// Applies a Core provider readiness update to the provider picker options.
+function withProviderStatus(
+  providers: ProviderDescriptor[],
+  payload: ProviderStatusEvent["payload"]
+): ProviderDescriptor[] {
+  return providers.map((provider) =>
+    provider.id === payload.providerId
+      ? {
+          ...provider,
+          readinessMessage: payload.readinessMessage,
+          readinessStatus: payload.readinessStatus,
+        }
+      : provider
   );
 }
 

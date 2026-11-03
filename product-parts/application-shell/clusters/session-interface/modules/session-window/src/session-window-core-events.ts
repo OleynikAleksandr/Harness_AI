@@ -21,6 +21,21 @@ export function isProviderStatusEvent(
   );
 }
 
+/**
+ * Project workflow events (`workflow:status`, `workflow:autopilot`) belong
+ * to the project workflow UI, which subscribes to them itself; the session
+ * state ignores them.
+ */
+export function isProjectWorkflowEvent(
+  event: unknown
+): event is WorkflowAutopilotEvent | WorkflowStatusEvent {
+  const type =
+    typeof event === "object" && event !== null
+      ? (event as { type?: unknown }).type
+      : undefined;
+  return type === "workflow:status" || type === "workflow:autopilot";
+}
+
 export function applyCoreEvent(params: {
   event: SessionCoreEvent;
   setMessagesBySession: React.Dispatch<

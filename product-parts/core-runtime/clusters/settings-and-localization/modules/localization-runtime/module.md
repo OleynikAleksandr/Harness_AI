@@ -103,6 +103,16 @@ materialization, bootstrap payload reuse, and bundle state.
   (`settings.openRouter.searchRefresh`) is part of the approved `ui_labels`
   dictionary; it names the icon button that re-runs the model slug search and
   reopens the collapsed match list.
+- The project workflow UI copy is part of the approved dictionaries:
+  `ui_labels` holds the sidebar items (`sidebar.newProject`,
+  `sidebar.openProject`, `sidebar.projectDoctor`), the New/Open Project
+  dialog (`project.setup.*`), Project Doctor (`project.doctor.*`, one label
+  per doctor check id and status), the workflow status strip
+  (`workflow.strip.*`) and one label per autopilot stop reason
+  (`workflow.autopilot.reason.<reason>`); `ui_helper_text` explains every
+  inspected folder state (`project.state.<STATE>`, `project.state.nested`)
+  and the dialogs; `messages_for_the_user` holds
+  `project.setup.nameRequired`.
 - The Native Request Capture card copy is part of the approved dictionaries:
   `ui_labels` (`settings.nativeCapture.title`/`.provider`/`.model`/
   `.reasoning`/`.capture`/`.markdownPath`/`.jsonlPath`, where `.jsonlPath`

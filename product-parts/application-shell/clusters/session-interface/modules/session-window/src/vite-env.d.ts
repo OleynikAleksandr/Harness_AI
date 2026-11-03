@@ -16,6 +16,54 @@ type ProviderModelCatalogs =
 type LocalizationRuntimePayload =
   import("../../../../../../core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.js").LocalizationRuntimePayload;
 
+// Project workflow (Workflow Kit) read models; Core owns every value.
+type WorkflowKitFailure =
+  import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.js").KitFailure;
+type WorkflowKitOutcome<T> =
+  import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.js").KitOutcome<T>;
+type WorkflowInspectResult =
+  import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-facade.js").InspectResult;
+type WorkflowInstallOutcome =
+  import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-facade.js").InstallOutcome;
+type WorkflowDoctorReport =
+  import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-facade.js").DoctorReport;
+type WorkflowKitStatus =
+  import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.js").KitStatus;
+type WorkflowAutopilotDecision =
+  import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-facade.js").AutopilotDecision;
+
+interface WorkflowPreparedProject {
+  inspect: WorkflowInspectResult;
+  install: WorkflowInstallOutcome | null;
+  ok: true;
+  status: WorkflowKitOutcome<WorkflowKitStatus>;
+  workspace: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace;
+}
+
+interface WorkflowAutopilotSnapshot {
+  continues: number;
+  enabled: boolean;
+  lastDecision: WorkflowAutopilotDecision | null;
+  maxContinues: number;
+  running: boolean;
+  sessionId: string;
+}
+
+interface WorkflowStatusEvent {
+  path: string;
+  status: WorkflowKitOutcome<WorkflowKitStatus>;
+  type: "workflow:status";
+  workspaceId: string;
+}
+
+interface WorkflowAutopilotEvent extends WorkflowAutopilotSnapshot {
+  type: "workflow:autopilot";
+}
+
+type WorkflowAutopilotResult =
+  | WorkflowKitFailure
+  | { autopilot: WorkflowAutopilotSnapshot; ok: true };
+
 interface ProviderStatusEvent {
   payload: {
     providerId: string;
@@ -216,6 +264,8 @@ interface Window {
         event:
           | import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent
           | ProviderStatusEvent
+          | WorkflowAutopilotEvent
+          | WorkflowStatusEvent
       ) => void
     ): () => void;
     onProfileStudioUpdated(
@@ -242,6 +292,30 @@ interface Window {
         }
       | { error: string; ok: false }
     >;
+    pickProjectFolder(): Promise<{ canceled: boolean; path: string | null }>;
+    pickProjectParent(): Promise<{ canceled: boolean; path: string | null }>;
+    inspectProjectFolder(request: {
+      path: string;
+    }): Promise<WorkflowKitOutcome<WorkflowInspectResult>>;
+    prepareProject(request: {
+      mode: "new" | "open";
+      name?: string;
+      path: string;
+    }): Promise<WorkflowKitFailure | WorkflowPreparedProject>;
+    getWorkflowStatus(request: {
+      workspaceId?: string;
+    }): Promise<WorkflowKitOutcome<WorkflowKitStatus>>;
+    runProjectDoctor(request: {
+      fix?: boolean;
+      workspaceId?: string;
+    }): Promise<WorkflowKitOutcome<WorkflowDoctorReport>>;
+    getWorkflowAutopilot(request: {
+      sessionId: string;
+    }): Promise<WorkflowAutopilotResult>;
+    setWorkflowAutopilot(request: {
+      enabled: boolean;
+      sessionId: string;
+    }): Promise<WorkflowAutopilotResult>;
     pickWorkspaceFolder(): Promise<
       | {
           ok: true;

@@ -96,3 +96,21 @@ assert.match(
   ),
   /Z\.ai Coding Plan/u
 );
+
+// Project workflow UI strings (New/Open Project, Project Doctor, status strip).
+assert.equal(
+  registry.getMessage("ui_labels", "sidebar.openProject"),
+  "Open Project"
+);
+assert.equal(
+  registry.getMessage("ui_labels", "workflow.autopilot.reason.no-progress"),
+  "No progress"
+);
+assert.match(
+  registry.getMessage("ui_helper_text", "project.state.GIT_NO_KIT"),
+  /Workflow Kit/u
+);
+assert.equal(
+  registry.getMessage("messages_for_the_user", "project.setup.nameRequired"),
+  "Enter a project name."
+);

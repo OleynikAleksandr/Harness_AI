@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p11.t2",
-  "expectedCommitMessage": "feat: type project workflow core api in renderer",
+  "currentTaskId": "harness-ai.wk.p11.t3",
+  "expectedCommitMessage": "feat: add new and open project dialog",
   "debt": null
 }
 ```
@@ -139,9 +139,9 @@
 
 69. [DONE] `harness-ai.wk.p11.t1` Extract workspace state and actions from `session-window-facade.tsx` into a dedicated hook file without behavior change; tests (scope: `session-window/src/**`; expected commit: `refactor: extract session window workspace state`). Result: Completed in commit `refactor: extract session window workspace state`.
 70. [DONE] Git Commit: `refactor: extract session window workspace state` (hash: self)
-71. [IN_PROGRESS] `harness-ai.wk.p11.t2` Renderer typings and event guards for the project workflow API and events, localization source strings; tests (scope: `session-window/src/vite-env.d.ts, session-window-core-events.ts, source-dictionaries`; expected commit: `feat: type project workflow core api in renderer`).
-72. [TODO] Git Commit: `feat: type project workflow core api in renderer` (hash: TBD)
-73. [TODO] `harness-ai.wk.p11.t3` Create Application Shell cluster `project-workflow-ui` with `project-setup-dialog` (New Project parent+name, Open Project with inspect result and install); tests (scope: `application-shell/clusters/project-workflow-ui/**, product tree`; expected commit: `feat: add new and open project dialog`).
+71. [DONE] `harness-ai.wk.p11.t2` Renderer typings and event guards for the project workflow API and events, localization source strings; tests (scope: `session-window/src/vite-env.d.ts, session-window-core-events.ts, source-dictionaries`; expected commit: `feat: type project workflow core api in renderer`). Result: Completed in commit `feat: type project workflow core api in renderer`.
+72. [DONE] Git Commit: `feat: type project workflow core api in renderer` (hash: self)
+73. [IN_PROGRESS] `harness-ai.wk.p11.t3` Create Application Shell cluster `project-workflow-ui` with `project-setup-dialog` (New Project parent+name, Open Project with inspect result and install); tests (scope: `application-shell/clusters/project-workflow-ui/**, product tree`; expected commit: `feat: add new and open project dialog`).
 74. [TODO] Git Commit: `feat: add new and open project dialog` (hash: TBD)
 75. [TODO] `harness-ai.wk.p11.t4` Add `project-doctor-panel` (checks, statuses, fix action); tests (scope: `application-shell/clusters/project-workflow-ui/**`; expected commit: `feat: add project doctor panel`).
 76. [TODO] Git Commit: `feat: add project doctor panel` (hash: TBD)

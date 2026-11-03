@@ -70,6 +70,17 @@ Detached session windows never expose the switch.
 - The shared `vite-env.d.ts` bridge contract models Native Request Capture
   `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
   that expose no independent reasoning selector.
+- The shared bridge types declare the project workflow surface:
+  `pickProjectFolder`/`pickProjectParent` (`{canceled, path}`),
+  `inspectProjectFolder`, `prepareProject`, `getWorkflowStatus`,
+  `runProjectDoctor`, `getWorkflowAutopilot` and `setWorkflowAutopilot`,
+  with the Workflow Kit envelope (`WorkflowKitOutcome`, `WorkflowKitFailure`)
+  and the Core read models (`WorkflowInspectResult`, `WorkflowKitStatus`,
+  `WorkflowDoctorReport`, `WorkflowPreparedProject`,
+  `WorkflowAutopilotSnapshot`) as type-only imports. `onEvent` also carries
+  `workflow:status` and `workflow:autopilot`; the session window skips them
+  (`isProjectWorkflowEvent`) because the project workflow UI subscribes to
+  them itself.
 - The shared bridge types declare the Core Profile Studio target, compatible
   profile, inspector, Draft creation, exact-hash approval, managed deletion
   and isolated update-subscription contracts. Session Window mounts the Studio

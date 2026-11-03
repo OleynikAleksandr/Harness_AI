@@ -4,6 +4,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import readline from "node:readline";
 import type { ModuleReporter } from "../../types.js";
+import { CODEX_HOST_RECOVERY_ENV } from "../codex-workspace-context.js";
 import {
   type CodexAppServerProcessProfile,
   type CodexAppServerProcessProfileKey,
@@ -270,6 +271,7 @@ export class CodexAppServerProcess {
       {
         env: {
           ...processEnvironment,
+          ...CODEX_HOST_RECOVERY_ENV,
           CODEX_HOME: providerCodexHome,
           PATH: buildAugmentedPath(processEnvironment.PATH),
         },

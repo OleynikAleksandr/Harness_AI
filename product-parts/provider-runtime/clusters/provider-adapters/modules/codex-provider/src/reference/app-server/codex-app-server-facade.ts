@@ -24,6 +24,7 @@ import {
 } from "./codex-profile-application.js";
 import { buildCodexReasoningSummaryParams } from "./codex-reasoning-summary-params.js";
 import { CodexSubagentHistoryLoader } from "./codex-subagent-history-loader.js";
+import { buildCodexWorkspaceContextParams } from "./codex-workspace-context.js";
 import { CodexAppServerProcess } from "./process/codex-app-server-process.js";
 import { CODEX_DEFAULT_PROCESS_PROFILE_KEY } from "./process/codex-app-server-process-profile.js";
 
@@ -197,6 +198,7 @@ export class CodexAppServerFacade {
         model: this.workspace.defaultModel,
         persistExtendedHistory: false,
         ...buildCodexThreadProfileParams(profileState),
+        ...buildCodexWorkspaceContextParams(startOptions),
       }
     );
     const thread = isRecord(response.thread) ? response.thread : null;
@@ -239,6 +241,7 @@ export class CodexAppServerFacade {
         model: this.workspace.defaultModel,
         persistExtendedHistory: false,
         ...buildCodexThreadProfileParams(profileState),
+        ...buildCodexWorkspaceContextParams(startOptions),
       }
     );
     const thread = isRecord(response.thread) ? response.thread : null;

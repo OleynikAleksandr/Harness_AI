@@ -168,6 +168,15 @@ the shared process.
   `baseInstructions full-replacement` prompt route, `provider-fixed` tool mode,
   effective process profile key and app-server process-tool ceiling.
 
+- Workflow Kit context (`codex-workspace-context.ts`): when Core passes
+  `ProviderSessionStartOptions.workspaceContext`, `thread/start` and
+  `thread/resume` also send it as `developerInstructions` (verified in the
+  app-server v2 `ThreadStartParams`/`ThreadResumeParams` schema), next to
+  the profile `baseInstructions`, so the built-in or managed prompt is never
+  replaced. The shared app-server process runs with
+  `HARNESS_WORKFLOW_RECOVERY=host`; the project hook in `.codex/hooks.json`
+  inherits it and returns no duplicate context.
+
 - Native request capture (`codex-native-request-capture-service.ts`,
   reached through the adapter's `captureNativeRequest`): a record-only
   diagnostic path that starts an isolated temporary Codex app-server (the

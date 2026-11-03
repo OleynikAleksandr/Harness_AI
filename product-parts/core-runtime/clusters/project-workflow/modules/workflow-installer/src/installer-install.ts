@@ -55,7 +55,7 @@ const KIT_STATES = new Set<FolderState>([
 const SLUG_DROP = /[^a-z0-9]+/gu;
 const SLUG_TRIM = /^-+|-+$/gu;
 
-function slug(name: string): string {
+export function projectSlug(name: string): string {
   return (
     name.toLowerCase().replace(SLUG_DROP, "-").replace(SLUG_TRIM, "") ||
     "project"
@@ -283,7 +283,9 @@ export function installKit(
   );
   const planText =
     existingPlan ??
-    workflowPlanFacade.render(workflowPlanFacade.createEmpty(slug(name), name));
+    workflowPlanFacade.render(
+      workflowPlanFacade.createEmpty(projectSlug(name), name)
+    );
   if (hooksPath === null) {
     git.setConfig(root, "core.hooksPath", OWN_HOOKS_DIR);
   }

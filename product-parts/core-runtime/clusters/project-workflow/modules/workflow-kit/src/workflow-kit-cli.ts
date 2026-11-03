@@ -138,6 +138,17 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
       }),
     usage: "history [--task <ID>] [--round <R>]",
   },
+  "migrate:harness-plan": {
+    run: ({ args, io, kit }) =>
+      kit.migrateHarnessPlan(resolvePath(io, args.positionals[0]), {
+        message: flag(args, "message"),
+        name: flag(args, "name"),
+        objective: flag(args, "objective"),
+        spec: flag(args, "spec") ?? null,
+      }),
+    usage:
+      'migrate:harness-plan [<path>] [--message "chore: ..."] [--objective "..."] [--spec <doc.md>] [--name <project name>]',
+  },
   "plan:extend": {
     run: ({ args, io, kit, root }) =>
       kit.extend(

@@ -14,6 +14,11 @@ import {
   installKit,
 } from "./installer-install.js";
 import {
+  type MigrateOptions,
+  type MigrateOutcome,
+  migrateHarnessPlan,
+} from "./installer-migrate.js";
+import {
   buildManifest,
   buildPayload,
   KIT_VERSION,
@@ -37,6 +42,7 @@ export type {
   InspectResult,
 } from "./installer-inspect.js";
 export type { InstallOptions, InstallOutcome } from "./installer-install.js";
+export type { MigrateOptions, MigrateOutcome } from "./installer-migrate.js";
 export type {
   EntryKind,
   KitManifest,
@@ -72,6 +78,11 @@ export class WorkflowInstallerFacade {
   /** `doctor [--fix]`: health checks; `fix` repairs fixable findings only. */
   doctor(folder: string, options: DoctorOptions = {}): DoctorReport {
     return runDoctor(this.git, folder, options);
+  }
+
+  /** `migrate:harness-plan`: a legacy Harness plan becomes a Kit plan. */
+  migrateHarnessPlan(folder: string, options: MigrateOptions): MigrateOutcome {
+    return migrateHarnessPlan(this.git, folder, options);
   }
 
   /** Every file the Kit writes into a project, with its writing rule. */

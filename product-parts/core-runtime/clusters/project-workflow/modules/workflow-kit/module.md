@@ -35,8 +35,8 @@ State (`kit-status.ts`):
   configuration, and the task-to-commit mapping of `workflow-git`.
 - `recover(root, event)`, `showTask(root, id)`, `history(root, filter)`,
   `sessionStart(root, client, stdin)` — delegated to `workflow-recovery`.
-- `inspect(path)`, `install(path, options)`, `doctor(path, options)` —
-  delegated to `workflow-installer` (`installer` exposes it, bound to the same git
+- `inspect(path)`, `install(path, options)`, `doctor(path, options)`,
+  `migrateHarnessPlan(path, options)` — delegated to `workflow-installer` (`installer` exposes it, bound to the same git
   facade).
 
 Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
@@ -139,7 +139,9 @@ managed hooks.
   `quality:detect [--stack]`, `quality:apply --input`, `quality:status`,
   `repair [--apply|--cancel]`, `inspect [<path>]`,
   `install [<path>] [--name] [--update] [--bundle]`,
-  `doctor [<path>] [--fix] [--bundle]`, `help`. `install` and
+  `doctor [<path>] [--fix] [--bundle]`,
+  `migrate:harness-plan [<path>] [--message] [--objective] [--spec]
+  [--name]`, `help`. `install` and
   `doctor --fix` copy their own bundle file unless `--bundle` names another
   and record the running executable as the project runtime (`electron`
   mode under Electron).

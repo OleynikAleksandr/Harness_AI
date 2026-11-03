@@ -12,6 +12,8 @@ import {
   type InspectResult,
   type InstallOptions,
   type InstallOutcome,
+  type MigrateOptions,
+  type MigrateOutcome,
   WorkflowInstallerFacade,
 } from "../../workflow-installer/src/workflow-installer-facade.js";
 import type { RoundDigest } from "../../workflow-plan/src/workflow-plan-facade.js";
@@ -114,6 +116,17 @@ export class WorkflowKitFacade {
   /** `doctor [--fix]`: project health; fixes only fixable findings. */
   doctor(folder: string, options: DoctorOptions = {}): DoctorReport {
     return this.installer.doctor(folder, { env: this.env, ...options });
+  }
+
+  /** `migrate:harness-plan`: a legacy Harness plan becomes a Kit plan. */
+  migrateHarnessPlan(
+    folder: string,
+    options: Omit<MigrateOptions, "now">
+  ): MigrateOutcome {
+    return this.installer.migrateHarnessPlan(folder, {
+      ...options,
+      now: this.now(),
+    });
   }
 
   /** `install <path> [--update]`. */

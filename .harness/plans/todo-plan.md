@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p7.t4",
-  "expectedCommitMessage": "feat: migrate harness plans into the workflow kit",
+  "currentTaskId": "harness-ai.wk.p8.t1",
+  "expectedCommitMessage": "feat: run workflow kit commands from core",
   "debt": null
 }
 ```
@@ -105,12 +105,12 @@
 46. [DONE] Git Commit: `feat: inspect folders and install the workflow kit` (hash: self)
 47. [DONE] `harness-ai.wk.p7.t3` Add the project doctor and safe fixes with kit-update commit; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: add workflow kit project doctor`). Result: Completed in commit `feat: add workflow kit project doctor`.
 48. [DONE] Git Commit: `feat: add workflow kit project doctor` (hash: self)
-49. [IN_PROGRESS] `harness-ai.wk.p7.t4` Add `migrate:harness-plan` (legacy rows to legacy digest round and new tasks, kind markers, acceptance mapping); tests with a fixture of the legacy format (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: migrate harness plans into the workflow kit`).
-50. [TODO] Git Commit: `feat: migrate harness plans into the workflow kit` (hash: TBD)
+49. [DONE] `harness-ai.wk.p7.t4` Add `migrate:harness-plan` (legacy rows to legacy digest round and new tasks, kind markers, acceptance mapping); tests with a fixture of the legacy format (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: migrate harness plans into the workflow kit`). Result: Completed in commit `feat: migrate harness plans into the workflow kit`.
+50. [DONE] Git Commit: `feat: migrate harness plans into the workflow kit` (hash: self)
 
 ## Phase 8 - Core Host, Electron And RPC (owner: Claude, updated: 2026-11-03)
 
-51. [TODO] `harness-ai.wk.p8.t1` Create the `workflow-host` module: bundle and runtime resolution, async child-process command runner with JSON protocol and timeouts, runtime file writing; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/**, product tree, cluster.md`; expected commit: `feat: run workflow kit commands from core`).
+51. [IN_PROGRESS] `harness-ai.wk.p8.t1` Create the `workflow-host` module: bundle and runtime resolution, async child-process command runner with JSON protocol and timeouts, runtime file writing; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/**, product tree, cluster.md`; expected commit: `feat: run workflow kit commands from core`).
 52. [TODO] Git Commit: `feat: run workflow kit commands from core` (hash: TBD)
 53. [TODO] `harness-ai.wk.p8.t2` Electron host: ship the bundle via extraResources, pass bundle/Electron runtime env to Core, add project folder/parent pickers to the bridge and preload; tests (scope: `core-process-supervisor.mjs, core-process-bridge-facade.mjs, preload.cjs, package.json`; expected commit: `feat: ship workflow kit bundle and project folder pickers`).
 54. [TODO] Git Commit: `feat: ship workflow kit bundle and project folder pickers` (hash: TBD)

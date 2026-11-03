@@ -7,10 +7,8 @@ Everything the Workflow Kit writes into a project and keeps healthy there:
   provider hooks, ignore and attribute sections, skeleton documents — and
   the manifest that records it;
 - folder inspection, install and update;
-- the project doctor and its safe fixes.
-
-The migration of legacy Harness plans is added by a later task of the
-active plan.
+- the project doctor and its safe fixes;
+- the migration of legacy Harness plans (`harness-ai-plan-v1`).
 
 ## Public Facade
 
@@ -139,6 +137,46 @@ role `kit-update` when the files differ from HEAD (otherwise
 `fix.commit` is `null`). Plan, configuration and user text are never
 changed. The checks then run again.
 
+## Legacy Plan Migration (`installer-legacy-plan.ts`, `installer-migrate.ts`)
+
+`migrateHarnessPlan(path, {now, message?, objective?, acceptance?, spec?,
+name?})` needs an installed Kit (`NOT_INSTALLED`) and a plan with the
+`harness-ai-plan-v1` state block (`NOT_LEGACY_PLAN`).
+
+Parsing:
+- the JSON state block gives `planId`, `executionScopeStatus` and
+  `currentTaskId`;
+- task rows are `N. [STATUS] \`<id>\` <text> (scope: …; expected commit:
+  \`…\`[; completion: …])`, with indented continuation lines joined;
+  `Git Commit:` rows are skipped; `(kind: quality|docs|delivery)` marks
+  the kind; the title is the text before the first `(scope:`, `(kind:` or
+  `(completion:`; the phase heading is kept;
+- backtick `.md`/`.json` paths of the `## Context Pack` section.
+
+The new plan:
+- a row is finished when it is `DONE` or when its expected commit equals
+  the migration commit message (the row the migration itself closes);
+- finished rows become the digest of the closed round `R0-legacy` (kind
+  `legacy`): count and first and last ids in `result`, and
+  `git show <baseline>:.harness/plans/todo-plan.md` in `references`;
+- the remaining rows become round `R1` in their order: work tasks
+  (`kind: quality` keeps `quality`), then `DOCS-R1` depending on all of
+  them, then delivery tasks depending on `DOCS-R1`. A `kind: docs` row
+  becomes `DOCS-R1` (its title and commit message); a
+  `completion: user-acceptance` row is dropped because acceptance is the
+  `accept` command. Both conversions are recorded as scope decisions;
+- tasks keep their ids and expected commit messages; `why` names the phase
+  and the legacy scope; `files` start empty;
+- scope id is the legacy `planId`, baseline is HEAD before the migration,
+  context lists existing context-pack paths (not required);
+- a legacy plan without an active scope, or without remaining work,
+  becomes an empty Kit plan.
+
+The plan is validated and committed with role `kit-update` and the given
+message (default `chore: migrate the plan into the workflow kit`). The old
+plan stays readable in the parent commit. The result is `{scopeId,
+legacyDone, migrated, converted, commit}`.
+
 ## Dependencies
 
 - `workflow-platform` — launchers, bundle and runtime paths, files.
@@ -163,3 +201,7 @@ Node built-ins only.
   breakage (mode, section, hook, hooks path) repaired without touching the
   plan, a missing runtime, quality drift, a pending transaction, a missing
   manifest.
+- `src/workflow-installer-migrate.test.mjs` — a legacy fixture with done,
+  in-progress, wrapped, quality, docs, delivery and acceptance rows: the
+  migration commit, rounds, task mapping, digest, decisions, context, a
+  working Kit plan afterwards, and an idle legacy plan.

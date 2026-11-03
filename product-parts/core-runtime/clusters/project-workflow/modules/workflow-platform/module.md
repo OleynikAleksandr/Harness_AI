@@ -33,6 +33,35 @@ can simulate other operating systems.
   owner holds the lock. A lock is reclaimed if its owner process is gone or
   it is older than 10 minutes.
 
+### Processes and runtime
+
+- `findExecutable(name, env)` searches `PATH`. On Windows it also tries
+  each `PATHEXT` extension; on POSIX the file must be executable.
+- `run(request)` is synchronous and is used by the CLI. `runAsync(request)`
+  is asynchronous and is used by Core.
+  - Neither uses a shell; arguments are passed as an array.
+  - On Windows, `.cmd`/`.bat` shims (`npm`, `npx`) run through
+    `cmd.exe /d /s /c` with metacharacters escaped twice.
+  - A missing executable returns `status: null` and an `errorMessage`
+    instead of throwing.
+- `resolveRuntime(projectRoot, env, probe?)` returns the first Node 22+
+  runtime found, trying in this order:
+  1. `HARNESS_WORKFLOW_NODE`;
+  2. the project file `.harness/workflow/local/runtime` (`RUNTIME_FILE`),
+     which Harness writes: line 1 is the executable with forward slashes,
+     line 2 is the mode `node` or `electron`;
+  3. `node` on `PATH`;
+  4. standard OS locations.
+
+  `runtimeEnvironment(mode)` sets `ELECTRON_RUN_AS_NODE=1` for the Electron
+  mode and removes it for `node`.
+- `launchers()` returns the managed `scripts/workflow` (POSIX sh),
+  `scripts/workflow.ps1` and `scripts/workflow.cmd` texts. The cmd launcher
+  delegates to PowerShell and uses CRLF line endings. All three use the same
+  runtime order and run `KIT_BUNDLE_PATH`
+  (`.harness/workflow/runtime/workflow.mjs`). Without a runtime they exit
+  127 with a clear message.
+
 ## Test Support
 
 `src/workflow-test-build.mjs` is shared by the tests of every

@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p2.t2",
-  "expectedCommitMessage": "feat: add cross-platform process runner and launchers",
+  "currentTaskId": "harness-ai.wk.p2.t3",
+  "expectedCommitMessage": "feat: add workflow plan model and validation",
   "debt": null
 }
 ```
@@ -46,9 +46,9 @@
 
 3. [DONE] `harness-ai.wk.p2.t1` Create the `project-workflow` cluster (cluster.md, product tree json/md, core-runtime product-part.md) and the `workflow-platform` module: POSIX/OS path normalization and safety, atomic write with Windows retry, exclusive file lock; `WorkflowPlatformFacade` class + singleton and tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/**, cluster.md, product tree`; expected commit: `feat: add workflow kit platform paths and atomic files`). Result: Completed in commit `feat: add workflow kit platform paths and atomic files`.
 4. [DONE] Git Commit: `feat: add workflow kit platform paths and atomic files` (hash: self)
-5. [IN_PROGRESS] `harness-ai.wk.p2.t2` Extend `workflow-platform`: shell-free process runner with Windows `.cmd`/`.bat` handling and PATH/PATHEXT lookup, Node runtime resolution (env, local runtime file, PATH >= 22, OS paths), launcher texts for sh/cmd/ps1; tests with simulated platforms (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/**`; expected commit: `feat: add cross-platform process runner and launchers`).
-6. [TODO] Git Commit: `feat: add cross-platform process runner and launchers` (hash: TBD)
-7. [TODO] `harness-ai.wk.p2.t3` Create the `workflow-plan` module: plan/scope/round/task model types and full validation (schema, ids, dependencies order and cycles, service task rules, delivery states); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**, product tree, cluster.md`; expected commit: `feat: add workflow plan model and validation`).
+5. [DONE] `harness-ai.wk.p2.t2` Extend `workflow-platform`: shell-free process runner with Windows `.cmd`/`.bat` handling and PATH/PATHEXT lookup, Node runtime resolution (env, local runtime file, PATH >= 22, OS paths), launcher texts for sh/cmd/ps1; tests with simulated platforms (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/**`; expected commit: `feat: add cross-platform process runner and launchers`). Result: Completed in commit `feat: add cross-platform process runner and launchers`.
+6. [DONE] Git Commit: `feat: add cross-platform process runner and launchers` (hash: self)
+7. [IN_PROGRESS] `harness-ai.wk.p2.t3` Create the `workflow-plan` module: plan/scope/round/task model types and full validation (schema, ids, dependencies order and cycles, service task rules, delivery states); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**, product tree, cluster.md`; expected commit: `feat: add workflow plan model and validation`).
 8. [TODO] Git Commit: `feat: add workflow plan model and validation` (hash: TBD)
 9. [TODO] `harness-ai.wk.p2.t4` Add plan document render/parse (JSON between `harness-workflow` markers + readable projection, projection tamper detection) and `WorkflowPlanFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: render and parse workflow plan documents`).
 10. [TODO] Git Commit: `feat: render and parse workflow plan documents` (hash: TBD)

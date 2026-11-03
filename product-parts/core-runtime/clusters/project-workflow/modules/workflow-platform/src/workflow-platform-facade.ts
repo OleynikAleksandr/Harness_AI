@@ -6,6 +6,11 @@ import {
   withFileLock,
 } from "./platform-fs.js";
 import {
+  cmdLauncher,
+  posixLauncher,
+  powershellLauncher,
+} from "./platform-launchers.js";
+import {
   currentWorkflowPlatform,
   isWithin,
   normalizeRelativePath,
@@ -15,6 +20,37 @@ import {
   toPosixPath,
   type WorkflowPlatform,
 } from "./platform-paths.js";
+import {
+  buildInvocation,
+  type ProcessInvocation,
+  type ProcessRequest,
+  type ProcessResult,
+  resolveExecutable,
+  runProcessAsync,
+  runProcessSync,
+} from "./platform-process.js";
+import {
+  formatRuntimeFile,
+  parseRuntimeFile,
+  probeRuntimeVersion,
+  type RuntimeMode,
+  type RuntimeProbe,
+  resolveRuntime,
+  runtimeCandidates,
+  runtimeEnvironment,
+  type WorkflowRuntime,
+} from "./platform-runtime.js";
+
+export { KIT_BUNDLE_PATH } from "./platform-launchers.js";
+export type { ProcessRequest, ProcessResult } from "./platform-process.js";
+export type { RuntimeMode, WorkflowRuntime } from "./platform-runtime.js";
+export { RUNTIME_FILE } from "./platform-runtime.js";
+
+export interface ProjectLaunchers {
+  cmd: string;
+  posix: string;
+  powershell: string;
+}
 
 export { WorkflowLockError } from "./platform-fs.js";
 export { WorkflowPathError, type WorkflowPlatform } from "./platform-paths.js";
@@ -69,6 +105,68 @@ export class WorkflowPlatformFacade {
 
   withLock<T>(lockPath: string, fn: () => T, options?: FileLockOptions): T {
     return withFileLock(lockPath, fn, options);
+  }
+
+  findExecutable(
+    name: string,
+    env: NodeJS.ProcessEnv = process.env
+  ): string | null {
+    return resolveExecutable(name, env, this.platform);
+  }
+
+  /** Exposes the spawn plan (file, args, verbatim flag) for diagnostics and tests. */
+  describeInvocation(
+    resolvedExecutable: string,
+    args: readonly string[]
+  ): ProcessInvocation {
+    return buildInvocation(resolvedExecutable, args, this.platform);
+  }
+
+  run(request: ProcessRequest): ProcessResult {
+    return runProcessSync(request, this.platform);
+  }
+
+  runAsync(request: ProcessRequest): Promise<ProcessResult> {
+    return runProcessAsync(request, this.platform);
+  }
+
+  /** Resolves a Node 22+ runtime for a project; `probe` is injectable for tests. */
+  resolveRuntime(
+    projectRoot: string | null,
+    env: NodeJS.ProcessEnv = process.env,
+    probe?: RuntimeProbe
+  ): WorkflowRuntime | null {
+    const check =
+      probe ?? ((candidate) => probeRuntimeVersion(candidate, this.platform));
+    return resolveRuntime(
+      runtimeCandidates(projectRoot, env, this.platform),
+      check
+    );
+  }
+
+  runtimeEnvironment(
+    mode: RuntimeMode,
+    base: NodeJS.ProcessEnv = process.env
+  ): NodeJS.ProcessEnv {
+    return runtimeEnvironment(mode, base);
+  }
+
+  formatRuntimeFile(executable: string, mode: RuntimeMode): string {
+    return formatRuntimeFile(executable, mode);
+  }
+
+  parseRuntimeFile(
+    text: string
+  ): { executable: string; mode: RuntimeMode } | null {
+    return parseRuntimeFile(text);
+  }
+
+  launchers(): ProjectLaunchers {
+    return {
+      cmd: cmdLauncher(),
+      posix: posixLauncher(),
+      powershell: powershellLauncher(),
+    };
   }
 }
 

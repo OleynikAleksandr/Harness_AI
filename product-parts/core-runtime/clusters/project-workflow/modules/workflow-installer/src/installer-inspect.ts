@@ -75,7 +75,7 @@ function file(root: string, relative: string): string {
 }
 
 /** Compares dotted versions; negative when `left` is older. */
-function compareVersions(left: string, right: string): number {
+export function compareVersions(left: string, right: string): number {
   const a = left.split(".").map(Number);
   const b = right.split(".").map(Number);
   for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
@@ -87,7 +87,7 @@ function compareVersions(left: string, right: string): number {
   return 0;
 }
 
-function readManifest(root: string): KitManifest | null {
+export function readManifest(root: string): KitManifest | null {
   const text = workflowPlatformFacade.readTextIfExists(
     file(root, MANIFEST_PATH)
   );
@@ -102,7 +102,7 @@ function readManifest(root: string): KitManifest | null {
 }
 
 /** Managed files whose managed part no longer matches the manifest hash. */
-function damagedFiles(root: string, manifest: KitManifest): string[] {
+export function damagedFiles(root: string, manifest: KitManifest): string[] {
   return manifest.files
     .filter((item) => item.sha256 !== null)
     .filter((item) => {

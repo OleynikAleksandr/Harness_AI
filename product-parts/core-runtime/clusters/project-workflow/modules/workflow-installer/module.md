@@ -6,10 +6,11 @@ Everything the Workflow Kit writes into a project and keeps healthy there:
 - the installation payload — the bundle, launchers, git hooks, agent rules,
   provider hooks, ignore and attribute sections, skeleton documents — and
   the manifest that records it;
-- folder inspection, install and update.
+- folder inspection, install and update;
+- the project doctor and its safe fixes.
 
-The project doctor and the migration of legacy Harness plans are added by
-later tasks of the active plan.
+The migration of legacy Harness plans is added by a later task of the
+active plan.
 
 ## Public Facade
 
@@ -114,6 +115,30 @@ the commit. A legacy Harness plan is kept unchanged with
 `migrationRequired: true`. Plan and configuration of an installed project
 are never overwritten.
 
+## Doctor (`installer-doctor.ts`)
+
+`doctor(path, {env?, probe?, fix?})` returns `{root, ok, checks, fix}`.
+Each check is `{id, status ok|warn|fail, message, fixable, nextAction}`:
+
+| Id | Fails when | Fixable |
+|---|---|---|
+| `manifest` | the manifest is missing, or older than `KIT_VERSION` | when older |
+| `managed-files` | a managed part differs from its manifest hash or is missing | yes |
+| `executable` | an executable launcher or hook lost its mode (POSIX only) | yes |
+| `git-hooks` | the local `core.hooksPath` is unset, or a hook there lacks the Kit section | yes |
+| `plan` | the plan is missing, unreadable or disagrees with the history | no (`repair`) |
+| `transaction` | a commit transaction is unfinished | no (`repair`) |
+| `runtime` | no Node.js 22+ runtime for the launchers (`probe` injectable) | no |
+| `git-identity` | git has no user identity | no |
+| `quality-drift` | `warn` when detected stacks and the profile differ | no |
+
+`ok` is true when no check fails. With `fix: {bundle, runtime}` and a
+fixable failure, the doctor runs `install --update`: it rewrites owned
+files and sections, restores `core.hooksPath` and modes, and commits with
+role `kit-update` when the files differ from HEAD (otherwise
+`fix.commit` is `null`). Plan, configuration and user text are never
+changed. The checks then run again.
+
 ## Dependencies
 
 - `workflow-platform` — launchers, bundle and runtime paths, files.
@@ -134,3 +159,7 @@ Node built-ins only.
   commit, damage and outdated detection with update, existing files kept,
   husky sections, a legacy plan kept for migration, Workflow Pilot and
   nested folders refused.
+- `src/workflow-installer-doctor.test.mjs` — a healthy installation, fixable
+  breakage (mode, section, hook, hooks path) repaired without touching the
+  plan, a missing runtime, quality drift, a pending transaction, a missing
+  manifest.

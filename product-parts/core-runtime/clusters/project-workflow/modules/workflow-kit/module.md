@@ -35,8 +35,8 @@ State (`kit-status.ts`):
   configuration, and the task-to-commit mapping of `workflow-git`.
 - `recover(root, event)`, `showTask(root, id)`, `history(root, filter)`,
   `sessionStart(root, client, stdin)` — delegated to `workflow-recovery`.
-- `inspect(path)`, `install(path, options)` — delegated to
-  `workflow-installer` (`installer` exposes it, bound to the same git
+- `inspect(path)`, `install(path, options)`, `doctor(path, options)` —
+  delegated to `workflow-installer` (`installer` exposes it, bound to the same git
   facade).
 
 Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
@@ -138,10 +138,11 @@ managed hooks.
   `commit --task [--files] [--digest]`, `docs:commit --files [--message]`,
   `quality:detect [--stack]`, `quality:apply --input`, `quality:status`,
   `repair [--apply|--cancel]`, `inspect [<path>]`,
-  `install [<path>] [--name] [--update] [--bundle]`, `help`. `install`
-  copies its own bundle file unless `--bundle` names another and records
-  the running executable as the project runtime (`electron` mode under
-  Electron).
+  `install [<path>] [--name] [--update] [--bundle]`,
+  `doctor [<path>] [--fix] [--bundle]`, `help`. `install` and
+  `doctor --fix` copy their own bundle file unless `--bundle` names another
+  and record the running executable as the project runtime (`electron`
+  mode under Electron).
   `--files` and `--stack` take a JSON list or a comma-separated list.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
   (status, validation, recovery, task and history texts; JSON otherwise).
@@ -164,7 +165,8 @@ bundle imports anything else, then smoke-tests it in a temporary folder:
 `help`, `status` of a folder without the Kit (`installed: false`) and
 `validate` reporting `NOT_INSTALLED`, and an installation into a new git
 project (temporary global git identity) whose bootstrap commit runs the
-installed hooks and launcher, followed by `scripts/workflow validate`.
+installed hooks and launcher, followed by `scripts/workflow validate` and
+`scripts/workflow doctor`.
 
 ## Dependencies
 

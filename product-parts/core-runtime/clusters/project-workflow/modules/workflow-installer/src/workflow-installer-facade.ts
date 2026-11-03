@@ -2,6 +2,11 @@ import {
   type WorkflowGitFacade,
   workflowGitFacade,
 } from "../../workflow-git/src/workflow-git-facade.js";
+import {
+  type DoctorOptions,
+  type DoctorReport,
+  runDoctor,
+} from "./installer-doctor.js";
 import { type InspectResult, inspectFolder } from "./installer-inspect.js";
 import {
   type InstallOptions,
@@ -20,6 +25,12 @@ import {
 } from "./installer-payload.js";
 import { agentRules } from "./installer-texts.js";
 
+export type {
+  DoctorCheck,
+  DoctorOptions,
+  DoctorReport,
+  DoctorStatus,
+} from "./installer-doctor.js";
 export type {
   FolderAction,
   FolderState,
@@ -56,6 +67,11 @@ export class WorkflowInstallerFacade {
   /** `install <path> [--update]`: installs or updates the Kit and commits it. */
   install(folder: string, options: InstallOptions): InstallOutcome {
     return installKit(this.git, folder, options);
+  }
+
+  /** `doctor [--fix]`: health checks; `fix` repairs fixable findings only. */
+  doctor(folder: string, options: DoctorOptions = {}): DoctorReport {
+    return runDoctor(this.git, folder, options);
   }
 
   /** Every file the Kit writes into a project, with its writing rule. */

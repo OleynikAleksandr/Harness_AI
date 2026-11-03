@@ -7,6 +7,8 @@ import {
   workflowGitFacade,
 } from "../../workflow-git/src/workflow-git-facade.js";
 import {
+  type DoctorOptions,
+  type DoctorReport,
   type InspectResult,
   type InstallOptions,
   type InstallOutcome,
@@ -107,6 +109,11 @@ export class WorkflowKitFacade {
   /** `inspect <path>`: folder state and the action to offer. */
   inspect(folder: string): InspectResult {
     return this.installer.inspect(folder);
+  }
+
+  /** `doctor [--fix]`: project health; fixes only fixable findings. */
+  doctor(folder: string, options: DoctorOptions = {}): DoctorReport {
+    return this.installer.doctor(folder, { env: this.env, ...options });
   }
 
   /** `install <path> [--update]`. */

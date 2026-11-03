@@ -29,7 +29,7 @@ export const KIT_VERSION = "2.0.0";
 export const MANIFEST_PATH = ".harness/workflow/manifest.json";
 export const MANIFEST_SCHEMA = "harness-workflow-manifest/1";
 export const OWN_HOOKS_DIR = ".harness/workflow/hooks";
-const MANAGED_GIT_HOOKS = [
+export const MANAGED_GIT_HOOKS = [
   "pre-commit",
   "commit-msg",
   "post-commit",

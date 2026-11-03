@@ -50,6 +50,26 @@ function resolvePath(io: CliIo, value: string | undefined): string {
   return path.resolve(io.cwd, value ?? ".");
 }
 
+/** The bundle to install (this file unless `--bundle`) and the running runtime. */
+function ownBundle(
+  args: ParsedArgs,
+  io: CliIo
+): {
+  bundle: string;
+  runtime: { executable: string; mode: "electron" | "node" };
+} {
+  return {
+    bundle: readFileSync(
+      resolvePath(io, flag(args, "bundle") ?? fileURLToPath(import.meta.url)),
+      "utf8"
+    ),
+    runtime: {
+      executable: process.execPath,
+      mode: process.versions.electron ? "electron" : "node",
+    },
+  };
+}
+
 const COMMANDS: Readonly<Record<string, CommandSpec>> = {
   accept: {
     run: ({ args, kit, root }) => kit.accept(root, requiredFlag(args, "note")),
@@ -93,21 +113,18 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
       kit.inspect(resolvePath(io, args.positionals[0])),
     usage: "inspect [<path>]",
   },
+  doctor: {
+    run: ({ args, io, kit }) =>
+      kit.doctor(resolvePath(io, args.positionals[0]), {
+        fix: args.flags.get("fix") === true ? ownBundle(args, io) : null,
+      }),
+    usage: "doctor [<path>] [--fix] [--bundle <workflow.mjs>]",
+  },
   install: {
     run: ({ args, io, kit }) =>
       kit.install(resolvePath(io, args.positionals[0]), {
-        bundle: readFileSync(
-          resolvePath(
-            io,
-            flag(args, "bundle") ?? fileURLToPath(import.meta.url)
-          ),
-          "utf8"
-        ),
+        ...ownBundle(args, io),
         name: flag(args, "name"),
-        runtime: {
-          executable: process.execPath,
-          mode: process.versions.electron ? "electron" : "node",
-        },
         update: args.flags.get("update") === true,
       }),
     usage:

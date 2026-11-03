@@ -100,6 +100,17 @@ try {
     problems.push(
       `installed launcher: ${installed.status} ${installed.stdout}${installed.stderr}`
     );
+  } else {
+    const doctor = spawnSync(
+      path.join(project, "scripts", "workflow"),
+      ["doctor"],
+      { cwd: project, encoding: "utf8", env }
+    );
+    if (doctor.status !== 0 || JSON.parse(doctor.stdout).result.ok !== true) {
+      problems.push(
+        `doctor: ${doctor.status} ${doctor.stdout}${doctor.stderr}`
+      );
+    }
   }
   if (problems.length > 0) {
     console.error(

@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p5.t3",
-  "expectedCommitMessage": "feat: add workflow autopilot decision",
+  "currentTaskId": "harness-ai.wk.p6.t1",
+  "expectedCommitMessage": "feat: add workflow kit cluster facade operations",
   "debt": null
 }
 ```
@@ -83,12 +83,12 @@
 30. [DONE] Git Commit: `feat: build bounded workflow recovery packets` (hash: self)
 31. [DONE] `harness-ai.wk.p5.t2` Add `WorkflowRecoveryFacade`: text/json packets, session-start hook output per client with `HARNESS_WORKFLOW_RECOVERY=host` suppression, show-task/history helpers; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/**`; expected commit: `feat: add workflow recovery facade and session start hook`). Result: Completed in commit `feat: add workflow recovery facade and session start hook`.
 32. [DONE] Git Commit: `feat: add workflow recovery facade and session start hook` (hash: self)
-33. [IN_PROGRESS] `harness-ai.wk.p5.t3` Create the `workflow-autopilot` module: pure continue/stop decision with all stop reasons and the continue turn text; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/**, product tree, cluster.md`; expected commit: `feat: add workflow autopilot decision`).
-34. [TODO] Git Commit: `feat: add workflow autopilot decision` (hash: TBD)
+33. [DONE] `harness-ai.wk.p5.t3` Create the `workflow-autopilot` module: pure continue/stop decision with all stop reasons and the continue turn text; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/**, product tree, cluster.md`; expected commit: `feat: add workflow autopilot decision`). Result: Completed in commit `feat: add workflow autopilot decision`.
+34. [DONE] Git Commit: `feat: add workflow autopilot decision` (hash: self)
 
 ## Phase 6 - Cluster Facade, Hooks, CLI And Bundle (owner: Claude, updated: 2026-11-03)
 
-35. [TODO] `harness-ai.wk.p6.t1` Create the `workflow-kit` cluster facade module: `WorkflowKitFacade` composing status, scope, extend, task, commit, docs commit, accept, close, carryover, block, repair and quality operations; tests on temporary repositories (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/**, product tree, cluster.md`; expected commit: `feat: add workflow kit cluster facade operations`).
+35. [IN_PROGRESS] `harness-ai.wk.p6.t1` Create the `workflow-kit` cluster facade module: `WorkflowKitFacade` composing status, scope, extend, task, commit, docs commit, accept, close, carryover, block, repair and quality operations; tests on temporary repositories (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/**, product tree, cluster.md`; expected commit: `feat: add workflow kit cluster facade operations`).
 36. [TODO] Git Commit: `feat: add workflow kit cluster facade operations` (hash: TBD)
 37. [TODO] `harness-ai.wk.p6.t2` Add git hook handlers (pre-commit managed candidate + commit checks, commit-msg, post-commit, pre-push with DOCS and push checks); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/**`; expected commit: `feat: enforce managed commits through workflow git hooks`).
 38. [TODO] Git Commit: `feat: enforce managed commits through workflow git hooks` (hash: TBD)

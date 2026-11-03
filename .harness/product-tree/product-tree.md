@@ -116,6 +116,7 @@ Workflow Kit installed into user projects and driven by Core. Spec:
 - `workflow-git`: Git queries, working-tree changes, trailer history, transactional task commits, commit reference resolution and repair.
 - `workflow-quality`: Project quality profile: configuration, stack detection, check catalog, check execution and profile application.
 - `workflow-recovery`: Bounded recovery packet: priority sections within a byte budget, references, session-start hook output.
+- `workflow-autopilot`: Pure continue/stop decision of the Core autopilot and the continue turn message.
 
 ## Provider Runtime
 

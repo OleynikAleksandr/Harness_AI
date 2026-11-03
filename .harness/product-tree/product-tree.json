@@ -385,6 +385,11 @@
               "id": "workflow-recovery",
               "name": "Workflow Recovery",
               "purpose": "Bounded recovery packet: priority sections within a byte budget, references, session-start hook output."
+            },
+            {
+              "id": "workflow-autopilot",
+              "name": "Workflow Autopilot",
+              "purpose": "Pure continue/stop decision of the Core autopilot and the continue turn message."
             }
           ]
         }

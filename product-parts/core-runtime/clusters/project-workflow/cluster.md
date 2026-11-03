@@ -32,9 +32,11 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
   and repair.
 - `workflow-quality` — project quality profile: configuration, stack
   detection, check catalog, check execution and profile application.
-- `workflow-recovery` — bounded recovery packet within a byte budget.
+- `workflow-recovery` — bounded recovery packet within a byte budget, the
+  SessionStart hook, `show-task` and `history`.
+- `workflow-autopilot` — pure continue/stop decision of the Core autopilot.
 
-Further modules (`workflow-autopilot`, `workflow-kit`,
+Further modules (`workflow-kit`,
 `workflow-installer`, `workflow-host`) are added by the active plan in that
 order.
 

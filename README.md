@@ -8,19 +8,27 @@ This repository is intentionally new. CodeAI Hub is reference material only; Har
 
 - Product tree source: `.harness/product-tree/product-tree.json`.
 - Human projection: `.harness/product-tree/product-tree.md`.
-- Active local plan: `.harness/plans/todo-plan.md`.
+- Active local plan (Workflow Kit): `.harness/plans/todo-plan.md`.
 - Production code root: `product-parts/**`.
 
 MVP starts with the workspace skeleton, then installs the local development harness, then implements the first runnable Electron session slice.
 
-## Plan Lifecycle
+## Development Process
 
-Implementation tasks are committed with `npm run plan:commit -- "<message>"`.
-Final user-verification tasks are explicitly marked
-`completion: user-acceptance` and are completed with
-`npm run plan:accept -- "<acceptance note>"` after the user confirms the
-result. Acceptance is recorded in its own commit but keeps the scope active;
-`npm run plan:archive` remains a separate user-directed closeout action.
+The development process runs on the Harness Workflow Kit (`scripts/workflow`,
+specification in `docs/architecture/workflow-kit/WorkflowKit.md`). The plan in
+`.harness/plans/todo-plan.md` changes only through Kit commands:
+
+- `scripts/workflow recover --format text` — recovery packet for a new session;
+- `scripts/workflow task:start <ID>` and `scripts/workflow commit --task <ID>` —
+  one task, one checked commit;
+- `scripts/workflow accept --note "<the user's words>"` — records the user's
+  acceptance and keeps the scope active;
+- `scripts/workflow close --scope <id> --note "<command>"` — a separate
+  user-directed closeout.
+
+Quality checks come from the Kit profile in `.harness/workflow/config.json`
+and run in the Kit Git hooks (`.husky/**`).
 
 ## Packaged App Rebuilds
 

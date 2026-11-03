@@ -1,169 +1,174 @@
 # Harness AI Agent Instructions
 
-Это главная директива для разработки Harness AI. Следуй ей при старте каждой новой сессии из этого workspace.
+This is the main directive for developing Harness AI. Follow it at the start
+of every session in this workspace. The development process itself (plan,
+tasks, commits, recovery, acceptance) is owned by the Workflow Kit; its
+managed section at the end of this file is authoritative for the process.
 
-## 0. Язык И Режим Работы
+## 0. Language And Working Mode
 
-- Всё общение с пользователем ведётся на русском языке.
-- Не добавляй абстракции, фабрики, интерфейсы, конфиги, слои, зависимости или расширяемость "на будущее" без текущего архитектурного контракта или прямого требования пользователя.
-- CodeAI Hub является reference project. Не копируй целые модули; переноси поведение через новые Harness AI модули в правильном Product Part / Cluster / Module дереве.
+- Talk to the user in Russian. Code, code comments, identifiers and agent
+  rules are in English.
+- Do not add abstractions, factories, interfaces, configs, layers,
+  dependencies or "future" extensibility without a current architecture
+  contract or a direct user requirement.
+- CodeAI Hub is a reference project. Do not copy whole modules; carry
+  behaviour over through new Harness AI modules in the correct
+  Product Part / Cluster / Module tree.
 
-## 1. Recovery Owner И Старт Сессии
+## 1. Session Start And Navigation
 
-- Единственный recovery owner: `.harness/plans/todo-plan.md`.
-- В начале сессии сначала читай `.harness/plans/todo-plan.md`, затем выполняй `npm run plan:status`, затем используй `docs/DOCUMENTATION_INDEX.md` как навигацию по документации для выбора только релевантных документов.
-- Если `Execution Scope Status: ACTIVE`, следуй только active plan, `Context Pack For This Cycle` и текущему `Current Task`.
-- Если `Execution Scope Status: BLOCKED`, выполни `npm run plan:status`, прочитай причину и не продолжай реализацию до `npm run plan:repair` или явного решения пользователя.
-- Если `Execution Scope Status: NONE` или active plan отсутствует, сначала согласуй новый scope и создай минимальный active plan по шаблону `.harness/plans/todo-plan.template.md`.
-- Legacy reports, commit lists и loose notes не являются recovery mechanism.
+- The Workflow Kit recovery packet (SessionStart hook, or
+  `scripts/workflow recover --format text`) is the only recovery mechanism.
+  The plan lives in `.harness/plans/todo-plan.md` and is machine-managed.
+- Use `docs/DOCUMENTATION_INDEX.md` to choose only the documents relevant to
+  the current task; `docs/architecture/OVERVIEW.md` summarises the system.
+- Legacy reports, commit lists and loose notes are not a recovery mechanism.
+  `.harness/plans/archive/**` holds closed scopes for history only.
+- One micro-task should touch at most three functional files unless the plan
+  splits the work differently.
 
-## 2. Plan-First Lifecycle
+## 2. Architecture And Ownership
 
-- Перед правкой tracked files всегда проверь `npm run plan:status`.
-- Сверь `Current Task`, `Expected Commit` и scope текущей строки в `.harness/plans/todo-plan.md`.
-- Если нужный файл вне scope, сначала добавь микро-задачу и отдельную строку `Git Commit: ...`.
-- Каждая микро-задача должна иметь пару пунктов: implementation task и отдельный `Git Commit: ...`.
-- Строка задачи в плане — логическая строка: её можно переносить на indented continuation lines. Оркестратор читает `expected commit:` и `completion:` маркеры со всей логической строки, а `Result:`-записи дописывает в её конец.
-- Каждая микро-задача должна затрагивать не более 3 функциональных файлов, если plan явно не разбил работу иначе.
-- Active plan является machine-managed state. Не редактируй task status, commit status, hash и state block вручную, кроме плановой миграции/ремонта.
-- Штатный commit workflow:
-  ```bash
-  npm run plan:validate
-  npm run plan:commit -- "<expected commit message>"
-  ```
-- Финальная пользовательская приёмка оформляется отдельной задачей с
-  `completion: user-acceptance` и `expected commit: none`. После явного
-  положительного ответа пользователя зафиксируй её штатно, не меняя plan
-  вручную:
-  ```bash
-  npm run plan:accept -- "<краткое подтверждение пользователя>"
-  ```
-  Команда разрешена только для текущей acceptance-задачи, помечает её `DONE`,
-  создаёт отдельный acceptance commit и оставляет scope `ACTIVE`. Если
-  пользователь сообщил новые дефекты, не запускай `plan:accept`: сначала
-  расширь активный план задачами исправления.
-- Диагностика:
-  ```bash
-  npm run plan:status
-  npm run plan:validate
-  npm run plan:repair
-  ```
-- `hash: self` в строке `Git Commit` значит, что строка закрывается тем же commit, где она записана. Реальный hash ищи через `git log --oneline --grep='<commit message>'`.
-- Не оставляй `.git/harness-plan-debt`. Если он существует, сначала выполни `npm run plan:repair`.
+- The Product Part / Cluster / Module tree is primary. Production code lives
+  under `product-parts/**`.
+- Every Product Part contains Clusters; every Cluster contains Modules.
+- A module owns only its `module.md` and `src/**`.
+- External access to a module goes through its public facade (`*facade.ts`,
+  `*facade.mjs` or an explicitly named facade component).
+- New functionality or a new algorithm means a new module or a strictly
+  additive change of an existing module.
+- Do not touch a closed, working module without need. Fix the root cause in
+  the shared route when sibling callers go through it.
+- An implementation file must not exceed 500 lines
+  (`scripts/check-architecture.mjs` enforces it).
+- Documentation must be 100% relevant to the current code. A module's
+  `module.md` changes in the same commit as its `src/**` (the Kit check
+  `kit:docs-contracts`). Shared documents (`cluster.md`, `product-part.md`,
+  `docs/architecture/**`, `.harness/product-tree/**`, `README.md`, indexes)
+  are reconciled by the DOCS task of each round. Outdated documentation is a
+  defect on a par with broken code.
+- `docs/DOCUMENTATION_INDEX.md` is the mandatory catalog of tracked Markdown
+  documentation. Adding, moving or removing a `.md` / `.markdown` file updates
+  the index in the same commit.
 
-## 3. Архитектура И Ownership
+## 3. Core Authority
 
-- Product Part / Cluster / Module дерево первично. Production code живёт под `product-parts/**`.
-- Каждый Product Part содержит Clusters, каждый Cluster содержит Modules.
-- Каждый module владеет только своим `module.md` и `src/**`.
-- Внешний доступ к module идёт через публичный facade (`*facade.ts`, `*facade.mjs` или явно named facade component).
-- Новый функционал или алгоритм означает новый module или строго additive изменение существующего module.
-- Не трогай закрытый работающий module без необходимости. Исправляй root cause в общем маршруте, если через него идут sibling callers.
-- Файл implementation code не должен превышать 500 строк.
-- Документация обязана быть 100% релевантна текущему коду. Любое изменение исходного кода (`product-parts/**` и `scripts/**`) в том же commit сопровождается актуализацией всех связанных Markdown-документов: `module.md` затронутого модуля, его `cluster.md` и `product-part.md`, релевантных `docs/architecture/**`, `.harness/product-tree/**` (json + readable projection), `docs/evidence/**`, `README.md`, `AGENTS.md`, `CLAUDE.md` и любых других `.md` / `.markdown`, перечисленных или покрытых в `docs/DOCUMENTATION_INDEX.md`. Устаревшая или несоответствующая коду документация — это дефект наравне со сломанным кодом.
-- `docs/DOCUMENTATION_INDEX.md` — обязательный каталог tracked Markdown-документации. Если добавляешь, переносишь или удаляешь `.md` / `.markdown` файл, обнови этот индекс в том же commit. В начале новой сессии ссылку на документацию давай через `.harness/plans/todo-plan.md` и `docs/DOCUMENTATION_INDEX.md`, а не длинным списком отдельных Markdown-файлов.
-- Гейт `check:docs-sync` (в `.husky/commit-msg`) срабатывает на любое изменение исходного кода. Если в коммите не обновлён ни один документ кода, гейт падает с инструкцией, перечисляющей все пути для проверки: `module.md`/`cluster.md`/`product-part.md` затронутых модулей плюс `docs/architecture/**`, `.harness/product-tree/**` и `AGENTS.md`. Это твоя задача — пройти список и привести каждый релевантный документ в соответствие коду, затем закоммитить вместе с обновлёнными доками.
-- Гейт проверяет только факт обновления документации, а не её содержание; смысловая релевантность каждого документа коду — на твоей ответственности (см. раздел 10). Если правка действительно не затрагивает ни один документ (например, рефактор без изменения поведения/контракта), добавь `[skip-docs]` в commit message.
+- UI, the Electron host, a future VS Code surface, web/mobile clients and any
+  transport/input surface are never the source of workflow truth.
+- UI is not the source of truth for product state, session state, provider
+  state, settings, limits, tokens, workflow or orchestration decisions,
+  localization state, artifact truth or managed lifecycle. UI only passes
+  user input and displays data/commands from Core or shared read-model
+  contracts.
+- UI does not classify, recognise or derive product truth from text or
+  provider payloads. The renderer never decides what is reasoning/thinking,
+  assistant output, status, a limit, a model or a provider capability; these
+  facts arrive normalised from Core/shared contracts.
+- Calculation, derivation, normalisation and validation live in Core Runtime
+  or a shared contract module, never in renderer/client code.
+- Core Runtime owns session state, provider binding, the settings snapshot,
+  orchestration state, gates, the localization target, system instructions,
+  project workflow (Workflow Kit host, autopilot) and managed lifecycle.
+- Behaviour that breaks without an open UI is an architecture defect.
+- When one fact is available from several places, first establish a single
+  Core/shared source of truth, then connect the display. Never patch
+  discrepancies with UI heuristics.
+- Prompt templates, schemas, examples and repair contracts reach the provider
+  prompt inline. A file reference is allowed only as provenance or an output
+  target.
+- Artifact parser/validator/read-model truth belongs to Core/shared contract
+  modules.
+- The managed repair lifecycle enters Core as raw intent; a client never
+  builds repair prompts around Core.
 
-## 4. Core Authority
+## 4. Where Documents Live
 
-- UI, Electron host, будущий VS Code surface, web/mobile clients и любые transport/input surfaces не являются источником workflow truth.
-- UI не является источником правды ни для product state, session state, provider state, settings truth, лимитов, токенов, workflow decisions, orchestration decisions, localization state, artifact truth или managed lifecycle. UI только передаёт ввод пользователя и отображает данные/команды, полученные из Core или shared read-model contracts.
-- UI не классифицирует, не распознаёт и не выводит product truth из текста или provider payloads. В частности, renderer не решает, что является reasoning/thinking, assistant output, статусом, лимитом, моделью или provider capability; эти факты приходят из Core/shared contracts уже нормализованными.
-- Если для поведения нужен calculation/derivation/normalization/validation, он живёт в Core Runtime или shared contract module. Renderer/client code не должен вычислять business truth, выбирать authority, склеивать provider semantics или принимать workflow decisions.
-- Core Runtime владеет session state, provider binding, settings snapshot, orchestration state, gates, localization target, system instructions и managed lifecycle.
-- Если поведение ломается без открытого UI, это архитектурный дефект.
-- Если один и тот же факт можно получить из нескольких мест, сначала установи единый Core/shared source of truth и только затем подключай отображение. Не лечи расхождения UI-эвристиками.
-- Prompt templates, schemas, examples и repair contracts должны попадать в provider prompt inline. Ссылка на файл допустима только как provenance/output target, но не как обязательный источник инструкции.
-- Artifact parser/validator/read-model truth принадлежит Core/shared contract modules, а не renderer/client-local code.
-- Managed repair lifecycle должен входить в Core как raw intent; client не строит repair prompts в обход Core.
-
-## 5. Где Хранить Документы
-
-- Active execution plan: `.harness/plans/todo-plan.md`.
-- Plan template: `.harness/plans/todo-plan.template.md`.
-- Archived closed-scope plans: `.harness/plans/archive/<planId>.md` (перенос в этот каталог инициирует только пользователь прямой командой; см. разделы 9 и 10).
-- Product tree source: `.harness/product-tree/product-tree.json`.
-- Product tree readable projection: `.harness/product-tree/product-tree.md`.
+- Active plan (Kit-managed): `.harness/plans/todo-plan.md`.
+- Kit configuration, quality profile and docs contracts (Kit-managed):
+  `.harness/workflow/config.json`.
+- Archived closed-scope plans: `.harness/plans/archive/<planId>.md`.
+- Product tree source: `.harness/product-tree/product-tree.json`; readable
+  projection: `.harness/product-tree/product-tree.md`.
 - Documentation catalog: `docs/DOCUMENTATION_INDEX.md`.
-- Architecture proposals awaiting discussion: `docs/proposals/**`; these are
+- Architecture proposals awaiting discussion: `docs/proposals/**`. They are
   non-authoritative and must be reconciled with live truth and promoted into
   `docs/architecture/**` before implementation planning.
 - Architecture/planning docs: `docs/architecture/**`.
 - Verification evidence: `docs/evidence/**`.
-- Runtime state, provider homes, auth residue, caches and logs: ignored local state only.
+- Runtime state, provider homes, auth residue, caches and logs: ignored local
+  state only.
 
-## 6. Quality Gates
+## 5. Quality Checks
 
-- Никогда не обходи Husky hooks и quality gates через `--no-verify`.
-- Commit gates:
-  - `.husky/pre-commit`: `npm run plan:validate`, staged `npx ultracite fix`, `npm run check:architecture`, `npm run lint`, `npm run check:knip`, `npm run typecheck`, `npm test`
-  - `.husky/commit-msg`: `node scripts/plan.mjs validate-commit-message "$1"`, `node scripts/check-docs-sync.mjs "$1"`
-  - `.husky/post-commit`: `node scripts/plan.mjs post-commit`
-- Push gates:
-  - `.husky/pre-push`: `npm run plan:validate`, `npm run check:dup`, `npm run check:security`, `npm run check:links`
-- Quality gates выполняются автоматически на каждом commit (`.husky/pre-commit`) и push (`.husky/pre-push`). Поэтому план НЕ должен содержать отдельную фазу или задачу «прогнать gates» — это дублирование того, что hooks уже делают принудительно (без прохождения gates коммита просто не будет). Финальная фаза плана нужна только когда изменение видно в упакованном приложении: это package-сборка + user acceptance (см. раздел 9), а не gate-прогон.
-- Ручной прогон нужен только для диагностики и перед сборкой пакета:
+- Checks run through the Kit quality profile (`.harness/workflow/config.json`,
+  `docs/architecture/workflow-kit/WorkflowKitQuality.md` §9):
+  - prepare: `npx ultracite fix {files}`;
+  - commit: architecture, lint (`ultracite check`), knip, typecheck, tests,
+    plus Kit builtins (doc size, Markdown links, docs contracts);
+  - push: duplication, security audit, links;
+  - delivery: `npm run package:mac`.
+- Never bypass hooks or checks with `--no-verify`.
+- A plan never contains a separate "run the gates" task: every commit runs
+  them. A final delivery task exists only when the change is visible in the
+  packaged app.
+- Manual runs are for diagnosis and before packaging:
   ```bash
-  npm run check:architecture
-  npm run lint
-  npm run check:knip
-  npm run typecheck
-  npm test
+  npm run quality
   npm run check:dup
   npm run check:security
   npm run check:links
   npm run build
   ```
-- `npm run quality` выполняет основной локальный пакет: architecture, Ultracite, Knip, typecheck и tests.
 
-## 7. UI И Electron Safety
+## 6. UI And Electron Safety
 
-- Не используй native `window.alert`, `window.prompt` или `window.confirm` в Electron UI.
-- Rename/Delete/confirm flows должны быть in-app React меню/диалогами.
-- Видимый control не должен быть временной заглушкой. Если control показан, он должен работать или быть честно исключён из MVP.
-- UI должен наследовать Project Manager dark theme conventions, но реализация должна жить в Harness AI modules.
+- Never use native `window.alert`, `window.prompt` or `window.confirm` in the
+  Electron UI. Rename/Delete/confirm flows are in-app React menus/dialogs.
+- A visible control is never a temporary stub. If a control is shown, it
+  works or is honestly excluded from the MVP.
+- The UI follows the Project Manager dark theme conventions, implemented in
+  Harness AI modules.
 
-## 8. Runtime State And Secrets
+## 7. Runtime State And Secrets
 
-- `.harness/runtime/**`, `.codeai-hub/**`, provider homes, auth files, caches, logs and locks are local runtime state and must not be tracked.
-- Product/system settings may write under `~/.harness-ai/**` or `HARNESS_AI_HOME`.
-- Workspace-local settings may write under `<workspace>/.harness/settings/**`.
-- Session history uses append-only JSONL under `.harness/sessions/**` when session history implementation is active.
+- `.harness/runtime/**`, `.harness/workflow/local/**`, `.codeai-hub/**`,
+  provider homes, auth files, caches, logs and locks are local runtime state
+  and are never tracked.
+- Product/system settings may write under `~/.harness-ai/**` or
+  `HARNESS_AI_HOME`. Workspace-local settings may write under
+  `<workspace>/.harness/settings/**`.
+- Session history uses append-only JSONL under `.harness/sessions/**`.
 
-## 9. Release And Packaging Gate
+## 8. Release And Packaging
 
-- Новый release/package build нельзя запускать как release decision без явного подтверждения пользователя.
-- Порядок сборки приложения (важно — это разные артефакты):
+- A release/package build runs only in a `delivery` task, started with the
+  user's confirmation (`task:start <ID> --confirmed "<note>"`).
+- Build order (different artifacts):
   ```bash
-  npm run build        # пересобирает только dist/ (renderer, runtime и бандл Workflow Kit)
-  npm run package:mac  # пересобирает app.asar внутри release/mac-arm64/Harness AI.app
+  npm run build        # rebuilds dist/ only (renderer, runtime, Workflow Kit bundle)
+  npm run package:mac  # rebuilds app.asar inside release/mac-arm64/Harness AI.app
   ```
-- `npm run build` НЕ обновляет упакованное `Harness AI.app`. Запущенное приложение продолжит работать на старом коде из `app.asar`.
-- Любое изменение, которое пользователь проверяет в упакованном приложении (UI и прочее), требует `npm run package:mac`, а не только `npm run build`. После пересборки приложение нужно перезапустить.
-- Перед передачей пользователю unsigned macOS app проверь, что существует:
-  `release/mac-arm64/Harness AI.app`
-- Scope closeout, archive active plan и переход `Execution Scope Status: NONE` инициирует ТОЛЬКО пользователь прямой командой. Агент НИКОГДА не запускает закрытие/архивацию scope по собственной инициативе — он может лишь предложить это и дождаться явного приказа пользователя.
-- «Явный приказ» — это отдельное прямое указание пользователя закрыть/заархивировать scope (например «закрой scope», «заархивируй план», «начни новый чистый план»). Приёмка результатов работы (user acceptance) сама по себе НЕ является таким приказом и НЕ разрешает агенту закрывать scope. Она разрешает только штатно зафиксировать текущую задачу `completion: user-acceptance` через `npm run plan:accept -- "<note>"`; scope после этого остаётся `ACTIVE`.
-- Если scope выглядит завершённым, агент только сообщает об этом и предлагает закрытие; решение о закрытии и его момент определяет пользователь.
-- Процедура закрытия и архивации scope (запускается ТОЛЬКО по прямой команде пользователя; держит recovery owner маленьким):
-  ```bash
-  npm run plan:archive            # текущий план -> .harness/plans/archive/<planId>.md,
-                                  # todo-plan.md заменяется на пустую NONE-заглушку и коммитится
-  ```
-  - Запускай только на чистом рабочем дереве (команда делает `git add -A` + commit).
-  - Если в плане ещё есть `[IN_PROGRESS]`/`[TODO]`, команда откажет. Для уже принятого результата сначала используй `plan:accept`; обычная архивация после этого не требует `--force`. Флаг `--force` предназначен только для действительно незавершённого scope и применяется ТОЛЬКО по прямому приказу пользователя именно на принудительное закрытие; агент не использует `--force` по своей инициативе.
-  - При `Execution Scope Status: NONE` plan-валидация commit-сообщений отключена, чтобы прошли archive- и bootstrap-коммиты нового scope.
-  - После архивации согласуй новый scope и создай активный план из `.harness/plans/todo-plan.template.md` (см. раздел 1).
+- `npm run build` does not update the packaged `Harness AI.app`. Anything the
+  user checks in the packaged app needs `npm run package:mac` and an app
+  restart.
+- Before handing over the unsigned macOS app, verify that
+  `release/mac-arm64/Harness AI.app` exists.
+- User acceptance is recorded only after the user's explicit positive answer
+  (`scripts/workflow accept --note "<the user's words>"`). Defects reported by
+  the user become a fixes round instead.
+- Closing the scope (`scripts/workflow close`) happens only on a separate,
+  direct user command. Acceptance is not such a command. The agent may only
+  suggest closing.
 
-## 10. Критические Правила
+## 9. Critical Rules
 
-- Не делай временные решения без явного согласования.
-- Если функция начата, доводи её до рабочего состояния в рамках согласованного scope.
-- Не инициируй закрытие или архивацию scope. Перевод `Execution Scope Status` в `NONE`, перенос плана в `.harness/plans/archive/`, запуск `npm run plan:archive` и старт нового пустого плана выполняются ТОЛЬКО по прямой команде пользователя. Агент может предложить закрытие, но решение и его момент принадлежат пользователю (см. раздел 9).
-- Не откатывай чужие изменения без прямого запроса.
-- Не редактируй версии `package.json` вручную без отдельного release/versioning решения.
-- Любое изменение кода синхронно отражай во всех релевантных Markdown-документах в том же commit: `module.md` затронутого модуля обязателен, `cluster.md`/`product-part.md` обязательны при изменении boundary/ownership, `.harness/product-tree/**` и `docs/architecture/**` — при изменении структуры/контрактов/процесса, а остальные связанные `.md` / `.markdown` ищи через `docs/DOCUMENTATION_INDEX.md`. Документация должна быть 100% релевантна текущему коду; устаревшая документация = дефект (см. раздел 3). Изменения процесса дополнительно отражай в active plan.
+- No temporary solutions without explicit agreement.
+- A started feature is brought to a working state within the agreed scope.
+- Never revert other people's changes without a direct request.
+- Never edit `package.json` versions by hand without a separate
+  release/versioning decision.
+- Never print secrets (provider keys, tokens, auth files).
 
 <!-- workflow-kit:begin -->
 ## Workflow Kit (managed section — do not edit by hand)

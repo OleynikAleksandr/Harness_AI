@@ -7,7 +7,7 @@
   "lastClosed": null,
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 3,
+  "revision": 5,
   "rounds": [
     {
       "digest": {
@@ -114,13 +114,29 @@
       "context": [],
       "dependencies": [],
       "docsWaiver": null,
-      "files": [],
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "README.md",
+        "biome.jsonc",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/evidence/EVIDENCE_INDEX.md",
+        "docs/evidence/EVIDENCE_INDEX_2.md",
+        "package.json",
+        "scripts/check-architecture.mjs",
+        "scripts/check-docs-sync.mjs",
+        "scripts/check-docs-sync.test.mjs",
+        "scripts/plan-accept.test.mjs",
+        "scripts/plan-archive.test.mjs",
+        "scripts/plan-multiline.test.mjs",
+        "scripts/plan.mjs"
+      ],
       "fixes": null,
       "id": "harness-ai.wk.p12.t3",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Rewrite AGENTS.md/CLAUDE.md around the kit section, update the index and plan template, remove `scripts/plan.mjs`, `scripts/check-docs-sync.mjs`, their tests and `plan:*` scripts",
       "why": "Migrated from Phase 12 - Move Harness AI Onto The Kit (owner: Claude, updated: 2026-11-03); legacy scope: `AGENTS.md, CLAUDE.md, docs/DOCUMENTATION_INDEX.md, scripts/**, package.json`."
     },
@@ -180,8 +196,8 @@
 - Scope: workflow-kit-2026-11-03 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 1/4
-- Revision: 3
+- Progress: 2/4
+- Revision: 5
 
 ## Objective
 
@@ -203,8 +219,9 @@ Digest: Legacy plan workflow-kit-2026-11-03: 41 tasks were done before the move 
 - [DONE] harness-ai.wk.p12.t2 — Apply the Harness quality profile and docs contracts through the kit (quality)
   - Commit: chore: apply harness quality profile
   - Files: .harness/workflow/config.json
-- [TODO] harness-ai.wk.p12.t3 — Rewrite AGENTS.md/CLAUDE.md around the kit section, update the index and plan template, remove `scripts/plan.mjs`, `scripts/check-docs-sync.mjs`, their tests and `plan:*` scripts (work)
+- [DONE] harness-ai.wk.p12.t3 — Rewrite AGENTS.md/CLAUDE.md around the kit section, update the index and plan template, remove `scripts/plan.mjs`, `scripts/check-docs-sync.mjs`, their tests and `plan:*` scripts (work)
   - Commit: chore: retire legacy plan scripts
+  - Files: AGENTS.md, CLAUDE.md, README.md, biome.jsonc, docs/DOCUMENTATION_INDEX.md, docs/evidence/EVIDENCE_INDEX.md, docs/evidence/EVIDENCE_INDEX_2.md, package.json, scripts/check-architecture.mjs, scripts/check-docs-sync.mjs, scripts/check-docs-sync.test.mjs, scripts/plan-accept.test.mjs, scripts/plan-archive.test.mjs, scripts/plan-multiline.test.mjs, scripts/plan.mjs
 - [TODO] DOCS-R1 — Reconcile README, product part/cluster docs, product tree and architecture docs with the delivered kit (docs)
   - Commit: docs: reconcile project documentation for the workflow kit
   - Depends on: harness-ai.wk.p12.t2, harness-ai.wk.p12.t3

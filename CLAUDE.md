@@ -1,6 +1,8 @@
 # Claude Code entry point
 
-Активные инструкции проекта Harness AI живут в `AGENTS.md` (единый источник правды).
-Claude Code не читает `AGENTS.md` автоматически, поэтому он импортируется здесь:
+The active Harness AI instructions live in `AGENTS.md` (single source of
+truth). Claude Code does not read `AGENTS.md` automatically, so it is
+imported here. The Workflow Kit SessionStart hook (`.claude/settings.json`)
+adds the recovery packet to every session.
 
 @AGENTS.md

@@ -11,6 +11,7 @@
       "**/*",
       "!!.codeai-hub",
       "!!.harness/runtime",
+      "!!.harness/workflow",
       "!!dist",
       "!!node_modules",
       "!!release"

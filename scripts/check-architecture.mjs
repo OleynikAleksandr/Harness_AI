@@ -21,7 +21,7 @@ const SKIP_DIRS = new Set([
   "node_modules",
   "release",
 ]);
-const SKIP_PATHS = new Set([".harness/runtime"]);
+const SKIP_PATHS = new Set([".harness/runtime", ".harness/workflow/runtime"]);
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));

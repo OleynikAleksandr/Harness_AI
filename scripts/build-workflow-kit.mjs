@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Builds the standalone Workflow Kit bundle (dist/workflow-kit/workflow.mjs)
-// and smoke-tests it: help, status of a fresh folder and the error envelope.
+// and smoke-tests it: help, status of a fresh folder, the error envelope and
+// an installation whose hooks and launcher run the bundle end to end.
 // The bundle may import Node built-ins only.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { build } from "vite";
@@ -52,6 +53,52 @@ try {
   ) {
     problems.push(
       `validate: ${missing.status} ${missing.stdout}${missing.stderr}`
+    );
+  }
+  // End to end: install into a new git project; the installed hooks and
+  // launcher run this bundle for the bootstrap commit.
+  const project = path.join(folder, "project");
+  const gitConfig = path.join(folder, "gitconfig");
+  writeFileSync(
+    gitConfig,
+    "[user]\n\tname = Workflow Smoke\n\temail = smoke@example.invalid\n"
+  );
+  const env = {
+    ...process.env,
+    GIT_CONFIG_GLOBAL: gitConfig,
+    GIT_CONFIG_NOSYSTEM: "1",
+  };
+  for (const name of [
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_WORK_TREE",
+    "GIT_PREFIX",
+  ]) {
+    delete env[name];
+  }
+  const install = spawnSync(
+    process.execPath,
+    [BUNDLE, "install", project, "--name", "Smoke"],
+    { cwd: folder, encoding: "utf8", env }
+  );
+  const installed = spawnSync(
+    path.join(project, "scripts", "workflow"),
+    ["validate"],
+    { cwd: project, encoding: "utf8", env }
+  );
+  if (
+    install.status !== 0 ||
+    JSON.parse(install.stdout).result.commit === null
+  ) {
+    problems.push(
+      `install: ${install.status} ${install.stdout}${install.stderr}`
+    );
+  } else if (
+    installed.status !== 0 ||
+    JSON.parse(installed.stdout).result.ok !== true
+  ) {
+    problems.push(
+      `installed launcher: ${installed.status} ${installed.stdout}${installed.stderr}`
     );
   }
   if (problems.length > 0) {

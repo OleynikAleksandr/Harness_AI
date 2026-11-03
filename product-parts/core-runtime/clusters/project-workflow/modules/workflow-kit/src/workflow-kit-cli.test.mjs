@@ -63,6 +63,10 @@ try {
   assert.equal(textError.code, 1);
   assert.match(textError.stderr, /^USAGE: --input is required\./u);
 
+  // Inspection and an update of a folder without the Kit.
+  assert.equal(json(run(["inspect"])).result.state, "EMPTY");
+  assert.equal(json(run(["install", "--update"])).code, "NOT_INSTALLED");
+
   // A folder without the Kit: status says so, operations fail cleanly.
   const bare = json(run(["status"]));
   assert.equal(bare.ok, true);

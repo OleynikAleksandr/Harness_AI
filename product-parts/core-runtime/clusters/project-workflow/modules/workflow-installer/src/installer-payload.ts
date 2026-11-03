@@ -28,7 +28,7 @@ import {
 export const KIT_VERSION = "2.0.0";
 export const MANIFEST_PATH = ".harness/workflow/manifest.json";
 export const MANIFEST_SCHEMA = "harness-workflow-manifest/1";
-const OWN_HOOKS_DIR = ".harness/workflow/hooks";
+export const OWN_HOOKS_DIR = ".harness/workflow/hooks";
 const MANAGED_GIT_HOOKS = [
   "pre-commit",
   "commit-msg",
@@ -77,8 +77,37 @@ export interface KitManifest {
 
 const LINE_BREAK = /\r?\n/u;
 
-function sha256(text: string): string {
+export function sha256(text: string): string {
   return createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+function hasClaudeLine(text: string): boolean {
+  return text
+    .split(LINE_BREAK)
+    .some((line) => line.trim() === CLAUDE_IMPORT_LINE);
+}
+
+/** The managed part of a file of the given kind, or null when missing. */
+export function readManaged(
+  kind: EntryKind,
+  path: string,
+  current: string | null
+): string | null {
+  if (current === null) {
+    return null;
+  }
+  switch (kind) {
+    case "owned":
+      return current;
+    case "section":
+      return extractSection(current, path.endsWith(".md") ? "html" : "hash");
+    case "json":
+      return extractSessionStartHook(current);
+    case "line":
+      return hasClaudeLine(current) ? CLAUDE_IMPORT_LINE : null;
+    default:
+      return null;
+  }
 }
 
 function owned(
@@ -127,20 +156,17 @@ function created(path: string, content: string): PayloadEntry {
 }
 
 function claudeLine(): PayloadEntry {
-  const hasLine = (text: string) =>
-    text.split(LINE_BREAK).some((line) => line.trim() === CLAUDE_IMPORT_LINE);
   return {
     executable: false,
     kind: "line",
     managed: CLAUDE_IMPORT_LINE,
     path: "CLAUDE.md",
-    read: (current) =>
-      current !== null && hasLine(current) ? CLAUDE_IMPORT_LINE : null,
+    read: (current) => readManaged("line", "CLAUDE.md", current),
     render: (current) => {
       if (current === null || current.trim() === "") {
         return `${CLAUDE_IMPORT_LINE}\n`;
       }
-      if (hasLine(current)) {
+      if (hasClaudeLine(current)) {
         return current;
       }
       return `${current}${current.endsWith("\n") ? "" : "\n"}\n${CLAUDE_IMPORT_LINE}\n`;
@@ -154,7 +180,7 @@ function providerHook(path: string, client: "claude" | "codex"): PayloadEntry {
     kind: "json",
     managed: expectedSessionStartHook(client),
     path,
-    read: (current) => extractSessionStartHook(current),
+    read: (current) => readManaged("json", path, current),
     render: (current) => mergeSessionStartHook(current, client, path),
   };
 }

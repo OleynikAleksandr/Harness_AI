@@ -35,6 +35,9 @@ State (`kit-status.ts`):
   configuration, and the task-to-commit mapping of `workflow-git`.
 - `recover(root, event)`, `showTask(root, id)`, `history(root, filter)`,
   `sessionStart(root, client, stdin)` — delegated to `workflow-recovery`.
+- `inspect(path)`, `install(path, options)` — delegated to
+  `workflow-installer` (`installer` exposes it, bound to the same git
+  facade).
 
 Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
 - `createScope(root, input)` — baseline is HEAD; role `scope-plan`
@@ -134,7 +137,11 @@ managed hooks.
   `task:start <ID> [--confirmed]`, `task:block --reason`, `task:unblock`,
   `commit --task [--files] [--digest]`, `docs:commit --files [--message]`,
   `quality:detect [--stack]`, `quality:apply --input`, `quality:status`,
-  `repair [--apply|--cancel]`, `help`.
+  `repair [--apply|--cancel]`, `inspect [<path>]`,
+  `install [<path>] [--name] [--update] [--bundle]`, `help`. `install`
+  copies its own bundle file unless `--bundle` names another and records
+  the running executable as the project runtime (`electron` mode under
+  Electron).
   `--files` and `--stack` take a JSON list or a comma-separated list.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
   (status, validation, recovery, task and history texts; JSON otherwise).
@@ -155,12 +162,15 @@ minified) into `dist/workflow-kit/workflow.mjs`. Every cluster module is
 inlined; only `node:` built-ins stay external. The script fails when the
 bundle imports anything else, then smoke-tests it in a temporary folder:
 `help`, `status` of a folder without the Kit (`installed: false`) and
-`validate` reporting `NOT_INSTALLED`.
+`validate` reporting `NOT_INSTALLED`, and an installation into a new git
+project (temporary global git identity) whose bootstrap commit runs the
+installed hooks and launcher, followed by `scripts/workflow validate`.
 
 ## Dependencies
 
 `workflow-platform`, `workflow-plan`, `workflow-git`, `workflow-quality`,
-`workflow-recovery`, `workflow-autopilot` (types). Node built-ins only.
+`workflow-recovery`, `workflow-installer`, `workflow-autopilot` (types).
+Node built-ins only.
 
 ## Tests
 
@@ -176,6 +186,6 @@ bundle imports anything else, then smoke-tests it in a temporary folder:
   stage, a check that changes the candidate, DOCS before push, push checks,
   `commit-msg` without a transaction, unknown hooks.
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
-  envelopes, text errors, a folder without the Kit, a whole task from a
+  envelopes, inspection and update of a folder without the Kit, text errors, a folder without the Kit, a whole task from a
   subdirectory, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled file run as a program.

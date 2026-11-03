@@ -1,5 +1,6 @@
 import { readFileSync, realpathSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import type { RoundDigest } from "../../workflow-plan/src/workflow-plan-facade.js";
 import { WorkflowError } from "../../workflow-platform/src/workflow-platform-facade.js";
 import type { ProfileInput } from "../../workflow-quality/src/workflow-quality-facade.js";
@@ -45,6 +46,10 @@ interface CommandSpec {
 
 const EVENTS = new Set(["startup", "resume", "clear", "compact"]);
 
+function resolvePath(io: CliIo, value: string | undefined): string {
+  return path.resolve(io.cwd, value ?? ".");
+}
+
 const COMMANDS: Readonly<Record<string, CommandSpec>> = {
   accept: {
     run: ({ args, kit, root }) => kit.accept(root, requiredFlag(args, "note")),
@@ -82,6 +87,31 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
       return kit.commitDocs(root, files, flag(args, "message"));
     },
     usage: 'docs:commit --files <json|a,b> [--message "docs: ..."]',
+  },
+  inspect: {
+    run: ({ args, io, kit }) =>
+      kit.inspect(resolvePath(io, args.positionals[0])),
+    usage: "inspect [<path>]",
+  },
+  install: {
+    run: ({ args, io, kit }) =>
+      kit.install(resolvePath(io, args.positionals[0]), {
+        bundle: readFileSync(
+          resolvePath(
+            io,
+            flag(args, "bundle") ?? fileURLToPath(import.meta.url)
+          ),
+          "utf8"
+        ),
+        name: flag(args, "name"),
+        runtime: {
+          executable: process.execPath,
+          mode: process.versions.electron ? "electron" : "node",
+        },
+        update: args.flags.get("update") === true,
+      }),
+    usage:
+      "install [<path>] [--name <project name>] [--update] [--bundle <workflow.mjs>]",
   },
   history: {
     run: ({ args, kit, root }) =>

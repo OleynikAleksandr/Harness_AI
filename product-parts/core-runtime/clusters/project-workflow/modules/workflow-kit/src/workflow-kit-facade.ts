@@ -6,6 +6,12 @@ import {
   type WorkflowGitFacade,
   workflowGitFacade,
 } from "../../workflow-git/src/workflow-git-facade.js";
+import {
+  type InspectResult,
+  type InstallOptions,
+  type InstallOutcome,
+  WorkflowInstallerFacade,
+} from "../../workflow-installer/src/workflow-installer-facade.js";
 import type { RoundDigest } from "../../workflow-plan/src/workflow-plan-facade.js";
 import type {
   ProfileInput,
@@ -82,6 +88,7 @@ export interface WorkflowKitOptions {
 export class WorkflowKitFacade {
   readonly env: NodeJS.ProcessEnv;
   readonly git: WorkflowGitFacade;
+  readonly installer: WorkflowInstallerFacade;
   readonly recovery: WorkflowRecoveryFacade;
   private readonly now: () => string;
 
@@ -90,10 +97,21 @@ export class WorkflowKitFacade {
     this.git = options.git ?? workflowGitFacade;
     this.now = options.now ?? (() => new Date().toISOString());
     this.recovery = new WorkflowRecoveryFacade(this.git);
+    this.installer = new WorkflowInstallerFacade(this.git);
   }
 
   private context(root: string): KitContext {
     return { env: this.env, git: this.git, now: this.now, root };
+  }
+
+  /** `inspect <path>`: folder state and the action to offer. */
+  inspect(folder: string): InspectResult {
+    return this.installer.inspect(folder);
+  }
+
+  /** `install <path> [--update]`. */
+  install(folder: string, options: InstallOptions): InstallOutcome {
+    return this.installer.install(folder, options);
   }
 
   status(root: string): KitStatus {

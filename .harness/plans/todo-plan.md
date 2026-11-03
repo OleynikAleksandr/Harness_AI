@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p7.t2",
-  "expectedCommitMessage": "feat: inspect folders and install the workflow kit",
+  "currentTaskId": "harness-ai.wk.p7.t3",
+  "expectedCommitMessage": "feat: add workflow kit project doctor",
   "debt": null
 }
 ```
@@ -101,9 +101,9 @@
 
 43. [DONE] `harness-ai.wk.p7.t1` Create the `workflow-installer` module: English agent rules (AGENTS managed section), CLAUDE line, provider hook JSON merges, git hook sections, launchers, gitignore/gitattributes sections, skeleton docs, manifest model; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**, product tree, cluster.md`; expected commit: `feat: generate workflow kit installation payload`). Result: Completed in commit `feat: generate workflow kit installation payload`.
 44. [DONE] Git Commit: `feat: generate workflow kit installation payload` (hash: self)
-45. [IN_PROGRESS] `harness-ai.wk.p7.t2` Add folder inspection (all states incl. legacy Harness plan and Workflow Pilot) and install/update with git init, hooks path, bootstrap transaction; `WorkflowInstallerFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: inspect folders and install the workflow kit`).
-46. [TODO] Git Commit: `feat: inspect folders and install the workflow kit` (hash: TBD)
-47. [TODO] `harness-ai.wk.p7.t3` Add the project doctor and safe fixes with kit-update commit; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: add workflow kit project doctor`).
+45. [DONE] `harness-ai.wk.p7.t2` Add folder inspection (all states incl. legacy Harness plan and Workflow Pilot) and install/update with git init, hooks path, bootstrap transaction; `WorkflowInstallerFacade`; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: inspect folders and install the workflow kit`). Result: Completed in commit `feat: inspect folders and install the workflow kit`.
+46. [DONE] Git Commit: `feat: inspect folders and install the workflow kit` (hash: self)
+47. [IN_PROGRESS] `harness-ai.wk.p7.t3` Add the project doctor and safe fixes with kit-update commit; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: add workflow kit project doctor`).
 48. [TODO] Git Commit: `feat: add workflow kit project doctor` (hash: TBD)
 49. [TODO] `harness-ai.wk.p7.t4` Add `migrate:harness-plan` (legacy rows to legacy digest round and new tasks, kind markers, acceptance mapping); tests with a fixture of the legacy format (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/**`; expected commit: `feat: migrate harness plans into the workflow kit`).
 50. [TODO] Git Commit: `feat: migrate harness plans into the workflow kit` (hash: TBD)

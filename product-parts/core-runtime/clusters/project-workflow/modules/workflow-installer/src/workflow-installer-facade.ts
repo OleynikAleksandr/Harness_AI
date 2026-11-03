@@ -1,4 +1,14 @@
 import {
+  type WorkflowGitFacade,
+  workflowGitFacade,
+} from "../../workflow-git/src/workflow-git-facade.js";
+import { type InspectResult, inspectFolder } from "./installer-inspect.js";
+import {
+  type InstallOptions,
+  type InstallOutcome,
+  installKit,
+} from "./installer-install.js";
+import {
   buildManifest,
   buildPayload,
   KIT_VERSION,
@@ -10,6 +20,12 @@ import {
 } from "./installer-payload.js";
 import { agentRules } from "./installer-texts.js";
 
+export type {
+  FolderAction,
+  FolderState,
+  InspectResult,
+} from "./installer-inspect.js";
+export type { InstallOptions, InstallOutcome } from "./installer-install.js";
 export type {
   EntryKind,
   KitManifest,
@@ -26,6 +42,21 @@ export type {
 export class WorkflowInstallerFacade {
   readonly version = KIT_VERSION;
   readonly manifestPath = MANIFEST_PATH;
+  readonly git: WorkflowGitFacade;
+
+  constructor(git: WorkflowGitFacade = workflowGitFacade) {
+    this.git = git;
+  }
+
+  /** `inspect <path>`: classifies a folder without changing it. */
+  inspect(folder: string): InspectResult {
+    return inspectFolder(this.git, folder);
+  }
+
+  /** `install <path> [--update]`: installs or updates the Kit and commits it. */
+  install(folder: string, options: InstallOptions): InstallOutcome {
+    return installKit(this.git, folder, options);
+  }
 
   /** Every file the Kit writes into a project, with its writing rule. */
   payload(options: PayloadOptions): PayloadEntry[] {

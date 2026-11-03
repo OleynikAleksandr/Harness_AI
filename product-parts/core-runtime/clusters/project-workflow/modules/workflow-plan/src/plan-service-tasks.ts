@@ -90,7 +90,10 @@ function qualityTaskId(plan: WorkflowPlan): string {
   return id;
 }
 
-function buildQualityTask(plan: WorkflowPlan, roundId: string): WorkflowTask {
+export function buildQualityTask(
+  plan: WorkflowPlan,
+  roundId: string
+): WorkflowTask {
   return {
     acceptance: [
       "Project stacks are detected or chosen from the architecture",

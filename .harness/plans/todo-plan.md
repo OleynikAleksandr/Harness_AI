@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p2.t6",
-  "expectedCommitMessage": "feat: add workflow plan rounds and acceptance lifecycle",
+  "currentTaskId": "harness-ai.wk.p3.t1",
+  "expectedCommitMessage": "feat: add workflow git runner and trailer history",
   "debt": null
 }
 ```
@@ -54,12 +54,12 @@
 10. [DONE] Git Commit: `feat: render and parse workflow plan documents` (hash: self)
 11. [DONE] `harness-ai.wk.p2.t5` Add plan transitions: scope create, task start/block/unblock, mark done, delivery state recompute, automatic QUALITY and DOCS service task insertion; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: add workflow plan transitions and service tasks`). Result: Completed in commit `feat: add workflow plan transitions and service tasks`.
 12. [DONE] Git Commit: `feat: add workflow plan transitions and service tasks` (hash: self)
-13. [IN_PROGRESS] `harness-ai.wk.p2.t6` Add rounds lifecycle: plan extend (new/open round, before, fixes link, DOCS deferral), round digest validation, accept, close, carryover; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: add workflow plan rounds and acceptance lifecycle`).
-14. [TODO] Git Commit: `feat: add workflow plan rounds and acceptance lifecycle` (hash: TBD)
+13. [DONE] `harness-ai.wk.p2.t6` Add rounds lifecycle: plan extend (new/open round, before, fixes link, DOCS deferral), round digest validation, accept, close, carryover; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/**`; expected commit: `feat: add workflow plan rounds and acceptance lifecycle`). Result: Completed in commit `feat: add workflow plan rounds and acceptance lifecycle`.
+14. [DONE] Git Commit: `feat: add workflow plan rounds and acceptance lifecycle` (hash: self)
 
 ## Phase 3 - Git And Transactions (owner: Claude, updated: 2026-11-03)
 
-15. [TODO] `harness-ai.wk.p3.t1` Create the `workflow-git` module: git runner, working-tree changes, history with trailer parsing, identity check, `WorkflowGitFacade`; tests on temporary repositories (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**, product tree, cluster.md`; expected commit: `feat: add workflow git runner and trailer history`).
+15. [IN_PROGRESS] `harness-ai.wk.p3.t1` Create the `workflow-git` module: git runner, working-tree changes, history with trailer parsing, identity check, `WorkflowGitFacade`; tests on temporary repositories (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**, product tree, cluster.md`; expected commit: `feat: add workflow git runner and trailer history`).
 16. [TODO] Git Commit: `feat: add workflow git runner and trailer history` (hash: TBD)
 17. [TODO] `harness-ai.wk.p3.t2` Add the commit transaction: journal, task file baseline/selection with excluded changes, candidate tree, trailers, failure rollback of plan and index, confirmation; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/**`; expected commit: `feat: add transactional workflow commits`).
 18. [TODO] Git Commit: `feat: add transactional workflow commits` (hash: TBD)

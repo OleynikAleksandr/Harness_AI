@@ -140,6 +140,52 @@ quality-profile state.
   whose dependencies are `DONE`. **`task(plan, id)`** throws
   `UNKNOWN_TASK`.
 
+## Rounds Lifecycle (`plan-rounds.ts`)
+
+- **`extend(plan, {round, kind, title, tasks}, context)`** returns `{plan,
+  roundId, deferredDocsTaskId}`. Tasks that are already `DONE` never
+  change. The result depends on the state of the last round:
+  - **The last round is open and its `DOCS` is not done** (the default, or
+    `round: "current"`):
+    - new work goes before its `DOCS`, or before a not-yet-started task
+      named in `before`, which then depends on the new task (`TASK_STARTED`
+      otherwise);
+    - delivery tasks are appended after `DOCS`;
+    - `DOCS` is recomputed;
+    - a `DOCS` that is in progress returns to `TODO`, and its id is
+      reported so the caller can hand its uncommitted documents over.
+  - **The last round is closed or its `DOCS` is done** (or `round: "new"`):
+    - a new round `R<n>` opens, of kind `fixes` unless another kind is
+      given;
+    - unfinished delivery tasks of the old round move into the new round
+      after its `DOCS`, and the old round closes;
+    - if the old round still has unfinished work, the call fails with
+      `ROUND_OPEN`.
+  - **In both cases:**
+    - a `QUALITY` task is added if needed;
+    - a `READY_FOR_ACCEPTANCE` or `ACCEPTED` scope returns to `IN_PROGRESS`
+      and loses its acceptance note;
+    - a fix task links its original task through `fixes`.
+- **`deferDocs(plan)`** returns the current `DOCS` task to `TODO`. It is the
+  `defer-docs` repair action.
+- **`accept(plan, note, now)`** works only from `READY_FOR_ACCEPTANCE`
+  (`NOT_READY`), needs a note (`ACCEPTANCE_NOTE`) and leaves the scope open.
+- **`close(plan, scopeId, note, now)`** checks:
+  - the scope id matches (`SCOPE_ID`);
+  - the scope is `ACCEPTED` (`NOT_ACCEPTED`);
+  - the note holds the user's direct command, at least 10 characters
+    (`USER_CLOSE_REQUIRED`).
+
+  It returns an empty plan with `lastClosed` set and the revision
+  incremented.
+- **`carryover(plan, {id, approval, objective?}, context)`** closes the
+  current scope and opens a new one:
+  - every unfinished non-`DOCS` task moves into round `R1` and is reset to
+    `TODO`;
+  - dependencies and `fixes` links that point to finished or dropped tasks
+    are removed;
+  - `QUALITY` and `DOCS` are rebuilt.
+
 ## Owned Paths
 
 - `module.md`

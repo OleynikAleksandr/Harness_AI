@@ -13,6 +13,16 @@ import {
   type WorkflowTask,
 } from "./plan-model.js";
 import {
+  acceptScope,
+  type CarryoverInput,
+  carryoverScope,
+  closeScope,
+  deferDocs,
+  type ExtendInput,
+  type ExtendResult,
+  extendPlan,
+} from "./plan-rounds.js";
+import {
   blockScope,
   completeTask,
   createScope,
@@ -116,6 +126,39 @@ export class WorkflowPlanFacade {
 
   unblock(plan: WorkflowPlan): WorkflowPlan {
     return unblockScope(plan);
+  }
+
+  extend(
+    plan: WorkflowPlan,
+    input: ExtendInput,
+    context: TransitionContext
+  ): ExtendResult {
+    return extendPlan(plan, input, context);
+  }
+
+  deferDocs(plan: WorkflowPlan): WorkflowPlan {
+    return deferDocs(plan);
+  }
+
+  accept(plan: WorkflowPlan, note: string, now: string): WorkflowPlan {
+    return acceptScope(plan, note, now);
+  }
+
+  close(
+    plan: WorkflowPlan,
+    scopeId: string,
+    note: string,
+    now: string
+  ): WorkflowPlan {
+    return closeScope(plan, scopeId, note, now);
+  }
+
+  carryover(
+    plan: WorkflowPlan,
+    input: CarryoverInput,
+    context: TransitionContext
+  ): WorkflowPlan {
+    return carryoverScope(plan, input, context);
   }
 
   task(plan: WorkflowPlan, taskId: string): WorkflowTask {

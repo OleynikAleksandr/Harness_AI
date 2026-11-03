@@ -31,13 +31,13 @@ export interface TransitionContext {
 }
 
 /** Returns a deep copy with the revision advanced; every transition starts here. */
-function nextRevision(plan: WorkflowPlan): WorkflowPlan {
+export function nextRevision(plan: WorkflowPlan): WorkflowPlan {
   const copy = structuredClone(plan);
   copy.revision += 1;
   return copy;
 }
 
-function recomputeDelivery(plan: WorkflowPlan): void {
+export function recomputeDelivery(plan: WorkflowPlan): void {
   if (!plan.scope) {
     return;
   }

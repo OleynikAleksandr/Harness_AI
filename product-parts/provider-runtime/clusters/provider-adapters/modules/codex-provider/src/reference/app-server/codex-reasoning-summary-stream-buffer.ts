@@ -14,6 +14,14 @@ interface ReasoningItemOptions {
   readonly itemKey: string;
 }
 
+// Codex summary parts arrive as Markdown headlines (`**Checking the plan.**`).
+// Harness Thinking plates are plain text, so paired bold markers are removed
+// here, before Core, reasoning translation and the renderer see the text.
+const MARKDOWN_BOLD_PATTERN = /\*\*(?=\S)([\s\S]*?\S)\*\*/gu;
+
+const normalizeSummaryContent = (text: string): string =>
+  text.trim().replace(MARKDOWN_BOLD_PATTERN, "$1");
+
 const collectNonEmptyBlocks = (blocks: readonly string[]): string[] =>
   blocks.filter((block) => block.trim().length > 0);
 
@@ -117,7 +125,7 @@ export class CodexReasoningSummaryStreamBuffer {
   ): CodexReasoningSummaryBlock[] {
     const blocks: CodexReasoningSummaryBlock[] = [];
     for (let index = 0; index < options.summaryIndex; index += 1) {
-      const content = state.summaryParts[index]?.trim();
+      const content = normalizeSummaryContent(state.summaryParts[index] ?? "");
       if (!content || state.emittedIndexes.has(index)) {
         continue;
       }
@@ -140,7 +148,7 @@ export class CodexReasoningSummaryStreamBuffer {
   ): CodexReasoningSummaryBlock[] {
     const emitted: CodexReasoningSummaryBlock[] = [];
     for (const [index, block] of options.blocks.entries()) {
-      const content = block.trim();
+      const content = normalizeSummaryContent(block);
       if (!content || state.emittedIndexes.has(index)) {
         continue;
       }
@@ -166,7 +174,7 @@ export class CodexReasoningSummaryStreamBuffer {
     );
     if (summaryBlocks.length > 0) {
       return summaryBlocks.map((content, index) => ({
-        content: content.trim(),
+        content: normalizeSummaryContent(content),
         index,
         uuid: buildSummaryBlockUuid(options.itemId, index),
       }));
@@ -176,12 +184,12 @@ export class CodexReasoningSummaryStreamBuffer {
     );
     if (contentBlocks.length > 0) {
       return contentBlocks.map((content, index) => ({
-        content: content.trim(),
+        content: normalizeSummaryContent(content),
         index,
         uuid: buildSummaryBlockUuid(options.itemId, index),
       }));
     }
-    const fallback = options.textFallback?.trim();
+    const fallback = normalizeSummaryContent(options.textFallback ?? "");
     if (!fallback) {
       return [];
     }
@@ -198,7 +206,7 @@ export class CodexReasoningSummaryStreamBuffer {
     state: ReasoningItemState,
     options: ReasoningItemOptions & { readonly textFallback?: string | null }
   ): CodexReasoningSummaryBlock[] {
-    const fallback = options.textFallback?.trim();
+    const fallback = normalizeSummaryContent(options.textFallback ?? "");
     if (!fallback || state.emittedIndexes.has(0)) {
       return [];
     }

@@ -517,6 +517,17 @@ stale tag, so nothing reveals it.
 160. [DONE] `harness-ai.phase21.stream9.task2` OpenRouter Settings picker: show a stored endpoint tag that the live endpoint list no longer contains as a selected row marked unavailable (scope: provider-settings-ui `openrouter-settings-card.tsx` and the split-out `openrouter-endpoint-rows.tsx` (500-line cap), localization-runtime `source-dictionaries.ts` for the two new source strings, plus focused tests and provider-settings-ui docs; expected commit: `fix: flag unavailable openrouter endpoints`). Result: Completed in commit `fix: flag unavailable openrouter endpoints`.
 161. [DONE] Git Commit: `fix: flag unavailable openrouter endpoints` (hash: self)
 
+User retest 2026-11-03: Codex reasoning summaries now arrive as a few
+headline parts, each wrapped in Markdown bold (`**Придумываю задачу.**`);
+the raw rollout carries exactly these `summary_text` parts, so nothing is
+truncated, but the plain-text Thinking plate (kept plain since the 2026-07-12
+retest) shows the `**` markers. Fix in the Codex adapter: the reasoning
+summary stream buffer strips paired `**bold**` markers from every emitted
+summary block, so Core, translation and the renderer receive clean text.
+
+162. [DONE] `harness-ai.phase21.stream10.task1` Strip paired Markdown bold markers from Codex reasoning summary blocks in the stream buffer (scope: codex-provider `codex-reasoning-summary-stream-buffer.ts`, plus focused tests and codex-provider docs; expected commit: `fix: clean codex reasoning summary markers`). Result: Completed in commit `fix: clean codex reasoning summary markers`.
+163. [DONE] Git Commit: `fix: clean codex reasoning summary markers` (hash: self)
+
 ### Stream: Phase 21 User Acceptance
 
-162. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).
+164. [IN_PROGRESS] `harness-ai.phase21.stream3.task2` User retests the rebuilt package: the Kimi, Codex and Claude settings tabs list the live models (K3.1 Pro, GPT-6.x, Fable) with their reasoning levels, a native Kimi session starts on a newly discovered model with the selected thinking effort, and new Codex and Claude sessions start on a newly listed model (completion: user-acceptance; scope: user workflow; expected commit: none).

@@ -124,7 +124,15 @@ the shared process.
   event router. Completed reasoning items may arrive either as legacy string
   arrays or as app-server schema objects such as
   `{ type: "summary_text", text }`; the router normalizes both shapes before
-  emitting Harness `thinking` messages.
+  emitting Harness `thinking` messages. Since 2026-11 Codex summaries arrive
+  as a few headline parts wrapped in Markdown bold (`**Checking the
+  plan.**`); `codex-reasoning-summary-stream-buffer.ts` strips paired `**`
+  markers from every emitted block (streamed parts, completed item blocks and
+  the text fallback), because Harness Thinking plates are plain text. Core,
+  reasoning translation and the renderer therefore receive clean text;
+  unpaired or spaced asterisks (`2 ** 3`) stay untouched. The summary length
+  itself is the provider's choice: Harness requests `summary: "detailed"` on
+  every turn, and Codex may still return only headlines or no summary at all.
 - Provider-home `config.toml` materialized by the reference provider-home
   process code under Harness runtime paths with top-level
   `model_reasoning_summary = "detailed"` so the process-global config does not

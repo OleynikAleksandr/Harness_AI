@@ -1,9 +1,11 @@
 import path from "node:path";
+import { workflowGitFacade } from "../../workflow-git/src/workflow-git-facade.js";
 import {
   ensure,
   WorkflowError,
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { missingContracts } from "./quality-builtins.js";
 import {
   type CheckDefinition,
   type CheckInput,
@@ -21,6 +23,12 @@ import {
   type StackId,
 } from "./quality-detect.js";
 import { proposeQuality, type QualityProposal } from "./quality-proposal.js";
+import {
+  runStage,
+  type StageReport,
+  type StageRequest,
+  selectChecks,
+} from "./quality-runner.js";
 
 export type {
   CheckDefinition,
@@ -33,6 +41,12 @@ export type {
 } from "./quality-config.js";
 export type { StackDetection, StackId } from "./quality-detect.js";
 export type { ProposalEntry, QualityProposal } from "./quality-proposal.js";
+export type {
+  CheckResult,
+  CheckStatus,
+  StageReport,
+  StageRequest,
+} from "./quality-runner.js";
 
 /** Public facade of the workflow-quality module: configuration, detection and checks. */
 export class WorkflowQualityFacade {
@@ -109,6 +123,52 @@ export class WorkflowQualityFacade {
         options.which ??
         ((name) => workflowPlatformFacade.findExecutable(name) !== null),
     });
+  }
+
+  /** Checks a stage would run, without running them. */
+  selectChecks(request: StageRequest): CheckDefinition[] {
+    return selectChecks(request);
+  }
+
+  runStage(request: StageRequest): StageReport {
+    return runStage(request);
+  }
+
+  /** Code files of the candidate whose contract documents are missing. */
+  missingContracts(config: WorkflowConfig, files: string[]): string[] {
+    return missingContracts(config, files);
+  }
+
+  /**
+   * Stores stage reports of a commit transaction. The git module renames the
+   * pending record to `<sha>.json` and `last.json` once the commit exists.
+   */
+  recordEvidence(
+    root: string,
+    transactionId: string,
+    reports: StageReport[]
+  ): string {
+    const file = workflowGitFacade.localPath(
+      root,
+      "verification",
+      `pending-${transactionId}.json`
+    );
+    workflowPlatformFacade.writeFileAtomic(
+      file,
+      `${JSON.stringify({ reports, transaction: transactionId }, null, 2)}\n`
+    );
+    return file;
+  }
+
+  /** Reads stored evidence by commit SHA, or the latest one. */
+  readEvidence(
+    root: string,
+    reference = "last"
+  ): { commit?: string; reports: StageReport[]; transaction: string } | null {
+    const text = workflowPlatformFacade.readTextIfExists(
+      workflowGitFacade.localPath(root, "verification", `${reference}.json`)
+    );
+    return text === null ? null : JSON.parse(text);
   }
 
   writeConfig(root: string, config: WorkflowConfig): void {

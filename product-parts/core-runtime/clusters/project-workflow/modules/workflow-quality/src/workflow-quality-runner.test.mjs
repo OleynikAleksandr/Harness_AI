@@ -1,0 +1,204 @@
+import assert from "node:assert/strict";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+
+const build = await buildWorkflowModules(
+  ["workflow-platform", "workflow-quality"],
+  "workflow-quality-runner"
+);
+const root = mkdtempSync(path.join(os.tmpdir(), "workflow-runner-"));
+const write = (name, content) => {
+  mkdirSync(path.dirname(path.join(root, name)), { recursive: true });
+  writeFileSync(path.join(root, name), content);
+};
+try {
+  const { WorkflowQualityFacade } = await build.load(
+    "workflow-quality",
+    "workflow-quality-facade.js"
+  );
+  const quality = new WorkflowQualityFacade();
+  const node = (script, extra = []) => ({
+    args: ["-e", script, ...extra],
+    executable: "node",
+  });
+  const base = quality.defaultConfig();
+  const config = {
+    ...base,
+    budget: { ...base.budget, documentBytes: 200 },
+    docs: {
+      contracts: [{ code: "src/{module}/**", docs: ["docs/{module}.md"] }],
+    },
+    policy: { maxFileLines: 3, taskFileSoftLimit: null },
+    quality: {
+      ...base.quality,
+      checks: [
+        ...base.quality.checks,
+        quality.normalizeCheck({
+          command: node("process.exit(0)"),
+          id: "ok",
+          required: true,
+          role: "lint",
+          stage: "commit",
+        }),
+        quality.normalizeCheck({
+          command: node("console.error('bad'); process.exit(3)"),
+          id: "broken",
+          role: "test",
+          stage: "commit",
+        }),
+        quality.normalizeCheck({
+          appliesTo: ["src/**/*.ts"],
+          command: node("console.log(process.argv.slice(1).join(','))", [
+            "{files}",
+          ]),
+          id: "format",
+          required: true,
+          role: "format",
+          stage: "prepare",
+        }),
+        quality.normalizeCheck({
+          command: node("setTimeout(() => {}, 5000)"),
+          id: "slow",
+          role: "test",
+          stage: "push",
+          timeoutMs: 300,
+        }),
+        quality.normalizeCheck({
+          command: { args: [], executable: "workflow-missing-tool" },
+          id: "missing",
+          role: "audit",
+          stage: "push",
+        }),
+      ],
+    },
+  };
+  write("src/core/a.ts", "one\ntwo\n");
+  write("src/core/b.ts", "1\n2\n3\n4\n5\n");
+  write("src/core/c.js", "x\n");
+  write(
+    "docs/core.md",
+    "# Core\n\nSee [a](../src/core/a.ts) and [gone](./gone.md) and [web](https://example.com).\n\n```\n[x](nowhere.md)\n```\n"
+  );
+  write("docs/big.md", "x".repeat(400));
+
+  // Required commit checks plus assigned ones; failures carry exit code and output.
+  const commit = quality.runStage({
+    assigned: ["broken"],
+    config,
+    files: ["src/core/a.ts"],
+    root,
+    stage: "commit",
+  });
+  const byId = Object.fromEntries(
+    commit.results.map((item) => [item.id, item])
+  );
+  assert.equal(commit.ok, false);
+  assert.equal(byId.ok.status, "passed");
+  assert.equal(byId.broken.status, "failed");
+  assert.equal(byId.broken.exitCode, 3);
+  assert.match(byId.broken.output, /bad/u);
+  assert.equal(byId["kit:docs-contracts"].status, "failed");
+  assert.match(
+    byId["kit:docs-contracts"].output,
+    /src\/core\/a\.ts -> docs\/core\.md/u
+  );
+  assert.equal(byId["kit:file-lines"].status, "passed");
+
+  // Waiver passes the contract; including the document satisfies it too.
+  const waived = quality.runStage({
+    config,
+    docsWaiver: "refactor only",
+    files: ["src/core/a.ts"],
+    only: ["kit:docs-contracts"],
+    root,
+    stage: "commit",
+  });
+  assert.equal(waived.ok, true);
+  assert.deepEqual(
+    quality.missingContracts(config, ["src/core/a.ts", "docs/core.md"]),
+    []
+  );
+
+  // Builtins: line limit, document size, relative links outside code fences.
+  const builtins = quality.runStage({
+    config,
+    files: ["src/core/b.ts", "docs/core.md", "docs/big.md", "docs/core.md"],
+    only: ["kit:file-lines", "kit:doc-size", "kit:md-links"],
+    root,
+    stage: "commit",
+  });
+  const builtin = Object.fromEntries(
+    builtins.results.map((item) => [item.id, item])
+  );
+  assert.equal(builtin["kit:file-lines"].status, "failed");
+  assert.match(builtin["kit:file-lines"].output, /src\/core\/b\.ts: 5 lines/u);
+  assert.equal(builtin["kit:doc-size"].status, "failed");
+  assert.match(builtin["kit:doc-size"].output, /docs\/big\.md/u);
+  assert.equal(builtin["kit:md-links"].status, "failed");
+  assert.match(builtin["kit:md-links"].output, /gone\.md/u);
+  assert.doesNotMatch(builtin["kit:md-links"].output, /nowhere|example|a\.ts/u);
+
+  // Prepare stage expands {files} with existing files that match appliesTo.
+  const prepare = quality.runStage({
+    config,
+    files: ["src/core/a.ts", "src/core/c.js", "src/core/deleted.ts"],
+    root,
+    stage: "prepare",
+  });
+  assert.equal(prepare.results[0].status, "passed");
+  assert.equal(prepare.results[0].output.trim(), "src/core/a.ts");
+  const skipped = quality.runStage({
+    config,
+    files: ["README.md"],
+    root,
+    stage: "prepare",
+  });
+  assert.equal(skipped.results[0].status, "skipped");
+  assert.equal(skipped.ok, true);
+
+  // Timeouts and missing executables are reported, not thrown.
+  const push = quality.runStage({
+    assigned: ["slow", "missing"],
+    config,
+    root,
+    stage: "push",
+  });
+  assert.deepEqual(
+    push.results.map((item) => item.status),
+    ["timeout", "error"]
+  );
+
+  // Service commits run documentation builtins only.
+  const service = quality.selectChecks({
+    config,
+    root,
+    service: true,
+    stage: "commit",
+  });
+  assert.deepEqual(
+    service.map((check) => check.id),
+    ["kit:doc-size", "kit:md-links", "kit:docs-contracts"]
+  );
+  assert.throws(
+    () =>
+      quality.selectChecks({
+        assigned: ["nope"],
+        config,
+        root,
+        stage: "commit",
+      }),
+    { code: "CHECK_UNKNOWN" }
+  );
+
+  // Evidence is stored as a pending record of the transaction.
+  quality.recordEvidence(root, "tx-1", [commit]);
+  const evidence = quality.readEvidence(root, "pending-tx-1");
+  assert.equal(evidence.transaction, "tx-1");
+  assert.equal(evidence.reports[0].stage, "commit");
+  assert.equal(quality.readEvidence(root), null);
+} finally {
+  rmSync(root, { force: true, recursive: true });
+  await build.cleanup();
+}

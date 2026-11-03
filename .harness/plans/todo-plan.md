@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p4.t3",
-  "expectedCommitMessage": "feat: run workflow quality checks and builtins",
+  "currentTaskId": "harness-ai.wk.p4.t4",
+  "expectedCommitMessage": "feat: apply workflow quality profiles",
   "debt": null
 }
 ```
@@ -72,9 +72,9 @@
 22. [DONE] Git Commit: `feat: add workflow quality configuration` (hash: self)
 23. [DONE] `harness-ai.wk.p4.t2` Add stack detection (manifests, lock files, package manager) and the ecosystem catalog (node, python, go, rust, dotnet, swift, jvm) producing proposals; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: detect project stacks and quality catalog`). Result: Completed in commit `feat: detect project stacks and quality catalog`.
 24. [DONE] Git Commit: `feat: detect project stacks and quality catalog` (hash: self)
-25. [IN_PROGRESS] `harness-ai.wk.p4.t3` Add the check runner (prepare/commit/push/delivery stages, `{files}` expansion, appliesTo, timeouts, evidence records) and built-in checks (`kit:file-lines`, `kit:doc-size`, `kit:docs-contracts`, `kit:md-links`); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: run workflow quality checks and builtins`).
-26. [TODO] Git Commit: `feat: run workflow quality checks and builtins` (hash: TBD)
-27. [TODO] `harness-ai.wk.p4.t4` Add `quality:apply` (validation, approved install commands, CONFIGURED state) and drift comparison; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: apply workflow quality profiles`).
+25. [DONE] `harness-ai.wk.p4.t3` Add the check runner (prepare/commit/push/delivery stages, `{files}` expansion, appliesTo, timeouts, evidence records) and built-in checks (`kit:file-lines`, `kit:doc-size`, `kit:docs-contracts`, `kit:md-links`); tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: run workflow quality checks and builtins`). Result: Completed in commit `feat: run workflow quality checks and builtins`.
+26. [DONE] Git Commit: `feat: run workflow quality checks and builtins` (hash: self)
+27. [IN_PROGRESS] `harness-ai.wk.p4.t4` Add `quality:apply` (validation, approved install commands, CONFIGURED state) and drift comparison; tests (scope: `product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/**`; expected commit: `feat: apply workflow quality profiles`).
 28. [TODO] Git Commit: `feat: apply workflow quality profiles` (hash: TBD)
 
 ## Phase 5 - Recovery And Autopilot Decision (owner: Claude, updated: 2026-11-03)

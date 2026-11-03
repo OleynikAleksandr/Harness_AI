@@ -1,0 +1,232 @@
+import { existsSync, statSync } from "node:fs";
+import path from "node:path";
+import {
+  ensure,
+  workflowPlatformFacade,
+} from "../../workflow-platform/src/workflow-platform-facade.js";
+import { BUILTIN_CHECKS, DOCUMENTATION_BUILTINS } from "./quality-builtins.js";
+import type {
+  CheckDefinition,
+  CheckStage,
+  WorkflowConfig,
+} from "./quality-config.js";
+import { matchesAny } from "./quality-globs.js";
+
+export type CheckStatus = "error" | "failed" | "passed" | "skipped" | "timeout";
+
+export interface CheckResult {
+  command: string;
+  durationMs: number;
+  evidence: string | null;
+  exitCode: number | null;
+  id: string;
+  output: string;
+  reason: string | null;
+  role: CheckDefinition["role"];
+  stage: CheckStage;
+  status: CheckStatus;
+}
+
+export interface StageReport {
+  finishedAt: string;
+  ok: boolean;
+  results: CheckResult[];
+  stage: CheckStage;
+  startedAt: string;
+}
+
+export interface StageRequest {
+  /** Check ids assigned by the task (`task.checks`). */
+  assigned?: string[];
+  config: WorkflowConfig;
+  docsWaiver?: string | null;
+  env?: NodeJS.ProcessEnv;
+  /** Candidate files; when absent, `appliesTo` filters are not applied. */
+  files?: string[];
+  /** Runs exactly these checks, whatever their stage. */
+  only?: string[];
+  root: string;
+  /** Service commits run only the documentation builtins. */
+  service?: boolean;
+  stage: CheckStage;
+}
+
+const OUTPUT_TAIL = 4000;
+const FILES_ARGUMENT = "{files}";
+
+function tail(text: string): string {
+  return text.length > OUTPUT_TAIL ? `…${text.slice(-OUTPUT_TAIL)}` : text;
+}
+
+function unknownChecks(config: WorkflowConfig, ids: string[]): void {
+  const known = new Set(config.quality.checks.map((check) => check.id));
+  const unknown = ids.filter((id) => !known.has(id));
+  ensure(
+    unknown.length === 0,
+    "CHECK_UNKNOWN",
+    `Unknown checks: ${unknown.join(", ")}`,
+    { checks: unknown }
+  );
+}
+
+/** Checks a stage runs, in configuration order. */
+export function selectChecks(request: StageRequest): CheckDefinition[] {
+  const { config, stage } = request;
+  if (request.only) {
+    unknownChecks(config, request.only);
+    return config.quality.checks.filter((check) =>
+      request.only?.includes(check.id)
+    );
+  }
+  if (request.service) {
+    return stage === "commit"
+      ? config.quality.checks.filter(
+          (check) => check.builtin && DOCUMENTATION_BUILTINS.has(check.builtin)
+        )
+      : [];
+  }
+  const assigned = request.assigned ?? [];
+  unknownChecks(config, assigned);
+  return config.quality.checks.filter(
+    (check) =>
+      check.stage === stage && (check.required || assigned.includes(check.id))
+  );
+}
+
+function result(
+  check: CheckDefinition,
+  fields: Partial<CheckResult> & Pick<CheckResult, "status">
+): CheckResult {
+  return {
+    command:
+      check.builtin ??
+      [check.command?.executable ?? "", ...(check.command?.args ?? [])].join(
+        " "
+      ),
+    durationMs: 0,
+    evidence: check.evidence ?? null,
+    exitCode: null,
+    id: check.id,
+    output: "",
+    reason: null,
+    role: check.role,
+    stage: check.stage,
+    ...fields,
+  };
+}
+
+function isExistingFile(root: string, file: string): boolean {
+  const target = path.join(root, ...file.split("/"));
+  return existsSync(target) && statSync(target).isFile();
+}
+
+function runCommand(
+  check: CheckDefinition,
+  request: StageRequest,
+  files: string[] | undefined
+): CheckResult {
+  const command = check.command;
+  if (!command) {
+    return result(check, {
+      reason: "The check has no command.",
+      status: "error",
+    });
+  }
+  const usesFiles = command.args.includes(FILES_ARGUMENT);
+  const existing = (files ?? []).filter((file) =>
+    isExistingFile(request.root, file)
+  );
+  if (usesFiles && existing.length === 0) {
+    return result(check, {
+      reason: "No existing files to pass.",
+      status: "skipped",
+    });
+  }
+  const args = command.args.flatMap((arg) =>
+    arg === FILES_ARGUMENT ? existing : [arg]
+  );
+  const hasDirectory =
+    command.executable.includes("/") || command.executable.includes("\\");
+  const executable =
+    hasDirectory && !path.isAbsolute(command.executable)
+      ? workflowPlatformFacade.resolveInside(request.root, command.executable)
+      : command.executable;
+  const cwd = command.cwd
+    ? workflowPlatformFacade.resolveInside(request.root, command.cwd)
+    : request.root;
+  const started = Date.now();
+  const outcome = workflowPlatformFacade.run({
+    args,
+    cwd,
+    env: request.env ?? process.env,
+    executable,
+    timeoutMs: check.timeoutMs,
+  });
+  const output = tail(`${outcome.stdout}${outcome.stderr}`);
+  const durationMs = Date.now() - started;
+  if (outcome.timedOut) {
+    return result(check, {
+      durationMs,
+      output,
+      reason: `Timed out after ${check.timeoutMs} ms.`,
+      status: "timeout",
+    });
+  }
+  if (outcome.status === null) {
+    return result(check, {
+      durationMs,
+      output,
+      reason: outcome.errorMessage ?? `${command.executable} did not start.`,
+      status: "error",
+    });
+  }
+  return result(check, {
+    durationMs,
+    exitCode: outcome.status,
+    output,
+    status: outcome.status === 0 ? "passed" : "failed",
+  });
+}
+
+function runOne(check: CheckDefinition, request: StageRequest): CheckResult {
+  const filtered =
+    request.files && check.appliesTo
+      ? request.files.filter((file) => matchesAny(check.appliesTo ?? [], file))
+      : request.files;
+  if (request.files && check.appliesTo && filtered?.length === 0) {
+    return result(check, {
+      reason: "No candidate file matches appliesTo.",
+      status: "skipped",
+    });
+  }
+  if (check.builtin) {
+    const started = Date.now();
+    const outcome = BUILTIN_CHECKS[check.builtin]({
+      config: request.config,
+      docsWaiver: request.docsWaiver ?? null,
+      files: filtered ?? [],
+      root: request.root,
+    });
+    return result(check, {
+      durationMs: Date.now() - started,
+      output: tail(outcome.output),
+      status: outcome.passed ? "passed" : "failed",
+    });
+  }
+  return runCommand(check, request, filtered);
+}
+
+/** Runs the checks of one stage without a shell and reports every result. */
+export function runStage(request: StageRequest): StageReport {
+  const startedAt = new Date().toISOString();
+  const results = selectChecks(request).map((check) => runOne(check, request));
+  return {
+    finishedAt: new Date().toISOString(),
+    ok: results.every(
+      (item) => item.status === "passed" || item.status === "skipped"
+    ),
+    results,
+    stage: request.stage,
+    startedAt,
+  };
+}

@@ -6,10 +6,11 @@ The project quality profile of the Workflow Kit:
 - the configuration file `.harness/workflow/config.json`: quality profile,
   documentation contracts, budgets, file policy and autopilot limit;
 - validation of every check definition;
-- stack detection and the ecosystem catalog that proposes a profile.
+- stack detection and the ecosystem catalog that proposes a profile;
+- running the checks of a stage, the Kit builtins and the evidence records.
 
-Check execution and profile application are added to this module by later
-tasks of the active plan.
+Profile application is added to this module by a later task of the active
+plan.
 
 ## Public Facade
 
@@ -94,9 +95,62 @@ tasks of the active plan.
   and alternatives. Kit builtins are not part of the proposal; they stay in
   the configuration.
 
+## Check Runner (`quality-runner.ts`)
+
+- `selectChecks(request)` / `runStage(request)`; the request is
+  `{root, config, stage, files?, assigned?, only?, service?, docsWaiver?, env?}`.
+- Selection:
+  - `only` — exactly those ids, any stage;
+  - `service` — service commits run only the documentation builtins
+    (`kit:doc-size`, `kit:md-links`, `kit:docs-contracts`) at `commit`;
+  - otherwise the checks of the stage that are `required` or assigned by the
+    task (`task.checks`).
+  - Unknown ids fail with `CHECK_UNKNOWN`.
+- `appliesTo`: when `files` is given and no file matches, the check is
+  `skipped`. Globs support `*`, `**` and `{name}` (one segment).
+- An argument exactly `{files}` expands to the matching files that exist;
+  with none the check is `skipped`.
+- Commands run without a shell through the platform module. `cwd` and an
+  executable with a path separator resolve inside the project root.
+- Result per check: `{id, role, stage, status, exitCode, durationMs, output,
+  reason, command, evidence}`; status `passed`, `failed`, `skipped`,
+  `timeout` or `error` (did not start). Output keeps the last 4000
+  characters. The report is `{stage, ok, results, startedAt, finishedAt}`;
+  `ok` means every check passed or was skipped.
+- The runner does not detect candidate changes made by `commit`-stage
+  checks; the git hook compares the index tree.
+
+## Builtins (`quality-builtins.ts`)
+
+- `kit:file-lines` — non-documentation files of the candidate (outside
+  `.harness/`, text only) must not exceed `policy.maxFileLines`; off when it
+  is `null`.
+- `kit:doc-size` — changed Markdown files (not the plan) must not exceed
+  `budget.documentBytes`.
+- `kit:md-links` — relative links in changed Markdown files outside code
+  fences must point to existing paths inside the project. Links with a
+  scheme (`https:`, `mailto:`), `//` and pure anchors are ignored; links
+  that start with `/` resolve from the project root.
+- `kit:docs-contracts` — for every changed file that matches a
+  `docs.contracts` code glob, at least one of its documents (placeholders
+  filled from the glob) must be in the candidate. A task `docsWaiver`
+  passes the check and reports the waiver. `missingContracts(config,
+  files)` exposes the same list.
+
+## Evidence
+
+- `recordEvidence(root, transactionId, reports)` writes
+  `.harness/workflow/local/verification/pending-<transaction>.json`; the
+  git module renames it to `<sha>.json` and `last.json` after the commit.
+- `readEvidence(root, reference = "last")` reads a record or returns `null`.
+
 ## Dependencies
 
-`workflow-platform` (atomic files, `WorkflowError`). Node built-ins only.
+- `workflow-platform` — atomic files, process runner, `WorkflowError`.
+- `workflow-plan` — documentation paths and the plan path.
+- `workflow-git` — local state paths for evidence.
+
+Node built-ins only.
 
 ## Tests
 
@@ -105,3 +159,6 @@ tasks of the active plan.
 - `src/workflow-quality-detect.test.mjs` — node scripts and installed tools,
   install proposals, several stacks in subdirectories, explicit and unknown
   stacks.
+- `src/workflow-quality-runner.test.mjs` — stage selection, assigned and
+  service checks, `{files}` and `appliesTo`, timeout and missing tools,
+  every builtin, the waiver and evidence records.

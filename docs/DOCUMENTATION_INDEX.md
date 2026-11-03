@@ -151,6 +151,23 @@ implementation plan.
   OpenCode as the behavior/extensibility reference, its Vercel-AI-SDK runtime
   dependency rejected) and the recorded user decisions.
 
+- `docs/architecture/workflow-kit/WorkflowKit.md` — root specification of
+  the Workflow Kit (Russian, scope `workflow-kit-2026-11-03`): origin from
+  Harness rules and Workflow Kit 1.x, the `core-runtime/clusters/project-workflow`
+  cluster with its module facades, project files, commands and phases.
+- `docs/architecture/workflow-kit/WorkflowKitProcess.md` — Workflow Kit
+  process algorithm: scope, tasks, transactional commit, rounds, acceptance,
+  closing, carryover, repair, hybrid documentation policy and delivery.
+- `docs/architecture/workflow-kit/WorkflowKitRecovery.md` — bounded recovery
+  packet (sections, budget, round digests), session-start hook and the Core
+  autopilot decision/stop reasons.
+- `docs/architecture/workflow-kit/WorkflowKitQuality.md` — quality profile:
+  stack detection, ecosystem catalog, built-in checks, stages and the Harness
+  AI profile.
+- `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
+  inspection, install, doctor, Harness plan migration, Core/Electron/RPC/UI
+  integration, provider context delivery and Windows/Linux rules.
+
 ## Product Part Documentation
 
 Every Product Part, Cluster and Module owns its local Markdown contract:
@@ -191,6 +208,9 @@ readiness registry, liveness checker, and workspace provisioner modules.
 
 ## Evidence
 
+- `docs/evidence/WorkflowKitIntegrationMap.md` — planning-time map of the
+  Harness build, test, packaging, Core RPC, Electron host, provider session
+  and renderer seams used by the Workflow Kit scope (file/line snapshot).
 - `design-qa.md` — текущий итог Design QA для UX сессий субагентов; содержит
   ссылку на подробное evidence и обязательный final result.
 - `docs/evidence/*.md` — verification notes for completed slices, packaging,

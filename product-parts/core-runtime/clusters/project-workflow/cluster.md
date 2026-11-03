@@ -40,8 +40,8 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
   operations.
 - `workflow-installer` — installation payload and manifest, inspection,
   install, doctor and legacy plan migration.
-
-Module `workflow-host` is added by the active plan.
+- `workflow-host` — Core-only: bundle and runtime resolution, Kit commands
+  as child processes with JSON envelopes, the project runtime file.
 
 ## Test Support
 

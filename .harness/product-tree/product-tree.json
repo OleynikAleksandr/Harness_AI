@@ -400,6 +400,11 @@
               "id": "workflow-installer",
               "name": "Workflow Installer",
               "purpose": "Installation payload and manifest, folder inspection, install and update, project doctor, migration of legacy Harness plans."
+            },
+            {
+              "id": "workflow-host",
+              "name": "Workflow Host",
+              "purpose": "Core-only runner of Workflow Kit commands: bundle and runtime resolution, child-process execution with JSON envelopes, project runtime file."
             }
           ]
         }

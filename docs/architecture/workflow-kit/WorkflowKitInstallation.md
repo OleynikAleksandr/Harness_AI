@@ -121,6 +121,10 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 `.harness/workflow/local/runtime`: путь к Electron и режим `electron`. Так
 запускатели в проекте работают даже без системного Node.
 
+Ответ всегда имеет форму конверта Kit. Сбои самого хоста приходят в той же
+форме с кодами `HOST_NO_BUNDLE`, `HOST_SPAWN`, `HOST_TIMEOUT` и
+`HOST_OUTPUT`, поэтому Core обрабатывает один формат.
+
 ### 5.3 Core RPC (`core-project-workflow-rpc.ts`)
 
 | Метод | Назначение |

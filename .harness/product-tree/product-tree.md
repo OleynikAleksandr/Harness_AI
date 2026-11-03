@@ -119,6 +119,7 @@ Workflow Kit installed into user projects and driven by Core. Spec:
 - `workflow-autopilot`: Pure continue/stop decision of the Core autopilot and the continue turn message.
 - `workflow-kit`: Cluster facade WorkflowKitFacade: status, scope, task, commit, accept, close, carryover, repair and quality operations; git hooks and the CLI dispatcher.
 - `workflow-installer`: Installation payload and manifest, folder inspection, install and update, project doctor, migration of legacy Harness plans.
+- `workflow-host`: Core-only runner of Workflow Kit commands: bundle and runtime resolution, child-process execution with JSON envelopes, project runtime file.
 
 ## Provider Runtime
 

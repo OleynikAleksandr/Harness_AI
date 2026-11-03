@@ -217,7 +217,15 @@ function validateScope(scope: WorkflowScope): void {
   }
 }
 
-function validateRounds(rounds: WorkflowRound[]): void {
+function roundDocsDone(plan: WorkflowPlan, roundId: string): boolean {
+  return plan.tasks.some(
+    (task) =>
+      task.roundId === roundId && task.kind === "docs" && task.status === "DONE"
+  );
+}
+
+function validateRounds(plan: WorkflowPlan): void {
+  const rounds: WorkflowRound[] = plan.rounds;
   ensure(
     rounds.length > 0,
     schemaError,
@@ -250,13 +258,13 @@ function validateRounds(rounds: WorkflowRound[]): void {
       schemaError,
       "Only the last round may be OPEN."
     );
-    if (round.status === "CLOSED") {
+    if (round.status === "CLOSED" || roundDocsDone(plan, round.id)) {
       validateDigest(round.digest, `rounds.${round.id}.digest`);
     } else {
       ensure(
         round.digest === null,
         schemaError,
-        `An open round has no digest yet: ${round.id}`
+        `A round gets its digest with its DOCS task: ${round.id}`
       );
     }
   });
@@ -434,7 +442,7 @@ export function validatePlan(plan: WorkflowPlan): WorkflowPlan {
     return plan;
   }
   validateScope(plan.scope);
-  validateRounds(plan.rounds);
+  validateRounds(plan);
   for (const task of plan.tasks) {
     validateTaskFields(task);
   }

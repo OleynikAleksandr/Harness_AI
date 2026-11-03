@@ -140,6 +140,12 @@ try {
   for (const item of done.tasks) {
     item.status = "DONE";
   }
+  done.rounds[0].digest = {
+    contracts: [],
+    decisions: [],
+    references: [],
+    result: "Shipped.",
+  };
   assert.throws(() => plans.validate(done), /IN_PROGRESS exactly/u);
   done.scope.delivery = "READY_FOR_ACCEPTANCE";
   plans.validate(done);

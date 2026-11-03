@@ -5,7 +5,24 @@ import {
   parsePlanDocument,
   renderPlanDocument,
 } from "./plan-document.js";
-import { emptyPlan, PLAN_PATH, type WorkflowPlan } from "./plan-model.js";
+import {
+  emptyPlan,
+  PLAN_PATH,
+  type RoundDigest,
+  type WorkflowPlan,
+  type WorkflowTask,
+} from "./plan-model.js";
+import {
+  blockScope,
+  completeTask,
+  createScope,
+  findTask,
+  nextReadyTask,
+  type ScopeInput,
+  startTask,
+  type TransitionContext,
+  unblockScope,
+} from "./plan-transitions.js";
 import { validateDigest, validatePlan } from "./plan-validation.js";
 
 export type {
@@ -67,6 +84,47 @@ export class WorkflowPlanFacade {
   read(root: string, options?: { projection?: boolean }): WorkflowPlan | null {
     const text = workflowPlatformFacade.readTextIfExists(this.planFile(root));
     return text === null ? null : parsePlanDocument(text, options);
+  }
+
+  createScope(
+    plan: WorkflowPlan,
+    input: ScopeInput,
+    context: TransitionContext
+  ): WorkflowPlan {
+    return createScope(plan, input, context);
+  }
+
+  startTask(
+    plan: WorkflowPlan,
+    taskId: string,
+    confirmation: string | null = null
+  ): WorkflowPlan {
+    return startTask(plan, taskId, confirmation);
+  }
+
+  completeTask(
+    plan: WorkflowPlan,
+    taskId: string,
+    digest: RoundDigest | null = null
+  ): WorkflowPlan {
+    return completeTask(plan, taskId, digest);
+  }
+
+  block(plan: WorkflowPlan, reason: string): WorkflowPlan {
+    return blockScope(plan, reason);
+  }
+
+  unblock(plan: WorkflowPlan): WorkflowPlan {
+    return unblockScope(plan);
+  }
+
+  task(plan: WorkflowPlan, taskId: string): WorkflowTask {
+    return findTask(plan, taskId);
+  }
+
+  /** The current task, or the first TODO task whose dependencies are DONE. */
+  nextTask(plan: WorkflowPlan): WorkflowTask | null {
+    return nextReadyTask(plan);
   }
 
   write(root: string, plan: WorkflowPlan): string {

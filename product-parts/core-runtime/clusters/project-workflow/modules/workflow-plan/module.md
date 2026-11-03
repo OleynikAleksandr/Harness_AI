@@ -58,8 +58,10 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
   - at least one;
   - unique ids;
   - only the last round may be `OPEN`;
-  - every `CLOSED` round has a valid digest: `result` up to 600 bytes,
-    each list up to 8 items of up to 300 bytes.
+  - a round has a digest exactly when its `DOCS` task is `DONE`, or when it
+    is `CLOSED`;
+  - a valid digest has `result` up to 600 bytes and each list up to 8 items
+    of up to 300 bytes.
 - **Tasks:**
   - unique ids;
   - one-line commit message and non-empty acceptance criteria;
@@ -94,6 +96,49 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
 - `isPlanDocument(text)` distinguishes Workflow Kit plans from legacy plans.
 - `read(root)` returns `null` when there is no plan file. `write(root,
   plan)` writes atomically through the platform facade.
+
+## Transitions (`plan-transitions.ts`, `plan-service-tasks.ts`)
+
+Every transition copies the plan, increments `revision` and validates the
+result. The caller supplies time, the baseline commit and the
+quality-profile state.
+
+- **`createScope(plan, input, {baselineCommit, now, qualityConfigured})`**
+  - Fails if:
+    - a scope is still open (`SCOPE_EXISTS`);
+    - there is no baseline commit (`NO_BASELINE`);
+    - the approval is shorter than 10 characters (`SCOPE_APPROVAL`);
+    - there are several tasks and no `spec` (`SPEC_REQUIRED`).
+  - Normalizes input tasks. Ids default to `T001`, `T002` and so on; the
+    input `kind` may only be `work` or `delivery`.
+  - Arranges round `R1`:
+    1. `QUALITY` goes before the first `work` task with functional files,
+       unless the quality profile is configured or a pending `QUALITY` task
+       exists. That task gets a dependency on it.
+    2. Ordinary tasks.
+    3. `DOCS-R1`. Its files are `README.md`, `docs/architecture/OVERVIEW.md`,
+       the spec and every Markdown file of the round. It depends on all
+       non-delivery tasks of the round.
+    4. Delivery tasks, which depend on `DOCS-R1`.
+- **`startTask(plan, id, confirmation)`**
+  - Repeating the call for the current task changes nothing.
+  - Fails if:
+    - the scope is not `ACTIVE` (`SCOPE_NOT_ACTIVE`);
+    - another task is in progress (`TASK_ALREADY_ACTIVE`);
+    - the task is not `TODO` (`TASK_NOT_TODO`);
+    - dependencies are unfinished (`DEPENDENCY_PENDING`);
+    - a delivery task has no user confirmation (`DELIVERY_CONFIRMATION`).
+- **`completeTask(plan, id, digest)`**
+  - Works only on the current task (`TASK_NOT_ACTIVE`).
+  - A `DOCS` task needs a valid digest and stores it on its round.
+  - A round becomes `CLOSED` when all its tasks are `DONE` and the digest
+    exists.
+  - When every task is `DONE`, `delivery` becomes `READY_FOR_ACCEPTANCE`.
+- **`block(plan, reason)` and `unblock(plan)`** switch the scope between
+  `ACTIVE` and `BLOCKED`.
+- **`nextTask(plan)`** returns the current task, or the first `TODO` task
+  whose dependencies are `DONE`. **`task(plan, id)`** throws
+  `UNKNOWN_TASK`.
 
 ## Owned Paths
 

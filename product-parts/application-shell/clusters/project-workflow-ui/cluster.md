@@ -14,6 +14,8 @@ doctor and autopilot truth stay in Core
 
 - `project-setup-dialog` — New Project (parent folder + name) and Open
   Project (folder, Core inspection, install/update/open, Open Without Kit).
+- `project-doctor-panel` — the Core doctor report of the active workspace
+  and the safe fix.
 
 ## Shared Assets
 

@@ -108,6 +108,11 @@
               "id": "project-setup-dialog",
               "name": "Project Setup Dialog",
               "purpose": "New Project (parent folder + name) and Open Project (folder, Core inspection, install/update/open, Open Without Kit) through the Core bridge."
+            },
+            {
+              "id": "project-doctor-panel",
+              "name": "Project Doctor Panel",
+              "purpose": "Core doctor report of the active workspace (checks, statuses, next actions) and the safe fix."
             }
           ]
         },

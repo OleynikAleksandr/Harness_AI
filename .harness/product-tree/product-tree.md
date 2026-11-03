@@ -39,6 +39,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 ### Project Workflow UI
 
 - `project-setup-dialog`: New Project (parent folder + name) and Open Project (folder, Core inspection, install/update/open, Open Without Kit) through the Core bridge.
+- `project-doctor-panel`: Core doctor report of the active workspace (checks, statuses, next actions) and the safe fix.
 
 ### Settings Surface
 

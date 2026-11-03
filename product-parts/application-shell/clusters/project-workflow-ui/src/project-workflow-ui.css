@@ -143,3 +143,54 @@
   cursor: default;
   opacity: 0.55;
 }
+
+.project-doctor-checks {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.project-doctor-check {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 6px;
+}
+
+.project-doctor-check > svg {
+  margin-top: 1px;
+}
+
+.project-doctor-check--ok > svg {
+  color: #4caf7d;
+}
+
+.project-doctor-check--warn > svg {
+  color: #e0a84a;
+}
+
+.project-doctor-check--fail > svg {
+  color: #f08a85;
+}
+
+.project-doctor-check p {
+  margin: 4px 0 0;
+  color: var(--pm-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.project-doctor-status {
+  margin-left: 8px;
+  color: var(--pm-text-muted);
+}
+
+.project-doctor-next {
+  font-family: var(--pm-font-family);
+  color: var(--pm-text-muted);
+}

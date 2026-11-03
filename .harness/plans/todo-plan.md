@@ -8,8 +8,8 @@
   "planId": "workflow-kit-2026-11-03",
   "branch": "main",
   "lastRecordedCommit": "self",
-  "currentTaskId": "harness-ai.wk.p11.t4",
-  "expectedCommitMessage": "feat: add project doctor panel",
+  "currentTaskId": "harness-ai.wk.p11.t5",
+  "expectedCommitMessage": "feat: show workflow status and autopilot controls",
   "debt": null
 }
 ```
@@ -143,9 +143,9 @@
 72. [DONE] Git Commit: `feat: type project workflow core api in renderer` (hash: self)
 73. [DONE] `harness-ai.wk.p11.t3` Create Application Shell cluster `project-workflow-ui` with `project-setup-dialog` (New Project parent+name, Open Project with inspect result and install); tests (scope: `application-shell/clusters/project-workflow-ui/**, product tree`; expected commit: `feat: add new and open project dialog`). Result: Completed in commit `feat: add new and open project dialog`.
 74. [DONE] Git Commit: `feat: add new and open project dialog` (hash: self)
-75. [IN_PROGRESS] `harness-ai.wk.p11.t4` Add `project-doctor-panel` (checks, statuses, fix action); tests (scope: `application-shell/clusters/project-workflow-ui/**`; expected commit: `feat: add project doctor panel`).
-76. [TODO] Git Commit: `feat: add project doctor panel` (hash: TBD)
-77. [TODO] `harness-ai.wk.p11.t5` Add `workflow-status-strip` (scope, task, progress, autopilot toggle and stop reason); tests (scope: `application-shell/clusters/project-workflow-ui/**`; expected commit: `feat: show workflow status and autopilot controls`).
+75. [DONE] `harness-ai.wk.p11.t4` Add `project-doctor-panel` (checks, statuses, fix action); tests (scope: `application-shell/clusters/project-workflow-ui/**`; expected commit: `feat: add project doctor panel`). Result: Completed in commit `feat: add project doctor panel`.
+76. [DONE] Git Commit: `feat: add project doctor panel` (hash: self)
+77. [IN_PROGRESS] `harness-ai.wk.p11.t5` Add `workflow-status-strip` (scope, task, progress, autopilot toggle and stop reason); tests (scope: `application-shell/clusters/project-workflow-ui/**`; expected commit: `feat: show workflow status and autopilot controls`).
 78. [TODO] Git Commit: `feat: show workflow status and autopilot controls` (hash: TBD)
 79. [TODO] `harness-ai.wk.p11.t6` Wire New Project / Open Project / Project Doctor into the sidebar menu and mount dialogs and strip in the session window; tests (scope: `session-sidebar, session-window, session-surface`; expected commit: `feat: wire project workflow ui into the session window`).
 80. [TODO] Git Commit: `feat: wire project workflow ui into the session window` (hash: TBD)

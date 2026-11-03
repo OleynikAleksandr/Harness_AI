@@ -76,9 +76,9 @@ export function commitMessageFor(journal: CommitJournal): string {
     `Workflow-Scope: ${journal.scopeId ?? "NONE"}`,
     `Workflow-Task: ${journal.taskId ?? "-"}`,
     `Workflow-Role: ${journal.role}`,
-    ...(journal.role === "implementation"
-      ? [`Workflow-Iteration: ${journal.iteration}`]
-      : []),
+    ...(journal.taskId === null
+      ? []
+      : [`Workflow-Iteration: ${journal.iteration}`]),
     `Workflow-Transaction: ${journal.id}`,
   ];
   return `${journal.message.trim()}\n\n${trailers.join("\n")}\n`;

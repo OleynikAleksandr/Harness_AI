@@ -82,7 +82,7 @@ Steps:
    fails with `NOTHING_TO_COMMIT`.
 5. Runs `git commit -F -`. The message ends with trailers:
    - `Workflow-Scope`, `Workflow-Task`, `Workflow-Role`;
-   - `Workflow-Iteration` (implementation only);
+   - `Workflow-Iteration` (every commit that completes a task);
    - `Workflow-Transaction`.
 6. On a non-zero exit (hook checks), restores the original plan and index,
    keeps working-tree edits, saves the failed journal under
@@ -111,8 +111,10 @@ rounds to one of:
 - `{status: "pending"}` — inside the current transaction;
 - `{status: "open"}`.
 
-It searches `baselineCommit..HEAD` for implementation commits whose
-`Workflow-Scope`, `Workflow-Task` and `Workflow-Iteration` match the task.
+It searches `baselineCommit..HEAD` for task commits (roles
+`implementation`, `docs` for a round's DOCS task and `quality` for the
+QUALITY task) whose `Workflow-Scope`, `Workflow-Task` and
+`Workflow-Iteration` match the task.
 Errors:
 - `AMBIGUOUS_COMMIT` — several matching commits, or duplicated trailers;
 - `PLAN_COMMIT_MISMATCH` — a `DONE` task without a commit, or a commit for a

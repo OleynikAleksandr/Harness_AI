@@ -1,0 +1,208 @@
+import type { AutopilotProjectStatus } from "../../workflow-autopilot/src/workflow-autopilot-facade.js";
+import {
+  type CommitResult,
+  type RepairOutcome,
+  type RepairPlan,
+  type WorkflowGitFacade,
+  workflowGitFacade,
+} from "../../workflow-git/src/workflow-git-facade.js";
+import type { RoundDigest } from "../../workflow-plan/src/workflow-plan-facade.js";
+import type {
+  ProfileInput,
+  QualityProposal,
+} from "../../workflow-quality/src/workflow-quality-facade.js";
+import {
+  type HistoryEntry,
+  type HookClient,
+  type RecoveryEvent,
+  type RecoveryPacket,
+  WorkflowRecoveryFacade,
+} from "../../workflow-recovery/src/workflow-recovery-facade.js";
+import type { KitContext } from "./kit-context.js";
+import {
+  applyQuality,
+  detectQuality,
+  type QualityApplied,
+  qualityStatus,
+  repair,
+} from "./kit-quality.js";
+import {
+  acceptScope,
+  type CarryoverInput,
+  carryoverScope,
+  closeScope,
+  createScope,
+  type ExtendInput,
+  extendScope,
+  type PlanChange,
+  type ScopeInput,
+  setBlocked,
+  type TaskPatch,
+  updateTask,
+} from "./kit-scope.js";
+import {
+  autopilotStatus,
+  type KitStatus,
+  readStatus,
+  type ValidationReport,
+  validateProject,
+} from "./kit-status.js";
+import {
+  commitDocs,
+  commitTask,
+  startTask,
+  type TaskCommit,
+  type TaskStart,
+} from "./kit-task.js";
+
+export type { QualityApplied } from "./kit-quality.js";
+export type {
+  CarryoverInput,
+  ExtendInput,
+  PlanChange,
+  ScopeInput,
+  TaskPatch,
+} from "./kit-scope.js";
+export type { KitStatus, TaskBrief, ValidationReport } from "./kit-status.js";
+export type { TaskCommit, TaskStart } from "./kit-task.js";
+
+export interface WorkflowKitOptions {
+  env?: NodeJS.ProcessEnv;
+  git?: WorkflowGitFacade;
+  now?: () => string;
+}
+
+/**
+ * Cluster facade of `core-runtime/clusters/project-workflow`: every process
+ * operation of the Workflow Kit on one project root.
+ */
+export class WorkflowKitFacade {
+  readonly env: NodeJS.ProcessEnv;
+  readonly git: WorkflowGitFacade;
+  readonly recovery: WorkflowRecoveryFacade;
+  private readonly now: () => string;
+
+  constructor(options: WorkflowKitOptions = {}) {
+    this.env = options.env ?? process.env;
+    this.git = options.git ?? workflowGitFacade;
+    this.now = options.now ?? (() => new Date().toISOString());
+    this.recovery = new WorkflowRecoveryFacade(this.git);
+  }
+
+  private context(root: string): KitContext {
+    return { env: this.env, git: this.git, now: this.now, root };
+  }
+
+  status(root: string): KitStatus {
+    return readStatus(this.context(root));
+  }
+
+  validate(root: string): ValidationReport {
+    return validateProject(this.context(root));
+  }
+
+  autopilotStatus(root: string): AutopilotProjectStatus {
+    return autopilotStatus(this.context(root));
+  }
+
+  recover(root: string, event: RecoveryEvent = "startup"): RecoveryPacket {
+    return this.recovery.packet(root, event);
+  }
+
+  showTask(root: string, taskId: string): string {
+    return this.recovery.showTask(root, taskId);
+  }
+
+  history(
+    root: string,
+    filter: { round?: string; task?: string } = {}
+  ): { entries: HistoryEntry[]; text: string } {
+    return this.recovery.history(root, filter);
+  }
+
+  sessionStart(root: string, client: HookClient, stdin: string): string {
+    return this.recovery.sessionStart(root, { client, env: this.env, stdin });
+  }
+
+  createScope(root: string, input: ScopeInput): PlanChange {
+    return createScope(this.context(root), input);
+  }
+
+  extend(
+    root: string,
+    input: ExtendInput,
+    expectedRevision?: number
+  ): ReturnType<typeof extendScope> {
+    return extendScope(this.context(root), input, expectedRevision);
+  }
+
+  updateTask(
+    root: string,
+    taskId: string,
+    patch: TaskPatch,
+    expectedRevision?: number
+  ): PlanChange {
+    return updateTask(this.context(root), taskId, patch, expectedRevision);
+  }
+
+  accept(root: string, note: string): PlanChange {
+    return acceptScope(this.context(root), note);
+  }
+
+  close(root: string, scopeId: string, note: string): PlanChange {
+    return closeScope(this.context(root), scopeId, note);
+  }
+
+  carryover(root: string, input: CarryoverInput): PlanChange {
+    return carryoverScope(this.context(root), input);
+  }
+
+  block(root: string, reason: string): PlanChange {
+    return setBlocked(this.context(root), reason);
+  }
+
+  unblock(root: string): PlanChange {
+    return setBlocked(this.context(root), null);
+  }
+
+  startTask(
+    root: string,
+    taskId: string,
+    confirmation: string | null = null
+  ): TaskStart {
+    return startTask(this.context(root), taskId, confirmation);
+  }
+
+  commitTask(
+    root: string,
+    taskId: string,
+    options: { digest?: RoundDigest | null; files?: string[] } = {}
+  ): TaskCommit {
+    return commitTask(this.context(root), taskId, options);
+  }
+
+  commitDocs(root: string, files: string[], message?: string): CommitResult {
+    return commitDocs(this.context(root), files, message);
+  }
+
+  qualityDetect(root: string, stacks?: string[]): QualityProposal {
+    return detectQuality(this.context(root), stacks);
+  }
+
+  qualityApply(root: string, input: ProfileInput): QualityApplied {
+    return applyQuality(this.context(root), input);
+  }
+
+  qualityStatus(root: string): ReturnType<typeof qualityStatus> {
+    return qualityStatus(this.context(root));
+  }
+
+  repair(
+    root: string,
+    options: { apply?: string; cancel?: string } = {}
+  ): RepairOutcome | RepairPlan {
+    return repair(this.context(root), options);
+  }
+}
+
+export const workflowKitFacade = new WorkflowKitFacade();

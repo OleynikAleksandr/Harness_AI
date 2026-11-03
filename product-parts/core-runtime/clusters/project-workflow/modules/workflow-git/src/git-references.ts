@@ -26,6 +26,9 @@ function trailer(commit: CommitRecord, key: string): string | undefined {
   return values[0];
 }
 
+/** Roles of commits that complete a plan task. */
+const TASK_ROLES = new Set(["docs", "implementation", "quality"]);
+
 function taskCommits(
   history: CommitRecord[],
   scopeId: string,
@@ -35,7 +38,7 @@ function taskCommits(
     (commit) =>
       trailer(commit, "Workflow-Scope") === scopeId &&
       trailer(commit, "Workflow-Task") === task.id &&
-      trailer(commit, "Workflow-Role") === "implementation" &&
+      TASK_ROLES.has(trailer(commit, "Workflow-Role") ?? "") &&
       Number(trailer(commit, "Workflow-Iteration") ?? "1") === task.iteration
   );
 }

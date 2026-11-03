@@ -35,9 +35,11 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
 - `workflow-recovery` — bounded recovery packet within a byte budget, the
   SessionStart hook, `show-task` and `history`.
 - `workflow-autopilot` — pure continue/stop decision of the Core autopilot.
+- `workflow-kit` — the cluster facade `WorkflowKitFacade`: status, scope,
+  task, commit, acceptance, close, carryover, repair and quality
+  operations.
 
-Further modules (`workflow-kit`,
-`workflow-installer`, `workflow-host`) are added by the active plan in that
+Further modules (`workflow-installer`, `workflow-host`) are added by the active plan in that
 order.
 
 ## Test Support

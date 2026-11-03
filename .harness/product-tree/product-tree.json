@@ -390,6 +390,11 @@
               "id": "workflow-autopilot",
               "name": "Workflow Autopilot",
               "purpose": "Pure continue/stop decision of the Core autopilot and the continue turn message."
+            },
+            {
+              "id": "workflow-kit",
+              "name": "Workflow Kit",
+              "purpose": "Cluster facade WorkflowKitFacade: status, scope, task, commit, accept, close, carryover, repair and quality operations; git hooks and the CLI dispatcher."
             }
           ]
         }

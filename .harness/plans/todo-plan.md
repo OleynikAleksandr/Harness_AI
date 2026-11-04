@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 113,
+  "revision": 114,
   "rounds": [
     {
       "digest": null,
@@ -222,6 +222,7 @@
       "files": [
         "product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry",
         "product-parts/core-runtime/clusters/session-runtime/modules/session-registry",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector",
         "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process"
       ],
       "fixes": null,
@@ -675,7 +676,7 @@
 - Delivery: IN_PROGRESS
 - Current task: none
 - Progress: 3/17
-- Revision: 113
+- Revision: 114
 
 ## Objective
 
@@ -705,7 +706,7 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/auth/claude-auth-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-process.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-test-repo.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-auth-git-config.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-transport.test.mjs, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts
 - [TODO] W1 — Core without a built-in project (work)
   - Commit: fix: remove the built-in project from core
-  - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry, product-parts/core-runtime/clusters/session-runtime/modules/session-registry, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process
+  - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry, product-parts/core-runtime/clusters/session-runtime/modules/session-registry, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process
 - [TODO] A2 — Autopilot on by default with a pause stop (work)
   - Commit: feat: run the autopilot by default and stop on pause
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler

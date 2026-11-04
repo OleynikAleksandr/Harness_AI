@@ -63,7 +63,9 @@ Own Electron lifecycle, window creation, and local application startup.
   that return `{canceled, path}`), `inspectProjectFolder(request)`,
   `prepareProject(request)`, `getWorkflowStatus(request)`,
   `runProjectDoctor(request)`, `getWorkflowAutopilot(request)`,
-  `setWorkflowAutopilot(request)`, `getWorkflowModeChoice({workspaceId})`
+  `setWorkflowPause({sessionId, paused})` (`workflow-pause-set`; the
+  result carries the autopilot snapshot with the Core `pauseState`),
+  `getWorkflowModeChoice({workspaceId})`
   (`workflow-mode-choice-get`), `chooseWorkflowMode({workspaceId,
   sessionId, generation, option})` (`workflow-mode-choose`) and
   `setGitIdentity({name, email})` (`workflow-identity-set`), bridged

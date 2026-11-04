@@ -77,7 +77,7 @@ for (const method of [
   "workflow-status",
   "workflow-doctor",
   "workflow-autopilot-get",
-  "workflow-autopilot-set",
+  "workflow-pause-set",
   "workflow-mode-choice-get",
   "workflow-mode-choose",
   "workflow-identity-set",
@@ -97,6 +97,15 @@ const pickFolderSource = source.slice(
 assert.doesNotMatch(pickFolderSource, /coreClient/u);
 assert.match(preloadSource, /chooseWorkflowMode: \(request\)/u);
 assert.match(preloadSource, /getWorkflowModeChoice: \(request\)/u);
+// The pause goes through Core; the autopilot toggle stays an internal RPC
+// that the bridge and preload never publish.
+assert.match(
+  preloadSource,
+  /setWorkflowPause: \(request\) =>\s*ipcRenderer\.invoke\("harness-ai:core:workflow-pause-set", request\)/u
+);
+assert.doesNotMatch(source, /workflow-autopilot-set/u);
+assert.doesNotMatch(preloadSource, /workflow-autopilot-set/u);
+assert.doesNotMatch(preloadSource, /setWorkflowAutopilot/u);
 assert.match(
   preloadSource,
   /setGitIdentity: \(request\) =>\s*ipcRenderer\.invoke\("harness-ai:core:workflow-identity-set", request\)/u

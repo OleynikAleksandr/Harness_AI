@@ -3,14 +3,14 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": "A4",
+  "currentTaskId": null,
   "lastClosed": {
     "closedAt": "2026-11-04T15:01:20.812Z",
     "scopeId": "release-fixes-2026-11-04-2"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 130,
+  "revision": 131,
   "rounds": [
     {
       "digest": null,
@@ -434,14 +434,19 @@
         "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge",
         "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap",
         "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts",
-        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs"
       ],
       "fixes": null,
       "id": "A4",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "title": "Pause bridge",
       "why": "The renderer needs the pause route and no autopilot toggle"
     },
@@ -744,9 +749,9 @@
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
-- Current task: A4
-- Progress: 8/17
-- Revision: 130
+- Current task: none
+- Progress: 9/17
+- Revision: 131
 
 ## Objective
 
@@ -793,9 +798,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: put document text into executor briefs
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality
   - Depends on: K2
-- [IN_PROGRESS] A4 — Pause bridge (work)
+- [DONE] A4 — Pause bridge (work)
   - Commit: feat: bridge the workflow pause
-  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
+  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs
   - Depends on: A3
 - [TODO] K4 — Recovery packet inline documents and map (work)
   - Commit: feat: keep required documents inline with a documents map

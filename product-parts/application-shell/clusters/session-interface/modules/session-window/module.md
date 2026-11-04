@@ -83,7 +83,10 @@ Detached session windows never expose the switch.
 - The shared bridge types declare the project workflow surface:
   `pickProjectFolder`/`pickProjectParent` (`{canceled, path}`),
   `inspectProjectFolder`, `prepareProject`, `getWorkflowStatus`,
-  `runProjectDoctor`, `getWorkflowAutopilot`, `setWorkflowAutopilot`,
+  `runProjectDoctor`, `getWorkflowAutopilot` (snapshot with `pauseState`
+  `running | pausing | paused`), `setWorkflowPause({sessionId, paused})` →
+  `{ok: true, autopilot}` or the failure (the `setWorkflowAutopilot` type
+  remains only until the status strip toggle is removed),
   `getWorkflowModeChoice({workspaceId})` → `{ok: true, card | null}` and
   `chooseWorkflowMode({workspaceId, sessionId, generation, option})` →
   `{ok: true, card, choice}` or the Kit failure,

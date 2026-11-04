@@ -46,6 +46,8 @@ interface WorkflowAutopilotSnapshot {
   enabled: boolean;
   lastDecision: WorkflowAutopilotDecision | null;
   maxContinues: number;
+  /** Core-derived pause display state of the session's workspace. */
+  pauseState: "paused" | "pausing" | "running";
   running: boolean;
   sessionId: string;
 }
@@ -72,6 +74,9 @@ interface WorkflowAutopilotEvent extends WorkflowAutopilotSnapshot {
 type WorkflowAutopilotResult =
   | WorkflowKitFailure
   | { autopilot: WorkflowAutopilotSnapshot; ok: true };
+
+/** The `workflow-pause-set` result: the snapshot with the new pause state. */
+type WorkflowPauseResult = WorkflowAutopilotResult;
 
 /** The execution mode card of a workspace; Core owns every field. */
 type WorkflowModeChoiceCard =
@@ -368,6 +373,11 @@ interface Window {
       enabled: boolean;
       sessionId: string;
     }): Promise<WorkflowAutopilotResult>;
+    /** Sets or lifts the Workflow Kit pause of the session's workspace. */
+    setWorkflowPause(request: {
+      paused: boolean;
+      sessionId: string;
+    }): Promise<WorkflowPauseResult>;
     /** The execution mode card of a workspace, or null. */
     getWorkflowModeChoice(request: {
       workspaceId: string;

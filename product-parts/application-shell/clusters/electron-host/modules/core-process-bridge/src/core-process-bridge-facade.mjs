@@ -50,12 +50,12 @@ const IPC_TO_RPC = {
   "harness-ai:core:translate-dynamic-text": "translate-dynamic-text",
   "harness-ai:core:update-provider-version": "update-provider-version",
   "harness-ai:core:workflow-autopilot-get": "workflow-autopilot-get",
-  "harness-ai:core:workflow-autopilot-set": "workflow-autopilot-set",
   "harness-ai:core:workflow-doctor": "workflow-doctor",
   "harness-ai:core:workflow-identity-set": "workflow-identity-set",
   "harness-ai:core:workflow-inspect": "workflow-inspect",
   "harness-ai:core:workflow-mode-choice-get": "workflow-mode-choice-get",
   "harness-ai:core:workflow-mode-choose": "workflow-mode-choose",
+  "harness-ai:core:workflow-pause-set": "workflow-pause-set",
   "harness-ai:core:workflow-prepare-project": "workflow-prepare-project",
   "harness-ai:core:workflow-status": "workflow-status",
 };

@@ -50,8 +50,16 @@ interface WorkflowAutopilotSnapshot {
   sessionId: string;
 }
 
+/** The Core plan view of the active plan (sidebar); Core owns every field. */
+type WorkflowPlanView =
+  import("../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.js").PlanView;
+/** The `workflow-status` result: the Kit outcome plus the Core plan view. */
+type WorkflowStatusResult =
+  import("../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.js").WorkflowStatusResult;
+
 interface WorkflowStatusEvent {
   path: string;
+  planView: WorkflowPlanView | null;
   status: WorkflowKitOutcome<WorkflowKitStatus>;
   type: "workflow:status";
   workspaceId: string;
@@ -336,7 +344,7 @@ interface Window {
     }): Promise<WorkflowKitFailure | WorkflowPreparedProject>;
     getWorkflowStatus(request: {
       workspaceId?: string;
-    }): Promise<WorkflowKitOutcome<WorkflowKitStatus>>;
+    }): Promise<WorkflowKitFailure | WorkflowStatusResult>;
     runProjectDoctor(request: {
       fix?: boolean;
       workspaceId?: string;

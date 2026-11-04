@@ -142,6 +142,8 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "sidebar.nextSessionMode": "Next Session Mode",
     "sidebar.regenerateSessionTitle": "Regenerate title",
     "sidebar.renameSession": "Rename session",
+    "sidebar.role.agent": "Agent",
+    "sidebar.role.orchestrator": "Orchestrator",
     "sidebar.sessionName": "Session name",
     "sidebar.sessions": "Sessions",
     "sidebar.startNewSession": "Start New Session",
@@ -180,6 +182,16 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "workflow.modeCard.question": "How should the plan be executed?",
     "workflow.modeCard.recommended": "(recommended)",
     "workflow.modeCard.sent": "sent to the agent",
+    "workflow.plan.parallel": "parallel",
+    "workflow.plan.progressDone": "done",
+    "workflow.plan.progressOf": "of",
+    "workflow.plan.sequential": "sequential",
+    "workflow.plan.state.ACTIVE": "Active",
+    "workflow.plan.state.BLOCKED": "Blocked",
+    "workflow.plan.taskStatus.DONE": "Done",
+    "workflow.plan.taskStatus.IN_PROGRESS": "In progress",
+    "workflow.plan.taskStatus.TODO": "To do",
+    "workflow.plan.title": "Plan",
     "workflow.strip.autopilot": "Autopilot",
     "workflow.strip.continuing": "Continuing",
     "workflow.strip.label": "Workflow",
@@ -347,6 +359,7 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "workflow.strip.autopilot.description":
       "Continues the workflow tasks automatically after each turn.",
     "workflow.modeCard.hint": "or write your answer in the chat",
+    "workflow.plan.openExecutor": "Open the executor session",
     "workflow.modeCard.option.orchestrated.description":
       "This session becomes the orchestrator: each task goes to an executor in its own worktree, and the results are checked and integrated here.",
     "workflow.modeCard.option.refine.description":

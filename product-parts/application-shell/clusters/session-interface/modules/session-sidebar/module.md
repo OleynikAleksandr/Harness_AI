@@ -16,6 +16,10 @@ Settings.
 - Selected workspace session list.
 - Core-owned `sessionKind`, `parentSessionId`, delegated task, subagent
   status/nickname/role and title metadata.
+- The Core plan view of the selected workspace: the sidebar facade calls
+  `useProjectPlanView(workspace.id)` (module `project-plan-panel`), kept
+  current by `workflow:status` events, and passes it to `SessionTree` as
+  `planView`.
 
 ## Outputs
 
@@ -34,6 +38,19 @@ Settings.
   ancestor expansion for the selected child, and independent open/detach
   controls on every level. Tree construction uses only Core session metadata;
   it never reads transcript text or provider rollouts.
+- The plan (spec 10.2 of `WorkflowKitExecutionModes.md`): when
+  `planView.ownerSessionId` is a listed session, `ProjectPlanPanelFacade`
+  renders right under that session's card (before its child cards) with the
+  tree's `onSelectSession` as the open path, so an executor row opens its
+  session like a row click. The owner card's secondary line starts with its
+  role from the Core plan mode — "Orchestrator" (`sidebar.role.orchestrator`)
+  in orchestrated mode, "Agent" (`sidebar.role.agent`) otherwise — followed
+  by the subagent summary. Sessions in `planView.boundSessionIds` get no card
+  anywhere in the tree (and are not counted in the summary); their own
+  children are not shown either. Other subagents stay child cards as before.
+  Without a plan view, or with an owner outside the list, the tree is
+  unchanged. The tree only reads these Core fields; it never compares
+  working directories or worktrees.
 - A child row uses its delegated task plus localized status as the secondary
   line, falling back to role plus status when no task is available. It does not
   repeat `agentNickname` when Core already used that nickname as the title.
@@ -69,6 +86,17 @@ Settings.
 
 - The `Next Session Mode` sidebar button is removed; session profile selection
   lives in the new-session wizard (session-window profile step).
+
+## Tests
+
+- `src/session-tree.test.mjs` — tree construction, row context menu and
+  styles (source checks), and a server render (React
+  `renderToStaticMarkup`) of the plan under the owner card: the
+  Orchestrator/Agent role, the bound executor without a card and not
+  counted, the other subagent kept, and the unchanged tree without a plan
+  or with an unlisted owner.
+- `src/workspace-menu.test.mjs` — the workspace menu and its project
+  context menu.
 
 ## Owned Paths
 

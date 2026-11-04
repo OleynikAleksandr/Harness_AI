@@ -114,11 +114,16 @@ materialization, bootstrap payload reuse, and bundle state.
   reasons `waiting-for-executors` and `waiting-for-mode-choice`) and the
   execution mode card
   (`workflow.modeCard.label`, `.question`, `.recommended`, `.choose`,
-  `.chosen`, `.sent`, `.option.<sequential|orchestrated|refine>`);
+  `.chosen`, `.sent`, `.option.<sequential|orchestrated|refine>`), the
+  sidebar plan panel (`workflow.plan.title`, `.parallel`, `.sequential`,
+  `.progressOf`, `.progressDone`, `.state.<ACTIVE|BLOCKED>`,
+  `.taskStatus.<DONE|IN_PROGRESS|TODO>`) and the plan owner card role
+  (`sidebar.role.agent`, `sidebar.role.orchestrator`);
   `ui_helper_text` explains every
   inspected folder state (`project.state.<STATE>`, `project.state.nested`),
   the dialogs and the card (`workflow.modeCard.hint`,
-  `workflow.modeCard.option.<id>.description`); `messages_for_the_user`
+  `workflow.modeCard.option.<id>.description`) and the executor row of the
+  plan panel (`workflow.plan.openExecutor`); `messages_for_the_user`
   holds `project.setup.nameRequired` and `workflow.modeCard.saving`.
 - The Native Request Capture card copy is part of the approved dictionaries:
   `ui_labels` (`settings.nativeCapture.title`/`.provider`/`.model`/

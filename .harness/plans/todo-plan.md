@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 69,
+  "revision": 71,
   "rounds": [
     {
       "digest": null,
@@ -783,14 +783,24 @@
         "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.tsx",
         "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx",
         "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx",
-        ".harness/product-tree/product-tree.json"
+        ".harness/product-tree/product-tree.json",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-state.ts",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.css",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts"
       ],
       "fixes": null,
       "id": "E20",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Plan in the sidebar",
       "why": "The user follows the plan and opens executor sessions from its rows"
     },
@@ -877,8 +887,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 19/22
-- Revision: 69
+- Progress: 20/22
+- Revision: 71
 
 ## Objective
 
@@ -968,9 +978,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: show the execution mode card
   - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, .harness/product-tree/product-tree.json, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.css, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md
   - Depends on: E18
-- [TODO] E20 — Plan in the sidebar (work)
+- [DONE] E20 — Plan in the sidebar (work)
   - Commit: feat: show the plan in the sidebar
-  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, .harness/product-tree/product-tree.json
+  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, .harness/product-tree/product-tree.json, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.css, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts
   - Depends on: E16
 - [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1

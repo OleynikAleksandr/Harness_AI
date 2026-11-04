@@ -1,0 +1,111 @@
+/* Plan panel under the owner session card in the sidebar, on the shared
+   --pm-* dark theme tokens and the sidebar tree accent. The header stays
+   pinned; only the task rows scroll. */
+
+.project-plan-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  margin: 4px 0 6px 13px;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--pm-text-secondary);
+  background: var(--pm-bg-panel);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 8px;
+}
+
+.project-plan-header {
+  display: grid;
+  gap: 2px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--pm-border-color);
+}
+
+.project-plan-header strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pm-text-primary);
+  white-space: nowrap;
+}
+
+.project-plan-header small {
+  color: var(--pm-text-muted);
+}
+
+.project-plan-rows {
+  display: grid;
+  gap: 1px;
+  max-height: 240px;
+  padding: 4px;
+  margin: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.project-plan-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 5px 6px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.project-plan-row.is-link {
+  cursor: pointer;
+}
+
+.project-plan-row.is-link:hover,
+.project-plan-row.is-link:focus-visible {
+  color: var(--pm-text-primary);
+  outline: none;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.project-plan-row.is-current {
+  color: var(--pm-text-primary);
+  background: rgba(66, 201, 162, 0.07);
+}
+
+.project-plan-row.is-selected {
+  background: rgba(66, 201, 162, 0.12);
+  border-color: rgba(66, 201, 162, 0.3);
+}
+
+.project-plan-status {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #a5acb5;
+}
+
+.project-plan-status--IN_PROGRESS {
+  color: var(--pm-accent-strong);
+}
+
+.project-plan-status--DONE {
+  color: #52c974;
+}
+
+.project-plan-row-id {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--pm-text-muted);
+}
+
+.project-plan-row-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.project-plan-row-label {
+  flex: 0 0 auto;
+  color: var(--pm-text-muted);
+}

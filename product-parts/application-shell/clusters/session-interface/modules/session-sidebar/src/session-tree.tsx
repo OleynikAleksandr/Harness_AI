@@ -8,6 +8,7 @@ import {
 } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { ProjectPlanPanelFacade } from "../../../../project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.js";
 
 // Viewport coordinates of the row edge the menu attaches to. The menu
 // renders position:fixed so the scrollable session list cannot clip it.
@@ -25,6 +26,8 @@ interface SessionTreeProps {
   ) => void;
   onDetachSession: (sessionId: string) => void;
   onSelectSession: (sessionId: string) => void;
+  /** The Core plan view of the workspace; rendered under its owner's card. */
+  planView: WorkflowPlanView | null;
   renderContextMenu: (session: CoreSession) => ReactNode;
   sessions: CoreSession[];
 }
@@ -35,11 +38,22 @@ export function SessionTree({
   onContextMenu,
   onDetachSession,
   onSelectSession,
+  planView,
   renderContextMenu,
   sessions,
 }: SessionTreeProps) {
   const { t } = useBrowserLocalization();
-  const tree = useMemo(() => buildSessionTree(sessions), [sessions]);
+  // The plan shows only under a listed owner card; its bound executors are
+  // reached through the plan rows instead of child cards (Core binding).
+  const plan =
+    planView?.ownerSessionId &&
+    sessions.some((session) => session.id === planView.ownerSessionId)
+      ? planView
+      : null;
+  const tree = useMemo(
+    () => buildSessionTree(sessions, new Set(plan?.boundSessionIds ?? [])),
+    [sessions, plan?.boundSessionIds]
+  );
   const [expandedSessionIds, setExpandedSessionIds] = useState<Set<string>>(
     new Set()
   );
@@ -71,6 +85,7 @@ export function SessionTree({
       onToggle={(sessionId) =>
         setExpandedSessionIds((current) => toggleSetValue(current, sessionId))
       }
+      plan={plan}
       renderContextMenu={renderContextMenu}
       session={session}
       sessionsByParentId={tree.sessionsByParentId}
@@ -87,6 +102,7 @@ function SessionTreeNode({
   onDetachSession,
   onSelectSession,
   onToggle,
+  plan,
   renderContextMenu,
   session,
   sessionsByParentId,
@@ -102,6 +118,7 @@ function SessionTreeNode({
   onDetachSession: (sessionId: string) => void;
   onSelectSession: (sessionId: string) => void;
   onToggle: (sessionId: string) => void;
+  plan: WorkflowPlanView | null;
   renderContextMenu: (session: CoreSession) => ReactNode;
   session: CoreSession;
   sessionsByParentId: ReadonlyMap<string, CoreSession[]>;
@@ -112,9 +129,10 @@ function SessionTreeNode({
   const expanded = hasChildren && expandedSessionIds.has(session.id);
   const isSubagent = session.sessionKind === "subagent";
   const descendants = collectDescendants(session.id, sessionsByParentId);
+  const ownedPlan = plan?.ownerSessionId === session.id ? plan : null;
   const secondaryText = isSubagent
     ? resolveSubagentSecondaryText(session, t)
-    : resolveRootSummary(descendants, t);
+    : resolvePrimarySecondaryText(ownedPlan, descendants, t);
   // Every interactive element of the row opens the menu on right-click and
   // the title button stretches over the free row width: title-only handling
   // left dead zones (padding, chevron, detach icon) where the gesture
@@ -196,6 +214,13 @@ function SessionTreeNode({
           ? renderContextMenu(session)
           : null}
       </div>
+      {ownedPlan ? (
+        <ProjectPlanPanelFacade
+          activeSessionId={activeSessionId}
+          onOpenSession={onSelectSession}
+          planView={ownedPlan}
+        />
+      ) : null}
       {expanded ? (
         <div className="session-tree-children">
           {children.map((child) => (
@@ -208,6 +233,7 @@ function SessionTreeNode({
               onDetachSession={onDetachSession}
               onSelectSession={onSelectSession}
               onToggle={onToggle}
+              plan={plan}
               renderContextMenu={renderContextMenu}
               session={child}
               sessionsByParentId={sessionsByParentId}
@@ -220,12 +246,19 @@ function SessionTreeNode({
   );
 }
 
-function buildSessionTree(sessions: readonly CoreSession[]) {
+/** `hidden`: executor sessions the plan rows open; they get no card. */
+function buildSessionTree(
+  sessions: readonly CoreSession[],
+  hidden: ReadonlySet<string>
+) {
   const sessionsByParentId = new Map<string, CoreSession[]>();
   const parentBySessionId = new Map<string, string>();
   const knownIds = new Set(sessions.map((session) => session.id));
   const roots: CoreSession[] = [];
   for (const session of sessions) {
+    if (hidden.has(session.id)) {
+      continue;
+    }
     if (
       session.sessionKind !== "subagent" ||
       !session.parentSessionId ||
@@ -278,6 +311,26 @@ function resolveRootSummary(
     "sidebar.subagent.running",
     "running"
   )}`;
+}
+
+/**
+ * A primary card's secondary line: the plan owner's role from the Core plan
+ * mode ("Orchestrator" or "Agent"), then the descendant summary.
+ */
+function resolvePrimarySecondaryText(
+  ownedPlan: WorkflowPlanView | null,
+  descendants: readonly CoreSession[],
+  t: ReturnType<typeof useBrowserLocalization>["t"]
+): string | null {
+  let role: string | null = null;
+  if (ownedPlan) {
+    role =
+      ownedPlan.mode === "orchestrated"
+        ? t("ui_labels", "sidebar.role.orchestrator", "Orchestrator")
+        : t("ui_labels", "sidebar.role.agent", "Agent");
+  }
+  const summary = resolveRootSummary(descendants, t);
+  return [role, summary].filter(Boolean).join(" · ") || null;
 }
 
 function resolveSubagentSecondaryText(

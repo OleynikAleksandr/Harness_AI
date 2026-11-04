@@ -85,8 +85,12 @@ Detached session windows never expose the switch.
   models (`WorkflowInspectResult`, `WorkflowKitStatus`,
   `WorkflowDoctorReport`, `WorkflowPreparedProject`,
   `WorkflowAutopilotSnapshot`, `WorkflowModeChoiceCard` — the Core
-  `ModeChoiceCard`) as type-only imports. `onEvent` also carries
-  `workflow:status`, `workflow:autopilot` and `workflow:mode-choice`
+  `ModeChoiceCard`, `WorkflowPlanView` — the Core `PlanView`,
+  `WorkflowStatusResult` — the Core `workflow-status` result) as type-only
+  imports. `getWorkflowStatus` resolves to the Kit failure or
+  `WorkflowStatusResult` (the Kit outcome plus `planView`). `onEvent` also
+  carries `workflow:status` (`{workspaceId, path, planView, status}`),
+  `workflow:autopilot` and `workflow:mode-choice`
   (`{workspaceId, sessionId, card}`); the session window skips them
   (`isProjectWorkflowEvent`) because the project workflow UI subscribes to
   them itself.

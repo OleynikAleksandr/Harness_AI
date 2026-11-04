@@ -123,6 +123,11 @@
               "id": "execution-mode-card",
               "name": "Execution Mode Card",
               "purpose": "The Core execution mode card of a scope proposal in the owner session's chat: the recommended mode first with its reason, a Choose button per mode and the saved choice."
+            },
+            {
+              "id": "project-plan-panel",
+              "name": "Project Plan Panel",
+              "purpose": "The active plan from the Core plan view under the owner session's card in the sidebar: scope, state, progress and task rows, with executor rows opening their sessions."
             }
           ]
         },

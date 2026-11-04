@@ -296,3 +296,7 @@ added, add a new evidence file and keep this index entry valid.
 - `docs/evidence/release-fixes-package-2026-11-04.md` — release fixes:
   Claude async subagents verified on the real test transcripts and the
   Remove from Harness AI route; package contents and launch.
+- `docs/evidence/execution-modes-package-2026-11-04.md` — execution modes
+  release: build and package checks, the Kit 2.1.0 bundle smoke on a
+  temporary project (host marker, mode proposal and choice) and the packaged
+  app start.

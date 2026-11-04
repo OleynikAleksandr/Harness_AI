@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 73,
+  "revision": 75,
   "rounds": [
     {
       "digest": {
@@ -46,7 +46,7 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Implementation"
     }
   ],
@@ -81,7 +81,7 @@
       }
     ],
     "decisions": [],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "execution-modes-2026-11-04",
     "objective": "Workflow Kit execution modes: the user picks sequential or orchestrated on a choice card when the plan is proposed; sequential is one agent, orchestrated runs every task by Claude subagent executors attached to their worktrees with checked commits and merge integration into main; Kit-formed git identity; the plan with live progress and executor sessions in the Harness sidebar; small Kit fixes; a new macOS release.",
     "spec": "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md",
@@ -899,7 +899,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package execution modes release",
-      "confirmation": null,
+      "confirmation": "Все задачи вплоть до сборки нового релиза выполняй сам.",
       "context": [],
       "dependencies": [
         "E13",
@@ -909,14 +909,16 @@
       ],
       "docsWaiver": null,
       "files": [
-        "docs/evidence/execution-modes-package-2026-11-04.md"
+        "docs/evidence/execution-modes-package-2026-11-04.md",
+        ".harness/product-tree/product-tree.json",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
       ],
       "fixes": null,
       "id": "D1",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Package the macOS release",
       "why": "The user checks the release in the packaged app"
     }
@@ -928,10 +930,10 @@
 ## State
 
 - Scope: execution-modes-2026-11-04 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 21/22
-- Revision: 73
+- Progress: 22/22
+- Revision: 75
 
 ## Objective
 
@@ -947,7 +949,7 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
 
 ## Rounds
 
-### R1 — Implementation (implementation, OPEN)
+### R1 — Implementation (implementation, CLOSED)
 
 - [DONE] E1 — Plan labels and execution block (work)
   - Commit: feat: add parallel labels and execution block to workflow plans
@@ -1029,9 +1031,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, .harness/product-tree/product-tree.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/ClaudeSubagentSessions.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitOrchestration.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, product-parts/application-shell/clusters/project-workflow-ui/cluster.md, product-parts/application-shell/product-part.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/product-part.md
   - Depends on: E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20
-- [TODO] D1 — Package the macOS release (delivery)
+- [DONE] D1 — Package the macOS release (delivery)
   - Commit: chore: package execution modes release
-  - Files: docs/evidence/execution-modes-package-2026-11-04.md
+  - Files: docs/evidence/execution-modes-package-2026-11-04.md, .harness/product-tree/product-tree.json, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: E13, E19, E20, DOCS-R1
 
 Digest: Workflow Kit execution modes: in a Harness project the agent proposes the scope and the user picks sequential or orchestrated on a Core-built chat card; orchestrated runs work and DOCS tasks by Claude subagent executors attached to their own worktrees, whose checked commits the orchestrator merges into main with two-parent integration commits. Kit commits use a real repository-local git identity; Core watches the Kit state and shows the plan with executor sessions in the sidebar.

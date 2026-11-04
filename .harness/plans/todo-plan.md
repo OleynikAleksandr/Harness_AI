@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 96,
+  "revision": 98,
   "rounds": [
     {
       "digest": null,
@@ -237,14 +237,18 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts",
-        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts"
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.test.mjs",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.ts",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs"
       ],
       "fixes": null,
       "id": "G6",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Localize the new interface strings",
       "why": "The card mixed English labels with Russian descriptions"
     },
@@ -467,8 +471,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 9/13
-- Revision: 96
+- Progress: 10/13
+- Revision: 98
 
 ## Objective
 
@@ -505,9 +509,9 @@ Fix the defects found in the execution modes release (git identity form instead 
 - [DONE] G5 — Mode card in the left sidebar (work)
   - Commit: feat: show the mode card in the sidebar
   - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.css, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
-- [TODO] G6 — Localize the new interface strings (work)
+- [DONE] G6 — Localize the new interface strings (work)
   - Commit: fix: localize the new workflow strings
-  - Files: product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts
+  - Files: product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-materializer.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs
   - Depends on: G4, G5
 - [DONE] G7 — Mode choice enables the autopilot (work)
   - Commit: fix: start plan execution on the mode choice

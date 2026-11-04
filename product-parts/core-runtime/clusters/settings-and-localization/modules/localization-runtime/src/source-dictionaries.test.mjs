@@ -128,3 +128,30 @@ assert.equal(
   registry.getMessage("messages_for_the_user", "project.setup.nameRequired"),
   "Enter a project name."
 );
+
+// Execution mode card, plan panel, sidebar role and git identity strings
+// pass through the same category dictionaries as every other UI string.
+for (const [category, messageId] of [
+  ["ui_labels", "workflow.modeCard.question"],
+  ["ui_labels", "workflow.modeCard.choose"],
+  ["ui_labels", "workflow.modeCard.recommended"],
+  ["ui_labels", "workflow.modeCard.option.sequential"],
+  ["ui_labels", "workflow.modeCard.option.orchestrated"],
+  ["ui_labels", "workflow.modeCard.option.refine"],
+  ["ui_helper_text", "workflow.modeCard.option.refine.description"],
+  ["ui_helper_text", "workflow.modeCard.hint"],
+  ["messages_for_the_user", "workflow.modeCard.saving"],
+  ["ui_labels", "workflow.plan.title"],
+  ["ui_labels", "workflow.plan.taskStatus.IN_PROGRESS"],
+  ["ui_helper_text", "workflow.plan.openExecutor"],
+  ["ui_labels", "sidebar.role.agent"],
+  ["ui_labels", "sidebar.role.orchestrator"],
+  ["ui_labels", "project.identity.save"],
+  ["ui_helper_text", "project.identity.description"],
+]) {
+  assert.equal(
+    typeof registry.getMessage(category, messageId),
+    "string",
+    `${category}/${messageId} must be an approved source string`
+  );
+}

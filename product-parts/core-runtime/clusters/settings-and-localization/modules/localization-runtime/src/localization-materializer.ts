@@ -38,6 +38,17 @@ interface LocalizationMaterializerOptions {
 
 const BOOTSTRAP_FILE_NAME = "browser-runtime-bootstrap.json";
 
+/** On-disk shape of `Localization/catalogs/<category>/<language>.json`. */
+interface CachedBundleFile {
+  readonly engineId: string;
+  readonly entries: Record<string, string>;
+  readonly language: string;
+  readonly source: LocalizationResolvedRuntimeBundle["source"];
+  /** Source text of each entry whose translation in `entries` is valid. */
+  readonly sourceEntries: Record<string, string>;
+  readonly sourceFingerprint: string;
+}
+
 export class LocalizationMaterializer {
   private readonly activeEngineCatalogs: LocalizationRuntimePayload["availableEngines"];
   private readonly glossaryProtector = new GlossaryProtector();
@@ -82,7 +93,14 @@ export class LocalizationMaterializer {
         )
       ) as Record<LocalizationCategoryId, LocalizationResolvedRuntimeBundle>,
     };
-    await this.writeCachedPayload(cacheKey, payload);
+    // A payload with untranslated fallbacks is not reused: the next pass
+    // retries the failed entries instead of keeping English text.
+    const complete = Object.values(payload.resolvedBundlesByCategory).every(
+      (bundle) => !bundle.error
+    );
+    if (complete) {
+      await this.writeCachedPayload(cacheKey, payload);
+    }
     return payload;
   }
 
@@ -95,16 +113,15 @@ export class LocalizationMaterializer {
     const language = resolveLanguage(category, settings);
     const engineId = settings.uiEngineId.trim() || "google-gtx";
     const dictionary = this.sourceRegistry.resolve(category);
-    const cached = force
-      ? null
-      : await this.readCachedBundle(
-          category,
-          language,
-          sourceFingerprint,
-          engineId
-        );
-    if (cached) {
-      return cached;
+    const cached =
+      force || language === "en"
+        ? null
+        : await this.readCachedBundle(category, language, engineId);
+    if (
+      cached?.sourceFingerprint === sourceFingerprint &&
+      cached.source === "materialized"
+    ) {
+      return { entries: cached.entries, language, source: "materialized" };
     }
     if (!(dictionary && this.translationFacade) || language === "en") {
       return {
@@ -114,31 +131,31 @@ export class LocalizationMaterializer {
       };
     }
 
+    // Incremental refresh: an entry whose source text is unchanged since the
+    // cached translation keeps it; only new, changed or failed entries are
+    // sent to the translation engine.
     const entries: Record<string, string> = {};
+    const sourceEntries: Record<string, string> = {};
     let error: string | null = null;
     for (const [messageId, sourceText] of Object.entries(dictionary.entries)) {
-      const protectedText = this.glossaryProtector.protect(sourceText, {
+      const reused = reusableTranslation(cached, messageId, sourceText);
+      if (reused !== null) {
+        entries[messageId] = reused;
+        sourceEntries[messageId] = sourceText;
+        continue;
+      }
+      const translated = await this.translateEntry(
         category,
-        rules: this.glossaryRules,
-        targetLanguage: language,
-      });
-      const result = await this.translationFacade.translate({
-        category,
-        chunkingMode: "disabled",
+        language,
         engineId,
-        sourceLanguage: DEFAULT_LOCALIZATION_SOURCE_LANGUAGE,
-        targetLanguage: language,
-        text: protectedText.protectedText,
-      });
-      if (result.status === "translated") {
-        entries[messageId] = this.glossaryProtector.restore(
-          result.finalText,
-          language,
-          protectedText.tokens
-        );
+        sourceText
+      );
+      if ("text" in translated) {
+        entries[messageId] = translated.text;
+        sourceEntries[messageId] = sourceText;
       } else {
         entries[messageId] = sourceText;
-        error = result.errorCode ?? "translation_fallback";
+        error = translated.error;
       }
     }
 
@@ -148,66 +165,96 @@ export class LocalizationMaterializer {
       language,
       source: error ? "source_fallback" : "materialized",
     } satisfies LocalizationResolvedRuntimeBundle;
-    await this.writeCachedBundle(category, bundle, sourceFingerprint, engineId);
+    await this.writeCachedBundle(category, bundle, {
+      engineId,
+      sourceEntries,
+      sourceFingerprint,
+    });
     return bundle;
   }
 
+  private async translateEntry(
+    category: LocalizationCategoryId,
+    language: string,
+    engineId: string,
+    sourceText: string
+  ): Promise<{ readonly error: string } | { readonly text: string }> {
+    const protectedText = this.glossaryProtector.protect(sourceText, {
+      category,
+      rules: this.glossaryRules,
+      targetLanguage: language,
+    });
+    const result = await this.translationFacade?.translate({
+      category,
+      chunkingMode: "disabled",
+      engineId,
+      sourceLanguage: DEFAULT_LOCALIZATION_SOURCE_LANGUAGE,
+      targetLanguage: language,
+      text: protectedText.protectedText,
+    });
+    if (result?.status !== "translated") {
+      return { error: result?.errorCode ?? "translation_fallback" };
+    }
+    return {
+      text: this.glossaryProtector.restore(
+        result.finalText,
+        language,
+        protectedText.tokens
+      ),
+    };
+  }
+
+  /** Reads the cached bundle of the same target language and engine. */
   private async readCachedBundle(
     category: LocalizationCategoryId,
     language: string,
-    sourceFingerprint: string,
     engineId: string
-  ): Promise<LocalizationResolvedRuntimeBundle | null> {
-    if (!this.localizationRootDirectory || language === "en") {
+  ): Promise<CachedBundleFile | null> {
+    if (!this.localizationRootDirectory) {
       return null;
     }
     try {
       const cached = JSON.parse(
         await fs.readFile(this.bundlePath(category, language), "utf8")
-      ) as {
-        engineId?: string;
-        entries?: Record<string, string>;
-        language?: string;
-        sourceFingerprint?: string;
-        source?: string;
-      };
-      if (
-        cached.language === language &&
-        cached.sourceFingerprint === sourceFingerprint &&
+      ) as Partial<CachedBundleFile>;
+      return cached.language === language &&
         cached.engineId === engineId &&
-        cached.source === "materialized" &&
         cached.entries
-      ) {
-        return {
-          entries: cached.entries,
-          language,
-          source: "materialized",
-        };
-      }
+        ? {
+            engineId,
+            entries: cached.entries,
+            language,
+            source: cached.source ?? "source_fallback",
+            sourceEntries: cached.sourceEntries ?? {},
+            sourceFingerprint: cached.sourceFingerprint ?? "",
+          }
+        : null;
     } catch {
       return null;
     }
-    return null;
   }
 
+  /**
+   * Writes the bundle with the source text of every successfully translated
+   * entry, so a later pass can reuse them. A bundle with failed entries is
+   * stored too; its `source_fallback` state makes the next pass retry them.
+   */
   private async writeCachedBundle(
     category: LocalizationCategoryId,
     bundle: LocalizationResolvedRuntimeBundle,
-    sourceFingerprint: string,
-    engineId: string
+    provenance: Pick<
+      CachedBundleFile,
+      "engineId" | "sourceEntries" | "sourceFingerprint"
+    >
   ): Promise<void> {
-    if (
-      !this.localizationRootDirectory ||
-      bundle.language === "en" ||
-      bundle.source !== "materialized"
-    ) {
+    if (!this.localizationRootDirectory || bundle.language === "en") {
       return;
     }
     const bundlePath = this.bundlePath(category, bundle.language);
     await fs.mkdir(path.dirname(bundlePath), { recursive: true });
     await fs.writeFile(
       bundlePath,
-      `${JSON.stringify({ category, engineId, sourceFingerprint, ...bundle }, null, 2)}\n`,
+      `${JSON.stringify({ category, ...provenance, ...bundle }, null, 2)}\n`,
       "utf8"
     );
   }
@@ -264,6 +311,18 @@ export class LocalizationMaterializer {
       `${normalizeLanguage(language)}.json`
     );
   }
+}
+
+function reusableTranslation(
+  cached: CachedBundleFile | null,
+  messageId: string,
+  sourceText: string
+): string | null {
+  const translated = cached?.entries[messageId];
+  return cached?.sourceEntries[messageId] === sourceText &&
+    typeof translated === "string"
+    ? translated
+    : null;
 }
 
 function resolveLanguage(

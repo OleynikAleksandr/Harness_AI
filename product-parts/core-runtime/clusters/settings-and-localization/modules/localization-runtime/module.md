@@ -176,11 +176,30 @@ materialization, bootstrap payload reuse, and bundle state.
   The Core Runtime Process supplies the Harness home `Localization` root for
   packaged-app browser runtime payloads.
 - Cache reuse is keyed by both the localization settings snapshot and the
-  source dictionary fingerprint. Per-category materialized bundles also store
-  that fingerprint and the resolved `engineId`, so adding or changing approved
-  source strings, or switching the UI Translation Engine while keeping the same
-  target language, both invalidate stale cached bundles instead of silently
+  source dictionary fingerprint. Per-category bundles also store that
+  fingerprint, the resolved `engineId` and `sourceEntries` (the English source
+  text of every successfully translated entry). A bundle whose fingerprint
+  matches and whose `source` is `materialized` is reused whole. Otherwise the
+  refresh is incremental: for the same target language and engine, an entry
+  whose source text equals its `sourceEntries` record keeps the cached
+  translation, and only new, changed, missing or previously failed entries go
+  to the translation engine. Adding or changing approved source strings
+  therefore translates exactly the affected keys in every non-English
+  category; switching the UI Translation Engine (or a cached file of the older
+  format without `sourceEntries`) retranslates the whole bundle instead of
   reusing content translated by a previous engine.
+- A bundle with failed entries keeps the English source text for them, reports
+  `error` and `source: "source_fallback"`, and is still written with the
+  `sourceEntries` of its translated entries, so the next pass retries only the
+  failed ones. The bootstrap payload is cached only when no bundle has an
+  `error`, so a transient engine failure never pins English text in
+  `browser-runtime-bootstrap.json` until the next source or settings change.
+- Translation is machine-made by the provider translation engines; there is no
+  curated per-language dictionary layer. The renderer looks a message id up in
+  the bundle of the category it names and falls back to its English bootstrap
+  string, so the shown language of a string is the language configured for its
+  category (for example, `ui_labels` follows the General "UI Labels" setting,
+  `ui_helper_text` follows "UI Helper Text").
 - Selective materialization for settings changes that affect UI bundles.
 - Runtime payload with active engine id, available engine catalogs, and
   category-keyed bundle entries.
@@ -192,7 +211,7 @@ materialization, bootstrap payload reuse, and bundle state.
   do-not-translate glossary alone never invalidates an already-materialized
   bundle; `force: true` skips the cache reads for one materialization pass
   (still writing the fresh result to cache afterward as normal) so a caller
-  can force a full retranslation on demand.
+  can force a full retranslation of every entry on demand.
 
 ## Owned Paths
 

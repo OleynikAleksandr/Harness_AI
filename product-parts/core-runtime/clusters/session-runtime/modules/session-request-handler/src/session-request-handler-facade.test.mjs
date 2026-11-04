@@ -5,6 +5,10 @@ const source = readFileSync(
   new URL("./session-request-handler-facade.ts", import.meta.url),
   "utf8"
 );
+const treeSource = readFileSync(
+  new URL("./session-tree-release.ts", import.meta.url),
+  "utf8"
+);
 const routerSource = readFileSync(
   new URL("./session-provider-event-router.ts", import.meta.url),
   "utf8"
@@ -110,10 +114,10 @@ assert.match(
 // Provider session id is persisted on both initial binding and promotion.
 assert.match(source, /private rememberProviderSessionId\(/u);
 assert.match(
-  source,
+  treeSource,
   /binding\?\.providerSessionId \?\? session\.providerSessionId/u
 );
-assert.match(source, /closeAndCleanupProviderSession\(\{/u);
+assert.match(treeSource, /closeAndCleanupProviderSession\(\{/u);
 assert.doesNotMatch(source, /event\.tag === "thinking"/u);
 
 const utilsSource = readFileSync(
@@ -157,7 +161,15 @@ assert.match(source, /regenerateSessionTitle\(/u);
 assert.match(titleServiceSource, /titleOrigin: "manual"/u);
 assert.match(titleServiceSource, /titleOrigin: "auto"/u);
 assert.match(titleServiceSource, /session\.sessionKind === "subagent"/u);
-assert.match(source, /collectSessionTreeIds\(this\.sessions, sessionId\)/u);
+assert.match(
+  treeSource,
+  /collectSessionTreeIds\(store\.sessions, sessionId\)/u
+);
+assert.match(source, /deleteSessionTree\(this\.records\(\), sessionId, \{/u);
+assert.match(
+  source,
+  /releaseWorkspaceSessions\(this\.records\(\), workspaceId\)/u
+);
 assert.match(utilsSource, /export function collectSessionTreeIds\(/u);
 assert.match(utilsSource, /session\.parentSessionId === parentSessionId/u);
 assert.match(bindingLifecycleSource, /adoptProviderSession\(/u);
@@ -206,9 +218,12 @@ assert.doesNotMatch(routerSource, /event\.tag === "thinking"/u);
 
 // The delete cascade removes each tree session's persisted event JSONL and
 // reasoning translation overlay so no orphan sidecar files remain.
-assert.match(source, /this\.eventStream\.deleteSessionEvents\?\.\(id\);/u);
 assert.match(
-  source,
-  /this\.reasoningTranslation\.deleteSessionOverlays\(\s*session\.workspacePath,\s*id\s*\)/u
+  treeSource,
+  /dependencies\.eventStream\.deleteSessionEvents\?\.\(id\);/u
+);
+assert.match(
+  treeSource,
+  /dependencies\.reasoningTranslation\.deleteSessionOverlays\(\s*session\.workspacePath,\s*id\s*\)/u
 );
 assert.match(typesSource, /deleteSessionEvents\?\(sessionId: string\): void;/u);

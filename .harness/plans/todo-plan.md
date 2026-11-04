@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 14,
+  "revision": 16,
   "rounds": [
     {
       "digest": null,
@@ -92,14 +92,17 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts",
-        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.ts"
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.ts",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.test.mjs"
       ],
       "fixes": null,
       "id": "F2",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Release the sessions of a workspace from Core memory",
       "why": "Removing a project must close its provider sessions and drop its records without deleting history files"
     },
@@ -274,8 +277,8 @@
 - Scope: release-fixes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 1/8
-- Revision: 14
+- Progress: 2/8
+- Revision: 16
 
 ## Objective
 
@@ -294,9 +297,9 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
 - [DONE] F1 — Observe Claude async subagents to their real end (work)
   - Commit: fix: follow claude async subagents to their real end
   - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts, docs/architecture/ClaudeSubagentSessions.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.test.mjs
-- [TODO] F2 — Release the sessions of a workspace from Core memory (work)
+- [DONE] F2 — Release the sessions of a workspace from Core memory (work)
   - Commit: feat: release workspace sessions from core
-  - Files: product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.ts
+  - Files: product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.test.mjs
 - [TODO] F3 — Remove app-home provider residue of a workspace (work)
   - Commit: feat: remove provider home residue of a workspace
   - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts

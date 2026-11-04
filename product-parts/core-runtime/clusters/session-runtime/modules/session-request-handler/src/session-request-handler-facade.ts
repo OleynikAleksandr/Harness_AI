@@ -30,8 +30,6 @@ import {
 } from "./session-profile-resolution.js";
 import { SessionProviderBindingLifecycle } from "./session-provider-binding-lifecycle.js";
 import {
-  closeAndCleanupProviderSession,
-  collectSessionTreeIds,
   createId,
   stringifyError,
 } from "./session-request-handler-runtime-utils.js";
@@ -53,6 +51,11 @@ import type {
 import { SessionRollback } from "./session-rollback.js";
 import { SessionSubagentLifecycle } from "./session-subagent-lifecycle.js";
 import { sessionTitleService } from "./session-title-service.js";
+import {
+  deleteSessionTree,
+  releaseWorkspaceSessions,
+  type SessionRecordStore,
+} from "./session-tree-release.js";
 import { SessionTurnStop } from "./session-turn-stop.js";
 
 export type { CreateProfileCreatorSessionRequest } from "./session-creation.js";
@@ -240,40 +243,25 @@ export class SessionRequestHandlerFacade {
     if (!rootSession) {
       return { error: "Session not found", ok: false };
     }
-    const sessionIds = collectSessionTreeIds(this.sessions, sessionId)
-      .slice()
-      .reverse();
-    for (const id of sessionIds) {
-      const session = this.sessions.get(id);
-      if (!session) {
-        continue;
-      }
-      const binding = this.runtimeBindings.get(id);
-      closeAndCleanupProviderSession({
-        adapter:
-          binding?.adapter ??
-          this.providerRegistry.getAdapter(session.providerId),
-        binding,
-        providerSessionId:
-          binding?.providerSessionId ?? session.providerSessionId,
-        workspacePath: session.workspacePath,
-      });
-      // Every session in the deleted tree drops its persisted event JSONL
-      // and reasoning translation overlay, so no orphan artifacts remain.
-      this.eventStream.deleteSessionEvents?.(id);
-      if (session.workspacePath) {
-        this.reasoningTranslation.deleteSessionOverlays(
-          session.workspacePath,
-          id
-        );
-      }
-      this.runtimeBindings.delete(id);
-      this.messagesBySession.delete(id);
-      this.telemetryBySession.delete(id);
-      this.sessions.delete(id);
-    }
+    deleteSessionTree(this.records(), sessionId, {
+      eventStream: this.eventStream,
+      providerRegistry: this.providerRegistry,
+      reasoningTranslation: this.reasoningTranslation,
+    });
     this.persistSessionIndex(rootSession.workspacePath);
     return { ok: true };
+  }
+  /** Drops a removed workspace's sessions from memory; files stay on disk. */
+  releaseWorkspaceSessions(workspaceId: string): string[] {
+    return releaseWorkspaceSessions(this.records(), workspaceId);
+  }
+  private records(): SessionRecordStore {
+    return {
+      messagesBySession: this.messagesBySession,
+      runtimeBindings: this.runtimeBindings,
+      sessions: this.sessions,
+      telemetryBySession: this.telemetryBySession,
+    };
   }
   listSessions(workspaceId?: string): CoreSession[] {
     const sessions = Array.from(this.sessions.values());

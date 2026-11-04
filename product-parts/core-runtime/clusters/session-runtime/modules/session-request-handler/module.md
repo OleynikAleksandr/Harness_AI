@@ -192,6 +192,14 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   (`ReasoningTranslationOverlayFacade.deleteSessionOverlays`), so deleted
   subagent trees leave no orphan files under `.harness/sessions/events/` or
   `.harness/sessions/reasoning-translations/`.
+  The cascade lives in `session-tree-release.ts` (`deleteSessionTree`), which
+  works on the facade's record maps (`SessionRecordStore`).
+- `releaseWorkspaceSessions(workspaceId)` (Core `remove-workspace`, the
+  project is removed from the app) closes the subscription and live provider
+  session of every session of that workspace and drops its records from
+  memory. Unlike delete it removes no files: provider artifacts, event JSONL
+  and the session index stay in the project, so opening the project again
+  restores its sessions. Returns the released session ids.
 - `session-title-service.ts` owns title normalization and mutation. The first
   substantive primary-session user message replaces the provider placeholder
   exactly once with a 72-character auto title. Manual rename normalizes and

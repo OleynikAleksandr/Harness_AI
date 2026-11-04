@@ -29,7 +29,9 @@ Owns the Workflow Kit plan:
   - `baselineCommit`: full SHA;
   - `status`: `ACTIVE` or `BLOCKED`, with `blockedReason`;
   - `delivery`: `IN_PROGRESS`, `READY_FOR_ACCEPTANCE` or `ACCEPTED`, with
-    `acceptanceNote`.
+    `acceptanceNote`;
+  - `execution` (optional): `{strategy, maxWorkers, ownerSession}`, see
+    "Execution" below. An absent block means `sequential`.
 - `WorkflowRound` has `id` (`R1`, `R2`, `R0-legacy`), `kind`
   (`implementation`, `fixes`, `legacy`), `status` (`OPEN`, `CLOSED`) and
   `digest`.
@@ -40,13 +42,15 @@ Owns the Workflow Kit plan:
     documentation;
   - `dependencies`, `acceptance`, `checks`, `context`;
   - `commitMessage`, `fixes`, `docsWaiver`;
-  - `confirmation`: user confirmation of a delivery task.
+  - `confirmation`: user confirmation of a delivery task;
+  - `parallelSafe` (optional): stored only when `true`; absent means
+    `false`.
 
 ## Validation Rules (`validatePlan`)
 
 Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
 `DELIVERY_ORDER`, `ROUND_DIGEST_REQUIRED`, `ROUND_DIGEST_TOO_LARGE`,
-`UNSAFE_PATH`.
+`UNSAFE_PATH`, `PLAN_EXECUTION`, `PARALLEL_KIND`, `PARALLEL_FILES`.
 
 - **Without a scope:** there are no rounds, no tasks and no current task.
 - **Scope:**
@@ -70,6 +74,16 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
   - `fixes` points to an earlier task;
   - tasks of a closed round are `DONE`;
   - only delivery tasks carry `confirmation`.
+- **Execution and parallel labels** (`plan-execution.ts`, checked right
+  after the scope and before the task fields):
+  - `scope.execution`, when present: `strategy` is `sequential` or
+    `orchestrated`, `maxWorkers` is an integer from 1 to 16, `ownerSession`
+    is a non-empty string or `null` (`PLAN_EXECUTION`);
+  - `parallelSafe`, when present, is boolean (`PLAN_SCHEMA`);
+  - only `work` tasks may be `parallelSafe: true` (`PARALLEL_KIND`);
+  - a `parallelSafe` task lists at least one file and every file is a
+    concrete path: no glob characters (`*?[]{}`), not `.`, no trailing `/`
+    (`PARALLEL_FILES`).
 - **Service tasks:**
   - a non-legacy round has at most one `DOCS-<round>` task;
   - it holds only documentation files and depends on every `work` and
@@ -87,7 +101,12 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
   - the JSON state between `<!-- harness-workflow:begin -->` and
     `<!-- harness-workflow:end -->` in one fenced `json` block;
   - a readable projection: state, objective, acceptance, and rounds with
-    their tasks and digests.
+    their tasks and digests;
+  - the state shows `- Execution: sequential` or `- Execution: orchestrated
+    (max <n> workers, owner <session>)` only when the scope has an
+    execution block, and a `parallelSafe` task line reads `(work,
+    parallel-safe)`. Plans without these fields render as before, so
+    existing plan documents keep their projection.
 - `parse(text, {projection})` checks the markers (`PLAN_MARKERS`) and the
   JSON (`PLAN_JSON`), then validates the plan. With `projection` (the
   default) the whole text must equal `render(plan)`. A manual edit fails
@@ -110,7 +129,12 @@ quality-profile state.
     - the approval is shorter than 10 characters (`SCOPE_APPROVAL`);
     - there are several tasks and no `spec` (`SPEC_REQUIRED`).
   - Normalizes input tasks. Ids default to `T001`, `T002` and so on; the
-    input `kind` may only be `work` or `delivery`.
+    input `kind` may only be `work` or `delivery`. Input `parallelSafe:
+    false` is stored as an absent field; any other given value is kept and
+    validated. `plan:extend` normalizes its tasks the same way.
+  - Stores `input.execution` with defaults `maxWorkers: 3` and
+    `ownerSession: null`; without it the scope has no execution block
+    (`sequential`).
   - Arranges round `R1`:
     1. `QUALITY` goes before the first `work` task with functional files,
        unless the quality profile is configured or a pending `QUALITY` task
@@ -139,6 +163,23 @@ quality-profile state.
 - **`nextTask(plan)`** returns the current task, or the first `TODO` task
   whose dependencies are `DONE`. **`task(plan, id)`** throws
   `UNKNOWN_TASK`.
+
+## Execution (`plan-execution.ts`)
+
+Implements sections 2 and 3 of
+`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`. These are pure
+functions; the facade exposes them as methods.
+
+- **`execution(plan)`** returns the effective block; a plan without one gets
+  `{strategy: "sequential", maxWorkers: 3, ownerSession: null}`.
+- **`compatibleTasks(plan, firstId, secondId)`** is true when the two
+  tasks are different `parallelSafe` `work` tasks, neither depends on the
+  other even transitively (through any task), and no path of one equals
+  or is nested in a path of the other by directory segment (`src/lib`
+  conflicts with `src/lib/a.ts`, not with `src/libx.ts`). Unknown ids give
+  `false`. Task status is not considered.
+- **`hasParallelWork(plan)`** is true when at least one pair of tasks of
+  the plan is compatible. It accepts any `{tasks}` object.
 
 ## Rounds Lifecycle (`plan-rounds.ts`)
 
@@ -181,7 +222,8 @@ quality-profile state.
 - **`carryover(plan, {id, approval, objective?}, context)`** closes the
   current scope and opens a new one:
   - every unfinished non-`DOCS` task moves into round `R1` and is reset to
-    `TODO`;
+    `TODO`, keeping its `parallelSafe` label;
+  - the new scope keeps the execution block of the old one;
   - dependencies and `fixes` links that point to finished or dropped tasks
     are removed;
   - `QUALITY` and `DOCS` are rebuilt.

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 31,
+  "revision": 33,
   "rounds": [
     {
       "digest": null,
@@ -73,14 +73,20 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-execution.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-document.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-document.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-service-tasks.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-transitions.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-execution.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts"
       ],
       "fixes": null,
       "id": "E1",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Plan labels and execution block",
       "why": "Modes need parallelSafe labels, a scope execution block and a Kit-computed parallel-work fact"
     },
@@ -688,8 +694,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 0/22
-- Revision: 31
+- Progress: 1/22
+- Revision: 33
 
 ## Objective
 
@@ -707,9 +713,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
 
 ### R1 — Implementation (implementation, OPEN)
 
-- [TODO] E1 — Plan labels and execution block (work)
+- [DONE] E1 — Plan labels and execution block (work)
   - Commit: feat: add parallel labels and execution block to workflow plans
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-document.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-document.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-service-tasks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-transitions.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-execution.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts
 - [TODO] E2 — Kit-formed git identity in transactions (work)
   - Commit: feat: form and verify git identity in workflow commits
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-identity.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts

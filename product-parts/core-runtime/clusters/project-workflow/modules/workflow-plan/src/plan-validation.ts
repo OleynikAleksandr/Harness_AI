@@ -2,6 +2,7 @@ import {
   ensure,
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { validatePlanExecution } from "./plan-execution.js";
 import {
   DIGEST_ITEM_MAX_BYTES,
   DIGEST_MAX_ITEMS,
@@ -442,6 +443,7 @@ export function validatePlan(plan: WorkflowPlan): WorkflowPlan {
     return plan;
   }
   validateScope(plan.scope);
+  validatePlanExecution(plan);
   validateRounds(plan);
   for (const task of plan.tasks) {
     validateTaskFields(task);

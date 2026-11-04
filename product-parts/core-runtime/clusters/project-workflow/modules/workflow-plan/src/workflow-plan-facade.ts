@@ -6,9 +6,15 @@ import {
   renderPlanDocument,
 } from "./plan-document.js";
 import {
+  compatibleTasks,
+  hasParallelWork,
+  scopeExecution,
+} from "./plan-execution.js";
+import {
   emptyPlan,
   PLAN_PATH,
   type RoundDigest,
+  type WorkflowExecution,
   type WorkflowPlan,
   type WorkflowTask,
 } from "./plan-model.js";
@@ -35,15 +41,18 @@ import {
 } from "./plan-transitions.js";
 import { validateDigest, validatePlan } from "./plan-validation.js";
 
+export type { ExecutionInput } from "./plan-execution.js";
 export type {
   DeliveryStatus,
   DocumentRef,
+  ExecutionStrategy,
   RoundDigest,
   RoundKind,
   ScopeStatus,
   TaskKind,
   TaskStatus,
   UserDecision,
+  WorkflowExecution,
   WorkflowPlan,
   WorkflowRound,
   WorkflowScope,
@@ -168,6 +177,25 @@ export class WorkflowPlanFacade {
   /** The current task, or the first TODO task whose dependencies are DONE. */
   nextTask(plan: WorkflowPlan): WorkflowTask | null {
     return nextReadyTask(plan);
+  }
+
+  /** The scope execution block; a plan without one is sequential. */
+  execution(plan: WorkflowPlan): WorkflowExecution {
+    return scopeExecution(plan.scope);
+  }
+
+  /** Kit-computed fact: at least one pair of tasks may run in parallel. */
+  hasParallelWork(plan: Pick<WorkflowPlan, "tasks">): boolean {
+    return hasParallelWork(plan);
+  }
+
+  /** Whether two tasks of the plan may run at the same time (spec section 2). */
+  compatibleTasks(
+    plan: Pick<WorkflowPlan, "tasks">,
+    firstId: string,
+    secondId: string
+  ): boolean {
+    return compatibleTasks(plan, firstId, secondId);
   }
 
   write(root: string, plan: WorkflowPlan): string {

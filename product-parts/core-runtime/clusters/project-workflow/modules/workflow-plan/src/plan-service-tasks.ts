@@ -21,6 +21,7 @@ export interface TaskInput {
   fixes?: string | null;
   id?: string;
   kind?: TaskKind;
+  parallelSafe?: boolean;
   title: string;
   why?: string;
 }
@@ -72,6 +73,10 @@ export function normalizeTaskInput(
     id,
     iteration: 1,
     kind: input.kind ?? "work",
+    // Absent and false are stored alike: the field is kept only when set.
+    ...(input.parallelSafe === undefined || input.parallelSafe === false
+      ? {}
+      : { parallelSafe: input.parallelSafe }),
     roundId,
     status: "TODO",
     title: input.title,

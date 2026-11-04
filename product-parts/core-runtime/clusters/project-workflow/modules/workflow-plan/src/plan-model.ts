@@ -10,6 +10,7 @@ export type TaskStatus = "DONE" | "IN_PROGRESS" | "TODO";
 export type TaskKind = "delivery" | "docs" | "quality" | "work";
 export type RoundKind = "fixes" | "implementation" | "legacy";
 export type RoundStatus = "CLOSED" | "OPEN";
+export type ExecutionStrategy = "orchestrated" | "sequential";
 
 export interface DocumentRef {
   heading?: string;
@@ -50,10 +51,19 @@ export interface WorkflowTask {
   id: string;
   iteration: number;
   kind: TaskKind;
+  /** Absent means false; only `work` tasks may set it. */
+  parallelSafe?: boolean;
   roundId: string;
   status: TaskStatus;
   title: string;
   why: string;
+}
+
+/** Execution block of a scope; an absent block means `sequential`. */
+export interface WorkflowExecution {
+  maxWorkers: number;
+  ownerSession: string | null;
+  strategy: ExecutionStrategy;
 }
 
 export interface WorkflowScope {
@@ -65,6 +75,7 @@ export interface WorkflowScope {
   context: DocumentRef[];
   decisions: UserDecision[];
   delivery: DeliveryStatus;
+  execution?: WorkflowExecution;
   id: string;
   objective: string;
   spec: string | null;

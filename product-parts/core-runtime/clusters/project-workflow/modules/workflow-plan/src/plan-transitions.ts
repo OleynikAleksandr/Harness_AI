@@ -1,4 +1,5 @@
 import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { type ExecutionInput, normalizeExecution } from "./plan-execution.js";
 import type {
   DocumentRef,
   RoundDigest,
@@ -18,6 +19,7 @@ export interface ScopeInput {
   approval: string;
   context?: DocumentRef[];
   decisions?: string[];
+  execution?: ExecutionInput | null;
   id: string;
   objective: string;
   spec?: string | null;
@@ -91,6 +93,7 @@ export function createScope(
   const next = nextRevision(plan);
   const ids = new Set<string>();
   const tasks = input.tasks.map((task) => normalizeTaskInput(task, "R1", ids));
+  const execution = normalizeExecution(input.execution);
   next.scope = {
     acceptance: input.acceptance,
     acceptanceNote: null,
@@ -102,6 +105,7 @@ export function createScope(
       decision(text, context.now)
     ),
     delivery: "IN_PROGRESS",
+    ...(execution ? { execution } : {}),
     id: input.id,
     objective: input.objective,
     spec: input.spec ?? null,

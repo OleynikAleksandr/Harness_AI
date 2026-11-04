@@ -3,6 +3,7 @@ import {
   WorkflowError,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
 import type {
+  WorkflowExecution,
   WorkflowPlan,
   WorkflowRound,
   WorkflowTask,
@@ -16,7 +17,7 @@ const CRLF_PATTERN = /\r\n/gu;
 
 function taskLine(task: WorkflowTask): string[] {
   const lines = [
-    `- [${task.status}] ${task.id} — ${task.title} (${task.kind})`,
+    `- [${task.status}] ${task.id} — ${task.title} (${task.kind}${task.parallelSafe ? ", parallel-safe" : ""})`,
     `  - Commit: ${task.commitMessage}`,
   ];
   if (task.files.length > 0) {
@@ -46,6 +47,22 @@ function roundLines(round: WorkflowRound, tasks: WorkflowTask[]): string[] {
   return lines;
 }
 
+/** Plans without an execution block render without this line. */
+function executionLines(execution: WorkflowExecution | undefined): string[] {
+  if (!execution) {
+    return [];
+  }
+  if (execution.strategy === "sequential") {
+    return ["- Execution: sequential"];
+  }
+  const owner = execution.ownerSession
+    ? `, owner ${execution.ownerSession}`
+    : "";
+  return [
+    `- Execution: orchestrated (max ${execution.maxWorkers} workers${owner})`,
+  ];
+}
+
 function scopeLines(plan: WorkflowPlan): string[] {
   const scope = plan.scope;
   if (!scope) {
@@ -60,6 +77,7 @@ function scopeLines(plan: WorkflowPlan): string[] {
     "",
     `- Scope: ${scope.id} (${scope.status}${scope.blockedReason ? `: ${scope.blockedReason}` : ""})`,
     `- Delivery: ${scope.delivery}`,
+    ...executionLines(scope.execution),
     `- Current task: ${plan.currentTaskId ?? "none"}`,
     `- Progress: ${done}/${plan.tasks.length}`,
     `- Revision: ${plan.revision}`,

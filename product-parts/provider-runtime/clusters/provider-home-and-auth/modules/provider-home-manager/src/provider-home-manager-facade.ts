@@ -4,6 +4,7 @@ import {
   link,
   lstat,
   mkdir,
+  readdir,
   readFile,
   readlink,
   rm,
@@ -37,6 +38,13 @@ const SUMMARY_LINE = 'model_reasoning_summary = "detailed"';
 const SUMMARY_LINE_RE = /^\s*model_reasoning_summary\s*=\s*.+?$/gmu;
 const REASONING_EFFORT_LINE_RE = /^\s*model_reasoning_effort\s*=\s*.+$/mu;
 const TOML_TABLE_RE = /^\s*\[/mu;
+const NON_SLUG_CHARACTER_RE = /[^a-zA-Z0-9]/gu;
+// Directories a CLI keeps per project inside a provider home, keyed by the
+// project path slug (Claude CLI: every non-alphanumeric character becomes -).
+const WORKSPACE_SLUG_DIRECTORIES = [
+  [".claude", "projects"],
+  ["Library", "Caches", "claude-cli-nodejs"],
+];
 
 export class ProviderHomeManagerFacade {
   resolveProviderHome(request: ProviderHomeRequest): string {
@@ -57,6 +65,40 @@ export class ProviderHomeManagerFacade {
       request.providerId,
       "home"
     );
+  }
+
+  /**
+   * Removes what the app-level provider homes
+   * (`~/.harness-ai/providers/<provider>/home`) keep for one project path
+   * when the project is removed from the app. Workspace-local homes live in
+   * the project folder and stay untouched. Returns the removed directories.
+   */
+  async removeWorkspaceResidue(
+    workspacePath: string,
+    providersRoot = path.join(homedir(), ".harness-ai", "providers")
+  ): Promise<string[]> {
+    const slug = workspacePath.replace(NON_SLUG_CHARACTER_RE, "-");
+    if (!(path.isAbsolute(workspacePath) && slug.replaceAll("-", ""))) {
+      return [];
+    }
+    const providers = await readdir(providersRoot).catch(() => []);
+    const removed: string[] = [];
+    for (const providerId of providers) {
+      for (const segments of WORKSPACE_SLUG_DIRECTORIES) {
+        const target = path.join(
+          providersRoot,
+          providerId,
+          "home",
+          ...segments,
+          slug
+        );
+        if (await exists(target)) {
+          await rm(target, { force: true, recursive: true });
+          removed.push(target);
+        }
+      }
+    }
+    return removed;
   }
 
   async prepareCodexHome(

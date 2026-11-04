@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 16,
+  "revision": 18,
   "rounds": [
     {
       "digest": null,
@@ -117,14 +117,16 @@
       "dependencies": [],
       "docsWaiver": null,
       "files": [
-        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts"
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts",
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md",
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs"
       ],
       "fixes": null,
       "id": "F3",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Remove app-home provider residue of a workspace",
       "why": "Global provider homes keep per-project Claude directories keyed by the project path"
     },
@@ -277,8 +279,8 @@
 - Scope: release-fixes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 2/8
-- Revision: 16
+- Progress: 3/8
+- Revision: 18
 
 ## Objective
 
@@ -300,9 +302,9 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
 - [DONE] F2 — Release the sessions of a workspace from Core memory (work)
   - Commit: feat: release workspace sessions from core
   - Files: product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.test.mjs
-- [TODO] F3 — Remove app-home provider residue of a workspace (work)
+- [DONE] F3 — Remove app-home provider residue of a workspace (work)
   - Commit: feat: remove provider home residue of a workspace
-  - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts
+  - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs
 - [TODO] F4 — Core remove-workspace route (work)
   - Commit: feat: add core route to remove a workspace
   - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts

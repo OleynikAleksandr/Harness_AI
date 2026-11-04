@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -76,3 +77,55 @@ assert.equal(
     "",
   ].join("\n")
 );
+
+// Removing a project from the app clears only its slug directories in the
+// app-level provider homes.
+const providersRoot = mkdtempSync(join(tmpdir(), "harness-provider-homes-"));
+const projectPath = "/Users/x/VSCODE/Test_New_HarnesAI_001";
+const projectSlug = "-Users-x-VSCODE-Test-New-HarnesAI-001";
+const projectDirs = [
+  join(providersRoot, "claude", "home", ".claude", "projects", projectSlug),
+  join(
+    providersRoot,
+    "claude",
+    "home",
+    "Library",
+    "Caches",
+    "claude-cli-nodejs",
+    projectSlug
+  ),
+];
+const otherDir = join(
+  providersRoot,
+  "claude",
+  "home",
+  ".claude",
+  "projects",
+  "-Users-x-VSCODE-harness-ai"
+);
+for (const dir of [...projectDirs, otherDir]) {
+  mkdirSync(join(dir, "memory"), { recursive: true });
+}
+mkdirSync(join(providersRoot, "codex", "home"), { recursive: true });
+assert.deepEqual(
+  (
+    await new ProviderHomeManagerFacade().removeWorkspaceResidue(
+      projectPath,
+      providersRoot
+    )
+  ).sort(),
+  projectDirs.slice().sort()
+);
+assert.equal(
+  projectDirs.some((dir) => existsSync(dir)),
+  false
+);
+assert.equal(existsSync(otherDir), true);
+assert.deepEqual(
+  await new ProviderHomeManagerFacade().removeWorkspaceResidue(
+    "relative/path",
+    providersRoot
+  ),
+  []
+);
+rmSync(providersRoot, { force: true, recursive: true });

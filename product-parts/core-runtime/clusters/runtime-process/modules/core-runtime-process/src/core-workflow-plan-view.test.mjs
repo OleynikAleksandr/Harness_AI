@@ -85,6 +85,7 @@ try {
   for (const file of [
     "core-workflow-plan-view",
     "core-workflow-mode-choice",
+    "core-workflow-pause",
     "core-workflow-watch",
   ]) {
     writeFileSync(

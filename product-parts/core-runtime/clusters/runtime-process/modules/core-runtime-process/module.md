@@ -266,7 +266,16 @@ inherited PATH with one `console.error` line; Windows is skipped.
   `workflow-inspect`, `workflow-prepare-project` (installs with
   `host: "harness"`), `workflow-identity-set` (one-time global git identity,
   then the client repeats the preparation), `workflow-status` (Kit outcome
-  plus `planView`), `workflow-doctor`, `workflow-autopilot-get/-set`,
+  plus `planView`), `workflow-doctor`, `workflow-autopilot-get` (the
+  snapshot with `pauseState` `running | pausing | paused`),
+  `workflow-autopilot-set` (internal, not for the interface),
+  `workflow-pause-set {sessionId, paused}` (`core-workflow-pause.ts`: Kit
+  `pause:set --on|--off` in the session's workspace with a fixed note naming
+  the plan panel button, then `refreshPause(sessionId)` of the session
+  autopilot, which publishes `workflow:autopilot` and continues an idle
+  session when the pause is lifted; the current turn is never interrupted;
+  result `{ok: true, autopilot}`; `INVALID_REQUEST`, `UNKNOWN_SESSION`,
+  `NO_WORKSPACE` or the Kit failure envelope),
   `workflow-mode-choice-get`, `workflow-mode-choose` (the execution mode card
   of `core-workflow-mode-choice.ts`; a successful mode choice arms the owner
   session autopilot before the choice message). Events: `workflow:status`

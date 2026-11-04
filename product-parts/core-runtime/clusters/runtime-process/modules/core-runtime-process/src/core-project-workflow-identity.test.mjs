@@ -21,10 +21,11 @@ const compiled = ts.transpileModule(source, {
     target: ts.ScriptTarget.ES2022,
   },
 }).outputText;
-// Minimal stand-ins for the mode card, plan view and watchers.
+// Minimal stand-ins for the mode card, pause route, plan view and watchers.
 const STUBS = {
   "core-workflow-mode-choice.js":
     "export class CoreWorkflowModeChoice { constructor() {} }\n",
+  "core-workflow-pause.js": "export const setWorkflowPause = () => null;\n",
   "core-workflow-plan-view.js":
     "export const buildPlanView = () => null;\nexport class PlanViewSessionWatch { close() {} }\n",
   "core-workflow-watch.js":

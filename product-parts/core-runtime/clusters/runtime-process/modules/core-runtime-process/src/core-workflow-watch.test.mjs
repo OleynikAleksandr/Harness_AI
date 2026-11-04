@@ -34,6 +34,11 @@ try {
     transpile("./core-workflow-plan-view.ts"),
     "utf8"
   );
+  writeFileSync(
+    path.join(buildDir, "core-workflow-pause.js"),
+    transpile("./core-workflow-pause.ts"),
+    "utf8"
+  );
   const rpcSource = readFileSync(
     new URL("./core-project-workflow-rpc.ts", import.meta.url),
     "utf8"

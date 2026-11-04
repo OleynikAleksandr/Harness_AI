@@ -21,6 +21,7 @@ import {
   CoreWorkflowModeChoice,
   type ModeChoiceDependencies,
 } from "./core-workflow-mode-choice.js";
+import { setWorkflowPause } from "./core-workflow-pause.js";
 import {
   buildPlanView,
   type PlanView,
@@ -40,6 +41,7 @@ const PROJECT_WORKFLOW_METHODS = new Set([
   "workflow-inspect",
   "workflow-mode-choice-get",
   "workflow-mode-choose",
+  "workflow-pause-set",
   "workflow-prepare-project",
   "workflow-status",
 ]);
@@ -54,7 +56,7 @@ export interface ProjectWorkflowDependencies {
   /** The Core autopilot executor; defaults to the shared instance. */
   autopilot?: Pick<
     SessionWorkflowAutopilot,
-    "get" | "setEnabled" | "subscribe"
+    "get" | "refreshPause" | "setEnabled" | "subscribe"
   >;
   host: Pick<
     WorkflowHostFacade,
@@ -64,6 +66,7 @@ export interface ProjectWorkflowDependencies {
     | "inspect"
     | "install"
     | "proposal"
+    | "run"
     | "setIdentity"
     | "status"
     | "writeRuntimeFile"
@@ -187,7 +190,8 @@ function refusal(
  * Core RPC for project workflow: folder inspection, project preparation
  * (install or update, then registration as a workspace), the global git
  * identity (`workflow-identity-set`), Kit status, the
- * project doctor, the per-session autopilot switch and the execution mode
+ * project doctor, the per-session autopilot switch, the plan panel pause
+ * (`workflow-pause-set`, `core-workflow-pause.ts`) and the execution mode
  * card. Every operation on a workspace publishes `workflow:status`;
  * autopilot changes and decisions publish `workflow:autopilot`; mode card
  * changes publish `workflow:mode-choice`. The Kit state of known workspaces
@@ -285,6 +289,16 @@ export class CoreProjectWorkflowRpc {
         );
       case "workflow-autopilot-set":
         return this.autopilotSet(readText(record, "sessionId"), record.enabled);
+      case "workflow-pause-set":
+        return setWorkflowPause(
+          {
+            autopilot: this.autopilot,
+            host: this.dependencies.host,
+            sessions: this.dependencies.sessions,
+          },
+          readText(record, "sessionId"),
+          record.paused
+        );
       case "workflow-mode-choice-get":
         return Promise.resolve(
           this.modeChoice.get(readText(record, "workspaceId"))

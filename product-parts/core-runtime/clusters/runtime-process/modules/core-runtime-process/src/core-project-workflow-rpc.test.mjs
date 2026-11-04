@@ -121,18 +121,18 @@ try {
     modeChoiceCompiled,
     "utf8"
   );
-  // The plan view is tested in core-workflow-plan-view.test.mjs.
-  writeFileSync(
-    path.join(buildDir, "core-workflow-plan-view.js"),
-    transpile("./core-workflow-plan-view.ts"),
-    "utf8"
-  );
-  // The Kit state watcher is tested in core-workflow-watch.test.mjs.
-  writeFileSync(
-    path.join(buildDir, "core-workflow-watch.js"),
-    transpile("./core-workflow-watch.ts"),
-    "utf8"
-  );
+  // These modules are tested in their own test files.
+  for (const file of [
+    "core-workflow-pause",
+    "core-workflow-plan-view",
+    "core-workflow-watch",
+  ]) {
+    writeFileSync(
+      path.join(buildDir, `${file}.js`),
+      transpile(`./${file}.ts`),
+      "utf8"
+    );
+  }
   const { CoreProjectWorkflowRpc, WORKFLOW_STATUS_EVENT_TYPE } = await import(
     pathToFileURL(path.join(buildDir, "rpc.js")).href
   );

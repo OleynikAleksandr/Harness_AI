@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 125,
+  "revision": 127,
   "rounds": [
     {
       "digest": null,
@@ -359,14 +359,22 @@
       ],
       "docsWaiver": null,
       "files": [
-        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process"
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-identity.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-pause.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-pause.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.test.mjs"
       ],
       "fixes": null,
       "id": "A3",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Core pause route",
       "why": "The pause button needs a Core route"
     },
@@ -733,8 +741,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 7/17
-- Revision: 125
+- Progress: 8/17
+- Revision: 127
 
 ## Objective
 
@@ -773,9 +781,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: print input schemas and put them in the packet
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/DOCUMENTATION_INDEX.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-schema.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-budget.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-schema.test.mjs
   - Depends on: K1
-- [TODO] A3 — Core pause route (work)
+- [DONE] A3 — Core pause route (work)
   - Commit: feat: route the workflow pause through core
-  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process
+  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-identity.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-pause.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-pause.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.test.mjs
   - Depends on: A2, W1
 - [TODO] K3 — Document text in executor briefs (work)
   - Commit: feat: put document text into executor briefs

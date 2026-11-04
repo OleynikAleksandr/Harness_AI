@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 78,
+  "revision": 80,
   "rounds": [
     {
       "digest": null,
@@ -304,7 +304,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "MIT LICENSE as on GitHub",
       "why": "The first publication replaces GitHub's initial commit and must keep its license"
     },
@@ -410,8 +410,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 0/13
-- Revision: 78
+- Progress: 1/13
+- Revision: 80
 
 ## Objective
 
@@ -461,7 +461,7 @@ Fix the defects found in the execution modes release (git identity form instead 
 - [TODO] G9 — Small Kit fixes: DS_Store, conflict markers, dup ignore (work)
   - Commit: fix: small workflow kit defects from the release check
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, package.json
-- [TODO] G10 — MIT LICENSE as on GitHub (work)
+- [DONE] G10 — MIT LICENSE as on GitHub (work)
   - Commit: chore: add the MIT license
   - Files: LICENSE
 - [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)

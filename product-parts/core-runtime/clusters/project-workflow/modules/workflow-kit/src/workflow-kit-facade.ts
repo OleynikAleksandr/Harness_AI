@@ -36,6 +36,12 @@ import {
   type RecoveryPacket,
   WorkflowRecoveryFacade,
 } from "../../workflow-recovery/src/workflow-recovery-facade.js";
+import {
+  type AssignmentCreated,
+  type AssignmentNext,
+  createAssignment,
+  nextAssignments,
+} from "./kit-assignment.js";
 import type { KitContext } from "./kit-context.js";
 import { type HookResult, runGitHook } from "./kit-hooks.js";
 import {
@@ -82,6 +88,7 @@ export type {
   ExecutionModeOption,
   ScopeProposal,
 } from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
+export type { AssignmentCreated, AssignmentNext } from "./kit-assignment.js";
 export type { GitHookName, HookResult } from "./kit-hooks.js";
 export { GIT_HOOKS } from "./kit-hooks.js";
 export type { QualityApplied } from "./kit-quality.js";
@@ -213,6 +220,16 @@ export class WorkflowKitFacade {
   /** The stored scope proposal, or `null`. */
   readProposal(root: string): ScopeProposal | null {
     return workflowExecutionModeFacade.readProposal(root);
+  }
+
+  /** `assignment:next`: the tasks that can be handed out now and the active assignments. */
+  nextAssignments(root: string): AssignmentNext {
+    return nextAssignments(this.context(root));
+  }
+
+  /** `assignment:create --task`: a new assignment record and the executor brief. */
+  createAssignment(root: string, taskId: string): AssignmentCreated {
+    return createAssignment(this.context(root), taskId);
   }
 
   extend(

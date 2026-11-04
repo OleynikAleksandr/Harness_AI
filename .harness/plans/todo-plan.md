@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 43,
+  "revision": 45,
   "rounds": [
     {
       "digest": null,
@@ -235,14 +235,22 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-schedule.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts",
-        ".harness/product-tree/product-tree.json"
+        ".harness/product-tree/product-tree.json",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts"
       ],
       "fixes": null,
       "id": "E5",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Assignment records and scheduling",
       "why": "Kit decides which orchestrated tasks can be handed out now and issues the executor brief"
     },
@@ -763,8 +771,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 6/22
-- Revision: 43
+- Progress: 7/22
+- Revision: 45
 
 ## Objective
 
@@ -796,9 +804,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: propose scopes and record the user's execution mode
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, .harness/product-tree/product-tree.json, product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-config.test.mjs
   - Depends on: E1
-- [TODO] E5 — Assignment records and scheduling (work)
+- [DONE] E5 — Assignment records and scheduling (work)
   - Commit: feat: schedule and create orchestrated assignments
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-schedule.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts, .harness/product-tree/product-tree.json
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-schedule.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts, .harness/product-tree/product-tree.json, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts
   - Depends on: E4
 - [TODO] E6 — Attach executors and guard their worktree (work)
   - Commit: feat: attach executors to their worktrees

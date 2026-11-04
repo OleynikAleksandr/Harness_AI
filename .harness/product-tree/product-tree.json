@@ -414,6 +414,11 @@
               "purpose": "Scope proposal record, mode card options and verification of the user's sequential/orchestrated/refine choice."
             },
             {
+              "id": "workflow-assignment",
+              "name": "Workflow Assignment",
+              "purpose": "Assignment records of orchestrated scopes, the scheduler of tasks that can be handed out now and the executor brief."
+            },
+            {
               "id": "workflow-autopilot",
               "name": "Workflow Autopilot",
               "purpose": "Pure continue/stop decision of the Core autopilot and the continue turn message."

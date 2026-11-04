@@ -15,6 +15,7 @@ import {
   readJsonFile,
   requiredFlag,
 } from "./kit-cli-args.js";
+import { ASSIGNMENT_COMMANDS } from "./kit-cli-assignment.js";
 import { EXECUTION_COMMANDS } from "./kit-cli-execution.js";
 import { renderText } from "./kit-cli-text.js";
 import {
@@ -75,6 +76,7 @@ function ownBundle(
 
 const COMMANDS: Readonly<Record<string, CommandSpec>> = {
   ...EXECUTION_COMMANDS,
+  ...ASSIGNMENT_COMMANDS,
   "autopilot:status": {
     run: ({ kit, root }) => kit.autopilotStatus(root),
     usage: "autopilot:status",

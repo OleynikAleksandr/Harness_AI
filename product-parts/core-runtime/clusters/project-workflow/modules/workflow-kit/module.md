@@ -91,6 +91,40 @@ Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
 - `block(root, reason)` / `unblock(root)` — write the plan only; the next
   Kit commit records the state.
 
+Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
+`workflow-assignment`; section 5.1 of `WorkflowKitExecutionModes.md`):
+- `nextAssignments(root)` — `assignment:next`, read-only: `{orchestrated,
+  idle, scopeId, maxWorkers, active, ready, blocked}`; `active` holds the
+  active records of the current scope, `ready` the tasks
+  (`{id, kind, parallelSafe, title}`) the scheduler hands out now, `blocked`
+  the other candidates with `DEPENDENCY_PENDING`, `ASSIGNMENT_BARRIER`,
+  `ASSIGNMENT_CONFLICT` or `ASSIGNMENT_CAPACITY` and the tasks they wait for.
+- `createAssignment(root, taskId)` — `assignment:create` in main, under the
+  project lock; fails in this order:
+  1. `NOT_ORCHESTRATED` — no scope or strategy `sequential`;
+     `SCOPE_NOT_ACTIVE` — a blocked scope;
+  2. `TRANSACTION_PENDING`; `INTEGRATION_ACTIVE` while
+     `.harness/workflow/local/integration.json` exists;
+  3. `DIRTY_TREE` — changes outside Kit-managed paths (`details.paths`);
+  4. `NO_COMMITS`; the base is HEAD;
+  5. `UNKNOWN_TASK`; `ASSIGNMENT_KIND` for QUALITY and delivery tasks (the
+     orchestrator runs them in main); `TASK_NOT_TODO`;
+  6. an active record of the task: the same `ASSIGNED` record (same
+     iteration, base and configuration digest) is returned with
+     `created: false`; anything else is `ASSIGNMENT_EXISTS`
+     (`details {id, status}`);
+  7. the scheduler: the candidate's code (`DEPENDENCY_PENDING`,
+     `ASSIGNMENT_BARRIER`, `ASSIGNMENT_CONFLICT`, `ASSIGNMENT_CAPACITY`) with
+     `details.blockedBy`; a task outside `ready` is `ASSIGNMENT_BARRIER`;
+  8. `DEPENDENCY_NOT_IN_BASE` — a dependency commit (from the task-to-commit
+     mapping of `workflow-git`) is not an ancestor of the base;
+  9. `ASSIGNMENT_EXISTS` — a record file with the new id already exists
+     (for example an integrated one).
+  It writes the `ASSIGNED` record (`baseCommit` HEAD, `configDigest` of the
+  configuration) and returns `{assignment, brief, created: true}`. The task
+  stays `TODO` and nothing is committed: the plan changes only on
+  integration.
+
 Tasks (`kit-task.ts`):
 - `startTask(root, id, confirmation?)` — assigned checks must exist in the
   profile (`CHECK_UNKNOWN`); the plan module checks scope, status,
@@ -154,7 +188,7 @@ managed hooks.
 - Any other name fails with `UNKNOWN_HOOK`; unexpected errors are reported
   with their code instead of a stack trace.
 
-## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`)
+## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`, `kit-cli-assignment.ts`)
 
 - `runCli(argv, io, kit?)` returns the exit code; `io` is `{cwd, env,
   readStdin, stdout, stderr}`. The file runs `runCli` itself when it is the
@@ -170,6 +204,8 @@ managed hooks.
   --session <id> --note` (both defined in `kit-cli-execution.ts`; an
   invalid `--recommended`, `--option` or a non-positive `--generation` is
   `USAGE`),
+  `assignment:next`, `assignment:create --task <ID>` (both defined in
+  `kit-cli-assignment.ts`),
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,
   `close --scope --note`, `carryover --input`,
@@ -188,8 +224,11 @@ managed hooks.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
   (status, validation, inspection, recovery, task and history texts; for
   `scope:propose` the generation, recommendation, reason, options and the
-  next step; for `scope:choose` the choice and the created scope; JSON
-  otherwise). `inspect` text lists `path`, `state`, `action`,
+  next step; for `scope:choose` the choice and the created scope; for
+  `assignment:next` the scope and workers, one line per active, ready and
+  blocked task and the next `assignment:create`, or `assignments: none
+  (<idle code>)`; for `assignment:create` the id, task, short base and
+  whether it was created, followed by the brief; JSON otherwise). `inspect` text lists `path`, `state`, `action`,
   `kit version`, `git` (repository and short head), `identity`, `stacks`,
   `transaction`, plus `nested in` and `damaged` when present.
 - Errors: `{ok: false, code, message, nextAction, details}` on stdout with
@@ -218,7 +257,7 @@ installed hooks and launcher, followed by `scripts/workflow validate` and
 
 `workflow-platform`, `workflow-plan`, `workflow-git`, `workflow-quality`,
 `workflow-recovery`, `workflow-installer`, `workflow-execution-mode`,
-`workflow-autopilot` (types).
+`workflow-assignment`, `workflow-autopilot` (types).
 Node built-ins only.
 
 ## Tests
@@ -242,6 +281,16 @@ Node built-ins only.
   orchestrated choice with `maxWorkers` and owner session, and in a
   `host: "harness"` project `EXECUTION_MODE_REQUIRED` plus the CLI
   propose/choose path with text output and usage errors.
+- `src/workflow-kit-assignment.test.mjs` — a sequential scope
+  (`NOT_ORCHESTRATED`), then an orchestrated scope with `maxWorkers: 2`:
+  QUALITY first (`DEPENDENCY_PENDING`, `ASSIGNMENT_KIND`), the schedule
+  after QUALITY (ready, conflict, capacity, barrier, DOCS pending),
+  `DIRTY_TREE`, `INTEGRATION_ACTIVE`, `SCOPE_NOT_ACTIVE`, a created record
+  and brief with an unchanged plan and HEAD, the idempotent retry,
+  `ASSIGNMENT_CONFLICT`/`CAPACITY`/`BARRIER` against an active assignment,
+  the CLI (JSON and text `assignment:next`, `assignment:create`, `USAGE`),
+  `ASSIGNMENT_EXISTS` for another status or base and an integrated record
+  freeing its worker.
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
   envelopes, inspection (JSON and text) and update of a folder without the
   Kit, an invalid `install --host`, text errors, a folder without the Kit, a

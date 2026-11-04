@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 65,
+  "revision": 67,
   "rounds": [
     {
       "digest": null,
@@ -548,14 +548,16 @@
       ],
       "docsWaiver": null,
       "files": [
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario-support.mjs"
       ],
       "fixes": null,
       "id": "E13",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Orchestration scenario test on real worktrees",
       "why": "The whole route must be proven with real git worktrees"
     },
@@ -870,8 +872,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 17/22
-- Revision: 65
+- Progress: 18/22
+- Revision: 67
 
 ## Objective
 
@@ -934,9 +936,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
 - [DONE] E12 — Small Kit fixes from test runs (work)
   - Commit: fix: small workflow kit defects from test runs
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-apply.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-lifecycle.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-validation.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-apply.test.mjs
-- [TODO] E13 — Orchestration scenario test on real worktrees (work)
+- [DONE] E13 — Orchestration scenario test on real worktrees (work)
   - Commit: test: prove orchestrated execution on real worktrees
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario-support.mjs
   - Depends on: E10, E11, E12
 - [DONE] E14 — Core watches the plan and publishes status (work)
   - Commit: feat: publish workflow status on plan changes

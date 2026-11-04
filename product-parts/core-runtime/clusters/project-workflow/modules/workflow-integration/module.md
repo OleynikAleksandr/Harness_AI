@@ -233,6 +233,36 @@ check that fails only on the merged result of A and B:
   scope is ready for acceptance; finally `validate`, the task-to-commit
   mapping of every integrated task and five first-parent merges.
 
+`src/orchestration-scenario.test.mjs` (with its support
+`src/orchestration-scenario-support.mjs`: the compiled Kit, the CLI as an
+agent calls it, git views) — one orchestrated scope end to end through the
+Kit command line only, on a project installed by `install --host harness`
+(real local identity, installed hooks and launcher running a stand-in
+bundle) with Claude-style worktrees `<repo>/.claude/worktrees/agent-<n>`
+(detached or on a branch):
+- `scope:create` refused with `EXECUTION_MODE_REQUIRED`, `scope:propose`
+  and `scope:choose --option orchestrated` of A, B (parallel), C
+  (sequential), D (parallel) and a delivery task; QUALITY in main;
+- `assignment:next`: A and B ready, C behind the barrier of A and B, D
+  behind the unfinished C; after A and B a taken C still keeps D out;
+- two executors interleaved (attach, `task:start`, `commit --task`), the
+  executor scope rule, a direct `git commit` refused by the installed hook
+  in the worktree, both `READY_FOR_INTEGRATION`;
+- A integrated; B fails a check that fails only on the merged tree
+  (`INTEGRATION_CHECKS_FAILED`), is fixed in main within its files and
+  continued; the busy refusal while the journal exists;
+- a crash right after C's merge commit: recovery names `repair`, the repair
+  `finish-commit`, then recovery names `integration:continue`, which
+  completes the same commit without a second merge;
+- D with a locked worktree: `cleanup: PENDING`, recovery names
+  `assignment:cleanup`, which finishes after the unlock;
+- DOCS-R1 by an executor with its digest; `DELIVERY_NOT_READY` before and
+  while it is active, then the delivery in main and `READY_FOR_ACCEPTANCE`;
+- the recovery role lines (planning, orchestrator, executor not attached
+  and attached, waiting, integrate first, CHECKS_FAILED, delivery) at each
+  step; finally `validate`, five first-parent two-parent integration
+  commits mapped to their tasks, no worktree or branch but main left.
+
 ## Owned Paths
 
 - `module.md`

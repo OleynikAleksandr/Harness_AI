@@ -1,4 +1,5 @@
 import type { WorkflowPlan } from "../../workflow-plan/src/workflow-plan-facade.js";
+import type { DocumentsMap } from "./recovery-documents.js";
 import type { RoleFacts } from "./recovery-roles.js";
 
 export const RECOVERY_SCHEMA = "harness-workflow-recovery/1";
@@ -28,6 +29,8 @@ export interface RecoveryInput {
   budgetBytes: number;
   /** Working-tree changes outside the current task. */
   changes: string[];
+  /** The documents map of the project; absent or null: no `documents` section. */
+  documents?: DocumentsMap | null;
   event: RecoveryEvent;
   head: string | null;
   plan: WorkflowPlan;

@@ -6,6 +6,7 @@ import {
 } from "../../workflow-plan/src/workflow-plan-facade.js";
 import { workflowPlatformFacade } from "../../workflow-platform/src/workflow-platform-facade.js";
 import { workflowQualityFacade } from "../../workflow-quality/src/workflow-quality-facade.js";
+import { documentsMap } from "./recovery-documents.js";
 import type {
   RecoveryEvent,
   RecoveryInput,
@@ -103,6 +104,9 @@ export function gatherRecovery(
   return {
     budgetBytes: config.budget.recoveryBytes,
     changes: repository ? outsideChanges(git, root, plan) : [],
+    documents: repository
+      ? documentsMap(git, root, { specPath: plan.scope?.spec ?? null })
+      : null,
     event,
     head: repository ? git.head(root) : null,
     plan,

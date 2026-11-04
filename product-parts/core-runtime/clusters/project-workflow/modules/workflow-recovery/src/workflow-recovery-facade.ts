@@ -16,6 +16,11 @@ import {
   showTaskText,
   workflowHistory,
 } from "./recovery-commands.js";
+import {
+  type DocumentsMap,
+  type DocumentsMapOptions,
+  documentsMap,
+} from "./recovery-documents.js";
 import { type GatherNotes, gatherRecovery } from "./recovery-gather.js";
 import type {
   RecoveryEvent,
@@ -30,6 +35,11 @@ import {
 
 export type { HistoryEntry, HookClient } from "./recovery-commands.js";
 export { HOST_RECOVERY_VARIABLE } from "./recovery-commands.js";
+export type {
+  DocumentEntry,
+  DocumentsMap,
+  DocumentsMapOptions,
+} from "./recovery-documents.js";
 export type {
   PacketSection,
   RecoveryEvent,
@@ -58,6 +68,15 @@ export class WorkflowRecoveryFacade {
   /** Markdown section under a heading, matched by text or slug. */
   section(text: string, heading: string): string | null {
     return extractHeading(text, heading);
+  }
+
+  /**
+   * The documents map of a project (the packet `documents` section):
+   * Markdown files known to git, the specification folder first, within
+   * `budget` bytes (default 4000) with a tail line for the rest.
+   */
+  documentsMap(root: string, options: DocumentsMapOptions = {}): DocumentsMap {
+    return documentsMap(this.git, root, options);
   }
 
   /**

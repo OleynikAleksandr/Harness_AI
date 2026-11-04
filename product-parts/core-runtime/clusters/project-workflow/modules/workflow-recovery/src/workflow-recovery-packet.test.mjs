@@ -138,7 +138,7 @@ try {
     "changes",
     "verification",
     "document docs/spec.md",
-    "document docs/big.md",
+    "document docs/big.md#Small Part",
   ]);
   assert.equal(full.bytes, Buffer.byteLength(full.text, "utf8"));
   assert.match(
@@ -169,21 +169,95 @@ try {
   assert.ok(full.references.includes("docs/missing.md: missing file"));
   assert.doesNotMatch(full.text, /harness-workflow-plan|AGENTS\.md content/u);
 
-  // Tight budget: optional sections and the big document move to references;
-  // the heading section of a document is used when the whole does not fit.
+  // A heading reference brings only its section, inline.
+  assert.equal(
+    full.sections.find(
+      (part) => part.name === "document docs/big.md#Small Part"
+    ).text,
+    "## Small Part\n\nsmall"
+  );
+  assert.doesNotMatch(full.text, /x{100}/u);
+  assert.ok(!full.references.some((line) => line.endsWith("read the file")));
+
+  // Tight budget: optional sections move to references, required documents stay.
   const tight = recovery.build(input({ budgetBytes: 4000 }));
   assert.ok(tight.bytes <= 4000);
   assert.ok(tight.included.includes("document docs/big.md#Small Part"));
+  assert.ok(tight.included.includes("document docs/spec.md"));
+
+  // A required whole document stays inline over the budget: optional
+  // sections go first, task fields stay whole, the packet says so.
+  const wholePlan = plan();
+  wholePlan.tasks[2] = {
+    ...wholePlan.tasks[2],
+    context: [{ path: "docs/big.md", required: true }],
+  };
+  const map = {
+    entries: [],
+    shown: 1,
+    text: "docs/spec.md (90 bytes): Process; Other",
+  };
+  const over = recovery.build(
+    input({ budgetBytes: 4000, documents: map, plan: wholePlan })
+  );
+  assert.equal(over.overBudget, true);
+  assert.equal(over.truncated, false);
+  assert.ok(over.included.includes("document docs/big.md"));
+  assert.ok(over.text.includes("x".repeat(5000)));
+  assert.match(over.text, /bytes: \d+ \/ budget: 4000 \(over budget\)/u);
+  for (const name of ["documents", "rounds", "decisions", "verification"]) {
+    assert.ok(over.omitted.includes(name), name);
+  }
   assert.ok(
-    tight.references.some(
-      (line) =>
-        line.startsWith("docs/big.md#Small Part") &&
-        line.endsWith("(only its section is included)")
+    !over.references.some(
+      (line) => line.startsWith("docs/big.md") || line.endsWith("read the file")
     )
   );
 
-  const tiny = recovery.build(input({ budgetBytes: 1700 }));
-  assert.ok(tiny.bytes <= 1700, `tiny packet is ${tiny.bytes} bytes`);
+  // Two sections of one document, and a heading that is absent.
+  const sectionsPlan = plan();
+  sectionsPlan.tasks[2] = {
+    ...sectionsPlan.tasks[2],
+    context: [
+      { heading: "Small Part", path: "docs/big.md", required: true },
+      { heading: "Big", path: "docs/big.md", required: false },
+      { heading: "Nowhere", path: "docs/optional.md", required: true },
+    ],
+  };
+  const sections = recovery.build(input({ plan: sectionsPlan }));
+  assert.ok(sections.included.includes("document docs/big.md#Small Part"));
+  assert.ok(sections.included.includes("document docs/optional.md"));
+  assert.ok(
+    sections.references.includes(
+      "docs/optional.md#Nowhere: heading not found, the whole file is included"
+    )
+  );
+  assert.ok(
+    sections.references.some((line) => line.startsWith("docs/big.md#Big ("))
+  );
+
+  // The documents map is an optional section kept longest: it stays when
+  // the other optional sections no longer fit.
+  const withMap = recovery.build(input({ documents: map }));
+  assert.ok(withMap.included.includes("documents"));
+  assert.match(
+    withMap.text,
+    /## documents\ndocs\/spec\.md \(90 bytes\): Process; Other/u
+  );
+  const squeezed = recovery.build(
+    input({ budgetBytes: withMap.bytes - 200, documents: map })
+  );
+  assert.ok(squeezed.included.includes("documents"));
+  assert.ok(squeezed.omitted.length > 0);
+  assert.ok(!squeezed.omitted.includes("documents"));
+  assert.ok(
+    recovery
+      .build(input({ documents: { ...map, text: "" } }))
+      .included.every((name) => name !== "documents")
+  );
+
+  const tiny = recovery.build(input({ budgetBytes: 1800 }));
+  assert.ok(tiny.bytes <= 1800, `tiny packet is ${tiny.bytes} bytes`);
   for (const name of [
     "state",
     "next",
@@ -210,7 +284,7 @@ try {
     why: "w".repeat(6000),
   };
   const truncated = recovery.build(
-    input({ budgetBytes: 2000, plan: longPlan })
+    input({ budgetBytes: 2200, plan: longPlan })
   );
   assert.equal(truncated.truncated, true);
   assert.match(
@@ -218,7 +292,7 @@ try {
     /\[truncated: \d+ bytes, run: scripts\/workflow show-task T003\]/u
   );
   assert.ok(
-    truncated.bytes <= 2000,
+    truncated.bytes <= 2200,
     `truncated packet is ${truncated.bytes} bytes`
   );
 

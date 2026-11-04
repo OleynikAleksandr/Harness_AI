@@ -22,8 +22,10 @@ environment.
 
 - `build(input)` assembles the packet from gathered state. `RecoveryInput`:
   `{event, plan, quality {status, stacks}, budgetBytes, head, transaction,
-  changes, taskCommits, verification, readDocument(path), roles?}`;
-  `roles` are the role facts below (absent: the plan alone decides).
+  changes, taskCommits, verification, readDocument(path), roles?,
+  documents?}`; `roles` are the role facts below (absent: the plan alone
+  decides); `documents` is the documents map (see Documents Map; absent or
+  empty text: no `documents` section).
 - Sections in priority order (`*` — mandatory):
   1. `state`* — project, scope, revision, scope and result status, quality
      profile, HEAD, transaction, event, the agent role (see Roles);
@@ -49,29 +51,66 @@ environment.
       and the pending transaction;
   11. `verification` — the last stored check reports; failed checks with
       at most 1 KB of output in total;
-  12. `documents` — required documents of the scope (`spec`, `context`) and
-      of the task (`context`), one entry per path;
-  13. `references`* — everything that did not fit, missing files and
-      optional documents.
+  12. `document <path>[#<heading>]`* — required documents of the scope
+      (`spec`, `context`) and of the task (`context`) as text: a
+      whole-document reference replaces the heading references of its path
+      (one whole-file section); otherwise one section per heading with only
+      that Markdown section (matched by text or slug, nested headings
+      included); an absent heading includes the whole file with the
+      reference `<path>#<heading>: heading not found, the whole file is
+      included`. References of one path and heading merge, required if any
+      says so;
+  13. `documents` — the documents map of the project;
+  14. `references`* — optional sections that did not fit, missing files
+      (`<label>: missing file`) and optional documents (`<label> (N bytes,
+      optional): read the file when needed`).
 - Budget (`budgetBytes`, UTF-8):
-  - optional sections are added in priority order while the packet fits;
-    a section that does not fit moves to `references` with its size and
-    how to read it;
-  - a document is included whole; otherwise its `heading` section (matched
-    by text or slug, with nested headings); otherwise it becomes a
-    reference; a section-only inclusion is also listed in references;
-  - when mandatory sections exceed the budget, long task fields (`why`,
-    `files`, `acceptance`, `context`) are capped step by step (2000 … 60
-    bytes) with `[truncated: N bytes, run: scripts/workflow show-task ID]`;
+  - optional sections are tried in the order `documents`, `rounds`,
+    `decisions`, `verification` and added while the packet fits; a section
+    that does not fit moves to `omitted` and `references` with its size
+    and how to read it (`documents`: `scripts/workflow context --list`);
+    when the packet is still over budget the added ones are removed last
+    first, so `documents` stays longest;
+  - required documents are never dropped and never replaced by a
+    reference: they stay inline even over the budget; optional sections
+    then go first and the packet is `overBudget`;
+  - when the packet exceeds the budget without the required documents,
+    long task fields (`why`, `files`, `acceptance`, `context`) are capped
+    step by step (2000 … 60 bytes) with `[truncated: N bytes, run:
+    scripts/workflow show-task ID]`; documents alone never cap task fields;
   - the header states `bytes` (of the whole text, header included),
-    `budget`, `included`, `omitted` and `(over budget)` when even the
-    smallest cap does not fit.
+    `budget`, `included`, `omitted` and `(over budget)` when the packet
+    still does not fit.
 - Process rules and templates are not part of the packet; the header
   points to the managed Workflow Kit section of `AGENTS.md`.
 - `RecoveryPacket`: `{schema "harness-workflow-recovery/1", event, budget,
   bytes, overBudget, truncated, included, omitted, references, sections,
   text}`.
 - `section(text, heading)` returns a Markdown section or `null`.
+- `documentsMap(root, {specPath?, budget?})` returns the documents map
+  `{entries, shown, text}` (see Documents Map) for the packet, the
+  `context` command and the executor brief.
+
+## Documents Map (`recovery-documents.ts`, spec 3.2)
+
+- Files: `git ls-files -z --cached --others --exclude-standard -- '*.md'
+  '*.markdown'` (tracked plus untracked files that git does not ignore),
+  without paths having a `node_modules` or `.git` segment and without
+  `.harness/workflow/**` and `.harness/plans/archive/**`; a listed file
+  that cannot be read (deleted from the working tree) is skipped. Outside
+  a git repository the map is empty.
+- Order: the files under the folder of `specPath` (the scope
+  specification) first, then the rest; both groups sorted by path. Without
+  `specPath`, or with a specification at the project root, path order.
+- `entries`: `{path, bytes, headings}` of every file in map order;
+  `headings` are the `##` headings outside fenced code blocks.
+- `text`: one line per entry `<path> (<bytes> bytes): <H2>; <H2>; …`
+  (`<path> (<bytes> bytes)` without headings), added in order while the
+  text, the tail line included, fits `budget` (default 4000 bytes); the
+  rest is one tail line ``… N more documents: `scripts/workflow context
+  --list` ``. `shown` counts the entry lines. A budget below the tail line
+  leaves only the tail line.
+- `gather` builds the map with the scope `spec` as `specPath`.
 
 ## Input Schemas (`recovery-schema.ts`)
 
@@ -180,6 +219,7 @@ Steps:
     the commit of every done task;
   - the last verification evidence;
   - the role facts (`gatherRoleFacts`);
+  - the documents map (`documentsMap`, only in a git repository);
   - documents through `readDocument`, inside the project only.
   Problems that do not stop the packet become `warnings` shown in the
   `state` section: not a git repository, inconsistent commit references.
@@ -217,8 +257,16 @@ Node built-ins only.
 ## Tests
 
 - `src/workflow-recovery-packet.test.mjs` — full packet, tight and tiny
-  budgets, heading sections, task truncation, every `next` variant, heading
-  extraction.
+  budgets, heading sections inline, a required whole document over the
+  budget (`overBudget`, optional sections omitted, task fields whole, no
+  `read the file` reference), two sections of one path and an absent
+  heading, the `documents` section kept longest among optional ones, task
+  truncation, every `next` variant, heading extraction.
+- `src/workflow-recovery-documents.test.mjs` — the documents map of a git
+  project: outside a repository, tracked and untracked files, ignored,
+  deleted and excluded paths, the specification folder first, `##`
+  headings outside code fences, the budget and the tail line, the packet
+  `documents` section.
 - `src/workflow-recovery-schema.test.mjs` — the descriptor catalog and
   compact text, and the `schema` section for every case: no scope with and
   without Harness, a waiting and a refining proposal, QUALITY, DOCS,

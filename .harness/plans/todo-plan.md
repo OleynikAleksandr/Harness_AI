@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 133,
+  "revision": 135,
   "rounds": [
     {
       "digest": null,
@@ -481,14 +481,22 @@
       ],
       "docsWaiver": null,
       "files": [
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-budget.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-documents.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-gather.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-documents.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-packet.test.mjs"
       ],
       "fixes": null,
       "id": "K4",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Recovery packet inline documents and map",
       "why": "The packet replaced required documents with a read-the-file line"
     },
@@ -761,8 +769,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 10/17
-- Revision: 133
+- Progress: 11/17
+- Revision: 135
 
 ## Objective
 
@@ -813,9 +821,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: bridge the workflow pause
   - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs
   - Depends on: A3
-- [TODO] K4 — Recovery packet inline documents and map (work)
+- [DONE] K4 — Recovery packet inline documents and map (work)
   - Commit: feat: keep required documents inline with a documents map
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-budget.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-documents.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-gather.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-documents.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-packet.test.mjs
   - Depends on: K3
 - [TODO] A5 — Pause button in the plan panel (work)
   - Commit: feat: pause the plan from the plan panel

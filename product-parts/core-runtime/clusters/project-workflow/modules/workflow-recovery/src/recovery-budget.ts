@@ -30,11 +30,11 @@ interface Part extends PacketSection {
 }
 
 interface Candidate {
-  /** Alternatives tried in order; the first that fits is included. */
-  options: Part[];
+  part: Part;
   reference: string;
 }
 
+const DOCUMENT_PREFIX = "document ";
 const RULES_POINTER =
   "rules: follow the Workflow Kit section of AGENTS.md (managed by the kit).";
 const TASK_CAPS = [2000, 1000, 500, 250, 120, 60];
@@ -112,8 +112,9 @@ function settle(
 }
 
 /**
- * Scope and task documents, one entry per path: a whole-document reference
- * wins over a heading reference, and a path is required if any ref says so.
+ * Scope and task documents in order: a whole-document reference replaces
+ * the heading references of its path; references of one path and heading
+ * merge, required if any of them says so.
  */
 function documentRefs(input: RecoveryInput): DocumentRef[] {
   const scope = input.plan.scope;
@@ -125,26 +126,26 @@ function documentRefs(input: RecoveryInput): DocumentRef[] {
     ...(scope?.context ?? []),
     ...(focusTask(input.plan)?.context ?? [])
   );
-  const byPath = new Map<string, DocumentRef>();
+  const byKey = new Map<string, DocumentRef>();
   for (const ref of refs) {
-    const known = byPath.get(ref.path);
-    if (!known) {
-      byPath.set(ref.path, { ...ref });
-      continue;
-    }
-    byPath.set(ref.path, {
-      ...(known.heading && !ref.heading ? { path: ref.path } : known),
-      required: known.required || ref.required,
+    const whole = refs.some((item) => item.path === ref.path && !item.heading);
+    const key = whole ? ref.path : `${ref.path}#${ref.heading ?? ""}`;
+    byKey.set(key, {
+      path: ref.path,
+      ...(whole || !ref.heading ? {} : { heading: ref.heading }),
+      required: (byKey.get(key)?.required ?? false) || ref.required,
     });
   }
-  return [...byPath.values()];
+  return [...byKey.values()];
 }
 
-function documentCandidates(
-  input: RecoveryInput,
-  references: string[]
-): Candidate[] {
-  const candidates: Candidate[] = [];
+/**
+ * Required documents as mandatory parts: the whole file, or the section of
+ * a heading reference (the whole file when the heading is absent). Missing
+ * and optional documents become references.
+ */
+function documentParts(input: RecoveryInput, references: string[]): Part[] {
+  const parts: Part[] = [];
   for (const ref of documentRefs(input)) {
     const label = ref.heading ? `${ref.path}#${ref.heading}` : ref.path;
     const text = input.readDocument(ref.path);
@@ -158,25 +159,27 @@ function documentCandidates(
       );
       continue;
     }
-    const options: Part[] = [
-      { name: `document ${ref.path}`, order: 12, text: text.trimEnd() },
-    ];
     const section = ref.heading ? extractHeading(text, ref.heading) : null;
-    if (section) {
-      options.push({ name: `document ${label}`, order: 12, text: section });
+    if (ref.heading && section === null) {
+      references.push(
+        `${label}: heading not found, the whole file is included`
+      );
     }
-    candidates.push({
-      options,
-      reference: `${label} (${byteLength(text)} bytes): read the file`,
-    });
+    parts.push(
+      section === null
+        ? {
+            name: `${DOCUMENT_PREFIX}${ref.path}`,
+            order: 12,
+            text: text.trimEnd(),
+          }
+        : { name: `${DOCUMENT_PREFIX}${label}`, order: 12, text: section }
+    );
   }
-  return candidates;
+  return parts;
 }
 
-function optionalCandidates(
-  input: RecoveryInput,
-  references: string[]
-): Candidate[] {
+/** Optional sections; the earlier a candidate, the longer it is kept. */
+function optionalCandidates(input: RecoveryInput): Candidate[] {
   const candidates: Candidate[] = [];
   const add = (
     name: string,
@@ -186,11 +189,18 @@ function optionalCandidates(
   ) => {
     if (text !== null) {
       candidates.push({
-        options: [{ name, order, text }],
+        part: { name, order, text },
         reference: reference(byteLength(text)),
       });
     }
   };
+  add(
+    "documents",
+    13,
+    input.documents?.text || null,
+    (bytes) =>
+      `documents (${bytes} bytes): run \`${KIT_COMMAND} context --list\``
+  );
   add(
     "rounds",
     8,
@@ -210,7 +220,7 @@ function optionalCandidates(
     (bytes) =>
       `verification (${bytes} bytes): .harness/workflow/local/verification/last.json`
   );
-  return [...candidates, ...documentCandidates(input, references)];
+  return candidates;
 }
 
 /** Sections that always stay; `schema` only when the next step has an input. */
@@ -234,23 +244,20 @@ function assembleWithCap(
 ): RecoveryPacket {
   const references: string[] = [];
   const omitted: string[] = [];
-  const candidates = optionalCandidates(input, references);
+  const candidates = optionalCandidates(input);
   const fits = (parts: Part[]) =>
     settle(input, parts, references, omitted).bytes <= input.budgetBytes;
-  let parts = mandatoryParts(input, cap);
+  let parts = [
+    ...mandatoryParts(input, cap),
+    ...documentParts(input, references),
+  ];
   const optional: { candidate: Candidate; part: Part }[] = [];
   for (const candidate of candidates) {
-    const chosen = candidate.options.find((option) => fits([...parts, option]));
-    if (chosen) {
-      parts = [...parts, chosen];
-      optional.push({ candidate, part: chosen });
-      if (chosen !== candidate.options[0]) {
-        references.push(
-          `${candidate.reference} (only its section is included)`
-        );
-      }
+    if (fits([...parts, candidate.part])) {
+      parts = [...parts, candidate.part];
+      optional.push({ candidate, part: candidate.part });
     } else {
-      omitted.push(candidate.options[0]?.name ?? "section");
+      omitted.push(candidate.part.name);
       references.push(candidate.reference);
     }
   }
@@ -282,16 +289,29 @@ function assembleWithCap(
   };
 }
 
+/** True when the packet exceeds the budget even without required documents. */
+function overWithoutDocuments(packet: RecoveryPacket): boolean {
+  const documents = packet.sections
+    .filter((section) => section.name.startsWith(DOCUMENT_PREFIX))
+    .reduce(
+      (sum, section) =>
+        sum + byteLength(`\n\n## ${section.name}\n${section.text}`),
+      0
+    );
+  return packet.bytes - documents > packet.budget;
+}
+
 /**
  * Assembles the packet by priority within `budgetBytes`. Mandatory sections
- * always stay; when they do not fit, long task fields are shortened with a
- * marker, step by step. Optional sections move to references when they do
- * not fit. Nothing is cut silently: an oversized packet says so.
+ * and required documents always stay; when the mandatory sections alone do
+ * not fit, long task fields are shortened with a marker, step by step.
+ * Optional sections move to references when they do not fit, the last added
+ * first. Nothing is cut silently: an oversized packet says so.
  */
 export function assemblePacket(input: RecoveryInput): RecoveryPacket {
   let packet = assembleWithCap(input, null);
   for (const cap of TASK_CAPS) {
-    if (!packet.overBudget) {
+    if (!(packet.overBudget && overWithoutDocuments(packet))) {
       break;
     }
     packet = assembleWithCap(input, cap);

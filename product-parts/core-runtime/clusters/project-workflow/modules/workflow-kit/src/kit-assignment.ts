@@ -19,6 +19,7 @@ import {
   readPlan,
   requireHead,
 } from "./kit-context.js";
+import { checkedBriefDocuments } from "./kit-context-budget.js";
 import { ensureNotPaused } from "./kit-pause.js";
 
 /** Integration journal of E9; while it exists no assignment is created. */
@@ -164,7 +165,11 @@ function scheduled(schedule: AssignmentSchedule, task: WorkflowTask): void {
   );
 }
 
-/** `assignment:create --task <ID>` in main (spec 5.1). The plan does not change. */
+/**
+ * `assignment:create --task <ID>` in main (spec 5.1). The plan does not
+ * change. The brief carries the task's context documents read from main;
+ * CONTEXT_MISSING / CONTEXT_TOO_LARGE refuse before a record is written.
+ */
 export function createAssignment(
   context: KitContext,
   taskId: string
@@ -187,6 +192,8 @@ export function createAssignment(
       "TASK_NOT_TODO",
       `${task.id} is ${task.status}.`
     );
+    // The documents may have grown since planning: check them again.
+    const documents = checkedBriefDocuments(context, plan, task);
     const scopeId = plan.scope?.id ?? "NONE";
     const digest = workflowAssignmentFacade.configDigest(context.root);
     const active = activeRecords(plan, context.root);
@@ -203,7 +210,7 @@ export function createAssignment(
       );
       return {
         assignment: existing,
-        brief: workflowAssignmentFacade.brief(plan, task, existing),
+        brief: workflowAssignmentFacade.brief(plan, task, existing, documents),
         created: false,
       };
     }
@@ -226,7 +233,7 @@ export function createAssignment(
     workflowAssignmentFacade.write(context.root, record);
     return {
       assignment: record,
-      brief: workflowAssignmentFacade.brief(plan, task, record),
+      brief: workflowAssignmentFacade.brief(plan, task, record, documents),
       created: true,
     };
   });

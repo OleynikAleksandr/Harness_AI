@@ -25,6 +25,10 @@ import {
   requireHead,
   savePlan,
 } from "./kit-context.js";
+import {
+  changedContextTasks,
+  ensureContextBudget,
+} from "./kit-context-budget.js";
 
 export type ScopeInput = Parameters<WorkflowPlanFacade["createScope"]>[1];
 export type ExtendInput = Parameters<WorkflowPlanFacade["extend"]>[1];
@@ -94,6 +98,7 @@ function commitScope(context: KitContext, input: ScopeInput): PlanChange {
     input,
     transition(context)
   );
+  ensureContextBudget(context, plan, plan.tasks);
   const documents = changedDocuments(context, [
     input.spec,
     ...(input.context ?? []).map((ref) => ref.path),
@@ -186,6 +191,7 @@ export function proposeScope(
       withExecution(request.input, request.recommended, null, null),
       transition(context)
     );
+    ensureContextBudget(context, candidate, candidate.tasks);
     const proposal = workflowExecutionModeFacade.nextProposal(context.root, {
       hasParallelWork: workflowPlanFacade.hasParallelWork(candidate),
       input: request.input,
@@ -284,6 +290,11 @@ export function extendScope(
       input,
       transition(context)
     );
+    ensureContextBudget(
+      context,
+      result.plan,
+      changedContextTasks(current, result.plan)
+    );
     const commit = commitPlan(context, result.plan, {
       files: [],
       message: `docs: extend scope ${current.scope?.id ?? "NONE"} (${result.roundId})`,
@@ -333,6 +344,7 @@ export function updateTask(
       structuredClone(patch)
     );
     workflowPlanFacade.validate(plan);
+    ensureContextBudget(context, plan, [workflowPlanFacade.task(plan, taskId)]);
     const commit = commitPlan(context, plan, {
       files: [],
       message: `docs: update task ${taskId}`,

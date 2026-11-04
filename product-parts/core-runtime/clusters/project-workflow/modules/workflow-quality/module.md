@@ -25,10 +25,13 @@ The project quality profile of the Workflow Kit:
     `kit:file-lines`, `kit:docs-contracts`, `kit:conflict-markers`;
   - `docs.contracts` empty;
   - `budget.recoveryBytes` 32 000 (allowed 8 000–120 000),
-    `budget.documentBytes` 28 000;
+    `budget.documentBytes` 28 000, `budget.briefBytes` 60 000 (allowed
+    8 000–200 000; the executor brief budget of `workflow-kit`);
   - `policy.maxFileLines` and `policy.taskFileSoftLimit` `null` (off);
   - `autopilot.maxContinues` 40 (1–1000).
-- `readConfig(root)` — a missing file yields `defaultConfig()`. Invalid JSON
+- `readConfig(root)` — a missing file yields `defaultConfig()`. A
+  configuration without `budget.briefBytes` (written before it existed)
+  gets 60 000 in `validateConfig`; the file is not rewritten. Invalid JSON
   fails with `CONFIG_JSON`, an invalid shape with `CONFIG_SCHEMA`.
 - `writeConfig(root, config)` validates, then writes atomically (two-space
   JSON with a trailing newline). `renderConfig(config)` returns that text.
@@ -232,7 +235,8 @@ Node built-ins only.
 ## Tests
 
 - `src/workflow-quality-config.test.mjs` — defaults, check normalization
-  and rejection, file round trip, the `host` marker, invalid JSON.
+  and rejection, file round trip, `budget.briefBytes` limits and its default
+  for an older file, the `host` marker, invalid JSON.
 - `src/workflow-quality-detect.test.mjs` — node scripts and installed tools,
   install proposals, several stacks in subdirectories, explicit and unknown
   stacks.

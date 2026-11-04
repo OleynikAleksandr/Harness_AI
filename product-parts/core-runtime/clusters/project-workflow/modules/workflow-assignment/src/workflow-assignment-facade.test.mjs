@@ -357,6 +357,22 @@ try {
     /Kit: scripts\/workflow commit --task A\n {3}If a check fails/u
   );
   assert.doesNotMatch(workBrief, /Context:/u);
+  assert.doesNotMatch(workBrief, /<document /u);
+
+  // The documents follow the brief lines as marked full text.
+  const documentBrief = assignments.brief(plan([docsTask]), docsTask, record, [
+    {
+      bytes: 13,
+      heading: 'Plan "A"',
+      path: "docs/spec.md",
+      text: "## Plan\n\nText",
+    },
+  ]);
+  assert.ok(
+    documentBrief.endsWith(
+      'Do not create nested executors.\n\nContext documents (full text, do not re-read them):\n\n<document path="docs/spec.md" heading="Plan &quot;A&quot;" bytes="13">\n## Plan\n\nText\n</document>\n'
+    )
+  );
 
   console.log("workflow-assignment facade tests passed");
 } finally {

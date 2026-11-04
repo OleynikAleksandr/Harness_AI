@@ -49,7 +49,7 @@ export interface DocsContract {
 
 export interface WorkflowConfig {
   autopilot: { maxContinues: number };
-  budget: { documentBytes: number; recoveryBytes: number };
+  budget: { briefBytes: number; documentBytes: number; recoveryBytes: number };
   docs: { contracts: DocsContract[] };
   /** The host that drives the project; `harness` requires scope:propose. */
   host?: string;
@@ -96,6 +96,8 @@ export const MAX_TIMEOUT_MS = 600_000;
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MIN_RECOVERY_BYTES = 8000;
 const MAX_RECOVERY_BYTES = 120_000;
+const DEFAULT_BRIEF_BYTES = 60_000;
+const MAX_BRIEF_BYTES = 200_000;
 const error = "CONFIG_SCHEMA";
 
 /** A builtin check definition: required, commit stage, default timeout. */
@@ -127,7 +129,11 @@ export function normalizeCheck(input: CheckInput): CheckDefinition {
 export function defaultConfig(): WorkflowConfig {
   return {
     autopilot: { maxContinues: 40 },
-    budget: { documentBytes: 28_000, recoveryBytes: 32_000 },
+    budget: {
+      briefBytes: DEFAULT_BRIEF_BYTES,
+      documentBytes: 28_000,
+      recoveryBytes: 32_000,
+    },
     docs: { contracts: [] },
     policy: { maxFileLines: null, taskFileSoftLimit: null },
     quality: {
@@ -275,12 +281,29 @@ function validateContracts(contracts: unknown): void {
   }
 }
 
-export function validateConfig(config: WorkflowConfig): WorkflowConfig {
+/** A configuration written before `budget.briefBytes` gets the default (the file is not rewritten). */
+function withBriefBudget(config: WorkflowConfig): WorkflowConfig {
+  const budget = config.budget as Partial<WorkflowConfig["budget"]> | undefined;
+  if (
+    !budget ||
+    typeof budget !== "object" ||
+    budget.briefBytes !== undefined
+  ) {
+    return config;
+  }
+  return {
+    ...config,
+    budget: { ...config.budget, briefBytes: DEFAULT_BRIEF_BYTES },
+  };
+}
+
+export function validateConfig(input: WorkflowConfig): WorkflowConfig {
   ensure(
-    config && config.schema === CONFIG_SCHEMA,
+    input && input.schema === CONFIG_SCHEMA,
     error,
     "Unsupported workflow configuration schema."
   );
+  const config = withBriefBudget(input);
   const quality = config.quality;
   ensure(
     quality &&
@@ -333,6 +356,10 @@ export function validateConfig(config: WorkflowConfig): WorkflowConfig {
   positiveInteger(config.budget?.documentBytes, "budget.documentBytes");
   positiveInteger(config.budget?.recoveryBytes, "budget.recoveryBytes", {
     max: MAX_RECOVERY_BYTES,
+    min: MIN_RECOVERY_BYTES,
+  });
+  positiveInteger(config.budget.briefBytes, "budget.briefBytes", {
+    max: MAX_BRIEF_BYTES,
     min: MIN_RECOVERY_BYTES,
   });
   positiveInteger(config.autopilot?.maxContinues, "autopilot.maxContinues", {

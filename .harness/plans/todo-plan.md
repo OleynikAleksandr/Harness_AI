@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 131,
+  "revision": 133,
   "rounds": [
     {
       "digest": null,
@@ -401,14 +401,25 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-context-budget.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-config.test.mjs"
       ],
       "fixes": null,
       "id": "K3",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Document text in executor briefs",
       "why": "Executors read context documents in several Read passes"
     },
@@ -750,8 +761,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 9/17
-- Revision: 131
+- Progress: 10/17
+- Revision: 133
 
 ## Objective
 
@@ -794,9 +805,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: route the workflow pause through core
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-identity.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-pause.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-pause.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.test.mjs
   - Depends on: A2, W1
-- [TODO] K3 — Document text in executor briefs (work)
+- [DONE] K3 — Document text in executor briefs (work)
   - Commit: feat: put document text into executor briefs
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-context-budget.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-config.test.mjs
   - Depends on: K2
 - [DONE] A4 — Pause bridge (work)
   - Commit: feat: bridge the workflow pause

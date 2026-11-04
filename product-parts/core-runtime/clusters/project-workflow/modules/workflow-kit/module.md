@@ -113,6 +113,18 @@ Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
   `checks`, `context`, `commitMessage`, `docsWaiver`; a task in progress
   only `acceptance`, `checks`, `docsWaiver`, `files`; a `DONE` task never
   (`TASK_PATCH`). Role `scope-plan` (`docs: update task <id>`).
+- Context budget (`kit-context-budget.ts`): `createScope`, `proposeScope`
+  and `chooseScope` (every task of the new plan), `extend` (new tasks and
+  tasks whose `context` changed) and `updateTask` (the patched task) read
+  the brief documents of each task from the project root: its `context`
+  (a whole-file reference wins over a heading reference of the same path;
+  a heading reference takes only that section, matched like the recovery
+  packet via `workflowRecoveryFacade.section`) or, without context, the
+  scope specification. A missing file or heading fails with
+  `CONTEXT_MISSING` (`details {taskId, path, heading?}`); a text total over
+  `budget.briefBytes` with `CONTEXT_TOO_LARGE` (`details {taskId, bytes,
+  budget}`, next action: narrow the context to sections). Nothing is
+  written then.
 - `accept(root, note)` — role `acceptance`; the scope stays open.
 - `close(root, scopeId, note)` — only from `ACCEPTED` and on a clean
   working tree outside Kit-managed paths (`DIRTY_TREE`); role `close`;
@@ -159,6 +171,9 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
      mapping of `workflow-git`) is not an ancestor of the base;
   9. `ASSIGNMENT_EXISTS` — a record file with the new id already exists
      (for example an integrated one).
+  Between 5 and 6 the context budget check runs again on the current files
+  (`CONTEXT_MISSING`, `CONTEXT_TOO_LARGE`; no record is written); the brief
+  carries the checked documents as marked full text.
   It writes the `ASSIGNED` record (`baseCommit` HEAD, `configDigest` of the
   configuration) and returns `{assignment, brief, created: true}`. The task
   stays `TODO` and nothing is committed: the plan changes only on
@@ -391,6 +406,10 @@ worktrees where noted):
 - `src/workflow-kit-assignment.test.mjs` — the schedule (dependencies,
   barrier, conflict, capacity, DOCS), create preconditions, the brief,
   idempotent retry, `ASSIGNMENT_EXISTS`, the CLI.
+- `src/workflow-kit-context.test.mjs` — `CONTEXT_MISSING` and
+  `CONTEXT_TOO_LARGE` in `scope:create`, `task:update`, `plan:extend` and
+  `assignment:create` (grown or changed documents), the brief with a
+  section, a whole document and the specification fallback.
 - `src/workflow-kit-executor.test.mjs` (worktrees) — main read-only and
   delivery rules, attach refusals, records and the `assignment-plan`
   commit, the executor whitelist (`schema` allowed), `pre-push`, `RUNNING`, scope and contract

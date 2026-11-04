@@ -57,6 +57,40 @@ export type {
 } from "./assignment-schedule.js";
 export type { AssignmentSetupResult } from "./assignment-setup.js";
 
+/** One context document of the brief, already read by the caller. */
+export interface BriefDocument {
+  /** UTF-8 bytes of `text`. */
+  bytes: number;
+  /** Set when only this section of the file is included. */
+  heading?: string;
+  path: string;
+  text: string;
+}
+
+function attribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;");
+}
+
+/** The marked full text of the context documents, after the brief lines. */
+function documentBlocks(documents: readonly BriefDocument[]): string[] {
+  if (documents.length === 0) {
+    return [];
+  }
+  return [
+    "Context documents (full text, do not re-read them):",
+    "",
+    ...documents.flatMap((item) => [
+      `<document path="${attribute(item.path)}"${item.heading ? ` heading="${attribute(item.heading)}"` : ""} bytes="${item.bytes}">`,
+      item.text,
+      "</document>",
+      "",
+    ]),
+  ];
+}
+
 function bullets(items: readonly string[]): string[] {
   return items.length > 0
     ? items.map((item) => `   - ${item}`)
@@ -67,7 +101,8 @@ function bullets(items: readonly string[]): string[] {
 function executorBrief(
   plan: WorkflowPlan,
   task: WorkflowTask,
-  record: AssignmentRecord
+  record: AssignmentRecord,
+  documents: readonly BriefDocument[]
 ): string {
   const commit =
     task.kind === "docs"
@@ -110,6 +145,7 @@ function executorBrief(
     "- Do not set the git identity (no git config user.name / user.email).",
     "- Do not create nested executors.",
     "",
+    ...documentBlocks(documents),
   ];
   return lines.join("\n");
 }
@@ -159,12 +195,17 @@ export class WorkflowAssignmentFacade {
     return scheduleAssignments(plan, assignments);
   }
 
+  /**
+   * The executor brief; `documents` (the task context, or the scope
+   * specification) follow the brief lines as marked full text.
+   */
   brief(
     plan: WorkflowPlan,
     task: WorkflowTask,
-    record: AssignmentRecord
+    record: AssignmentRecord,
+    documents: readonly BriefDocument[] = []
   ): string {
-    return executorBrief(plan, task, record);
+    return executorBrief(plan, task, record, documents);
   }
 
   /** The main checkout and branch of a linked executor worktree (spec 5.1). */

@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
@@ -29,6 +35,7 @@ try {
   assert.equal(initial.quality.status, "DISCOVERY");
   assert.equal(initial.budget.recoveryBytes, 32_000);
   assert.equal(initial.budget.documentBytes, 28_000);
+  assert.equal(initial.budget.briefBytes, 60_000);
   assert.equal(initial.autopilot.maxContinues, 40);
   assert.deepEqual(
     initial.quality.checks.map((check) => check.builtin),
@@ -119,6 +126,34 @@ try {
     ),
     "CONFIG_SCHEMA"
   );
+
+  for (const briefBytes of [4000, 200_001, 1.5]) {
+    assert.equal(
+      codeOf(() =>
+        quality.validateConfig({
+          ...configured,
+          budget: { ...configured.budget, briefBytes },
+        })
+      ),
+      "CONFIG_SCHEMA"
+    );
+  }
+  assert.equal(
+    quality.validateConfig({
+      ...configured,
+      budget: { ...configured.budget, briefBytes: 200_000 },
+    }).budget.briefBytes,
+    200_000
+  );
+
+  // A configuration written before budget.briefBytes reads with the default;
+  // the file itself is not rewritten.
+  const { briefBytes: _omitted, ...oldBudget } = configured.budget;
+  mkdirSync(path.join(root, ".harness", "workflow"), { recursive: true });
+  const oldText = `${JSON.stringify({ ...configured, budget: oldBudget }, null, 2)}\n`;
+  writeFileSync(quality.configFile(root), oldText);
+  assert.equal(quality.readConfig(root).budget.briefBytes, 60_000);
+  assert.equal(readFileSync(quality.configFile(root), "utf8"), oldText);
 
   // The optional host marker round-trips; an empty host is rejected.
   quality.writeConfig(root, { ...configured, host: "harness" });

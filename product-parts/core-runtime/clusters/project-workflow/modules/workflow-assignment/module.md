@@ -29,7 +29,7 @@ and calls `cleanup` right after `INTEGRATED`.
 `AssignmentStatus`, `AssignmentSetup`, `AssignmentCleanup`,
 `AssignmentSetupResult`, `AssignmentSchedule`, `BlockedTask`,
 `ScheduleBlockCode`, `WorktreeAssignment`, `WorktreeLocation`,
-`ExecutorChange`.
+`ExecutorChange`, `BriefDocument`.
 
 ## Contract
 
@@ -87,7 +87,7 @@ Scheduler (`assignment-schedule.ts`), pure:
   ready in this pass, so the whole `ready` list may be assigned together and
   a later candidate yields its slot to an earlier one.
 
-Brief: `brief(plan, task, record)` returns the English text for the
+Brief: `brief(plan, task, record, documents = [])` returns the English text for the
 executor subagent: it executes task `<ID>` of the scope (assignment id),
 works only in its own git worktree, first runs
 `scripts/workflow assignment:attach <id>` there (and
@@ -106,6 +106,13 @@ and `assignment:attach` (retry) work in the worktree, anything else fails with
 `ASSIGNMENT_READ_ONLY`; never push; never touch the main checkout, the plan
 or other tasks; do not set the git identity; do not create nested
 executors.
+The `documents` (`BriefDocument {path, heading?, text, bytes}`, read and
+checked by `workflow-kit`: the task context or the scope specification)
+follow the brief lines after the line
+`Context documents (full text, do not re-read them):`, each as
+`<document path="…" heading="…" bytes="N">`, the text and `</document>`
+(`heading` only for a section; `&`, `"` and `<` of attributes escaped).
+No documents, no such block.
 
 Executor side (`assignment-attach.ts`):
 - `locateWorktree(git, root)` returns `{mainRoot, worktree, branch}`:
@@ -212,7 +219,8 @@ both directions, overtaking a waiting parallel task, path conflicts with
 active and ready tasks, integrated and foreign records ignored, capacity),
 ids, record create/write/read/list order, `ASSIGNMENT_ID`,
 `ASSIGNMENT_RECORD`, the configuration digest and the brief of a work and a
-DOCS task (scope rule, contract, setup step, command whitelist, no push).
+DOCS task (scope rule, contract, setup step, command whitelist, no push)
+and the marked document block.
 The executor side is tested with real git worktrees in
 `workflow-kit/src/workflow-kit-executor.test.mjs`; setup and cleanup in
 `workflow-kit/src/workflow-kit-worktree.test.mjs`.

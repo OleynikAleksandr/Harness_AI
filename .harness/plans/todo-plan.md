@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 39,
+  "revision": 41,
   "rounds": [
     {
       "digest": null,
@@ -183,14 +183,23 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts",
-        ".harness/product-tree/product-tree.json"
+        ".harness/product-tree/product-tree.json",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-config.test.mjs"
       ],
       "fixes": null,
       "id": "E4",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Scope proposal and mode choice",
       "why": "The user chooses the mode on a card; Kit stores the proposal and creates the scope on the choice"
     },
@@ -740,8 +749,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 4/22
-- Revision: 39
+- Progress: 5/22
+- Revision: 41
 
 ## Objective
 
@@ -769,9 +778,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: install git identity and host marker
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts
   - Depends on: E2
-- [TODO] E4 — Scope proposal and mode choice (work)
+- [DONE] E4 — Scope proposal and mode choice (work)
   - Commit: feat: propose scopes and record the user's execution mode
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, .harness/product-tree/product-tree.json
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, .harness/product-tree/product-tree.json, product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-config.test.mjs
   - Depends on: E1
 - [TODO] E5 — Assignment records and scheduling (work)
   - Commit: feat: schedule and create orchestrated assignments

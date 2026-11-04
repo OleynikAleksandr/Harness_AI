@@ -409,6 +409,11 @@
               "purpose": "Bounded recovery packet: priority sections within a byte budget, references, session-start hook output."
             },
             {
+              "id": "workflow-execution-mode",
+              "name": "Workflow Execution Mode",
+              "purpose": "Scope proposal record, mode card options and verification of the user's sequential/orchestrated/refine choice."
+            },
+            {
               "id": "workflow-autopilot",
               "name": "Workflow Autopilot",
               "purpose": "Pure continue/stop decision of the Core autopilot and the continue turn message."

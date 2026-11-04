@@ -1,5 +1,10 @@
 import type { AutopilotProjectStatus } from "../../workflow-autopilot/src/workflow-autopilot-facade.js";
 import {
+  type ExecutionModeOption,
+  type ScopeProposal,
+  workflowExecutionModeFacade,
+} from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
+import {
   type CommitResult,
   type RepairOutcome,
   type RepairPlan,
@@ -16,7 +21,10 @@ import {
   type MigrateOutcome,
   WorkflowInstallerFacade,
 } from "../../workflow-installer/src/workflow-installer-facade.js";
-import type { RoundDigest } from "../../workflow-plan/src/workflow-plan-facade.js";
+import type {
+  ExecutionStrategy,
+  RoundDigest,
+} from "../../workflow-plan/src/workflow-plan-facade.js";
 import type {
   ProfileInput,
   QualityProposal,
@@ -41,12 +49,16 @@ import {
   acceptScope,
   type CarryoverInput,
   carryoverScope,
+  chooseScope,
   closeScope,
   createScope,
   type ExtendInput,
   extendScope,
   type PlanChange,
+  proposeScope,
+  type ScopeChoiceResult,
   type ScopeInput,
+  type ScopeProposalResult,
   setBlocked,
   type TaskPatch,
   updateTask,
@@ -66,6 +78,10 @@ import {
   type TaskStart,
 } from "./kit-task.js";
 
+export type {
+  ExecutionModeOption,
+  ScopeProposal,
+} from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
 export type { GitHookName, HookResult } from "./kit-hooks.js";
 export { GIT_HOOKS } from "./kit-hooks.js";
 export type { QualityApplied } from "./kit-quality.js";
@@ -73,7 +89,9 @@ export type {
   CarryoverInput,
   ExtendInput,
   PlanChange,
+  ScopeChoiceResult,
   ScopeInput,
+  ScopeProposalResult,
   TaskPatch,
 } from "./kit-scope.js";
 export type { KitStatus, TaskBrief, ValidationReport } from "./kit-status.js";
@@ -167,6 +185,34 @@ export class WorkflowKitFacade {
 
   createScope(root: string, input: ScopeInput): PlanChange {
     return createScope(this.context(root), input);
+  }
+
+  /** `scope:propose`: validates the plan and stores the proposal of the mode card. */
+  proposeScope(
+    root: string,
+    input: ScopeInput,
+    recommended: ExecutionStrategy,
+    reason: string
+  ): ScopeProposalResult {
+    return proposeScope(this.context(root), { input, reason, recommended });
+  }
+
+  /** `scope:choose`: the user's answer to the proposal of `generation`. */
+  chooseScope(
+    root: string,
+    choice: {
+      generation: number;
+      note: string;
+      option: ExecutionModeOption;
+      session: string;
+    }
+  ): ScopeChoiceResult {
+    return chooseScope(this.context(root), choice);
+  }
+
+  /** The stored scope proposal, or `null`. */
+  readProposal(root: string): ScopeProposal | null {
+    return workflowExecutionModeFacade.readProposal(root);
   }
 
   extend(

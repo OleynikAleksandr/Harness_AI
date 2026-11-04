@@ -42,7 +42,39 @@ State (`kit-status.ts`):
 Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
 - `createScope(root, input)` — baseline is HEAD; role `scope-plan`
   (`docs: plan scope <id>`); the commit also takes the specification and
-  `context` documents when they are changed.
+  `context` documents when they are changed. When the configuration has
+  `host: "harness"` it fails with `EXECUTION_MODE_REQUIRED` (next action:
+  `scope:propose`); without a host it works as before (no execution block,
+  `sequential`). Every scope creation (here, `chooseScope` and an automatic
+  choice of `proposeScope`) clears the scope proposal record.
+- `proposeScope(root, input, recommended, reason)` — `scope:propose`
+  (section 4.1 of `WorkflowKitExecutionModes.md`); the record and its rules
+  belong to `workflow-execution-mode`:
+  - validates the input exactly like `createScope` (the same plan
+    transition, with `execution.strategy` set to the recommendation), so a
+    scope still open fails with `SCOPE_EXISTS`; nothing is committed;
+  - computes `hasParallelWork` on the candidate plan and the options
+    (`NO_PARALLEL_WORK` for `orchestrated` without parallel work,
+    `PROPOSAL_REASON` for a reason outside 10..300 characters);
+  - stores the proposal and returns `{autoChosen: false, generation,
+    options, hasParallelWork, recommended, reason, scope: null}`;
+  - when the stored record is in refinement (`refining: true`) and the new
+    plan has no parallel work, it creates the scope as `sequential` at once
+    (approval suffix `| Execution mode chosen automatically: sequential
+    ...`, `ownerSession: null`) and returns `autoChosen: true` with the
+    `PlanChange` in `scope`.
+- `chooseScope(root, {generation, option, session, note})` —
+  `scope:choose`: the proposal verification of `workflow-execution-mode`
+  runs first (`PROPOSAL_CHANGED` for a stale choice, `NO_PARALLEL_WORK`
+  for `orchestrated` without parallel work; nothing is written).
+  - `sequential`/`orchestrated` create the scope from the stored input with
+    `execution {strategy: option, maxWorkers: input value or 3,
+    ownerSession: session}` and the approval
+    `<approval> | Execution mode chosen by the user: <option>: <note>`;
+  - `refine` drops the stored plan and keeps `refining: true`.
+  Returns `{option, generation, refining, execution, scope}`.
+- `readProposal(root)` — the stored proposal record or `null` (for status
+  and recovery).
 - `extend(root, input, expectedRevision?)` — role `scope-plan`
   (`docs: extend scope <id> (<round>)`); `REVISION_MISMATCH` when the plan
   moved on.
@@ -53,7 +85,8 @@ Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
   (`TASK_PATCH`). Role `scope-plan` (`docs: update task <id>`).
 - `accept(root, note)` — role `acceptance`; the scope stays open.
 - `close(root, scopeId, note)` — only from `ACCEPTED` and on a clean
-  working tree outside Kit-managed paths (`DIRTY_TREE`); role `close`.
+  working tree outside Kit-managed paths (`DIRTY_TREE`); role `close`;
+  clears the scope proposal record.
 - `carryover(root, input)` — role `carryover`.
 - `block(root, reason)` / `unblock(root)` — write the plan only; the next
   Kit commit records the state.
@@ -121,7 +154,7 @@ managed hooks.
 - Any other name fails with `UNKNOWN_HOOK`; unexpected errors are reported
   with their code instead of a stack trace.
 
-## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`)
+## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`)
 
 - `runCli(argv, io, kit?)` returns the exit code; `io` is `{cwd, env,
   readStdin, stdout, stderr}`. The file runs `runCli` itself when it is the
@@ -132,6 +165,11 @@ managed hooks.
 - Commands: `status`, `autopilot:status` (the status the Harness Core
   autopilot decides on), `validate`, `recover [--event]`, `show-task <ID>`,
   `history [--task] [--round]`, `scope:create --input`,
+  `scope:propose --input --recommended sequential|orchestrated --reason`,
+  `scope:choose --generation <N> --option sequential|orchestrated|refine
+  --session <id> --note` (both defined in `kit-cli-execution.ts`; an
+  invalid `--recommended`, `--option` or a non-positive `--generation` is
+  `USAGE`),
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,
   `close --scope --note`, `carryover --input`,
@@ -148,7 +186,9 @@ managed hooks.
   mode under Electron).
   `--files` and `--stack` take a JSON list or a comma-separated list.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
-  (status, validation, inspection, recovery, task and history texts; JSON
+  (status, validation, inspection, recovery, task and history texts; for
+  `scope:propose` the generation, recommendation, reason, options and the
+  next step; for `scope:choose` the choice and the created scope; JSON
   otherwise). `inspect` text lists `path`, `state`, `action`,
   `kit version`, `git` (repository and short head), `identity`, `stacks`,
   `transaction`, plus `nested in` and `damaged` when present.
@@ -177,7 +217,8 @@ installed hooks and launcher, followed by `scripts/workflow validate` and
 ## Dependencies
 
 `workflow-platform`, `workflow-plan`, `workflow-git`, `workflow-quality`,
-`workflow-recovery`, `workflow-installer`, `workflow-autopilot` (types).
+`workflow-recovery`, `workflow-installer`, `workflow-execution-mode`,
+`workflow-autopilot` (types).
 Node built-ins only.
 
 ## Tests
@@ -193,6 +234,14 @@ Node built-ins only.
   only, a failing check rolls back and keeps edits, evidence of the commit
   stage, a check that changes the candidate, DOCS before push, push checks,
   `commit-msg` without a transaction, unknown hooks.
+- `src/workflow-kit-execution-mode.test.mjs` — propose without and with
+  parallel work, `NO_PARALLEL_WORK`, validation like `scope:create`,
+  orchestrated refused without parallel work, `PROPOSAL_CHANGED` for
+  another generation and a changed stored plan, refine then the automatic
+  sequential scope, `SCOPE_EXISTS`, close clears the record, the
+  orchestrated choice with `maxWorkers` and owner session, and in a
+  `host: "harness"` project `EXECUTION_MODE_REQUIRED` plus the CLI
+  propose/choose path with text output and usage errors.
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
   envelopes, inspection (JSON and text) and update of a folder without the
   Kit, text errors, a folder without the Kit, a whole task from a

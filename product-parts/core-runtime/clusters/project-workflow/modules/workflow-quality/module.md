@@ -44,7 +44,10 @@ The project quality profile of the Workflow Kit:
   - `package` and `installed` checks need a non-empty `evidence`;
   - only `package` and `installed` checks run at the `delivery` stage;
   - a `CONFIGURED` profile names at least one stack;
-  - every `docs.contracts` entry maps a code glob to at least one document.
+  - every `docs.contracts` entry maps a code glob to at least one document;
+  - `host`, when present, is a non-empty string. It names the host that
+    drives the project (`harness`: Harness AI); the default configuration
+    has no host, and `applyProfile` keeps the field.
 
 ## Detection (`quality-detect.ts`)
 
@@ -187,7 +190,7 @@ Node built-ins only.
 ## Tests
 
 - `src/workflow-quality-config.test.mjs` — defaults, check normalization
-  and rejection, file round trip, invalid JSON.
+  and rejection, file round trip, the `host` marker, invalid JSON.
 - `src/workflow-quality-detect.test.mjs` — node scripts and installed tools,
   install proposals, several stacks in subdirectories, explicit and unknown
   stacks.

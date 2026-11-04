@@ -113,6 +113,14 @@ try {
     ),
     "CONFIG_SCHEMA"
   );
+
+  // The optional host marker round-trips; an empty host is rejected.
+  quality.writeConfig(root, { ...configured, host: "harness" });
+  assert.equal(quality.readConfig(root).host, "harness");
+  assert.equal(
+    codeOf(() => quality.validateConfig({ ...configured, host: " " })),
+    "CONFIG_SCHEMA"
+  );
   mkdirSync(path.join(root, ".harness", "workflow"), { recursive: true });
   writeFileSync(quality.configFile(root), "{broken");
   assert.equal(

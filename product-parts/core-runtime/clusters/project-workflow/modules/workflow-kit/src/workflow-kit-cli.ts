@@ -15,6 +15,7 @@ import {
   readJsonFile,
   requiredFlag,
 } from "./kit-cli-args.js";
+import { EXECUTION_COMMANDS } from "./kit-cli-execution.js";
 import { renderText } from "./kit-cli-text.js";
 import {
   type CarryoverInput,
@@ -41,6 +42,8 @@ interface CommandContext {
 
 interface CommandSpec {
   run: (context: CommandContext) => unknown;
+  /** `--format text` output; `renderText` when absent. */
+  text?: (result: unknown) => string;
   usage: string;
 }
 
@@ -71,6 +74,7 @@ function ownBundle(
 }
 
 const COMMANDS: Readonly<Record<string, CommandSpec>> = {
+  ...EXECUTION_COMMANDS,
   "autopilot:status": {
     run: ({ kit, root }) => kit.autopilotStatus(root),
     usage: "autopilot:status",
@@ -351,11 +355,11 @@ function dispatch(
     );
   }
   const result = spec.run({ args, io, kit, root });
-  io.stdout(
-    format === "text"
-      ? renderText(command, result)
-      : `${JSON.stringify({ command, ok: true, result }, null, 2)}\n`
-  );
+  let text = `${JSON.stringify({ command, ok: true, result }, null, 2)}\n`;
+  if (format === "text") {
+    text = spec.text ? spec.text(result) : renderText(command, result);
+  }
+  io.stdout(text);
   return 0;
 }
 

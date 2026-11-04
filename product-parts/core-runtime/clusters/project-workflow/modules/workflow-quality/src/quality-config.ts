@@ -50,6 +50,8 @@ export interface WorkflowConfig {
   autopilot: { maxContinues: number };
   budget: { documentBytes: number; recoveryBytes: number };
   docs: { contracts: DocsContract[] };
+  /** The host that drives the project; `harness` requires scope:propose. */
+  host?: string;
   policy: { maxFileLines: number | null; taskFileSoftLimit: number | null };
   quality: {
     checks: CheckDefinition[];
@@ -296,5 +298,11 @@ export function validateConfig(config: WorkflowConfig): WorkflowConfig {
   positiveInteger(config.autopilot?.maxContinues, "autopilot.maxContinues", {
     max: 1000,
   });
+  ensure(
+    config.host === undefined ||
+      (typeof config.host === "string" && config.host.trim() !== ""),
+    error,
+    "host must be a non-empty string when present."
+  );
   return config;
 }

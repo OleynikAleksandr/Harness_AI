@@ -53,13 +53,6 @@ proposal is accepted, reconcile it with live code/provider evidence, move the
 resulting contract into `docs/architecture/**`, and only then create the active
 implementation plan.
 
-- `docs/proposals/WorkflowKitOrchestration.md` — Workflow Kit execution
-  modes and orchestration proposal (revision 2, after Workflow Pilot): the
-  user picks sequential or orchestrated on a choice card when the plan is
-  proposed, sequential is one agent without subagents, orchestrated runs every
-  task by an executor attached to the provider's worktree with merge
-  integration into main, the plan with live progress in the sidebar, Kit-formed
-  git identity and two releases; open questions for discussion.
 - `docs/proposals/ProfileStudio.md` — first-stage Profile Studio proposal:
   a single-window Studio mode with provider/model-scoped persistent Profile
   Creator sessions, a standard Harness AI session surface and a compact tabbed
@@ -181,6 +174,12 @@ implementation plan.
 - `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
   inspection, install, doctor, Harness plan migration, Core/Electron/RPC/UI
   integration, provider context delivery and Windows/Linux rules.
+- `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md` — execution
+  modes (Russian, scope `execution-modes-2026-11-04`): `parallelSafe` labels,
+  the mode choice card (`scope:propose`/`scope:choose`), sequential by one
+  agent, orchestrated by Claude subagent executors attached to their worktrees
+  (assignments, executor plan, merge integration with checks), Kit-formed git
+  identity, the plan with live progress in the Harness sidebar and small fixes.
 
 ## Product Part Documentation
 

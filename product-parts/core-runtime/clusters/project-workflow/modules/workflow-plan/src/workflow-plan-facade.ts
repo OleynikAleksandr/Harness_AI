@@ -62,6 +62,7 @@ export {
   docsTaskId,
   functionalFiles,
   isDocumentationPath,
+  isMarkdownPath,
   PLAN_PATH,
   PLAN_SCHEMA,
 } from "./plan-model.js";

@@ -4,6 +4,7 @@ import {
   copyFileSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -168,16 +169,41 @@ try {
     (e) => e.code === "COMMIT_FAILED"
   );
   rmSync(path.join(hooks, "pre-commit"));
-  git.git.run(root, ["add", "docs/readme.md", PLAN]);
-  copyFileSync(
-    path.join(root, "journal-copy.json"),
-    git.localPath(root, "transaction.json")
+  // Simulates a crash after the hook recorded its evidence.
+  const interrupt = () => {
+    git.git.run(root, ["add", "docs/readme.md"]);
+    writeFileSync(file(PLAN), docsPlan);
+    git.git.run(root, ["add", PLAN]);
+    copyFileSync(snapshot, git.localPath(root, "transaction.json"));
+    const { id } = JSON.parse(readFileSync(snapshot, "utf8"));
+    const pending = git.localPath(root, "verification", `pending-${id}.json`);
+    writeFileSync(pending, "{}\n");
+    return pending;
+  };
+  const verification = git.localPath(root, "verification");
+  const pendingLeft = () =>
+    readdirSync(verification).filter((name) => name.startsWith("pending-"));
+
+  // Cancelling the preparation removes the pending evidence.
+  const original = readFileSync(file(PLAN), "utf8");
+  interrupt();
+  const cancelled = git.cancelRepair(
+    root,
+    PLAN,
+    git.planRepair(root, PLAN).repairId
   );
+  assert.equal(cancelled.kind, "cancel");
+  assert.deepEqual(pendingLeft(), []);
+  assert.equal(readFileSync(file(PLAN), "utf8"), original);
+
+  // Retrying the preparation leaves no pending evidence either.
+  interrupt();
   rmSync(snapshot);
   planned = git.planRepair(root, PLAN);
   assert.equal(planned.kind, "retry-commit");
   const outcome = git.applyRepair(root, PLAN, planned.repairId);
   assert.equal(outcome.commit.role, "docs");
+  assert.deepEqual(pendingLeft(), []);
   assert.equal(git.history(root, null).at(-1).subject, "docs: readme");
   assert.equal(git.transactions.journal(root), null);
   assert.throws(

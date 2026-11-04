@@ -143,7 +143,49 @@ export function runInstalls(
   return results;
 }
 
-/** Compares the profile stacks with the stacks detected in the project. */
+/**
+ * Executables that work only with a manifest of their stack (package
+ * scripts and binaries, modules, projects). Toolchain commands such as
+ * `node --test` or `python -m pytest` run without one.
+ */
+const MANIFEST_TOOLS: Readonly<Record<StackId, readonly string[]>> = {
+  dotnet: ["dotnet"],
+  go: ["go", "govulncheck"],
+  jvm: ["gradle", "gradlew", "mvn", "mvnw"],
+  node: ["bun", "bunx", "npm", "npx", "pnpm", "yarn"],
+  python: ["poetry", "uv"],
+  rust: ["cargo", "cargo-audit"],
+  swift: ["swift"],
+};
+const EXECUTABLE_SUFFIX = /\.(?:bat|cmd|exe)$/iu;
+const PATH_SEPARATOR = /[\\/]/u;
+
+function executableName(executable: string): string {
+  const base = executable.split(PATH_SEPARATOR).at(-1) ?? executable;
+  return base.toLowerCase().replace(EXECUTABLE_SUFFIX, "");
+}
+
+/**
+ * True when a check command of the profile needs the stack's manifest. An
+ * unknown stack id (hand-edited configuration) always needs one.
+ */
+function needsManifest(config: WorkflowConfig, stack: string): boolean {
+  const tools: readonly string[] | undefined = MANIFEST_TOOLS[stack as StackId];
+  if (!tools) {
+    return true;
+  }
+  return config.quality.checks.some(
+    (check) =>
+      check.command !== undefined &&
+      tools.includes(executableName(check.command.executable))
+  );
+}
+
+/**
+ * Compares the profile stacks with the stacks detected in the project. A
+ * profile stack without manifests is `missing` only when one of the profile
+ * checks runs a tool that needs the manifest.
+ */
 export function profileDrift(
   root: string,
   config: WorkflowConfig
@@ -154,7 +196,7 @@ export function profileDrift(
   const detected = detectStacks(root).map((item) => item.id);
   const added = detected.filter((id) => !config.quality.stacks.includes(id));
   const missing = config.quality.stacks.filter(
-    (id) => !detected.includes(id as StackId)
+    (id) => !detected.includes(id as StackId) && needsManifest(config, id)
   );
   return {
     added,

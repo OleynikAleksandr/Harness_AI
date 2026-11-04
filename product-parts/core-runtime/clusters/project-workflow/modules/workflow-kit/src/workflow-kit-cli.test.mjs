@@ -65,6 +65,11 @@ try {
 
   // Inspection and an update of a folder without the Kit.
   assert.equal(json(run(["inspect"])).result.state, "EMPTY");
+  const inspected = run(["inspect", "--format", "text"]);
+  assert.equal(inspected.code, 0);
+  assert.match(inspected.stdout, /^path: .+\nstate: EMPTY\naction: install\n/u);
+  assert.match(inspected.stdout, /\nstacks: none\n/u);
+  assert.throws(() => JSON.parse(inspected.stdout));
   assert.equal(json(run(["install", "--update"])).code, "NOT_INSTALLED");
 
   // A folder without the Kit: status says so, operations fail cleanly.

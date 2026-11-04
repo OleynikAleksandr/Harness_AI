@@ -2,6 +2,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import {
   isDocumentationPath,
+  isMarkdownPath,
   PLAN_PATH,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
 import type { BuiltinCheck, WorkflowConfig } from "./quality-config.js";
@@ -38,7 +39,7 @@ function existingFile(root: string, file: string): boolean {
 function changedMarkdown(context: BuiltinContext): string[] {
   return context.files.filter(
     (file) =>
-      isDocumentationPath(file) &&
+      isMarkdownPath(file) &&
       file !== PLAN_PATH &&
       existingFile(context.root, file)
   );

@@ -76,6 +76,15 @@ try {
   assert.equal(plans.validate(sample()).scope.id, "demo-scope");
   assert.equal(plans.validate(plans.createEmpty("p", "Empty")).scope, null);
 
+  // The DOCS task may hold the product tree; it is documentation, not code.
+  const withTree = sample();
+  withTree.tasks[2].files = [
+    "README.md",
+    ".harness/product-tree/product-tree.json",
+    ".harness/product-tree/product-tree.md",
+  ];
+  assert.equal(plans.validate(withTree).tasks[2].files.length, 3);
+
   const rejects = (mutate, code) => {
     const plan = sample();
     mutate(plan);

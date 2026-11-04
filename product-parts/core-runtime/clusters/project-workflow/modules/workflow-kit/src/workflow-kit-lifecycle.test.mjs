@@ -80,6 +80,22 @@ try {
     "DOCS_ONLY"
   );
   kit.commitDocs(root, ["docs/notes.md"], "docs: add notes");
+  // The product tree counts as documentation for docs:commit.
+  write(".harness/product-tree/product-tree.json", '{"parts":[]}\n');
+  write(".harness/product-tree/product-tree.md", "# Product Tree\n");
+  const tree = kit.commitDocs(
+    root,
+    [
+      ".harness/product-tree/product-tree.json",
+      ".harness/product-tree/product-tree.md",
+    ],
+    "docs: add product tree"
+  );
+  assert.ok(
+    git
+      .commitPaths(root, tree.sha)
+      .includes(".harness/product-tree/product-tree.json")
+  );
   rmSync(path.join(root, "src"), { force: true, recursive: true });
 
   // scope:create commits the plan with its specification; QUALITY comes first.
@@ -217,11 +233,12 @@ try {
   assert.equal(status.nextTask.id, "DOCS-R1");
   kit.startTask(root, "DOCS-R1");
   write("README.md", "# Demo\n");
+  write(".harness/product-tree/product-tree.json", '{"parts":["a","b"]}\n');
   assert.equal(
     code(() => kit.commitTask(root, "DOCS-R1")),
     "ROUND_DIGEST_REQUIRED"
   );
-  kit.commitTask(root, "DOCS-R1", {
+  const docsCommit = kit.commitTask(root, "DOCS-R1", {
     digest: {
       contracts: [],
       decisions: [],
@@ -229,6 +246,12 @@ try {
       result: "Modules A and B exist.",
     },
   });
+  assert.ok(
+    git
+      .commitPaths(root, docsCommit.commit.sha)
+      .includes(".harness/product-tree/product-tree.json"),
+    "the DOCS task commits the product tree"
+  );
   status = kit.status(root);
   assert.equal(status.scope.delivery, "READY_FOR_ACCEPTANCE");
   assert.equal(status.rounds[0].status, "CLOSED");

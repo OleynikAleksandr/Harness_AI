@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 35,
+  "revision": 37,
   "rounds": [
     {
       "digest": null,
@@ -404,14 +404,28 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-apply.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-lifecycle.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-validation.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-apply.test.mjs"
       ],
       "fixes": null,
       "id": "E12",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Small Kit fixes from test runs",
       "why": "Test projects 001 and 002 exposed false drift, a DOCS refusal, leftovers and JSON text output"
     },
@@ -714,8 +728,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 2/22
-- Revision: 35
+- Progress: 3/22
+- Revision: 37
 
 ## Objective
 
@@ -775,9 +789,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: report orchestration in kit status and autopilot
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts
   - Depends on: E9
-- [TODO] E12 — Small Kit fixes from test runs (work)
+- [DONE] E12 — Small Kit fixes from test runs (work)
   - Commit: fix: small workflow kit defects from test runs
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-apply.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-apply.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-lifecycle.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-validation.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-apply.test.mjs
 - [TODO] E13 — Orchestration scenario test on real worktrees (work)
   - Commit: test: prove orchestrated execution on real worktrees
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs

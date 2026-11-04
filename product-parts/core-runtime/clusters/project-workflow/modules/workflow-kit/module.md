@@ -79,8 +79,8 @@ Tasks (`kit-task.ts`):
      `implementation` otherwise; commit-stage checks run in the git hook;
   6. stores the prepare report in the commit evidence.
   Returns `{commit, prepare, preexisting, nextTask}`.
-- `commitDocs(root, files, message?)` — `docs:commit`: Markdown files only
-  (`DOCS_ONLY`), never while a task is in progress (`TASK_IN_PROGRESS`);
+- `commitDocs(root, files, message?)` — `docs:commit`: documentation files
+  only — Markdown and `.harness/product-tree/**` (`DOCS_ONLY`), never while a task is in progress (`TASK_IN_PROGRESS`);
   role `docs`.
 
 Quality and repair (`kit-quality.ts`):
@@ -148,7 +148,10 @@ managed hooks.
   mode under Electron).
   `--files` and `--stack` take a JSON list or a comma-separated list.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
-  (status, validation, recovery, task and history texts; JSON otherwise).
+  (status, validation, inspection, recovery, task and history texts; JSON
+  otherwise). `inspect` text lists `path`, `state`, `action`,
+  `kit version`, `git` (repository and short head), `identity`, `stacks`,
+  `transaction`, plus `nested in` and `damaged` when present.
 - Errors: `{ok: false, code, message, nextAction, details}` on stdout with
   exit code 1 (`--format text`: `CODE: message` on stderr). Argument errors
   are `USAGE`, unknown commands `UNKNOWN_COMMAND`, unreadable inputs
@@ -191,7 +194,8 @@ Node built-ins only.
   stage, a check that changes the candidate, DOCS before push, push checks,
   `commit-msg` without a transaction, unknown hooks.
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
-  envelopes, inspection and update of a folder without the Kit, text errors, a folder without the Kit, a whole task from a
+  envelopes, inspection (JSON and text) and update of a folder without the
+  Kit, text errors, a folder without the Kit, a whole task from a
   subdirectory, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled file run as a program.
 

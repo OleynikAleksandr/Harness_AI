@@ -1,3 +1,4 @@
+import type { InspectResult } from "../../workflow-installer/src/workflow-installer-facade.js";
 import type { KitStatus, ValidationReport } from "./workflow-kit-facade.js";
 
 function statusText(status: KitStatus): string {
@@ -28,6 +29,30 @@ function validationText(report: ValidationReport): string {
     : `${report.errors.map((error) => `${error.code}: ${error.message}`).join("\n")}\n`;
 }
 
+function inspectText(result: InspectResult): string {
+  const { git } = result;
+  const repository = git.repository
+    ? `repository, head ${git.head ? git.head.slice(0, 8) : "none"}`
+    : "not a repository";
+  const lines = [
+    `path: ${result.path}`,
+    `state: ${result.state}`,
+    `action: ${result.action}`,
+    `kit version: ${result.version ?? "none"}`,
+    `git: ${repository}`,
+    `identity: ${git.identity ? `${git.identity.name} <${git.identity.email}>` : "not set"}`,
+    `stacks: ${result.stacks.length > 0 ? result.stacks.join(", ") : "none"}`,
+    `transaction: ${result.transactionPending ? "pending" : "none"}`,
+  ];
+  if (result.nestedIn) {
+    lines.push(`nested in: ${result.nestedIn}`);
+  }
+  if (result.damaged.length > 0) {
+    lines.push(`damaged: ${result.damaged.join(", ")}`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
 /** Human-readable output of `--format text`. */
 export function renderText(command: string, result: unknown): string {
   const value = result as Record<string, unknown>;
@@ -36,6 +61,8 @@ export function renderText(command: string, result: unknown): string {
       return statusText(result as KitStatus);
     case "validate":
       return validationText(result as ValidationReport);
+    case "inspect":
+      return inspectText(result as InspectResult);
     case "recover":
     case "history":
     case "show-task":

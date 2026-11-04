@@ -38,8 +38,11 @@ Owns the Workflow Kit plan:
 - `WorkflowTask` has these fields:
   - `id`, `roundId`, `kind` (`work`, `quality`, `docs`, `delivery`),
     `status` (`TODO`, `IN_PROGRESS`, `DONE`), `iteration`;
-  - `files`: canonical relative paths; Markdown files count as
-    documentation;
+  - `files`: canonical relative paths. Documentation
+    (`isDocumentationPath`) is Markdown (`.md`, `.markdown`) and the product
+    tree under `.harness/product-tree/` (`product-tree.json`,
+    `product-tree.md`); every other path is functional (`functionalFiles`).
+    `isMarkdownPath` matches Markdown only;
   - `dependencies`, `acceptance`, `checks`, `context`;
   - `commitMessage`, `fixes`, `docsWaiver`;
   - `confirmation`: user confirmation of a delivery task;
@@ -141,7 +144,7 @@ quality-profile state.
        exists. That task gets a dependency on it.
     2. Ordinary tasks.
     3. `DOCS-R1`. Its files are `README.md`, `docs/architecture/OVERVIEW.md`,
-       the spec and every Markdown file of the round. It depends on all
+       the spec and every documentation file of the round. It depends on all
        non-delivery tasks of the round.
     4. Delivery tasks, which depend on `DOCS-R1`.
 - **`startTask(plan, id, confirmation)`**

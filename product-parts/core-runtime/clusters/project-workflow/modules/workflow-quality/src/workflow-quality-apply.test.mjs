@@ -121,15 +121,57 @@ try {
   );
   assert.deepEqual(quality.readConfig(root).docs.contracts.length, 1);
 
-  // Drift: a new ecosystem and a configured stack without manifests.
+  // Drift: a new ecosystem; a stack without manifests whose checks run the
+  // toolchain only (`node -e`) is not missing.
   assert.equal(quality.drift(root).status, "ok");
   writeFileSync(path.join(root, "pyproject.toml"), "[project]\n");
   rmSync(path.join(root, "package.json"));
   assert.deepEqual(quality.drift(root), {
     added: ["python"],
+    missing: [],
+    status: "drift",
+  });
+  rmSync(path.join(root, "pyproject.toml"));
+
+  // A project without package.json and a node profile running `node --test`
+  // (the profile of a plain node project) reports no drift.
+  const nodeTest = {
+    command: { args: ["--test"], executable: "node" },
+    id: "tests",
+    required: true,
+    role: "test",
+    stage: "commit",
+  };
+  quality.applyProfile(root, {
+    checks: [nodeTest],
+    packageManager: null,
+    stacks: ["node"],
+  });
+  assert.deepEqual(quality.drift(root), {
+    added: [],
+    missing: [],
+    status: "ok",
+  });
+
+  // A check that runs the package manager needs the manifest: missing node.
+  const npmTest = {
+    command: { args: ["test"], executable: "npm.cmd" },
+    id: "npm-tests",
+    required: true,
+    role: "test",
+    stage: "commit",
+  };
+  quality.applyProfile(root, {
+    checks: [nodeTest, npmTest],
+    stacks: ["node"],
+  });
+  assert.deepEqual(quality.drift(root), {
+    added: [],
     missing: ["node"],
     status: "drift",
   });
+  writeFileSync(path.join(root, "package.json"), "{}");
+  assert.equal(quality.drift(root).status, "ok");
 } finally {
   rmSync(root, { force: true, recursive: true });
   await build.cleanup();

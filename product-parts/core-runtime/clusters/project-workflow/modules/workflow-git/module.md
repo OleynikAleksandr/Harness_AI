@@ -121,14 +121,19 @@ Steps:
    - `Workflow-Transaction`.
 6. On a non-zero exit (hook checks), restores the original plan and index,
    keeps working-tree edits, saves the failed journal under
-   `verification/failed-<id>.json` and throws `COMMIT_FAILED` with
+   `verification/failed-<id>.json`, removes the hook evidence
+   `verification/pending-<id>.json` and throws `COMMIT_FAILED` with
    `retryable: true`. If HEAD, plan or index changed concurrently, the
    journal is kept for repair.
 7. On success, confirms the commit: the trailer transaction id, the single
    parent equal to the previous HEAD, and the tree equal to the candidate.
-   Then it moves `verification/pending-<id>.json` to
-   `verification/<sha>.json` and `last.json`, writes `last-commit.json` and
-   removes the journal.
+   Then it copies `verification/pending-<id>.json` (with `commit: <sha>`) to
+   `verification/<sha>.json` and `last.json`, removes the pending file,
+   writes `last-commit.json` and removes the journal.
+   Every rollback (failed checks, nothing to commit, repair retry or
+   cancel) and every finished transaction (including `finish-commit`
+   repair) removes the pending file, so none remains; it lives only while
+   the journal of an unresolved transaction is kept.
 
 Other transaction calls:
 - `transactions.journal(root)` returns the pending journal.

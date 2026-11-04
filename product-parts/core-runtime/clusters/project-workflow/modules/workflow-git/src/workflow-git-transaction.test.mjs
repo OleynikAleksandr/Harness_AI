@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -117,10 +118,31 @@ try {
   );
   git.git.run(root, ["reset", "-q", "other.txt"]);
 
-  // A failing hook restores plan and index and keeps the edits.
+  // A failing hook restores plan and index and keeps the edits. The hook
+  // records pending evidence like the Kit pre-commit hook does.
+  const verification = git.localPath(root, "verification");
+  const pendingFiles = () =>
+    existsSync(verification)
+      ? readdirSync(verification).filter((name) => name.startsWith("pending-"))
+      : [];
+  const evidenceScript = git.gitPath(root, "write-pending.cjs");
+  writeFileSync(
+    evidenceScript,
+    [
+      'const fs = require("node:fs");',
+      `const journal = JSON.parse(fs.readFileSync(${JSON.stringify(git.localPath(root, "transaction.json"))}, "utf8"));`,
+      `fs.mkdirSync(${JSON.stringify(verification)}, { recursive: true });`,
+      `fs.writeFileSync(${JSON.stringify(verification)} + "/pending-" + journal.id + ".json", JSON.stringify({ reports: [], transaction: journal.id }));`,
+    ].join("\n")
+  );
   const hook = path.join(git.gitPath(root, "hooks"), "pre-commit");
+  const writeHook = (exitCode) =>
+    writeFileSync(
+      hook,
+      `#!/bin/sh\n"${process.execPath}" "${evidenceScript}"\necho 'lint failed' >&2\nexit ${exitCode}\n`
+    );
   mkdirSync(path.dirname(hook), { recursive: true });
-  writeFileSync(hook, "#!/bin/sh\necho 'lint failed' >&2\nexit 1\n");
+  writeHook(1);
   chmodSync(hook, 0o755);
   const before = read(PLAN);
   assert.throws(
@@ -148,9 +170,19 @@ try {
   );
   assert.deepEqual(git.changes(root).staged, []);
   assert.equal(tx.journal(root), null);
-  rmSync(hook);
+  assert.deepEqual(
+    pendingFiles(),
+    [],
+    "a failed check leaves no pending evidence"
+  );
+  assert.equal(
+    readdirSync(verification).filter((name) => name.startsWith("failed-"))
+      .length,
+    1
+  );
 
-  // Retry succeeds; nothing-to-commit is reported without leaving a journal.
+  // Retry succeeds; the pending evidence becomes the commit receipt.
+  writeHook(0);
   const retried = tx.commit(root, {
     files: ["notes.txt"],
     message: "feat: notes",
@@ -161,6 +193,19 @@ try {
     taskId: "T002",
   });
   assert.equal(git.head(root), retried.sha);
+  assert.deepEqual(pendingFiles(), [], "a commit leaves no pending evidence");
+  assert.equal(
+    JSON.parse(read(`.harness/workflow/local/verification/${retried.sha}.json`))
+      .commit,
+    retried.sha
+  );
+  assert.equal(
+    JSON.parse(read(".harness/workflow/local/verification/last.json")).commit,
+    retried.sha
+  );
+  rmSync(hook);
+
+  // Nothing-to-commit is reported without leaving a journal.
   assert.throws(
     () =>
       tx.commit(root, {

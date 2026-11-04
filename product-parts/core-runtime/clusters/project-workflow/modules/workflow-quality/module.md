@@ -157,13 +157,23 @@ The project quality profile of the Workflow Kit:
   the Workflow Kit facade.
 - `drift(root, config?)` returns `{status, added, missing}`: `discovery` for
   an unconfigured profile, otherwise detected stacks absent from the
-  profile (`added`) and profile stacks without manifests (`missing`).
+  profile (`added`) and profile stacks without manifests whose checks need
+  one (`missing`). A check needs the manifest when its executable (base
+  name, without `.cmd`/`.exe`/`.bat`) is a manifest tool of the stack:
+  node — `npm`, `npx`, `pnpm`, `yarn`, `bun`, `bunx`; python — `uv`,
+  `poetry`; go — `go`, `govulncheck`; rust — `cargo`, `cargo-audit`;
+  dotnet — `dotnet`; swift — `swift`; jvm — `gradle`, `gradlew`, `mvn`,
+  `mvnw`. Toolchain commands such as `node --test` or `python -m pytest`
+  need none, so a project without `package.json` and a profile running
+  `node --test` has no drift. An unknown stack id without manifests is
+  always `missing`.
 
 ## Evidence
 
 - `recordEvidence(root, transactionId, reports)` writes
   `.harness/workflow/local/verification/pending-<transaction>.json`; the
-  git module renames it to `<sha>.json` and `last.json` after the commit.
+  git module turns it into `<sha>.json` and `last.json` after the commit
+  and removes it after the commit or a rollback.
 - `readEvidence(root, reference = "last")` reads a record or returns `null`.
 
 ## Dependencies
@@ -186,4 +196,4 @@ Node built-ins only.
   every builtin, the waiver and evidence records.
 - `src/workflow-quality-apply.test.mjs` — approval, validation before
   installs, failed install, builtins kept, policy and contracts, re-apply,
-  drift.
+  drift (a stack without manifests is missing only for manifest tools).

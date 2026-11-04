@@ -104,12 +104,17 @@ export function confirmedCommit(
   return now;
 }
 
+/** Hook evidence of a transaction until its commit exists. */
+function pendingEvidence(root: string, journal: CommitJournal): string {
+  return localPath(root, "verification", `pending-${journal.id}.json`);
+}
+
 function finalize(
   root: string,
   journal: CommitJournal,
   sha: string
 ): CommitResult {
-  const pending = localPath(root, "verification", `pending-${journal.id}.json`);
+  const pending = pendingEvidence(root, journal);
   if (existsSync(pending)) {
     const evidence = {
       ...JSON.parse(readFileSync(pending, "utf8")),
@@ -124,6 +129,7 @@ function finalize(
       localPath(root, "verification", "last.json"),
       text
     );
+    rmSync(pending, { force: true });
   }
   workflowPlatformFacade.writeFileAtomic(
     localPath(root, "last-commit.json"),
@@ -172,6 +178,7 @@ function rollback(
     localPath(root, "verification", `failed-${journal.id}.json`),
     `${JSON.stringify(journal, null, 2)}\n`
   );
+  rmSync(pendingEvidence(root, journal), { force: true });
   removeJournal(root);
   return true;
 }

@@ -236,7 +236,7 @@ export function commitDocs(
     ensure(
       paths.length > 0 && code.length === 0,
       "DOCS_ONLY",
-      "docs:commit takes Markdown documents only.",
+      "docs:commit takes documentation only: Markdown files and .harness/product-tree/**.",
       { paths: code }
     );
     return commitPlan(context, plan, {

@@ -105,9 +105,15 @@ export const DIGEST_MAX_ITEMS = 8;
 const DOCS_TASK_PREFIX = "DOCS-";
 
 const MARKDOWN_PATTERN = /\.(?:md|markdown)$/iu;
+const PRODUCT_TREE_PREFIX = ".harness/product-tree/";
 
-export function isDocumentationPath(file: string): boolean {
+export function isMarkdownPath(file: string): boolean {
   return MARKDOWN_PATTERN.test(file);
+}
+
+/** Documentation: Markdown files and the product tree (`.harness/product-tree/**`). */
+export function isDocumentationPath(file: string): boolean {
+  return isMarkdownPath(file) || file.startsWith(PRODUCT_TREE_PREFIX);
 }
 
 export function functionalFiles(task: Pick<WorkflowTask, "files">): string[] {

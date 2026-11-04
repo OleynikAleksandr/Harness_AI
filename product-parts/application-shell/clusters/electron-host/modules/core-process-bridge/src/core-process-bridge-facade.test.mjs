@@ -30,6 +30,10 @@ assert.match(
 assert.match(source, /"harness-ai:core:rename-session":\s*"rename-session"/u);
 assert.match(
   source,
+  /"harness-ai:core:remove-workspace":\s*"remove-workspace"/u
+);
+assert.match(
+  source,
   /"harness-ai:core:respond-provider-interaction":\s*"respond-provider-interaction"/u
 );
 assert.match(

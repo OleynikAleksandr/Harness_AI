@@ -239,6 +239,8 @@ interface Window {
     >;
     listWorkspaces(): Promise<{
       activeWorkspaceId: string;
+      /** The always-present workspace that cannot be removed. */
+      builtInWorkspaceId: string;
       workspaces: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace[];
     }>;
     rebuildLocalization(): Promise<{ ok: true } | { error: string; ok: false }>;
@@ -278,6 +280,20 @@ interface Window {
     }): Promise<
       | { ok: true; settings: ProviderSystemSettings }
       | { error: string; ok: false }
+    >;
+    /** Removes a project from the app (not from disk). */
+    removeWorkspace(workspaceId: string): Promise<
+      | {
+          activeWorkspaceId: string;
+          builtInWorkspaceId: string;
+          ok: true;
+          workspaces: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace[];
+        }
+      | {
+          code: "BUILT_IN_WORKSPACE" | "UNKNOWN_WORKSPACE";
+          error: string;
+          ok: false;
+        }
     >;
     resetWorkspaceSettings(): Promise<
       { ok: true; settings: HarnessSettings } | { error: string; ok: false }

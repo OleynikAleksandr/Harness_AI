@@ -37,6 +37,7 @@ const IPC_TO_RPC = {
   "harness-ai:core:rename-session": "rename-session",
   "harness-ai:core:respond-provider-interaction":
     "respond-provider-interaction",
+  "harness-ai:core:remove-workspace": "remove-workspace",
   "harness-ai:core:reset-workspace-settings": "reset-workspace-settings",
   "harness-ai:core:rollback-session-turns": "rollback-session-turns",
   "harness-ai:core:save-provider-system-settings":

@@ -96,6 +96,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
       "harness-ai:core:save-provider-system-settings",
       request
     ),
+  removeWorkspace: (workspaceId) =>
+    ipcRenderer.invoke("harness-ai:core:remove-workspace", { workspaceId }),
   resetWorkspaceSettings: () =>
     ipcRenderer.invoke("harness-ai:core:reset-workspace-settings"),
   rollbackSessionTurns: (request) =>

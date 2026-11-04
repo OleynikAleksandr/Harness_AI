@@ -56,6 +56,8 @@ modules or own Core truth.
   `harness-ai:core:rename-session` → `rename-session` and
   `harness-ai:core:regenerate-session-title` → `regenerate-session-title`.
 - Project workflow forwarding is transport-only as well:
+  `harness-ai:core:remove-workspace` maps to Core `remove-workspace`
+  (remove a project from the app; payload `{workspaceId}`).
   `harness-ai:core:workflow-inspect`, `workflow-prepare-project`,
   `workflow-status`, `workflow-doctor`, `workflow-autopilot-get` and
   `workflow-autopilot-set` map one-to-one to the Core methods of the same

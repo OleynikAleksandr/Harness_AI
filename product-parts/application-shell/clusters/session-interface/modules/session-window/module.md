@@ -70,6 +70,10 @@ Detached session windows never expose the switch.
 - The shared `vite-env.d.ts` bridge contract models Native Request Capture
   `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
   that expose no independent reasoning selector.
+- The shared bridge types declare `listWorkspaces()` with
+  `builtInWorkspaceId` (the workspace Core never removes) and
+  `removeWorkspace(workspaceId)` → `{ok: true, activeWorkspaceId,
+  builtInWorkspaceId, workspaces}` or `{ok: false, code, error}`.
 - The shared bridge types declare the project workflow surface:
   `pickProjectFolder`/`pickProjectParent` (`{canceled, path}`),
   `inspectProjectFolder`, `prepareProject`, `getWorkflowStatus`,

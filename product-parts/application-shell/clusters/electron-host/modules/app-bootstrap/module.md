@@ -66,6 +66,10 @@ Own Electron lifecycle, window creation, and local application startup.
   `setWorkflowAutopilot(request)`, bridged one-to-one to the Core
   `workflow-*` methods. Inspection, installation, status and autopilot truth
   stay in Core.
+- `window.harnessCore.removeWorkspace(workspaceId)` sends only the user's
+  intent to remove a project from the app (`remove-workspace
+  {workspaceId}`); what is removed and which workspace becomes active is
+  decided by Core.
 - `window.harnessCore.renameSession({ sessionId, title })` and
   `regenerateSessionTitle({ sessionId })` expose only user intent; title
   derivation, validation, persistence and manual-lock truth remain in Core.

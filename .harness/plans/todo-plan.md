@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 20,
+  "revision": 22,
   "rounds": [
     {
       "digest": null,
@@ -177,14 +177,18 @@
       "files": [
         "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs",
         "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs",
-        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts",
+        "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md"
       ],
       "fixes": null,
       "id": "F5",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Bridge remove-workspace to the renderer",
       "why": "The renderer reaches Core only through the preload bridge"
     },
@@ -283,8 +287,8 @@
 - Scope: release-fixes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 4/8
-- Revision: 20
+- Progress: 5/8
+- Revision: 22
 
 ## Objective
 
@@ -313,9 +317,9 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
   - Commit: feat: add core route to remove a workspace
   - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.test.mjs, product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/module.md, product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.test.mjs
   - Depends on: F2, F3
-- [TODO] F5 — Bridge remove-workspace to the renderer (work)
+- [DONE] F5 — Bridge remove-workspace to the renderer (work)
   - Commit: feat: bridge workspace removal to the renderer
-  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts
+  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
   - Depends on: F4
 - [TODO] F6 — Project list context menu with Remove from Harness AI (work)
   - Commit: feat: remove a project from the project list menu

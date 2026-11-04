@@ -2,6 +2,10 @@ import { CircleAlert, CircleCheck, CircleX, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import {
+  failureText,
+  GitIdentityForm,
+} from "../../project-setup-dialog/src/project-setup-dialog-facade.js";
 import "../../../src/project-workflow-ui.css";
 
 interface ProjectDoctorPanelProps {
@@ -17,6 +21,17 @@ const STATUS_FALLBACK: Record<DoctorCheck["status"], string> = {
   warn: "Warning",
 };
 
+/**
+ * The git identity check failed and Core cannot copy a real global identity
+ * (`fixable: false`): the panel offers the identity form instead of the
+ * terminal commands.
+ */
+function asksGitIdentity(check: DoctorCheck): boolean {
+  return (
+    check.id === "git-identity" && check.status === "fail" && !check.fixable
+  );
+}
+
 function StatusIcon({ status }: { status: DoctorCheck["status"] }) {
   if (status === "ok") {
     return <CircleCheck aria-hidden="true" size={16} />;
@@ -30,7 +45,9 @@ function StatusIcon({ status }: { status: DoctorCheck["status"] }) {
 /**
  * Project Doctor of a workspace: the Core doctor checks with their status,
  * message and next action, and the safe fix. Core runs the doctor and the
- * fix (a `kit-update` commit); the panel only renders the report.
+ * fix (a `kit-update` commit); the panel only renders the report. A failing
+ * git identity without a real global one offers the identity form; after
+ * saving, the fix copies the identity into the project.
  */
 export function ProjectDoctorPanelFacade({
   onClose,
@@ -62,11 +79,7 @@ export function ProjectDoctorPanelFacade({
           setReport(outcome.result);
         } else {
           setReport(null);
-          setError(
-            outcome.nextAction
-              ? `${outcome.message} ${outcome.nextAction}`
-              : outcome.message
-          );
+          setError(failureText(outcome));
         }
       } catch (reason) {
         setError(String(reason));
@@ -153,7 +166,15 @@ export function ProjectDoctorPanelFacade({
                     )}
                   </span>
                   <p>{check.message}</p>
-                  {check.nextAction ? (
+                  {asksGitIdentity(check) ? (
+                    // Saved globally; the fix copies it into the project.
+                    <GitIdentityForm
+                      onSaved={() => {
+                        run(true).catch(() => undefined);
+                      }}
+                    />
+                  ) : null}
+                  {check.nextAction && !asksGitIdentity(check) ? (
                     <p className="project-doctor-next">{check.nextAction}</p>
                   ) : null}
                 </div>

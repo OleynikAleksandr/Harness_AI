@@ -1,0 +1,15 @@
+/* Git identity form: name and email fields inside the setup dialog or the
+   doctor panel, on the shared --pm-* dark theme tokens. */
+
+.project-workflow-identity {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: var(--pm-bg-secondary);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 6px;
+}
+
+.project-workflow-identity .project-workflow-description {
+  margin: 0;
+}

@@ -17,6 +17,20 @@ assert.match(source, /check\.fixable && check\.status !== "ok"/u);
 assert.match(source, /`project\.doctor\.check\.\$\{check\.id\}`/u);
 assert.match(source, /`project\.doctor\.status\.\$\{check\.status\}`/u);
 assert.match(source, /check\.nextAction/u);
+// A failing git identity Core cannot fix offers the setup dialog's identity
+// form (through its facade) instead of terminal commands; after saving, the
+// doctor fix copies it into the project.
+assert.match(
+  source,
+  /from "\.\.\/\.\.\/project-setup-dialog\/src\/project-setup-dialog-facade\.js"/u
+);
+assert.match(
+  source,
+  /check\.id === "git-identity" && check\.status === "fail" && !check\.fixable/u
+);
+assert.match(source, /<GitIdentityForm\s+onSaved=\{\(\) => \{\s*run\(true\)/u);
+assert.match(source, /check\.nextAction && !asksGitIdentity\(check\)/u);
+assert.match(source, /setError\(failureText\(outcome\)\)/u);
 assert.match(source, /role="dialog"/u);
 assert.match(source, /aria-modal="true"/u);
 assert.match(source, /role="alert"/u);

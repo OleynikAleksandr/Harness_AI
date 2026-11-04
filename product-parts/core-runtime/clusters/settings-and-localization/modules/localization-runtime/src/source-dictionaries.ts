@@ -119,6 +119,9 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "project.doctor.status.ok": "OK",
     "project.doctor.status.warn": "Warning",
     "project.doctor.title": "Project Doctor",
+    "project.identity.email": "Email",
+    "project.identity.name": "Name",
+    "project.identity.save": "Save and continue",
     "project.setup.chooseFolder": "Choose Folder",
     "project.setup.create": "Create Project",
     "project.setup.folder": "Project folder",
@@ -335,6 +338,8 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
     "sidebar.nextSessionMode.description": "Next session starts as Native Raw",
     "project.doctor.description":
       "Checks the Workflow Kit files, git hooks, plan and runtime of the active workspace.",
+    "project.identity.description":
+      "Git signs every commit. Enter your name and email once for all projects on this computer.",
     "project.setup.new.description":
       "Creates the project folder with git and the Workflow Kit.",
     "project.setup.open.description":

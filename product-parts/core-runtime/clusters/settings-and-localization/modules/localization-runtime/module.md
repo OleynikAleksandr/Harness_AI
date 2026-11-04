@@ -107,7 +107,9 @@ materialization, bootstrap payload reuse, and bundle state.
   `ui_labels` holds the sidebar items (`sidebar.newProject`,
   `sidebar.openProject`, `sidebar.projectDoctor`, `sidebar.removeProject`),
   the New/Open Project
-  dialog (`project.setup.*`), Project Doctor (`project.doctor.*`, one label
+  dialog (`project.setup.*`), the git identity form of that dialog and of
+  Project Doctor (`project.identity.name`, `.email`, `.save` — "Save and
+  continue"), Project Doctor (`project.doctor.*`, one label
   per doctor check id and status), the workflow status strip
   (`workflow.strip.*`, including `workflow.strip.label`), one label per autopilot stop reason
   (`workflow.autopilot.reason.<reason>`, including the orchestration
@@ -121,7 +123,8 @@ materialization, bootstrap payload reuse, and bundle state.
   (`sidebar.role.agent`, `sidebar.role.orchestrator`);
   `ui_helper_text` explains every
   inspected folder state (`project.state.<STATE>`, `project.state.nested`),
-  the dialogs and the card (`workflow.modeCard.hint`,
+  the dialogs, the git identity form (`project.identity.description`) and
+  the card (`workflow.modeCard.hint`,
   `workflow.modeCard.option.<id>.description`) and the executor row of the
   plan panel (`workflow.plan.openExecutor`); `messages_for_the_user`
   holds `project.setup.nameRequired` and `workflow.modeCard.saving`.

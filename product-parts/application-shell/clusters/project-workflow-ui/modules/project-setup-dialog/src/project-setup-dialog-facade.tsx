@@ -2,12 +2,19 @@ import { FolderOpen, X } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { GitIdentityForm } from "./git-identity-form.js";
 import {
   asksProjectName,
+  failureText,
+  needsGitIdentity,
   offersOpenWithoutKit,
   primarySetupButton,
 } from "./project-setup-actions.js";
 import "../../../src/project-workflow-ui.css";
+
+// The identity form is shared with the Project Doctor through this facade.
+export { GitIdentityForm } from "./git-identity-form.js";
+export { failureText } from "./project-setup-actions.js";
 
 interface ProjectSetupDialogProps {
   mode: "new" | "open";
@@ -16,19 +23,12 @@ interface ProjectSetupDialogProps {
   onPrepared: (workspace: HarnessWorkspace) => void;
 }
 
-function failureText(failure: {
-  message: string;
-  nextAction: string | null;
-}): string {
-  return failure.nextAction
-    ? `${failure.message} ${failure.nextAction}`
-    : failure.message;
-}
-
 /**
  * New Project (parent folder + name) and Open Project (folder, Core
  * inspection, install or open). Core inspects, installs and registers the
  * project; the dialog only collects the user's choice and shows results.
+ * When Core stops with GIT_IDENTITY_REQUIRED the dialog asks for the git
+ * identity and then repeats the same preparation.
  */
 export function ProjectSetupDialogFacade({
   mode,
@@ -41,6 +41,8 @@ export function ProjectSetupDialogFacade({
   const [inspect, setInspect] = useState<WorkflowInspectResult | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** The `install` flag of the preparation waiting for the git identity. */
+  const [identityRetry, setIdentityRetry] = useState<boolean | null>(null);
   const bridgeUnavailable = t(
     "messages_for_the_user",
     "core.bridge.unavailable",
@@ -108,15 +110,15 @@ export function ProjectSetupDialogFacade({
       const result = await window.harnessCore?.prepareProject({
         mode,
         path: folder,
-        ...(projectName && asksProjectName(mode, action)
-          ? { name: projectName }
-          : {}),
+        ...(asksProjectName(mode) ? { name: projectName } : {}),
         ...(install ? {} : { install: false }),
       });
       if (!result) {
         setError(bridgeUnavailable);
       } else if (result.ok) {
         onPrepared(result.workspace);
+      } else if (needsGitIdentity(result)) {
+        setIdentityRetry(install);
       } else {
         setError(failureText(result));
       }
@@ -128,6 +130,13 @@ export function ProjectSetupDialogFacade({
   function submit(event: FormEvent) {
     event.preventDefault();
     prepare(true).catch((reason: unknown) => setError(String(reason)));
+  }
+
+  /** The identity is saved: the same preparation runs again. */
+  function continueAfterIdentity() {
+    const install = identityRetry ?? true;
+    setIdentityRetry(null);
+    prepare(install).catch((reason: unknown) => setError(String(reason)));
   }
 
   const stateText = inspect
@@ -144,6 +153,52 @@ export function ProjectSetupDialogFacade({
       ? t("ui_labels", "project.setup.newTitle", "New Project")
       : t("ui_labels", "project.setup.openTitle", "Open Project");
 
+  const header = (
+    <header className="project-workflow-header">
+      <div>
+        <h2>{title}</h2>
+        <p className="project-workflow-description">
+          {mode === "new"
+            ? t(
+                "ui_helper_text",
+                "project.setup.new.description",
+                "Creates the project folder with git and the Workflow Kit."
+              )
+            : t(
+                "ui_helper_text",
+                "project.setup.open.description",
+                "Inspects the folder and prepares it for the Workflow Kit."
+              )}
+        </p>
+      </div>
+      <button
+        className="icon-button"
+        disabled={pending}
+        onClick={onClose}
+        title={t("ui_labels", "common.close", "Close")}
+        type="button"
+      >
+        <X aria-hidden="true" size={16} />
+      </button>
+    </header>
+  );
+
+  if (identityRetry !== null) {
+    return (
+      <div className="project-workflow-backdrop">
+        <section
+          aria-label={title}
+          aria-modal="true"
+          className="project-workflow-card"
+          role="dialog"
+        >
+          {header}
+          <GitIdentityForm onSaved={continueAfterIdentity} />
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="project-workflow-backdrop">
       <form
@@ -153,33 +208,7 @@ export function ProjectSetupDialogFacade({
         onSubmit={submit}
         role="dialog"
       >
-        <header className="project-workflow-header">
-          <div>
-            <h2>{title}</h2>
-            <p className="project-workflow-description">
-              {mode === "new"
-                ? t(
-                    "ui_helper_text",
-                    "project.setup.new.description",
-                    "Creates the project folder with git and the Workflow Kit."
-                  )
-                : t(
-                    "ui_helper_text",
-                    "project.setup.open.description",
-                    "Inspects the folder and prepares it for the Workflow Kit."
-                  )}
-            </p>
-          </div>
-          <button
-            className="icon-button"
-            disabled={pending}
-            onClick={onClose}
-            title={t("ui_labels", "common.close", "Close")}
-            type="button"
-          >
-            <X aria-hidden="true" size={16} />
-          </button>
-        </header>
+        {header}
 
         <div className="project-workflow-field">
           <span>
@@ -213,7 +242,7 @@ export function ProjectSetupDialogFacade({
           </p>
         ) : null}
 
-        {asksProjectName(mode, action) ? (
+        {asksProjectName(mode) ? (
           <label className="project-workflow-field">
             <span>
               {t("ui_labels", "project.setup.projectName", "Project name")}

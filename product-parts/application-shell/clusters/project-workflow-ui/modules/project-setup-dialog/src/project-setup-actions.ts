@@ -40,10 +40,29 @@ export function offersOpenWithoutKit(action: FolderAction): boolean {
   );
 }
 
-/** A project name is asked for a new project and before an installation. */
-export function asksProjectName(
-  mode: "new" | "open",
-  action: FolderAction | null
-): boolean {
-  return mode === "new" || action === "install" || action === "install-migrate";
+/**
+ * Only a new project asks for a name (it names the new folder); an opened
+ * folder is named after itself by the Kit.
+ */
+export function asksProjectName(mode: "new" | "open"): boolean {
+  return mode === "new";
+}
+
+/** The Core preparation stopped because git has no usable global identity. */
+export function needsGitIdentity(failure: { code: string }): boolean {
+  return failure.code === "GIT_IDENTITY_REQUIRED";
+}
+
+/**
+ * A Core failure for the in-app alert: the message, and the next action on
+ * its own line unless the message already contains it.
+ */
+export function failureText(failure: {
+  message: string;
+  nextAction: string | null;
+}): string {
+  const { message, nextAction } = failure;
+  return nextAction && !message.includes(nextAction)
+    ? `${message}\n${nextAction}`
+    : message;
 }

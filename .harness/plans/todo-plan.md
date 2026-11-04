@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 94,
+  "revision": 96,
   "rounds": [
     {
       "digest": null,
@@ -170,14 +170,22 @@
       "files": [
         "product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog-facade.tsx",
         "product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-actions.ts",
-        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel-facade.tsx"
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel-facade.tsx",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel.test.mjs",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/git-identity-form.css",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/git-identity-form.tsx",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog.test.mjs",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts"
       ],
       "fixes": null,
       "id": "G4",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Setup dialog identity form and no name in Open Project",
       "why": "The user enters the identity once in the app; an existing folder already names the project"
     },
@@ -459,8 +467,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 8/13
-- Revision: 94
+- Progress: 9/13
+- Revision: 96
 
 ## Objective
 
@@ -490,9 +498,9 @@ Fix the defects found in the execution modes release (git identity form instead 
   - Commit: feat: bridge the git identity route
   - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
   - Depends on: G2
-- [TODO] G4 — Setup dialog identity form and no name in Open Project (work)
+- [DONE] G4 — Setup dialog identity form and no name in Open Project (work)
   - Commit: feat: ask the git identity in the setup dialog
-  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-actions.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel-facade.tsx
+  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-actions.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel.test.mjs, product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/git-identity-form.css, product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/git-identity-form.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts
   - Depends on: G3
 - [DONE] G5 — Mode card in the left sidebar (work)
   - Commit: feat: show the mode card in the sidebar

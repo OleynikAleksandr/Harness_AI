@@ -48,6 +48,14 @@ writeFileSync(
       sessionKind: "subagent",
       subagentStatus: "running",
       titleOrigin: "auto",
+      workingDirectory: "/Users/x/Test/.claude/worktrees/agent-a1",
+    },
+    {
+      ...base,
+      id: "child-invalid-directory",
+      parentSessionId: "legacy-root",
+      sessionKind: "subagent",
+      workingDirectory: 42,
     },
     {
       ...base,
@@ -85,6 +93,10 @@ assert.equal(restored[0].sessionKind, "primary");
 assert.equal(restored[0].titleOrigin, "default");
 assert.equal(restored[1].parentSessionId, "legacy-root");
 assert.equal(restored[1].subagentStatus, "running");
+assert.equal(
+  restored[1].workingDirectory,
+  "/Users/x/Test/.claude/worktrees/agent-a1"
+);
 assert.equal(restored[2].sessionKind, "primary");
 assert.deepEqual(restored[2].sessionPurpose, {
   profileId: "draft-abc123",

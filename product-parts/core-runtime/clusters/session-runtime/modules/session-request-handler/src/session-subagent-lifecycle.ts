@@ -30,6 +30,7 @@ interface ChildSessionSeed {
   readonly task?: string;
   readonly timestamp: string;
   readonly title?: string;
+  readonly workingDirectory?: string;
 }
 
 const TERMINAL_SUBAGENT_STATUSES: ReadonlySet<CoreSubagentStatus> = new Set([
@@ -177,6 +178,7 @@ export class SessionSubagentLifecycle {
       task: event.task,
       timestamp: event.timestamp,
       title: event.title,
+      workingDirectory: event.workingDirectory,
     });
     // Some providers hand Core a fallback result before the child's terminal
     // status drains its live transcript channel. Defer the fallback to the
@@ -300,6 +302,9 @@ export class SessionSubagentLifecycle {
       title: resolveChildTitle(inheritedSeed),
       titleOrigin: "auto",
       updatedAt: inheritedSeed.timestamp,
+      ...(inheritedSeed.workingDirectory
+        ? { workingDirectory: inheritedSeed.workingDirectory }
+        : {}),
       workspaceId: parent.workspaceId,
       ...(parent.workspacePath ? { workspacePath: parent.workspacePath } : {}),
     };
@@ -371,6 +376,10 @@ function mergeChildSession(
     // A rejected downgrade keeps the session timestamp: a historical event
     // must not bump the record it failed to change.
     updatedAt: status === seed.status ? seed.timestamp : session.updatedAt,
+    // The latest reported directory wins; events without one keep it.
+    ...(seed.workingDirectory
+      ? { workingDirectory: seed.workingDirectory }
+      : {}),
   };
 }
 

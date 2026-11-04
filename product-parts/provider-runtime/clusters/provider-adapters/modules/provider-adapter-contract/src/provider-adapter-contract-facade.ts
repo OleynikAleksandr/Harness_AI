@@ -212,6 +212,10 @@ export interface ProviderSubagentSessionEvent {
   readonly timestamp: string;
   readonly title?: string;
   readonly type: "subagent_session";
+  // Absolute working directory of the child agent when the provider records
+  // one (for an isolated agent, its git worktree). Adapters re-emit the
+  // session event when it becomes known or changes; Core keeps the latest.
+  readonly workingDirectory?: string;
 }
 
 export interface ProviderSubagentStatusEvent {

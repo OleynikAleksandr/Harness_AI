@@ -1,5 +1,8 @@
 import crypto from "node:crypto";
-import type { ProviderSubagentEvent } from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
+import type {
+  ProviderSubagentEvent,
+  ProviderSubagentStatus,
+} from "../../../../provider-adapter-contract/src/provider-adapter-contract-facade.js";
 import {
   buildClaudeSubagentSpawnEvents,
   buildClaudeSubagentTerminalStatusEvent,
@@ -16,6 +19,7 @@ import {
   extractSubagentAsyncLaunch,
   extractSubagentTaskNotification,
   extractSubagentToolUseResult,
+  findLatestSubagentCwd,
   findParentTranscriptPath,
   type JsonlTailCursor,
   readJsonlRecordsFrom,
@@ -50,6 +54,7 @@ interface TrackedSubagent {
   spawnEmitted: boolean;
   terminalEmitted: boolean;
   readonly transcriptPath: string;
+  workingDirectory: string | null;
 }
 
 // Watches the native Claude subagent files of one parent session and replays
@@ -202,6 +207,7 @@ export class ClaudeSubagentObserver {
           spawnEmitted: false,
           terminalEmitted: false,
           transcriptPath: discovery.transcriptPath,
+          workingDirectory: null,
         });
       }
     }
@@ -261,15 +267,19 @@ export class ClaudeSubagentObserver {
     );
     const model = agent.model ?? findFirstModel(records);
     const firstTimestamp = findFirstTimestamp(records);
+    const status = hasTerminal ? "running" : statusWithoutTerminal;
+    const workingDirectory = resolveWorkingDirectory(agent, records);
     if (!agent.spawnEmitted) {
       agent.spawnEmitted = true;
       agent.model = model;
+      agent.workingDirectory = workingDirectory;
       const spawn = buildClaudeSubagentSpawnEvents({
         meta: agent.meta,
         ...(model ? { model } : {}),
         parentProviderSessionId: this.parentProviderSessionId,
-        status: hasTerminal ? "running" : statusWithoutTerminal,
+        status,
         timestamp: firstTimestamp ?? this.now(),
+        ...(workingDirectory ? { workingDirectory } : {}),
       });
       this.emitter.emitToParent(spawn.control);
       this.emitter.emitToParent(spawn.session);
@@ -281,11 +291,12 @@ export class ClaudeSubagentObserver {
         meta: agent.meta,
         model,
         parentProviderSessionId: this.parentProviderSessionId,
-        status: hasTerminal ? "running" : statusWithoutTerminal,
+        status,
         timestamp: firstTimestamp ?? this.now(),
       });
       this.emitter.emitToParent(spawn.control);
     }
+    this.announceWorkingDirectory(agent, workingDirectory, records, status);
     const childId = toClaudeChildProviderSessionId(agent.meta.agentId);
     const fallbackTimestamp = this.now();
     let latestTokenUsage: ClaudeSubagentTokenUsage | null = null;
@@ -302,6 +313,28 @@ export class ClaudeSubagentObserver {
       }
     }
     this.emitTokenUsage(agent, childId, latestTokenUsage, fallbackTimestamp);
+  }
+
+  // A directory first seen (or changed) in later records re-announces the
+  // idempotent session metadata so the Core record keeps the latest.
+  private announceWorkingDirectory(
+    agent: TrackedSubagent,
+    workingDirectory: string | null,
+    records: readonly unknown[],
+    status: ProviderSubagentStatus
+  ): void {
+    if (!workingDirectory || workingDirectory === agent.workingDirectory) {
+      return;
+    }
+    agent.workingDirectory = workingDirectory;
+    const spawn = buildClaudeSubagentSpawnEvents({
+      meta: agent.meta,
+      parentProviderSessionId: this.parentProviderSessionId,
+      status,
+      timestamp: findLastTimestamp(records) ?? this.now(),
+      workingDirectory,
+    });
+    this.emitter.emitToParent(spawn.session);
   }
 
   // Codex subagent parity: each new last-call usage read from the agent
@@ -399,6 +432,16 @@ export class ClaudeSubagentObserver {
   }
 }
 
+// The worktree recorded at spawn is the isolation root and stays fixed; other
+// agents report their directory through the latest transcript `cwd`.
+const resolveWorkingDirectory = (
+  agent: TrackedSubagent,
+  records: readonly unknown[]
+): string | null =>
+  agent.meta.worktreePath ??
+  findLatestSubagentCwd(records) ??
+  agent.workingDirectory;
+
 const findFirstModel = (records: readonly unknown[]): string | null => {
   for (const record of records) {
     const model = extractClaudeSubagentModel(record);
@@ -409,14 +452,28 @@ const findFirstModel = (records: readonly unknown[]): string | null => {
   return null;
 };
 
+const readTimestamp = (record: unknown): string | null =>
+  typeof record === "object" &&
+  record !== null &&
+  typeof (record as { timestamp?: unknown }).timestamp === "string"
+    ? (record as { timestamp: string }).timestamp
+    : null;
+
 const findFirstTimestamp = (records: readonly unknown[]): string | null => {
   for (const record of records) {
-    if (
-      typeof record === "object" &&
-      record !== null &&
-      typeof (record as { timestamp?: unknown }).timestamp === "string"
-    ) {
-      return (record as { timestamp: string }).timestamp;
+    const timestamp = readTimestamp(record);
+    if (timestamp) {
+      return timestamp;
+    }
+  }
+  return null;
+};
+
+const findLastTimestamp = (records: readonly unknown[]): string | null => {
+  for (let index = records.length - 1; index >= 0; index -= 1) {
+    const timestamp = readTimestamp(records[index]);
+    if (timestamp) {
+      return timestamp;
     }
   }
   return null;

@@ -68,6 +68,18 @@ assert.deepEqual(spawn.session, {
   title: "Summarize archive batch 2",
   type: "subagent_session",
 });
+// A known working directory rides on the session metadata only.
+const withDirectory = buildClaudeSubagentSpawnEvents({
+  meta,
+  parentProviderSessionId: "parent",
+  timestamp: "t",
+  workingDirectory: "/Users/x/Test/.claude/worktrees/agent-a20d",
+});
+assert.equal(
+  withDirectory.session.workingDirectory,
+  "/Users/x/Test/.claude/worktrees/agent-a20d"
+);
+assert.equal("workingDirectory" in withDirectory.control, false);
 
 // Empty description falls back to the agent type; explicit status and model pass through.
 const fallback = buildClaudeSubagentSpawnEvents({

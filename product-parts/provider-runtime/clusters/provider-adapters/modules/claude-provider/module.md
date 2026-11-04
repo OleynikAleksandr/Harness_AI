@@ -88,7 +88,13 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   (`<sessionId>/subagents/agent-<agentId>.meta.json` + `.jsonl`) — directory
   scan with meta parsing, incremental JSONL tail that only advances past
   fully terminated lines, and `toolUseResult` terminal-status extraction
-  from parent records. The parent transcript is located by scanning the
+  from parent records. Meta parsing keeps the optional `worktreePath` the
+  CLI writes for an agent spawned with `isolation: "worktree"`, and
+  `findLatestSubagentCwd` returns the latest non-empty `cwd` of child
+  transcript records (every record carries one). The parent's
+  `toolUseResult` also repeats `worktreePath` for a foreground agent, but
+  not for a background launch, so it is not read. The parent transcript is
+  located by scanning the
   projects-root slug directories (`findParentTranscriptPath`) because the
   CLI derives the slug from its cwd — the facade-configured slug must not
   be trusted (acceptance finding 2026-07-13). File reading is the
@@ -97,7 +103,8 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Subagent event normalizer (`claude-subagent-event-normalizer.ts`): pure
   mapping from the file layer into the provider-neutral subagent contract —
   meta.json becomes `subagent_control` (spawn, `callId` = toolUseId) plus
-  `subagent_session` (`agentRole` = agentType, task/title = description),
+  `subagent_session` (`agentRole` = agentType, task/title = description,
+  optional `workingDirectory`),
   `toolUseResult` becomes a terminal `subagent_status`
   (completed/interrupted, `is_error` or unknown statuses map to failed),
   and transcript records project text/thinking blocks into the same
@@ -126,7 +133,12 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   monotonic terminal guard absorb cross-restart replays). Hydration marks
   terminal-less agents `interrupted`; live scans keep them `running`. The
   spawn is re-announced once when the model becomes known from the first
-  transcript record so the Core call card shows it. Terminal statuses are
+  transcript record so the Core call card shows it. The child working
+  directory is the meta `worktreePath` when present (the fixed isolation
+  root), otherwise the latest transcript `cwd`; the spawn `subagent_session`
+  carries it when known, and a directory first seen or changed in later
+  records re-emits that `subagent_session` (timestamp of the last record)
+  on the parent channel so Core keeps the latest. Terminal statuses are
   emitted into the CHILD channel (`agent-<agentId>`): Core's
   `handleStatusEvent` accepts `subagent_status` only on the subagent
   session's own channel and silently drops it on the parent channel

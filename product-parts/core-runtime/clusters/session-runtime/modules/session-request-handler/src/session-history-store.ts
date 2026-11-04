@@ -52,6 +52,7 @@ function isCoreSession(value: unknown): value is CoreSession {
     isOptionalString(value.parentSessionId) &&
     isOptionalString(value.reasoningEffort) &&
     isOptionalString(value.subagentCallId) &&
+    isOptionalString(value.workingDirectory) &&
     (value.sessionKind === undefined ||
       value.sessionKind === "primary" ||
       value.sessionKind === "subagent") &&

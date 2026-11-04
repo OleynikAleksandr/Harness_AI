@@ -25,6 +25,9 @@ export interface ClaudeSubagentMeta {
   readonly description: string;
   readonly spawnDepth: number;
   readonly toolUseId: string;
+  // Set by the CLI for an agent spawned with `isolation: "worktree"`: the
+  // git worktree the agent runs in, known before its first transcript record.
+  readonly worktreePath?: string;
 }
 
 export interface ClaudeSubagentDiscovery {
@@ -110,7 +113,30 @@ const parseSubagentMeta = (
     description: typeof description === "string" ? description : "",
     spawnDepth: typeof parsed.spawnDepth === "number" ? parsed.spawnDepth : 1,
     toolUseId,
+    ...(typeof parsed.worktreePath === "string" &&
+    parsed.worktreePath.length > 0
+      ? { worktreePath: parsed.worktreePath }
+      : {}),
   };
+};
+
+// Every child transcript record carries the agent's `cwd`; the latest
+// non-empty value is its current working directory (for a worktree-isolated
+// agent, the worktree path).
+export const findLatestSubagentCwd = (
+  records: readonly unknown[]
+): string | null => {
+  for (let index = records.length - 1; index >= 0; index -= 1) {
+    const record = records[index];
+    if (
+      isRecord(record) &&
+      typeof record.cwd === "string" &&
+      record.cwd.length > 0
+    ) {
+      return record.cwd;
+    }
+  }
+  return null;
 };
 
 export const scanSubagentsDirectory = async (

@@ -135,3 +135,74 @@ const exerciseTerminalResult = async (hasAssistantMessage) => {
 
 assert.equal((await exerciseTerminalResult(false)).length, 1);
 assert.equal((await exerciseTerminalResult(true)).length, 0);
+
+// The child record keeps the latest working directory a subagent_session
+// event reports (WorkflowKitExecutionModes.md, section 10.2); events
+// without one keep the stored value.
+{
+  const parent = {
+    createdAt: "2026-11-04T10:00:00.000Z",
+    id: "parent-claude",
+    model: "claude-opus-4-8",
+    nextSessionMode: "native",
+    providerId: "claude",
+    providerName: "Claude",
+    providerSessionId: "parent-provider",
+    title: "Parent",
+    updatedAt: "2026-11-04T10:00:00.000Z",
+    workspaceId: "workspace",
+  };
+  const sessions = new Map([[parent.id, parent]]);
+  const lifecycle = new SessionSubagentLifecycle({
+    addSession: (session) => sessions.set(session.id, session),
+    adoptProviderSession: () => undefined,
+    getSession: (sessionId) => sessions.get(sessionId),
+    getSubagentCall: () => undefined,
+    hasAssistantMessage: () => false,
+    listSessions: () => [...sessions.values()],
+    publishChildResultMessage: () => undefined,
+    publishSubagentCall: () => undefined,
+    updateSession: (session) => sessions.set(session.id, session),
+  });
+  const sessionEvent = (timestamp, workingDirectory) => ({
+    parentProviderSessionId: parent.providerSessionId,
+    providerSessionId: "agent-a84de5f195192532e",
+    status: "running",
+    task: "Executor T001",
+    timestamp,
+    type: "subagent_session",
+    ...(workingDirectory ? { workingDirectory } : {}),
+  });
+  const child = () =>
+    [...sessions.values()].find(
+      (session) => session.providerSessionId === "agent-a84de5f195192532e"
+    );
+  const worktree = "/Users/x/Test/.claude/worktrees/agent-a84de5f195192532e";
+  lifecycle.handleProviderEvent(
+    parent.id,
+    sessionEvent("2026-11-04T10:00:01.000Z", worktree)
+  );
+  assert.equal(child().sessionKind, "subagent");
+  assert.equal(child().workingDirectory, worktree);
+  lifecycle.handleProviderEvent(
+    parent.id,
+    sessionEvent("2026-11-04T10:00:02.000Z")
+  );
+  assert.equal(child().workingDirectory, worktree);
+  lifecycle.handleProviderEvent(
+    parent.id,
+    sessionEvent("2026-11-04T10:00:03.000Z", "/Users/x/Other")
+  );
+  assert.equal(child().workingDirectory, "/Users/x/Other");
+  assert.equal(sessions.size, 2, "one child record, updated in place");
+
+  // A child without a reported directory has no field at all.
+  lifecycle.handleProviderEvent(parent.id, {
+    ...sessionEvent("2026-11-04T10:00:04.000Z"),
+    providerSessionId: "agent-plain",
+  });
+  const plain = [...sessions.values()].find(
+    (session) => session.providerSessionId === "agent-plain"
+  );
+  assert.equal("workingDirectory" in plain, false);
+}

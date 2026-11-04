@@ -50,7 +50,11 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 - Core session events.
 - Provider-neutral child-session metadata on `CoreSession`: optional
   `sessionKind`, `parentSessionId`, agent nickname/role, delegated task,
-  reasoning effort, subagent status/call id and title origin. Fields remain
+  reasoning effort, subagent status/call id, title origin and
+  `workingDirectory` (the latest absolute working directory a
+  `subagent_session` event reported for the child — for an isolated agent its
+  git worktree; events without one keep the stored value; it is persisted in
+  the session index and returned by `listSessions`). Fields remain
   optional for persisted sessions created before this contract; restore
   normalizes those records to `primary`/`default`, while new sessions receive
   explicit values.

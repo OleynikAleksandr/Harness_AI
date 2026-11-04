@@ -47,6 +47,7 @@ export const buildClaudeSubagentSpawnEvents = (options: {
   readonly parentProviderSessionId: string;
   readonly status?: ProviderSubagentStatus;
   readonly timestamp: string;
+  readonly workingDirectory?: string;
 }): ClaudeSubagentSpawnEvents => {
   const childId = toClaudeChildProviderSessionId(options.meta.agentId);
   const status = options.status ?? "running";
@@ -76,6 +77,9 @@ export const buildClaudeSubagentSpawnEvents = (options: {
       timestamp: options.timestamp,
       title: task,
       type: "subagent_session",
+      ...(options.workingDirectory
+        ? { workingDirectory: options.workingDirectory }
+        : {}),
     },
   };
 };

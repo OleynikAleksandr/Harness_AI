@@ -27,6 +27,7 @@ const {
   extractSubagentAsyncLaunch,
   extractSubagentTaskNotification,
   extractSubagentToolUseResult,
+  findLatestSubagentCwd,
   findParentTranscriptPath,
   readJsonlRecordsFrom,
   resolveSubagentsDir,
@@ -83,6 +84,47 @@ assert.equal(
   discoveries[0].transcriptPath,
   join(subagentsDir, "agent-a20d633996f34d4cc.jsonl")
 );
+
+// A worktree-isolated agent's meta.json records its worktree (CLI 2.1.317,
+// Test_New_HarnesAI_002 2026-11-04); an empty value is dropped.
+const worktreePath = "/Users/x/Test/.claude/worktrees/agent-a84de5f195192532e";
+writeFileSync(
+  join(subagentsDir, "agent-a84de5f195192532e.meta.json"),
+  JSON.stringify({
+    agentType: "general-purpose",
+    description: "Executor T001: loader",
+    spawnDepth: 1,
+    spawnedWithWorktree: true,
+    toolUseId: "toolu_018oGQDuH87nD3eWuMwpmZmH",
+    worktreeBranch: "worktree-agent-a84de5f195192532e",
+    worktreePath,
+  })
+);
+writeFileSync(
+  join(subagentsDir, "agent-aempty.meta.json"),
+  JSON.stringify({ toolUseId: "toolu_empty", worktreePath: "" })
+);
+const isolated = await scanSubagentsDirectory(subagentsDir);
+assert.equal(isolated.length, 3);
+const metaOf = (agentId) =>
+  isolated.find((discovery) => discovery.meta.agentId === agentId).meta;
+assert.equal(metaOf("a84de5f195192532e").worktreePath, worktreePath);
+assert.equal("worktreePath" in metaOf("aempty"), false);
+assert.equal("worktreePath" in metaOf("a20d633996f34d4cc"), false);
+
+// The latest non-empty transcript `cwd` is the agent's working directory.
+assert.equal(
+  findLatestSubagentCwd([
+    { cwd: "/Users/x/Test", type: "user" },
+    { cwd: worktreePath, type: "assistant" },
+    { cwd: "", type: "attachment" },
+    { type: "api-request" },
+    null,
+  ]),
+  worktreePath
+);
+assert.equal(findLatestSubagentCwd([{ type: "user" }, "x"]), null);
+assert.equal(findLatestSubagentCwd([]), null);
 
 // A missing directory scans to an empty list.
 assert.deepEqual(await scanSubagentsDirectory(join(root, "nope")), []);

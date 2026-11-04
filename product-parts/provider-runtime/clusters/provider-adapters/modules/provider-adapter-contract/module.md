@@ -47,7 +47,9 @@ the provider adapter; cancellation and malformed decisions must fail closed.
   `subagent_session` describes a newly started child thread and its parent,
   and may carry an optional `result` text with a terminal status — the final
   output of a synthesized child that has no provider channel of its own
-  (Core publishes it once as the child's assistant message);
+  (Core publishes it once as the child's assistant message), and an
+  optional absolute `workingDirectory` of the child (for an isolated agent,
+  its git worktree) that adapters re-emit when it becomes known or changes;
   `subagent_status` carries live child state. Adapters normalize native
   provider shapes before Core sees them, and renderer text inference is not
   part of this boundary.

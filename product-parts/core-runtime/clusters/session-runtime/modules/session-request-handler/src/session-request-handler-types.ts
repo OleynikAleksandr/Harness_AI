@@ -64,6 +64,9 @@ export interface CoreSession {
   title: string;
   titleOrigin?: CoreSessionTitleOrigin;
   updatedAt: string;
+  // Subagent children only: the latest working directory the provider
+  // reported for the child (for an isolated agent, its git worktree).
+  workingDirectory?: string;
   workspaceId: string;
   workspacePath?: string;
 }

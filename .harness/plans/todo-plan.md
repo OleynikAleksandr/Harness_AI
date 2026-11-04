@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 37,
+  "revision": 39,
   "rounds": [
     {
       "digest": null,
@@ -495,14 +495,26 @@
       "files": [
         "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts",
         "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts",
-        "product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts"
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.test.mjs",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.test.mjs",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-event-normalizer.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-event-normalizer.ts",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer-working-directory.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md"
       ],
       "fixes": null,
       "id": "E15",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Claude subagent working directory",
       "why": "Core binds an executor session to its task by the subagent worktree"
     },
@@ -728,8 +740,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 3/22
-- Revision: 37
+- Progress: 4/22
+- Revision: 39
 
 ## Objective
 
@@ -800,9 +812,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: publish workflow status on plan changes
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts
   - Depends on: E11
-- [TODO] E15 — Claude subagent working directory (work)
+- [DONE] E15 — Claude subagent working directory (work)
   - Commit: feat: report claude subagent working directory
-  - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts
+  - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-event-normalizer.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer-working-directory.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md
 - [TODO] E16 — Core plan view with executor sessions (work)
   - Commit: feat: build the plan view with executor sessions
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts

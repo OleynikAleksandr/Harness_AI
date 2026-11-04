@@ -1,3 +1,6 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+
 // Test support for the workflow-git and later project-workflow tests: an
 // environment without the GIT_* variables that git sets for hooks, so tests
 // that run inside a commit hook operate on their own temporary repositories.
@@ -18,4 +21,22 @@ export function cleanGitEnvironment(base = process.env) {
     delete env[name];
   }
   return env;
+}
+
+const TEST_IDENTITY = {
+  email: "workflow@harness-ai.test",
+  name: "Workflow Test",
+};
+
+// Kit commits sign with the repository-local identity only. Repositories that
+// a test lets git create (for example through install) get that identity from
+// this init template: pass the returned folder as GIT_TEMPLATE_DIR.
+export function identityTemplate(folder, identity = TEST_IDENTITY) {
+  const template = path.join(folder, "git-template");
+  mkdirSync(template, { recursive: true });
+  writeFileSync(
+    path.join(template, "config"),
+    `[user]\n\tname = ${identity.name}\n\temail = ${identity.email}\n`
+  );
+  return template;
 }

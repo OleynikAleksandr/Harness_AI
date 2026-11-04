@@ -194,3 +194,6 @@ Node built-ins only.
   envelopes, inspection and update of a folder without the Kit, text errors, a folder without the Kit, a whole task from a
   subdirectory, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled file run as a program.
+
+Test repositories use the real local identity `workflow@harness-ai.test`:
+Kit commits refuse placeholder identities (`GIT_IDENTITY_REQUIRED`).

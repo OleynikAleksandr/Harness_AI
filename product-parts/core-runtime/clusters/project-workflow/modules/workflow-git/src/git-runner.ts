@@ -5,6 +5,8 @@ import {
 
 export interface GitOptions {
   allowFailure?: boolean;
+  /** Variables layered over the runner environment for this call only. */
+  env?: NodeJS.ProcessEnv;
   input?: string;
   timeoutMs?: number;
 }
@@ -31,7 +33,7 @@ export class GitRunner {
     const result = this.platform.run({
       args,
       cwd: root,
-      env: this.env,
+      env: options.env ? { ...this.env, ...options.env } : this.env,
       executable: "git",
       input: options.input,
       timeoutMs: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,

@@ -76,7 +76,7 @@ try {
   // An installed project, addressed from a subdirectory.
   git.init(root);
   git.setConfig(root, "user.name", "Workflow Test");
-  git.setConfig(root, "user.email", "workflow@example.invalid");
+  git.setConfig(root, "user.email", "workflow@harness-ai.test");
   writeFileSync(path.join(root, ".gitignore"), ".harness/workflow/local/\n");
   const plans = new WorkflowPlanFacade();
   git.transactions.commit(root, {

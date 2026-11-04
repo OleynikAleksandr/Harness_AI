@@ -37,7 +37,7 @@ try {
   const plans = new WorkflowPlanFacade();
   git.init(root);
   git.setConfig(root, "user.name", "Workflow Test");
-  git.setConfig(root, "user.email", "workflow@example.invalid");
+  git.setConfig(root, "user.email", "workflow@harness-ai.test");
   write(".gitignore", ".harness/workflow/local/\n");
   let plan = plans.createEmpty("p", "Repair");
   git.transactions.commit(root, {

@@ -73,3 +73,8 @@ Result types come from the cluster facades (`InspectResult`,
   `HOST_OUTPUT`, `HOST_TIMEOUT`, `HOST_SPAWN`, `HOST_NO_BUNDLE`), and an
   end-to-end run of the real bundle built by Vite: inspect, install,
   status, doctor, validate and the runtime file.
+
+Test repositories and the projects the bundle installs into get a real
+repository-local identity (`workflow@harness-ai.test`, through
+`GIT_TEMPLATE_DIR` for install): Kit commits refuse placeholder
+identities (`GIT_IDENTITY_REQUIRED`).

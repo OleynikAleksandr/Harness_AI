@@ -110,3 +110,6 @@ Node built-ins only.
   a repository, changes outside the task, JSON output, the SessionStart
   hook with and without host delivery and with a broken plan, `show-task`,
   `history`.
+
+Test repositories use the real local identity `workflow@harness-ai.test`:
+Kit commits refuse placeholder identities (`GIT_IDENTITY_REQUIRED`).

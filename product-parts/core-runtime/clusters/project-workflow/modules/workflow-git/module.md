@@ -16,7 +16,10 @@ All git work of the Workflow Kit:
 takes a platform facade and an environment. Tests pass an environment
 without the `GIT_*` hook variables (`src/workflow-git-test-repo.mjs`), so
 they work on temporary repositories even when they run inside a commit hook
-of this repository.
+of this repository. Test repositories set a real local identity;
+repositories that git creates during a test (for example
+through install) get it from `identityTemplate(folder)`, passed as
+`GIT_TEMPLATE_DIR`.
 
 ## Contract
 
@@ -26,7 +29,8 @@ of this repository.
   - `GIT_FAILED` — non-zero exit, unless `allowFailure` is set.
 - `isRepository`, `topLevel`, `init(root, "main")`.
 - `head(root)` returns the full SHA, or `null` before the first commit.
-- `identity(root)` returns `{name, email}`, or `null`.
+- `identity(root)` returns the effective `{name, email}` (every config
+  scope git reads), or `null`.
 - `changes(root)` returns `{staged, unstaged, untracked, all}`: sorted
   canonical paths from `git status --porcelain=v1 -z`. Renames and copies
   record both paths.
@@ -37,6 +41,26 @@ of this repository.
   `show(root, revision, path)` (`null` when the file is absent),
   `config`/`setConfig`, and `gitPath(root, name)` (absolute path inside the
   git directory).
+
+## Git Identity (`git-identity.ts`)
+
+- `readIdentity(root, scope)` reads `user.name` and `user.email` from one
+  config file only: `"local"` (`git config --local`, the repository config
+  shared by all its worktrees) or `"global"` (`git config --global`).
+  Returns `null` unless both values are set.
+- `isPlaceholderIdentity({name, email})` is true when, after trimming and
+  ignoring case:
+  - the name or the email is empty;
+  - the name is `Your Name` or `Ваше Имя`;
+  - the email is `you@example.com` or has no `@`;
+  - the email domain is `example`, `example.<anything>`, `invalid`,
+    `*.invalid` or `localhost`.
+- `resolveIdentity(root)` returns the local identity, else the global one,
+  skipping placeholders, as `{name, email, source: "local" | "global"}`, or
+  `null`.
+- `writeLocalIdentity(root, identity)` writes the trimmed identity to the
+  repository-local config; a placeholder fails with
+  `GIT_IDENTITY_PLACEHOLDER` and nothing is written.
 
 ## Task Files (`git-task-files.ts`)
 
@@ -71,16 +95,27 @@ holds:
 
 Steps:
 
-1. Refuses to start when:
+1. Refuses to start, before anything is written, when:
    - another transaction is pending (`TRANSACTION_PENDING`);
-   - the index holds files outside the operation (`FOREIGN_STAGED`).
+   - the index holds files outside the operation (`FOREIGN_STAGED`);
+   - the repository-local identity is missing or a placeholder
+     (`GIT_IDENTITY_REQUIRED`). The global identity is never used here. The
+     message and the next action name the one-time fix:
+     `git config --global user.name "Your Real Name"`,
+     `git config --global user.email "you@your-domain"`, then
+     `scripts/workflow doctor --fix` applies it to the project.
 2. Backs the index up to `.harness/workflow/local/index-before` and writes
    the journal (`transaction.json`) with the original and candidate plan.
 3. Runs `prepare(files)`: formatters may rewrite files here.
 4. Writes the candidate plan, stages the files (deletions included) and
    records the candidate tree. If nothing is staged, it rolls back and
    fails with `NOTHING_TO_COMMIT`.
-5. Runs `git commit -F -`. The message ends with trailers:
+5. Runs `git -c user.name=<local name> -c user.email=<local email> commit
+   -F -` with `GIT_AUTHOR_NAME/EMAIL` and `GIT_COMMITTER_NAME/EMAIL` set to
+   the same identity (`identityEnv`; Git exports `GIT_AUTHOR_*` to hooks and
+   they win over `-c`), so the author and committer are the
+   repository-local identity whatever the home directory, global config,
+   `GIT_CONFIG_*` or `GIT_AUTHOR_*` variables of the caller say. The message ends with trailers:
    - `Workflow-Scope`, `Workflow-Task`, `Workflow-Role`;
    - `Workflow-Iteration` (every commit that completes a task);
    - `Workflow-Transaction`.

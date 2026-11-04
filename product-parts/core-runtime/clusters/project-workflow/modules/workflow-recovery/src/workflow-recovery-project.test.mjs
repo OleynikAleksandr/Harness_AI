@@ -46,7 +46,7 @@ try {
 
   git.init(root);
   git.setConfig(root, "user.name", "Workflow Test");
-  git.setConfig(root, "user.email", "workflow@example.invalid");
+  git.setConfig(root, "user.email", "workflow@harness-ai.test");
   write(".gitignore", ".harness/workflow/local/\n");
   write("docs/spec.md", "# Spec\n\n## Goal\n\nShip it.\n");
   let plan = plans.createEmpty("p", "Recovery");

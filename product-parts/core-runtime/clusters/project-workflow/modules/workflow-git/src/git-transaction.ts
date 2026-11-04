@@ -13,6 +13,11 @@ import {
 } from "../../workflow-platform/src/workflow-platform-facade.js";
 import { readChanges, readHistory } from "./git-history.js";
 import {
+  identityArgs,
+  identityEnv,
+  requireCommitIdentity,
+} from "./git-identity.js";
+import {
   type CommitJournal,
   type CommitRole,
   commitMessageFor,
@@ -249,6 +254,9 @@ export function commitCandidate(
     "The index holds files outside this operation; unstage them first.",
     { paths: foreign }
   );
+  // Verified before anything is written: Kit commits never fall back to an
+  // ambient or placeholder identity.
+  const identity = requireCommitIdentity(git, root);
   mkdirSync(localPath(root), { recursive: true });
   const journal = prepareJournal(git, root, request, id);
   saveJournal(root, journal);
@@ -274,11 +282,16 @@ export function commitCandidate(
   journal.candidateTree = git.text(root, ["write-tree"]);
   journal.phase = "PREPARED";
   saveJournal(root, journal);
-  const result = git.run(root, ["commit", "-q", "-F", "-"], {
-    allowFailure: true,
-    input: commitMessageFor(journal),
-    timeoutMs: COMMIT_TIMEOUT_MS,
-  });
+  const result = git.run(
+    root,
+    [...identityArgs(identity), "commit", "-q", "-F", "-"],
+    {
+      allowFailure: true,
+      env: identityEnv(identity),
+      input: commitMessageFor(journal),
+      timeoutMs: COMMIT_TIMEOUT_MS,
+    }
+  );
   if (result.status !== 0) {
     const failed = {
       ...(readJournal(root) ?? journal),

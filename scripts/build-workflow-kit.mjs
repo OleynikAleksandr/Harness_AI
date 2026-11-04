@@ -61,7 +61,7 @@ try {
   const gitConfig = path.join(folder, "gitconfig");
   writeFileSync(
     gitConfig,
-    "[user]\n\tname = Workflow Smoke\n\temail = smoke@example.invalid\n"
+    "[user]\n\tname = Workflow Smoke\n\temail = smoke@harness-ai.test\n"
   );
   const env = {
     ...process.env,

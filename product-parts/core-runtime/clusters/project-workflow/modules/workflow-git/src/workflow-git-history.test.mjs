@@ -22,9 +22,9 @@ try {
   assert.equal(git.isRepository(root), true);
   assert.equal(git.head(root), null);
   git.setConfig(root, "user.name", "Workflow Test");
-  git.setConfig(root, "user.email", "workflow@example.invalid");
+  git.setConfig(root, "user.email", "workflow@harness-ai.test");
   assert.deepEqual(git.identity(root), {
-    email: "workflow@example.invalid",
+    email: "workflow@harness-ai.test",
     name: "Workflow Test",
   });
 

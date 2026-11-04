@@ -11,7 +11,10 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { cleanGitEnvironment } from "../../workflow-git/src/workflow-git-test-repo.mjs";
+import {
+  cleanGitEnvironment,
+  identityTemplate,
+} from "../../workflow-git/src/workflow-git-test-repo.mjs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
 
 const build = await buildWorkflowModules(
@@ -40,10 +43,14 @@ try {
   const identity = at("gitconfig");
   writeFileSync(
     identity,
-    "[user]\n\tname = Workflow Test\n\temail = workflow@example.invalid\n"
+    "[user]\n\tname = Workflow Test\n\temail = workflow@harness-ai.test\n"
   );
   writeFileSync(at("empty-gitconfig"), "");
-  const env = { ...cleanGitEnvironment(), GIT_CONFIG_GLOBAL: identity };
+  const env = {
+    ...cleanGitEnvironment(),
+    GIT_CONFIG_GLOBAL: identity,
+    GIT_TEMPLATE_DIR: identityTemplate(sandbox),
+  };
   const git = new WorkflowGitFacade(undefined, env);
   const installer = new WorkflowInstallerFacade(git);
   const kit = new WorkflowKitFacade({ env, git });

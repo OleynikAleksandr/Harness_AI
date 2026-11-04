@@ -205,3 +205,8 @@ Node built-ins only.
   in-progress, wrapped, quality, docs, delivery and acceptance rows: the
   migration commit, rounds, task mapping, digest, decisions, context, a
   working Kit plan afterwards, and an idle legacy plan.
+
+Test repositories get a real repository-local identity
+(`workflow@harness-ai.test`; install tests through `GIT_TEMPLATE_DIR`),
+because Kit commits refuse placeholder identities
+(`GIT_IDENTITY_REQUIRED`).

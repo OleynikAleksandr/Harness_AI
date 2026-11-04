@@ -11,6 +11,15 @@ import {
   readHistory,
   type WorkingTreeChanges,
 } from "./git-history.js";
+import {
+  type GitIdentity,
+  type IdentityScope,
+  isPlaceholderIdentity,
+  type ResolvedIdentity,
+  readScopedIdentity,
+  resolveIdentity,
+  writeLocalIdentity,
+} from "./git-identity.js";
 import { type CommitJournal, localPath, readJournal } from "./git-journal.js";
 import { resolveTaskReferences, type TaskReference } from "./git-references.js";
 import {
@@ -40,6 +49,11 @@ import {
 } from "./git-transaction.js";
 
 export type { CommitRecord, WorkingTreeChanges } from "./git-history.js";
+export type {
+  GitIdentity,
+  IdentityScope,
+  ResolvedIdentity,
+} from "./git-identity.js";
 export type { CommitJournal, CommitRole } from "./git-journal.js";
 export { LOCAL_DIR } from "./git-journal.js";
 export type { TaskReference } from "./git-references.js";
@@ -51,11 +65,6 @@ export type {
   TaskIdentity,
 } from "./git-task-files.js";
 export type { CommitRequest, CommitResult } from "./git-transaction.js";
-
-export interface GitIdentity {
-  email: string;
-  name: string;
-}
 
 /**
  * Public boundary of the workflow-git module: git queries, the transactional
@@ -101,6 +110,25 @@ export class WorkflowGitFacade {
       .run(root, ["config", "user.email"], { allowFailure: true })
       .stdout.trim();
     return name && email ? { email, name } : null;
+  }
+
+  /** Identity from one config file only (`local` or `global`); null when incomplete. */
+  readIdentity(root: string, scope: IdentityScope): GitIdentity | null {
+    return readScopedIdentity(this.git, root, scope);
+  }
+
+  /** Local identity, else global; placeholders are skipped. */
+  resolveIdentity(root: string): ResolvedIdentity | null {
+    return resolveIdentity(this.git, root);
+  }
+
+  isPlaceholderIdentity(identity: GitIdentity): boolean {
+    return isPlaceholderIdentity(identity);
+  }
+
+  /** Writes a real identity to the repository-local config (GIT_IDENTITY_PLACEHOLDER otherwise). */
+  writeLocalIdentity(root: string, identity: GitIdentity): void {
+    writeLocalIdentity(this.git, root, identity);
   }
 
   changes(root: string): WorkingTreeChanges {

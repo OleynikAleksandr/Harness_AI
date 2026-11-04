@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 118,
+  "revision": 119,
   "rounds": [
     {
       "digest": null,
@@ -306,7 +306,9 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery",
+        "docs/architecture/workflow-kit/WorkflowKitCommands.md",
+        "docs/DOCUMENTATION_INDEX.md"
       ],
       "fixes": null,
       "id": "K2",
@@ -696,7 +698,7 @@
 - Delivery: IN_PROGRESS
 - Current task: none
 - Progress: 4/17
-- Revision: 118
+- Revision: 119
 
 ## Objective
 
@@ -733,7 +735,7 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Depends on: A1
 - [TODO] K2 — Kit schema command and packet schema (work)
   - Commit: feat: print input schemas and put them in the packet
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: K1
 - [TODO] A3 — Core pause route (work)
   - Commit: feat: route the workflow pause through core

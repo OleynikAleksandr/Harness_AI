@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 119,
+  "revision": 121,
   "rounds": [
     {
       "digest": null,
@@ -274,14 +274,22 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot",
-        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler"
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-decision.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-pause.test.mjs",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.test.mjs",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.ts"
       ],
       "fixes": null,
       "id": "A2",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Autopilot on by default with a pause stop",
       "why": "The autopilot was off by default and had no pause"
     },
@@ -697,8 +705,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 4/17
-- Revision: 119
+- Progress: 5/17
+- Revision: 121
 
 ## Objective
 
@@ -729,9 +737,9 @@ Give agents their input schemas and document text inline, add the Kit context co
 - [DONE] W1 — Core without a built-in project (work)
   - Commit: fix: remove the built-in project from core
   - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry, product-parts/core-runtime/clusters/session-runtime/modules/session-registry, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-localization-rebuild-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-identity.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-lifecycle.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-provider-lifecycle.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-facade.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/session-registry-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-registry/src/session-registry-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts, product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/module.md, product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.test.mjs, product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.ts
-- [TODO] A2 — Autopilot on by default with a pause stop (work)
+- [DONE] A2 — Autopilot on by default with a pause stop (work)
   - Commit: feat: run the autopilot by default and stop on pause
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-decision.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-pause.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.ts
   - Depends on: A1
 - [TODO] K2 — Kit schema command and packet schema (work)
   - Commit: feat: print input schemas and put them in the packet

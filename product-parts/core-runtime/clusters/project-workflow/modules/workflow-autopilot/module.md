@@ -13,13 +13,16 @@ decision (state per session, sending turns, events) belongs to Core.
 
 ## Contract
 
-- `initialState(maxContinues = 40, enabled = false)` →
-  `{enabled, continues, maxContinues, orchestrationKey: null}`.
+- `initialState(maxContinues = 40, enabled = true)` →
+  `{enabled, continues, maxContinues, orchestrationKey: null}`; the
+  autopilot is on by default, `enabled = false` turns it off.
 - `decide(state, status, turn)`:
   - `status` — the project after the turn: `{scope ACTIVE|BLOCKED|NONE,
     blockedReason, delivery, transactionPending, nextTask {id, kind,
-    status, title} | null, revision, head}` plus two optional fields (a
+    status, title} | null, revision, head}` plus three optional fields (a
     status without them decides as before):
+    - `paused` — the user paused the workflow (Kit `pause:set --on`): the
+      current micro-task finishes, the next one does not start;
     - `proposalPending` — a scope proposal waits for the mode choice;
     - `orchestration` — `null`/absent in a sequential scope, else the
       orchestrated scope seen from main: `assignments` (active ones and
@@ -35,17 +38,20 @@ decision (state per session, sending turns, events) belongs to Core.
   1. `disabled` — autopilot is off for the session;
   2. `turn-error` — the turn failed or was cancelled;
   3. `user-message` — the user wrote; the autopilot yields;
-  4. `waiting-for-mode-choice` — `proposalPending`;
-  5. `no-scope`;
-  6. `blocked` — the scope is blocked (detail is the reason);
-  7. `transaction-pending` — unfinished transaction or failed check;
-  8. `ready-for-acceptance` — `READY_FOR_ACCEPTANCE` or `ACCEPTED`;
+  4. `paused` — in a sequential scope when `paused` is true and the focus
+     task is not `IN_PROGRESS` (a task in progress continues as usual);
+     an orchestrated scope applies the pause per step (below);
+  5. `waiting-for-mode-choice` — `proposalPending`;
+  6. `no-scope`;
+  7. `blocked` — the scope is blocked (detail is the reason);
+  8. `transaction-pending` — unfinished transaction or failed check;
+  9. `ready-for-acceptance` — `READY_FOR_ACCEPTANCE` or `ACCEPTED`;
   then a sequential scope:
-  9. `blocked` — no task is ready;
-  10. `delivery-confirmation` — the next task is a `delivery` task that has
+  10. `blocked` — no task is ready;
+  11. `delivery-confirmation` — the next task is a `delivery` task that has
      not started;
-  11. `no-progress` — plan revision and HEAD did not change;
-  12. `limit` — `continues` reached `maxContinues`.
+  12. `no-progress` — plan revision and HEAD did not change;
+  13. `limit` — `continues` reached `maxContinues`.
 - An orchestrated scope (`orchestration` set; spec 10.3) continues the
   orchestrator for the first of:
   1. an integration journal — `CONFLICT`: resolve the conflicts within the
@@ -60,6 +66,11 @@ decision (state per session, sending turns, events) belongs to Core.
      subagent in its own worktree with the printed brief (the decision's
      `taskId` is the first ready task);
   5. a pending cleanup — `scripts/workflow assignment:cleanup --id <id>`.
+  A pause (`paused`) holds back only the steps that start work: handing
+  out `readyTasks` and a `quality` task that is still `TODO`. Integration,
+  `READY_FOR_INTEGRATION`, cleanup and a started `quality`/`delivery` task
+  continue; with no such step the decision stops with `paused` (before
+  `waiting-for-executors`).
   Without such a step it stops with `waiting-for-executors` when an
   assignment is `ASSIGNED`, `NEEDS_SETUP`, `READY` or `RUNNING` (detail
   lists `<task> (<status>)`), else `delivery-confirmation` for a delivery
@@ -84,7 +95,14 @@ None. Node built-ins only.
 
 ## Tests
 
-`src/workflow-autopilot-decision.test.mjs` — every stop reason, both
+`src/workflow-autopilot-pause.test.mjs` — the pause: after the turn
+reasons and before the scope reasons when nothing is in progress, a task in
+progress continues, per step in an orchestrated scope (hand-out and an
+unstarted QUALITY held back; integration, `READY_FOR_INTEGRATION`, cleanup
+and started main tasks continue).
+
+`src/workflow-autopilot-decision.test.mjs` — on by default, every stop
+reason, both
 continue texts, a started delivery task, counters, the turn message; the
 pending proposal; the orchestration matrix: integration phases, ready for
 integration, QUALITY and a started delivery in main, handing out (one and

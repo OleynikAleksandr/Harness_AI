@@ -5,6 +5,7 @@ export type StopReason =
   | "limit"
   | "no-progress"
   | "no-scope"
+  | "paused"
   | "ready-for-acceptance"
   | "transaction-pending"
   | "turn-error"
@@ -70,6 +71,12 @@ export interface AutopilotProjectStatus {
    * scope, without a scope and in an executor worktree.
    */
   orchestration?: AutopilotOrchestration | null;
+  /**
+   * The user paused the workflow (`pause:set --on`): the current task
+   * finishes, the next one does not start. Absent in a Kit without the
+   * pause, which decides as not paused.
+   */
+  paused?: boolean;
   /** A scope proposal waits for the user's execution mode choice. */
   proposalPending?: boolean;
   revision: number;
@@ -151,11 +158,19 @@ function integrationText(
   return `Continue the orchestration: the integration of task ${task} (assignment ${id}) is unfinished (${integration.phase ?? "unknown phase"}); run ${next}.`;
 }
 
-/** The orchestrator's next step, or null when it has nothing to do now. */
+const PAUSED_DETAIL =
+  "The workflow is paused; the autopilot waits for the user to continue.";
+
+/**
+ * The orchestrator's next step, or null when it has nothing to do now. A
+ * pause holds back only the steps that start work: handing out ready tasks
+ * and a QUALITY task that has not started.
+ */
 function orchestratorStep(
   status: AutopilotProjectStatus,
   orchestration: AutopilotOrchestration
 ): { taskId: string; text: string } | null {
+  const paused = status.paused === true;
   const { assignments, integration, readyTasks } = orchestration;
   if (integration) {
     return {
@@ -176,13 +191,13 @@ function orchestratorStep(
   // QUALITY and a started delivery task run in main, by the orchestrator.
   if (
     task &&
-    (task.kind === "quality" ||
+    ((task.kind === "quality" && !(paused && task.status === "TODO")) ||
       (task.kind === "delivery" && task.status === "IN_PROGRESS"))
   ) {
     return { taskId: task.id, text: continueText(task) };
   }
   const [first] = readyTasks;
-  if (first) {
+  if (first && !paused) {
     return {
       taskId: first,
       text: `Continue the orchestration: ${readyTasks.length === 1 ? `task ${first} can` : `tasks ${readyTasks.join(", ")} can`} be handed out; for each run \`${KIT_COMMAND} assignment:create --task <ID>\` and start an executor subagent in its own worktree with the brief it prints.`,
@@ -212,6 +227,9 @@ function decideOrchestration(
   });
   const step = orchestratorStep(status, orchestration);
   if (!step) {
+    if (status.paused) {
+      return keyed(stop("paused", PAUSED_DETAIL));
+    }
     const working = orchestration.assignments.filter((item) =>
       WORKING.has(item.status)
     );
@@ -278,6 +296,14 @@ function commonStop(
       "user-message",
       "The user wrote a message; the autopilot yields the turn."
     );
+  }
+  // Sequential: the task in progress finishes, the next one does not start.
+  if (
+    status.paused &&
+    !status.orchestration &&
+    status.nextTask?.status !== "IN_PROGRESS"
+  ) {
+    return stop("paused", PAUSED_DETAIL);
   }
   if (status.proposalPending) {
     return stop(

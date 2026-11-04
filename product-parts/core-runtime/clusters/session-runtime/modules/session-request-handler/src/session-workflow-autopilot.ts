@@ -24,13 +24,24 @@ interface Baseline {
   revision: number;
 }
 
+/**
+ * The workflow pause as the plan panel shows it: `running` — no Kit pause;
+ * `pausing` — paused while the turn runs or work is still active (the
+ * focus task IN_PROGRESS, or an assignment or integration of an
+ * orchestrated scope); `paused` — paused, idle and nothing active.
+ */
+export type WorkflowPauseState = "paused" | "pausing" | "running";
+
 export interface WorkflowAutopilotSnapshot {
   /** The session can use the autopilot (a primary session with a workspace). */
   available: boolean;
   continues: number;
+  /** On by default for an available session; always false otherwise. */
   enabled: boolean;
   lastDecision: AutopilotDecision | null;
   maxContinues: number;
+  /** Derived from the last Kit status the session read. */
+  pauseState: WorkflowPauseState;
   running: boolean;
   sessionId: string;
 }
@@ -46,11 +57,18 @@ interface SessionEntry {
   cancelled: boolean;
   /** A user message arrived while a turn was running. */
   interjected: boolean;
+  /** `paused` of the last Kit status read for the session. */
+  kitPaused: boolean;
   lastDecision: AutopilotDecision | null;
   /** Text of the continue turn the autopilot sent and has not seen yet. */
   pendingText: string | null;
   running: boolean;
   state: AutopilotState;
+  /**
+   * The last Kit status read has active work: the focus task IN_PROGRESS,
+   * or an orchestrated scope's assignment or integration journal.
+   */
+  workActive: boolean;
 }
 
 /** Primary user sessions with a workspace; not subagents or Profile Creator. */
@@ -64,11 +82,19 @@ function eligible(session: CoreSession | undefined): session is CoreSession & {
   );
 }
 
+function pauseState(entry: SessionEntry): WorkflowPauseState {
+  if (!entry.kitPaused) {
+    return "running";
+  }
+  return entry.running || entry.workActive ? "pausing" : "paused";
+}
+
 /**
  * Core executor of the Workflow Kit autopilot: after a turn of a primary
  * session ends, it reads the Kit status, asks the pure autopilot decision
  * and sends the next turn with a fresh recovery packet. State lives in
- * memory per session; the autopilot is off by default.
+ * memory per session; the autopilot is on by default and a Kit pause
+ * (`pause:set --on`) stops it with `paused`.
  */
 export class SessionWorkflowAutopilot {
   private binding: WorkflowAutopilotBinding | null = null;
@@ -127,6 +153,34 @@ export class SessionWorkflowAutopilot {
     return this.snapshot(sessionId, entry);
   }
 
+  /**
+   * Re-reads the Kit status after `pause:set` and publishes the snapshot
+   * with its `pauseState`. Without a pause, an idle enabled session
+   * evaluates at once like the user's consent (the continue counter starts
+   * from zero), so the plan goes on without a user message.
+   */
+  async refreshPause(sessionId: string): Promise<WorkflowAutopilotSnapshot> {
+    const entry = this.entry(sessionId);
+    const session = this.binding?.getSession(sessionId);
+    if (!eligible(session)) {
+      return this.snapshot(sessionId, entry);
+    }
+    const status = await this.status(session.workspacePath);
+    this.remember(entry, status);
+    this.publish(sessionId, entry);
+    if (!(entry.kitPaused || entry.running) && entry.state.enabled) {
+      entry.state = this.decisions.initialState(entry.state.maxContinues);
+      await this.evaluate(
+        sessionId,
+        entry,
+        "completed",
+        UNKNOWN_BASELINE,
+        status
+      );
+    }
+    return this.snapshot(sessionId, entry);
+  }
+
   /** Every message dispatched to a provider, by the user or the autopilot. */
   turnDispatched(session: CoreSession, text: string): void {
     if (!eligible(session)) {
@@ -142,8 +196,11 @@ export class SessionWorkflowAutopilot {
     entry.running = true;
     entry.cancelled = false;
     entry.before = entry.state.enabled
-      ? this.baseline(session.workspacePath)
+      ? this.baseline(session.workspacePath, entry)
       : null;
+    if (entry.kitPaused) {
+      this.publish(session.id, entry);
+    }
   }
 
   /** The user stopped the turn: the chain ends with `turn-error`. */
@@ -172,6 +229,9 @@ export class SessionWorkflowAutopilot {
   ): void {
     entry.running = false;
     if (!entry.state.enabled) {
+      if (entry.kitPaused) {
+        this.publish(sessionId, entry);
+      }
       return;
     }
     const before = entry.before ?? Promise.resolve(null);
@@ -187,13 +247,15 @@ export class SessionWorkflowAutopilot {
     sessionId: string,
     entry: SessionEntry,
     outcome: "cancelled" | "completed" | "error",
-    before: Baseline
+    before: Baseline,
+    known?: AutopilotProjectStatus | { unavailable: string }
   ): Promise<void> {
     const session = this.binding?.getSession(sessionId);
     if (!(this.binding && eligible(session))) {
       return;
     }
-    const status = await this.status(session.workspacePath);
+    const status = known ?? (await this.status(session.workspacePath));
+    this.remember(entry, status);
     if (entry.running || !entry.state.enabled) {
       return;
     }
@@ -236,8 +298,30 @@ export class SessionWorkflowAutopilot {
       : { unavailable: `Workflow Kit status failed: ${outcome.message}` };
   }
 
-  private async baseline(root: string): Promise<Baseline | null> {
+  /** Keeps the pause facts of a Kit status; a failed read keeps the last. */
+  private remember(
+    entry: SessionEntry,
+    status: AutopilotProjectStatus | { unavailable: string }
+  ): void {
+    if ("unavailable" in status) {
+      return;
+    }
+    entry.kitPaused = status.paused === true;
+    const orchestration = status.orchestration;
+    entry.workActive =
+      status.nextTask?.status === "IN_PROGRESS" ||
+      Boolean(
+        orchestration &&
+          (orchestration.assignments.length > 0 || orchestration.integration)
+      );
+  }
+
+  private async baseline(
+    root: string,
+    entry: SessionEntry
+  ): Promise<Baseline | null> {
     const status = await this.status(root);
+    this.remember(entry, status);
     return "unavailable" in status
       ? null
       : { head: status.head, revision: status.revision };
@@ -260,10 +344,12 @@ export class SessionWorkflowAutopilot {
         before: null,
         cancelled: false,
         interjected: false,
+        kitPaused: false,
         lastDecision: null,
         pendingText: null,
         running: false,
         state: this.decisions.initialState(),
+        workActive: false,
       };
       this.entries.set(sessionId, entry);
     }
@@ -274,12 +360,14 @@ export class SessionWorkflowAutopilot {
     sessionId: string,
     entry: SessionEntry
   ): WorkflowAutopilotSnapshot {
+    const available = eligible(this.binding?.getSession(sessionId));
     return {
-      available: eligible(this.binding?.getSession(sessionId)),
+      available,
       continues: entry.state.continues,
-      enabled: entry.state.enabled,
+      enabled: available && entry.state.enabled,
       lastDecision: entry.lastDecision,
       maxContinues: entry.state.maxContinues,
+      pauseState: pauseState(entry),
       running: entry.running,
       sessionId,
     };

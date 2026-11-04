@@ -24,9 +24,10 @@ export type {
  * the host continues the workflow with another turn.
  */
 export class WorkflowAutopilotFacade {
+  /** The autopilot is on unless the host passes `enabled = false`. */
   initialState(
     maxContinues = DEFAULT_MAX_CONTINUES,
-    enabled = false
+    enabled = true
   ): AutopilotState {
     return { continues: 0, enabled, maxContinues, orchestrationKey: null };
   }

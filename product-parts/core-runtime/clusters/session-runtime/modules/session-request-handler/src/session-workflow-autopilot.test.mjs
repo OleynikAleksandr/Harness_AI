@@ -113,15 +113,139 @@ try {
     return { autopilot, dispatch, events, host, sent, sessions };
   }
 
-  // Off by default: turns run without Kit calls or continues.
+  // On by default for an eligible session: a user turn that changes
+  // nothing stops with no-progress, one that moves the plan continues.
   {
     const { autopilot, dispatch, host, sent } = setup();
-    assert.equal(autopilot.get("s1").enabled, false);
+    const initial = autopilot.get("s1");
+    assert.equal(initial.enabled, true);
+    assert.equal(initial.available, true);
+    assert.equal(initial.pauseState, "running");
+    assert.equal(autopilot.get("sub").enabled, false);
     dispatch("s1", "hello");
     autopilot.turnFinished("s1", "completed");
     await flush();
     assert.deepEqual(sent, []);
-    assert.deepEqual(host.calls, []);
+    assert.equal(autopilot.get("s1").lastDecision.reason, "no-progress");
+    assert.deepEqual(
+      host.calls.map(([command]) => command),
+      ["autopilot:status", "autopilot:status"]
+    );
+
+    dispatch("s1", "start the plan");
+    await flush();
+    host.current = status({ head: "h2", revision: 2 });
+    autopilot.turnFinished("s1", "completed");
+    await flush();
+    assert.equal(sent.length, 1);
+    assert.match(sent[0][1], /task:start T1/u);
+  }
+
+  // The Kit pause takes effect before the next task: the task in progress
+  // finishes (pausing), then the autopilot stops with paused; resuming an
+  // idle session continues at once.
+  {
+    const { autopilot, dispatch, events, host, sent } = setup();
+    dispatch("s1", "work on T1");
+    await flush();
+    host.current = status({
+      head: "h2",
+      nextTask: { id: "T1", kind: "work", status: "IN_PROGRESS", title: "x" },
+      paused: true,
+      revision: 2,
+    });
+    const pausing = await autopilot.refreshPause("s1");
+    assert.equal(pausing.pauseState, "pausing");
+    assert.equal(events.at(-1).pauseState, "pausing");
+    assert.equal(events.at(-1).type, "workflow:autopilot");
+    assert.deepEqual(sent, []);
+
+    // The turn ends with T1 still in progress: the autopilot finishes it.
+    autopilot.turnFinished("s1", "completed");
+    await flush();
+    assert.equal(sent.length, 1);
+    assert.match(sent[0][1], /commit --task T1/u);
+    assert.equal(autopilot.get("s1").pauseState, "pausing");
+
+    // T1 is committed: idle, nothing in progress, paused.
+    dispatch("s1", sent[0][1]);
+    await flush();
+    assert.equal(events.at(-1).pauseState, "pausing");
+    host.current = status({
+      head: "h3",
+      nextTask: { id: "T2", kind: "work", status: "TODO", title: "y" },
+      paused: true,
+      revision: 3,
+    });
+    autopilot.turnFinished("s1", "completed");
+    await flush();
+    assert.equal(sent.length, 1);
+    assert.equal(autopilot.get("s1").lastDecision.reason, "paused");
+    assert.equal(autopilot.get("s1").pauseState, "paused");
+    assert.equal(events.at(-1).pauseState, "paused");
+
+    // Resume: the counter starts again and T2 starts without a user message.
+    host.current = status({
+      head: "h3",
+      nextTask: { id: "T2", kind: "work", status: "TODO", title: "y" },
+      paused: false,
+      revision: 3,
+    });
+    const resumed = await autopilot.refreshPause("s1");
+    assert.equal(resumed.pauseState, "running");
+    assert.equal(resumed.continues, 1);
+    assert.equal(sent.length, 2);
+    assert.match(sent[1][1], /task:start T2/u);
+    assert.equal(resumed.lastDecision.action, "continue");
+  }
+
+  // Orchestrated: an active assignment keeps the pause pausing while the
+  // orchestrator is idle; without assignments it is paused.
+  {
+    const { autopilot, host } = setup();
+    const orchestration = (assignments) => ({
+      assignments,
+      integration: null,
+      readyTasks: ["B"],
+    });
+    host.current = status({
+      orchestration: orchestration([
+        {
+          cleanupPending: false,
+          id: "x-A-1",
+          sourceCommit: null,
+          status: "RUNNING",
+          taskId: "A",
+        },
+      ]),
+      paused: true,
+    });
+    assert.equal((await autopilot.refreshPause("s1")).pauseState, "pausing");
+    host.current = status({ orchestration: orchestration([]), paused: true });
+    assert.equal((await autopilot.refreshPause("s1")).pauseState, "paused");
+  }
+
+  // Resuming while a turn runs waits for its end; an ineligible session
+  // reads nothing.
+  {
+    const { autopilot, dispatch, host, sent } = setup();
+    host.current = status({ paused: true });
+    await autopilot.refreshPause("s1");
+    assert.equal(autopilot.get("s1").pauseState, "paused");
+    dispatch("s1", "a question");
+    assert.equal(autopilot.get("s1").pauseState, "pausing");
+    host.current = status({ head: "h2", paused: false, revision: 2 });
+    const resumed = await autopilot.refreshPause("s1");
+    assert.equal(resumed.pauseState, "running");
+    assert.deepEqual(sent, []);
+    autopilot.turnFinished("s1", "completed");
+    await flush();
+    assert.equal(sent.length, 1);
+
+    const calls = host.calls.length;
+    const sub = await autopilot.refreshPause("sub");
+    assert.equal(sub.pauseState, "running");
+    assert.equal(host.calls.length, calls);
   }
 
   // Enabling an idle session starts the first task; each completed turn

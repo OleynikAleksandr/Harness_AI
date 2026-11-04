@@ -30,9 +30,21 @@ try {
   });
   const reason = (state, s, t) => autopilot.decide(state, s, t).reason;
 
-  assert.equal(autopilot.initialState().enabled, false);
+  // On by default; an explicit off stops first.
+  assert.equal(autopilot.initialState().enabled, true);
   assert.equal(autopilot.initialState().maxContinues, 40);
-  assert.equal(reason(autopilot.initialState(), status(), turn()), "disabled");
+  assert.equal(
+    autopilot.decide(autopilot.initialState(), status(), turn()).action,
+    "continue"
+  );
+  assert.equal(
+    reason(autopilot.initialState(40, false), status(), turn()),
+    "disabled"
+  );
+  assert.equal(
+    reason(autopilot.initialState(40, false), status({ paused: true }), turn()),
+    "disabled"
+  );
   assert.equal(reason(on, status(), turn({ outcome: "error" })), "turn-error");
   assert.equal(
     reason(on, status(), turn({ outcome: "cancelled" })),

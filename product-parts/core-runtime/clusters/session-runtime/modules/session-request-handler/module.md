@@ -261,8 +261,9 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
 
 - Workflow Kit autopilot (`session-workflow-autopilot.ts`,
   `SessionWorkflowAutopilot`, shared instance `sessionWorkflowAutopilot`):
-  the in-memory executor of the pure `workflow-autopilot` decision, off by
-  default per session. `SessionProviderBindingLifecycle` attaches to it
+  the in-memory executor of the pure `workflow-autopilot` decision, on by
+  default for every eligible session (new entries take the decision's
+  `initialState()`, enabled). `SessionProviderBindingLifecycle` attaches to it
   (injectable as `workflowAutopilot`) and reports every
   `dispatchProviderMessage` (`turnDispatched`); the provider event router
   reports `turn_completed` as `completed` and `turn_failed`/`stream_error`
@@ -280,11 +281,31 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   baseline); a workspace without the Kit stops with `blocked`.
   `setEnabled(sessionId, true, {evaluate: false})` (the execution mode card
   choice) only arms it: no Kit call and no turn of its own; the caller's
-  next dispatched turn takes the baseline and the end of that turn decides. Every change
-  publishes `{type: "workflow:autopilot", sessionId, available, enabled,
-  continues, maxContinues, running, lastDecision}` (`available` is false,
-  and the autopilot stays off, for sessions that cannot use it) to its subscribers (the RPC layer
-  relays them). The limit is the decision default of 40 continues.
+  next dispatched turn takes the baseline and the end of that turn decides.
+  `setEnabled` stays for internal callers (the mode card); the UI has no
+  toggle.
+- Workflow pause: the Kit `autopilot:status` field `paused`
+  (`pause:set --on|--off`) takes effect before the next micro-task: the
+  decision finishes a task in progress and then stops with `paused`. Every
+  Kit status the entry reads (turn baseline, end of turn, refresh) keeps
+  two facts: `paused` and whether work is active (the focus task
+  `nextTask` is `IN_PROGRESS`, or an orchestrated scope has an assignment
+  or an integration journal); a failed read keeps the last ones. The
+  snapshot derives `pauseState` from them: `running` — no pause;
+  `pausing` — paused while the session's turn runs or work is active;
+  `paused` — paused, idle and nothing active. `refreshPause(sessionId)` (for the Core pause route
+  after `pause:set`) re-reads the Kit status of an eligible session,
+  publishes the snapshot and, when not paused, idle and enabled, resets the
+  continue counter and evaluates at once (an unknown baseline, so the plan
+  continues without a user message); it returns the snapshot. An
+  ineligible session reads nothing and stays `running`. While paused, a
+  dispatched turn and the end of a turn of a disabled session publish the
+  snapshot too, so `pausing`/`paused` reach subscribers.
+- Every change publishes `{type: "workflow:autopilot", sessionId,
+  available, enabled, continues, maxContinues, pauseState, running,
+  lastDecision}` (`available` and `enabled` are false, and the autopilot
+  stays off, for sessions that cannot use it) to its subscribers (the RPC
+  layer relays them). The limit is the decision default of 40 continues.
 
 ## Owned Paths
 

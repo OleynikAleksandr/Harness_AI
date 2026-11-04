@@ -65,6 +65,19 @@ type WorkflowAutopilotResult =
   | WorkflowKitFailure
   | { autopilot: WorkflowAutopilotSnapshot; ok: true };
 
+/** The execution mode card of a workspace; Core owns every field. */
+type WorkflowModeChoiceCard =
+  import("../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.js").ModeChoiceCard;
+type WorkflowModeChoiceOptionId =
+  import("../../../../../../core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.js").ModeChoiceOptionId;
+
+interface WorkflowModeChoiceEvent {
+  card: WorkflowModeChoiceCard | null;
+  sessionId: string;
+  type: "workflow:mode-choice";
+  workspaceId: string;
+}
+
 interface ProviderStatusEvent {
   payload: {
     providerId: string;
@@ -268,6 +281,7 @@ interface Window {
           | import("../../../../../../core-runtime/clusters/session-runtime/modules/session-event-stream/src/session-event-stream-facade.js").SessionCoreEvent
           | ProviderStatusEvent
           | WorkflowAutopilotEvent
+          | WorkflowModeChoiceEvent
           | WorkflowStatusEvent
       ) => void
     ): () => void;
@@ -334,6 +348,26 @@ interface Window {
       enabled: boolean;
       sessionId: string;
     }): Promise<WorkflowAutopilotResult>;
+    /** The execution mode card of a workspace, or null. */
+    getWorkflowModeChoice(request: {
+      workspaceId: string;
+    }): Promise<
+      WorkflowKitFailure | { card: WorkflowModeChoiceCard | null; ok: true }
+    >;
+    /** The user's click on the card; Core records it and messages the agent. */
+    chooseWorkflowMode(request: {
+      generation: number;
+      option: WorkflowModeChoiceOptionId;
+      sessionId: string;
+      workspaceId: string;
+    }): Promise<
+      | WorkflowKitFailure
+      | {
+          card: WorkflowModeChoiceCard;
+          choice: import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.js").ScopeChoiceResult;
+          ok: true;
+        }
+    >;
     pickWorkspaceFolder(): Promise<
       | {
           ok: true;

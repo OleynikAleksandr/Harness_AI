@@ -78,6 +78,8 @@ for (const method of [
   "workflow-doctor",
   "workflow-autopilot-get",
   "workflow-autopilot-set",
+  "workflow-mode-choice-get",
+  "workflow-mode-choose",
 ]) {
   assert.match(
     source,
@@ -92,5 +94,7 @@ const pickFolderSource = source.slice(
   source.indexOf("function createCoreClient")
 );
 assert.doesNotMatch(pickFolderSource, /coreClient/u);
+assert.match(preloadSource, /chooseWorkflowMode: \(request\)/u);
+assert.match(preloadSource, /getWorkflowModeChoice: \(request\)/u);
 assert.match(preloadSource, /pickProjectFolder: \(\)/u);
 assert.match(preloadSource, /pickProjectParent: \(\)/u);

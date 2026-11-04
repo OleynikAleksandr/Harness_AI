@@ -77,12 +77,17 @@ Detached session windows never expose the switch.
 - The shared bridge types declare the project workflow surface:
   `pickProjectFolder`/`pickProjectParent` (`{canceled, path}`),
   `inspectProjectFolder`, `prepareProject`, `getWorkflowStatus`,
-  `runProjectDoctor`, `getWorkflowAutopilot` and `setWorkflowAutopilot`,
-  with the Workflow Kit envelope (`WorkflowKitOutcome`, `WorkflowKitFailure`)
-  and the Core read models (`WorkflowInspectResult`, `WorkflowKitStatus`,
+  `runProjectDoctor`, `getWorkflowAutopilot`, `setWorkflowAutopilot`,
+  `getWorkflowModeChoice({workspaceId})` → `{ok: true, card | null}` and
+  `chooseWorkflowMode({workspaceId, sessionId, generation, option})` →
+  `{ok: true, card, choice}` or the Kit failure, with the Workflow Kit
+  envelope (`WorkflowKitOutcome`, `WorkflowKitFailure`) and the Core read
+  models (`WorkflowInspectResult`, `WorkflowKitStatus`,
   `WorkflowDoctorReport`, `WorkflowPreparedProject`,
-  `WorkflowAutopilotSnapshot`) as type-only imports. `onEvent` also carries
-  `workflow:status` and `workflow:autopilot`; the session window skips them
+  `WorkflowAutopilotSnapshot`, `WorkflowModeChoiceCard` — the Core
+  `ModeChoiceCard`) as type-only imports. `onEvent` also carries
+  `workflow:status`, `workflow:autopilot` and `workflow:mode-choice`
+  (`{workspaceId, sessionId, card}`); the session window skips them
   (`isProjectWorkflowEvent`) because the project workflow UI subscribes to
   them itself.
 - The shared bridge types declare the Core Profile Studio target, compatible

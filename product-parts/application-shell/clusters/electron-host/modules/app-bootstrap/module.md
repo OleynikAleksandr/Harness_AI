@@ -62,10 +62,13 @@ Own Electron lifecycle, window creation, and local application startup.
   `pickProjectFolder()` and `pickProjectParent()` (native directory pickers
   that return `{canceled, path}`), `inspectProjectFolder(request)`,
   `prepareProject(request)`, `getWorkflowStatus(request)`,
-  `runProjectDoctor(request)`, `getWorkflowAutopilot(request)` and
-  `setWorkflowAutopilot(request)`, bridged one-to-one to the Core
-  `workflow-*` methods. Inspection, installation, status and autopilot truth
-  stay in Core.
+  `runProjectDoctor(request)`, `getWorkflowAutopilot(request)`,
+  `setWorkflowAutopilot(request)`, `getWorkflowModeChoice({workspaceId})`
+  (`workflow-mode-choice-get`) and `chooseWorkflowMode({workspaceId,
+  sessionId, generation, option})` (`workflow-mode-choose`), bridged
+  one-to-one to the Core `workflow-*` methods. Inspection, installation,
+  status, autopilot and mode card truth stay in Core; the renderer sends
+  only the clicked option.
 - `window.harnessCore.removeWorkspace(workspaceId)` sends only the user's
   intent to remove a project from the app (`remove-workspace
   {workspaceId}`); what is removed and which workspace becomes active is

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 47,
+  "revision": 49,
   "rounds": [
     {
       "digest": null,
@@ -631,14 +631,19 @@
       "files": [
         "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs",
         "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs",
-        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts",
+        "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts"
       ],
       "fixes": null,
       "id": "E18",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Bridge for the mode choice",
       "why": "The renderer reaches Core only through the bridge"
     },
@@ -781,8 +786,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 8/22
-- Revision: 47
+- Progress: 9/22
+- Revision: 49
 
 ## Objective
 
@@ -864,9 +869,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: route the execution mode choice through core
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.test.mjs
   - Depends on: E4, E3
-- [TODO] E18 — Bridge for the mode choice (work)
+- [DONE] E18 — Bridge for the mode choice (work)
   - Commit: feat: bridge the execution mode choice
-  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts
+  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts
   - Depends on: E17
 - [TODO] E19 — Mode choice card in the chat (work)
   - Commit: feat: show the execution mode card

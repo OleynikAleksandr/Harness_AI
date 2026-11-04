@@ -120,6 +120,10 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:workflow-autopilot-get", request),
   setWorkflowAutopilot: (request) =>
     ipcRenderer.invoke("harness-ai:core:workflow-autopilot-set", request),
+  getWorkflowModeChoice: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-mode-choice-get", request),
+  chooseWorkflowMode: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-mode-choose", request),
   restartCore: () => ipcRenderer.invoke("harness-ai:core:restart"),
   saveSettings: (request) =>
     ipcRenderer.invoke("harness-ai:core:save-settings", request),

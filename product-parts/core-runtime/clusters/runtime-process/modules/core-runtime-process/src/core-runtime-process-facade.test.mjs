@@ -55,3 +55,13 @@ assert.match(apiSource, /sessionRequestHandlerFacade\.renameSession/u);
 assert.match(apiSource, /"regenerate-session-title"/u);
 assert.match(apiSource, /sessionRequestHandlerFacade\.regenerateSessionTitle/u);
 assert.match(entrySource, /api: coreRuntimeApi/u);
+// Without an active project the project-scoped routes refuse with
+// NO_WORKSPACE before they reach the session or capture route.
+assert.match(
+  apiSource,
+  /WORKSPACE_METHODS = new Set\(\["capture-native-request", "create-session"\]\)/u
+);
+assert.match(
+  apiSource,
+  /WORKSPACE_METHODS\.has\(method\) &&\s+!workspaceRegistryFacade\.getActiveWorkspace\(\)[\s\S]*?code: "NO_WORKSPACE"[\s\S]*?switch \(method\)/u
+);

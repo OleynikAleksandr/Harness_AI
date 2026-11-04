@@ -156,6 +156,17 @@ inherited PATH with one `console.error` line; Windows is skipped.
   `core-provider-adapter-registration.ts`. `CoreRuntimeApi` holds a
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
+- No built-in project: Core may have no projects and no active project.
+  Without an active project `CoreProviderLifecycle.registerAdapters()` only
+  clears the adapters (none is registered, `registerAdapter` is skipped, the
+  readiness workspace is `""`, provisioning readiness changes are ignored),
+  `CoreWorkspaceRpc.startProvisioning()` does nothing, and the project-scoped
+  methods `create-session` and `capture-native-request` answer
+  `{ok: false, code: "NO_WORKSPACE", error}`. Workspace, project setup
+  (`workflow-inspect`, `workflow-prepare-project`), provider and settings
+  routes keep working (settings fall back to the system settings);
+  `workflow-status` / `workflow-doctor` without a `workspaceId` answer the
+  Kit failure `NO_WORKSPACE`.
 - Startup delegates session-index and event-file hydration as one ordered
   Session Runtime operation; Runtime Process does not load the event stream
   afterward.
@@ -265,9 +276,9 @@ inherited PATH with one `console.error` line; Windows is skipped.
   [WorkflowKitCoreRpc.md](../../../../../../docs/architecture/workflow-kit/WorkflowKitCoreRpc.md).
 - `CoreWorkspaceRpc` (`core-workspace-rpc.ts`) owns the workspace registry
   routes, which `CoreRuntimeApi` delegates (`CoreWorkspaceRpc.handles`):
-  - `list-workspaces` → `{activeWorkspaceId, builtInWorkspaceId,
-    workspaces}`; `builtInWorkspaceId` is the always-present workspace that
-    cannot be removed;
+  - `list-workspaces` → `{activeWorkspaceId: string | null, workspaces}`;
+    the list may be empty and `activeWorkspaceId` is `null` exactly when no
+    project is active;
   - `add-workspace <path>` and `select-workspace <id>` — register/select,
     persist the registry snapshot (`<HARNESS_AI_HOME or ~/.harness-ai>/
     workspaces.json`), re-register provider adapters and provision the
@@ -276,12 +287,16 @@ inherited PATH with one `console.error` line; Windows is skipped.
     from disk: the registry entry (persisted), its sessions loaded in Core
     (`releaseWorkspaceSessions`: provider sessions closed, records dropped,
     history files kept) and the app-level provider home residue
-    (`removeWorkspaceResidue`). Removing the active project activates the
-    built-in workspace. Result `{ok: true, activeWorkspaceId,
-    builtInWorkspaceId, workspaces}` or `{ok: false, code, error}` with
-    `BUILT_IN_WORKSPACE` / `UNKNOWN_WORKSPACE`.
-  `restore()` loads the snapshot at Core start; `CoreProjectWorkflowRpc`
-  registers prepared projects through `add`.
+    (`removeWorkspaceResidue`). Any project can be removed, including an old
+    `harness-ai-local` entry. Removing the active project activates the first
+    remaining one (adapters re-registered, provisioning started) or leaves
+    no active project (adapters cleared). Result `{ok: true,
+    activeWorkspaceId, workspaces}` or `{ok: false, code:
+    "UNKNOWN_WORKSPACE", error}`.
+  `restore()` loads the snapshot at Core start; a missing or empty
+  `workspaces.json` means no projects and no active project, and every saved
+  entry is an ordinary project. `CoreProjectWorkflowRpc` registers prepared
+  projects through `add`.
 
 ## Owned Paths
 

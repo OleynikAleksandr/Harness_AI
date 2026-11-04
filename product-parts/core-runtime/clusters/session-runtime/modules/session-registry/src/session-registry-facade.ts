@@ -5,20 +5,18 @@ export interface HarnessSession {
   workspaceId: string;
 }
 
-const FIRST_SESSION: HarnessSession = {
-  id: "session-main",
-  title: "Harness AI bootstrap",
-  workspaceId: "harness-ai-local",
-  updatedAt: "2026-06-26T00:00:00.000Z",
-};
-
+/**
+ * Session metadata read by the session snapshot projector. The registry
+ * holds no built-in (bootstrap) session: it lists no sessions and has no
+ * active session. Core sessions live in the session request handler.
+ */
 export class SessionRegistryFacade {
-  getSessions(workspaceId: string): HarnessSession[] {
-    return FIRST_SESSION.workspaceId === workspaceId ? [FIRST_SESSION] : [];
+  getSessions(_workspaceId: string): HarnessSession[] {
+    return [];
   }
 
   getActiveSessionId(): string {
-    return FIRST_SESSION.id;
+    return "";
   }
 }
 

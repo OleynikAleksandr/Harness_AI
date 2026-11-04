@@ -18,22 +18,24 @@ const WORKSPACE_METHODS = new Set([
 ]);
 
 export interface WorkspaceList {
-  activeWorkspaceId: string;
-  /** The workspace that is always present and cannot be removed. */
-  builtInWorkspaceId: string;
+  /** `null` when no project is active (the registry may be empty). */
+  activeWorkspaceId: string | null;
   workspaces: HarnessWorkspace[];
 }
 
 export type RemoveWorkspaceResult =
   | (WorkspaceList & { ok: true })
   | {
-      code: "BUILT_IN_WORKSPACE" | "UNKNOWN_WORKSPACE";
+      code: "UNKNOWN_WORKSPACE";
       error: string;
       ok: false;
     };
 
 export interface CoreWorkspaceRpcDependencies {
-  /** Re-registers provider adapters for the active workspace. */
+  /**
+   * Re-registers provider adapters for the active workspace (clears them
+   * when no project is active).
+   */
   registerAdapters: () => void;
   /** Registry snapshot file; defaults to `<HARNESS_AI_HOME>/workspaces.json`. */
   registryFile?: string;
@@ -41,9 +43,10 @@ export interface CoreWorkspaceRpcDependencies {
 
 /**
  * Core RPC for the workspace registry: list, add (open), select and remove a
- * project. The registry snapshot persists in `workspaces.json`; changing the
- * active workspace re-registers provider adapters and provisions the
- * workspace. Removing a project forgets every app reference to it (registry
+ * project. The registry snapshot persists in `workspaces.json`; a missing or
+ * empty file means no projects and no active project. Changing the active
+ * workspace re-registers provider adapters and provisions the workspace.
+ * Removing a project forgets every app reference to it (registry
  * entry, sessions loaded in Core, app-level provider home residue) and never
  * touches the project folder.
  */
@@ -97,8 +100,12 @@ export class CoreWorkspaceRpc {
     return { ok: true, workspace };
   }
 
+  /** Provisions the active workspace; does nothing without one. */
   startProvisioning(): void {
     const workspace = workspaceRegistryFacade.getActiveWorkspace();
+    if (!workspace) {
+      return;
+    }
     providerWorkspaceProvisionerFacade
       .provisionWorkspace({
         workspaceId: workspace.id,
@@ -108,12 +115,9 @@ export class CoreWorkspaceRpc {
   }
 
   private list(): WorkspaceList {
-    const builtIn = workspaceRegistryFacade
-      .getKnownWorkspaces()
-      .find((item) => workspaceRegistryFacade.isBuiltInWorkspace(item.id));
     return {
-      activeWorkspaceId: workspaceRegistryFacade.getActiveWorkspace().id,
-      builtInWorkspaceId: builtIn?.id ?? "",
+      activeWorkspaceId:
+        workspaceRegistryFacade.getActiveWorkspace()?.id ?? null,
       workspaces: workspaceRegistryFacade.getKnownWorkspaces(),
     };
   }
@@ -134,13 +138,6 @@ export class CoreWorkspaceRpc {
   }
 
   private async remove(workspaceId: string): Promise<RemoveWorkspaceResult> {
-    if (workspaceRegistryFacade.isBuiltInWorkspace(workspaceId)) {
-      return {
-        code: "BUILT_IN_WORKSPACE",
-        error: "The built-in workspace cannot be removed.",
-        ok: false,
-      };
-    }
     const workspace = workspaceRegistryFacade
       .getKnownWorkspaces()
       .find((item) => item.id === workspaceId);
@@ -152,13 +149,14 @@ export class CoreWorkspaceRpc {
       };
     }
     const wasActive =
-      workspaceRegistryFacade.getActiveWorkspace().id === workspaceId;
+      workspaceRegistryFacade.getActiveWorkspace()?.id === workspaceId;
     workspaceRegistryFacade.removeWorkspace(workspaceId);
     this.saveSnapshot();
     sessionRequestHandlerFacade.releaseWorkspaceSessions(workspaceId);
     await providerHomeManagerFacade
       .removeWorkspaceResidue(workspace.path)
       .catch(() => []);
+    // The first remaining project (or none) is now active.
     if (wasActive) {
       this.dependencies.registerAdapters();
       this.startProvisioning();

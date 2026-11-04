@@ -54,6 +54,12 @@ const BOOTSTRAP_MESSAGES: SessionMessage[] = [
   },
 ];
 
+/**
+ * The snapshot workspace when no project is active: an empty value, not a
+ * project (no id, no path). Core lists the real projects.
+ */
+const NO_WORKSPACE: HarnessWorkspace = { id: "", name: "", path: "" };
+
 const TELEMETRY: SessionTelemetry = usageContextTelemetryFacade.createTelemetry(
   {
     provider: "Core Runtime",
@@ -81,7 +87,8 @@ export class SessionSnapshotProjectorFacade {
   }
 
   getSnapshot(): SessionSnapshot {
-    const workspace = workspaceRegistryFacade.getActiveWorkspace();
+    const workspace =
+      workspaceRegistryFacade.getActiveWorkspace() ?? NO_WORKSPACE;
     return {
       workspace,
       sessions: sessionRegistryFacade.getSessions(workspace.id),

@@ -111,7 +111,8 @@ try {
       list: () => [],
       subscribe: () => () => undefined,
     },
-    workspaces: () => ({ active: workspace, known: [workspace] }),
+    // No active project: project setup still works (see below).
+    workspaces: () => ({ active: null, known: [workspace] }),
   });
 
   // Without a global identity the preparation stops and registers nothing.
@@ -169,6 +170,18 @@ try {
       .filter(([kind]) => kind === "install")
       .map(([, folder]) => folder),
     ["/open/unsigned", "/open/unsigned"]
+  );
+
+  // Without an active project, unnamed workspace requests refuse with
+  // NO_WORKSPACE; a named known workspace still answers.
+  assert.equal((await rpc.invoke("workflow-status", {})).code, "NO_WORKSPACE");
+  assert.equal(
+    (await rpc.invoke("workflow-doctor", { fix: false })).code,
+    "NO_WORKSPACE"
+  );
+  assert.equal(
+    (await rpc.invoke("workflow-status", { workspaceId: "w1" })).ok,
+    true
   );
   console.log("core project workflow identity tests passed");
 } finally {

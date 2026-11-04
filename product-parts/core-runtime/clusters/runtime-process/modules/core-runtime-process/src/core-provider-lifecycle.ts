@@ -39,16 +39,27 @@ export class CoreProviderLifecycle {
     };
   }
 
+  /**
+   * Re-registers every provider adapter for the active workspace. Without an
+   * active project the adapters are only cleared: none is registered.
+   */
   registerAdapters(): void {
     this.syncProviderReadinessWorkspace();
     providerRegistryFacade.clearAdapters();
+    if (!workspaceRegistryFacade.getActiveWorkspace()) {
+      return;
+    }
     for (const providerId of PROVIDER_IDS) {
       this.registerAdapter(providerId);
     }
   }
 
+  /** Registers one adapter for the active workspace; skipped without one. */
   registerAdapter(providerId: ProviderId): void {
-    const workspacePath = this.activeWorkspacePath();
+    const workspacePath = workspaceRegistryFacade.getActiveWorkspace()?.path;
+    if (!workspacePath) {
+      return;
+    }
     const settings = settingsStoreFacade.getSettings(workspacePath);
     const model = settingsStoreFacade.getProviderModel(
       providerId,
@@ -94,17 +105,12 @@ export class CoreProviderLifecycle {
     );
   }
 
-  private activeWorkspacePath(): string {
-    return workspaceRegistryFacade.getActiveWorkspace().path;
-  }
-
   private handleProviderReadinessChange(
     change: ProviderReadinessRawChange
   ): void {
-    const activeWorkspace = workspaceRegistryFacade.getActiveWorkspace();
     if (
       change.scope === "provisioning" &&
-      change.workspaceId !== activeWorkspace.id
+      change.workspaceId !== activeWorkspaceId()
     ) {
       return;
     }
@@ -112,15 +118,15 @@ export class CoreProviderLifecycle {
   }
 
   private publishProviderStatus(providerId: string): void {
-    const workspace = workspaceRegistryFacade.getActiveWorkspace();
+    const workspaceId = activeWorkspaceId();
     const readiness = providerReadinessRegistryFacade.combine(
       providerId,
-      workspace.id
+      workspaceId
     );
     const event = {
       payload: {
         providerId,
-        workspaceId: workspace.id,
+        workspaceId,
         ...readiness,
       },
       timestamp: new Date().toISOString(),
@@ -132,8 +138,11 @@ export class CoreProviderLifecycle {
   }
 
   private syncProviderReadinessWorkspace(): void {
-    providerRegistryFacade.setReadinessWorkspace(
-      workspaceRegistryFacade.getActiveWorkspace().id
-    );
+    providerRegistryFacade.setReadinessWorkspace(activeWorkspaceId());
   }
+}
+
+/** The active workspace id; `""` (no provisioning scope) without a project. */
+function activeWorkspaceId(): string {
+  return workspaceRegistryFacade.getActiveWorkspace()?.id ?? "";
 }

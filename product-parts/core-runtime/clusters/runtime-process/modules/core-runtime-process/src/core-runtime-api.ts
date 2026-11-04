@@ -46,6 +46,12 @@ import {
 } from "./core-session-profile-rpc.js";
 import { CoreWorkspaceRpc } from "./core-workspace-rpc.js";
 
+/**
+ * Core methods that act inside the active project. Without one they refuse
+ * with `NO_WORKSPACE`; workspace, settings and project setup routes work.
+ */
+const WORKSPACE_METHODS = new Set(["capture-native-request", "create-session"]);
+
 export class CoreRuntimeApi {
   private initialized = false;
   private readonly providerLifecycle = new CoreProviderLifecycle();
@@ -127,6 +133,16 @@ export class CoreRuntimeApi {
         .catch(() => undefined);
       return result;
     }
+    if (
+      WORKSPACE_METHODS.has(method) &&
+      !workspaceRegistryFacade.getActiveWorkspace()
+    ) {
+      return {
+        code: "NO_WORKSPACE",
+        error: "Open or create a project first.",
+        ok: false,
+      };
+    }
     switch (method) {
       case "list-sessions":
         return sessionRequestHandlerFacade.listSessions(readString(payload));
@@ -176,7 +192,7 @@ export class CoreRuntimeApi {
       case "capture-native-request":
         return captureNativeRequestRpcResult(
           payload,
-          this.activeWorkspacePath()
+          this.activeWorkspacePath() ?? ""
         );
       case "list-capturable-models":
         return listCapturableModelsRpcResult();
@@ -414,8 +430,9 @@ export class CoreRuntimeApi {
     };
   }
 
-  private activeWorkspacePath(): string {
-    return workspaceRegistryFacade.getActiveWorkspace().path;
+  /** The active project path; `undefined` (global settings) without one. */
+  private activeWorkspacePath(): string | undefined {
+    return workspaceRegistryFacade.getActiveWorkspace()?.path;
   }
 }
 

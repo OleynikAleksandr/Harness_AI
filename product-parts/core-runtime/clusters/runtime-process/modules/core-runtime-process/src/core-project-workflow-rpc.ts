@@ -77,8 +77,11 @@ export interface ProjectWorkflowDependencies {
   };
   /** Quiet time of the Kit state watcher; tests pass a short one. */
   watchDebounceMs?: number;
-  /** Known workspaces and the active one. */
-  workspaces: () => { active: HarnessWorkspace; known: HarnessWorkspace[] };
+  /** Known workspaces and the active one (`null` when none is active). */
+  workspaces: () => {
+    active: HarnessWorkspace | null;
+    known: HarnessWorkspace[];
+  };
 }
 
 /** The `workflow-status` result: the Kit outcome plus the Core plan view. */
@@ -96,6 +99,13 @@ export interface PreparedProject {
 
 function invalid(message: string, code = "INVALID_REQUEST"): KitFailure {
   return { code, message, nextAction: null, ok: false };
+}
+
+/** No project to act on: an unknown id, or no id and no active project. */
+function missingWorkspace(workspaceId: string): KitFailure {
+  return workspaceId
+    ? invalid("Unknown workspace.", "UNKNOWN_WORKSPACE")
+    : invalid("No active project.", "NO_WORKSPACE");
 }
 
 function readRecord(value: unknown): Record<string, unknown> {
@@ -387,7 +397,7 @@ export class CoreProjectWorkflowRpc {
   ): Promise<KitFailure | WorkflowStatusResult> {
     const workspace = this.workspace(workspaceId);
     if (!workspace) {
-      return invalid("Unknown workspace.", "UNKNOWN_WORKSPACE");
+      return missingWorkspace(workspaceId);
     }
     this.dependencies.host.writeRuntimeFile(workspace.path);
     const { planView, status } = await this.publishStatus(workspace);
@@ -397,7 +407,7 @@ export class CoreProjectWorkflowRpc {
   private async doctor(workspaceId: string, fix: boolean): Promise<unknown> {
     const workspace = this.workspace(workspaceId);
     if (!workspace) {
-      return invalid("Unknown workspace.", "UNKNOWN_WORKSPACE");
+      return missingWorkspace(workspaceId);
     }
     const report = await this.dependencies.host.doctor(workspace.path, fix);
     await this.publishStatus(workspace);

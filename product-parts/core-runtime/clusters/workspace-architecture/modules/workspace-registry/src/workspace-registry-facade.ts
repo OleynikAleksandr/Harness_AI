@@ -5,34 +5,31 @@ export interface HarnessWorkspace {
 }
 
 export interface WorkspaceRegistrySnapshot {
-  activeWorkspaceId: string;
+  /** `null` when no project is active (an empty registry). */
+  activeWorkspaceId: string | null;
   workspaces: HarnessWorkspace[];
 }
 
-const CURRENT_WORKSPACE: HarnessWorkspace = {
-  id: "harness-ai-local",
-  name: "Harness AI",
-  path: "/Users/oleksandroliinyk/VSCODE/harness-ai",
-};
 const TRAILING_SLASHES_PATTERN = /\/+$/u;
 const WORKSPACE_ID_MODULO = 1_000_000_007;
 
+/**
+ * Known projects and the active one. The registry starts empty: there is no
+ * built-in project, and no project is active until one is added or restored.
+ */
 export class WorkspaceRegistryFacade {
-  private activeWorkspaceId = CURRENT_WORKSPACE.id;
-  private readonly workspaces = new Map<string, HarnessWorkspace>([
-    [CURRENT_WORKSPACE.id, CURRENT_WORKSPACE],
-  ]);
+  private activeWorkspaceId: string | null = null;
+  private readonly workspaces = new Map<string, HarnessWorkspace>();
 
   getKnownWorkspaces(): HarnessWorkspace[] {
     return Array.from(this.workspaces.values());
   }
 
-  getActiveWorkspace(): HarnessWorkspace {
-    return (
-      this.workspaces.get(this.activeWorkspaceId) ??
-      this.workspaces.get(CURRENT_WORKSPACE.id) ??
-      CURRENT_WORKSPACE
-    );
+  /** The active project, or `null` when none is active. */
+  getActiveWorkspace(): HarnessWorkspace | null {
+    return this.activeWorkspaceId
+      ? (this.workspaces.get(this.activeWorkspaceId) ?? null)
+      : null;
   }
 
   addWorkspace(workspacePath: string): HarnessWorkspace {
@@ -61,48 +58,55 @@ export class WorkspaceRegistryFacade {
     return workspace;
   }
 
-  isBuiltInWorkspace(workspaceId: string): boolean {
-    return workspaceId === CURRENT_WORKSPACE.id;
-  }
-
   /**
    * Forgets a known workspace (the project is removed from the app, not from
-   * disk). The built-in workspace stays; it becomes active when the active
-   * workspace is removed.
+   * disk). Removing the active workspace activates the first remaining one,
+   * or none when the registry becomes empty.
    */
   removeWorkspace(workspaceId: string): HarnessWorkspace {
-    if (this.isBuiltInWorkspace(workspaceId)) {
-      throw new Error("The built-in workspace cannot be removed.");
-    }
     const workspace = this.workspaces.get(workspaceId);
     if (!workspace) {
       throw new Error(`Unknown workspace: ${workspaceId}`);
     }
     this.workspaces.delete(workspaceId);
     if (this.activeWorkspaceId === workspaceId) {
-      this.activeWorkspaceId = CURRENT_WORKSPACE.id;
+      this.activeWorkspaceId = this.firstWorkspaceId();
     }
     return workspace;
   }
 
+  /**
+   * Replaces the registry with a persisted snapshot. Every valid entry is an
+   * ordinary project (including an old `harness-ai-local` entry); an unknown
+   * active id falls back to the first project, an empty snapshot leaves no
+   * project active.
+   */
   restoreSnapshot(snapshot: WorkspaceRegistrySnapshot): void {
     this.workspaces.clear();
-    this.workspaces.set(CURRENT_WORKSPACE.id, CURRENT_WORKSPACE);
-    for (const workspace of snapshot.workspaces) {
+    const workspaces = Array.isArray(snapshot.workspaces)
+      ? snapshot.workspaces
+      : [];
+    for (const workspace of workspaces) {
       if (isWorkspace(workspace)) {
         this.workspaces.set(workspace.id, workspace);
       }
     }
-    this.activeWorkspaceId = this.workspaces.has(snapshot.activeWorkspaceId)
-      ? snapshot.activeWorkspaceId
-      : CURRENT_WORKSPACE.id;
+    const activeId = snapshot.activeWorkspaceId;
+    this.activeWorkspaceId =
+      typeof activeId === "string" && this.workspaces.has(activeId)
+        ? activeId
+        : this.firstWorkspaceId();
   }
 
   getSnapshot(): WorkspaceRegistrySnapshot {
     return {
-      activeWorkspaceId: this.getActiveWorkspace().id,
+      activeWorkspaceId: this.getActiveWorkspace()?.id ?? null,
       workspaces: this.getKnownWorkspaces(),
     };
+  }
+
+  private firstWorkspaceId(): string | null {
+    return this.getKnownWorkspaces()[0]?.id ?? null;
   }
 }
 

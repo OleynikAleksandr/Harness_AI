@@ -2,7 +2,7 @@ import { settingsStoreFacade } from "../../../../settings-and-localization/modul
 import { materializeCoreLocalizationRuntimePayload } from "./core-localization-runtime.js";
 
 export async function rebuildCoreLocalizationRpcResult(
-  workspacePath: string
+  workspacePath?: string
 ): Promise<{ error: string; ok: false } | { ok: true }> {
   try {
     await materializeCoreLocalizationRuntimePayload(

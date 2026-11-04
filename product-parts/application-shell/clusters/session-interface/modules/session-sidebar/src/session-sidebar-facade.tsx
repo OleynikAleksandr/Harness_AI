@@ -10,7 +10,6 @@ import { WorkspaceMenu } from "./workspace-menu.js";
 
 interface SessionSidebarProps {
   activeSessionId: string;
-  builtInWorkspaceId: string;
   isWorkspaceMenuOpen: boolean;
   onCreateSession: () => void;
   onDeleteSession: (sessionId: string) => void;
@@ -39,7 +38,6 @@ export function SessionSidebarFacade({
   workspaces,
   sessions,
   activeSessionId,
-  builtInWorkspaceId,
   isWorkspaceMenuOpen,
   onNewProject,
   onOpenProject,
@@ -276,7 +274,6 @@ export function SessionSidebarFacade({
         </button>
         {isWorkspaceMenuOpen ? (
           <WorkspaceMenu
-            builtInWorkspaceId={builtInWorkspaceId}
             onNewProject={onNewProject}
             onOpenProject={onOpenProject}
             onOpenProjectDoctor={onOpenProjectDoctor}

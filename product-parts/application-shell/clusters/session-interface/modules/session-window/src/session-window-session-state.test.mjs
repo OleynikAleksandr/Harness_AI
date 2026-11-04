@@ -20,6 +20,15 @@ const surfaceSource = readFileSync(
 assert.match(source, /useSessionWindowSessionState/u);
 assert.match(source, /window\.harnessCore\?\.getSessionEvents/u);
 assert.match(source, /window\.harnessCore\?\.listSessions/u);
+// No project (""): the hook asks Core for no session list at all.
+assert.match(
+  source,
+  /return workspaceId\s*\? await window\.harnessCore\?\.listSessions\(workspaceId\)\s*: undefined;/u
+);
+assert.equal(
+  source.match(/await listWorkspaceSessions\(workspaceId\)/gu)?.length,
+  2
+);
 assert.match(source, /applyCoreEvent\(\{/u);
 assert.match(source, /appendAssistantNotice/u);
 assert.match(source, /setActiveSessionId/u);

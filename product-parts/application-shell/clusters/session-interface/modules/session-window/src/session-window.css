@@ -2256,3 +2256,39 @@ strong {
     height: auto;
   }
 }
+
+/* The start screen without an active project spans the whole shell. */
+.session-start-screen {
+  display: grid;
+  grid-column: 1 / -1;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.session-start-screen__panel {
+  display: grid;
+  gap: 18px;
+  width: min(420px, 100%);
+}
+
+.session-start-screen__panel h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--pm-text-primary, #e7eaee);
+}
+
+.session-start-screen__action {
+  display: grid;
+  gap: 6px;
+}
+
+.session-start-screen__action .start-new-session-button {
+  width: 100%;
+}
+
+.session-start-screen__action small {
+  font-size: 13px;
+  color: var(--pm-text-muted, #8b949e);
+}

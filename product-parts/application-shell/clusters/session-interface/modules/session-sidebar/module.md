@@ -12,7 +12,8 @@ Settings.
 
 ## Inputs
 
-- Known workspace snapshot.
+- Known workspace snapshot. The session window renders the sidebar only
+  while Core has an active project, so `workspace` is never empty.
 - Selected workspace session list.
 - Core-owned `sessionKind`, `parentSessionId`, delegated task, subagent
   status/nickname/role and title metadata.
@@ -32,11 +33,11 @@ Settings.
   the former "Add Workspace") and "Project Doctor"
   (`onOpenProjectDoctor`); the session window opens the project workflow
   dialogs for them. The menu is `workspace-menu.tsx` (`WorkspaceMenu`):
-  right-click on a project opens an in-app context menu whose first item,
-  "Remove from Harness AI" (`sidebar.removeProject`), sends
-  `onRemoveWorkspace(workspaceId)`; a failure text from Core stays in the
-  menu. The built-in workspace (`builtInWorkspaceId` from Core) gets no
-  context menu. Escape or a pointer outside closes it.
+  right-click on any project (there is no built-in project) opens an
+  in-app context menu whose first item, "Remove from Harness AI"
+  (`sidebar.removeProject`), sends `onRemoveWorkspace(workspaceId)`; a
+  failure text from Core stays in the menu. Escape or a pointer outside
+  closes it.
 - Session open/create/rename/regenerate-title intents.
 - Recursive parent/child rows with descendant/running counts, automatic
   ancestor expansion for the selected child, and independent open/detach
@@ -111,7 +112,8 @@ Settings.
   buttons, Core error, chosen line above the plan, dismissed, another or
   an unlisted owner).
 - `src/workspace-menu.test.mjs` — the workspace menu and its project
-  context menu.
+  context menu for any project (no built-in exception), and the hook
+  mirroring a removal (another project or none active).
 
 ## Owned Paths
 

@@ -17,17 +17,24 @@ const hookSource = readFileSync(
   "utf8"
 );
 
-// Right-click on a project opens the in-app context menu; the built-in
-// workspace (identified by Core) gets none.
+// Right-click on any project opens the in-app context menu: there is no
+// built-in project, so no project is exempt from removal.
 assert.match(
   menuSource,
   /onContextMenu=\{\(event\) => openProjectMenu\(event, item\)\}/u
 );
-assert.match(menuSource, /event\.preventDefault\(\);/u);
-assert.match(
-  menuSource,
-  /if \(item\.id === builtInWorkspaceId\) \{\s*return;/u
+const openProjectMenuBody = menuSource.slice(
+  menuSource.indexOf("function openProjectMenu("),
+  menuSource.indexOf("async function removeProject(")
 );
+assert.match(
+  openProjectMenuBody,
+  /event\.preventDefault\(\);\s*const rect = event\.currentTarget\.getBoundingClientRect\(\);/u
+);
+assert.match(openProjectMenuBody, /workspaceId: item\.id,/u);
+assert.doesNotMatch(openProjectMenuBody, /return;/u);
+assert.doesNotMatch(menuSource, /builtIn/iu);
+assert.doesNotMatch(sidebarSource, /builtIn/iu);
 // The first (and only) item removes the project from the app.
 assert.match(
   menuSource,
@@ -49,12 +56,11 @@ assert.match(
   /await window\.harnessCore\?\.removeWorkspace\(workspaceId\)/u
 );
 assert.match(hookSource, /setWorkspaces\(result\.workspaces\);/u);
+// Removing the active project shows the project Core activated next, or no
+// project at all (the start screen) after the last one.
 assert.match(
   hookSource,
-  /if \(active && active\.id !== activeWorkspaceId\) \{\s*setActiveWorkspaceId\(active\.id\);\s*await onWorkspaceActivated\(active\);/u
+  /const nextActiveId = active\?\.id \?\? null;\s*if \(nextActiveId !== activeWorkspaceId\) \{\s*setActiveWorkspaceId\(nextActiveId\);\s*await onWorkspaceActivated\(active\);/u
 );
-assert.match(
-  hookSource,
-  /setBuiltInWorkspaceId\(snapshot\.builtInWorkspaceId \?\? ""\);/u
-);
+assert.doesNotMatch(hookSource, /builtIn/iu);
 console.log("workspace-menu tests passed");

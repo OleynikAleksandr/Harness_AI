@@ -70,10 +70,16 @@ Detached session windows never expose the switch.
 - The shared `vite-env.d.ts` bridge contract models Native Request Capture
   `defaultReasoningEffort` as nullable, matching Core providers such as Kimi
   that expose no independent reasoning selector.
-- The shared bridge types declare `listWorkspaces()` with
-  `builtInWorkspaceId` (the workspace Core never removes) and
-  `removeWorkspace(workspaceId)` → `{ok: true, activeWorkspaceId,
-  builtInWorkspaceId, workspaces}` or `{ok: false, code, error}`.
+- The shared bridge types declare `listWorkspaces()` →
+  `{activeWorkspaceId: string | null, workspaces}` (the list may be empty;
+  there is no built-in project) and `removeWorkspace(workspaceId)` →
+  `{ok: true, activeWorkspaceId: string | null, workspaces}` or
+  `{ok: false, code: "UNKNOWN_WORKSPACE", error}`. `createSession` may fail
+  with `code: "NO_WORKSPACE"` when Core has no active project.
+- The Core session snapshot (`getSnapshot()`) supplies only the initial
+  messages and telemetry; its `workspace` (`HarnessWorkspace | null`) is not
+  used — the active project always comes from the Core `listWorkspaces`
+  list.
 - The shared bridge types declare the project workflow surface:
   `pickProjectFolder`/`pickProjectParent` (`{canceled, path}`),
   `inspectProjectFolder`, `prepareProject`, `getWorkflowStatus`,
@@ -256,17 +262,36 @@ Detached session windows never expose the switch.
 
 - Workspace state lives in `session-window-workspaces.ts`
   (`useSessionWindowWorkspaces`): the workspace list, the active workspace
-  and the workspace menu mirror the Core registry. `applyWorkspaceList`
-  applies the start-up `listWorkspaces` snapshot, `selectWorkspace`
-  forwards the user's choice to Core, `activateWorkspace(workspace)` shows a
-  workspace Core already selected (an opened or created project) and
-  `closeWorkspaceMenu` closes the menu. `removeWorkspace(workspaceId)`
-  forwards "Remove from Harness AI" to Core (`removeWorkspace`), mirrors the
-  returned list and `builtInWorkspaceId`, and reloads the workspace data when
-  Core activated another workspace; it resolves to Core's error text or
-  null. After every switch the facade's
-  `reloadWorkspaceData` reloads settings, localization and the session list
-  of that workspace.
+  and the workspace menu mirror the Core registry. The list starts empty;
+  `activeWorkspace` is `null` and `activeWorkspaceId` is `""` while Core
+  has no active project, and `isWorkspaceListLoaded` turns true once the
+  first Core list arrived. `applyWorkspaceList` applies a `listWorkspaces`
+  snapshot (no fallback project), `selectWorkspace` forwards the user's
+  choice to Core, `activateWorkspace(workspace)` shows a workspace Core
+  already selected (an opened or created project) and `closeWorkspaceMenu`
+  closes the menu. `removeWorkspace(workspaceId)` forwards "Remove from
+  Harness AI" for any project to Core (`removeWorkspace`), mirrors the
+  returned list and, when Core activated another project or left none
+  active, reloads the workspace data; it resolves to Core's error text or
+  null. `mirrorWorkspaceFailure(code)` re-reads the Core list after a
+  `NO_WORKSPACE` refusal of `createSession` (the error text still shows in
+  the profile step). After every switch the facade's `reloadWorkspaceData`
+  reloads settings, localization and the session list of that workspace
+  (`workspace` `null`: settings, localization and an empty session list).
+  The session-state hook never asks Core to list sessions for the empty
+  workspace id `""` (Core would answer every session).
+- Start screen (`session-start-screen.tsx`): `SessionWorkspaceGate`
+  renders the ordinary shell (sidebar, status strip, session surface,
+  dialogs) for the active project, nothing before the first Core list, and
+  otherwise — no active project, an empty list included — the start screen
+  spanning the whole window. It offers Open Project and New Project
+  (`sidebar.openProject` / `sidebar.newProject` with the
+  `project.setup.open.description` / `project.setup.new.description`
+  helper texts); each opens `ProjectSetupDialogFacade` in mode `open`/`new`
+  and a prepared project is shown through `activateWorkspace`. Profile
+  Studio keeps its own branch. `src/session-start-screen.test.mjs` renders
+  the gate (nothing before the list, the start screen without a project,
+  the shell with one) and checks the hook and facade wiring.
 - Project workflow UI (`project-workflow-ui` cluster): the sidebar items
   New Project, Open Project and Project Doctor open
   `ProjectSetupDialogFacade` (mode `new`/`open`) or

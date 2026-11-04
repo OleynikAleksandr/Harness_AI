@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 123,
+  "revision": 125,
   "rounds": [
     {
       "digest": null,
@@ -557,14 +557,31 @@
         "product-parts/application-shell/clusters/session-interface/modules/session-window",
         "product-parts/application-shell/clusters/session-interface/modules/session-sidebar",
         "product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector",
-        "product-parts/core-runtime/clusters/session-runtime/modules/session-registry"
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-registry",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.tsx",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-start-screen.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-start-screen.tsx",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-workspaces.ts",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/module.md",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.test.mjs",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts"
       ],
       "fixes": null,
       "id": "W2",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Interface without a project",
       "why": "The app must work with an empty project list"
     },
@@ -716,8 +733,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 6/17
-- Revision: 123
+- Progress: 7/17
+- Revision: 125
 
 ## Objective
 
@@ -780,9 +797,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: read documents through the kit context command
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery
   - Depends on: K4
-- [TODO] W2 — Interface without a project (work)
+- [DONE] W2 — Interface without a project (work)
   - Commit: fix: show the start screen without a project
-  - Files: product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector, product-parts/core-runtime/clusters/session-runtime/modules/session-registry
+  - Files: product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector, product-parts/core-runtime/clusters/session-runtime/modules/session-registry, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-markdown-content.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-start-screen.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-start-screen.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-session-state.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-workspaces.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window.css, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector/src/session-snapshot-projector-facade.ts
   - Depends on: W1
 - [TODO] K6 — Doctor doc-size and managed text 2.2.0 (work)
   - Commit: feat: check document sizes in doctor and update managed text

@@ -2,49 +2,48 @@ import { useCallback, useState } from "react";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { DetachedSessionMode } from "./session-window-routing.js";
 
+/** The Core project list as `listWorkspaces` / `removeWorkspace` return it. */
+interface WorkspaceListSnapshot {
+  activeWorkspaceId: string | null;
+  workspaces: HarnessWorkspace[];
+}
+
 /**
  * Workspace list, active workspace and workspace menu of the session
  * window. Core owns the registry; this hook only mirrors the Core snapshot
- * and forwards the user's choice. `onWorkspaceActivated` reloads the
- * workspace-scoped data (settings, localization, sessions) after a switch.
+ * and forwards the user's choice. The list may be empty and no project may
+ * be active (`activeWorkspace` is then `null`); `isWorkspaceListLoaded`
+ * tells the window when the first Core list arrived. `onWorkspaceActivated`
+ * reloads the workspace-scoped data (settings, localization, sessions) after
+ * a switch, with `null` when Core left no project active.
  */
 export function useSessionWindowWorkspaces(options: {
   detachedMode: DetachedSessionMode | null;
-  initialWorkspace: HarnessWorkspace;
-  onWorkspaceActivated: (workspace: HarnessWorkspace) => Promise<void>;
+  onWorkspaceActivated: (workspace: HarnessWorkspace | null) => Promise<void>;
 }) {
-  const { detachedMode, initialWorkspace, onWorkspaceActivated } = options;
-  const [workspaces, setWorkspaces] = useState<HarnessWorkspace[]>([
-    initialWorkspace,
-  ]);
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(
-    detachedMode?.workspaceId ?? initialWorkspace.id
+  const { detachedMode, onWorkspaceActivated } = options;
+  const [workspaces, setWorkspaces] = useState<HarnessWorkspace[]>([]);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(
+    detachedMode?.workspaceId ?? null
   );
-  const [builtInWorkspaceId, setBuiltInWorkspaceId] = useState("");
+  const [isWorkspaceListLoaded, setIsWorkspaceListLoaded] = useState(false);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const activeWorkspace =
-    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
-    initialWorkspace;
+    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? null;
 
-  /** Applies the Core list at start-up; returns the workspace to show. */
+  /** Applies a Core list; returns the workspace to show, or null. */
   const applyWorkspaceList = useCallback(
-    (snapshot: {
-      activeWorkspaceId: string;
-      builtInWorkspaceId?: string;
-      workspaces: HarnessWorkspace[];
-    }): HarnessWorkspace => {
+    (snapshot: WorkspaceListSnapshot): HarnessWorkspace | null => {
       setWorkspaces(snapshot.workspaces);
-      setBuiltInWorkspaceId(snapshot.builtInWorkspaceId ?? "");
       const workspaceId =
         detachedMode?.workspaceId ?? snapshot.activeWorkspaceId;
       const workspace =
-        snapshot.workspaces.find((item) => item.id === workspaceId) ??
-        snapshot.workspaces[0] ??
-        initialWorkspace;
-      setActiveWorkspaceId(workspace.id);
+        snapshot.workspaces.find((item) => item.id === workspaceId) ?? null;
+      setActiveWorkspaceId(workspace?.id ?? null);
+      setIsWorkspaceListLoaded(true);
       return workspace;
     },
-    [detachedMode, initialWorkspace]
+    [detachedMode]
   );
 
   /** Shows a workspace Core already selected (opened or created project). */
@@ -72,9 +71,24 @@ export function useSessionWindowWorkspaces(options: {
   }
 
   /**
-   * Removes a project from the app through Core and mirrors the new list;
-   * when Core activated another workspace, its data is reloaded. Resolves to
-   * an error text for the menu, or null.
+   * Core refused a request with `NO_WORKSPACE` (no active project): mirrors
+   * the Core list again, so the window shows the start screen.
+   */
+  function mirrorWorkspaceFailure(code: string | undefined) {
+    if (code !== "NO_WORKSPACE") {
+      return;
+    }
+    window.harnessCore
+      ?.listWorkspaces()
+      .then(applyWorkspaceList)
+      .catch(() => undefined);
+  }
+
+  /**
+   * Removes any project from the app through Core and mirrors the new list.
+   * When Core activated another project, or left none active, the
+   * workspace data is reloaded. Resolves to an error text for the menu, or
+   * null.
    */
   async function removeWorkspace(workspaceId: string): Promise<string | null> {
     const result = await window.harnessCore?.removeWorkspace(workspaceId);
@@ -85,12 +99,12 @@ export function useSessionWindowWorkspaces(options: {
       return result.error;
     }
     setWorkspaces(result.workspaces);
-    setBuiltInWorkspaceId(result.builtInWorkspaceId);
-    const active = result.workspaces.find(
-      (item) => item.id === result.activeWorkspaceId
-    );
-    if (active && active.id !== activeWorkspaceId) {
-      setActiveWorkspaceId(active.id);
+    const active =
+      result.workspaces.find((item) => item.id === result.activeWorkspaceId) ??
+      null;
+    const nextActiveId = active?.id ?? null;
+    if (nextActiveId !== activeWorkspaceId) {
+      setActiveWorkspaceId(nextActiveId);
       await onWorkspaceActivated(active);
     }
     return null;
@@ -99,11 +113,13 @@ export function useSessionWindowWorkspaces(options: {
   return {
     activateWorkspace,
     activeWorkspace,
-    activeWorkspaceId,
+    /** The active project id, `""` without a project. */
+    activeWorkspaceId: activeWorkspaceId ?? "",
     applyWorkspaceList,
-    builtInWorkspaceId,
     closeWorkspaceMenu: () => setIsWorkspaceMenuOpen(false),
+    isWorkspaceListLoaded,
     isWorkspaceMenuOpen,
+    mirrorWorkspaceFailure,
     removeWorkspace,
     selectWorkspace,
     toggleWorkspaceMenu: () => setIsWorkspaceMenuOpen((current) => !current),

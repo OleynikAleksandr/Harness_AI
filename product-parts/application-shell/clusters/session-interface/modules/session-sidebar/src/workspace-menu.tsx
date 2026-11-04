@@ -4,8 +4,6 @@ import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/w
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 
 interface WorkspaceMenuProps {
-  /** The workspace Core never removes (no context menu for it). */
-  builtInWorkspaceId: string;
   onNewProject: () => void;
   onOpenProject: () => void;
   onOpenProjectDoctor: () => void;
@@ -24,12 +22,12 @@ interface ProjectMenuState {
 
 /**
  * The project list of the workspace switcher plus the New/Open Project and
- * Project Doctor entries. Right-click on a project opens an in-app context
+ * Project Doctor entries. Right-click on any project opens an in-app context
  * menu whose first item removes the project from the app (Core decides what
- * that removes; the project folder stays on disk).
+ * that removes; the project folder stays on disk). There is no built-in
+ * project: every project, the active one included, can be removed.
  */
 export function WorkspaceMenu({
-  builtInWorkspaceId,
   onNewProject,
   onOpenProject,
   onOpenProjectDoctor,
@@ -71,9 +69,6 @@ export function WorkspaceMenu({
 
   function openProjectMenu(event: ReactMouseEvent, item: HarnessWorkspace) {
     event.preventDefault();
-    if (item.id === builtInWorkspaceId) {
-      return;
-    }
     const rect = event.currentTarget.getBoundingClientRect();
     setError(null);
     setMenu({

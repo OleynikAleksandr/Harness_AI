@@ -120,12 +120,13 @@ interface ProviderVersionsSnapshot {
 
 interface Window {
   harnessCore?: {
+    /** Without an active project Core answers `code: "NO_WORKSPACE"`. */
     createSession(request: unknown): Promise<
       | {
           ok: true;
           session: import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession;
         }
-      | { error: string; ok: false }
+      | { code?: "NO_WORKSPACE"; error: string; ok: false }
     >;
     listProfileStudioTargets(): Promise<{
       ok: true;
@@ -259,9 +260,8 @@ interface Window {
       import("../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js").CoreSession[]
     >;
     listWorkspaces(): Promise<{
-      activeWorkspaceId: string;
-      /** The always-present workspace that cannot be removed. */
-      builtInWorkspaceId: string;
+      /** `null` when no project is active (the list may be empty). */
+      activeWorkspaceId: string | null;
       workspaces: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace[];
     }>;
     rebuildLocalization(): Promise<{ ok: true } | { error: string; ok: false }>;
@@ -306,13 +306,12 @@ interface Window {
     /** Removes a project from the app (not from disk). */
     removeWorkspace(workspaceId: string): Promise<
       | {
-          activeWorkspaceId: string;
-          builtInWorkspaceId: string;
+          activeWorkspaceId: string | null;
           ok: true;
           workspaces: import("../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js").HarnessWorkspace[];
         }
       | {
-          code: "BUILT_IN_WORKSPACE" | "UNKNOWN_WORKSPACE";
+          code: "UNKNOWN_WORKSPACE";
           error: string;
           ok: false;
         }

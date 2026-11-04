@@ -82,7 +82,7 @@ export function useSessionWindowSessionState(options: {
   const refreshSessions = useCallback(
     async (workspaceId: string, preferredSessionId?: string) => {
       sessionListWorkspaceIdRef.current = workspaceId;
-      const loaded = await window.harnessCore?.listSessions(workspaceId);
+      const loaded = await listWorkspaceSessions(workspaceId);
       if (sessionListWorkspaceIdRef.current !== workspaceId) {
         return;
       }
@@ -104,7 +104,7 @@ export function useSessionWindowSessionState(options: {
   );
 
   const refreshSessionList = useCallback(async (workspaceId: string) => {
-    const loaded = await window.harnessCore?.listSessions(workspaceId);
+    const loaded = await listWorkspaceSessions(workspaceId);
     if (sessionListWorkspaceIdRef.current !== workspaceId) {
       return;
     }
@@ -190,4 +190,14 @@ export function useSessionWindowSessionState(options: {
     subagentCalls,
     telemetry,
   };
+}
+
+/**
+ * The Core session list of one workspace. Without a project (`""`) there is
+ * nothing to list: Core would answer every session for an empty id.
+ */
+async function listWorkspaceSessions(workspaceId: string) {
+  return workspaceId
+    ? await window.harnessCore?.listSessions(workspaceId)
+    : undefined;
 }

@@ -20,6 +20,7 @@ import {
 } from "./grok-interaction-panel.js";
 import { ProviderPicker, resolveProviderModel } from "./provider-picker.js";
 import { SessionProfileStep } from "./session-profile-step.js";
+import { SessionWorkspaceGate } from "./session-start-screen.js";
 import {
   isProjectWorkflowEvent,
   isProviderStatusEvent,
@@ -45,16 +46,16 @@ export function SessionWindowFacade() {
     activateWorkspace,
     activeWorkspaceId,
     applyWorkspaceList,
-    builtInWorkspaceId,
     closeWorkspaceMenu,
+    isWorkspaceListLoaded,
     isWorkspaceMenuOpen,
+    mirrorWorkspaceFailure,
     removeWorkspace,
     selectWorkspace,
     toggleWorkspaceMenu,
     workspaces,
   } = useSessionWindowWorkspaces({
     detachedMode,
-    initialWorkspace: initialSnapshot.workspace,
     onWorkspaceActivated: reloadWorkspaceData,
   });
   const [isProviderPickerOpen, setIsProviderPickerOpen] = useState(false);
@@ -132,13 +133,15 @@ export function SessionWindowFacade() {
       ?.listWorkspaces()
       .then((snapshot) => {
         const workspace = applyWorkspaceList(snapshot);
-        refreshSettingsSnapshot(workspace.path).catch(noop);
+        refreshSettingsSnapshot(workspace?.path).catch(noop);
         refreshLocalizationPayload().catch(noop);
-        refreshSessions(workspace.id, detachedMode?.sessionId).catch(noop);
+        refreshSessions(workspace?.id ?? "", detachedMode?.sessionId).catch(
+          noop
+        );
       })
       .catch(noop);
     // Profile Studio lists its creator sessions, the ordinary shell the
-    // sessions of the active workspace.
+    // sessions of the active workspace (none without a project).
     const sessionListOwner = (workspaceId: string) =>
       applicationModeRef.current === "studio" ? "profile-studio" : workspaceId;
     return window.harnessCore?.onEvent((event) => {
@@ -225,7 +228,9 @@ export function SessionWindowFacade() {
   async function returnToSessions() {
     applicationModeRef.current = "sessions";
     setApplicationMode("sessions");
-    await refreshSessions(activeWorkspace.id);
+    if (activeWorkspace) {
+      await refreshSessions(activeWorkspace.id);
+    }
   }
 
   async function appendUserMessage(text: string) {
@@ -292,7 +297,8 @@ export function SessionWindowFacade() {
     profileId: string
   ): Promise<string | null> {
     const snapshot =
-      settingsSnapshot ?? (await refreshSettingsSnapshot(activeWorkspace.path));
+      settingsSnapshot ??
+      (await refreshSettingsSnapshot(activeWorkspace?.path));
     const model = resolveProviderModel(provider, snapshot);
     const result = await window.harnessCore?.createSession({
       model,
@@ -308,13 +314,14 @@ export function SessionWindowFacade() {
       providerId: provider.id,
       providerName: provider.name,
       title: `${provider.name} session`,
-      workspaceId: activeWorkspace.id,
-      workspacePath: activeWorkspace.path,
+      workspaceId: activeWorkspace?.id,
+      workspacePath: activeWorkspace?.path,
     });
     if (!result) {
       return "Core runtime bridge is unavailable.";
     }
     if (!result.ok) {
+      mirrorWorkspaceFailure(result.code);
       return result.error;
     }
     const session = result.session;
@@ -323,11 +330,12 @@ export function SessionWindowFacade() {
     return null;
   }
 
-  // Workspace-scoped data after a workspace switch (called by the hook).
-  async function reloadWorkspaceData(workspace: HarnessWorkspace) {
-    await refreshSettingsSnapshot(workspace.path);
+  // Workspace-scoped data after a workspace switch (called by the hook);
+  // without a project the start screen lists no sessions.
+  async function reloadWorkspaceData(workspace: HarnessWorkspace | null) {
+    await refreshSettingsSnapshot(workspace?.path);
     await refreshLocalizationPayload();
-    await refreshSessions(workspace.id);
+    await refreshSessions(workspace?.id ?? "");
   }
 
   function openProjectOverlay(overlay: "doctor" | "new" | "open") {
@@ -338,12 +346,12 @@ export function SessionWindowFacade() {
   async function detachSession(sessionId: string) {
     await window.harnessShell?.detachSession({
       sessionId,
-      workspaceId: activeWorkspace.id,
+      workspaceId: activeWorkspaceId,
     });
   }
   async function deleteSession(sessionId: string) {
     if ((await window.harnessCore?.deleteSession(sessionId))?.ok) {
-      await refreshSessions(activeWorkspace.id);
+      await refreshSessions(activeWorkspaceId);
     }
   }
   const shellClassName = detachedMode
@@ -372,7 +380,7 @@ export function SessionWindowFacade() {
       runningSince:
         runningSessionId === activeSession?.id ? turnTiming.runningSince : null,
     },
-    workspaceRoot: activeWorkspace.path,
+    workspaceRoot: activeWorkspace?.path ?? "",
   };
   return (
     <BrowserLocalizationProvider payload={localizationPayload}>
@@ -392,89 +400,96 @@ export function SessionWindowFacade() {
             }}
           />
         ) : (
-          <>
-            {detachedMode ? null : (
-              <SessionSidebarFacade
-                activeSessionId={activeSession?.id ?? ""}
-                builtInWorkspaceId={builtInWorkspaceId}
-                isWorkspaceMenuOpen={isWorkspaceMenuOpen}
-                onCreateSession={openProviderPicker}
-                onDeleteSession={deleteSession}
-                onDetachSession={detachSession}
-                onNewProject={() => openProjectOverlay("new")}
-                onOpenProfileStudio={openProfileStudio}
-                onOpenProject={() => openProjectOverlay("open")}
-                onOpenProjectDoctor={() => openProjectOverlay("doctor")}
-                onOpenSettings={() => setIsSettingsOpen(true)}
-                onRegenerateSessionTitle={regenerateSessionTitle}
-                onRemoveWorkspace={removeWorkspace}
-                onRenameSession={renameSession}
-                onSelectSession={selectSession}
-                onSelectWorkspace={selectWorkspace}
-                onToggleWorkspaceMenu={toggleWorkspaceMenu}
-                sessions={sessions}
-                workspace={activeWorkspace}
-                workspaces={workspaces}
-              />
-            )}
-            <div className="session-main-column">
-              <WorkflowStatusStripFacade
-                sessionId={activeSession?.id ?? null}
-                workspaceId={activeWorkspace.id}
-              />
-              <SessionSurfaceFacade {...sessionSurface} />
-            </div>
-            {projectOverlay === "new" || projectOverlay === "open" ? (
-              <ProjectSetupDialogFacade
-                mode={projectOverlay}
-                onClose={() => setProjectOverlay(null)}
-                onPrepared={(workspace) => {
-                  setProjectOverlay(null);
-                  activateWorkspace(workspace).catch(noop);
-                }}
-              />
-            ) : null}
-            {projectOverlay === "doctor" ? (
-              <ProjectDoctorPanelFacade
-                onClose={() => setProjectOverlay(null)}
-                workspace={activeWorkspace}
-              />
-            ) : null}
-            {profileStepProvider ? (
-              <SessionProfileStep
-                model={resolveProviderModel(
-                  profileStepProvider,
-                  settingsSnapshot
+          <SessionWorkspaceGate
+            loaded={isWorkspaceListLoaded}
+            onPrepared={(prepared) => activateWorkspace(prepared).catch(noop)}
+            workspace={activeWorkspace}
+          >
+            {(workspace) => (
+              <>
+                {detachedMode ? null : (
+                  <SessionSidebarFacade
+                    activeSessionId={activeSession?.id ?? ""}
+                    isWorkspaceMenuOpen={isWorkspaceMenuOpen}
+                    onCreateSession={openProviderPicker}
+                    onDeleteSession={deleteSession}
+                    onDetachSession={detachSession}
+                    onNewProject={() => openProjectOverlay("new")}
+                    onOpenProfileStudio={openProfileStudio}
+                    onOpenProject={() => openProjectOverlay("open")}
+                    onOpenProjectDoctor={() => openProjectOverlay("doctor")}
+                    onOpenSettings={() => setIsSettingsOpen(true)}
+                    onRegenerateSessionTitle={regenerateSessionTitle}
+                    onRemoveWorkspace={removeWorkspace}
+                    onRenameSession={renameSession}
+                    onSelectSession={selectSession}
+                    onSelectWorkspace={selectWorkspace}
+                    onToggleWorkspaceMenu={toggleWorkspaceMenu}
+                    sessions={sessions}
+                    workspace={workspace}
+                    workspaces={workspaces}
+                  />
                 )}
-                onBack={() => {
-                  setProfileStepProvider(null);
-                  openProviderPicker();
-                }}
-                onClose={() => setProfileStepProvider(null)}
-                onStart={(profileId) =>
-                  createSession(profileStepProvider, profileId)
-                }
-                provider={profileStepProvider}
-              />
-            ) : null}
-            {isProviderPickerOpen ? (
-              <ProviderPicker
-                onClose={() => setIsProviderPickerOpen(false)}
-                onSelect={chooseProviderForNewSession}
-                providers={providerOptions}
-                settings={settingsSnapshot}
-              />
-            ) : null}
-            <ProviderSettingsUiFacade
-              isOpen={isSettingsOpen}
-              onClose={closeSettings}
-              onLocalizationRuntimeRefresh={refreshLocalizationPayload}
-            />
-            <ActiveGrokInteractionPanel
-              sessionId={activeSession?.id}
-              state={grokInteractions}
-            />
-          </>
+                <div className="session-main-column">
+                  <WorkflowStatusStripFacade
+                    sessionId={activeSession?.id ?? null}
+                    workspaceId={workspace.id}
+                  />
+                  <SessionSurfaceFacade {...sessionSurface} />
+                </div>
+                {projectOverlay === "new" || projectOverlay === "open" ? (
+                  <ProjectSetupDialogFacade
+                    mode={projectOverlay}
+                    onClose={() => setProjectOverlay(null)}
+                    onPrepared={(prepared) => {
+                      setProjectOverlay(null);
+                      activateWorkspace(prepared).catch(noop);
+                    }}
+                  />
+                ) : null}
+                {projectOverlay === "doctor" ? (
+                  <ProjectDoctorPanelFacade
+                    onClose={() => setProjectOverlay(null)}
+                    workspace={workspace}
+                  />
+                ) : null}
+                {profileStepProvider ? (
+                  <SessionProfileStep
+                    model={resolveProviderModel(
+                      profileStepProvider,
+                      settingsSnapshot
+                    )}
+                    onBack={() => {
+                      setProfileStepProvider(null);
+                      openProviderPicker();
+                    }}
+                    onClose={() => setProfileStepProvider(null)}
+                    onStart={(profileId) =>
+                      createSession(profileStepProvider, profileId)
+                    }
+                    provider={profileStepProvider}
+                  />
+                ) : null}
+                {isProviderPickerOpen ? (
+                  <ProviderPicker
+                    onClose={() => setIsProviderPickerOpen(false)}
+                    onSelect={chooseProviderForNewSession}
+                    providers={providerOptions}
+                    settings={settingsSnapshot}
+                  />
+                ) : null}
+                <ProviderSettingsUiFacade
+                  isOpen={isSettingsOpen}
+                  onClose={closeSettings}
+                  onLocalizationRuntimeRefresh={refreshLocalizationPayload}
+                />
+                <ActiveGrokInteractionPanel
+                  sessionId={activeSession?.id}
+                  state={grokInteractions}
+                />
+              </>
+            )}
+          </SessionWorkspaceGate>
         )}
       </div>
     </BrowserLocalizationProvider>

@@ -18,6 +18,14 @@ liveness preflight initializes the Grok facade and therefore verifies both the
 official CLI and its cached subscription login before Core publishes ready
 state.
 
+Login-shell PATH (`core-login-path.ts`): before `initialize()` the entry
+awaits `applyLoginShellPath()` once. On macOS/Linux it runs `$SHELL -ilc`
+(fallback `/bin/zsh` on darwin, `/bin/bash`), reads PATH between unique
+markers, no stdin, killed after 3 s. `process.env.PATH` becomes login
+entries, then missing inherited ones, then existing darwin `/opt/homebrew/bin`
+and `/usr/local/bin`; provider and Kit spawns read it. Failure keeps the
+inherited PATH with one `console.error` line; Windows is skipped.
+
 ## Public Facade
 
 `CoreRuntimeProcessFacade`
@@ -65,25 +73,21 @@ state.
   max/loaded context and tool capability. The `set-local-model-context` RPC
   validates `{model, contextLength}` (non-negative integer; 0 clears the
   wish), persists `providers.localModels.contextLengthByModel` through the
-  settings store, applies the wish immediately via `applyLocalModelContext`
-  (LM Studio reload semantics) and returns the refreshed entries. When the
-  reload does not complete (server down, old LM Studio, load failure), the
-  RPC returns a CONTROLLED error with the refreshed entries — the wish stays
-  persisted and re-applies on the next session start; the renderer surfaces
-  the message and still swaps in the returned catalog.
+  settings store, applies it via `applyLocalModelContext` (LM Studio reload)
+  and returns the refreshed entries; a failed reload returns a controlled
+  error with the entries, and the persisted wish re-applies on the next
+  session start.
   `update-provider-version` and the auto-update toggles share one route,
   `updateProviderTarget(provider, target)`: CLI targets run the provider's
   own self-update command (`claude update`, `codex update`, Kimi's native
   `kimi upgrade`) so the active install is updated wherever it lives, and the
   Codex CLI target then re-reads the Codex catalog with
   `refreshCodexModelCatalog({ force: true })` (`model/list` comes from the
-  installed CLI — Codex has no Harness copy, sessions spawn the global
-  `codex`). Claude works the same way (2026-11-03): its sessions and live
-  model catalog run on the one global npm Claude Agent SDK (`npm prefix -g`),
-  so the Claude SDK target updates that single install (`updateClaudeSdk`,
-  `npm install -g ... --force`) and then re-reads the Claude catalog with
-  `refreshClaudeModelCatalog({ force: true })`; a failing install still runs
-  the refresh and the failure is reported afterwards. Other SDK targets use
+  installed CLI; sessions spawn the global `codex`). Claude likewise runs on
+  the one global npm Claude Agent SDK (`npm prefix -g`): its target updates
+  that install (`updateClaudeSdk`, `npm install -g ... --force`), then
+  `refreshClaudeModelCatalog({ force: true })` runs even after a failed
+  install, which is reported afterwards. Other SDK targets use
   `npm install -g <pkg>@latest`. The Claude SDK version row reports that
   global install (`readClaudeSdkVersion`, latest from the npm registry).
   `core-claude-sdk-updates.ts` owns that policy: `updateClaudeSdkInstall`,
@@ -93,17 +97,11 @@ state.
   catalog refreshes: for Claude and Codex with
   `providers.<id>.autoUpdate.enabled`, every outdated CLI/SDK install (Claude
   CLI, global Claude SDK, Codex CLI, global Codex SDK) is updated one after
-  another in the background; a failed target keeps its version and the next start retries. The Kimi toggle still has no
-  runtime consumer. This avoids updating a stale
-  `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
-  stays first on PATH.
-  The `get-provider-versions` snapshot also carries `kimi: { cli }` (CLI row
-  only — Kimi has no SDK and no npm package) sourced from the Kimi
-  native-capture facade version tooling: current version from the installed
-  standalone binary, latest from the CLI's own update-state file. The
-  `update-provider-version` CLI target for `kimi` runs the native
-  `kimi upgrade` through the same facade; the SDK target stays rejected by
-  package resolution.
+  another in the background; a failed target keeps its version and the next
+  start retries. The Kimi toggle has no runtime consumer.
+  `get-provider-versions` also carries `kimi: { cli }` (no SDK row) from the
+  Kimi native-capture facade (installed binary, CLI update-state file); its
+  CLI target runs `kimi upgrade` and the SDK target is rejected.
 - The `delete-session` RPC forwards the raw intent to Session Runtime and
   performs no cleanup of its own: the request-handler delete cascade closes
   bindings and removes provider artifacts, per-session event JSONL and
@@ -189,11 +187,10 @@ state.
   the 2026-07-05 user order): `startLivenessPreflight` fires
   `ensureLocalModelsServer()` — ping the CONFIGURED base URL
   (`{v1}/models`, short timeout); when silent, launch the LM Studio service
-  via the bundled `~/.lmstudio/bin/lms server start` (PATH `lms` next, the
-  macOS background app launch `open -g -a "LM Studio"` as the last resort),
-  poll readiness briefly and re-run the `local-models-client` liveness so
-  the picker sees the models. Machines without LM Studio skip silently (an
-  idle LM Studio holds no models in memory); the routine never throws.
+  via `~/.lmstudio/bin/lms server start` (then PATH `lms`, then
+  `open -g -a "LM Studio"`), poll readiness briefly and re-run the
+  `local-models-client` liveness. Machines without LM Studio skip silently;
+  the routine never throws.
 
 - Session profile RPCs (`core-session-profile-rpc.ts`, the
   `ensure-glossary-file` four-layer pattern): `list-session-profiles`

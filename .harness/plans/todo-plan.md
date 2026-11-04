@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 82,
+  "revision": 84,
   "rounds": [
     {
       "digest": null,
@@ -255,14 +255,16 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-login-path.ts",
-        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts"
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-login-path.test.mjs"
       ],
       "fixes": null,
       "id": "G8",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Login-shell PATH for agent processes",
       "why": "The app started from Finder has no /opt/homebrew/bin and Kit checks could not find node"
     },
@@ -416,8 +418,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 2/13
-- Revision: 82
+- Progress: 3/13
+- Revision: 84
 
 ## Objective
 
@@ -461,9 +463,9 @@ Fix the defects found in the execution modes release (git identity form instead 
 - [DONE] G7 — Mode choice enables the autopilot (work)
   - Commit: fix: start plan execution on the mode choice
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.test.mjs
-- [TODO] G8 — Login-shell PATH for agent processes (work)
+- [DONE] G8 — Login-shell PATH for agent processes (work)
   - Commit: fix: give agent processes the login shell path
-  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-login-path.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts
+  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-login-path.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-login-path.test.mjs
 - [TODO] G9 — Small Kit fixes: DS_Store, conflict markers, dup ignore (work)
   - Commit: fix: small workflow kit defects from the release check
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, package.json

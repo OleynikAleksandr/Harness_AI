@@ -309,3 +309,6 @@ added, add a new evidence file and keep this index entry valid.
 - `docs/evidence/release-fixes-3-package-2026-11-04.md` — release fixes round
   3: package contents (Kit 2.2.0 with pause, schema and context), the Kit
   smoke on a temporary project and the app start.
+- `docs/evidence/release-fixes-3-publish-2026-11-04.md` — release fixes round
+  3 publication: history secret scan, the fast-forward push of `main`, tag
+  `v2026.11.4.2` and the GitHub Release with the app zip.

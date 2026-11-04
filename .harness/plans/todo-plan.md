@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 145,
+  "revision": 147,
   "rounds": [
     {
       "digest": {
@@ -46,7 +46,7 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Implementation"
     }
   ],
@@ -95,7 +95,7 @@
         "text": "Tag v2026.11.4.2 as the second release of the day"
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "release-fixes-2026-11-04-3",
     "objective": "Give agents their input schemas and document text inline, add the Kit context command and documents map, run the autopilot by default with a Kit pause and a plan-panel pause button, give agent processes the real git config, remove the built-in project, build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-3.md",
@@ -827,7 +827,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: publish release fixes round 3",
-      "confirmation": null,
+      "confirmation": "Пользователь: «составляй новую спецификацию и to-do plan, и выполняя ее вплоть уже до публикации на GitHub»",
       "context": [],
       "dependencies": [
         "D1",
@@ -835,14 +835,15 @@
       ],
       "docsWaiver": null,
       "files": [
-        "docs/evidence/release-fixes-3-publish-2026-11-04.md"
+        "docs/evidence/release-fixes-3-publish-2026-11-04.md",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
       ],
       "fixes": null,
       "id": "P1",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Publish the release on GitHub",
       "why": "Every plan ends with a GitHub publication"
     }
@@ -854,10 +855,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 16/17
-- Revision: 145
+- Progress: 17/17
+- Revision: 147
 
 ## Objective
 
@@ -874,7 +875,7 @@ Give agents their input schemas and document text inline, add the Kit context co
 
 ## Rounds
 
-### R1 — Implementation (implementation, OPEN)
+### R1 — Implementation (implementation, CLOSED)
 
 - [DONE] A1 — Kit pause state (work)
   - Commit: feat: pause the workflow through the kit
@@ -936,9 +937,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: chore: package release fixes round 3
   - Files: docs/evidence/release-fixes-3-package-2026-11-04.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: A1, K1, E1, W1, A2, K2, A3, K3, A4, K4, A5, K5, W2, K6, DOCS-R1
-- [TODO] P1 — Publish the release on GitHub (delivery)
+- [DONE] P1 — Publish the release on GitHub (delivery)
   - Commit: chore: publish release fixes round 3
-  - Files: docs/evidence/release-fixes-3-publish-2026-11-04.md
+  - Files: docs/evidence/release-fixes-3-publish-2026-11-04.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: D1, DOCS-R1
 
 Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (also in the recovery packet), document text in executor briefs, required documents always inline, the documents map and the `context` command, plus a doctor doc-size warning (Kit 2.2.0). The autopilot is on by default and the user pauses the plan from the plan panel (Kit pause state, Core pauseState). Agent processes see the real git config, and Core has no built-in project: the app opens on a start screen.

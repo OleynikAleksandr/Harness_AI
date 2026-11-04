@@ -168,6 +168,11 @@ implementation plan.
   the login-shell PATH for agent processes, small Kit fixes (`KIT_VERSION`
   2.1.1 with `.DS_Store`, `kit:conflict-markers`, dup ignore) and the GitHub
   publication task that ends every plan.
+- `docs/architecture/ReleaseFixes-2026-11-04-3.md` — round 3 fixes (Russian,
+  scope `release-fixes-2026-11-04-3`): input schemas for agents, document text
+  inline in executor briefs and the recovery packet, the `context` command and
+  the documentation map, autopilot on by default with a Kit pause, the real
+  git config for agent processes, no built-in project, GitHub publication.
 - `docs/architecture/workflow-kit/WorkflowKit.md` — root specification of
   the Workflow Kit (Russian, scope `workflow-kit-2026-11-03`): origin from
   Harness rules and Workflow Kit 1.x, the `core-runtime/clusters/project-workflow`

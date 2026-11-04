@@ -74,6 +74,31 @@ try {
     /Never commit with `git commit` directly and never use `--no-verify`/u
   );
 
+  // The execution modes block: four roles, helpers in sequential, identity.
+  const rules = installer.agentRules();
+  const modes = rules.slice(
+    rules.indexOf("### Execution modes"),
+    rules.indexOf("### One task, one commit, one turn")
+  );
+  assert.ok(modes.length > 0, "the Execution modes block exists");
+  assert.ok(Buffer.byteLength(modes, "utf8") < 1800, "the block stays compact");
+  for (const pattern of [
+    /\*\*planning\*\* \(no scope, Harness project\).*parallelSafe.*\n.*scope:propose --input <file\.json> --recommended <mode> --reason "<why>"`\n {2}and end the turn; the user chooses the mode on the card\./su,
+    /\*\*self\*\* \(`sequential`\): run the tasks in order in main\. Helper subagents\n {2}may help, but they work in main without their own worktree and never commit\./u,
+    /\*\*orchestrator\*\* \(`orchestrated`, main\): `assignment:next`,\n {2}`assignment:create --task <ID>`, a Claude subagent \(Agent tool with\n {2}`isolation: "worktree"`\)/u,
+    /`integration:start --id <id> --source <sha>`/u,
+    /`integration:continue --id <id>`/u,
+    /never implement work or DOCS tasks in main/u,
+    /\*\*executor\*\* \(assignment worktree\): `assignment:attach <id>`, then\n {2}`task:start`, work only within the task files, `commit --task`, reply\n {2}with the SHA\. Never touch main, the plan or other tasks; no nested\n {2}executors, no push\./u,
+    /Never set the git identity \(`git config user\.\*`\)\. If a command refuses\n {2}with `GIT_IDENTITY_REQUIRED`, report it to the user with the command it\n {2}prints\./u,
+  ]) {
+    assert.match(modes, pattern);
+  }
+  assert.match(
+    rules,
+    /In a Harness project \(`"host": "harness"`\) propose\n {2}the scope instead \(see Execution modes\)\./u
+  );
+
   // CLAUDE.md gets the import line once.
   const claude = byPath["CLAUDE.md"];
   assert.equal(claude.render(null), "@AGENTS.md\n");

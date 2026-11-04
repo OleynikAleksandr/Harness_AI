@@ -29,7 +29,7 @@ compare it with `managed`.
 | `scripts/workflow` (executable), `scripts/workflow.cmd`, `scripts/workflow.ps1` | owned | launchers of `workflow-platform` |
 | `.harness/workflow/hooks/<hook>` (executable) | owned | when `core.hooksPath` is not set |
 | `<hooksPath>/<hook>` (executable) | section, after the shebang | when `core.hooksPath` is set (Harness: `.husky`) |
-| `AGENTS.md` | section | English process rules |
+| `AGENTS.md` | section | English process rules, including the Execution modes block |
 | `CLAUDE.md` | line | `@AGENTS.md`, appended once |
 | `.codex/hooks.json` | json | SessionStart → `scripts/workflow hook session-start --client codex` |
 | `.claude/settings.json` | json | SessionStart → `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude` |
@@ -62,8 +62,34 @@ files: [{path, kind, executable, sha256}]}`; `sha256` hashes the managed
 part (`null` for `create`). `version` is `KIT_VERSION` (`2.1.0`; Kit 1.x
 was Workflow Pilot). A change of a managed text raises the version, so
 older installations read as `KIT_OUTDATED` and the update rewrites them
-(2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`). The manifest lives at `.harness/workflow/manifest.json`
+(2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`
+and the Execution modes block to `AGENTS.md`). The manifest lives at `.harness/workflow/manifest.json`
 (`manifestPath`).
+
+## Agent Rules (`installer-texts.ts`)
+
+`agentRules()` is the managed `AGENTS.md` section: the plan and commands,
+session start, when a plan is needed (in a Harness project the scope is
+proposed instead of created), the Execution modes block, one task per
+commit and turn, and the rules. The Execution modes block tells the agent
+to follow the `role:` of the recovery packet:
+- planning (no scope, Harness project) — spec and plan with `parallelSafe`
+  labels, `scope:propose --input <file.json> --recommended <mode> --reason
+  "<why>"`, end the turn until the user chooses on the card;
+- self (`sequential`) — tasks in order in main; helper subagents work in
+  main without their own worktree and never commit;
+- orchestrator (`orchestrated`, main) — `assignment:next`,
+  `assignment:create --task <ID>`, a Claude subagent (Agent tool with
+  `isolation: "worktree"`) with the brief, `integration:start --id <id>
+  --source <sha>`, on CONFLICT or CHECKS_FAILED a fix within the task files
+  and `integration:continue --id <id>`; QUALITY and delivery in main, never
+  work or DOCS tasks;
+- executor (assignment worktree) — `assignment:attach <id>`, `task:start`,
+  work within the task files, `commit --task`, reply with the SHA; never
+  main, the plan or other tasks, no nested executors, no push;
+- agents never set the git identity (`git config user.*`); a
+  `GIT_IDENTITY_REQUIRED` refusal goes to the user with the command it
+  prints.
 
 ## Inspection (`installer-inspect.ts`)
 
@@ -218,7 +244,9 @@ Node built-ins only.
   idempotence of every managed part, byte-exact sections with CRLF, the
   CLAUDE line, foreign provider hooks kept, invalid JSON, own and husky git
   hooks, created files, the gitignore lines and gitattributes, manifest
-  hashes.
+  hashes; the Execution modes block (four roles, helpers in sequential,
+  integration commands, the identity rule, under 1800 bytes) and the Harness
+  note on proposing the scope.
 - `src/workflow-installer-install.test.mjs` — every folder state; a missing
   or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
   written; a global-only identity copied into the repository config (also

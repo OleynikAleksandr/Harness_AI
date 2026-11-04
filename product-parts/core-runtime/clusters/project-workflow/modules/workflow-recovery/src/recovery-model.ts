@@ -1,4 +1,5 @@
 import type { WorkflowPlan } from "../../workflow-plan/src/workflow-plan-facade.js";
+import type { RoleFacts } from "./recovery-roles.js";
 
 export const RECOVERY_SCHEMA = "harness-workflow-recovery/1";
 export const KIT_COMMAND = "scripts/workflow";
@@ -33,6 +34,8 @@ export interface RecoveryInput {
   quality: { stacks: string[]; status: string };
   /** Reads a project document by canonical path; null when absent. */
   readDocument: (path: string) => string | null;
+  /** Facts that decide the agent role; absent means the plan alone decides. */
+  roles?: RoleFacts;
   /** Task id → commit SHA of the completed tasks. */
   taskCommits: Record<string, string>;
   transaction: TransactionSummary | null;

@@ -8,6 +8,15 @@ import {
   type RecoveryInput,
   shortSha,
 } from "./recovery-model.js";
+import {
+  type AgentRole,
+  agentRole,
+  executorStep,
+  orchestratorStep,
+  planningStep,
+  roleRule,
+  roleStateLines,
+} from "./recovery-roles.js";
 
 const LIST_LIMIT = 40;
 const UPCOMING = 3;
@@ -66,15 +75,16 @@ export function stateSection(input: RecoveryInput): string {
     `head: ${shortSha(input.head)}`,
     `transaction: ${transaction}`,
     `event: ${input.event}`,
+    ...roleStateLines(input),
     ...(input.warnings ?? []).map((warning) => `warning: ${warning}`),
   ].join("\n");
 }
 
-export function nextSection(input: RecoveryInput): string {
+function nextStep(input: RecoveryInput, role: AgentRole): string {
   const { plan } = input;
   const scope = plan.scope;
   if (!scope) {
-    return "No active scope. Agree a new scope with the user, then create it.";
+    return planningStep(input);
   }
   if (input.transaction) {
     return `A commit transaction is unfinished: run \`${KIT_COMMAND} repair\` before anything else.`;
@@ -82,11 +92,17 @@ export function nextSection(input: RecoveryInput): string {
   if (scope.status === "BLOCKED") {
     return `BLOCKED: ${scope.blockedReason ?? "no reason recorded"}. Resolve it with the user, then unblock.`;
   }
+  if (role === "executor") {
+    return executorStep(input);
+  }
   if (scope.delivery === "READY_FOR_ACCEPTANCE") {
     return "Scope is READY_FOR_ACCEPTANCE: ask the user to accept the result or report defects.";
   }
   if (scope.delivery === "ACCEPTED") {
     return "Scope is ACCEPTED: the user decides when to close it.";
+  }
+  if (role === "orchestrator") {
+    return orchestratorStep(input);
   }
   const task = focusTask(plan);
   if (!task) {
@@ -96,9 +112,15 @@ export function nextSection(input: RecoveryInput): string {
     return `Continue ${task.id}: ${task.title}`;
   }
   if (task.kind === "delivery") {
-    return `Next task ${task.id} is delivery: ask the user to confirm it, then \`${KIT_COMMAND} task:start ${task.id} --confirm "<user confirmation>"\`.`;
+    return `Next task ${task.id} is delivery: ask the user to confirm it, then \`${KIT_COMMAND} task:start ${task.id} --confirmed "<user confirmation>"\`.`;
   }
   return `Start ${task.id} via \`${KIT_COMMAND} task:start ${task.id}\`: ${task.title}`;
+}
+
+/** The next step for the session's role, followed by the role rule. */
+export function nextSection(input: RecoveryInput): string {
+  const role = agentRole(input);
+  return `${nextStep(input, role)}\n${roleRule(role)}`;
 }
 
 export function objectiveSection(input: RecoveryInput): string {

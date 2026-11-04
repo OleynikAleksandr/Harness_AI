@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 59,
+  "revision": 61,
   "rounds": [
     {
       "digest": null,
@@ -436,14 +436,22 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-sections.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-roles.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-sections.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-sections.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-gather.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-roles.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-worktree.test.mjs"
       ],
       "fixes": null,
       "id": "E10",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Agent roles in recovery and AGENTS",
       "why": "Agents must follow the planning, self, orchestrator and executor roles"
     },
@@ -847,8 +855,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 14/22
-- Revision: 59
+- Progress: 15/22
+- Revision: 61
 
 ## Objective
 
@@ -900,9 +908,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: integrate executor results into main
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-merge.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-journal.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-journal.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-merge.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-integration.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-context.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-integration.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-transitions.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-execution.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts
   - Depends on: E7, E8
-- [TODO] E10 — Agent roles in recovery and AGENTS (work)
+- [DONE] E10 — Agent roles in recovery and AGENTS (work)
   - Commit: feat: teach agents the execution roles
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-sections.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-roles.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-sections.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-sections.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-roles.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-sections.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-gather.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-roles.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-worktree.test.mjs
   - Depends on: E4, E9
 - [TODO] E11 — Kit status and autopilot for orchestration (work)
   - Commit: feat: report orchestration in kit status and autopilot

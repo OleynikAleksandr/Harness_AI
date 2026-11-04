@@ -11,6 +11,7 @@ import type {
   RecoveryInput,
   TransactionSummary,
 } from "./recovery-model.js";
+import { gatherRoleFacts } from "./recovery-roles.js";
 import { focusTask } from "./recovery-sections.js";
 
 export interface GatherNotes {
@@ -107,6 +108,13 @@ export function gatherRecovery(
     plan,
     quality: { stacks: config.quality.stacks, status: config.quality.status },
     readDocument: (file) => readDocument(root, file),
+    roles: gatherRoleFacts(
+      git,
+      root,
+      plan,
+      config.host === "harness",
+      notes.warnings
+    ),
     taskCommits: repository ? taskCommits(git, root, plan, notes) : {},
     transaction: repository ? transaction(git, root) : null,
     verification: evidence

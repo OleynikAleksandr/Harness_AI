@@ -4,7 +4,9 @@
 
 The bounded recovery packet of the Workflow Kit: the working set an agent
 needs to continue the plan after a new session, `/clear` or compaction. Its
-size depends on the current task, not on the length of the plan.
+size depends on the current task, not on the length of the plan. It names
+the agent role of the session (planning, self, orchestrator, executor) and
+the next step of that role.
 
 It also answers the provider SessionStart hook and the on-demand
 `show-task` and `history` commands.
@@ -19,14 +21,18 @@ environment.
 
 - `build(input)` assembles the packet from gathered state. `RecoveryInput`:
   `{event, plan, quality {status, stacks}, budgetBytes, head, transaction,
-  changes, taskCommits, verification, readDocument(path)}`.
+  changes, taskCommits, verification, readDocument(path), roles?}`;
+  `roles` are the role facts below (absent: the plan alone decides).
 - Sections in priority order (`*` — mandatory):
   1. `state`* — project, scope, revision, scope and result status, quality
-     profile, HEAD, transaction, event;
-  2. `next`* — one instruction: no scope, unfinished transaction (`repair`),
-     `BLOCKED: <reason>`, `READY_FOR_ACCEPTANCE`, `ACCEPTED`, continue the
-     task in progress, start the next ready task, or confirm a `delivery`
-     task with the user first;
+     profile, HEAD, transaction, event, the agent role (see Roles);
+  2. `next`* — the step for the role, then one `Role <role>: …` rule line.
+     In order: no scope (the planning step), unfinished transaction
+     (`repair`), `BLOCKED: <reason>`, the executor step (an executor
+     worktree), `READY_FOR_ACCEPTANCE`, `ACCEPTED`, the orchestrator step
+     (orchestrated main), otherwise (role self) continue the task in
+     progress, start the next ready task, or confirm a `delivery` task with
+     the user first (`task:start <ID> --confirmed "…"`);
   3. `objective`* — scope objective and acceptance criteria;
   4. `task`* — the current task, or the next ready one, in full; a `fixes`
      task shows the original task and its short SHA;
@@ -62,6 +68,74 @@ environment.
   text}`.
 - `section(text, heading)` returns a Markdown section or `null`.
 
+## Roles (`recovery-roles.ts`, spec section 9)
+
+Role facts (`RoleFacts`): `{harness, proposal, executor, unattachedWorktree,
+assignments, integration}`, gathered by `gatherRoleFacts(git, root, plan,
+harness, warnings)`:
+- `harness` — `config.host` is `harness`;
+- `executor` — the worktree record `.harness/workflow/local/assignment.json`
+  exists: `{id, taskId, status}`, the status read from the main record
+  (`null` without it); nothing else is gathered then;
+- without a scope: `proposal` — `{generation, recommended, refining}` of the
+  stored scope proposal, or `null`;
+- an orchestrated scope: `unattachedWorktree` — this checkout is a linked
+  worktree (`locateWorktree` succeeds) without a worktree record; otherwise
+  (main) `assignments` — the records of the scope that are active plus every
+  record with cleanup `PENDING`, as `{id, scopeId, taskId, status, worktree,
+  sourceCommit, cleanupPending}` — and `integration` — the integration
+  journal `.harness/workflow/local/integration.json` of `integration:start`
+  as `{assignmentId, phase}` (`assignmentId`, else `id`; an unreadable
+  journal is phase `UNKNOWN`);
+- an unreadable record becomes a `state` warning and empty facts.
+
+`agentRole(input)`: `executor` with an executor record or an unattached
+worktree; `planning` without a scope; `orchestrator` for strategy
+`orchestrated`; otherwise `self`.
+
+`state` lines: `role: planning|self`; `role: executor (assignment <id>, task
+<ID>, <status>)` or `role: executor (not attached)` — only the own task, no
+assignment list; in orchestrated main `role: orchestrator`, `assignments:`
+(`none`, or one `- <id> <task> <status> <worktree|not attached>[, cleanup
+PENDING]` line each) and `integration: <id> <phase>|none`. Every list holds
+at most 10 items, then `… N more`.
+
+Steps:
+- planning: a pending proposal — `No active scope: the scope proposal
+  (generation N, recommended M) is waiting for the user's choice on the
+  card`, end the turn; after `refine` — discuss, update spec and plan, then
+  `scope:propose` again; otherwise in a Harness project write the spec and
+  a plan with `parallelSafe` labels, `scope:propose --input <plan.json>
+  --recommended sequential|orchestrated --reason "<why>"` and end the turn;
+  without Harness `scope:create --input <plan.json>`;
+- executor: not attached — `assignment:attach <id>` with the id from the
+  brief; task `DONE` — report the SHA (`taskCommits`) and end the turn;
+  `IN_PROGRESS` — continue, then `commit --task <ID>` (`--digest` for DOCS);
+  record `NEEDS_SETUP` — `assignment:setup`, then `task:start`; otherwise
+  `task:start <ID>`, commit, report the SHA;
+- orchestrator: an integration journal comes alone — `CONFLICT` and
+  `CHECKS_FAILED` name fixing within the task files and
+  `integration:continue --id <id>`, other phases finishing with it (and
+  `integration:status`); otherwise, in this order: `Integrate first, one at
+  a time:` with `integration:start --id <id> --source <short sha>` for each
+  `READY_FOR_INTEGRATION` record; the main task in progress (`Continue <ID>
+  in main`) or a ready QUALITY task (`task:start` in main) or a delivery
+  task once every other task is `DONE` and no assignment is active; the
+  scheduler's `ready` tasks to hand out (`assignment:create --task <ID>`, a
+  Claude subagent with `isolation: "worktree"` and the brief, wait for the
+  SHA); when none of these applies, `Waiting for executors: <id> (<task>,
+  <status>), …`; then `Finish cleanups: assignment:cleanup --id <id>` for
+  pending cleanups; with nothing at all `No task is ready`.
+- Rule lines: planning — spec, labels, no functional changes before the
+  scope, end the turn after proposing; self — tasks in order in main,
+  helper subagents work in main without their own worktree and never
+  commit, no assignments; orchestrator — work and DOCS tasks go to
+  executors and their SHAs to `integration:start`, never implemented in
+  main, QUALITY and delivery in main, CONFLICT/CHECKS_FAILED fixed within
+  the task files then `integration:continue`; executor — only this worktree
+  and paths equal to or nested in the task files, never main, the plan or
+  other tasks, no nested executors, no push.
+
 ## Project Commands (`recovery-gather.ts`, `recovery-commands.ts`)
 
 - `gather(root, event)` reads:
@@ -71,6 +145,7 @@ environment.
     in progress (its declared files and Kit-managed paths are left out) and
     the commit of every done task;
   - the last verification evidence;
+  - the role facts (`gatherRoleFacts`);
   - documents through `readDocument`, inside the project only.
   Problems that do not stop the packet become `warnings` shown in the
   `state` section: not a git repository, inconsistent commit references.
@@ -96,7 +171,10 @@ environment.
 
 - `workflow-plan` — plan types, reading the plan.
 - `workflow-git` — HEAD, changes, history, journal, commit references.
-- `workflow-quality` — configuration and verification evidence.
+- `workflow-quality` — configuration (`host`) and verification evidence.
+- `workflow-assignment` — assignment records, the worktree record,
+  `locateWorktree`, the scheduler.
+- `workflow-execution-mode` — the stored scope proposal.
 - `workflow-platform` — files inside the project, `WorkflowError`.
 
 Node built-ins only.
@@ -106,6 +184,17 @@ Node built-ins only.
 - `src/workflow-recovery-packet.test.mjs` — full packet, tight and tiny
   budgets, heading sections, task truncation, every `next` variant, heading
   extraction.
+- `src/workflow-recovery-roles.test.mjs` — every role and step from built
+  inputs: planning (Harness, without Harness, pending proposal, refine, no
+  facts), self, orchestrator (state lines, integrate first, hand out,
+  cleanups, every integration phase, waiting, QUALITY, delivery), executor
+  (state, setup, start, continue, report, acceptance of the executor plan
+  ignored, not attached) and a bounded list within a 3000-byte budget.
+- `src/workflow-recovery-worktree.test.mjs` — a real repository through the
+  Kit: planning, the pending proposal, the orchestrator before and after
+  QUALITY and with an assignment, an executor worktree before and after
+  `assignment:attach`, its started and committed task, and main asking to
+  integrate the reported SHA.
 - `src/workflow-recovery-project.test.mjs` — a git project: packet without
   a repository, changes outside the task, JSON output, the SessionStart
   hook with and without host delivery and with a broken plan, `show-task`,

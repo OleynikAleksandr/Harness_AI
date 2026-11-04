@@ -63,16 +63,38 @@ through install) get it from `identityTemplate(folder)`, passed as
   - the email is `you@example.com` or has no `@`;
   - the email domain is `example`, `example.<anything>`, `invalid`,
     `*.invalid` or `localhost`.
+- `isUsableIdentity({name, email})` is the one validator, used when an
+  identity is set and when it is read. After trimming:
+  - the name must not be empty and must not contain quotes of any kind
+    (`"`, `'`, `` ` ``, `“`, `”`, `„`, `‘`, `’`, `‚`, `«`, `»`, `‹`, `›`) or
+    angle brackets (`GIT_IDENTITY_INVALID`, `details.field: "name"`);
+  - the email must look like `local@domain.tld`: exactly one `@`, no
+    whitespace, quotes or angle brackets, a dot in the domain
+    (`GIT_IDENTITY_INVALID`, `details.field: "email"`);
+  - then a placeholder name or email (`isPlaceholderIdentity`) is
+    `GIT_IDENTITY_PLACEHOLDER` with the field.
+  The refusals carry only the message and `details.field`, no next action.
 - `resolveIdentity(root)` returns the local identity, else the global one,
-  skipping placeholders, as `{name, email, source: "local" | "global"}`, or
-  `null`.
-- `writeLocalIdentity(root, identity)` writes the trimmed identity to the
-  repository-local config; a placeholder fails with
-  `GIT_IDENTITY_PLACEHOLDER` and nothing is written.
-- `identityFix` is the fix text of every identity refusal (this module's
-  and the installer's): run once `git config --global user.name …` and
-  `git config --global user.email …`, then `scripts/workflow doctor --fix`
-  applies it to the project.
+  skipping unusable ones, as `{name, email, source: "local" | "global"}`,
+  or `null`. A configured identity that is invalid (for example an email in
+  typographic quotes) counts like a placeholder.
+- `writeLocalIdentity(root, identity)` validates and writes the trimmed
+  identity to the repository-local config; a refusal writes nothing.
+- `writeGlobalIdentity(cwd, identity)` validates and writes the trimmed
+  identity with `git config --global user.name/user.email` and returns it;
+  it needs no repository (the Kit command `identity:set --global`). The
+  global config is whatever git reads (`HOME`, `XDG_CONFIG_HOME`,
+  `GIT_CONFIG_GLOBAL` of the runner environment); tests point them at
+  temporary files.
+- `identityRequired(configured, suffix?)` builds the `GIT_IDENTITY_REQUIRED`
+  refusal of this module and of the installer. The message names the
+  problem once: `The Workflow Kit needs a real git name and email for its
+  commits; none is set.` or `...; the configured one is a placeholder or
+  invalid.` plus the optional suffix. `details.placeholder` is true when an
+  identity is configured. The terminal commands are only in `nextAction`.
+- `identityFix` is that next action: run once `git config --global
+  user.name …` and `git config --global user.email …`, then
+  `scripts/workflow doctor --fix` applies it to the project.
 
 ## Task Files (`git-task-files.ts`)
 
@@ -124,9 +146,9 @@ Steps:
      `sourceCommit` is `MERGE_IN_PROGRESS`, an integration without the merge
      of its source is `MERGE_REQUIRED`;
    - the index holds files outside the operation (`FOREIGN_STAGED`);
-   - the repository-local identity is missing or a placeholder
-     (`GIT_IDENTITY_REQUIRED`). The global identity is never used here. The
-     message and the next action name the one-time fix:
+   - the repository-local identity is missing, a placeholder or invalid
+     (`GIT_IDENTITY_REQUIRED` from `identityRequired`). The global identity
+     is never used here. Only the next action names the one-time fix:
      `git config --global user.name "Your Real Name"`,
      `git config --global user.email "you@your-domain"`, then
      `scripts/workflow doctor --fix` applies it to the project.

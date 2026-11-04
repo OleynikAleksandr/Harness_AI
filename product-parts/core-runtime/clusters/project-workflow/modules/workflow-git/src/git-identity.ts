@@ -1,7 +1,4 @@
-import {
-  ensure,
-  WorkflowError,
-} from "../../workflow-platform/src/workflow-platform-facade.js";
+import { WorkflowError } from "../../workflow-platform/src/workflow-platform-facade.js";
 import type { GitRunner } from "./git-runner.js";
 
 export interface GitIdentity {
@@ -22,6 +19,22 @@ const PLACEHOLDER_DOMAINS = new Set(["example", "invalid", "localhost"]);
 /** The fix every identity refusal names: set a real global identity once. */
 export const IDENTITY_FIX_COMMANDS =
   'Run once: `git config --global user.name "Your Real Name"` and `git config --global user.email "you@your-domain"`; then `scripts/workflow doctor --fix` applies it to the project.';
+
+type IdentityField = "email" | "name";
+
+/** Why an identity cannot sign Kit commits; null when it can. */
+interface IdentityProblem {
+  code: "GIT_IDENTITY_INVALID" | "GIT_IDENTITY_PLACEHOLDER";
+  field: IdentityField;
+  message: string;
+}
+
+/** Straight, typographic and backtick quotes of any kind. */
+const QUOTES =
+  /["'`\u2018\u2019\u201A\u201C\u201D\u201E\u00AB\u00BB\u2039\u203A]/u;
+const ANGLE_BRACKETS = /[<>]/u;
+/** `local@domain.tld`: exactly one `@`, no whitespace, a dot in the domain. */
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
 
 function isPlaceholderDomain(domain: string): boolean {
   return (
@@ -46,6 +59,84 @@ export function isPlaceholderIdentity(identity: GitIdentity): boolean {
   return at < 0 || isPlaceholderDomain(email.slice(at + 1));
 }
 
+/**
+ * The single identity validator (setting and reading alike): the name is
+ * not empty and has no quotes or angle brackets; the email looks like
+ * `local@domain.tld` without whitespace, quotes or angle brackets; then
+ * placeholders are refused.
+ */
+function identityProblem(identity: GitIdentity): IdentityProblem | null {
+  const name = identity.name.trim();
+  const email = identity.email.trim();
+  if (name === "" || QUOTES.test(name) || ANGLE_BRACKETS.test(name)) {
+    return {
+      code: "GIT_IDENTITY_INVALID",
+      field: "name",
+      message:
+        "The git name must not be empty and must not contain quotes or angle brackets.",
+    };
+  }
+  if (
+    QUOTES.test(email) ||
+    ANGLE_BRACKETS.test(email) ||
+    !EMAIL_SHAPE.test(email)
+  ) {
+    return {
+      code: "GIT_IDENTITY_INVALID",
+      field: "email",
+      message:
+        "The git email must look like name@domain.tld, without spaces, quotes or angle brackets.",
+    };
+  }
+  if (PLACEHOLDER_NAMES.has(name.toLowerCase())) {
+    return {
+      code: "GIT_IDENTITY_PLACEHOLDER",
+      field: "name",
+      message: `"${name}" is a placeholder git name; use your real name.`,
+    };
+  }
+  if (isPlaceholderIdentity({ email, name })) {
+    return {
+      code: "GIT_IDENTITY_PLACEHOLDER",
+      field: "email",
+      message: `${email} is a placeholder git email; use your real address.`,
+    };
+  }
+  return null;
+}
+
+/** True when the identity passes `identityProblem` and may sign Kit commits. */
+export function isUsableIdentity(identity: GitIdentity): boolean {
+  return identityProblem(identity) === null;
+}
+
+/** The trimmed identity; throws GIT_IDENTITY_INVALID or GIT_IDENTITY_PLACEHOLDER. */
+function validateIdentity(identity: GitIdentity): GitIdentity {
+  const problem = identityProblem(identity);
+  if (problem) {
+    throw new WorkflowError(problem.code, problem.message, {
+      field: problem.field,
+    });
+  }
+  return { email: identity.email.trim(), name: identity.name.trim() };
+}
+
+/**
+ * GIT_IDENTITY_REQUIRED: the message names the problem once; the terminal
+ * fix is only the next action.
+ */
+export function identityRequiredError(
+  configured: boolean,
+  suffix = ""
+): WorkflowError {
+  return new WorkflowError(
+    "GIT_IDENTITY_REQUIRED",
+    `The Workflow Kit needs a real git name and email for its commits; ${configured ? "the configured one is a placeholder or invalid" : "none is set"}.${suffix}`,
+    { placeholder: configured },
+    IDENTITY_FIX_COMMANDS
+  );
+}
+
 /** Identity stored in one config file only (`--local` or `--global`); null when incomplete. */
 export function readScopedIdentity(
   git: GitRunner,
@@ -61,55 +152,56 @@ export function readScopedIdentity(
   return name && email ? { email, name } : null;
 }
 
-/** The repository-local identity, else the global one; placeholders are skipped. */
+/** The repository-local identity, else the global one; unusable ones are skipped. */
 export function resolveIdentity(
   git: GitRunner,
   root: string
 ): ResolvedIdentity | null {
   for (const source of ["local", "global"] as const) {
     const identity = readScopedIdentity(git, root, source);
-    if (identity && !isPlaceholderIdentity(identity)) {
+    if (identity && isUsableIdentity(identity)) {
       return { ...identity, source };
     }
   }
   return null;
 }
 
-/** Writes a real identity into the repository-local config. */
+/** Writes a validated identity into the repository-local config. */
 export function writeLocalIdentity(
   git: GitRunner,
   root: string,
   identity: GitIdentity
 ): void {
-  ensure(
-    !isPlaceholderIdentity(identity),
-    "GIT_IDENTITY_PLACEHOLDER",
-    `"${identity.name} <${identity.email}>" is a placeholder git identity.`,
-    {},
-    IDENTITY_FIX_COMMANDS
-  );
-  git.run(root, ["config", "--local", "user.name", identity.name.trim()]);
-  git.run(root, ["config", "--local", "user.email", identity.email.trim()]);
+  const valid = validateIdentity(identity);
+  git.run(root, ["config", "--local", "user.name", valid.name]);
+  git.run(root, ["config", "--local", "user.email", valid.email]);
+}
+
+/** Validates the identity and writes it into the global git config. */
+export function writeGlobalIdentity(
+  git: GitRunner,
+  cwd: string,
+  identity: GitIdentity
+): GitIdentity {
+  const valid = validateIdentity(identity);
+  git.run(cwd, ["config", "--global", "user.name", valid.name]);
+  git.run(cwd, ["config", "--global", "user.email", valid.email]);
+  return valid;
 }
 
 /**
  * The repository-local identity every Kit commit is signed with; fails with
- * GIT_IDENTITY_REQUIRED when it is missing or a placeholder.
+ * GIT_IDENTITY_REQUIRED when it is missing, a placeholder or invalid.
  */
 export function requireCommitIdentity(
   git: GitRunner,
   root: string
 ): GitIdentity {
   const identity = readScopedIdentity(git, root, "local");
-  if (identity && !isPlaceholderIdentity(identity)) {
+  if (identity && isUsableIdentity(identity)) {
     return identity;
   }
-  throw new WorkflowError(
-    "GIT_IDENTITY_REQUIRED",
-    `Kit commits need a real git identity in the repository config; ${identity ? "the configured one is a placeholder" : "none is set"}. ${IDENTITY_FIX_COMMANDS}`,
-    { placeholder: identity !== null },
-    IDENTITY_FIX_COMMANDS
-  );
+  throw identityRequiredError(identity !== null);
 }
 
 /** `-c` arguments that pass an identity to one git command explicitly. */

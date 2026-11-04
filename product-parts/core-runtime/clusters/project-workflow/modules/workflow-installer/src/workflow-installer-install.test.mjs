@@ -116,8 +116,29 @@ process.exitCode = runCli(process.argv.slice(2), {
     refusal = error;
   }
   assert.equal(refusal.code, "GIT_IDENTITY_REQUIRED");
+  // The problem is named once; the terminal commands are only the next action.
+  assert.equal(
+    refusal.message,
+    "The Workflow Kit needs a real git name and email for its commits; the configured one is a placeholder or invalid. Nothing was written."
+  );
   assert.match(refusal.nextAction, /git config --global user\.name/u);
   assert.match(refusal.nextAction, /git config --global user\.email/u);
+  assert.deepEqual(readdirSync(untouched), ["notes.txt"]);
+  // A global email in typographic quotes is invalid and refused the same way.
+  writeFileSync(
+    at("quoted-gitconfig"),
+    "[user]\n\tname = Real Person\n\temail = \u201Creal@harness-ai.test\u201D\n"
+  );
+  const quoted = new WorkflowInstallerFacade(
+    new WorkflowGitFacade(undefined, {
+      ...env,
+      GIT_CONFIG_GLOBAL: at("quoted-gitconfig"),
+    })
+  );
+  assert.equal(
+    code(() => quoted.install(untouched, options)),
+    "GIT_IDENTITY_REQUIRED"
+  );
   assert.deepEqual(readdirSync(untouched), ["notes.txt"]);
 
   const installed = installer.install(fresh, { ...options, name: "Fresh App" });

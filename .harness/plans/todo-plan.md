@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 88,
+  "revision": 90,
   "rounds": [
     {
       "digest": null,
@@ -69,14 +69,24 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-identity.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-identity.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-identity.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-identity.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts"
       ],
       "fixes": null,
       "id": "G1",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Kit identity:set and identity validation",
       "why": "The identity must be set without a terminal, quoted emails were accepted and the refusal text repeated the commands"
     },
@@ -438,8 +448,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 5/13
-- Revision: 88
+- Progress: 6/13
+- Revision: 90
 
 ## Objective
 
@@ -458,9 +468,9 @@ Fix the defects found in the execution modes release (git identity form instead 
 
 ### R1 — Implementation (implementation, OPEN)
 
-- [TODO] G1 — Kit identity:set and identity validation (work)
+- [DONE] G1 — Kit identity:set and identity validation (work)
   - Commit: feat: set and validate git identity through the kit
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-identity.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-identity.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-identity.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-identity.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-identity.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts
 - [TODO] G2 — Core identity route (work)
   - Commit: feat: route git identity through core
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts

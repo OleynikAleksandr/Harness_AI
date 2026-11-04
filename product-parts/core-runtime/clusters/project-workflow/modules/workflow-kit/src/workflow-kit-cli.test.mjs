@@ -8,6 +8,9 @@ import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-
 
 const build = await buildWorkflowModules(["workflow-kit"], "workflow-kit-cli");
 const root = mkdtempSync(path.join(tmpdir(), "workflow-kit-cli-"));
+const identitySandbox = mkdtempSync(
+  path.join(tmpdir(), "workflow-kit-cli-identity-")
+);
 try {
   const { runCli } = await build.load("workflow-kit", "workflow-kit-cli.js");
   const { WorkflowKitFacade } = await build.load(
@@ -178,7 +181,114 @@ try {
   });
   assert.equal(direct.status, 0, direct.stderr);
   assert.equal(JSON.parse(direct.stdout).result.scope.id, "cli-1");
+
+  // identity:set writes the global config of a temporary home only, in a
+  // folder that is not a project.
+  const home = path.join(identitySandbox, "home");
+  const outside = path.join(identitySandbox, "outside");
+  mkdirSync(home);
+  mkdirSync(outside);
+  const globalConfig = path.join(home, "gitconfig");
+  const identityEnv = {
+    ...env,
+    GIT_CONFIG_GLOBAL: globalConfig,
+    HOME: home,
+    XDG_CONFIG_HOME: home,
+  };
+  const identityGit = new WorkflowGitFacade(undefined, identityEnv);
+  const identityKit = new WorkflowKitFacade({
+    env: identityEnv,
+    git: identityGit,
+  });
+  const setIdentity = (argv) => {
+    const out = { stdout: "" };
+    const exit = runCli(
+      ["identity:set", ...argv],
+      {
+        cwd: outside,
+        env: identityEnv,
+        readStdin: () => "",
+        stderr: () => undefined,
+        stdout: (text) => {
+          out.stdout += text;
+        },
+      },
+      identityKit
+    );
+    return { code: exit, envelope: JSON.parse(out.stdout) };
+  };
+  const refused = (argv) => {
+    const result = setIdentity(argv);
+    assert.equal(result.code, 1);
+    return [result.envelope.code, result.envelope.details?.field ?? null];
+  };
+  assert.deepEqual(
+    refused(["--name", "Real Person", "--email", "real@harness-ai.test"]),
+    ["USAGE", null]
+  );
+  // Missing or empty values are the validator's refusal, with the field.
+  assert.deepEqual(refused(["--name", "Real Person", "--global"]), [
+    "GIT_IDENTITY_INVALID",
+    "email",
+  ]);
+  assert.deepEqual(
+    refused(["--name=", "--email=real@harness-ai.test", "--global"]),
+    ["GIT_IDENTITY_INVALID", "name"]
+  );
+  assert.deepEqual(
+    refused([
+      "--name",
+      "Real Person",
+      "--email",
+      "\u201Creal@harness-ai.test\u201D",
+      "--global",
+    ]),
+    ["GIT_IDENTITY_INVALID", "email"]
+  );
+  assert.deepEqual(
+    refused([
+      "--name",
+      "Your Name",
+      "--email",
+      "real@harness-ai.test",
+      "--global",
+    ]),
+    ["GIT_IDENTITY_PLACEHOLDER", "name"]
+  );
+  assert.deepEqual(
+    refused([
+      "--name",
+      "Real Person",
+      "--email",
+      "you@example.com",
+      "--global",
+    ]),
+    ["GIT_IDENTITY_PLACEHOLDER", "email"]
+  );
+  assert.equal(identityGit.readIdentity(outside, "global"), null);
+  const saved = setIdentity([
+    "--name",
+    " Real Person ",
+    "--email",
+    "real@harness-ai.test",
+    "--global",
+  ]);
+  assert.equal(saved.code, 0);
+  assert.deepEqual(saved.envelope, {
+    command: "identity:set",
+    ok: true,
+    result: {
+      email: "real@harness-ai.test",
+      name: "Real Person",
+      scope: "global",
+    },
+  });
+  assert.deepEqual(identityGit.readIdentity(outside, "global"), {
+    email: "real@harness-ai.test",
+    name: "Real Person",
+  });
 } finally {
   rmSync(root, { force: true, recursive: true });
+  rmSync(identitySandbox, { force: true, recursive: true });
   await build.cleanup();
 }

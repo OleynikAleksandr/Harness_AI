@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { WorkflowPlan } from "../../workflow-plan/src/workflow-plan-facade.js";
 import {
+  type WorkflowError,
   type WorkflowPlatformFacade,
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
@@ -16,10 +17,13 @@ import {
   type GitIdentity,
   IDENTITY_FIX_COMMANDS,
   type IdentityScope,
+  identityRequiredError,
   isPlaceholderIdentity,
+  isUsableIdentity,
   type ResolvedIdentity,
   readScopedIdentity,
   resolveIdentity,
+  writeGlobalIdentity,
   writeLocalIdentity,
 } from "./git-identity.js";
 import { type CommitJournal, localPath, readJournal } from "./git-journal.js";
@@ -122,7 +126,7 @@ export class WorkflowGitFacade {
     return readScopedIdentity(this.git, root, scope);
   }
 
-  /** Local identity, else global; placeholders are skipped. */
+  /** Local identity, else global; unusable ones are skipped. */
   resolveIdentity(root: string): ResolvedIdentity | null {
     return resolveIdentity(this.git, root);
   }
@@ -131,9 +135,24 @@ export class WorkflowGitFacade {
     return isPlaceholderIdentity(identity);
   }
 
-  /** Writes a real identity to the repository-local config (GIT_IDENTITY_PLACEHOLDER otherwise). */
+  /** True when the identity is neither invalid nor a placeholder. */
+  isUsableIdentity(identity: GitIdentity): boolean {
+    return isUsableIdentity(identity);
+  }
+
+  /** The GIT_IDENTITY_REQUIRED refusal (message once, fix in nextAction). */
+  identityRequired(configured: boolean, suffix = ""): WorkflowError {
+    return identityRequiredError(configured, suffix);
+  }
+
+  /** Writes a validated identity to the repository-local config (GIT_IDENTITY_INVALID / GIT_IDENTITY_PLACEHOLDER otherwise). */
   writeLocalIdentity(root: string, identity: GitIdentity): void {
     writeLocalIdentity(this.git, root, identity);
+  }
+
+  /** `identity:set --global`: validates and writes `user.name` / `user.email` to the global config; returns the trimmed identity. */
+  writeGlobalIdentity(cwd: string, identity: GitIdentity): GitIdentity {
+    return writeGlobalIdentity(this.git, cwd, identity);
   }
 
   changes(root: string): WorkingTreeChanges {

@@ -20,6 +20,7 @@ import {
   ensureExecutorCommand,
 } from "./kit-cli-assignment.js";
 import { EXECUTION_COMMANDS } from "./kit-cli-execution.js";
+import { IDENTITY_COMMANDS } from "./kit-cli-identity.js";
 import { INTEGRATION_COMMANDS } from "./kit-cli-integration.js";
 import { renderText } from "./kit-cli-text.js";
 import {
@@ -82,6 +83,7 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
   ...EXECUTION_COMMANDS,
   ...ASSIGNMENT_COMMANDS,
   ...INTEGRATION_COMMANDS,
+  ...IDENTITY_COMMANDS,
   "autopilot:status": {
     run: ({ kit, root }) => kit.autopilotStatus(root),
     usage: "autopilot:status",

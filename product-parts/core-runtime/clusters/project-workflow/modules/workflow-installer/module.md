@@ -123,14 +123,19 @@ path) reports `nestedIn` and action `unsupported`.
    `harness`;
 2. resolves the git identity before writing anything: the real
    repository-local one of an existing repository, else the real global one
-   (`isPlaceholderIdentity` of `workflow-git` skips placeholders; the global
-   config is read even when the folder does not exist yet). None fails with
-   `GIT_IDENTITY_REQUIRED` (`details.placeholder`; `nextAction` is the
-   `workflow-git` `identityFix` text with the two `git config --global`
-   commands) and nothing is created or written;
+   (`isUsableIdentity` of `workflow-git` skips placeholders and invalid
+   identities, such as an email in quotes; the global config is read even
+   when the folder does not exist yet). None fails with the `workflow-git`
+   `identityRequired` refusal `GIT_IDENTITY_REQUIRED`: the message names the
+   problem once (`The Workflow Kit needs a real git name and email for its
+   commits; none is set.` or `...; the configured one is a placeholder or
+   invalid.`, then `Nothing was written.`), `details.placeholder`, and only
+   `nextAction` holds the `identityFix` text with the two `git config
+   --global` commands. Nothing is created or written;
 3. creates the folder and runs `git init` (branch `main`) when needed, then
    writes the resolved identity into the repository-local config unless
-   that config already holds a real one (a placeholder is replaced). Every
+   that config already holds a usable one (a placeholder or invalid one is
+   replaced). Every
    worktree reads that config, and the bootstrap commit is signed with it;
 4. reads the local `core.hooksPath`: a path inside the project gets hook
    sections; none means own hooks in `.harness/workflow/hooks` and
@@ -171,7 +176,7 @@ Each check is `{id, status ok|warn|fail, message, fixable, nextAction}`:
 | `plan` | the plan is missing, unreadable or disagrees with the history | no (`repair`) |
 | `transaction` | a commit transaction is unfinished | no (`repair`) |
 | `runtime` | no Node.js 22+ runtime for the launchers (`probe` injectable) | no |
-| `git-identity` | the repository-local identity is missing or a placeholder | when the global identity is real |
+| `git-identity` | the repository-local identity is missing, a placeholder or invalid (`isUsableIdentity`) | when the global identity is real (usable) |
 | `quality-drift` | `warn` when detected stacks and the profile differ | no |
 
 `git-identity` reads only the repository-local config, because Kit commits

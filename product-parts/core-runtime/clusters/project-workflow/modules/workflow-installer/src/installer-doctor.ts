@@ -225,19 +225,19 @@ function planChecks(git: WorkflowGitFacade, root: string): DoctorCheck[] {
   return checks;
 }
 
-/** The real global identity, or null when it is missing or a placeholder. */
+/** The real global identity, or null when it is missing, a placeholder or invalid. */
 function realGlobalIdentity(
   git: WorkflowGitFacade,
   root: string
 ): GitIdentity | null {
   const global = git.readIdentity(root, "global");
-  return global && !git.isPlaceholderIdentity(global) ? global : null;
+  return global && git.isUsableIdentity(global) ? global : null;
 }
 
 /** Kit commits sign with the repository-local identity only. */
 function identityCheck(git: WorkflowGitFacade, root: string): DoctorCheck {
   const local = git.readIdentity(root, "local");
-  if (local && !git.isPlaceholderIdentity(local)) {
+  if (local && git.isUsableIdentity(local)) {
     return check(
       "git-identity",
       "ok",
@@ -245,7 +245,7 @@ function identityCheck(git: WorkflowGitFacade, root: string): DoctorCheck {
     );
   }
   const problem = local
-    ? `The repository git identity ${local.name} <${local.email}> is a placeholder.`
+    ? `The repository git identity ${local.name} <${local.email}> is a placeholder or invalid.`
     : "The repository config has no git identity.";
   const global = realGlobalIdentity(git, root);
   return global

@@ -303,7 +303,7 @@ managed hooks.
 - Any other name fails with `UNKNOWN_HOOK`; unexpected errors are reported
   with their code instead of a stack trace.
 
-## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`, `kit-cli-assignment.ts`, `kit-cli-integration.ts`)
+## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`, `kit-cli-assignment.ts`, `kit-cli-integration.ts`, `kit-cli-identity.ts`)
 
 - `runCli(argv, io, kit?)` returns the exit code; `io` is `{cwd, env,
   readStdin, stdout, stderr}`. The file runs `runCli` itself when it is the
@@ -326,6 +326,15 @@ managed hooks.
   `kit-cli-assignment.ts`), `integration:start --id <assignment> --source
   <sha>`, `integration:continue --id <assignment>`, `integration:status`
   (defined in `kit-cli-integration.ts`),
+  `identity:set --name <name> --email <email> --global` (defined in
+  `kit-cli-identity.ts`; `--global` is required, otherwise `USAGE`): the
+  `workflow-git` validator refuses an invalid name or email
+  (`GIT_IDENTITY_INVALID`; a missing or empty `--name` / `--email` is
+  invalid too) or a placeholder (`GIT_IDENTITY_PLACEHOLDER`),
+  both with `details.field` `name` or `email`; otherwise the trimmed
+  values are written with `git config --global` and the result is `{name,
+  email, scope: "global"}` (text: `identity: <name> <<email>> (global git
+  config)`). It needs no project and runs in any folder,
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,
   `close --scope --note`, `carryover --input`,
@@ -341,6 +350,8 @@ managed hooks.
   and record the running executable as the project runtime (`electron`
   mode under Electron).
   `--files` and `--stack` take a JSON list or a comma-separated list.
+  Boolean flags (no value): `--help`, `--fix`, `--dry-run`, `--global`,
+  `--update`.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
   (status, validation, inspection, recovery, task and history texts — status
   adds `execution: none|sequential|orchestrated (max <N> workers),
@@ -438,7 +449,10 @@ worktrees where noted):
   the text lines.
 - `src/workflow-kit-cli.test.mjs` — envelopes, inspection, `install
   --host`, text output, recovery events, SessionStart and git-hook
-  dispatch, the compiled program.
+  dispatch, the compiled program, and `identity:set` outside a project
+  (`USAGE` without `--global`, `GIT_IDENTITY_INVALID` for a missing,
+  empty or quoted value, `GIT_IDENTITY_PLACEHOLDER` with the field, the write to a
+  temporary `GIT_CONFIG_GLOBAL`).
 - The integration commands, busy refusals and the merge-aware hook are
   tested in `workflow-integration/src/workflow-integration-merge.test.mjs`.
 

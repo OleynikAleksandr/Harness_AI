@@ -84,6 +84,64 @@ try {
   assert.equal(placeholder("Real Person", "me@harness-ai.dev"), false);
   assert.equal(placeholder("Real Person", "me@notexample.com"), false);
 
+  // The one validator: shape first (GIT_IDENTITY_INVALID), then placeholders.
+  const problem = (name, email) => {
+    try {
+      git.writeGlobalIdentity(sandbox, { email, name });
+    } catch (error) {
+      return [error.code, error.details.field];
+    }
+    return "OK";
+  };
+  const INVALID = "GIT_IDENTITY_INVALID";
+  const PLACEHOLDER = "GIT_IDENTITY_PLACEHOLDER";
+  for (const [name, email, expected] of [
+    ["", "real@harness-ai.test", [INVALID, "name"]],
+    ["   ", "real@harness-ai.test", [INVALID, "name"]],
+    ['Real "Person"', "real@harness-ai.test", [INVALID, "name"]],
+    ["Real 'Person'", "real@harness-ai.test", [INVALID, "name"]],
+    ["\u201CReal\u201D", "real@harness-ai.test", [INVALID, "name"]],
+    ["\u00ABReal\u00BB", "real@harness-ai.test", [INVALID, "name"]],
+    ["Real `Person`", "real@harness-ai.test", [INVALID, "name"]],
+    ["Real <Person>", "real@harness-ai.test", [INVALID, "name"]],
+    ["Real Person", "", [INVALID, "email"]],
+    ["Real Person", "\u201Creal@harness-ai.test\u201D", [INVALID, "email"]],
+    ["Real Person", "\u201Ereal@harness-ai.test\u201D", [INVALID, "email"]],
+    ["Real Person", "\u2018real@harness-ai.test\u2019", [INVALID, "email"]],
+    ["Real Person", '"real@harness-ai.test"', [INVALID, "email"]],
+    ["Real Person", "<real@harness-ai.test>", [INVALID, "email"]],
+    ["Real Person", "real @harness-ai.test", [INVALID, "email"]],
+    ["Real Person", "real@harness ai.test", [INVALID, "email"]],
+    ["Real Person", "real@@harness-ai.test", [INVALID, "email"]],
+    ["Real Person", "a@b@harness-ai.test", [INVALID, "email"]],
+    ["Real Person", "@harness-ai.test", [INVALID, "email"]],
+    ["Real Person", "real@localhost", [INVALID, "email"]],
+    ["Real Person", "no-at-sign", [INVALID, "email"]],
+    ["Your Name", "real@harness-ai.test", [PLACEHOLDER, "name"]],
+    ["Ваше Имя", "real@harness-ai.test", [PLACEHOLDER, "name"]],
+    ["Real Person", "you@example.com", [PLACEHOLDER, "email"]],
+    ["Real Person", "me@example.org", [PLACEHOLDER, "email"]],
+    ["Real Person", "me@host.invalid", [PLACEHOLDER, "email"]],
+  ]) {
+    assert.deepEqual(problem(name, email), expected, `${name} <${email}>`);
+    assert.equal(git.isUsableIdentity({ email, name }), false);
+  }
+  // A refusal writes nothing.
+  assert.deepEqual(git.readIdentity(sandbox, "global"), GLOBAL);
+
+  // identity:set writes the trimmed identity to the global config only.
+  const fresh = { email: "fresh@harness-ai.test", name: "Fresh Person" };
+  assert.equal(git.isUsableIdentity(fresh), true);
+  assert.deepEqual(
+    git.writeGlobalIdentity(sandbox, {
+      email: ` ${fresh.email} `,
+      name: ` ${fresh.name} `,
+    }),
+    fresh
+  );
+  assert.deepEqual(git.readIdentity(sandbox, "global"), fresh);
+  setGlobal(GLOBAL);
+
   // Local and global identities are read separately.
   const root = path.join(sandbox, "repo");
   mkdirSync(root);
@@ -102,6 +160,10 @@ try {
   assert.deepEqual(git.resolveIdentity(root), { ...GLOBAL, source: "global" });
   setGlobal({ email: "me@example.com", name: "Ваше Имя" });
   assert.equal(git.resolveIdentity(root), null);
+  // A global email in typographic quotes is not usable either.
+  setGlobal({ email: "\u201Cme@harness-ai.test\u201D", name: "Real Person" });
+  assert.equal(git.resolveIdentity(root), null);
+  setGlobal({ email: "me@example.com", name: "Ваше Имя" });
 
   // Kit commits refuse a placeholder or missing local identity before writing.
   const commit = () =>
@@ -122,14 +184,23 @@ try {
     failure = error;
   }
   assert.equal(failure?.code, "GIT_IDENTITY_REQUIRED");
-  assert.match(failure.message, /placeholder/u);
+  // The message names the problem once; the commands are only the next action.
+  assert.equal(
+    failure.message,
+    "The Workflow Kit needs a real git name and email for its commits; the configured one is a placeholder or invalid."
+  );
+  assert.equal(failure.message.includes("git config"), false);
   assert.ok(
-    failure.message.includes('git config --global user.name "Your Real Name"')
+    failure.nextAction.includes(
+      'git config --global user.name "Your Real Name"'
+    )
   );
   assert.ok(
-    failure.message.includes('git config --global user.email "you@your-domain"')
+    failure.nextAction.includes(
+      'git config --global user.email "you@your-domain"'
+    )
   );
-  assert.ok(failure.message.includes("scripts/workflow doctor --fix"));
+  assert.ok(failure.nextAction.includes("scripts/workflow doctor --fix"));
   assert.equal(existsSync(path.join(root, PLAN)), false);
   assert.equal(existsSync(git.localPath(root)), false);
   assert.equal(git.transactions.journal(root), null);
@@ -138,9 +209,28 @@ try {
   git.git.run(root, ["config", "--local", "--unset", "user.name"]);
   git.git.run(root, ["config", "--local", "--unset", "user.email"]);
   setGlobal(GLOBAL);
-  assert.equal(code(commit), "GIT_IDENTITY_REQUIRED");
+  let missing = null;
+  try {
+    commit();
+  } catch (error) {
+    missing = error;
+  }
+  assert.equal(missing?.code, "GIT_IDENTITY_REQUIRED");
+  assert.equal(
+    missing.message,
+    "The Workflow Kit needs a real git name and email for its commits; none is set."
+  );
+  assert.deepEqual(missing.details, { placeholder: false });
   assert.equal(existsSync(path.join(root, PLAN)), false);
   assert.equal(git.head(root), null);
+
+  // An invalid (quoted) local identity is refused like a placeholder.
+  git.setConfig(root, "user.name", "Real Person");
+  git.setConfig(root, "user.email", "\u201Creal@harness-ai.test\u201D");
+  assert.equal(code(commit), "GIT_IDENTITY_REQUIRED");
+  assert.deepEqual(git.resolveIdentity(root), { ...GLOBAL, source: "global" });
+  git.git.run(root, ["config", "--local", "--unset", "user.name"]);
+  git.git.run(root, ["config", "--local", "--unset", "user.email"]);
 
   // writeLocalIdentity refuses placeholders and stores a real identity.
   assert.equal(

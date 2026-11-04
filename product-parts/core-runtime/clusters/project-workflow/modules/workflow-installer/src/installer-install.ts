@@ -220,8 +220,9 @@ function writeState(
 
 /**
  * The identity the bootstrap commit will be signed with: the real local one
- * of an existing repository, else the real global one. Fails with
- * GIT_IDENTITY_REQUIRED before anything is written.
+ * of an existing repository, else the real global one (placeholders and
+ * invalid ones are skipped). Fails with GIT_IDENTITY_REQUIRED before
+ * anything is written.
  */
 function requireInstallIdentity(
   git: WorkflowGitFacade,
@@ -229,7 +230,7 @@ function requireInstallIdentity(
   repository: boolean
 ): GitIdentity {
   const local = repository ? git.readIdentity(root, "local") : null;
-  if (local && !git.isPlaceholderIdentity(local)) {
+  if (local && git.isUsableIdentity(local)) {
     return local;
   }
   // The global config does not depend on the directory; a new folder may not exist yet.
@@ -237,15 +238,10 @@ function requireInstallIdentity(
     existsSync(root) ? root : process.cwd(),
     "global"
   );
-  if (global && !git.isPlaceholderIdentity(global)) {
+  if (global && git.isUsableIdentity(global)) {
     return global;
   }
-  throw new WorkflowError(
-    "GIT_IDENTITY_REQUIRED",
-    `The Workflow Kit needs a real git identity for its commits; ${local || global ? "the configured one is a placeholder" : "none is set"}. Nothing was written. ${git.identityFix}`,
-    { placeholder: Boolean(local || global) },
-    git.identityFix
-  );
+  throw git.identityRequired(Boolean(local || global), " Nothing was written.");
 }
 
 function scopeOf(planText: string, legacy: boolean): string | null {
@@ -316,7 +312,7 @@ export function installKit(
   }
   // Every worktree reads the repository config, so all agents sign alike.
   const local = git.readIdentity(root, "local");
-  if (!local || git.isPlaceholderIdentity(local)) {
+  if (!(local && git.isUsableIdentity(local))) {
     git.writeLocalIdentity(root, identity);
   }
   const hooksPath = localHooksPath(git, root);

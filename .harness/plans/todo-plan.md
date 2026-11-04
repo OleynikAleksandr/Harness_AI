@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 28,
+  "revision": 29,
   "rounds": [
     {
       "digest": {
@@ -45,7 +45,10 @@
       "Right-click on a project in the project list offers Remove from Harness AI, which removes every app reference to it without touching the project folder",
       "A new macOS package is built and verified"
     ],
-    "acceptanceNote": null,
+    "acceptanceNote": {
+      "at": "2026-11-04T08:51:22.054Z",
+      "text": "Ну, а предыдущий релиз просто принимаем."
+    },
     "approval": {
       "at": "2026-11-04T07:40:47.959Z",
       "text": "User 2026-11-04: 'Если согласен, исправляй эту ошибку. Собирай новый релиз.' plus 'возможность убирать из списков проект ... по правой клавише мыши'."
@@ -59,7 +62,7 @@
       }
     ],
     "decisions": [],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "ACCEPTED",
     "id": "release-fixes-2026-11-04",
     "objective": "Fix Claude async subagent observation (live text, real terminal status) and let the user remove a project from the app through a right-click menu; ship a new macOS release.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04.md",
@@ -311,10 +314,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: ACCEPTED
 - Current task: none
 - Progress: 8/8
-- Revision: 28
+- Revision: 29
 
 ## Objective
 

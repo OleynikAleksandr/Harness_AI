@@ -156,6 +156,8 @@ implementation plan.
   OpenCode as the behavior/extensibility reference, its Vercel-AI-SDK runtime
   dependency rejected) and the recorded user decisions.
 
+- `docs/architecture/ReleaseFixes-2026-11-04.md` — fixes of the 2026-11-04
+  release: Claude async subagents and removing a project from the app.
 - `docs/architecture/workflow-kit/WorkflowKit.md` — root specification of
   the Workflow Kit (Russian, scope `workflow-kit-2026-11-03`): origin from
   Harness rules and Workflow Kit 1.x, the `core-runtime/clusters/project-workflow`

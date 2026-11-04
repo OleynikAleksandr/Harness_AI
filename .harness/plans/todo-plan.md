@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 102,
+  "revision": 104,
   "rounds": [
     {
       "digest": {
@@ -43,7 +43,7 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Implementation"
     }
   ],
@@ -75,7 +75,7 @@
       }
     ],
     "decisions": [],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "release-fixes-2026-11-04-2",
     "objective": "Fix the defects found in the execution modes release (git identity form instead of terminal commands, Open Project without a name field, the mode card in the sidebar, localized new strings, the mode choice starting execution, the login-shell PATH, small Kit fixes), build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-2.md",
@@ -484,7 +484,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: publish release fixes round 2",
-      "confirmation": null,
+      "confirmation": "Пользователь: «можно его опубликовать на GitHub - https://github.com/OleynikAleksandr/Harness_AI», затем «Да, выполняй всё»",
       "context": [],
       "dependencies": [
         "D1",
@@ -492,14 +492,15 @@
       ],
       "docsWaiver": null,
       "files": [
-        "docs/evidence/release-fixes-2-publish-2026-11-04.md"
+        "docs/evidence/release-fixes-2-publish-2026-11-04.md",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
       ],
       "fixes": null,
       "id": "P1",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Publish the release on GitHub",
       "why": "Every plan ends with a GitHub publication"
     }
@@ -511,10 +512,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 12/13
-- Revision: 102
+- Progress: 13/13
+- Revision: 104
 
 ## Objective
 
@@ -531,7 +532,7 @@ Fix the defects found in the execution modes release (git identity form instead 
 
 ## Rounds
 
-### R1 — Implementation (implementation, OPEN)
+### R1 — Implementation (implementation, CLOSED)
 
 - [DONE] G1 — Kit identity:set and identity validation (work)
   - Commit: feat: set and validate git identity through the kit
@@ -575,9 +576,9 @@ Fix the defects found in the execution modes release (git identity form instead 
   - Commit: chore: package release fixes round 2
   - Files: docs/evidence/release-fixes-2-package-2026-11-04.md, .harness/product-tree/product-tree.json, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: G6, G7, G8, G9, G10, DOCS-R1
-- [TODO] P1 — Publish the release on GitHub (delivery)
+- [DONE] P1 — Publish the release on GitHub (delivery)
   - Commit: chore: publish release fixes round 2
-  - Files: docs/evidence/release-fixes-2-publish-2026-11-04.md
+  - Files: docs/evidence/release-fixes-2-publish-2026-11-04.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: D1, DOCS-R1
 
 Digest: Git identity is entered once in an in-app form (Kit identity:set, Core workflow-identity-set). Open Project asks no name. The mode card sits in the left sidebar, and choosing a mode arms the owner autopilot. Core passes the login-shell PATH to agents. New strings follow the usual localization categories, and the bundle refresh is incremental. KIT_VERSION 2.1.1 adds .DS_Store and kit:conflict-markers. MIT LICENSE added.

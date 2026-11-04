@@ -303,3 +303,6 @@ added, add a new evidence file and keep this index entry valid.
 - `docs/evidence/release-fixes-2-package-2026-11-04.md` — release fixes round
   2: package contents (Kit 2.1.1 bundle, identity route, login PATH), the Kit
   identity and install smoke on a temporary project and the app start.
+- `docs/evidence/release-fixes-2-publish-2026-11-04.md` — release fixes round
+  2 publication: history secret scan, the first push of `main` to GitHub, tag
+  `v2026.11.4` and the GitHub Release with the app zip.

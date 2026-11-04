@@ -111,15 +111,20 @@ materialization, bootstrap payload reuse, and bundle state.
   Project Doctor (`project.identity.name`, `.email`, `.save` — "Save and
   continue"), Project Doctor (`project.doctor.*`, one label
   per doctor check id and status), the workflow status strip
-  (`workflow.strip.*`, including `workflow.strip.label`), one label per autopilot stop reason
-  (`workflow.autopilot.reason.<reason>`, including the orchestration
-  reasons `waiting-for-executors` and `waiting-for-mode-choice`) and the
+  (`workflow.strip.*`, including `workflow.strip.label` and
+  `workflow.strip.continuing`; the strip has no autopilot switch, so
+  `workflow.strip.autopilot` and its description are gone), one label per
+  autopilot stop reason (`workflow.autopilot.reason.<reason>`, including
+  `paused` — "Paused" — and the orchestration reasons
+  `waiting-for-executors` and `waiting-for-mode-choice`) and the
   execution mode card
   (`workflow.modeCard.label`, `.question`, `.recommended`, `.choose`,
   `.chosen`, `.sent`, `.option.<sequential|orchestrated|refine>`), the
   sidebar plan panel (`workflow.plan.title`, `.parallel`, `.sequential`,
   `.progressOf`, `.progressDone`, `.state.<ACTIVE|BLOCKED>`,
-  `.taskStatus.<DONE|IN_PROGRESS|TODO>`) and the plan owner card role
+  `.taskStatus.<DONE|IN_PROGRESS|TODO>`, and the pause button
+  `.pause` "Pause", `.pausing` "Pausing after the current task",
+  `.continue` "Continue") and the plan owner card role
   (`sidebar.role.agent`, `sidebar.role.orchestrator`);
   `ui_helper_text` explains every
   inspected folder state (`project.state.<STATE>`, `project.state.nested`),

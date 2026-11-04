@@ -120,6 +120,30 @@ assert.equal(
   ),
   "Waiting for the execution mode choice"
 );
+assert.equal(
+  registry.getMessage("ui_labels", "workflow.autopilot.reason.paused"),
+  "Paused"
+);
+// The plan pause button replaces the status strip autopilot switch.
+assert.equal(registry.getMessage("ui_labels", "workflow.plan.pause"), "Pause");
+assert.equal(
+  registry.getMessage("ui_labels", "workflow.plan.pausing"),
+  "Pausing after the current task"
+);
+assert.equal(
+  registry.getMessage("ui_labels", "workflow.plan.continue"),
+  "Continue"
+);
+for (const [category, messageId] of [
+  ["ui_labels", "workflow.strip.autopilot"],
+  ["ui_helper_text", "workflow.strip.autopilot.description"],
+]) {
+  assert.equal(
+    registry.getMessage(category, messageId),
+    null,
+    `${category}/${messageId} is no longer used`
+  );
+}
 assert.match(
   registry.getMessage("ui_helper_text", "project.state.GIT_NO_KIT"),
   /Workflow Kit/u

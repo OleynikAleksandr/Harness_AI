@@ -148,6 +148,7 @@ assert.match(sidebarSource, /modeChoice=\{modeChoice\}/u);
     );
     for (const [file, target, base] of [
       ["project-plan-panel-state.ts", "project-plan-panel-state.js", panelUrl],
+      ["project-plan-pause-state.ts", "project-plan-pause-state.js", panelUrl],
       ["project-plan-panel-facade.tsx", "panel.js", panelUrl],
       ["execution-mode-card-state.ts", "execution-mode-card-state.js", cardUrl],
       ["execution-mode-card-facade.tsx", "card.js", cardUrl],

@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
 
 /**
- * Kit status of a workspace and the autopilot snapshot of a session, both
- * read from Core and kept current by Core events: `workflow:status` and
- * `workflow:autopilot` carry the new values, and an idle turn (the agent may
- * have committed) asks Core for the status again.
+ * Kit status of a workspace, read from Core and kept current by Core
+ * events: `workflow:status` carries the new value, and an idle turn (the
+ * agent may have committed) asks Core for the status again.
  */
 export function useWorkflowStatus(
-  workspaceId: string,
-  sessionId: string | null
-) {
+  workspaceId: string
+): WorkflowKitOutcome<WorkflowKitStatus> | null {
   const [status, setStatus] =
     useState<WorkflowKitOutcome<WorkflowKitStatus> | null>(null);
-  const [autopilot, setAutopilot] = useState<WorkflowAutopilotSnapshot | null>(
-    null
-  );
 
   useEffect(() => {
     let current = true;
@@ -48,51 +43,5 @@ export function useWorkflowStatus(
     };
   }, [workspaceId]);
 
-  useEffect(() => {
-    setAutopilot(null);
-    if (!sessionId) {
-      return;
-    }
-    let current = true;
-    window.harnessCore
-      ?.getWorkflowAutopilot({ sessionId })
-      .then((result) => {
-        if (current && result.ok) {
-          setAutopilot(result.autopilot);
-        }
-      })
-      .catch(() => undefined);
-    const unsubscribe = window.harnessCore?.onEvent((event) => {
-      if (
-        event.type === "workflow:autopilot" &&
-        event.sessionId === sessionId
-      ) {
-        setAutopilot(event);
-      }
-    });
-    return () => {
-      current = false;
-      unsubscribe?.();
-    };
-  }, [sessionId]);
-
-  async function setAutopilotEnabled(enabled: boolean): Promise<string | null> {
-    if (!sessionId) {
-      return null;
-    }
-    const result = await window.harnessCore?.setWorkflowAutopilot({
-      enabled,
-      sessionId,
-    });
-    if (!result) {
-      return "Core runtime bridge is unavailable.";
-    }
-    if (!result.ok) {
-      return result.message;
-    }
-    setAutopilot(result.autopilot);
-    return null;
-  }
-
-  return { autopilot, setAutopilotEnabled, status };
+  return status;
 }

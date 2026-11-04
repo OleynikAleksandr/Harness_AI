@@ -169,6 +169,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "workflow.autopilot.reason.limit": "Limit reached",
     "workflow.autopilot.reason.no-progress": "No progress",
     "workflow.autopilot.reason.no-scope": "No active scope",
+    "workflow.autopilot.reason.paused": "Paused",
     "workflow.autopilot.reason.ready-for-acceptance": "Ready for acceptance",
     "workflow.autopilot.reason.transaction-pending": "Commit check pending",
     "workflow.autopilot.reason.turn-error": "Turn stopped",
@@ -185,7 +186,10 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "workflow.modeCard.question": "How should the plan be executed?",
     "workflow.modeCard.recommended": "(recommended)",
     "workflow.modeCard.sent": "sent to the agent",
+    "workflow.plan.continue": "Continue",
     "workflow.plan.parallel": "parallel",
+    "workflow.plan.pause": "Pause",
+    "workflow.plan.pausing": "Pausing after the current task",
     "workflow.plan.progressDone": "done",
     "workflow.plan.progressOf": "of",
     "workflow.plan.sequential": "sequential",
@@ -195,7 +199,6 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "workflow.plan.taskStatus.IN_PROGRESS": "In progress",
     "workflow.plan.taskStatus.TODO": "To do",
     "workflow.plan.title": "Plan",
-    "workflow.strip.autopilot": "Autopilot",
     "workflow.strip.continuing": "Continuing",
     "workflow.strip.label": "Workflow",
     "workflow.strip.next": "Next",
@@ -361,8 +364,6 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "Workflow Pilot projects are not supported in this release.",
     "project.state.nested":
       "The folder is inside another repository; open the repository top level.",
-    "workflow.strip.autopilot.description":
-      "Continues the workflow tasks automatically after each turn.",
     "workflow.modeCard.hint": "or write your answer in the chat",
     "workflow.plan.openExecutor": "Open the executor session",
     "workflow.modeCard.option.orchestrated.description":

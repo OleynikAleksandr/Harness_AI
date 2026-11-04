@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 135,
+  "revision": 137,
   "rounds": [
     {
       "digest": null,
@@ -526,14 +526,28 @@
         "product-parts/application-shell/clusters/session-interface/modules/session-window",
         "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts",
         "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs",
-        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md"
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.tsx",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.css",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.test.mjs",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-pause-state.ts",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-state.ts",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip-facade.tsx",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip.test.mjs",
+        "product-parts/application-shell/clusters/project-workflow-ui/src/project-workflow-ui.css",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts"
       ],
       "fixes": null,
       "id": "A5",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Pause button in the plan panel",
       "why": "The user pauses the plan from the plan itself"
     },
@@ -769,8 +783,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 11/17
-- Revision: 135
+- Progress: 12/17
+- Revision: 137
 
 ## Objective
 
@@ -825,9 +839,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: keep required documents inline with a documents map
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-budget.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-documents.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-gather.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-documents.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-packet.test.mjs
   - Depends on: K3
-- [TODO] A5 — Pause button in the plan panel (work)
+- [DONE] A5 — Pause button in the plan panel (work)
   - Commit: feat: pause the plan from the plan panel
-  - Files: product-parts/application-shell/clusters/project-workflow-ui, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md
+  - Files: product-parts/application-shell/clusters/project-workflow-ui, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.css, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.test.mjs, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-pause-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip.test.mjs, product-parts/application-shell/clusters/project-workflow-ui/src/project-workflow-ui.css, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts
   - Depends on: A4
 - [TODO] K5 — Kit context command (work)
   - Commit: feat: read documents through the kit context command

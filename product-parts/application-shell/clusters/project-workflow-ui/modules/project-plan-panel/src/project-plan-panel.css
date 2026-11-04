@@ -109,3 +109,45 @@
   flex: 0 0 auto;
   color: var(--pm-text-muted);
 }
+
+.project-plan-pause {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  margin-top: 4px;
+}
+
+.project-plan-pause-button {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3px 9px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--pm-text-primary);
+  cursor: pointer;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 6px;
+}
+
+.project-plan-pause-button:hover:not(:disabled),
+.project-plan-pause-button:focus-visible {
+  outline: none;
+  border-color: rgba(66, 201, 162, 0.5);
+}
+
+.project-plan-pause-button.is-paused {
+  background: var(--pm-accent-strong);
+  border-color: var(--pm-accent-strong);
+}
+
+.project-plan-pause-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.project-plan-pause-error {
+  color: #f08a85;
+  overflow-wrap: anywhere;
+}

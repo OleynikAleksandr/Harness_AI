@@ -1,8 +1,11 @@
-import { Circle, CircleCheck, CircleDot } from "lucide-react";
+import { Circle, CircleCheck, CircleDot, Pause, Play } from "lucide-react";
+import { useState } from "react";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { useWorkflowAutopilot } from "./project-plan-pause-state.js";
 import "./project-plan-panel.css";
 
 export { useProjectPlanView } from "./project-plan-panel-state.js";
+export { useWorkflowAutopilot } from "./project-plan-pause-state.js";
 
 type PlanRow = WorkflowPlanView["rows"][number];
 type Translate = ReturnType<typeof useBrowserLocalization>["t"];
@@ -59,6 +62,62 @@ function RowContent({ row, t }: { row: PlanRow; t: Translate }) {
   );
 }
 
+const PAUSE_LABELS: Readonly<
+  Record<WorkflowAutopilotSnapshot["pauseState"], [string, string]>
+> = {
+  paused: ["workflow.plan.continue", "Continue"],
+  pausing: ["workflow.plan.pausing", "Pausing after the current task"],
+  running: ["workflow.plan.pause", "Pause"],
+};
+
+/**
+ * The pause button of the plan, driven only by the Core `pauseState` of the
+ * owner session: `running` pauses, `paused` continues, `pausing` waits for
+ * the current task and is disabled. A Core/Kit failure is shown inline.
+ */
+function PlanPauseButton({
+  ownerSessionId,
+  t,
+}: {
+  ownerSessionId: string | null;
+  t: Translate;
+}) {
+  const { autopilot, setPaused } = useWorkflowAutopilot(ownerSessionId);
+  const [error, setError] = useState<string | null>(null);
+  if (!autopilot?.available) {
+    return null;
+  }
+  const { pauseState } = autopilot;
+  const [key, fallback] = PAUSE_LABELS[pauseState];
+  return (
+    <div className="project-plan-pause">
+      <button
+        className={`project-plan-pause-button is-${pauseState}`}
+        disabled={pauseState === "pausing"}
+        onClick={() => {
+          setError(null);
+          setPaused(pauseState === "running")
+            .then(setError)
+            .catch((reason: unknown) => setError(String(reason)));
+        }}
+        type="button"
+      >
+        {pauseState === "paused" ? (
+          <Play aria-hidden="true" size={12} />
+        ) : (
+          <Pause aria-hidden="true" size={12} />
+        )}
+        {t("ui_labels", key, fallback)}
+      </button>
+      {error ? (
+        <small className="project-plan-pause-error" role="alert">
+          {error}
+        </small>
+      ) : null}
+    </div>
+  );
+}
+
 function rowClass(row: PlanRow, selected: boolean): string {
   return [
     "project-plan-row",
@@ -73,8 +132,9 @@ function rowClass(row: PlanRow, selected: boolean): string {
 /**
  * The active plan under the owner session's card in the sidebar (spec 10.2
  * of `WorkflowKitExecutionModes.md`): a pinned header with the scope
- * objective, state and progress, and scrollable task rows. Everything comes
- * from the Core plan view; a row with an executor session opens it.
+ * objective, state, progress and the pause button of the owner session, and
+ * scrollable task rows. Everything comes from the Core plan view and the
+ * Core autopilot snapshot; a row with an executor session opens it.
  */
 export function ProjectPlanPanelFacade({
   activeSessionId,
@@ -101,6 +161,7 @@ export function ProjectPlanPanelFacade({
           {planView.progress.total}{" "}
           {t("ui_labels", "workflow.plan.progressDone", "done")}
         </small>
+        <PlanPauseButton ownerSessionId={planView.ownerSessionId} t={t} />
       </header>
       <ol className="project-plan-rows">
         {planView.rows.map((row) => {

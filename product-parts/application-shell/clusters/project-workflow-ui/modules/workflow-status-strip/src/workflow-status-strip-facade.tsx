@@ -1,78 +1,50 @@
-import { Bot } from "lucide-react";
-import { useState } from "react";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { useWorkflowAutopilot } from "../../project-plan-panel/src/project-plan-panel-facade.js";
 import { useWorkflowStatus } from "./workflow-status-state.js";
 import "../../../src/project-workflow-ui.css";
 
 interface WorkflowStatusStripProps {
-  /** The open session; the autopilot switch belongs to it. */
+  /** The open session; the autopilot state shown belongs to it. */
   sessionId: string | null;
   workspaceId: string;
 }
 
-/** The autopilot switch of the open session and its last decision. */
-function AutopilotControl({
+/**
+ * The last autopilot decision of the open session from the Core snapshot:
+ * "Continuing" while an autopilot turn runs, otherwise the localized stop
+ * reason (`disabled` is not shown). The pause button lives in the plan.
+ */
+function AutopilotState({
   autopilot,
-  onToggle,
 }: {
-  autopilot: WorkflowAutopilotSnapshot | null;
-  onToggle: (enabled: boolean) => Promise<string | null>;
+  autopilot: WorkflowAutopilotSnapshot;
 }) {
   const { t } = useBrowserLocalization();
-  const [error, setError] = useState<string | null>(null);
-  const decision = autopilot?.lastDecision ?? null;
-  const stopped =
-    decision?.action === "stop" && decision.reason !== "disabled"
-      ? decision
-      : null;
-  const enabled = autopilot?.enabled ?? false;
-  return (
-    <span className="workflow-status-autopilot">
-      <button
-        aria-pressed={enabled}
-        className={`workflow-autopilot-switch${enabled ? "is-on" : ""}`}
-        onClick={() => {
-          setError(null);
-          onToggle(!enabled)
-            .then(setError)
-            .catch((reason: unknown) => setError(String(reason)));
-        }}
-        title={t(
-          "ui_helper_text",
-          "workflow.strip.autopilot.description",
-          "Continues the workflow tasks automatically after each turn."
+  const decision = autopilot.lastDecision;
+  if (autopilot.running && decision?.action === "continue") {
+    return (
+      <small className="workflow-autopilot-state">
+        {t("ui_labels", "workflow.strip.continuing", "Continuing")}
+      </small>
+    );
+  }
+  if (decision?.action === "stop" && decision.reason !== "disabled") {
+    return (
+      <small className="workflow-autopilot-state" title={decision.detail}>
+        {t(
+          "ui_labels",
+          `workflow.autopilot.reason.${decision.reason}`,
+          decision.reason
         )}
-        type="button"
-      >
-        <Bot aria-hidden="true" size={14} />
-        {t("ui_labels", "workflow.strip.autopilot", "Autopilot")}
-      </button>
-      {autopilot?.running && decision?.action === "continue" ? (
-        <small className="workflow-autopilot-state">
-          {t("ui_labels", "workflow.strip.continuing", "Continuing")}
-        </small>
-      ) : null}
-      {stopped ? (
-        <small className="workflow-autopilot-state" title={stopped.detail}>
-          {t(
-            "ui_labels",
-            `workflow.autopilot.reason.${stopped.reason}`,
-            stopped.reason
-          )}
-        </small>
-      ) : null}
-      {error ? (
-        <small className="workflow-autopilot-error" role="alert">
-          {error}
-        </small>
-      ) : null}
-    </span>
-  );
+      </small>
+    );
+  }
+  return null;
 }
 
 /**
  * Workflow status of the active workspace: scope, current or next task,
- * progress, and the autopilot switch with its last stop reason. Shown only
+ * progress, and the last autopilot decision of the open session. Shown only
  * when Core reports the Workflow Kit as installed.
  */
 export function WorkflowStatusStripFacade({
@@ -80,10 +52,8 @@ export function WorkflowStatusStripFacade({
   workspaceId,
 }: WorkflowStatusStripProps) {
   const { t } = useBrowserLocalization();
-  const { autopilot, setAutopilotEnabled, status } = useWorkflowStatus(
-    workspaceId,
-    sessionId
-  );
+  const status = useWorkflowStatus(workspaceId);
+  const { autopilot } = useWorkflowAutopilot(sessionId);
   if (!(status?.ok && status.result.installed)) {
     return null;
   }
@@ -128,10 +98,7 @@ export function WorkflowStatusStripFacade({
         </span>
       ) : null}
       {sessionId && autopilot?.available ? (
-        <AutopilotControl
-          autopilot={autopilot}
-          onToggle={setAutopilotEnabled}
-        />
+        <AutopilotState autopilot={autopilot} />
       ) : null}
     </section>
   );

@@ -47,7 +47,8 @@ Settings.
   `planView.ownerSessionId` is a listed session, `ProjectPlanPanelFacade`
   renders right under that session's card (before its child cards) with the
   tree's `onSelectSession` as the open path, so an executor row opens its
-  session like a row click. The owner card's secondary line starts with its
+  session like a row click. The panel reads the owner's Core autopilot
+  snapshot for its pause button itself; the tree passes nothing extra. The owner card's secondary line starts with its
   role from the Core plan mode — "Orchestrator" (`sidebar.role.orchestrator`)
   in orchestrated mode, "Agent" (`sidebar.role.agent`) otherwise — followed
   by the subagent summary. Sessions in `planView.boundSessionIds` get no card
@@ -104,7 +105,8 @@ Settings.
 
 - `src/session-tree.test.mjs` — tree construction, row context menu and
   styles (source checks), and a server render (React
-  `renderToStaticMarkup`) of the plan under the owner card: the
+  `renderToStaticMarkup`, the plan panel compiled with its plan view and
+  pause state hooks) of the plan under the owner card: the
   Orchestrator/Agent role, the bound executor without a card and not
   counted, the other subagent kept, and the unchanged tree without a plan
   or with an unlisted owner; the mode card under its owner (offered rows,

@@ -369,10 +369,6 @@ interface Window {
     getWorkflowAutopilot(request: {
       sessionId: string;
     }): Promise<WorkflowAutopilotResult>;
-    setWorkflowAutopilot(request: {
-      enabled: boolean;
-      sessionId: string;
-    }): Promise<WorkflowAutopilotResult>;
     /** Sets or lifts the Workflow Kit pause of the session's workspace. */
     setWorkflowPause(request: {
       paused: boolean;

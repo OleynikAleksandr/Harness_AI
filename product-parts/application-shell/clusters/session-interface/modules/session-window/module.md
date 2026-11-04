@@ -85,8 +85,8 @@ Detached session windows never expose the switch.
   `inspectProjectFolder`, `prepareProject`, `getWorkflowStatus`,
   `runProjectDoctor`, `getWorkflowAutopilot` (snapshot with `pauseState`
   `running | pausing | paused`), `setWorkflowPause({sessionId, paused})` →
-  `{ok: true, autopilot}` or the failure (the `setWorkflowAutopilot` type
-  remains only until the status strip toggle is removed),
+  `{ok: true, autopilot}` or the failure (there is no autopilot switch
+  type: the plan pause button replaced the status strip toggle),
   `getWorkflowModeChoice({workspaceId})` → `{ok: true, card | null}` and
   `chooseWorkflowMode({workspaceId, sessionId, generation, option})` →
   `{ok: true, card, choice}` or the Kit failure,

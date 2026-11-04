@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 121,
+  "revision": 123,
   "rounds": [
     {
       "digest": null,
@@ -316,14 +316,25 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery",
         "docs/architecture/workflow-kit/WorkflowKitCommands.md",
-        "docs/DOCUMENTATION_INDEX.md"
+        "docs/DOCUMENTATION_INDEX.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-schema.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-schema.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-budget.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-schema.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-schema.test.mjs"
       ],
       "fixes": null,
       "id": "K2",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Kit schema command and packet schema",
       "why": "The agent must get the schema of its next step inline"
     },
@@ -705,8 +716,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 5/17
-- Revision: 121
+- Progress: 6/17
+- Revision: 123
 
 ## Objective
 
@@ -741,9 +752,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: run the autopilot by default and stop on pause
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-decision.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-pause.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-workflow-autopilot.ts
   - Depends on: A1
-- [TODO] K2 — Kit schema command and packet schema (work)
+- [DONE] K2 — Kit schema command and packet schema (work)
   - Commit: feat: print input schemas and put them in the packet
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/DOCUMENTATION_INDEX.md
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/DOCUMENTATION_INDEX.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-schema.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-budget.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-schema.test.mjs
   - Depends on: K1
 - [TODO] A3 — Core pause route (work)
   - Commit: feat: route the workflow pause through core

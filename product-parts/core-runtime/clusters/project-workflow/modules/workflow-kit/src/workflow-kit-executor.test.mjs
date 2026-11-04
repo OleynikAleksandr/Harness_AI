@@ -305,8 +305,13 @@ process.exit(result.exitCode);
     const refused = run(wtA, argv);
     assert.equal(refused.exit, 1, argv[0]);
     assert.equal(JSON.parse(refused.stdout).code, "ASSIGNMENT_READ_ONLY");
+    assert.ok(JSON.parse(refused.stdout).details.allowed.includes("schema"));
   }
   assert.equal(run(wtA, ["status"]).exit, 0);
+  const schema = run(wtA, ["schema", "digest", "--format", "text"]);
+  assert.equal(schema.exit, 0);
+  assert.match(schema.stdout, /^digest: Round digest of the DOCS task/u);
+  assert.equal(run(wtA, ["schema"]).exit, 0);
   assert.equal(run(wtA, ["validate"]).exit, 0);
   assert.equal(run(root, ["assignment:next"]).exit, 0);
   const statusText = run(wtA, ["assignment:status", "--format", "text"]);

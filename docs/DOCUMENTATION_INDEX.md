@@ -192,6 +192,11 @@ implementation plan.
 - `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
   inspection, install, the global git identity (`identity:set`), doctor,
   Harness plan migration, Core/Electron/RPC/UI integration, provider context delivery and Windows/Linux rules.
+- `docs/architecture/workflow-kit/WorkflowKitCommands.md` — command reference
+  of `scripts/workflow` (`workflow-kit-cli.ts`, `kit-cli-*.ts`): conventions,
+  the executor whitelist, usage, behaviour, text output and refusals of every
+  command, including `schema`; moved out of the `workflow-kit` module.md,
+  which keeps the summary.
 - `docs/architecture/workflow-kit/WorkflowKitCoreRpc.md` — detailed contract
   of the Core project workflow routes (`core-project-workflow-rpc.ts`):
   inspect, prepare-project, identity-set, status with `planView`, doctor,

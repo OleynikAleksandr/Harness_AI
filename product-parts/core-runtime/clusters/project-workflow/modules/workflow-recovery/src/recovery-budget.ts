@@ -10,6 +10,7 @@ import {
   type RecoveryInput,
   type RecoveryPacket,
 } from "./recovery-model.js";
+import { schemaSection } from "./recovery-schema.js";
 import {
   changesSection,
   decisionsSection,
@@ -158,11 +159,11 @@ function documentCandidates(
       continue;
     }
     const options: Part[] = [
-      { name: `document ${ref.path}`, order: 11, text: text.trimEnd() },
+      { name: `document ${ref.path}`, order: 12, text: text.trimEnd() },
     ];
     const section = ref.heading ? extractHeading(text, ref.heading) : null;
     if (section) {
-      options.push({ name: `document ${label}`, order: 11, text: section });
+      options.push({ name: `document ${label}`, order: 12, text: section });
     }
     candidates.push({
       options,
@@ -192,19 +193,19 @@ function optionalCandidates(
   };
   add(
     "rounds",
-    7,
+    8,
     roundsSection(input),
     (bytes) => `rounds (${bytes} bytes): run \`${KIT_COMMAND} history\``
   );
   add(
     "decisions",
-    8,
+    9,
     decisionsSection(input),
     (bytes) => `decisions (${bytes} bytes): scope.decisions in ${PLAN_PATH}`
   );
   add(
     "verification",
-    10,
+    11,
     verificationSection(input),
     (bytes) =>
       `verification (${bytes} bytes): .harness/workflow/local/verification/last.json`
@@ -212,15 +213,18 @@ function optionalCandidates(
   return [...candidates, ...documentCandidates(input, references)];
 }
 
+/** Sections that always stay; `schema` only when the next step has an input. */
 function mandatoryParts(input: RecoveryInput, cap: number | null): Part[] {
+  const schema = schemaSection(input);
   return [
     { name: "state", order: 1, text: stateSection(input) },
     { name: "next", order: 2, text: nextSection(input) },
     { name: "objective", order: 3, text: objectiveSection(input) },
     { name: "task", order: 4, text: taskSection(input, cap) },
-    { name: "upcoming", order: 5, text: upcomingSection(input) },
-    { name: "recent", order: 6, text: recentSection(input) },
-    { name: "changes", order: 9, text: changesSection(input) },
+    ...(schema === null ? [] : [{ name: "schema", order: 5, text: schema }]),
+    { name: "upcoming", order: 6, text: upcomingSection(input) },
+    { name: "recent", order: 7, text: recentSection(input) },
+    { name: "changes", order: 10, text: changesSection(input) },
   ];
 }
 

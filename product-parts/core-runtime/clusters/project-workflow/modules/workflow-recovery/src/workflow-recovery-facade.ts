@@ -2,7 +2,10 @@ import {
   type WorkflowGitFacade,
   workflowGitFacade,
 } from "../../workflow-git/src/workflow-git-facade.js";
-import { workflowPlanFacade } from "../../workflow-plan/src/workflow-plan-facade.js";
+import {
+  type InputSchema,
+  workflowPlanFacade,
+} from "../../workflow-plan/src/workflow-plan-facade.js";
 import { assemblePacket, extractHeading } from "./recovery-budget.js";
 import {
   type HistoryEntry,
@@ -19,6 +22,11 @@ import type {
   RecoveryInput,
   RecoveryPacket,
 } from "./recovery-model.js";
+import {
+  inputSchema,
+  inputSchemaCommands,
+  schemaText,
+} from "./recovery-schema.js";
 
 export type { HistoryEntry, HookClient } from "./recovery-commands.js";
 export { HOST_RECOVERY_VARIABLE } from "./recovery-commands.js";
@@ -50,6 +58,24 @@ export class WorkflowRecoveryFacade {
   /** Markdown section under a heading, matched by text or slug. */
   section(text: string, heading: string): string | null {
     return extractHeading(text, heading);
+  }
+
+  /**
+   * Input descriptor of a Kit command (the plan commands, `digest` and
+   * `quality:apply`, read from their owner facades), or null.
+   */
+  inputSchema(command: string): InputSchema | null {
+    return inputSchema(command);
+  }
+
+  /** Commands with an input descriptor, in a stable order. */
+  inputSchemaCommands(): string[] {
+    return inputSchemaCommands();
+  }
+
+  /** The compact text of a descriptor, as the packet `schema` section shows it. */
+  schemaText(schema: InputSchema): string {
+    return schemaText(schema);
   }
 
   /** Reads plan, configuration, git state and evidence of a project. */

@@ -9,7 +9,8 @@ the agent role of the session (planning, self, orchestrator, executor) and
 the next step of that role.
 
 It also answers the provider SessionStart hook and the on-demand
-`show-task` and `history` commands.
+`show-task` and `history` commands, and serves the input descriptors of
+Kit commands with their compact text (`schema` command and section).
 
 ## Public Facade
 
@@ -36,17 +37,21 @@ environment.
   3. `objective`* — scope objective and acceptance criteria;
   4. `task`* — the current task, or the next ready one, in full; a `fixes`
      task shows the original task and its short SHA;
-  5. `upcoming`* — up to three next `TODO` tasks and the remaining count;
-  6. `recent`* — the last three `DONE` tasks with short SHAs;
-  7. `rounds` — digests: the last three in full, earlier ones in one line;
-  8. `decisions` — the last five user decisions of the scope;
-  9. `changes`* — working-tree changes outside the task (up to 40 paths)
-     and the pending transaction;
-  10. `verification` — the last stored check reports; failed checks with
+  5. `schema`* — present only when the next step takes a JSON input (see
+     Input Schemas): an `Input of the next step` line that names
+     `scripts/workflow schema <command>`, then the compact text of the
+     descriptor;
+  6. `upcoming`* — up to three next `TODO` tasks and the remaining count;
+  7. `recent`* — the last three `DONE` tasks with short SHAs;
+  8. `rounds` — digests: the last three in full, earlier ones in one line;
+  9. `decisions` — the last five user decisions of the scope;
+  10. `changes`* — working-tree changes outside the task (up to 40 paths)
+      and the pending transaction;
+  11. `verification` — the last stored check reports; failed checks with
       at most 1 KB of output in total;
-  11. `documents` — required documents of the scope (`spec`, `context`) and
+  12. `documents` — required documents of the scope (`spec`, `context`) and
       of the task (`context`), one entry per path;
-  12. `references`* — everything that did not fit, missing files and
+  13. `references`* — everything that did not fit, missing files and
       optional documents.
 - Budget (`budgetBytes`, UTF-8):
   - optional sections are added in priority order while the packet fits;
@@ -67,6 +72,35 @@ environment.
   bytes, overBudget, truncated, included, omitted, references, sections,
   text}`.
 - `section(text, heading)` returns a Markdown section or `null`.
+
+## Input Schemas (`recovery-schema.ts`)
+
+- `inputSchemaCommands()` — `workflowPlanFacade.inputSchemaCommands()`
+  (`scope:create`, `scope:propose`, `plan:extend`, `task:update`,
+  `carryover`, `digest`) followed by `quality:apply`.
+- `inputSchema(command)` — the descriptor (a copy) from its owner facade:
+  `workflowQualityFacade.inputSchema()` for `quality:apply`,
+  `workflowPlanFacade.inputSchema(command)` otherwise; `null` for a command
+  without one.
+- `schemaText(schema)` — `<command>: <description>`, `fields:` with one
+  line per field `- <name> <type> required|optional [<limits>, code
+  <CODE>[, limitCode <CODE>]] — <description>` (limits in this order:
+  `minItems`, `maxItems`, `maxBytes`, `minLength`, `minimum`, `maximum`,
+  `enum a|b`, `pattern`), `rules:` with one line per rule, `example:` and
+  the example as one line of JSON. The Kit `schema --format text` command
+  prints the same text.
+- The `schema` section names the descriptor of the next step:
+  - no scope: `scope:propose` when `roles.harness`, else `scope:create`;
+    none while a proposal waits for the user's choice (not `refining`);
+  - none while a transaction is unfinished or the scope is `BLOCKED`;
+  - delivery `READY_FOR_ACCEPTANCE` or `ACCEPTED` outside an executor
+    worktree: `plan:extend` (defects become a fixes round);
+  - the step task — the executor's own task in an executor worktree, else
+    the current or next ready task, not `DONE`: kind `quality` —
+    `quality:apply`; kind `docs` — `digest`, except in orchestrated main,
+    where DOCS goes to an executor;
+  - otherwise no section.
+  The section is mandatory when present: it is never moved to references.
 
 ## Roles (`recovery-roles.ts`, spec section 9)
 
@@ -169,9 +203,10 @@ Steps:
 
 ## Dependencies
 
-- `workflow-plan` — plan types, reading the plan.
+- `workflow-plan` — plan types, reading the plan, plan input descriptors.
 - `workflow-git` — HEAD, changes, history, journal, commit references.
-- `workflow-quality` — configuration (`host`) and verification evidence.
+- `workflow-quality` — configuration (`host`), verification evidence and
+  the `quality:apply` descriptor.
 - `workflow-assignment` — assignment records, the worktree record,
   `locateWorktree`, the scheduler.
 - `workflow-execution-mode` — the stored scope proposal.
@@ -184,6 +219,12 @@ Node built-ins only.
 - `src/workflow-recovery-packet.test.mjs` — full packet, tight and tiny
   budgets, heading sections, task truncation, every `next` variant, heading
   extraction.
+- `src/workflow-recovery-schema.test.mjs` — the descriptor catalog and
+  compact text, and the `schema` section for every case: no scope with and
+  without Harness, a waiting and a refining proposal, QUALITY, DOCS,
+  acceptance and accepted, a work task, a transaction, a blocked scope, an
+  executor DOCS task, orchestrated main, a done executor task, and a tight
+  budget that keeps the section.
 - `src/workflow-recovery-roles.test.mjs` — every role and step from built
   inputs: planning (Harness, without Harness, pending proposal, refine, no
   facts), self, orchestrator (state lines, integrate first, hand out,

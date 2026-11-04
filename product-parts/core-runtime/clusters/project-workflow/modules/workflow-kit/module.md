@@ -316,100 +316,41 @@ managed hooks.
 
 ## Command Line (`workflow-kit-cli.ts`, `kit-cli-*.ts`)
 
-- `runCli(argv, io, kit?)` returns the exit code; `io` is `{cwd, env,
-  readStdin, stdout, stderr}`. The file runs `runCli` itself when it is the
-  program entry (the bundle or the compiled file), and not when imported.
-- The project root is `--root`, else `HARNESS_WORKFLOW_ROOT`, else the git
-  top level of the working directory, else the working directory. Input
-  files resolve against the working directory.
-- Commands: `status`, `autopilot:status` (the status the Harness Core
-  autopilot decides on), `validate`, `recover [--event]`, `show-task <ID>`,
-  `history [--task] [--round]`, `scope:create --input`,
-  `scope:propose --input --recommended sequential|orchestrated --reason`,
-  `scope:choose --generation <N> --option sequential|orchestrated|refine
-  --session <id> --note`, `scope:proposal` (all three defined in
-  `kit-cli-execution.ts`; an
-  invalid `--recommended`, `--option` or a non-positive `--generation` is
-  `USAGE`),
-  `assignment:next`, `assignment:create --task <ID>`,
-  `assignment:attach <id>`, `assignment:status`, `assignment:setup [--id
-  <id>]`, `assignment:cleanup [--id <id>]` (all defined in
-  `kit-cli-assignment.ts`), `integration:start --id <assignment> --source
-  <sha>`, `integration:continue --id <assignment>`, `integration:status`
-  (defined in `kit-cli-integration.ts`),
-  `identity:set --name <name> --email <email> --global` (defined in
-  `kit-cli-identity.ts`; `--global` is required, otherwise `USAGE`): the
-  `workflow-git` validator refuses an invalid name or email
-  (`GIT_IDENTITY_INVALID`; a missing or empty `--name` / `--email` is
-  invalid too) or a placeholder (`GIT_IDENTITY_PLACEHOLDER`),
-  both with `details.field` `name` or `email`; otherwise the trimmed
-  values are written with `git config --global` and the result is `{name,
-  email, scope: "global"}` (text: `identity: <name> <<email>> (global git
-  config)`). It needs no project and runs in any folder,
-  `pause:set --on|--off --note` (`kit-cli-pause.ts`; exactly one of the
-  flags and a note, else `USAGE`; text `pause: on|off (<at>) — <note>`),
-  `plan:extend --input [--expected-revision]`,
-  `task:update <ID> --input [--expected-revision]`, `accept --note`,
-  `close --scope --note`, `carryover --input`,
-  `task:start <ID> [--confirmed]`, `task:block --reason`, `task:unblock`,
-  `commit --task [--files] [--digest]`, `docs:commit --files [--message]`,
-  `quality:detect [--stack]`, `quality:apply --input`, `quality:status`,
-  `repair [--apply|--cancel]`, `inspect [<path>]`,
-  `install [<path>] [--name] [--update] [--host harness] [--bundle]`,
-  `doctor [<path>] [--fix] [--bundle]`,
-  `migrate:harness-plan [<path>] [--message] [--objective] [--spec]
-  [--name]`, `help`. `install` and
-  `doctor --fix` copy their own bundle file unless `--bundle` names another
-  and record the running executable as the project runtime (`electron`
-  mode under Electron).
-  `--files` and `--stack` take a JSON list or a comma-separated list.
-  Boolean flags (no value): `--help`, `--fix`, `--dry-run`, `--global`,
-  `--off`, `--on`, `--update`.
-- Output: `{ok: true, command, result}` as JSON, or `--format text`
-  (status, validation, inspection, recovery, task and history texts — status
-  adds `paused: true|false`, `execution:
-  none|sequential|orchestrated (max <N> workers),
-  assignments: <STATUS> <count>, ...|none[, integration <task> <phase>]`
-  and, in an executor worktree, `executor: assignment <id>, task <ID>`; for
-  `scope:propose` the generation, recommendation, reason, options and the
-  next step; for `scope:choose` the choice and the created scope; for
-  `assignment:next` the scope and workers, one line per active, ready and
-  blocked task and the next `assignment:create`, or `assignments: none
-  (<idle code>)`; for `assignment:create` the id, task, short base and
-  whether it was created, followed by the brief; for `assignment:attach`
-  the id, whether it was attached now, task, status, worktree and branch
-  (`detached`), main, the short plan commit and the next `task:start` (the
-  next `assignment:setup` for `NEEDS_SETUP`); for `assignment:setup` the id,
-  status and the command with the short lock hash (or `no dependencies to
-  install`) and the next `task:start` when `READY`; for
-  `assignment:cleanup` one `cleanup: <id> DONE` or `cleanup: <id> PENDING —
-  <reason>` line per record plus a next step for pending ones, or
-  `cleanup: nothing to clean up.`; for
-  `assignment:status` the id with the main status, scope, short base and
-  head, the task line and the source commit; for `integration:start` /
-  `integration:continue` the id, status, task, short source and main, then
-  `conflict: <file>` lines and the resolve-and-continue step, or the short
-  commit, the cleanup line and `next: scripts/workflow assignment:next`;
-  for `integration:status` `integration: IDLE` or the phase line, conflicts,
-  the error tail and the next step; for
-  `scope:proposal` the generation and state, the scope, reason and options
-  or `proposal: none`; JSON
-  otherwise). `inspect` text lists `path`, `state`, `action`,
-  `kit version`, `git` (repository and short head), `identity`, `stacks`,
-  `transaction`, plus `nested in` and `damaged` when present.
+The full reference (usage, behaviour, text output and refusals of every
+command) is
+[WorkflowKitCommands.md](../../../../../../docs/architecture/workflow-kit/WorkflowKitCommands.md);
+it changes in the same commit as the commands. Summary:
+- `runCli(argv, io, kit?)` returns the exit code; the file runs it itself
+  when it is the program entry. The project root is `--root`, else
+  `HARNESS_WORKFLOW_ROOT`, else the git top level, else the working
+  directory.
+- `COMMANDS` of `workflow-kit-cli.ts` spreads the command groups of
+  `kit-cli-execution.ts` (`scope:propose`, `scope:choose`,
+  `scope:proposal`), `kit-cli-assignment.ts` (`assignment:*` and the
+  executor whitelist), `kit-cli-integration.ts` (`integration:*`),
+  `kit-cli-identity.ts` (`identity:set`), `kit-cli-pause.ts` (`pause:set`)
+  and `kit-cli-schema.ts` (`schema`); the other commands are defined in
+  `workflow-kit-cli.ts`, the default texts in `kit-cli-text.ts`. `help`
+  lists every usage line.
+- `schema [<command>]` (`kit-cli-schema.ts`) prints the JSON input
+  descriptor of `scope:create`, `scope:propose`, `plan:extend`,
+  `task:update`, `carryover`, `digest` or `quality:apply` with its example
+  (text: the compact field lines, rules and the one-line example of
+  `workflowRecoveryFacade.schemaText`), or without a command the list with
+  one-line descriptions; another command is `USAGE` with
+  `details.commands`. It needs no scope and runs in an executor worktree.
+- Output: `{ok: true, command, result}` as JSON or `--format text`.
+  Errors: `{ok: false, code, message, nextAction, details}` on stdout with
+  exit code 1 (`--format text`: `CODE: message` on stderr); `USAGE`,
+  `UNKNOWN_COMMAND`, `INPUT_UNREADABLE` / `INPUT_JSON`, `INTERNAL`.
 - Executor worktree: only `status`, `validate`, `recover`, `show-task`,
-  `task:start`, `commit`, `repair`, `task:block`, `assignment:status`,
-  `assignment:setup`, `assignment:attach` (retry), `help`, `hook` and
-  `git-hook` run; every other
-  known command fails with `ASSIGNMENT_READ_ONLY` (`details.allowed`) before
-  it runs.
-- Errors: `{ok: false, code, message, nextAction, details}` on stdout with
-  exit code 1 (`--format text`: `CODE: message` on stderr). Argument errors
-  are `USAGE`, unknown commands `UNKNOWN_COMMAND`, unreadable inputs
-  `INPUT_UNREADABLE` / `INPUT_JSON`, unexpected errors `INTERNAL`.
+  `schema`, `task:start`, `commit`, `repair`, `task:block`,
+  `assignment:status`, `assignment:setup`, `assignment:attach`, `help`,
+  `hook` and `git-hook` run; every other known command fails with
+  `ASSIGNMENT_READ_ONLY` (`details.allowed`) before it runs.
 - `hook session-start --client claude|codex` prints the raw SessionStart
-  JSON from stdin input; `git-hook <name> [args]` prints the hook message
-  on stderr and exits with the hook code.
+  JSON; `git-hook <name> [args]` prints the hook message on stderr and
+  exits with the hook code.
 
 ## Bundle
 
@@ -452,7 +393,7 @@ worktrees where noted):
   idempotent retry, `ASSIGNMENT_EXISTS`, the CLI.
 - `src/workflow-kit-executor.test.mjs` (worktrees) — main read-only and
   delivery rules, attach refusals, records and the `assignment-plan`
-  commit, the executor whitelist, `pre-push`, `RUNNING`, scope and contract
+  commit, the executor whitelist (`schema` allowed), `pre-push`, `RUNNING`, scope and contract
   guards, `READY_FOR_INTEGRATION`, nested directory entries.
 - `src/workflow-kit-worktree.test.mjs` (worktrees, fake `npm`) —
   `NEEDS_SETUP`, setup refusals, success and failure, cleanup `DONE` and
@@ -461,6 +402,9 @@ worktrees where noted):
   the text lines.
 - `src/workflow-kit-pause.test.mjs` (worktrees) — `pause:set`, statuses and
   refusals while paused, the unaffected executor worktree.
+- `src/workflow-kit-schema.test.mjs` — `schema` for every command (JSON
+  descriptor, text lines, rules and example), the list, an unknown
+  command, outside an installed project.
 - `src/workflow-kit-cli.test.mjs` — envelopes, inspection, `install
   --host`, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled program, and `identity:set` outside a project

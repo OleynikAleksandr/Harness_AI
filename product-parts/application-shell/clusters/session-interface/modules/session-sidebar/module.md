@@ -23,7 +23,12 @@ Settings.
   Project" (`onNewProject`), "Open Project" (`onOpenProject`, which replaces
   the former "Add Workspace") and "Project Doctor"
   (`onOpenProjectDoctor`); the session window opens the project workflow
-  dialogs for them.
+  dialogs for them. The menu is `workspace-menu.tsx` (`WorkspaceMenu`):
+  right-click on a project opens an in-app context menu whose first item,
+  "Remove from Harness AI" (`sidebar.removeProject`), sends
+  `onRemoveWorkspace(workspaceId)`; a failure text from Core stays in the
+  menu. The built-in workspace (`builtInWorkspaceId` from Core) gets no
+  context menu. Escape or a pointer outside closes it.
 - Session open/create/rename/regenerate-title intents.
 - Recursive parent/child rows with descendant/running counts, automatic
   ancestor expansion for the selected child, and independent open/detach

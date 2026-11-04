@@ -105,7 +105,8 @@ materialization, bootstrap payload reuse, and bundle state.
   reopens the collapsed match list.
 - The project workflow UI copy is part of the approved dictionaries:
   `ui_labels` holds the sidebar items (`sidebar.newProject`,
-  `sidebar.openProject`, `sidebar.projectDoctor`), the New/Open Project
+  `sidebar.openProject`, `sidebar.projectDoctor`, `sidebar.removeProject`),
+  the New/Open Project
   dialog (`project.setup.*`), Project Doctor (`project.doctor.*`, one label
   per doctor check id and status), the workflow status strip
   (`workflow.strip.*`, including `workflow.strip.label`) and one label per autopilot stop reason

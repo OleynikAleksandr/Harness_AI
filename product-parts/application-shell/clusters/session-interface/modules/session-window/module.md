@@ -246,7 +246,11 @@ Detached session windows never expose the switch.
   applies the start-up `listWorkspaces` snapshot, `selectWorkspace`
   forwards the user's choice to Core, `activateWorkspace(workspace)` shows a
   workspace Core already selected (an opened or created project) and
-  `closeWorkspaceMenu` closes the menu. After every switch the facade's
+  `closeWorkspaceMenu` closes the menu. `removeWorkspace(workspaceId)`
+  forwards "Remove from Harness AI" to Core (`removeWorkspace`), mirrors the
+  returned list and `builtInWorkspaceId`, and reloads the workspace data when
+  Core activated another workspace; it resolves to Core's error text or
+  null. After every switch the facade's
   `reloadWorkspaceData` reloads settings, localization and the session list
   of that workspace.
 - Project workflow UI (`project-workflow-ui` cluster): the sidebar items

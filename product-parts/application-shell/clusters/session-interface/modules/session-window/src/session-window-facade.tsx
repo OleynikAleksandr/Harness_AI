@@ -45,8 +45,10 @@ export function SessionWindowFacade() {
     activateWorkspace,
     activeWorkspaceId,
     applyWorkspaceList,
+    builtInWorkspaceId,
     closeWorkspaceMenu,
     isWorkspaceMenuOpen,
+    removeWorkspace,
     selectWorkspace,
     toggleWorkspaceMenu,
     workspaces,
@@ -394,6 +396,7 @@ export function SessionWindowFacade() {
             {detachedMode ? null : (
               <SessionSidebarFacade
                 activeSessionId={activeSession?.id ?? ""}
+                builtInWorkspaceId={builtInWorkspaceId}
                 isWorkspaceMenuOpen={isWorkspaceMenuOpen}
                 onCreateSession={openProviderPicker}
                 onDeleteSession={deleteSession}
@@ -404,6 +407,7 @@ export function SessionWindowFacade() {
                 onOpenProjectDoctor={() => openProjectOverlay("doctor")}
                 onOpenSettings={() => setIsSettingsOpen(true)}
                 onRegenerateSessionTitle={regenerateSessionTitle}
+                onRemoveWorkspace={removeWorkspace}
                 onRenameSession={renameSession}
                 onSelectSession={selectSession}
                 onSelectWorkspace={selectWorkspace}

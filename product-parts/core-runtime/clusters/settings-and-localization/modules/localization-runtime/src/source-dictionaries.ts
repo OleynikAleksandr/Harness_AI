@@ -135,6 +135,7 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "sidebar.newProject": "New Project",
     "sidebar.openProject": "Open Project",
     "sidebar.projectDoctor": "Project Doctor",
+    "sidebar.removeProject": "Remove from Harness AI",
     "sidebar.collapseSubagents": "Collapse subagents",
     "sidebar.detachSession": "Detach session",
     "sidebar.expandSubagents": "Expand subagents",

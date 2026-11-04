@@ -1,20 +1,14 @@
-import {
-  ChevronDown,
-  FolderOpen,
-  FolderPlus,
-  PanelsTopLeft,
-  Plus,
-  Settings,
-  Stethoscope,
-} from "lucide-react";
+import { ChevronDown, FolderPlus, PanelsTopLeft, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { type SessionContextMenuAnchor, SessionTree } from "./session-tree.js";
+import { WorkspaceMenu } from "./workspace-menu.js";
 
 interface SessionSidebarProps {
   activeSessionId: string;
+  builtInWorkspaceId: string;
   isWorkspaceMenuOpen: boolean;
   onCreateSession: () => void;
   onDeleteSession: (sessionId: string) => void;
@@ -25,6 +19,7 @@ interface SessionSidebarProps {
   onOpenProjectDoctor: () => void;
   onOpenSettings: () => void;
   onRegenerateSessionTitle?: (sessionId: string) => Promise<string | null>;
+  onRemoveWorkspace: (workspaceId: string) => Promise<string | null>;
   onRenameSession?: (
     sessionId: string,
     title: string
@@ -42,6 +37,7 @@ export function SessionSidebarFacade({
   workspaces,
   sessions,
   activeSessionId,
+  builtInWorkspaceId,
   isWorkspaceMenuOpen,
   onNewProject,
   onOpenProject,
@@ -52,6 +48,7 @@ export function SessionSidebarFacade({
   onOpenSettings,
   onOpenProfileStudio,
   onRegenerateSessionTitle,
+  onRemoveWorkspace,
   onRenameSession,
   onSelectSession,
   onSelectWorkspace,
@@ -272,51 +269,16 @@ export function SessionSidebarFacade({
           <ChevronDown aria-hidden="true" size={16} />
         </button>
         {isWorkspaceMenuOpen ? (
-          <div className="workspace-menu">
-            {workspaces.map((item) => (
-              <button
-                className={
-                  item.id === workspace.id
-                    ? "workspace-menu-item is-active"
-                    : "workspace-menu-item"
-                }
-                key={item.id}
-                onClick={() => onSelectWorkspace(item.id)}
-                type="button"
-              >
-                <strong>{item.name}</strong>
-                <small>{item.path}</small>
-              </button>
-            ))}
-            <button
-              className="workspace-menu-item workspace-menu-item--add"
-              onClick={onNewProject}
-              type="button"
-            >
-              <Plus aria-hidden="true" size={14} />
-              <span>{t("ui_labels", "sidebar.newProject", "New Project")}</span>
-            </button>
-            <button
-              className="workspace-menu-item workspace-menu-item--add"
-              onClick={onOpenProject}
-              type="button"
-            >
-              <FolderOpen aria-hidden="true" size={14} />
-              <span>
-                {t("ui_labels", "sidebar.openProject", "Open Project")}
-              </span>
-            </button>
-            <button
-              className="workspace-menu-item workspace-menu-item--add"
-              onClick={onOpenProjectDoctor}
-              type="button"
-            >
-              <Stethoscope aria-hidden="true" size={14} />
-              <span>
-                {t("ui_labels", "sidebar.projectDoctor", "Project Doctor")}
-              </span>
-            </button>
-          </div>
+          <WorkspaceMenu
+            builtInWorkspaceId={builtInWorkspaceId}
+            onNewProject={onNewProject}
+            onOpenProject={onOpenProject}
+            onOpenProjectDoctor={onOpenProjectDoctor}
+            onRemoveWorkspace={onRemoveWorkspace}
+            onSelectWorkspace={onSelectWorkspace}
+            workspace={workspace}
+            workspaces={workspaces}
+          />
         ) : null}
       </div>
 

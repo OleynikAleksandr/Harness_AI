@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 22,
+  "revision": 24,
   "rounds": [
     {
       "digest": null,
@@ -209,14 +209,20 @@
       "files": [
         "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.tsx",
         "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx",
-        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-workspaces.ts",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts"
       ],
       "fixes": null,
       "id": "F6",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Project list context menu with Remove from Harness AI",
       "why": "The user removes test projects from the list by right click"
     },
@@ -287,8 +293,8 @@
 - Scope: release-fixes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 5/8
-- Revision: 22
+- Progress: 6/8
+- Revision: 24
 
 ## Objective
 
@@ -321,9 +327,9 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
   - Commit: feat: bridge workspace removal to the renderer
   - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
   - Depends on: F4
-- [TODO] F6 — Project list context menu with Remove from Harness AI (work)
+- [DONE] F6 — Project list context menu with Remove from Harness AI (work)
   - Commit: feat: remove a project from the project list menu
-  - Files: product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx
+  - Files: product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-workspaces.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts
   - Depends on: F5
 - [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1

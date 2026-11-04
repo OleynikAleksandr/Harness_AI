@@ -20,6 +20,7 @@ export function useSessionWindowWorkspaces(options: {
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(
     detachedMode?.workspaceId ?? initialWorkspace.id
   );
+  const [builtInWorkspaceId, setBuiltInWorkspaceId] = useState("");
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ??
@@ -29,9 +30,11 @@ export function useSessionWindowWorkspaces(options: {
   const applyWorkspaceList = useCallback(
     (snapshot: {
       activeWorkspaceId: string;
+      builtInWorkspaceId?: string;
       workspaces: HarnessWorkspace[];
     }): HarnessWorkspace => {
       setWorkspaces(snapshot.workspaces);
+      setBuiltInWorkspaceId(snapshot.builtInWorkspaceId ?? "");
       const workspaceId =
         detachedMode?.workspaceId ?? snapshot.activeWorkspaceId;
       const workspace =
@@ -68,13 +71,40 @@ export function useSessionWindowWorkspaces(options: {
     await onWorkspaceActivated(result.workspace);
   }
 
+  /**
+   * Removes a project from the app through Core and mirrors the new list;
+   * when Core activated another workspace, its data is reloaded. Resolves to
+   * an error text for the menu, or null.
+   */
+  async function removeWorkspace(workspaceId: string): Promise<string | null> {
+    const result = await window.harnessCore?.removeWorkspace(workspaceId);
+    if (!result) {
+      return "Core is not available.";
+    }
+    if (!result.ok) {
+      return result.error;
+    }
+    setWorkspaces(result.workspaces);
+    setBuiltInWorkspaceId(result.builtInWorkspaceId);
+    const active = result.workspaces.find(
+      (item) => item.id === result.activeWorkspaceId
+    );
+    if (active && active.id !== activeWorkspaceId) {
+      setActiveWorkspaceId(active.id);
+      await onWorkspaceActivated(active);
+    }
+    return null;
+  }
+
   return {
     activateWorkspace,
     activeWorkspace,
     activeWorkspaceId,
     applyWorkspaceList,
+    builtInWorkspaceId,
     closeWorkspaceMenu: () => setIsWorkspaceMenuOpen(false),
     isWorkspaceMenuOpen,
+    removeWorkspace,
     selectWorkspace,
     toggleWorkspaceMenu: () => setIsWorkspaceMenuOpen((current) => !current),
     workspaces,

@@ -15,6 +15,7 @@ import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js"
 import {
   changedDocuments,
   commitPlan,
+  ensureNoIntegration,
   ensureNoTransaction,
   ensureRevision,
   type KitContext,
@@ -275,6 +276,7 @@ export function extendScope(
   expectedRevision?: number
 ): PlanChange & { deferredDocsTaskId: string | null; roundId: string } {
   return locked(context, () => {
+    ensureNoTransaction(context);
     const current = readPlan(context);
     ensureRevision(current, expectedRevision);
     const result = workflowPlanFacade.extend(
@@ -305,6 +307,7 @@ export function updateTask(
   expectedRevision?: number
 ): PlanChange {
   return locked(context, () => {
+    ensureNoTransaction(context);
     const current = readPlan(context);
     ensureRevision(current, expectedRevision);
     const original = workflowPlanFacade.task(current, taskId);
@@ -344,6 +347,7 @@ export function updateTask(
 /** `accept`: records the user's acceptance; the scope stays open. */
 export function acceptScope(context: KitContext, note: string): PlanChange {
   return locked(context, () => {
+    ensureNoTransaction(context);
     const plan = workflowPlanFacade.accept(
       readPlan(context),
       note,
@@ -367,6 +371,7 @@ export function closeScope(
   note: string
 ): PlanChange {
   return locked(context, () => {
+    ensureNoTransaction(context);
     const dirty = context.git
       .changes(context.root)
       .all.filter((file) => !context.git.isKitManagedPath(file));
@@ -400,6 +405,7 @@ export function carryoverScope(
   input: CarryoverInput
 ): PlanChange {
   return locked(context, () => {
+    ensureNoTransaction(context);
     const plan = workflowPlanFacade.carryover(
       readPlan(context),
       input,
@@ -422,6 +428,7 @@ export function setBlocked(
   reason: string | null
 ): PlanChange {
   return locked(context, () => {
+    ensureNoIntegration(context);
     const current = readPlan(context);
     const plan =
       reason === null

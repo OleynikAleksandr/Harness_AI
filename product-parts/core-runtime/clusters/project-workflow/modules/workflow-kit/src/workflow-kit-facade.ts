@@ -26,6 +26,10 @@ import {
   WorkflowInstallerFacade,
 } from "../../workflow-installer/src/workflow-installer-facade.js";
 import type {
+  IntegrationOutcome,
+  IntegrationState,
+} from "../../workflow-integration/src/workflow-integration-facade.js";
+import type {
   ExecutionStrategy,
   RoundDigest,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
@@ -58,6 +62,11 @@ import {
   setupAssignment,
 } from "./kit-executor.js";
 import { type HookResult, runGitHook } from "./kit-hooks.js";
+import {
+  continueIntegration,
+  integrationStatus,
+  startIntegration,
+} from "./kit-integration.js";
 import {
   applyQuality,
   detectQuality,
@@ -106,6 +115,10 @@ export type {
   ExecutionModeOption,
   ScopeProposal,
 } from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
+export type {
+  IntegrationOutcome,
+  IntegrationState,
+} from "../../workflow-integration/src/workflow-integration-facade.js";
 export type {
   AssignmentCleanupResult,
   AssignmentCreated,
@@ -312,6 +325,25 @@ export class WorkflowKitFacade {
   /** `assignment:cleanup [--id]` in main: worktree and branch removal after integration. */
   cleanupAssignments(root: string, id?: string): AssignmentCleanupResult {
     return cleanupAssignments(this.context(root), id);
+  }
+
+  /** `integration:start --id --source` in main: merge, plan candidate and integration commit. */
+  startIntegration(
+    root: string,
+    assignmentId: string,
+    source: string
+  ): IntegrationOutcome {
+    return startIntegration(this.context(root), assignmentId, source);
+  }
+
+  /** `integration:continue --id`: finishes an unfinished integration. */
+  continueIntegration(root: string, assignmentId: string): IntegrationOutcome {
+    return continueIntegration(this.context(root), assignmentId);
+  }
+
+  /** `integration:status`: IDLE or the phase of the integration journal. */
+  integrationStatus(root: string): IntegrationState {
+    return integrationStatus(this.context(root));
   }
 
   /** The executor record of the checkout; null outside an executor worktree. */

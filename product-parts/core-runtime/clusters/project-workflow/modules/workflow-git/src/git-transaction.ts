@@ -44,7 +44,14 @@ export interface CommitRequest {
   prepare?: (files: string[]) => void;
   role: CommitRole;
   scopeId: string | null;
+  /**
+   * Executor source of an integration commit (role `integration`): the merge
+   * of it must be in progress (`MERGE_HEAD`); the commit gets two parents.
+   */
+  sourceCommit?: string | null;
   taskId: string | null;
+  /** Transaction id to use instead of a new one (an integration operation id). */
+  transactionId?: string;
 }
 
 export interface CommitResult {
@@ -62,6 +69,16 @@ function head(git: GitRunner, root: string): string | null {
   const output = git.run(root, ["rev-parse", "--verify", "-q", "HEAD"], {
     allowFailure: true,
   });
+  return output.status === 0 ? output.stdout.trim() : null;
+}
+
+/** The commit being merged (`MERGE_HEAD`), or null when no merge is in progress. */
+export function mergeHead(git: GitRunner, root: string): string | null {
+  const output = git.run(
+    root,
+    ["rev-parse", "--verify", "-q", "MERGE_HEAD^{commit}"],
+    { allowFailure: true }
+  );
   return output.status === 0 ? output.stdout.trim() : null;
 }
 
@@ -88,15 +105,20 @@ export function confirmedCommit(
   if (!now || now === journal.beforeHead) {
     return null;
   }
-  const [commit] = readHistory(git, root, journal.beforeHead, now).slice(-1);
+  const [commit] = readHistory(git, root, journal.beforeHead, now, {
+    firstParent: true,
+  }).slice(-1);
   if (!commit || commit.trailers["Workflow-Transaction"]?.[0] !== journal.id) {
     return null;
   }
+  // An integration commit has the source as its second parent.
+  const parents = [journal.beforeHead, journal.sourceCommit ?? null].filter(
+    (sha): sha is string => sha !== null
+  );
   ensure(
-    (commit.parents[0] ?? null) === journal.beforeHead &&
-      commit.parents.length <= 1,
+    commit.parents.join(" ") === parents.join(" "),
     "TRANSACTION_PARENT",
-    "The commit parent does not match the transaction."
+    "The commit parents do not match the transaction."
   );
   ensure(
     git.text(root, ["rev-parse", "HEAD^{tree}"]) === journal.candidateTree,
@@ -234,6 +256,7 @@ function prepareJournal(
     schema: 1,
     scopeId: request.scopeId,
     selected: [...new Set([...request.files, request.planPath])].sort(),
+    sourceCommit: request.sourceCommit ?? null,
     taskId: request.taskId,
   };
 }
@@ -254,6 +277,18 @@ export function commitCandidate(
     "Another commit transaction is unfinished.",
     {},
     "Run `scripts/workflow repair` to finish or cancel it."
+  );
+  const merging = mergeHead(git, root);
+  ensure(
+    merging === (request.sourceCommit ?? null),
+    request.sourceCommit ? "MERGE_REQUIRED" : "MERGE_IN_PROGRESS",
+    request.sourceCommit
+      ? `An integration commit needs the merge of ${request.sourceCommit} in progress.`
+      : "A merge is in progress; only the integration of its source commits it.",
+    { mergeHead: merging, source: request.sourceCommit ?? null },
+    request.sourceCommit
+      ? "Run `scripts/workflow integration:continue --id <assignment>`."
+      : "Finish it with `scripts/workflow integration:continue --id <assignment>` or abort it with `git merge --abort`."
   );
   const staged = readChanges(git, root).staged;
   const allowed = new Set([...request.files, request.planPath]);

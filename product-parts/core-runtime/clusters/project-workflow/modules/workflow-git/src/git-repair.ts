@@ -114,6 +114,7 @@ function retry(git: GitRunner, root: string): CommitResult {
     git,
     root,
     {
+      assignmentId: journal.assignmentId ?? null,
       checks: journal.checks,
       excluded: journal.excluded,
       files: journal.selected.filter((file) => file !== journal.planPath),
@@ -123,6 +124,7 @@ function retry(git: GitRunner, root: string): CommitResult {
       planText: journal.candidatePlan,
       role: journal.role,
       scopeId: journal.scopeId,
+      sourceCommit: journal.sourceCommit ?? null,
       taskId: journal.taskId,
     },
     journal.id

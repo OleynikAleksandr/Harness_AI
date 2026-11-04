@@ -38,6 +38,14 @@ export interface WorkflowRound {
   title: string;
 }
 
+/** How an orchestrated task reached DONE: its integration into main (spec 7). */
+export interface TaskIntegration {
+  /** Id of the integration operation; the `Workflow-Transaction` of its commit. */
+  operationId: string;
+  /** The executor source commit, the second parent of the integration commit. */
+  sourceCommit: string;
+}
+
 export interface WorkflowTask {
   acceptance: string[];
   checks: string[];
@@ -49,6 +57,8 @@ export interface WorkflowTask {
   files: string[];
   fixes: string | null;
   id: string;
+  /** Present only on a task completed by an integration commit. */
+  integration?: TaskIntegration;
   iteration: number;
   kind: TaskKind;
   /** Absent means false; only `work` tasks may set it. */

@@ -33,6 +33,7 @@ import {
   completeTask,
   createScope,
   findTask,
+  integrateTask,
   nextReadyTask,
   type ScopeInput,
   startTask,
@@ -49,6 +50,7 @@ export type {
   RoundDigest,
   RoundKind,
   ScopeStatus,
+  TaskIntegration,
   TaskKind,
   TaskStatus,
   UserDecision,
@@ -128,6 +130,19 @@ export class WorkflowPlanFacade {
     digest: RoundDigest | null = null
   ): WorkflowPlan {
     return completeTask(plan, taskId, digest);
+  }
+
+  /** DONE through an integration commit of an orchestrated scope (spec 7). */
+  integrateTask(
+    plan: WorkflowPlan,
+    taskId: string,
+    integration: {
+      digest: RoundDigest | null;
+      operationId: string;
+      sourceCommit: string;
+    }
+  ): WorkflowPlan {
+    return integrateTask(plan, taskId, integration);
   }
 
   block(plan: WorkflowPlan, reason: string): WorkflowPlan {

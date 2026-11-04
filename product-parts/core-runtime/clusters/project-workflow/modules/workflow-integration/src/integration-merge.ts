@@ -1,0 +1,485 @@
+import { randomUUID } from "node:crypto";
+import {
+  type AssignmentRecord,
+  workflowAssignmentFacade,
+} from "../../workflow-assignment/src/workflow-assignment-facade.js";
+import type { WorkflowGitFacade } from "../../workflow-git/src/workflow-git-facade.js";
+import {
+  PLAN_PATH,
+  type RoundDigest,
+  type WorkflowPlan,
+  type WorkflowTask,
+  workflowPlanFacade,
+} from "../../workflow-plan/src/workflow-plan-facade.js";
+import {
+  ensure,
+  WorkflowError,
+  workflowPlatformFacade,
+} from "../../workflow-platform/src/workflow-platform-facade.js";
+import {
+  type IntegrationJournal,
+  readJournal,
+  removeJournal,
+  saveJournal,
+} from "./integration-journal.js";
+import { proveSource } from "./integration-proof.js";
+
+/** The result of `integration:start` / `integration:continue`. */
+export interface IntegrationOutcome {
+  /** The main record after integration (with its cleanup), else null. */
+  assignment: AssignmentRecord | null;
+  assignmentId: string;
+  /** Unresolved conflicts of a CONFLICT result. */
+  conflicts: string[];
+  integrationCommit: string | null;
+  mainHead: string;
+  operationId: string;
+  source: string;
+  status: "CONFLICT" | "INTEGRATED";
+  taskId: string;
+}
+
+const MERGE_TIMEOUT_MS = 10 * 60 * 1000;
+const ERROR_TAIL = 4000;
+const UNKNOWN_HINT =
+  "Inspect main with `git status` and `git log -1`; abort a merge in progress with `git merge --abort`, then remove .harness/workflow/local/integration.json and start the integration again.";
+
+const continueHint = (id: string): string =>
+  `scripts/workflow integration:continue --id ${id}`;
+
+/** A path is in scope when it equals or is nested (by segment) in a task file. */
+function inTaskScope(files: readonly string[], file: string): boolean {
+  return files.some((entry) => file === entry || file.startsWith(`${entry}/`));
+}
+
+function outcome(
+  journal: IntegrationJournal,
+  fields: Partial<IntegrationOutcome> & Pick<IntegrationOutcome, "status">
+): IntegrationOutcome {
+  return {
+    assignment: null,
+    assignmentId: journal.assignmentId,
+    conflicts: [],
+    integrationCommit: null,
+    mainHead: journal.mainHead,
+    operationId: journal.operationId,
+    source: journal.source,
+    taskId: journal.taskId,
+    ...fields,
+  };
+}
+
+/** Records UNKNOWN and throws: the state cannot be proven, nothing is retried. */
+function unknown(
+  root: string,
+  journal: IntegrationJournal,
+  message: string,
+  error: string | null = null
+): never {
+  saveJournal(root, { ...journal, error, phase: "UNKNOWN" });
+  throw new WorkflowError(
+    "INTEGRATION_UNKNOWN",
+    message,
+    { error, operationId: journal.operationId },
+    UNKNOWN_HINT
+  );
+}
+
+function resolveCommit(
+  git: WorkflowGitFacade,
+  root: string,
+  revision: string
+): string | null {
+  const output = git.git.run(
+    root,
+    ["rev-parse", "--verify", "-q", `${revision}^{commit}`],
+    { allowFailure: true }
+  );
+  return output.status === 0 ? output.stdout.trim() : null;
+}
+
+/** The plan of main at the journal's HEAD: the base of the plan candidate. */
+function mainPlan(
+  git: WorkflowGitFacade,
+  root: string,
+  journal: IntegrationJournal
+): { plan: WorkflowPlan; task: WorkflowTask; text: string } {
+  const text = git.show(root, journal.mainHead, PLAN_PATH);
+  ensure(text !== null, "NOT_INSTALLED", `${PLAN_PATH} is missing in main.`);
+  const plan = workflowPlanFacade.parse(text);
+  return { plan, task: workflowPlanFacade.task(plan, journal.taskId), text };
+}
+
+/**
+ * Main's plan with the task DONE through this integration (`operationId`,
+ * `sourceCommit`). A DOCS task takes the round digest its executor recorded
+ * in the source plan; the executor plan itself is discarded.
+ */
+function candidatePlan(
+  git: WorkflowGitFacade,
+  root: string,
+  plan: WorkflowPlan,
+  journal: IntegrationJournal
+): WorkflowPlan {
+  const task = workflowPlanFacade.task(plan, journal.taskId);
+  let digest: RoundDigest | null = null;
+  if (task.kind === "docs") {
+    const text = git.show(root, journal.source, PLAN_PATH);
+    const source = text
+      ? workflowPlanFacade.parse(text, { projection: false })
+      : null;
+    digest =
+      source?.rounds.find((round) => round.id === task.roundId)?.digest ?? null;
+  }
+  return workflowPlanFacade.integrateTask(plan, task.id, {
+    digest,
+    operationId: journal.operationId,
+    sourceCommit: journal.source,
+  });
+}
+
+/** HEAD is the commit of this integration: parents main HEAD and source, its transaction. */
+function isIntegrationCommit(
+  git: WorkflowGitFacade,
+  root: string,
+  journal: IntegrationJournal,
+  head: string
+): boolean {
+  const commit = git
+    .history(root, journal.mainHead, head)
+    .find((item) => item.sha === head);
+  return (
+    commit !== undefined &&
+    commit.parents.join(" ") === `${journal.mainHead} ${journal.source}` &&
+    commit.trailers["Workflow-Role"]?.join() === "integration" &&
+    commit.trailers["Workflow-Transaction"]?.join() === journal.operationId
+  );
+}
+
+/**
+ * After the integration commit: the record becomes INTEGRATED with the
+ * commit, the executor worktree and branch are cleaned up (a refusal or
+ * failure is `cleanup: PENDING`, the integration still succeeds), and the
+ * journal is removed.
+ */
+function finish(
+  git: WorkflowGitFacade,
+  root: string,
+  journal: IntegrationJournal,
+  sha: string,
+  now: () => string
+): IntegrationOutcome {
+  const record = workflowAssignmentFacade.read(root, journal.assignmentId);
+  ensure(
+    record,
+    "ASSIGNMENT_UNKNOWN",
+    `The main checkout has no assignment ${journal.assignmentId}.`
+  );
+  let updated: AssignmentRecord =
+    record.status === "INTEGRATED" && record.integrationCommit === sha
+      ? record
+      : {
+          ...record,
+          integrationCommit: sha,
+          status: "INTEGRATED",
+          updatedAt: now(),
+        };
+  workflowAssignmentFacade.write(root, updated);
+  try {
+    updated = workflowAssignmentFacade.cleanup(git, root, updated, now());
+  } catch (error) {
+    updated = {
+      ...updated,
+      cleanup: {
+        at: now(),
+        reason: (error as Error).message,
+        status: "PENDING",
+      },
+    };
+    workflowAssignmentFacade.write(root, updated);
+  }
+  removeJournal(root);
+  return outcome(journal, {
+    assignment: updated,
+    integrationCommit: sha,
+    status: "INTEGRATED",
+  });
+}
+
+/** Phase PREPARED: `git merge --no-commit --no-ff <source>`; no MERGE_HEAD is UNKNOWN. */
+function merge(
+  git: WorkflowGitFacade,
+  root: string,
+  journal: IntegrationJournal
+): IntegrationJournal {
+  const dirty = git.changes(root).all;
+  ensure(
+    dirty.length === 0 && git.mergeHead(root) === null,
+    "INTEGRATION_DIRTY",
+    "Main has changes; the integration merges only into a clean main.",
+    { paths: dirty }
+  );
+  const merging: IntegrationJournal = { ...journal, phase: "MERGING" };
+  saveJournal(root, merging);
+  const output = git.git.run(
+    root,
+    ["merge", "--no-commit", "--no-ff", "-q", journal.source],
+    { allowFailure: true, timeoutMs: MERGE_TIMEOUT_MS }
+  );
+  if (git.mergeHead(root) !== journal.source) {
+    unknown(
+      root,
+      merging,
+      `git merge of ${journal.source} left no merge state; it is never retried automatically.`,
+      `${output.stderr}${output.stdout}`.slice(-ERROR_TAIL)
+    );
+  }
+  return merging;
+}
+
+/** Runs the commit transaction; failed checks keep the merge state (CHECKS_FAILED). */
+function commit(
+  git: WorkflowGitFacade,
+  root: string,
+  journal: IntegrationJournal,
+  plan: WorkflowPlan,
+  files: string[]
+): string {
+  const candidate = candidatePlan(git, root, plan, journal);
+  const task = workflowPlanFacade.task(plan, journal.taskId);
+  const checking: IntegrationJournal = {
+    ...journal,
+    error: null,
+    phase: "CHECKING",
+  };
+  saveJournal(root, checking);
+  try {
+    return git.transactions.commit(root, {
+      assignmentId: journal.assignmentId,
+      checks: task.checks,
+      files,
+      iteration: task.iteration,
+      message: `merge: ${task.title}`,
+      planPath: PLAN_PATH,
+      planText: workflowPlanFacade.render(candidate),
+      role: "integration",
+      scopeId: plan.scope?.id ?? null,
+      sourceCommit: journal.source,
+      taskId: task.id,
+      transactionId: journal.operationId,
+    }).sha;
+  } catch (error) {
+    if (!(error instanceof WorkflowError && error.code === "COMMIT_FAILED")) {
+      throw error;
+    }
+    const output = String(error.details.output ?? error.message);
+    saveJournal(root, {
+      ...checking,
+      error: output.slice(-ERROR_TAIL),
+      phase: "CHECKS_FAILED",
+    });
+    throw new WorkflowError(
+      "INTEGRATION_CHECKS_FAILED",
+      `The checks of ${task.id} failed on the merged result; the merge and your fixes are kept.`,
+      { output, phase: "CHECKS_FAILED" },
+      `Fix the files of ${task.id} in main, then run ${continueHint(journal.assignmentId)}.`
+    );
+  }
+}
+
+/**
+ * Drives an integration from its journal to the end (spec 7). Reconciles a
+ * crash first: a pending transaction of this integration is finished or
+ * rolled back, and a HEAD that already is the integration commit completes
+ * without a second merge. Never resets.
+ */
+function resume(
+  git: WorkflowGitFacade,
+  root: string,
+  stored: IntegrationJournal,
+  now: () => string
+): IntegrationOutcome {
+  let journal = stored;
+  const transaction = git.transactions.journal(root);
+  if (transaction) {
+    ensure(
+      transaction.role === "integration" &&
+        transaction.id === journal.operationId,
+      "TRANSACTION_PENDING",
+      "A commit transaction outside this integration is unfinished.",
+      {},
+      "Run `scripts/workflow repair`."
+    );
+    if (git.transactions.confirmed(root, transaction)) {
+      const finished = git.transactions.finish(root);
+      return finish(git, root, journal, finished?.sha ?? "", now);
+    }
+    if (!git.transactions.cancel(root)) {
+      unknown(
+        root,
+        journal,
+        "The prepared integration commit changed concurrently."
+      );
+    }
+  }
+  const head = git.head(root);
+  if (head !== journal.mainHead) {
+    if (head && isIntegrationCommit(git, root, journal, head)) {
+      return finish(git, root, journal, head, now);
+    }
+    unknown(
+      root,
+      journal,
+      `Main moved to ${head ?? "nothing"} outside the integration of ${journal.mainHead}.`
+    );
+  }
+  if (journal.phase === "UNKNOWN") {
+    throw new WorkflowError(
+      "INTEGRATION_UNKNOWN",
+      "The integration state could not be proven earlier; it is not retried.",
+      { error: journal.error, operationId: journal.operationId },
+      UNKNOWN_HINT
+    );
+  }
+  if (journal.phase === "PREPARED") {
+    journal = merge(git, root, journal);
+  }
+  if (git.mergeHead(root) !== journal.source) {
+    unknown(root, journal, `No merge of ${journal.source} is in progress.`);
+  }
+  // The executor plan is discarded: main's plan is the base of the candidate.
+  const { plan, task, text } = mainPlan(git, root, journal);
+  workflowPlatformFacade.writeFileAtomic(
+    workflowPlanFacade.planFile(root),
+    text
+  );
+  git.git.run(root, ["add", "--", PLAN_PATH]);
+  const conflicts = git.conflicts(root);
+  if (conflicts.length > 0) {
+    saveJournal(root, { ...journal, phase: "CONFLICT" });
+    return outcome(journal, { conflicts, status: "CONFLICT" });
+  }
+  const changed = git.changes(root).all.filter((file) => file !== PLAN_PATH);
+  const outside = changed.filter((file) => !inTaskScope(task.files, file));
+  if (outside.length > 0) {
+    git.git.run(root, ["merge", "--abort"]);
+    removeJournal(root);
+    throw new WorkflowError(
+      "INTEGRATION_SCOPE",
+      `The merged result changes files outside ${task.id}: ${outside.join(", ")}. The merge was aborted.`,
+      { paths: outside },
+      `Keep the integration inside the files of ${task.id}, then run scripts/workflow integration:start --id ${journal.assignmentId} --source ${journal.source}.`
+    );
+  }
+  const sha = commit(git, root, journal, plan, changed);
+  return finish(git, root, journal, sha, now);
+}
+
+/** Preconditions of a new integration in main (spec 7). */
+function ensureCanIntegrate(
+  git: WorkflowGitFacade,
+  root: string,
+  plan: WorkflowPlan | null
+): void {
+  ensure(
+    plan,
+    "NOT_INSTALLED",
+    `${PLAN_PATH} does not exist; install the Workflow Kit first.`
+  );
+  ensure(
+    plan.scope !== null &&
+      workflowPlanFacade.execution(plan).strategy === "orchestrated",
+    "NOT_ORCHESTRATED",
+    "Integration exists only in an orchestrated scope."
+  );
+  ensure(
+    plan.scope.status === "ACTIVE",
+    "SCOPE_NOT_ACTIVE",
+    `The scope is ${plan.scope.status}.`
+  );
+  ensure(
+    git.transactions.journal(root) === null,
+    "TRANSACTION_PENDING",
+    "A commit transaction is unfinished.",
+    {},
+    "Run `scripts/workflow repair`."
+  );
+  const dirty = git.changes(root).all;
+  ensure(
+    dirty.length === 0 && git.mergeHead(root) === null,
+    "INTEGRATION_DIRTY",
+    "Integrate into a clean main: commit or remove the changes first (untracked files too).",
+    { paths: dirty }
+  );
+}
+
+/**
+ * `integration:start --id <assignment> --source <sha>` in main. A retry of
+ * the same assignment and source continues the journal; another integration
+ * is INTEGRATION_ACTIVE.
+ */
+export function startIntegration(
+  git: WorkflowGitFacade,
+  root: string,
+  request: { assignmentId: string; now: () => string; source: string }
+): IntegrationOutcome {
+  const active = readJournal(root);
+  if (active) {
+    ensure(
+      active.assignmentId === request.assignmentId &&
+        resolveCommit(git, root, request.source) === active.source,
+      "INTEGRATION_ACTIVE",
+      `The integration of ${active.assignmentId} is unfinished.`,
+      { assignmentId: active.assignmentId, phase: active.phase },
+      continueHint(active.assignmentId)
+    );
+    return resume(git, root, active, request.now);
+  }
+  const plan = workflowPlanFacade.read(root);
+  ensureCanIntegrate(git, root, plan);
+  const record = workflowAssignmentFacade.read(root, request.assignmentId);
+  ensure(
+    record,
+    "ASSIGNMENT_UNKNOWN",
+    `The main checkout has no assignment ${request.assignmentId}.`
+  );
+  const proof = proveSource(git, root, record, request.source);
+  const journal: IntegrationJournal = {
+    assignmentId: record.id,
+    error: null,
+    mainHead: git.head(root) ?? "",
+    operationId: randomUUID(),
+    phase: "PREPARED",
+    source: proof.sourceCommit,
+    startedAt: request.now(),
+    taskId: record.taskId,
+  };
+  // The plan transition is checked before anything is written.
+  candidatePlan(git, root, plan as WorkflowPlan, journal);
+  saveJournal(root, journal);
+  return resume(git, root, journal, request.now);
+}
+
+/** `integration:continue --id <assignment>`: finishes the unfinished integration. */
+export function continueIntegration(
+  git: WorkflowGitFacade,
+  root: string,
+  request: { assignmentId: string; now: () => string }
+): IntegrationOutcome {
+  const journal = readJournal(root);
+  ensure(
+    journal,
+    "NO_INTEGRATION",
+    "No integration is unfinished.",
+    {},
+    "Start one with scripts/workflow integration:start --id <assignment> --source <sha>."
+  );
+  ensure(
+    journal.assignmentId === request.assignmentId,
+    "INTEGRATION_ACTIVE",
+    `The unfinished integration belongs to ${journal.assignmentId}.`,
+    { assignmentId: journal.assignmentId, phase: journal.phase },
+    continueHint(journal.assignmentId)
+  );
+  return resume(git, root, journal, request.now);
+}

@@ -278,6 +278,7 @@ export function commitDocs(
   message = "docs: update documentation"
 ): CommitResult {
   return locked(context, () => {
+    ensureNoTransaction(context);
     const plan = readPlan(context);
     ensure(
       plan.currentTaskId === null,

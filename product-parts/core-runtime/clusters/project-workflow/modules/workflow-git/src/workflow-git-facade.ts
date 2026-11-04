@@ -47,6 +47,7 @@ import {
   commitCandidate,
   confirmedCommit,
   finishConfirmed,
+  mergeHead,
   rollbackTransaction,
 } from "./git-transaction.js";
 
@@ -213,11 +214,30 @@ export class WorkflowGitFacade {
         return journal ? rollbackTransaction(this.git, root, journal) : false;
       },
       commit: (root, request) =>
-        commitCandidate(this.git, root, request, randomUUID()),
+        commitCandidate(
+          this.git,
+          root,
+          request,
+          request.transactionId ?? randomUUID()
+        ),
       confirmed: (root, journal) => confirmedCommit(this.git, root, journal),
       finish: (root) => finishConfirmed(this.git, root),
       journal: (root) => readJournal(root),
     };
+  }
+
+  /** The commit being merged (`MERGE_HEAD`), or null without a merge in progress. */
+  mergeHead(root: string): string | null {
+    return mergeHead(this.git, root);
+  }
+
+  /** Paths with unresolved merge conflicts, sorted. */
+  conflicts(root: string): string[] {
+    return this.git
+      .run(root, ["diff", "--name-only", "-z", "--diff-filter=U"])
+      .stdout.split("\u0000")
+      .filter(Boolean)
+      .sort();
   }
 
   /** Maps each task to its commit; throws when plan and history disagree. */

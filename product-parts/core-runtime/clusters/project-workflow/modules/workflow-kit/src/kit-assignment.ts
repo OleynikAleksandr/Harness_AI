@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import {
   type AssignmentRecord,
   type AssignmentSchedule,
@@ -20,9 +19,6 @@ import {
   readPlan,
   requireHead,
 } from "./kit-context.js";
-
-/** Integration journal of E9; while it exists no assignment is created. */
-const INTEGRATION_FILE = "integration.json";
 
 interface ReadyTask {
   id: string;
@@ -104,12 +100,8 @@ function ensureCanAssign(context: KitContext, plan: WorkflowPlan): void {
     "SCOPE_NOT_ACTIVE",
     `The scope is ${plan.scope.status}.`
   );
+  // No transaction and no integration journal.
   ensureNoTransaction(context);
-  ensure(
-    !existsSync(context.git.localPath(context.root, INTEGRATION_FILE)),
-    "INTEGRATION_ACTIVE",
-    "An integration is unfinished; no task is assigned until it completes."
-  );
   const dirty = context.git
     .changes(context.root)
     .all.filter((file) => !context.git.isKitManagedPath(file));

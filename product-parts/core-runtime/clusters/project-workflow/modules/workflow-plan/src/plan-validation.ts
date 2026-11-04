@@ -311,6 +311,20 @@ function validateTaskFields(task: WorkflowTask): void {
     schemaError,
     `Only delivery tasks carry a confirmation: ${task.id}`
   );
+  if (task.integration !== undefined) {
+    ensure(
+      task.status === "DONE" &&
+        typeof task.integration === "object" &&
+        task.integration !== null &&
+        SHA_PATTERN.test(String(task.integration.sourceCommit)),
+      schemaError,
+      `integration belongs to a DONE task and names a full source SHA: ${task.id}`
+    );
+    identifier(
+      task.integration.operationId,
+      `tasks.${task.id}.integration.operationId`
+    );
+  }
 }
 
 function validateTaskGraph(plan: WorkflowPlan): void {

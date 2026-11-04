@@ -3,21 +3,29 @@
 ## Responsibility
 
 Integration of executor results into main (section 7 of
-`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`). For now it
-owns the proof of an executor source: before main accepts a source commit,
-the Kit proves its history, its diff, its check receipt and the task
-contract. The merge, the integration journal and `integration:start` /
-`integration:continue` come later in this module. The verification of
-two-parent integration commits in main history belongs to `workflow-git`.
+`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`):
+- the proof of an executor source: its history, its diff, its check receipt
+  and the task contract;
+- the merge of a proven source into main with its journal, the plan
+  candidate, the scope check and the two-parent integration commit;
+- `continue` after a conflict, failed checks or a crash, and the status.
+
+The Kit commands (`integration:start`, `integration:continue`,
+`integration:status`), the project lock and the busy refusal of other Kit
+writes belong to `workflow-kit`. The commit transaction (two parents,
+`Workflow-Source`) and the verification of integration commits in main
+history belong to `workflow-git`.
 
 ## Public Facade
 
 `WorkflowIntegrationFacade` (class, singleton `workflowIntegrationFacade`)
 in `src/workflow-integration-facade.ts`. The constructor takes a
 `WorkflowGitFacade` (tests pass one without the hook `GIT_*` variables).
-Types: `IntegrationProof`, `ProvenCheck`.
+Methods: `proveSource`, `start`, `continue`, `status`, `isActive`.
+Types: `IntegrationProof`, `ProvenCheck`, `IntegrationOutcome`,
+`IntegrationJournal`, `IntegrationPhase`, `IntegrationState`.
 
-## Contract
+## Source Proof
 
 `proveSource(mainRoot, assignment, sourceSha)` (`src/integration-proof.ts`)
 takes the main checkout, the main assignment record and the reported SHA
@@ -70,13 +78,111 @@ checks}`, or throws the first failure, in this order:
 diff `base..source` (the plan file included) and `checks` every result of
 the receipt as `{id, stage, status}`. The proof never writes.
 
+## Integration Journal (`src/integration-journal.ts`)
+
+`.harness/workflow/local/integration.json` of main (ignored local state):
+`{operationId, assignmentId, taskId, source, mainHead, phase, startedAt,
+error}`. `operationId` is a new UUID per integration and is the
+`Workflow-Transaction` of the integration commit; `mainHead` is HEAD before
+the merge (the first parent); `error` keeps the tail of the last merge or
+check output. Phases:
+
+| Phase | Meaning |
+|---|---|
+| `PREPARED` | proven and journaled, the merge has not run |
+| `MERGING` | `git merge --no-commit --no-ff <source>` ran or is running |
+| `CONFLICT` | unresolved conflicts remain; the merge state stays |
+| `CHECKING` | the integration commit transaction is running |
+| `CHECKS_FAILED` | the merged checks failed; the merge state and fixes stay |
+| `UNKNOWN` | the state cannot be proven; never retried automatically |
+
+The journal is removed when the integration is done or aborted. An
+unreadable journal fails with `INTEGRATION_UNKNOWN`. `isActive(root)` is
+true while the file exists; `workflow-kit` refuses its other write commands
+then (`INTEGRATION_ACTIVE`). `status(root)` (`integration:status`) returns
+`{status: "IDLE" | phase, journal, mergeHead, conflicts}`.
+
+## Merge (`src/integration-merge.ts`)
+
+`start(mainRoot, {assignmentId, source, now})`:
+1. An existing journal: the same assignment and source (resolved to the
+   journal's SHA) continue it; anything else is `INTEGRATION_ACTIVE`.
+2. Preconditions, in this order: a plan (`NOT_INSTALLED`); an orchestrated
+   scope (`NOT_ORCHESTRATED`) that is `ACTIVE` (`SCOPE_NOT_ACTIVE`); no
+   commit transaction (`TRANSACTION_PENDING`); main clean, untracked files
+   included, and no merge in progress (`INTEGRATION_DIRTY`,
+   `details.paths`); the record exists (`ASSIGNMENT_UNKNOWN`); the source
+   proof above (`INTEGRATION_NOT_READY` for a record that is not
+   `READY_FOR_INTEGRATION`, also after it was integrated).
+3. The plan candidate is computed once before anything is written (the plan
+   errors of `integrateTask`: `TASK_NOT_TODO`, `DEPENDENCY_PENDING`, ...).
+4. The journal is written as `PREPARED`, then the integration runs.
+
+`continue(mainRoot, {assignmentId, now})`: `NO_INTEGRATION` without a
+journal, `INTEGRATION_ACTIVE` for another assignment; otherwise the
+integration runs from its journal.
+
+The integration from a journal:
+1. Crash reconciliation:
+   - a commit transaction of another role or id is `TRANSACTION_PENDING`;
+     one of this integration whose commit exists is finished
+     (`transactions.finish`) and the integration completes; an unconfirmed
+     one is rolled back (`transactions.cancel`; a refused rollback is
+     `UNKNOWN`);
+   - HEAD other than `mainHead`: when HEAD is this integration commit
+     (parents `mainHead` and `source`, role `integration`,
+     `Workflow-Transaction` = `operationId`) the integration completes
+     without a second merge; any other HEAD is `UNKNOWN`. Nothing is ever
+     reset.
+2. `UNKNOWN` stays refused (`INTEGRATION_UNKNOWN`, next action: inspect
+   main, `git merge --abort`, remove the journal, start again).
+3. `PREPARED`: `INTEGRATION_DIRTY` for changes, then phase `MERGING` and
+   `git merge --no-commit --no-ff -q <source>`. No `MERGE_HEAD` equal to the
+   source afterwards is `UNKNOWN` with the git output; it is never retried.
+   Every later phase needs `MERGE_HEAD` equal to the source (`UNKNOWN`
+   otherwise).
+4. The executor plan is discarded: the plan file becomes main's plan of
+   `mainHead` and is staged (a plan conflict is resolved this way).
+5. Unresolved conflicts (`git diff --diff-filter=U`): phase `CONFLICT`, the
+   result `{status: "CONFLICT", conflicts}`. The orchestrator resolves them
+   inside the task files, `git add`s them and runs `continue`; Kit never
+   applies ours/theirs.
+6. Every change against main HEAD (staged, unstaged, untracked; the plan
+   aside) must equal or be nested by path segment in a `files` entry of the
+   task; otherwise `INTEGRATION_SCOPE` (`details.paths`): `git merge
+   --abort`, the journal is removed, the record and the source are
+   unchanged, so the integration can start again.
+7. Phase `CHECKING`, then one commit transaction of `workflow-git`: role
+   `integration`, transaction id `operationId`, `sourceCommit` = source,
+   `assignmentId`, the task's iteration and checks, files = the changed
+   paths, message `merge: <task title>`, plan text = the candidate:
+   `workflowPlanFacade.integrateTask` on main's plan with `operationId` and
+   `sourceCommit` (a DOCS task takes its round digest from the source plan).
+   The managed pre-commit hook of main runs the task's commit checks on the
+   merged candidate. `COMMIT_FAILED` sets phase `CHECKS_FAILED` (with the
+   output) and throws `INTEGRATION_CHECKS_FAILED` (`details.output`): the
+   transaction restored the plan and index, `MERGE_HEAD` and the working
+   tree stay, the task stays `TODO`; `continue` retries from step 4. Other
+   errors (for example `GIT_IDENTITY_REQUIRED`) are rethrown and `continue`
+   retries as well.
+8. Completion: the record becomes `INTEGRATED` with `integrationCommit`,
+   then `workflowAssignmentFacade.cleanup` removes the worktree and branch;
+   a refusal or a thrown error is `cleanup: PENDING` with the reason and the
+   integration still succeeds. The journal is removed last, so a crash in
+   between completes on `continue`.
+
+The result is `{status: "INTEGRATED" | "CONFLICT", assignmentId, taskId,
+operationId, source, mainHead, integrationCommit, conflicts, assignment}`
+(`assignment` is the final record).
+
 ## Dependencies
 
 `workflow-git` (history, diff paths, changes, `show`, the Kit-managed path
-rule, the git runner), `workflow-plan` (`PLAN_PATH`, parse, read, types),
+rule, the git runner, `mergeHead`, `conflicts`, the commit transaction),
+`workflow-plan` (`PLAN_PATH`, parse, read, render, `integrateTask`, types),
 `workflow-quality` (receipt, configuration, check selection),
-`workflow-assignment` (the record type), `workflow-platform` (errors).
-Node built-ins only.
+`workflow-assignment` (records, cleanup), `workflow-platform` (errors,
+atomic writes). Node built-ins only.
 
 ## Tests
 
@@ -97,6 +203,35 @@ with real hooks and an executor worktree (orchestrated scope, QUALITY,
   without `Workflow-Assignment` (`HISTORY_NOT_LINEAR`) and with a file
   outside the task (`COMMIT_SCOPE_MISMATCH`); a correct integration commit
   is the task's commit with the diff against its first parent.
+
+`src/workflow-integration-merge.test.mjs` — a real temporary repository
+with real hooks and real executor worktrees (one on a branch), through the
+Kit facade and CLI, orchestrated scope with four parallel tasks and a lint
+check that fails only on the merged result of A and B:
+- happy path A: two parents, subject, identity, every trailer, the plan task
+  `DONE` with `integration`, the record `INTEGRATED` with cleanup `DONE`
+  (worktree gone), no journal, the main receipt, `validate` (history
+  verification), `recover`, `status`, `integration:status` text `IDLE`; a
+  second start is `INTEGRATION_NOT_READY`;
+- B integrated after A from the same base: the plan conflict resolved by
+  the Kit, `INTEGRATION_CHECKS_FAILED` with the journal `CHECKS_FAILED`,
+  `MERGE_HEAD` kept, task `TODO`, status text, then a fix in main and
+  `integration:continue` through the CLI (same `operationId`, branch
+  deleted);
+- C against a main `docs:commit` of the same file: `CONFLICT` with the
+  conflicted file and main's plan, a repeated start continues, the busy
+  refusals (`assignment:create`, `task:start` also through the CLI,
+  `docs:commit`, `task:block`, `accept`, another start or continue,
+  `pre-push`), `USAGE` without `--source`, a direct `git commit` of the
+  merge refused by the hook, `INTEGRATION_SCOPE` for an untracked file
+  (merge aborted, record unchanged), `INTEGRATION_DIRTY`, then a resolved
+  conflict and `continue`;
+- D: a simulated crash right after the merge commit (the transaction journal
+  and the integration journal left behind); `status` and `recover` still
+  work, `continue` completes the same commit without a second merge;
+- `DOCS-R1` through an executor with its digest: the round closes and the
+  scope is ready for acceptance; finally `validate`, the task-to-commit
+  mapping of every integrated task and five first-parent merges.
 
 ## Owned Paths
 

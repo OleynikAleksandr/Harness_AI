@@ -14,6 +14,7 @@ export type CommitRole =
   | "close"
   | "docs"
   | "implementation"
+  | "integration"
   | "kit-update"
   | "quality"
   | "repair"
@@ -43,6 +44,8 @@ export interface CommitJournal {
   schema: 1;
   scopeId: string | null;
   selected: string[];
+  /** Executor source of an integration commit: its second parent (`Workflow-Source`). */
+  sourceCommit?: string | null;
   taskId: string | null;
 }
 
@@ -84,6 +87,9 @@ export function commitMessageFor(journal: CommitJournal): string {
       : [`Workflow-Iteration: ${journal.iteration}`]),
     ...(journal.assignmentId
       ? [`Workflow-Assignment: ${journal.assignmentId}`]
+      : []),
+    ...(journal.sourceCommit
+      ? [`Workflow-Source: ${journal.sourceCommit}`]
       : []),
     `Workflow-Transaction: ${journal.id}`,
   ];

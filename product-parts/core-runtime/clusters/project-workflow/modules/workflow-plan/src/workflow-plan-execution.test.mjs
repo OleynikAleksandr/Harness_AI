@@ -193,6 +193,57 @@ try {
     false,
     "non-work and unlabelled tasks never pair"
   );
+
+  // integrateTask: DONE through an integration commit (spec 7).
+  const integration = (id, sha) => ({
+    digest: null,
+    operationId: `op-${id}`,
+    sourceCommit: sha.repeat(40),
+  });
+  const withA = plans.integrateTask(orchestrated, "A", integration("A", "a"));
+  assert.equal(withA.revision, orchestrated.revision + 1);
+  assert.equal(plans.task(withA, "A").status, "DONE");
+  assert.deepEqual(plans.task(withA, "A").integration, {
+    operationId: "op-A",
+    sourceCommit: "a".repeat(40),
+  });
+  assert.equal(withA.currentTaskId, null);
+  assert.deepEqual(plans.parse(plans.render(withA)), withA);
+  fails(
+    () => plans.integrateTask(sequential, "A", integration("A", "a")),
+    "NOT_ORCHESTRATED"
+  );
+  fails(
+    () => plans.integrateTask(withA, "A", integration("A", "a")),
+    "TASK_NOT_TODO"
+  );
+  fails(
+    () => plans.integrateTask(withA, "DOCS-R1", integration("D", "d")),
+    "DEPENDENCY_PENDING"
+  );
+  const withB = plans.integrateTask(withA, "B", integration("B", "b"));
+  const roundDigest = {
+    contracts: ["c"],
+    decisions: ["d"],
+    references: ["r"],
+    result: "done",
+  };
+  const closed = plans.integrateTask(withB, "DOCS-R1", {
+    ...integration("D", "d"),
+    digest: roundDigest,
+  });
+  assert.equal(closed.rounds[0].status, "CLOSED");
+  assert.deepEqual(closed.rounds[0].digest, roundDigest);
+  assert.equal(closed.scope.delivery, "READY_FOR_ACCEPTANCE");
+  const badIntegration = structuredClone(withA);
+  plans.task(badIntegration, "B").integration = plans.task(
+    withA,
+    "A"
+  ).integration;
+  fails(() => plans.validate(badIntegration), "PLAN_SCHEMA");
+  plans.task(badIntegration, "B").integration = undefined;
+  plans.task(badIntegration, "A").integration.sourceCommit = "abc";
+  fails(() => plans.validate(badIntegration), "PLAN_SCHEMA");
   console.log("workflow-plan execution tests passed");
 } finally {
   await build.cleanup();

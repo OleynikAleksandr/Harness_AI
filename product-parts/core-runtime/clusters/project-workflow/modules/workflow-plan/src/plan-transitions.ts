@@ -276,3 +276,42 @@ export function completeTask(
   recomputeDelivery(next);
   return validatePlan(next);
 }
+
+/**
+ * Marks a TODO `work` or `DOCS` task of an orchestrated scope DONE through
+ * its integration commit (spec 7): the `startTask` checks (ACTIVE scope, no
+ * task in progress, TODO, dependencies DONE), then `completeTask` (a DOCS
+ * task needs the digest), as one revision with `integration` recorded.
+ */
+export function integrateTask(
+  plan: WorkflowPlan,
+  taskId: string,
+  integration: {
+    digest: RoundDigest | null;
+    operationId: string;
+    sourceCommit: string;
+  }
+): WorkflowPlan {
+  ensure(
+    plan.scope?.execution?.strategy === "orchestrated",
+    "NOT_ORCHESTRATED",
+    "Only a task of an orchestrated scope is integrated."
+  );
+  const kind = findTask(plan, taskId).kind;
+  ensure(
+    kind === "work" || kind === "docs",
+    "TASK_KIND",
+    `${taskId} is a ${kind} task; only work and DOCS tasks are integrated.`
+  );
+  const next = completeTask(
+    startTask(plan, taskId, null),
+    taskId,
+    integration.digest
+  );
+  next.revision = plan.revision + 1;
+  findTask(next, taskId).integration = {
+    operationId: integration.operationId,
+    sourceCommit: integration.sourceCommit,
+  };
+  return validatePlan(next);
+}

@@ -42,6 +42,9 @@ through install) get it from `identityTemplate(folder)`, passed as
 - `diffPaths(root, from, to)` returns the sorted paths that differ between
   two commits (`git diff-tree -r --no-renames`; a rename is a deletion plus
   an addition).
+- `mergeHead(root)` returns the `MERGE_HEAD` commit of the checkout, or
+  `null` without a merge in progress; `conflicts(root)` the sorted paths
+  with unresolved conflicts (`git diff --diff-filter=U`).
 - `commitPaths(root, sha)`, `isAncestor(root, a, b)`,
   `show(root, revision, path)` (`null` when the file is absent),
   `config`/`setConfig`, and `gitPath(root, name)` (absolute path inside the
@@ -97,9 +100,15 @@ through install) get it from `identityTemplate(folder)`, passed as
 `transactions.commit(root, request)` creates exactly one commit. The request
 holds:
 - `role` (`bootstrap`, `kit-update`, `scope-plan`, `quality`,
-  `implementation`, `docs`, `acceptance`, `close`, `carryover`, `repair`, or
-  `assignment-plan` for the executor plan of an assignment), `scopeId`,
+  `implementation`, `docs`, `acceptance`, `close`, `carryover`, `repair`,
+  `assignment-plan` for the executor plan of an assignment, or
+  `integration` for the merge of an executor source in main), `scopeId`,
   `taskId`, `iteration`;
+- `sourceCommit` (optional): the executor source of an integration commit,
+  kept in the journal;
+- `transactionId` (optional): the id to use instead of a new UUID (the
+  integration passes its operation id, so every retry of one integration
+  has the same `Workflow-Transaction`);
 - `assignmentId` (optional): the assignment of an executor worktree commit,
   kept in the journal;
 - `message`, `files`;
@@ -111,6 +120,9 @@ Steps:
 
 1. Refuses to start, before anything is written, when:
    - another transaction is pending (`TRANSACTION_PENDING`);
+   - `MERGE_HEAD` differs from `sourceCommit`: a merge in progress without
+     `sourceCommit` is `MERGE_IN_PROGRESS`, an integration without the merge
+     of its source is `MERGE_REQUIRED`;
    - the index holds files outside the operation (`FOREIGN_STAGED`);
    - the repository-local identity is missing or a placeholder
      (`GIT_IDENTITY_REQUIRED`). The global identity is never used here. The
@@ -133,6 +145,8 @@ Steps:
    - `Workflow-Scope`, `Workflow-Task`, `Workflow-Role`;
    - `Workflow-Iteration` (every commit that names a task);
    - `Workflow-Assignment: <id>` when the request carries `assignmentId`;
+   - `Workflow-Source: <sha>` when the request carries `sourceCommit`
+     (`git commit` concludes the merge, so the commit has two parents);
    - `Workflow-Transaction`.
 6. On a non-zero exit (hook checks), restores the original plan and index,
    keeps working-tree edits, saves the failed journal under
@@ -140,8 +154,10 @@ Steps:
    `verification/pending-<id>.json` and throws `COMMIT_FAILED` with
    `retryable: true`. If HEAD, plan or index changed concurrently, the
    journal is kept for repair.
-7. On success, confirms the commit: the trailer transaction id, the single
-   parent equal to the previous HEAD, and the tree equal to the candidate.
+7. On success, confirms the commit (the newest first-parent commit after
+   the previous HEAD): the trailer transaction id, the parents equal to the
+   previous HEAD (plus `sourceCommit` for an integration;
+   `TRANSACTION_PARENT` otherwise), and the tree equal to the candidate.
    Then it copies `verification/pending-<id>.json` (with `commit: <sha>`) to
    `verification/<sha>.json` and `last.json`, removes the pending file,
    writes `last-commit.json` and removes the journal.
@@ -157,6 +173,11 @@ Other transaction calls:
 - `transactions.finish(root)` completes the bookkeeping of a confirmed
   commit.
 - `transactions.cancel(root)` rolls back an unconfirmed preparation.
+
+`src/workflow-git-transaction.test.mjs` covers the integration commit:
+`MERGE_REQUIRED` without the merge, `MERGE_IN_PROGRESS` for another role
+during it, then two parents, `Workflow-Source`, `Workflow-Assignment` and
+the given transaction id.
 
 ## Commit References (`git-references.ts`)
 
@@ -210,7 +231,8 @@ repairId}`, where the id pins HEAD, the plan text and the journal. Kinds:
 
 `applyRepair(root, planPath, id)` performs the action. If the id no longer
 matches, it fails with `REPAIR_CHANGED`. A retry rolls the preparation back
-and repeats the same request with the same transaction id; it fails with
+and repeats the same request (with its `assignmentId` and `sourceCommit`)
+with the same transaction id; it fails with
 `REPAIR_MANUAL` when state changed concurrently. `cancelRepair` only
 cancels an unconfirmed preparation (`NO_PREPARATION`) and keeps edits.
 

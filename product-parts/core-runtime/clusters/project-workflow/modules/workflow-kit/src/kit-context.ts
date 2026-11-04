@@ -3,6 +3,7 @@ import type {
   CommitResult,
   WorkflowGitFacade,
 } from "../../workflow-git/src/workflow-git-facade.js";
+import { workflowIntegrationFacade } from "../../workflow-integration/src/workflow-integration-facade.js";
 import {
   PLAN_PATH,
   type WorkflowPlan,
@@ -47,6 +48,18 @@ export function requireHead(context: KitContext): string {
   return head;
 }
 
+/** INTEGRATION_ACTIVE while `.harness/workflow/local/integration.json` exists. */
+export function ensureNoIntegration(context: KitContext): void {
+  ensure(
+    !workflowIntegrationFacade.isActive(context.root),
+    "INTEGRATION_ACTIVE",
+    "An integration is unfinished; other Kit writes wait until it completes.",
+    {},
+    "Run `scripts/workflow integration:status`, then `scripts/workflow integration:continue --id <assignment>`."
+  );
+}
+
+/** The shared busy check of Kit writes: no commit transaction, no integration. */
 export function ensureNoTransaction(context: KitContext): void {
   ensure(
     context.git.transactions.journal(context.root) === null,
@@ -55,6 +68,7 @@ export function ensureNoTransaction(context: KitContext): void {
     {},
     "Run `scripts/workflow repair`."
   );
+  ensureNoIntegration(context);
 }
 
 export function ensureRevision(

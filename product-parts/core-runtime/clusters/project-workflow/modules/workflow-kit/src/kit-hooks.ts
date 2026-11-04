@@ -2,8 +2,10 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import type { CommitJournal } from "../../workflow-git/src/workflow-git-facade.js";
+import { workflowIntegrationFacade } from "../../workflow-integration/src/workflow-integration-facade.js";
 import {
   type WorkflowPlan,
+  type WorkflowTask,
   workflowPlanFacade,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
 import {
@@ -69,7 +71,8 @@ function failedSummary(report: StageReport): string {
     .join("\n");
 }
 
-function docsWaiver(journal: CommitJournal): string | null {
+/** The journal's task in its candidate plan, or null. */
+function candidateTask(journal: CommitJournal): WorkflowTask | null {
   if (!journal.taskId) {
     return null;
   }
@@ -77,12 +80,25 @@ function docsWaiver(journal: CommitJournal): string | null {
     const plan = workflowPlanFacade.parse(journal.candidatePlan, {
       projection: false,
     });
-    return (
-      plan.tasks.find((task) => task.id === journal.taskId)?.docsWaiver ?? null
-    );
+    return plan.tasks.find((task) => task.id === journal.taskId) ?? null;
   } catch {
     return null;
   }
+}
+
+/**
+ * Commit-stage checks of the task run for `implementation` and for the
+ * integration of a work task; service commits, DOCS and QUALITY run only the
+ * documentation builtins.
+ */
+function isServiceCommit(
+  journal: CommitJournal,
+  task: WorkflowTask | null
+): boolean {
+  if (journal.role === "integration") {
+    return task?.kind !== "work";
+  }
+  return journal.role !== "implementation";
 }
 
 function preCommit(context: KitContext): HookResult {
@@ -98,16 +114,26 @@ function preCommit(context: KitContext): HookResult {
       "The index differs from the prepared candidate of the transaction."
     );
   }
+  // A merge in progress is committed only by the integration of its source.
+  if ((journal.sourceCommit ?? null) !== git.mergeHead(root)) {
+    return fail(
+      "MANAGED_COMMIT_REQUIRED",
+      journal.sourceCommit
+        ? "The integration commit needs the merge of its source in progress."
+        : "A merge is in progress; only `scripts/workflow integration:continue` commits it."
+    );
+  }
   guardExecutorCandidate(context, journal);
+  const task = candidateTask(journal);
   const before = fingerprints(root, journal.selected);
   const report = workflowQualityFacade.runStage({
     assigned: journal.checks,
     config: workflowQualityFacade.readConfig(root),
-    docsWaiver: docsWaiver(journal),
+    docsWaiver: task?.docsWaiver ?? null,
     env: context.env,
     files: journal.selected,
     root,
-    service: journal.role !== "implementation",
+    service: isServiceCommit(journal, task),
     stage: "commit",
   });
   workflowQualityFacade.recordEvidence(root, journal.id, [report]);
@@ -176,6 +202,12 @@ function prePush(context: KitContext): HookResult {
     return fail(
       "TRANSACTION_PENDING",
       "A commit transaction is unfinished; run `scripts/workflow repair`."
+    );
+  }
+  if (workflowIntegrationFacade.isActive(context.root)) {
+    return fail(
+      "INTEGRATION_ACTIVE",
+      "An integration is unfinished; run `scripts/workflow integration:continue --id <assignment>`."
     );
   }
   const docs = pendingDocs(workflowPlanFacade.read(context.root));

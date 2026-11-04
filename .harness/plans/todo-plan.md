@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 57,
+  "revision": 59,
   "rounds": [
     {
       "digest": null,
@@ -384,14 +384,38 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-merge.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-journal.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-journal.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-journal.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-merge.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-integration.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-context.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-integration.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-transitions.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-execution.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts"
       ],
       "fixes": null,
       "id": "E9",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Merge integration with journal and continue",
       "why": "The orchestrator merges each executor result with checks on the merged tree and safe retry"
     },
@@ -823,8 +847,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 13/22
-- Revision: 57
+- Progress: 14/22
+- Revision: 59
 
 ## Objective
 
@@ -872,9 +896,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: prove executor sources for integration
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-proof.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-history.ts, .harness/product-tree/product-tree.json, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-references.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.ts
   - Depends on: E6
-- [TODO] E9 — Merge integration with journal and continue (work)
+- [DONE] E9 — Merge integration with journal and continue (work)
   - Commit: feat: integrate executor results into main
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-merge.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-journal.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-merge.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-journal.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-journal.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-merge.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-integration.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-context.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-integration.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-transitions.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-execution.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts
   - Depends on: E7, E8
 - [TODO] E10 — Agent roles in recovery and AGENTS (work)
   - Commit: feat: teach agents the execution roles

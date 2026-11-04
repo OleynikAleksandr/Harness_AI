@@ -47,7 +47,10 @@ Owns the Workflow Kit plan:
   - `commitMessage`, `fixes`, `docsWaiver`;
   - `confirmation`: user confirmation of a delivery task;
   - `parallelSafe` (optional): stored only when `true`; absent means
-    `false`.
+    `false`;
+  - `integration` (optional): `{operationId, sourceCommit}` of the
+    integration commit that completed an orchestrated task (spec section
+    7); absent on every other task.
 
 ## Validation Rules (`validatePlan`)
 
@@ -76,7 +79,9 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
   - dependencies point only backwards;
   - `fixes` points to an earlier task;
   - tasks of a closed round are `DONE`;
-  - only delivery tasks carry `confirmation`.
+  - only delivery tasks carry `confirmation`;
+  - `integration` belongs to a `DONE` task, names a full source SHA and an
+    identifier `operationId` (`PLAN_SCHEMA`).
 - **Execution and parallel labels** (`plan-execution.ts`, checked right
   after the scope and before the task fields):
   - `scope.execution`, when present: `strategy` is `sequential` or
@@ -161,6 +166,16 @@ quality-profile state.
   - A round becomes `CLOSED` when all its tasks are `DONE` and the digest
     exists.
   - When every task is `DONE`, `delivery` becomes `READY_FOR_ACCEPTANCE`.
+- **`integrateTask(plan, id, {operationId, sourceCommit, digest})`** — a
+  `TODO` task of an orchestrated scope becomes `DONE` through its
+  integration commit, as one revision:
+  - `NOT_ORCHESTRATED` without an orchestrated scope; `TASK_KIND` for a
+    task other than `work` or `DOCS`;
+  - then the checks of `startTask` (`SCOPE_NOT_ACTIVE`,
+    `TASK_ALREADY_ACTIVE`, `TASK_NOT_TODO`, `DEPENDENCY_PENDING`) and the
+    effects of `completeTask` (a DOCS task needs the digest and closes its
+    round, delivery becomes `READY_FOR_ACCEPTANCE` when all is `DONE`);
+  - records `integration {operationId, sourceCommit}` on the task.
 - **`block(plan, reason)` and `unblock(plan)`** switch the scope between
   `ACTIVE` and `BLOCKED`.
 - **`nextTask(plan)`** returns the current task, or the first `TODO` task

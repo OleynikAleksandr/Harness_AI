@@ -21,8 +21,11 @@ facade bound to the same git facade.
 ## Operations
 
 Every mutating operation runs under the project lock
-`.harness/workflow/local/kit.lock` and refuses to start while a commit
-transaction is unfinished (`TRANSACTION_PENDING`). A project without a plan
+`.harness/workflow/local/kit.lock` and, before its own checks, refuses to
+start while a commit transaction is unfinished (`TRANSACTION_PENDING`) or
+an integration journal exists (`INTEGRATION_ACTIVE`; the shared
+`ensureNoTransaction` of `kit-context.ts`, `task:block`/`task:unblock`
+included). `repair` stays available. A project without a plan
 file fails with `NOT_INSTALLED`.
 
 State (`kit-status.ts`):
@@ -109,8 +112,7 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
   project lock; fails in this order:
   1. `NOT_ORCHESTRATED` — no scope or strategy `sequential`;
      `SCOPE_NOT_ACTIVE` — a blocked scope;
-  2. `TRANSACTION_PENDING`; `INTEGRATION_ACTIVE` while
-     `.harness/workflow/local/integration.json` exists;
+  2. `TRANSACTION_PENDING`; `INTEGRATION_ACTIVE` (the shared busy check);
   3. `DIRTY_TREE` — changes outside Kit-managed paths (`details.paths`);
   4. `NO_COMMITS`; the base is HEAD;
   5. `UNKNOWN_TASK`; `ASSIGNMENT_KIND` for QUALITY and delivery tasks (the
@@ -138,6 +140,12 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
   (worktree remove without force, prune, `branch -d`); a refusal is recorded
   as `cleanup: PENDING` with its reason and is not an error. Returns
   `{assignments}` (the processed records).
+
+Integration (`kit-integration.ts`, main, section 7): `startIntegration(root,
+id, source)`, `continueIntegration(root, id)` (both under the project lock)
+and `integrationStatus(root)` call `WorkflowIntegrationFacade` bound to the
+Kit's git facade; preconditions, phases, errors and results are in
+`workflow-integration/module.md`.
 
 Executor worktree (`kit-executor.ts`; sections 5.1–5.4 of
 `WorkflowKitExecutionModes.md`). A checkout with
@@ -247,10 +255,14 @@ managed hooks.
     --name-only HEAD`) and the candidate plan with the contract guard
     (`ASSIGNMENT_CONTRACT`, `ASSIGNMENT_SCOPE`), so a transaction that
     bypasses `commit --task` is refused as well;
+  - a merge in progress (`MERGE_HEAD`) must be the `sourceCommit` of the
+    journal, and an integration journal needs it
+    (`MANAGED_COMMIT_REQUIRED`), so only the integration commits a merge;
   - runs the `commit` stage on the selected files: role `implementation`
-    runs the required and assigned checks, every other role (service
-    commits, DOCS, QUALITY) only the documentation builtins; the task's
-    `docsWaiver` comes from the candidate plan;
+    and the integration of a `work` task run the required and assigned
+    checks, every other commit (service, DOCS, QUALITY) only the
+    documentation builtins; the task's `docsWaiver` comes from the
+    candidate plan;
   - stores the report as pending evidence of the transaction;
   - `CHECK_MODIFIED_CANDIDATE` when a check changed the index tree or a
     selected file; `CHECK_FAILED` with the failed checks and their output
@@ -261,14 +273,15 @@ managed hooks.
 - `post-commit` — nothing to do; the transaction confirms the commit.
 - `pre-push`:
   - `ASSIGNMENT_READ_ONLY` in an executor worktree: executors never push;
-  - `TRANSACTION_PENDING` while a journal exists;
+  - `TRANSACTION_PENDING` while a journal exists, `INTEGRATION_ACTIVE`
+    while an integration journal exists;
   - `DOCS_PENDING` while the DOCS task of the last round with a finished
     task is not done;
   - runs the required `push` checks (`CHECK_FAILED`).
 - Any other name fails with `UNKNOWN_HOOK`; unexpected errors are reported
   with their code instead of a stack trace.
 
-## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`, `kit-cli-assignment.ts`)
+## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`, `kit-cli-assignment.ts`, `kit-cli-integration.ts`)
 
 - `runCli(argv, io, kit?)` returns the exit code; `io` is `{cwd, env,
   readStdin, stdout, stderr}`. The file runs `runCli` itself when it is the
@@ -288,7 +301,9 @@ managed hooks.
   `assignment:next`, `assignment:create --task <ID>`,
   `assignment:attach <id>`, `assignment:status`, `assignment:setup [--id
   <id>]`, `assignment:cleanup [--id <id>]` (all defined in
-  `kit-cli-assignment.ts`),
+  `kit-cli-assignment.ts`), `integration:start --id <assignment> --source
+  <sha>`, `integration:continue --id <assignment>`, `integration:status`
+  (defined in `kit-cli-integration.ts`),
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,
   `close --scope --note`, `carryover --input`,
@@ -321,7 +336,12 @@ managed hooks.
   <reason>` line per record plus a next step for pending ones, or
   `cleanup: nothing to clean up.`; for
   `assignment:status` the id with the main status, scope, short base and
-  head, the task line and the source commit; for
+  head, the task line and the source commit; for `integration:start` /
+  `integration:continue` the id, status, task, short source and main, then
+  `conflict: <file>` lines and the resolve-and-continue step, or the short
+  commit, the cleanup line and `next: scripts/workflow assignment:next`;
+  for `integration:status` `integration: IDLE` or the phase line, conflicts,
+  the error tail and the next step; for
   `scope:proposal` the generation and state, the scope, reason and options
   or `proposal: none`; JSON
   otherwise). `inspect` text lists `path`, `state`, `action`,
@@ -359,7 +379,8 @@ installed hooks and launcher, followed by `scripts/workflow validate` and
 
 `workflow-platform`, `workflow-plan`, `workflow-git`, `workflow-quality`,
 `workflow-recovery`, `workflow-installer`, `workflow-execution-mode`,
-`workflow-assignment`, `workflow-autopilot` (types).
+`workflow-assignment`, `workflow-integration`, `workflow-autopilot`
+(types).
 Node built-ins only.
 
 ## Tests
@@ -427,6 +448,8 @@ Node built-ins only.
   whole task from a
   subdirectory, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled file run as a program.
+- The integration commands, busy refusals and the merge-aware hook are
+  tested in `workflow-integration/src/workflow-integration-merge.test.mjs`.
 
 Test repositories use the real local identity `workflow@harness-ai.test`:
 Kit commits refuse placeholder identities (`GIT_IDENTITY_REQUIRED`).

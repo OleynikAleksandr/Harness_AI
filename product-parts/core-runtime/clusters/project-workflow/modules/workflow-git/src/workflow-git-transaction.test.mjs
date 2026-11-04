@@ -222,6 +222,74 @@ try {
   assert.equal(tx.journal(root), null);
   assert.equal(tx.finish(root), null);
   assert.equal(tx.cancel(root), false);
+
+  // Integration commits: two parents only while the merge of the source runs.
+  // Earlier leftovers (untracked) do not take part in the merge.
+  for (const file of git.changes(root).untracked) {
+    rmSync(path.join(root, file), { force: true });
+  }
+  assert.deepEqual(git.changes(root).all, [], "clean before the merge");
+  const mainBranch = git.git.text(root, ["branch", "--show-current"]);
+  const mainHead = git.head(root);
+  git.git.run(root, ["checkout", "-q", "-b", "side"]);
+  write("side.txt", "side\n");
+  const side = tx.commit(root, {
+    files: ["side.txt"],
+    message: "docs: side",
+    planPath: PLAN,
+    planText: "plan side\n",
+    role: "docs",
+    scopeId: "demo",
+    taskId: null,
+  }).sha;
+  git.git.run(root, ["checkout", "-q", mainBranch]);
+  const integration = {
+    assignmentId: "demo-T009-1",
+    files: ["side.txt"],
+    iteration: 1,
+    message: "merge: side",
+    planPath: PLAN,
+    planText: "plan merged\n",
+    role: "integration",
+    scopeId: "demo",
+    sourceCommit: side,
+    taskId: "T009",
+    transactionId: "op-1",
+  };
+  assert.throws(
+    () => tx.commit(root, integration),
+    (e) => e.code === "MERGE_REQUIRED"
+  );
+  assert.equal(tx.journal(root), null);
+  git.git.run(root, ["merge", "--no-commit", "--no-ff", "-q", side]);
+  assert.equal(git.mergeHead(root), side);
+  assert.deepEqual(git.conflicts(root), []);
+  assert.throws(
+    () =>
+      tx.commit(root, {
+        files: ["side.txt"],
+        message: "docs: not a merge",
+        planPath: PLAN,
+        planText: "plan v9\n",
+        role: "docs",
+        scopeId: "demo",
+        taskId: null,
+      }),
+    (e) => e.code === "MERGE_IN_PROGRESS"
+  );
+  const merged = tx.commit(root, integration);
+  assert.equal(merged.role, "integration");
+  const [mergeCommit] = git.history(root, mainHead).slice(-1);
+  assert.equal(mergeCommit.sha, merged.sha);
+  assert.deepEqual(mergeCommit.parents, [mainHead, side]);
+  assert.deepEqual(mergeCommit.trailers["Workflow-Source"], [side]);
+  assert.deepEqual(mergeCommit.trailers["Workflow-Transaction"], ["op-1"]);
+  assert.deepEqual(mergeCommit.trailers["Workflow-Assignment"], [
+    "demo-T009-1",
+  ]);
+  assert.equal(git.mergeHead(root), null);
+  assert.equal(tx.journal(root), null);
+  assert.equal(read(PLAN), "plan merged\n");
   console.log("workflow-git transaction tests passed");
 } finally {
   rmSync(root, { force: true, recursive: true });

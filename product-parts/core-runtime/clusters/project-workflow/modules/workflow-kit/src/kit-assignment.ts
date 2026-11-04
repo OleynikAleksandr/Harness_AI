@@ -50,7 +50,10 @@ export interface AssignmentCreated {
   created: boolean;
 }
 
-function activeRecords(plan: WorkflowPlan, root: string): AssignmentRecord[] {
+export function activeRecords(
+  plan: WorkflowPlan,
+  root: string
+): AssignmentRecord[] {
   const scopeId = plan.scope?.id;
   return workflowAssignmentFacade
     .list(root)

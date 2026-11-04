@@ -91,7 +91,12 @@ through install) get it from `identityTemplate(folder)`, passed as
 
 `transactions.commit(root, request)` creates exactly one commit. The request
 holds:
-- `role`, `scopeId`, `taskId`, `iteration`;
+- `role` (`bootstrap`, `kit-update`, `scope-plan`, `quality`,
+  `implementation`, `docs`, `acceptance`, `close`, `carryover`, `repair`, or
+  `assignment-plan` for the executor plan of an assignment), `scopeId`,
+  `taskId`, `iteration`;
+- `assignmentId` (optional): the assignment of an executor worktree commit,
+  kept in the journal;
 - `message`, `files`;
 - `planPath` and `planText`: the plan document after the operation;
 - `checks` and `excluded`;
@@ -121,7 +126,8 @@ Steps:
    repository-local identity whatever the home directory, global config,
    `GIT_CONFIG_*` or `GIT_AUTHOR_*` variables of the caller say. The message ends with trailers:
    - `Workflow-Scope`, `Workflow-Task`, `Workflow-Role`;
-   - `Workflow-Iteration` (every commit that completes a task);
+   - `Workflow-Iteration` (every commit that names a task);
+   - `Workflow-Assignment: <id>` when the request carries `assignmentId`;
    - `Workflow-Transaction`.
 6. On a non-zero exit (hook checks), restores the original plan and index,
    keeps working-tree edits, saves the failed journal under

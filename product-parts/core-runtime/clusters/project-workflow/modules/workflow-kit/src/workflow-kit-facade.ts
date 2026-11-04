@@ -1,3 +1,4 @@
+import type { WorktreeAssignment } from "../../workflow-assignment/src/workflow-assignment-facade.js";
 import type { AutopilotProjectStatus } from "../../workflow-autopilot/src/workflow-autopilot-facade.js";
 import {
   type ExecutionModeOption,
@@ -43,6 +44,13 @@ import {
   nextAssignments,
 } from "./kit-assignment.js";
 import { type KitContext, readConfig } from "./kit-context.js";
+import {
+  type AssignmentAttached,
+  type AssignmentState,
+  assignmentStatus,
+  attachAssignment,
+  executorAssignment,
+} from "./kit-executor.js";
 import { type HookResult, runGitHook } from "./kit-hooks.js";
 import {
   applyQuality,
@@ -84,11 +92,13 @@ import {
   type TaskStart,
 } from "./kit-task.js";
 
+export type { WorktreeAssignment } from "../../workflow-assignment/src/workflow-assignment-facade.js";
 export type {
   ExecutionModeOption,
   ScopeProposal,
 } from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
 export type { AssignmentCreated, AssignmentNext } from "./kit-assignment.js";
+export type { AssignmentAttached, AssignmentState } from "./kit-executor.js";
 export type { GitHookName, HookResult } from "./kit-hooks.js";
 export { GIT_HOOKS } from "./kit-hooks.js";
 export type { QualityApplied } from "./kit-quality.js";
@@ -269,6 +279,21 @@ export class WorkflowKitFacade {
       refining: proposal.refining,
       scopeId: typeof input?.id === "string" ? input.id : null,
     };
+  }
+
+  /** `assignment:attach <id>` in the executor worktree: executor plan and records. */
+  attachAssignment(root: string, id: string): AssignmentAttached {
+    return attachAssignment(this.context(root), id);
+  }
+
+  /** `assignment:status` in the executor worktree. */
+  assignmentStatus(root: string): AssignmentState {
+    return assignmentStatus(this.context(root));
+  }
+
+  /** The executor record of the checkout; null outside an executor worktree. */
+  executorAssignment(root: string): WorktreeAssignment | null {
+    return executorAssignment(this.context(root));
   }
 
   extend(

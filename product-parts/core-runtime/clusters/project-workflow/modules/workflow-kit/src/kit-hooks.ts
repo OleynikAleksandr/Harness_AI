@@ -11,6 +11,7 @@ import {
   workflowQualityFacade,
 } from "../../workflow-quality/src/workflow-quality-facade.js";
 import type { KitContext } from "./kit-context.js";
+import { executorAssignment, guardExecutorCandidate } from "./kit-executor.js";
 
 export type GitHookName =
   | "commit-msg"
@@ -97,6 +98,7 @@ function preCommit(context: KitContext): HookResult {
       "The index differs from the prepared candidate of the transaction."
     );
   }
+  guardExecutorCandidate(context, journal);
   const before = fingerprints(root, journal.selected);
   const report = workflowQualityFacade.runStage({
     assigned: journal.checks,
@@ -163,6 +165,13 @@ function pendingDocs(plan: WorkflowPlan | null): string | null {
 }
 
 function prePush(context: KitContext): HookResult {
+  const executor = executorAssignment(context);
+  if (executor) {
+    return fail(
+      "ASSIGNMENT_READ_ONLY",
+      `The executor worktree of ${executor.id} never pushes; report the commit SHA to the orchestrator.`
+    );
+  }
   if (context.git.transactions.journal(context.root)) {
     return fail(
       "TRANSACTION_PENDING",

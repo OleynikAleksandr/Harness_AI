@@ -7,18 +7,23 @@ Assignments of orchestrated scopes (sections 5.1, 5.2 and 6 of
 - the assignment records of the main checkout,
   `.harness/workflow/local/assignments/<id>.json`;
 - the scheduler: which tasks can be handed out to executors now;
-- the executor brief, the ready text for the Claude subagent.
+- the executor brief, the ready text for the Claude subagent;
+- the executor side (sections 5.1 and 5.3): locating the main checkout of a
+  linked worktree, the worktree record
+  `.harness/workflow/local/assignment.json`, the one-task executor plan and
+  the contract guard of executor commits.
 
-The command preconditions (`assignment:create`), the plan and git checks
-belong to `workflow-kit`; attaching a worktree, the executor plan and the
-integration come later and update these records.
+The command preconditions (`assignment:create`, `assignment:attach`), the
+commits and the git hooks belong to `workflow-kit`; the integration comes
+later and updates these records.
 
 ## Public Facade
 
 `WorkflowAssignmentFacade` (class, singleton `workflowAssignmentFacade`) in
 `src/workflow-assignment-facade.ts`. Types: `AssignmentRecord`,
 `AssignmentStatus`, `AssignmentSchedule`, `BlockedTask`,
-`ScheduleBlockCode`.
+`ScheduleBlockCode`, `WorktreeAssignment`, `WorktreeLocation`,
+`ExecutorChange`.
 
 ## Contract
 
@@ -79,16 +84,69 @@ executor subagent: it executes task `<ID>` of the scope (assignment id),
 works only in its own git worktree, first runs
 `scripts/workflow assignment:attach <id>` there, then
 `scripts/workflow task:start <ID>`, implements within the title, why,
-files, acceptance and context of the task, commits with
+files, acceptance and context of the task, changes only the listed files or
+paths nested inside a listed directory (anything else fails with
+`ASSIGNMENT_SCOPE`; commit a subset with `--files`) and never edits
+`.harness/workflow/**`, the launchers `scripts/workflow*` or the plan
+(`ASSIGNMENT_CONTRACT`), commits with
 `scripts/workflow commit --task <ID>` (`--digest <file.json>` for a DOCS
 task) repeating it after a fixed check failure, and replies with the commit
-SHA. Rules: never touch the main checkout, the plan or other tasks; do not
-set the git identity; do not create nested executors.
+SHA. Rules: only `status`, `validate`, `recover`, `show-task`, `task:start`,
+`commit`, `repair`, `task:block`, `assignment:status` and
+`assignment:attach` (retry) work in the worktree, anything else fails with
+`ASSIGNMENT_READ_ONLY`; never push; never touch the main checkout, the plan
+or other tasks; do not set the git identity; do not create nested
+executors.
+
+Executor side (`assignment-attach.ts`):
+- `locateWorktree(git, root)` returns `{mainRoot, worktree, branch}`:
+  `worktree` is the real path of the git top level, `mainRoot` the parent of
+  the common git directory (`git rev-parse --git-common-dir`), `branch` the
+  current branch name or `null` when HEAD is detached. Errors:
+  - `ASSIGNMENT_LAYOUT` — a bare repository, or a common git directory that
+    is not a `.git` folder of a main checkout;
+  - `ASSIGNMENT_WORKTREE` — not a repository, or the main checkout itself
+    (git directory equal to the common one).
+- `worktreeRecord(root)` reads `.harness/workflow/local/assignment.json`:
+  `{version: 1, id, mainRoot, scopeId, taskId, baseCommit}` (`scopeId` is the
+  scope of main); `null` without the file, `ASSIGNMENT_RECORD` for an
+  unreadable one. `writeWorktreeRecord(root, record, mainRoot)` writes it
+  atomically from the main record.
+- `executorPlan(base, record, now)` builds the plan of the worktree from the
+  plan of the base commit: the base scope must be the record's scope and the
+  task `TODO` with the record's iteration (`ASSIGNMENT_BASE`). The result has
+  revision `base + 1`, scope `assignment-<id>` (baseline the base commit,
+  objective `<title>: <why>` or the title, acceptance and context of the
+  task, the base spec, approval `Assignment <id>: task <ID> of scope <scope>`
+  at `now`, `execution {strategy: sequential, maxWorkers: 1, ownerSession:
+  null}`), one open round copied from the task's round without digest, and
+  one task: a copy of the assigned task with `dependencies: []` and `fixes:
+  null`. It is validated like every plan.
+
+Contract guard (`assignment-guard.ts`): `checkExecutorChange({headPlan,
+candidatePlan, paths, planPath})` checks one commit of an executor worktree
+against the committed executor plan (`headPlan`, the plan at HEAD), in this
+order:
+1. `ASSIGNMENT_CONTRACT` (`details.paths`) — a path under
+   `.harness/workflow/` or `.harness/plans/` other than the plan file, or a
+   launcher (`scripts/workflow`, `scripts/workflow.cmd`,
+   `scripts/workflow.ps1`); also when HEAD has no one-task plan;
+2. `ASSIGNMENT_SCOPE` (`details.paths`, `details.files`) — a path that is
+   neither equal to nor nested (by path segment) in a `files` entry of the
+   task, so a task may list a module directory (without a trailing slash) to
+   own its tests and `module.md`;
+3. `ASSIGNMENT_CONTRACT` — the plan file changes, but the candidate is not
+   the Kit's own transition of the single task: started, `files` extended
+   only by in-scope paths after the original entries, and completed (with
+   the candidate round digest of a DOCS task); the rendered documents must
+   be equal.
 
 ## Dependencies
 
-`workflow-platform` (files, errors), `workflow-git` (`localPath`),
-`workflow-plan` (types, `execution`, `compatibleTasks`),
+`workflow-platform` (files, errors, paths), `workflow-git` (`localPath`,
+the git runner of the facade passed by the Kit), `workflow-plan` (types,
+`execution`, `compatibleTasks`, parse, render, validate, `startTask`,
+`completeTask`),
 `workflow-quality` (the configuration file path). Node built-ins only.
 
 ## Tests
@@ -100,7 +158,9 @@ both directions, overtaking a waiting parallel task, path conflicts with
 active and ready tasks, integrated and foreign records ignored, capacity),
 ids, record create/write/read/list order, `ASSIGNMENT_ID`,
 `ASSIGNMENT_RECORD`, the configuration digest and the brief of a work and a
-DOCS task.
+DOCS task (scope rule, contract, command whitelist, no push). The executor
+side is tested with real git worktrees in
+`workflow-kit/src/workflow-kit-executor.test.mjs`.
 
 ## Owned Paths
 

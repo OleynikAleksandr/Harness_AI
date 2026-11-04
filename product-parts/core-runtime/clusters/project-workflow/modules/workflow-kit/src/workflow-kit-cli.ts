@@ -15,7 +15,10 @@ import {
   readJsonFile,
   requiredFlag,
 } from "./kit-cli-args.js";
-import { ASSIGNMENT_COMMANDS } from "./kit-cli-assignment.js";
+import {
+  ASSIGNMENT_COMMANDS,
+  ensureExecutorCommand,
+} from "./kit-cli-assignment.js";
 import { EXECUTION_COMMANDS } from "./kit-cli-execution.js";
 import { renderText } from "./kit-cli-text.js";
 import {
@@ -358,6 +361,7 @@ function dispatch(
       "Run `scripts/workflow help`."
     );
   }
+  ensureExecutorCommand(kit, root, command);
   const result = spec.run({ args, io, kit, root });
   let text = `${JSON.stringify({ command, ok: true, result }, null, 2)}\n`;
   if (format === "text") {

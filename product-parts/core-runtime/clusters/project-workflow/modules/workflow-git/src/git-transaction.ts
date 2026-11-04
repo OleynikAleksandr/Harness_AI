@@ -30,6 +30,8 @@ import {
 import type { GitRunner } from "./git-runner.js";
 
 export interface CommitRequest {
+  /** Assignment id of an executor worktree commit (`Workflow-Assignment` trailer). */
+  assignmentId?: string | null;
   checks?: string[];
   excluded?: string[];
   files: string[];
@@ -212,6 +214,7 @@ function prepareJournal(
     copyFileSync(index, localPath(root, "index-before"));
   }
   return {
+    assignmentId: request.assignmentId ?? null,
     beforeHead: head(git, root),
     candidateHash: sha256(request.planText),
     candidatePlan: request.planText,

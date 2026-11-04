@@ -333,6 +333,19 @@ try {
   );
   assert.match(brief, /Do not set the git identity/u);
   assert.match(brief, /Do not create nested executors/u);
+  assert.match(
+    brief,
+    /paths nested inside a listed directory;\n {3}anything else fails with ASSIGNMENT_SCOPE/u
+  );
+  assert.match(
+    brief,
+    /scripts\/workflow\* or the plan\n {3}\(ASSIGNMENT_CONTRACT\)/u
+  );
+  assert.match(
+    brief,
+    /only these Kit commands work: status, validate, recover,\n {2}show-task, task:start, commit, repair, task:block, assignment:status,\n {2}assignment:attach \(retry\); anything else fails with ASSIGNMENT_READ_ONLY/u
+  );
+  assert.match(brief, /Never push; the orchestrator integrates your commit/u);
   const workBrief = assignments.brief(plan([task("A")]), task("A"), record);
   assert.match(
     workBrief,

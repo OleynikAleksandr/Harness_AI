@@ -131,9 +131,55 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
   stays `TODO` and nothing is committed: the plan changes only on
   integration.
 
+Executor worktree (`kit-executor.ts`; sections 5.1–5.3 of
+`WorkflowKitExecutionModes.md`). A checkout with
+`.harness/workflow/local/assignment.json` is an executor worktree
+(`executorAssignment(root)` returns that record, `null` elsewhere):
+- `attachAssignment(root, id)` — `assignment:attach <id>`, run in the linked
+  worktree Claude created for the subagent, under the worktree's lock:
+  1. `ASSIGNMENT_LAYOUT` / `ASSIGNMENT_WORKTREE` — the location checks of
+     `workflow-assignment` (the main checkout is refused);
+  2. `ASSIGNMENT_UNKNOWN` — main has no record `<id>`;
+  3. `ASSIGNMENT_ATTACHED` — this worktree is attached to another id, or the
+     record names another worktree;
+  4. a worktree already attached to this id (both records written) returns
+     `{attached: false, planCommit: null}` without any change;
+  5. `ASSIGNMENT_STATUS` — the record is not `ASSIGNED` (and not attached to
+     this worktree); `TRANSACTION_PENDING`;
+  6. `ASSIGNMENT_DIRTY` — any change in the worktree (`details.paths`);
+  7. HEAD equals `baseCommit`: the executor plan (built from
+     `git show <base>:.harness/plans/todo-plan.md`) is committed as a Kit
+     service commit with role `assignment-plan`, only the plan file, message
+     `docs: plan assignment <id>`, trailers `Workflow-Scope:
+     assignment-<id>`, `Workflow-Task`, `Workflow-Iteration` and
+     `Workflow-Assignment: <id>`; HEAD that already is this plan commit (one
+     commit on the base with that role and trailer) continues an interrupted
+     attach; any other HEAD is `ASSIGNMENT_BASE` (`details {base, head}`);
+  8. writes the main record (`worktree` real path, `branch` or `null` when
+     detached, status `READY`, `updatedAt`) and then the worktree record.
+  Returns `{assignment, attached: true, planCommit, worktree}`.
+- `assignmentStatus(root)` — `assignment:status`: `{assignment (the main
+  record or null), worktree (the worktree record), scopeId, head, task {id,
+  kind, status, title, files}}`; `ASSIGNMENT_NOT_ATTACHED` outside an
+  executor worktree.
+- `task:start` in an executor worktree sets the main record to `RUNNING`;
+  a successful `commit --task` sets `READY_FOR_INTEGRATION` and
+  `sourceCommit` to the new commit (written through `mainRoot`; nothing
+  happens when the main record is missing).
+- Executor commits carry `Workflow-Assignment: <id>`. Before any transaction
+  `commit --task` checks the selected files plus the plan with the contract
+  guard of `workflow-assignment` (`ASSIGNMENT_CONTRACT`, `ASSIGNMENT_SCOPE`);
+  Kit-managed paths are excluded from the selection as usual.
+
 Tasks (`kit-task.ts`):
-- `startTask(root, id, confirmation?)` — assigned checks must exist in the
-  profile (`CHECK_UNKNOWN`); the plan module checks scope, status,
+- `startTask(root, id, confirmation?)` — in an orchestrated scope (section 6
+  of `WorkflowKitExecutionModes.md`; the executor plan is sequential) a
+  `work` or `DOCS` task fails with `ORCHESTRATED_MAIN_READ_ONLY` (next action:
+  `assignment:next`, `assignment:create --task <ID>`) and a delivery task
+  with `DELIVERY_NOT_READY` (`details {pending, active}`) while an earlier
+  task is not `DONE` or an assignment of the scope is active; `QUALITY`
+  starts as usual and sequential scopes are unchanged. Then assigned checks
+  must exist in the profile (`CHECK_UNKNOWN`); the plan module checks scope, status,
   dependencies and delivery confirmation; the git module records the
   snapshot of earlier changes. Returns `{task, preexisting, warnings}`;
   a warning reports more functional files than
@@ -145,12 +191,13 @@ Tasks (`kit-task.ts`):
   2. selects the task files (changed since the start, or `files`);
   3. functional files need a commit-stage command check
      (`NOT_CONFIGURED`);
-  4. runs the `prepare` stage on the selected files (`CHECK_FAILED`
+  4. adds the selected files to `task.files` and completes the task in the
+     candidate plan; in an executor worktree the contract guard runs here;
+  5. runs the `prepare` stage on the selected files (`CHECK_FAILED`
      stops before any transaction);
-  5. adds the selected files to `task.files`, completes the task and
-     commits through the transaction: role `docs` for a DOCS task,
+  6. commits the candidate through the transaction: role `docs` for a DOCS task,
      `implementation` otherwise; commit-stage checks run in the git hook;
-  6. stores the prepare report in the commit evidence.
+  7. stores the prepare report in the commit evidence.
   Returns `{commit, prepare, preexisting, nextTask}`.
 - `commitDocs(root, files, message?)` — `docs:commit`: documentation files
   only — Markdown and `.harness/product-tree/**` (`DOCS_ONLY`), never while a task is in progress (`TASK_IN_PROGRESS`);
@@ -174,6 +221,10 @@ managed hooks.
 - `pre-commit`:
   - requires a prepared Kit transaction whose candidate tree equals the
     index; otherwise `MANAGED_COMMIT_REQUIRED` (a direct `git commit`);
+  - in an executor worktree, checks every staged path (`git diff --cached
+    --name-only HEAD`) and the candidate plan with the contract guard
+    (`ASSIGNMENT_CONTRACT`, `ASSIGNMENT_SCOPE`), so a transaction that
+    bypasses `commit --task` is refused as well;
   - runs the `commit` stage on the selected files: role `implementation`
     runs the required and assigned checks, every other role (service
     commits, DOCS, QUALITY) only the documentation builtins; the task's
@@ -187,6 +238,7 @@ managed hooks.
   of the pending journal (`MANAGED_COMMIT_REQUIRED`).
 - `post-commit` — nothing to do; the transaction confirms the commit.
 - `pre-push`:
+  - `ASSIGNMENT_READ_ONLY` in an executor worktree: executors never push;
   - `TRANSACTION_PENDING` while a journal exists;
   - `DOCS_PENDING` while the DOCS task of the last round with a finished
     task is not done;
@@ -211,7 +263,8 @@ managed hooks.
   `kit-cli-execution.ts`; an
   invalid `--recommended`, `--option` or a non-positive `--generation` is
   `USAGE`),
-  `assignment:next`, `assignment:create --task <ID>` (both defined in
+  `assignment:next`, `assignment:create --task <ID>`,
+  `assignment:attach <id>`, `assignment:status` (all defined in
   `kit-cli-assignment.ts`),
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,
@@ -235,12 +288,21 @@ managed hooks.
   `assignment:next` the scope and workers, one line per active, ready and
   blocked task and the next `assignment:create`, or `assignments: none
   (<idle code>)`; for `assignment:create` the id, task, short base and
-  whether it was created, followed by the brief; for
+  whether it was created, followed by the brief; for `assignment:attach`
+  the id, whether it was attached now, task, status, worktree and branch
+  (`detached`), main, the short plan commit and the next `task:start`; for
+  `assignment:status` the id with the main status, scope, short base and
+  head, the task line and the source commit; for
   `scope:proposal` the generation and state, the scope, reason and options
   or `proposal: none`; JSON
   otherwise). `inspect` text lists `path`, `state`, `action`,
   `kit version`, `git` (repository and short head), `identity`, `stacks`,
   `transaction`, plus `nested in` and `damaged` when present.
+- Executor worktree: only `status`, `validate`, `recover`, `show-task`,
+  `task:start`, `commit`, `repair`, `task:block`, `assignment:status`,
+  `assignment:attach` (retry), `help`, `hook` and `git-hook` run; every other
+  known command fails with `ASSIGNMENT_READ_ONLY` (`details.allowed`) before
+  it runs.
 - Errors: `{ok: false, code, message, nextAction, details}` on stdout with
   exit code 1 (`--format text`: `CODE: message` on stderr). Argument errors
   are `USAGE`, unknown commands `UNKNOWN_COMMAND`, unreadable inputs
@@ -302,6 +364,20 @@ Node built-ins only.
   the CLI (JSON and text `assignment:next`, `assignment:create`, `USAGE`),
   `ASSIGNMENT_EXISTS` for another status or base and an integrated record
   freeing its worker.
+- `src/workflow-kit-executor.test.mjs` — real `git worktree add` worktrees of
+  a temporary repository whose absolute `core.hooksPath` (shared by all
+  worktrees) runs the hooks through a runner: QUALITY in main,
+  `ORCHESTRATED_MAIN_READ_ONLY` for work and DOCS, `DELIVERY_NOT_READY`
+  for pending tasks and later for active assignments, then delivery after
+  integration; attach refused in main (`ASSIGNMENT_WORKTREE`), on another
+  base, dirty and unknown; the attach records, the `assignment-plan` commit
+  (only the plan file, parent and trailers) and the executor plan; the
+  idempotent retry and `ASSIGNMENT_ATTACHED`; the command whitelist,
+  `assignment:status` text and `pre-push`; `RUNNING`; `ASSIGNMENT_SCOPE`,
+  `ASSIGNMENT_CONTRACT` for a launcher and, through the hook, for the
+  configuration and a plan edit; `READY_FOR_INTEGRATION` with
+  `sourceCommit` and the trailer; a branch worktree attached through the
+  CLI whose directory entry owns nested files (`src/modx.ts` stays outside).
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
   envelopes, inspection (JSON and text) and update of a folder without the
   Kit, an invalid `install --host`, text errors, a folder without the Kit, a

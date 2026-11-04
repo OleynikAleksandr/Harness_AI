@@ -1,7 +1,20 @@
+import type { WorkflowGitFacade } from "../../workflow-git/src/workflow-git-facade.js";
 import type {
   WorkflowPlan,
   WorkflowTask,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
+import {
+  executorPlan,
+  locateWorktree,
+  readWorktreeRecord,
+  type WorktreeAssignment,
+  type WorktreeLocation,
+  writeWorktreeRecord,
+} from "./assignment-attach.js";
+import {
+  checkExecutorChange,
+  type ExecutorChange,
+} from "./assignment-guard.js";
 import {
   type AssignmentRecord,
   assignmentId,
@@ -20,6 +33,11 @@ import {
   scheduleAssignments,
 } from "./assignment-schedule.js";
 
+export type {
+  WorktreeAssignment,
+  WorktreeLocation,
+} from "./assignment-attach.js";
+export type { ExecutorChange } from "./assignment-guard.js";
 export type {
   AssignmentRecord,
   AssignmentStatus,
@@ -63,11 +81,19 @@ function executorBrief(
     "   Acceptance:",
     ...bullets(task.acceptance),
     ...(context.length > 0 ? ["   Context:", ...bullets(context)] : []),
+    "   Change only the listed files or paths nested inside a listed directory;",
+    "   anything else fails with ASSIGNMENT_SCOPE (commit a subset with --files).",
+    "   Never edit .harness/workflow/**, the launchers scripts/workflow* or the plan",
+    "   (ASSIGNMENT_CONTRACT).",
     `4. Commit through the Kit: ${commit}`,
     "   If a check fails, fix the cause and repeat the same command.",
     "5. Reply with the SHA of that commit.",
     "",
     "Rules:",
+    "- In your worktree only these Kit commands work: status, validate, recover,",
+    "  show-task, task:start, commit, repair, task:block, assignment:status,",
+    "  assignment:attach (retry); anything else fails with ASSIGNMENT_READ_ONLY.",
+    "- Never push; the orchestrator integrates your commit.",
     "- Never touch the main checkout, the plan or other tasks.",
     "- Do not set the git identity (no git config user.name / user.email).",
     "- Do not create nested executors.",
@@ -127,6 +153,38 @@ export class WorkflowAssignmentFacade {
     record: AssignmentRecord
   ): string {
     return executorBrief(plan, task, record);
+  }
+
+  /** The main checkout and branch of a linked executor worktree (spec 5.1). */
+  locateWorktree(git: WorkflowGitFacade, root: string): WorktreeLocation {
+    return locateWorktree(git, root);
+  }
+
+  /** `.harness/workflow/local/assignment.json` of a worktree, or null. */
+  worktreeRecord(root: string): WorktreeAssignment | null {
+    return readWorktreeRecord(root);
+  }
+
+  writeWorktreeRecord(
+    root: string,
+    record: AssignmentRecord,
+    mainRoot: string
+  ): WorktreeAssignment {
+    return writeWorktreeRecord(root, record, mainRoot);
+  }
+
+  /** The one-task plan of the executor worktree, built from the base plan (spec 5.3). */
+  executorPlan(
+    base: WorkflowPlan,
+    record: AssignmentRecord,
+    now: string
+  ): WorkflowPlan {
+    return executorPlan(base, record, now);
+  }
+
+  /** Throws ASSIGNMENT_CONTRACT / ASSIGNMENT_SCOPE for a commit that breaks the contract. */
+  checkExecutorChange(change: ExecutorChange): void {
+    checkExecutorChange(change);
   }
 }
 

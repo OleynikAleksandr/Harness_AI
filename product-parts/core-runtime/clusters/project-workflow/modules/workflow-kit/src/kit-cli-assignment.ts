@@ -1,7 +1,10 @@
-import { type ParsedArgs, requiredFlag } from "./kit-cli-args.js";
+import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { type ParsedArgs, positional, requiredFlag } from "./kit-cli-args.js";
 import type {
+  AssignmentAttached,
   AssignmentCreated,
   AssignmentNext,
+  AssignmentState,
   WorkflowKitFacade,
 } from "./workflow-kit-facade.js";
 
@@ -62,15 +65,90 @@ function createText(value: unknown): string {
   ].join("\n");
 }
 
-/** `assignment:next` and `assignment:create`: orchestrated assignments (spec 5.1). */
+function attachText(value: unknown): string {
+  const result = value as AssignmentAttached;
+  const record = result.assignment;
+  return [
+    `assignment: ${record.id} ${result.attached ? "attached" : "already attached"}, task ${record.taskId}, ${record.status}`,
+    `worktree: ${record.worktree ?? "none"} (${record.branch ?? "detached"})`,
+    `main: ${result.worktree.mainRoot}`,
+    ...(result.planCommit
+      ? [`plan commit: ${result.planCommit.slice(0, 12)}`]
+      : []),
+    `next: scripts/workflow task:start ${record.taskId}`,
+    "",
+  ].join("\n");
+}
+
+function statusText(value: unknown): string {
+  const result = value as AssignmentState;
+  const task = result.task;
+  return [
+    `assignment: ${result.worktree.id} (${result.assignment?.status ?? "record missing in main"})`,
+    `scope: ${result.scopeId ?? "NONE"}, base ${result.worktree.baseCommit.slice(0, 12)}, head ${result.head?.slice(0, 12) ?? "none"}`,
+    task
+      ? `task: ${task.id} ${task.status} — ${task.title}`
+      : `task: ${result.worktree.taskId} missing`,
+    ...(result.assignment?.sourceCommit
+      ? [`source: ${result.assignment.sourceCommit}`]
+      : []),
+    "",
+  ].join("\n");
+}
+
+/** The only commands of an attached executor worktree (spec 5.3). */
+const EXECUTOR_COMMANDS = new Set([
+  "assignment:attach",
+  "assignment:status",
+  "commit",
+  "recover",
+  "repair",
+  "show-task",
+  "status",
+  "task:block",
+  "task:start",
+  "validate",
+]);
+
+/** `ASSIGNMENT_READ_ONLY` for any other command in an executor worktree. */
+export function ensureExecutorCommand(
+  kit: WorkflowKitFacade,
+  root: string,
+  command: string
+): void {
+  if (EXECUTOR_COMMANDS.has(command)) {
+    return;
+  }
+  const executor = kit.executorAssignment(root);
+  ensure(
+    executor === null,
+    "ASSIGNMENT_READ_ONLY",
+    `${command} is not available in the executor worktree of ${executor?.id}.`,
+    { allowed: [...EXECUTOR_COMMANDS] },
+    "Run only your task: task:start, commit --task, status, recover, show-task, repair, task:block, assignment:status."
+  );
+}
+
+/** Orchestrated assignments (spec 5.1): `assignment:next|create` in main, `attach|status` in the executor worktree. */
 export const ASSIGNMENT_COMMANDS: Readonly<
   Record<string, AssignmentCommandSpec>
 > = {
+  "assignment:attach": {
+    run: ({ args, kit, root }) =>
+      kit.attachAssignment(root, positional(args, 0, "Assignment id")),
+    text: attachText,
+    usage: "assignment:attach <id>",
+  },
   "assignment:create": {
     run: ({ args, kit, root }) =>
       kit.createAssignment(root, requiredFlag(args, "task")),
     text: createText,
     usage: "assignment:create --task <ID>",
+  },
+  "assignment:status": {
+    run: ({ kit, root }) => kit.assignmentStatus(root),
+    text: statusText,
+    usage: "assignment:status",
   },
   "assignment:next": {
     run: ({ kit, root }) => kit.nextAssignments(root),

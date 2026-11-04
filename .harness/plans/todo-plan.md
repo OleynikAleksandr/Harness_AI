@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 51,
+  "revision": 53,
   "rounds": [
     {
       "digest": null,
@@ -271,14 +271,28 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-attach.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-guard.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-journal.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-executor.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts"
       ],
       "fixes": null,
       "id": "E6",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Attach executors and guard their worktree",
       "why": "The executor binds the Claude worktree, gets a one-task plan and can only run its task"
     },
@@ -792,8 +806,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 10/22
-- Revision: 51
+- Progress: 11/22
+- Revision: 53
 
 ## Objective
 
@@ -829,9 +843,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: schedule and create orchestrated assignments
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-schedule.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts, .harness/product-tree/product-tree.json, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts
   - Depends on: E4
-- [TODO] E6 — Attach executors and guard their worktree (work)
+- [DONE] E6 — Attach executors and guard their worktree (work)
   - Commit: feat: attach executors to their worktrees
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-attach.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-attach.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-guard.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-journal.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-executor.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts
   - Depends on: E5
 - [TODO] E7 — Executor worktree setup and cleanup (work)
   - Commit: feat: set up and clean executor worktrees

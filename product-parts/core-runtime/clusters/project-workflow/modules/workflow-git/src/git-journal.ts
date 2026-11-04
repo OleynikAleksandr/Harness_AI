@@ -8,6 +8,7 @@ export const LOCAL_DIR = ".harness/workflow/local";
 
 export type CommitRole =
   | "acceptance"
+  | "assignment-plan"
   | "bootstrap"
   | "carryover"
   | "close"
@@ -21,6 +22,8 @@ export type CommitRole =
 export type JournalPhase = "CHECKED" | "FAILED" | "PREPARED" | "PREPARING";
 
 export interface CommitJournal {
+  /** Assignment of an executor worktree; adds the `Workflow-Assignment` trailer. */
+  assignmentId?: string | null;
   beforeHead: string | null;
   candidateHash: string;
   candidatePlan: string;
@@ -79,6 +82,9 @@ export function commitMessageFor(journal: CommitJournal): string {
     ...(journal.taskId === null
       ? []
       : [`Workflow-Iteration: ${journal.iteration}`]),
+    ...(journal.assignmentId
+      ? [`Workflow-Assignment: ${journal.assignmentId}`]
+      : []),
     `Workflow-Transaction: ${journal.id}`,
   ];
   return `${journal.message.trim()}\n\n${trailers.join("\n")}\n`;

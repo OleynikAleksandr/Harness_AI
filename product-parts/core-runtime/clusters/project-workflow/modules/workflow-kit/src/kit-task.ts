@@ -1,7 +1,9 @@
 import type { CommitResult } from "../../workflow-git/src/workflow-git-facade.js";
 import {
   isDocumentationPath,
+  PLAN_PATH,
   type RoundDigest,
+  type WorkflowPlan,
   type WorkflowTask,
   workflowPlanFacade,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
@@ -15,6 +17,7 @@ import {
   type WorkflowConfig,
   workflowQualityFacade,
 } from "../../workflow-quality/src/workflow-quality-facade.js";
+import { activeRecords } from "./kit-assignment.js";
 import {
   commitPlan,
   ensureNoTransaction,
@@ -24,6 +27,11 @@ import {
   readPlan,
   savePlan,
 } from "./kit-context.js";
+import {
+  executorAssignment,
+  guardExecutorCommit,
+  markAssignment,
+} from "./kit-executor.js";
 import { readStatus, type TaskBrief } from "./kit-status.js";
 
 export interface TaskStart {
@@ -50,6 +58,42 @@ function hasCommitChecks(config: WorkflowConfig): boolean {
   );
 }
 
+/**
+ * Main checkout of an orchestrated scope (spec 6): work and DOCS run only
+ * through assignments; delivery waits for every earlier task and for the
+ * last active assignment. QUALITY starts here; sequential scopes are free.
+ */
+function ensureMainMayStart(
+  context: KitContext,
+  plan: WorkflowPlan,
+  task: WorkflowTask
+): void {
+  if (workflowPlanFacade.execution(plan).strategy !== "orchestrated") {
+    return;
+  }
+  ensure(
+    task.kind !== "work" && task.kind !== "docs",
+    "ORCHESTRATED_MAIN_READ_ONLY",
+    `${task.id} runs only through an assignment in an orchestrated scope.`,
+    {},
+    `Run \`scripts/workflow assignment:next\`, then \`scripts/workflow assignment:create --task ${task.id}\`.`
+  );
+  if (task.kind !== "delivery") {
+    return;
+  }
+  const index = plan.tasks.indexOf(task);
+  const pending = plan.tasks
+    .filter((item, position) => position < index && item.status !== "DONE")
+    .map((item) => item.id);
+  const active = activeRecords(plan, context.root).map((record) => record.id);
+  ensure(
+    pending.length === 0 && active.length === 0,
+    "DELIVERY_NOT_READY",
+    `${task.id} starts when every earlier task is DONE and no assignment is active.`,
+    { active, pending }
+  );
+}
+
 /** `task:start`: checks, snapshot of earlier changes, IN_PROGRESS. */
 export function startTask(
   context: KitContext,
@@ -61,6 +105,7 @@ export function startTask(
     const current = readPlan(context);
     const config = readConfig(context);
     const task = workflowPlanFacade.task(current, taskId);
+    ensureMainMayStart(context, current, task);
     workflowQualityFacade.selectChecks({
       assigned: task.checks,
       config,
@@ -74,6 +119,7 @@ export function startTask(
       taskId,
     });
     savePlan(context, plan);
+    markAssignment(context, "RUNNING");
     const warnings: string[] = [];
     const limit = config.policy.taskFileSoftLimit;
     const functional = task.files.filter((file) => !isDocumentationPath(file));
@@ -185,7 +231,6 @@ export function commitTask(
       { files: functional },
       "Configure the profile with `quality:apply`."
     );
-    const prepare = runPrepare(context, config, task, selection.selected);
     const withFiles = structuredClone(current);
     const own = workflowPlanFacade.task(withFiles, taskId);
     own.files = [...new Set([...own.files, ...selection.selected])];
@@ -194,7 +239,14 @@ export function commitTask(
       taskId,
       options.digest ?? null
     );
+    guardExecutorCommit(
+      context,
+      [...selection.selected, PLAN_PATH],
+      workflowPlanFacade.render(plan)
+    );
+    const prepare = runPrepare(context, config, task, selection.selected);
     const commit = commitPlan(context, plan, {
+      assignmentId: executorAssignment(context)?.id ?? null,
       checks: task.checks,
       excluded: selection.excluded,
       files: selection.selected,
@@ -207,6 +259,7 @@ export function commitTask(
     if (prepare) {
       storePrepareEvidence(context, commit.sha, prepare);
     }
+    markAssignment(context, "READY_FOR_INTEGRATION", commit.sha);
     return {
       commit,
       nextTask: readStatus(context).nextTask,

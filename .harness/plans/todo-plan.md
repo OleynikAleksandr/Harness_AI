@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 75,
+  "revision": 76,
   "rounds": [
     {
       "digest": {
@@ -59,7 +59,10 @@
       "The sidebar shows the active plan with live progress under the agent card; a task row opens its executor session",
       "A new macOS package is built and verified"
     ],
-    "acceptanceNote": null,
+    "acceptanceNote": {
+      "at": "2026-11-04T12:19:23.054Z",
+      "text": "Предлагаю на этом пока остановиться и исправить то, что уже было найдено. Закрывай текущий скоп"
+    },
     "approval": {
       "at": "2026-11-04T09:09:24.635Z",
       "text": "User 2026-11-04: answers 1-7 ('Первое – да, согласен ... Седьмое. А зачем нам два релиза? Делаем один релиз обсужденный во всех предыдущих пунктах.') and the sidebar plan request ('будет карточка оркестратора ... и под ним to-do plan, со всеми пунктами, и динамика его выполнения')."
@@ -81,7 +84,7 @@
       }
     ],
     "decisions": [],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "ACCEPTED",
     "id": "execution-modes-2026-11-04",
     "objective": "Workflow Kit execution modes: the user picks sequential or orchestrated on a choice card when the plan is proposed; sequential is one agent, orchestrated runs every task by Claude subagent executors attached to their worktrees with checked commits and merge integration into main; Kit-formed git identity; the plan with live progress and executor sessions in the Harness sidebar; small Kit fixes; a new macOS release.",
     "spec": "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md",
@@ -930,10 +933,10 @@
 ## State
 
 - Scope: execution-modes-2026-11-04 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: ACCEPTED
 - Current task: none
 - Progress: 22/22
-- Revision: 75
+- Revision: 76
 
 ## Objective
 

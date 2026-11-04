@@ -14,7 +14,9 @@ All git work of the Workflow Kit:
 
 `WorkflowGitFacade` (class, singleton `workflowGitFacade`). The constructor
 takes a platform facade and an environment. Tests pass an environment
-without the `GIT_*` hook variables (`src/workflow-git-test-repo.mjs`), so
+without the `GIT_*` hook variables, including the `GIT_AUTHOR_*` and
+`GIT_COMMITTER_*` identity and `GIT_CONFIG_PARAMETERS`/`GIT_CONFIG_COUNT` that
+Kit commits pass to hooks (`src/workflow-git-test-repo.mjs`), so
 they work on temporary repositories even when they run inside a commit hook
 of this repository. Test repositories set a real local identity;
 repositories that git creates during a test (for example

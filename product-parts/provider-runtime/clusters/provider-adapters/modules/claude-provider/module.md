@@ -28,6 +28,13 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
 - Claude usage-limit telemetry read by this provider module through the
   Claude/Anthropic OAuth probe and rate-limit headers.
 - Claude Agent SDK runs with the active workspace as `cwd`, and the active workspace path plus `AGENTS.md` instructions are injected into the SDK system prompt by provider runtime.
+- `ClaudeAuthRuntime.getAuthEnvironment()` (the environment of SDK
+  sessions, CLI login/probe, native request capture and translation) passes
+  its result through the provider-home manager's `withRealGitConfig`: the
+  provider `HOME` stays, and when the real `~/.gitconfig` exists and no
+  `GIT_CONFIG_GLOBAL` is set, `GIT_CONFIG_GLOBAL=<real home>/.gitconfig` is
+  added so git inside the agent sees the user's identity
+  (`src/claude-auth-git-config.test.mjs`).
 - Provider home storage is Harness-owned: workspace sessions use `<workspace>/.harness/runtime/providers/claude/home`, and non-workspace fallbacks use `~/.harness-ai/providers/claude/home`.
 - The facade accepts an explicit `providerHomePath` for Core-owned global-home
   liveness preflight without treating that global home as a workspace root.

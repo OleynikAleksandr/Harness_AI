@@ -22,8 +22,11 @@ const compiled = ts.transpileModule(source, {
   },
 }).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
-const { materializeCodexReasoningSummaryConfig, ProviderHomeManagerFacade } =
-  await import(moduleUrl);
+const {
+  materializeCodexReasoningSummaryConfig,
+  ProviderHomeManagerFacade,
+  withRealGitConfig,
+} = await import(moduleUrl);
 
 assert.equal(
   materializeCodexReasoningSummaryConfig(
@@ -129,3 +132,54 @@ assert.deepEqual(
   []
 );
 rmSync(providersRoot, { force: true, recursive: true });
+
+// Agent processes with a provider HOME get the real git config.
+const realHome = "/Users/real";
+const realGitConfig = "/Users/real/.gitconfig";
+const gitConfigExists = (filePath) => filePath === realGitConfig;
+const noGitConfig = () => false;
+const providerEnv = { HOME: "/Users/real/.harness-ai/providers/claude/home" };
+assert.deepEqual(withRealGitConfig(providerEnv, realHome, gitConfigExists), {
+  ...providerEnv,
+  GIT_CONFIG_GLOBAL: realGitConfig,
+});
+assert.equal("GIT_CONFIG_GLOBAL" in providerEnv, false);
+// Unchanged: no HOME, HOME is the real home, GIT_CONFIG_GLOBAL already set,
+// or the real ~/.gitconfig does not exist.
+for (const environment of [
+  { PATH: "/usr/bin" },
+  { HOME: "" },
+  { HOME: realHome },
+  { HOME: "/Users/real/" },
+  { ...providerEnv, GIT_CONFIG_GLOBAL: "/custom/gitconfig" },
+]) {
+  assert.equal(
+    withRealGitConfig(environment, realHome, gitConfigExists),
+    environment
+  );
+}
+assert.equal(
+  withRealGitConfig(providerEnv, realHome, noGitConfig),
+  providerEnv
+);
+// XDG variables are passed through untouched.
+const xdgEnv = { ...providerEnv, XDG_CONFIG_HOME: "/xdg" };
+assert.deepEqual(withRealGitConfig(xdgEnv, realHome, gitConfigExists), {
+  ...xdgEnv,
+  GIT_CONFIG_GLOBAL: realGitConfig,
+});
+// Defaults: the real home is os.homedir() and the file check is existsSync.
+const defaultRealHome = mkdtempSync(join(tmpdir(), "harness-real-home-"));
+const savedHome = process.env.HOME;
+process.env.HOME = defaultRealHome;
+try {
+  assert.equal(withRealGitConfig(providerEnv), providerEnv);
+  writeFileSync(join(defaultRealHome, ".gitconfig"), "[user]\n", "utf8");
+  assert.equal(
+    withRealGitConfig(providerEnv).GIT_CONFIG_GLOBAL,
+    join(defaultRealHome, ".gitconfig")
+  );
+} finally {
+  process.env.HOME = savedHome;
+  rmSync(defaultRealHome, { force: true, recursive: true });
+}

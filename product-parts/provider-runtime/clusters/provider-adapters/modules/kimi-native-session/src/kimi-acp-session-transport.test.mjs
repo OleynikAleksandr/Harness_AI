@@ -11,6 +11,23 @@ const root = await mkdtemp(path.join(tmpdir(), "kimi-acp-transport-"));
 try {
   const buildDir = path.join(root, "build");
   await mkdir(buildDir, { recursive: true });
+  const homeManagerSource = readFileSync(
+    new URL(
+      "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts",
+      import.meta.url
+    ),
+    "utf8"
+  );
+  writeFileSync(
+    path.join(buildDir, "provider-home-manager-facade.js"),
+    ts.transpileModule(homeManagerSource, {
+      compilerOptions: {
+        module: ts.ModuleKind.ES2022,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText,
+    "utf8"
+  );
   for (const filename of [
     "kimi-acp-session-contracts.ts",
     "kimi-acp-session-router.ts",
@@ -28,7 +45,10 @@ try {
     }).outputText;
     writeFileSync(
       path.join(buildDir, filename.replace(/\.ts$/u, ".js")),
-      compiled,
+      compiled.replaceAll(
+        "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js",
+        "./provider-home-manager-facade.js"
+      ),
       "utf8"
     );
   }
@@ -157,6 +177,12 @@ try {
       '      JSON.stringify({ id: message.id, jsonrpc: "2.0", result: { protocolVersion: 1 } }) + "\\n"',
       "    );",
       "  }",
+      '  if (message.method === "harness/env") {',
+      "    const { GIT_CONFIG_GLOBAL, HOME } = process.env;",
+      "    process.stdout.write(",
+      '      JSON.stringify({ id: message.id, jsonrpc: "2.0", result: { GIT_CONFIG_GLOBAL: GIT_CONFIG_GLOBAL ?? null, HOME } }) + "\\n"',
+      "    );",
+      "  }",
       '  if (message.method === "harness/exit") {',
       "    process.exit(7);",
       "  }",
@@ -197,6 +223,35 @@ try {
   assert.equal(exits[1].expected, false);
   assert.equal(exits[1].code, 7);
   assert.match(exits[1].stderr, /fake kimi stderr/u);
+
+  // A passed provider HOME gets the real ~/.gitconfig as GIT_CONFIG_GLOBAL.
+  const realHome = path.join(root, "real-home");
+  const providerHome = path.join(root, "provider-home");
+  await mkdir(realHome, { recursive: true });
+  await writeFile(path.join(realHome, ".gitconfig"), "[user]\n", "utf8");
+  const savedHome = process.env.HOME;
+  const savedGitConfig = process.env.GIT_CONFIG_GLOBAL;
+  process.env.HOME = realHome;
+  Reflect.deleteProperty(process.env, "GIT_CONFIG_GLOBAL");
+  try {
+    const withHome = new KimiAcpSessionProcess({
+      command: process.execPath,
+      commandArgs: [fakeCli],
+      cwd: root,
+      environment: { HOME: providerHome },
+      requestTimeoutMs: 5000,
+    });
+    assert.deepEqual(await withHome.request("harness/env"), {
+      GIT_CONFIG_GLOBAL: path.join(realHome, ".gitconfig"),
+      HOME: providerHome,
+    });
+    await withHome.stop();
+  } finally {
+    process.env.HOME = savedHome;
+    if (savedGitConfig !== undefined) {
+      process.env.GIT_CONFIG_GLOBAL = savedGitConfig;
+    }
+  }
 
   console.log("kimi acp session transport tests passed");
 } finally {

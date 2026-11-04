@@ -2,6 +2,7 @@ import { execFile, spawn } from "node:child_process";
 import { homedir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withRealGitConfig } from "../../../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import {
   CLAUDE_OAUTH_ENV_KEY,
   readClaudeOAuthToken,
@@ -122,12 +123,13 @@ export class ClaudeAuthRuntime {
       CLAUDECODE: _claudeCode,
       ...processEnv
     } = process.env;
-    const baseEnv: NodeJS.ProcessEnv = {
+    // The provider HOME hides the user's ~/.gitconfig; point git at it.
+    const baseEnv: NodeJS.ProcessEnv = withRealGitConfig({
       ...processEnv,
       HOME: resolveClaudeProviderHome(),
       CLAUDE_USE_CLI_AUTH: "true",
       CLAUDE_SUBSCRIPTION_MODE: "true",
-    };
+    });
     // Only forward CLAUDE_CODE_OAUTH_TOKEN when the user explicitly provided it
     // in the environment. Do NOT forward tokens bootstrapped from the platform
     // Keychain: Claude CLI reads the Keychain natively and handles token refresh

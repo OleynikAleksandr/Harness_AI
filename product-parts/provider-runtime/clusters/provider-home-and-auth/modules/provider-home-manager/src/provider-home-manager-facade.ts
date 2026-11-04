@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import {
   access,
   copyFile,
@@ -181,6 +182,35 @@ async function ensureSummaryConfig(configPath: string): Promise<void> {
     materializeCodexReasoningSummaryConfig(raw),
     "utf8"
   );
+}
+
+type ProcessEnvironment = Readonly<Record<string, string | undefined>>;
+
+/**
+ * Agent processes run with HOME pointed at a provider home, where git finds
+ * no user identity. When HOME is overridden (differs from the real home),
+ * GIT_CONFIG_GLOBAL is not set yet and the real `~/.gitconfig` exists,
+ * returns a copy of the environment with GIT_CONFIG_GLOBAL pointing at that
+ * file; otherwise returns the environment unchanged.
+ */
+export function withRealGitConfig<T extends ProcessEnvironment>(
+  environment: T,
+  realHome: string = homedir(),
+  fileExists: (filePath: string) => boolean = existsSync
+): T {
+  const home = environment.HOME;
+  if (
+    !home ||
+    path.resolve(home) === path.resolve(realHome) ||
+    environment.GIT_CONFIG_GLOBAL
+  ) {
+    return environment;
+  }
+  const gitConfigPath = path.join(realHome, ".gitconfig");
+  if (!fileExists(gitConfigPath)) {
+    return environment;
+  }
+  return { ...environment, GIT_CONFIG_GLOBAL: gitConfigPath };
 }
 
 export function materializeCodexReasoningSummaryConfig(raw: string): string {

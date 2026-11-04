@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { createInterface, type Interface } from "node:readline";
+import { withRealGitConfig } from "../../../../provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.js";
 import { KimiAcpChannelClosedError } from "./kimi-acp-session-contracts.js";
 import {
   type KimiAcpRequestOptions,
@@ -126,11 +127,12 @@ export class KimiAcpSessionProcess {
       [...(this.options.commandArgs ?? DEFAULT_COMMAND_ARGS)],
       {
         cwd: this.options.cwd,
-        env: {
+        // A provider HOME hides the user's ~/.gitconfig; point git at it.
+        env: withRealGitConfig({
           ...process.env,
           ...this.options.environment,
           KIMI_CLI_NO_AUTO_UPDATE: "1",
-        },
+        }),
         stdio: ["pipe", "pipe", "pipe"],
         windowsHide: true,
       }

@@ -217,7 +217,12 @@ session id with the CLI store id).
 
 - A supervised `kimi acp` child process per native session with
   `KIMI_CLI_NO_AUTO_UPDATE=1` pinned for the child's lifetime (the binary
-  must not swap mid-session).
+  must not swap mid-session). The spawn environment goes through the
+  provider-home manager's `withRealGitConfig`: when the passed `HOME` (the
+  workspace provider home) differs from the real home and the real
+  `~/.gitconfig` exists, the child also gets `GIT_CONFIG_GLOBAL=<real
+  home>/.gitconfig`, so git inside the agent sees the user's identity; a
+  `GIT_CONFIG_GLOBAL` already present in the environment is kept.
 - Correlated request/response exchange with numeric outbound request ids,
   bounded timeouts, local abort semantics (the Kimi wire has no per-request
   cancel method — turn cancellation is the runtime's `session/cancel`

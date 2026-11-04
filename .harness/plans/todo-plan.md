@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 107,
+  "revision": 109,
   "rounds": [
     {
       "digest": null,
@@ -153,14 +153,23 @@
       "files": [
         "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager",
         "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/auth/claude-auth-runtime.ts",
-        "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-process.ts"
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-process.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-test-repo.mjs",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-auth-git-config.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-transport.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md",
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts"
       ],
       "fixes": null,
       "id": "E1",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Real git config for agent processes",
       "why": "Agents with a provider HOME do not see the user's git identity"
     },
@@ -637,8 +646,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 0/17
-- Revision: 107
+- Progress: 1/17
+- Revision: 109
 
 ## Objective
 
@@ -663,9 +672,9 @@ Give agents their input schemas and document text inline, add the Kit context co
 - [TODO] K1 — Input schema descriptors (work)
   - Commit: feat: describe kit inputs as schemas
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality
-- [TODO] E1 — Real git config for agent processes (work)
+- [DONE] E1 — Real git config for agent processes (work)
   - Commit: fix: give agent processes the real git config
-  - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/auth/claude-auth-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-process.ts
+  - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/auth/claude-auth-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-process.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-test-repo.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-auth-git-config.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-transport.test.mjs, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts
 - [TODO] W1 — Core without a built-in project (work)
   - Commit: fix: remove the built-in project from core
   - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry, product-parts/core-runtime/clusters/session-runtime/modules/session-registry, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process

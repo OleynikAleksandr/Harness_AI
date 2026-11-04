@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 100,
+  "revision": 102,
   "rounds": [
     {
       "digest": {
@@ -451,7 +451,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package release fixes round 2",
-      "confirmation": null,
+      "confirmation": "Пользователь: «создавай новую спецификацию to-do plan вплоть до сборки нового релиза», затем «Да, выполняй всё»",
       "context": [],
       "dependencies": [
         "G6",
@@ -463,14 +463,16 @@
       ],
       "docsWaiver": null,
       "files": [
-        "docs/evidence/release-fixes-2-package-2026-11-04.md"
+        "docs/evidence/release-fixes-2-package-2026-11-04.md",
+        ".harness/product-tree/product-tree.json",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
       ],
       "fixes": null,
       "id": "D1",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Package the macOS release",
       "why": "The user checks the release in the packaged app"
     },
@@ -511,8 +513,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 11/13
-- Revision: 100
+- Progress: 12/13
+- Revision: 102
 
 ## Objective
 
@@ -569,9 +571,9 @@ Fix the defects found in the execution modes release (git identity form instead 
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04-2.md, .harness/product-tree/product-tree.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCoreRpc.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, product-parts/application-shell/clusters/project-workflow-ui/cluster.md, product-parts/application-shell/product-part.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/product-part.md
   - Depends on: G1, G2, G3, G4, G5, G6, G7, G8, G9, G10
-- [TODO] D1 — Package the macOS release (delivery)
+- [DONE] D1 — Package the macOS release (delivery)
   - Commit: chore: package release fixes round 2
-  - Files: docs/evidence/release-fixes-2-package-2026-11-04.md
+  - Files: docs/evidence/release-fixes-2-package-2026-11-04.md, .harness/product-tree/product-tree.json, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: G6, G7, G8, G9, G10, DOCS-R1
 - [TODO] P1 — Publish the release on GitHub (delivery)
   - Commit: chore: publish release fixes round 2

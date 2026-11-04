@@ -73,7 +73,7 @@
             {
               "id": "session-sidebar",
               "name": "Session Sidebar",
-              "purpose": "Workspace switcher, workspace session list, next-session mode entry, session rename, Settings entry, Profile Studio entry and the Core plan view under the owner session's card."
+              "purpose": "Workspace switcher, workspace session list, next-session mode entry, session rename, Settings entry, Profile Studio entry, and under the owner session's card the Core execution mode card and the Core plan view."
             }
           ]
         },
@@ -107,12 +107,12 @@
             {
               "id": "project-setup-dialog",
               "name": "Project Setup Dialog",
-              "purpose": "New Project (parent folder + name) and Open Project (folder, Core inspection, install/update/open, Open Without Kit) through the Core bridge."
+              "purpose": "New Project (parent folder + name) and Open Project (folder named after itself, Core inspection, install/update/open, Open Without Kit) through the Core bridge, plus the git identity form when git has no real global identity."
             },
             {
               "id": "project-doctor-panel",
               "name": "Project Doctor Panel",
-              "purpose": "Core doctor report of the active workspace (checks, statuses, next actions) and the safe fix."
+              "purpose": "Core doctor report of the active workspace (checks, statuses, next actions), the safe fix and the git identity form for a failing unfixable git-identity check."
             },
             {
               "id": "workflow-status-strip",
@@ -122,7 +122,7 @@
             {
               "id": "execution-mode-card",
               "name": "Execution Mode Card",
-              "purpose": "The Core execution mode card of a scope proposal in the owner session's chat: the recommended mode first with its reason, a Choose button per mode and the saved choice."
+              "purpose": "The Core execution mode card of a scope proposal in the left sidebar under the owner session's card: the recommended mode first with its reason, a Choose button per mode and the saved choice."
             },
             {
               "id": "project-plan-panel",
@@ -185,7 +185,7 @@
             {
               "id": "core-runtime-process",
               "name": "Core Runtime Process",
-              "purpose": "Core process entrypoint plus health, status and shutdown process contracts."
+              "purpose": "Core process entrypoint plus health, status and shutdown process contracts, the login-shell PATH and the project workflow RPC."
             }
           ]
         },
@@ -406,7 +406,7 @@
             {
               "id": "workflow-git",
               "name": "Workflow Git",
-              "purpose": "Git queries, working-tree changes, trailer history, git identity, transactional task and integration commits, first-parent commit reference resolution and repair."
+              "purpose": "Git queries, working-tree changes, trailer history, git identity (validation, local and global writes), transactional task and integration commits, first-parent commit reference resolution and repair."
             },
             {
               "id": "workflow-quality",

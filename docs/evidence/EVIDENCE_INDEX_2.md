@@ -300,3 +300,6 @@ added, add a new evidence file and keep this index entry valid.
   release: build and package checks, the Kit 2.1.0 bundle smoke on a
   temporary project (host marker, mode proposal and choice) and the packaged
   app start.
+- `docs/evidence/release-fixes-2-package-2026-11-04.md` — release fixes round
+  2: package contents (Kit 2.1.1 bundle, identity route, login PATH), the Kit
+  identity and install smoke on a temporary project and the app start.

@@ -72,8 +72,9 @@ export class WorkflowRecoveryFacade {
 
   /**
    * The documents map of a project (the packet `documents` section):
-   * Markdown files known to git, the specification folder first, within
-   * `budget` bytes (default 4000) with a tail line for the rest.
+   * Markdown files known to git (only under `folder` when given), the
+   * specification folder first, within `budget` bytes (default 4000) with a
+   * tail line (hint `more`) for the rest.
    */
   documentsMap(root: string, options: DocumentsMapOptions = {}): DocumentsMap {
     return documentsMap(this.git, root, options);

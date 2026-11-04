@@ -87,7 +87,7 @@ environment.
   bytes, overBudget, truncated, included, omitted, references, sections,
   text}`.
 - `section(text, heading)` returns a Markdown section or `null`.
-- `documentsMap(root, {specPath?, budget?})` returns the documents map
+- `documentsMap(root, {specPath?, budget?, folder?, more?})` returns the documents map
   `{entries, shown, text}` (see Documents Map) for the packet, the
   `context` command and the executor brief.
 
@@ -96,7 +96,8 @@ environment.
 - Files: `git ls-files -z --cached --others --exclude-standard -- '*.md'
   '*.markdown'` (tracked plus untracked files that git does not ignore),
   without paths having a `node_modules` or `.git` segment and without
-  `.harness/workflow/**` and `.harness/plans/archive/**`; a listed file
+  `.harness/workflow/**` and `.harness/plans/archive/**`; with `folder`
+  (project-relative) only the files under `<folder>/`; a listed file
   that cannot be read (deleted from the working tree) is skipped. Outside
   a git repository the map is empty.
 - Order: the files under the folder of `specPath` (the scope
@@ -107,8 +108,8 @@ environment.
 - `text`: one line per entry `<path> (<bytes> bytes): <H2>; <H2>; …`
   (`<path> (<bytes> bytes)` without headings), added in order while the
   text, the tail line included, fits `budget` (default 4000 bytes); the
-  rest is one tail line ``… N more documents: `scripts/workflow context
-  --list` ``. `shown` counts the entry lines. A budget below the tail line
+  rest is one tail line ``… N more documents: <more>``, `more` by default
+  `` `scripts/workflow context --list` ``. `shown` counts the entry lines. A budget below the tail line
   leaves only the tail line.
 - `gather` builds the map with the scope `spec` as `specPath`.
 
@@ -265,7 +266,8 @@ Node built-ins only.
 - `src/workflow-recovery-documents.test.mjs` — the documents map of a git
   project: outside a repository, tracked and untracked files, ignored,
   deleted and excluded paths, the specification folder first, `##`
-  headings outside code fences, the budget and the tail line, the packet
+  headings outside code fences, the budget and the tail line, `folder` and
+  `more`, the packet
   `documents` section.
 - `src/workflow-recovery-schema.test.mjs` — the descriptor catalog and
   compact text, and the `schema` section for every case: no scope with and

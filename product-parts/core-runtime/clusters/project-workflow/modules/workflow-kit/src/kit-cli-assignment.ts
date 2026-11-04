@@ -149,6 +149,7 @@ const EXECUTOR_COMMANDS = new Set([
   "assignment:setup",
   "assignment:status",
   "commit",
+  "context",
   "recover",
   "repair",
   "schema",
@@ -174,7 +175,7 @@ export function ensureExecutorCommand(
     "ASSIGNMENT_READ_ONLY",
     `${command} is not available in the executor worktree of ${executor?.id}.`,
     { allowed: [...EXECUTOR_COMMANDS] },
-    "Run only your task: task:start, commit --task, status, recover, show-task, schema, repair, task:block, assignment:status, assignment:setup."
+    "Run only your task: task:start, commit --task, status, recover, show-task, schema, context, repair, task:block, assignment:status, assignment:setup."
   );
 }
 

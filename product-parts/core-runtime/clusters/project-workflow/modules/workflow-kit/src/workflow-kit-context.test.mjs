@@ -240,7 +240,12 @@ try {
     briefB,
     /Context documents \(full text, do not re-read them\):\n\n<document path="docs\/spec\.md" bytes="20">\n# Spec\n\nThe modules\.\n<\/document>\n/u
   );
-  assert.doesNotMatch(briefB, /docs\/design\.md/u);
+  assert.doesNotMatch(briefB, /<document path="docs\/design\.md"/u);
+  // The documents map follows the context documents, the spec folder first.
+  assert.match(
+    briefB,
+    /<\/document>\n\nProject documents \(ask with scripts\/workflow context <path>\):\ndocs\/design\.md \(\d+ bytes\): Storage; Network\ndocs\/notes\.md \(\d+ bytes\)\ndocs\/spec\.md \(\d+ bytes\)\n.*\.harness\/plans\/todo-plan\.md/su
+  );
 
   // The documents grew after planning: assignment:create refuses, no record.
   write(root, "docs/design.md", design("y".repeat(70_000)));
@@ -284,7 +289,7 @@ try {
     briefA,
     /<document path="docs\/notes\.md" bytes="19">\n# Notes\n\nNote text\.\n<\/document>\n/u
   );
-  assert.doesNotMatch(briefA, /docs\/spec\.md/u);
+  assert.doesNotMatch(briefA, /<document path="docs\/spec\.md"/u);
   assert.equal(existsSync(recordA), true);
 
   console.log("workflow-kit context tests passed");

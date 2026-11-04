@@ -19,6 +19,7 @@ import {
   ASSIGNMENT_COMMANDS,
   ensureExecutorCommand,
 } from "./kit-cli-assignment.js";
+import { CONTEXT_COMMANDS } from "./kit-cli-context.js";
 import { EXECUTION_COMMANDS } from "./kit-cli-execution.js";
 import { IDENTITY_COMMANDS } from "./kit-cli-identity.js";
 import { INTEGRATION_COMMANDS } from "./kit-cli-integration.js";
@@ -49,6 +50,8 @@ interface CommandContext {
 }
 
 interface CommandSpec {
+  /** The format without `--format`; json when absent. */
+  defaultFormat?: "text";
   run: (context: CommandContext) => unknown;
   /** `--format text` output; `renderText` when absent. */
   text?: (result: unknown) => string;
@@ -88,6 +91,7 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
   ...IDENTITY_COMMANDS,
   ...PAUSE_COMMANDS,
   ...SCHEMA_COMMANDS,
+  ...CONTEXT_COMMANDS,
   "autopilot:status": {
     run: ({ kit, root }) => kit.autopilotStatus(root),
     usage: "autopilot:status",
@@ -282,7 +286,7 @@ function helpText(): string {
     "  scripts/workflow hook session-start --client claude|codex",
     "  scripts/workflow git-hook <pre-commit|commit-msg|post-commit|pre-push> [args]",
     "",
-    "Options: --format json|text (default json), --root <project>.",
+    "Options: --format json|text (default json; text for context), --root <project>.",
     'Errors: {"ok":false,"code","message","nextAction"} and exit code 1.',
     "",
   ].join("\n");
@@ -400,7 +404,10 @@ export function runCli(
   let format = "json";
   try {
     const args = parseArgs(argv);
-    format = flag(args, "format") ?? "json";
+    format =
+      flag(args, "format") ??
+      COMMANDS[args.command ?? ""]?.defaultFormat ??
+      "json";
     const wantsHelp =
       args.command === "help" || args.flags.get("help") === true;
     if (!args.command || wantsHelp) {

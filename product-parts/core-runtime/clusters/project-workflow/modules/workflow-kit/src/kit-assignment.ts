@@ -12,6 +12,7 @@ import {
   workflowPlanFacade,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
 import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { WorkflowRecoveryFacade } from "../../workflow-recovery/src/workflow-recovery-facade.js";
 import {
   ensureNoTransaction,
   type KitContext,
@@ -166,8 +167,35 @@ function scheduled(schedule: AssignmentSchedule, task: WorkflowTask): void {
 }
 
 /**
+ * The executor brief followed by the documents map of the project (spec
+ * 3.2, the specification folder first, its own 4000-byte budget with a tail
+ * line): the brief budget counts only the context documents.
+ */
+function briefWithMap(
+  context: KitContext,
+  plan: WorkflowPlan,
+  brief: string
+): string {
+  const map = new WorkflowRecoveryFacade(context.git).documentsMap(
+    context.root,
+    { specPath: plan.scope?.spec ?? null }
+  );
+  if (map.text === "") {
+    return brief;
+  }
+  return [
+    brief.trimEnd(),
+    "",
+    "Project documents (ask with scripts/workflow context <path>):",
+    map.text,
+    "",
+  ].join("\n");
+}
+
+/**
  * `assignment:create --task <ID>` in main (spec 5.1). The plan does not
- * change. The brief carries the task's context documents read from main;
+ * change. The brief carries the task's context documents read from main
+ * and the documents map;
  * CONTEXT_MISSING / CONTEXT_TOO_LARGE refuse before a record is written.
  */
 export function createAssignment(
@@ -210,7 +238,11 @@ export function createAssignment(
       );
       return {
         assignment: existing,
-        brief: workflowAssignmentFacade.brief(plan, task, existing, documents),
+        brief: briefWithMap(
+          context,
+          plan,
+          workflowAssignmentFacade.brief(plan, task, existing, documents)
+        ),
         created: false,
       };
     }
@@ -233,7 +265,11 @@ export function createAssignment(
     workflowAssignmentFacade.write(context.root, record);
     return {
       assignment: record,
-      brief: workflowAssignmentFacade.brief(plan, task, record, documents),
+      brief: briefWithMap(
+        context,
+        plan,
+        workflowAssignmentFacade.brief(plan, task, record, documents)
+      ),
       created: true,
     };
   });

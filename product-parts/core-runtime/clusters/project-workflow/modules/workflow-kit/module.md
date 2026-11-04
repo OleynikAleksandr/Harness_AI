@@ -173,7 +173,10 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
      (for example an integrated one).
   Between 5 and 6 the context budget check runs again on the current files
   (`CONTEXT_MISSING`, `CONTEXT_TOO_LARGE`; no record is written); the brief
-  carries the checked documents as marked full text.
+  carries the checked documents as marked full text, then
+  `Project documents (ask with scripts/workflow context <path>):` and the
+  documents map (`documentsMap` with the scope `spec`; its own 4000-byte
+  budget and tail line, outside `budget.briefBytes`).
   It writes the `ASSIGNED` record (`baseCommit` HEAD, `configDigest` of the
   configuration) and returns `{assignment, brief, created: true}`. The task
   stays `TODO` and nothing is committed: the plan changes only on
@@ -343,8 +346,8 @@ it changes in the same commit as the commands. Summary:
   `kit-cli-execution.ts` (`scope:propose`, `scope:choose`,
   `scope:proposal`), `kit-cli-assignment.ts` (`assignment:*` and the
   executor whitelist), `kit-cli-integration.ts` (`integration:*`),
-  `kit-cli-identity.ts` (`identity:set`), `kit-cli-pause.ts` (`pause:set`)
-  and `kit-cli-schema.ts` (`schema`); the other commands are defined in
+  `kit-cli-identity.ts` (`identity:set`), `kit-cli-pause.ts` (`pause:set`),
+  `kit-cli-schema.ts` (`schema`) and `kit-cli-context.ts` (`context`); the other commands are defined in
   `workflow-kit-cli.ts`, the default texts in `kit-cli-text.ts`. `help`
   lists every usage line.
 - `schema [<command>]` (`kit-cli-schema.ts`) prints the JSON input
@@ -354,12 +357,25 @@ it changes in the same commit as the commands. Summary:
   `workflowRecoveryFacade.schemaText`), or without a command the list with
   one-line descriptions; another command is `USAGE` with
   `details.commands`. It needs no scope and runs in an executor worktree.
-- Output: `{ok: true, command, result}` as JSON or `--format text`.
+- `context <path>[#Heading] …` (`kit-cli-context.ts`, text by default)
+  prints `<document path heading? bytes>` blocks in argument order within
+  28 000 bytes; after the first misfit the rest is listed as `not included
+  (ask again): <path>[#H] (N bytes)`. A document over the budget alone gives
+  its `##` sections (the preamble stays with the first; without sections:
+  `tooLarge`). `#Heading` matches by text or slug (`section`). Every
+  argument is checked first: outside the root (symbolic links resolved),
+  `.harness/workflow/**`, a folder or a file with a NUL byte is
+  `CONTEXT_FORBIDDEN`; a missing file or heading `CONTEXT_MISSING`. JSON:
+  `{documents: [{path, heading?, bytes, text}], notIncluded: [{path,
+  heading?, bytes, tooLarge?}]}`. `--list [<folder>]`: `{folder, entries,
+  shown, text}`, the map within 28 000 bytes. No scope; executor allowed.
+- Output: `{ok: true, command, result}` as JSON or `--format text` (a
+  spec's `defaultFormat` sets the default).
   Errors: `{ok: false, code, message, nextAction, details}` on stdout with
   exit code 1 (`--format text`: `CODE: message` on stderr); `USAGE`,
   `UNKNOWN_COMMAND`, `INPUT_UNREADABLE` / `INPUT_JSON`, `INTERNAL`.
 - Executor worktree: only `status`, `validate`, `recover`, `show-task`,
-  `schema`, `task:start`, `commit`, `repair`, `task:block`,
+  `schema`, `context`, `task:start`, `commit`, `repair`, `task:block`,
   `assignment:status`, `assignment:setup`, `assignment:attach`, `help`,
   `hook` and `git-hook` run; every other known command fails with
   `ASSIGNMENT_READ_ONLY` (`details.allowed`) before it runs.
@@ -409,10 +425,13 @@ worktrees where noted):
 - `src/workflow-kit-context.test.mjs` — `CONTEXT_MISSING` and
   `CONTEXT_TOO_LARGE` in `scope:create`, `task:update`, `plan:extend` and
   `assignment:create` (grown or changed documents), the brief with a
-  section, a whole document and the specification fallback.
+  section, a whole document, the specification fallback and the map.
+- `src/workflow-kit-context-command.test.mjs` — `context`: order, budget,
+  the left-out list, sections of a large document, `#Heading`, refusals,
+  `--list`.
 - `src/workflow-kit-executor.test.mjs` (worktrees) — main read-only and
   delivery rules, attach refusals, records and the `assignment-plan`
-  commit, the executor whitelist (`schema` allowed), `pre-push`, `RUNNING`, scope and contract
+  commit, the executor whitelist (`schema`, `context` allowed), `pre-push`, `RUNNING`, scope and contract
   guards, `READY_FOR_INTEGRATION`, nested directory entries.
 - `src/workflow-kit-worktree.test.mjs` (worktrees, fake `npm`) —
   `NEEDS_SETUP`, setup refusals, success and failure, cleanup `DONE` and

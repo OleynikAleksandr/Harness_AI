@@ -16,6 +16,7 @@ const BOOLEAN_FLAGS = new Set([
   "fix",
   "dry-run",
   "global",
+  "list",
   "off",
   "on",
   "update",

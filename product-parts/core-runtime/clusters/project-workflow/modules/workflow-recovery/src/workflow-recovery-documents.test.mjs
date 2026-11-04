@@ -122,6 +122,22 @@ try {
     "docs/arch/a.md (9 bytes): Alpha"
   );
 
+  // A folder keeps only its documents; `more` replaces the tail hint.
+  const folder = recovery.documentsMap(root, { folder: "docs" });
+  assert.deepEqual(
+    folder.entries.map((entry) => entry.path),
+    ["docs/arch/a.md", "docs/arch/spec.md", "docs/zzz.md"]
+  );
+  assert.equal(
+    recovery.documentsMap(root, { budget: 70, folder: "docs", more: "narrow" })
+      .text,
+    "docs/arch/a.md (9 bytes): Alpha\n… 2 more documents: narrow"
+  );
+  assert.equal(
+    recovery.documentsMap(root, { folder: "doc" }).entries.length,
+    0
+  );
+
   // The packet carries the map as its `documents` section.
   const plans = new WorkflowPlanFacade();
   plans.write(root, plans.createEmpty("p", "Docs"));

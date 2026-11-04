@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 137,
+  "revision": 139,
   "rounds": [
     {
       "digest": null,
@@ -572,14 +572,27 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-context.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context-command.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-documents.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-documents.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts"
       ],
       "fixes": null,
       "id": "K5",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Kit context command",
       "why": "Extra context must not be read in truncated passes"
     },
@@ -783,8 +796,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 12/17
-- Revision: 137
+- Progress: 13/17
+- Revision: 139
 
 ## Objective
 
@@ -843,9 +856,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: pause the plan from the plan panel
   - Files: product-parts/application-shell/clusters/project-workflow-ui, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.css, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.test.mjs, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-pause-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip.test.mjs, product-parts/application-shell/clusters/project-workflow-ui/src/project-workflow-ui.css, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts
   - Depends on: A4
-- [TODO] K5 — Kit context command (work)
+- [DONE] K5 — Kit context command (work)
   - Commit: feat: read documents through the kit context command
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-context.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context-command.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-documents.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-documents.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts
   - Depends on: K4
 - [DONE] W2 — Interface without a project (work)
   - Commit: fix: show the start screen without a project

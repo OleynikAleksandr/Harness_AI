@@ -29,6 +29,10 @@ export interface DocumentsMap {
 
 export interface DocumentsMapOptions {
   budget?: number;
+  /** Only documents under this project-relative folder (`context --list`). */
+  folder?: string | null;
+  /** The tail-line hint for the rest; default `` `scripts/workflow context --list` ``. */
+  more?: string;
   /** The scope specification: documents of its folder come first. */
   specPath?: string | null;
 }
@@ -114,8 +118,10 @@ function entryLine(entry: DocumentEntry): string {
     : base;
 }
 
-function tailLine(count: number): string {
-  return `… ${count} more documents: \`${KIT_COMMAND} context --list\``;
+const DEFAULT_MORE = `\`${KIT_COMMAND} context --list\``;
+
+function tailLine(count: number, more: string): string {
+  return `… ${count} more documents: ${more}`;
 }
 
 /**
@@ -124,7 +130,8 @@ function tailLine(count: number): string {
  */
 function renderDocumentsMap(
   entries: DocumentEntry[],
-  budget: number = DOCUMENTS_MAP_BYTES
+  budget: number,
+  more: string
 ): DocumentsMap {
   const lines: string[] = [];
   let used = 0;
@@ -132,7 +139,7 @@ function renderDocumentsMap(
     const line = entryLine(entry);
     const rest = entries.length - index - 1;
     const next = used + byteLength(line) + (lines.length > 0 ? 1 : 0);
-    const reserve = rest > 0 ? byteLength(tailLine(rest)) + 1 : 0;
+    const reserve = rest > 0 ? byteLength(tailLine(rest, more)) + 1 : 0;
     if (next + reserve > budget) {
       break;
     }
@@ -143,15 +150,17 @@ function renderDocumentsMap(
   return {
     entries,
     shown: lines.length,
-    text: [...lines, ...(hidden > 0 ? [tailLine(hidden)] : [])].join("\n"),
+    text: [...lines, ...(hidden > 0 ? [tailLine(hidden, more)] : [])].join(
+      "\n"
+    ),
   };
 }
 
 /**
  * The documents map of a project: Markdown files known to git (tracked or
  * untracked and not ignored) without `node_modules`, `.git`,
- * `.harness/workflow/**` and `.harness/plans/archive/**`; one line per file
- * with its size and `##` headings.
+ * `.harness/workflow/**` and `.harness/plans/archive/**` (only those under
+ * `folder` when given); one line per file with its size and `##` headings.
  */
 export function documentsMap(
   git: WorkflowGitFacade,
@@ -159,8 +168,9 @@ export function documentsMap(
   options: DocumentsMapOptions = {}
 ): DocumentsMap {
   const entries: DocumentEntry[] = [];
+  const folder = options.folder ? `${options.folder}/` : "";
   for (const file of ordered(
-    markdownPaths(git, root),
+    markdownPaths(git, root).filter((item) => item.startsWith(folder)),
     options.specPath ?? null
   )) {
     const text = readMarkdown(root, file);
@@ -172,5 +182,9 @@ export function documentsMap(
       });
     }
   }
-  return renderDocumentsMap(entries, options.budget ?? DOCUMENTS_MAP_BYTES);
+  return renderDocumentsMap(
+    entries,
+    options.budget ?? DOCUMENTS_MAP_BYTES,
+    options.more ?? DEFAULT_MORE
+  );
 }

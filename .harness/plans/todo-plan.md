@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 109,
+  "revision": 111,
   "rounds": [
     {
       "digest": null,
@@ -91,14 +91,25 @@
       "dependencies": [],
       "docsWaiver": null,
       "files": [
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-pause.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-pause.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-pause.test.mjs"
       ],
       "fixes": null,
       "id": "A1",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Kit pause state",
       "why": "Pause must be a workflow fact the agent cannot bypass"
     },
@@ -646,8 +657,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 1/17
-- Revision: 109
+- Progress: 2/17
+- Revision: 111
 
 ## Objective
 
@@ -666,9 +677,9 @@ Give agents their input schemas and document text inline, add the Kit context co
 
 ### R1 — Implementation (implementation, OPEN)
 
-- [TODO] A1 — Kit pause state (work)
+- [DONE] A1 — Kit pause state (work)
   - Commit: feat: pause the workflow through the kit
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-pause.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-pause.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-pause.test.mjs
 - [TODO] K1 — Input schema descriptors (work)
   - Commit: feat: describe kit inputs as schemas
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality

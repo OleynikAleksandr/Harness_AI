@@ -41,6 +41,7 @@ function statusText(status: KitStatus): string {
     );
   }
   lines.push(
+    `paused: ${status.paused}`,
     `progress: ${status.progress.done}/${status.progress.total}`,
     `current: ${status.currentTask ? `${status.currentTask.id} ${status.currentTask.title}` : "none"}`,
     `next: ${status.nextTask ? `${status.nextTask.id} [${status.nextTask.kind}] ${status.nextTask.title}` : "none"}`,

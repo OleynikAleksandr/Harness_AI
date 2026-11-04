@@ -22,6 +22,7 @@ import {
 import { EXECUTION_COMMANDS } from "./kit-cli-execution.js";
 import { IDENTITY_COMMANDS } from "./kit-cli-identity.js";
 import { INTEGRATION_COMMANDS } from "./kit-cli-integration.js";
+import { PAUSE_COMMANDS } from "./kit-cli-pause.js";
 import { renderText } from "./kit-cli-text.js";
 import {
   type CarryoverInput,
@@ -84,6 +85,7 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
   ...ASSIGNMENT_COMMANDS,
   ...INTEGRATION_COMMANDS,
   ...IDENTITY_COMMANDS,
+  ...PAUSE_COMMANDS,
   "autopilot:status": {
     run: ({ kit, root }) => kit.autopilotStatus(root),
     usage: "autopilot:status",

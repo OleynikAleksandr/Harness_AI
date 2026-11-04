@@ -47,9 +47,9 @@ State (`kit-status.ts`):
   - `scopeProposal` — `{generation, recommended, hasParallelWork, options,
     refining}` or `null`;
   - `executor` — `{assignmentId, taskId}` in an executor worktree, else
-    `null`.
+    `null`; `paused` — the user's pause of this checkout.
 - `autopilotStatus(root)` — the autopilot decision input: scope, blocked
-  reason, delivery, next task, revision, HEAD, pending transaction,
+  reason, delivery, next task, revision, HEAD, pending transaction, `paused`,
   `proposalPending` (a proposal not in refinement) and `orchestration`
   (`null` unless orchestrated in main): active assignments plus
   `INTEGRATED` ones with cleanup `PENDING` (`{id, taskId, status,
@@ -121,6 +121,15 @@ Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
 - `block(root, reason)` / `unblock(root)` — write the plan only; the next
   Kit commit records the state.
 
+Pause (`kit-pause.ts`): `.harness/workflow/local/pause.json` `{paused,
+note, at}`; no file is not paused, an unreadable or malformed one is
+`PAUSE_STATE`. `setPause(root, paused, note)` (`pause:set`, locked, no
+scope needed; `NOT_INSTALLED`; `USAGE` for an empty note) writes it
+atomically with the trimmed note. While paused, `task:start` in main and
+`assignment:create` fail with `WORKFLOW_PAUSED` (`details {at, note}`);
+executor worktrees, `commit`, integration, `accept`, `repair` and reads
+are not affected.
+
 Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
 `workflow-assignment`; section 5.1 of `WorkflowKitExecutionModes.md`):
 - `nextAssignments(root)` — `assignment:next`, read-only: `{orchestrated,
@@ -135,6 +144,7 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
      `SCOPE_NOT_ACTIVE` — a blocked scope;
   2. `TRANSACTION_PENDING`; `INTEGRATION_ACTIVE` (the shared busy check);
   3. `DIRTY_TREE` — changes outside Kit-managed paths (`details.paths`);
+     `WORKFLOW_PAUSED`;
   4. `NO_COMMITS`; the base is HEAD;
   5. `UNKNOWN_TASK`; `ASSIGNMENT_KIND` for QUALITY and delivery tasks (the
      orchestrator runs them in main); `TASK_NOT_TODO`;
@@ -223,7 +233,8 @@ Executor worktree (`kit-executor.ts`; sections 5.1–5.4 of
   Kit-managed paths are excluded from the selection as usual.
 
 Tasks (`kit-task.ts`):
-- `startTask(root, id, confirmation?)` — in an orchestrated scope (section 6
+- `startTask(root, id, confirmation?)` — `WORKFLOW_PAUSED` in main after
+  the busy check; in an orchestrated scope (section 6
   of `WorkflowKitExecutionModes.md`; the executor plan is sequential) a
   `work` or `DOCS` task fails with `ORCHESTRATED_MAIN_READ_ONLY` (next action:
   `assignment:next`, `assignment:create --task <ID>`) and a delivery task
@@ -303,7 +314,7 @@ managed hooks.
 - Any other name fails with `UNKNOWN_HOOK`; unexpected errors are reported
   with their code instead of a stack trace.
 
-## Command Line (`workflow-kit-cli.ts`, `kit-cli-args.ts`, `kit-cli-text.ts`, `kit-cli-execution.ts`, `kit-cli-assignment.ts`, `kit-cli-integration.ts`, `kit-cli-identity.ts`)
+## Command Line (`workflow-kit-cli.ts`, `kit-cli-*.ts`)
 
 - `runCli(argv, io, kit?)` returns the exit code; `io` is `{cwd, env,
   readStdin, stdout, stderr}`. The file runs `runCli` itself when it is the
@@ -335,6 +346,8 @@ managed hooks.
   values are written with `git config --global` and the result is `{name,
   email, scope: "global"}` (text: `identity: <name> <<email>> (global git
   config)`). It needs no project and runs in any folder,
+  `pause:set --on|--off --note` (`kit-cli-pause.ts`; exactly one of the
+  flags and a note, else `USAGE`; text `pause: on|off (<at>) — <note>`),
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,
   `close --scope --note`, `carryover --input`,
@@ -351,10 +364,11 @@ managed hooks.
   mode under Electron).
   `--files` and `--stack` take a JSON list or a comma-separated list.
   Boolean flags (no value): `--help`, `--fix`, `--dry-run`, `--global`,
-  `--update`.
+  `--off`, `--on`, `--update`.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
   (status, validation, inspection, recovery, task and history texts — status
-  adds `execution: none|sequential|orchestrated (max <N> workers),
+  adds `paused: true|false`, `execution:
+  none|sequential|orchestrated (max <N> workers),
   assignments: <STATUS> <count>, ...|none[, integration <task> <phase>]`
   and, in an executor worktree, `executor: assignment <id>, task <ID>`; for
   `scope:propose` the generation, recommendation, reason, options and the
@@ -399,17 +413,15 @@ managed hooks.
 
 ## Bundle
 
-`npm run build:workflow-kit` (`scripts/build-workflow-kit.mjs`, part of
+`npm run build:workflow-kit` (`scripts/build-workflow-kit.mjs`, in
 `npm run build` and `npm run dev`) bundles `workflow-kit-cli.ts` with
-`vite.workflow-kit.config.ts` (Vite SSR library mode, target Node 22, not
-minified) into `dist/workflow-kit/workflow.mjs`. Every cluster module is
-inlined; only `node:` built-ins stay external. The script fails when the
-bundle imports anything else, then smoke-tests it in a temporary folder:
-`help`, `status` of a folder without the Kit (`installed: false`) and
-`validate` reporting `NOT_INSTALLED`, and an installation into a new git
-project (temporary global git identity) whose bootstrap commit runs the
-installed hooks and launcher, followed by `scripts/workflow validate` and
-`scripts/workflow doctor`.
+`vite.workflow-kit.config.ts` (Vite SSR library, Node 22, not minified)
+into `dist/workflow-kit/workflow.mjs`, inlining every cluster module; an
+import other than a `node:` built-in fails the script. Its smoke test in a
+temporary folder: `help`, `status` without the Kit (`installed: false`),
+`validate` (`NOT_INSTALLED`), and an installation into a new git project
+(temporary global git identity) whose bootstrap commit runs the installed
+hooks and launcher, then `scripts/workflow validate` and `doctor`.
 
 ## Dependencies
 
@@ -447,12 +459,12 @@ worktrees where noted):
   `PENDING`, branch deletion.
 - `src/workflow-kit-status.test.mjs` — the status fields in every state and
   the text lines.
+- `src/workflow-kit-pause.test.mjs` (worktrees) — `pause:set`, statuses and
+  refusals while paused, the unaffected executor worktree.
 - `src/workflow-kit-cli.test.mjs` — envelopes, inspection, `install
   --host`, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled program, and `identity:set` outside a project
-  (`USAGE` without `--global`, `GIT_IDENTITY_INVALID` for a missing,
-  empty or quoted value, `GIT_IDENTITY_PLACEHOLDER` with the field, the write to a
-  temporary `GIT_CONFIG_GLOBAL`).
+  (its refusals and the write to a temporary `GIT_CONFIG_GLOBAL`).
 - The integration commands, busy refusals and the merge-aware hook are
   tested in `workflow-integration/src/workflow-integration-merge.test.mjs`.
 

@@ -11,7 +11,15 @@ export interface ParsedArgs {
   positionals: string[];
 }
 
-const BOOLEAN_FLAGS = new Set(["help", "fix", "dry-run", "global", "update"]);
+const BOOLEAN_FLAGS = new Set([
+  "help",
+  "fix",
+  "dry-run",
+  "global",
+  "off",
+  "on",
+  "update",
+]);
 
 /** Splits `command positional… --flag value --flag=value --bool`. */
 export function parseArgs(argv: readonly string[]): ParsedArgs {

@@ -19,6 +19,7 @@ import {
   readPlan,
   requireHead,
 } from "./kit-context.js";
+import { ensureNotPaused } from "./kit-pause.js";
 
 /** Integration journal of E9; while it exists no assignment is created. */
 export const INTEGRATION_FILE = "integration.json";
@@ -171,6 +172,7 @@ export function createAssignment(
   return locked(context, () => {
     const plan = readPlan(context);
     ensureCanAssign(context, plan);
+    ensureNotPaused(context);
     const base = requireHead(context);
     const task = workflowPlanFacade.task(plan, taskId);
     ensure(

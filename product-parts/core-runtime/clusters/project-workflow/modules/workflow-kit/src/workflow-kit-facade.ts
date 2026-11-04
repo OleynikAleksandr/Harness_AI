@@ -2,7 +2,6 @@ import type {
   AssignmentSetupResult,
   WorktreeAssignment,
 } from "../../workflow-assignment/src/workflow-assignment-facade.js";
-import type { AutopilotProjectStatus } from "../../workflow-autopilot/src/workflow-autopilot-facade.js";
 import {
   type ExecutionModeOption,
   type ScopeProposal,
@@ -67,6 +66,7 @@ import {
   integrationStatus,
   startIntegration,
 } from "./kit-integration.js";
+import { type PauseState, setPause } from "./kit-pause.js";
 import {
   applyQuality,
   detectQuality,
@@ -94,6 +94,7 @@ import {
 } from "./kit-scope.js";
 import {
   autopilotStatus,
+  type KitAutopilotStatus,
   type KitStatus,
   readStatus,
   type ValidationReport,
@@ -127,6 +128,7 @@ export type {
 export type { AssignmentAttached, AssignmentState } from "./kit-executor.js";
 export type { GitHookName, HookResult } from "./kit-hooks.js";
 export { GIT_HOOKS } from "./kit-hooks.js";
+export type { PauseState } from "./kit-pause.js";
 export type { QualityApplied } from "./kit-quality.js";
 export type {
   CarryoverInput,
@@ -221,8 +223,13 @@ export class WorkflowKitFacade {
     return validateProject(this.context(root));
   }
 
-  autopilotStatus(root: string): AutopilotProjectStatus {
+  autopilotStatus(root: string): KitAutopilotStatus {
     return autopilotStatus(this.context(root));
+  }
+
+  /** `pause:set --on|--off --note`: the user's pause of the workflow. */
+  setPause(root: string, paused: boolean, note: string): PauseState {
+    return setPause(this.context(root), paused, note);
   }
 
   recover(root: string, event: RecoveryEvent = "startup"): RecoveryPacket {

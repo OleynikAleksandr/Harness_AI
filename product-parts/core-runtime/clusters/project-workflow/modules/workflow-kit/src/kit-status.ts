@@ -27,6 +27,7 @@ import type { TransactionSummary } from "../../workflow-recovery/src/workflow-re
 import { activeRecords, INTEGRATION_FILE } from "./kit-assignment.js";
 import type { KitContext } from "./kit-context.js";
 import { executorAssignment } from "./kit-executor.js";
+import { readPause } from "./kit-pause.js";
 
 export interface TaskBrief {
   id: string;
@@ -82,6 +83,8 @@ export interface KitStatus {
   /** The unfinished integration of the main checkout, or null. */
   integration: StatusIntegration | null;
   nextTask: TaskBrief | null;
+  /** The user's pause (`pause:set`) of this checkout. */
+  paused: boolean;
   progress: { done: number; total: number };
   project: { id: string; name: string } | null;
   quality: { drift: DriftReport; stacks: string[]; status: string };
@@ -236,6 +239,7 @@ export function readStatus(context: KitContext): KitStatus {
     installed: plan !== null,
     integration: own ? null : integrationOf(context),
     nextTask: plan ? brief(workflowPlanFacade.nextTask(plan)) : null,
+    paused: readPause(context).paused,
     progress: {
       done: tasks.filter((task) => task.status === "DONE").length,
       total: tasks.length,
@@ -305,8 +309,11 @@ function orchestrationOf(
   };
 }
 
+/** The autopilot decision input plus the user's pause. */
+export type KitAutopilotStatus = AutopilotProjectStatus & { paused: boolean };
+
 /** The status shape the autopilot decision reads. */
-export function autopilotStatus(context: KitContext): AutopilotProjectStatus {
+export function autopilotStatus(context: KitContext): KitAutopilotStatus {
   const status = readStatus(context);
   return {
     blockedReason: status.scope?.blockedReason ?? null,
@@ -315,6 +322,7 @@ export function autopilotStatus(context: KitContext): AutopilotProjectStatus {
     head: status.head,
     nextTask: status.nextTask,
     orchestration: orchestrationOf(context, status),
+    paused: status.paused,
     proposalPending:
       status.scopeProposal !== null && !status.scopeProposal.refining,
     revision: status.revision,

@@ -33,6 +33,7 @@ import {
   guardExecutorCommit,
   markAssignment,
 } from "./kit-executor.js";
+import { ensureNotPaused } from "./kit-pause.js";
 import { readStatus, type TaskBrief } from "./kit-status.js";
 
 export interface TaskStart {
@@ -103,6 +104,7 @@ export function startTask(
 ): TaskStart {
   return locked(context, () => {
     ensureNoTransaction(context);
+    ensureNotPaused(context);
     const current = readPlan(context);
     const config = readConfig(context);
     const task = workflowPlanFacade.task(current, taskId);

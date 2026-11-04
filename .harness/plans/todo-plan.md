@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 129,
+  "revision": 130,
   "rounds": [
     {
       "digest": null,
@@ -499,7 +499,10 @@
       "files": [
         "product-parts/application-shell/clusters/project-workflow-ui",
         "product-parts/application-shell/clusters/session-interface/modules/session-sidebar",
-        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md"
       ],
       "fixes": null,
       "id": "A5",
@@ -743,7 +746,7 @@
 - Delivery: IN_PROGRESS
 - Current task: A4
 - Progress: 8/17
-- Revision: 129
+- Revision: 130
 
 ## Objective
 
@@ -800,7 +803,7 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Depends on: K3
 - [TODO] A5 — Pause button in the plan panel (work)
   - Commit: feat: pause the plan from the plan panel
-  - Files: product-parts/application-shell/clusters/project-workflow-ui, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts
+  - Files: product-parts/application-shell/clusters/project-workflow-ui, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md
   - Depends on: A4
 - [TODO] K5 — Kit context command (work)
   - Commit: feat: read documents through the kit context command

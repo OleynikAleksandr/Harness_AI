@@ -1,4 +1,5 @@
 import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { checkCarryoverInput, checkExtendInput } from "./plan-input-checks.js";
 import {
   docsTaskId,
   emptyPlan,
@@ -236,11 +237,7 @@ export function extendPlan(
     "NO_SCOPE",
     "There is no active scope to extend."
   );
-  ensure(
-    Array.isArray(input.tasks) && input.tasks.length > 0,
-    "PLAN_SCHEMA",
-    "plan:extend needs at least one task."
-  );
+  checkExtendInput(input);
   const next = nextRevision(plan);
   const ids = new Set(next.tasks.map((task) => task.id));
   const last = next.rounds.at(-1);
@@ -250,9 +247,9 @@ export function extendPlan(
     last.status === "CLOSED" ||
     docsDone(next, last);
   const targetId = wantsNew ? nextRoundId(next) : (last?.id ?? "R1");
-  const placed: PlacedTask[] = input.tasks.map((source) => ({
+  const placed: PlacedTask[] = input.tasks.map((source, index) => ({
     before: source.before,
-    task: normalizeTaskInput(source, targetId, ids),
+    task: normalizeTaskInput(source, targetId, ids, `tasks[${index}]`),
   }));
   let deferred: string | null = null;
   let roundId = targetId;
@@ -260,7 +257,8 @@ export function extendPlan(
     ensure(
       placed.every((item) => item.before === undefined),
       "PLAN_SCHEMA",
-      "`before` applies only to the current round."
+      "`before` applies only to the current round.",
+      { field: "tasks[].before" }
     );
     roundId = startNewRound(
       next,
@@ -350,11 +348,7 @@ export function carryoverScope(
 ): WorkflowPlan {
   const scope = plan.scope;
   ensure(scope, "NO_SCOPE", "There is no scope to carry over.");
-  ensure(
-    typeof input.approval === "string" && input.approval.trim().length >= 10,
-    "SCOPE_APPROVAL",
-    "carryover needs the user's direct instruction in `approval`."
-  );
+  checkCarryoverInput(input);
   ensure(
     context.baselineCommit,
     "NO_BASELINE",

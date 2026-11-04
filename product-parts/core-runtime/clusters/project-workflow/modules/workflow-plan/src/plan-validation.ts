@@ -4,22 +4,29 @@ import {
 } from "../../workflow-platform/src/workflow-platform-facade.js";
 import { validatePlanExecution } from "./plan-execution.js";
 import {
+  byteLength,
+  decision,
+  documents,
+  identifier,
+  relativePaths,
+  schemaError,
+  text,
+  textList,
+} from "./plan-field-checks.js";
+import {
   DIGEST_ITEM_MAX_BYTES,
   DIGEST_MAX_ITEMS,
   DIGEST_RESULT_MAX_BYTES,
-  type DocumentRef,
   docsTaskId,
   functionalFiles,
   PLAN_SCHEMA,
   type RoundDigest,
-  type UserDecision,
   type WorkflowPlan,
   type WorkflowRound,
   type WorkflowScope,
   type WorkflowTask,
 } from "./plan-model.js";
 
-const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/u;
 const ROUND_ID_PATTERN = /^R[0-9]+(?:-[a-z]+)?$/u;
 const SHA_PATTERN = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/u;
 const LINE_BREAK_PATTERN = /[\r\n]/u;
@@ -32,136 +39,46 @@ const DELIVERY_STATES = new Set([
   "ACCEPTED",
 ]);
 
-const schemaError = "PLAN_SCHEMA";
-
-function text(value: unknown, field: string): void {
-  ensure(
-    typeof value === "string" && value.trim() !== "",
-    schemaError,
-    `Field must be a non-empty string: ${field}`,
-    { field }
-  );
-}
-
-function textList(
-  value: unknown,
-  field: string,
-  { nonEmpty = false } = {}
-): void {
-  ensure(
-    Array.isArray(value) &&
-      value.every((item) => typeof item === "string" && item.trim() !== ""),
-    schemaError,
-    `Field must be a list of non-empty strings: ${field}`,
-    { field }
-  );
-  ensure(
-    !nonEmpty || (value as string[]).length > 0,
-    schemaError,
-    `List must not be empty: ${field}`,
-    { field }
-  );
-  ensure(
-    new Set(value as string[]).size === (value as string[]).length,
-    schemaError,
-    `List has duplicates: ${field}`,
-    { field }
-  );
-}
-
-function identifier(value: unknown, field: string): void {
-  ensure(
-    typeof value === "string" && ID_PATTERN.test(value),
-    schemaError,
-    `Invalid identifier in ${field}: ${String(value)}`,
-    { field }
-  );
-}
-
-function decision(value: UserDecision | null | undefined, field: string): void {
-  ensure(
-    value && typeof value === "object",
-    schemaError,
-    `Missing decision: ${field}`,
-    { field }
-  );
-  text(value.text, `${field}.text`);
-  text(value.at, `${field}.at`);
-}
-
-function relativePaths(values: string[], field: string): void {
-  textList(values, field);
-  for (const value of values) {
-    ensure(
-      workflowPlatformFacade.normalizeRelative(value) === value,
-      schemaError,
-      `Path is not canonical in ${field}: ${value}`,
-      { field, path: value }
-    );
-  }
-}
-
-function documents(values: DocumentRef[], field: string): void {
-  ensure(Array.isArray(values), schemaError, `Field must be a list: ${field}`, {
-    field,
-  });
-  relativePaths(
-    values.map((doc) => doc.path),
-    `${field}.path`
-  );
-  for (const doc of values) {
-    ensure(
-      typeof doc.required === "boolean",
-      schemaError,
-      `required must be boolean in ${field}`,
-      { field }
-    );
-    ensure(
-      doc.heading === undefined ||
-        (typeof doc.heading === "string" && doc.heading.trim() !== ""),
-      schemaError,
-      `heading must be text in ${field}`,
-      { field }
-    );
-  }
-}
-
-function byteLength(value: string): number {
-  return new TextEncoder().encode(value).length;
-}
-
-/** Validates the round digest written by a DOCS task. */
+/**
+ * Validates the round digest written by a DOCS task. Refusals name the
+ * field of the digest input (`result`, `decisions`, `decisions[2]`); a
+ * stored digest passes its plan path as `prefix`.
+ */
 export function validateDigest(
   digest: RoundDigest | null | undefined,
-  field = "digest"
+  prefix = ""
 ): void {
+  const at = (name: string): string => (prefix ? `${prefix}.${name}` : name);
   ensure(
     digest && typeof digest === "object",
     "ROUND_DIGEST_REQUIRED",
     "A round digest with at least `result` is required.",
-    { field }
+    { field: prefix || "digest" }
   );
-  text(digest.result, `${field}.result`);
+  text(digest.result, at("result"));
   ensure(
     byteLength(digest.result) <= DIGEST_RESULT_MAX_BYTES,
     "ROUND_DIGEST_TOO_LARGE",
     `Digest result exceeds ${DIGEST_RESULT_MAX_BYTES} bytes.`,
-    { field }
+    { field: at("result") }
   );
   for (const key of ["decisions", "contracts", "references"] as const) {
     const items = digest[key];
-    textList(items, `${field}.${key}`);
+    textList(items, at(key));
     ensure(
       items.length <= DIGEST_MAX_ITEMS,
       "ROUND_DIGEST_TOO_LARGE",
       `Digest ${key} has more than ${DIGEST_MAX_ITEMS} items.`,
-      { field }
+      { field: at(key) }
+    );
+    const large = items.findIndex(
+      (item) => byteLength(item) > DIGEST_ITEM_MAX_BYTES
     );
     ensure(
-      items.every((item) => byteLength(item) <= DIGEST_ITEM_MAX_BYTES),
+      large < 0,
       "ROUND_DIGEST_TOO_LARGE",
       `Digest ${key} item exceeds ${DIGEST_ITEM_MAX_BYTES} bytes.`,
-      { field }
+      { field: at(`${key}[${large}]`) }
     );
   }
 }
@@ -174,7 +91,8 @@ function validateScope(scope: WorkflowScope): void {
   ensure(
     Array.isArray(scope.decisions),
     schemaError,
-    "scope.decisions must be a list."
+    "scope.decisions must be a list.",
+    { field: "scope.decisions" }
   );
   for (const [index, item] of scope.decisions.entries()) {
     decision(item, `scope.decisions[${index}]`);
@@ -188,7 +106,8 @@ function validateScope(scope: WorkflowScope): void {
     scope.spec === null ||
       workflowPlatformFacade.normalizeRelative(scope.spec) === scope.spec,
     schemaError,
-    "scope.spec must be a canonical path or null."
+    "scope.spec must be a canonical path or null.",
+    { field: "scope.spec" }
   );
   documents(scope.context, "scope.context");
   ensure(
@@ -279,12 +198,14 @@ function validateTaskFields(task: WorkflowTask): void {
   ensure(
     !LINE_BREAK_PATTERN.test(task.commitMessage),
     schemaError,
-    `commitMessage must be one line: ${task.id}`
+    `commitMessage must be one line: ${task.id}`,
+    { field: `tasks.${task.id}.commitMessage` }
   );
   ensure(
     TASK_KINDS.has(task.kind),
     schemaError,
-    `Invalid task kind: ${task.id}`
+    `Invalid task kind: ${task.id}`,
+    { field: `tasks.${task.id}.kind` }
   );
   ensure(
     TASK_STATUSES.has(task.status),
@@ -304,7 +225,8 @@ function validateTaskFields(task: WorkflowTask): void {
   ensure(
     task.docsWaiver === null || typeof task.docsWaiver === "string",
     schemaError,
-    `docsWaiver must be text or null: ${task.id}`
+    `docsWaiver must be text or null: ${task.id}`,
+    { field: `tasks.${task.id}.docsWaiver` }
   );
   ensure(
     task.confirmation === null || task.kind === "delivery",
@@ -348,7 +270,8 @@ function validateTaskGraph(plan: WorkflowPlan): void {
       ensure(
         position !== undefined && position < index,
         "TASK_ORDER",
-        `Dependency must exist and come earlier: ${task.id} -> ${dependency}`
+        `Dependency must exist and come earlier: ${task.id} -> ${dependency}`,
+        { field: `tasks.${task.id}.dependencies` }
       );
     }
     if (task.fixes !== null) {
@@ -356,7 +279,8 @@ function validateTaskGraph(plan: WorkflowPlan): void {
       ensure(
         fixed !== undefined && fixed < index,
         schemaError,
-        `fixes must reference an earlier task: ${task.id}`
+        `fixes must reference an earlier task: ${task.id}`,
+        { field: `tasks.${task.id}.fixes` }
       );
     }
   });

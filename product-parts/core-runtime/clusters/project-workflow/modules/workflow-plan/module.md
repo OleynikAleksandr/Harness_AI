@@ -7,11 +7,15 @@ Owns the Workflow Kit plan:
 - full structural validation;
 - the Markdown plan document;
 - every state transition of the process described in
-  `docs/architecture/workflow-kit/WorkflowKitProcess.md`.
+  `docs/architecture/workflow-kit/WorkflowKitProcess.md`;
+- the input descriptors (schemas) of the plan commands.
 
 ## Public Facade
 
-`WorkflowPlanFacade` (class, singleton `workflowPlanFacade`).
+`WorkflowPlanFacade` (class, singleton `workflowPlanFacade`). Besides the
+transitions below it exposes `inputSchema(command)` and
+`inputSchemaCommands()` (see "Input Schemas") and exports the types
+`FieldSpec` and `InputSchema`.
 
 ## Model (`plan-model.ts`)
 
@@ -58,6 +62,16 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
 `DELIVERY_ORDER`, `ROUND_DIGEST_REQUIRED`, `ROUND_DIGEST_TOO_LARGE`,
 `UNSAFE_PATH`, `PLAN_EXECUTION`, `PARALLEL_KIND`, `PARALLEL_FILES`.
 
+Field refusals carry `details.field` with the plan path of the field:
+`scope.objective`, `scope.spec`, `tasks.<ID>.commitMessage`,
+`tasks.<ID>.context[0].path`, `tasks.<ID>.dependencies` (`TASK_ORDER`),
+`tasks.<ID>.fixes`, `tasks.<ID>.parallelSafe` (`PARALLEL_KIND`),
+`tasks.<ID>.files` (`PARALLEL_FILES`), `execution.strategy`,
+`execution.maxWorkers`, `execution.ownerSession`, `rounds.<ID>.digest`.
+The shared field checks live in `plan-field-checks.ts`; a document
+reference is checked entry by entry (`context[1].required`), then the
+paths together (canonical, unique).
+
 - **Without a scope:** there are no rounds, no tasks and no current task.
 - **Scope:**
   - identifiers are ASCII (`[A-Za-z0-9][A-Za-z0-9._-]*`);
@@ -70,8 +84,14 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
   - only the last round may be `OPEN`;
   - a round has a digest exactly when its `DOCS` task is `DONE`, or when it
     is `CLOSED`;
-  - a valid digest has `result` up to 600 bytes and each list up to 8 items
-    of up to 300 bytes.
+  - a valid digest has `result` up to 600 bytes (`DIGEST_RESULT_MAX_BYTES`)
+    and the lists `decisions`, `contracts`, `references`, each up to 8
+    items (`DIGEST_MAX_ITEMS`) of up to 300 bytes (`DIGEST_ITEM_MAX_BYTES`),
+    UTF-8. `validateDigest(digest, prefix = "")` names the field of the
+    digest input: `result`, `decisions`, `decisions[2]`
+    (`ROUND_DIGEST_TOO_LARGE`, a missing or empty field `PLAN_SCHEMA`); a
+    missing digest is `ROUND_DIGEST_REQUIRED` with field `digest`. A stored
+    digest is checked with the prefix `rounds.<ID>.digest`.
 - **Tasks:**
   - unique ids;
   - one-line commit message and non-empty acceptance criteria;
@@ -123,6 +143,68 @@ Errors are `WorkflowError` codes: `PLAN_SCHEMA`, `TASK_ORDER`, `DOCS_TASK`,
 - `isPlanDocument(text)` distinguishes Workflow Kit plans from legacy plans.
 - `read(root)` returns `null` when there is no plan file. `write(root,
   plan)` writes atomically through the platform facade.
+
+## Input Checks (`plan-input-checks.ts`)
+
+The command inputs are checked before normalization, so a refusal names
+the input field (`details.field`, list entries by index). The plan
+validation then runs on the normalized plan as before.
+
+- `checkScopeInput` (`scope:create`, `scope:propose`), in this order:
+  - not an object: `PLAN_SCHEMA` (field `(root)`);
+  - `tasks` empty or missing: `PLAN_SCHEMA` (`tasks`);
+  - `approval` shorter than `APPROVAL_MIN_LENGTH` (10) after trimming:
+    `SCOPE_APPROVAL` (`approval`);
+  - several tasks without `spec`: `SPEC_REQUIRED` (`spec`);
+  - `id` (identifier), `objective` (text), `acceptance` (non-empty list
+    of unique texts), `decisions` (texts), `context` (document
+    references): `PLAN_SCHEMA`.
+- `checkTaskInput(input, "tasks[<n>]")`, called by `normalizeTaskInput`:
+  object, `kind` `work` or `delivery`, `id` identifier when given,
+  `title`, `commitMessage`, `acceptance` (non-empty), `dependencies` and
+  `checks` (unique texts), `context` (document references); a duplicate
+  id names `tasks[<n>].id`. `files` stay with the plan validation so a
+  `parallelSafe` task still reports `PARALLEL_FILES`.
+- `checkExtendInput` (`plan:extend`): `tasks` non-empty, `round` is
+  `current` or `new`, `kind` is `fixes` or `implementation`, `title` text
+  when given (`PLAN_SCHEMA`); `before` in a new round names
+  `tasks[].before`.
+- `checkCarryoverInput`: `approval` (`SCOPE_APPROVAL`), `id` identifier,
+  `objective` text when given.
+
+## Input Schemas (`plan-input-schema.ts`)
+
+Plain data descriptors of the JSON inputs; the Kit prints them (`schema`
+command, recovery packet). `inputSchemaCommands()` returns, in this order,
+`scope:create`, `scope:propose`, `plan:extend`, `task:update`,
+`carryover`, `digest` (the `commit --digest` file). `inputSchema(command)`
+returns a copy of the descriptor, or `null` for another command.
+
+- `InputSchema`: `{command, description, fields, rules, example}`.
+  `rules` lists the cross-field and plan-state rules that stay in the
+  validators (dependency order, rounds, revision, task status).
+  `example` passes the real validator.
+- `FieldSpec`: `{name, type, required, description, code, limitCode?,
+  maxBytes?, maxItems?, minItems?, minLength?, minimum?, maximum?, enum?,
+  pattern?}`. `name` is a dotted path from the input root, `[]` marks every
+  list entry (`tasks[].context[].path`); `required` inside an optional
+  parent applies when the parent is present. `code` is the refusal when the
+  field is missing, has the wrong type or breaks `enum`/`pattern`;
+  `limitCode` is the refusal of a size or number limit when it differs
+  (digest limits: `ROUND_DIGEST_TOO_LARGE`).
+- Limits and value sets come from the validator constants:
+  `DIGEST_*` (`plan-model.ts`), `APPROVAL_MIN_LENGTH`, `INPUT_TASK_KINDS`,
+  `EXTEND_ROUNDS`, `EXTEND_ROUND_KINDS` (`plan-input-checks.ts`),
+  `ID_PATTERN` (`plan-field-checks.ts`), `EXECUTION_STRATEGIES`,
+  `MAX_WORKERS_LIMIT`, `DEFAULT_MAX_WORKERS` (`plan-execution.ts`).
+- `task:update` describes the patch fields `acceptance`, `checks`,
+  `commitMessage`, `context`, `dependencies`, `docsWaiver`, `files`,
+  `title`, `why` (a task in progress: `acceptance`, `checks`,
+  `docsWaiver`, `files`); the patch is applied by `workflow-kit` and the
+  whole plan is validated, so its refusals name `tasks.<ID>.<field>`.
+- `scope:propose` has the `scope:create` fields; its rules name the
+  `--recommended`/`--reason` flags, and its example carries
+  `execution.maxWorkers`.
 
 ## Transitions (`plan-transitions.ts`, `plan-service-tasks.ts`)
 
@@ -245,6 +327,19 @@ functions; the facade exposes them as methods.
   - dependencies and `fixes` links that point to finished or dropped tasks
     are removed;
   - `QUALITY` and `DOCS` are rebuilt.
+
+## Tests
+
+- `src/workflow-plan-validation.test.mjs`, `-document`, `-transitions`,
+  `-rounds`, `-execution` — validation rules, the document, every
+  transition, rounds and the execution block.
+- `src/workflow-plan-input-schema.test.mjs` — contract of every
+  descriptor: the example passes the real transition (`createScope`,
+  `extend`, the `task:update` patch with `validate`, `carryover`,
+  `validateDigest`), every example key is described, removing each
+  required field and breaking each limit, enum and pattern give the
+  descriptor code and `details.field`; descriptors are copies; a stored
+  digest keeps its plan path.
 
 ## Owned Paths
 

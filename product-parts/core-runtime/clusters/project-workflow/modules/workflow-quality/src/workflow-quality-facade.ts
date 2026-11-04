@@ -1,5 +1,6 @@
 import path from "node:path";
 import { workflowGitFacade } from "../../workflow-git/src/workflow-git-facade.js";
+import type { InputSchema } from "../../workflow-plan/src/workflow-plan-facade.js";
 import {
   ensure,
   WorkflowError,
@@ -30,6 +31,7 @@ import {
   type StackDetection,
   type StackId,
 } from "./quality-detect.js";
+import { qualityInputSchema } from "./quality-input-schema.js";
 import { proposeQuality, type QualityProposal } from "./quality-proposal.js";
 import {
   runStage,
@@ -182,6 +184,11 @@ export class WorkflowQualityFacade {
       workflowGitFacade.localPath(root, "verification", `${reference}.json`)
     );
     return text === null ? null : JSON.parse(text);
+  }
+
+  /** Input descriptor of `quality:apply` (a copy; same shape as the plan descriptors). */
+  inputSchema(): InputSchema {
+    return qualityInputSchema();
   }
 
   /** The configuration `apply` would write, without installing anything. */

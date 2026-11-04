@@ -1,5 +1,6 @@
 import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
 import { type ExecutionInput, normalizeExecution } from "./plan-execution.js";
+import { checkScopeInput } from "./plan-input-checks.js";
 import type {
   DocumentRef,
   RoundDigest,
@@ -74,25 +75,12 @@ export function createScope(
     {},
     "Finish the kit bootstrap commit first."
   );
-  ensure(
-    Array.isArray(input.tasks) && input.tasks.length > 0,
-    "PLAN_SCHEMA",
-    "A scope needs at least one task."
-  );
-  ensure(
-    typeof input.approval === "string" && input.approval.trim().length >= 10,
-    "SCOPE_APPROVAL",
-    "Record the user-approved scope content in `approval` (at least 10 characters)."
-  );
-  ensure(
-    input.tasks.length === 1 ||
-      (typeof input.spec === "string" && input.spec !== ""),
-    "SPEC_REQUIRED",
-    "A scope with several tasks needs a specification document in `spec`."
-  );
+  checkScopeInput(input);
   const next = nextRevision(plan);
   const ids = new Set<string>();
-  const tasks = input.tasks.map((task) => normalizeTaskInput(task, "R1", ids));
+  const tasks = input.tasks.map((task, index) =>
+    normalizeTaskInput(task, "R1", ids, `tasks[${index}]`)
+  );
   const execution = normalizeExecution(input.execution);
   next.scope = {
     acceptance: input.acceptance,

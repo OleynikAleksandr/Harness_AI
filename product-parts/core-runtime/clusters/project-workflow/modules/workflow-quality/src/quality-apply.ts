@@ -9,6 +9,7 @@ import {
   type CommandSpec,
   type DocsContract,
   normalizeCheck,
+  validateCheck,
   validateConfig,
   type WorkflowConfig,
 } from "./quality-config.js";
@@ -40,8 +41,50 @@ export interface DriftReport {
 }
 
 const INSTALL_TIMEOUT_MS = 15 * 60 * 1000;
-const MIN_APPROVAL = 10;
+export const MIN_APPROVAL = 10;
 const OUTPUT_TAIL = 4000;
+
+function approvalGiven(input: ProfileInput): boolean {
+  return (
+    typeof input.approval === "string" &&
+    input.approval.trim().length >= MIN_APPROVAL
+  );
+}
+
+/** Install commands are checked before anything runs; they need the approval. */
+function checkInstalls(input: ProfileInput): void {
+  const commands: unknown = input.install ?? [];
+  ensure(
+    Array.isArray(commands),
+    "PROFILE_INVALID",
+    "install must be a list of commands.",
+    { field: "install" }
+  );
+  for (const [index, command] of commands.entries()) {
+    const entry = `install[${index}]`;
+    ensure(
+      command &&
+        typeof command.executable === "string" &&
+        command.executable.trim() !== "",
+      "PROFILE_INVALID",
+      "Each install command needs executable and args.",
+      { field: `${entry}.executable` }
+    );
+    ensure(
+      Array.isArray(command.args) &&
+        command.args.every((arg: unknown) => typeof arg === "string"),
+      "PROFILE_INVALID",
+      "Each install command needs executable and args.",
+      { field: `${entry}.args` }
+    );
+  }
+  ensure(
+    commands.length === 0 || approvalGiven(input),
+    "INSTALL_APPROVAL",
+    `Installing tools changes the project; record the user's approval in \`approval\` (at least ${MIN_APPROVAL} characters).`,
+    { field: "approval" }
+  );
+}
 
 /** Builds the CONFIGURED configuration; builtin checks of `current` are kept. */
 export function configuredProfile(
@@ -51,7 +94,8 @@ export function configuredProfile(
   ensure(
     input && Array.isArray(input.stacks) && input.stacks.length > 0,
     "PROFILE_INVALID",
-    "The profile names at least one stack."
+    "The profile names at least one stack.",
+    { field: "stacks" }
   );
   const unknown = input.stacks.filter(
     (id) => !STACK_ORDER.includes(id as StackId)
@@ -59,23 +103,36 @@ export function configuredProfile(
   ensure(
     unknown.length === 0,
     "UNKNOWN_STACK",
-    `Unknown stack: ${unknown.join(", ")}`
+    `Unknown stack: ${unknown.join(", ")}`,
+    { field: `stacks[${input.stacks.indexOf(unknown[0] as string)}]` }
   );
   ensure(
     Array.isArray(input.checks),
     "PROFILE_INVALID",
-    "The profile needs a checks list."
+    "The profile needs a checks list.",
+    { field: "checks" }
   );
   const builtins = current.quality.checks.filter((check) => check.builtin);
   const builtinIds = new Set(builtins.map((check) => check.id));
-  const checks: CheckDefinition[] = input.checks.map((check) => {
+  const checks: CheckDefinition[] = input.checks.map((check, index) => {
+    const entry = `checks[${index}]`;
+    ensure(
+      check && typeof check === "object",
+      "PROFILE_INVALID",
+      "Each check must be an object.",
+      { field: entry }
+    );
     ensure(
       !builtinIds.has(check.id),
       "PROFILE_INVALID",
-      `Check id ${check.id} is reserved for a Kit builtin.`
+      `Check id ${check.id} is reserved for a Kit builtin.`,
+      { field: `${entry}.id` }
     );
-    return normalizeCheck(check);
+    const normalized = normalizeCheck(check);
+    validateCheck(normalized, entry);
+    return normalized;
   });
+  checkInstalls(input);
   return validateConfig({
     ...current,
     docs: input.docs ?? current.docs,
@@ -104,10 +161,10 @@ export function runInstalls(
     return [];
   }
   ensure(
-    typeof input.approval === "string" &&
-      input.approval.trim().length >= MIN_APPROVAL,
+    approvalGiven(input),
     "INSTALL_APPROVAL",
-    "Installing tools changes the project; record the user's approval in `approval` (at least 10 characters)."
+    "Installing tools changes the project; record the user's approval in `approval` (at least 10 characters).",
+    { field: "approval" }
   );
   const results: InstallResult[] = [];
   for (const command of commands) {

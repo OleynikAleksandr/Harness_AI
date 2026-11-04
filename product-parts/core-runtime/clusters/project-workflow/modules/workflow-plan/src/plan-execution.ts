@@ -14,9 +14,13 @@ export interface ExecutionInput {
   strategy: ExecutionStrategy;
 }
 
-const DEFAULT_MAX_WORKERS = 3;
-const MAX_WORKERS_LIMIT = 16;
-const STRATEGIES = new Set(["sequential", "orchestrated"]);
+export const DEFAULT_MAX_WORKERS = 3;
+export const MAX_WORKERS_LIMIT = 16;
+export const EXECUTION_STRATEGIES: readonly ExecutionStrategy[] = [
+  "sequential",
+  "orchestrated",
+];
+const STRATEGIES = new Set<string>(EXECUTION_STRATEGIES);
 const GLOB_PATTERN = /[*?[\]{}]/u;
 
 const SEQUENTIAL: WorkflowExecution = {
@@ -35,7 +39,8 @@ export function normalizeExecution(
   ensure(
     typeof input === "object" && !Array.isArray(input),
     "PLAN_EXECUTION",
-    "execution must be an object with a strategy."
+    "execution must be an object with a strategy.",
+    { field: "execution" }
   );
   return {
     maxWorkers: input.maxWorkers ?? DEFAULT_MAX_WORKERS,
@@ -58,26 +63,30 @@ function validateExecution(execution: WorkflowExecution | undefined): void {
   ensure(
     execution !== null && typeof execution === "object",
     "PLAN_EXECUTION",
-    "scope.execution must be an object."
+    "scope.execution must be an object.",
+    { field: "execution" }
   );
   ensure(
     STRATEGIES.has(execution.strategy),
     "PLAN_EXECUTION",
-    "execution.strategy must be sequential or orchestrated."
+    "execution.strategy must be sequential or orchestrated.",
+    { field: "execution.strategy" }
   );
   ensure(
     Number.isSafeInteger(execution.maxWorkers) &&
       execution.maxWorkers >= 1 &&
       execution.maxWorkers <= MAX_WORKERS_LIMIT,
     "PLAN_EXECUTION",
-    `execution.maxWorkers must be an integer from 1 to ${MAX_WORKERS_LIMIT}.`
+    `execution.maxWorkers must be an integer from 1 to ${MAX_WORKERS_LIMIT}.`,
+    { field: "execution.maxWorkers" }
   );
   ensure(
     execution.ownerSession === null ||
       (typeof execution.ownerSession === "string" &&
         execution.ownerSession.trim() !== ""),
     "PLAN_EXECUTION",
-    "execution.ownerSession must be a non-empty string or null."
+    "execution.ownerSession must be a non-empty string or null.",
+    { field: "execution.ownerSession" }
   );
 }
 
@@ -99,7 +108,8 @@ function validateParallelLabel(task: WorkflowTask): void {
   ensure(
     typeof task.parallelSafe === "boolean",
     "PLAN_SCHEMA",
-    `parallelSafe must be boolean: ${task.id}`
+    `parallelSafe must be boolean: ${task.id}`,
+    { field: `tasks.${task.id}.parallelSafe` }
   );
   if (!task.parallelSafe) {
     return;
@@ -107,7 +117,8 @@ function validateParallelLabel(task: WorkflowTask): void {
   ensure(
     task.kind === "work",
     "PARALLEL_KIND",
-    `Only work tasks may be parallelSafe: ${task.id}`
+    `Only work tasks may be parallelSafe: ${task.id}`,
+    { field: `tasks.${task.id}.parallelSafe` }
   );
   const files: unknown[] = Array.isArray(task.files) ? task.files : [];
   const vague = files.filter((file) => !isConcretePath(file));
@@ -115,7 +126,7 @@ function validateParallelLabel(task: WorkflowTask): void {
     files.length > 0 && vague.length === 0,
     "PARALLEL_FILES",
     `A parallelSafe task lists concrete paths only (no glob, no \`.\`, no trailing \`/\`): ${task.id}`,
-    { paths: vague, taskId: task.id },
+    { field: `tasks.${task.id}.files`, paths: vague, taskId: task.id },
     "Name every file of the task or set parallelSafe to false."
   );
 }

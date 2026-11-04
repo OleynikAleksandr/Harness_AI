@@ -1,4 +1,5 @@
 import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { checkTaskInput } from "./plan-input-checks.js";
 import {
   type DocumentRef,
   docsTaskId,
@@ -40,25 +41,18 @@ function nextAutoId(existing: Set<string>): string {
   return `T${String(highest + 1).padStart(3, "0")}`;
 }
 
+/** Normalizes one input task; `field` is its input path, e.g. `tasks[0]`. */
 export function normalizeTaskInput(
   input: TaskInput,
   roundId: string,
-  existing: Set<string>
+  existing: Set<string>,
+  field: string
 ): WorkflowTask {
-  ensure(
-    input && typeof input === "object",
-    "PLAN_SCHEMA",
-    "Each task must be an object."
-  );
-  ensure(
-    input.kind === undefined ||
-      input.kind === "work" ||
-      input.kind === "delivery",
-    "PLAN_SCHEMA",
-    "Task kind in input must be work or delivery; Kit adds quality and docs tasks."
-  );
+  checkTaskInput(input, field);
   const id = input.id ?? nextAutoId(existing);
-  ensure(!existing.has(id), "PLAN_SCHEMA", `Duplicate task id: ${id}`);
+  ensure(!existing.has(id), "PLAN_SCHEMA", `Duplicate task id: ${id}`, {
+    field: `${field}.id`,
+  });
   existing.add(id);
   return {
     acceptance: input.acceptance,

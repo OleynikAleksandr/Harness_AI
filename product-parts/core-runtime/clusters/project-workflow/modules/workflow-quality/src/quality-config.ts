@@ -63,7 +63,7 @@ export interface WorkflowConfig {
   schema: typeof CONFIG_SCHEMA;
 }
 
-const ROLES = new Set([
+export const CHECK_ROLES: readonly CheckRole[] = [
   "architecture",
   "audit",
   "custom",
@@ -75,8 +75,15 @@ const ROLES = new Set([
   "package",
   "test",
   "typecheck",
-]);
-const STAGES = new Set(["prepare", "commit", "push", "delivery"]);
+];
+export const CHECK_STAGES: readonly CheckStage[] = [
+  "prepare",
+  "commit",
+  "push",
+  "delivery",
+];
+const ROLES = new Set<string>(CHECK_ROLES);
+const STAGES = new Set<string>(CHECK_STAGES);
 const BUILTINS = new Set([
   "kit:conflict-markers",
   "kit:doc-size",
@@ -84,8 +91,8 @@ const BUILTINS = new Set([
   "kit:file-lines",
   "kit:md-links",
 ]);
-const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/u;
-const MAX_TIMEOUT_MS = 600_000;
+export const CHECK_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/u;
+export const MAX_TIMEOUT_MS = 600_000;
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MIN_RECOVERY_BYTES = 8000;
 const MAX_RECOVERY_BYTES = 120_000;
@@ -154,17 +161,19 @@ function positiveInteger(
   );
 }
 
-function validateCommand(check: CheckDefinition): void {
+function validateCommand(check: CheckDefinition, field: string): void {
   ensure(
     Boolean(check.command) !== Boolean(check.builtin),
     error,
-    `Check ${check.id} needs exactly one of command or builtin.`
+    `Check ${check.id} needs exactly one of command or builtin.`,
+    { field: `${field}.command` }
   );
   if (check.builtin) {
     ensure(
       BUILTINS.has(check.builtin),
       error,
-      `Unknown builtin check: ${check.builtin}`
+      `Unknown builtin check: ${check.builtin}`,
+      { field: `${field}.builtin` }
     );
     return;
   }
@@ -174,41 +183,48 @@ function validateCommand(check: CheckDefinition): void {
       typeof command.executable === "string" &&
       command.executable.trim() !== "",
     error,
-    `Check ${check.id} needs command.executable.`
+    `Check ${check.id} needs command.executable.`,
+    { field: `${field}.command.executable` }
   );
   ensure(
     Array.isArray(command.args) &&
       command.args.every((arg) => typeof arg === "string"),
     error,
-    `Check ${check.id} needs command.args as a list of strings.`
+    `Check ${check.id} needs command.args as a list of strings.`,
+    { field: `${field}.command.args` }
   );
 }
 
-export function validateCheck(check: CheckDefinition): void {
+/** Validates one check; `field` is its path in refusals, e.g. `checks[0]`. */
+export function validateCheck(check: CheckDefinition, field = "check"): void {
   ensure(
-    check && typeof check.id === "string" && ID_PATTERN.test(check.id),
+    check && typeof check.id === "string" && CHECK_ID_PATTERN.test(check.id),
     error,
-    `Invalid check id: ${String(check?.id)}`
+    `Invalid check id: ${String(check?.id)}`,
+    { field: `${field}.id` }
   );
   ensure(
     ROLES.has(check.role),
     error,
-    `Unknown role of check ${check.id}: ${String(check.role)}`
+    `Unknown role of check ${check.id}: ${String(check.role)}`,
+    { field: `${field}.role` }
   );
   ensure(
     STAGES.has(check.stage),
     error,
-    `Unknown stage of check ${check.id}: ${String(check.stage)}`
+    `Unknown stage of check ${check.id}: ${String(check.stage)}`,
+    { field: `${field}.stage` }
   );
   ensure(
     typeof check.required === "boolean",
     error,
-    `Check ${check.id} needs required: boolean.`
+    `Check ${check.id} needs required: boolean.`,
+    { field: `${field}.required` }
   );
-  positiveInteger(check.timeoutMs, `checks.${check.id}.timeoutMs`, {
+  positiveInteger(check.timeoutMs, `${field}.timeoutMs`, {
     max: MAX_TIMEOUT_MS,
   });
-  validateCommand(check);
+  validateCommand(check, field);
   ensure(
     check.appliesTo === undefined ||
       (Array.isArray(check.appliesTo) &&
@@ -216,20 +232,47 @@ export function validateCheck(check: CheckDefinition): void {
           (glob) => typeof glob === "string" && glob !== ""
         )),
     error,
-    `appliesTo of ${check.id} must be a list of globs.`
+    `appliesTo of ${check.id} must be a list of globs.`,
+    { field: `${field}.appliesTo` }
   );
   const artifact = check.role === "package" || check.role === "installed";
   ensure(
     !artifact ||
       (typeof check.evidence === "string" && check.evidence.trim() !== ""),
     error,
-    `Check ${check.id} (${check.role}) needs evidence describing the artifact and scenario.`
+    `Check ${check.id} (${check.role}) needs evidence describing the artifact and scenario.`,
+    { field: `${field}.evidence` }
   );
   ensure(
     check.stage !== "delivery" || artifact,
     error,
-    `Only package or installed checks run at the delivery stage: ${check.id}`
+    `Only package or installed checks run at the delivery stage: ${check.id}`,
+    { field: `${field}.stage` }
   );
+}
+
+function validateContracts(contracts: unknown): void {
+  ensure(
+    Array.isArray(contracts),
+    error,
+    "docs.contracts must map code globs to documents.",
+    { field: "docs.contracts" }
+  );
+  for (const [index, item] of contracts.entries()) {
+    const entry = `docs.contracts[${index}]`;
+    ensure(
+      item && typeof item.code === "string",
+      error,
+      "docs.contracts must map code globs to documents.",
+      { field: `${entry}.code` }
+    );
+    ensure(
+      Array.isArray(item.docs) && item.docs.length > 0,
+      error,
+      "docs.contracts must map code globs to documents.",
+      { field: `${entry}.docs` }
+    );
+  }
 }
 
 export function validateConfig(config: WorkflowConfig): WorkflowConfig {
@@ -261,38 +304,31 @@ export function validateConfig(config: WorkflowConfig): WorkflowConfig {
     error,
     "quality.checks must be a list."
   );
-  for (const check of quality.checks) {
-    validateCheck(check);
+  for (const [index, check] of quality.checks.entries()) {
+    validateCheck(check, `quality.checks[${index}]`);
   }
   ensure(
     new Set(quality.checks.map((check) => check.id)).size ===
       quality.checks.length,
     error,
-    "Check ids must be unique."
+    "Check ids must be unique.",
+    { field: "quality.checks" }
   );
-  ensure(
-    Array.isArray(config.docs?.contracts) &&
-      config.docs.contracts.every(
-        (item) =>
-          typeof item.code === "string" &&
-          Array.isArray(item.docs) &&
-          item.docs.length > 0
-      ),
-    error,
-    "docs.contracts must map code globs to documents."
-  );
+  validateContracts(config.docs?.contracts);
   ensure(
     config.policy &&
       (config.policy.maxFileLines === null ||
         Number.isSafeInteger(config.policy.maxFileLines)),
     error,
-    "policy.maxFileLines must be an integer or null."
+    "policy.maxFileLines must be an integer or null.",
+    { field: "policy.maxFileLines" }
   );
   ensure(
     config.policy.taskFileSoftLimit === null ||
       Number.isSafeInteger(config.policy.taskFileSoftLimit),
     error,
-    "policy.taskFileSoftLimit must be an integer or null."
+    "policy.taskFileSoftLimit must be an integer or null.",
+    { field: "policy.taskFileSoftLimit" }
   );
   positiveInteger(config.budget?.documentBytes, "budget.documentBytes");
   positiveInteger(config.budget?.recoveryBytes, "budget.recoveryBytes", {

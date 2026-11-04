@@ -11,6 +11,11 @@ import {
   scopeExecution,
 } from "./plan-execution.js";
 import {
+  type InputSchema,
+  planInputSchema,
+  planInputSchemaCommands,
+} from "./plan-input-schema.js";
+import {
   emptyPlan,
   PLAN_PATH,
   type RoundDigest,
@@ -43,6 +48,7 @@ import {
 import { validateDigest, validatePlan } from "./plan-validation.js";
 
 export type { ExecutionInput } from "./plan-execution.js";
+export type { FieldSpec, InputSchema } from "./plan-input-schema.js";
 export type {
   DeliveryStatus,
   DocumentRef,
@@ -84,6 +90,19 @@ export class WorkflowPlanFacade {
 
   validateDigest(digest: unknown): void {
     validateDigest(digest as never);
+  }
+
+  /**
+   * Input descriptor of a plan command (`scope:create`, `scope:propose`,
+   * `plan:extend`, `task:update`, `carryover`, `digest`), or null.
+   */
+  inputSchema(command: string): InputSchema | null {
+    return planInputSchema(command);
+  }
+
+  /** Commands with a plan input descriptor, in a stable order. */
+  inputSchemaCommands(): string[] {
+    return planInputSchemaCommands();
   }
 
   render(plan: WorkflowPlan): string {

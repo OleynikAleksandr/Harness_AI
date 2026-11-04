@@ -8,7 +8,8 @@ The project quality profile of the Workflow Kit:
 - validation of every check definition;
 - stack detection and the ecosystem catalog that proposes a profile;
 - running the checks of a stage, the Kit builtins and the evidence records;
-- applying a chosen profile (`quality:apply`) and profile drift.
+- applying a chosen profile (`quality:apply`) and profile drift;
+- the input descriptor of `quality:apply`.
 
 ## Public Facade
 
@@ -48,6 +49,13 @@ The project quality profile of the Workflow Kit:
   - `host`, when present, is a non-empty string. It names the host that
     drives the project (`harness`: Harness AI); the default configuration
     has no host, and `applyProfile` keeps the field.
+- Refusals name the field in `details.field`: `quality.checks[<n>].role`
+  (and `.id`, `.stage`, `.required`, `.timeoutMs`, `.command`,
+  `.command.executable`, `.command.args`, `.builtin`, `.appliesTo`,
+  `.evidence`), `quality.checks` (duplicate ids),
+  `docs.contracts[<n>].code`/`.docs`, `policy.maxFileLines`,
+  `policy.taskFileSoftLimit`, `budget.*`, `autopilot.maxContinues`.
+  `validateCheck(check, field = "check")` takes the path prefix.
 
 ## Detection (`quality-detect.ts`)
 
@@ -157,12 +165,20 @@ The project quality profile of the Workflow Kit:
   would write: status `CONFIGURED`, the input checks normalized and
   validated, followed by the builtin checks of the current configuration;
   `docs` replaces the contracts when given, `policy` merges into the
-  current policy. Errors: `PROFILE_INVALID` (no stacks, no checks list, an
-  id reserved by a builtin), `UNKNOWN_STACK`, `CONFIG_SCHEMA`.
+  current policy. Each input check is normalized and validated under its
+  input path (`checks[0].role`). The `install` commands are checked here,
+  before anything runs: each needs `executable` and string `args`
+  (`PROFILE_INVALID`, `install[<n>].executable`/`.args`), and a non-empty
+  list needs `approval` of at least `MIN_APPROVAL` (10) characters
+  (`INSTALL_APPROVAL`, field `approval`). Errors: `PROFILE_INVALID` (no
+  stacks — `stacks`, no checks list — `checks`, a check that is not an
+  object, an id reserved by a builtin — `checks[<n>].id`),
+  `UNKNOWN_STACK` (`stacks[<n>]`), `CONFIG_SCHEMA`.
 - `applyProfile(root, input, env)`:
   1. builds and validates the configuration (nothing runs on failure);
   2. runs the `install` commands in order without a shell (15 min each);
-     they need `approval` of at least 10 characters (`INSTALL_APPROVAL`);
+     they need `approval` of at least 10 characters (`INSTALL_APPROVAL`,
+     checked again before the first command);
      the first failure stops with `INSTALL_FAILED` and the configuration
      stays unchanged;
   3. writes the configuration and returns `{config, installs}`.
@@ -181,6 +197,21 @@ The project quality profile of the Workflow Kit:
   `node --test` has no drift. An unknown stack id without manifests is
   always `missing`.
 
+## Input Schema (`quality-input-schema.ts`)
+
+- `inputSchema()` returns a copy of the `quality:apply` descriptor, an
+  `InputSchema` of the `workflow-plan` module (`{command, description,
+  fields, rules, example}`, same `FieldSpec` semantics). Fields: `stacks`
+  (minItems 1, `PROFILE_INVALID`), `stacks[]` (enum of `stacks()`,
+  `UNKNOWN_STACK`), `checks[]` (`id` pattern, `role`/`stage` enums,
+  `command.executable`, `command.args`, `timeoutMs` 1–600 000, ...;
+  `CONFIG_SCHEMA`), `docs.contracts[]`, `install[]` (`PROFILE_INVALID`),
+  `approval` (minLength 10, `INSTALL_APPROVAL`), `packageManager`,
+  `policy.*`.
+- Limits and value sets come from `CHECK_ID_PATTERN`, `CHECK_ROLES`,
+  `CHECK_STAGES`, `MAX_TIMEOUT_MS` (`quality-config.ts`), `MIN_APPROVAL`
+  (`quality-apply.ts`) and `STACK_ORDER`.
+
 ## Evidence
 
 - `recordEvidence(root, transactionId, reports)` writes
@@ -192,7 +223,8 @@ The project quality profile of the Workflow Kit:
 ## Dependencies
 
 - `workflow-platform` — atomic files, process runner, `WorkflowError`.
-- `workflow-plan` — documentation paths and the plan path.
+- `workflow-plan` — documentation paths, the plan path and the
+  `InputSchema`/`FieldSpec` types.
 - `workflow-git` — local state paths for evidence.
 
 Node built-ins only.
@@ -212,3 +244,8 @@ Node built-ins only.
 - `src/workflow-quality-apply.test.mjs` — approval, validation before
   installs, failed install, builtins kept, policy and contracts, re-apply,
   drift (a stack without manifests is missing only for manifest tools).
+- `src/workflow-quality-input-schema.test.mjs` — the descriptor example
+  passes `previewProfile` without writing, every example key is described,
+  removing each required field and breaking each limit, enum and pattern
+  give the descriptor code and `details.field`; reserved ids and stored
+  configurations name their paths.

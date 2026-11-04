@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 111,
+  "revision": 113,
   "rounds": [
     {
       "digest": null,
@@ -133,14 +133,31 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-execution.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-field-checks.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-checks.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-rounds.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-service-tasks.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-transitions.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-input-schema.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-apply.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-input-schema.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-input-schema.test.mjs"
       ],
       "fixes": null,
       "id": "K1",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Input schema descriptors",
       "why": "Agents rebuild the input JSON shape from the bundle code"
     },
@@ -657,8 +674,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 2/17
-- Revision: 111
+- Progress: 3/17
+- Revision: 113
 
 ## Objective
 
@@ -680,9 +697,9 @@ Give agents their input schemas and document text inline, add the Kit context co
 - [DONE] A1 — Kit pause state (work)
   - Commit: feat: pause the workflow through the kit
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-pause.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-pause.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-pause.test.mjs
-- [TODO] K1 — Input schema descriptors (work)
+- [DONE] K1 — Input schema descriptors (work)
   - Commit: feat: describe kit inputs as schemas
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-field-checks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-checks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-rounds.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-service-tasks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-transitions.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-input-schema.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-apply.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-input-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-input-schema.test.mjs
 - [DONE] E1 — Real git config for agent processes (work)
   - Commit: fix: give agent processes the real git config
   - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/auth/claude-auth-runtime.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-process.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-test-repo.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-auth-git-config.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-acp-session-transport.test.mjs, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts

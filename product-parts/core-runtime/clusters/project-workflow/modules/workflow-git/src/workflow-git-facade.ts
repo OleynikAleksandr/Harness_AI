@@ -8,6 +8,7 @@ import {
   type CommitRecord,
   readChanges,
   readCommitPaths,
+  readDiffPaths,
   readHistory,
   type WorkingTreeChanges,
 } from "./git-history.js";
@@ -144,6 +145,11 @@ export class WorkflowGitFacade {
 
   commitPaths(root: string, sha: string): string[] {
     return readCommitPaths(this.git, root, sha);
+  }
+
+  /** Paths that differ between two commits (renames as delete plus add), sorted. */
+  diffPaths(root: string, from: string, to: string): string[] {
+    return readDiffPaths(this.git, root, from, to);
   }
 
   isAncestor(root: string, ancestor: string, descendant: string): boolean {

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 53,
+  "revision": 55,
   "rounds": [
     {
       "digest": null,
@@ -338,14 +338,20 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-proof.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-history.ts",
-        ".harness/product-tree/product-tree.json"
+        ".harness/product-tree/product-tree.json",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-references.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.ts"
       ],
       "fixes": null,
       "id": "E8",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Integration proof and history",
       "why": "Main may accept only proven executor commits as two-parent integration commits"
     },
@@ -806,8 +812,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 11/22
-- Revision: 53
+- Progress: 12/22
+- Revision: 55
 
 ## Objective
 
@@ -851,9 +857,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: set up and clean executor worktrees
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-setup.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cleanup.ts
   - Depends on: E6
-- [TODO] E8 — Integration proof and history (work)
+- [DONE] E8 — Integration proof and history (work)
   - Commit: feat: prove executor sources for integration
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-proof.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-history.ts, .harness/product-tree/product-tree.json
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-proof.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-history.ts, .harness/product-tree/product-tree.json, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-references.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.ts
   - Depends on: E6
 - [TODO] E9 — Merge integration with journal and continue (work)
   - Commit: feat: integrate executor results into main

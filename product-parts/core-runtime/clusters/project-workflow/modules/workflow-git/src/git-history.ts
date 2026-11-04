@@ -82,17 +82,29 @@ export function readChanges(git: GitRunner, root: string): WorkingTreeChanges {
   );
 }
 
+export interface HistoryOptions {
+  /** Follows only first parents: the side history of a merge is skipped. */
+  firstParent?: boolean;
+}
+
 /** Commits reachable from `tip` but not from `from` (all when from is null), oldest first. */
 export function readHistory(
   git: GitRunner,
   root: string,
   from: string | null,
-  tip = "HEAD"
+  tip = "HEAD",
+  options: HistoryOptions = {}
 ): CommitRecord[] {
   const range = from ? `${from}..${tip}` : tip;
   const output = git.run(
     root,
-    ["log", "--reverse", `--format=%H%x00%P%x00%B${RECORD_SEPARATOR}`, range],
+    [
+      "log",
+      "--reverse",
+      ...(options.firstParent ? ["--first-parent"] : []),
+      `--format=%H%x00%P%x00%B${RECORD_SEPARATOR}`,
+      range,
+    ],
     { allowFailure: true }
   );
   if (output.status !== 0) {
@@ -129,6 +141,28 @@ export function readCommitPaths(
       "-z",
       "--root",
       sha,
+    ])
+    .stdout.split(FIELD_SEPARATOR)
+    .filter(Boolean)
+    .sort();
+}
+
+/** Paths that differ between two commits, renames as delete plus add, sorted. */
+export function readDiffPaths(
+  git: GitRunner,
+  root: string,
+  from: string,
+  to: string
+): string[] {
+  return git
+    .run(root, [
+      "diff-tree",
+      "-r",
+      "--name-only",
+      "--no-renames",
+      "-z",
+      from,
+      to,
     ])
     .stdout.split(FIELD_SEPARATOR)
     .filter(Boolean)

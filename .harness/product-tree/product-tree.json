@@ -424,6 +424,11 @@
               "purpose": "Assignment records of orchestrated scopes, the scheduler of tasks that can be handed out now and the executor brief."
             },
             {
+              "id": "workflow-integration",
+              "name": "Workflow Integration",
+              "purpose": "Integration of executor results into main: the proof of an executor source (history, Kit files, check receipt, task contract)."
+            },
+            {
               "id": "workflow-autopilot",
               "name": "Workflow Autopilot",
               "purpose": "Pure continue/stop decision of the Core autopilot and the continue turn message."

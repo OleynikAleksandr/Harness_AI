@@ -37,6 +37,11 @@ through install) get it from `identityTemplate(folder)`, passed as
 - `history(root, from, tip)` returns the commits in `from..tip`, oldest
   first: `{sha, parents, subject, message, trailers}`. Trailers are the
   `Workflow-*` lines of the last message paragraph.
+  Inside the module `readHistory` also takes `{firstParent: true}`
+  (`git log --first-parent`) for the main walk of commit references.
+- `diffPaths(root, from, to)` returns the sorted paths that differ between
+  two commits (`git diff-tree -r --no-renames`; a rename is a deletion plus
+  an addition).
 - `commitPaths(root, sha)`, `isAncestor(root, a, b)`,
   `show(root, revision, path)` (`null` when the file is absent),
   `config`/`setConfig`, and `gitPath(root, name)` (absolute path inside the
@@ -161,19 +166,37 @@ rounds to one of:
 - `{status: "pending"}` — inside the current transaction;
 - `{status: "open"}`.
 
-It searches `baselineCommit..HEAD` for task commits (roles
-`implementation`, `docs` for a round's DOCS task and `quality` for the
-QUALITY task) whose `Workflow-Scope`, `Workflow-Task` and
-`Workflow-Iteration` match the task.
+It walks `baselineCommit..HEAD` by first parents only, so the executor
+history an integration commit brings in through its second parent
+(`assignment-plan` and task commits of scope `assignment-<id>`) is never a
+main task commit. It searches that walk for task commits (roles
+`implementation`, `docs` for a round's DOCS task, `quality` for the
+QUALITY task, and `integration` for an orchestrated work or DOCS task)
+whose `Workflow-Scope`, `Workflow-Task` and `Workflow-Iteration` match the
+task.
+
+Every commit of the walk with more than one parent must be an integration
+commit (spec section 7): exactly two parents, `Workflow-Role: integration`,
+`Workflow-Source` equal to its second parent, a `Workflow-Task` and a
+`Workflow-Assignment`. Its first parent continues main.
+
 Errors:
 - `AMBIGUOUS_COMMIT` — several matching commits, or duplicated trailers;
 - `PLAN_COMMIT_MISMATCH` — a `DONE` task without a commit, or a commit for a
   task that is not `DONE`;
-- `HISTORY_NOT_LINEAR` — a task commit with more than one parent;
-- `COMMIT_SCOPE_MISMATCH` — the commit touches files outside the task's
-  files and the plan;
+- `HISTORY_NOT_LINEAR` — a commit of the walk with several parents that is
+  not such an integration commit, a task commit of another role with more
+  than one parent, or an integration commit without two parents;
+- `COMMIT_SCOPE_MISMATCH` — a single-parent task commit touches files other
+  than the task's files and the plan; an integration commit, compared with
+  its first parent, touches files that are neither the plan nor equal to or
+  nested (by path segment) in a task file entry. The reference `paths` are
+  these compared paths;
 - `DEPENDENCY_ORDER` — a dependency commit is not an ancestor. Legacy-round
   dependencies are exempt.
+
+Integration commits are tested with real executor worktrees in
+`workflow-integration/src/workflow-integration-facade.test.mjs`.
 
 ## Repair (`git-repair.ts`)
 

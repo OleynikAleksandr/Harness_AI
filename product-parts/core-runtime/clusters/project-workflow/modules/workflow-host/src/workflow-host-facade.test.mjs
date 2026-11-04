@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import { build as viteBuild } from "vite";
 import {
@@ -134,6 +134,20 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
     "--note",
     "User chose: sequential",
   ]);
+  // identity:set needs no project: the application bundle in the home folder.
+  const identityArgs = await host.setIdentity({
+    email: "--real@harness-ai.test",
+    name: "Real Person",
+  });
+  assert.deepEqual(identityArgs.result.args, [
+    "identity:set",
+    "--name=Real Person",
+    "--email=--real@harness-ai.test",
+    "--global",
+    "--format",
+    "json",
+  ]);
+  assert.equal(realpathSync(identityArgs.result.cwd), realpathSync(homedir()));
   const failed = await host.run(["fail"]);
   assert.deepEqual(failed, {
     code: "SCOPE_BLOCKED",
@@ -213,6 +227,29 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
   const doctor = await kitHost.doctor(target);
   assert.equal(doctor.ok, true, JSON.stringify(doctor));
   assert.equal(doctor.result.ok, true, JSON.stringify(doctor.result));
+  // identity:set validates in the Kit and writes the global config
+  // (GIT_CONFIG_GLOBAL of the test, never the real one).
+  const quoted = await kitHost.setIdentity({
+    email: "\u201Creal@harness-ai.test\u201D",
+    name: "Real Person",
+  });
+  assert.equal(quoted.ok, false);
+  assert.equal(quoted.code, "GIT_IDENTITY_INVALID");
+  assert.equal(quoted.details.field, "email");
+  const saved = await kitHost.setIdentity({
+    email: "real@harness-ai.test",
+    name: "Real Person",
+  });
+  assert.equal(saved.ok, true, JSON.stringify(saved));
+  assert.deepEqual(saved.result, {
+    email: "real@harness-ai.test",
+    name: "Real Person",
+    scope: "global",
+  });
+  assert.match(
+    readFileSync(identity, "utf8"),
+    /email = real@harness-ai\.test/u
+  );
   const notInstalled = await kitHost.validate(sandbox);
   assert.equal(notInstalled.ok, true);
   assert.equal(notInstalled.result.ok, false);

@@ -181,6 +181,11 @@ implementation plan.
 - `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
   inspection, install, doctor, Harness plan migration, Core/Electron/RPC/UI
   integration, provider context delivery and Windows/Linux rules.
+- `docs/architecture/workflow-kit/WorkflowKitCoreRpc.md` — detailed contract
+  of the Core project workflow routes (`core-project-workflow-rpc.ts`):
+  inspect, prepare-project, identity-set, status with `planView`, doctor,
+  autopilot, the execution mode card, the Kit state watcher; moved out of the
+  `core-runtime-process` module.md, which keeps the summary.
 - `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md` — execution
   modes as implemented (Russian, scope `execution-modes-2026-11-04`):
   `parallelSafe` labels and the `execution` block, the mode choice

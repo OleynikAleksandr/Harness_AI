@@ -36,6 +36,7 @@ const PROJECT_WORKFLOW_METHODS = new Set([
   "workflow-autopilot-get",
   "workflow-autopilot-set",
   "workflow-doctor",
+  "workflow-identity-set",
   "workflow-inspect",
   "workflow-mode-choice-get",
   "workflow-mode-choose",
@@ -63,6 +64,7 @@ export interface ProjectWorkflowDependencies {
     | "inspect"
     | "install"
     | "proposal"
+    | "setIdentity"
     | "status"
     | "writeRuntimeFile"
   >;
@@ -173,7 +175,8 @@ function refusal(
 
 /**
  * Core RPC for project workflow: folder inspection, project preparation
- * (install or update, then registration as a workspace), Kit status, the
+ * (install or update, then registration as a workspace), the global git
+ * identity (`workflow-identity-set`), Kit status, the
  * project doctor, the per-session autopilot switch and the execution mode
  * card. Every operation on a workspace publishes `workflow:status`;
  * autopilot changes and decisions publish `workflow:autopilot`; mode card
@@ -257,6 +260,8 @@ export class CoreProjectWorkflowRpc {
       }
       case "workflow-prepare-project":
         return this.prepare(record);
+      case "workflow-identity-set":
+        return this.setIdentity(record);
       case "workflow-status":
         return this.status(readText(record, "workspaceId"));
       case "workflow-doctor":
@@ -359,6 +364,22 @@ export class CoreProjectWorkflowRpc {
     this.watchWorkspaces();
     const { status } = await this.publishStatus(workspace);
     return { inspect: inspected.result, install, ok: true, status, workspace };
+  }
+
+  /**
+   * `workflow-identity-set {name, email}`: the Kit `identity:set --global`
+   * validates and writes the global git identity; its envelope is returned
+   * as is (GIT_IDENTITY_INVALID / GIT_IDENTITY_PLACEHOLDER with
+   * `details.field`). Core keeps no pending preparation: after a success the
+   * client repeats the `workflow-prepare-project` request that failed with
+   * GIT_IDENTITY_REQUIRED.
+   */
+  private setIdentity(record: Record<string, unknown>): Promise<unknown> {
+    const { email, name } = record;
+    if (typeof name !== "string" || typeof email !== "string") {
+      return Promise.resolve(invalid("name and email must be strings."));
+    }
+    return this.dependencies.host.setIdentity({ email, name });
   }
 
   private async status(

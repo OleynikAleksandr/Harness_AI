@@ -48,6 +48,12 @@ Commands:
   folder of the target; `host: "harness"` passes `--host harness`, which
   writes `config.host`; install has a 600 000 ms timeout because it
   commits;
+- `setIdentity({name, email})` runs `identity:set --name=<name>
+  --email=<email> --global` with the application bundle in the home
+  directory (no project and no `--root`, so it works before a project
+  exists; the `--flag=value` form keeps a value that starts with `--` a
+  value). The Kit validates and writes the global git config; the result
+  type is `GitIdentitySetResult` `{name, email, scope: "global"}`;
 - `status(root)`, `validate(root)`, `recover(root, event)`,
   `proposal(root)` (`scope:proposal`, the mode card view or `null`),
   `chooseScope(root, {generation, option, session, note})`
@@ -76,10 +82,13 @@ imports.
   the command protocol with a fake bundle (arguments, `--root`,
   `ELECTRON_RUN_AS_NODE`, cleared `GIT_DIR`, failure envelope,
   `HOST_OUTPUT`, `HOST_TIMEOUT`, `HOST_SPAWN`, `HOST_NO_BUNDLE`, the
-  `scope:proposal` and `scope:choose` arguments), and an
+  `scope:proposal`, `scope:choose` and `identity:set` arguments and the
+  home working directory of `identity:set`), and an
   end-to-end run of the real bundle built by Vite: inspect, install with
   `host: "harness"` (`config.host`), status, doctor, validate and the
-  runtime file; a fresh project has no proposal (`null`).
+  runtime file; a fresh project has no proposal (`null`); `setIdentity`
+  refuses a quoted email (`GIT_IDENTITY_INVALID`, field `email`) and
+  writes a real one to the test's `GIT_CONFIG_GLOBAL`.
 
 Test repositories and the projects the bundle installs into get a real
 repository-local identity (`workflow@harness-ai.test`, through

@@ -114,7 +114,6 @@ function fakeHost(states) {
     },
   };
 }
-
 try {
   writeFileSync(path.join(buildDir, "rpc.js"), compiled, "utf8");
   writeFileSync(
@@ -147,6 +146,7 @@ try {
     "workflow-prepare-project",
     "workflow-status",
     "workflow-doctor",
+    "workflow-identity-set",
   ]) {
     assert.equal(CoreProjectWorkflowRpc.handles(method), true);
   }

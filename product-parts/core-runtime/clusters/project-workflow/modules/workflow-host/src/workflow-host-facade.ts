@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { homedir } from "node:os";
 import path from "node:path";
 import type {
   DoctorReport,
@@ -41,6 +42,13 @@ export interface WorkflowHostOptions {
   current?: { electron: boolean; execPath: string };
   env?: NodeJS.ProcessEnv;
   timeoutMs?: number;
+}
+
+/** The `identity:set` result: the trimmed identity written to the global git config. */
+export interface GitIdentitySetResult {
+  email: string;
+  name: string;
+  scope: "global";
 }
 
 export interface RunOptions {
@@ -151,6 +159,28 @@ export class WorkflowHostFacade {
       preferApp: true,
       timeoutMs: COMMIT_TIMEOUT_MS,
     });
+  }
+
+  /**
+   * `identity:set --name --email --global` with the application bundle:
+   * the Kit validates the identity and writes the global git config. It
+   * needs no project, so it runs before a project exists, in the home
+   * directory. Values go as `--flag=value`, so a value starting with `--`
+   * stays a value.
+   */
+  setIdentity(identity: {
+    email: string;
+    name: string;
+  }): Promise<KitOutcome<GitIdentitySetResult>> {
+    return this.run(
+      [
+        "identity:set",
+        `--name=${identity.name}`,
+        `--email=${identity.email}`,
+        "--global",
+      ],
+      { cwd: homedir(), preferApp: true }
+    );
   }
 
   status(root: string): Promise<KitOutcome<KitStatus>> {

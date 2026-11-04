@@ -20,6 +20,10 @@ Settings.
   `useProjectPlanView(workspace.id)` (module `project-plan-panel`), kept
   current by `workflow:status` events, and passes it to `SessionTree` as
   `planView`.
+- The Core execution mode card of the selected workspace: the sidebar
+  facade calls `useExecutionModeCard(workspace.id)` (module
+  `execution-mode-card`), kept current by `workflow:mode-choice` events,
+  and passes `{card, choose}` to `SessionTree` as `modeChoice`.
 
 ## Outputs
 
@@ -51,6 +55,14 @@ Settings.
   Without a plan view, or with an owner outside the list, the tree is
   unchanged. The tree only reads these Core fields; it never compares
   working directories or worktrees.
+- The execution mode card (`docs/architecture/ReleaseFixes-2026-11-04-2.md`,
+  section 3): when `modeChoice.card.sessionId` is a listed session and the
+  card is not `dismissed`, `ExecutionModeCardFacade` renders right under
+  that session's card, in the plan slot, with `modeChoice.choose` as the
+  click route. While the card is `offered` or `saving` the plan panel of
+  that owner is not shown; once `chosen`, the compact chosen line stays
+  above the plan panel until Core removes the card. An owner outside the
+  list shows no card.
 - A child row uses its delegated task plus localized status as the secondary
   line, falling back to role plus status when no task is available. It does not
   repeat `agentNickname` when Core already used that nickname as the title.
@@ -94,7 +106,10 @@ Settings.
   `renderToStaticMarkup`) of the plan under the owner card: the
   Orchestrator/Agent role, the bound executor without a card and not
   counted, the other subagent kept, and the unchanged tree without a plan
-  or with an unlisted owner.
+  or with an unlisted owner; the mode card under its owner (offered rows,
+  recommended mark, reason and hint without the plan, saving with disabled
+  buttons, Core error, chosen line above the plan, dismissed, another or
+  an unlisted owner).
 - `src/workspace-menu.test.mjs` — the workspace menu and its project
   context menu.
 

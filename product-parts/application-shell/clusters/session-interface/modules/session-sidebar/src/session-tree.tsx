@@ -8,6 +8,10 @@ import {
 } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import {
+  ExecutionModeCardFacade,
+  type ExecutionModeChoice,
+} from "../../../../project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.js";
 import { ProjectPlanPanelFacade } from "../../../../project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.js";
 
 // Viewport coordinates of the row edge the menu attaches to. The menu
@@ -20,6 +24,8 @@ export interface SessionContextMenuAnchor {
 interface SessionTreeProps {
   activeSessionId: string;
   contextMenuSessionId: string | null;
+  /** The Core mode card of the workspace; rendered under its owner's card. */
+  modeChoice: ExecutionModeChoice | null;
   onContextMenu: (
     session: CoreSession,
     anchor: SessionContextMenuAnchor
@@ -35,6 +41,7 @@ interface SessionTreeProps {
 export function SessionTree({
   activeSessionId,
   contextMenuSessionId,
+  modeChoice,
   onContextMenu,
   onDetachSession,
   onSelectSession,
@@ -79,6 +86,7 @@ export function SessionTree({
       contextMenuSessionId={contextMenuSessionId}
       expandedSessionIds={expandedSessionIds}
       key={session.id}
+      modeChoice={modeChoice}
       onContextMenu={onContextMenu}
       onDetachSession={onDetachSession}
       onSelectSession={onSelectSession}
@@ -98,6 +106,7 @@ function SessionTreeNode({
   activeSessionId,
   contextMenuSessionId,
   expandedSessionIds,
+  modeChoice,
   onContextMenu,
   onDetachSession,
   onSelectSession,
@@ -111,6 +120,7 @@ function SessionTreeNode({
   activeSessionId: string;
   contextMenuSessionId: string | null;
   expandedSessionIds: ReadonlySet<string>;
+  modeChoice: ExecutionModeChoice | null;
   onContextMenu: (
     session: CoreSession,
     anchor: SessionContextMenuAnchor
@@ -214,13 +224,13 @@ function SessionTreeNode({
           ? renderContextMenu(session)
           : null}
       </div>
-      {ownedPlan ? (
-        <ProjectPlanPanelFacade
-          activeSessionId={activeSessionId}
-          onOpenSession={onSelectSession}
-          planView={ownedPlan}
-        />
-      ) : null}
+      <OwnerPlanSlot
+        activeSessionId={activeSessionId}
+        modeChoice={modeChoice}
+        onSelectSession={onSelectSession}
+        ownedPlan={ownedPlan}
+        sessionId={session.id}
+      />
       {expanded ? (
         <div className="session-tree-children">
           {children.map((child) => (
@@ -229,6 +239,7 @@ function SessionTreeNode({
               contextMenuSessionId={contextMenuSessionId}
               expandedSessionIds={expandedSessionIds}
               key={child.id}
+              modeChoice={modeChoice}
               onContextMenu={onContextMenu}
               onDetachSession={onDetachSession}
               onSelectSession={onSelectSession}
@@ -243,6 +254,47 @@ function SessionTreeNode({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * The slot under a session card: the Core mode card when this session owns
+ * it, and the plan it owns. While the card waits for the choice (offered or
+ * saving) the plan is not shown; once chosen, the compact line stays above
+ * the plan until Core removes the card.
+ */
+function OwnerPlanSlot({
+  activeSessionId,
+  modeChoice,
+  onSelectSession,
+  ownedPlan,
+  sessionId,
+}: {
+  activeSessionId: string;
+  modeChoice: ExecutionModeChoice | null;
+  onSelectSession: (sessionId: string) => void;
+  ownedPlan: WorkflowPlanView | null;
+  sessionId: string;
+}) {
+  const card =
+    modeChoice?.card?.sessionId === sessionId &&
+    modeChoice.card.state !== "dismissed"
+      ? modeChoice.card
+      : null;
+  const choosing = card !== null && card.state !== "chosen";
+  return (
+    <>
+      {card && modeChoice ? (
+        <ExecutionModeCardFacade card={card} onChoose={modeChoice.choose} />
+      ) : null}
+      {ownedPlan && !choosing ? (
+        <ProjectPlanPanelFacade
+          activeSessionId={activeSessionId}
+          onOpenSession={onSelectSession}
+          planView={ownedPlan}
+        />
+      ) : null}
+    </>
   );
 }
 

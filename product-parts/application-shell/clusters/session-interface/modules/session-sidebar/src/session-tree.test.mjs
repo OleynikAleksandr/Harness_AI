@@ -10,6 +10,7 @@ import ts from "typescript";
 const LOCALIZATION_IMPORT =
   /from "[^"]*browser-localization-provider-facade\.js"/u;
 const PANEL_IMPORT = /from "[^"]*project-plan-panel-facade\.js"/u;
+const CARD_IMPORT = /from "[^"]*execution-mode-card-facade\.js"/u;
 
 const treeSource = readFileSync(
   new URL("./session-tree.tsx", import.meta.url),
@@ -105,11 +106,21 @@ assert.equal(sidebarSource.split("\n").length <= 500, true);
 // renderer from a Core plan view; the renderer matches no sessions itself.
 assert.doesNotMatch(treeSource, /workingDirectory|worktree/u);
 assert.match(sidebarSource, /planView=\{planView\}/u);
+// The mode card (Core model and owner) comes from the card module's hook.
+assert.match(
+  sidebarSource,
+  /const modeChoice = useExecutionModeCard\(workspace\.id\);/u
+);
+assert.match(sidebarSource, /modeChoice=\{modeChoice\}/u);
 {
   const require = createRequire(import.meta.url);
   const resolved = (name) => pathToFileURL(require.resolve(name)).href;
   const panelUrl = new URL(
     "../../../../project-workflow-ui/modules/project-plan-panel/src/",
+    import.meta.url
+  );
+  const cardUrl = new URL(
+    "../../../../project-workflow-ui/modules/execution-mode-card/src/",
     import.meta.url
   );
   const buildDir = await mkdtemp(path.join(tmpdir(), "session-tree-plan-"));
@@ -126,21 +137,24 @@ assert.match(sidebarSource, /planView=\{planView\}/u);
         /from "(react|react\/jsx-runtime|lucide-react)"/gu,
         (_match, name) => `from "${resolved(name)}"`
       )
-      .replace(/import "\.\/[^"]+\.css";\n/gu, "")
+      .replace(/import "[^"]+\.css";\n/gu, "")
       .replace(LOCALIZATION_IMPORT, 'from "./t.js"')
-      .replace(PANEL_IMPORT, 'from "./panel.js"');
+      .replace(PANEL_IMPORT, 'from "./panel.js"')
+      .replace(CARD_IMPORT, 'from "./card.js"');
   try {
     writeFileSync(
       path.join(buildDir, "t.js"),
       "export const useBrowserLocalization = () => ({ t: (_c, _k, text) => text });\n"
     );
-    for (const [file, target] of [
-      ["project-plan-panel-state.ts", "project-plan-panel-state.js"],
-      ["project-plan-panel-facade.tsx", "panel.js"],
+    for (const [file, target, base] of [
+      ["project-plan-panel-state.ts", "project-plan-panel-state.js", panelUrl],
+      ["project-plan-panel-facade.tsx", "panel.js", panelUrl],
+      ["execution-mode-card-state.ts", "execution-mode-card-state.js", cardUrl],
+      ["execution-mode-card-facade.tsx", "card.js", cardUrl],
     ]) {
       writeFileSync(
         path.join(buildDir, target),
-        toModule(readFileSync(new URL(file, panelUrl), "utf8"))
+        toModule(readFileSync(new URL(file, base), "utf8"))
       );
     }
     writeFileSync(path.join(buildDir, "tree.js"), toModule(treeSource));
@@ -187,11 +201,14 @@ assert.match(sidebarSource, /planView=\{planView\}/u);
       scopeId: "ship",
       status: "ACTIVE",
     });
-    const render = (plan, activeSessionId = "helper") =>
+    const render = (plan, activeSessionId = "helper", card = null) =>
       renderToStaticMarkup(
         createElement(SessionTree, {
           activeSessionId,
           contextMenuSessionId: null,
+          modeChoice: card
+            ? { card, choose: () => Promise.resolve(null) }
+            : null,
           onContextMenu: () => undefined,
           onDetachSession: () => undefined,
           onSelectSession: () => undefined,
@@ -236,6 +253,104 @@ assert.match(sidebarSource, /planView=\{planView\}/u);
     });
     assert.doesNotMatch(foreign, /project-plan-panel/u);
     assert.match(foreign, /2 subagents/u);
+
+    // The mode card renders in the plan slot under its Core owner card.
+    const modeCard = (fields = {}) => ({
+      chosen: null,
+      error: null,
+      generation: 2,
+      options: [
+        { id: "orchestrated", recommended: true },
+        { id: "sequential", recommended: false },
+        { id: "refine", recommended: false },
+      ],
+      reason: "Two independent modules can run in parallel.",
+      scopeId: "ship",
+      sessionId: "owner",
+      state: "offered",
+      title: "Ship the plan",
+      workspaceId: "ws",
+      ...fields,
+    });
+    // Offered: question, rows in Core order with the recommended mark, the
+    // reason under it, a filled button and the hint; no plan panel yet.
+    const offered = ownerCard(
+      render(planView("sequential"), "helper", modeCard())
+    );
+    assert.match(offered, /class="execution-mode-card"/u);
+    assert.match(offered, /How should the plan be executed\?/u);
+    assert.match(offered, /<small title="ship">Ship the plan<\/small>/u);
+    assert.doesNotMatch(offered, /project-plan-panel/u);
+    const rows = offered.match(/<li class="execution-mode-card-option">/gu);
+    assert.equal(rows?.length, 3);
+    assert.ok(
+      offered.indexOf("Orchestrate executors") <
+        offered.indexOf("Execute sequentially") &&
+        offered.indexOf("Execute sequentially") <
+          offered.indexOf("Refine the specification")
+    );
+    assert.match(
+      offered,
+      /Orchestrate executors<em> \(recommended\)<\/em>[\s\S]*?<small class="execution-mode-card-reason">Two independent modules can run in parallel\.<\/small><\/div><button class="project-workflow-primary" type="button">Choose<\/button>/u
+    );
+    assert.equal(offered.match(/\(recommended\)/gu)?.length, 1);
+    assert.equal(offered.match(/project-workflow-secondary/gu)?.length, 2);
+    assert.match(offered, /or write your answer in the chat/u);
+    // Saving: neutral border, disabled buttons, still no plan panel.
+    const saving = ownerCard(
+      render(planView("sequential"), "helper", modeCard({ state: "saving" }))
+    );
+    assert.match(saving, /class="execution-mode-card is-saving"/u);
+    assert.equal(saving.match(/disabled=""/gu)?.length, 3);
+    assert.match(saving, /Saving the choice\.\.\./u);
+    assert.doesNotMatch(saving, /project-plan-panel/u);
+    // A Core error stays in the card.
+    assert.match(
+      ownerCard(
+        render(null, "helper", modeCard({ error: "PROPOSAL_CHANGED: refused" }))
+      ),
+      /role="alert">PROPOSAL_CHANGED: refused<\/small>/u
+    );
+    // Chosen: the compact line, then the plan panel in the same slot.
+    const chosen = ownerCard(
+      render(
+        planView("orchestrated"),
+        "helper",
+        modeCard({ chosen: "orchestrated", state: "chosen" })
+      )
+    );
+    assert.match(
+      chosen,
+      /execution-mode-card--chosen[\s\S]*?Chosen: <strong>Orchestrate executors<\/strong> · sent to the agent/u
+    );
+    assert.ok(
+      chosen.indexOf("execution-mode-card--chosen") <
+        chosen.indexOf('class="project-plan-panel"')
+    );
+    assert.doesNotMatch(chosen, /Choose<\/button>/u);
+    // Dismissed: nothing, the plan as before.
+    const dismissed = ownerCard(
+      render(planView("sequential"), "helper", modeCard({ state: "dismissed" }))
+    );
+    assert.doesNotMatch(dismissed, /execution-mode-card/u);
+    assert.match(dismissed, /class="project-plan-panel"/u);
+    // Another owner: the card goes under that session's card only; an
+    // unlisted owner shows no card anywhere.
+    const elsewhere = render(
+      planView("sequential"),
+      "helper",
+      modeCard({ sessionId: "other" })
+    );
+    assert.doesNotMatch(ownerCard(elsewhere), /execution-mode-card/u);
+    assert.match(ownerCard(elsewhere), /class="project-plan-panel"/u);
+    assert.match(
+      elsewhere.slice(elsewhere.indexOf("Title other")),
+      /class="execution-mode-card"/u
+    );
+    assert.doesNotMatch(
+      render(null, "helper", modeCard({ sessionId: "gone" })),
+      /execution-mode-card/u
+    );
   } finally {
     await rm(buildDir, { force: true, recursive: true });
   }

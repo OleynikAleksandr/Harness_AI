@@ -2,15 +2,21 @@ import { useState } from "react";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import {
   BRIDGE_UNAVAILABLE,
-  useExecutionModeCard,
+  type useExecutionModeCard,
 } from "./execution-mode-card-state.js";
 import "../../../src/project-workflow-ui.css";
 import "./execution-mode-card.css";
 
+export { useExecutionModeCard } from "./execution-mode-card-state.js";
+
+/** The Core card of a workspace and its click route (`useExecutionModeCard`). */
+export type ExecutionModeChoice = ReturnType<typeof useExecutionModeCard>;
+
 interface ExecutionModeCardProps {
-  /** The open session ("" or null for none); the card shows only in its owner session. */
-  sessionId: string | null;
-  workspaceId: string;
+  /** The Core card; the sidebar renders it only under its owner session. */
+  card: WorkflowModeChoiceCard;
+  /** Forwards the clicked option to Core; resolves to a refusal or null. */
+  onChoose: ExecutionModeChoice["choose"];
 }
 
 type Translate = ReturnType<typeof useBrowserLocalization>["t"];
@@ -64,18 +70,17 @@ function ChosenLine({
 
 /**
  * The execution mode card of a scope proposal (spec 4.2 of
- * `WorkflowKitExecutionModes.md`) in the chat of its owner session. Core
- * owns the card; the click goes to Core, which records the choice and
- * sends it to the agent.
+ * `WorkflowKitExecutionModes.md`) in the left sidebar under the card of its
+ * owner session, in the slot of the plan. Core owns the card; the click
+ * goes to Core, which records the choice and sends it to the agent.
  */
 export function ExecutionModeCardFacade({
-  sessionId,
-  workspaceId,
+  card,
+  onChoose,
 }: ExecutionModeCardProps) {
   const { t } = useBrowserLocalization();
-  const { card, choose } = useExecutionModeCard(workspaceId);
   const [error, setError] = useState<string | null>(null);
-  if (!card || card.sessionId !== sessionId || card.state === "dismissed") {
+  if (card.state === "dismissed") {
     return null;
   }
   if (card.state === "chosen") {
@@ -85,7 +90,7 @@ export function ExecutionModeCardFacade({
   const shownError = card.error ?? error;
   const pick = (option: WorkflowModeChoiceOptionId) => {
     setError(null);
-    choose(option)
+    onChoose(option)
       .then((message) =>
         setError(
           message === BRIDGE_UNAVAILABLE
@@ -104,7 +109,9 @@ export function ExecutionModeCardFacade({
     <section
       aria-busy={saving}
       aria-label={t("ui_labels", "workflow.modeCard.label", "Execution mode")}
-      className={`execution-mode-card${saving ? "is-saving" : ""}`}
+      className={
+        saving ? "execution-mode-card is-saving" : "execution-mode-card"
+      }
     >
       <header className="execution-mode-card-header">
         <strong>

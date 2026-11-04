@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CoreSession } from "../../../../../../core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.js";
 import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { useBrowserLocalization } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
+import { useExecutionModeCard } from "../../../../project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.js";
 import { useProjectPlanView } from "../../../../project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.js";
 import { type SessionContextMenuAnchor, SessionTree } from "./session-tree.js";
 import { WorkspaceMenu } from "./workspace-menu.js";
@@ -58,6 +59,8 @@ export function SessionSidebarFacade({
   const { t } = useBrowserLocalization();
   // The Core plan view of the selected workspace, kept current by events.
   const planView = useProjectPlanView(workspace.id);
+  // The Core execution mode card of the workspace and its click route.
+  const modeChoice = useExecutionModeCard(workspace.id);
   const sidebarRef = useRef<HTMLElement | null>(null);
   const renameInputRef = useRef<HTMLInputElement | null>(null);
   const [menuSessionId, setMenuSessionId] = useState<string | null>(null);
@@ -311,6 +314,7 @@ export function SessionSidebarFacade({
           <SessionTree
             activeSessionId={activeSessionId}
             contextMenuSessionId={menuSessionId}
+            modeChoice={modeChoice}
             onContextMenu={openContextMenu}
             onDetachSession={onDetachSession}
             onSelectSession={(sessionId) => {

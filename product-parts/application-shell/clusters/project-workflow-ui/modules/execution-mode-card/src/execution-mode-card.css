@@ -1,14 +1,19 @@
-/* Execution mode card: a question to the user in the session column, on the
-   shared --pm-* dark theme tokens. The orange border marks an action needed
-   from the user; saving and chosen states are neutral. */
+/* Execution mode card: a question to the user in the left sidebar under the
+   owner session card (the slot of the plan), on the shared --pm-* dark theme
+   tokens. Rows stack for the narrow sidebar: text first, then a full-width
+   button; long texts wrap and nothing scrolls horizontally. The orange
+   border marks an action needed from the user; saving and chosen states
+   are neutral. */
 
 .execution-mode-card {
   display: grid;
-  gap: 10px;
-  padding: 12px 14px;
-  margin: 10px 14px 0;
-  font-size: 13px;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 10px;
+  margin: 4px 0 6px 13px;
+  font-size: 12px;
   color: var(--pm-text-primary);
+  overflow-wrap: anywhere;
   background: var(--pm-bg-panel);
   border: 1px solid #f0883e;
   border-radius: 8px;
@@ -22,9 +27,9 @@
 .execution-mode-card--chosen {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 4px;
   align-items: baseline;
-  padding: 7px 14px;
+  padding: 6px 10px;
   color: var(--pm-text-secondary);
 }
 
@@ -39,7 +44,7 @@
 }
 
 .execution-mode-card-header strong {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -58,11 +63,10 @@
 }
 
 .execution-mode-card-option {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 8px;
   background: var(--pm-bg-surface);
   border: 1px solid var(--pm-border-color);
   border-radius: 6px;
@@ -70,7 +74,7 @@
 
 .execution-mode-card-text {
   display: grid;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -81,7 +85,13 @@
 
 .execution-mode-card-text .execution-mode-card-reason {
   color: var(--pm-text-secondary);
-  overflow-wrap: anywhere;
+}
+
+.execution-mode-card-option button {
+  justify-content: center;
+  width: 100%;
+  padding: 5px 10px;
+  font-size: 12px;
 }
 
 .execution-mode-card-error {

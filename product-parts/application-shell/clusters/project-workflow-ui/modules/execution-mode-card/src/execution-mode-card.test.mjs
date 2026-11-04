@@ -46,10 +46,23 @@ assert.match(
 assert.match(stateSource, /setCard\(result\.card\)/u);
 assert.match(stateSource, /return result\.message;/u);
 
-// Only the owner session sees it; a dismissed card is hidden.
+// The facade renders the card it is given (the sidebar places it under the
+// owner session) and forwards the click; a dismissed card is hidden.
 assert.match(
   cardSource,
-  /!card \|\| card\.sessionId !== sessionId \|\| card\.state === "dismissed"/u
+  /export \{ useExecutionModeCard \} from "\.\/execution-mode-card-state\.js";/u
+);
+assert.match(cardSource, /card: WorkflowModeChoiceCard;/u);
+assert.match(cardSource, /onChoose: ExecutionModeChoice\["choose"\];/u);
+assert.match(
+  cardSource,
+  /if \(card\.state === "dismissed"\) \{\s*return null;/u
+);
+assert.match(cardSource, /onChoose\(option\)/u);
+assert.doesNotMatch(cardSource, /card\.sessionId !== sessionId/u);
+assert.match(
+  cardSource,
+  /saving \? "execution-mode-card is-saving" : "execution-mode-card"/u
 );
 // Rows in Core order: the recommended mark, the reason under it and the
 // filled button; the hint to answer in the chat.
@@ -82,6 +95,20 @@ assert.doesNotMatch(
 assert.doesNotMatch(
   cardSource + stateSource,
   /providerId|hasParallelWork|scope:choose|scripts\/workflow/u
+);
+// Narrow sidebar layout: stacked rows, full-width buttons, wrapping texts.
+assert.match(
+  cssSource,
+  /\.execution-mode-card \{[^}]*margin: 4px 0 6px 13px;[^}]*overflow-wrap: anywhere;/u
+);
+assert.match(cssSource, /\.execution-mode-card-option \{\s*display: grid;/u);
+assert.match(
+  cssSource,
+  /\.execution-mode-card-option button \{[^}]*width: 100%;/u
+);
+assert.doesNotMatch(
+  cssSource,
+  /white-space: nowrap|overflow-x: (?:auto|scroll)/u
 );
 // Orange border for the question, neutral while saving and once chosen.
 assert.match(
@@ -121,10 +148,15 @@ for (const id of ["sequential", "orchestrated", "refine"]) {
   );
 }
 
-// The session window shows the card between the strip and the chat.
+// The card lives in the sidebar (session-tree tests render it there); the
+// dialog area of the session window no longer shows it.
+assert.doesNotMatch(
+  windowSource,
+  /ExecutionModeCardFacade|execution-mode-card/u
+);
 assert.match(
   windowSource,
-  /<WorkflowStatusStripFacade[\s\S]*?\/>\s*<ExecutionModeCardFacade\s*sessionId=\{activeTimingSessionId\}\s*workspaceId=\{activeWorkspace\.id\}\s*\/>\s*<SessionSurfaceFacade/u
+  /<WorkflowStatusStripFacade[\s\S]*?\/>\s*<SessionSurfaceFacade/u
 );
 
 console.log("execution-mode-card tests: OK");

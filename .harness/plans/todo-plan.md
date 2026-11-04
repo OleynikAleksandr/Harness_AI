@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 86,
+  "revision": 88,
   "rounds": [
     {
       "digest": null,
@@ -174,14 +174,21 @@
       "files": [
         "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx",
         "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx",
-        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.css",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx",
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md"
       ],
       "fixes": null,
       "id": "G5",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Mode card in the left sidebar",
       "why": "The choice belongs next to the plan under the owner session, not in the dialog"
     },
@@ -431,8 +438,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 4/13
-- Revision: 86
+- Progress: 5/13
+- Revision: 88
 
 ## Objective
 
@@ -466,9 +473,9 @@ Fix the defects found in the execution modes release (git identity form instead 
   - Commit: feat: ask the git identity in the setup dialog
   - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/project-setup-dialog/src/project-setup-actions.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel-facade.tsx
   - Depends on: G3
-- [TODO] G5 — Mode card in the left sidebar (work)
+- [DONE] G5 — Mode card in the left sidebar (work)
   - Commit: feat: show the mode card in the sidebar
-  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx
+  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.css, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
 - [TODO] G6 — Localize the new interface strings (work)
   - Commit: fix: localize the new workflow strings
   - Files: product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/localization-runtime-facade.ts

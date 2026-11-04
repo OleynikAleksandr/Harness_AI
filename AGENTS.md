@@ -199,7 +199,30 @@ add `--format text` for a readable answer.
   specification and create the scope with
   `scripts/workflow scope:create --input <file.json>` without asking again.
   Record the agreement in `approval`. The plan never replaces the user's
-  current instruction.
+  current instruction. In a Harness project (`"host": "harness"`) propose
+  the scope instead (see Execution modes).
+
+### Execution modes
+The recovery packet names your `role:`; follow it.
+- **planning** (no scope, Harness project): write the specification and a
+  plan with `parallelSafe` labels, then run
+  `scripts/workflow scope:propose --input <file.json> --recommended <mode> --reason "<why>"`
+  and end the turn; the user chooses the mode on the card.
+- **self** (`sequential`): run the tasks in order in main. Helper subagents
+  may help, but they work in main without their own worktree and never commit.
+- **orchestrator** (`orchestrated`, main): `assignment:next`,
+  `assignment:create --task <ID>`, a Claude subagent (Agent tool with
+  `isolation: "worktree"`) gets the returned brief; integrate its SHA with
+  `integration:start --id <id> --source <sha>` (on CONFLICT or CHECKS_FAILED
+  fix within the task files, then `integration:continue --id <id>`). Run
+  QUALITY and delivery yourself; never implement work or DOCS tasks in main.
+- **executor** (assignment worktree): `assignment:attach <id>`, then
+  `task:start`, work only within the task files, `commit --task`, reply
+  with the SHA. Never touch main, the plan or other tasks; no nested
+  executors, no push.
+- Never set the git identity (`git config user.*`). If a command refuses
+  with `GIT_IDENTITY_REQUIRED`, report it to the user with the command it
+  prints.
 
 ### One task, one commit, one turn
 1. `scripts/workflow task:start <ID>`; a delivery task needs

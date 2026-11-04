@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 117,
+  "revision": 118,
   "rounds": [
     {
       "digest": null,
@@ -529,8 +529,7 @@
         }
       ],
       "dependencies": [
-        "W1",
-        "A5"
+        "W1"
       ],
       "docsWaiver": null,
       "files": [
@@ -697,7 +696,7 @@
 - Delivery: IN_PROGRESS
 - Current task: none
 - Progress: 4/17
-- Revision: 117
+- Revision: 118
 
 ## Objective
 
@@ -763,7 +762,7 @@ Give agents their input schemas and document text inline, add the Kit context co
 - [TODO] W2 — Interface without a project (work)
   - Commit: fix: show the start screen without a project
   - Files: product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector, product-parts/core-runtime/clusters/session-runtime/modules/session-registry
-  - Depends on: W1, A5
+  - Depends on: W1
 - [TODO] K6 — Doctor doc-size and managed text 2.2.0 (work)
   - Commit: feat: check document sizes in doctor and update managed text
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality

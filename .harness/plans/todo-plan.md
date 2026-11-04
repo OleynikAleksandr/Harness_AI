@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 67,
+  "revision": 69,
   "rounds": [
     {
       "digest": null,
@@ -645,14 +645,19 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.ts",
-        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts"
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.test.mjs"
       ],
       "fixes": null,
       "id": "E16",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Core plan view with executor sessions",
       "why": "The sidebar shows the plan from a Core read model; the binding is Core truth"
     },
@@ -872,8 +877,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 18/22
-- Revision: 67
+- Progress: 19/22
+- Revision: 69
 
 ## Objective
 
@@ -947,9 +952,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
 - [DONE] E15 — Claude subagent working directory (work)
   - Commit: feat: report claude subagent working directory
   - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/src/provider-adapter-contract-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/module.md, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-history-store.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-types.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.test.mjs, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-subagent-lifecycle.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-event-normalizer.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-event-normalizer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer-working-directory.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/provider-adapter-contract/module.md
-- [TODO] E16 — Core plan view with executor sessions (work)
+- [DONE] E16 — Core plan view with executor sessions (work)
   - Commit: feat: build the plan view with executor sessions
-  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts
+  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.test.mjs
   - Depends on: E14, E15
 - [DONE] E17 — Core mode choice route (work)
   - Commit: feat: route the execution mode choice through core

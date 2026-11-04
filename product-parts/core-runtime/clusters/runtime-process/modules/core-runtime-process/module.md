@@ -287,7 +287,7 @@ state.
     registers nothing;
   - `workflow-status {workspaceId?}` — Kit status of the workspace (the
     active one by default; `UNKNOWN_WORKSPACE`), refreshing the runtime
-    file;
+    file; the result is the Kit outcome with the added `planView` (below);
   - `workflow-doctor {workspaceId?, fix?}` — the project doctor, then the
     status.
   - `workflow-autopilot-get {sessionId}` and `workflow-autopilot-set
@@ -364,8 +364,44 @@ state.
     installed later, removal and close; through `CoreProjectWorkflowRpc` a
     plan change publishes `workflow:status` with the Kit status and nothing
     after removal; the `CoreRuntimeApi` and process entry hooks.
+  - the plan view (`core-workflow-plan-view.ts`, `buildPlanView`, spec
+    10.2 of `WorkflowKitExecutionModes.md`): Core truth of the active plan
+    for the sidebar, built from the Kit status and the Core session records
+    (the `sessions.list` dependency returns every record). It is `null`
+    when the status failed, the Kit is not installed or the plan has no
+    scope (an `ACTIVE` or `BLOCKED` scope shows its plan). Otherwise
+    `{scopeId, objective, status (scope status), mode
+    (orchestrated|sequential; sequential without an execution block),
+    progress {done, total}, ownerSessionId, rows, boundSessionIds}`; one
+    row per plan task in plan order: `{taskId, title, kind, status, label,
+    current, executorSessionId}`. `label` is `parallel` (`parallelSafe`)
+    or `sequential` in orchestrated mode and `null` in sequential mode.
+    `current` marks the Kit current task and, in orchestrated mode, every
+    task with an assignment that is not `INTEGRATED`. `ownerSessionId` is
+    `execution.ownerSession` when it is a Core session of the workspace,
+    otherwise the most recently active (latest `updatedAt`) primary session
+    of the workspace (not a subagent, no `sessionPurpose`), or `null`.
+    Binding: an assignment with a `worktree` is bound to the subagent
+    session of the workspace whose `workingDirectory` is the worktree or
+    lies inside it, comparing real paths (`realpath`, a missing path keeps
+    its resolved form, so trailing slashes and symlinks do not matter);
+    several candidates resolve to the latest `updatedAt`, a later
+    assignment of the same task wins. `executorSessionId` is that session
+    and `boundSessionIds` lists every bound session. The renderer matches
+    nothing itself. `PlanViewSessionWatch` follows `session:created` /
+    `session:updated`: when a subagent record reports a new working
+    directory, the workspace is re-published after a quiet period (300 ms,
+    `watchDebounceMs`), only when its Kit plan file exists, so a newly
+    started executor binds without a Kit file change; `close()` stops it.
+    Tests: `src/core-workflow-plan-view.test.mjs` — null cases, sequential
+    rows and the owner fallback, orchestrated labels/current/binding
+    through a symlink, a trailing slash, a nested directory, another
+    workspace and a prefix sibling, the session watch, and through
+    `CoreProjectWorkflowRpc` the status result, the event and the
+    re-publish for a new executor (none without a Kit plan).
   Every workspace operation publishes `{type: "workflow:status",
-  workspaceId, path, status}`; every autopilot change and decision is
+  workspaceId, path, planView, status}`; the `workflow-status` result is
+  the Kit outcome plus `planView` (`WorkflowStatusResult`); every autopilot change and decision is
   relayed as `{type: "workflow:autopilot", ...snapshot}`; every card change
   as `{type: "workflow:mode-choice", workspaceId, sessionId, card}`.
   `CoreRuntimeApi.subscribe()` relays them on the same event stream.

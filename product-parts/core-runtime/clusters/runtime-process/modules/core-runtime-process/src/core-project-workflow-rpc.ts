@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import path from "node:path";
 import type {
   KitFailure,
@@ -20,6 +21,12 @@ import {
   CoreWorkflowModeChoice,
   type ModeChoiceDependencies,
 } from "./core-workflow-mode-choice.js";
+import {
+  buildPlanView,
+  type PlanView,
+  type PlanViewSession,
+  PlanViewSessionWatch,
+} from "./core-workflow-plan-view.js";
 import { CoreWorkflowWatch } from "./core-workflow-watch.js";
 
 /** Core event published after every Workflow Kit operation of a workspace. */
@@ -35,6 +42,8 @@ const PROJECT_WORKFLOW_METHODS = new Set([
   "workflow-prepare-project",
   "workflow-status",
 ]);
+/** The Kit plan file; executor changes re-publish only with a plan. */
+const PLAN_FILE = path.join(".harness", "plans", "todo-plan.md");
 /** A new project folder name: one path segment, no separators. */
 const INVALID_NAME_PATTERN = /[\\/:*?"<>|]/u;
 
@@ -57,13 +66,23 @@ export interface ProjectWorkflowDependencies {
     | "status"
     | "writeRuntimeFile"
   >;
-  /** Core sessions for the execution mode card. */
-  sessions: ModeChoiceDependencies["sessions"];
+  /**
+   * Core sessions for the execution mode card and the plan view; `list`
+   * returns every Core session record.
+   */
+  sessions: ModeChoiceDependencies["sessions"] & {
+    list: () => PlanViewSession[];
+  };
   /** Quiet time of the Kit state watcher; tests pass a short one. */
   watchDebounceMs?: number;
   /** Known workspaces and the active one. */
   workspaces: () => { active: HarnessWorkspace; known: HarnessWorkspace[] };
 }
+
+/** The `workflow-status` result: the Kit outcome plus the Core plan view. */
+export type WorkflowStatusResult = KitOutcome<KitStatus> & {
+  planView: PlanView | null;
+};
 
 export interface PreparedProject {
   inspect: InspectResult;
@@ -160,7 +179,9 @@ function refusal(
  * autopilot changes and decisions publish `workflow:autopilot`; mode card
  * changes publish `workflow:mode-choice`. The Kit state of known workspaces
  * (plan file, assignments, integration, proposal) is watched, and every
- * change publishes `workflow:status` as well.
+ * change publishes `workflow:status` as well. Every `workflow:status` event
+ * and the `workflow-status` result carry the Core plan view (`planView`),
+ * re-published when an executor session reports a new working directory.
  */
 export class CoreProjectWorkflowRpc {
   private readonly listeners = new Set<CoreEventListener>();
@@ -170,6 +191,7 @@ export class CoreProjectWorkflowRpc {
   >;
   private readonly modeChoice: CoreWorkflowModeChoice;
   private readonly watch: CoreWorkflowWatch;
+  private readonly sessionWatch: PlanViewSessionWatch;
 
   constructor(dependencies: ProjectWorkflowDependencies) {
     this.dependencies = dependencies;
@@ -184,6 +206,12 @@ export class CoreProjectWorkflowRpc {
     this.watch = new CoreWorkflowWatch({
       debounceMs: dependencies.watchDebounceMs,
       onChange: (workspaceId) => this.publishWatched(workspaceId),
+    });
+    this.sessionWatch = new PlanViewSessionWatch({
+      debounceMs: dependencies.watchDebounceMs,
+      list: () => dependencies.sessions.list(),
+      onChange: (workspaceId) => this.publishExecutors(workspaceId),
+      subscribe: (listener) => dependencies.sessions.subscribe(listener),
     });
   }
 
@@ -209,6 +237,7 @@ export class CoreProjectWorkflowRpc {
   /** Stops the Kit state watchers (Core shutdown). */
   close(): void {
     this.watch.close();
+    this.sessionWatch.close();
   }
 
   /** A message the user typed into a session (the `send-message` route). */
@@ -327,19 +356,20 @@ export class CoreProjectWorkflowRpc {
     const workspace = this.dependencies.addWorkspace(target.target);
     host.writeRuntimeFile(workspace.path);
     this.watchWorkspaces();
-    const status = await this.publishStatus(workspace);
+    const { status } = await this.publishStatus(workspace);
     return { inspect: inspected.result, install, ok: true, status, workspace };
   }
 
-  private status(workspaceId: string): Promise<KitOutcome<KitStatus>> {
+  private async status(
+    workspaceId: string
+  ): Promise<KitFailure | WorkflowStatusResult> {
     const workspace = this.workspace(workspaceId);
     if (!workspace) {
-      return Promise.resolve(
-        invalid("Unknown workspace.", "UNKNOWN_WORKSPACE")
-      );
+      return invalid("Unknown workspace.", "UNKNOWN_WORKSPACE");
     }
     this.dependencies.host.writeRuntimeFile(workspace.path);
-    return this.publishStatus(workspace);
+    const { planView, status } = await this.publishStatus(workspace);
+    return { ...status, planView };
   }
 
   private async doctor(workspaceId: string, fix: boolean): Promise<unknown> {
@@ -361,17 +391,34 @@ export class CoreProjectWorkflowRpc {
     }
   }
 
-  private async publishStatus(
-    workspace: HarnessWorkspace
-  ): Promise<KitOutcome<KitStatus>> {
+  /** Re-publishes after an executor session change; only with a Kit plan. */
+  private publishExecutors(workspaceId: string): void {
+    const workspace = this.dependencies
+      .workspaces()
+      .known.find((item) => item.id === workspaceId);
+    if (workspace && existsSync(path.join(workspace.path, PLAN_FILE))) {
+      this.publishWatched(workspaceId);
+    }
+  }
+
+  private async publishStatus(workspace: HarnessWorkspace): Promise<{
+    planView: PlanView | null;
+    status: KitOutcome<KitStatus>;
+  }> {
     const status = await this.dependencies.host.status(workspace.path);
+    const planView = buildPlanView(
+      status,
+      workspace.id,
+      this.dependencies.sessions.list()
+    );
     this.emit({
       path: workspace.path,
+      planView,
       status,
       type: WORKFLOW_STATUS_EVENT_TYPE,
       workspaceId: workspace.id,
     });
-    return status;
+    return { planView, status };
   }
 
   private emit(event: unknown): void {

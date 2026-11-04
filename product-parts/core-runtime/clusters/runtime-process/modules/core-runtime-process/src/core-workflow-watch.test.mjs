@@ -29,6 +29,11 @@ try {
     transpile("./core-workflow-mode-choice.ts"),
     "utf8"
   );
+  writeFileSync(
+    path.join(buildDir, "core-workflow-plan-view.js"),
+    transpile("./core-workflow-plan-view.ts"),
+    "utf8"
+  );
   const rpcSource = readFileSync(
     new URL("./core-project-workflow-rpc.ts", import.meta.url),
     "utf8"
@@ -197,6 +202,7 @@ try {
     },
     sessions: {
       get: () => undefined,
+      list: () => [],
       send: () => ({ ok: true }),
       subscribe: () => () => undefined,
     },
@@ -217,6 +223,7 @@ try {
     assert.deepEqual(events, [
       {
         path: watched.path,
+        planView: null,
         status: { command: "status", ok: true, result: { root: watched.path } },
         type: "workflow:status",
         workspaceId: "w3",

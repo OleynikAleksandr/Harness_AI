@@ -122,6 +122,12 @@ try {
     modeChoiceCompiled,
     "utf8"
   );
+  // The plan view is tested in core-workflow-plan-view.test.mjs.
+  writeFileSync(
+    path.join(buildDir, "core-workflow-plan-view.js"),
+    transpile("./core-workflow-plan-view.ts"),
+    "utf8"
+  );
   // The Kit state watcher is tested in core-workflow-watch.test.mjs.
   writeFileSync(
     path.join(buildDir, "core-workflow-watch.js"),
@@ -197,6 +203,7 @@ try {
               workspacePath: "/work/one",
             }
           : undefined,
+      list: () => [],
       send: (sessionId, text) => {
         sent.push([sessionId, text]);
         return { ok: true };
@@ -283,6 +290,7 @@ try {
   );
   assert.deepEqual(events.at(-1), {
     path: "/new/demo",
+    planView: null,
     status: {
       command: "x",
       ok: true,
@@ -396,6 +404,8 @@ try {
   // Status and doctor of the active or a named workspace.
   const status = await rpc.invoke("workflow-status", {});
   assert.equal(status.result.root, "/work/one");
+  // The result carries the Core plan view next to the Kit outcome.
+  assert.equal(status.planView, null);
   assert.equal(events.at(-1).workspaceId, "w1");
   assert.equal(
     (await rpc.invoke("workflow-status", { workspaceId: "nope" })).code,

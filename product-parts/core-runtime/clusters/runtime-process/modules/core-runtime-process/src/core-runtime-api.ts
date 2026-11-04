@@ -61,6 +61,7 @@ export class CoreRuntimeApi {
         sessionRequestHandlerFacade
           .listSessions()
           .find((session) => session.id === sessionId),
+      list: () => sessionRequestHandlerFacade.listSessions(),
       send: (sessionId, text) =>
         sessionRequestHandlerFacade.sendMessage({ sessionId, text }),
       subscribe: (listener) => sessionEventStreamFacade.subscribe(listener),

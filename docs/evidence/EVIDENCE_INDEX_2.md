@@ -293,3 +293,6 @@ added, add a new evidence file and keep this index entry valid.
 - `docs/evidence/workflow-kit-release-package-2026-11-03.md` — Workflow Kit
   release: `npm run package:mac`, packaged `workflow-kit` resource, Kit
   inspect/install/status/doctor smoke on the packaged binary and app launch.
+- `docs/evidence/release-fixes-package-2026-11-04.md` — release fixes:
+  Claude async subagents verified on the real test transcripts and the
+  Remove from Harness AI route; package contents and launch.

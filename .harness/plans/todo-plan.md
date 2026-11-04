@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 26,
+  "revision": 28,
   "rounds": [
     {
       "digest": {
@@ -34,7 +34,7 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Implementation"
     }
   ],
@@ -59,7 +59,7 @@
       }
     ],
     "decisions": [],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "release-fixes-2026-11-04",
     "objective": "Fix Claude async subagent observation (live text, real terminal status) and let the user remove a project from the app through a right-click menu; ship a new macOS release.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04.md",
@@ -283,7 +283,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package release fixes 2026-11-04",
-      "confirmation": null,
+      "confirmation": "User 2026-11-04: 'Если согласен, исправляй эту ошибку. Собирай новый релиз.'",
       "context": [],
       "dependencies": [
         "F6",
@@ -291,14 +291,15 @@
       ],
       "docsWaiver": null,
       "files": [
-        "docs/evidence/release-fixes-package-2026-11-04.md"
+        "docs/evidence/release-fixes-package-2026-11-04.md",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
       ],
       "fixes": null,
       "id": "F7",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Package the macOS release and record evidence",
       "why": "The user checks fixes in the packaged app"
     }
@@ -310,10 +311,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 7/8
-- Revision: 26
+- Progress: 8/8
+- Revision: 28
 
 ## Objective
 
@@ -327,7 +328,7 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
 
 ## Rounds
 
-### R1 — Implementation (implementation, OPEN)
+### R1 — Implementation (implementation, CLOSED)
 
 - [DONE] F1 — Observe Claude async subagents to their real end (work)
   - Commit: fix: follow claude async subagents to their real end
@@ -354,9 +355,9 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md
   - Depends on: F1, F2, F3, F4, F5, F6
-- [TODO] F7 — Package the macOS release and record evidence (delivery)
+- [DONE] F7 — Package the macOS release and record evidence (delivery)
   - Commit: chore: package release fixes 2026-11-04
-  - Files: docs/evidence/release-fixes-package-2026-11-04.md
+  - Files: docs/evidence/release-fixes-package-2026-11-04.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: F6, DOCS-R1
 
 Digest: Claude background (async) subagents are followed to their real end: async_launched is no longer read as a failure, the task-notification sets the terminal status and polling continues after the parent turn. A project can be removed from the app by right click (Remove from Harness AI): Core forgets its registry entry, loaded sessions and app-level provider home residue; the project folder stays.

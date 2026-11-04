@@ -1,15 +1,32 @@
-import type { AutopilotProjectStatus } from "../../workflow-autopilot/src/workflow-autopilot-facade.js";
 import {
+  type AssignmentCleanup,
+  type AssignmentStatus,
+  workflowAssignmentFacade,
+} from "../../workflow-assignment/src/workflow-assignment-facade.js";
+import type {
+  AutopilotOrchestration,
+  AutopilotProjectStatus,
+} from "../../workflow-autopilot/src/workflow-autopilot-facade.js";
+import {
+  type ExecutionModeOption,
+  workflowExecutionModeFacade,
+} from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
+import {
+  type ExecutionStrategy,
   PLAN_PATH,
+  type WorkflowPlan,
   type WorkflowTask,
   workflowPlanFacade,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
+import { workflowPlatformFacade } from "../../workflow-platform/src/workflow-platform-facade.js";
 import {
   type DriftReport,
   workflowQualityFacade,
 } from "../../workflow-quality/src/workflow-quality-facade.js";
 import type { TransactionSummary } from "../../workflow-recovery/src/workflow-recovery-facade.js";
+import { activeRecords, INTEGRATION_FILE } from "./kit-assignment.js";
 import type { KitContext } from "./kit-context.js";
+import { executorAssignment } from "./kit-executor.js";
 
 export interface TaskBrief {
   id: string;
@@ -19,11 +36,51 @@ export interface TaskBrief {
   title: string;
 }
 
+/** One task of the plan, in plan order (spec 10.1). */
+export interface StatusTask extends TaskBrief {
+  dependencies: string[];
+  parallelSafe: boolean;
+}
+
+/** One assignment record of the current scope in the main checkout. */
+export interface StatusAssignment {
+  branch: string | null;
+  cleanup: AssignmentCleanup | null;
+  id: string;
+  integrationCommit: string | null;
+  sourceCommit: string | null;
+  status: AssignmentStatus;
+  taskId: string;
+  worktree: string | null;
+}
+
+/**
+ * The integration journal `.harness/workflow/local/integration.json`; a
+ * field the journal does not hold as a string is `null`.
+ */
+export interface StatusIntegration {
+  assignmentId: string | null;
+  phase: string | null;
+  taskId: string | null;
+}
+
 export interface KitStatus {
+  /** Assignments of the current scope (main checkout only; empty elsewhere). */
+  assignments: StatusAssignment[];
   changes: string[];
   currentTask: TaskBrief | null;
+  /** The scope execution block; null without a scope. */
+  execution: {
+    maxWorkers: number;
+    ownerSession: string | null;
+    strategy: ExecutionStrategy;
+  } | null;
+  /** The assignment of this checkout when it is an executor worktree. */
+  executor: { assignmentId: string; taskId: string } | null;
   head: string | null;
   installed: boolean;
+  /** The unfinished integration of the main checkout, or null. */
+  integration: StatusIntegration | null;
   nextTask: TaskBrief | null;
   progress: { done: number; total: number };
   project: { id: string; name: string } | null;
@@ -37,6 +94,16 @@ export interface KitStatus {
     objective: string;
     status: string;
   } | null;
+  /** The stored scope proposal (mode choice), without the plan input. */
+  scopeProposal: {
+    generation: number;
+    hasParallelWork: boolean;
+    options: ExecutionModeOption[];
+    recommended: ExecutionStrategy;
+    refining: boolean;
+  } | null;
+  /** Every task of the plan in plan order. */
+  tasks: StatusTask[];
   transaction: TransactionSummary | null;
 }
 
@@ -53,6 +120,83 @@ function brief(task: WorkflowTask | null | undefined): TaskBrief | null {
         roundId: task.roundId,
         status: task.status,
         title: task.title,
+      }
+    : null;
+}
+
+function statusTask(task: WorkflowTask): StatusTask {
+  return {
+    dependencies: [...task.dependencies],
+    id: task.id,
+    kind: task.kind,
+    parallelSafe: task.parallelSafe === true,
+    roundId: task.roundId,
+    status: task.status,
+    title: task.title,
+  };
+}
+
+function textOrNull(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+/** Reads the integration journal defensively: its writer owns the format. */
+function integrationOf(context: KitContext): StatusIntegration | null {
+  const text = workflowPlatformFacade.readTextIfExists(
+    context.git.localPath(context.root, INTEGRATION_FILE)
+  );
+  if (text === null) {
+    return null;
+  }
+  let journal: Record<string, unknown> = {};
+  try {
+    const parsed: unknown = JSON.parse(text);
+    journal =
+      parsed && typeof parsed === "object"
+        ? (parsed as Record<string, unknown>)
+        : {};
+  } catch {
+    // An unreadable journal still blocks writes; its fields stay unknown.
+  }
+  return {
+    assignmentId: textOrNull(journal.assignmentId),
+    phase: textOrNull(journal.phase),
+    taskId: textOrNull(journal.taskId),
+  };
+}
+
+function assignmentsOf(
+  context: KitContext,
+  plan: WorkflowPlan | null
+): StatusAssignment[] {
+  const scopeId = plan?.scope?.id;
+  if (!scopeId) {
+    return [];
+  }
+  return workflowAssignmentFacade
+    .list(context.root)
+    .filter((record) => record.scopeId === scopeId)
+    .map((record) => ({
+      branch: record.branch,
+      cleanup: record.cleanup,
+      id: record.id,
+      integrationCommit: record.integrationCommit,
+      sourceCommit: record.sourceCommit,
+      status: record.status,
+      taskId: record.taskId,
+      worktree: record.worktree,
+    }));
+}
+
+function proposalOf(context: KitContext): KitStatus["scopeProposal"] {
+  const proposal = workflowExecutionModeFacade.readProposal(context.root);
+  return proposal
+    ? {
+        generation: proposal.generation,
+        hasParallelWork: proposal.hasParallelWork,
+        options: [...proposal.options],
+        recommended: proposal.recommended,
+        refining: proposal.refining,
       }
     : null;
 }
@@ -81,11 +225,16 @@ export function readStatus(context: KitContext): KitStatus {
         .all.filter((file) => !context.git.isKitManagedPath(file))
     : [];
   const tasks = plan?.tasks ?? [];
+  const own = executorAssignment(context);
   return {
+    assignments: own ? [] : assignmentsOf(context, plan),
     changes,
     currentTask: brief(tasks.find((task) => task.id === plan?.currentTaskId)),
+    execution: plan?.scope ? workflowPlanFacade.execution(plan) : null,
+    executor: own ? { assignmentId: own.id, taskId: own.taskId } : null,
     head: repository ? context.git.head(context.root) : null,
     installed: plan !== null,
+    integration: own ? null : integrationOf(context),
     nextTask: plan ? brief(workflowPlanFacade.nextTask(plan)) : null,
     progress: {
       done: tasks.filter((task) => task.status === "DONE").length,
@@ -112,7 +261,47 @@ export function readStatus(context: KitContext): KitStatus {
           status: plan.scope.status,
         }
       : null,
+    scopeProposal: proposalOf(context),
+    tasks: tasks.map(statusTask),
     transaction: repository ? transactionOf(context) : null,
+  };
+}
+
+/**
+ * What the orchestrator of an orchestrated scope may act on (spec 10.3):
+ * the active and pending-cleanup assignments, the integration and the tasks
+ * the scheduler hands out now. Null in a sequential scope and outside main.
+ */
+function orchestrationOf(
+  context: KitContext,
+  status: KitStatus
+): AutopilotOrchestration | null {
+  if (status.execution?.strategy !== "orchestrated" || status.executor) {
+    return null;
+  }
+  const plan = workflowPlanFacade.read(context.root);
+  if (!plan) {
+    return null;
+  }
+  const schedule = workflowAssignmentFacade.schedule(
+    plan,
+    activeRecords(plan, context.root)
+  );
+  return {
+    assignments: status.assignments
+      .filter(
+        (item) =>
+          item.status !== "INTEGRATED" || item.cleanup?.status === "PENDING"
+      )
+      .map(({ id, sourceCommit, status: state, taskId }) => ({
+        cleanupPending: state === "INTEGRATED",
+        id,
+        sourceCommit,
+        status: state,
+        taskId,
+      })),
+    integration: status.integration,
+    readyTasks: schedule.ready,
   };
 }
 
@@ -125,6 +314,9 @@ export function autopilotStatus(context: KitContext): AutopilotProjectStatus {
       null) as AutopilotProjectStatus["delivery"],
     head: status.head,
     nextTask: status.nextTask,
+    orchestration: orchestrationOf(context, status),
+    proposalPending:
+      status.scopeProposal !== null && !status.scopeProposal.refining,
     revision: status.revision,
     scope: (status.scope?.status ?? "NONE") as AutopilotProjectStatus["scope"],
     transactionPending: status.transaction !== null,

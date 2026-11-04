@@ -106,6 +106,20 @@ assert.equal(
   registry.getMessage("ui_labels", "workflow.autopilot.reason.no-progress"),
   "No progress"
 );
+assert.equal(
+  registry.getMessage(
+    "ui_labels",
+    "workflow.autopilot.reason.waiting-for-executors"
+  ),
+  "Waiting for executors"
+);
+assert.equal(
+  registry.getMessage(
+    "ui_labels",
+    "workflow.autopilot.reason.waiting-for-mode-choice"
+  ),
+  "Waiting for the execution mode choice"
+);
 assert.match(
   registry.getMessage("ui_helper_text", "project.state.GIT_NO_KIT"),
   /Workflow Kit/u

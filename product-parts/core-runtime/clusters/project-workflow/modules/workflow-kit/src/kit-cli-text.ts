@@ -1,6 +1,29 @@
 import type { InspectResult } from "../../workflow-installer/src/workflow-installer-facade.js";
 import type { KitStatus, ValidationReport } from "./workflow-kit-facade.js";
 
+/** One line: the execution mode, assignment counts by status, the integration. */
+function executionLine(status: KitStatus): string {
+  const { execution } = status;
+  if (!execution) {
+    return "execution: none";
+  }
+  if (execution.strategy !== "orchestrated") {
+    return `execution: ${execution.strategy}`;
+  }
+  const counts = new Map<string, number>();
+  for (const item of status.assignments) {
+    counts.set(item.status, (counts.get(item.status) ?? 0) + 1);
+  }
+  const assignments =
+    counts.size === 0
+      ? "none"
+      : [...counts].map(([state, count]) => `${state} ${count}`).join(", ");
+  const integration = status.integration
+    ? `, integration ${status.integration.taskId ?? "unknown"} ${status.integration.phase ?? "unknown"}`
+    : "";
+  return `execution: orchestrated (max ${execution.maxWorkers} workers), assignments: ${assignments}${integration}`;
+}
+
 function statusText(status: KitStatus): string {
   const lines = [
     `project: ${status.project ? `${status.project.name} (${status.project.id})` : "not installed"}`,
@@ -10,6 +33,12 @@ function statusText(status: KitStatus): string {
   ];
   if (status.scope?.blockedReason) {
     lines.push(`blocked: ${status.scope.blockedReason}`);
+  }
+  lines.push(executionLine(status));
+  if (status.executor) {
+    lines.push(
+      `executor: assignment ${status.executor.assignmentId}, task ${status.executor.taskId}`
+    );
   }
   lines.push(
     `progress: ${status.progress.done}/${status.progress.total}`,

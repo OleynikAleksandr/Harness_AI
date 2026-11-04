@@ -10,7 +10,9 @@ import {
 } from "./autopilot-decision.js";
 
 export type {
+  AutopilotAssignment,
   AutopilotDecision,
+  AutopilotOrchestration,
   AutopilotProjectStatus,
   AutopilotState,
   AutopilotTurn,
@@ -26,7 +28,7 @@ export class WorkflowAutopilotFacade {
     maxContinues = DEFAULT_MAX_CONTINUES,
     enabled = false
   ): AutopilotState {
-    return { continues: 0, enabled, maxContinues };
+    return { continues: 0, enabled, maxContinues, orchestrationKey: null };
   }
 
   decide(

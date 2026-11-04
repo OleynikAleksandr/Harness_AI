@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 61,
+  "revision": 63,
   "rounds": [
     {
       "digest": null,
@@ -470,14 +470,24 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-decision.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-status.test.mjs",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts"
       ],
       "fixes": null,
       "id": "E11",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Kit status and autopilot for orchestration",
       "why": "Core needs tasks, execution, assignments and the proposal in status, and the autopilot must continue the orchestrator"
     },
@@ -855,8 +865,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 15/22
-- Revision: 61
+- Progress: 16/22
+- Revision: 63
 
 ## Objective
 
@@ -912,9 +922,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: teach agents the execution roles
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-sections.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-roles.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-sections.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-gather.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-roles.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-worktree.test.mjs
   - Depends on: E4, E9
-- [TODO] E11 — Kit status and autopilot for orchestration (work)
+- [DONE] E11 — Kit status and autopilot for orchestration (work)
   - Commit: feat: report orchestration in kit status and autopilot
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-decision.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/workflow-autopilot-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-status.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.test.mjs, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts
   - Depends on: E9
 - [DONE] E12 — Small Kit fixes from test runs (work)
   - Commit: fix: small workflow kit defects from test runs

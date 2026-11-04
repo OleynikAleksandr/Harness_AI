@@ -20,6 +20,9 @@ import {
   requireHead,
 } from "./kit-context.js";
 
+/** Integration journal of E9; while it exists no assignment is created. */
+export const INTEGRATION_FILE = "integration.json";
+
 interface ReadyTask {
   id: string;
   kind: TaskKind;

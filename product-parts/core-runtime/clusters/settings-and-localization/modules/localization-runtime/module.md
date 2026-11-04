@@ -110,7 +110,9 @@ materialization, bootstrap payload reuse, and bundle state.
   dialog (`project.setup.*`), Project Doctor (`project.doctor.*`, one label
   per doctor check id and status), the workflow status strip
   (`workflow.strip.*`, including `workflow.strip.label`), one label per autopilot stop reason
-  (`workflow.autopilot.reason.<reason>`) and the execution mode card
+  (`workflow.autopilot.reason.<reason>`, including the orchestration
+  reasons `waiting-for-executors` and `waiting-for-mode-choice`) and the
+  execution mode card
   (`workflow.modeCard.label`, `.question`, `.recommended`, `.choose`,
   `.chosen`, `.sent`, `.option.<sequential|orchestrated|refine>`);
   `ui_helper_text` explains every

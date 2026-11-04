@@ -32,8 +32,29 @@ State (`kit-status.ts`):
 - `status(root)` — project, scope (status, result, blocked reason,
   objective), revision, current and next task, progress, rounds, quality
   (status, stacks, drift), HEAD, pending transaction, changes outside
-  Kit-managed paths, `installed`.
-- `autopilotStatus(root)` — the status shape of the autopilot decision.
+  Kit-managed paths, `installed`, and (spec 10.1):
+  - `tasks` — plan order, `{id, kind, roundId, status, title, parallelSafe,
+    dependencies}`;
+  - `execution` — `{strategy, maxWorkers, ownerSession}`, `null` without a
+    scope;
+  - `assignments` — records of the current scope, oldest first: `{id,
+    taskId, status, worktree, branch, sourceCommit, integrationCommit,
+    cleanup}`; empty in an executor worktree;
+  - `integration` — `{assignmentId, taskId, phase}` of
+    `.harness/workflow/local/integration.json`, read defensively (a
+    non-string field or an unreadable file gives `null`s); `null` without
+    the file and in an executor worktree;
+  - `scopeProposal` — `{generation, recommended, hasParallelWork, options,
+    refining}` or `null`;
+  - `executor` — `{assignmentId, taskId}` in an executor worktree, else
+    `null`.
+- `autopilotStatus(root)` — the autopilot decision input: scope, blocked
+  reason, delivery, next task, revision, HEAD, pending transaction,
+  `proposalPending` (a proposal not in refinement) and `orchestration`
+  (`null` unless orchestrated in main): active assignments plus
+  `INTEGRATED` ones with cleanup `PENDING` (`{id, taskId, status,
+  sourceCommit, cleanupPending}`), `integration` and `readyTasks` (the
+  scheduler's ready list).
 - `validate(root)` — `{ok, errors[]}`: plan document and projection,
   configuration, and the task-to-commit mapping of `workflow-git`.
 - `recover(root, event)`, `showTask(root, id)`, `history(root, filter)`,
@@ -320,7 +341,10 @@ managed hooks.
   mode under Electron).
   `--files` and `--stack` take a JSON list or a comma-separated list.
 - Output: `{ok: true, command, result}` as JSON, or `--format text`
-  (status, validation, inspection, recovery, task and history texts; for
+  (status, validation, inspection, recovery, task and history texts — status
+  adds `execution: none|sequential|orchestrated (max <N> workers),
+  assignments: <STATUS> <count>, ...|none[, integration <task> <phase>]`
+  and, in an executor worktree, `executor: assignment <id>, task <ID>`; for
   `scope:propose` the generation, recommendation, reason, options and the
   next step; for `scope:choose` the choice and the created scope; for
   `assignment:next` the scope and workers, one line per active, ready and
@@ -385,69 +409,34 @@ Node built-ins only.
 
 ## Tests
 
-- `src/workflow-kit-lifecycle.test.mjs` — a whole scope on a temporary
-  repository: `docs:commit` without a scope, scope creation with its
-  specification, QUALITY through `quality:apply`, task snapshots and
-  excluded changes, prepare checks and evidence, block/unblock,
-  `task:update`, DOCS digests, a fixes round with revision check, history,
-  acceptance, close on a clean tree, recovery and repair after closing.
-- `src/workflow-kit-hooks.test.mjs` — real git hooks through a runner: a
-  direct commit is rejected, service commits run documentation builtins
-  only, a failing check rolls back and keeps edits, evidence of the commit
-  stage, a check that changes the candidate, DOCS before push, push checks,
-  `commit-msg` without a transaction, unknown hooks.
-- `src/workflow-kit-execution-mode.test.mjs` — propose without and with
-  parallel work, `NO_PARALLEL_WORK`, validation like `scope:create`,
-  orchestrated refused without parallel work, `PROPOSAL_CHANGED` for
-  another generation and a changed stored plan, refine then the automatic
-  sequential scope, the `proposalView` card view (open and refining),
-  `SCOPE_EXISTS`, close clears the record, the
-  orchestrated choice with `maxWorkers` and owner session, and in a
-  `host: "harness"` project `EXECUTION_MODE_REQUIRED` plus the CLI
-  propose/proposal/choose path with text output and usage errors.
-- `src/workflow-kit-assignment.test.mjs` — a sequential scope
-  (`NOT_ORCHESTRATED`), then an orchestrated scope with `maxWorkers: 2`:
-  QUALITY first (`DEPENDENCY_PENDING`, `ASSIGNMENT_KIND`), the schedule
-  after QUALITY (ready, conflict, capacity, barrier, DOCS pending),
-  `DIRTY_TREE`, `INTEGRATION_ACTIVE`, `SCOPE_NOT_ACTIVE`, a created record
-  and brief with an unchanged plan and HEAD, the idempotent retry,
-  `ASSIGNMENT_CONFLICT`/`CAPACITY`/`BARRIER` against an active assignment,
-  the CLI (JSON and text `assignment:next`, `assignment:create`, `USAGE`),
-  `ASSIGNMENT_EXISTS` for another status or base and an integrated record
-  freeing its worker.
-- `src/workflow-kit-executor.test.mjs` — real `git worktree add` worktrees of
-  a temporary repository whose absolute `core.hooksPath` (shared by all
-  worktrees) runs the hooks through a runner: QUALITY in main,
-  `ORCHESTRATED_MAIN_READ_ONLY` for work and DOCS, `DELIVERY_NOT_READY`
-  for pending tasks and later for active assignments, then delivery after
-  integration; attach refused in main (`ASSIGNMENT_WORKTREE`), on another
-  base, dirty and unknown; the attach records, the `assignment-plan` commit
-  (only the plan file, parent and trailers) and the executor plan; the
-  idempotent retry and `ASSIGNMENT_ATTACHED`; the command whitelist,
-  `assignment:status` text and `pre-push`; `RUNNING`; `ASSIGNMENT_SCOPE`,
-  `ASSIGNMENT_CONTRACT` for a launcher and, through the hook, for the
-  configuration and a plan edit; `READY_FOR_INTEGRATION` with
-  `sourceCommit` and the trailer; a branch worktree attached through the
-  CLI whose directory entry owns nested files (`src/modx.ts` stays outside).
-- `src/workflow-kit-worktree.test.mjs` — a node project with
-  `devDependencies` and a lock file, real worktrees and a fake `npm` on
-  `PATH`: attach `NEEDS_SETUP` without `node_modules` (text next step,
-  `ASSIGNMENT_NEEDS_SETUP` on `task:start`) and `READY` with them, DOCS never
-  needing setup; setup refusals (`ASSIGNMENT_READ_ONLY` for another id,
-  `USAGE` in main without `--id`, `ASSIGNMENT_UNKNOWN`,
-  `SETUP_LOCK_REQUIRED`, `SETUP_LINKED_DEPENDENCIES`, `SETUP_FAILED` with the
-  output tail keeping `NEEDS_SETUP`); setup in the worktree through the CLI
-  (receipt, `READY`, main's `node_modules` untouched) and in main with
-  `--id`; cleanup refused in the worktree and for a record that is not
-  integrated, a detached worktree with ignored `node_modules` removed,
-  `PENDING` for a dirty worktree and for an unmerged branch, then the branch
-  deleted after the merge and the CLI text.
-- `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
-  envelopes, inspection (JSON and text) and update of a folder without the
-  Kit, an invalid `install --host`, text errors, a folder without the Kit, a
-  whole task from a
-  subdirectory, text output, recovery events, SessionStart and git-hook
-  dispatch, the compiled file run as a program.
+All on temporary repositories with real hooks (and real `git worktree add`
+worktrees where noted):
+
+- `src/workflow-kit-lifecycle.test.mjs` — a whole sequential scope: docs
+  commits, scope with spec, QUALITY, task snapshots, prepare checks,
+  block/unblock, `task:update`, DOCS digests, a fixes round, history,
+  acceptance, close, recovery and repair.
+- `src/workflow-kit-hooks.test.mjs` — direct commits rejected, service
+  commits, failing and candidate-changing checks, DOCS before push, push
+  checks, `commit-msg`, unknown hooks.
+- `src/workflow-kit-execution-mode.test.mjs` — propose/choose/refine, the
+  automatic sequential scope, `NO_PARALLEL_WORK`, `PROPOSAL_CHANGED`,
+  `SCOPE_EXISTS`, the card view, `EXECUTION_MODE_REQUIRED`, the CLI.
+- `src/workflow-kit-assignment.test.mjs` — the schedule (dependencies,
+  barrier, conflict, capacity, DOCS), create preconditions, the brief,
+  idempotent retry, `ASSIGNMENT_EXISTS`, the CLI.
+- `src/workflow-kit-executor.test.mjs` (worktrees) — main read-only and
+  delivery rules, attach refusals, records and the `assignment-plan`
+  commit, the executor whitelist, `pre-push`, `RUNNING`, scope and contract
+  guards, `READY_FOR_INTEGRATION`, nested directory entries.
+- `src/workflow-kit-worktree.test.mjs` (worktrees, fake `npm`) —
+  `NEEDS_SETUP`, setup refusals, success and failure, cleanup `DONE` and
+  `PENDING`, branch deletion.
+- `src/workflow-kit-status.test.mjs` — the status fields in every state and
+  the text lines.
+- `src/workflow-kit-cli.test.mjs` — envelopes, inspection, `install
+  --host`, text output, recovery events, SessionStart and git-hook
+  dispatch, the compiled program.
 - The integration commands, busy refusals and the merge-aware hook are
   tested in `workflow-integration/src/workflow-integration-merge.test.mjs`.
 

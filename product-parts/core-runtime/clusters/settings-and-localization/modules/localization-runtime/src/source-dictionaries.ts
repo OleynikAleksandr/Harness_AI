@@ -168,6 +168,9 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "workflow.autopilot.reason.transaction-pending": "Commit check pending",
     "workflow.autopilot.reason.turn-error": "Turn stopped",
     "workflow.autopilot.reason.user-message": "Paused for your message",
+    "workflow.autopilot.reason.waiting-for-executors": "Waiting for executors",
+    "workflow.autopilot.reason.waiting-for-mode-choice":
+      "Waiting for the execution mode choice",
     "workflow.modeCard.choose": "Choose",
     "workflow.modeCard.chosen": "Chosen",
     "workflow.modeCard.label": "Execution mode",

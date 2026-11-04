@@ -154,6 +154,13 @@ managed section at the end of this file is authoritative for the process.
   restart.
 - Before handing over the unsigned macOS app, verify that
   `release/mac-arm64/Harness AI.app` exists.
+- Every plan ends with a publication task (`delivery`, after the package):
+  push `main` to `origin` (`https://github.com/OleynikAleksandr/Harness_AI`,
+  public), tag `vYYYY.M.D` (`.N` suffix on the same day), and a GitHub
+  Release with the round digest as notes and a zip of the unsigned
+  `Harness AI.app`. Before every publication the history is scanned for
+  secrets. `package.json` versions stay unchanged. Spec:
+  `docs/architecture/ReleaseFixes-2026-11-04-2.md` section 8.
 - User acceptance is recorded only after the user's explicit positive answer
   (`scripts/workflow accept --note "<the user's words>"`). Defects reported by
   the user become a fixes round instead.

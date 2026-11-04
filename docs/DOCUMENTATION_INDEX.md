@@ -158,6 +158,12 @@ implementation plan.
 
 - `docs/architecture/ReleaseFixes-2026-11-04.md` — fixes of the 2026-11-04
   release: Claude async subagents and removing a project from the app.
+- `docs/architecture/ReleaseFixes-2026-11-04-2.md` — round 2 fixes of the
+  execution modes release (Russian): git identity form and validation instead
+  of terminal commands, Open Project without a name field, the mode card in
+  the sidebar, localized new strings, the mode choice enabling the autopilot,
+  the login-shell PATH for agent processes, small Kit fixes and the GitHub
+  publication task that ends every plan.
 - `docs/architecture/workflow-kit/WorkflowKit.md` — root specification of
   the Workflow Kit (Russian, scope `workflow-kit-2026-11-03`): origin from
   Harness rules and Workflow Kit 1.x, the `core-runtime/clusters/project-workflow`

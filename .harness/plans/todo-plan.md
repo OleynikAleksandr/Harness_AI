@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 104,
+  "revision": 105,
   "rounds": [
     {
       "digest": {
@@ -57,7 +57,10 @@
       "Agent processes find node and other login-shell tools",
       "A new macOS package is built and published as a GitHub release"
     ],
-    "acceptanceNote": null,
+    "acceptanceNote": {
+      "at": "2026-11-04T15:01:14.752Z",
+      "text": "Пользователь: «Согласен. Закрывая предыдущие составляй новую спецификацию и to-do plan, и выполняя ее вплоть уже до публикации на GitHub.»"
+    },
     "approval": {
       "at": "2026-11-04T12:22:48.596Z",
       "text": "User 2026-11-04: 'Предлагаю на этом пока остановиться и исправить то, что уже было найдено. Закрывай текущий скоп, создавай новую спецификацию to-do plan вплоть до сборки нового релиза. И в принципе можно его опубликовать на GitHub - https://github.com/OleynikAleksandr/Harness_AI И, включая этот пункт, последним в каждой из последующих план.'"
@@ -75,7 +78,7 @@
       }
     ],
     "decisions": [],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "ACCEPTED",
     "id": "release-fixes-2026-11-04-2",
     "objective": "Fix the defects found in the execution modes release (git identity form instead of terminal commands, Open Project without a name field, the mode card in the sidebar, localized new strings, the mode choice starting execution, the login-shell PATH, small Kit fixes), build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-2.md",
@@ -512,10 +515,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: ACCEPTED
 - Current task: none
 - Progress: 13/13
-- Revision: 104
+- Revision: 105
 
 ## Objective
 

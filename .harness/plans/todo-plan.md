@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 143,
+  "revision": 145,
   "rounds": [
     {
       "digest": {
@@ -786,7 +786,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package release fixes round 3",
-      "confirmation": null,
+      "confirmation": "Пользователь: «Закрывая предыдущие составляй новую спецификацию и to-do plan, и выполняя ее вплоть уже до публикации на GitHub.»",
       "context": [],
       "dependencies": [
         "A1",
@@ -807,14 +807,15 @@
       ],
       "docsWaiver": null,
       "files": [
-        "docs/evidence/release-fixes-3-package-2026-11-04.md"
+        "docs/evidence/release-fixes-3-package-2026-11-04.md",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
       ],
       "fixes": null,
       "id": "D1",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Package the macOS release",
       "why": "The user checks the release in the packaged app"
     },
@@ -855,8 +856,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 15/17
-- Revision: 143
+- Progress: 16/17
+- Revision: 145
 
 ## Objective
 
@@ -931,9 +932,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04-3.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/architecture/workflow-kit/WorkflowKitCoreRpc.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitOrchestration.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, product-parts/application-shell/clusters/project-workflow-ui/cluster.md, product-parts/application-shell/clusters/session-interface/cluster.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/clusters/session-runtime/cluster.md, product-parts/core-runtime/clusters/workspace-architecture/cluster.md, product-parts/core-runtime/product-part.md, product-parts/provider-runtime/clusters/provider-home-and-auth/cluster.md
   - Depends on: A1, K1, E1, W1, A2, K2, A3, K3, A4, K4, A5, K5, W2, K6
-- [TODO] D1 — Package the macOS release (delivery)
+- [DONE] D1 — Package the macOS release (delivery)
   - Commit: chore: package release fixes round 3
-  - Files: docs/evidence/release-fixes-3-package-2026-11-04.md
+  - Files: docs/evidence/release-fixes-3-package-2026-11-04.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: A1, K1, E1, W1, A2, K2, A3, K3, A4, K4, A5, K5, W2, K6, DOCS-R1
 - [TODO] P1 — Publish the release on GitHub (delivery)
   - Commit: chore: publish release fixes round 3

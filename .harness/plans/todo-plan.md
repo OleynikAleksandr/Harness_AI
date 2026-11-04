@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 49,
+  "revision": 51,
   "rounds": [
     {
       "digest": null,
@@ -664,14 +664,20 @@
         "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx",
         "product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx",
         "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts",
-        ".harness/product-tree/product-tree.json"
+        ".harness/product-tree/product-tree.json",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/module.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-state.ts",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.css",
+        "product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md",
+        "product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md"
       ],
       "fixes": null,
       "id": "E19",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Mode choice card in the chat",
       "why": "The user picks the mode with one click, like in Workflow Pilot"
     },
@@ -786,8 +792,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 9/22
-- Revision: 49
+- Progress: 10/22
+- Revision: 51
 
 ## Objective
 
@@ -873,9 +879,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: bridge the execution mode choice
   - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-core-events.ts
   - Depends on: E17
-- [TODO] E19 — Mode choice card in the chat (work)
+- [DONE] E19 — Mode choice card in the chat (work)
   - Commit: feat: show the execution mode card
-  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, .harness/product-tree/product-tree.json
+  - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts, .harness/product-tree/product-tree.json, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.css, product-parts/application-shell/clusters/project-workflow-ui/modules/execution-mode-card/src/execution-mode-card.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md
   - Depends on: E18
 - [TODO] E20 — Plan in the sidebar (work)
   - Commit: feat: show the plan in the sidebar

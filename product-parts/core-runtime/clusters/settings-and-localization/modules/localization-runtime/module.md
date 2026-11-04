@@ -109,11 +109,15 @@ materialization, bootstrap payload reuse, and bundle state.
   the New/Open Project
   dialog (`project.setup.*`), Project Doctor (`project.doctor.*`, one label
   per doctor check id and status), the workflow status strip
-  (`workflow.strip.*`, including `workflow.strip.label`) and one label per autopilot stop reason
-  (`workflow.autopilot.reason.<reason>`); `ui_helper_text` explains every
-  inspected folder state (`project.state.<STATE>`, `project.state.nested`)
-  and the dialogs; `messages_for_the_user` holds
-  `project.setup.nameRequired`.
+  (`workflow.strip.*`, including `workflow.strip.label`), one label per autopilot stop reason
+  (`workflow.autopilot.reason.<reason>`) and the execution mode card
+  (`workflow.modeCard.label`, `.question`, `.recommended`, `.choose`,
+  `.chosen`, `.sent`, `.option.<sequential|orchestrated|refine>`);
+  `ui_helper_text` explains every
+  inspected folder state (`project.state.<STATE>`, `project.state.nested`),
+  the dialogs and the card (`workflow.modeCard.hint`,
+  `workflow.modeCard.option.<id>.description`); `messages_for_the_user`
+  holds `project.setup.nameRequired` and `workflow.modeCard.saving`.
 - The Native Request Capture card copy is part of the approved dictionaries:
   `ui_labels` (`settings.nativeCapture.title`/`.provider`/`.model`/
   `.reasoning`/`.capture`/`.markdownPath`/`.jsonlPath`, where `.jsonlPath`

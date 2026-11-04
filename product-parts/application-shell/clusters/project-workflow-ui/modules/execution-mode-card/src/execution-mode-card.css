@@ -1,0 +1,90 @@
+/* Execution mode card: a question to the user in the session column, on the
+   shared --pm-* dark theme tokens. The orange border marks an action needed
+   from the user; saving and chosen states are neutral. */
+
+.execution-mode-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 10px 14px 0;
+  font-size: 13px;
+  color: var(--pm-text-primary);
+  background: var(--pm-bg-panel);
+  border: 1px solid #f0883e;
+  border-radius: 8px;
+}
+
+.execution-mode-card.is-saving,
+.execution-mode-card--chosen {
+  border-color: var(--pm-border-strong);
+}
+
+.execution-mode-card--chosen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  padding: 7px 14px;
+  color: var(--pm-text-secondary);
+}
+
+.execution-mode-card--chosen strong {
+  font-weight: 500;
+  color: var(--pm-text-primary);
+}
+
+.execution-mode-card-header {
+  display: grid;
+  gap: 2px;
+}
+
+.execution-mode-card-header strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.execution-mode-card-header small,
+.execution-mode-card-text small,
+.execution-mode-card-hint {
+  color: var(--pm-text-muted);
+}
+
+.execution-mode-card-options {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.execution-mode-card-option {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--pm-bg-surface);
+  border: 1px solid var(--pm-border-color);
+  border-radius: 6px;
+}
+
+.execution-mode-card-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.execution-mode-card-text em {
+  font-style: normal;
+  color: var(--pm-accent-strong);
+}
+
+.execution-mode-card-text .execution-mode-card-reason {
+  color: var(--pm-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.execution-mode-card-error {
+  color: #f08a85;
+  white-space: pre-wrap;
+}

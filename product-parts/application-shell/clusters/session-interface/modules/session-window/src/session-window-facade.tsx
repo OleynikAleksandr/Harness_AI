@@ -8,6 +8,7 @@ import type { HarnessWorkspace } from "../../../../../../core-runtime/clusters/w
 import type { ProviderDescriptor } from "../../../../../../provider-runtime/clusters/provider-registry/modules/provider-registry/src/provider-registry-facade.js";
 import { BrowserLocalizationProvider } from "../../../../browser-localization/modules/browser-localization-provider/src/browser-localization-provider-facade.js";
 import { ProfileStudioShellFacade } from "../../../../profile-studio/modules/profile-studio-shell/src/profile-studio-shell-facade.js";
+import { ExecutionModeCardFacade } from "../../../../project-workflow-ui/modules/execution-mode-card/src/execution-mode-card-facade.js";
 import { ProjectDoctorPanelFacade } from "../../../../project-workflow-ui/modules/project-doctor-panel/src/project-doctor-panel-facade.js";
 import { ProjectSetupDialogFacade } from "../../../../project-workflow-ui/modules/project-setup-dialog/src/project-setup-dialog-facade.js";
 import { WorkflowStatusStripFacade } from "../../../../project-workflow-ui/modules/workflow-status-strip/src/workflow-status-strip-facade.js";
@@ -420,6 +421,10 @@ export function SessionWindowFacade() {
             <div className="session-main-column">
               <WorkflowStatusStripFacade
                 sessionId={activeSession?.id ?? null}
+                workspaceId={activeWorkspace.id}
+              />
+              <ExecutionModeCardFacade
+                sessionId={activeTimingSessionId}
                 workspaceId={activeWorkspace.id}
               />
               <SessionSurfaceFacade {...sessionSurface} />

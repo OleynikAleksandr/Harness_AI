@@ -168,6 +168,15 @@ const UI_LABELS_SOURCE_DICTIONARY = {
     "workflow.autopilot.reason.transaction-pending": "Commit check pending",
     "workflow.autopilot.reason.turn-error": "Turn stopped",
     "workflow.autopilot.reason.user-message": "Paused for your message",
+    "workflow.modeCard.choose": "Choose",
+    "workflow.modeCard.chosen": "Chosen",
+    "workflow.modeCard.label": "Execution mode",
+    "workflow.modeCard.option.orchestrated": "Orchestrate executors",
+    "workflow.modeCard.option.refine": "Refine the specification",
+    "workflow.modeCard.option.sequential": "Execute sequentially",
+    "workflow.modeCard.question": "How should the plan be executed?",
+    "workflow.modeCard.recommended": "(recommended)",
+    "workflow.modeCard.sent": "sent to the agent",
     "workflow.strip.autopilot": "Autopilot",
     "workflow.strip.continuing": "Continuing",
     "workflow.strip.label": "Workflow",
@@ -334,6 +343,13 @@ const UI_HELPER_TEXT_SOURCE_DICTIONARY = {
       "The folder is inside another repository; open the repository top level.",
     "workflow.strip.autopilot.description":
       "Continues the workflow tasks automatically after each turn.",
+    "workflow.modeCard.hint": "or write your answer in the chat",
+    "workflow.modeCard.option.orchestrated.description":
+      "This session becomes the orchestrator: each task goes to an executor in its own worktree, and the results are checked and integrated here.",
+    "workflow.modeCard.option.refine.description":
+      "Continue the discussion with the agent before the plan is created.",
+    "workflow.modeCard.option.sequential.description":
+      "One agent completes the tasks one by one in this session.",
   },
   language: "en",
 } as const satisfies LocalizationSourceDictionary;
@@ -382,6 +398,7 @@ const MESSAGES_FOR_THE_USER_SOURCE_DICTIONARY = {
     "session.noMessages": "No messages yet.",
     "session.subagent.parentUnavailable": "Parent session unavailable",
     "sidebar.deleteConfirm": "Delete session?",
+    "workflow.modeCard.saving": "Saving the choice...",
   },
   language: "en",
 } as const satisfies LocalizationSourceDictionary;

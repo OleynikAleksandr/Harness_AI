@@ -264,7 +264,10 @@ Detached session windows never expose the switch.
   `ProjectDoctorPanelFacade` for the active workspace; a prepared project is
   shown through `activateWorkspace`. In the ordinary and detached windows
   `WorkflowStatusStripFacade` (active workspace and session) sits above the
-  session surface in the `session-main-column` flex column. Event helpers
+  session surface in the `session-main-column` flex column, followed by
+  `ExecutionModeCardFacade` (active workspace and session), which shows the
+  Core execution mode card only in its owner session, between the strip
+  and the chat. Event helpers
   (`withProviderStatus`, `mergeTurnEvents`) live in
   `session-window-core-events.ts`.
 

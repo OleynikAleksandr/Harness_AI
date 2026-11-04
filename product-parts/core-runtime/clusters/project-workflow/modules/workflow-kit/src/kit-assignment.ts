@@ -234,3 +234,48 @@ export function createAssignment(
     };
   });
 }
+
+/** `assignment:cleanup`: the records it processed, with their cleanup state. */
+export interface AssignmentCleanupResult {
+  assignments: AssignmentRecord[];
+}
+
+/**
+ * `assignment:cleanup [--id]` in main (spec 7): removes the worktree and
+ * merged branch of one INTEGRATED record, or of every INTEGRATED record whose
+ * cleanup is not DONE. A refusal is recorded as PENDING, not an error.
+ */
+export function cleanupAssignments(
+  context: KitContext,
+  id?: string
+): AssignmentCleanupResult {
+  return locked(context, () => {
+    let records: AssignmentRecord[];
+    if (id === undefined) {
+      records = workflowAssignmentFacade
+        .list(context.root)
+        .filter(
+          (record) =>
+            record.status === "INTEGRATED" && record.cleanup?.status !== "DONE"
+        );
+    } else {
+      const record = workflowAssignmentFacade.read(context.root, id);
+      ensure(
+        record,
+        "ASSIGNMENT_UNKNOWN",
+        `The main checkout has no assignment ${id}.`
+      );
+      records = [record];
+    }
+    return {
+      assignments: records.map((record) =>
+        workflowAssignmentFacade.cleanup(
+          context.git,
+          context.root,
+          record,
+          context.now()
+        )
+      ),
+    };
+  });
+}

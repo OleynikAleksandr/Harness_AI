@@ -243,6 +243,7 @@ try {
     integrationCommit: null,
     iteration: 1,
     scopeId: "par-1",
+    setup: null,
     sourceCommit: null,
     status: "ASSIGNED",
     taskId: "B",
@@ -317,6 +318,10 @@ try {
     brief,
     /1\. FIRST run in your worktree: scripts\/workflow assignment:attach par-1-DOCS-R1-1\n/u
   );
+  assert.match(
+    brief,
+    / {3}If it reports NEEDS_SETUP, run scripts\/workflow assignment:setup\n/u
+  );
   assert.match(brief, /2\. Then run: scripts\/workflow task:start DOCS-R1\n/u);
   assert.match(
     brief,
@@ -343,7 +348,7 @@ try {
   );
   assert.match(
     brief,
-    /only these Kit commands work: status, validate, recover,\n {2}show-task, task:start, commit, repair, task:block, assignment:status,\n {2}assignment:attach \(retry\); anything else fails with ASSIGNMENT_READ_ONLY/u
+    /only these Kit commands work: status, validate, recover,\n {2}show-task, task:start, commit, repair, task:block, assignment:status,\n {2}assignment:setup, assignment:attach \(retry\); anything else fails with\n {2}ASSIGNMENT_READ_ONLY/u
   );
   assert.match(brief, /Never push; the orchestrator integrates your commit/u);
   const workBrief = assignments.brief(plan([task("A")]), task("A"), record);

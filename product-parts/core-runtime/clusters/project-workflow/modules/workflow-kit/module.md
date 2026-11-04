@@ -130,8 +130,16 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
   configuration) and returns `{assignment, brief, created: true}`. The task
   stays `TODO` and nothing is committed: the plan changes only on
   integration.
+- `cleanupAssignments(root, id?)` — `assignment:cleanup [--id]` in main
+  (section 7), under the project lock: with `--id` the record
+  (`ASSIGNMENT_UNKNOWN`, `ASSIGNMENT_NOT_INTEGRATED` from
+  `workflow-assignment`), without it every `INTEGRATED` record whose cleanup
+  is not `DONE`. Each goes through `workflowAssignmentFacade.cleanup`
+  (worktree remove without force, prune, `branch -d`); a refusal is recorded
+  as `cleanup: PENDING` with its reason and is not an error. Returns
+  `{assignments}` (the processed records).
 
-Executor worktree (`kit-executor.ts`; sections 5.1–5.3 of
+Executor worktree (`kit-executor.ts`; sections 5.1–5.4 of
 `WorkflowKitExecutionModes.md`). A checkout with
 `.harness/workflow/local/assignment.json` is an executor worktree
 (`executorAssignment(root)` returns that record, `null` elsewhere):
@@ -156,13 +164,27 @@ Executor worktree (`kit-executor.ts`; sections 5.1–5.3 of
      commit on the base with that role and trailer) continues an interrupted
      attach; any other HEAD is `ASSIGNMENT_BASE` (`details {base, head}`);
   8. writes the main record (`worktree` real path, `branch` or `null` when
-     detached, status `READY`, `updatedAt`) and then the worktree record.
+     detached, `updatedAt`, status `NEEDS_SETUP` when
+     `workflowAssignmentFacade.needsSetup` says the task's commit checks need
+     dependencies the worktree lacks, `READY` otherwise) and then the
+     worktree record.
   Returns `{assignment, attached: true, planCommit, worktree}`.
 - `assignmentStatus(root)` — `assignment:status`: `{assignment (the main
   record or null), worktree (the worktree record), scopeId, head, task {id,
   kind, status, title, files}}`; `ASSIGNMENT_NOT_ATTACHED` outside an
   executor worktree.
-- `task:start` in an executor worktree sets the main record to `RUNNING`;
+- `setupAssignment(root, id?)` — `assignment:setup [--id]` (section 5.4): in
+  an executor worktree for its own assignment (another `--id` is
+  `ASSIGNMENT_READ_ONLY`), elsewhere for `--id` (`USAGE` without it) in the
+  records of that checkout; `ASSIGNMENT_UNKNOWN` for a missing record. Runs
+  `workflowAssignmentFacade.setup` with the Kit environment, without the Kit
+  lock (an install may outlast the lock's stale limit and changes no plan or
+  git state): `SETUP_LOCK_REQUIRED`, `SETUP_LINKED_DEPENDENCIES`,
+  `SETUP_FAILED` (record unchanged) or the receipt and `READY`. Returns
+  `{assignment, output, ran}`.
+- `task:start` in an executor worktree whose main record is `NEEDS_SETUP`
+  fails with `ASSIGNMENT_NEEDS_SETUP` (next action `assignment:setup`)
+  before the plan changes; otherwise it sets the main record to `RUNNING`;
   a successful `commit --task` sets `READY_FOR_INTEGRATION` and
   `sourceCommit` to the new commit (written through `mainRoot`; nothing
   happens when the main record is missing).
@@ -264,7 +286,8 @@ managed hooks.
   invalid `--recommended`, `--option` or a non-positive `--generation` is
   `USAGE`),
   `assignment:next`, `assignment:create --task <ID>`,
-  `assignment:attach <id>`, `assignment:status` (all defined in
+  `assignment:attach <id>`, `assignment:status`, `assignment:setup [--id
+  <id>]`, `assignment:cleanup [--id <id>]` (all defined in
   `kit-cli-assignment.ts`),
   `plan:extend --input [--expected-revision]`,
   `task:update <ID> --input [--expected-revision]`, `accept --note`,
@@ -290,7 +313,13 @@ managed hooks.
   (<idle code>)`; for `assignment:create` the id, task, short base and
   whether it was created, followed by the brief; for `assignment:attach`
   the id, whether it was attached now, task, status, worktree and branch
-  (`detached`), main, the short plan commit and the next `task:start`; for
+  (`detached`), main, the short plan commit and the next `task:start` (the
+  next `assignment:setup` for `NEEDS_SETUP`); for `assignment:setup` the id,
+  status and the command with the short lock hash (or `no dependencies to
+  install`) and the next `task:start` when `READY`; for
+  `assignment:cleanup` one `cleanup: <id> DONE` or `cleanup: <id> PENDING —
+  <reason>` line per record plus a next step for pending ones, or
+  `cleanup: nothing to clean up.`; for
   `assignment:status` the id with the main status, scope, short base and
   head, the task line and the source commit; for
   `scope:proposal` the generation and state, the scope, reason and options
@@ -300,7 +329,8 @@ managed hooks.
   `transaction`, plus `nested in` and `damaged` when present.
 - Executor worktree: only `status`, `validate`, `recover`, `show-task`,
   `task:start`, `commit`, `repair`, `task:block`, `assignment:status`,
-  `assignment:attach` (retry), `help`, `hook` and `git-hook` run; every other
+  `assignment:setup`, `assignment:attach` (retry), `help`, `hook` and
+  `git-hook` run; every other
   known command fails with `ASSIGNMENT_READ_ONLY` (`details.allowed`) before
   it runs.
 - Errors: `{ok: false, code, message, nextAction, details}` on stdout with
@@ -378,6 +408,19 @@ Node built-ins only.
   configuration and a plan edit; `READY_FOR_INTEGRATION` with
   `sourceCommit` and the trailer; a branch worktree attached through the
   CLI whose directory entry owns nested files (`src/modx.ts` stays outside).
+- `src/workflow-kit-worktree.test.mjs` — a node project with
+  `devDependencies` and a lock file, real worktrees and a fake `npm` on
+  `PATH`: attach `NEEDS_SETUP` without `node_modules` (text next step,
+  `ASSIGNMENT_NEEDS_SETUP` on `task:start`) and `READY` with them, DOCS never
+  needing setup; setup refusals (`ASSIGNMENT_READ_ONLY` for another id,
+  `USAGE` in main without `--id`, `ASSIGNMENT_UNKNOWN`,
+  `SETUP_LOCK_REQUIRED`, `SETUP_LINKED_DEPENDENCIES`, `SETUP_FAILED` with the
+  output tail keeping `NEEDS_SETUP`); setup in the worktree through the CLI
+  (receipt, `READY`, main's `node_modules` untouched) and in main with
+  `--id`; cleanup refused in the worktree and for a record that is not
+  integrated, a detached worktree with ignored `node_modules` removed,
+  `PENDING` for a dirty worktree and for an unmerged branch, then the branch
+  deleted after the merge and the CLI text.
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
   envelopes, inspection (JSON and text) and update of a folder without the
   Kit, an invalid `install --host`, text errors, a folder without the Kit, a

@@ -10,7 +10,7 @@ import { workflowQualityFacade } from "../../workflow-quality/src/workflow-quali
 
 const RECORD_VERSION = 1;
 
-/** Lifecycle of an assignment (spec 5.2); E5 creates `ASSIGNED` only. */
+/** Lifecycle of an assignment (spec 5.2). */
 export type AssignmentStatus =
   | "ASSIGNED"
   | "INTEGRATED"
@@ -19,12 +19,26 @@ export type AssignmentStatus =
   | "READY_FOR_INTEGRATION"
   | "RUNNING";
 
+/** The receipt of a finished `assignment:setup` (spec 5.4). */
+export interface AssignmentSetup {
+  at: string;
+  /** The command line that ran, for example `npm ci`. */
+  command: string;
+  /** sha256 (hex) of the lock file the command installed from. */
+  lockHash: string;
+}
+
+/** Worktree and branch removal after integration (spec 7). */
+export type AssignmentCleanup =
+  | { at: string; status: "DONE" }
+  | { at: string; reason: string; status: "PENDING" };
+
 /** `.harness/workflow/local/assignments/<id>.json` in the main checkout. */
 export interface AssignmentRecord {
   /** Base commit of the executor worktree: main HEAD at creation. */
   baseCommit: string;
   branch: string | null;
-  cleanup: string | null;
+  cleanup: AssignmentCleanup | null;
   /** sha256 of `.harness/workflow/config.json` at creation; null without the file. */
   configDigest: string | null;
   createdAt: string;
@@ -32,6 +46,8 @@ export interface AssignmentRecord {
   integrationCommit: string | null;
   iteration: number;
   scopeId: string;
+  /** The receipt of `assignment:setup`; null until it ran. */
+  setup: AssignmentSetup | null;
   sourceCommit: string | null;
   status: AssignmentStatus;
   taskId: string;
@@ -178,6 +194,7 @@ export function newRecord(input: NewAssignment): AssignmentRecord {
     integrationCommit: null,
     iteration: input.iteration,
     scopeId: input.scopeId,
+    setup: null,
     sourceCommit: null,
     status: "ASSIGNED",
     taskId: input.taskId,

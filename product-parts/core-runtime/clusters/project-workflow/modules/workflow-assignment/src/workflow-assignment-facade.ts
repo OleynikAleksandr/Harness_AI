@@ -11,6 +11,7 @@ import {
   type WorktreeLocation,
   writeWorktreeRecord,
 } from "./assignment-attach.js";
+import { cleanupAssignment } from "./assignment-cleanup.js";
 import {
   checkExecutorChange,
   type ExecutorChange,
@@ -32,6 +33,11 @@ import {
   type ScheduledAssignment,
   scheduleAssignments,
 } from "./assignment-schedule.js";
+import {
+  type AssignmentSetupResult,
+  needsSetup,
+  setupAssignment,
+} from "./assignment-setup.js";
 
 export type {
   WorktreeAssignment,
@@ -39,7 +45,9 @@ export type {
 } from "./assignment-attach.js";
 export type { ExecutorChange } from "./assignment-guard.js";
 export type {
+  AssignmentCleanup,
   AssignmentRecord,
+  AssignmentSetup,
   AssignmentStatus,
 } from "./assignment-records.js";
 export type {
@@ -47,6 +55,7 @@ export type {
   BlockedTask,
   ScheduleBlockCode,
 } from "./assignment-schedule.js";
+export type { AssignmentSetupResult } from "./assignment-setup.js";
 
 function bullets(items: readonly string[]): string[] {
   return items.length > 0
@@ -72,6 +81,8 @@ function executorBrief(
     "Your working directory is your own git worktree. Work only there.",
     "",
     `1. FIRST run in your worktree: scripts/workflow assignment:attach ${record.id}`,
+    "   If it reports NEEDS_SETUP, run scripts/workflow assignment:setup",
+    "   (installs the dependencies from the lock file in your worktree).",
     `2. Then run: scripts/workflow task:start ${task.id}`,
     "3. Implement the task within its files and acceptance criteria:",
     `   Title: ${task.title}`,
@@ -92,7 +103,8 @@ function executorBrief(
     "Rules:",
     "- In your worktree only these Kit commands work: status, validate, recover,",
     "  show-task, task:start, commit, repair, task:block, assignment:status,",
-    "  assignment:attach (retry); anything else fails with ASSIGNMENT_READ_ONLY.",
+    "  assignment:setup, assignment:attach (retry); anything else fails with",
+    "  ASSIGNMENT_READ_ONLY.",
     "- Never push; the orchestrator integrates your commit.",
     "- Never touch the main checkout, the plan or other tasks.",
     "- Do not set the git identity (no git config user.name / user.email).",
@@ -185,6 +197,34 @@ export class WorkflowAssignmentFacade {
   /** Throws ASSIGNMENT_CONTRACT / ASSIGNMENT_SCOPE for a commit that breaks the contract. */
   checkExecutorChange(change: ExecutorChange): void {
     checkExecutorChange(change);
+  }
+
+  /** The task's commit checks need dependencies the worktree lacks (spec 5.4). */
+  needsSetup(worktree: string, task: WorkflowTask): boolean {
+    return needsSetup(worktree, task);
+  }
+
+  /** `assignment:setup`: the stack install in the worktree, receipt and READY (spec 5.4). */
+  setup(
+    mainRoot: string,
+    record: AssignmentRecord,
+    options: { env: NodeJS.ProcessEnv; now: () => string }
+  ): AssignmentSetupResult {
+    return setupAssignment(mainRoot, record, options);
+  }
+
+  /**
+   * Removes the worktree and merged branch of an INTEGRATED record and writes
+   * `cleanup` DONE or PENDING; the integration calls it right after
+   * INTEGRATED (spec 7).
+   */
+  cleanup(
+    git: WorkflowGitFacade,
+    mainRoot: string,
+    record: AssignmentRecord,
+    now: string
+  ): AssignmentRecord {
+    return cleanupAssignment(git, mainRoot, record, now);
   }
 }
 

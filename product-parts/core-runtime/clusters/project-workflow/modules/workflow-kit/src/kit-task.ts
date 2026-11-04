@@ -28,6 +28,7 @@ import {
   savePlan,
 } from "./kit-context.js";
 import {
+  ensureAssignmentReady,
   executorAssignment,
   guardExecutorCommit,
   markAssignment,
@@ -106,6 +107,7 @@ export function startTask(
     const config = readConfig(context);
     const task = workflowPlanFacade.task(current, taskId);
     ensureMainMayStart(context, current, task);
+    ensureAssignmentReady(context);
     workflowQualityFacade.selectChecks({
       assigned: task.checks,
       config,

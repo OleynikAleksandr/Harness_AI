@@ -2,7 +2,7 @@
 
 ## Responsibility
 
-Assignments of orchestrated scopes (sections 5.1, 5.2 and 6 of
+Assignments of orchestrated scopes (sections 5.1, 5.2, 5.4, 6 and 7 of
 `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`):
 - the assignment records of the main checkout,
   `.harness/workflow/local/assignments/<id>.json`;
@@ -11,17 +11,23 @@ Assignments of orchestrated scopes (sections 5.1, 5.2 and 6 of
 - the executor side (sections 5.1 and 5.3): locating the main checkout of a
   linked worktree, the worktree record
   `.harness/workflow/local/assignment.json`, the one-task executor plan and
-  the contract guard of executor commits.
+  the contract guard of executor commits;
+- the executor worktree environment (section 5.4): whether a task needs its
+  dependencies installed and the stack install itself;
+- the cleanup after integration (section 7): worktree and merged branch
+  removal.
 
-The command preconditions (`assignment:create`, `assignment:attach`), the
-commits and the git hooks belong to `workflow-kit`; the integration comes
-later and updates these records.
+The command preconditions (`assignment:create`, `assignment:attach`,
+`assignment:setup`, `assignment:cleanup`), the commits and the git hooks
+belong to `workflow-kit`; the integration comes later, updates these records
+and calls `cleanup` right after `INTEGRATED`.
 
 ## Public Facade
 
 `WorkflowAssignmentFacade` (class, singleton `workflowAssignmentFacade`) in
 `src/workflow-assignment-facade.ts`. Types: `AssignmentRecord`,
-`AssignmentStatus`, `AssignmentSchedule`, `BlockedTask`,
+`AssignmentStatus`, `AssignmentSetup`, `AssignmentCleanup`,
+`AssignmentSetupResult`, `AssignmentSchedule`, `BlockedTask`,
 `ScheduleBlockCode`, `WorktreeAssignment`, `WorktreeLocation`,
 `ExecutorChange`.
 
@@ -37,8 +43,10 @@ Records (`assignment-records.ts`):
 - `create({scopeId, taskId, iteration, baseCommit, configDigest, now})`
   builds a new record without writing it: `version: 1`, the id above,
   `status: "ASSIGNED"`, `worktree`, `branch`, `sourceCommit`,
-  `integrationCommit` and `cleanup` all `null`, `createdAt` and
+  `integrationCommit`, `setup` and `cleanup` all `null`, `createdAt` and
   `updatedAt` equal to `now`.
+- `setup` is the receipt `{command, lockHash, at}` of `assignment:setup`;
+  `cleanup` is `{status: "DONE", at}` or `{status: "PENDING", reason, at}`.
 - Statuses: `ASSIGNED`, `NEEDS_SETUP`, `READY`, `RUNNING`,
   `READY_FOR_INTEGRATION`, `INTEGRATED`. `isActive(record)` is true for every
   status except `INTEGRATED`.
@@ -82,7 +90,8 @@ Scheduler (`assignment-schedule.ts`), pure:
 Brief: `brief(plan, task, record)` returns the English text for the
 executor subagent: it executes task `<ID>` of the scope (assignment id),
 works only in its own git worktree, first runs
-`scripts/workflow assignment:attach <id>` there, then
+`scripts/workflow assignment:attach <id>` there (and
+`scripts/workflow assignment:setup` when it reports `NEEDS_SETUP`), then
 `scripts/workflow task:start <ID>`, implements within the title, why,
 files, acceptance and context of the task, changes only the listed files or
 paths nested inside a listed directory (anything else fails with
@@ -92,8 +101,8 @@ paths nested inside a listed directory (anything else fails with
 `scripts/workflow commit --task <ID>` (`--digest <file.json>` for a DOCS
 task) repeating it after a fixed check failure, and replies with the commit
 SHA. Rules: only `status`, `validate`, `recover`, `show-task`, `task:start`,
-`commit`, `repair`, `task:block`, `assignment:status` and
-`assignment:attach` (retry) work in the worktree, anything else fails with
+`commit`, `repair`, `task:block`, `assignment:status`, `assignment:setup`
+and `assignment:attach` (retry) work in the worktree, anything else fails with
 `ASSIGNMENT_READ_ONLY`; never push; never touch the main checkout, the plan
 or other tasks; do not set the git identity; do not create nested
 executors.
@@ -141,13 +150,58 @@ order:
    the candidate round digest of a DOCS task); the rendered documents must
    be equal.
 
+Worktree setup (`assignment-setup.ts`, spec 5.4):
+- The stack install comes from the quality profile of the worktree
+  (`workflowQualityFacade.readConfig`): only the `node` stack has one, and
+  only when the root `package.json` declares a non-empty `dependencies` or
+  `devDependencies`. The package manager is the profile's `packageManager`
+  when it is a node one, else the one whose lock file exists, else npm:
+  npm — `npm ci` (`package-lock.json` or `npm-shrinkwrap.json`); pnpm,
+  yarn, bun — `<manager> install --frozen-lockfile` (`pnpm-lock.yaml`,
+  `yarn.lock`, `bun.lock`/`bun.lockb`).
+- `needsSetup(worktree, task)` is true when the commit-stage checks the
+  hooks would run for the task (`selectChecks` with the task's `checks`;
+  `service` for a DOCS task, so only documentation builtins) include a
+  command check, the stack has an install and the worktree has no
+  `node_modules` entry (directory or link). A DOCS task never needs setup.
+- `setup(mainRoot, record, {env, now})`:
+  1. `ASSIGNMENT_STATUS` unless the record has a worktree and is
+     `NEEDS_SETUP`, `READY` or `RUNNING`; `ASSIGNMENT_WORKTREE` when the
+     worktree folder is missing;
+  2. without a stack install nothing runs (`ran: false`);
+  3. `SETUP_LOCK_REQUIRED` (`details.locks`) without a lock file;
+     `SETUP_LINKED_DEPENDENCIES` when the worktree's `node_modules` is a
+     link (an install would rewrite what it points to; main's dependencies
+     are never copied or linked);
+  4. runs the install in the worktree without a shell through the platform
+     process runner with `env` (15 min timeout); a non-zero exit, timeout
+     or start failure is `SETUP_FAILED` with `details {command, exitCode,
+     output}` (the last 4000 characters) and the record is not changed;
+  5. re-reads the main record and writes `setup {command, lockHash (sha256
+     of the lock file), at}`, `NEEDS_SETUP` becoming `READY` (other statuses
+     stay). Returns `{assignment, output, ran}`.
+
+Cleanup (`assignment-cleanup.ts`, spec 7): `cleanup(git, mainRoot, record,
+now)` for the integration and `assignment:cleanup`:
+- `ASSIGNMENT_NOT_INTEGRATED` unless the record is `INTEGRATED`; a record
+  whose cleanup is `DONE` is returned unchanged;
+- when git lists the record's worktree (`git worktree list --porcelain`):
+  `git worktree remove <path>` without `--force` (ignored files such as
+  `node_modules` do not block it); then `git worktree prune`; then, when the
+  record has a branch that still exists, `git branch -d <branch>`;
+- the first refusal stops the steps and writes `cleanup {status:
+  "PENDING", reason: "git <args>: <git message>", at}`; success writes
+  `cleanup {status: "DONE", at}`; `updatedAt` is `now` and the updated
+  record is returned (a refusal is not an error).
+
 ## Dependencies
 
-`workflow-platform` (files, errors, paths), `workflow-git` (`localPath`,
+`workflow-platform` (files, errors, paths, the process runner), `workflow-git` (`localPath`,
 the git runner of the facade passed by the Kit), `workflow-plan` (types,
 `execution`, `compatibleTasks`, parse, render, validate, `startTask`,
 `completeTask`),
-`workflow-quality` (the configuration file path). Node built-ins only.
+`workflow-quality` (the configuration file path, the profile and check
+selection). Node built-ins only.
 
 ## Tests
 
@@ -158,9 +212,10 @@ both directions, overtaking a waiting parallel task, path conflicts with
 active and ready tasks, integrated and foreign records ignored, capacity),
 ids, record create/write/read/list order, `ASSIGNMENT_ID`,
 `ASSIGNMENT_RECORD`, the configuration digest and the brief of a work and a
-DOCS task (scope rule, contract, command whitelist, no push). The executor
-side is tested with real git worktrees in
-`workflow-kit/src/workflow-kit-executor.test.mjs`.
+DOCS task (scope rule, contract, setup step, command whitelist, no push).
+The executor side is tested with real git worktrees in
+`workflow-kit/src/workflow-kit-executor.test.mjs`; setup and cleanup in
+`workflow-kit/src/workflow-kit-worktree.test.mjs`.
 
 ## Owned Paths
 

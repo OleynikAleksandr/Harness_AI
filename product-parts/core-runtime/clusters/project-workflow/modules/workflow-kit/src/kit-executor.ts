@@ -1,5 +1,6 @@
 import {
   type AssignmentRecord,
+  type AssignmentSetupResult,
   type AssignmentStatus,
   type WorktreeAssignment,
   workflowAssignmentFacade,
@@ -173,10 +174,13 @@ export function attachAssignment(
         "The worktree must start at the main HEAD the assignment was created on."
       );
     }
+    const task = workflowPlanFacade.task(readPlan(context), record.taskId);
     const updated: AssignmentRecord = {
       ...record,
       branch: location.branch,
-      status: "READY",
+      status: workflowAssignmentFacade.needsSetup(context.root, task)
+        ? "NEEDS_SETUP"
+        : "READY",
       updatedAt: context.now(),
       worktree: location.worktree,
     };
@@ -221,6 +225,57 @@ export function assignmentStatus(context: KitContext): AssignmentState {
       : null,
     worktree: own,
   };
+}
+
+/**
+ * `assignment:setup [--id]` (spec 5.4): in an executor worktree for its own
+ * assignment, in main for `--id`. The install runs without the Kit lock: it
+ * may outlast the lock's stale limit and touches no plan or git state.
+ */
+export function setupAssignment(
+  context: KitContext,
+  id?: string
+): AssignmentSetupResult {
+  const own = executorAssignment(context);
+  ensure(
+    own === null || id === undefined || id === own.id,
+    "ASSIGNMENT_READ_ONLY",
+    `This worktree sets up only its own assignment ${own?.id}.`,
+    { id: own?.id }
+  );
+  const target = own?.id ?? id;
+  ensure(
+    target,
+    "USAGE",
+    "--id is required outside an executor worktree.",
+    {},
+    "Run scripts/workflow assignment:setup --id <id> in main, or without --id in the executor worktree."
+  );
+  const mainRoot = own?.mainRoot ?? context.root;
+  const record = workflowAssignmentFacade.read(mainRoot, target);
+  ensure(
+    record,
+    "ASSIGNMENT_UNKNOWN",
+    `The main checkout ${mainRoot} has no assignment ${target}.`,
+    { mainRoot }
+  );
+  return workflowAssignmentFacade.setup(mainRoot, record, {
+    env: context.env,
+    now: context.now,
+  });
+}
+
+/** `task:start` in an executor worktree waits for `assignment:setup`. */
+export function ensureAssignmentReady(context: KitContext): void {
+  const own = executorAssignment(context);
+  const record = own && workflowAssignmentFacade.read(own.mainRoot, own.id);
+  ensure(
+    record?.status !== "NEEDS_SETUP",
+    "ASSIGNMENT_NEEDS_SETUP",
+    `The worktree of ${own?.id} lacks the dependencies its checks need.`,
+    { id: own?.id },
+    "Run scripts/workflow assignment:setup, then repeat task:start."
+  );
 }
 
 /** Updates the main record of this executor worktree; a no-op elsewhere. */

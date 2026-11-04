@@ -1,9 +1,16 @@
 import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
-import { type ParsedArgs, positional, requiredFlag } from "./kit-cli-args.js";
+import {
+  flag,
+  type ParsedArgs,
+  positional,
+  requiredFlag,
+} from "./kit-cli-args.js";
 import type {
   AssignmentAttached,
+  AssignmentCleanupResult,
   AssignmentCreated,
   AssignmentNext,
+  AssignmentSetupResult,
   AssignmentState,
   WorkflowKitFacade,
 } from "./workflow-kit-facade.js";
@@ -75,9 +82,49 @@ function attachText(value: unknown): string {
     ...(result.planCommit
       ? [`plan commit: ${result.planCommit.slice(0, 12)}`]
       : []),
-    `next: scripts/workflow task:start ${record.taskId}`,
+    record.status === "NEEDS_SETUP"
+      ? "next: scripts/workflow assignment:setup (the worktree lacks the dependencies its checks need)"
+      : `next: scripts/workflow task:start ${record.taskId}`,
     "",
   ].join("\n");
+}
+
+function setupText(value: unknown): string {
+  const result = value as AssignmentSetupResult;
+  const record = result.assignment;
+  const setup = record.setup;
+  return [
+    `assignment: ${record.id} ${record.status}, ${
+      result.ran && setup
+        ? `set up with ${setup.command} (lock ${setup.lockHash.slice(0, 12)})`
+        : "no dependencies to install"
+    }`,
+    ...(record.status === "READY"
+      ? [`next: scripts/workflow task:start ${record.taskId}`]
+      : []),
+    "",
+  ].join("\n");
+}
+
+function cleanupText(value: unknown): string {
+  const result = value as AssignmentCleanupResult;
+  if (result.assignments.length === 0) {
+    return "cleanup: nothing to clean up.\n";
+  }
+  const lines = result.assignments.map((record) => {
+    const cleanup = record.cleanup;
+    return cleanup?.status === "PENDING"
+      ? `cleanup: ${record.id} PENDING — ${cleanup.reason}`
+      : `cleanup: ${record.id} DONE`;
+  });
+  if (
+    result.assignments.some((record) => record.cleanup?.status === "PENDING")
+  ) {
+    lines.push(
+      "next: resolve the reason (for example commit or remove the changes in the worktree), then scripts/workflow assignment:cleanup"
+    );
+  }
+  return `${lines.join("\n")}\n`;
 }
 
 function statusText(value: unknown): string {
@@ -99,6 +146,7 @@ function statusText(value: unknown): string {
 /** The only commands of an attached executor worktree (spec 5.3). */
 const EXECUTOR_COMMANDS = new Set([
   "assignment:attach",
+  "assignment:setup",
   "assignment:status",
   "commit",
   "recover",
@@ -125,11 +173,14 @@ export function ensureExecutorCommand(
     "ASSIGNMENT_READ_ONLY",
     `${command} is not available in the executor worktree of ${executor?.id}.`,
     { allowed: [...EXECUTOR_COMMANDS] },
-    "Run only your task: task:start, commit --task, status, recover, show-task, repair, task:block, assignment:status."
+    "Run only your task: task:start, commit --task, status, recover, show-task, repair, task:block, assignment:status, assignment:setup."
   );
 }
 
-/** Orchestrated assignments (spec 5.1): `assignment:next|create` in main, `attach|status` in the executor worktree. */
+/**
+ * Orchestrated assignments (spec 5.1, 5.4, 7): `assignment:next|create|cleanup`
+ * in main, `attach|status` in the executor worktree, `setup` in both.
+ */
 export const ASSIGNMENT_COMMANDS: Readonly<
   Record<string, AssignmentCommandSpec>
 > = {
@@ -139,11 +190,22 @@ export const ASSIGNMENT_COMMANDS: Readonly<
     text: attachText,
     usage: "assignment:attach <id>",
   },
+  "assignment:cleanup": {
+    run: ({ args, kit, root }) =>
+      kit.cleanupAssignments(root, flag(args, "id")),
+    text: cleanupText,
+    usage: "assignment:cleanup [--id <id>]",
+  },
   "assignment:create": {
     run: ({ args, kit, root }) =>
       kit.createAssignment(root, requiredFlag(args, "task")),
     text: createText,
     usage: "assignment:create --task <ID>",
+  },
+  "assignment:setup": {
+    run: ({ args, kit, root }) => kit.setupAssignment(root, flag(args, "id")),
+    text: setupText,
+    usage: "assignment:setup [--id <id>]",
   },
   "assignment:status": {
     run: ({ kit, root }) => kit.assignmentStatus(root),

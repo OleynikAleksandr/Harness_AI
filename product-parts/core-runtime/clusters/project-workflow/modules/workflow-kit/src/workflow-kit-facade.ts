@@ -1,4 +1,7 @@
-import type { WorktreeAssignment } from "../../workflow-assignment/src/workflow-assignment-facade.js";
+import type {
+  AssignmentSetupResult,
+  WorktreeAssignment,
+} from "../../workflow-assignment/src/workflow-assignment-facade.js";
 import type { AutopilotProjectStatus } from "../../workflow-autopilot/src/workflow-autopilot-facade.js";
 import {
   type ExecutionModeOption,
@@ -38,8 +41,10 @@ import {
   WorkflowRecoveryFacade,
 } from "../../workflow-recovery/src/workflow-recovery-facade.js";
 import {
+  type AssignmentCleanupResult,
   type AssignmentCreated,
   type AssignmentNext,
+  cleanupAssignments,
   createAssignment,
   nextAssignments,
 } from "./kit-assignment.js";
@@ -50,6 +55,7 @@ import {
   assignmentStatus,
   attachAssignment,
   executorAssignment,
+  setupAssignment,
 } from "./kit-executor.js";
 import { type HookResult, runGitHook } from "./kit-hooks.js";
 import {
@@ -92,12 +98,19 @@ import {
   type TaskStart,
 } from "./kit-task.js";
 
-export type { WorktreeAssignment } from "../../workflow-assignment/src/workflow-assignment-facade.js";
+export type {
+  AssignmentSetupResult,
+  WorktreeAssignment,
+} from "../../workflow-assignment/src/workflow-assignment-facade.js";
 export type {
   ExecutionModeOption,
   ScopeProposal,
 } from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
-export type { AssignmentCreated, AssignmentNext } from "./kit-assignment.js";
+export type {
+  AssignmentCleanupResult,
+  AssignmentCreated,
+  AssignmentNext,
+} from "./kit-assignment.js";
 export type { AssignmentAttached, AssignmentState } from "./kit-executor.js";
 export type { GitHookName, HookResult } from "./kit-hooks.js";
 export { GIT_HOOKS } from "./kit-hooks.js";
@@ -289,6 +302,16 @@ export class WorkflowKitFacade {
   /** `assignment:status` in the executor worktree. */
   assignmentStatus(root: string): AssignmentState {
     return assignmentStatus(this.context(root));
+  }
+
+  /** `assignment:setup [--id]`: the stack install of an executor worktree (spec 5.4). */
+  setupAssignment(root: string, id?: string): AssignmentSetupResult {
+    return setupAssignment(this.context(root), id);
+  }
+
+  /** `assignment:cleanup [--id]` in main: worktree and branch removal after integration. */
+  cleanupAssignments(root: string, id?: string): AssignmentCleanupResult {
+    return cleanupAssignments(this.context(root), id);
   }
 
   /** The executor record of the checkout; null outside an executor worktree. */

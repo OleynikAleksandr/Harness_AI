@@ -336,6 +336,34 @@ state.
       `userMessage(sessionId)` first: an `offered` card of that session
       becomes `dismissed`; the proposal stays without a choice and a later
       turn end of the same generation keeps it dismissed.
+  - the Kit state watcher (`core-workflow-watch.ts`, `CoreWorkflowWatch`,
+    spec 10.1 of `WorkflowKitExecutionModes.md`): `watchWorkspaces()`
+    watches every known workspace whose Kit is installed (the plan file
+    `.harness/plans/todo-plan.md` exists) and stops watching every other
+    one; `close()` stops all watchers. Per workspace it watches the
+    directory `.harness/plans` (only `todo-plan.md` counts, so atomic
+    renames are seen) and `.harness/workflow/local` recursively (only
+    `assignments/**`, `integration.json` and `scope-proposal.json` count;
+    locks, receipts and the runtime file do not), with `fs.watch`
+    (non-recursive where recursive watching is unavailable). A missing
+    directory is replaced by a watch of its nearest existing ancestor inside
+    the workspace, which arms the real watch once the directory appears (and
+    reports a change); a directory that disappears falls back the same way;
+    a watcher error closes it and arms it again after 1 s. Changes are
+    debounced per workspace (300 ms; the `watchDebounceMs` dependency for
+    tests) and each quiet period publishes `workflow:status` through the
+    same route as the RPCs, without any renderer request. `CoreRuntimeApi`
+    calls `watchWorkspaces()` after the registry is restored at
+    `initialize()`, after every `CoreWorkspaceRpc` method (add, select,
+    remove; after the asynchronous remove finishes) and
+    `workflow-prepare-project` calls it after registering the project;
+    `CoreRuntimeApi.shutdown()` (called by the process entry on the shutdown
+    request) closes the watchers. Tests: `src/core-workflow-watch.test.mjs`
+    — no watch without the Kit, the local directory created later and
+    re-created, a debounced burst, the relevant and ignored entries, a Kit
+    installed later, removal and close; through `CoreProjectWorkflowRpc` a
+    plan change publishes `workflow:status` with the Kit status and nothing
+    after removal; the `CoreRuntimeApi` and process entry hooks.
   Every workspace operation publishes `{type: "workflow:status",
   workspaceId, path, status}`; every autopilot change and decision is
   relayed as `{type: "workflow:autopilot", ...snapshot}`; every card change

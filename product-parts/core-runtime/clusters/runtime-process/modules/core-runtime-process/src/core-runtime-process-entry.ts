@@ -7,6 +7,7 @@ coreRuntimeProcessFacade
   .start({
     api: coreRuntimeApi,
     onShutdown: () => {
+      coreRuntimeApi.shutdown();
       setTimeout(() => process.exit(0), 10);
     },
   })

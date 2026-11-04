@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 63,
+  "revision": 65,
   "rounds": [
     {
       "digest": null,
@@ -574,14 +574,19 @@
       "docsWaiver": null,
       "files": [
         "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.ts",
-        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts"
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.test.mjs"
       ],
       "fixes": null,
       "id": "E14",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Core watches the plan and publishes status",
       "why": "Plan progress must update without the renderer asking, also while executors work"
     },
@@ -865,8 +870,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 16/22
-- Revision: 63
+- Progress: 17/22
+- Revision: 65
 
 ## Objective
 
@@ -933,9 +938,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: test: prove orchestrated execution on real worktrees
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs
   - Depends on: E10, E11, E12
-- [TODO] E14 — Core watches the plan and publishes status (work)
+- [DONE] E14 — Core watches the plan and publishes status (work)
   - Commit: feat: publish workflow status on plan changes
-  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts
+  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-watch.test.mjs
   - Depends on: E11
 - [DONE] E15 — Claude subagent working directory (work)
   - Commit: feat: report claude subagent working directory

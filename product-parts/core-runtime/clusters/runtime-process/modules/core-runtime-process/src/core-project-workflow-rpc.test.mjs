@@ -26,18 +26,14 @@ const compiled = ts.transpileModule(
     },
   }
 ).outputText;
-const modeChoiceCompiled = ts.transpileModule(
-  readFileSync(
-    new URL("./core-workflow-mode-choice.ts", import.meta.url),
-    "utf8"
-  ),
-  {
+const transpile = (file) =>
+  ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), {
     compilerOptions: {
       module: ts.ModuleKind.ES2022,
       target: ts.ScriptTarget.ES2022,
     },
-  }
-).outputText;
+  }).outputText;
+const modeChoiceCompiled = transpile("./core-workflow-mode-choice.ts");
 const buildDir = await mkdtemp(path.join(tmpdir(), "project-workflow-rpc-"));
 
 function fakeHost(states) {
@@ -124,6 +120,12 @@ try {
   writeFileSync(
     path.join(buildDir, "core-workflow-mode-choice.js"),
     modeChoiceCompiled,
+    "utf8"
+  );
+  // The Kit state watcher is tested in core-workflow-watch.test.mjs.
+  writeFileSync(
+    path.join(buildDir, "core-workflow-watch.js"),
+    transpile("./core-workflow-watch.ts"),
     "utf8"
   );
   const { CoreProjectWorkflowRpc, WORKFLOW_STATUS_EVENT_TYPE } = await import(

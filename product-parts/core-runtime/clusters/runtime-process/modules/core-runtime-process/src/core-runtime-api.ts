@@ -83,6 +83,7 @@ export class CoreRuntimeApi {
     refreshClaudeModelCatalog().catch(() => undefined);
     startProviderAutoUpdates();
     this.restoreState();
+    this.projectWorkflow.watchWorkspaces();
     this.providerLifecycle.registerAdapters();
     this.providerLifecycle.subscribeReadiness();
     this.providerLifecycle.startLivenessPreflight();
@@ -118,7 +119,12 @@ export class CoreRuntimeApi {
       return this.projectWorkflow.invoke(method, payload);
     }
     if (CoreWorkspaceRpc.handles(method)) {
-      return this.workspaces.invoke(method, payload);
+      const result = this.workspaces.invoke(method, payload);
+      // Kit state watchers follow the registry (add, select, remove).
+      Promise.resolve(result)
+        .then(() => this.projectWorkflow.watchWorkspaces())
+        .catch(() => undefined);
+      return result;
     }
     switch (method) {
       case "list-sessions":
@@ -223,6 +229,11 @@ export class CoreRuntimeApi {
       default:
         return { error: `Unknown Core method: ${method}`, ok: false };
     }
+  }
+
+  /** Releases Core resources before the process exits. */
+  shutdown(): void {
+    this.projectWorkflow.close();
   }
 
   private restoreState(): void {

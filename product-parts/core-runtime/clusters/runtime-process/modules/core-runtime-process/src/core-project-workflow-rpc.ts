@@ -20,6 +20,7 @@ import {
   CoreWorkflowModeChoice,
   type ModeChoiceDependencies,
 } from "./core-workflow-mode-choice.js";
+import { CoreWorkflowWatch } from "./core-workflow-watch.js";
 
 /** Core event published after every Workflow Kit operation of a workspace. */
 export const WORKFLOW_STATUS_EVENT_TYPE = "workflow:status";
@@ -58,6 +59,8 @@ export interface ProjectWorkflowDependencies {
   >;
   /** Core sessions for the execution mode card. */
   sessions: ModeChoiceDependencies["sessions"];
+  /** Quiet time of the Kit state watcher; tests pass a short one. */
+  watchDebounceMs?: number;
   /** Known workspaces and the active one. */
   workspaces: () => { active: HarnessWorkspace; known: HarnessWorkspace[] };
 }
@@ -155,7 +158,9 @@ function refusal(
  * project doctor, the per-session autopilot switch and the execution mode
  * card. Every operation on a workspace publishes `workflow:status`;
  * autopilot changes and decisions publish `workflow:autopilot`; mode card
- * changes publish `workflow:mode-choice`.
+ * changes publish `workflow:mode-choice`. The Kit state of known workspaces
+ * (plan file, assignments, integration, proposal) is watched, and every
+ * change publishes `workflow:status` as well.
  */
 export class CoreProjectWorkflowRpc {
   private readonly listeners = new Set<CoreEventListener>();
@@ -164,6 +169,7 @@ export class CoreProjectWorkflowRpc {
     ProjectWorkflowDependencies["autopilot"]
   >;
   private readonly modeChoice: CoreWorkflowModeChoice;
+  private readonly watch: CoreWorkflowWatch;
 
   constructor(dependencies: ProjectWorkflowDependencies) {
     this.dependencies = dependencies;
@@ -174,6 +180,10 @@ export class CoreProjectWorkflowRpc {
       host: dependencies.host,
       publish: (event) => this.emit(event),
       sessions: dependencies.sessions,
+    });
+    this.watch = new CoreWorkflowWatch({
+      debounceMs: dependencies.watchDebounceMs,
+      onChange: (workspaceId) => this.publishWatched(workspaceId),
     });
   }
 
@@ -186,6 +196,19 @@ export class CoreProjectWorkflowRpc {
     return () => {
       this.listeners.delete(listener);
     };
+  }
+
+  /**
+   * Watches the Kit state of every known workspace with an installed Kit and
+   * stops watching removed ones; Core calls it after the registry changes.
+   */
+  watchWorkspaces(): void {
+    this.watch.sync(this.dependencies.workspaces().known);
+  }
+
+  /** Stops the Kit state watchers (Core shutdown). */
+  close(): void {
+    this.watch.close();
   }
 
   /** A message the user typed into a session (the `send-message` route). */
@@ -303,6 +326,7 @@ export class CoreProjectWorkflowRpc {
     }
     const workspace = this.dependencies.addWorkspace(target.target);
     host.writeRuntimeFile(workspace.path);
+    this.watchWorkspaces();
     const status = await this.publishStatus(workspace);
     return { inspect: inspected.result, install, ok: true, status, workspace };
   }
@@ -326,6 +350,15 @@ export class CoreProjectWorkflowRpc {
     const report = await this.dependencies.host.doctor(workspace.path, fix);
     await this.publishStatus(workspace);
     return report;
+  }
+
+  private publishWatched(workspaceId: string): void {
+    const workspace = this.dependencies
+      .workspaces()
+      .known.find((item) => item.id === workspaceId);
+    if (workspace) {
+      this.publishStatus(workspace).catch(() => undefined);
+    }
   }
 
   private async publishStatus(

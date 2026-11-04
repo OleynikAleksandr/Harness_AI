@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 45,
+  "revision": 47,
   "rounds": [
     {
       "digest": null,
@@ -595,14 +595,24 @@
       "files": [
         "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.ts",
         "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts",
-        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts"
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.test.mjs"
       ],
       "fixes": null,
       "id": "E17",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Core mode choice route",
       "why": "Core shows the card from the Kit proposal and turns the click into scope:choose and a message to the agent"
     },
@@ -771,8 +781,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 7/22
-- Revision: 45
+- Progress: 8/22
+- Revision: 47
 
 ## Objective
 
@@ -850,9 +860,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: build the plan view with executor sessions
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-plan-view.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts
   - Depends on: E14, E15
-- [TODO] E17 — Core mode choice route (work)
+- [DONE] E17 — Core mode choice route (work)
   - Commit: feat: route the execution mode choice through core
-  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts
+  - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workflow-mode-choice.test.mjs
   - Depends on: E4, E3
 - [TODO] E18 — Bridge for the mode choice (work)
   - Commit: feat: bridge the execution mode choice

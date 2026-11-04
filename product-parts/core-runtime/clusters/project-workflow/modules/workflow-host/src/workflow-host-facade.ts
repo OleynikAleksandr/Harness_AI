@@ -7,6 +7,8 @@ import type {
 } from "../../workflow-installer/src/workflow-installer-facade.js";
 import type {
   KitStatus,
+  ScopeChoiceResult,
+  ScopeProposalView,
   ValidationReport,
 } from "../../workflow-kit/src/workflow-kit-facade.js";
 import {
@@ -153,6 +155,37 @@ export class WorkflowHostFacade {
 
   status(root: string): Promise<KitOutcome<KitStatus>> {
     return this.run(["status"], { root });
+  }
+
+  /** `scope:proposal`: the card view of the stored scope proposal, or `null`. */
+  proposal(root: string): Promise<KitOutcome<ScopeProposalView | null>> {
+    return this.run(["scope:proposal"], { root });
+  }
+
+  /** `scope:choose`: records the user's answer to the proposal of `generation`. */
+  chooseScope(
+    root: string,
+    choice: {
+      generation: number;
+      note: string;
+      option: "orchestrated" | "refine" | "sequential";
+      session: string;
+    }
+  ): Promise<KitOutcome<ScopeChoiceResult>> {
+    return this.run(
+      [
+        "scope:choose",
+        "--generation",
+        String(choice.generation),
+        "--option",
+        choice.option,
+        "--session",
+        choice.session,
+        "--note",
+        choice.note,
+      ],
+      { root }
+    );
   }
 
   validate(root: string): Promise<KitOutcome<ValidationReport>> {

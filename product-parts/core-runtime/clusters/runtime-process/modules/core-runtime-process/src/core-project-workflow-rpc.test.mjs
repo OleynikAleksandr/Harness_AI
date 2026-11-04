@@ -26,13 +26,30 @@ const compiled = ts.transpileModule(
     },
   }
 ).outputText;
+const modeChoiceCompiled = ts.transpileModule(
+  readFileSync(
+    new URL("./core-workflow-mode-choice.ts", import.meta.url),
+    "utf8"
+  ),
+  {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022,
+    },
+  }
+).outputText;
 const buildDir = await mkdtemp(path.join(tmpdir(), "project-workflow-rpc-"));
 
 function fakeHost(states) {
   const calls = [];
   const ok = (result) => Promise.resolve({ command: "x", ok: true, result });
   return {
+    bundle: () => ({ file: "workflow.mjs", source: "project" }),
     calls,
+    chooseScope: (root, choice) => {
+      calls.push(["choose", root, choice]);
+      return ok({ option: choice.option });
+    },
     doctor: (root, fix) => {
       calls.push(["doctor", root, fix]);
       return ok({ checks: [], ok: true });
@@ -76,6 +93,21 @@ function fakeHost(states) {
       }
       return ok({ commit: { sha: "abc" }, root: folder });
     },
+    proposal: (root) => {
+      calls.push(["proposal", root]);
+      return ok({
+        createdAt: "2026-11-04T10:00:00Z",
+        generation: 1,
+        hasParallelWork: false,
+        host: "harness",
+        objective: "Ship it",
+        options: ["sequential", "refine"],
+        reason: "One small task only",
+        recommended: "sequential",
+        refining: false,
+        scopeId: "ship",
+      });
+    },
     status: (root) => {
       calls.push(["status", root]);
       return ok({ installed: true, root });
@@ -89,6 +121,11 @@ function fakeHost(states) {
 
 try {
   writeFileSync(path.join(buildDir, "rpc.js"), compiled, "utf8");
+  writeFileSync(
+    path.join(buildDir, "core-workflow-mode-choice.js"),
+    modeChoiceCompiled,
+    "utf8"
+  );
   const { CoreProjectWorkflowRpc, WORKFLOW_STATUS_EVENT_TYPE } = await import(
     pathToFileURL(path.join(buildDir, "rpc.js")).href
   );
@@ -97,6 +134,8 @@ try {
     "workflow-autopilot-get",
     "workflow-autopilot-set",
     "workflow-inspect",
+    "workflow-mode-choice-get",
+    "workflow-mode-choose",
     "workflow-prepare-project",
     "workflow-status",
     "workflow-doctor",
@@ -121,6 +160,8 @@ try {
   const added = [];
   const autopilotListeners = [];
   const autopilotCalls = [];
+  const sent = [];
+  const sessionListeners = [];
   const autopilot = {
     get: (sessionId) => ({ enabled: false, sessionId }),
     setEnabled: (sessionId, enabled) => {
@@ -144,6 +185,25 @@ try {
       return workspace;
     },
     host,
+    sessions: {
+      get: (sessionId) =>
+        sessionId === "s1"
+          ? {
+              id: "s1",
+              providerId: "codex",
+              workspaceId: "w1",
+              workspacePath: "/work/one",
+            }
+          : undefined,
+      send: (sessionId, text) => {
+        sent.push([sessionId, text]);
+        return { ok: true };
+      },
+      subscribe: (listener) => {
+        sessionListeners.push(listener);
+        return () => undefined;
+      },
+    },
     workspaces: () => ({ active, known }),
   });
   const events = [];
@@ -208,7 +268,7 @@ try {
   assert.equal(created.ok, true);
   assert.deepEqual(
     host.calls.find((call) => call[0] === "install"),
-    ["install", "/new/demo", { name: "demo", update: false }]
+    ["install", "/new/demo", { host: "harness", name: "demo", update: false }]
   );
   assert.deepEqual(created.install, {
     commit: { sha: "abc" },
@@ -252,6 +312,7 @@ try {
     path: "/open/old",
   });
   assert.deepEqual(host.calls.find((call) => call[0] === "install")[2], {
+    host: "harness",
     name: undefined,
     update: true,
   });
@@ -384,6 +445,31 @@ try {
     sessionId: "s1",
     type: "workflow:autopilot",
   });
+
+  // The mode card routes (details in core-workflow-mode-choice.test.mjs).
+  assert.equal(
+    (await rpc.invoke("workflow-mode-choice-get", {})).code,
+    "INVALID_REQUEST"
+  );
+  sessionListeners[0]({
+    payload: { sessionId: "s1", state: "idle" },
+    type: "session:turn-state",
+  });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(events.at(-1).card.state, "offered");
+  const choice = await rpc.invoke("workflow-mode-choose", {
+    generation: 1,
+    option: "sequential",
+    sessionId: "s1",
+    workspaceId: "w1",
+  });
+  assert.equal(choice.card.state, "chosen");
+  assert.equal(sent.length, 1);
+  rpc.userMessage("s1");
+  const read = await rpc.invoke("workflow-mode-choice-get", {
+    workspaceId: "w1",
+  });
+  assert.equal(read.card.state, "chosen");
 
   const count = events.length;
   unsubscribe();

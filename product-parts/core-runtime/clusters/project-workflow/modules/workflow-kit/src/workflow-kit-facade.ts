@@ -42,7 +42,7 @@ import {
   createAssignment,
   nextAssignments,
 } from "./kit-assignment.js";
-import type { KitContext } from "./kit-context.js";
+import { type KitContext, readConfig } from "./kit-context.js";
 import { type HookResult, runGitHook } from "./kit-hooks.js";
 import {
   applyQuality,
@@ -103,6 +103,24 @@ export type {
 } from "./kit-scope.js";
 export type { KitStatus, TaskBrief, ValidationReport } from "./kit-status.js";
 export type { TaskCommit, TaskStart } from "./kit-task.js";
+
+/**
+ * `scope:proposal`: what the mode card needs from the stored proposal,
+ * without the plan input. `scopeId`/`objective` come from the stored input
+ * and are `null` after "refine"; `host` is `config.host` of the project.
+ */
+export interface ScopeProposalView {
+  createdAt: string;
+  generation: number;
+  hasParallelWork: boolean;
+  host: string | null;
+  objective: string | null;
+  options: ExecutionModeOption[];
+  reason: string;
+  recommended: ExecutionStrategy;
+  refining: boolean;
+  scopeId: string | null;
+}
 
 export interface WorkflowKitOptions {
   env?: NodeJS.ProcessEnv;
@@ -230,6 +248,27 @@ export class WorkflowKitFacade {
   /** `assignment:create --task`: a new assignment record and the executor brief. */
   createAssignment(root: string, taskId: string): AssignmentCreated {
     return createAssignment(this.context(root), taskId);
+  }
+
+  /** `scope:proposal`: the read-only card view of the stored proposal, or `null`. */
+  proposalView(root: string): ScopeProposalView | null {
+    const proposal = this.readProposal(root);
+    if (!proposal) {
+      return null;
+    }
+    const input = proposal.input as Partial<ScopeInput> | null;
+    return {
+      createdAt: proposal.createdAt,
+      generation: proposal.generation,
+      hasParallelWork: proposal.hasParallelWork,
+      host: readConfig(this.context(root)).host ?? null,
+      objective: typeof input?.objective === "string" ? input.objective : null,
+      options: [...proposal.options],
+      reason: proposal.reason,
+      recommended: proposal.recommended,
+      refining: proposal.refining,
+      scopeId: typeof input?.id === "string" ? input.id : null,
+    };
   }
 
   extend(

@@ -279,8 +279,12 @@ state.
     existing folder is registered, as before the Kit. Then the existing
     `add-workspace`
     route registers and selects the folder, the host runtime file is
-    written and the status is published. Result `{ok: true, inspect,
-    install, status, workspace}`; a failed install registers nothing;
+    written and the status is published. Every install or update passes
+    `host: "harness"` (`install --host harness`), so new and installed or
+    updated projects carry the Harness marker and the Kit requires the
+    mode choice (`scope:propose`); an existing marker is kept. Result
+    `{ok: true, inspect, install, status, workspace}`; a failed install
+    registers nothing;
   - `workflow-status {workspaceId?}` — Kit status of the workspace (the
     active one by default; `UNKNOWN_WORKSPACE`), refreshing the runtime
     file;
@@ -292,10 +296,51 @@ state.
     the `autopilot` dependency); result `{ok: true, autopilot: {sessionId,
     available, enabled, continues, maxContinues, running, lastDecision}}`. Turning it
     on for an idle session may start the first task at once.
+  - the execution mode card (`core-workflow-mode-choice.ts`,
+    `CoreWorkflowModeChoice`, spec 4.2 of `WorkflowKitExecutionModes.md`;
+    the `sessions` dependency is `{get, send, subscribe}` over the session
+    request handler and the session event stream):
+    - when a primary session (with a workspace, not a subagent or Profile
+      Creator) publishes `session:turn-state` `idle` and its workspace has
+      a project Kit bundle, Core runs `scope:proposal`
+      (`workflowHostFacade.proposal`). An open proposal (`host:
+      "harness"`, not `refining`, with a scope id) of a new generation
+      becomes the card of that workspace, owned by that session; another
+      session of the workspace keeps the owner. No open proposal removes
+      the card (`card: null`);
+    - the card `{workspaceId, sessionId, generation, scopeId, title
+      (objective), options [{id, recommended}] (recommended first),
+      reason, state: offered|saving|chosen|dismissed, chosen, error}`.
+      `orchestrated` is offered only when the owner session's provider is
+      `claude`; when the recommended mode is not offered, no row is
+      recommended and `reason` is `null`;
+    - `workflow-mode-choice-get {workspaceId}` → `{ok: true, card |
+      null}`;
+    - `workflow-mode-choose {workspaceId, sessionId, generation, option}`
+      — only the owner session of an `offered` card with an offered option
+      (`MODE_CHOICE_UNAVAILABLE`, `INVALID_REQUEST`): the card turns
+      `saving`, Core runs `scope:choose --generation --option --session
+      <owner> --note "the user chose in the Harness mode card: ..."`. A Kit
+      refusal (e.g. `PROPOSAL_CHANGED`) is returned and the card is
+      `offered` again with `error`. On success the card is `chosen` and
+      Core sends the owner session a user message through the
+      user-message route (`sessionRequestHandlerFacade.sendMessage`, the
+      route the autopilot continue turn follows): `sequential` — execute
+      the plan task by task starting with the first task; `orchestrated` —
+      act as orchestrator and hand tasks out with `assignment:next` /
+      `assignment:create` to Claude subagents with isolation worktree;
+      `refine` — refine the specification with the user, then propose
+      again. Agent-facing texts are English, like the autopilot's. Result
+      `{ok: true, card, choice}`;
+    - `CoreRuntimeApi` `send-message` (a message the user typed) calls
+      `userMessage(sessionId)` first: an `offered` card of that session
+      becomes `dismissed`; the proposal stays without a choice and a later
+      turn end of the same generation keeps it dismissed.
   Every workspace operation publishes `{type: "workflow:status",
   workspaceId, path, status}`; every autopilot change and decision is
-  relayed as `{type: "workflow:autopilot", ...snapshot}`.
-  `CoreRuntimeApi.subscribe()` relays both on the same event stream.
+  relayed as `{type: "workflow:autopilot", ...snapshot}`; every card change
+  as `{type: "workflow:mode-choice", workspaceId, sessionId, card}`.
+  `CoreRuntimeApi.subscribe()` relays them on the same event stream.
 - `CoreWorkspaceRpc` (`core-workspace-rpc.ts`) owns the workspace registry
   routes, which `CoreRuntimeApi` delegates (`CoreWorkspaceRpc.handles`):
   - `list-workspaces` → `{activeWorkspaceId, builtInWorkspaceId,

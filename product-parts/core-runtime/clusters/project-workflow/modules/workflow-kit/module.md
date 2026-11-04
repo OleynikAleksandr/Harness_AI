@@ -75,6 +75,12 @@ Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
   Returns `{option, generation, refining, execution, scope}`.
 - `readProposal(root)` — the stored proposal record or `null` (for status
   and recovery).
+- `proposalView(root)` — `scope:proposal`, read-only: the card view of the
+  stored proposal without the plan input, or `null`:
+  `{generation, recommended, reason, hasParallelWork, options, refining,
+  createdAt, scopeId, objective, host}`; `scopeId`/`objective` come from the
+  stored input (`null` after `refine`), `host` is `config.host` or `null`.
+  Harness Core builds the mode card from it.
 - `extend(root, input, expectedRevision?)` — role `scope-plan`
   (`docs: extend scope <id> (<round>)`); `REVISION_MISMATCH` when the plan
   moved on.
@@ -201,7 +207,8 @@ managed hooks.
   `history [--task] [--round]`, `scope:create --input`,
   `scope:propose --input --recommended sequential|orchestrated --reason`,
   `scope:choose --generation <N> --option sequential|orchestrated|refine
-  --session <id> --note` (both defined in `kit-cli-execution.ts`; an
+  --session <id> --note`, `scope:proposal` (all three defined in
+  `kit-cli-execution.ts`; an
   invalid `--recommended`, `--option` or a non-positive `--generation` is
   `USAGE`),
   `assignment:next`, `assignment:create --task <ID>` (both defined in
@@ -228,7 +235,10 @@ managed hooks.
   `assignment:next` the scope and workers, one line per active, ready and
   blocked task and the next `assignment:create`, or `assignments: none
   (<idle code>)`; for `assignment:create` the id, task, short base and
-  whether it was created, followed by the brief; JSON otherwise). `inspect` text lists `path`, `state`, `action`,
+  whether it was created, followed by the brief; for
+  `scope:proposal` the generation and state, the scope, reason and options
+  or `proposal: none`; JSON
+  otherwise). `inspect` text lists `path`, `state`, `action`,
   `kit version`, `git` (repository and short head), `identity`, `stacks`,
   `transaction`, plus `nested in` and `damaged` when present.
 - Errors: `{ok: false, code, message, nextAction, details}` on stdout with
@@ -277,10 +287,11 @@ Node built-ins only.
   parallel work, `NO_PARALLEL_WORK`, validation like `scope:create`,
   orchestrated refused without parallel work, `PROPOSAL_CHANGED` for
   another generation and a changed stored plan, refine then the automatic
-  sequential scope, `SCOPE_EXISTS`, close clears the record, the
+  sequential scope, the `proposalView` card view (open and refining),
+  `SCOPE_EXISTS`, close clears the record, the
   orchestrated choice with `maxWorkers` and owner session, and in a
   `host: "harness"` project `EXECUTION_MODE_REQUIRED` plus the CLI
-  propose/choose path with text output and usage errors.
+  propose/proposal/choose path with text output and usage errors.
 - `src/workflow-kit-assignment.test.mjs` — a sequential scope
   (`NOT_ORCHESTRATED`), then an orchestrated scope with `maxWorkers: 2`:
   QUALITY first (`DEPENDENCY_PENDING`, `ASSIGNMENT_KIND`), the schedule

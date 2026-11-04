@@ -179,6 +179,19 @@ try {
   assert.equal(git.head(plain), headBefore);
   assert.equal(kit.status(plain).scope, null);
   const stored = kit.readProposal(plain);
+  // The card view: no plan input, scope id and objective from the input.
+  assert.deepEqual(kit.proposalView(plain), {
+    createdAt: stored.createdAt,
+    generation: 1,
+    hasParallelWork: false,
+    host: null,
+    objective: "Write one note",
+    options: ["sequential", "refine"],
+    reason: "One small documentation task only",
+    recommended: "sequential",
+    refining: false,
+    scopeId: "docs-1",
+  });
   assert.equal(stored.version, 1);
   assert.equal(stored.generation, 1);
   assert.equal(stored.refining, false);
@@ -220,6 +233,10 @@ try {
   assert.equal(afterRefine.refining, true);
   assert.equal(afterRefine.choice.option, "refine");
   assert.equal(afterRefine.choice.session, "session-1");
+  const refiningView = kit.proposalView(plain);
+  assert.equal(refiningView.refining, true);
+  assert.equal(refiningView.scopeId, null);
+  assert.equal(refiningView.objective, null);
   assert.equal(
     code(() => choose(plain, 1, "sequential")),
     "PROPOSAL_CHANGED"
@@ -391,6 +408,16 @@ try {
     "text",
   ]);
   assert.equal(proposedText.exit, 0);
+  const viewCli = JSON.parse(run(["scope:proposal"]).stdout);
+  assert.equal(viewCli.ok, true);
+  assert.equal(viewCli.result.host, "harness");
+  assert.equal(viewCli.result.scopeId, "docs-h");
+  assert.equal(viewCli.result.generation, 1);
+  assert.equal("input" in viewCli.result, false);
+  assert.match(
+    run(["scope:proposal", "--format", "text"]).stdout,
+    /^proposal: generation 1 \(open\), recommended sequential/u
+  );
   assert.match(
     proposedText.stdout,
     /^proposal: generation 1, recommended sequential/u
@@ -437,6 +464,11 @@ try {
     /Execution mode chosen by the user: sequential: Run it sequentially$/u
   );
   assert.equal(kit.readProposal(hosted), null);
+  assert.equal(JSON.parse(run(["scope:proposal"]).stdout).result, null);
+  assert.equal(
+    run(["scope:proposal", "--format", "text"]).stdout,
+    "proposal: none\n"
+  );
   assert.match(run(["help"]).stdout, /scope:choose --generation <N>/u);
 } finally {
   for (const root of roots) {

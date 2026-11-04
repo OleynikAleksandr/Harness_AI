@@ -16,6 +16,10 @@ import {
 } from "../../../../session-runtime/modules/session-request-handler/src/session-workflow-autopilot.js";
 import type { HarnessWorkspace } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import type { CoreEventListener } from "./core-provider-lifecycle.js";
+import {
+  CoreWorkflowModeChoice,
+  type ModeChoiceDependencies,
+} from "./core-workflow-mode-choice.js";
 
 /** Core event published after every Workflow Kit operation of a workspace. */
 export const WORKFLOW_STATUS_EVENT_TYPE = "workflow:status";
@@ -25,6 +29,8 @@ const PROJECT_WORKFLOW_METHODS = new Set([
   "workflow-autopilot-set",
   "workflow-doctor",
   "workflow-inspect",
+  "workflow-mode-choice-get",
+  "workflow-mode-choose",
   "workflow-prepare-project",
   "workflow-status",
 ]);
@@ -41,8 +47,17 @@ export interface ProjectWorkflowDependencies {
   >;
   host: Pick<
     WorkflowHostFacade,
-    "doctor" | "inspect" | "install" | "status" | "writeRuntimeFile"
+    | "bundle"
+    | "chooseScope"
+    | "doctor"
+    | "inspect"
+    | "install"
+    | "proposal"
+    | "status"
+    | "writeRuntimeFile"
   >;
+  /** Core sessions for the execution mode card. */
+  sessions: ModeChoiceDependencies["sessions"];
   /** Known workspaces and the active one. */
   workspaces: () => { active: HarnessWorkspace; known: HarnessWorkspace[] };
 }
@@ -137,9 +152,10 @@ function refusal(
 /**
  * Core RPC for project workflow: folder inspection, project preparation
  * (install or update, then registration as a workspace), Kit status, the
- * project doctor and the per-session autopilot switch. Every operation on a
- * workspace publishes `workflow:status`; autopilot changes and decisions
- * publish `workflow:autopilot`.
+ * project doctor, the per-session autopilot switch and the execution mode
+ * card. Every operation on a workspace publishes `workflow:status`;
+ * autopilot changes and decisions publish `workflow:autopilot`; mode card
+ * changes publish `workflow:mode-choice`.
  */
 export class CoreProjectWorkflowRpc {
   private readonly listeners = new Set<CoreEventListener>();
@@ -147,15 +163,17 @@ export class CoreProjectWorkflowRpc {
   private readonly autopilot: NonNullable<
     ProjectWorkflowDependencies["autopilot"]
   >;
+  private readonly modeChoice: CoreWorkflowModeChoice;
 
   constructor(dependencies: ProjectWorkflowDependencies) {
     this.dependencies = dependencies;
     this.autopilot = dependencies.autopilot ?? sessionWorkflowAutopilot;
     // Autopilot decisions reach the renderer as `workflow:autopilot` events.
-    this.autopilot.subscribe((event) => {
-      for (const listener of this.listeners) {
-        listener(event);
-      }
+    this.autopilot.subscribe((event) => this.emit(event));
+    this.modeChoice = new CoreWorkflowModeChoice({
+      host: dependencies.host,
+      publish: (event) => this.emit(event),
+      sessions: dependencies.sessions,
     });
   }
 
@@ -168,6 +186,11 @@ export class CoreProjectWorkflowRpc {
     return () => {
       this.listeners.delete(listener);
     };
+  }
+
+  /** A message the user typed into a session (the `send-message` route). */
+  userMessage(sessionId: string): void {
+    this.modeChoice.userMessage(sessionId);
   }
 
   invoke(method: string, payload: unknown): Promise<unknown> {
@@ -194,6 +217,12 @@ export class CoreProjectWorkflowRpc {
         );
       case "workflow-autopilot-set":
         return this.autopilotSet(readText(record, "sessionId"), record.enabled);
+      case "workflow-mode-choice-get":
+        return Promise.resolve(
+          this.modeChoice.get(readText(record, "workspaceId"))
+        );
+      case "workflow-mode-choose":
+        return this.modeChoice.choose(payload);
       default:
         return Promise.resolve(
           invalid(`Unknown project workflow method: ${method}`)
@@ -260,7 +289,10 @@ export class CoreProjectWorkflowRpc {
         action === "install-migrate" ||
         action === "update")
     ) {
+      // The host marker makes the Kit require the mode choice (scope:propose);
+      // `update` keeps an existing marker.
       const installed = await host.install(target.target, {
+        host: "harness",
         name: target.name || undefined,
         update: action === "update",
       });
@@ -300,15 +332,18 @@ export class CoreProjectWorkflowRpc {
     workspace: HarnessWorkspace
   ): Promise<KitOutcome<KitStatus>> {
     const status = await this.dependencies.host.status(workspace.path);
-    const event = {
+    this.emit({
       path: workspace.path,
       status,
       type: WORKFLOW_STATUS_EVENT_TYPE,
       workspaceId: workspace.id,
-    };
+    });
+    return status;
+  }
+
+  private emit(event: unknown): void {
     for (const listener of this.listeners) {
       listener(event);
     }
-    return status;
   }
 }

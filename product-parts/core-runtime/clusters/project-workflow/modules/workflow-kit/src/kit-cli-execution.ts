@@ -5,6 +5,7 @@ import type {
   ScopeChoiceResult,
   ScopeInput,
   ScopeProposalResult,
+  ScopeProposalView,
   WorkflowKitFacade,
 } from "./workflow-kit-facade.js";
 
@@ -72,7 +73,24 @@ function choiceText(value: unknown): string {
   return `choice: ${result.option} (generation ${result.generation}); scope ${result.scope?.scopeId ?? "NONE"} created at revision ${result.scope?.revision ?? 0}.\n`;
 }
 
-/** `scope:propose` and `scope:choose`: the execution mode choice (spec 4.1). */
+function proposalViewText(value: unknown): string {
+  const view = value as ScopeProposalView | null;
+  if (!view) {
+    return "proposal: none\n";
+  }
+  const state = view.refining ? "refining" : "open";
+  return `${[
+    `proposal: generation ${view.generation} (${state}), recommended ${view.recommended}, parallel work ${view.hasParallelWork ? "yes" : "no"}`,
+    `scope: ${view.scopeId ?? "NONE"}${view.objective ? ` — ${view.objective}` : ""}`,
+    `reason: ${view.reason}`,
+    `options: ${view.options.join(", ")}`,
+  ].join("\n")}\n`;
+}
+
+/**
+ * `scope:propose`, `scope:choose` and the read-only `scope:proposal`: the
+ * execution mode choice (spec 4.1).
+ */
 export const EXECUTION_COMMANDS: Readonly<
   Record<string, ExecutionCommandSpec>
 > = {
@@ -87,6 +105,11 @@ export const EXECUTION_COMMANDS: Readonly<
     text: choiceText,
     usage:
       'scope:choose --generation <N> --option sequential|orchestrated|refine --session <id> --note "<the user\'s choice>"',
+  },
+  "scope:proposal": {
+    run: ({ kit, root }) => kit.proposalView(root),
+    text: proposalViewText,
+    usage: "scope:proposal",
   },
   "scope:propose": {
     run: ({ args, io, kit, root }) =>

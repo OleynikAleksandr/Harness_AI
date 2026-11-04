@@ -110,6 +110,30 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
   ]);
   assert.equal(echoed.result.electron, "1");
   assert.equal(echoed.result.gitDir, null);
+  // The mode card reads the proposal and records the choice.
+  const proposalArgs = await host.proposal(sandbox);
+  assert.deepEqual(proposalArgs.result.args.slice(0, 3), [
+    "scope:proposal",
+    "--root",
+    sandbox,
+  ]);
+  const choiceArgs = await host.chooseScope(sandbox, {
+    generation: 2,
+    note: "User chose: sequential",
+    option: "sequential",
+    session: "session-1",
+  });
+  assert.deepEqual(choiceArgs.result.args.slice(0, 9), [
+    "scope:choose",
+    "--generation",
+    "2",
+    "--option",
+    "sequential",
+    "--session",
+    "session-1",
+    "--note",
+    "User chose: sequential",
+  ]);
   const failed = await host.run(["fail"]);
   assert.deepEqual(failed, {
     code: "SCOPE_BLOCKED",
@@ -182,6 +206,10 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
   const status = await kitHost.status(target);
   assert.equal(status.ok, true, JSON.stringify(status));
   assert.equal(status.result.installed, true);
+  // A fresh project has no scope proposal; the view carries no plan input.
+  const noProposal = await kitHost.proposal(target);
+  assert.equal(noProposal.ok, true, JSON.stringify(noProposal));
+  assert.equal(noProposal.result, null);
   const doctor = await kitHost.doctor(target);
   assert.equal(doctor.ok, true, JSON.stringify(doctor));
   assert.equal(doctor.result.ok, true, JSON.stringify(doctor.result));

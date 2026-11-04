@@ -48,7 +48,10 @@ Commands:
   folder of the target; `host: "harness"` passes `--host harness`, which
   writes `config.host`; install has a 600 000 ms timeout because it
   commits;
-- `status(root)`, `validate(root)`, `recover(root, event)` and
+- `status(root)`, `validate(root)`, `recover(root, event)`,
+  `proposal(root)` (`scope:proposal`, the mode card view or `null`),
+  `chooseScope(root, {generation, option, session, note})`
+  (`scope:choose --generation --option --session --note`) and
   `doctor(root, fix)` use the project bundle (application bundle when the
   project has none); `doctor` with `fix` has the commit timeout;
 - `writeRuntimeFile(root)` writes `.harness/workflow/local/runtime`
@@ -57,7 +60,8 @@ Commands:
 
 Result types come from the cluster facades (`InspectResult`,
 `InstallOutcome`, `KitStatus`, `ValidationReport`, `RecoveryPacket`,
-`DoctorReport`) as type-only imports.
+`DoctorReport`, `ScopeProposalView`, `ScopeChoiceResult`) as type-only
+imports.
 
 ## Dependencies
 
@@ -71,10 +75,11 @@ Result types come from the cluster facades (`InspectResult`,
 - `src/workflow-host-facade.test.mjs` — bundle and runtime resolution,
   the command protocol with a fake bundle (arguments, `--root`,
   `ELECTRON_RUN_AS_NODE`, cleared `GIT_DIR`, failure envelope,
-  `HOST_OUTPUT`, `HOST_TIMEOUT`, `HOST_SPAWN`, `HOST_NO_BUNDLE`), and an
+  `HOST_OUTPUT`, `HOST_TIMEOUT`, `HOST_SPAWN`, `HOST_NO_BUNDLE`, the
+  `scope:proposal` and `scope:choose` arguments), and an
   end-to-end run of the real bundle built by Vite: inspect, install with
   `host: "harness"` (`config.host`), status, doctor, validate and the
-  runtime file.
+  runtime file; a fresh project has no proposal (`null`).
 
 Test repositories and the projects the bundle installs into get a real
 repository-local identity (`workflow@harness-ai.test`, through

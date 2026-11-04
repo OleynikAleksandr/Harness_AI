@@ -56,6 +56,15 @@ export class CoreRuntimeApi {
     addWorkspace: (workspacePath) =>
       this.workspaces.add(workspacePath).workspace,
     host: workflowHostFacade,
+    sessions: {
+      get: (sessionId) =>
+        sessionRequestHandlerFacade
+          .listSessions()
+          .find((session) => session.id === sessionId),
+      send: (sessionId, text) =>
+        sessionRequestHandlerFacade.sendMessage({ sessionId, text }),
+      subscribe: (listener) => sessionEventStreamFacade.subscribe(listener),
+    },
     workspaces: () => ({
       active: workspaceRegistryFacade.getActiveWorkspace(),
       known: workspaceRegistryFacade.getKnownWorkspaces(),
@@ -199,6 +208,9 @@ export class CoreRuntimeApi {
       case "respond-provider-interaction":
         return sessionProviderInteractionLifecycle.respond(payload);
       case "send-message":
+        this.projectWorkflow.userMessage(
+          readString(readRecord(payload)?.sessionId)
+        );
         return sessionRequestHandlerFacade.sendMessage(payload as never);
       case "stop-turn":
         return sessionRequestHandlerFacade.stopTurn(readString(payload));

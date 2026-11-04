@@ -20,7 +20,6 @@ Own isolated provider home layout.
 - CLI-free provider home file materialization by copy-if-missing or link for
   provider-owned workspace provisioning.
 - Codex provider-home `model_reasoning_summary = "detailed"` materialized at top-level TOML scope. Provider-home config is process-global and must not suppress visible reasoning summaries requested per turn by Core/provider turn options.
-
 - `removeWorkspaceResidue(workspacePath, providersRoot?)`: when a project is
   removed from the app (Core `remove-workspace`), deletes the per-project
   directories the app-level provider homes

@@ -32,7 +32,10 @@ Electron main (app-bootstrap, core-process-bridge)
 ## Main Contracts
 
 - **Core RPC** (`core-runtime-api.ts`): workspaces, sessions, settings,
-  localization, profiles and project workflow methods (`workflow-*`).
+  localization, profiles and project workflow methods (`workflow-*`). The
+  workspace registry routes (`list/add/select/remove-workspace`) live in
+  `core-workspace-rpc.ts`; removing a project forgets every app reference to
+  it and never touches the project folder.
 - **Provider contract** (`provider-adapter-contract`): session start/resume,
   turns, normalised events; `workspaceContext` carries the Workflow Kit
   recovery packet into the provider system prompt.

@@ -10,10 +10,28 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 24,
+  "revision": 26,
   "rounds": [
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "claude-provider/module.md: async subagent launch and task-notification handling",
+          "core-runtime-process/module.md: CoreWorkspaceRpc with remove-workspace",
+          "session-request-handler/module.md: releaseWorkspaceSessions",
+          "provider-home-manager/module.md: removeWorkspaceResidue",
+          "session-sidebar/module.md: WorkspaceMenu context menu"
+        ],
+        "decisions": [
+          "The built-in workspace cannot be removed; Core reports builtInWorkspaceId and the menu offers no item for it.",
+          "Removal needs no confirmation: it is reversible with Open Project, which restores the sessions from the project folder.",
+          "Workspace routes moved from core-runtime-api.ts (at its 500-line limit) into core-workspace-rpc.ts; deleteSession's cascade moved into session-tree-release.ts."
+        ],
+        "references": [
+          "docs/architecture/ReleaseFixes-2026-11-04.md",
+          "docs/architecture/ClaudeSubagentSessions.md#3.1"
+        ],
+        "result": "Claude background (async) subagents are followed to their real end: async_launched is no longer read as a failure, the task-notification sets the terminal status and polling continues after the parent turn. A project can be removed from the app by right click (Remove from Harness AI): Core forgets its registry entry, loaded sessions and app-level provider home residue; the project folder stays."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -247,14 +265,15 @@
       "files": [
         "README.md",
         "docs/architecture/OVERVIEW.md",
-        "docs/architecture/ReleaseFixes-2026-11-04.md"
+        "docs/architecture/ReleaseFixes-2026-11-04.md",
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md"
       ],
       "fixes": null,
       "id": "DOCS-R1",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -293,8 +312,8 @@
 - Scope: release-fixes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 6/8
-- Revision: 24
+- Progress: 7/8
+- Revision: 26
 
 ## Objective
 
@@ -331,13 +350,15 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
   - Commit: feat: remove a project from the project list menu
   - Files: product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/workspace-menu.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/session-window-workspaces.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts
   - Depends on: F5
-- [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
-  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md
   - Depends on: F1, F2, F3, F4, F5, F6
 - [TODO] F7 — Package the macOS release and record evidence (delivery)
   - Commit: chore: package release fixes 2026-11-04
   - Files: docs/evidence/release-fixes-package-2026-11-04.md
   - Depends on: F6, DOCS-R1
+
+Digest: Claude background (async) subagents are followed to their real end: async_launched is no longer read as a failure, the task-notification sets the terminal status and polling continues after the parent turn. A project can be removed from the app by right click (Remove from Harness AI): Core forgets its registry entry, loaded sessions and app-level provider home residue; the project folder stays.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

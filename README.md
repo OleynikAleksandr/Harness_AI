@@ -44,3 +44,8 @@ The package also carries the Workflow Kit bundle
 of `npm run build`) as the `workflow-kit` resource. Core runs it with the
 Electron binary as Node (`ELECTRON_RUN_AS_NODE=1`) to inspect, install, update
 and diagnose projects opened through New Project / Open Project.
+Projects installed or updated by the app carry the Harness host marker: their
+agent proposes each scope and the user chooses on an in-chat card whether one
+agent runs it (`sequential`) or Claude subagent executors run its tasks in
+their own worktrees (`orchestrated`); the sidebar shows the active plan with
+live progress (`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`).

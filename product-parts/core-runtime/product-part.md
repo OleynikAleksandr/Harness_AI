@@ -18,16 +18,16 @@ contracts, not through direct module imports.
 - `universal-client`
 - `settings-and-localization`
 - `project-workflow` — Workflow Kit (plan, transactional commits, recovery,
-  quality profile, installation, doctor, autopilot decision)
+  quality profile, installation, doctor, autopilot decision, execution
+  modes with executor assignments and integration)
 
 `development-orchestrator` and `intent-normalization` were scaffolded as
 `module.md`-only cluster placeholders early in the project and never
 implemented; they were removed from the product tree (2026-07-01) rather than
-kept as unimplemented debt. Plan-first lifecycle and quality gates run today
-through `scripts/*.mjs` and `.husky/**` (see `AGENTS.md`), not a dedicated
-Core Runtime cluster. The `project-workflow` cluster (Workflow Kit) is the
-module-code replacement for that lifecycle; the repository switches to it in
-phase 12 of the active `workflow-kit-2026-11-03` plan.
+kept as unimplemented debt. The plan-first lifecycle and quality gates are
+now the `project-workflow` cluster (Workflow Kit): this repository runs it
+through `scripts/workflow` and the Kit sections of `.husky/**` (see
+`AGENTS.md`).
 
 ## Responsibilities
 
@@ -40,7 +40,9 @@ phase 12 of the active `workflow-kit-2026-11-03` plan.
 - Own provider adapter registration and provider session binding.
 - Expose Core RPC and event-stream contracts consumed by Application Shell.
 - Own provider CLI/version tooling and local-model discovery requests.
-- Run plan-first development orchestration and quality gates (via `scripts/*.mjs` and `.husky/**`).
+- Run the plan-first development process and quality gates of projects
+  through the Workflow Kit (`project-workflow`), including the execution mode
+  card, the Kit state watcher and the plan view with executor sessions.
 - Coordinate providers through Provider Runtime facades.
 - Normalize visible provider reasoning before it reaches UI snapshots.
 - Promote provider session ids emitted by provider runtimes so Core keeps the authoritative binding for later turns.

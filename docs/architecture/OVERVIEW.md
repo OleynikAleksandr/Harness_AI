@@ -26,8 +26,10 @@ Electron main (app-bootstrap, core-process-bridge)
 
 - The Electron host supervises one Core process and relays IPC channels to
   Core RPC methods (`core-process-bridge-facade.mjs`).
-- Core publishes events (session, provider, `workflow:status`,
-  `workflow:autopilot`) that the renderer only displays.
+- Core publishes events (session, provider, `workflow:status` with the Core
+  plan view, `workflow:autopilot`, `workflow:mode-choice`) that the
+  renderer only displays. Core watches each Kit project's plan and local
+  workflow state and publishes `workflow:status` without an open UI.
 
 ## Main Contracts
 
@@ -45,8 +47,19 @@ Electron main (app-bootstrap, core-process-bridge)
   quality profile and Git hooks. The same code is bundled into
   `.harness/workflow/runtime/workflow.mjs` inside each project and runs
   without Harness from hooks and agent terminals.
-- **Autopilot**: Core continues a session to the next plan task only on the
-  Kit's decision (`autopilot:status`), within `autopilot.maxContinues`.
+- **Execution modes**
+  (`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`): in a
+  Harness project the agent proposes the scope (`scope:propose`) and the
+  user picks `sequential` (one agent) or `orchestrated` on a Core-built
+  card in the chat. In `orchestrated` mode Claude subagent executors commit
+  their task in their own git worktree and the orchestrator integrates each
+  result into main with a checked two-parent commit
+  (`docs/architecture/workflow-kit/WorkflowKitOrchestration.md`). Core
+  builds the plan view for the sidebar and binds executor sessions to
+  tasks by their working directory.
+- **Autopilot**: Core continues a session to the next plan task (or the
+  next orchestrator step) only on the Kit's decision (`autopilot:status`),
+  within `autopilot.maxContinues`.
 
 ## Development Process Of This Repository
 

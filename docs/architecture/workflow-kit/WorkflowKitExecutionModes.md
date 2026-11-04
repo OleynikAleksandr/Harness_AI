@@ -1,360 +1,319 @@
 # Workflow Kit — режимы выполнения и оркестровка
 
-Статус: согласованная спецификация (2026-11-04), основа scope
-`execution-modes-2026-11-04`. Продолжает [WorkflowKitProcess.md](WorkflowKitProcess.md):
-там один checkout и одна задача в работе, здесь — выбор режима, исполнители
-в worktree и план в сайдбаре Harness.
+Статус: реализовано в scope `execution-modes-2026-11-04` (задачи E1–E20).
+Продолжает [WorkflowKitProcess.md](WorkflowKitProcess.md): там один checkout
+и одна задача в работе, здесь — выбор режима, исполнители в worktree и план
+в сайдбаре Harness. Назначения и интеграция (разделы 5–7) подробно
+описаны в [WorkflowKitOrchestration.md](WorkflowKitOrchestration.md).
+Точные контракты — в `module.md` модулей
+`workflow-plan`, `workflow-execution-mode`, `workflow-assignment`,
+`workflow-integration`, `workflow-git`, `workflow-kit`, `workflow-recovery`,
+`workflow-autopilot`, `workflow-installer`, `core-runtime-process`,
+`execution-mode-card`, `project-plan-panel` и `session-sidebar`.
 
-Источники:
-
-- прогоны Harness AI на `Test_New_HarnesAI_001` и `Test_New_HarnesAI_002`;
-- Workflow Pilot 0.6.11 / Kit 1.10.10, переносится по смыслу:
-  - выбор режима: `.harness/kit/lib/execution-mode.mjs`,
-    `docs/modules/user-choice.md`;
-  - роли: `.harness/kit/lib/role-protocol.mjs`;
-  - оркестровка: `docs/modules/orchestrated-execution.md`,
-    `packages/workflow-kit/docs/modules/orchestrated-plans.md`;
-  - сайдбар: `docs/modules/desktop.md` («Дерево», «План»).
+Образец — Workflow Pilot 0.6.11 (выбор режима, протокол ролей,
+оркестровка, план в сайдбаре); перенесено по смыслу.
 
 Решения пользователя (2026-11-04):
 
 - режим выбирается карточкой при предложении плана;
 - `sequential` — вся работа одним агентом;
-- `orchestrated` — каждую задачу выполняет исполнитель;
-- DOCS выполняет исполнитель, как в Workflow Pilot;
-- исполнители первого этапа — только субагенты Claude у оркестратора Claude.
-  Codex и исполнители других вендоров — следующий этап;
+- `orchestrated` — каждую задачу `work` и `DOCS` выполняет исполнитель;
+- исполнители первого этапа — только субагенты Claude у оркестратора
+  Claude. Codex и другие вендоры — следующий этап;
 - без параллельной работы карточка предлагает «Выполнить последовательно»
   или «Доработать спецификацию»;
 - в `sequential` субагенты-помощники не отключаются;
 - Git-идентичность — без новых настроек;
-- отдельной кнопки «Начать выполнение» нет;
-- всё — одним релизом.
+- отдельной кнопки «Начать выполнение» нет.
 
 ## 1. Проблема
 
-- Нет выбора режима. Агент сам решает, звать ли исполнителей.
-- Исполнители не могут коммитить. Хук Kit общий для всех worktree, и
-  `git commit` в worktree субагента отклоняется (`MANAGED_COMMIT_REQUIRED`).
-  В прогоне 002 оркестратор перенёс файлы в main и закоммитил от себя.
-- Нет параллельности: пока одна задача `IN_PROGRESS`, `task:start` другой
-  невозможен.
-- Git-идентичность Kit не формирует. Глобальная заглушка `Ваше Имя
-  <you@example.com>` попала в коммит установки. Агенты с изолированным
-  домашним каталогом её не видят, и оркестратор угадал имя сам.
-- В сайдбаре Harness плана нет. Субагенты висят карточками под агентом, и
-  их не связать с задачами.
+- Агент сам решал, звать ли исполнителей.
+- Исполнители не могли коммитить: хук Kit общий для всех worktree, и
+  `git commit` субагента отклонялся (`MANAGED_COMMIT_REQUIRED`).
+- Пока одна задача `IN_PROGRESS`, `task:start` другой невозможен.
+- Kit не формировал Git-идентичность: глобальная заглушка попадала в
+  коммиты, а агенты с изолированным домашним каталогом её не видели.
+- В сайдбаре Harness не было плана, субагентов не связать с задачами.
 
-## 2. Метки задач
+## 2. Метки задач и блок `execution`
 
-- Задача `work` получает `parallelSafe: boolean`, по умолчанию `false`.
-- `true` требует конкретных путей в `files`: без glob, без `.` и без
+- `parallelSafe` хранится только со значением `true` (нет поля — `false`).
+  Его может иметь только задача `work` (`PARALLEL_KIND`). Нужен хотя бы один
+  файл, и каждый — конкретный путь: без glob (`*?[]{}`), не `.`, без
   завершающего `/` (`PARALLEL_FILES`).
-- Две задачи совместимы, если:
-  - обе `parallelSafe`;
-  - ни одна не зависит от другой, даже транзитивно;
-  - их пути не совпадают и не вложены друг в друга.
-- У плана есть параллельная работа, если совместима хотя бы одна пара.
-  Это вычисляет Kit (`hasParallelWork`), а не агент и не UI.
+- Две задачи совместимы (`compatibleTasks`), если обе `parallelSafe`
+  `work`, ни одна не зависит от другой даже транзитивно, а их пути не
+  совпадают и не вложены друг в друга по сегментам пути (`src/lib`
+  конфликтует с `src/lib/a.ts`, но не с `src/libx.ts`).
+- У плана есть параллельная работа (`hasParallelWork`), если совместима
+  хотя бы одна пара. Это вычисляет Kit, а не агент и не UI.
+- Блок scope `execution: {strategy, maxWorkers, ownerSession}`:
+  `strategy` — `sequential` или `orchestrated`, `maxWorkers` — целое 1–16
+  (по умолчанию 3), `ownerSession` — id сессии или `null`
+  (`PLAN_EXECUTION`). Нет блока — `sequential`. Режим меняется только новым
+  scope; `carryover` переносит блок и метки.
+- Проекция плана показывает `- Execution: …` и `(work, parallel-safe)`
+  только при наличии полей, поэтому старые планы не меняются.
 
 ## 3. Режимы
 
-- **`sequential`** — всю работу выполняет одна сессия, по порядку, в main.
-  Задачи плана не раздаются исполнителям, назначений нет. Метки
-  `parallelSafe` сохраняются, но игнорируются.
-  - Субагенты-помощники (исследование, поиск, часть работы внутри задачи)
-    разрешены.
-  - Помощники работают в main без своего worktree и не коммитят. Коммит
-    задачи делает агент через `commit --task`.
-- **`orchestrated`** — сессия становится оркестратором. Каждую задачу `work`
-  и `DOCS` выполняет отдельный исполнитель в своём worktree, и параллельную,
-  и последовательную. Оркестратор раздаёт задачи, проверяет результат и
-  интегрирует его в main.
-  - Лимит одновременных исполнителей — `maxWorkers` плана, по умолчанию 3.
-
-Блок scope: `execution: {strategy, maxWorkers, ownerSession}`. Режим
-меняется только новым scope.
+- **`sequential`** — всю работу делает одна сессия, по порядку, в main.
+  Назначений нет, метки игнорируются. Субагенты-помощники разрешены, но
+  работают в main без своего worktree и не коммитят.
+- **`orchestrated`** — сессия становится оркестратором. Каждую задачу
+  `work` и `DOCS` выполняет исполнитель в своём worktree, и параллельную, и
+  последовательную. Оркестратор раздаёт задачи и интегрирует результат в
+  main. `QUALITY` и `delivery` он выполняет сам в main.
 
 ## 4. Выбор режима
 
-### 4.1 Kit
-
-Агент понимает задачу, пишет спецификацию и план с метками. Затем, вместо
-`scope:create`, вызывает:
+### 4.1 Kit (`workflow-execution-mode`, `workflow-kit`)
 
 ```text
 scripts/workflow scope:propose --input <plan.json> \
   --recommended sequential|orchestrated --reason "…"
+scripts/workflow scope:choose --generation <N> \
+  --option sequential|orchestrated|refine --session <id> --note "<выбор>"
+scripts/workflow scope:proposal        # только чтение: вид карточки
 ```
 
-Kit проверяет план так же, как `scope:create`, но scope не создаёт. Он
-сохраняет предложение `.harness/workflow/local/scope-proposal.json`:
-
-- `generation`, digest плана, сам план;
-- рекомендация и причина;
-- `hasParallelWork` и варианты.
-
-Варианты:
+- `scope:propose` проверяет вход как `scope:create` (открытый scope —
+  `SCOPE_EXISTS`), ничего не коммитит и пишет
+  `.harness/workflow/local/scope-proposal.json`: `generation` (+1 к
+  прошлой), `planDigest` (sha256 канонического JSON входа), копию входа,
+  рекомендацию, причину (10–300 символов, иначе `PROPOSAL_REASON`),
+  `hasParallelWork`, варианты, `refining: false`, `choice: null`.
+- Варианты:
 
 | План | Варианты карточки |
 |---|---|
-| есть параллельная работа | рекомендация агента; второй режим; «Доработать спецификацию» |
-| параллельной работы нет | «Выполнить последовательно»; «Доработать спецификацию» |
+| есть параллельная работа | рекомендация; второй режим; `refine` |
+| параллельной работы нет | `sequential`; `refine` |
 
-- Рекомендация `orchestrated` без параллельной работы — `NO_PARALLEL_WORK`.
-- Если предыдущее предложение этого же цикла планирования закончилось
-  «Доработать спецификацию», а новое снова без параллельной работы, Kit
-  сразу создаёт scope `sequential` без карточки. Ответ содержит
-  `autoChosen: true`, и агент сообщает пользователю, что план выполняется
-  последовательно.
+- Рекомендация `orchestrated` без параллельной работы —
+  `NO_PARALLEL_WORK`; иная рекомендация — `PROPOSAL_RECOMMENDATION`.
+- Если запись в доработке (`refining: true`), а новый план снова без
+  параллельной работы, Kit сразу создаёт scope `sequential` без карточки:
+  ответ `autoChosen: true`, `ownerSession: null`, в `approval` — суффикс
+  `| Execution mode chosen automatically: sequential …`.
+- `scope:choose` ничего не пишет при отказе. Порядок проверок:
+  `PROPOSAL_OPTION`, `PROPOSAL_SESSION`/`PROPOSAL_NOTE` (пустые),
+  `PROPOSAL_CHANGED` (нет записи, другое поколение, запись в доработке или
+  вход не совпал с digest), `NO_PARALLEL_WORK`, `PROPOSAL_OPTION` (вариант
+  не предложен).
+  - `sequential`/`orchestrated` создают scope из сохранённого входа:
+    `execution {strategy: <вариант>, maxWorkers: из входа или 3,
+    ownerSession: <session>}`, в `approval` —
+    `| Execution mode chosen by the user: <вариант>: <note>`;
+  - `refine` удаляет вход и план, оставляет `refining: true` и поколение.
+- Любое создание scope и `close` удаляют запись предложения.
+- `config.host: "harness"` пишет `install --host harness`. В таком проекте
+  `scope:create` отвечает `EXECUTION_MODE_REQUIRED` и называет
+  `scope:propose`. Без host `scope:create` работает как раньше
+  (`sequential`, без блока `execution`).
+- `scope:proposal` возвращает вид карточки без входа плана:
+  `{generation, recommended, reason, hasParallelWork, options, refining,
+  createdAt, scopeId, objective, host}` или `null`.
 
-Выбор записывает только приложение:
+### 4.2 Harness (`core-runtime-process`, `execution-mode-card`)
 
-```text
-scripts/workflow scope:choose --generation <N> \
-  --option sequential|orchestrated|refine --session <id> --note "<выбор>"
-```
-
-- Kit сверяет поколение и digest. Устаревший выбор — `PROPOSAL_CHANGED`,
-  без записи.
-- `sequential`/`orchestrated` создают scope из сохранённого плана. Выбор
-  попадает в `approval`, `--session` — в `execution.ownerSession`.
-- `refine` удаляет план предложения и запоминает, что цикл в доработке.
-- Создание scope и `close` очищают запись предложения.
-- В проекте Harness (`config.host: "harness"`) `scope:create` отвечает
-  `EXECUTION_MODE_REQUIRED` и называет `scope:propose`.
-- Без Harness `scope:create` работает как сейчас и создаёт `sequential`.
-
-### 4.2 Harness
-
-- Core наблюдает предложение и строит модель карточки: вопрос, варианты,
-  рекомендация, причина, поколение. Renderer только показывает её в чате
-  сессии, сделавшей предложение.
-- Вариант `orchestrated` Core показывает, только если провайдер сессии
-  поддерживает исполнителей. На первом этапе это только Claude.
-- Вид как в Workflow Pilot:
-  - рекомендуемая строка первой, с пометкой «(рекомендую)», залитой
-    кнопкой и причиной под ней;
-  - подсказка «или напишите ответ в чат».
-- Нажатие идёт в Core. Core вызывает `scope:choose` и отправляет агенту
-  сообщение пользователя с выбором.
-- После выбора режима агент сразу начинает первую задачу. Отдельной
-  кнопки запуска нет, автопилот продолжает как раньше.
-- «Доработать спецификацию» продолжает диалог с агентом.
-- Сообщение, написанное пользователем в чат при открытой карточке, снимает
-  карточку, а предложение остаётся без выбора.
+- Когда основная сессия проекта с бандлом Kit (не субагент и не Profile
+  Creator) переходит в `idle`, Core вызывает `scope:proposal`. Открытое
+  предложение (`host: "harness"`, не `refining`, со `scopeId`) нового
+  поколения становится карточкой workspace, владелец — эта сессия. Нет
+  открытого предложения — карточка удаляется. Поэтому выбранная карточка
+  исчезает в конце следующего хода агента: scope уже создан.
+- Карточка живёт в памяти Core и теряется при перезапуске приложения.
+  Модель: `{workspaceId, sessionId, generation, scopeId, title, options
+  [{id, recommended}], reason, state, chosen, error}`, состояния
+  `offered`, `saving`, `chosen`, `dismissed`.
+- `orchestrated` предлагается, только если провайдер сессии-владельца —
+  `claude`. Если рекомендованный режим не предложен, рекомендации и
+  причины на карточке нет.
+- RPC: `workflow-mode-choice-get {workspaceId}` и `workflow-mode-choose
+  {workspaceId, sessionId, generation, option}` (только владелец
+  `offered`-карточки и предложенный вариант, иначе
+  `MODE_CHOICE_UNAVAILABLE`/`INVALID_REQUEST`). Событие
+  `workflow:mode-choice {workspaceId, sessionId, card}`. IPC
+  `harness-ai:core:workflow-mode-choice-get`/`workflow-mode-choose`,
+  preload `getWorkflowModeChoice`/`chooseWorkflowMode`.
+- Нажатие: карточка `saving`, Core вызывает `scope:choose --session
+  <владелец> --note "the user chose in the Harness mode card: …"`. Отказ Kit
+  (например `PROPOSAL_CHANGED`) возвращает карточку в `offered` с `error`.
+  Успех — `chosen`, и Core отправляет сессии-владельцу сообщение
+  пользователя тем же маршрутом, что ход автопилота. Тексты для агента —
+  на английском: `sequential` — выполнять план по задачам с первой;
+  `orchestrated` — быть оркестратором, раздавать задачи через
+  `assignment:next`/`assignment:create` субагентам Claude с изоляцией
+  worktree; `refine` — доработать спецификацию с пользователем и
+  предложить снова.
+- Сообщение, написанное пользователем при открытой карточке, переводит её
+  в `dismissed`; предложение остаётся без выбора, и следующий конец хода
+  того же поколения карточку не возвращает.
+- `workflow-prepare-project` при каждой установке или обновлении передаёт
+  `--host harness`; существующая метка сохраняется.
+- Renderer (`execution-mode-card`, между строкой статуса и чатом)
+  показывает карточку только в чате владельца: вопрос и цель scope,
+  строки в порядке Core (рекомендуемая первой, с пометкой и причиной,
+  залитой кнопкой), подсказку «или напишите ответ в чат», состояния
+  сохранения и выбора, ошибки без нативных диалогов. Строки — английские
+  исходные ключи `workflow.modeCard.*` словарей локализации.
 
 ## 5. Назначение исполнителю
 
-### 5.1 Привязка к worktree Claude
+Подробно — [WorkflowKitOrchestration.md](WorkflowKitOrchestration.md),
+раздел 5. Кратко:
 
-Worktree создаёт встроенный механизм субагентов Claude
-(`Agent` с `isolation: "worktree"`), а Kit к нему привязывается.
-
-```text
-scripts/workflow assignment:next
-scripts/workflow assignment:create --task <ID>
-scripts/workflow assignment:attach <id>      # в worktree исполнителя
-```
-
-- `assignment:next` (и recovery оркестратора) называет задачи, которые
-  можно раздать сейчас. Решение «что и когда» принимает Kit с учётом:
-  - зависимостей и `maxWorkers`;
-  - барьера: задача без `parallelSafe` выдаётся, когда все предыдущие задачи
-    DONE и нет активных назначений, а параллельная не обгоняет незавершённую
-    последовательную (`ASSIGNMENT_BARRIER`);
-  - пересечения путей (`ASSIGNMENT_CONFLICT`).
-- `assignment:create` в main выдаёт id и готовый текст поручения для
-  субагента: задача, критерии, файлы и первый шаг `assignment:attach <id>`.
-  Предусловия:
-  - scope `ACTIVE`, стратегия `orchestrated`;
-  - нет транзакции и интеграции;
-  - main чист, база = `HEAD`;
-  - задача `TODO`, её зависимости `DONE` и являются предками базы;
-  - одно активное назначение на задачу (`ASSIGNMENT_EXISTS`);
-  - лимит (`ASSIGNMENT_CAPACITY`).
-- Оркестратор запускает субагента и передаёт ему текст поручения.
-- `assignment:attach` проверяет, что это linked worktree того же
-  репозитория, `HEAD` равен базе и дерево чисто. Затем записывает в
-  назначение путь worktree и ветку. Ветку Claude Kit не переименовывает.
-
-### 5.2 Состояние
-
-- Запись в main: `.harness/workflow/local/assignments/<id>.json`.
-- Запись в worktree: `.harness/workflow/local/assignment.json`.
-- Поля: `id`, `scopeId`, `taskId`, `iteration`, `worktree`, `branch`,
-  `baseCommit`, `configDigest`, `status`, `sourceCommit`,
-  `integrationCommit`, `cleanup`.
-- Повтор команды с тем же id сверяет входы и продолжает.
-
-| Статус | Когда |
-|---|---|
-| `ASSIGNED` | создано, исполнитель ещё не привязался |
-| `NEEDS_SETUP` | окружение worktree не готово |
-| `READY` | можно начинать |
-| `RUNNING` | задача исполнителя начата |
-| `READY_FOR_INTEGRATION` | есть коммит `implementation` с пройденными проверками |
-| `INTEGRATED` | принят в main |
-
-### 5.3 План исполнителя
-
-`assignment:attach` строит план из базового коммита и делает служебный
-коммит с ролью `assignment-plan` (только файл плана):
-
-- scope `assignment-<id>`, одна задача — копия назначенной,
-  `dependencies: []`, стратегия `sequential`;
-- контракт неизменен: правка плана, конфигурации или файлов вне `files`
-  задачи отклоняется (`ASSIGNMENT_CONTRACT`, `ASSIGNMENT_SCOPE`).
-
-В worktree разрешены `status`, `recover`, `show-task`, `task:start`,
-`commit --task`, `repair`, `task:block`, `assignment:status` и хуки.
-Остальное — `ASSIGNMENT_READ_ONLY`, `pre-push` отклоняется.
-
-Цикл исполнителя: `task:start` → работа → `commit --task` с проверками
-задачи в его worktree → отчёт оркестратору с SHA. Журнал транзакции у
-каждого worktree свой (`.harness/workflow/local`), поэтому механизм
-управляемого коммита Kit 2.0 работает без изменений.
-
-### 5.4 Окружение worktree
-
-Если проверкам задачи нужны зависимости, статус `NEEDS_SETUP`:
-
-- `assignment:setup --id <id>` выполняет команду подготовки из профиля
-  качества стека (для `node` — `npm ci` по lock-файлу);
-- `node_modules` main не копируется и не связывается;
-- задача без назначенных проверок (DOCS) подготовки не требует.
+- 5.1 — `assignment:next` (планировщик: зависимости, барьер
+  последовательных задач, пересечение путей, `maxWorkers`),
+  `assignment:create` (запись `ASSIGNED` и английский текст поручения),
+  субагент Claude с `isolation: "worktree"`, `assignment:attach` в его
+  worktree (служебный коммит `assignment-plan`);
+- 5.2 — записи `.harness/workflow/local/assignments/<id>.json` и статусы
+  `ASSIGNED` → `NEEDS_SETUP`/`READY` → `RUNNING` →
+  `READY_FOR_INTEGRATION` → `INTEGRATED`;
+- 5.3 — план из одной задачи, правило путей «равен записи `files` или
+  вложен в неё по сегментам пути» (`ASSIGNMENT_SCOPE`,
+  `ASSIGNMENT_CONTRACT`), список разрешённых команд;
+- 5.4 — `assignment:setup`: установка зависимостей в worktree.
 
 ## 6. Порядок работы оркестратора
 
-1. `QUALITY` (если есть) — оркестратор в main: задача пишет конфигурацию
-   Kit, которая живёт только в main.
-2. Задачи `work` — только исполнители. `task:start` в main отвечает
-   `ORCHESTRATED_MAIN_READ_ONLY`. DONE задачи — только коммит с ролью
-   `integration`.
-3. `DOCS-<раунд>` — исполнитель, после интеграции всех задач раунда.
-4. `delivery` — оркестратор в main, когда все задачи DONE и назначений нет
-   (`DELIVERY_NOT_READY`).
+1. `QUALITY` — оркестратор в main: конфигурация Kit живёт только в main.
+2. Задачи `work` и `DOCS` — только исполнители. `task:start` в main
+   отвечает `ORCHESTRATED_MAIN_READ_ONLY`. `DONE` задачи ставит только
+   интеграционный коммит.
+3. `DOCS-<раунд>` — исполнитель, когда все задачи `work` раунда
+   интегрированы.
+4. `delivery` — оркестратор в main, когда все предыдущие задачи `DONE` и
+   нет активных назначений, иначе `DELIVERY_NOT_READY`
+   (`details {pending, active}`).
 
 ## 7. Интеграция
 
-```text
-scripts/workflow integration:start --id <assignment> --source <sha>
-scripts/workflow integration:continue --id <assignment>
-```
+Подробно — [WorkflowKitOrchestration.md](WorkflowKitOrchestration.md),
+раздел 7. Кратко: `integration:start --id <id> --source <sha>` доказывает
+источник (история, служебные файлы, квитанция проверок, контракт задачи),
+выполняет `git merge --no-commit --no-ff`, отбрасывает план исполнителя и
+делает двухродительский коммит с ролью `integration` и проверками задачи
+на объединённом результате. Конфликт и упавшие проверки сохраняют
+состояние слияния до `integration:continue`; журнал
+`.harness/workflow/local/integration.json` блокирует остальные записи Kit.
+После `INTEGRATED` Kit удаляет worktree и ветку. История main проверяется
+по первым родителям.
 
-Kit доказывает источник (`INTEGRATION_HISTORY`, `INTEGRATION_UNCHECKED`):
+## 8. Git-идентичность (`workflow-git`, `workflow-installer`)
 
-- история `base..source` — ровно коммит `assignment-plan` и коммиты
-  `implementation` этой задачи с верными trailers;
-- в diff нет служебных файлов Kit;
-- квитанция проверок исполнителя относится к дереву `source`, все проверки
-  `PASSED`.
-
-Шаги:
-
-1. `git merge --no-commit --no-ff <source>`.
-2. План исполнителя заменяется кандидатом общего плана: задача `DONE`,
-   `operationId`, `sourceCommit`.
-3. Изменения вне `files` задачи — `INTEGRATION_SCOPE`.
-4. Коммит `merge: <title>` с двумя родителями, проверки задачи на
-   объединённом результате, trailers `Workflow-Role: integration` и
-   `Workflow-Source`.
-
-Ошибки:
-
-- Конфликт — фаза `CONFLICT`. Оркестратор разрешает его в пределах файлов
-  задачи и вызывает `continue`. Ours/theirs Kit сам не применяет.
-- Проверки упали — `CHECKS_FAILED`. Состояние слияния сохраняется, после
-  исправления — `continue`.
-- Журнал `.harness/workflow/local/integration.json` блокирует другие
-  записи. Повтор завершает уже созданный коммит без второго merge и
-  `reset --hard`.
-
-После `INTEGRATED` Kit удаляет worktree (`git worktree remove` без force)
-и влитую ветку (`git branch -d`). Отказ даёт `cleanup: PENDING`, а
-`assignment:cleanup` доделывает. Сверка истории принимает двухродительские
-коммиты только с ролью `integration`.
-
-## 8. Git-идентичность
-
-Идентичность — имя и почта автора, которые Git пишет в каждый коммит.
-
-1. Установщик Kit (его запускает Harness Core с настоящим домашним
-   каталогом) берёт идентичность из локального конфига репозитория, иначе из
-   глобального.
-2. Заглушки отклоняются (`GIT_IDENTITY_PLACEHOLDER`):
-   - пустые значения;
-   - `you@example.com`;
-   - домены `example.*`/`invalid`/`localhost`;
-   - имена `Your Name` и `Ваше Имя`.
-3. Найденная идентичность записывается в локальный конфиг репозитория.
-   Все worktree читают его через общий каталог Git, поэтому оркестратор и
-   исполнители подписывают коммиты одинаково, независимо от домашнего
-   каталога агента.
-4. Каждый коммит Kit передаёт идентичность явно (`-c user.name/-c
-   user.email`) и проверяет её перед транзакцией.
-5. Если настоящей идентичности нет, коммит Kit отвечает
-   `GIT_IDENTITY_REQUIRED` с готовой командой `git config --global
-   user.name/user.email`. Пользователь выполняет её один раз. Доктор
-   (`git-identity`) применяет её к проекту.
-6. Агентам запрещено задавать идентичность самим (правило управляемой
-   секции `AGENTS.md`).
+1. Заглушки (`isPlaceholderIdentity`): пустые значения, имена `Your Name`
+   и `Ваше Имя`, почта `you@example.com` или без `@`, домены `example`,
+   `example.*`, `invalid`, `*.invalid`, `localhost`.
+2. `install` до любой записи берёт настоящую идентичность из локального
+   конфига репозитория, иначе из глобального, и пишет её в локальный
+   конфиг. Все worktree читают его через общий каталог Git. Нет настоящей —
+   `GIT_IDENTITY_REQUIRED`, ничего не создано.
+3. Каждый коммит Kit требует настоящей локальной идентичности (глобальная
+   здесь не используется) и передаёт её явно: `-c user.name/-c user.email`
+   и `GIT_AUTHOR_*`/`GIT_COMMITTER_*` (Git экспортирует `GIT_AUTHOR_*` в
+   хуки, и они сильнее `-c`).
+4. Отказ `GIT_IDENTITY_REQUIRED` называет две команды
+   `git config --global user.name/user.email` и `scripts/workflow doctor
+   --fix`. Проверка Доктора `git-identity` (`fail`) копирует настоящую
+   глобальную идентичность в проект; сама её не угадывает.
+5. Агентам запрещено задавать идентичность (управляемая секция
+   `AGENTS.md`).
 
 ## 9. Роли агента
 
-Управляемая секция `AGENTS.md` и recovery получают роли по образцу
-`role-protocol.mjs`:
+Recovery пишет в `state` строку `role:` и даёт шаг роли в `next`
+(`workflow-recovery`); управляемая секция `AGENTS.md` содержит блок
+«Execution modes» с теми же ролями:
 
-- **планирование** (scope нет): спецификация, план с метками,
-  `scope:propose`, конец хода до выбора пользователя;
-- **выполняет сам** (`sequential`): задачи по порядку в main; помощники
-  без своего worktree и без коммитов;
-- **оркестратор** (`orchestrated`): `assignment:next` → `assignment:create`
-  → запуск субагента с текстом поручения → проверка SHA →
-  `integration:start`; обычную реализацию в main не выполнять;
-- **исполнитель** (worktree назначения): `assignment:attach` →
-  `task:start` → `commit --task` → отчёт с SHA; main, план и чужие задачи
-  не трогать, вложенных исполнителей не создавать.
+- **planning** (scope нет): спецификация, план с метками, в проекте
+  Harness — `scope:propose` и конец хода; ожидающее предложение — ждать
+  выбора на карточке; после `refine` — доработать и предложить снова; без
+  Harness — `scope:create`;
+- **self** (`sequential`): задачи по порядку в main; помощники без своего
+  worktree и без коммитов;
+- **orchestrator** (`orchestrated`, main): строки `assignments:` и
+  `integration:`; шаги по порядку — фаза журнала интеграции, интеграция
+  `READY_FOR_INTEGRATION` по одной, задача main (QUALITY, delivery),
+  раздача `ready`, ожидание исполнителей, `assignment:cleanup`;
+- **executor** (worktree назначения, в том числе ещё не привязанный):
+  `assignment:attach`, `assignment:setup` при `NEEDS_SETUP`, `task:start`,
+  `commit --task`, отчёт с SHA; main, план и чужие задачи не трогать.
+
+Списки в пакете ограничены 10 пунктами.
 
 ## 10. Harness
 
 ### 10.1 Статус и его динамика
 
-- `KitStatus` получает:
-  - список задач плана (id, вид, раунд, статус, название, `parallelSafe`);
-  - `execution`, назначения (`assignments`) и предложение
-    (`scopeProposal`).
-- Core следит за файлом плана и `.harness/workflow/local` проекта и
-  публикует `workflow:status` при изменении. Открытый UI для этого не
-  нужен.
+- `KitStatus` получает `tasks` (`{id, kind, roundId, status, title,
+  parallelSafe, dependencies}`), `execution`, `assignments`,
+  `integration`, `scopeProposal` и `executor` (в worktree исполнителя).
+  Текст `status` добавляет строку `execution: none|sequential|orchestrated
+  (max <N> workers), assignments: …[, integration <task> <phase>]`.
+- Core (`CoreWorkflowWatch`) через `fs.watch` следит за
+  `.harness/plans/todo-plan.md` и `.harness/workflow/local`
+  (`assignments/**`, `integration.json`, `scope-proposal.json`) каждого
+  проекта с Kit и после 300 мс тишины публикует `workflow:status`. Открытый
+  UI для этого не нужен. Наблюдение включается при восстановлении реестра,
+  add/select/remove workspace и `workflow-prepare-project`.
 
 ### 10.2 План в сайдбаре
 
-- Под карточкой агента проекта показывается активный план, в любом режиме.
-  Карточка подписана «Агент», в `orchestrated` — «Оркестратор».
-- Верх: название scope, состояние, прогресс «выполнено N из M».
-- Строки:
-  - значок состояния, ID, название;
-  - метка «параллельно» или «последовательно», только в `orchestrated`;
-  - текущая задача подсвечена.
-- В `orchestrated` строка задачи с исполнителем открывает его сессию.
-  Привязанные к задачам исполнители не дублируются карточками под
-  оркестратором. Субагенты вне плана остаются под агентом, как сейчас.
+- Модель плана строит Core (`buildPlanView`) и кладёт её в результат
+  `workflow-status` и событие `workflow:status` (`planView`). `null` без
+  Kit или scope; иначе scope, состояние, режим, прогресс `{done, total}`,
+  `ownerSessionId`, строки `{taskId, title, kind, status, label, current,
+  executorSessionId}` и `boundSessionIds`.
+- `label` — `parallel`/`sequential` только в `orchestrated`. `current` —
+  текущая задача Kit, а в `orchestrated` и каждая задача с назначением не
+  `INTEGRATED`.
+- Владелец — `execution.ownerSession`, если это сессия workspace, иначе
+  последняя активная основная сессия.
 - Привязку исполнитель ↔ задача вычисляет Core: рабочий каталог
-  субагента из его сессии совпадает с `worktree` назначения Kit.
-  Renderer ничего не сопоставляет.
+  субагента (`workingDirectory` сессии) равен `worktree` назначения или
+  лежит внутри него; сравниваются реальные пути. Новый рабочий каталог
+  субагента вызывает повторную публикацию (300 мс). Renderer ничего не
+  сопоставляет.
+- Сайдбар (`project-plan-panel`, `session-sidebar`) показывает план под
+  карточкой владельца в обоих режимах. Подпись владельца — «Оркестратор» в
+  `orchestrated`, иначе «Агент». Шапка: цель scope, состояние, «N из M».
+  Строки: значок статуса, ID, название, метка режима, подсветка текущей.
+  Строка с исполнителем открывает его сессию. Привязанные исполнители и их
+  дети не показываются карточками; прочие субагенты остаются под агентом.
 
-### 10.3 Прочее
+### 10.3 Автопилот
 
-- Автопилот в `orchestrated` продолжает ход оркестратора, когда Kit сообщает
-  `READY_FOR_INTEGRATION` или готовность следующих задач.
-- Новые и открытые проекты Harness ставят `config.host: "harness"`.
-- Установщик добавляет в управляемый `.gitignore` `.harness/sessions/` и
-  `.claude/worktrees/`.
+- `autopilot:status` получает `proposalPending` и `orchestration`
+  (назначения, журнал интеграции, готовые задачи).
+- Новые причины остановки: `waiting-for-mode-choice` (ждёт карточки) и
+  `waiting-for-executors` (есть назначения `ASSIGNED`, `NEEDS_SETUP`,
+  `READY` или `RUNNING`, а других шагов нет).
+- В `orchestrated` автопилот продолжает оркестратора по первому из шагов:
+  журнал интеграции, `READY_FOR_INTEGRATION`, QUALITY или начатая
+  delivery, готовые задачи, незавершённая очистка. Прогресс учитывает
+  `orchestrationKey` (назначения, интеграция, готовые задачи), поэтому
+  ход, который только создал назначения, не считается `no-progress`.
+
+### 10.4 Рабочий каталог субагента Claude
+
+`claude-provider` сообщает `workingDirectory` субагента: `worktreePath` из
+`meta.json` для `isolation: "worktree"`, иначе последний `cwd` записей
+транскрипта. Core хранит его в сессии (`CoreSession.workingDirectory`), см.
+[ClaudeSubagentSessions.md](../ClaudeSubagentSessions.md), §3.2.
 
 ## 11. Мелкие исправления того же релиза
 
-- ложный дрейф качества в проекте без `package.json`;
-- `.harness/product-tree/**` принимается задачей DOCS как документ;
-- остатки `pending-*.json` проверок удаляются;
-- `inspect --format text` печатает текст, а не JSON.
+- дрейф качества считается только для стеков, чьим проверкам нужен
+  манифест (`node --test` без `package.json` дрейфа не даёт);
+- `.harness/product-tree/**` считается документацией для DOCS и
+  `docs:commit`; `kit:doc-size` и `kit:md-links` проверяют только Markdown;
+- файлы `pending-*.json` проверок удаляются при любом исходе транзакции;
+- `inspect --format text` печатает текст;
+- `KIT_VERSION` 2.1.0: старые установки — `KIT_OUTDATED`, обновление
+  добавляет в `.gitignore` `.harness/sessions/` и `.claude/worktrees/` и
+  блок «Execution modes» в `AGENTS.md`.

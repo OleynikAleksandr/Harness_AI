@@ -164,7 +164,8 @@ implementation plan.
   cluster with its module facades, project files, commands and phases.
 - `docs/architecture/workflow-kit/WorkflowKitProcess.md` — Workflow Kit
   process algorithm: scope, tasks, transactional commit, rounds, acceptance,
-  closing, carryover, repair, hybrid documentation policy and delivery.
+  closing, carryover, repair, hybrid documentation policy and delivery, and
+  the orchestrated exception to one task per checkout.
 - `docs/architecture/workflow-kit/WorkflowKitRecovery.md` — bounded recovery
   packet (sections, budget, round digests), session-start hook and the Core
   autopilot decision/stop reasons.
@@ -175,11 +176,18 @@ implementation plan.
   inspection, install, doctor, Harness plan migration, Core/Electron/RPC/UI
   integration, provider context delivery and Windows/Linux rules.
 - `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md` — execution
-  modes (Russian, scope `execution-modes-2026-11-04`): `parallelSafe` labels,
-  the mode choice card (`scope:propose`/`scope:choose`), sequential by one
-  agent, orchestrated by Claude subagent executors attached to their worktrees
-  (assignments, executor plan, merge integration with checks), Kit-formed git
-  identity, the plan with live progress in the Harness sidebar and small fixes.
+  modes as implemented (Russian, scope `execution-modes-2026-11-04`):
+  `parallelSafe` labels and the `execution` block, the mode choice
+  (`scope:propose`/`scope:choose`/`scope:proposal`) and the Core-built card,
+  sequential by one agent, the orchestrator order, Kit-formed git identity,
+  agent roles in recovery and `AGENTS.md`, Kit status, the Core watcher, the
+  plan view with executor binding in the Harness sidebar, the orchestrated
+  autopilot and small fixes.
+- `docs/architecture/workflow-kit/WorkflowKitOrchestration.md` — the
+  orchestrated part of the execution modes (Russian, sections 5–7):
+  scheduler, `assignment:*` commands, executor attach, plan and path
+  contract, worktree setup, integration proof, merge journal, conflicts,
+  failed checks, crash recovery, cleanup and first-parent history.
 
 ## Product Part Documentation
 

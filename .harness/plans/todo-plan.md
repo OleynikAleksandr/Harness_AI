@@ -10,10 +10,40 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 71,
+  "revision": 73,
   "rounds": [
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "workflow-execution-mode/module.md: scope proposal record, options and choice verification",
+          "workflow-assignment/module.md: records, scheduler, brief, executor side, setup and cleanup",
+          "workflow-integration/module.md: source proof, merge journal, continue and status",
+          "workflow-git/module.md: git identity, integration commit, first-parent references",
+          "workflow-kit/module.md: scope:propose/choose/proposal, assignment:*, integration:*, executor whitelist, status fields",
+          "workflow-recovery/module.md and workflow-autopilot/module.md: roles and orchestrated decisions",
+          "core-runtime-process/module.md: mode card route, Kit state watcher, plan view and executor binding",
+          "execution-mode-card, project-plan-panel, session-sidebar module.md: card and plan in the UI"
+        ],
+        "decisions": [
+          "A changed path belongs to a task when it equals or is nested by path segment in a files entry, so a task may own a module directory.",
+          "QUALITY and delivery run in main; delivery starts only when all earlier tasks are DONE and no assignment is active.",
+          "Main history is walked by first parents; a two-parent commit is valid only as an integration commit with Workflow-Source equal to its second parent.",
+          "Executors install their own dependencies (assignment:setup, npm ci); main's node_modules is never copied or linked.",
+          "The mode card lives in Core memory, offers orchestrated only to Claude sessions and sends the choice to the agent as an English user message.",
+          "KIT_VERSION 2.1.0 makes 2.0.0 installs outdated so updates add .harness/sessions/, .claude/worktrees/ and the Execution modes block.",
+          "WorkflowKitExecutionModes.md was split: sections 5-7 live in WorkflowKitOrchestration.md with the same numbering (doc-size limit).",
+          "Kit Markdown checks do not detect merge conflict markers; check for them when resolving conflicts."
+        ],
+        "references": [
+          "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md",
+          "docs/architecture/workflow-kit/WorkflowKitOrchestration.md",
+          "docs/architecture/workflow-kit/WorkflowKitProcess.md#1",
+          "docs/architecture/workflow-kit/WorkflowKitInstallation.md#2",
+          "docs/architecture/workflow-kit/WorkflowKitRecovery.md#6",
+          "docs/architecture/ClaudeSubagentSessions.md#3.2"
+        ],
+        "result": "Workflow Kit execution modes: in a Harness project the agent proposes the scope and the user picks sequential or orchestrated on a Core-built chat card; orchestrated runs work and DOCS tasks by Claude subagent executors attached to their own worktrees, whose checked commits the orchestrator merges into main with two-parent integration commits. Kit commits use a real repository-local git identity; Core watches the Kit state and shows the plan with executor sessions in the sidebar."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -839,14 +869,27 @@
       "files": [
         "README.md",
         "docs/architecture/OVERVIEW.md",
-        "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md"
+        "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md",
+        ".harness/product-tree/product-tree.md",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/architecture/ClaudeSubagentSessions.md",
+        "docs/architecture/workflow-kit/WorkflowKit.md",
+        "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+        "docs/architecture/workflow-kit/WorkflowKitOrchestration.md",
+        "docs/architecture/workflow-kit/WorkflowKitProcess.md",
+        "docs/architecture/workflow-kit/WorkflowKitQuality.md",
+        "docs/architecture/workflow-kit/WorkflowKitRecovery.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/cluster.md",
+        "product-parts/application-shell/product-part.md",
+        "product-parts/core-runtime/clusters/project-workflow/cluster.md",
+        "product-parts/core-runtime/product-part.md"
       ],
       "fixes": null,
       "id": "DOCS-R1",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -887,8 +930,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 20/22
-- Revision: 71
+- Progress: 21/22
+- Revision: 73
 
 ## Objective
 
@@ -982,13 +1025,15 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
   - Commit: feat: show the plan in the sidebar
   - Files: product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-facade.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.tsx, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-sidebar-facade.tsx, .harness/product-tree/product-tree.json, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/module.md, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel-state.ts, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.css, product-parts/application-shell/clusters/project-workflow-ui/modules/project-plan-panel/src/project-plan-panel.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/module.md, product-parts/application-shell/clusters/session-interface/modules/session-sidebar/src/session-tree.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/module.md, product-parts/core-runtime/clusters/settings-and-localization/modules/localization-runtime/src/source-dictionaries.ts
   - Depends on: E16
-- [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
-  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, .harness/product-tree/product-tree.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/ClaudeSubagentSessions.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitOrchestration.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, product-parts/application-shell/clusters/project-workflow-ui/cluster.md, product-parts/application-shell/product-part.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/product-part.md
   - Depends on: E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20
 - [TODO] D1 — Package the macOS release (delivery)
   - Commit: chore: package execution modes release
   - Files: docs/evidence/execution-modes-package-2026-11-04.md
   - Depends on: E13, E19, E20, DOCS-R1
+
+Digest: Workflow Kit execution modes: in a Harness project the agent proposes the scope and the user picks sequential or orchestrated on a Core-built chat card; orchestrated runs work and DOCS tasks by Claude subagent executors attached to their own worktrees, whose checked commits the orchestrator merges into main with two-parent integration commits. Kit commits use a real repository-local git identity; Core watches the Kit state and shows the plan with executor sessions in the sidebar.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

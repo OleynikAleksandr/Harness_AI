@@ -5,9 +5,13 @@
 Owns the Workflow Kit: the project development process that Harness installs
 into any project. It covers the plan with scope, rounds and tasks,
 transactional task commits, the bounded recovery packet, the quality
-profile, git hooks, installation and the project doctor, and the autopilot
-decision. The specification lives in
-`docs/architecture/workflow-kit/WorkflowKit.md`.
+profile, git hooks, installation and the project doctor, the autopilot
+decision, and the execution modes: the scope proposal with the user's mode
+choice, executor assignments in git worktrees and their integration into
+main. The specification lives in
+`docs/architecture/workflow-kit/WorkflowKit.md`; the execution modes in
+`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md` and
+`docs/architecture/workflow-kit/WorkflowKitOrchestration.md`.
 
 The same TypeScript code runs in two places:
 - bundled into one standalone file inside user projects, where git hooks and
@@ -28,18 +32,28 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
 - `workflow-platform` — OS-neutral paths, atomic files, locks, process
   runner, runtime resolution, launcher texts and the shared `WorkflowError`.
 - `workflow-plan` — plan model, validation, document and transitions.
-- `workflow-git` — git queries, history, transactional commits, references
-  and repair.
+- `workflow-git` — git queries, history, the git identity, transactional
+  commits (including the two-parent integration commit), first-parent
+  references and repair.
 - `workflow-quality` — project quality profile: configuration, stack
   detection, check catalog, check execution and profile application.
-- `workflow-recovery` — bounded recovery packet within a byte budget, the
-  SessionStart hook, `show-task` and `history`.
-- `workflow-autopilot` — pure continue/stop decision of the Core autopilot.
-- `workflow-kit` — the cluster facade `WorkflowKitFacade`: status, scope,
-  task, commit, acceptance, close, carryover, repair and quality
-  operations.
+- `workflow-recovery` — bounded recovery packet within a byte budget with
+  the agent role and its step, the SessionStart hook, `show-task` and
+  `history`.
+- `workflow-autopilot` — pure continue/stop decision of the Core autopilot,
+  including the orchestrator steps.
+- `workflow-execution-mode` — the scope proposal record, the mode card
+  options and the verification of the user's choice.
+- `workflow-assignment` — assignment records, the scheduler, the executor
+  brief, the executor side (worktree record, one-task plan, contract
+  guard), worktree setup and cleanup.
+- `workflow-integration` — the proof of an executor source and its merge
+  into main with the integration journal, `continue` and status.
+- `workflow-kit` — the cluster facade `WorkflowKitFacade`: status, scope
+  (create, propose, choose), task, commit, acceptance, close, carryover,
+  repair, quality, assignment and integration operations.
 - `workflow-installer` — installation payload and manifest, inspection,
-  install, doctor and legacy plan migration.
+  install (git identity, host marker), doctor and legacy plan migration.
 - `workflow-host` — Core-only: bundle and runtime resolution, Kit commands
   as child processes with JSON envelopes, the project runtime file.
 

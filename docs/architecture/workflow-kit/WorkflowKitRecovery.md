@@ -20,8 +20,8 @@
 
 | # | Секция | Содержимое | Обязательна |
 |---|---|---|---|
-| 1 | `state` | проект, scope, revision, состояния scope, результата и профиля качества, HEAD, транзакция, событие (startup/resume/clear/compact) | да |
-| 2 | `next` | одна строка: что делать сейчас (`Continue T007`, `Start T008 via task:start`, `Scope is READY_FOR_ACCEPTANCE`, `BLOCKED: <reason>`, `No active scope`) | да |
+| 1 | `state` | проект, scope, revision, состояния scope, результата и профиля качества, HEAD, транзакция, событие (startup/resume/clear/compact), роль агента (`role:`); у оркестратора — назначения и журнал интеграции | да |
+| 2 | `next` | шаг роли: что делать сейчас (`Continue T007`, `Start T008 via task:start`, `Scope is READY_FOR_ACCEPTANCE`, `BLOCKED: <reason>`, `No active scope`, `assignment:create`, `integration:start` …) и строка-правило роли | да |
 | 3 | `objective` | цель scope и критерии приёмки | да |
 | 4 | `task` | текущая (или следующая готовая) задача полностью: поля, файлы, проверки, критерии; для задачи `fixes` — сводка исходной задачи и её SHA | да |
 | 5 | `upcoming` | до трёх следующих задач одной строкой; число оставшихся | да |
@@ -32,6 +32,30 @@
 | 10 | `verification` | итог последней проверки (id, статус, хвост вывода до 1 КБ) | нет |
 | 11 | `documents` | обязательные документы задачи и scope; по возможности разделами (`heading`) | нет |
 | 12 | `references` | всё, что не поместилось: путь, раздел, размер и команда чтения | да |
+
+**Роли** (`recovery-roles.ts`, `WorkflowKitExecutionModes.md`, раздел 9):
+
+- `planning` — scope нет: спецификация и план с метками `parallelSafe`;
+  в проекте Harness — `scope:propose` и конец хода (ожидающее предложение —
+  ждать выбора на карточке; после `refine` — доработать и предложить снова);
+  без Harness — `scope:create`;
+- `self` — scope `sequential`: задачи по порядку в main;
+- `orchestrator` — scope `orchestrated` в main: строки `assignments:` и
+  `integration:`, шаги по порядку — фаза журнала интеграции
+  (`integration:continue`), `integration:start` для каждого
+  `READY_FOR_INTEGRATION` по одному, задача main (QUALITY или `delivery`),
+  раздача готовых задач (`assignment:create` и субагент Claude с
+  `isolation: "worktree"`), `Waiting for executors: …`,
+  `assignment:cleanup`;
+- `executor` — worktree назначения (или ещё не привязанный linked
+  worktree orchestrated scope): `assignment:attach`, `assignment:setup` при
+  `NEEDS_SETUP`, `task:start`, `commit --task`, отчёт с SHA. В `state` —
+  только своя задача.
+
+Порядок шагов `next`: нет scope, незавершённая транзакция (`repair`),
+`BLOCKED`, шаг исполнителя, `READY_FOR_ACCEPTANCE`, `ACCEPTED`, шаг
+оркестратора, затем шаг `self`. Каждый список в пакете ограничен 10
+пунктами (`… N more`).
 
 Правила процесса и шаблоны **в пакет не входят**. Они лежат в управляемой
 секции `AGENTS.md`, которую провайдер загружает и кэширует сам. Пакет
@@ -100,6 +124,7 @@ DOCS — смысл.
 | Причина | Условие |
 |---|---|
 | `disabled` | автопилот выключен для сессии |
+| `waiting-for-mode-choice` | предложение scope ждёт выбора режима на карточке |
 | `no-scope` | scope `NONE` |
 | `blocked` | scope `BLOCKED` |
 | `transaction-pending` | незавершённая транзакция или упавшая проверка коммита |
@@ -107,8 +132,21 @@ DOCS — смысл.
 | `delivery-confirmation` | следующая задача `delivery`, нужно подтверждение пользователя |
 | `no-progress` | ход закончился, а revision плана и HEAD не изменились (агент не продвинулся) |
 | `limit` | достигнут лимит подряд идущих продолжений (по умолчанию 40) |
+| `waiting-for-executors` | scope `orchestrated`: шагов для оркестратора нет, а назначения в `ASSIGNED`, `NEEDS_SETUP`, `READY` или `RUNNING` |
 | `turn-error` | ход закончился ошибкой провайдера или отменён пользователем |
 | `user-message` | пользователь написал сам: автопилот уступает ход |
+
+**Режим `orchestrated`.** `autopilot:status` дополнительно передаёт
+`proposalPending` и `orchestration` (активные назначения и назначения с
+незавершённой очисткой, журнал интеграции, готовые задачи). Автопилот
+продолжает оркестратора по первому из шагов: фаза журнала интеграции
+(`integration:continue`), назначение `READY_FOR_INTEGRATION`
+(`integration:start`), QUALITY или начатая `delivery` в main, готовые
+задачи (`assignment:create` и субагент с поручением), незавершённая
+очистка (`assignment:cleanup`). Иначе — `waiting-for-executors`,
+`delivery-confirmation` или `blocked`. Решение несёт `orchestrationKey`
+(назначения, интеграция, готовые задачи): ход, изменивший только его,
+не считается `no-progress`.
 
 **Исполнение в Core.** Когда ход сессии завершается, Core проверяет, включён
 ли автопилот для этой сессии и установлен ли Kit в её workspace. Если да,

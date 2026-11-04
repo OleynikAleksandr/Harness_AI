@@ -84,6 +84,21 @@ child-каналы. Core-контракты, read-model и UI-компонент
 - Наблюдатель продолжает опрос после конца хода родителя, пока фоновые агенты
   не получили нотификацию (`docs/architecture/ReleaseFixes-2026-11-04.md`, §1).
 
+### 3.2 Рабочий каталог сабагента (scope `execution-modes-2026-11-04`)
+
+- Для агента с `isolation: "worktree"` CLI пишет в `meta.json` поле
+  `worktreePath` — корень его git worktree. Каждая запись agent-JSONL несёт
+  `cwd`. `toolUseResult` родителя повторяет `worktreePath` только для
+  агента переднего плана, поэтому не читается.
+- Рабочий каталог ребёнка: `worktreePath` из meta, иначе последний
+  непустой `cwd` транскрипта (`findLatestSubagentCwd`). Событие
+  `subagent_session` несёт его как `workingDirectory`; если каталог впервые
+  появился или изменился в поздних записях, адаптер повторяет
+  `subagent_session` в канале родителя.
+- Core хранит последнее значение в `CoreSession.workingDirectory` (индекс
+  сессий, `listSessions`). По нему Core привязывает исполнителя к задаче
+  плана (`workflow-kit/WorkflowKitExecutionModes.md`, раздел 10.2).
+
 ## 4. Решение: файловый наблюдатель в claude-provider
 
 ### 4.1 Почему файлы, а не live-стрим SDK
@@ -158,7 +173,8 @@ history-loader — разные каналы).
   Claude-сессии; `receiverProviderSessionIds` = [`agent-<agentId>`];
   `action: "spawn"`; `prompt` = `description` из meta.json.
 - `subagent_session`: `task` = description, `agentRole` = `agentType`
-  (Explore/Plan/general-purpose/…), `title` — из description.
+  (Explore/Plan/general-purpose/…), `title` — из description,
+  `workingDirectory` — см. §3.2.
 - Модель ребёнка: из `resolvedModel` (`toolUseResult`) либо первой
   assistant-записи agent-JSONL (`message.model`).
 - Статусы: работа → `running`; `toolUseResult.status: "completed"` →

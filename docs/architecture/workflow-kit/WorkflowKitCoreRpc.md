@@ -13,10 +13,12 @@ Workflow Kit commands run through `workflowHostFacade` (module
 `{ok: true, command, result} | {ok: false, code, message, nextAction,
 details}`:
 - `workflow-inspect {path}` — folder classification (absolute path);
-- `workflow-prepare-project {mode, path, name?}` — `new`: `path` is the
-  parent folder and `name` the new folder (one segment); the target must
-  be `MISSING` or `EMPTY` (`PROJECT_EXISTS`). `open`: `path` is the
-  folder; a missing one is `FOLDER_MISSING`. Workflow Pilot or a folder
+- `workflow-prepare-project {mode, path, name?, install?}` — `new`: `path`
+  is the parent folder and `name` the new folder (one segment); the target
+  must be `MISSING` or `EMPTY` (`PROJECT_EXISTS`). `open`: `path` is the
+  folder; a missing one is `FOLDER_MISSING`; an optional `name` is passed
+  to the install, and the setup dialog sends none, so the Kit names the
+  project after the folder. Workflow Pilot or a folder
   inside another repository is `UNSUPPORTED_FOLDER`. Inspect actions
   `create`, `install` and `install-migrate` install, `update` updates,
   `open` and `doctor` install nothing. With `mode: "open"` and

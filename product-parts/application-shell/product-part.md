@@ -37,9 +37,10 @@ implementation modules in-process.
 - Resolve browser display copy through Core-provided localization payloads.
 - Render Core-provided `localizedContent` patches for translated reasoning
   without rewriting Core source message text.
-- Create and open projects, show the project doctor, the workflow status
-  strip, the execution mode card and the active plan in the sidebar from
-  Core Workflow Kit read models (`project-workflow-ui`).
+- Create and open projects (with the one-time git identity form), show the
+  project doctor, the workflow status strip, and the execution mode card
+  and the active plan in the sidebar from Core Workflow Kit read models
+  (`project-workflow-ui`).
 - Forward user input and settings changes to Core contracts.
 - Forward Profile Studio commands and its isolated update stream without
   composing lifecycle/read-model truth in Electron or renderer code.

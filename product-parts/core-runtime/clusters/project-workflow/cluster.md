@@ -32,11 +32,13 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
 - `workflow-platform` — OS-neutral paths, atomic files, locks, process
   runner, runtime resolution, launcher texts and the shared `WorkflowError`.
 - `workflow-plan` — plan model, validation, document and transitions.
-- `workflow-git` — git queries, history, the git identity, transactional
-  commits (including the two-parent integration commit), first-parent
+- `workflow-git` — git queries, history, the git identity (one validator
+  `isUsableIdentity`, local and global writes, the shared
+  `GIT_IDENTITY_REQUIRED` refusal), transactional commits (including the two-parent integration commit), first-parent
   references and repair.
 - `workflow-quality` — project quality profile: configuration, stack
-  detection, check catalog, check execution and profile application.
+  detection, check catalog, check execution (including the builtin
+  `kit:conflict-markers` guard every commit runs) and profile application.
 - `workflow-recovery` — bounded recovery packet within a byte budget with
   the agent role and its step, the SessionStart hook, `show-task` and
   `history`.
@@ -51,11 +53,13 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
   into main with the integration journal, `continue` and status.
 - `workflow-kit` — the cluster facade `WorkflowKitFacade`: status, scope
   (create, propose, choose), task, commit, acceptance, close, carryover,
-  repair, quality, assignment and integration operations.
+  repair, quality, assignment and integration operations; the command line
+  adds `identity:set --global`, which needs no project.
 - `workflow-installer` — installation payload and manifest, inspection,
   install (git identity, host marker), doctor and legacy plan migration.
 - `workflow-host` — Core-only: bundle and runtime resolution, Kit commands
-  as child processes with JSON envelopes, the project runtime file.
+  as child processes with JSON envelopes (`setIdentity` runs the app bundle
+  in the home folder), the project runtime file.
 
 ## Test Support
 

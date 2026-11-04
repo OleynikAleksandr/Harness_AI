@@ -159,10 +159,14 @@ implementation plan.
 - `docs/architecture/ReleaseFixes-2026-11-04.md` — fixes of the 2026-11-04
   release: Claude async subagents and removing a project from the app.
 - `docs/architecture/ReleaseFixes-2026-11-04-2.md` — round 2 fixes of the
-  execution modes release (Russian): git identity form and validation instead
-  of terminal commands, Open Project without a name field, the mode card in
-  the sidebar, localized new strings, the mode choice enabling the autopilot,
-  the login-shell PATH for agent processes, small Kit fixes and the GitHub
+  execution modes release as implemented (Russian, scope
+  `release-fixes-2026-11-04-2`): Kit `identity:set --global` with one
+  validator, the Core route and the identity form instead of terminal
+  commands, Open Project without a name field, the mode card in
+  the sidebar, new strings in the usual localization categories with an
+  incremental bundle refresh, the mode choice enabling the autopilot,
+  the login-shell PATH for agent processes, small Kit fixes (`KIT_VERSION`
+  2.1.1 with `.DS_Store`, `kit:conflict-markers`, dup ignore) and the GitHub
   publication task that ends every plan.
 - `docs/architecture/workflow-kit/WorkflowKit.md` — root specification of
   the Workflow Kit (Russian, scope `workflow-kit-2026-11-03`): origin from
@@ -170,26 +174,29 @@ implementation plan.
   cluster with its module facades, project files, commands and phases.
 - `docs/architecture/workflow-kit/WorkflowKitProcess.md` — Workflow Kit
   process algorithm: scope, tasks, transactional commit, rounds, acceptance,
-  closing, carryover, repair, hybrid documentation policy and delivery, and
-  the orchestrated exception to one task per checkout.
+  closing, carryover, repair, hybrid documentation policy and delivery, the
+  conflict-marker guard of every commit, and the orchestrated exception to
+  one task per checkout.
 - `docs/architecture/workflow-kit/WorkflowKitRecovery.md` — bounded recovery
   packet (sections, budget, round digests), session-start hook and the Core
-  autopilot decision/stop reasons.
+  autopilot decision/stop reasons, and the autopilot armed by the mode
+  choice.
 - `docs/architecture/workflow-kit/WorkflowKitQuality.md` — quality profile:
-  stack detection, ecosystem catalog, built-in checks, stages and the Harness
-  AI profile.
+  stack detection, ecosystem catalog, built-in checks (including the
+  implicit `kit:conflict-markers`), stages and the Harness AI profile.
 - `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
-  inspection, install, doctor, Harness plan migration, Core/Electron/RPC/UI
-  integration, provider context delivery and Windows/Linux rules.
+  inspection, install, the global git identity (`identity:set`), doctor,
+  Harness plan migration, Core/Electron/RPC/UI integration, provider context delivery and Windows/Linux rules.
 - `docs/architecture/workflow-kit/WorkflowKitCoreRpc.md` — detailed contract
   of the Core project workflow routes (`core-project-workflow-rpc.ts`):
   inspect, prepare-project, identity-set, status with `planView`, doctor,
-  autopilot, the execution mode card, the Kit state watcher; moved out of the
+  autopilot, the execution mode card (the choice arms the autopilot), the Kit state watcher; moved out of the
   `core-runtime-process` module.md, which keeps the summary.
 - `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md` — execution
   modes as implemented (Russian, scope `execution-modes-2026-11-04`):
   `parallelSafe` labels and the `execution` block, the mode choice
-  (`scope:propose`/`scope:choose`/`scope:proposal`) and the Core-built card,
+  (`scope:propose`/`scope:choose`/`scope:proposal`) and the Core-built card
+  in the sidebar,
   sequential by one agent, the orchestrator order, Kit-formed git identity,
   agent roles in recovery and `AGENTS.md`, Kit status, the Core watcher, the
   plan view with executor binding in the Harness sidebar, the orchestrated

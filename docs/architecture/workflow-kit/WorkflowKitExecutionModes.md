@@ -1,6 +1,9 @@
 # Workflow Kit — режимы выполнения и оркестровка
 
 Статус: реализовано в scope `execution-modes-2026-11-04` (задачи E1–E20).
+Карточка в сайдбаре, включение автопилота выбором режима и
+`identity:set` — scope `release-fixes-2026-11-04-2`
+([ReleaseFixes-2026-11-04-2.md](../ReleaseFixes-2026-11-04-2.md)).
 Продолжает [WorkflowKitProcess.md](WorkflowKitProcess.md): там один checkout
 и одна задача в работе, здесь — выбор режима, исполнители в worktree и план
 в сайдбаре Harness. Назначения и интеграция (разделы 5–7) подробно
@@ -142,8 +145,12 @@ scripts/workflow scope:proposal        # только чтение: вид ка�
 - Нажатие: карточка `saving`, Core вызывает `scope:choose --session
   <владелец> --note "the user chose in the Harness mode card: …"`. Отказ Kit
   (например `PROPOSAL_CHANGED`) возвращает карточку в `offered` с `error`.
-  Успех — `chosen`, и Core отправляет сессии-владельцу сообщение
-  пользователя тем же маршрутом, что ход автопилота. Тексты для агента —
+  Успех — `chosen`. Для `sequential` и `orchestrated` Core сначала
+  включает автопилот владельца без немедленной оценки
+  (`setEnabled(владелец, true, {evaluate: false})`): конец следующего хода
+  продолжает план до обычных остановок автопилота. `refine` автопилот не
+  меняет. Затем Core отправляет сессии-владельцу сообщение пользователя
+  тем же маршрутом, что ход автопилота. Тексты для агента —
   на английском: `sequential` — выполнять план по задачам с первой;
   `orchestrated` — быть оркестратором, раздавать задачи через
   `assignment:next`/`assignment:create` субагентам Claude с изоляцией
@@ -154,8 +161,11 @@ scripts/workflow scope:proposal        # только чтение: вид ка�
   того же поколения карточку не возвращает.
 - `workflow-prepare-project` при каждой установке или обновлении передаёт
   `--host harness`; существующая метка сохраняется.
-- Renderer (`execution-mode-card`, между строкой статуса и чатом)
-  показывает карточку только в чате владельца: вопрос и цель scope,
+- Renderer (`execution-mode-card`) показывает карточку в левом сайдбаре
+  под карточкой сессии-владельца, на месте плана (`session-sidebar`). До
+  выбора плана там нет, после выбора строка выбора стоит над планом.
+  Отдельные окна без сайдбара карточку не показывают. Содержимое: вопрос и
+  цель scope,
   строки в порядке Core (рекомендуемая первой, с пометкой и причиной,
   залитой кнопкой), подсказку «или напишите ответ в чат», состояния
   сохранения и выбора, ошибки без нативных диалогов. Строки — английские
@@ -208,7 +218,9 @@ scripts/workflow scope:proposal        # только чтение: вид ка�
 
 1. Заглушки (`isPlaceholderIdentity`): пустые значения, имена `Your Name`
    и `Ваше Имя`, почта `you@example.com` или без `@`, домены `example`,
-   `example.*`, `invalid`, `*.invalid`, `localhost`.
+   `example.*`, `invalid`, `*.invalid`, `localhost`. Так же считается
+   идентичность, не прошедшая валидатор `isUsableIdentity`: кавычки любого
+   вида или угловые скобки, почта не вида `локальная-часть@домен.зона`.
 2. `install` до любой записи берёт настоящую идентичность из локального
    конфига репозитория, иначе из глобального, и пишет её в локальный
    конфиг. Все worktree читают его через общий каталог Git. Нет настоящей —
@@ -217,12 +229,17 @@ scripts/workflow scope:proposal        # только чтение: вид ка�
    здесь не используется) и передаёт её явно: `-c user.name/-c user.email`
    и `GIT_AUTHOR_*`/`GIT_COMMITTER_*` (Git экспортирует `GIT_AUTHOR_*` в
    хуки, и они сильнее `-c`).
-4. Отказ `GIT_IDENTITY_REQUIRED` называет две команды
-   `git config --global user.name/user.email` и `scripts/workflow doctor
-   --fix`. Проверка Доктора `git-identity` (`fail`) копирует настоящую
+4. Отказ `GIT_IDENTITY_REQUIRED` (общий `identityRequired`) называет
+   проблему один раз. Команды `git config --global user.name/user.email`
+   и `scripts/workflow doctor --fix` — только в `nextAction`. Проверка Доктора `git-identity` (`fail`) копирует настоящую
    глобальную идентичность в проект; сама её не угадывает.
 5. Агентам запрещено задавать идентичность (управляемая секция
    `AGENTS.md`).
+6. `identity:set --name --email --global` проверяет и пишет глобальную
+   идентичность (`GIT_IDENTITY_INVALID`, `GIT_IDENTITY_PLACEHOLDER` с
+   `details.field`). Harness вызывает её из формы окна Open/New Project и
+   Доктора (RPC `workflow-identity-set`), см.
+   [ReleaseFixes-2026-11-04-2.md](../ReleaseFixes-2026-11-04-2.md), раздел 1.
 
 ## 9. Роли агента
 
@@ -280,7 +297,8 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
   субагента вызывает повторную публикацию (300 мс). Renderer ничего не
   сопоставляет.
 - Сайдбар (`project-plan-panel`, `session-sidebar`) показывает план под
-  карточкой владельца в обоих режимах. Подпись владельца — «Оркестратор» в
+  карточкой владельца в обоих режимах; до выбора режима на этом месте
+  стоит карточка выбора (раздел 4.2). Подпись владельца — «Оркестратор» в
   `orchestrated`, иначе «Агент». Шапка: цель scope, состояние, «N из M».
   Строки: значок статуса, ID, название, метка режима, подсветка текущей.
   Строка с исполнителем открывает его сессию. Привязанные исполнители и их
@@ -290,6 +308,8 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
 
 - `autopilot:status` получает `proposalPending` и `orchestration`
   (назначения, журнал интеграции, готовые задачи).
+- Выбор `sequential` или `orchestrated` на карточке включает автопилот
+  владельца (раздел 4.2).
 - Новые причины остановки: `waiting-for-mode-choice` (ждёт карточки) и
   `waiting-for-executors` (есть назначения `ASSIGNED`, `NEEDS_SETUP`,
   `READY` или `RUNNING`, а других шагов нет).
@@ -316,4 +336,5 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
 - `inspect --format text` печатает текст;
 - `KIT_VERSION` 2.1.0: старые установки — `KIT_OUTDATED`, обновление
   добавляет в `.gitignore` `.harness/sessions/` и `.claude/worktrees/` и
-  блок «Execution modes» в `AGENTS.md`.
+  блок «Execution modes» в `AGENTS.md`. Версия 2.1.1 (раунд 2) добавила
+  в `.gitignore` `.DS_Store`.

@@ -41,8 +41,12 @@ through `scripts/workflow` and the Kit sections of `.husky/**` (see
 - Expose Core RPC and event-stream contracts consumed by Application Shell.
 - Own provider CLI/version tooling and local-model discovery requests.
 - Run the plan-first development process and quality gates of projects
-  through the Workflow Kit (`project-workflow`), including the execution mode
-  card, the Kit state watcher and the plan view with executor sessions.
+  through the Workflow Kit (`project-workflow`), including the global git
+  identity route, the execution mode card (a `sequential`/`orchestrated`
+  choice turns on the owner session's autopilot), the Kit state watcher and
+  the plan view with executor sessions.
+- Give provider processes and Kit commands the user's login-shell PATH,
+  read once at Core start.
 - Coordinate providers through Provider Runtime facades.
 - Normalize visible provider reasoning before it reaches UI snapshots.
 - Promote provider session ids emitted by provider runtimes so Core keeps the authoritative binding for later turns.

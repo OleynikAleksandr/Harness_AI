@@ -69,6 +69,18 @@ lock-файлам: `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock
   вместе с кодом).
 - `kit:md-links` — относительные ссылки в Markdown указывают на существующие
   файлы.
+- `kit:conflict-markers` — маркеры конфликта Git в добавляемых текстовых
+  файлах: строка, начинающаяся с `<<<<<<< ` или `>>>>>>> `, отклоняет
+  коммит; в таком файле сообщается и строка ровно `=======`, а одиночная
+  `=======` (подчёркивание заголовка Markdown) проходит. Файлы с байтом NUL
+  пропускаются, вывод — `<файл>: line(s) <n, …>`.
+
+Новая конфигурация (`defaultConfig`) содержит обязательные builtins этапа
+`commit`: `kit:doc-size`, `kit:md-links`, `kit:file-lines`,
+`kit:docs-contracts` и `kit:conflict-markers`. Конфигурация, записанная до
+`kit:conflict-markers`, получает эту проверку неявно: выбор этапа `commit`
+добавляет её последней, если ни одна проверка не имеет того же id или
+builtin. Файл конфигурации при этом не переписывается.
 
 ## 5. Применение (`quality:apply --input <file.json>`)
 
@@ -116,8 +128,9 @@ lock-файлам: `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock
 - Для коммита задачи с функциональными файлами нужен хотя бы один проверочный
   этап `commit` (`NOT_CONFIGURED`).
 - Служебные коммиты (`scope-plan`, `acceptance`, `close`, `docs`, `quality`)
-  выполняют только встроенные проверки документации. Набор тестов
-  приложения для них не запускается.
+  выполняют только встроенные проверки документации (`kit:doc-size`,
+  `kit:md-links`, `kit:docs-contracts`) и `kit:conflict-markers`. Набор
+  тестов приложения для них не запускается.
 - Результаты сохраняются в `.harness/workflow/local/verification/<sha>.json`
   и выводятся в `status` и recovery.
 
@@ -168,3 +181,6 @@ evidence    — обязателен для package | installed
 | `security` | audit | push | `npm run -s check:security` |
 | `links` | links | push | `npm run -s check:links` |
 | `package-mac` | package | delivery | `npm run package:mac` |
+
+Кроме них профиль содержит builtins `kit:doc-size`, `kit:md-links` и
+`kit:file-lines`; `kit:conflict-markers` действует неявно (раздел 4).

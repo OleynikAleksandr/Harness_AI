@@ -73,8 +73,8 @@ Kit выведен из двух систем:
 | `workflow-kit` | `WorkflowKitFacade` | фасад кластера: операции процесса (status, scope и предложение scope, task, commit, accept, close, carryover, repair, назначения, интеграция), git hooks, CLI-диспетчер; точка входа бандла |
 | `workflow-platform` | `WorkflowPlatformFacade` | пути POSIX/Windows, атомарная запись, блокировка, запуск процессов без shell, поиск Node, тексты запускателей |
 | `workflow-plan` | `WorkflowPlanFacade` | модель плана, валидация, проекция Markdown, переходы состояний, раунды, служебные задачи |
-| `workflow-git` | `WorkflowGitFacade` | git-команды, история и trailers, Git-идентичность, транзакция коммита (в том числе двухродительский коммит интеграции), сверка задач с коммитами по первым родителям, repair |
-| `workflow-quality` | `WorkflowQualityFacade` | конфигурация, определение стека, каталог, применение профиля, запуск проверок, встроенные проверки |
+| `workflow-git` | `WorkflowGitFacade` | git-команды, история и trailers, Git-идентичность (валидатор, локальная и глобальная запись), транзакция коммита (в том числе двухродительский коммит интеграции), сверка задач с коммитами по первым родителям, repair |
+| `workflow-quality` | `WorkflowQualityFacade` | конфигурация, определение стека, каталог, применение профиля, запуск проверок, встроенные проверки (в том числе `kit:conflict-markers`) |
 | `workflow-recovery` | `WorkflowRecoveryFacade` | пакет восстановления с бюджетом, роль агента и её шаг, сводки раундов, ответ SessionStart |
 | `workflow-execution-mode` | `WorkflowExecutionModeFacade` | запись предложения scope, варианты карточки режима, проверка выбора пользователя |
 | `workflow-assignment` | `WorkflowAssignmentFacade` | записи назначений, планировщик, текст поручения, сторона исполнителя (worktree, план, контракт), установка зависимостей, очистка |
@@ -122,7 +122,7 @@ host ──(дочерний процесс)──▶ бандл kit
 | Назначения | `assignment:next`, `assignment:create`, `assignment:attach`, `assignment:status`, `assignment:setup`, `assignment:cleanup` |
 | Интеграция | `integration:start`, `integration:continue`, `integration:status` |
 | Качество | `quality:detect`, `quality:apply`, `quality:status` |
-| Обслуживание | `repair`, `doctor`, `install`, `inspect`, `migrate:harness-plan` |
+| Обслуживание | `repair`, `doctor`, `install`, `inspect`, `migrate:harness-plan`, `identity:set --global` (глобальная Git-идентичность, без проекта) |
 | Hooks | `hook session-start`, `git-hook <name>` |
 
 Каждая команда выводит JSON (`--format text` — для человека). Ошибка

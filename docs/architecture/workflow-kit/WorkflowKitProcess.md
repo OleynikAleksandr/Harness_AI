@@ -128,7 +128,10 @@
       (`Workflow-Scope`, `Workflow-Task`, `Workflow-Role`,
       `Workflow-Iteration`, `Workflow-Transaction`).
    5. Pre-commit hook запускает проверки этапа `commit`. Им запрещено менять
-      кандидат (`CHECK_MODIFIED_CANDIDATE`).
+      кандидат (`CHECK_MODIFIED_CANDIDATE`). Встроенную
+      `kit:conflict-markers` (маркеры конфликта Git в добавляемых файлах)
+      выполняет каждый коммит, в том числе служебный
+      (`WorkflowKitQuality.md`, раздел 4).
    6. Если проверка не прошла, Kit восстанавливает исходные план и index,
       а правки в рабочем дереве сохраняет. Агент исправляет причину и
       повторяет ту же команду. Repair при этом не нужен.

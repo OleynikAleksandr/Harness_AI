@@ -10,10 +10,37 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 98,
+  "revision": 100,
   "rounds": [
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "workflow-git, workflow-kit, workflow-installer, workflow-quality module.md: identity:set, usable identity, KIT_VERSION 2.1.1, kit:conflict-markers",
+          "workflow-host, core-runtime-process module.md and WorkflowKitCoreRpc.md: setIdentity, workflow-identity-set, autopilot arming, login-shell PATH",
+          "session-request-handler module.md: setEnabled with evaluate:false",
+          "project-setup-dialog, project-doctor-panel module.md: GitIdentityForm, Open Project without a name",
+          "execution-mode-card, session-sidebar, session-window module.md: mode card in the sidebar plan slot",
+          "app-bootstrap, core-process-bridge module.md: setGitIdentity bridge",
+          "localization-runtime module.md: incremental bundle refresh with sourceEntries"
+        ],
+        "decisions": [
+          "One validator isUsableIdentity serves writing and reading; a configured identity that fails it (e.g. a quoted email) counts like a placeholder.",
+          "GIT_IDENTITY_REQUIRED names the problem once; terminal commands live only in nextAction.",
+          "The host runs identity:set with the app bundle in the home folder; after success the client repeats the same prepare request (Core keeps no pending state).",
+          "The mode choice arms the autopilot with evaluate:false before the choice message; refine and Kit refusals leave it unchanged.",
+          "kit:conflict-markers is required in new configs and implicitly appended for older configs without rewriting them.",
+          "The login-shell PATH is read once at Core start ($SHELL -ilc, 3 s limit); failure keeps the inherited PATH with one diagnostic.",
+          "English card labels came from the UI Labels = en setting; bundles store sourceEntries so only new, changed or failed keys are retranslated, and failures are not cached."
+        ],
+        "references": [
+          "docs/architecture/ReleaseFixes-2026-11-04-2.md",
+          "docs/architecture/workflow-kit/WorkflowKitCoreRpc.md",
+          "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md#4.2",
+          "docs/architecture/workflow-kit/WorkflowKitInstallation.md#2.1",
+          "docs/architecture/workflow-kit/WorkflowKitQuality.md#4"
+        ],
+        "result": "Git identity is entered once in an in-app form (Kit identity:set, Core workflow-identity-set). Open Project asks no name. The mode card sits in the left sidebar, and choosing a mode arms the owner autopilot. Core passes the login-shell PATH to agents. New strings follow the usual localization categories, and the bundle refresh is incremental. KIT_VERSION 2.1.1 adds .DS_Store and kit:conflict-markers. MIT LICENSE added."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -394,14 +421,27 @@
       "files": [
         "README.md",
         "docs/architecture/OVERVIEW.md",
-        "docs/architecture/ReleaseFixes-2026-11-04-2.md"
+        "docs/architecture/ReleaseFixes-2026-11-04-2.md",
+        ".harness/product-tree/product-tree.md",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/architecture/workflow-kit/WorkflowKit.md",
+        "docs/architecture/workflow-kit/WorkflowKitCoreRpc.md",
+        "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md",
+        "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+        "docs/architecture/workflow-kit/WorkflowKitProcess.md",
+        "docs/architecture/workflow-kit/WorkflowKitQuality.md",
+        "docs/architecture/workflow-kit/WorkflowKitRecovery.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/cluster.md",
+        "product-parts/application-shell/product-part.md",
+        "product-parts/core-runtime/clusters/project-workflow/cluster.md",
+        "product-parts/core-runtime/product-part.md"
       ],
       "fixes": null,
       "id": "DOCS-R1",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -471,8 +511,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 10/13
-- Revision: 98
+- Progress: 11/13
+- Revision: 100
 
 ## Objective
 
@@ -525,9 +565,9 @@ Fix the defects found in the execution modes release (git identity form instead 
 - [DONE] G10 — MIT LICENSE as on GitHub (work)
   - Commit: chore: add the MIT license
   - Files: LICENSE
-- [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
-  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04-2.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04-2.md, .harness/product-tree/product-tree.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCoreRpc.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, product-parts/application-shell/clusters/project-workflow-ui/cluster.md, product-parts/application-shell/product-part.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/product-part.md
   - Depends on: G1, G2, G3, G4, G5, G6, G7, G8, G9, G10
 - [TODO] D1 — Package the macOS release (delivery)
   - Commit: chore: package release fixes round 2
@@ -537,5 +577,7 @@ Fix the defects found in the execution modes release (git identity form instead 
   - Commit: chore: publish release fixes round 2
   - Files: docs/evidence/release-fixes-2-publish-2026-11-04.md
   - Depends on: D1, DOCS-R1
+
+Digest: Git identity is entered once in an in-app form (Kit identity:set, Core workflow-identity-set). Open Project asks no name. The mode card sits in the left sidebar, and choosing a mode arms the owner autopilot. Core passes the login-shell PATH to agents. New strings follow the usual localization categories, and the bundle refresh is incremental. KIT_VERSION 2.1.1 adds .DS_Store and kit:conflict-markers. MIT LICENSE added.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

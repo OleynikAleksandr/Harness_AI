@@ -30,6 +30,10 @@ Electron main (app-bootstrap, core-process-bridge)
   plan view, `workflow:autopilot`, `workflow:mode-choice`) that the
   renderer only displays. Core watches each Kit project's plan and local
   workflow state and publishes `workflow:status` without an open UI.
+- At start the Core process reads the user's login-shell PATH once and
+  merges it into its own, so provider processes, their tools and Kit
+  commands find `node`, `git` and Homebrew tools when the app is started
+  from Finder.
 
 ## Main Contracts
 
@@ -51,7 +55,8 @@ Electron main (app-bootstrap, core-process-bridge)
   (`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`): in a
   Harness project the agent proposes the scope (`scope:propose`) and the
   user picks `sequential` (one agent) or `orchestrated` on a Core-built
-  card in the chat. In `orchestrated` mode Claude subagent executors commit
+  card in the left sidebar, under the owner session's card; the choice
+  turns on that session's autopilot. In `orchestrated` mode Claude subagent executors commit
   their task in their own git worktree and the orchestrator integrates each
   result into main with a checked two-parent commit
   (`docs/architecture/workflow-kit/WorkflowKitOrchestration.md`). Core
@@ -60,6 +65,11 @@ Electron main (app-bootstrap, core-process-bridge)
 - **Autopilot**: Core continues a session to the next plan task (or the
   next orchestrator step) only on the Kit's decision (`autopilot:status`),
   within `autopilot.maxContinues`.
+- **Git identity**: Kit commits need a real git name and email. When none
+  is set, the New/Open Project dialog (and Project Doctor) asks for them
+  once; Core runs the Kit `identity:set --global`, which validates and
+  writes the global git config, and the dialog repeats the preparation
+  (`docs/architecture/ReleaseFixes-2026-11-04-2.md`, section 1).
 
 ## Development Process Of This Repository
 

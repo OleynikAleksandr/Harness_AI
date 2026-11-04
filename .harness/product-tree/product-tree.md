@@ -28,7 +28,7 @@ Application Shell submits user input, displays Core read models/events, manages 
 - `input-controls`: message input, Stop/Play controls, busy/lock display, and user intent submission only.
 - `turn-timer`: pure-display session turn timers — the per-turn input-row timer and the footer-right total of completed turns, rendered from Core-derived timing props.
 - `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
-- `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry, Profile Studio entry and the Core plan view under the owner session's card.
+- `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry, Profile Studio entry, and under the owner session's card the Core execution mode card and the Core plan view.
 
 ### Profile Studio
 
@@ -38,10 +38,10 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 ### Project Workflow UI
 
-- `project-setup-dialog`: New Project (parent folder + name) and Open Project (folder, Core inspection, install/update/open, Open Without Kit) through the Core bridge.
-- `project-doctor-panel`: Core doctor report of the active workspace (checks, statuses, next actions) and the safe fix.
+- `project-setup-dialog`: New Project (parent folder + name) and Open Project (folder named after itself, Core inspection, install/update/open, Open Without Kit) through the Core bridge, plus the git identity form when git has no real global identity.
+- `project-doctor-panel`: Core doctor report of the active workspace (checks, statuses, next actions), the safe fix and the git identity form for a failing unfixable git-identity check.
 - `workflow-status-strip`: Kit scope, task and progress of the active workspace and the per-session autopilot switch with its last stop reason, kept current by Core events.
-- `execution-mode-card`: The Core execution mode card of a scope proposal in the owner session's chat: the recommended mode first with its reason, a Choose button per mode and the saved choice.
+- `execution-mode-card`: The Core execution mode card of a scope proposal in the left sidebar under the owner session's card: the recommended mode first with its reason, a Choose button per mode and the saved choice.
 - `project-plan-panel`: The active plan from the Core plan view under the owner session's card in the sidebar: scope, state, progress and task rows, with executor rows opening their sessions.
 
 ### Settings Surface
@@ -61,7 +61,7 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 ### Runtime Process
 
-- `core-runtime-process`: Core process entrypoint plus health, status and shutdown process contracts.
+- `core-runtime-process`: Core process entrypoint plus health, status and shutdown process contracts, the login-shell PATH and the project workflow RPC.
 
 ### Workspace Architecture
 
@@ -122,7 +122,7 @@ Workflow Kit installed into user projects and driven by Core. Spec:
 
 - `workflow-platform`: OS-neutral paths, atomic files, locks, process runner, runtime resolution and launcher texts for macOS, Windows and Linux.
 - `workflow-plan`: Plan model (scope, rounds, tasks), validation, Markdown plan document and state transitions.
-- `workflow-git`: Git queries, working-tree changes, trailer history, git identity, transactional task and integration commits, first-parent commit reference resolution and repair.
+- `workflow-git`: Git queries, working-tree changes, trailer history, git identity (validation, local and global writes), transactional task and integration commits, first-parent commit reference resolution and repair.
 - `workflow-quality`: Project quality profile: configuration, stack detection, check catalog, check execution and profile application.
 - `workflow-recovery`: Bounded recovery packet: priority sections within a byte budget, the agent role and its next step, references, session-start hook output.
 - `workflow-execution-mode`: Scope proposal record, mode card options and verification of the user's sequential/orchestrated/refine choice.

@@ -45,7 +45,14 @@ of `npm run build`) as the `workflow-kit` resource. Core runs it with the
 Electron binary as Node (`ELECTRON_RUN_AS_NODE=1`) to inspect, install, update
 and diagnose projects opened through New Project / Open Project.
 Projects installed or updated by the app carry the Harness host marker: their
-agent proposes each scope and the user chooses on an in-chat card whether one
-agent runs it (`sequential`) or Claude subagent executors run its tasks in
-their own worktrees (`orchestrated`); the sidebar shows the active plan with
-live progress (`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`).
+agent proposes each scope and the user chooses on a card in the left sidebar,
+under the owner session, whether one agent runs it (`sequential`) or Claude subagent executors run its tasks in
+their own worktrees (`orchestrated`); the choice turns on the autopilot, and
+the sidebar shows the active plan with live progress
+(`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`). When git has
+no real name and email, the New/Open Project dialog asks for them once and
+saves them to the global git config through the Kit (`identity:set`).
+
+## License
+
+MIT — see `LICENSE`.

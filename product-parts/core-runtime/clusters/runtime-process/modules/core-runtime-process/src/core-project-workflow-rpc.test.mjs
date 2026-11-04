@@ -172,8 +172,8 @@ try {
   const sessionListeners = [];
   const autopilot = {
     get: (sessionId) => ({ enabled: false, sessionId }),
-    setEnabled: (sessionId, enabled) => {
-      autopilotCalls.push([sessionId, enabled]);
+    setEnabled: (sessionId, enabled, options) => {
+      autopilotCalls.push([sessionId, enabled, options]);
       return Promise.resolve({ enabled, sessionId });
     },
     subscribe: (listener) => {
@@ -451,7 +451,7 @@ try {
       ok: true,
     }
   );
-  assert.deepEqual(autopilotCalls, [["s1", true]]);
+  assert.deepEqual(autopilotCalls, [["s1", true, undefined]]);
   autopilotListeners[0]({ sessionId: "s1", type: "workflow:autopilot" });
   assert.deepEqual(events.at(-1), {
     sessionId: "s1",
@@ -477,6 +477,7 @@ try {
   });
   assert.equal(choice.card.state, "chosen");
   assert.equal(sent.length, 1);
+  assert.deepEqual(autopilotCalls.at(-1), ["s1", true, { evaluate: false }]);
   rpc.userMessage("s1");
   const read = await rpc.invoke("workflow-mode-choice-get", {
     workspaceId: "w1",

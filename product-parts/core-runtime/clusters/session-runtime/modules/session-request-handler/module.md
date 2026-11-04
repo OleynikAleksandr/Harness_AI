@@ -277,7 +277,10 @@ Own Core session actions: create, resume, send, stop, and delete. This module is
   message route (published user message, running state, dispatch); the
   autopilot recognises its own text when it is dispatched. Turning it on
   for an idle session evaluates at once (kick-off with an unknown
-  baseline); a workspace without the Kit stops with `blocked`. Every change
+  baseline); a workspace without the Kit stops with `blocked`.
+  `setEnabled(sessionId, true, {evaluate: false})` (the execution mode card
+  choice) only arms it: no Kit call and no turn of its own; the caller's
+  next dispatched turn takes the baseline and the end of that turn decides. Every change
   publishes `{type: "workflow:autopilot", sessionId, available, enabled,
   continues, maxContinues, running, lastDecision}` (`available` is false,
   and the autopilot stays off, for sessions that cannot use it) to its subscribers (the RPC layer

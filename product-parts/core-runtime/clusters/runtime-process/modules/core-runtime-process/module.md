@@ -96,8 +96,7 @@ state.
   another in the background; a failed target keeps its version and the next start retries. The Kimi toggle still has no
   runtime consumer. This avoids updating a stale
   `~/.npm-global` copy while a native installer (e.g. `~/.local/share/claude`)
-  stays first on PATH. OpenCode version/update handling is removed with the
-  embedded runtime migration.
+  stays first on PATH.
   The `get-provider-versions` snapshot also carries `kimi: { cli }` (CLI row
   only — Kimi has no SDK and no npm package) sourced from the Kimi
   native-capture facade version tooling: current version from the installed
@@ -160,9 +159,8 @@ state.
   `providerLifecycle` instance and delegates to it instead of registering
   adapters or handling readiness itself.
 - Startup delegates session-index and event-file hydration as one ordered
-  Session Runtime operation. Runtime Process no longer loads the event stream
-  afterward, which previously left `messagesBySession` empty while restored
-  provider subscriptions replayed history.
+  Session Runtime operation; Runtime Process does not load the event stream
+  afterward.
 - `PROVIDER_IDS` includes the universal-client endpoints `kimi-client`,
   `glm-client`, `local-models-client` and `openrouter-client`:
   their adapters register at startup and RPC provider-id validation accepts
@@ -185,11 +183,8 @@ state.
   only the local dialect; OpenRouter resolves its selected model, base URL and
   endpoint tag from the shared `openRouter` settings section per turn while
   the adapter pins only the OpenRouter dialect.
-  The retired legacy `glm-native`/`openrouter`/`local-models` adapters left
-  `PROVIDER_IDS` and `buildProviderAdapterInstance` with the 2026-07-05
-  legacy cleanup, and the ACP `kimi` adapter left with the kimi-provider
-  retirement (same day, user order) — only the native-channel `claude`/`codex`
-  and the client four register now.
+  The retired `glm-native`, `openrouter`, `local-models`, ACP `kimi` and
+  `glm-opencode` adapters are not in `PROVIDER_IDS` and never register.
 - LM Studio autostart (`core-local-server-autostart.ts`, unconditional per
   the 2026-07-05 user order): `startLivenessPreflight` fires
   `ensureLocalModelsServer()` — ping the CONFIGURED base URL
@@ -199,9 +194,6 @@ state.
   poll readiness briefly and re-run the `local-models-client` liveness so
   the picker sees the models. Machines without LM Studio skip silently (an
   idle LM Studio holds no models in memory); the routine never throws.
-  `glm-opencode` is no longer registered or
-  started by Core runtime lifecycle; old OpenCode sessions are not preserved
-  across updates during this development migration.
 
 - Session profile RPCs (`core-session-profile-rpc.ts`, the
   `ensure-glossary-file` four-layer pattern): `list-session-profiles`
@@ -299,7 +291,8 @@ state.
   - the execution mode card (`core-workflow-mode-choice.ts`,
     `CoreWorkflowModeChoice`, spec 4.2 of `WorkflowKitExecutionModes.md`;
     the `sessions` dependency is `{get, send, subscribe}` over the session
-    request handler and the session event stream):
+    request handler and the session event stream; the `autopilot`
+    dependency is the same Core autopilot as `workflow-autopilot-set`):
     - when a primary session (with a workspace, not a subagent or Profile
       Creator) publishes `session:turn-state` `idle` and its workspace has
       a project Kit bundle, Core runs `scope:proposal`
@@ -322,8 +315,16 @@ state.
       `saving`, Core runs `scope:choose --generation --option --session
       <owner> --note "the user chose in the Harness mode card: ..."`. A Kit
       refusal (e.g. `PROPOSAL_CHANGED`) is returned and the card is
-      `offered` again with `error`. On success the card is `chosen` and
-      Core sends the owner session a user message through the
+      `offered` again with `error` and the autopilot is untouched. On
+      success the card is `chosen`; for `sequential` and `orchestrated`
+      Core first turns on the owner session's autopilot
+      (`setEnabled(owner, true, {evaluate: false})`: no immediate
+      evaluation, it publishes `workflow:autopilot` so the status strip
+      switch shows ON), so the end of the agent's turn continues the plan
+      under the autopilot's usual stops (acceptance, block, delivery
+      confirmation, waiting for executors or a mode choice); `refine`
+      leaves the autopilot as it is. Then Core sends the owner session a
+      user message through the
       user-message route (`sessionRequestHandlerFacade.sendMessage`, the
       route the autopilot continue turn follows): `sequential` — execute
       the plan task by task starting with the first task; `orchestrated` —

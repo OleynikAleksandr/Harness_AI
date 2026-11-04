@@ -199,6 +199,7 @@ export class CoreProjectWorkflowRpc {
     // Autopilot decisions reach the renderer as `workflow:autopilot` events.
     this.autopilot.subscribe((event) => this.emit(event));
     this.modeChoice = new CoreWorkflowModeChoice({
+      autopilot: this.autopilot,
       host: dependencies.host,
       publish: (event) => this.emit(event),
       sessions: dependencies.sessions,

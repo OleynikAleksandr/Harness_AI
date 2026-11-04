@@ -163,6 +163,43 @@ try {
     assert.equal(autopilot.get("s1").lastDecision.reason, "no-progress");
   }
 
+  // The mode card arms the autopilot without evaluating: no Kit call and no
+  // turn of its own; its choice message is the next turn, and the end of
+  // that turn (QUALITY and T001 committed, HEAD moved) continues the plan.
+  {
+    const { autopilot, dispatch, events, host, sent } = setup();
+    const armed = await autopilot.setEnabled("s1", true, { evaluate: false });
+    assert.equal(armed.enabled, true);
+    assert.equal(armed.continues, 0);
+    assert.equal(armed.lastDecision, null);
+    assert.deepEqual(sent, []);
+    assert.deepEqual(host.calls, []);
+    assert.equal(events.at(-1).type, "workflow:autopilot");
+    assert.equal(events.at(-1).enabled, true);
+
+    dispatch("s1", "Execution mode chosen: sequential.");
+    await flush();
+    // While the choice turn runs the autopilot sends nothing.
+    assert.deepEqual(sent, []);
+    assert.equal(autopilot.get("s1").running, true);
+    host.current = status({
+      head: "h2",
+      nextTask: { id: "T002", kind: "work", status: "TODO", title: "Next" },
+      revision: 3,
+    });
+    autopilot.turnFinished("s1", "completed");
+    await flush();
+    assert.equal(sent.length, 1);
+    assert.match(sent[0][1], /task:start T002/u);
+    assert.equal(autopilot.get("s1").lastDecision.action, "continue");
+
+    // An ineligible session stays off with or without evaluation.
+    const refused = await autopilot.setEnabled("sub", true, {
+      evaluate: false,
+    });
+    assert.equal(refused.enabled, false);
+  }
+
   // The user writing during an autopilot turn makes it yield.
   {
     const { autopilot, dispatch, host, sent } = setup();

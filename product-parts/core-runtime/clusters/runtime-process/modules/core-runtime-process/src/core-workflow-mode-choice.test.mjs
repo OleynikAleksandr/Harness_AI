@@ -143,13 +143,23 @@ try {
   const sent = [];
   const listeners = [];
   const events = [];
+  // The order of autopilot arming and choice messages.
+  const order = [];
+  const autopilot = {
+    setEnabled: (sessionId, enabled, options) => {
+      order.push(["autopilot", sessionId, enabled, options]);
+      return Promise.resolve({ enabled, sessionId });
+    },
+  };
   const choice = new CoreWorkflowModeChoice({
+    autopilot,
     host,
     publish: (event) => events.push(event),
     sessions: {
       get: (sessionId) => sessions.get(sessionId),
       send: (sessionId, text) => {
         sent.push([sessionId, text]);
+        order.push(["send", sessionId]);
         return { ok: true };
       },
       subscribe: (listener) => {
@@ -292,6 +302,8 @@ try {
     "The choice does not answer the current scope proposal."
   );
   assert.deepEqual(sent, []);
+  // A refused choice leaves the autopilot alone.
+  assert.deepEqual(order, []);
 
   // The choice: scope:choose with the owner session, then the user message.
   refusal = null;
@@ -325,6 +337,12 @@ try {
     ["saving", "chosen"]
   );
   assert.equal(sent.length, 1);
+  // The owner's autopilot is armed (no immediate evaluation) before the
+  // choice message starts the agent's turn.
+  assert.deepEqual(order, [
+    ["autopilot", "claude-1", true, { evaluate: false }],
+    ["send", "claude-1"],
+  ]);
   assert.equal(sent[0][0], "claude-1");
   assert.match(sent[0][1], /You are the orchestrator/u);
   assert.match(sent[0][1], /assignment:next/u);
@@ -379,8 +397,10 @@ try {
   assert.equal(card("w1").state, "offered");
   assert.equal(card("w1").generation, 3);
 
-  // Sequential and refine send their own messages.
+  // Sequential and refine send their own messages; refine leaves the
+  // autopilot alone.
   sent.length = 0;
+  order.length = 0;
   assert.equal(
     (
       await choice.choose({
@@ -394,6 +414,7 @@ try {
   );
   assert.match(sent[0][1], /refine the specification first/u);
   assert.match(sent[0][1], /scope:propose/u);
+  assert.deepEqual(order, [["send", "claude-2"]]);
   proposals.set(
     "/work/one",
     view({
@@ -411,6 +432,10 @@ try {
     workspaceId: "w1",
   });
   assert.match(sent[1][1], /task by task, starting now with the first task/u);
+  assert.deepEqual(order.slice(1), [
+    ["autopilot", "claude-2", true, { evaluate: false }],
+    ["send", "claude-2"],
+  ]);
 } finally {
   await rm(buildDir, { force: true, recursive: true });
 }

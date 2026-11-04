@@ -55,6 +55,17 @@ export interface ModeChoiceSession {
 }
 
 export interface ModeChoiceDependencies {
+  /**
+   * The Core autopilot (`SessionWorkflowAutopilot`); it publishes
+   * `workflow:autopilot` on every change.
+   */
+  autopilot: {
+    setEnabled: (
+      sessionId: string,
+      enabled: boolean,
+      options: { evaluate: boolean }
+    ) => Promise<unknown>;
+  };
   host: Pick<WorkflowHostFacade, "bundle" | "chooseScope" | "proposal">;
   /** Publishes a Core event to the project workflow listeners. */
   publish: (event: unknown) => void;
@@ -172,8 +183,10 @@ export class CoreWorkflowModeChoice {
 
   /**
    * `workflow-mode-choose {workspaceId, sessionId, generation, option}`:
-   * records the choice through `scope:choose` and sends the owner session
-   * the user message of the choice. A Kit refusal keeps the card offered.
+   * records the choice through `scope:choose`, turns on the autopilot of
+   * the owner session for `sequential` and `orchestrated` (not `refine`)
+   * and sends the owner session the user message of the choice. A Kit
+   * refusal keeps the card offered and the autopilot unchanged.
    */
   async choose(
     payload: unknown
@@ -223,6 +236,14 @@ export class CoreWorkflowModeChoice {
       return outcome;
     }
     const chosen = this.update(saving, { chosen: option, state: "chosen" });
+    if (option !== "refine") {
+      // Armed before the turn starts: the end of the agent's turn (one task,
+      // one commit, one turn) continues the plan. No immediate evaluation:
+      // the choice message is the next turn.
+      await this.dependencies.autopilot.setEnabled(card.sessionId, true, {
+        evaluate: false,
+      });
+    }
     const sent = this.dependencies.sessions.send(
       card.sessionId,
       CHOICE_MESSAGES[option]

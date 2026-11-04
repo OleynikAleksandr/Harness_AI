@@ -104,11 +104,14 @@ export class SessionWorkflowAutopilot {
   /**
    * Turns the autopilot on or off. Turning it on for an idle session
    * evaluates the project at once, so the first task starts without a
-   * user message. A session that cannot use it stays off.
+   * user message, unless `evaluate` is false: the caller dispatches the
+   * next turn itself (the mode card choice message) and the end of that
+   * turn decides. A session that cannot use it stays off.
    */
   async setEnabled(
     sessionId: string,
-    enabled: boolean
+    enabled: boolean,
+    options: { evaluate?: boolean } = {}
   ): Promise<WorkflowAutopilotSnapshot> {
     const entry = this.entry(sessionId);
     const allowed = enabled && eligible(this.binding?.getSession(sessionId));
@@ -118,7 +121,7 @@ export class SessionWorkflowAutopilot {
     );
     entry.lastDecision = null;
     this.publish(sessionId, entry);
-    if (allowed && !entry.running) {
+    if (allowed && !entry.running && options.evaluate !== false) {
       await this.evaluate(sessionId, entry, "completed", UNKNOWN_BASELINE);
     }
     return this.snapshot(sessionId, entry);

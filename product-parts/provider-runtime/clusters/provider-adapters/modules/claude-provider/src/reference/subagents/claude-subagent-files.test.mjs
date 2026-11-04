@@ -24,6 +24,8 @@ const compiled = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
 const {
   createJsonlTailCursor,
+  extractSubagentAsyncLaunch,
+  extractSubagentTaskNotification,
   extractSubagentToolUseResult,
   findParentTranscriptPath,
   readJsonlRecordsFrom,
@@ -142,6 +144,69 @@ assert.equal(errored.isError, true);
 assert.equal(extractSubagentToolUseResult({ toolUseResult: {} }), null);
 assert.equal(extractSubagentToolUseResult({ type: "assistant" }), null);
 assert.equal(extractSubagentToolUseResult(null), null);
+
+// --- Background (async) subagents: the launch is not terminal; the end is a
+// <task-notification> (CLI 2.1.317 records, Test_New_HarnesAI_001 2026-11-03).
+const asyncLaunch = {
+  type: "user",
+  timestamp: "2026-11-03T17:41:00.893Z",
+  message: {
+    role: "user",
+    content: [{ type: "tool_result", tool_use_id: "toolu_x", content: [] }],
+  },
+  toolUseResult: { agentId: "af9d4838769476ae5", status: "async_launched" },
+};
+assert.equal(extractSubagentToolUseResult(asyncLaunch), null);
+assert.equal(extractSubagentAsyncLaunch(asyncLaunch), "af9d4838769476ae5");
+assert.equal(
+  extractSubagentAsyncLaunch({ toolUseResult: { agentId: "a" } }),
+  null
+);
+const notification = (status) =>
+  `<task-notification>\n<task-id>af9d4838769476ae5</task-id>\n<tool-use-id>toolu_x</tool-use-id>\n<status>${status}</status>\n<summary>Agent "Executor T003: zones" finished</summary>\n</task-notification>`;
+assert.deepEqual(
+  extractSubagentTaskNotification({
+    type: "queue-operation",
+    operation: "enqueue",
+    timestamp: "2026-11-03T17:41:38.210Z",
+    content: notification("completed"),
+  }),
+  {
+    agentId: "af9d4838769476ae5",
+    isError: false,
+    status: "completed",
+    timestamp: "2026-11-03T17:41:38.210Z",
+  }
+);
+assert.equal(
+  extractSubagentTaskNotification({
+    type: "user",
+    message: { role: "user", content: notification("failed") },
+  }).isError,
+  true
+);
+assert.equal(
+  extractSubagentTaskNotification({
+    type: "user",
+    message: {
+      role: "user",
+      content: [{ type: "text", text: notification("killed") }],
+    },
+  }).status,
+  "interrupted"
+);
+assert.equal(
+  extractSubagentTaskNotification({ type: "user", message: { content: "hi" } }),
+  null
+);
+assert.equal(
+  extractSubagentTaskNotification({
+    type: "queue-operation",
+    content: "<task-notification><task-id>a</task-id></task-notification>",
+  }),
+  null,
+  "a notification without status is ignored"
+);
 
 rmSync(root, { force: true, recursive: true });
 console.log("claude-subagent-files tests passed");

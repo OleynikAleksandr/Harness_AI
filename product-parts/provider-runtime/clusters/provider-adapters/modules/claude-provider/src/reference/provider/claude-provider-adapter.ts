@@ -188,7 +188,7 @@ export class ClaudeProviderAdapter {
       this.resolveSessionAlias(sessionId)
     );
     if (observer) {
-      await observer.stopTurnPolling();
+      await observer.close();
       this.subagentObservers.delete(this.resolveSessionAlias(sessionId));
     }
     await this.sdkManager.closeSession(sessionId);

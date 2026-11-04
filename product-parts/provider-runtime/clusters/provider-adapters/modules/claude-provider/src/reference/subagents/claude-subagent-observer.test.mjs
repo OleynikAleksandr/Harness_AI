@@ -354,5 +354,125 @@ assert.deepEqual(usageEvents()[1].payload.tokenUsage, {
   used: 1406,
 });
 
+// --- Background (async) agents: async_launched is not terminal, the text
+// keeps streaming after the parent turn, and the task-notification ends it.
+rmSync(join(projectDir, parentId), { force: true, recursive: true });
+writeFileSync(parentPath, "");
+mkdirSync(subagentsDir, { recursive: true });
+const writeAsyncLaunch = (agentId) =>
+  appendFileSync(
+    parentPath,
+    `${JSON.stringify({
+      type: "user",
+      timestamp: "2026-11-03T17:41:00.893Z",
+      message: {
+        role: "user",
+        content: [{ type: "tool_result", tool_use_id: `toolu_${agentId}` }],
+      },
+      toolUseResult: { agentId, status: "async_launched" },
+    })}\n`
+  );
+const writeTaskNotification = (agentId, status = "completed") =>
+  appendFileSync(
+    parentPath,
+    `${JSON.stringify({
+      type: "queue-operation",
+      operation: "enqueue",
+      timestamp: "2026-11-03T17:41:38.210Z",
+      content: `<task-notification>\n<task-id>${agentId}</task-id>\n<status>${status}</status>\n</task-notification>`,
+    })}\n`
+  );
+const asyncEmitter = makeEmitter();
+const asyncObserver = new ClaudeSubagentObserver({
+  emitter: asyncEmitter,
+  now: () => "async-ts",
+  parentProviderSessionId: parentId,
+  projectsDir,
+  pollIntervalMs: 15,
+});
+asyncObserver.startTurnPolling();
+writeAgentFiles("fff666", "Background task");
+writeAsyncLaunch("fff666");
+await asyncObserver.stopTurnPolling();
+const asyncStatuses = () =>
+  asyncEmitter.childEvents.filter(
+    (entry) => entry.payload.type === "subagent_status"
+  );
+assert.equal(asyncStatuses().length, 0, "async_launched is not terminal");
+assert.equal(
+  asyncEmitter.parentEvents.find((event) => event.type === "subagent_session")
+    .status,
+  "running"
+);
+// The parent turn is over; the agent keeps writing and the poll keeps going.
+appendFileSync(
+  join(subagentsDir, "agent-fff666.jsonl"),
+  `${JSON.stringify({
+    type: "assistant",
+    uuid: "fff666-r2",
+    timestamp: "2026-11-03T17:41:30.000Z",
+    message: {
+      model: "claude-opus-4-8",
+      role: "assistant",
+      content: [{ type: "text", text: "Background progress." }],
+    },
+  })}\n`
+);
+await wait(60);
+assert.ok(
+  asyncEmitter.childEvents.some(
+    (entry) => entry.payload.content === "Background progress."
+  ),
+  "text written after the parent turn streams into the child channel"
+);
+writeTaskNotification("fff666");
+writeTaskNotification("bash-task-1");
+await wait(60);
+assert.equal(asyncStatuses().length, 1);
+assert.equal(asyncStatuses()[0].payload.status, "completed");
+assert.equal(asyncStatuses()[0].childId, "agent-fff666");
+await wait(40);
+assert.equal(asyncObserver.pollTimer, null, "polling stops once agents end");
+
+// Hydration after a restart: the notification gives the real status; a
+// launch without one is interrupted, never failed, and does not poll.
+writeAgentFiles("ggg777", "Lost background task");
+writeAsyncLaunch("ggg777");
+const restartEmitter = makeEmitter();
+const restartObserver = new ClaudeSubagentObserver({
+  emitter: restartEmitter,
+  now: () => "restart-ts",
+  parentProviderSessionId: parentId,
+  projectsDir,
+  pollIntervalMs: 15,
+});
+await restartObserver.hydrate();
+const restartStatus = (agentId) =>
+  restartEmitter.childEvents.find(
+    (entry) =>
+      entry.childId === `agent-${agentId}` &&
+      entry.payload.type === "subagent_status"
+  )?.payload.status;
+assert.equal(restartStatus("fff666"), "completed");
+assert.equal(restartStatus("ggg777"), undefined);
+assert.equal(
+  restartEmitter.parentEvents.find(
+    (event) =>
+      event.type === "subagent_session" &&
+      event.providerSessionId === "agent-ggg777"
+  ).status,
+  "interrupted"
+);
+await restartObserver.stopTurnPolling();
+assert.equal(restartObserver.pollTimer, null, "historic launches never poll");
+
+// closeSession stops a background poll for good.
+asyncObserver.startTurnPolling();
+await asyncObserver.close();
+assert.equal(asyncObserver.pollTimer, null);
+asyncObserver.startTurnPolling();
+await asyncObserver.stopTurnPolling();
+assert.equal(asyncObserver.pollTimer, null, "a closed observer never polls");
+
 rmSync(projectsDir, { force: true, recursive: true });
 console.log("claude-subagent-observer tests passed");

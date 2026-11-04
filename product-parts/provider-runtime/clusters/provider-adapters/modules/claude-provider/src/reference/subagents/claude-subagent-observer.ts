@@ -13,6 +13,8 @@ import {
   type ClaudeSubagentMeta,
   type ClaudeSubagentToolUseResult,
   createJsonlTailCursor,
+  extractSubagentAsyncLaunch,
+  extractSubagentTaskNotification,
   extractSubagentToolUseResult,
   findParentTranscriptPath,
   type JsonlTailCursor,
@@ -51,14 +53,19 @@ interface TrackedSubagent {
 }
 
 // Watches the native Claude subagent files of one parent session and replays
-// them as provider-neutral events: live polling while a turn runs plus a
-// hydration scan on (re)subscribe. All scans run through one serialized
+// them as provider-neutral events: live polling while a turn runs (and after
+// it, while background agents are still running) plus a hydration scan on
+// (re)subscribe. All scans run through one serialized
 // chain, and spawn/terminal replay happens at most once per agent per
 // process — Core's persisted history and monotonic terminal guard absorb
 // replays across restarts (docs/architecture/ClaudeSubagentSessions.md).
 export class ClaudeSubagentObserver {
   private readonly agents = new Map<string, TrackedSubagent>();
+  // Agents launched in the background (async_launched): they outlive the
+  // parent turn, and their end arrives as a <task-notification>.
+  private readonly backgroundAgents = new Set<string>();
   private chain: Promise<void> = Promise.resolve();
+  private closed = false;
   private readonly emitter: ClaudeSubagentObserverEmitter;
   private readonly now: () => string;
   private readonly onScanError?: (error: unknown) => void;
@@ -113,14 +120,45 @@ export class ClaudeSubagentObserver {
     this.scheduleNextPoll();
   }
 
-  // Final scan so a turn's last file writes are never dropped.
+  // Final scan so a turn's last file writes are never dropped. Background
+  // agents keep the poll running after the turn until each one ends.
   stopTurnPolling(): Promise<void> {
     this.polling = false;
+    this.clearPollTimer();
+    return this.enqueue(() => this.scanOnce("running")).then(() => {
+      this.scheduleNextPoll();
+    });
+  }
+
+  // Stops every poll for good (session closed); one last scan keeps the
+  // final writes.
+  close(): Promise<void> {
+    this.closed = true;
+    this.polling = false;
+    this.clearPollTimer();
+    return this.enqueue(() => this.scanOnce("running"));
+  }
+
+  private clearPollTimer(): void {
     if (this.pollTimer) {
       clearTimeout(this.pollTimer);
       this.pollTimer = null;
     }
-    return this.enqueue(() => this.scanOnce("running"));
+  }
+
+  private shouldPoll(): boolean {
+    if (this.closed) {
+      return false;
+    }
+    if (this.polling) {
+      return true;
+    }
+    for (const agentId of this.backgroundAgents) {
+      if (!this.agents.get(agentId)?.terminalEmitted) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private enqueue(step: () => Promise<void>): Promise<void> {
@@ -130,7 +168,7 @@ export class ClaudeSubagentObserver {
   }
 
   private scheduleNextPoll(): void {
-    if (!this.polling) {
+    if (this.pollTimer || !this.shouldPoll()) {
       return;
     }
     this.pollTimer = setTimeout(() => {
@@ -167,7 +205,9 @@ export class ClaudeSubagentObserver {
         });
       }
     }
-    for (const [agentId, result] of await this.readParentTerminalResults()) {
+    for (const [agentId, result] of await this.readParentTerminalResults(
+      statusWithoutTerminal === "running"
+    )) {
       this.pendingTerminals.set(agentId, result);
     }
     for (const agent of this.agents.values()) {
@@ -312,7 +352,20 @@ export class ClaudeSubagentObserver {
     return this.parentTranscriptPath;
   }
 
-  private async readParentTerminalResults() {
+  // Task notifications also report background shell commands; only agents
+  // this observer tracks count.
+  private backgroundNotification(record: unknown) {
+    const result = extractSubagentTaskNotification(record);
+    return result &&
+      (this.backgroundAgents.has(result.agentId) ||
+        this.agents.has(result.agentId))
+      ? result
+      : null;
+  }
+
+  // Launches are tracked only by live scans: a launch first read by a
+  // hydration belongs to a CLI process that no longer runs.
+  private async readParentTerminalResults(trackLaunches: boolean) {
     if (!this.parentTranscriptPath) {
       return new Map<
         string,
@@ -328,7 +381,16 @@ export class ClaudeSubagentObserver {
       NonNullable<ReturnType<typeof extractSubagentToolUseResult>>
     >();
     for (const record of records) {
-      const result = extractSubagentToolUseResult(record);
+      const launched = extractSubagentAsyncLaunch(record);
+      if (launched) {
+        if (trackLaunches) {
+          this.backgroundAgents.add(launched);
+        }
+        continue;
+      }
+      const result =
+        extractSubagentToolUseResult(record) ??
+        this.backgroundNotification(record);
       if (result) {
         results.set(result.agentId, result);
       }

@@ -10,6 +10,14 @@ import path from "node:path";
 
 const SUBAGENT_META_SUFFIX = ".meta.json";
 const SUBAGENT_FILE_PREFIX = "agent-";
+// A background (async) subagent records only its launch as a toolUseResult;
+// its end arrives later as a <task-notification> (section 3.1 of
+// docs/architecture/ClaudeSubagentSessions.md).
+const ASYNC_LAUNCHED_STATUS = "async_launched";
+const TASK_NOTIFICATION_TAG = "<task-notification>";
+const TASK_ID_PATTERN = /<task-id>([^<]+)<\/task-id>/u;
+const TASK_STATUS_PATTERN = /<status>([^<]+)<\/status>/u;
+const INTERRUPTED_TASK_STATUSES = new Set(["cancelled", "killed", "stopped"]);
 
 export interface ClaudeSubagentMeta {
   readonly agentId: string;
@@ -217,7 +225,11 @@ export const extractSubagentToolUseResult = (
   }
   const agentId = toolUseResult.agentId;
   const status = toolUseResult.status;
-  if (typeof agentId !== "string" || agentId.length === 0) {
+  if (
+    typeof agentId !== "string" ||
+    agentId.length === 0 ||
+    status === ASYNC_LAUNCHED_STATUS
+  ) {
     return null;
   }
   const message = record.message;
@@ -238,6 +250,78 @@ export const extractSubagentToolUseResult = (
       ? { resolvedModel: toolUseResult.resolvedModel }
       : {}),
     status: typeof status === "string" ? status : fallbackStatus,
+    ...(typeof record.timestamp === "string"
+      ? { timestamp: record.timestamp }
+      : {}),
+  };
+};
+
+// The launch record of a background subagent: the agent keeps running after
+// the parent turn ends, so the observer must keep polling for it.
+export const extractSubagentAsyncLaunch = (record: unknown): string | null => {
+  if (!(isRecord(record) && isRecord(record.toolUseResult))) {
+    return null;
+  }
+  const { agentId, status } = record.toolUseResult;
+  return status === ASYNC_LAUNCHED_STATUS &&
+    typeof agentId === "string" &&
+    agentId.length > 0
+    ? agentId
+    : null;
+};
+
+const notificationText = (record: Record<string, unknown>): string | null => {
+  if (record.type === "queue-operation" && typeof record.content === "string") {
+    return record.content;
+  }
+  const message = record.message;
+  if (record.type !== "user" || !isRecord(message)) {
+    return null;
+  }
+  if (typeof message.content === "string") {
+    return message.content;
+  }
+  if (!Array.isArray(message.content)) {
+    return null;
+  }
+  for (const block of message.content) {
+    if (
+      isRecord(block) &&
+      block.type === "text" &&
+      typeof block.text === "string" &&
+      block.text.includes(TASK_NOTIFICATION_TAG)
+    ) {
+      return block.text;
+    }
+  }
+  return null;
+};
+
+// The end of a background subagent: the CLI enqueues a <task-notification>
+// (queue-operation) and then delivers it as a user message. Both carry the
+// agentId as <task-id> and the outcome as <status>.
+export const extractSubagentTaskNotification = (
+  record: unknown
+): ClaudeSubagentToolUseResult | null => {
+  if (!isRecord(record)) {
+    return null;
+  }
+  const text = notificationText(record);
+  if (!text?.includes(TASK_NOTIFICATION_TAG)) {
+    return null;
+  }
+  const agentId = TASK_ID_PATTERN.exec(text)?.[1]?.trim();
+  const rawStatus = TASK_STATUS_PATTERN.exec(text)?.[1]?.trim();
+  if (!(agentId && rawStatus)) {
+    return null;
+  }
+  const status = INTERRUPTED_TASK_STATUSES.has(rawStatus)
+    ? "interrupted"
+    : rawStatus;
+  return {
+    agentId,
+    isError: status === "failed",
+    status,
     ...(typeof record.timestamp === "string"
       ? { timestamp: record.timestamp }
       : {}),

@@ -109,6 +109,18 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   coordinator over the file layer — turn-scoped polling (default 1.5 s)
   plus a final scan on turn end so late writes are never dropped, and a
   hydration scan on (re)subscribe that replays existing subagent files.
+  Background (async) agents: the parent's `toolUseResult` with
+  `status: "async_launched"` is not terminal (`extractSubagentAsyncLaunch`
+  marks the agent as background); its end is the later
+  `<task-notification>` (`queue-operation` enqueue or the delivered `user`
+  message, `extractSubagentTaskNotification`: `<task-id>` = agentId,
+  `<status>` completed/failed, killed/stopped/cancelled → interrupted).
+  Notifications for ids the observer does not track (background shell
+  commands) are ignored. After the parent turn ends the poll continues
+  while a background agent launched in a live scan has no terminal status;
+  launches first read by a hydration (dead CLI process after a restart)
+  never keep the poll alive. `close()` stops polling for good after one
+  last scan.
   All scans run through one serialized chain; spawn/terminal events replay
   at most once per agent per process (Core's persisted history and
   monotonic terminal guard absorb cross-restart replays). Hydration marks
@@ -132,7 +144,7 @@ Harness-packaged migration of the CodeAI-Hub Claude provider module.
   transcript messages to `agent-<agentId>` child channels through the
   existing `dispatchMessage` buffering, so Core's `adoptProviderSession`
   subscription picks them up. `resumeSession` returns child ids as-is
-  (pseudo-resume — a subagent is not an SDK session), `closeSession` for a
+  (pseudo-resume — a subagent is not an SDK session), `closeSession` closes the parent observer (`close()`), and for a
   child only clears channel state, and session-id promotion retargets the
   observer via `updateParentSession`.
 - Native request capture (`claude-native-request-capture-service.ts`,

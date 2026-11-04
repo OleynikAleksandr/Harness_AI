@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 12,
+  "revision": 14,
   "rounds": [
     {
       "digest": null,
@@ -64,14 +64,18 @@
       "files": [
         "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts",
         "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts",
-        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts"
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts",
+        "docs/architecture/ClaudeSubagentSessions.md",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.test.mjs"
       ],
       "fixes": null,
       "id": "F1",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Observe Claude async subagents to their real end",
       "why": "async_launched was read as a terminal failure and polling stopped with the parent turn"
     },
@@ -270,8 +274,8 @@
 - Scope: release-fixes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 0/8
-- Revision: 12
+- Progress: 1/8
+- Revision: 14
 
 ## Objective
 
@@ -287,9 +291,9 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
 
 ### R1 — Implementation (implementation, OPEN)
 
-- [TODO] F1 — Observe Claude async subagents to their real end (work)
+- [DONE] F1 — Observe Claude async subagents to their real end (work)
   - Commit: fix: follow claude async subagents to their real end
-  - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts
+  - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.ts, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/provider/claude-provider-adapter.ts, docs/architecture/ClaudeSubagentSessions.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/module.md, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-files.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/claude-provider/src/reference/subagents/claude-subagent-observer.test.mjs
 - [TODO] F2 — Release the sessions of a workspace from Core memory (work)
   - Commit: feat: release workspace sessions from core
   - Files: product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-request-handler-facade.ts, product-parts/core-runtime/clusters/session-runtime/modules/session-request-handler/src/session-tree-release.ts

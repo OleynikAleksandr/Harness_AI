@@ -61,6 +61,30 @@ export class WorkspaceRegistryFacade {
     return workspace;
   }
 
+  isBuiltInWorkspace(workspaceId: string): boolean {
+    return workspaceId === CURRENT_WORKSPACE.id;
+  }
+
+  /**
+   * Forgets a known workspace (the project is removed from the app, not from
+   * disk). The built-in workspace stays; it becomes active when the active
+   * workspace is removed.
+   */
+  removeWorkspace(workspaceId: string): HarnessWorkspace {
+    if (this.isBuiltInWorkspace(workspaceId)) {
+      throw new Error("The built-in workspace cannot be removed.");
+    }
+    const workspace = this.workspaces.get(workspaceId);
+    if (!workspace) {
+      throw new Error(`Unknown workspace: ${workspaceId}`);
+    }
+    this.workspaces.delete(workspaceId);
+    if (this.activeWorkspaceId === workspaceId) {
+      this.activeWorkspaceId = CURRENT_WORKSPACE.id;
+    }
+    return workspace;
+  }
+
   restoreSnapshot(snapshot: WorkspaceRegistrySnapshot): void {
     this.workspaces.clear();
     this.workspaces.set(CURRENT_WORKSPACE.id, CURRENT_WORKSPACE);

@@ -39,3 +39,22 @@ assert.equal(
     .some((knownWorkspace) => knownWorkspace.id === workspace.id),
   true
 );
+
+// Removing a project forgets it and falls back to the built-in workspace.
+const removable = new WorkspaceRegistryFacade();
+const builtIn = removable.getActiveWorkspace();
+assert.equal(removable.isBuiltInWorkspace(builtIn.id), true);
+const removed = removable.addWorkspace("/tmp/harness-ai-removed-workspace");
+const kept = removable.addWorkspace("/tmp/harness-ai-kept-workspace");
+removable.selectWorkspace(removed.id);
+assert.equal(removable.removeWorkspace(removed.id).id, removed.id);
+assert.equal(removable.getActiveWorkspace().id, builtIn.id);
+assert.deepEqual(
+  removable.getKnownWorkspaces().map((item) => item.id),
+  [builtIn.id, kept.id]
+);
+removable.selectWorkspace(kept.id);
+removable.removeWorkspace(removable.addWorkspace("/tmp/other").id);
+assert.equal(removable.getActiveWorkspace().id, kept.id, "active stays");
+assert.throws(() => removable.removeWorkspace(builtIn.id), /built-in/u);
+assert.throws(() => removable.removeWorkspace(removed.id), /Unknown/u);

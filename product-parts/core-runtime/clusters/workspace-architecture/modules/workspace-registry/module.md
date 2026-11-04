@@ -17,6 +17,9 @@ Own known workspaces and active workspace selection.
 
 - Known workspace snapshot.
 - Active workspace selection state.
+- `removeWorkspace(id)` forgets a known workspace (the project is removed from
+  the app, not from disk); the built-in workspace (`isBuiltInWorkspace`)
+  cannot be removed and becomes active when the active workspace is removed.
 
 ## Owned Paths
 

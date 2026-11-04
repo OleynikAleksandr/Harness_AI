@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 18,
+  "revision": 20,
   "rounds": [
     {
       "digest": null,
@@ -147,14 +147,18 @@
       "files": [
         "product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.ts",
         "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.ts",
-        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts"
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.test.mjs",
+        "product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/module.md",
+        "product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.test.mjs"
       ],
       "fixes": null,
       "id": "F4",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Core remove-workspace route",
       "why": "Core owns the workspace registry; the API file is at its line limit"
     },
@@ -279,8 +283,8 @@
 - Scope: release-fixes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 3/8
-- Revision: 18
+- Progress: 4/8
+- Revision: 20
 
 ## Objective
 
@@ -305,9 +309,9 @@ Fix Claude async subagent observation (live text, real terminal status) and let 
 - [DONE] F3 — Remove app-home provider residue of a workspace (work)
   - Commit: feat: remove provider home residue of a workspace
   - Files: product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.ts, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/module.md, product-parts/provider-runtime/clusters/provider-home-and-auth/modules/provider-home-manager/src/provider-home-manager-facade.test.mjs
-- [TODO] F4 — Core remove-workspace route (work)
+- [DONE] F4 — Core remove-workspace route (work)
   - Commit: feat: add core route to remove a workspace
-  - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts
+  - Files: product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-workspace-rpc.test.mjs, product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/module.md, product-parts/core-runtime/clusters/workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.test.mjs
   - Depends on: F2, F3
 - [TODO] F5 — Bridge remove-workspace to the renderer (work)
   - Commit: feat: bridge workspace removal to the renderer

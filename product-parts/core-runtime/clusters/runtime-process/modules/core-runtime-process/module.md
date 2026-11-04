@@ -296,6 +296,25 @@ state.
   workspaceId, path, status}`; every autopilot change and decision is
   relayed as `{type: "workflow:autopilot", ...snapshot}`.
   `CoreRuntimeApi.subscribe()` relays both on the same event stream.
+- `CoreWorkspaceRpc` (`core-workspace-rpc.ts`) owns the workspace registry
+  routes, which `CoreRuntimeApi` delegates (`CoreWorkspaceRpc.handles`):
+  - `list-workspaces` → `{activeWorkspaceId, builtInWorkspaceId,
+    workspaces}`; `builtInWorkspaceId` is the always-present workspace that
+    cannot be removed;
+  - `add-workspace <path>` and `select-workspace <id>` — register/select,
+    persist the registry snapshot (`<HARNESS_AI_HOME or ~/.harness-ai>/
+    workspaces.json`), re-register provider adapters and provision the
+    workspace;
+  - `remove-workspace {workspaceId}` — removes the project from the app, not
+    from disk: the registry entry (persisted), its sessions loaded in Core
+    (`releaseWorkspaceSessions`: provider sessions closed, records dropped,
+    history files kept) and the app-level provider home residue
+    (`removeWorkspaceResidue`). Removing the active project activates the
+    built-in workspace. Result `{ok: true, activeWorkspaceId,
+    builtInWorkspaceId, workspaces}` or `{ok: false, code, error}` with
+    `BUILT_IN_WORKSPACE` / `UNKNOWN_WORKSPACE`.
+  `restore()` loads the snapshot at Core start; `CoreProjectWorkflowRpc`
+  registers prepared projects through `add`.
 
 ## Owned Paths
 

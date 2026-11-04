@@ -1,11 +1,7 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
 import { refreshClaudeModelCatalog } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/claude-provider/src/claude-provider-facade.js";
 import { refreshCodexModelCatalog } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/codex-provider/src/codex-provider-facade.js";
 import { refreshKimiModelCatalog } from "../../../../../../provider-runtime/clusters/provider-adapters/modules/kimi-client-provider/src/kimi-client-provider-facade.js";
 import { providerAuthStoreFacade } from "../../../../../../provider-runtime/clusters/provider-home-and-auth/modules/provider-auth-store/src/provider-auth-store-facade.js";
-import { providerWorkspaceProvisionerFacade } from "../../../../../../provider-runtime/clusters/provider-readiness/modules/provider-workspace-provisioner/src/provider-workspace-provisioner-facade.js";
 import {
   type ProviderId,
   providerRegistryFacade,
@@ -18,11 +14,7 @@ import {
   type HarnessSettings,
   settingsStoreFacade,
 } from "../../../../settings-and-localization/modules/settings-store/src/settings-store-facade.js";
-import {
-  type HarnessWorkspace,
-  type WorkspaceRegistrySnapshot,
-  workspaceRegistryFacade,
-} from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
+import { workspaceRegistryFacade } from "../../../../workspace-architecture/modules/workspace-registry/src/workspace-registry-facade.js";
 import { translateDynamicCoreText } from "./core-dynamic-translation.js";
 import { ensureCoreGlossaryFileRpcResult } from "./core-glossary-rpc.js";
 import { rebuildCoreLocalizationRpcResult } from "./core-localization-rebuild-rpc.js";
@@ -52,17 +44,17 @@ import {
   SESSION_PROFILES_UPDATED_EVENT_TYPE,
   sessionProfileStore,
 } from "./core-session-profile-rpc.js";
-
-const WORKSPACE_REGISTRY_FILE = join(
-  process.env.HARNESS_AI_HOME || join(homedir(), ".harness-ai"),
-  "workspaces.json"
-);
+import { CoreWorkspaceRpc } from "./core-workspace-rpc.js";
 
 export class CoreRuntimeApi {
   private initialized = false;
   private readonly providerLifecycle = new CoreProviderLifecycle();
+  private readonly workspaces = new CoreWorkspaceRpc({
+    registerAdapters: () => this.providerLifecycle.registerAdapters(),
+  });
   private readonly projectWorkflow = new CoreProjectWorkflowRpc({
-    addWorkspace: (workspacePath) => this.addWorkspace(workspacePath).workspace,
+    addWorkspace: (workspacePath) =>
+      this.workspaces.add(workspacePath).workspace,
     host: workflowHostFacade,
     workspaces: () => ({
       active: workspaceRegistryFacade.getActiveWorkspace(),
@@ -85,7 +77,7 @@ export class CoreRuntimeApi {
     this.providerLifecycle.registerAdapters();
     this.providerLifecycle.subscribeReadiness();
     this.providerLifecycle.startLivenessPreflight();
-    this.startWorkspaceProvisioning();
+    this.workspaces.startProvisioning();
     sessionRequestHandlerFacade.resumeRestoredSessions();
     this.initialized = true;
   }
@@ -116,16 +108,10 @@ export class CoreRuntimeApi {
     if (CoreProjectWorkflowRpc.handles(method)) {
       return this.projectWorkflow.invoke(method, payload);
     }
+    if (CoreWorkspaceRpc.handles(method)) {
+      return this.workspaces.invoke(method, payload);
+    }
     switch (method) {
-      case "list-workspaces":
-        return {
-          activeWorkspaceId: workspaceRegistryFacade.getActiveWorkspace().id,
-          workspaces: workspaceRegistryFacade.getKnownWorkspaces(),
-        };
-      case "add-workspace":
-        return this.addWorkspace(readString(payload));
-      case "select-workspace":
-        return this.selectWorkspace(readString(payload));
       case "list-sessions":
         return sessionRequestHandlerFacade.listSessions(readString(payload));
       case "get-session-events":
@@ -228,42 +214,12 @@ export class CoreRuntimeApi {
   }
 
   private restoreState(): void {
-    const snapshot = loadWorkspaceRegistrySnapshot();
-    if (snapshot) {
-      workspaceRegistryFacade.restoreSnapshot(snapshot);
-    }
     sessionRequestHandlerFacade.restoreSessionHistory(
-      workspaceRegistryFacade.getKnownWorkspaces()
+      this.workspaces.restore()
     );
     sessionRequestHandlerFacade.restoreTelemetryHistory(
       sessionEventStreamFacade.latestTelemetryBySession()
     );
-  }
-
-  private addWorkspace(workspacePath: string): {
-    ok: true;
-    workspace: HarnessWorkspace;
-  } {
-    const workspace = workspaceRegistryFacade.addWorkspace(workspacePath);
-    workspaceRegistryFacade.selectWorkspace(workspace.id);
-    saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
-    this.providerLifecycle.registerAdapters();
-    this.startWorkspaceProvisioning();
-    return { ok: true, workspace };
-  }
-
-  private selectWorkspace(
-    workspaceId: string
-  ): { error: string; ok: false } | { ok: true; workspace: unknown } {
-    try {
-      const workspace = workspaceRegistryFacade.selectWorkspace(workspaceId);
-      saveWorkspaceRegistrySnapshot(workspaceRegistryFacade.getSnapshot());
-      this.providerLifecycle.registerAdapters();
-      this.startWorkspaceProvisioning();
-      return { ok: true, workspace };
-    } catch (error) {
-      return { error: describeError(error), ok: false };
-    }
   }
 
   private getSessionEvents(sessionId: string): unknown[] {
@@ -437,41 +393,6 @@ export class CoreRuntimeApi {
   private activeWorkspacePath(): string {
     return workspaceRegistryFacade.getActiveWorkspace().path;
   }
-
-  private startWorkspaceProvisioning(): void {
-    const workspace = workspaceRegistryFacade.getActiveWorkspace();
-    providerWorkspaceProvisionerFacade
-      .provisionWorkspace({
-        workspaceId: workspace.id,
-        workspacePath: workspace.path,
-      })
-      .catch(() => undefined);
-  }
-}
-
-function loadWorkspaceRegistrySnapshot(): WorkspaceRegistrySnapshot | null {
-  if (!existsSync(WORKSPACE_REGISTRY_FILE)) {
-    return null;
-  }
-  try {
-    const snapshot = JSON.parse(
-      readFileSync(WORKSPACE_REGISTRY_FILE, "utf8")
-    ) as unknown;
-    return readRecord(snapshot)?.workspaces
-      ? (snapshot as WorkspaceRegistrySnapshot)
-      : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveWorkspaceRegistrySnapshot(snapshot: unknown): void {
-  mkdirSync(dirname(WORKSPACE_REGISTRY_FILE), { recursive: true });
-  writeFileSync(
-    WORKSPACE_REGISTRY_FILE,
-    JSON.stringify(snapshot, null, 2),
-    "utf8"
-  );
 }
 
 function readProviderId(value: unknown): ProviderId {

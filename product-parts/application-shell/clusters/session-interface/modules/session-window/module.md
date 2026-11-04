@@ -80,7 +80,12 @@ Detached session windows never expose the switch.
   `runProjectDoctor`, `getWorkflowAutopilot`, `setWorkflowAutopilot`,
   `getWorkflowModeChoice({workspaceId})` → `{ok: true, card | null}` and
   `chooseWorkflowMode({workspaceId, sessionId, generation, option})` →
-  `{ok: true, card, choice}` or the Kit failure, with the Workflow Kit
+  `{ok: true, card, choice}` or the Kit failure,
+  `setGitIdentity({name, email})` → the Kit `identity:set` envelope
+  (`result: GitIdentitySetResult` `{name, email, scope: "global"}`, or
+  `GIT_IDENTITY_INVALID` / `GIT_IDENTITY_PLACEHOLDER` with
+  `details.field`; after a success the client repeats the `prepareProject`
+  request that failed with `GIT_IDENTITY_REQUIRED`), with the Workflow Kit
   envelope (`WorkflowKitOutcome`, `WorkflowKitFailure`) and the Core read
   models (`WorkflowInspectResult`, `WorkflowKitStatus`,
   `WorkflowDoctorReport`, `WorkflowPreparedProject`,

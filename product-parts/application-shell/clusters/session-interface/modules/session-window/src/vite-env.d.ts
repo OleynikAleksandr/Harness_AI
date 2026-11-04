@@ -342,6 +342,19 @@ interface Window {
       name?: string;
       path: string;
     }): Promise<WorkflowKitFailure | WorkflowPreparedProject>;
+    /**
+     * The one-time global git identity: the Kit validates and writes it.
+     * After a success the client repeats the `prepareProject` request that
+     * failed with GIT_IDENTITY_REQUIRED.
+     */
+    setGitIdentity(request: {
+      email: string;
+      name: string;
+    }): Promise<
+      WorkflowKitOutcome<
+        import("../../../../../../core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.js").GitIdentitySetResult
+      >
+    >;
     getWorkflowStatus(request: {
       workspaceId?: string;
     }): Promise<WorkflowKitFailure | WorkflowStatusResult>;

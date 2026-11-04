@@ -52,6 +52,7 @@ const IPC_TO_RPC = {
   "harness-ai:core:workflow-autopilot-get": "workflow-autopilot-get",
   "harness-ai:core:workflow-autopilot-set": "workflow-autopilot-set",
   "harness-ai:core:workflow-doctor": "workflow-doctor",
+  "harness-ai:core:workflow-identity-set": "workflow-identity-set",
   "harness-ai:core:workflow-inspect": "workflow-inspect",
   "harness-ai:core:workflow-mode-choice-get": "workflow-mode-choice-get",
   "harness-ai:core:workflow-mode-choose": "workflow-mode-choose",

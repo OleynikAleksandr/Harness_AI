@@ -124,6 +124,8 @@ contextBridge.exposeInMainWorld("harnessCore", {
     ipcRenderer.invoke("harness-ai:core:workflow-mode-choice-get", request),
   chooseWorkflowMode: (request) =>
     ipcRenderer.invoke("harness-ai:core:workflow-mode-choose", request),
+  setGitIdentity: (request) =>
+    ipcRenderer.invoke("harness-ai:core:workflow-identity-set", request),
   restartCore: () => ipcRenderer.invoke("harness-ai:core:restart"),
   saveSettings: (request) =>
     ipcRenderer.invoke("harness-ai:core:save-settings", request),

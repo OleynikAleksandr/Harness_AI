@@ -64,11 +64,13 @@ Own Electron lifecycle, window creation, and local application startup.
   `prepareProject(request)`, `getWorkflowStatus(request)`,
   `runProjectDoctor(request)`, `getWorkflowAutopilot(request)`,
   `setWorkflowAutopilot(request)`, `getWorkflowModeChoice({workspaceId})`
-  (`workflow-mode-choice-get`) and `chooseWorkflowMode({workspaceId,
-  sessionId, generation, option})` (`workflow-mode-choose`), bridged
+  (`workflow-mode-choice-get`), `chooseWorkflowMode({workspaceId,
+  sessionId, generation, option})` (`workflow-mode-choose`) and
+  `setGitIdentity({name, email})` (`workflow-identity-set`), bridged
   one-to-one to the Core `workflow-*` methods. Inspection, installation,
-  status, autopilot and mode card truth stay in Core; the renderer sends
-  only the clicked option.
+  status, autopilot, mode card and identity validation truth stay in Core
+  and the Kit; the renderer sends only the clicked option or the typed
+  name and email.
 - `window.harnessCore.removeWorkspace(workspaceId)` sends only the user's
   intent to remove a project from the app (`remove-workspace
   {workspaceId}`); what is removed and which workspace becomes active is

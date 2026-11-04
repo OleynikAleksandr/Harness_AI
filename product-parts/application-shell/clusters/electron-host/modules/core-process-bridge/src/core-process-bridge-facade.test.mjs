@@ -80,6 +80,7 @@ for (const method of [
   "workflow-autopilot-set",
   "workflow-mode-choice-get",
   "workflow-mode-choose",
+  "workflow-identity-set",
 ]) {
   assert.match(
     source,
@@ -96,5 +97,9 @@ const pickFolderSource = source.slice(
 assert.doesNotMatch(pickFolderSource, /coreClient/u);
 assert.match(preloadSource, /chooseWorkflowMode: \(request\)/u);
 assert.match(preloadSource, /getWorkflowModeChoice: \(request\)/u);
+assert.match(
+  preloadSource,
+  /setGitIdentity: \(request\) =>\s*ipcRenderer\.invoke\("harness-ai:core:workflow-identity-set", request\)/u
+);
 assert.match(preloadSource, /pickProjectFolder: \(\)/u);
 assert.match(preloadSource, /pickProjectParent: \(\)/u);

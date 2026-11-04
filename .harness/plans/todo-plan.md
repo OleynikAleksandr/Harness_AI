@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 92,
+  "revision": 94,
   "rounds": [
     {
       "digest": null,
@@ -138,14 +138,18 @@
       "files": [
         "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs",
         "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs",
-        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts",
+        "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md",
+        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md"
       ],
       "fixes": null,
       "id": "G3",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Bridge for the identity route",
       "why": "The renderer reaches Core only through the bridge"
     },
@@ -455,8 +459,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 7/13
-- Revision: 92
+- Progress: 8/13
+- Revision: 94
 
 ## Objective
 
@@ -482,9 +486,9 @@ Fix the defects found in the execution modes release (git identity form instead 
   - Commit: feat: route git identity through core
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.ts, docs/DOCUMENTATION_INDEX.md, docs/architecture/workflow-kit/WorkflowKitCoreRpc.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-identity.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-project-workflow-rpc.test.mjs
   - Depends on: G1
-- [TODO] G3 — Bridge for the identity route (work)
+- [DONE] G3 — Bridge for the identity route (work)
   - Commit: feat: bridge the git identity route
-  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts
+  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/preload.cjs, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
   - Depends on: G2
 - [TODO] G4 — Setup dialog identity form and no name in Open Project (work)
   - Commit: feat: ask the git identity in the setup dialog

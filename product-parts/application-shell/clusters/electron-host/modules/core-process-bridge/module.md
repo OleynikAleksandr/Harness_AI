@@ -61,8 +61,9 @@ modules or own Core truth.
   `harness-ai:core:workflow-inspect`, `workflow-prepare-project`,
   `workflow-status`, `workflow-doctor`, `workflow-autopilot-get`,
   `workflow-autopilot-set`, `workflow-mode-choice-get` (the execution mode
-  card of a workspace) and `workflow-mode-choose` (the user's click on the
-  card) map one-to-one to the Core methods of the same names. Core events,
+  card of a workspace), `workflow-mode-choose` (the user's click on the
+  card) and `workflow-identity-set` (the name and email of the git
+  identity form) map one-to-one to the Core methods of the same names. Core events,
   `workflow:mode-choice` among them, reach every window on
   `harness-ai:core-event` unchanged. The project pickers `harness-ai:core:pick-project-folder` ("Open
   Project") and `harness-ai:core:pick-project-parent` ("Select Parent

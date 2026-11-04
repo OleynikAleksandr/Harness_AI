@@ -243,13 +243,9 @@ Node built-ins only.
   `host: "harness"` project `EXECUTION_MODE_REQUIRED` plus the CLI
   propose/choose path with text output and usage errors.
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
-<<<<<<< ours
   envelopes, inspection (JSON and text) and update of a folder without the
-  Kit, text errors, a folder without the Kit, a whole task from a
-=======
-  envelopes, inspection and update of a folder without the Kit, an invalid
-  `install --host`, text errors, a folder without the Kit, a whole task from a
->>>>>>> theirs
+  Kit, an invalid `install --host`, text errors, a folder without the Kit, a
+  whole task from a
   subdirectory, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled file run as a program.
 

@@ -54,11 +54,13 @@ Kit выведен из двух систем:
 | Документ | Содержание |
 |---|---|
 | `WorkflowKitProcess.md` | алгоритм: scope, задачи, коммит, раунды, приёмка, закрытие, документация, выпуск |
-| `WorkflowKitRecovery.md` | ограниченный контекст восстановления, сводки раундов, автопилот |
+| `WorkflowKitRecovery.md` | ограниченный контекст восстановления, карта документов, схема следующего шага, сводки раундов, автопилот и пауза |
 | `WorkflowKitQuality.md` | профиль качества: определение стека, каталог, этапы проверок |
 | `WorkflowKitInstallation.md` | файлы в проекте, установщик, Доктор, интеграция с Harness, провайдеры, Windows/Linux, перевод репозитория Harness |
 | `WorkflowKitExecutionModes.md` | режимы `sequential`/`orchestrated`, метки `parallelSafe`, карточка выбора режима, Git-идентичность, роли агента, план в сайдбаре Harness |
 | `WorkflowKitOrchestration.md` | назначения исполнителям в worktree, порядок работы оркестратора, интеграция результатов в main |
+| `WorkflowKitCommands.md` | справочник команд `scripts/workflow`: использование, поведение, текстовый вывод и отказы |
+| `WorkflowKitCoreRpc.md` | маршруты Core для проекта: подготовка, статус, автопилот, пауза, карточка режима, наблюдатель, модель плана |
 
 ## 3. Кластер `core-runtime/clusters/project-workflow`
 
@@ -103,7 +105,7 @@ host ──(дочерний процесс)──▶ бандл kit
 | `.harness/workflow/manifest.json` | owned | версия Kit, список установленных файлов и их хеши |
 | `.harness/workflow/runtime/workflow.mjs` | owned | бандл Kit |
 | `.harness/workflow/hooks/*` | owned | git hooks, если в проекте не задан свой `core.hooksPath` |
-| `.harness/workflow/local/**` | игнорируется Git | журнал транзакции, снимки задач, доказательства проверок, блокировка, путь к среде выполнения; предложение scope (`scope-proposal.json`), назначения (`assignments/*.json`), журнал интеграции (`integration.json`), в worktree исполнителя — `assignment.json` |
+| `.harness/workflow/local/**` | игнорируется Git | журнал транзакции, снимки задач, доказательства проверок, блокировка, путь к среде выполнения, пауза пользователя (`pause.json`); предложение scope (`scope-proposal.json`), назначения (`assignments/*.json`), журнал интеграции (`integration.json`), в worktree исполнителя — `assignment.json` |
 | `scripts/workflow`, `scripts/workflow.cmd`, `scripts/workflow.ps1` | owned | запускатели для POSIX и Windows |
 | `AGENTS.md` | управляемая секция | правила процесса для агента на английском |
 | `CLAUDE.md` | управляемая строка | `@AGENTS.md` |
@@ -116,7 +118,8 @@ host ──(дочерний процесс)──▶ бандл kit
 
 | Группа | Команды |
 |---|---|
-| Состояние | `status`, `autopilot:status`, `validate`, `recover`, `show-task`, `history` |
+| Состояние | `status`, `autopilot:status`, `validate`, `recover`, `show-task`, `history`, `pause:set` |
+| Входы и документы | `schema [<command>]` (схема входного JSON), `context <path>[#Heading] … \| --list` (документы текстом) |
 | Scope | `scope:create`, `scope:propose`, `scope:choose`, `scope:proposal`, `plan:extend`, `task:update`, `accept`, `close`, `carryover` |
 | Задача | `task:start`, `task:block`, `task:unblock`, `commit`, `docs:commit` |
 | Назначения | `assignment:next`, `assignment:create`, `assignment:attach`, `assignment:status`, `assignment:setup`, `assignment:cleanup` |
@@ -125,7 +128,9 @@ host ──(дочерний процесс)──▶ бандл kit
 | Обслуживание | `repair`, `doctor`, `install`, `inspect`, `migrate:harness-plan`, `identity:set --global` (глобальная Git-идентичность, без проекта) |
 | Hooks | `hook session-start`, `git-hook <name>` |
 
-Каждая команда выводит JSON (`--format text` — для человека). Ошибка
+Каждая команда выводит JSON (`--format text` — для человека; `context` —
+текст по умолчанию). Полный справочник —
+[WorkflowKitCommands.md](WorkflowKitCommands.md). Ошибка
 возвращает `{ok:false, code, message, nextAction}` и ненулевой код выхода.
 В worktree исполнителя работает только часть команд (остальные —
 `ASSIGNMENT_READ_ONLY`, см. `WorkflowKitOrchestration.md`, раздел 5.3).

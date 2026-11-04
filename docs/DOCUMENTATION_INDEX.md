@@ -172,7 +172,8 @@ implementation plan.
   scope `release-fixes-2026-11-04-3`): input schemas for agents, document text
   inline in executor briefs and the recovery packet, the `context` command and
   the documentation map, autopilot on by default with a Kit pause, the real
-  git config for agent processes, no built-in project, GitHub publication.
+  git config for agent processes, no built-in project, GitHub publication;
+  actualized to the implementation by DOCS-R1.
 - `docs/architecture/workflow-kit/WorkflowKit.md` — root specification of
   the Workflow Kit (Russian, scope `workflow-kit-2026-11-03`): origin from
   Harness rules and Workflow Kit 1.x, the `core-runtime/clusters/project-workflow`
@@ -183,24 +184,33 @@ implementation plan.
   conflict-marker guard of every commit, and the orchestrated exception to
   one task per checkout.
 - `docs/architecture/workflow-kit/WorkflowKitRecovery.md` — bounded recovery
-  packet (sections, budget, round digests), session-start hook and the Core
-  autopilot decision/stop reasons, and the autopilot armed by the mode
+  packet (sections, budget with required documents always inline, the
+  documents map, the next step's `schema` section, round digests),
+  session-start hook, the Core autopilot (on by default) with its
+  decision/stop reasons, the Kit pause and the autopilot armed by the mode
   choice.
 - `docs/architecture/workflow-kit/WorkflowKitQuality.md` — quality profile:
   stack detection, ecosystem catalog, built-in checks (including the
-  implicit `kit:conflict-markers`), stages and the Harness AI profile.
+  implicit `kit:conflict-markers`), budgets (`briefBytes`), stages and the
+  Harness AI profile.
 - `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
-  inspection, install, the global git identity (`identity:set`), doctor,
-  Harness plan migration, Core/Electron/RPC/UI integration, provider context delivery and Windows/Linux rules.
+  inspection, install, `KIT_VERSION` history (2.2.0), the global git
+  identity (`identity:set`), doctor (with `doc-size`), Harness plan
+  migration, Core/Electron/RPC/UI integration (pause button, no autopilot
+  switch), the real git config for agent processes, provider context
+  delivery and Windows/Linux rules.
 - `docs/architecture/workflow-kit/WorkflowKitCommands.md` — command reference
   of `scripts/workflow` (`workflow-kit-cli.ts`, `kit-cli-*.ts`): conventions,
   the executor whitelist, usage, behaviour, text output and refusals of every
-  command, including `schema`; moved out of the `workflow-kit` module.md,
+  command, including `schema`, `context`, `pause:set` and the context budget
+  refusals; moved out of the `workflow-kit` module.md,
   which keeps the summary.
 - `docs/architecture/workflow-kit/WorkflowKitCoreRpc.md` — detailed contract
   of the Core project workflow routes (`core-project-workflow-rpc.ts`):
   inspect, prepare-project, identity-set, status with `planView`, doctor,
-  autopilot, the execution mode card (the choice arms the autopilot), the Kit state watcher; moved out of the
+  autopilot (on by default, `pauseState`), the plan pause route
+  `workflow-pause-set`, `NO_WORKSPACE` without an active project, the
+  execution mode card (the choice arms the autopilot), the Kit state watcher; moved out of the
   `core-runtime-process` module.md, which keeps the summary.
 - `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md` — execution
   modes as implemented (Russian, scope `execution-modes-2026-11-04`):
@@ -209,13 +219,16 @@ implementation plan.
   in the sidebar,
   sequential by one agent, the orchestrator order, Kit-formed git identity,
   agent roles in recovery and `AGENTS.md`, Kit status, the Core watcher, the
-  plan view with executor binding in the Harness sidebar, the orchestrated
-  autopilot and small fixes.
+  plan view with executor binding and the pause button in the Harness
+  sidebar, the orchestrated autopilot (on by default, pause per step) and
+  small fixes.
 - `docs/architecture/workflow-kit/WorkflowKitOrchestration.md` — the
   orchestrated part of the execution modes (Russian, sections 5–7):
   scheduler, `assignment:*` commands, executor attach, plan and path
   contract, worktree setup, integration proof, merge journal, conflicts,
-  failed checks, crash recovery, cleanup and first-parent history.
+  failed checks, crash recovery, cleanup and first-parent history; the
+  executor brief with the marked document text and map, and the pause in
+  orchestrated mode.
 
 ## Product Part Documentation
 

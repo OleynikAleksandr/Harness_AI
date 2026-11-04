@@ -8,7 +8,10 @@ subagent timeline contracts for display. The ordinary shell also owns the
 top-level entry/return switch for the sibling Profile Studio cluster; detached
 session windows remain session-only. The ordinary new-session picker forwards
 the Core-selected provider/model target to the profile catalog and never
-decides Studio compatibility in the renderer.
+decides Studio compatibility in the renderer. Without an active Core
+project (no built-in project exists) `session-window` shows a start screen
+with Open Project and New Project instead of the shell; the sidebar project
+menu can remove any project.
 
 ## Owned Modules
 

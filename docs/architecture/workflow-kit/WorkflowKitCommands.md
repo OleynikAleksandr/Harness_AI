@@ -15,8 +15,9 @@ document is updated in the same commit as the commands it describes.
 - Project root: `--root`, else `HARNESS_WORKFLOW_ROOT`, else the git top
   level of the working directory, else the working directory. Input files
   resolve against the working directory.
-- Output: `{ok: true, command, result}` as JSON (default), or the text of
-  `--format text` described per command (JSON when none is described).
+- Output: `{ok: true, command, result}` as JSON (default; `context`
+  defaults to text), or the text of `--format text` described per command
+  (JSON when none is described).
 - Errors: `{ok: false, code, message, nextAction, details}` on stdout with
   exit code 1; with `--format text` `CODE: message` (and `Next: ...`) on
   stderr. Common refusals of every command:
@@ -39,7 +40,8 @@ document is updated in the same commit as the commands it describes.
 ## Executor Worktree
 
 In a checkout with `.harness/workflow/local/assignment.json` only
-`status`, `validate`, `recover`, `show-task`, `schema`, `task:start`,
+`status`, `validate`, `recover`, `show-task`, `schema`, `context`,
+`task:start`,
 `commit`, `repair`, `task:block`, `assignment:status`, `assignment:setup`,
 `assignment:attach` (retry), `help`, `hook` and `git-hook` run. Every other
 known command fails with `ASSIGNMENT_READ_ONLY` (`details.allowed`) before
@@ -89,13 +91,49 @@ it runs.
     schema. Commands with a schema: ...`, `details.commands`, next action
     `scripts/workflow schema`).
 
+- `context <path>[#Heading] … | context --list [<folder>]`
+  (`kit-cli-context.ts`, spec 3.1 of `ReleaseFixes-2026-11-04-3.md`) —
+  project documents as marked text in one call, instead of reading large
+  files piecewise. A pure read: no scope needed, allowed in an executor
+  worktree; text is the default format.
+  - Every argument is checked first: a path outside the project root
+    (symbolic links resolved), under `.harness/workflow/**`, a folder or a
+    file with a NUL byte is `CONTEXT_FORBIDDEN`; a missing file or heading
+    is `CONTEXT_MISSING` (next action: `context --list`).
+  - Documents are returned whole, in argument order, as `<document
+    path="…" heading="…" bytes="N">` blocks (`heading` only for a section)
+    while the answer fits 28 000 bytes (Claude Code cuts tool output near
+    30 000 characters). After the first misfit every later request is
+    listed as `not included (ask again): <path>[#H] (N bytes)`, so the next
+    call continues in order.
+  - A document larger than the budget alone is returned by its `##`
+    sections (the preamble stays with the first); one without sections is
+    listed as too large. `#Heading` selects a section by text or slug, like
+    the recovery packet.
+  - JSON: `{documents: [{path, heading?, bytes, text}], notIncluded:
+    [{path, heading?, bytes, tooLarge?}]}`.
+  - `--list [<folder>]` — the documents map (path, bytes, `##` headings;
+    the Documents Map of `WorkflowKitRecovery.md`) within 28 000 bytes,
+    the tail line pointing to a subfolder; JSON `{folder, entries, shown,
+    text}`. A missing folder is `CONTEXT_MISSING`, a file
+    `CONTEXT_FORBIDDEN`; more than one folder is `USAGE`.
+
 ## Scope
+
+Context budget refusals (`kit-context-budget.ts`; spec 2): `scope:create`,
+`scope:propose`, `scope:choose`, `plan:extend` (new and changed tasks) and
+`task:update` read each task's brief documents (its `context`, or the scope
+specification) and refuse with `CONTEXT_MISSING` (`details {taskId, path,
+heading?}`) for a missing file or heading and `CONTEXT_TOO_LARGE`
+(`details {taskId, bytes, budget}`, next action: narrow `context` to
+sections with `heading`) when the text exceeds `budget.briefBytes`
+(default 60 000). Nothing is written then.
 
 - `scope:create --input <file.json>` — the agreed scope; input:
   `schema scope:create`. Refusals: `SCOPE_EXISTS`, `NO_BASELINE`,
   `SPEC_REQUIRED`, `SCOPE_APPROVAL`, `PLAN_SCHEMA`, `PLAN_EXECUTION`;
   `EXECUTION_MODE_REQUIRED` with config `host: "harness"` (next action
-  `scope:propose`).
+  `scope:propose`), `CONTEXT_MISSING`, `CONTEXT_TOO_LARGE`.
 - `scope:propose --input <file.json> --recommended sequential|orchestrated
   --reason "<why>"` (`kit-cli-execution.ts`) — stores the proposal for the
   user's choice; input: `schema scope:propose`. An invalid `--recommended`
@@ -113,10 +151,11 @@ it runs.
 - `plan:extend --input <file.json> [--expected-revision N]` — tasks for the
   open round or a new round; input: `schema plan:extend`. Refusals:
   `REVISION_MISMATCH`, `ROUND_OPEN`, `TASK_STARTED`, `UNKNOWN_TASK`,
-  `PLAN_SCHEMA`, `TASK_ORDER`.
+  `PLAN_SCHEMA`, `TASK_ORDER`, `CONTEXT_MISSING`, `CONTEXT_TOO_LARGE`.
 - `task:update <ID> --input <patch.json> [--expected-revision N]` — patch
   of a task that is not `DONE`; input: `schema task:update`. Refusals:
-  `TASK_PATCH`, `REVISION_MISMATCH`, `UNKNOWN_TASK`, `PLAN_SCHEMA`.
+  `TASK_PATCH`, `REVISION_MISMATCH`, `UNKNOWN_TASK`, `PLAN_SCHEMA`,
+  `CONTEXT_MISSING`, `CONTEXT_TOO_LARGE`.
 - `accept --note "<the user's words>"` — records the user's acceptance;
   the scope stays open. Refusals: `NOT_READY` (delivery is not
   `READY_FOR_ACCEPTANCE`), `ACCEPTANCE_NOTE`.
@@ -148,7 +187,13 @@ it runs.
 ## Pause
 
 - `pause:set --on|--off --note "<the user's words>"` (`kit-cli-pause.ts`) —
-  the user's pause of the workflow in main. Exactly one of the flags and a
+  the user's pause of the workflow in main, stored in
+  `.harness/workflow/local/pause.json` (`{paused, note, at}`, survives a
+  restart); no scope needed. `status` and `autopilot:status` show
+  `paused`. While paused, `task:start` in main and `assignment:create` fail
+  with `WORKFLOW_PAUSED` (`details {at, note}`); a task already in progress
+  finishes, and executor worktrees, `commit`, integration, `accept`,
+  `repair` and reads are not affected. Exactly one of the flags and a
   note, else `USAGE`; `PAUSE_STATE` for an unreadable pause file. Text:
   `pause: on|off (<at>) — <note>`; when on, a second line says that
   `task:start` in main and `assignment:create` are refused until the user
@@ -165,9 +210,12 @@ preconditions and their order are in `workflow-kit/module.md`
 - `assignment:create --task <ID>` — the `ASSIGNED` record and the brief.
   Refusals: `NOT_ORCHESTRATED`, `SCOPE_NOT_ACTIVE`, `DIRTY_TREE`,
   `WORKFLOW_PAUSED`, `NO_COMMITS`, `UNKNOWN_TASK`, `ASSIGNMENT_KIND`,
-  `TASK_NOT_TODO`, `ASSIGNMENT_EXISTS`, the scheduler codes,
-  `DEPENDENCY_NOT_IN_BASE`. Text: the id, task, short base and whether it
-  was created, followed by the brief.
+  `TASK_NOT_TODO`, `CONTEXT_MISSING` / `CONTEXT_TOO_LARGE` (the budget
+  check repeated on the current files: a document may have grown),
+  `ASSIGNMENT_EXISTS`, the scheduler codes, `DEPENDENCY_NOT_IN_BASE`. Text: the
+  id, task, short base and whether it was created, followed by the brief:
+  the task lines, the checked documents as marked full text and the
+  documents map (its own 4000-byte budget, outside `budget.briefBytes`).
 - `assignment:attach <id>` — binds the executor worktree. Refusals:
   `ASSIGNMENT_LAYOUT`, `ASSIGNMENT_WORKTREE`, `ASSIGNMENT_UNKNOWN`,
   `ASSIGNMENT_ATTACHED`, `ASSIGNMENT_STATUS`, `ASSIGNMENT_DIRTY`,

@@ -38,8 +38,11 @@ scripts/workflow assignment:cleanup [--id <id>]      # main
   `SCOPE_NOT_ACTIVE`.
 - `assignment:create` выдаёт запись `ASSIGNED` и текст поручения. Отказы по
   порядку: `NOT_ORCHESTRATED`/`SCOPE_NOT_ACTIVE`; `TRANSACTION_PENDING`,
-  `INTEGRATION_ACTIVE`; `DIRTY_TREE`; `NO_COMMITS`; `UNKNOWN_TASK`,
-  `ASSIGNMENT_KIND` (QUALITY, delivery), `TASK_NOT_TODO`; активное
+  `INTEGRATION_ACTIVE`; `DIRTY_TREE`, `WORKFLOW_PAUSED` (пауза
+  пользователя); `NO_COMMITS`; `UNKNOWN_TASK`,
+  `ASSIGNMENT_KIND` (QUALITY, delivery), `TASK_NOT_TODO`; повторная
+  проверка бюджета контекста на текущих файлах — `CONTEXT_MISSING`,
+  `CONTEXT_TOO_LARGE` (документ мог вырасти); активное
   назначение задачи — `ASSIGNMENT_EXISTS` (та же запись `ASSIGNED` с той же
   базой возвращается с `created: false`); код планировщика;
   `DEPENDENCY_NOT_IN_BASE` (коммит зависимости не предок базы). База —
@@ -48,7 +51,14 @@ scripts/workflow assignment:cleanup [--id <id>]      # main
   `assignment:attach <id>` (и `assignment:setup` при `NEEDS_SETUP`),
   `task:start`, поля задачи, правило путей, `commit --task` (`--digest` для
   DOCS), ответ с SHA, запреты (push, main, план, чужие задачи,
-  Git-идентичность, вложенные исполнители).
+  Git-идентичность, вложенные исполнители). Затем строка
+  `Context documents (full text, do not re-read them):` и полный текст
+  каждого документа `context` задачи (или спецификации scope, если
+  `context` нет) в маркерах `<document path="…" heading="…" bytes="N">` …
+  `</document>` (`heading` — только для раздела) в пределах
+  `budget.briefBytes` (60 000), затем карта документов проекта
+  (`Project documents (ask with scripts/workflow context <path>):`, свои
+  4 000 байт вне `briefBytes`; `WorkflowKitRecovery.md`, раздел 2.1).
 - Оркестратор запускает субагента Claude (`Agent` с
   `isolation: "worktree"`) и передаёт ему поручение. Worktree создаёт
   Claude, Kit к нему только привязывается и ветку не переименовывает.
@@ -97,7 +107,7 @@ scripts/workflow assignment:cleanup [--id <id>]      # main
   `ASSIGNMENT_CONTRACT`. Guard работает в `commit --task` и в pre-commit
   worktree.
 - В worktree работают только `status`, `validate`, `recover`, `show-task`,
-  `task:start`, `commit`, `repair`, `task:block`, `assignment:status`,
+  `schema`, `context`, `task:start`, `commit`, `repair`, `task:block`, `assignment:status`,
   `assignment:setup`, `assignment:attach` (повтор), `help` и хуки. Остальное
   — `ASSIGNMENT_READ_ONLY`, `pre-push` тоже отклоняется.
 - Цикл: `task:start` (запись → `RUNNING`; при `NEEDS_SETUP` —
@@ -130,6 +140,14 @@ scripts/workflow assignment:cleanup [--id <id>]      # main
 4. `delivery` — оркестратор в main, когда все предыдущие задачи `DONE` и
    нет активных назначений, иначе `DELIVERY_NOT_READY`
    (`details {pending, active}`).
+
+Пауза пользователя (`pause:set --on`, кнопка в панели плана) в
+`orchestrated` держит только шаги, начинающие работу: новые назначения
+(`assignment:create` — `WORKFLOW_PAUSED`) и ещё не начатую QUALITY.
+Выданные назначения исполнители доводят до конца (в worktree пауза не
+действует), интеграция, `READY_FOR_INTEGRATION`, очистка и начатые задачи
+main продолжаются; автопилот останавливается с `paused`, когда других шагов
+нет.
 
 ## 7. Интеграция (`workflow-integration`)
 

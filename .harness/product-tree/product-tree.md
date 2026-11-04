@@ -23,12 +23,12 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 ### Session Interface
 
-- `session-window`: ordinary workspace/session shell, state subscriptions, next-session mode flow, single-window Profile Studio mode switch and overlays around the shared Session Surface.
+- `session-window`: Ordinary workspace/session shell, state subscriptions, next-session mode flow, single-window Profile Studio mode switch and overlays around the shared Session Surface; without an active Core project the start screen with Open Project and New Project.
 - `session-surface`: reusable SessionId, dialog timeline, subagent header, composer/Stop/timing and provider status composition driven by Core state.
 - `input-controls`: message input, Stop/Play controls, busy/lock display, and user intent submission only.
 - `turn-timer`: pure-display session turn timers — the per-turn input-row timer and the footer-right total of completed turns, rendered from Core-derived timing props.
 - `session-telemetry`: usage limits, context window, provider/model status surfaces from Core telemetry.
-- `session-sidebar`: workspace switcher, workspace sessions list, next-session mode entry, session rename, Settings entry, Profile Studio entry, and under the owner session's card the Core execution mode card and the Core plan view.
+- `session-sidebar`: Workspace switcher with removal of any project, workspace session list, next-session mode entry, session rename, Settings entry, Profile Studio entry, and under the owner session's card the Core execution mode card and the Core plan view.
 
 ### Profile Studio
 
@@ -40,9 +40,9 @@ Application Shell submits user input, displays Core read models/events, manages 
 
 - `project-setup-dialog`: New Project (parent folder + name) and Open Project (folder named after itself, Core inspection, install/update/open, Open Without Kit) through the Core bridge, plus the git identity form when git has no real global identity.
 - `project-doctor-panel`: Core doctor report of the active workspace (checks, statuses, next actions), the safe fix and the git identity form for a failing unfixable git-identity check.
-- `workflow-status-strip`: Kit scope, task and progress of the active workspace and the per-session autopilot switch with its last stop reason, kept current by Core events.
+- `workflow-status-strip`: Kit scope, task and progress of the active workspace and the read-only last autopilot stop reason of the open session, kept current by Core events; no autopilot switch.
 - `execution-mode-card`: The Core execution mode card of a scope proposal in the left sidebar under the owner session's card: the recommended mode first with its reason, a Choose button per mode and the saved choice.
-- `project-plan-panel`: The active plan from the Core plan view under the owner session's card in the sidebar: scope, state, progress and task rows, with executor rows opening their sessions.
+- `project-plan-panel`: The active plan from the Core plan view under the owner session's card in the sidebar: scope, state, progress and task rows, with executor rows opening their sessions, and the Pause / Continue button driven by the Core pauseState.
 
 ### Settings Surface
 
@@ -61,19 +61,19 @@ Out-of-process long-running local authority for workspaces, sessions, orchestrat
 
 ### Runtime Process
 
-- `core-runtime-process`: Core process entrypoint plus health, status and shutdown process contracts, the login-shell PATH and the project workflow RPC.
+- `core-runtime-process`: Core process entrypoint plus health, status and shutdown process contracts, the login-shell PATH, the project workflow RPC with the plan pause route, and NO_WORKSPACE refusals while no project is active.
 
 ### Workspace Architecture
 
-- `workspace-registry`: known workspaces and active workspace selection.
+- `workspace-registry`: Known workspaces and active workspace selection; no built-in workspace, so the registry may be empty with no active workspace.
 
 ### Session Runtime
 
-- `session-registry`: session metadata, create/open/rename.
+- `session-registry`: Session metadata read model for the snapshot projector; no built-in bootstrap session, so it lists no sessions.
 - `session-request-handler`: Core-owned create/resume/send/stop routing, provider dispatch, next-session mode truth, and backward-compatible persisted session-purpose metadata including Profile Creator binding.
 - `provider-session-binding`: Core session to provider session id and binding state.
 - `session-event-stream`: provider-neutral Core session events for Application Shell projections.
-- `session-snapshot-projector`: read model for the Electron session UI.
+- `session-snapshot-projector`: Read model for the Electron session UI; workspace is null while no project is active.
 - `session-reasoning-display`: projects provider-visible reasoning/thinking into Core dialog messages.
 - `turn-timing`: derives per-turn active time and open-turn start from the persisted `session:turn-state` event log.
 
@@ -121,16 +121,16 @@ Workflow Kit installed into user projects and driven by Core. Spec:
 `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`.
 
 - `workflow-platform`: OS-neutral paths, atomic files, locks, process runner, runtime resolution and launcher texts for macOS, Windows and Linux.
-- `workflow-plan`: Plan model (scope, rounds, tasks), validation, Markdown plan document and state transitions.
+- `workflow-plan`: Plan model (scope, rounds, tasks), validation, Markdown plan document, state transitions and the JSON input descriptors of the plan commands and the round digest.
 - `workflow-git`: Git queries, working-tree changes, trailer history, git identity (validation, local and global writes), transactional task and integration commits, first-parent commit reference resolution and repair.
-- `workflow-quality`: Project quality profile: configuration, stack detection, check catalog, check execution and profile application.
-- `workflow-recovery`: Bounded recovery packet: priority sections within a byte budget, the agent role and its next step, references, session-start hook output.
+- `workflow-quality`: Project quality profile: configuration and budgets, stack detection, check catalog, check execution, the document size rule, profile application and the quality:apply input descriptor.
+- `workflow-recovery`: Bounded recovery packet: priority sections within a byte budget, the agent role and its next step, required documents inline, the documents map, the next step's input schema, references, session-start hook output.
 - `workflow-execution-mode`: Scope proposal record, mode card options and verification of the user's sequential/orchestrated/refine choice.
-- `workflow-assignment`: Assignment records of orchestrated scopes, the scheduler of tasks that can be handed out now, the executor brief, the executor worktree side (record, one-task plan, contract guard), worktree setup and cleanup.
+- `workflow-assignment`: Assignment records of orchestrated scopes, the scheduler of tasks that can be handed out now, the executor brief with the marked document text, the executor worktree side (record, one-task plan, contract guard), worktree setup and cleanup.
 - `workflow-integration`: Integration of executor results into main: the proof of an executor source (history, Kit files, check receipt, task contract), the merge with its journal and plan candidate, the two-parent integration commit, continue and status.
-- `workflow-autopilot`: Pure continue/stop decision of the Core autopilot, including the orchestrator steps, and the continue turn message.
-- `workflow-kit`: Cluster facade WorkflowKitFacade: status, scope (create, propose, choose), task, commit, accept, close, carryover, repair, quality, assignment and integration operations; git hooks and the CLI dispatcher.
-- `workflow-installer`: Installation payload and manifest, folder inspection, install and update (git identity, host marker), project doctor, migration of legacy Harness plans.
+- `workflow-autopilot`: Pure continue/stop decision of the Core autopilot (on by default, paused stop), including the orchestrator steps, and the continue turn message.
+- `workflow-kit`: Cluster facade WorkflowKitFacade: status, scope (create, propose, choose), task, commit, accept, close, carryover, repair, quality, pause, assignment and integration operations with the context budget check; git hooks and the CLI dispatcher with schema and context.
+- `workflow-installer`: Installation payload and manifest, folder inspection, install and update (git identity, host marker), project doctor with the document size warning, migration of legacy Harness plans.
 - `workflow-host`: Core-only runner of Workflow Kit commands: bundle and runtime resolution, child-process execution with JSON envelopes, project runtime file.
 
 ## Provider Runtime
@@ -165,7 +165,7 @@ Independent provider adapters, provider homes/auth, usage telemetry, and provide
 
 ### Provider Home And Auth
 
-- `provider-home-manager`: isolated provider home layout.
+- `provider-home-manager`: Isolated provider home layout and the real git config (GIT_CONFIG_GLOBAL) for agent processes with a provider HOME.
 - `provider-auth-store`: API keys/auth references outside tracked workspace files.
 
 ### Provider Events And Translation

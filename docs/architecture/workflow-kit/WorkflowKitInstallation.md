@@ -15,7 +15,7 @@ Electron host и интерфейс описана в разделах 4–7.
 | `LEGACY_HARNESS_PLAN` | `.harness/plans/todo-plan.md` в формате `harness-ai-plan-v1` | установить и мигрировать план (раздел 3) |
 | `PILOT_KIT` | `.harness/kit-manifest.json` Workflow Pilot | не поддерживается: объяснить и ничего не менять |
 | `KIT_OK` | манифест совпадает с файлами, версия текущая | открыть |
-| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.1.1) | обновить (`install --update`) |
+| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.2.0) | обновить (`install --update`) |
 | `KIT_DAMAGED` | файлы отличаются от манифеста или отсутствуют | Доктор с исправлением |
 
 Ответ `inspect` содержит состояние, найденные экосистемы, наличие Git и его
@@ -72,7 +72,8 @@ identity (`user.name`, `user.email`), а также незавершённую �
 Изменение управляемого текста повышает `KIT_VERSION`: 2.1.0 добавила в
 секцию `.gitignore` строки `.harness/sessions/` и `.claude/worktrees/`, а в
 секцию `AGENTS.md` — блок «Execution modes»; 2.1.1 добавила в `.gitignore`
-`.DS_Store`. Поэтому установки 2.1.0 и старше читаются как `KIT_OUTDATED`.
+`.DS_Store`; 2.2.0 — блок «Inputs and documents» в `AGENTS.md` (`schema`,
+`context`, служебные файлы Kit не читать). Поэтому установки 2.1.1 и старше читаются как `KIT_OUTDATED`.
 План, конфигурация и пользовательский текст остаются нетронутыми. Коммит
 делается с ролью `kit-update`.
 
@@ -122,6 +123,9 @@ Harness вызывает команду из формы Git-идентичнос
   Kit) отсутствует, заглушка или недопустима: `fail`; `fixable`, если глобальная
   идентичность настоящая;
 - дрейф профиля качества относительно `quality:detect`;
+- `doc-size` — `warn` со списком всех Markdown-файлов проекта (git, без
+  `node_modules`, `.harness/workflow/**` и `.harness/plans/archive/**`)
+  больше `budget.documentBytes`: их нужно разделить. На `ok` не влияет;
 - секции `.gitignore` и `.gitattributes`.
 
 `doctor --fix` исправляет только `fixable`-пункты. Сначала `git-identity`
@@ -167,6 +171,12 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 читает его один раз при старте (`core-login-path.ts`,
 [ReleaseFixes-2026-11-04-2.md](../ReleaseFixes-2026-11-04-2.md), раздел 6).
 
+Процессы агентов Claude и Kimi (`HOME` — папка провайдера) получают
+`GIT_CONFIG_GLOBAL=<настоящий home>/.gitconfig` от `withRealGitConfig`
+(`provider-home-manager`), если переменная не задана и файл есть: Kit внутри
+агента видит идентичность пользователя
+([ReleaseFixes-2026-11-04-3.md](../ReleaseFixes-2026-11-04-3.md), раздел 5).
+
 Ответ всегда имеет форму конверта Kit. Сбои самого хоста приходят в той же
 форме с кодами `HOST_NO_BUNDLE`, `HOST_SPAWN`, `HOST_TIMEOUT` и
 `HOST_OUTPUT`, поэтому Core обрабатывает один формат.
@@ -178,10 +188,11 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 | `workflow-inspect` `{path}` | классификация папки |
 | `workflow-prepare-project` `{path, name?, mode: "new"\|"open", install?}` | установка (всегда с `--host harness`) и добавление workspace |
 | `workflow-identity-set` `{name, email}` | глобальная Git-идентичность через `identity:set --global`; конверт Kit без изменений |
-| `workflow-status` `{workspaceId?}` | статус Kit workspace и модель плана `planView` |
+| `workflow-status` `{workspaceId?}` | статус Kit workspace и модель плана `planView`; без проекта — `NO_WORKSPACE` |
 | `workflow-doctor` `{workspaceId?, fix?}` | Доктор |
-| `workflow-autopilot-set` `{sessionId, enabled}` | включить или выключить автопилот |
-| `workflow-autopilot-get` `{sessionId}` | состояние автопилота и последняя причина остановки |
+| `workflow-autopilot-get` `{sessionId}` | состояние автопилота, `pauseState` и последняя причина остановки |
+| `workflow-autopilot-set` `{sessionId, enabled}` | внутренний вызов Core, без моста и preload |
+| `workflow-pause-set` `{sessionId, paused}` | пауза или продолжение плана: Kit `pause:set`, затем оценка автопилота |
 | `workflow-mode-choice-get` `{workspaceId}` | карточка выбора режима workspace или `null` |
 | `workflow-mode-choose` `{workspaceId, sessionId, generation, option}` | выбор пользователя на карточке |
 
@@ -255,7 +266,9 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 4. При `continue` отправляет ход через `SessionRequestHandlerFacade.sendMessage`.
 
 Состояние автопилота хранится в памяти Core для каждой сессии. По умолчанию
-автопилот выключен. Решения для scope `orchestrated` и причины
+автопилот включён для каждой подходящей сессии; пауза Kit останавливает его
+перед следующей задачей (`paused`), текущая задача доводится до конца.
+Решения для scope `orchestrated` и причины
 `waiting-for-mode-choice`/`waiting-for-executors` описаны в
 `WorkflowKitRecovery.md`, раздел 6.
 
@@ -266,8 +279,9 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
 - `user-message` означает, что пользователь написал во время уже идущего
   хода. Ход, который начал сам пользователь, автопилот продолжает обычным
   образом.
-- Включение автопилота в простаивающей сессии сразу оценивает проект и
-  запускает первую задачу. Исключение — выбор `sequential`/`orchestrated`
+- Включение автопилота (внутренний вызов) или снятие паузы
+  (`refreshPause`) в простаивающей сессии сразу оценивает проект и
+  запускает следующую задачу. Исключение — выбор `sequential`/`orchestrated`
   на карточке режима: Core включает автопилот с `evaluate: false` до
   сообщения выбора, и решение принимает конец этого хода.
 - Ход автопилота проходит тем же путём, что сообщение пользователя.
@@ -284,18 +298,19 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
     же запрос подготовки);
   - `project-doctor-panel` — проверки Доктора и «Исправить»; для
     неисправимой `git-identity` — та же форма, затем `doctor --fix`;
-  - `workflow-status-strip` — scope, задача, прогресс, переключатель и
-    причина остановки автопилота;
+  - `workflow-status-strip` — scope, задача, прогресс и причина остановки
+    автопилота (только отображение, переключателя нет);
   - `execution-mode-card` — карточка выбора режима в левом сайдбаре под
     карточкой сессии-владельца, на месте плана;
   - `project-plan-panel` — активный план в боковой панели под карточкой
-    сессии-владельца (`WorkflowKitExecutionModes.md`, раздел 10.2).
+    сессии-владельца (`WorkflowKitExecutionModes.md`, раздел 10.2) и
+    кнопка паузы по `pauseState` Core: «Pause», «Pausing after the current
+    task» (неактивна), «Continue» (`workflow-pause-set`).
 - В меню workspace в боковой панели — «Новый проект», «Открыть проект»,
   «Доктор проекта». Прежний пункт «Add Workspace» становится «Открыть
   проект». Обычную папку без Kit открывает кнопка «Open Without Kit».
 - Строка статуса стоит над поверхностью сессии в окне сессий и в отдельном
   окне. Она показывается только для workspace с установленным Kit.
-  Переключатель автопилота виден, если Core сообщает `available`.
 - Electron host получает IPC `pick-project-folder` (только выбор папки и
   возврат пути) и `pick-project-parent`.
 - Все строки интерфейса проходят через `source-dictionaries`. Нативные

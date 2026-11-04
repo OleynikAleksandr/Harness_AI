@@ -5,14 +5,16 @@
 Owns the Application Shell presentation of the project workflow (Workflow
 Kit): creating and opening projects, the one-time git identity form, the
 project doctor, the workflow status strip, and the execution mode card and
-the plan in the sidebar. It renders Core read models (inspection, Kit
+the plan with its pause button in the sidebar. It renders Core read models (inspection, Kit
 status, doctor report, autopilot snapshot, mode card, plan view) and
 forwards user intents through the `window.harnessCore` bridge. Inspection,
-installation, identity validation, plan, status, doctor, autopilot, mode
-choice and executor binding truth stay in Core and the Kit
+installation, identity validation, plan, status, doctor, autopilot, pause
+state (`pauseState`), mode choice and executor binding truth stay in Core
+and the Kit
 (`docs/architecture/workflow-kit/WorkflowKitInstallation.md`, section 5.6;
 `docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`, sections 4.2
-and 10.2; `docs/architecture/ReleaseFixes-2026-11-04-2.md`, sections 1–3).
+and 10.2; `docs/architecture/ReleaseFixes-2026-11-04-2.md`, sections 1–3;
+`docs/architecture/ReleaseFixes-2026-11-04-3.md`, section 4.3).
 
 ## Owned Modules
 
@@ -25,14 +27,19 @@ and 10.2; `docs/architecture/ReleaseFixes-2026-11-04-2.md`, sections 1–3).
 - `project-doctor-panel` — the Core doctor report of the active workspace
   and the safe fix; a failing unfixable `git-identity` check shows the same
   identity form, then the doctor fix.
-- `workflow-status-strip` — scope, task, progress and the autopilot switch
-  with its last stop reason, kept current by Core events.
+- `workflow-status-strip` — scope, task, progress and the read-only last
+  autopilot stop reason (or "Continuing"), kept current by Core events; it
+  has no autopilot switch.
 - `execution-mode-card` — the Core execution mode card of a scope proposal
   in the left sidebar under the owner session's card, in the plan slot
   (mounted by `session-sidebar`); it forwards the clicked option.
 - `project-plan-panel` — the Core plan view under the owner session's card
   in the sidebar (mounted by `session-sidebar`, hidden while the mode card
-  waits for the choice); an executor row opens its session.
+  waits for the choice); an executor row opens its session. Its header has
+  the Pause / "Pausing after the current task" / Continue button driven by
+  the Core `pauseState` of the owner session's autopilot, which sends
+  `setWorkflowPause`; its `useWorkflowAutopilot` hook also feeds the
+  status strip.
 
 ## Shared Assets
 

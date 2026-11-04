@@ -13,7 +13,11 @@ creator turn options survive normal provider resume. It also intercepts raw stru
 results only for creator-purpose sessions and routes validated full snapshots
 to Profile Studio authoring with a bounded automatic repair attempt. Ordinary
 session creation resolves a managed Studio profile against the exact requested
-model before freezing its applied profile snapshot.
+model before freezing its applied profile snapshot. The request-handler
+also runs the per-session workflow autopilot (on by default, stopped by the
+Kit pause, with the derived `pauseState`). There is no bootstrap session:
+the session registry lists none, and the UI snapshot has `workspace: null`
+without an active project.
 
 ## Owned Modules
 

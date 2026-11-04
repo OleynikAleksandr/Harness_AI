@@ -3,6 +3,9 @@
 ## Boundary
 
 Owns isolated provider homes, API key/auth references, and ignored runtime files.
+Because agent processes run with `HOME` set to a provider home,
+`provider-home-manager` also gives them `GIT_CONFIG_GLOBAL` pointing at the
+real `~/.gitconfig` (`withRealGitConfig`).
 
 ## Owned Modules
 

@@ -48,7 +48,7 @@
             {
               "id": "session-window",
               "name": "Session Window",
-              "purpose": "Ordinary workspace/session shell, state subscriptions, next-session mode flow, single-window Profile Studio mode switch and overlays around the shared Session Surface."
+              "purpose": "Ordinary workspace/session shell, state subscriptions, next-session mode flow, single-window Profile Studio mode switch and overlays around the shared Session Surface; without an active Core project the start screen with Open Project and New Project."
             },
             {
               "id": "session-surface",
@@ -73,7 +73,7 @@
             {
               "id": "session-sidebar",
               "name": "Session Sidebar",
-              "purpose": "Workspace switcher, workspace session list, next-session mode entry, session rename, Settings entry, Profile Studio entry, and under the owner session's card the Core execution mode card and the Core plan view."
+              "purpose": "Workspace switcher with removal of any project, workspace session list, next-session mode entry, session rename, Settings entry, Profile Studio entry, and under the owner session's card the Core execution mode card and the Core plan view."
             }
           ]
         },
@@ -117,7 +117,7 @@
             {
               "id": "workflow-status-strip",
               "name": "Workflow Status Strip",
-              "purpose": "Kit scope, task and progress of the active workspace and the per-session autopilot switch with its last stop reason, kept current by Core events."
+              "purpose": "Kit scope, task and progress of the active workspace and the read-only last autopilot stop reason of the open session, kept current by Core events; no autopilot switch."
             },
             {
               "id": "execution-mode-card",
@@ -127,7 +127,7 @@
             {
               "id": "project-plan-panel",
               "name": "Project Plan Panel",
-              "purpose": "The active plan from the Core plan view under the owner session's card in the sidebar: scope, state, progress and task rows, with executor rows opening their sessions."
+              "purpose": "The active plan from the Core plan view under the owner session's card in the sidebar: scope, state, progress and task rows, with executor rows opening their sessions, and the Pause / Continue button driven by the Core pauseState."
             }
           ]
         },
@@ -185,7 +185,7 @@
             {
               "id": "core-runtime-process",
               "name": "Core Runtime Process",
-              "purpose": "Core process entrypoint plus health, status and shutdown process contracts, the login-shell PATH and the project workflow RPC."
+              "purpose": "Core process entrypoint plus health, status and shutdown process contracts, the login-shell PATH, the project workflow RPC with the plan pause route, and NO_WORKSPACE refusals while no project is active."
             }
           ]
         },
@@ -197,7 +197,7 @@
             {
               "id": "workspace-registry",
               "name": "Workspace Registry",
-              "purpose": "Known workspaces and active workspace selection."
+              "purpose": "Known workspaces and active workspace selection; no built-in workspace, so the registry may be empty with no active workspace."
             }
           ]
         },
@@ -209,7 +209,7 @@
             {
               "id": "session-registry",
               "name": "Session Registry",
-              "purpose": "Session metadata, create/open/rename operations."
+              "purpose": "Session metadata read model for the snapshot projector; no built-in bootstrap session, so it lists no sessions."
             },
             {
               "id": "session-request-handler",
@@ -229,7 +229,7 @@
             {
               "id": "session-snapshot-projector",
               "name": "Session Snapshot Projector",
-              "purpose": "Read model for the Electron session UI."
+              "purpose": "Read model for the Electron session UI; workspace is null while no project is active."
             },
             {
               "id": "session-reasoning-display",
@@ -401,7 +401,7 @@
             {
               "id": "workflow-plan",
               "name": "Workflow Plan",
-              "purpose": "Plan model (scope, rounds, tasks), validation, Markdown plan document and state transitions."
+              "purpose": "Plan model (scope, rounds, tasks), validation, Markdown plan document, state transitions and the JSON input descriptors of the plan commands and the round digest."
             },
             {
               "id": "workflow-git",
@@ -411,12 +411,12 @@
             {
               "id": "workflow-quality",
               "name": "Workflow Quality",
-              "purpose": "Project quality profile: configuration, stack detection, check catalog, check execution and profile application."
+              "purpose": "Project quality profile: configuration and budgets, stack detection, check catalog, check execution, the document size rule, profile application and the quality:apply input descriptor."
             },
             {
               "id": "workflow-recovery",
               "name": "Workflow Recovery",
-              "purpose": "Bounded recovery packet: priority sections within a byte budget, the agent role and its next step, references, session-start hook output."
+              "purpose": "Bounded recovery packet: priority sections within a byte budget, the agent role and its next step, required documents inline, the documents map, the next step's input schema, references, session-start hook output."
             },
             {
               "id": "workflow-execution-mode",
@@ -426,7 +426,7 @@
             {
               "id": "workflow-assignment",
               "name": "Workflow Assignment",
-              "purpose": "Assignment records of orchestrated scopes, the scheduler of tasks that can be handed out now, the executor brief, the executor worktree side (record, one-task plan, contract guard), worktree setup and cleanup."
+              "purpose": "Assignment records of orchestrated scopes, the scheduler of tasks that can be handed out now, the executor brief with the marked document text, the executor worktree side (record, one-task plan, contract guard), worktree setup and cleanup."
             },
             {
               "id": "workflow-integration",
@@ -436,17 +436,17 @@
             {
               "id": "workflow-autopilot",
               "name": "Workflow Autopilot",
-              "purpose": "Pure continue/stop decision of the Core autopilot, including the orchestrator steps, and the continue turn message."
+              "purpose": "Pure continue/stop decision of the Core autopilot (on by default, paused stop), including the orchestrator steps, and the continue turn message."
             },
             {
               "id": "workflow-kit",
               "name": "Workflow Kit",
-              "purpose": "Cluster facade WorkflowKitFacade: status, scope (create, propose, choose), task, commit, accept, close, carryover, repair, quality, assignment and integration operations; git hooks and the CLI dispatcher."
+              "purpose": "Cluster facade WorkflowKitFacade: status, scope (create, propose, choose), task, commit, accept, close, carryover, repair, quality, pause, assignment and integration operations with the context budget check; git hooks and the CLI dispatcher with schema and context."
             },
             {
               "id": "workflow-installer",
               "name": "Workflow Installer",
-              "purpose": "Installation payload and manifest, folder inspection, install and update (git identity, host marker), project doctor, migration of legacy Harness plans."
+              "purpose": "Installation payload and manifest, folder inspection, install and update (git identity, host marker), project doctor with the document size warning, migration of legacy Harness plans."
             },
             {
               "id": "workflow-host",
@@ -571,7 +571,7 @@
             {
               "id": "provider-home-manager",
               "name": "Provider Home Manager",
-              "purpose": "Isolated provider home layout."
+              "purpose": "Isolated provider home layout and the real git config (GIT_CONFIG_GLOBAL) for agent processes with a provider HOME."
             },
             {
               "id": "provider-auth-store",

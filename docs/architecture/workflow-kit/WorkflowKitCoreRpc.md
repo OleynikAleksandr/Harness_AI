@@ -49,16 +49,41 @@ details}`:
   Kit envelope returned as is, the repeated preparation registering the
   workspace);
 - `workflow-status {workspaceId?}` — Kit status of the workspace (the
-  active one by default; `UNKNOWN_WORKSPACE`), refreshing the runtime
-  file; the result is the Kit outcome with the added `planView` (below);
+  active one by default; `UNKNOWN_WORKSPACE` for an unknown id,
+  `NO_WORKSPACE` without an id while Core has no active project),
+  refreshing the runtime file; the result is the Kit outcome with the
+  added `planView` (below);
 - `workflow-doctor {workspaceId?, fix?}` — the project doctor, then the
-  status.
-- `workflow-autopilot-get {sessionId}` and `workflow-autopilot-set
-  {sessionId, enabled}` — the per-session Core autopilot
+  status (same workspace refusals).
+- `workflow-autopilot-get {sessionId}` — the per-session Core autopilot
   (`sessionWorkflowAutopilot` of `session-request-handler`, injectable as
   the `autopilot` dependency); result `{ok: true, autopilot: {sessionId,
-  available, enabled, continues, maxContinues, running, lastDecision}}`. Turning it
-  on for an idle session may start the first task at once.
+  available, enabled, continues, maxContinues, pauseState, running,
+  lastDecision}}`. The autopilot is on by default for every eligible
+  session (`available`; `enabled` is false otherwise). `pauseState` is
+  derived in Core from the last Kit status the session read: `running` —
+  no Kit pause; `pausing` — paused while the session's turn runs or work
+  is active (the focus task `IN_PROGRESS`, or an orchestrated assignment
+  or integration journal); `paused` — paused, idle and nothing active.
+- `workflow-autopilot-set {sessionId, enabled}` — internal only (the mode
+  card below, tests): neither the Electron bridge nor the preload exposes
+  it, and the interface has no autopilot switch. Turning it on for an idle
+  session may start the first task at once.
+- `workflow-pause-set {sessionId, paused}` (`core-workflow-pause.ts`, the
+  plan panel pause button, spec 4.2 of `ReleaseFixes-2026-11-04-3.md`) —
+  Core runs the Kit `pause:set --on|--off` in the session's workspace with
+  a fixed note (`Paused from the Harness plan panel` / `Continued from the
+  Harness plan panel`: the click is the user's action), then
+  `refreshPause(sessionId)` of the session autopilot, which re-reads the
+  Kit status, publishes `workflow:autopilot` with the new `pauseState` and,
+  when the pause is lifted and the session is idle and enabled, resets the
+  continue counter and evaluates at once (the plan continues without a
+  user message). Pausing never interrupts the current turn: the task in
+  progress finishes and the next `task:start` is refused by the Kit.
+  Result `{ok: true, autopilot}`; refusals `INVALID_REQUEST` (no
+  `sessionId` or a non-boolean `paused`), `UNKNOWN_SESSION`,
+  `NO_WORKSPACE` (a session without a project) or the Kit failure
+  envelope as is. Tests: `src/core-workflow-pause.test.mjs`.
 - the execution mode card (`core-workflow-mode-choice.ts`,
   `CoreWorkflowModeChoice`, spec 4.2 of `WorkflowKitExecutionModes.md`;
   the `sessions` dependency is `{get, send, subscribe}` over the session
@@ -90,9 +115,10 @@ details}`:
     success the card is `chosen`; for `sequential` and `orchestrated`
     Core first turns on the owner session's autopilot
     (`setEnabled(owner, true, {evaluate: false})`: no immediate
-    evaluation, it publishes `workflow:autopilot` so the status strip
-    switch shows ON), so the end of the agent's turn continues the plan
-    under the autopilot's usual stops (acceptance, block, delivery
+    evaluation, it publishes `workflow:autopilot`; the autopilot is on by
+    default, so this re-arms one the session had turned off), so the end
+    of the agent's turn continues the plan
+    under the autopilot's usual stops (pause, acceptance, block, delivery
     confirmation, waiting for executors or a mode choice); `refine`
     leaves the autopilot as it is. Then Core sends the owner session a
     user message through the

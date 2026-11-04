@@ -3,6 +3,9 @@
 ## Boundary
 
 Owns the workspace registry: known workspaces and active workspace selection.
+There is no built-in workspace: the registry may be empty and have no active
+workspace; every saved entry (an old `harness-ai-local` one included) is an
+ordinary, removable project.
 
 Product tree storage, skeleton materialization, and file-link contracts were
 scaffolded as `module.md`-only placeholders early in the project and never

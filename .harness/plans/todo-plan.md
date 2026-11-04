@@ -10,10 +10,40 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 141,
+  "revision": 143,
   "rounds": [
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "workflow-kit/module.md + WorkflowKitCommands.md: pause:set, schema, context, CONTEXT_MISSING/CONTEXT_TOO_LARGE, WORKFLOW_PAUSED.",
+          "workflow-recovery/module.md: schema section, required documents inline with overBudget, documentsMap.",
+          "workflow-plan, workflow-quality module.md: input descriptors, details.field, budget.briefBytes, oversizedDocuments.",
+          "workflow-autopilot, session-request-handler module.md: on by default, paused stop, pauseState, refreshPause.",
+          "core-runtime-process/module.md + WorkflowKitCoreRpc.md: workflow-pause-set, NO_WORKSPACE, list-workspaces without builtInWorkspaceId.",
+          "workflow-installer/module.md: KIT_VERSION 2.2.0, Inputs and documents block, doctor doc-size.",
+          "project-plan-panel, workflow-status-strip, session-window, session-sidebar module.md: pause button, no switch, start screen.",
+          "provider-home-manager/module.md: withRealGitConfig for Claude auth env and the Kimi ACP process."
+        ],
+        "decisions": [
+          "Pause is Kit state (pause.json): the task in progress always finishes; only the next task:start in main and assignment:create are refused, executor worktrees are unaffected.",
+          "In orchestrated mode the pause holds back only hand-out and an unstarted QUALITY; integration, cleanup and started main tasks continue.",
+          "pauseState (running, pausing, paused) is derived in Core; the plan panel button only renders it and sends workflow-pause-set with a fixed note naming the button.",
+          "workflow-autopilot-set stays internal (mode card); bridge and preload no longer expose it and the status strip lost its switch.",
+          "Input descriptors are data owned by workflow-plan and workflow-quality, kept in sync with validators by contract tests.",
+          "Brief budget briefBytes (60000) counts only document text; the documents map has its own 4000 bytes; context answers within 28000 bytes.",
+          "Doctor doc-size scans every project Markdown file except Kit files and the plan archive, and only warns.",
+          "No built-in project: the session registry returns [], the snapshot workspace may be null, project-scoped requests answer NO_WORKSPACE."
+        ],
+        "references": [
+          "docs/architecture/ReleaseFixes-2026-11-04-3.md",
+          "docs/architecture/workflow-kit/WorkflowKitCommands.md",
+          "docs/architecture/workflow-kit/WorkflowKitRecovery.md#2.1. Карта документов",
+          "docs/architecture/workflow-kit/WorkflowKitCoreRpc.md",
+          "docs/architecture/workflow-kit/WorkflowKitOrchestration.md#6. Порядок работы оркестратора",
+          "docs/architecture/workflow-kit/WorkflowKitInstallation.md#4. Доктор (`doctor [--fix]`)"
+        ],
+        "result": "Agents now get Kit inputs and documents as text: `schema` descriptors (also in the recovery packet), document text in executor briefs, required documents always inline, the documents map and the `context` command, plus a doctor doc-size warning (Kit 2.2.0). The autopilot is on by default and the user pauses the plan from the plan panel (Kit pause state, Core pauseState). Agent processes see the real git config, and Core has no built-in project: the app opens on a start screen."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -720,14 +750,33 @@
       "files": [
         "README.md",
         "docs/architecture/OVERVIEW.md",
-        "docs/architecture/ReleaseFixes-2026-11-04-3.md"
+        "docs/architecture/ReleaseFixes-2026-11-04-3.md",
+        ".harness/product-tree/product-tree.json",
+        ".harness/product-tree/product-tree.md",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/architecture/workflow-kit/WorkflowKit.md",
+        "docs/architecture/workflow-kit/WorkflowKitCommands.md",
+        "docs/architecture/workflow-kit/WorkflowKitCoreRpc.md",
+        "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md",
+        "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+        "docs/architecture/workflow-kit/WorkflowKitOrchestration.md",
+        "docs/architecture/workflow-kit/WorkflowKitProcess.md",
+        "docs/architecture/workflow-kit/WorkflowKitQuality.md",
+        "docs/architecture/workflow-kit/WorkflowKitRecovery.md",
+        "product-parts/application-shell/clusters/project-workflow-ui/cluster.md",
+        "product-parts/application-shell/clusters/session-interface/cluster.md",
+        "product-parts/core-runtime/clusters/project-workflow/cluster.md",
+        "product-parts/core-runtime/clusters/session-runtime/cluster.md",
+        "product-parts/core-runtime/clusters/workspace-architecture/cluster.md",
+        "product-parts/core-runtime/product-part.md",
+        "product-parts/provider-runtime/clusters/provider-home-and-auth/cluster.md"
       ],
       "fixes": null,
       "id": "DOCS-R1",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -806,8 +855,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 14/17
-- Revision: 141
+- Progress: 15/17
+- Revision: 143
 
 ## Objective
 
@@ -878,9 +927,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: check document sizes in doctor and update managed text
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-doctor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs
   - Depends on: K5
-- [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
-  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04-3.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ReleaseFixes-2026-11-04-3.md, .harness/product-tree/product-tree.json, .harness/product-tree/product-tree.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/architecture/workflow-kit/WorkflowKitCoreRpc.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitOrchestration.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, product-parts/application-shell/clusters/project-workflow-ui/cluster.md, product-parts/application-shell/clusters/session-interface/cluster.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/clusters/session-runtime/cluster.md, product-parts/core-runtime/clusters/workspace-architecture/cluster.md, product-parts/core-runtime/product-part.md, product-parts/provider-runtime/clusters/provider-home-and-auth/cluster.md
   - Depends on: A1, K1, E1, W1, A2, K2, A3, K3, A4, K4, A5, K5, W2, K6
 - [TODO] D1 — Package the macOS release (delivery)
   - Commit: chore: package release fixes round 3
@@ -890,5 +939,7 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: chore: publish release fixes round 3
   - Files: docs/evidence/release-fixes-3-publish-2026-11-04.md
   - Depends on: D1, DOCS-R1
+
+Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (also in the recovery packet), document text in executor briefs, required documents always inline, the documents map and the `context` command, plus a doctor doc-size warning (Kit 2.2.0). The autopilot is on by default and the user pauses the plan from the plan panel (Kit pause state, Core pauseState). Agent processes see the real git config, and Core has no built-in project: the app opens on a start screen.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

@@ -32,6 +32,9 @@ through `scripts/workflow` and the Kit sections of `.husky/**` (see
 ## Responsibilities
 
 - Own workspace/session state and snapshots consumed by Application Shell.
+  There is no built-in project: the workspace registry may be empty, and
+  without an active project no provider adapter is registered and
+  project-scoped requests answer `NO_WORKSPACE`.
 - Own deterministic session auto-title, manual-title lock and regenerate
   commands; Application Shell only submits intent and renders the result.
 - Own provider-neutral parent-child session graphs and persisted subagent
@@ -42,9 +45,11 @@ through `scripts/workflow` and the Kit sections of `.husky/**` (see
 - Own provider CLI/version tooling and local-model discovery requests.
 - Run the plan-first development process and quality gates of projects
   through the Workflow Kit (`project-workflow`), including the global git
-  identity route, the execution mode card (a `sequential`/`orchestrated`
-  choice turns on the owner session's autopilot), the Kit state watcher and
-  the plan view with executor sessions.
+  identity route, the per-session autopilot (on by default), the Kit pause
+  route (`workflow-pause-set`, derived `pauseState`), the execution mode
+  card (a `sequential`/`orchestrated` choice arms the owner session's
+  autopilot), the Kit state watcher and the plan view with executor
+  sessions.
 - Give provider processes and Kit commands the user's login-shell PATH,
   read once at Core start.
 - Coordinate providers through Provider Runtime facades.

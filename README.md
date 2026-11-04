@@ -20,6 +20,9 @@ specification in `docs/architecture/workflow-kit/WorkflowKit.md`). The plan in
 `.harness/plans/todo-plan.md` changes only through Kit commands:
 
 - `scripts/workflow recover --format text` — recovery packet for a new session;
+- `scripts/workflow schema <command>` — the JSON input of a command with its
+  limits and an example; `scripts/workflow context <path>[#Heading]` —
+  documents as marked text in one call (`context --list` for the map);
 - `scripts/workflow task:start <ID>` and `scripts/workflow commit --task <ID>` —
   one task, one checked commit;
 - `scripts/workflow accept --note "<the user's words>"` — records the user's
@@ -47,11 +50,18 @@ and diagnose projects opened through New Project / Open Project.
 Projects installed or updated by the app carry the Harness host marker: their
 agent proposes each scope and the user chooses on a card in the left sidebar,
 under the owner session, whether one agent runs it (`sequential`) or Claude subagent executors run its tasks in
-their own worktrees (`orchestrated`); the choice turns on the autopilot, and
-the sidebar shows the active plan with live progress
+their own worktrees (`orchestrated`). The autopilot is on by default and
+continues the plan task by task; the sidebar shows the active plan with live
+progress and a Pause / Continue button (the task in progress always
+finishes, the next one waits)
 (`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`). When git has
 no real name and email, the New/Open Project dialog asks for them once and
 saves them to the global git config through the Kit (`identity:set`).
+
+The app has no built-in project: on the first start, or after the last
+project is removed, it shows a start screen with Open Project and New
+Project, and any project can be removed from the project menu (the folder
+stays on disk).
 
 ## License
 

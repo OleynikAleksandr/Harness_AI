@@ -41,14 +41,24 @@ Electron main (app-bootstrap, core-process-bridge)
   localization, profiles and project workflow methods (`workflow-*`). The
   workspace registry routes (`list/add/select/remove-workspace`) live in
   `core-workspace-rpc.ts`; removing a project forgets every app reference to
-  it and never touches the project folder.
+  it and never touches the project folder. There is no built-in project:
+  the registry may be empty and no project active; then provider adapters
+  are not registered, project-scoped requests (`create-session`,
+  `capture-native-request`, `workflow-status` without an id) answer
+  `NO_WORKSPACE`, and the renderer shows the start screen (Open Project /
+  New Project).
 - **Provider contract** (`provider-adapter-contract`): session start/resume,
   turns, normalised events; `workspaceContext` carries the Workflow Kit
   recovery packet into the provider system prompt.
 - **Workflow Kit** (`docs/architecture/workflow-kit/WorkflowKit.md`): one
   TypeScript cluster (`project-workflow`) that installs a development process
   into any project — plan, transactional task commits, bounded recovery,
-  quality profile and Git hooks. The same code is bundled into
+  quality profile and Git hooks. Agents get what they need as text in
+  the prompt: the recovery packet keeps required documents inline and
+  carries the documents map and the input schema of the next step; the
+  executor brief carries the task's documents in `<document>` markers;
+  `schema <command>` and `context <path>[#Heading]` answer the rest. The
+  same code is bundled into
   `.harness/workflow/runtime/workflow.mjs` inside each project and runs
   without Harness from hooks and agent terminals.
 - **Execution modes**
@@ -56,15 +66,22 @@ Electron main (app-bootstrap, core-process-bridge)
   Harness project the agent proposes the scope (`scope:propose`) and the
   user picks `sequential` (one agent) or `orchestrated` on a Core-built
   card in the left sidebar, under the owner session's card; the choice
-  turns on that session's autopilot. In `orchestrated` mode Claude subagent executors commit
+  arms that session's autopilot. In `orchestrated` mode Claude subagent executors commit
   their task in their own git worktree and the orchestrator integrates each
   result into main with a checked two-parent commit
   (`docs/architecture/workflow-kit/WorkflowKitOrchestration.md`). Core
   builds the plan view for the sidebar and binds executor sessions to
   tasks by their working directory.
-- **Autopilot**: Core continues a session to the next plan task (or the
+- **Autopilot and pause**: the autopilot is on by default for every
+  eligible session; Core continues a session to the next plan task (or the
   next orchestrator step) only on the Kit's decision (`autopilot:status`),
-  within `autopilot.maxContinues`.
+  within `autopilot.maxContinues`. The pause is Kit state (`pause:set`):
+  the plan panel button sends `workflow-pause-set`, the task in progress
+  finishes and the next `task:start` / `assignment:create` is refused;
+  Core derives `pauseState` (`running`, `pausing`, `paused`) for the
+  button. Agent processes with a provider `HOME` get `GIT_CONFIG_GLOBAL`
+  pointing at the real `~/.gitconfig`
+  (`docs/architecture/ReleaseFixes-2026-11-04-3.md`).
 - **Git identity**: Kit commits need a real git name and email. When none
   is set, the New/Open Project dialog (and Project Doctor) asks for them
   once; Core runs the Kit `identity:set --global`, which validates and

@@ -3,7 +3,10 @@
 Статус: реализовано в scope `execution-modes-2026-11-04` (задачи E1–E20).
 Карточка в сайдбаре, включение автопилота выбором режима и
 `identity:set` — scope `release-fixes-2026-11-04-2`
-([ReleaseFixes-2026-11-04-2.md](../ReleaseFixes-2026-11-04-2.md)).
+([ReleaseFixes-2026-11-04-2.md](../ReleaseFixes-2026-11-04-2.md)); автопилот
+по умолчанию, пауза в панели плана и текст документов в поручении —
+`release-fixes-2026-11-04-3`
+([ReleaseFixes-2026-11-04-3.md](../ReleaseFixes-2026-11-04-3.md)).
 Продолжает [WorkflowKitProcess.md](WorkflowKitProcess.md): там один checkout
 и одна задача в работе, здесь — выбор режима, исполнители в worktree и план
 в сайдбаре Harness. Назначения и интеграция (разделы 5–7) подробно
@@ -147,8 +150,9 @@ scripts/workflow scope:proposal        # только чтение: вид ка�
   (например `PROPOSAL_CHANGED`) возвращает карточку в `offered` с `error`.
   Успех — `chosen`. Для `sequential` и `orchestrated` Core сначала
   включает автопилот владельца без немедленной оценки
-  (`setEnabled(владелец, true, {evaluate: false})`): конец следующего хода
-  продолжает план до обычных остановок автопилота. `refine` автопилот не
+  (`setEnabled(владелец, true, {evaluate: false})`; автопилот и так включён
+  по умолчанию, выбор включает его снова, если сессия его выключила): конец
+  следующего хода продолжает план до обычных остановок автопилота. `refine` автопилот не
   меняет. Затем Core отправляет сессии-владельцу сообщение пользователя
   тем же маршрутом, что ход автопилота. Тексты для агента —
   на английском: `sequential` — выполнять план по задачам с первой;
@@ -303,13 +307,22 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
   Строки: значок статуса, ID, название, метка режима, подсветка текущей.
   Строка с исполнителем открывает его сессию. Привязанные исполнители и их
   дети не показываются карточками; прочие субагенты остаются под агентом.
+- Кнопка паузы в шапке плана (заменила переключатель автопилота в полосе
+  статуса) показывается по `pauseState` снимка автопилота владельца, который
+  выводит Core: `running` — «Pause», `pausing` — «Pausing after the current
+  task» (неактивна), `paused` — «Continue». Нажатие — RPC
+  `workflow-pause-set {sessionId, paused}` (`WorkflowKitCoreRpc.md`).
 
 ### 10.3 Автопилот
 
 - `autopilot:status` получает `proposalPending` и `orchestration`
   (назначения, журнал интеграции, готовые задачи).
-- Выбор `sequential` или `orchestrated` на карточке включает автопилот
-  владельца (раздел 4.2).
+- Автопилот включён по умолчанию; выбор `sequential` или `orchestrated` на
+  карточке включает его у владельца (раздел 4.2).
+- Пауза Kit (`paused`) держит в `orchestrated` только раздачу готовых задач
+  и не начатую QUALITY; интеграция, очистка и начатые задачи main идут
+  дальше ([WorkflowKitOrchestration.md](WorkflowKitOrchestration.md),
+  раздел 6).
 - Новые причины остановки: `waiting-for-mode-choice` (ждёт карточки) и
   `waiting-for-executors` (есть назначения `ASSIGNED`, `NEEDS_SETUP`,
   `READY` или `RUNNING`, а других шагов нет).
@@ -337,4 +350,5 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
 - `KIT_VERSION` 2.1.0: старые установки — `KIT_OUTDATED`, обновление
   добавляет в `.gitignore` `.harness/sessions/` и `.claude/worktrees/` и
   блок «Execution modes» в `AGENTS.md`. Версия 2.1.1 (раунд 2) добавила
-  в `.gitignore` `.DS_Store`.
+  в `.gitignore` `.DS_Store`, текущая 2.2.0 (раунд 3) — блок «Inputs and
+  documents» в `AGENTS.md`.

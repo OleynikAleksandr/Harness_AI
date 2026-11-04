@@ -59,18 +59,18 @@ Writing rules:
 
 `manifest(entries)` → `{schema "harness-workflow-manifest/1", version,
 files: [{path, kind, executable, sha256}]}`; `sha256` hashes the managed
-part (`null` for `create`). `version` is `KIT_VERSION` (`2.1.1`; Kit 1.x
+part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.0`; Kit 1.x
 was Workflow Pilot). A change of a managed text raises the version, so
 older installations read as `KIT_OUTDATED` and the update rewrites them
 (2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`
 and the Execution modes block to `AGENTS.md`; 2.1.1 added `.DS_Store` to
-`.gitignore`). The manifest lives at `.harness/workflow/manifest.json`
+`.gitignore`; 2.2.0 added the Inputs and documents block to `AGENTS.md`). The manifest lives at `.harness/workflow/manifest.json`
 (`manifestPath`).
 
 ## Agent Rules (`installer-texts.ts`)
 
 `agentRules()` is the managed `AGENTS.md` section: the plan and commands,
-session start, when a plan is needed (in a Harness project the scope is
+session start, the Inputs and documents block, when a plan is needed (in a Harness project the scope is
 proposed instead of created), the Execution modes block, one task per
 commit and turn, and the rules. The Execution modes block tells the agent
 to follow the `role:` of the recovery packet:
@@ -91,6 +91,14 @@ to follow the `role:` of the recovery packet:
 - agents never set the git identity (`git config user.*`); a
   `GIT_IDENTITY_REQUIRED` refusal goes to the user with the command it
   prints.
+
+The Inputs and documents block (after session start) tells the agent to
+run `scripts/workflow schema <command>` before writing a `--input` JSON, to
+get documents with `scripts/workflow context <path>[#Heading]` (one call,
+marked text; `context --list` prints the documents map) instead of reading
+large files piecewise, and never to read Kit runtime files
+(`.harness/workflow/runtime/**`, the bundle), generated code, logs or
+transcripts.
 
 ## Inspection (`installer-inspect.ts`)
 
@@ -178,6 +186,17 @@ Each check is `{id, status ok|warn|fail, message, fixable, nextAction}`:
 | `runtime` | no Node.js 22+ runtime for the launchers (`probe` injectable) | no |
 | `git-identity` | the repository-local identity is missing, a placeholder or invalid (`isUsableIdentity`) | when the global identity is real (usable) |
 | `quality-drift` | `warn` when detected stacks and the profile differ | no |
+| `doc-size` | `warn` when a project Markdown file exceeds `budget.documentBytes` | no |
+
+`doc-size` scans every project Markdown file, not only changed ones:
+`git ls-files -z --cached --others --exclude-standard -- '*.md'
+'*.markdown'` (tracked plus untracked files git does not ignore; outside a
+git repository nothing), without paths having a `node_modules` or `.git`
+segment and without `.harness/workflow/**` and `.harness/plans/archive/**`.
+The size rule is `workflow-quality` `oversizedDocuments` (the `kit:doc-size`
+rule: the plan excluded). The warning message `Documents over <limit> bytes
+cannot be read in one Read: <path> (<bytes> bytes), …` lists every such
+file; `nextAction` asks to split them. A warning never makes `ok` false.
 
 `git-identity` reads only the repository-local config, because Kit commits
 sign with it. When it fails, `nextAction` names `doctor --fix` and the real
@@ -240,7 +259,8 @@ legacyDone, migrated, converted, commit}`.
 - `workflow-platform` — launchers, bundle and runtime paths, files.
 - `workflow-git` — repository, identity, hooks path, transaction.
 - `workflow-plan` — the empty plan and plan path.
-- `workflow-quality` — the default configuration and stack detection.
+- `workflow-quality` — the default configuration, stack detection, drift
+  and the document size rule (`oversizedDocuments`).
 
 Node built-ins only.
 
@@ -251,8 +271,9 @@ Node built-ins only.
   CLAUDE line, foreign provider hooks kept, invalid JSON, own and husky git
   hooks, created files, the gitignore lines and gitattributes, manifest
   hashes; the Execution modes block (four roles, helpers in sequential,
-  integration commands, the identity rule, under 1800 bytes) and the Harness
-  note on proposing the scope.
+  integration commands, the identity rule, under 1800 bytes), the Inputs and
+  documents block (`schema`, `context`, files never to read), the Harness
+  note on proposing the scope and `KIT_VERSION` 2.2.0.
 - `src/workflow-installer-install.test.mjs` — every folder state; a missing
   or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
   written; a global-only identity copied into the repository config (also
@@ -269,7 +290,10 @@ Node built-ins only.
   plan; `git-identity` with a placeholder (fixable), without any real
   identity (the commands, no fix, the update held back) and the fix copying
   the global identity before the update; a missing runtime, quality drift,
-  a pending transaction, a missing manifest.
+  `doc-size` (an oversized document warned with its size while `ok` stays
+  true; oversized files in `node_modules`, the plan archive and git-ignored
+  paths skipped; `ok` again once removed), a pending transaction, a missing
+  manifest.
 - `src/workflow-installer-migrate.test.mjs` — a legacy fixture with done,
   in-progress, wrapped, quality, docs, delivery and acceptance rows: the
   migration commit, rounds, task mapping, digest, decisions, context, a

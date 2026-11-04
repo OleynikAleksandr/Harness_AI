@@ -12,6 +12,15 @@ add \`--format text\` for a readable answer.
    \`scripts/workflow recover --format text\`.
 2. Follow the \`next\` line of the packet.
 
+### Inputs and documents
+- Before writing a \`--input\` JSON, run \`scripts/workflow schema <command>\`
+  for its fields, limits and an example.
+- Get documents with \`scripts/workflow context <path>[#Heading]\` (one call,
+  marked text) instead of reading large files piecewise;
+  \`context --list\` prints the documents map.
+- Never read Kit runtime files (\`.harness/workflow/runtime/**\`, the bundle),
+  generated code, logs or transcripts: the Kit gives what is needed from them.
+
 ### When a plan is needed
 - Discussion, research, specifications and documentation-only commits need
   no plan. Commit documents with \`scripts/workflow docs:commit --files <paths>\`.

@@ -143,7 +143,11 @@ The project quality profile of the Workflow Kit:
   `.harness/`, text only) must not exceed `policy.maxFileLines`; off when it
   is `null`.
 - `kit:doc-size` — changed Markdown files (not the plan) must not exceed
-  `budget.documentBytes`.
+  `budget.documentBytes`. `oversizedDocuments(root, files, config)` exposes
+  the same rule for any file list: existing Markdown files of `files`
+  except the plan, larger than `budget.documentBytes`, as `{path, bytes}`
+  in the given order (the doctor `doc-size` check passes every project
+  document).
 - `kit:md-links` — relative links in changed Markdown files outside code
   fences must point to existing paths inside the project. Links with a
   scheme (`https:`, `mailto:`), `//` and pure anchors are ignored; links
@@ -243,7 +247,8 @@ Node built-ins only.
 - `src/workflow-quality-runner.test.mjs` — stage selection, assigned and
   service checks, `{files}` and `appliesTo`, timeout and missing tools,
   every builtin (conflict markers with line numbers, a lone separator and
-  binary files passing), the implicit guard for a profile without it, the
+  binary files passing), `oversizedDocuments` (Markdown only, missing files
+  and the plan skipped), the implicit guard for a profile without it, the
   waiver and evidence records.
 - `src/workflow-quality-apply.test.mjs` — approval, validation before
   installs, failed install, builtins kept, policy and contracts, re-apply,

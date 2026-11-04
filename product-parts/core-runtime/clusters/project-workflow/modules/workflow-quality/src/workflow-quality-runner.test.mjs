@@ -140,6 +140,24 @@ try {
   assert.match(builtin["kit:md-links"].output, /gone\.md/u);
   assert.doesNotMatch(builtin["kit:md-links"].output, /nowhere|example|a\.ts/u);
 
+  // The size rule of kit:doc-size, shared with the doctor: Markdown only,
+  // existing files only, the plan excluded.
+  write(".harness/plans/todo-plan.md", "p".repeat(500));
+  assert.deepEqual(
+    quality.oversizedDocuments(
+      root,
+      [
+        "docs/core.md",
+        "docs/big.md",
+        "src/core/b.ts",
+        "docs/missing.md",
+        ".harness/plans/todo-plan.md",
+      ],
+      config
+    ),
+    [{ bytes: 400, path: "docs/big.md" }]
+  );
+
   // Conflict markers fail the commit with file and line numbers; a lone
   // separator (a Markdown heading underline) and binary files pass.
   const marker = (char) => char.repeat(7);

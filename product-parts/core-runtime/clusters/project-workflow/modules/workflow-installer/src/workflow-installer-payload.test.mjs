@@ -20,7 +20,7 @@ try {
   const byPath = Object.fromEntries(
     entries.map((entry) => [entry.path, entry])
   );
-  assert.equal(installer.version, "2.1.1");
+  assert.equal(installer.version, "2.2.0");
   assert.deepEqual(Object.keys(byPath), [
     ".harness/workflow/runtime/workflow.mjs",
     "scripts/workflow",
@@ -93,6 +93,20 @@ try {
     /Never set the git identity \(`git config user\.\*`\)\. If a command refuses\n {2}with `GIT_IDENTITY_REQUIRED`, report it to the user with the command it\n {2}prints\./u,
   ]) {
     assert.match(modes, pattern);
+  }
+  // The inputs and documents block: schema, context, files never to read.
+  const inputs = rules.slice(
+    rules.indexOf("### Inputs and documents"),
+    rules.indexOf("### When a plan is needed")
+  );
+  assert.ok(inputs.length > 0, "the Inputs and documents block exists");
+  for (const pattern of [
+    /Before writing a `--input` JSON, run `scripts\/workflow schema <command>`/u,
+    /`scripts\/workflow context <path>\[#Heading\]` \(one call,\n {2}marked text\) instead of reading large files piecewise/u,
+    /`context --list` prints the documents map/u,
+    /Never read Kit runtime files \(`\.harness\/workflow\/runtime\/\*\*`, the bundle\),\n {2}generated code, logs or transcripts: the Kit gives what is needed from them\./u,
+  ]) {
+    assert.match(inputs, pattern);
   }
   assert.match(
     rules,
@@ -187,7 +201,7 @@ try {
     manifest.files.find((file) => file.path === "README.md").sha256,
     null
   );
-  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.1.1");
+  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.2.0");
 } finally {
   await build.cleanup();
 }

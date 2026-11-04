@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   chmodSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -56,6 +57,7 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
   const first = installer.doctor(root, { env, probe: healthy });
   assert.equal(first.ok, true, JSON.stringify(first.checks));
   assert.deepEqual(statusOf(first), {
+    "doc-size": "ok",
     executable: "ok",
     "git-hooks": "ok",
     "git-identity": "ok",
@@ -206,6 +208,46 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
   assert.equal(drift.ok, true);
   assert.equal(statusOf(drift)["quality-drift"], "warn");
   git.git.run(root, ["checkout", "--", ".harness/workflow/config.json"]);
+
+  // Every project document must fit budget.documentBytes: a warning, not a failure.
+  const oversized = "x".repeat(28_001);
+  for (const relative of [
+    "docs/big.md",
+    "node_modules/pkg/README.md",
+    ".harness/plans/archive/old.md",
+    "ignored/huge.md",
+  ]) {
+    mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
+    writeFileSync(path.join(root, relative), oversized);
+  }
+  writeFileSync(path.join(root, "docs", "small.md"), "# Small\n");
+  mkdirSync(path.join(root, ".git", "info"), { recursive: true });
+  writeFileSync(path.join(root, ".git", "info", "exclude"), "ignored/\n");
+  const sized = installer.doctor(root, { env, probe: healthy });
+  const docSize = sized.checks.find((item) => item.id === "doc-size");
+  assert.equal(sized.ok, true, JSON.stringify(sized.checks));
+  assert.equal(docSize.status, "warn");
+  assert.equal(docSize.fixable, false);
+  assert.equal(
+    docSize.message,
+    "Documents over 28000 bytes cannot be read in one Read: docs/big.md (28001 bytes)."
+  );
+  assert.equal(
+    docSize.nextAction,
+    "Split each listed document into smaller documents."
+  );
+  for (const relative of [
+    "docs",
+    "node_modules",
+    ".harness/plans/archive",
+    "ignored",
+  ]) {
+    rmSync(path.join(root, relative), { force: true, recursive: true });
+  }
+  assert.equal(
+    statusOf(installer.doctor(root, { env, probe: healthy }))["doc-size"],
+    "ok"
+  );
   writeFileSync(
     path.join(root, ".harness", "workflow", "local", "transaction.json"),
     JSON.stringify({ id: "tx", phase: "FAILED" })

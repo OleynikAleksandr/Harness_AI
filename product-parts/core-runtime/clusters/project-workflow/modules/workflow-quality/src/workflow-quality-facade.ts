@@ -14,7 +14,11 @@ import {
   profileDrift,
   runInstalls,
 } from "./quality-apply.js";
-import { missingContracts } from "./quality-builtins.js";
+import {
+  missingContracts,
+  type OversizedDocument,
+  oversizedDocuments,
+} from "./quality-builtins.js";
 import {
   type CheckDefinition,
   type CheckInput,
@@ -45,6 +49,7 @@ export type {
   InstallResult,
   ProfileInput,
 } from "./quality-apply.js";
+export type { OversizedDocument } from "./quality-builtins.js";
 export type {
   CheckDefinition,
   CheckInput,
@@ -152,6 +157,18 @@ export class WorkflowQualityFacade {
   /** Code files of the candidate whose contract documents are missing. */
   missingContracts(config: WorkflowConfig, files: string[]): string[] {
     return missingContracts(config, files);
+  }
+
+  /**
+   * Markdown files of `files` (the plan excluded) larger than the
+   * `budget.documentBytes` of `config`: the size rule of `kit:doc-size`.
+   */
+  oversizedDocuments(
+    root: string,
+    files: string[],
+    config: WorkflowConfig
+  ): OversizedDocument[] {
+    return oversizedDocuments(root, files, config.budget.documentBytes);
   }
 
   /**

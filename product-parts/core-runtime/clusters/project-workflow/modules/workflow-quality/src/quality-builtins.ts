@@ -39,13 +39,15 @@ function existingFile(root: string, file: string): boolean {
   return existsSync(target) && statSync(target).isFile();
 }
 
-function changedMarkdown(context: BuiltinContext): string[] {
-  return context.files.filter(
+function markdownFiles(root: string, files: string[]): string[] {
+  return files.filter(
     (file) =>
-      isMarkdownPath(file) &&
-      file !== PLAN_PATH &&
-      existingFile(context.root, file)
+      isMarkdownPath(file) && file !== PLAN_PATH && existingFile(root, file)
   );
+}
+
+function changedMarkdown(context: BuiltinContext): string[] {
+  return markdownFiles(context.root, context.files);
 }
 
 function fileLines(context: BuiltinContext): BuiltinOutcome {
@@ -78,14 +80,32 @@ function fileLines(context: BuiltinContext): BuiltinOutcome {
     : { output: over.join("\n"), passed: false };
 }
 
+export interface OversizedDocument {
+  bytes: number;
+  path: string;
+}
+
+/**
+ * Existing Markdown files of `files` (the plan excluded) larger than `limit`
+ * bytes, in the given order.
+ */
+export function oversizedDocuments(
+  root: string,
+  files: string[],
+  limit: number
+): OversizedDocument[] {
+  return markdownFiles(root, files).flatMap((file) => {
+    const bytes = statSync(absolute(root, file)).size;
+    return bytes > limit ? [{ bytes, path: file }] : [];
+  });
+}
+
 function docSize(context: BuiltinContext): BuiltinOutcome {
   const limit = context.config.budget.documentBytes;
-  const over = changedMarkdown(context).flatMap((file) => {
-    const size = statSync(absolute(context.root, file)).size;
-    return size > limit
-      ? [`${file}: ${size} bytes (limit ${limit}); split the document.`]
-      : [];
-  });
+  const over = oversizedDocuments(context.root, context.files, limit).map(
+    (item) =>
+      `${item.path}: ${item.bytes} bytes (limit ${limit}); split the document.`
+  );
   return over.length === 0
     ? { output: `Document size limit ${limit}: OK.`, passed: true }
     : { output: over.join("\n"), passed: false };

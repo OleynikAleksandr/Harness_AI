@@ -303,6 +303,62 @@ function environmentChecks(
   ];
 }
 
+/** Path segments and prefixes the documents scan skips. */
+const SKIPPED_SEGMENTS = new Set([".git", "node_modules"]);
+const SKIPPED_PREFIXES = [".harness/workflow/", ".harness/plans/archive/"];
+
+/** Tracked and untracked-not-ignored Markdown files of the project. */
+function projectMarkdown(git: WorkflowGitFacade, root: string): string[] {
+  const output = git.git.run(
+    root,
+    [
+      "ls-files",
+      "-z",
+      "--cached",
+      "--others",
+      "--exclude-standard",
+      "--",
+      "*.md",
+      "*.markdown",
+    ],
+    { allowFailure: true }
+  );
+  if (output.status !== 0) {
+    return [];
+  }
+  const files = output.stdout
+    .split("\0")
+    .filter(
+      (item) =>
+        item !== "" &&
+        !item.split("/").some((segment) => SKIPPED_SEGMENTS.has(segment)) &&
+        !SKIPPED_PREFIXES.some((prefix) => item.startsWith(prefix))
+    );
+  return [...new Set(files)].sort((left, right) => (left < right ? -1 : 1));
+}
+
+/** Every project document must fit `budget.documentBytes` (one Read). */
+function documentSizeCheck(git: WorkflowGitFacade, root: string): DoctorCheck {
+  const config = workflowQualityFacade.readConfig(root);
+  const limit = config.budget.documentBytes;
+  const over = workflowQualityFacade.oversizedDocuments(
+    root,
+    projectMarkdown(git, root),
+    config
+  );
+  return over.length === 0
+    ? check("doc-size", "ok", `Markdown documents fit ${limit} bytes.`)
+    : check(
+        "doc-size",
+        "warn",
+        `Documents over ${limit} bytes cannot be read in one Read: ${over
+          .map((item) => `${item.path} (${item.bytes} bytes)`)
+          .join(", ")}.`,
+        false,
+        "Split each listed document into smaller documents."
+      );
+}
+
 function inspectProject(
   git: WorkflowGitFacade,
   root: string,
@@ -313,6 +369,7 @@ function inspectProject(
     hooksCheck(git, root),
     ...planChecks(git, root),
     ...environmentChecks(git, root, options),
+    documentSizeCheck(git, root),
   ];
 }
 

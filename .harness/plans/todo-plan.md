@@ -3,14 +3,14 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": null,
+  "currentTaskId": "A4",
   "lastClosed": {
     "closedAt": "2026-11-04T15:01:20.812Z",
     "scopeId": "release-fixes-2026-11-04-2"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 127,
+  "revision": 129,
   "rounds": [
     {
       "digest": null,
@@ -433,14 +433,15 @@
       "files": [
         "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge",
         "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap",
-        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts"
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts",
+        "product-parts/application-shell/clusters/session-interface/modules/session-window/module.md"
       ],
       "fixes": null,
       "id": "A4",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "title": "Pause bridge",
       "why": "The renderer needs the pause route and no autopilot toggle"
     },
@@ -740,9 +741,9 @@
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
-- Current task: none
+- Current task: A4
 - Progress: 8/17
-- Revision: 127
+- Revision: 129
 
 ## Objective
 
@@ -789,9 +790,9 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Commit: feat: put document text into executor briefs
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality
   - Depends on: K2
-- [TODO] A4 — Pause bridge (work)
+- [IN_PROGRESS] A4 — Pause bridge (work)
   - Commit: feat: bridge the workflow pause
-  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts
+  - Files: product-parts/application-shell/clusters/electron-host/modules/core-process-bridge, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap, product-parts/application-shell/clusters/session-interface/modules/session-window/src/vite-env.d.ts, product-parts/application-shell/clusters/session-interface/modules/session-window/module.md
   - Depends on: A3
 - [TODO] K4 — Recovery packet inline documents and map (work)
   - Commit: feat: keep required documents inline with a documents map

@@ -33,7 +33,7 @@ compare it with `managed`.
 | `CLAUDE.md` | line | `@AGENTS.md`, appended once |
 | `.codex/hooks.json` | json | SessionStart → `scripts/workflow hook session-start --client codex` |
 | `.claude/settings.json` | json | SessionStart → `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude` |
-| `.gitignore` | section | `.harness/workflow/local/`, `.harness/runtime/` |
+| `.gitignore` | section | `.harness/workflow/local/`, `.harness/runtime/`, `.harness/sessions/`, `.claude/worktrees/` |
 | `.gitattributes` | section | `eol=lf` for the POSIX launcher and `.harness/**`, `eol=crlf` for `.cmd` and `.ps1` |
 | `README.md`, `docs/architecture/OVERVIEW.md` | create | skeletons, only when absent |
 
@@ -59,8 +59,10 @@ Writing rules:
 
 `manifest(entries)` → `{schema "harness-workflow-manifest/1", version,
 files: [{path, kind, executable, sha256}]}`; `sha256` hashes the managed
-part (`null` for `create`). `version` is `KIT_VERSION` (`2.0.0`; Kit 1.x
-was Workflow Pilot). The manifest lives at `.harness/workflow/manifest.json`
+part (`null` for `create`). `version` is `KIT_VERSION` (`2.1.0`; Kit 1.x
+was Workflow Pilot). A change of a managed text raises the version, so
+older installations read as `KIT_OUTDATED` and the update rewrites them
+(2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`). The manifest lives at `.harness/workflow/manifest.json`
 (`manifestPath`).
 
 ## Inspection (`installer-inspect.ts`)
@@ -86,23 +88,37 @@ path) reports `nestedIn` and action `unsupported`.
 
 ## Install And Update (`installer-install.ts`)
 
-`install(path, {bundle, name?, update?, runtime?})`:
+`install(path, {bundle, name?, update?, runtime?, host?})` (CLI
+`install [<path>] [--name] [--update] [--host harness] [--bundle]`):
 1. refuses `NESTED_REPOSITORY`, `PILOT_KIT_UNSUPPORTED`,
-   `TRANSACTION_PENDING`, `ALREADY_INSTALLED` (without `update`) and
-   `NOT_INSTALLED` (with `update`); without a git identity it stops with
-   `GIT_IDENTITY` before writing anything;
-2. creates the folder and runs `git init` (branch `main`) when needed;
-3. reads the local `core.hooksPath`: a path inside the project gets hook
+   `TRANSACTION_PENDING`, `ALREADY_INSTALLED` (without `update`),
+   `NOT_INSTALLED` (with `update`) and `USAGE` for a `host` other than
+   `harness`;
+2. resolves the git identity before writing anything: the real
+   repository-local one of an existing repository, else the real global one
+   (`isPlaceholderIdentity` of `workflow-git` skips placeholders; the global
+   config is read even when the folder does not exist yet). None fails with
+   `GIT_IDENTITY_REQUIRED` (`details.placeholder`; `nextAction` is the
+   `workflow-git` `identityFix` text with the two `git config --global`
+   commands) and nothing is created or written;
+3. creates the folder and runs `git init` (branch `main`) when needed, then
+   writes the resolved identity into the repository-local config unless
+   that config already holds a real one (a placeholder is replaced). Every
+   worktree reads that config, and the bootstrap commit is signed with it;
+4. reads the local `core.hooksPath`: a path inside the project gets hook
    sections; none means own hooks in `.harness/workflow/hooks` and
    `core.hooksPath` set to it; a path outside fails with
    `HOOKS_PATH_OUTSIDE`;
-4. writes every payload entry whose text changes (executable entries get
+5. writes every payload entry whose text changes (executable entries get
    mode 755 on POSIX), an empty plan (`projectId` is the slug of `name`,
    default the folder name) and the default configuration when they are
-   absent, and the manifest;
-5. records `runtime` (`.harness/workflow/local/runtime`) so the launchers
+   absent, and the manifest. `host: "harness"` adds `"host": "harness"` to
+   the new configuration, or to an existing one that lacks it (the only
+   change made to an existing configuration); without `host` an existing
+   marker is kept;
+6. records `runtime` (`.harness/workflow/local/runtime`) so the launchers
    and hooks find Node or Electron;
-6. commits the written files through a Kit transaction: role `bootstrap`
+7. commits the written files through a Kit transaction: role `bootstrap`
    (`chore: install workflow kit <version>`) or `kit-update`
    (`chore: update workflow kit to <version>`). The installed hooks already
    run for this commit. Nothing to commit gives `commit: null`.
@@ -115,7 +131,8 @@ are never overwritten.
 
 ## Doctor (`installer-doctor.ts`)
 
-`doctor(path, {env?, probe?, fix?})` returns `{root, ok, checks, fix}`.
+`doctor(path, {env?, probe?, fix?})` returns `{root, ok, checks, fix,
+identityFix}`.
 Each check is `{id, status ok|warn|fail, message, fixable, nextAction}`:
 
 | Id | Fails when | Fixable |
@@ -127,15 +144,24 @@ Each check is `{id, status ok|warn|fail, message, fixable, nextAction}`:
 | `plan` | the plan is missing, unreadable or disagrees with the history | no (`repair`) |
 | `transaction` | a commit transaction is unfinished | no (`repair`) |
 | `runtime` | no Node.js 22+ runtime for the launchers (`probe` injectable) | no |
-| `git-identity` | git has no user identity | no |
+| `git-identity` | the repository-local identity is missing or a placeholder | when the global identity is real |
 | `quality-drift` | `warn` when detected stacks and the profile differ | no |
 
-`ok` is true when no check fails. With `fix: {bundle, runtime}` and a
-fixable failure, the doctor runs `install --update`: it rewrites owned
+`git-identity` reads only the repository-local config, because Kit commits
+sign with it. When it fails, `nextAction` names `doctor --fix` and the real
+global identity it would copy, or — with no real global identity — the
+`workflow-git` `identityFix` commands; the fix never guesses an identity.
+
+`ok` is true when no check fails. With `fix: {bundle, runtime}`, a fixable
+`git-identity` failure first copies the real global identity into the
+repository-local config (`identityFix` returns it, otherwise `null`).
+Other fixable failures then run `install --update`, but only once the
+repository identity is real, because the update commits (otherwise `fix`
+stays `null`): it rewrites owned
 files and sections, restores `core.hooksPath` and modes, and commits with
 role `kit-update` when the files differ from HEAD (otherwise
 `fix.commit` is `null`). Plan, configuration and user text are never
-changed. The checks then run again.
+changed. The checks then run again after any fix.
 
 ## Legacy Plan Migration (`installer-legacy-plan.ts`, `installer-migrate.ts`)
 
@@ -191,22 +217,31 @@ Node built-ins only.
 - `src/workflow-installer-payload.test.mjs` — the file list, read-back and
   idempotence of every managed part, byte-exact sections with CRLF, the
   CLAUDE line, foreign provider hooks kept, invalid JSON, own and husky git
-  hooks, created files, gitignore and gitattributes, manifest hashes.
-- `src/workflow-installer-install.test.mjs` — every folder state, missing
-  identity, a new project with the installed hooks rejecting a direct
-  commit, damage and outdated detection with update, existing files kept,
-  husky sections, a legacy plan kept for migration, Workflow Pilot and
-  nested folders refused.
+  hooks, created files, the gitignore lines and gitattributes, manifest
+  hashes.
+- `src/workflow-installer-install.test.mjs` — every folder state; a missing
+  or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
+  written; a global-only identity copied into the repository config (also
+  over a placeholder) and signing the bootstrap commit; a real local
+  identity kept; the host marker written, kept by an update and added by
+  `--update --host harness`; an invalid host; a new project with the
+  installed hooks rejecting a direct commit; damage detection; a 2.0.0
+  installation with the old `.gitignore` section reported outdated by
+  inspect and doctor and updated; existing files kept; husky sections; a
+  legacy plan kept for migration; Workflow Pilot and nested folders
+  refused.
 - `src/workflow-installer-doctor.test.mjs` — a healthy installation, fixable
   breakage (mode, section, hook, hooks path) repaired without touching the
-  plan, a missing runtime, quality drift, a pending transaction, a missing
-  manifest.
+  plan; `git-identity` with a placeholder (fixable), without any real
+  identity (the commands, no fix, the update held back) and the fix copying
+  the global identity before the update; a missing runtime, quality drift,
+  a pending transaction, a missing manifest.
 - `src/workflow-installer-migrate.test.mjs` — a legacy fixture with done,
   in-progress, wrapped, quality, docs, delivery and acceptance rows: the
   migration commit, rounds, task mapping, digest, decisions, context, a
   working Kit plan afterwards, and an idle legacy plan.
 
-Test repositories get a real repository-local identity
-(`workflow@harness-ai.test`; install tests through `GIT_TEMPLATE_DIR`),
-because Kit commits refuse placeholder identities
-(`GIT_IDENTITY_REQUIRED`).
+Test repositories get a real identity (`workflow@harness-ai.test`) through
+`GIT_CONFIG_GLOBAL` and, for repositories git creates, `GIT_TEMPLATE_DIR`;
+the global-only cases use an empty template, because Kit commits refuse
+placeholder identities (`GIT_IDENTITY_REQUIRED`).

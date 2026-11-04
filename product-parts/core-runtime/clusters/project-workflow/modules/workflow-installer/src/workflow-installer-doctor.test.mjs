@@ -113,6 +113,75 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
     planBefore
   );
 
+  // git-identity: the repository config must hold a real identity.
+  const identityOf = (report) =>
+    report.checks.find((item) => item.id === "git-identity");
+  git.git.run(root, ["config", "--local", "user.name", "Your Name"]);
+  git.git.run(root, ["config", "--local", "user.email", "you@example.com"]);
+  const placeholder = installer.doctor(root, { env, probe: healthy });
+  assert.equal(placeholder.ok, false);
+  assert.deepEqual(
+    [identityOf(placeholder).status, identityOf(placeholder).fixable],
+    ["fail", true]
+  );
+  assert.match(identityOf(placeholder).message, /placeholder/u);
+  assert.match(
+    identityOf(placeholder).nextAction,
+    /doctor --fix.*Workflow Test <workflow@harness-ai\.test>/u
+  );
+  // Without a real global identity the fix does not guess: it names the commands.
+  writeFileSync(path.join(sandbox, "empty-gitconfig"), "");
+  const anonymousEnv = {
+    ...env,
+    GIT_CONFIG_GLOBAL: path.join(sandbox, "empty-gitconfig"),
+  };
+  const anonymous = new WorkflowInstallerFacade(
+    new WorkflowGitFacade(undefined, anonymousEnv)
+  );
+  git.git.run(root, ["config", "--local", "--unset", "user.name"]);
+  // Another fixable finding waits: its update commits and needs the identity.
+  chmodSync(path.join(root, "scripts", "workflow"), 0o644);
+  const unknown = anonymous.doctor(root, {
+    env: anonymousEnv,
+    fix: { bundle, runtime },
+    probe: healthy,
+  });
+  assert.deepEqual(
+    [
+      identityOf(unknown).status,
+      identityOf(unknown).fixable,
+      identityOf(unknown).message,
+    ],
+    ["fail", false, "The repository config has no git identity."]
+  );
+  assert.match(
+    identityOf(unknown).nextAction,
+    /git config --global user\.name/u
+  );
+  assert.match(
+    identityOf(unknown).nextAction,
+    /git config --global user\.email/u
+  );
+  assert.deepEqual([unknown.identityFix, unknown.fix], [null, null]);
+  assert.equal(statusOf(unknown).executable, "fail");
+  assert.equal(git.readIdentity(root, "local"), null);
+  // With a real global identity the fix copies it into the repository config.
+  const copied = installer.doctor(root, {
+    env,
+    fix: { bundle, runtime },
+    probe: healthy,
+  });
+  assert.equal(copied.ok, true, JSON.stringify(copied.checks));
+  assert.deepEqual(copied.identityFix, {
+    email: "workflow@harness-ai.test",
+    name: "Workflow Test",
+  });
+  assert.deepEqual(copied.fix.written, []);
+  assert.equal(copied.fix.commit, null);
+  assert.equal(statusOf(copied).executable, "ok");
+  assert.deepEqual(git.readIdentity(root, "local"), copied.identityFix);
+  assert.equal(identityOf(copied).status, "ok");
+
   // Findings the doctor reports but does not fix.
   const noRuntime = installer.doctor(root, {
     env,

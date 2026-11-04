@@ -61,6 +61,10 @@ through install) get it from `identityTemplate(folder)`, passed as
 - `writeLocalIdentity(root, identity)` writes the trimmed identity to the
   repository-local config; a placeholder fails with
   `GIT_IDENTITY_PLACEHOLDER` and nothing is written.
+- `identityFix` is the fix text of every identity refusal (this module's
+  and the installer's): run once `git config --global user.name …` and
+  `git config --global user.email …`, then `scripts/workflow doctor --fix`
+  applies it to the project.
 
 ## Task Files (`git-task-files.ts`)
 

@@ -132,11 +132,13 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
     run: ({ args, io, kit }) =>
       kit.install(resolvePath(io, args.positionals[0]), {
         ...ownBundle(args, io),
+        // The installer refuses any other value with USAGE.
+        host: flag(args, "host") as "harness" | undefined,
         name: flag(args, "name"),
         update: args.flags.get("update") === true,
       }),
     usage:
-      "install [<path>] [--name <project name>] [--update] [--bundle <workflow.mjs>]",
+      "install [<path>] [--name <project name>] [--update] [--host harness] [--bundle <workflow.mjs>]",
   },
   history: {
     run: ({ args, kit, root }) =>

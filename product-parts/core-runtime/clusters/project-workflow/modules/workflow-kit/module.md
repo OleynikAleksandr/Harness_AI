@@ -177,7 +177,7 @@ managed hooks.
   `commit --task [--files] [--digest]`, `docs:commit --files [--message]`,
   `quality:detect [--stack]`, `quality:apply --input`, `quality:status`,
   `repair [--apply|--cancel]`, `inspect [<path>]`,
-  `install [<path>] [--name] [--update] [--bundle]`,
+  `install [<path>] [--name] [--update] [--host harness] [--bundle]`,
   `doctor [<path>] [--fix] [--bundle]`,
   `migrate:harness-plan [<path>] [--message] [--objective] [--spec]
   [--name]`, `help`. `install` and
@@ -243,8 +243,13 @@ Node built-ins only.
   `host: "harness"` project `EXECUTION_MODE_REQUIRED` plus the CLI
   propose/choose path with text output and usage errors.
 - `src/workflow-kit-cli.test.mjs` — help, usage and unknown-command
+<<<<<<< ours
   envelopes, inspection (JSON and text) and update of a folder without the
   Kit, text errors, a folder without the Kit, a whole task from a
+=======
+  envelopes, inspection and update of a folder without the Kit, an invalid
+  `install --host`, text errors, a folder without the Kit, a whole task from a
+>>>>>>> theirs
   subdirectory, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled file run as a program.
 

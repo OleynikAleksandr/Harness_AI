@@ -67,6 +67,8 @@ export function gitignoreSection(): string {
     "# Workflow Kit local state",
     ".harness/workflow/local/",
     ".harness/runtime/",
+    ".harness/sessions/",
+    ".claude/worktrees/",
   ].join("\n");
 }
 

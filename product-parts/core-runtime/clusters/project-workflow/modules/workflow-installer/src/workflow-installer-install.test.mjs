@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import {
   accessSync,
   constants,
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -90,9 +92,33 @@ process.exitCode = runCli(process.argv.slice(2), {
   );
   assert.equal(
     code(() => anonymous.install(fresh, options)),
-    "GIT_IDENTITY"
+    "GIT_IDENTITY_REQUIRED"
   );
   assert.equal(existsSync(fresh), false);
+  // A placeholder global identity is refused as well, and nothing is written
+  // into an existing folder either.
+  writeFileSync(
+    at("placeholder-gitconfig"),
+    "[user]\n\tname = Your Name\n\temail = you@example.com\n"
+  );
+  const placeholder = new WorkflowInstallerFacade(
+    new WorkflowGitFacade(undefined, {
+      ...env,
+      GIT_CONFIG_GLOBAL: at("placeholder-gitconfig"),
+    })
+  );
+  const untouched = at("untouched");
+  write(path.join(untouched, "notes.txt"), "mine\n");
+  let refusal = null;
+  try {
+    placeholder.install(untouched, options);
+  } catch (error) {
+    refusal = error;
+  }
+  assert.equal(refusal.code, "GIT_IDENTITY_REQUIRED");
+  assert.match(refusal.nextAction, /git config --global user\.name/u);
+  assert.match(refusal.nextAction, /git config --global user\.email/u);
+  assert.deepEqual(readdirSync(untouched), ["notes.txt"]);
 
   const installed = installer.install(fresh, { ...options, name: "Fresh App" });
   assert.equal(installed.previousState, "MISSING");
@@ -118,6 +144,82 @@ process.exitCode = runCli(process.argv.slice(2), {
     code(() => installer.install(fresh, options)),
     "ALREADY_INSTALLED"
   );
+
+  // Only a real global identity: install copies it into the repository config
+  // before the bootstrap commit, including over a placeholder local one.
+  mkdirSync(at("empty-template"));
+  const globalGit = new WorkflowGitFacade(undefined, {
+    ...env,
+    GIT_TEMPLATE_DIR: at("empty-template"),
+  });
+  const globalOnly = new WorkflowInstallerFacade(globalGit);
+  const signed = (root) =>
+    globalGit.git.text(root, ["log", "-1", "--format=%an <%ae>|%cn <%ce>"]);
+  const real = { email: "workflow@harness-ai.test", name: "Workflow Test" };
+  const copied = at("copied");
+  globalOnly.install(copied, options);
+  assert.deepEqual(globalGit.readIdentity(copied, "local"), real);
+  assert.equal(
+    signed(copied),
+    "Workflow Test <workflow@harness-ai.test>|Workflow Test <workflow@harness-ai.test>"
+  );
+  const replaced = at("replaced");
+  mkdirSync(replaced);
+  globalGit.init(replaced);
+  globalGit.git.run(replaced, ["config", "user.name", "Ваше Имя"]);
+  globalGit.git.run(replaced, ["config", "user.email", "me@example.org"]);
+  globalOnly.install(replaced, options);
+  assert.deepEqual(globalGit.readIdentity(replaced, "local"), real);
+  // A real local identity is kept.
+  const own = at("own");
+  mkdirSync(own);
+  globalGit.init(own);
+  globalGit.writeLocalIdentity(own, {
+    email: "owner@harness-ai.test",
+    name: "Project Owner",
+  });
+  globalOnly.install(own, options);
+  assert.equal(
+    signed(own),
+    "Project Owner <owner@harness-ai.test>|Project Owner <owner@harness-ai.test>"
+  );
+
+  // The host marker: written on install, kept by an update without --host,
+  // added to an existing configuration by an update with --host.
+  const configOf = (root) =>
+    JSON.parse(
+      readFileSync(
+        path.join(root, ".harness", "workflow", "config.json"),
+        "utf8"
+      )
+    );
+  const hosted = at("hosted");
+  const hostedInstall = installer.install(hosted, {
+    ...options,
+    host: "harness",
+  });
+  assert.ok(hostedInstall.written.includes(".harness/workflow/config.json"));
+  assert.equal(configOf(hosted).host, "harness");
+  assert.equal(kit.validate(hosted).ok, true);
+  installer.install(hosted, { ...options, update: true });
+  assert.equal(configOf(hosted).host, "harness");
+  assert.equal(configOf(copied).host, undefined);
+  const marked = globalOnly.install(copied, {
+    ...options,
+    host: "harness",
+    update: true,
+  });
+  assert.deepEqual(marked.written, [".harness/workflow/config.json"]);
+  assert.notEqual(marked.commit, null);
+  assert.equal(configOf(copied).host, "harness");
+  assert.deepEqual(globalGit.changes(copied).all, []);
+  assert.equal(
+    code(() =>
+      installer.install(at("bad-host"), { ...options, host: "vscode" })
+    ),
+    "USAGE"
+  );
+  assert.equal(existsSync(at("bad-host")), false);
 
   // The installed hooks reject a direct commit through the real launcher.
   write(path.join(fresh, "direct.txt"), "x");
@@ -156,14 +258,32 @@ process.exitCode = runCli(process.argv.slice(2), {
     "workflow",
     "manifest.json"
   );
-  writeFileSync(
-    manifestFile,
-    readFileSync(manifestFile, "utf8").replace(
-      '"version": "2.0.0"',
-      '"version": "1.9.0"'
-    )
+  // An installation of Kit 2.0.0 has the older .gitignore section, so its
+  // manifest is outdated and the update brings the new lines.
+  const gitignoreFile = path.join(fresh, ".gitignore");
+  const oldGitignore = readFileSync(gitignoreFile, "utf8").replace(
+    ".harness/sessions/\n.claude/worktrees/\n",
+    ""
   );
-  git.git.run(fresh, ["add", ".harness/workflow/manifest.json"]);
+  writeFileSync(gitignoreFile, oldGitignore);
+  const gitignoreEntry = installer
+    .payload({ bundle, hooksPath: null, projectName: "Fresh App" })
+    .find((entry) => entry.path === ".gitignore");
+  const oldManifest = JSON.parse(readFileSync(manifestFile, "utf8"));
+  oldManifest.version = "2.0.0";
+  oldManifest.files.find((item) => item.path === ".gitignore").sha256 =
+    createHash("sha256")
+      .update(gitignoreEntry.read(oldGitignore))
+      .digest("hex");
+  writeFileSync(manifestFile, installer.renderManifest(oldManifest));
+  const doctorOutdated = installer.doctor(fresh, { env });
+  assert.deepEqual(
+    doctorOutdated.checks
+      .filter((item) => item.status === "fail")
+      .map((item) => [item.id, item.fixable]),
+    [["manifest", true]]
+  );
+  git.git.run(fresh, ["add", ".gitignore", ".harness/workflow/manifest.json"]);
   git.git.run(fresh, [
     "-c",
     "core.hooksPath=/dev/null",
@@ -178,10 +298,17 @@ process.exitCode = runCli(process.argv.slice(2), {
       installer.inspect(fresh).action,
       installer.inspect(fresh).version,
     ],
-    ["KIT_OUTDATED", "update", "1.9.0"]
+    ["KIT_OUTDATED", "update", "2.0.0"]
   );
   const updated = installer.install(fresh, { ...options, update: true });
-  assert.deepEqual(updated.written, [".harness/workflow/manifest.json"]);
+  assert.deepEqual(updated.written, [
+    ".gitignore",
+    ".harness/workflow/manifest.json",
+  ]);
+  assert.match(
+    readFileSync(gitignoreFile, "utf8"),
+    /\.harness\/sessions\/\n\.claude\/worktrees\/\n/u
+  );
   assert.equal(
     git.history(fresh, null).at(-1).trailers["Workflow-Role"][0],
     "kit-update"

@@ -20,7 +20,7 @@ try {
   const byPath = Object.fromEntries(
     entries.map((entry) => [entry.path, entry])
   );
-  assert.equal(installer.version, "2.0.0");
+  assert.equal(installer.version, "2.1.0");
   assert.deepEqual(Object.keys(byPath), [
     ".harness/workflow/runtime/workflow.mjs",
     "scripts/workflow",
@@ -130,6 +130,20 @@ try {
     byPath[".gitignore"].render("node_modules/\n"),
     /^node_modules\/\n\n# workflow-kit:begin\n# Workflow Kit local state\n\.harness\/workflow\/local\//u
   );
+  // Session history and Claude worktrees stay out of the repository.
+  assert.deepEqual(
+    byPath[".gitignore"].read(byPath[".gitignore"].render(null)).split("\n"),
+    [
+      "# workflow-kit:begin",
+      "# Workflow Kit local state",
+      ".harness/workflow/local/",
+      ".harness/runtime/",
+      ".harness/sessions/",
+      ".claude/worktrees/",
+      "# workflow-kit:end",
+      "",
+    ]
+  );
   assert.match(
     byPath[".gitattributes"].render(null),
     /scripts\/workflow\.cmd text eol=crlf/u
@@ -147,7 +161,7 @@ try {
     manifest.files.find((file) => file.path === "README.md").sha256,
     null
   );
-  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.0.0");
+  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.1.0");
 } finally {
   await build.cleanup();
 }

@@ -131,10 +131,13 @@ export class WorkflowHostFacade {
    */
   install(
     folder: string,
-    options: { name?: string; update?: boolean } = {}
+    options: { host?: "harness"; name?: string; update?: boolean } = {}
   ): Promise<KitOutcome<InstallOutcome>> {
     const target = path.resolve(folder);
     const args = ["install", target];
+    if (options.host) {
+      args.push("--host", options.host);
+    }
     if (options.name) {
       args.push("--name", options.name);
     }

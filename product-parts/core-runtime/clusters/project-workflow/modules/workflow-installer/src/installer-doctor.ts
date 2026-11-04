@@ -1,6 +1,9 @@
 import { accessSync, constants, existsSync } from "node:fs";
 import path from "node:path";
-import type { WorkflowGitFacade } from "../../workflow-git/src/workflow-git-facade.js";
+import type {
+  GitIdentity,
+  WorkflowGitFacade,
+} from "../../workflow-git/src/workflow-git-facade.js";
 import {
   PLAN_PATH,
   workflowPlanFacade,
@@ -41,6 +44,8 @@ export interface DoctorCheck {
 export interface DoctorReport {
   checks: DoctorCheck[];
   fix: InstallOutcome | null;
+  /** The global identity the fix copied into the repository config. */
+  identityFix: GitIdentity | null;
   ok: boolean;
   root: string;
 }
@@ -220,6 +225,40 @@ function planChecks(git: WorkflowGitFacade, root: string): DoctorCheck[] {
   return checks;
 }
 
+/** The real global identity, or null when it is missing or a placeholder. */
+function realGlobalIdentity(
+  git: WorkflowGitFacade,
+  root: string
+): GitIdentity | null {
+  const global = git.readIdentity(root, "global");
+  return global && !git.isPlaceholderIdentity(global) ? global : null;
+}
+
+/** Kit commits sign with the repository-local identity only. */
+function identityCheck(git: WorkflowGitFacade, root: string): DoctorCheck {
+  const local = git.readIdentity(root, "local");
+  if (local && !git.isPlaceholderIdentity(local)) {
+    return check(
+      "git-identity",
+      "ok",
+      `${local.name} <${local.email}> (repository config).`
+    );
+  }
+  const problem = local
+    ? `The repository git identity ${local.name} <${local.email}> is a placeholder.`
+    : "The repository config has no git identity.";
+  const global = realGlobalIdentity(git, root);
+  return global
+    ? check(
+        "git-identity",
+        "fail",
+        problem,
+        true,
+        `Run \`scripts/workflow doctor --fix\` to copy ${global.name} <${global.email}> from the global config.`
+      )
+    : check("git-identity", "fail", problem, false, git.identityFix);
+}
+
 function environmentChecks(
   git: WorkflowGitFacade,
   root: string,
@@ -230,7 +269,6 @@ function environmentChecks(
     options.env ?? process.env,
     options.probe
   );
-  const identity = git.identity(root);
   const drift = workflowQualityFacade.drift(root);
   return [
     runtime
@@ -246,15 +284,7 @@ function environmentChecks(
           false,
           "Install Node.js 22 or newer, or open the project in Harness AI."
         ),
-    identity
-      ? check("git-identity", "ok", `${identity.name} <${identity.email}>.`)
-      : check(
-          "git-identity",
-          "fail",
-          "Git has no user identity.",
-          false,
-          "Set git user.name and user.email."
-        ),
+    identityCheck(git, root),
     drift.status === "drift"
       ? check(
           "quality-drift",
@@ -295,16 +325,32 @@ export function runDoctor(
   const root = path.resolve(folder);
   let checks = inspectProject(git, root, options);
   let fix: InstallOutcome | null = null;
-  if (
-    options.fix &&
-    checks.some((item) => item.status === "fail" && item.fixable)
-  ) {
-    fix = installKit(git, root, { ...options.fix, update: true });
-    checks = inspectProject(git, root, options);
+  let identityFix: GitIdentity | null = null;
+  if (options.fix) {
+    const fixable = checks.filter(
+      (item) => item.status === "fail" && item.fixable
+    );
+    if (fixable.some((item) => item.id === "git-identity")) {
+      identityFix = realGlobalIdentity(git, root);
+      if (identityFix) {
+        git.writeLocalIdentity(root, identityFix);
+      }
+    }
+    // The update commits, so it needs a real repository identity first.
+    if (
+      fixable.some((item) => item.id !== "git-identity") &&
+      identityCheck(git, root).status === "ok"
+    ) {
+      fix = installKit(git, root, { ...options.fix, update: true });
+    }
+    if (fix || identityFix) {
+      checks = inspectProject(git, root, options);
+    }
   }
   return {
     checks,
     fix,
+    identityFix,
     ok: checks.every((item) => item.status !== "fail"),
     root,
   };

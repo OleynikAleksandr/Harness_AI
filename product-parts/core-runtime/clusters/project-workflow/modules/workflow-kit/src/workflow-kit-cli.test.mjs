@@ -71,6 +71,7 @@ try {
   assert.match(inspected.stdout, /\nstacks: none\n/u);
   assert.throws(() => JSON.parse(inspected.stdout));
   assert.equal(json(run(["install", "--update"])).code, "NOT_INSTALLED");
+  assert.equal(json(run(["install", "--host", "vscode"])).code, "USAGE");
 
   // A folder without the Kit: status says so, operations fail cleanly.
   const bare = json(run(["status"]));

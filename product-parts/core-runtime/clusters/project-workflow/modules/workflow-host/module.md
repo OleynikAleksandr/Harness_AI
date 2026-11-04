@@ -43,9 +43,10 @@ Running (`host-runner.ts`):
     `details.stderr`).
 
 Commands:
-- `inspect(folder)` and `install(folder, {name?, update?})` use the
+- `inspect(folder)` and `install(folder, {host?, name?, update?})` use the
   application bundle; the working directory is the nearest existing
-  folder of the target; install has a 600 000 ms timeout because it
+  folder of the target; `host: "harness"` passes `--host harness`, which
+  writes `config.host`; install has a 600 000 ms timeout because it
   commits;
 - `status(root)`, `validate(root)`, `recover(root, event)` and
   `doctor(root, fix)` use the project bundle (application bundle when the
@@ -71,8 +72,9 @@ Result types come from the cluster facades (`InspectResult`,
   the command protocol with a fake bundle (arguments, `--root`,
   `ELECTRON_RUN_AS_NODE`, cleared `GIT_DIR`, failure envelope,
   `HOST_OUTPUT`, `HOST_TIMEOUT`, `HOST_SPAWN`, `HOST_NO_BUNDLE`), and an
-  end-to-end run of the real bundle built by Vite: inspect, install,
-  status, doctor, validate and the runtime file.
+  end-to-end run of the real bundle built by Vite: inspect, install with
+  `host: "harness"` (`config.host`), status, doctor, validate and the
+  runtime file.
 
 Test repositories and the projects the bundle installs into get a real
 repository-local identity (`workflow@harness-ai.test`, through

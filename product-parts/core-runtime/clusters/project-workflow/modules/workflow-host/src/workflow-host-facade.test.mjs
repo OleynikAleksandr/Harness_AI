@@ -162,9 +162,22 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
   const target = path.join(sandbox, "demo");
   const before = await kitHost.inspect(target);
   assert.equal(before.ok, true, JSON.stringify(before));
-  const install = await kitHost.install(target, { name: "Demo" });
+  const install = await kitHost.install(target, {
+    host: "harness",
+    name: "Demo",
+  });
   assert.equal(install.ok, true, JSON.stringify(install));
   assert.ok(install.result.commit);
+  // `--host harness` marks the project as hosted by Harness.
+  assert.equal(
+    JSON.parse(
+      readFileSync(
+        path.join(target, ".harness", "workflow", "config.json"),
+        "utf8"
+      )
+    ).host,
+    "harness"
+  );
   assert.equal(kitHost.bundle(target)?.source, "project");
   const status = await kitHost.status(target);
   assert.equal(status.ok, true, JSON.stringify(status));

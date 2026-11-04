@@ -19,7 +19,8 @@ const PLACEHOLDER_NAMES = new Set(["your name", "ваше имя"]);
 const PLACEHOLDER_EMAILS = new Set(["you@example.com"]);
 const PLACEHOLDER_DOMAINS = new Set(["example", "invalid", "localhost"]);
 
-const FIX_COMMANDS =
+/** The fix every identity refusal names: set a real global identity once. */
+export const IDENTITY_FIX_COMMANDS =
   'Run once: `git config --global user.name "Your Real Name"` and `git config --global user.email "you@your-domain"`; then `scripts/workflow doctor --fix` applies it to the project.';
 
 function isPlaceholderDomain(domain: string): boolean {
@@ -85,7 +86,7 @@ export function writeLocalIdentity(
     "GIT_IDENTITY_PLACEHOLDER",
     `"${identity.name} <${identity.email}>" is a placeholder git identity.`,
     {},
-    FIX_COMMANDS
+    IDENTITY_FIX_COMMANDS
   );
   git.run(root, ["config", "--local", "user.name", identity.name.trim()]);
   git.run(root, ["config", "--local", "user.email", identity.email.trim()]);
@@ -105,9 +106,9 @@ export function requireCommitIdentity(
   }
   throw new WorkflowError(
     "GIT_IDENTITY_REQUIRED",
-    `Kit commits need a real git identity in the repository config; ${identity ? "the configured one is a placeholder" : "none is set"}. ${FIX_COMMANDS}`,
+    `Kit commits need a real git identity in the repository config; ${identity ? "the configured one is a placeholder" : "none is set"}. ${IDENTITY_FIX_COMMANDS}`,
     { placeholder: identity !== null },
-    FIX_COMMANDS
+    IDENTITY_FIX_COMMANDS
   );
 }
 

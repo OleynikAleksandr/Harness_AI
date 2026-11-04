@@ -13,6 +13,7 @@ import {
 } from "./git-history.js";
 import {
   type GitIdentity,
+  IDENTITY_FIX_COMMANDS,
   type IdentityScope,
   isPlaceholderIdentity,
   type ResolvedIdentity,
@@ -71,6 +72,8 @@ export type { CommitRequest, CommitResult } from "./git-transaction.js";
  * task commit, commit reference resolution and repair.
  */
 export class WorkflowGitFacade {
+  /** The fix text of identity refusals: the two `git config --global` commands. */
+  readonly identityFix = IDENTITY_FIX_COMMANDS;
   readonly git: GitRunner;
   readonly platform: WorkflowPlatformFacade;
 

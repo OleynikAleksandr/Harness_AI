@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 41,
+  "revision": 43,
   "rounds": [
     {
       "digest": null,
@@ -153,14 +153,28 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-identity.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-doctor.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts"
       ],
       "fixes": null,
       "id": "E3",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Installer identity, host marker, gitignore and doctor",
       "why": "The installer runs with the real home and must write the identity to the repo; Harness projects need the host marker"
     },
@@ -749,8 +763,8 @@
 - Scope: execution-modes-2026-11-04 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 5/22
-- Revision: 41
+- Progress: 6/22
+- Revision: 43
 
 ## Objective
 
@@ -774,9 +788,9 @@ Workflow Kit execution modes: the user picks sequential or orchestrated on a cho
 - [DONE] E2 — Kit-formed git identity in transactions (work)
   - Commit: feat: form and verify git identity in workflow commits
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-identity.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-runner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-history.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-identity.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-test-repo.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-doctor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-migrate.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-hooks.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-lifecycle.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-project.test.mjs, scripts/build-workflow-kit.mjs
-- [TODO] E3 — Installer identity, host marker, gitignore and doctor (work)
+- [DONE] E3 — Installer identity, host marker, gitignore and doctor (work)
   - Commit: feat: install git identity and host marker
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-identity.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-doctor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts
   - Depends on: E2
 - [DONE] E4 — Scope proposal and mode choice (work)
   - Commit: feat: propose scopes and record the user's execution mode

@@ -1,7 +1,8 @@
-import { chmodSync, mkdirSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import type {
   CommitResult,
+  GitIdentity,
   WorkflowGitFacade,
 } from "../../workflow-git/src/workflow-git-facade.js";
 import {
@@ -14,7 +15,10 @@ import {
   WorkflowError,
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
-import { workflowQualityFacade } from "../../workflow-quality/src/workflow-quality-facade.js";
+import {
+  type WorkflowConfig,
+  workflowQualityFacade,
+} from "../../workflow-quality/src/workflow-quality-facade.js";
 import { type FolderState, inspectFolder } from "./installer-inspect.js";
 import {
   buildManifest,
@@ -29,6 +33,8 @@ import {
 export interface InstallOptions {
   /** Text of the Kit bundle copied into the project. */
   bundle: string;
+  /** Host marker written to `config.host`; an existing marker is kept. */
+  host?: "harness" | null;
   name?: string;
   /** Runtime recorded for the launchers (Electron inside Harness). */
   runtime?: { executable: string; mode: "electron" | "node" } | null;
@@ -163,22 +169,33 @@ function writePayload(root: string, entries: PayloadEntry[]): string[] {
   return written;
 }
 
+/**
+ * Writes the default configuration when it is absent, or only the host
+ * marker into an existing one; returns true when the file changed.
+ */
+function writeConfig(root: string, host: InstallOptions["host"]): boolean {
+  const exists =
+    workflowPlatformFacade.readTextIfExists(
+      workflowQualityFacade.configFile(root)
+    ) !== null;
+  const config: WorkflowConfig & { host?: string } = exists
+    ? workflowQualityFacade.readConfig(root)
+    : workflowQualityFacade.defaultConfig();
+  if (exists && (!host || config.host === host)) {
+    return false;
+  }
+  workflowQualityFacade.writeConfig(root, host ? { ...config, host } : config);
+  return true;
+}
+
 /** Writes configuration, manifest and runtime; returns the written paths. */
 function writeState(
   root: string,
   entries: PayloadEntry[],
-  runtime: InstallOptions["runtime"]
+  options: InstallOptions
 ): string[] {
   const written: string[] = [];
-  if (
-    !workflowPlatformFacade.readTextIfExists(
-      workflowQualityFacade.configFile(root)
-    )
-  ) {
-    workflowQualityFacade.writeConfig(
-      root,
-      workflowQualityFacade.defaultConfig()
-    );
+  if (writeConfig(root, options.host)) {
     written.push(workflowQualityFacade.configPath);
   }
   if (
@@ -191,6 +208,7 @@ function writeState(
   ) {
     written.push(MANIFEST_PATH);
   }
+  const runtime = options.runtime;
   if (runtime) {
     workflowPlatformFacade.writeFileAtomic(
       file(root, RUNTIME_FILE),
@@ -198,6 +216,36 @@ function writeState(
     );
   }
   return written;
+}
+
+/**
+ * The identity the bootstrap commit will be signed with: the real local one
+ * of an existing repository, else the real global one. Fails with
+ * GIT_IDENTITY_REQUIRED before anything is written.
+ */
+function requireInstallIdentity(
+  git: WorkflowGitFacade,
+  root: string,
+  repository: boolean
+): GitIdentity {
+  const local = repository ? git.readIdentity(root, "local") : null;
+  if (local && !git.isPlaceholderIdentity(local)) {
+    return local;
+  }
+  // The global config does not depend on the directory; a new folder may not exist yet.
+  const global = git.readIdentity(
+    existsSync(root) ? root : process.cwd(),
+    "global"
+  );
+  if (global && !git.isPlaceholderIdentity(global)) {
+    return global;
+  }
+  throw new WorkflowError(
+    "GIT_IDENTITY_REQUIRED",
+    `The Workflow Kit needs a real git identity for its commits; ${local || global ? "the configured one is a placeholder" : "none is set"}. Nothing was written. ${git.identityFix}`,
+    { placeholder: Boolean(local || global) },
+    git.identityFix
+  );
 }
 
 function scopeOf(planText: string, legacy: boolean): string | null {
@@ -255,15 +303,21 @@ export function installKit(
     inspected.transactionPending
   );
   ensure(
-    inspected.git.identity,
-    "GIT_IDENTITY",
-    "Git has no user identity; nothing was written.",
-    {},
-    'Run `git config --global user.name "Your Name"` and `git config --global user.email "you@example.com"`.'
+    options.host === undefined ||
+      options.host === null ||
+      options.host === "harness",
+    "USAGE",
+    "--host is harness."
   );
+  const identity = requireInstallIdentity(git, root, inspected.git.repository);
   mkdirSync(root, { recursive: true });
   if (!inspected.git.repository) {
     git.init(root);
+  }
+  // Every worktree reads the repository config, so all agents sign alike.
+  const local = git.readIdentity(root, "local");
+  if (!local || git.isPlaceholderIdentity(local)) {
+    git.writeLocalIdentity(root, identity);
   }
   const hooksPath = localHooksPath(git, root);
   const before = new Set(git.changes(root).all);
@@ -275,7 +329,7 @@ export function installKit(
   });
   const written = [
     ...writePayload(root, entries),
-    ...writeState(root, entries, options.runtime),
+    ...writeState(root, entries, options),
   ];
   const migrationRequired = inspected.state === "LEGACY_HARNESS_PLAN";
   const existingPlan = workflowPlatformFacade.readTextIfExists(

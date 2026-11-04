@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 114,
+  "revision": 115,
   "rounds": [
     {
       "digest": null,
@@ -497,7 +497,8 @@
     {
       "acceptance": [
         "without a project the start screen offers Open Project and New Project",
-        "the projects menu removes any project"
+        "the projects menu removes any project",
+        "the session snapshot has no stand-in project: workspace is null without an active project"
       ],
       "checks": [],
       "commitMessage": "fix: show the start screen without a project",
@@ -516,7 +517,9 @@
       "docsWaiver": null,
       "files": [
         "product-parts/application-shell/clusters/session-interface/modules/session-window",
-        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar"
+        "product-parts/application-shell/clusters/session-interface/modules/session-sidebar",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector",
+        "product-parts/core-runtime/clusters/session-runtime/modules/session-registry"
       ],
       "fixes": null,
       "id": "W2",
@@ -676,7 +679,7 @@
 - Delivery: IN_PROGRESS
 - Current task: none
 - Progress: 3/17
-- Revision: 114
+- Revision: 115
 
 ## Objective
 
@@ -741,7 +744,7 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Depends on: K4
 - [TODO] W2 — Interface without a project (work)
   - Commit: fix: show the start screen without a project
-  - Files: product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/application-shell/clusters/session-interface/modules/session-sidebar
+  - Files: product-parts/application-shell/clusters/session-interface/modules/session-window, product-parts/application-shell/clusters/session-interface/modules/session-sidebar, product-parts/core-runtime/clusters/session-runtime/modules/session-snapshot-projector, product-parts/core-runtime/clusters/session-runtime/modules/session-registry
   - Depends on: W1, A5
 - [TODO] K6 — Doctor doc-size and managed text 2.2.0 (work)
   - Commit: feat: check document sizes in doctor and update managed text

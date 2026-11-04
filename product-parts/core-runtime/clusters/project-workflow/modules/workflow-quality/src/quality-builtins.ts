@@ -26,6 +26,9 @@ const MARKDOWN_LINK = /!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/gu;
 const FENCE = /^\s*(```|~~~)/u;
 const EXTERNAL_LINK = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/iu;
 const NUL = "\u0000";
+const CONFLICT_OPEN = "<<<<<<< ";
+const CONFLICT_CLOSE = ">>>>>>> ";
+const CONFLICT_SEPARATOR = "=======";
 
 function absolute(root: string, file: string): string {
   return path.join(root, ...file.split("/"));
@@ -147,6 +150,49 @@ function mdLinks(context: BuiltinContext): BuiltinOutcome {
     : { output: `Broken relative links:\n${broken.join("\n")}`, passed: false };
 }
 
+/** Line numbers of git conflict markers in one text. */
+function conflictLines(text: string): number[] {
+  const opening: number[] = [];
+  const separators: number[] = [];
+  for (const [index, raw] of text.split("\n").entries()) {
+    const line = raw.endsWith("\r") ? raw.slice(0, -1) : raw;
+    if (line.startsWith(CONFLICT_OPEN) || line.startsWith(CONFLICT_CLOSE)) {
+      opening.push(index + 1);
+    } else if (line === CONFLICT_SEPARATOR) {
+      separators.push(index + 1);
+    }
+  }
+  // A bare separator line is also a Markdown heading underline.
+  return opening.length === 0
+    ? []
+    : [...opening, ...separators].sort((a, b) => a - b);
+}
+
+function conflictMarkers(context: BuiltinContext): BuiltinOutcome {
+  const found: string[] = [];
+  for (const file of context.files) {
+    if (!existingFile(context.root, file)) {
+      continue;
+    }
+    const text = readFileSync(absolute(context.root, file), "utf8");
+    if (text.includes(NUL)) {
+      continue;
+    }
+    const lines = conflictLines(text);
+    if (lines.length > 0) {
+      found.push(
+        `${file}: ${lines.length === 1 ? "line" : "lines"} ${lines.join(", ")}`
+      );
+    }
+  }
+  return found.length === 0
+    ? { output: "Conflict markers: none.", passed: true }
+    : {
+        output: `Unresolved conflict markers; resolve the conflict before committing:\n${found.join("\n")}`,
+        passed: false,
+      };
+}
+
 /** Lists code files whose contract documents are absent from the candidate. */
 export function missingContracts(
   config: WorkflowConfig,
@@ -191,15 +237,17 @@ function docsContracts(context: BuiltinContext): BuiltinOutcome {
 export const BUILTIN_CHECKS: Readonly<
   Record<BuiltinCheck, (context: BuiltinContext) => BuiltinOutcome>
 > = {
+  "kit:conflict-markers": conflictMarkers,
   "kit:doc-size": docSize,
   "kit:docs-contracts": docsContracts,
   "kit:file-lines": fileLines,
   "kit:md-links": mdLinks,
 };
 
-/** Builtins that run for service commits (documentation only). */
+/** Builtins that run for service commits: documentation and conflict guards. */
 export const DOCUMENTATION_BUILTINS: ReadonlySet<BuiltinCheck> = new Set([
   "kit:doc-size",
   "kit:md-links",
   "kit:docs-contracts",
+  "kit:conflict-markers",
 ]);

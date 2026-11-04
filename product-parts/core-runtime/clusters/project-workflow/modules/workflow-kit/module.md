@@ -282,8 +282,9 @@ managed hooks.
   - runs the `commit` stage on the selected files: role `implementation`
     and the integration of a `work` task run the required and assigned
     checks, every other commit (service, DOCS, QUALITY) only the
-    documentation builtins; the task's `docsWaiver` comes from the
-    candidate plan;
+    documentation builtins and `kit:conflict-markers`, which every commit
+    runs (staged conflict markers fail it); the task's `docsWaiver` comes
+    from the candidate plan;
   - stores the report as pending evidence of the transaction;
   - `CHECK_MODIFIED_CANDIDATE` when a check changed the index tree or a
     selected file; `CHECK_FAILED` with the failed checks and their output
@@ -417,8 +418,9 @@ worktrees where noted):
   block/unblock, `task:update`, DOCS digests, a fixes round, history,
   acceptance, close, recovery and repair.
 - `src/workflow-kit-hooks.test.mjs` — direct commits rejected, service
-  commits, failing and candidate-changing checks, DOCS before push, push
-  checks, `commit-msg`, unknown hooks.
+  commits, failing and candidate-changing checks, a service commit with a
+  conflict marker refused, DOCS before push, push checks, `commit-msg`,
+  unknown hooks.
 - `src/workflow-kit-execution-mode.test.mjs` — propose/choose/refine, the
   automatic sequential scope, `NO_PARALLEL_WORK`, `PROPOSAL_CHANGED`,
   `SCOPE_EXISTS`, the card view, `EXECUTION_MODE_REQUIRED`, the CLI.

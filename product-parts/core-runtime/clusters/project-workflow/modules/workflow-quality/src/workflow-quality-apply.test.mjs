@@ -106,6 +106,7 @@ try {
       "kit:md-links",
       "kit:file-lines",
       "kit:docs-contracts",
+      "kit:conflict-markers",
     ]
   );
   assert.equal(stored.quality.checks[0].timeoutMs, 120_000);

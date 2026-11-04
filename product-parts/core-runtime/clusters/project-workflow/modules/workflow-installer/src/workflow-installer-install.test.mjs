@@ -258,11 +258,11 @@ process.exitCode = runCli(process.argv.slice(2), {
     "workflow",
     "manifest.json"
   );
-  // An installation of Kit 2.0.0 has the older .gitignore section, so its
-  // manifest is outdated and the update brings the new lines.
+  // An installation of Kit 2.1.0 has the older .gitignore section without
+  // .DS_Store, so its manifest is outdated and the update brings the line.
   const gitignoreFile = path.join(fresh, ".gitignore");
   const oldGitignore = readFileSync(gitignoreFile, "utf8").replace(
-    ".harness/sessions/\n.claude/worktrees/\n",
+    ".DS_Store\n",
     ""
   );
   writeFileSync(gitignoreFile, oldGitignore);
@@ -270,7 +270,7 @@ process.exitCode = runCli(process.argv.slice(2), {
     .payload({ bundle, hooksPath: null, projectName: "Fresh App" })
     .find((entry) => entry.path === ".gitignore");
   const oldManifest = JSON.parse(readFileSync(manifestFile, "utf8"));
-  oldManifest.version = "2.0.0";
+  oldManifest.version = "2.1.0";
   oldManifest.files.find((item) => item.path === ".gitignore").sha256 =
     createHash("sha256")
       .update(gitignoreEntry.read(oldGitignore))
@@ -298,7 +298,7 @@ process.exitCode = runCli(process.argv.slice(2), {
       installer.inspect(fresh).action,
       installer.inspect(fresh).version,
     ],
-    ["KIT_OUTDATED", "update", "2.0.0"]
+    ["KIT_OUTDATED", "update", "2.1.0"]
   );
   const updated = installer.install(fresh, { ...options, update: true });
   assert.deepEqual(updated.written, [
@@ -307,7 +307,7 @@ process.exitCode = runCli(process.argv.slice(2), {
   ]);
   assert.match(
     readFileSync(gitignoreFile, "utf8"),
-    /\.harness\/sessions\/\n\.claude\/worktrees\/\n/u
+    /\.claude\/worktrees\/\n\.DS_Store\n# workflow-kit:end/u
   );
   assert.equal(
     git.history(fresh, null).at(-1).trailers["Workflow-Role"][0],

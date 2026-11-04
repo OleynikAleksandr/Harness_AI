@@ -26,7 +26,7 @@
     "check:knip": "knip",
     "check:dup": "npm run -s check:dup:repo && npm run -s check:dup:workspace",
     "check:dup:repo": "jscpd --threshold 3 --silent --reporters console product-parts scripts --ignore \"**/node_modules/**,**/dist/**,**/release/**,**/src/reference/**,**/*.test.mjs\"",
-    "check:dup:workspace": "jscpd --threshold 4 --silent --reporters console product-parts scripts docs .harness --ignore \"**/node_modules/**,**/dist/**,**/release/**,**/.harness/runtime/**,**/.harness/workflow/runtime/**,**/src/reference/**,**/*.test.mjs\"",
+    "check:dup:workspace": "jscpd --threshold 4 --silent --reporters console product-parts scripts docs .harness --ignore \"**/node_modules/**,**/dist/**,**/release/**,**/.harness/runtime/**,**/.harness/workflow/runtime/**,**/.harness/workflow/local/**,**/src/reference/**,**/*.test.mjs\"",
     "check:links": "node scripts/check-links.mjs",
     "check:security": "npm audit --omit=dev --audit-level=high",
     "check:security:all": "npm audit --audit-level=high",

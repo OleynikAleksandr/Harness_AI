@@ -92,6 +92,7 @@ export function gitignoreSection(): string {
     ".harness/runtime/",
     ".harness/sessions/",
     ".claude/worktrees/",
+    ".DS_Store",
   ].join("\n");
 }
 

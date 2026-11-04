@@ -18,6 +18,7 @@ export type CheckRole =
   | "test"
   | "typecheck";
 export type BuiltinCheck =
+  | "kit:conflict-markers"
   | "kit:doc-size"
   | "kit:docs-contracts"
   | "kit:file-lines"
@@ -77,6 +78,7 @@ const ROLES = new Set([
 ]);
 const STAGES = new Set(["prepare", "commit", "push", "delivery"]);
 const BUILTINS = new Set([
+  "kit:conflict-markers",
   "kit:doc-size",
   "kit:docs-contracts",
   "kit:file-lines",
@@ -89,7 +91,8 @@ const MIN_RECOVERY_BYTES = 8000;
 const MAX_RECOVERY_BYTES = 120_000;
 const error = "CONFIG_SCHEMA";
 
-function builtinCheck(id: BuiltinCheck): CheckDefinition {
+/** A builtin check definition: required, commit stage, default timeout. */
+export function builtinCheck(id: BuiltinCheck): CheckDefinition {
   return {
     builtin: id,
     id,
@@ -126,6 +129,7 @@ export function defaultConfig(): WorkflowConfig {
         builtinCheck("kit:md-links"),
         builtinCheck("kit:file-lines"),
         builtinCheck("kit:docs-contracts"),
+        builtinCheck("kit:conflict-markers"),
       ],
       packageManager: null,
       stacks: [],

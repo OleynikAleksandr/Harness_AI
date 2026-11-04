@@ -140,6 +140,75 @@ try {
   assert.match(builtin["kit:md-links"].output, /gone\.md/u);
   assert.doesNotMatch(builtin["kit:md-links"].output, /nowhere|example|a\.ts/u);
 
+  // Conflict markers fail the commit with file and line numbers; a lone
+  // separator (a Markdown heading underline) and binary files pass.
+  const marker = (char) => char.repeat(7);
+  write(
+    "src/core/conflict.ts",
+    [
+      "const a = 1;",
+      `${marker("<")} HEAD`,
+      "const b = 2;",
+      marker("="),
+      "const b = 3;",
+      `${marker(">")} feature`,
+      "",
+    ].join("\n")
+  );
+  write("docs/half.md", ["Text", `${marker(">")} theirs`, ""].join("\n"));
+  write(
+    "docs/heading.md",
+    ["Title", `${marker("=")}\r`, "", "Text", ""].join("\n")
+  );
+  write("bin.dat", `\u0000\n${marker("<")} HEAD\n`);
+  const conflicts = quality.runStage({
+    config,
+    files: [
+      "src/core/conflict.ts",
+      "docs/half.md",
+      "docs/heading.md",
+      "bin.dat",
+    ],
+    only: ["kit:conflict-markers"],
+    root,
+    stage: "commit",
+  });
+  assert.equal(conflicts.ok, false);
+  const conflictOutput = conflicts.results[0].output;
+  assert.match(conflictOutput, /src\/core\/conflict\.ts: lines 2, 4, 6/u);
+  assert.match(conflictOutput, /docs\/half\.md: line 2$/mu);
+  assert.doesNotMatch(conflictOutput, /heading|bin\.dat/u);
+  const clean = quality.runStage({
+    config,
+    files: ["docs/heading.md", "bin.dat", "src/core/deleted.ts"],
+    only: ["kit:conflict-markers"],
+    root,
+    stage: "commit",
+  });
+  assert.equal(clean.ok, true);
+
+  // A profile written before the guard still runs it at every commit.
+  const legacy = {
+    ...config,
+    quality: {
+      ...config.quality,
+      checks: config.quality.checks.filter(
+        (check) => check.id !== "kit:conflict-markers"
+      ),
+    },
+  };
+  for (const service of [false, true]) {
+    assert.ok(
+      quality
+        .selectChecks({ config: legacy, root, service, stage: "commit" })
+        .some((check) => check.id === "kit:conflict-markers")
+    );
+  }
+  assert.equal(
+    quality.selectChecks({ config: legacy, root, stage: "push" }).length,
+    0
+  );
+
   // Prepare stage expands {files} with existing files that match appliesTo.
   const prepare = quality.runStage({
     config,
@@ -179,7 +248,12 @@ try {
   });
   assert.deepEqual(
     service.map((check) => check.id),
-    ["kit:doc-size", "kit:md-links", "kit:docs-contracts"]
+    [
+      "kit:doc-size",
+      "kit:md-links",
+      "kit:docs-contracts",
+      "kit:conflict-markers",
+    ]
   );
   assert.throws(
     () =>

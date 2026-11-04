@@ -206,6 +206,7 @@ process.exit(result.exitCode);
       ["kit:md-links", "passed"],
       ["kit:file-lines", "passed"],
       ["kit:docs-contracts", "passed"],
+      ["kit:conflict-markers", "passed"],
     ]
   );
 
@@ -241,6 +242,18 @@ process.exit(result.exitCode);
   assert.equal(
     code(() => kit.commitDocs(root, ["docs/broken.md"])),
     "COMMIT_FAILED"
+  );
+  write("docs/broken.md", `fixed\n${"<".repeat(7)} HEAD\n`);
+  let conflict = null;
+  try {
+    kit.commitDocs(root, ["docs/broken.md"]);
+  } catch (error) {
+    conflict = error;
+  }
+  assert.equal(conflict?.code, "COMMIT_FAILED");
+  assert.match(
+    conflict.details.output,
+    /kit:conflict-markers failed[\s\S]*docs\/broken\.md: line 2/u
   );
   write("docs/broken.md", "fixed\n");
   kit.commitDocs(root, ["docs/broken.md"]);

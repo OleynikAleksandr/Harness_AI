@@ -21,7 +21,7 @@ The project quality profile of the Workflow Kit:
 - `defaultConfig()` — schema `harness-workflow-config/1`:
   - `quality.status` `DISCOVERY`, no stacks, no package manager;
   - required commit-stage builtins `kit:doc-size`, `kit:md-links`,
-    `kit:file-lines`, `kit:docs-contracts`;
+    `kit:file-lines`, `kit:docs-contracts`, `kit:conflict-markers`;
   - `docs.contracts` empty;
   - `budget.recoveryBytes` 32 000 (allowed 8 000–120 000),
     `budget.documentBytes` 28 000;
@@ -100,10 +100,15 @@ The project quality profile of the Workflow Kit:
 
 - `selectChecks(request)` / `runStage(request)`; the request is
   `{root, config, stage, files?, assigned?, only?, service?, docsWaiver?, env?}`.
-- Selection:
+- Selection works on the configured checks plus the implicit Kit guards a
+  profile written before them does not list (`kit:conflict-markers`, a
+  required commit-stage builtin appended last when no check has its id or
+  builtin), so every commit runs the guard without rewriting the
+  configuration:
   - `only` — exactly those ids, any stage;
-  - `service` — service commits run only the documentation builtins
-    (`kit:doc-size`, `kit:md-links`, `kit:docs-contracts`) at `commit`;
+  - `service` — service commits run only the documentation and guard
+    builtins (`kit:doc-size`, `kit:md-links`, `kit:docs-contracts`,
+    `kit:conflict-markers`) at `commit`;
   - otherwise the checks of the stage that are `required` or assigned by the
     task (`task.checks`).
   - Unknown ids fail with `CHECK_UNKNOWN`.
@@ -137,6 +142,11 @@ The project quality profile of the Workflow Kit:
   filled from the glob) must be in the candidate. A task `docsWaiver`
   passes the check and reports the waiver. `missingContracts(config,
   files)` exposes the same list.
+- `kit:conflict-markers` — every existing text file of the candidate
+  (binary files with a NUL byte are skipped) fails when a line starts with
+  `<<<<<<< ` or `>>>>>>> `; in such a file a line exactly `=======` (a
+  trailing CR ignored) is reported too, while a lone `=======` (a Markdown
+  heading underline) passes. The output lists `<file>: line(s) <n, …>`.
 
 ## Profile Application (`quality-apply.ts`)
 
@@ -196,7 +206,9 @@ Node built-ins only.
   stacks.
 - `src/workflow-quality-runner.test.mjs` — stage selection, assigned and
   service checks, `{files}` and `appliesTo`, timeout and missing tools,
-  every builtin, the waiver and evidence records.
+  every builtin (conflict markers with line numbers, a lone separator and
+  binary files passing), the implicit guard for a profile without it, the
+  waiver and evidence records.
 - `src/workflow-quality-apply.test.mjs` — approval, validation before
   installs, failed install, builtins kept, policy and contracts, re-apply,
   drift (a stack without manifests is missing only for manifest tools).

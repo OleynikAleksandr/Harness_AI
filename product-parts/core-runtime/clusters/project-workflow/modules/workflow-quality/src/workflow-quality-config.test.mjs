@@ -32,7 +32,13 @@ try {
   assert.equal(initial.autopilot.maxContinues, 40);
   assert.deepEqual(
     initial.quality.checks.map((check) => check.builtin),
-    ["kit:doc-size", "kit:md-links", "kit:file-lines", "kit:docs-contracts"]
+    [
+      "kit:doc-size",
+      "kit:md-links",
+      "kit:file-lines",
+      "kit:docs-contracts",
+      "kit:conflict-markers",
+    ]
   );
 
   // Optional check fields receive defaults; invalid checks are rejected.

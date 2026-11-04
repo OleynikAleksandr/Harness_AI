@@ -286,7 +286,7 @@ export function proposeQuality(
     );
   }
   notes.push(
-    "Kit builtins (kit:doc-size, kit:md-links, kit:file-lines, kit:docs-contracts) are always kept."
+    "Kit builtins (kit:doc-size, kit:md-links, kit:file-lines, kit:docs-contracts, kit:conflict-markers) are always kept."
   );
   return {
     detected,

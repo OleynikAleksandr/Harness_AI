@@ -5,10 +5,12 @@ import {
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
 import { BUILTIN_CHECKS, DOCUMENTATION_BUILTINS } from "./quality-builtins.js";
-import type {
-  CheckDefinition,
-  CheckStage,
-  WorkflowConfig,
+import {
+  type BuiltinCheck,
+  builtinCheck,
+  type CheckDefinition,
+  type CheckStage,
+  type WorkflowConfig,
 } from "./quality-config.js";
 import { matchesAny } from "./quality-globs.js";
 
@@ -53,13 +55,24 @@ export interface StageRequest {
 
 const OUTPUT_TAIL = 4000;
 const FILES_ARGUMENT = "{files}";
+/** Kit guards that run even when a profile written before them omits them. */
+const IMPLICIT_BUILTINS: readonly BuiltinCheck[] = ["kit:conflict-markers"];
 
 function tail(text: string): string {
   return text.length > OUTPUT_TAIL ? `…${text.slice(-OUTPUT_TAIL)}` : text;
 }
 
-function unknownChecks(config: WorkflowConfig, ids: string[]): void {
-  const known = new Set(config.quality.checks.map((check) => check.id));
+/** The configured checks plus the implicit Kit guards the profile lacks. */
+function effectiveChecks(config: WorkflowConfig): CheckDefinition[] {
+  const listed = config.quality.checks;
+  const missing = IMPLICIT_BUILTINS.filter(
+    (id) => !listed.some((check) => check.id === id || check.builtin === id)
+  );
+  return [...listed, ...missing.map(builtinCheck)];
+}
+
+function unknownChecks(checks: CheckDefinition[], ids: string[]): void {
+  const known = new Set(checks.map((check) => check.id));
   const unknown = ids.filter((id) => !known.has(id));
   ensure(
     unknown.length === 0,
@@ -71,23 +84,22 @@ function unknownChecks(config: WorkflowConfig, ids: string[]): void {
 
 /** Checks a stage runs, in configuration order. */
 export function selectChecks(request: StageRequest): CheckDefinition[] {
-  const { config, stage } = request;
+  const { stage } = request;
+  const checks = effectiveChecks(request.config);
   if (request.only) {
-    unknownChecks(config, request.only);
-    return config.quality.checks.filter((check) =>
-      request.only?.includes(check.id)
-    );
+    unknownChecks(checks, request.only);
+    return checks.filter((check) => request.only?.includes(check.id));
   }
   if (request.service) {
     return stage === "commit"
-      ? config.quality.checks.filter(
+      ? checks.filter(
           (check) => check.builtin && DOCUMENTATION_BUILTINS.has(check.builtin)
         )
       : [];
   }
   const assigned = request.assigned ?? [];
-  unknownChecks(config, assigned);
-  return config.quality.checks.filter(
+  unknownChecks(checks, assigned);
+  return checks.filter(
     (check) =>
       check.stage === stage && (check.required || assigned.includes(check.id))
   );

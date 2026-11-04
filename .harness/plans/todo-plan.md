@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 84,
+  "revision": 86,
   "rounds": [
     {
       "digest": null,
@@ -283,14 +283,27 @@
       "files": [
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts",
-        "package.json"
+        "package.json",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-hooks.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-proposal.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-apply.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-config.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs"
       ],
       "fixes": null,
       "id": "G9",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Small Kit fixes: DS_Store, conflict markers, dup ignore",
       "why": "Test runs left .DS_Store changes, conflict markers slipped into a commit and Kit local state broke the duplication check"
     },
@@ -418,8 +431,8 @@
 - Scope: release-fixes-2026-11-04-2 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 3/13
-- Revision: 84
+- Progress: 4/13
+- Revision: 86
 
 ## Objective
 
@@ -466,9 +479,9 @@ Fix the defects found in the execution modes release (git identity form instead 
 - [DONE] G8 — Login-shell PATH for agent processes (work)
   - Commit: fix: give agent processes the login shell path
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-login-path.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-login-path.test.mjs
-- [TODO] G9 — Small Kit fixes: DS_Store, conflict markers, dup ignore (work)
+- [DONE] G9 — Small Kit fixes: DS_Store, conflict markers, dup ignore (work)
   - Commit: fix: small workflow kit defects from the release check
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, package.json
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, package.json, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-hooks.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-proposal.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-apply.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-config.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs
 - [DONE] G10 — MIT LICENSE as on GitHub (work)
   - Commit: chore: add the MIT license
   - Files: LICENSE

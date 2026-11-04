@@ -53,6 +53,11 @@ proposal is accepted, reconcile it with live code/provider evidence, move the
 resulting contract into `docs/architecture/**`, and only then create the active
 implementation plan.
 
+- `docs/proposals/WorkflowKitOrchestration.md` — Workflow Kit executor
+  orchestration proposal: Kit-managed assignments in git worktrees (created or
+  attached to a provider worktree), the executor's own checked commit, merge
+  integration into main with checks, parallel tasks by disjoint files and
+  Kit-formed git identity; open questions for discussion.
 - `docs/proposals/ProfileStudio.md` — first-stage Profile Studio proposal:
   a single-window Studio mode with provider/model-scoped persistent Profile
   Creator sessions, a standard Harness AI session surface and a compact tabbed

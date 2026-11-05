@@ -33,7 +33,7 @@ compare it with `managed`.
 | `CLAUDE.md` | line | `@AGENTS.md`, appended once |
 | `.codex/hooks.json` | json | SessionStart → `scripts/workflow hook session-start --client codex` |
 | `.claude/settings.json` | json | SessionStart → `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude` |
-| `.gitignore` | section | `.harness/workflow/local/`, `.harness/runtime/`, `.harness/sessions/`, `.claude/worktrees/`, `.DS_Store` |
+| `.gitignore` | section | `.harness/workflow/local/`, `.harness/runtime/`, `.harness/sessions/`, `.claude/worktrees/`, `.DS_Store`, dependency folders `node_modules/`, `.venv/`, `__pycache__/` |
 | `.gitattributes` | section | `eol=lf` for the POSIX launcher and `.harness/**`, `eol=crlf` for `.cmd` and `.ps1` |
 | `README.md`, `docs/architecture/OVERVIEW.md` | create | skeletons, only when absent |
 
@@ -59,12 +59,15 @@ Writing rules:
 
 `manifest(entries)` → `{schema "harness-workflow-manifest/1", version,
 files: [{path, kind, executable, sha256}]}`; `sha256` hashes the managed
-part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.0`; Kit 1.x
+part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.1`; Kit 1.x
 was Workflow Pilot). A change of a managed text raises the version, so
 older installations read as `KIT_OUTDATED` and the update rewrites them
 (2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`
 and the Execution modes block to `AGENTS.md`; 2.1.1 added `.DS_Store` to
-`.gitignore`; 2.2.0 added the Inputs and documents block to `AGENTS.md`). The manifest lives at `.harness/workflow/manifest.json`
+`.gitignore`; 2.2.0 added the Inputs and documents block to `AGENTS.md`;
+2.2.1 added the dependency folders `node_modules/`, `.venv/` and
+`__pycache__/` to `.gitignore`, so dependencies installed by `quality:apply`
+are never selected for a commit). The manifest lives at `.harness/workflow/manifest.json`
 (`manifestPath`).
 
 ## Agent Rules (`installer-texts.ts`)
@@ -269,11 +272,11 @@ Node built-ins only.
 - `src/workflow-installer-payload.test.mjs` — the file list, read-back and
   idempotence of every managed part, byte-exact sections with CRLF, the
   CLAUDE line, foreign provider hooks kept, invalid JSON, own and husky git
-  hooks, created files, the gitignore lines and gitattributes, manifest
+  hooks, created files, the gitignore lines (with the dependency folders) and gitattributes, manifest
   hashes; the Execution modes block (four roles, helpers in sequential,
   integration commands, the identity rule, under 1800 bytes), the Inputs and
   documents block (`schema`, `context`, files never to read), the Harness
-  note on proposing the scope and `KIT_VERSION` 2.2.0.
+  note on proposing the scope and `KIT_VERSION` 2.2.1.
 - `src/workflow-installer-install.test.mjs` — every folder state; a missing
   or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
   written; a global-only identity copied into the repository config (also
@@ -281,7 +284,7 @@ Node built-ins only.
   identity kept; the host marker written, kept by an update and added by
   `--update --host harness`; an invalid host; a new project with the
   installed hooks rejecting a direct commit; damage detection; a 2.1.0
-  installation with the old `.gitignore` section (no `.DS_Store`) reported
+  installation with the old `.gitignore` section (no `.DS_Store`, no dependency folders) reported
   outdated by inspect and doctor and updated; existing files kept; husky sections; a
   legacy plan kept for migration; Workflow Pilot and nested folders
   refused.

@@ -280,12 +280,14 @@ process.exitCode = runCli(process.argv.slice(2), {
     "manifest.json"
   );
   // An installation of Kit 2.1.0 has the older .gitignore section without
-  // .DS_Store, so its manifest is outdated and the update brings the line.
+  // .DS_Store and the dependency folders (2.2.1), so its manifest is outdated
+  // and the update brings the lines.
   const gitignoreFile = path.join(fresh, ".gitignore");
   const oldGitignore = readFileSync(gitignoreFile, "utf8").replace(
-    ".DS_Store\n",
+    /\.DS_Store\n# Dependency folders[^\n]*\nnode_modules\/\n\.venv\/\n__pycache__\/\n/u,
     ""
   );
+  assert.ok(!oldGitignore.includes("node_modules/"));
   writeFileSync(gitignoreFile, oldGitignore);
   const gitignoreEntry = installer
     .payload({ bundle, hooksPath: null, projectName: "Fresh App" })
@@ -328,7 +330,7 @@ process.exitCode = runCli(process.argv.slice(2), {
   ]);
   assert.match(
     readFileSync(gitignoreFile, "utf8"),
-    /\.claude\/worktrees\/\n\.DS_Store\n# workflow-kit:end/u
+    /\.claude\/worktrees\/\n\.DS_Store\n# Dependency folders[^\n]*\nnode_modules\/\n\.venv\/\n__pycache__\/\n# workflow-kit:end/u
   );
   assert.equal(
     git.history(fresh, null).at(-1).trailers["Workflow-Role"][0],

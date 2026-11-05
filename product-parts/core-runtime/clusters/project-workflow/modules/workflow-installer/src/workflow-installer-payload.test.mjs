@@ -20,7 +20,7 @@ try {
   const byPath = Object.fromEntries(
     entries.map((entry) => [entry.path, entry])
   );
-  assert.equal(installer.version, "2.2.0");
+  assert.equal(installer.version, "2.2.1");
   assert.deepEqual(Object.keys(byPath), [
     ".harness/workflow/runtime/workflow.mjs",
     "scripts/workflow",
@@ -169,7 +169,8 @@ try {
     byPath[".gitignore"].render("node_modules/\n"),
     /^node_modules\/\n\n# workflow-kit:begin\n# Workflow Kit local state\n\.harness\/workflow\/local\//u
   );
-  // Session history, Claude worktrees and macOS .DS_Store stay out of the repository.
+  // Session history, Claude worktrees, macOS .DS_Store and dependency folders
+  // stay out of the repository.
   assert.deepEqual(
     byPath[".gitignore"].read(byPath[".gitignore"].render(null)).split("\n"),
     [
@@ -180,6 +181,10 @@ try {
       ".harness/sessions/",
       ".claude/worktrees/",
       ".DS_Store",
+      "# Dependency folders: installed by quality:apply, never committed",
+      "node_modules/",
+      ".venv/",
+      "__pycache__/",
       "# workflow-kit:end",
       "",
     ]
@@ -201,7 +206,7 @@ try {
     manifest.files.find((file) => file.path === "README.md").sha256,
     null
   );
-  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.2.0");
+  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.2.1");
 } finally {
   await build.cleanup();
 }

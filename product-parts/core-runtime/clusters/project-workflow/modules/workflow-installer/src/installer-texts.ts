@@ -102,6 +102,10 @@ export function gitignoreSection(): string {
     ".harness/sessions/",
     ".claude/worktrees/",
     ".DS_Store",
+    "# Dependency folders: installed by quality:apply, never committed",
+    "node_modules/",
+    ".venv/",
+    "__pycache__/",
   ].join("\n");
 }
 

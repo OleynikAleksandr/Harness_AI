@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 148,
+  "revision": 150,
   "rounds": [
     {
       "digest": {
@@ -885,7 +885,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Ignore dependency folders in the managed gitignore",
       "why": "quality:apply with install committed 26 MB of node_modules in a new project"
     },
@@ -1186,8 +1186,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 17/26
-- Revision: 148
+- Progress: 18/26
+- Revision: 150
 
 ## Objective
 
@@ -1275,7 +1275,7 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
 
 ### R2 — Kit fixes 2026-11-05 (fixes, OPEN)
 
-- [TODO] F1 — Ignore dependency folders in the managed gitignore (work)
+- [DONE] F1 — Ignore dependency folders in the managed gitignore (work)
   - Commit: fix: ignore dependency folders in the managed gitignore block
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs
 - [TODO] F2 — Skip ignored paths when staging a commit (work)

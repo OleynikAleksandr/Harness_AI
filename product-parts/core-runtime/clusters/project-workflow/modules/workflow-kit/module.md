@@ -113,18 +113,19 @@ Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
   `checks`, `context`, `commitMessage`, `docsWaiver`; a task in progress
   only `acceptance`, `checks`, `docsWaiver`, `files`; a `DONE` task never
   (`TASK_PATCH`). Role `scope-plan` (`docs: update task <id>`).
-- Context budget (`kit-context-budget.ts`): `createScope`, `proposeScope`
-  and `chooseScope` (every task of the new plan), `extend` (new tasks and
-  tasks whose `context` changed) and `updateTask` (the patched task) read
-  the brief documents of each task from the project root: its `context`
-  (a whole-file reference wins over a heading reference of the same path;
-  a heading reference takes only that section, matched like the recovery
-  packet via `workflowRecoveryFacade.section`) or, without context, the
-  scope specification. A missing file or heading fails with
-  `CONTEXT_MISSING` (`details {taskId, path, heading?}`); a text total over
-  `budget.briefBytes` with `CONTEXT_TOO_LARGE` (`details {taskId, bytes,
-  budget}`, next action: narrow the context to sections). Nothing is
-  written then.
+- Planned checks: the scope commands and `extend` pass the `checks` of
+  every input task, `updateTask` a patched `checks`, to
+  `workflowQualityFacade.ensurePlannedChecks` (rule in `workflow-quality`)
+  before anything is written: `CHECK_UNKNOWN`, `details.field`
+  `tasks[<index>].checks` or `checks`.
+- Context budget (`kit-context-budget.ts`): the scope commands (every task
+  of the new plan), `extend` (new tasks and changed `context`) and
+  `updateTask` read each task's brief documents: its `context` (a whole
+  file wins over a heading of the same path; a heading takes that section
+  via `workflowRecoveryFacade.section`) or the scope specification.
+  `CONTEXT_MISSING` (`details {taskId, path, heading?}`) or, over
+  `budget.briefBytes`, `CONTEXT_TOO_LARGE` (`details {taskId, bytes,
+  budget}`); nothing is written.
 - `accept(root, note)` — role `acceptance`; the scope stays open.
 - `close(root, scopeId, note)` — only from `ACCEPTED` and on a clean
   working tree outside Kit-managed paths (`DIRTY_TREE`); role `close`;
@@ -412,10 +413,10 @@ worktrees where noted):
   commits, scope with spec, QUALITY, task snapshots, prepare checks,
   block/unblock, `task:update`, DOCS digests, a fixes round, history,
   acceptance, close, recovery and repair.
-- `src/workflow-kit-ignored-commit.test.mjs` — `commit --task` after
-  `git rm -r --cached node_modules` with a new `node_modules/` line in
-  `.gitignore` and a tracked file removed from the index and the disk: the
-  deletions are committed, the folder stays on disk.
+- `src/workflow-kit-plan-checks.test.mjs` — planned `CHECK_UNKNOWN` in
+  scope, extend and update, before and after QUALITY.
+- `src/workflow-kit-ignored-commit.test.mjs` — `commit --task` of a folder
+  removed from the index and ignored, plus a deleted tracked file.
 - `src/workflow-kit-hooks.test.mjs` — direct commits rejected, service
   commits, failing and candidate-changing checks, a service commit with a
   conflict marker refused, DOCS before push, push checks, `commit-msg`,

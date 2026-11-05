@@ -12,6 +12,7 @@ import {
   workflowPlanFacade,
 } from "../../workflow-plan/src/workflow-plan-facade.js";
 import { ensure } from "../../workflow-platform/src/workflow-platform-facade.js";
+import { workflowQualityFacade } from "../../workflow-quality/src/workflow-quality-facade.js";
 import {
   changedDocuments,
   commitPlan,
@@ -86,6 +87,25 @@ function transition(context: KitContext): {
   };
 }
 
+/**
+ * CHECK_UNKNOWN before anything is written: `checks` of the input tasks are
+ * quality check ids (`workflowQualityFacade.ensurePlannedChecks`), refusals
+ * name the input field `tasks[<index>].checks`.
+ */
+function ensureInputChecks(
+  context: KitContext,
+  tasks: readonly { checks?: readonly string[]; id?: string }[] | undefined
+): void {
+  workflowQualityFacade.ensurePlannedChecks(
+    readConfig(context),
+    (tasks ?? []).map((task, index) => ({
+      checks: task.checks ?? [],
+      field: `tasks[${index}].checks`,
+      taskId: task.id ?? null,
+    }))
+  );
+}
+
 function change(plan: WorkflowPlan, commit: CommitResult | null): PlanChange {
   return { commit, revision: plan.revision, scopeId: plan.scope?.id ?? null };
 }
@@ -98,6 +118,7 @@ function commitScope(context: KitContext, input: ScopeInput): PlanChange {
     input,
     transition(context)
   );
+  ensureInputChecks(context, input.tasks);
   ensureContextBudget(context, plan, plan.tasks);
   const documents = changedDocuments(context, [
     input.spec,
@@ -191,6 +212,7 @@ export function proposeScope(
       withExecution(request.input, request.recommended, null, null),
       transition(context)
     );
+    ensureInputChecks(context, request.input.tasks);
     ensureContextBudget(context, candidate, candidate.tasks);
     const proposal = workflowExecutionModeFacade.nextProposal(context.root, {
       hasParallelWork: workflowPlanFacade.hasParallelWork(candidate),
@@ -290,6 +312,7 @@ export function extendScope(
       input,
       transition(context)
     );
+    ensureInputChecks(context, input.tasks);
     ensureContextBudget(
       context,
       result.plan,
@@ -344,6 +367,11 @@ export function updateTask(
       structuredClone(patch)
     );
     workflowPlanFacade.validate(plan);
+    if (patch.checks !== undefined) {
+      workflowQualityFacade.ensurePlannedChecks(readConfig(context), [
+        { checks: patch.checks, field: "checks", taskId },
+      ]);
+    }
     ensureContextBudget(context, plan, [workflowPlanFacade.task(plan, taskId)]);
     const commit = commitPlan(context, plan, {
       files: [],

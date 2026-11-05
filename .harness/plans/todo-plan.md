@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 154,
+  "revision": 156,
   "rounds": [
     {
       "digest": {
@@ -993,7 +993,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Refuse unknown task checks when planning",
       "why": "An unknown check must fail when the plan is written, not at assignment:attach"
     },
@@ -1186,8 +1186,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 20/26
-- Revision: 154
+- Progress: 21/26
+- Revision: 156
 
 ## Objective
 
@@ -1284,7 +1284,7 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
 - [DONE] F3 — Planned check ids in the quality module and the schema (work)
   - Commit: fix: define planned check ids and describe task checks honestly
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-input-schema.test.mjs
-- [TODO] F4 — Refuse unknown task checks when planning (work)
+- [DONE] F4 — Refuse unknown task checks when planning (work)
   - Commit: fix: check task check ids in scope, extend and task update
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-plan-checks.test.mjs
   - Depends on: F3

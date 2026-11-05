@@ -197,6 +197,14 @@ returns a copy of the descriptor, or `null` for another command.
   `EXTEND_ROUNDS`, `EXTEND_ROUND_KINDS` (`plan-input-checks.ts`),
   `ID_PATTERN` (`plan-field-checks.ts`), `EXECUTION_STRATEGIES`,
   `MAX_WORKERS_LIMIT`, `DEFAULT_MAX_WORKERS` (`plan-execution.ts`).
+- `tasks[].checks` (and the patch `checks`) are described as ids of quality
+  checks (`quality.checks`, Kit builtins `kit:*`) that the task runs besides
+  the required ones, never manual checks; the rule that `workflow-kit`
+  enforces with `workflow-quality` (`CHECK_UNKNOWN`: the profile ids when
+  `CONFIGURED`, the id form and Kit builtins before QUALITY, only new tasks
+  and changed checks) is listed in `rules` of `scope:create`,
+  `scope:propose`, `plan:extend` and `task:update`. The plan validation
+  itself checks only that `checks` are unique texts.
 - `task:update` describes the patch fields `acceptance`, `checks`,
   `commitMessage`, `context`, `dependencies`, `docsWaiver`, `files`,
   `title`, `why` (a task in progress: `acceptance`, `checks`,

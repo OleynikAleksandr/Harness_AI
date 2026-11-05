@@ -284,6 +284,59 @@ try {
     { code: "CHECK_UNKNOWN" }
   );
 
+  // Planned task checks: a CONFIGURED profile knows exactly its checks and
+  // the implicit guards; manual text is refused with the input field named.
+  const configured = {
+    ...config,
+    quality: { ...config.quality, status: "CONFIGURED" },
+  };
+  assert.deepEqual(
+    quality.unknownPlannedChecks(configured, [
+      "ok",
+      "kit:conflict-markers",
+      "future",
+    ]),
+    ["future"]
+  );
+  assert.throws(
+    () =>
+      quality.ensurePlannedChecks(configured, [
+        { checks: ["ok"], field: "tasks[0].checks", taskId: "T001" },
+        {
+          checks: ["Open the app and check the hint"],
+          field: "tasks[1].checks",
+          taskId: "T002",
+        },
+      ]),
+    (error) =>
+      error.code === "CHECK_UNKNOWN" &&
+      error.details.field === "tasks[1].checks" &&
+      error.details.taskId === "T002" &&
+      error.details.known.includes("ok") &&
+      error.nextAction.includes("acceptance")
+  );
+  // Before QUALITY: Kit builtins and ids QUALITY will define, by form only.
+  assert.equal(base.quality.status, "DISCOVERY");
+  assert.deepEqual(
+    quality.unknownPlannedChecks(base, [
+      "kit:doc-size",
+      "package-mac",
+      "kit:nope",
+      "manual check",
+    ]),
+    ["kit:nope", "manual check"]
+  );
+  quality.ensurePlannedChecks(base, [
+    { checks: ["package-mac"], field: "checks", taskId: "D1" },
+  ]);
+  assert.throws(
+    () =>
+      quality.ensurePlannedChecks(base, [
+        { checks: ["kit:nope"], field: "checks", taskId: "D1" },
+      ]),
+    { code: "CHECK_UNKNOWN" }
+  );
+
   // Evidence is stored as a pending record of the transaction.
   quality.recordEvidence(root, "tx-1", [commit]);
   const evidence = quality.readEvidence(root, "pending-tx-1");

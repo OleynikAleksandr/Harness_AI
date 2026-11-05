@@ -38,10 +38,13 @@ import {
 import { qualityInputSchema } from "./quality-input-schema.js";
 import { proposeQuality, type QualityProposal } from "./quality-proposal.js";
 import {
+  ensurePlannedChecks,
+  type PlannedChecks,
   runStage,
   type StageReport,
   type StageRequest,
   selectChecks,
+  unknownPlannedChecks,
 } from "./quality-runner.js";
 
 export type {
@@ -143,6 +146,26 @@ export class WorkflowQualityFacade {
         options.which ??
         ((name) => workflowPlatformFacade.findExecutable(name) !== null),
     });
+  }
+
+  /**
+   * Planned `tasks[].checks` ids the profile cannot run: with a CONFIGURED
+   * profile every id not in it, before QUALITY ids that are not of the check
+   * id form or name an unknown `kit:` builtin.
+   */
+  unknownPlannedChecks(
+    config: WorkflowConfig,
+    ids: readonly string[]
+  ): string[] {
+    return unknownPlannedChecks(config, ids);
+  }
+
+  /** CHECK_UNKNOWN for the first planned task with an unknown check id. */
+  ensurePlannedChecks(
+    config: WorkflowConfig,
+    tasks: readonly PlannedChecks[]
+  ): void {
+    ensurePlannedChecks(config, tasks);
   }
 
   /** Checks a stage would run, without running them. */

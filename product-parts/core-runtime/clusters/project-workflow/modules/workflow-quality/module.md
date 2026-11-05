@@ -122,7 +122,20 @@ The project quality profile of the Workflow Kit:
     `kit:conflict-markers`) at `commit`;
   - otherwise the checks of the stage that are `required` or assigned by the
     task (`task.checks`).
-  - Unknown ids fail with `CHECK_UNKNOWN`.
+  - Unknown ids fail with `CHECK_UNKNOWN`; the next action names
+    `quality:status` and `task:update`.
+- Planned task checks (`unknownPlannedChecks(config, ids)`,
+  `ensurePlannedChecks(config, tasks)`; `workflow-kit` calls them when a
+  plan is written): `tasks[].checks` are ids of quality checks, never manual
+  checks. With the profile `CONFIGURED` an id must be one of the configured
+  checks or an implicit guard (`kit:conflict-markers`). Before QUALITY
+  (`DISCOVERY`) an id must have the check id form (`CHECK_ID_PATTERN`, no
+  spaces), and a `kit:` id must be a Kit builtin; other ids are accepted as
+  checks QUALITY will define and are verified by `selectChecks` at
+  `task:start`. `ensurePlannedChecks` takes `{checks, field, taskId}` per
+  task and throws `CHECK_UNKNOWN` with `details {taskId, field, checks,
+  known}` for the first task with unknown ids; the message says that manual
+  checks belong in `acceptance`.
 - `appliesTo`: when `files` is given and no file matches, the check is
   `skipped`. Globs support `*`, `**` and `{name}` (one segment).
 - An argument exactly `{files}` expands to the matching files that exist;
@@ -244,7 +257,7 @@ Node built-ins only.
 - `src/workflow-quality-detect.test.mjs` — node scripts and installed tools,
   install proposals, several stacks in subdirectories, explicit and unknown
   stacks.
-- `src/workflow-quality-runner.test.mjs` — stage selection, assigned and
+- `src/workflow-quality-runner.test.mjs` — planned task checks (CONFIGURED and DISCOVERY, the refusal details), stage selection, assigned and
   service checks, `{files}` and `appliesTo`, timeout and missing tools,
   every builtin (conflict markers with line numbers, a lone separator and
   binary files passing), `oversizedDocuments` (Markdown only, missing files

@@ -8,6 +8,7 @@ import { BUILTIN_CHECKS, DOCUMENTATION_BUILTINS } from "./quality-builtins.js";
 import {
   type BuiltinCheck,
   builtinCheck,
+  CHECK_ID_PATTERN,
   type CheckDefinition,
   type CheckStage,
   type WorkflowConfig,
@@ -78,8 +79,82 @@ function unknownChecks(checks: CheckDefinition[], ids: string[]): void {
     unknown.length === 0,
     "CHECK_UNKNOWN",
     `Unknown checks: ${unknown.join(", ")}`,
-    { checks: unknown }
+    { checks: unknown },
+    "Task checks must be ids from `scripts/workflow quality:status`; fix the task with `scripts/workflow task:update <ID> --input <patch.json>`."
   );
+}
+
+/** The `checks` of one planned task and the input path that holds them. */
+export interface PlannedChecks {
+  checks: readonly string[];
+  /** Input path, for example `tasks[1].checks` or `checks` of a patch. */
+  field: string;
+  taskId: string | null;
+}
+
+const BUILTIN_PREFIX = "kit:";
+
+/**
+ * Ids a planned task may name in `checks`. A CONFIGURED profile knows its
+ * checks plus the implicit Kit guards (`known` is exact). Before QUALITY
+ * only the Kit builtins are known; other ids of the check id form are
+ * accepted as checks QUALITY will define (`open`), and task:start verifies
+ * them against the profile.
+ */
+function plannedCheckRule(config: WorkflowConfig): {
+  known: string[];
+  open: boolean;
+} {
+  if (config.quality.status === "CONFIGURED") {
+    return {
+      known: effectiveChecks(config).map((check) => check.id),
+      open: false,
+    };
+  }
+  return { known: Object.keys(BUILTIN_CHECKS).sort(), open: true };
+}
+
+/** The planned check ids the profile cannot run (see `plannedCheckRule`). */
+export function unknownPlannedChecks(
+  config: WorkflowConfig,
+  ids: readonly string[]
+): string[] {
+  const { known, open } = plannedCheckRule(config);
+  return ids.filter((id) => {
+    if (known.includes(id)) {
+      return false;
+    }
+    return !(
+      open &&
+      CHECK_ID_PATTERN.test(id) &&
+      !id.startsWith(BUILTIN_PREFIX)
+    );
+  });
+}
+
+/**
+ * CHECK_UNKNOWN for the first planned task whose `checks` holds an id the
+ * profile cannot run: `checks` are quality check ids, never manual checks.
+ */
+export function ensurePlannedChecks(
+  config: WorkflowConfig,
+  tasks: readonly PlannedChecks[]
+): void {
+  const { known, open } = plannedCheckRule(config);
+  for (const task of tasks) {
+    const unknown = unknownPlannedChecks(config, task.checks);
+    ensure(
+      unknown.length === 0,
+      "CHECK_UNKNOWN",
+      `${task.field}${task.taskId ? ` of ${task.taskId}` : ""} names unknown quality checks: ${unknown.join(", ")}. \`checks\` holds ids of quality checks ${
+        open
+          ? "(a Kit builtin kit:* or an id without spaces that QUALITY will define)"
+          : "of the profile"
+      }; manual checks belong in acceptance.`,
+      { checks: unknown, field: task.field, known, taskId: task.taskId },
+      "Use check ids from `scripts/workflow quality:status` or leave `checks` empty, and write manual checks into `acceptance`."
+    );
+  }
 }
 
 /** Checks a stage runs, in configuration order. */

@@ -160,7 +160,7 @@ function taskFields(prefix: string): FieldSpec[] {
       false,
       "Ids of earlier tasks that must be DONE first."
     ),
-    field(`${prefix}[].checks`, "string[]", false, "Extra manual checks."),
+    field(`${prefix}[].checks`, "string[]", false, CHECKS_DESCRIPTION),
     ...documentFields(`${prefix}[].context`),
     field(
       `${prefix}[].docsWaiver`,
@@ -183,7 +183,13 @@ function taskFields(prefix: string): FieldSpec[] {
   ];
 }
 
+const CHECKS_DESCRIPTION =
+  "Ids of quality checks (quality.checks of .harness/workflow/config.json, Kit builtins kit:*) the task runs besides the required ones, e.g. an optional delivery check; never manual checks (those go into acceptance).";
+const CHECKS_RULE =
+  "checks are quality check ids (CHECK_UNKNOWN): with the profile CONFIGURED each id is one of its checks (scripts/workflow quality:status); before QUALITY an id without spaces (^[A-Za-z0-9][A-Za-z0-9._:-]*$, a kit: id must be a Kit builtin) that task:start then finds in the profile. Only new tasks and changed checks are checked.";
+
 const TASK_RULES = [
+  CHECKS_RULE,
   "dependencies and fixes point only to earlier tasks (TASK_ORDER, PLAN_SCHEMA).",
   "parallelSafe applies to work tasks only (PARALLEL_KIND) that list concrete paths: no glob, no `.`, no trailing `/` (PARALLEL_FILES).",
   "A QUALITY task is added before the first task with functional files while the quality profile is not CONFIGURED; the round DOCS task and the order of delivery tasks are computed by Kit.",
@@ -371,7 +377,7 @@ const PATCH_SCHEMA: InputSchema = {
       "Acceptance criteria: unique non-empty strings.",
       { minItems: 1 }
     ),
-    field("checks", "string[]", false, "Extra manual checks."),
+    field("checks", "string[]", false, CHECKS_DESCRIPTION),
     field("commitMessage", "string", false, "One-line commit message."),
     field(
       "context",
@@ -389,6 +395,7 @@ const PATCH_SCHEMA: InputSchema = {
     `Only these fields change (TASK_PATCH): ${TASK_PATCH_FIELDS.join(", ")}.`,
     `A task IN_PROGRESS changes only ${IN_PROGRESS_PATCH_FIELDS.join(", ")}; a DONE task never changes (TASK_PATCH).`,
     "The patched plan is validated as a whole; refusals name the plan field `tasks.<ID>.<field>`.",
+    CHECKS_RULE,
     "`--expected-revision N` refuses a stale plan (REVISION_MISMATCH).",
   ],
 };

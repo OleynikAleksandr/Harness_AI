@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 152,
+  "revision": 154,
   "rounds": [
     {
       "digest": {
@@ -958,7 +958,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Planned check ids in the quality module and the schema",
       "why": "The schema called checks extra manual checks and an agent wrote free text there"
     },
@@ -1186,8 +1186,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 19/26
-- Revision: 152
+- Progress: 20/26
+- Revision: 154
 
 ## Objective
 
@@ -1281,7 +1281,7 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
 - [DONE] F2 — Skip ignored paths when staging a commit (work)
   - Commit: fix: skip ignored untracked paths when staging a kit commit
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs
-- [TODO] F3 — Planned check ids in the quality module and the schema (work)
+- [DONE] F3 — Planned check ids in the quality module and the schema (work)
   - Commit: fix: define planned check ids and describe task checks honestly
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-input-schema.test.mjs
 - [TODO] F4 — Refuse unknown task checks when planning (work)

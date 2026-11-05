@@ -44,9 +44,11 @@ import {
   WorkflowRecoveryFacade,
 } from "../../workflow-recovery/src/workflow-recovery-facade.js";
 import {
+  type AssignmentCancelled,
   type AssignmentCleanupResult,
   type AssignmentCreated,
   type AssignmentNext,
+  cancelAssignment,
   cleanupAssignments,
   createAssignment,
   nextAssignments,
@@ -121,6 +123,7 @@ export type {
   IntegrationState,
 } from "../../workflow-integration/src/workflow-integration-facade.js";
 export type {
+  AssignmentCancelled,
   AssignmentCleanupResult,
   AssignmentCreated,
   AssignmentNext,
@@ -332,6 +335,15 @@ export class WorkflowKitFacade {
   /** `assignment:cleanup [--id]` in main: worktree and branch removal after integration. */
   cleanupAssignments(root: string, id?: string): AssignmentCleanupResult {
     return cleanupAssignments(this.context(root), id);
+  }
+
+  /** `assignment:cancel --id [--force]` in main: drops a stuck assignment; the task stays TODO. */
+  cancelAssignment(
+    root: string,
+    id: string,
+    force = false
+  ): AssignmentCancelled {
+    return cancelAssignment(this.context(root), id, force);
   }
 
   /** `integration:start --id --source` in main: merge, plan candidate and integration commit. */

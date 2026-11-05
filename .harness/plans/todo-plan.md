@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 158,
+  "revision": 160,
   "rounds": [
     {
       "digest": {
@@ -1060,14 +1060,15 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs",
+        "docs/architecture/workflow-kit/WorkflowKitCommands.md"
       ],
       "fixes": null,
       "id": "F6",
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "assignment:cancel command",
       "why": "The orchestrator needs a Kit command to drop a stuck assignment"
     },
@@ -1186,8 +1187,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 22/26
-- Revision: 158
+- Progress: 23/26
+- Revision: 160
 
 ## Objective
 
@@ -1291,9 +1292,9 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
 - [DONE] F5 — Cancel an assignment in the assignment module (work)
   - Commit: feat: cancel an assignment record with its worktree and branch
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cancel.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cleanup.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-cancel.test.mjs
-- [TODO] F6 — assignment:cancel command (work)
+- [DONE] F6 — assignment:cancel command (work)
   - Commit: feat: add the assignment:cancel command
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs, docs/architecture/workflow-kit/WorkflowKitCommands.md
   - Depends on: F5
 - [TODO] F7 — Cancel a changed commit preparation in repair (work)
   - Commit: fix: cancel a commit preparation whose index changed

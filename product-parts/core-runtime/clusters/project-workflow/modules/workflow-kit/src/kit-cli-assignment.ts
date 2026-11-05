@@ -7,6 +7,7 @@ import {
 } from "./kit-cli-args.js";
 import type {
   AssignmentAttached,
+  AssignmentCancelled,
   AssignmentCleanupResult,
   AssignmentCreated,
   AssignmentNext,
@@ -127,6 +128,23 @@ function cleanupText(value: unknown): string {
   return `${lines.join("\n")}\n`;
 }
 
+function cancelText(value: unknown): string {
+  const result = value as AssignmentCancelled;
+  const record = result.assignment;
+  const task = result.task;
+  return [
+    `assignment: ${record.id} cancelled, task ${record.taskId} ${task?.status ?? "not in the plan"}`,
+    `worktree: ${result.worktree === null ? "none" : `removed ${result.worktree}`}`,
+    result.branch === null || result.branchTip === null
+      ? "branch: none"
+      : `branch: deleted ${result.branch} at ${result.branchTip.slice(0, 12)} (restore: git branch ${result.branch} ${result.branchTip})`,
+    task?.status === "TODO"
+      ? `next: scripts/workflow assignment:create --task ${task.id}`
+      : "next: scripts/workflow assignment:next",
+    "",
+  ].join("\n");
+}
+
 function statusText(value: unknown): string {
   const result = value as AssignmentState;
   const task = result.task;
@@ -180,7 +198,7 @@ export function ensureExecutorCommand(
 }
 
 /**
- * Orchestrated assignments (spec 5.1, 5.4, 7): `assignment:next|create|cleanup`
+ * Orchestrated assignments (spec 5.1, 5.4, 7): `assignment:next|create|cleanup|cancel`
  * in main, `attach|status` in the executor worktree, `setup` in both.
  */
 export const ASSIGNMENT_COMMANDS: Readonly<
@@ -191,6 +209,16 @@ export const ASSIGNMENT_COMMANDS: Readonly<
       kit.attachAssignment(root, positional(args, 0, "Assignment id")),
     text: attachText,
     usage: "assignment:attach <id>",
+  },
+  "assignment:cancel": {
+    run: ({ args, kit, root }) =>
+      kit.cancelAssignment(
+        root,
+        requiredFlag(args, "id"),
+        args.flags.get("force") === true
+      ),
+    text: cancelText,
+    usage: "assignment:cancel --id <id> [--force]",
   },
   "assignment:cleanup": {
     run: ({ args, kit, root }) =>

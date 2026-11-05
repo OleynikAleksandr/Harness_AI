@@ -190,6 +190,12 @@ Assignments (`kit-assignment.ts`; records, scheduler and brief belong to
   (worktree remove without force, prune, `branch -d`); a refusal is recorded
   as `cleanup: PENDING` with its reason and is not an error. Returns
   `{assignments}` (the processed records).
+- `cancelAssignment(root, id, force)` — `assignment:cancel --id <id>
+  [--force]` in main, locked, busy check first; `ASSIGNMENT_UNKNOWN`, then
+  `workflowAssignmentFacade.cancel` (`ASSIGNMENT_INTEGRATED`,
+  `ASSIGNMENT_DIRTY`, `ASSIGNMENT_CANCEL_FAILED`). The plan is unchanged.
+  Returns `{assignment, worktree, branch, branchTip, task {id, status}}`;
+  the text names the restore command and `assignment:create --task`.
 
 Integration (`kit-integration.ts`, main, section 7): `startIntegration(root,
 id, source)`, `continueIntegration(root, id)` (both under the project lock)
@@ -348,7 +354,7 @@ it changes in the same commit as the commands. Summary:
   `scope:proposal`), `kit-cli-assignment.ts` (`assignment:*` and the
   executor whitelist), `kit-cli-integration.ts` (`integration:*`),
   `kit-cli-identity.ts` (`identity:set`), `kit-cli-pause.ts` (`pause:set`),
-  `kit-cli-schema.ts` (`schema`) and `kit-cli-context.ts` (`context`); the other commands are defined in
+  `kit-cli-schema.ts` (`schema`) and `kit-cli-context.ts` (`context`); boolean flags include `--force`; the other commands are defined in
   `workflow-kit-cli.ts`, the default texts in `kit-cli-text.ts`. `help`
   lists every usage line.
 - `schema [<command>]` (`kit-cli-schema.ts`) prints the JSON input
@@ -426,7 +432,7 @@ worktrees where noted):
   `SCOPE_EXISTS`, the card view, `EXECUTION_MODE_REQUIRED`, the CLI.
 - `src/workflow-kit-assignment.test.mjs` — the schedule (dependencies,
   barrier, conflict, capacity, DOCS), create preconditions, the brief,
-  idempotent retry, `ASSIGNMENT_EXISTS`, the CLI.
+  idempotent retry, `ASSIGNMENT_EXISTS`, `assignment:cancel`, the CLI.
 - `src/workflow-kit-context.test.mjs` — `CONTEXT_MISSING` and
   `CONTEXT_TOO_LARGE` in `scope:create`, `task:update`, `plan:extend` and
   `assignment:create` (grown or changed documents), the brief with a

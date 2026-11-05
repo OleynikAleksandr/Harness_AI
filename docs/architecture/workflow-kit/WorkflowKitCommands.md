@@ -238,6 +238,17 @@ preconditions and their order are in `workflow-kit/module.md`
   removal is recorded as `PENDING`, not an error. Text: one `cleanup: <id>
   DONE` or `cleanup: <id> PENDING — <reason>` line per record plus a next
   step for pending ones, or `cleanup: nothing to clean up.`.
+- `assignment:cancel --id <id> [--force]` — main only: drops an assignment
+  that is not `INTEGRATED` (record, registered worktree, branch with
+  `branch -D`); the plan does not change and the task stays `TODO`.
+  Refusals: `USAGE`, `TRANSACTION_PENDING`, `INTEGRATION_ACTIVE`,
+  `ASSIGNMENT_UNKNOWN`, `ASSIGNMENT_INTEGRATED` (use `assignment:cleanup`),
+  `ASSIGNMENT_DIRTY` (uncommitted changes in the worktree, `details.paths`;
+  `--force` drops them), `ASSIGNMENT_CANCEL_FAILED` (a git refusal; the
+  record is kept, repeat the command). Text: `assignment: <id> cancelled,
+  task <ID> <status>`, the removed worktree, the deleted branch with its
+  short tip and the restore command `git branch <name> <sha>`, then `next:
+  scripts/workflow assignment:create --task <ID>`.
 - `integration:start --id <assignment> --source <sha>` and
   `integration:continue --id <assignment>` — integrate an executor result
   into main. Text: the id, status, task, short source and main, then

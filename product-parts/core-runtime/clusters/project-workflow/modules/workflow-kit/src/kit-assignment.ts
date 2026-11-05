@@ -1,4 +1,5 @@
 import {
+  type AssignmentCancelResult,
   type AssignmentRecord,
   type AssignmentSchedule,
   type BlockedTask,
@@ -7,6 +8,7 @@ import {
 import {
   PLAN_PATH,
   type TaskKind,
+  type TaskStatus,
   type WorkflowPlan,
   type WorkflowTask,
   workflowPlanFacade,
@@ -316,6 +318,48 @@ export function cleanupAssignments(
           context.now()
         )
       ),
+    };
+  });
+}
+
+/** `assignment:cancel`: what was removed and the task, which stays in the plan. */
+export interface AssignmentCancelled extends AssignmentCancelResult {
+  task: { id: string; status: TaskStatus } | null;
+}
+
+/**
+ * `assignment:cancel --id <id> [--force]` in main: drops an assignment that
+ * is not INTEGRATED with its worktree and branch (`workflow-assignment`).
+ * The plan does not change, so the task stays TODO and can be handed out
+ * again.
+ */
+export function cancelAssignment(
+  context: KitContext,
+  id: string,
+  force: boolean
+): AssignmentCancelled {
+  return locked(context, () => {
+    ensureNoTransaction(context);
+    const record = workflowAssignmentFacade.read(context.root, id);
+    ensure(
+      record,
+      "ASSIGNMENT_UNKNOWN",
+      `The main checkout has no assignment ${id}.`,
+      {},
+      "Run `scripts/workflow assignment:next` for the active assignments."
+    );
+    const result = workflowAssignmentFacade.cancel(
+      context.git,
+      context.root,
+      record,
+      { force }
+    );
+    const task = readPlan(context).tasks.find(
+      (item) => item.id === record.taskId
+    );
+    return {
+      ...result,
+      task: task ? { id: task.id, status: task.status } : null,
     };
   });
 }

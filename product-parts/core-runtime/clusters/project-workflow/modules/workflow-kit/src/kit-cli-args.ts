@@ -14,6 +14,7 @@ export interface ParsedArgs {
 const BOOLEAN_FLAGS = new Set([
   "help",
   "fix",
+  "force",
   "dry-run",
   "global",
   "list",

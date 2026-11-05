@@ -397,6 +397,51 @@ try {
     "ASSIGNMENT_EXISTS"
   );
 
+  // assignment:cancel drops a stuck assignment; the task stays TODO and is
+  // handed out again. INTEGRATED records are only cleaned up.
+  assert.equal(
+    JSON.parse(run(["assignment:cancel", "--id", "par-1-A-1"]).stdout).code,
+    "ASSIGNMENT_INTEGRATED"
+  );
+  assert.equal(
+    code(() => kit.cancelAssignment(root, "par-1-X-1")),
+    "ASSIGNMENT_UNKNOWN"
+  );
+  assert.equal(JSON.parse(run(["assignment:cancel"]).stdout).code, "USAGE");
+  writeFileSync(
+    recordFile,
+    JSON.stringify({ ...record, status: "RUNNING" }, null, 2)
+  );
+  const cancelled = run([
+    "assignment:cancel",
+    "--id",
+    "par-1-A-1",
+    "--format",
+    "text",
+  ]);
+  assert.equal(cancelled.exit, 0, cancelled.stderr);
+  assert.equal(
+    cancelled.stdout,
+    [
+      "assignment: par-1-A-1 cancelled, task A TODO",
+      "worktree: none",
+      "branch: none",
+      "next: scripts/workflow assignment:create --task A",
+      "",
+    ].join("\n")
+  );
+  assert.equal(existsSync(recordFile), false);
+  assert.equal(kit.createAssignment(root, "A").created, true);
+  const forced = JSON.parse(
+    run(["assignment:cancel", "--id", "par-1-B-1", "--force"]).stdout
+  );
+  assert.equal(forced.ok, true);
+  assert.deepEqual(forced.result.task, { id: "B", status: "TODO" });
+  assert.match(
+    run(["help"]).stdout,
+    /scripts\/workflow assignment:cancel --id <id> \[--force\]/u
+  );
+
   console.log("workflow-kit assignment tests passed");
 } finally {
   for (const root of roots) {

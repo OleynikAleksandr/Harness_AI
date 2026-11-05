@@ -316,3 +316,7 @@ added, add a new evidence file and keep this index entry valid.
   (round R2 Kit fixes): build, smoke of the `.gitignore` block,
   `assignment:cancel`, planning `CHECK_UNKNOWN` and the update of a 2.2.0
   installation by running the new bundle.
+- `docs/evidence/kit-fixes-2026-11-05-bundle-2.md` — Workflow Kit 2.2.2
+  bundle (round R3 Kit fixes): build, smoke of `commit --task` after
+  `git rm -r --cached node_modules` with a file over `policy.maxFileLines`
+  (fails on 2.2.1, commits after the update to 2.2.2).

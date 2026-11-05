@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 177,
+  "revision": 179,
   "rounds": [
     {
       "digest": {
@@ -103,7 +103,7 @@
       },
       "id": "R3",
       "kind": "fixes",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Kit fixes 2026-11-05 (2)"
     }
   ],
@@ -152,7 +152,7 @@
         "text": "Tag v2026.11.4.2 as the second release of the day"
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "release-fixes-2026-11-04-3",
     "objective": "Give agents their input schemas and document text inline, add the Kit context command and documents map, run the autopilot by default with a Kit pause and a plan-panel pause button, give agent processes the real git config, remove the built-in project, build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-3.md",
@@ -1423,7 +1423,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: build the workflow kit 2.2.2 bundle",
-      "confirmation": null,
+      "confirmation": "Пользователь: «Раунд исправлений: plan:extend добавит в этот scope раунд: исправления Kit с тестами, DOCS и delivery-задачу сборки бандла Kit (без публикации приложения и push)»; «Лучше исправь кит, чтобы node_modules больше не портили комиты»",
       "context": [
         {
           "path": "docs/architecture/KitFixes-2026-11-05.md",
@@ -1444,7 +1444,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R3",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Build the Workflow Kit 2.2.2 bundle",
       "why": "The user updates Workflow_Kit and other projects from the bundle"
     }
@@ -1456,10 +1456,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 31/32
-- Revision: 177
+- Progress: 32/32
+- Revision: 179
 
 ## Objective
 
@@ -1581,7 +1581,7 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
 
 Digest: Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ignores node_modules/, .venv/ and __pycache__/; commit staging skips ignored paths outside the index, so removing a folder from the index commits; planning refuses tasks[].checks that are not quality check ids (CHECK_UNKNOWN); assignment:cancel drops a stuck assignment; repair --cancel restores a preparation whose index or plan changed while HEAD did not.
 
-### R3 — Kit fixes 2026-11-05 (2) (fixes, OPEN)
+### R3 — Kit fixes 2026-11-05 (2) (fixes, CLOSED)
 
 - [DONE] F8 — Name the paths a commit candidate will not contain (work)
   - Commit: fix: name the paths absent from a commit candidate
@@ -1603,7 +1603,7 @@ Digest: Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ig
   - Commit: docs: reconcile documentation for R3
   - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/KitFixes-2026-11-05.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md
   - Depends on: F8, F9, F10, F11
-- [TODO] D3 — Build the Workflow Kit 2.2.2 bundle (delivery)
+- [DONE] D3 — Build the Workflow Kit 2.2.2 bundle (delivery)
   - Commit: chore: build the workflow kit 2.2.2 bundle
   - Files: docs/evidence/kit-fixes-2026-11-05-bundle-2.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: DOCS-R3

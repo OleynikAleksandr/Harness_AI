@@ -281,7 +281,7 @@ Tasks (`kit-task.ts`):
   4. adds the selected files to `task.files` and completes the task in the
      candidate plan; in an executor worktree the contract guard runs here;
   5. runs the `prepare` stage on the selected files (`CHECK_FAILED`
-     stops before any transaction);
+     stops before any transaction), with `removed` as in `pre-commit`;
   6. commits the candidate through the transaction: role `docs` for a DOCS task,
      `implementation` otherwise; commit-stage checks run in the git hook;
   7. stores the prepare report in the commit evidence.
@@ -320,7 +320,9 @@ managed hooks.
     checks, every other commit (service, DOCS, QUALITY) only the
     documentation builtins and `kit:conflict-markers`, which every commit
     runs (staged conflict markers fail it); the task's `docsWaiver` comes
-    from the candidate plan;
+    from the candidate plan; `removed` = `absentPaths` of the selected
+    files (`git rm -r --cached node_modules`) is skipped by content builtins
+    and `{files}`;
   - stores the report as pending evidence of the transaction;
   - `CHECK_MODIFIED_CANDIDATE` when a check changed the index tree or a
     selected file; `CHECK_FAILED` with the failed checks and their output
@@ -421,8 +423,9 @@ worktrees where noted):
   acceptance, close, recovery and repair.
 - `src/workflow-kit-plan-checks.test.mjs` — planned `CHECK_UNKNOWN` in
   scope, extend and update, before and after QUALITY.
-- `src/workflow-kit-ignored-commit.test.mjs` — `commit --task` of a folder
-  removed from the index and ignored, plus a deleted tracked file.
+- `src/workflow-kit-ignored-commit.test.mjs` — `commit --task` of an
+  ignored folder removed from the index (a file over
+  `policy.maxFileLines`) and a deleted tracked file.
 - `src/workflow-kit-hooks.test.mjs` — direct commits rejected, service
   commits, failing and candidate-changing checks, a service commit with a
   conflict marker refused, DOCS before push, push checks, `commit-msg`,

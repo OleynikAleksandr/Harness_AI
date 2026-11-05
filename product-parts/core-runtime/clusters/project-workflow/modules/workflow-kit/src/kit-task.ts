@@ -175,6 +175,8 @@ function runPrepare(
     config,
     env: context.env,
     files,
+    // Staging will skip these paths: fixers never get the copies on disk.
+    removed: context.git.absentPaths(context.root, files),
     root: context.root,
     stage: "prepare",
   });

@@ -132,6 +132,8 @@ function preCommit(context: KitContext): HookResult {
     docsWaiver: task?.docsWaiver ?? null,
     env: context.env,
     files: journal.selected,
+    // The index equals the candidate: paths outside it are not committed.
+    removed: git.absentPaths(root, journal.selected),
     root,
     service: isServiceCommit(journal, task),
     stage: "commit",

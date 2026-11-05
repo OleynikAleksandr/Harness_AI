@@ -11,6 +11,10 @@ import {
   type WorktreeLocation,
   writeWorktreeRecord,
 } from "./assignment-attach.js";
+import {
+  type AssignmentCancelResult,
+  cancelAssignment,
+} from "./assignment-cancel.js";
 import { cleanupAssignment } from "./assignment-cleanup.js";
 import {
   checkExecutorChange,
@@ -43,6 +47,7 @@ export type {
   WorktreeAssignment,
   WorktreeLocation,
 } from "./assignment-attach.js";
+export type { AssignmentCancelResult } from "./assignment-cancel.js";
 export type { ExecutorChange } from "./assignment-guard.js";
 export type {
   AssignmentCleanup,
@@ -266,6 +271,20 @@ export class WorkflowAssignmentFacade {
     now: string
   ): AssignmentRecord {
     return cleanupAssignment(git, mainRoot, record, now);
+  }
+
+  /**
+   * `assignment:cancel`: a record that is not INTEGRATED is removed with its
+   * registered worktree (dirty only with `force`) and its branch; a git
+   * refusal keeps the record (ASSIGNMENT_CANCEL_FAILED).
+   */
+  cancel(
+    git: WorkflowGitFacade,
+    mainRoot: string,
+    record: AssignmentRecord,
+    options: { force: boolean }
+  ): AssignmentCancelResult {
+    return cancelAssignment(git, mainRoot, record, options);
   }
 }
 

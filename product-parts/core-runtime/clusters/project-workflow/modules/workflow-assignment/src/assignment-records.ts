@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readdirSync } from "node:fs";
+import { readdirSync, rmSync } from "node:fs";
 import { workflowGitFacade } from "../../workflow-git/src/workflow-git-facade.js";
 import {
   ensure,
@@ -173,6 +173,11 @@ export function writeRecord(root: string, record: AssignmentRecord): void {
     recordFile(root, record.id),
     `${JSON.stringify(record, null, 2)}\n`
   );
+}
+
+/** Removes the record file; a missing file is not an error. */
+export function removeRecord(root: string, id: string): void {
+  rmSync(recordFile(root, id), { force: true });
 }
 
 /** A record that still occupies its task and a worker: not yet integrated. */

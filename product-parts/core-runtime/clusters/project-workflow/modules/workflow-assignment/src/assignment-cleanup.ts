@@ -12,7 +12,10 @@ import {
 const WORKTREE_LINE = "worktree ";
 
 /** The worktree paths git has registered for the repository of `root`. */
-function registeredWorktrees(git: WorkflowGitFacade, root: string): string[] {
+export function registeredWorktrees(
+  git: WorkflowGitFacade,
+  root: string
+): string[] {
   return git.git
     .text(root, ["worktree", "list", "--porcelain"])
     .split("\n")
@@ -21,7 +24,7 @@ function registeredWorktrees(git: WorkflowGitFacade, root: string): string[] {
 }
 
 /** Runs one git step; its refusal (stderr or stdout) or null on success. */
-function refusal(
+export function refusal(
   git: WorkflowGitFacade,
   root: string,
   args: string[]

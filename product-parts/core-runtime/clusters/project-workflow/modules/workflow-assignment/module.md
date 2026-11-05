@@ -15,10 +15,13 @@ Assignments of orchestrated scopes (sections 5.1, 5.2, 5.4, 6 and 7 of
 - the executor worktree environment (section 5.4): whether a task needs its
   dependencies installed and the stack install itself;
 - the cleanup after integration (section 7): worktree and merged branch
-  removal.
+  removal;
+- the cancel of an assignment that is not integrated
+  (`docs/architecture/KitFixes-2026-11-05.md` section 3): record, worktree
+  and branch removal.
 
 The command preconditions (`assignment:create`, `assignment:attach`,
-`assignment:setup`, `assignment:cleanup`), the commits and the git hooks
+`assignment:setup`, `assignment:cleanup`, `assignment:cancel`), the commits and the git hooks
 belong to `workflow-kit`; the integration comes later, updates these records
 and calls `cleanup` right after `INTEGRATED`.
 
@@ -27,7 +30,7 @@ and calls `cleanup` right after `INTEGRATED`.
 `WorkflowAssignmentFacade` (class, singleton `workflowAssignmentFacade`) in
 `src/workflow-assignment-facade.ts`. Types: `AssignmentRecord`,
 `AssignmentStatus`, `AssignmentSetup`, `AssignmentCleanup`,
-`AssignmentSetupResult`, `AssignmentSchedule`, `BlockedTask`,
+`AssignmentSetupResult`, `AssignmentCancelResult`, `AssignmentSchedule`, `BlockedTask`,
 `ScheduleBlockCode`, `WorktreeAssignment`, `WorktreeLocation`,
 `ExecutorChange`, `BriefDocument`.
 
@@ -201,6 +204,24 @@ now)` for the integration and `assignment:cleanup`:
   `cleanup {status: "DONE", at}`; `updatedAt` is `now` and the updated
   record is returned (a refusal is not an error).
 
+Cancel (`assignment-cancel.ts`): `cancel(git, mainRoot, record, {force})`
+for `assignment:cancel`:
+- `ASSIGNMENT_INTEGRATED` for an `INTEGRATED` record (next action:
+  `assignment:cleanup --id <id>`);
+- when git lists the record's worktree and it exists on disk: without
+  `force`, uncommitted changes or untracked files that are not ignored fail
+  with `ASSIGNMENT_DIRTY` (`details {id, paths, worktree}`, next action
+  `--force`) before anything changes; then `git worktree remove` (with
+  `force`: `-f -f`, which also drops changes and a lock);
+- `git worktree prune`; when the record's branch exists, `git branch -D`
+  (commits that were never integrated are dropped; the tip is returned);
+- the record file is removed last (`removeRecord` of
+  `assignment-records.ts`). A git refusal fails with
+  `ASSIGNMENT_CANCEL_FAILED` (`details {id, reason}`) and keeps the record,
+  so the cancel can be repeated; finished steps are skipped then.
+- Returns `{assignment (the record before), worktree, branch, branchTip}`
+  (`null` for what did not exist). The plan of main is not touched.
+
 ## Dependencies
 
 `workflow-platform` (files, errors, paths, the process runner), `workflow-git` (`localPath`,
@@ -221,6 +242,10 @@ ids, record create/write/read/list order, `ASSIGNMENT_ID`,
 `ASSIGNMENT_RECORD`, the configuration digest and the brief of a work and a
 DOCS task (scope rule, contract, setup step, command whitelist, no push)
 and the marked document block.
+`src/workflow-assignment-cancel.test.mjs` — the cancel with real
+worktrees: a record without a worktree, a committed branch with its tip,
+`ASSIGNMENT_DIRTY` and `force`, `ASSIGNMENT_INTEGRATED`, and a git refusal
+(`ASSIGNMENT_CANCEL_FAILED`) that keeps the record.
 The executor side is tested with real git worktrees in
 `workflow-kit/src/workflow-kit-executor.test.mjs`; setup and cleanup in
 `workflow-kit/src/workflow-kit-worktree.test.mjs`.

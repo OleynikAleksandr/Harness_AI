@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 156,
+  "revision": 158,
   "rounds": [
     {
       "digest": {
@@ -1029,7 +1029,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Cancel an assignment in the assignment module",
       "why": "A stuck assignment could be removed only by deleting its record by hand"
     },
@@ -1186,8 +1186,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 21/26
-- Revision: 156
+- Progress: 22/26
+- Revision: 158
 
 ## Objective
 
@@ -1288,7 +1288,7 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
   - Commit: fix: check task check ids in scope, extend and task update
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-plan-checks.test.mjs
   - Depends on: F3
-- [TODO] F5 — Cancel an assignment in the assignment module (work)
+- [DONE] F5 — Cancel an assignment in the assignment module (work)
   - Commit: feat: cancel an assignment record with its worktree and branch
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cancel.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cleanup.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-cancel.test.mjs
 - [TODO] F6 — assignment:cancel command (work)

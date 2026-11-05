@@ -15,7 +15,7 @@ Electron host и интерфейс описана в разделах 4–7.
 | `LEGACY_HARNESS_PLAN` | `.harness/plans/todo-plan.md` в формате `harness-ai-plan-v1` | установить и мигрировать план (раздел 3) |
 | `PILOT_KIT` | `.harness/kit-manifest.json` Workflow Pilot | не поддерживается: объяснить и ничего не менять |
 | `KIT_OK` | манифест совпадает с файлами, версия текущая | открыть |
-| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.2.1) | обновить (`install --update`) |
+| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.2.2) | обновить (`install --update`) |
 | `KIT_DAMAGED` | файлы отличаются от манифеста или отсутствуют | Доктор с исправлением |
 
 Ответ `inspect` содержит состояние, найденные экосистемы, наличие Git и его
@@ -69,13 +69,14 @@ identity (`user.name`, `user.email`), а также незавершённую �
    перечисляются в ответе.
 
 `install --update` перезаписывает owned-файлы и секции текущей версией.
-Изменение управляемого текста повышает `KIT_VERSION`: 2.1.0 добавила в
-секцию `.gitignore` строки `.harness/sessions/` и `.claude/worktrees/`, а в
-секцию `AGENTS.md` — блок «Execution modes»; 2.1.1 добавила в `.gitignore`
-`.DS_Store`; 2.2.0 — блок «Inputs and documents» в `AGENTS.md` (`schema`,
-`context`, служебные файлы Kit не читать); 2.2.1 — `node_modules/`,
-`.venv/`, `__pycache__/` в `.gitignore` (`KitFixes-2026-11-05.md`, раздел
-1). Поэтому установки 2.2.0 и старше читаются как `KIT_OUTDATED`.
+Изменение управляемого текста или среды выполнения повышает
+`KIT_VERSION`: 2.1.0 — в `.gitignore` `.harness/sessions/` и
+`.claude/worktrees/`, в `AGENTS.md` блок «Execution modes»; 2.1.1 — в
+`.gitignore` `.DS_Store`; 2.2.0 — блок «Inputs and documents» в
+`AGENTS.md` (`schema`, `context`, служебные файлы Kit не читать); 2.2.1 —
+`node_modules/`, `.venv/`, `__pycache__/` в `.gitignore`; 2.2.2 — только
+среда выполнения (`KitFixes-2026-11-05.md`, разделы 1 и 6). Поэтому более
+ранние установки читаются как `KIT_OUTDATED`.
 План, конфигурация и пользовательский текст остаются нетронутыми. Коммит
 делается с ролью `kit-update`.
 

@@ -78,6 +78,14 @@ lock-файлам: `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock
   `=======` (подчёркивание заголовка Markdown) проходит. Файлы с байтом NUL
   пропускаются, вывод — `<файл>: line(s) <n, …>`.
 
+Пути, которые коммит удаляет из индекса (`removed`: вне индекса и нет на
+диске или игнорируются git, например `node_modules` после
+`git rm -r --cached`), не попадают в дерево коммита. Проверки содержимого
+`kit:file-lines`, `kit:doc-size`, `kit:md-links` и `kit:conflict-markers`
+их пропускают, а аргумент `{files}` их не получает. `kit:docs-contracts`
+удаления учитывает: удаление кода модуля — изменение модуля. `appliesTo`
+видит все пути кандидата (`KitFixes-2026-11-05.md`, раздел 6).
+
 Новая конфигурация (`defaultConfig`) содержит обязательные builtins этапа
 `commit`: `kit:doc-size`, `kit:md-links`, `kit:file-lines`,
 `kit:docs-contracts` и `kit:conflict-markers`. Конфигурация, записанная до

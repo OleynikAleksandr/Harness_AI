@@ -174,11 +174,12 @@ implementation plan.
   the documentation map, autopilot on by default with a Kit pause, the real
   git config for agent processes, no built-in project, GitHub publication;
   actualized to the implementation by DOCS-R1.
-- `docs/architecture/KitFixes-2026-11-05.md` — Workflow Kit fixes round R2
-  of the same scope (Russian): dependency folders in the managed
+- `docs/architecture/KitFixes-2026-11-05.md` — Workflow Kit fixes rounds R2
+  and R3 of the same scope (Russian): dependency folders in the managed
   `.gitignore` and staging that skips ignored paths, planning-time checks of
   `tasks[].checks`, `assignment:cancel`, `repair --cancel` of a changed
-  preparation and the Kit bundle build without publication.
+  preparation, content checks that skip paths removed from the index
+  (Kit 2.2.2) and the Kit bundle builds without publication.
 - `docs/architecture/workflow-kit/WorkflowKit.md` — root specification of
   the Workflow Kit (Russian, scope `workflow-kit-2026-11-03`): origin from
   Harness rules and Workflow Kit 1.x, the `core-runtime/clusters/project-workflow`
@@ -199,7 +200,7 @@ implementation plan.
   implicit `kit:conflict-markers`), budgets (`briefBytes`), stages and the
   Harness AI profile.
 - `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
-  inspection, install, `KIT_VERSION` history (2.2.1), the global git
+  inspection, install, `KIT_VERSION` history (2.2.2), the global git
   identity (`identity:set`), doctor (with `doc-size`), Harness plan
   migration, Core/Electron/RPC/UI integration (pause button, no autopilot
   switch), the real git config for agent processes, provider context

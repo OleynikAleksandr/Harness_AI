@@ -352,5 +352,6 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
   добавляет в `.gitignore` `.harness/sessions/` и `.claude/worktrees/` и
   блок «Execution modes» в `AGENTS.md`. Версия 2.1.1 (раунд 2) добавила
   в `.gitignore` `.DS_Store`, 2.2.0 (раунд 3) — блок «Inputs and
-  documents» в `AGENTS.md`, текущая 2.2.1 — каталоги зависимостей
-  `node_modules/`, `.venv/`, `__pycache__/` в `.gitignore`.
+  documents» в `AGENTS.md`, 2.2.1 — каталоги зависимостей
+  `node_modules/`, `.venv/`, `__pycache__/` в `.gitignore`, текущая
+  2.2.2 — проверки содержимого пропускают пути, удалённые из индекса.

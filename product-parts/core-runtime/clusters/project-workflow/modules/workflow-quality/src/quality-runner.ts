@@ -48,6 +48,11 @@ export interface StageRequest {
   files?: string[];
   /** Runs exactly these checks, whatever their stage. */
   only?: string[];
+  /**
+   * Candidate paths the commit removes (`absentPaths` of workflow-git): the
+   * content builtins and `{files}` skip them; `appliesTo` still sees them.
+   */
+  removed?: string[];
   root: string;
   /** Service commits run only the documentation builtins. */
   service?: boolean;
@@ -220,8 +225,9 @@ function runCommand(
     });
   }
   const usesFiles = command.args.includes(FILES_ARGUMENT);
-  const existing = (files ?? []).filter((file) =>
-    isExistingFile(request.root, file)
+  const removed = new Set(request.removed ?? []);
+  const existing = (files ?? []).filter(
+    (file) => !removed.has(file) && isExistingFile(request.root, file)
   );
   if (usesFiles && existing.length === 0) {
     return result(check, {
@@ -292,6 +298,7 @@ function runOne(check: CheckDefinition, request: StageRequest): CheckResult {
       config: request.config,
       docsWaiver: request.docsWaiver ?? null,
       files: filtered ?? [],
+      removed: new Set(request.removed ?? []),
       root: request.root,
     });
     return result(check, {

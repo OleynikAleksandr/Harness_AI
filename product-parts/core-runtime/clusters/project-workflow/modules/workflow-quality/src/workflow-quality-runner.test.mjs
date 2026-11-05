@@ -205,6 +205,64 @@ try {
   });
   assert.equal(clean.ok, true);
 
+  // Paths the commit removes (copies left on disk, e.g. an ignored
+  // node_modules) are skipped by the content builtins; without `removed`
+  // the same files fail every one of them.
+  const vendored = ["node_modules/big/index.js", "node_modules/big/README.md"];
+  write(
+    vendored[0],
+    [
+      "1",
+      `${marker("<")} HEAD`,
+      "2",
+      marker("="),
+      "3",
+      `${marker(">")} x`,
+      "",
+    ].join("\n")
+  );
+  write(vendored[1], `[gone](./gone.md)\n${"y".repeat(400)}\n`);
+  const contentChecks = [
+    "kit:file-lines",
+    "kit:doc-size",
+    "kit:md-links",
+    "kit:conflict-markers",
+  ];
+  const kept = quality.runStage({
+    config,
+    files: vendored,
+    only: contentChecks,
+    root,
+    stage: "commit",
+  });
+  assert.deepEqual(
+    kept.results.map((item) => item.status),
+    ["failed", "failed", "failed", "failed"]
+  );
+  const removed = quality.runStage({
+    config,
+    files: vendored,
+    only: contentChecks,
+    removed: vendored,
+    root,
+    stage: "commit",
+  });
+  assert.equal(removed.ok, true);
+  assert.deepEqual(
+    removed.results.map((item) => item.status),
+    ["passed", "passed", "passed", "passed"]
+  );
+  // Removing module code is still a change of the module.
+  const removedCode = quality.runStage({
+    config,
+    files: ["src/core/a.ts"],
+    only: ["kit:docs-contracts"],
+    removed: ["src/core/a.ts"],
+    root,
+    stage: "commit",
+  });
+  assert.equal(removedCode.ok, false);
+
   // A profile written before the guard still runs it at every commit.
   const legacy = {
     ...config,
@@ -236,6 +294,24 @@ try {
   });
   assert.equal(prepare.results[0].status, "passed");
   assert.equal(prepare.results[0].output.trim(), "src/core/a.ts");
+  // {files} never receives removed paths; appliesTo still sees them.
+  const prepareRemoved = quality.runStage({
+    config,
+    files: ["src/core/a.ts", "src/core/b.ts"],
+    removed: ["src/core/b.ts"],
+    root,
+    stage: "prepare",
+  });
+  assert.equal(prepareRemoved.results[0].output.trim(), "src/core/a.ts");
+  const prepareGone = quality.runStage({
+    config,
+    files: ["src/core/b.ts"],
+    removed: ["src/core/b.ts"],
+    root,
+    stage: "prepare",
+  });
+  assert.equal(prepareGone.results[0].status, "skipped");
+  assert.equal(prepareGone.results[0].reason, "No existing files to pass.");
   const skipped = quality.runStage({
     config,
     files: ["README.md"],

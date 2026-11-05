@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 169,
+  "revision": 171,
   "rounds": [
     {
       "digest": {
@@ -1283,7 +1283,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R3",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Skip removed paths in content checks",
       "why": "kit:file-lines failed on node_modules files removed from the index but kept on disk"
     },
@@ -1432,8 +1432,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 27/32
-- Revision: 169
+- Progress: 28/32
+- Revision: 171
 
 ## Objective
 
@@ -1560,7 +1560,7 @@ Digest: Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ig
 - [DONE] F8 — Name the paths a commit candidate will not contain (work)
   - Commit: fix: name the paths absent from a commit candidate
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs
-- [TODO] F9 — Skip removed paths in content checks (work)
+- [DONE] F9 — Skip removed paths in content checks (work)
   - Commit: fix: skip paths removed by the commit in content checks
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs
   - Depends on: F8

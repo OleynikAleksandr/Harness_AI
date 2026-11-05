@@ -14,6 +14,12 @@ export interface BuiltinContext {
   docsWaiver: string | null;
   /** Canonical paths of the candidate (selected or changed files). */
   files: string[];
+  /**
+   * Candidate paths the commit removes (not in its tree). Content checks skip
+   * them: a copy left on disk, such as an ignored `node_modules`, is not
+   * committed. `kit:docs-contracts` still counts them as changes.
+   */
+  removed: ReadonlySet<string>;
   root: string;
 }
 
@@ -46,8 +52,13 @@ function markdownFiles(root: string, files: string[]): string[] {
   );
 }
 
+/** Candidate files the commit keeps: the input of the content checks. */
+function committedFiles(context: BuiltinContext): string[] {
+  return context.files.filter((file) => !context.removed.has(file));
+}
+
 function changedMarkdown(context: BuiltinContext): string[] {
-  return markdownFiles(context.root, context.files);
+  return markdownFiles(context.root, committedFiles(context));
 }
 
 function fileLines(context: BuiltinContext): BuiltinOutcome {
@@ -56,7 +67,7 @@ function fileLines(context: BuiltinContext): BuiltinOutcome {
     return { output: "policy.maxFileLines is not set.", passed: true };
   }
   const over: string[] = [];
-  for (const file of context.files) {
+  for (const file of committedFiles(context)) {
     if (
       isDocumentationPath(file) ||
       file.startsWith(".harness/") ||
@@ -102,7 +113,11 @@ export function oversizedDocuments(
 
 function docSize(context: BuiltinContext): BuiltinOutcome {
   const limit = context.config.budget.documentBytes;
-  const over = oversizedDocuments(context.root, context.files, limit).map(
+  const over = oversizedDocuments(
+    context.root,
+    committedFiles(context),
+    limit
+  ).map(
     (item) =>
       `${item.path}: ${item.bytes} bytes (limit ${limit}); split the document.`
   );
@@ -190,7 +205,7 @@ function conflictLines(text: string): number[] {
 
 function conflictMarkers(context: BuiltinContext): BuiltinOutcome {
   const found: string[] = [];
-  for (const file of context.files) {
+  for (const file of committedFiles(context)) {
     if (!existingFile(context.root, file)) {
       continue;
     }

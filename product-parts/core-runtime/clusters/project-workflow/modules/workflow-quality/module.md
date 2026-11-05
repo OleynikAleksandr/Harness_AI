@@ -110,7 +110,16 @@ The project quality profile of the Workflow Kit:
 ## Check Runner (`quality-runner.ts`)
 
 - `selectChecks(request)` / `runStage(request)`; the request is
-  `{root, config, stage, files?, assigned?, only?, service?, docsWaiver?, env?}`.
+  `{root, config, stage, files?, removed?, assigned?, only?, service?, docsWaiver?, env?}`.
+- `removed` lists the candidate paths the commit removes (`absentPaths` of
+  `workflow-git`: outside the index and missing on disk or ignored, such as
+  `node_modules` after `git rm -r --cached`). The content builtins
+  (`kit:file-lines`, `kit:doc-size`, `kit:md-links`,
+  `kit:conflict-markers`) skip them and `{files}` never receives them, so
+  the copies left on disk are never read or passed to a tool.
+  `kit:docs-contracts` still counts them (removing module code changes the
+  module), and `appliesTo` still sees them (a removed source file still
+  triggers, for example, the typecheck).
 - Selection works on the configured checks plus the implicit Kit guards a
   profile written before them does not list (`kit:conflict-markers`, a
   required commit-stage builtin appended last when no check has its id or
@@ -138,8 +147,8 @@ The project quality profile of the Workflow Kit:
   checks belong in `acceptance`.
 - `appliesTo`: when `files` is given and no file matches, the check is
   `skipped`. Globs support `*`, `**` and `{name}` (one segment).
-- An argument exactly `{files}` expands to the matching files that exist;
-  with none the check is `skipped`.
+- An argument exactly `{files}` expands to the matching files that exist and
+  are not `removed`; with none the check is `skipped`.
 - Commands run without a shell through the platform module. `cwd` and an
   executable with a path separator resolve inside the project root.
 - Result per check: `{id, role, stage, status, exitCode, durationMs, output,
@@ -152,6 +161,8 @@ The project quality profile of the Workflow Kit:
 
 ## Builtins (`quality-builtins.ts`)
 
+- Builtins get `{config, docsWaiver, files, removed, root}`; every check
+  except `kit:docs-contracts` reads only the files not in `removed`.
 - `kit:file-lines` — non-documentation files of the candidate (outside
   `.harness/`, text only) must not exceed `policy.maxFileLines`; off when it
   is `null`.
@@ -261,8 +272,10 @@ Node built-ins only.
   service checks, `{files}` and `appliesTo`, timeout and missing tools,
   every builtin (conflict markers with line numbers, a lone separator and
   binary files passing), `oversizedDocuments` (Markdown only, missing files
-  and the plan skipped), the implicit guard for a profile without it, the
-  waiver and evidence records.
+  and the plan skipped), `removed` paths (the four content builtins pass on
+  files that fail them otherwise, `kit:docs-contracts` still fails,
+  `{files}` drops them and skips when none is left), the implicit guard
+  for a profile without it, the waiver and evidence records.
 - `src/workflow-quality-apply.test.mjs` — approval, validation before
   installs, failed install, builtins kept, policy and contracts, re-apply,
   drift (a stack without manifests is missing only for manifest tools).

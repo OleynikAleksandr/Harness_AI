@@ -261,6 +261,7 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
   `integration:`; шаги по порядку — фаза журнала интеграции, интеграция
   `READY_FOR_INTEGRATION` по одной, задача main (QUALITY, delivery),
   раздача `ready`, ожидание исполнителей, `assignment:cleanup`;
+  застрявшее назначение снимает `assignment:cancel --id <id> [--force]`;
 - **executor** (worktree назначения, в том числе ещё не привязанный):
   `assignment:attach`, `assignment:setup` при `NEEDS_SETUP`, `task:start`,
   `commit --task`, отчёт с SHA; main, план и чужие задачи не трогать.
@@ -350,5 +351,6 @@ Recovery пишет в `state` строку `role:` и даёт шаг роли 
 - `KIT_VERSION` 2.1.0: старые установки — `KIT_OUTDATED`, обновление
   добавляет в `.gitignore` `.harness/sessions/` и `.claude/worktrees/` и
   блок «Execution modes» в `AGENTS.md`. Версия 2.1.1 (раунд 2) добавила
-  в `.gitignore` `.DS_Store`, текущая 2.2.0 (раунд 3) — блок «Inputs and
-  documents» в `AGENTS.md`.
+  в `.gitignore` `.DS_Store`, 2.2.0 (раунд 3) — блок «Inputs and
+  documents» в `AGENTS.md`, текущая 2.2.1 — каталоги зависимостей
+  `node_modules/`, `.venv/`, `__pycache__/` в `.gitignore`.

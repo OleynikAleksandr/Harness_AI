@@ -142,7 +142,14 @@ builtin. Файл конфигурации при этом не переписы
 | `delivery` | в задачах `delivery` | собирать артефакты вне Git |
 
 - Проверка выполняется на этапе `commit`, если она `required` или назначена
-  задаче (`task.checks`). Проверки этапа `push` выполняются все, у которых
+  задаче (`task.checks`). `task.checks` — id проверок профиля, а не ручные
+  проверки (их пишут в `acceptance`). `scope:create`, `scope:propose`,
+  `scope:choose`, `plan:extend` и `task:update` проверяют id новых задач и
+  изменённых `checks` (`CHECK_UNKNOWN`, `details {taskId, field, checks,
+  known}`): при профиле `CONFIGURED` — среди проверок профиля и неявных
+  защит Kit; до QUALITY — форма id без пробелов, `kit:*` — только
+  встроенные проверки, остальные id задаст QUALITY, и `task:start` сверит
+  их с профилем. Проверки этапа `push` выполняются все, у которых
   `required: true`.
 - Для коммита задачи с функциональными файлами нужен хотя бы один проверочный
   этап `commit` (`NOT_CONFIGURED`).

@@ -15,7 +15,7 @@ Electron host и интерфейс описана в разделах 4–7.
 | `LEGACY_HARNESS_PLAN` | `.harness/plans/todo-plan.md` в формате `harness-ai-plan-v1` | установить и мигрировать план (раздел 3) |
 | `PILOT_KIT` | `.harness/kit-manifest.json` Workflow Pilot | не поддерживается: объяснить и ничего не менять |
 | `KIT_OK` | манифест совпадает с файлами, версия текущая | открыть |
-| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.2.0) | обновить (`install --update`) |
+| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.2.1) | обновить (`install --update`) |
 | `KIT_DAMAGED` | файлы отличаются от манифеста или отсутствуют | Доктор с исправлением |
 
 Ответ `inspect` содержит состояние, найденные экосистемы, наличие Git и его
@@ -73,7 +73,9 @@ identity (`user.name`, `user.email`), а также незавершённую �
 секцию `.gitignore` строки `.harness/sessions/` и `.claude/worktrees/`, а в
 секцию `AGENTS.md` — блок «Execution modes»; 2.1.1 добавила в `.gitignore`
 `.DS_Store`; 2.2.0 — блок «Inputs and documents» в `AGENTS.md` (`schema`,
-`context`, служебные файлы Kit не читать). Поэтому установки 2.1.1 и старше читаются как `KIT_OUTDATED`.
+`context`, служебные файлы Kit не читать); 2.2.1 — `node_modules/`,
+`.venv/`, `__pycache__/` в `.gitignore` (`KitFixes-2026-11-05.md`, раздел
+1). Поэтому установки 2.2.0 и старше читаются как `KIT_OUTDATED`.
 План, конфигурация и пользовательский текст остаются нетронутыми. Коммит
 делается с ролью `kit-update`.
 
@@ -352,10 +354,8 @@ JSON на stdout). Для `install` и `inspect` берётся бандл пр�
    контрактов: `module.md` меняется вместе с `src/**` модуля.
 2. `install` в самом репозитории (секции в `.husky/*`) и
    `migrate:harness-plan` для активного плана.
-3. Переписать `AGENTS.md`: правила процесса берутся из секции Kit,
-   проектные ограничения остаются. Обновить `CLAUDE.md`,
-   `docs/DOCUMENTATION_INDEX.md` и шаблон плана. Удалить
-   `scripts/plan.mjs`, `scripts/check-docs-sync.mjs`, их тесты и
-   npm-скрипты `plan:*`.
+3. Переписать `AGENTS.md` (процесс — из секции Kit), обновить
+   `CLAUDE.md`, индекс и шаблон плана; удалить `scripts/plan.mjs`,
+   `scripts/check-docs-sync.mjs`, их тесты и npm-скрипты `plan:*`.
 4. Оставшиеся задачи scope (DOCS, сборка, приёмка) выполняются уже
    командами нового Kit.

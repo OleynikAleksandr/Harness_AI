@@ -122,7 +122,7 @@ host ──(дочерний процесс)──▶ бандл kit
 | Входы и документы | `schema [<command>]` (схема входного JSON), `context <path>[#Heading] … \| --list` (документы текстом) |
 | Scope | `scope:create`, `scope:propose`, `scope:choose`, `scope:proposal`, `plan:extend`, `task:update`, `accept`, `close`, `carryover` |
 | Задача | `task:start`, `task:block`, `task:unblock`, `commit`, `docs:commit` |
-| Назначения | `assignment:next`, `assignment:create`, `assignment:attach`, `assignment:status`, `assignment:setup`, `assignment:cleanup` |
+| Назначения | `assignment:next`, `assignment:create`, `assignment:attach`, `assignment:status`, `assignment:setup`, `assignment:cleanup`, `assignment:cancel` |
 | Интеграция | `integration:start`, `integration:continue`, `integration:status` |
 | Качество | `quality:detect`, `quality:apply`, `quality:status` |
 | Обслуживание | `repair`, `doctor`, `install`, `inspect`, `migrate:harness-plan`, `identity:set --global` (глобальная Git-идентичность, без проекта) |

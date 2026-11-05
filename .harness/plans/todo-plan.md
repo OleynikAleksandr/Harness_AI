@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 162,
+  "revision": 164,
   "rounds": [
     {
       "digest": {
@@ -50,7 +50,30 @@
       "title": "Implementation"
     },
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "workflow-installer/module.md: KIT_VERSION 2.2.1, dependency folders in the .gitignore section.",
+          "workflow-git/module.md: stage() skips ignored untracked paths; cancelRepair and discardPreparation.",
+          "workflow-quality/module.md + workflow-plan/module.md: unknownPlannedChecks, ensurePlannedChecks, honest checks descriptor.",
+          "workflow-kit/module.md + WorkflowKitCommands.md: planned CHECK_UNKNOWN, assignment:cancel, repair --cancel.",
+          "workflow-assignment/module.md: cancel with ASSIGNMENT_INTEGRATED, ASSIGNMENT_DIRTY, ASSIGNMENT_CANCEL_FAILED."
+        ],
+        "decisions": [
+          "KIT_VERSION 2.2.1: the managed .gitignore block changed, so 2.2.0 installations read as KIT_OUTDATED and install --update rewrites the block.",
+          "Planned checks: CONFIGURED profile ids plus implicit guards; before QUALITY the id form and kit builtins only, other ids are left to QUALITY and task:start.",
+          "Only new tasks and changed checks are checked; old plan tasks never block a planning command.",
+          "assignment:cancel deletes the branch with -D even with unintegrated commits and reports the tip; a dirty worktree needs --force.",
+          "repair --cancel never undoes commits: with HEAD moved it stays REPAIR_MANUAL and names git reset --soft with the user's consent."
+        ],
+        "references": [
+          "docs/architecture/KitFixes-2026-11-05.md",
+          "docs/architecture/workflow-kit/WorkflowKitCommands.md",
+          "docs/architecture/workflow-kit/WorkflowKitOrchestration.md",
+          "docs/architecture/workflow-kit/WorkflowKitQuality.md",
+          "docs/architecture/workflow-kit/WorkflowKitProcess.md"
+        ],
+        "result": "Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ignores node_modules/, .venv/ and __pycache__/; commit staging skips ignored paths outside the index, so removing a folder from the index commits; planning refuses tasks[].checks that are not quality check ids (CHECK_UNKNOWN); assignment:cancel drops a stuck assignment; repair --cancel restores a preparation whose index or plan changed while HEAD did not."
+      },
       "id": "R2",
       "kind": "fixes",
       "status": "OPEN",
@@ -1134,14 +1157,24 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/architecture/KitFixes-2026-11-05.md",
+        "docs/architecture/workflow-kit/WorkflowKit.md",
+        "docs/architecture/workflow-kit/WorkflowKitCommands.md",
+        "docs/architecture/workflow-kit/WorkflowKitExecutionModes.md",
+        "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+        "docs/architecture/workflow-kit/WorkflowKitOrchestration.md",
+        "docs/architecture/workflow-kit/WorkflowKitProcess.md",
+        "docs/architecture/workflow-kit/WorkflowKitQuality.md",
+        "product-parts/core-runtime/clusters/project-workflow/cluster.md"
       ],
       "fixes": null,
       "id": "DOCS-R2",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -1188,8 +1221,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 24/26
-- Revision: 162
+- Progress: 25/26
+- Revision: 164
 
 ## Objective
 
@@ -1300,13 +1333,15 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
 - [DONE] F7 — Cancel a changed commit preparation in repair (work)
   - Commit: fix: cancel a commit preparation whose index changed
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs, docs/architecture/workflow-kit/WorkflowKitCommands.md
-- [TODO] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R2
-  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/KitFixes-2026-11-05.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitOrchestration.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, product-parts/core-runtime/clusters/project-workflow/cluster.md
   - Depends on: F1, F2, F3, F4, F5, F6, F7
 - [TODO] D2 — Build the Workflow Kit bundle (delivery)
   - Commit: chore: build the workflow kit 2.2.1 bundle
   - Files: docs/evidence/kit-fixes-2026-11-05-bundle.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: DOCS-R2
+
+Digest: Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ignores node_modules/, .venv/ and __pycache__/; commit staging skips ignored paths outside the index, so removing a folder from the index commits; planning refuses tasks[].checks that are not quality check ids (CHECK_UNKNOWN); assignment:cancel drops a stuck assignment; repair --cancel restores a preparation whose index or plan changed while HEAD did not.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

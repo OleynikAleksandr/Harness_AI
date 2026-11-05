@@ -19,6 +19,7 @@ scripts/workflow assignment:attach <id>              # worktree исполнит
 scripts/workflow assignment:status                   # worktree исполнителя
 scripts/workflow assignment:setup [--id <id>]        # worktree или main
 scripts/workflow assignment:cleanup [--id <id>]      # main
+scripts/workflow assignment:cancel --id <id> [--force]  # main
 ```
 
 - Планировщик (`schedule`) обходит задачи `TODO` вида `work` и `docs` без
@@ -205,6 +206,16 @@ scripts/workflow integration:status
    `cleanup {status: PENDING, reason}`, интеграция всё равно успешна;
    `assignment:cleanup` (только `INTEGRATED`, иначе
    `ASSIGNMENT_NOT_INTEGRATED`) доделывает. Журнал удаляется последним.
+
+Застрявшее назначение (исполнитель не стартовал, worktree сломан, работа
+больше не нужна) снимает `assignment:cancel --id <id> [--force]` в main:
+запись не `INTEGRATED`, нет транзакции и интеграции. Удаляются
+зарегистрированный worktree (с незакоммиченными изменениями — только с
+`--force`, иначе `ASSIGNMENT_DIRTY`), его ветка (`git branch -D`, ответ
+называет последний коммит для восстановления) и запись. План не меняется:
+задача остаётся `TODO` и снова выдаётся `assignment:create`. Отказ git —
+`ASSIGNMENT_CANCEL_FAILED`, запись сохраняется для повтора
+(`docs/architecture/KitFixes-2026-11-05.md`, раздел 3).
 
 Сбой: повтор (`continue`) завершает уже созданный коммит без второго merge
 и без `reset --hard`; незавершённую транзакцию сначала доводит `repair`

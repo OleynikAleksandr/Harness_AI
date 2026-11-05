@@ -129,6 +129,14 @@ heading?}`) for a missing file or heading and `CONTEXT_TOO_LARGE`
 sections with `heading`) when the text exceeds `budget.briefBytes`
 (default 60 000). Nothing is written then.
 
+Planned checks (`workflowQualityFacade.ensurePlannedChecks`; spec
+`KitFixes-2026-11-05.md` section 2): the same commands refuse with
+`CHECK_UNKNOWN` (`details {taskId, field, checks, known}`, `field`
+`tasks[<index>].checks` or `checks`) when a new task or a changed `checks`
+names an id that is not a quality check: the profile's checks and implicit
+guards when `CONFIGURED`, before QUALITY an id without spaces (`kit:*` only
+for Kit builtins). Manual checks belong in `acceptance`.
+
 - `scope:create --input <file.json>` — the agreed scope; input:
   `schema scope:create`. Refusals: `SCOPE_EXISTS`, `NO_BASELINE`,
   `SPEC_REQUIRED`, `SCOPE_APPROVAL`, `PLAN_SCHEMA`, `PLAN_EXECUTION`;

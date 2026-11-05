@@ -199,7 +199,7 @@ implementation plan.
   implicit `kit:conflict-markers`), budgets (`briefBytes`), stages and the
   Harness AI profile.
 - `docs/architecture/workflow-kit/WorkflowKitInstallation.md` — folder
-  inspection, install, `KIT_VERSION` history (2.2.0), the global git
+  inspection, install, `KIT_VERSION` history (2.2.1), the global git
   identity (`identity:set`), doctor (with `doc-size`), Harness plan
   migration, Core/Electron/RPC/UI integration (pause button, no autopilot
   switch), the real git config for agent processes, provider context

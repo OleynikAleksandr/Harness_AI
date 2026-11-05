@@ -36,12 +36,14 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
   input descriptors of the plan commands and the round digest.
 - `workflow-git` — git queries, history, the git identity (one validator
   `isUsableIdentity`, local and global writes, the shared
-  `GIT_IDENTITY_REQUIRED` refusal), transactional commits (including the two-parent integration commit), first-parent
-  references and repair.
+  `GIT_IDENTITY_REQUIRED` refusal), transactional commits (including the two-parent integration commit;
+  ignored paths outside the index never reach `git add`), first-parent
+  references and repair (cancel of a changed preparation).
 - `workflow-quality` — project quality profile: configuration, stack
   detection, check catalog, check execution (including the builtin
   `kit:conflict-markers` guard every commit runs, the document size rule),
-  profile application and the `quality:apply` input descriptor.
+  profile application, the planned `tasks[].checks` rule and the
+  `quality:apply` input descriptor.
 - `workflow-recovery` — bounded recovery packet within a byte budget with
   the agent role and its step, required documents inline, the documents
   map and the next step's input schema, the SessionStart hook, `show-task`
@@ -52,13 +54,13 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
   options and the verification of the user's choice.
 - `workflow-assignment` — assignment records, the scheduler, the executor
   brief with the marked document text, the executor side (worktree record, one-task plan, contract
-  guard), worktree setup and cleanup.
+  guard), worktree setup, cleanup and cancel.
 - `workflow-integration` — the proof of an executor source and its merge
   into main with the integration journal, `continue` and status.
 - `workflow-kit` — the cluster facade `WorkflowKitFacade`: status, scope
   (create, propose, choose), task, commit, acceptance, close, carryover,
   repair, quality, pause, assignment and integration operations with the
-  context budget check; the command line adds `identity:set --global`
+  context budget and planned checks; the command line adds `identity:set --global`
   (no project needed), `schema` and `context`.
 - `workflow-installer` — installation payload and manifest, inspection,
   install (git identity, host marker), doctor (with `doc-size`) and legacy

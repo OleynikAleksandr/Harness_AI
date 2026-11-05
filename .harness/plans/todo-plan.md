@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 173,
+  "revision": 175,
   "rounds": [
     {
       "digest": {
@@ -1352,7 +1352,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R3",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Raise the Kit version to 2.2.2",
       "why": "Installed 2.2.1 projects must read as outdated so install --update brings the fixed runtime"
     },
@@ -1432,8 +1432,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 29/32
-- Revision: 173
+- Progress: 30/32
+- Revision: 175
 
 ## Objective
 
@@ -1569,7 +1569,7 @@ Digest: Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ig
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs
   - Depends on: F8, F9
   - Fixes: F2
-- [TODO] F11 — Raise the Kit version to 2.2.2 (work)
+- [DONE] F11 — Raise the Kit version to 2.2.2 (work)
   - Commit: chore: raise the workflow kit version to 2.2.2
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs
   - Depends on: F10

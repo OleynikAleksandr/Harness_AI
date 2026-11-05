@@ -337,6 +337,22 @@ process.exitCode = runCli(process.argv.slice(2), {
     "kit-update"
   );
   assert.equal(installer.inspect(fresh).state, "KIT_OK");
+  // A 2.2.1 installation is outdated too: 2.2.2 changed only the runtime
+  // (content checks skip paths a commit removes), and the update brings it.
+  const currentManifest = readFileSync(manifestFile, "utf8");
+  writeFileSync(
+    manifestFile,
+    installer.renderManifest({
+      ...JSON.parse(currentManifest),
+      version: "2.2.1",
+    })
+  );
+  assert.deepEqual(
+    [installer.inspect(fresh).state, installer.inspect(fresh).version],
+    ["KIT_OUTDATED", "2.2.1"]
+  );
+  writeFileSync(manifestFile, currentManifest);
+  assert.equal(installer.inspect(fresh).state, "KIT_OK");
 
   // Existing files without git: kept as they are and left out of the commit.
   const existing = at("existing");

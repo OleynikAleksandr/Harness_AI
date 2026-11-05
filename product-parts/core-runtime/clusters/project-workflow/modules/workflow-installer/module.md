@@ -59,15 +59,16 @@ Writing rules:
 
 `manifest(entries)` → `{schema "harness-workflow-manifest/1", version,
 files: [{path, kind, executable, sha256}]}`; `sha256` hashes the managed
-part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.1`; Kit 1.x
-was Workflow Pilot). A change of a managed text raises the version, so
+part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.2`; Kit 1.x
+was Workflow Pilot). A change of a managed text or of the runtime raises the version, so
 older installations read as `KIT_OUTDATED` and the update rewrites them
 (2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`
 and the Execution modes block to `AGENTS.md`; 2.1.1 added `.DS_Store` to
 `.gitignore`; 2.2.0 added the Inputs and documents block to `AGENTS.md`;
 2.2.1 added the dependency folders `node_modules/`, `.venv/` and
 `__pycache__/` to `.gitignore`, so dependencies installed by `quality:apply`
-are never selected for a commit). The manifest lives at `.harness/workflow/manifest.json`
+are never selected for a commit; 2.2.2 changed only the runtime: content
+checks skip the paths a commit removes from the index). The manifest lives at `.harness/workflow/manifest.json`
 (`manifestPath`).
 
 ## Agent Rules (`installer-texts.ts`)
@@ -276,7 +277,7 @@ Node built-ins only.
   hashes; the Execution modes block (four roles, helpers in sequential,
   integration commands, the identity rule, under 1800 bytes), the Inputs and
   documents block (`schema`, `context`, files never to read), the Harness
-  note on proposing the scope and `KIT_VERSION` 2.2.1.
+  note on proposing the scope and `KIT_VERSION` 2.2.2.
 - `src/workflow-installer-install.test.mjs` — every folder state; a missing
   or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
   written; a global-only identity copied into the repository config (also
@@ -285,7 +286,8 @@ Node built-ins only.
   `--update --host harness`; an invalid host; a new project with the
   installed hooks rejecting a direct commit; damage detection; a 2.1.0
   installation with the old `.gitignore` section (no `.DS_Store`, no dependency folders) reported
-  outdated by inspect and doctor and updated; existing files kept; husky sections; a
+  outdated by inspect and doctor and updated, and a 2.2.1 manifest read as
+  outdated; existing files kept; husky sections; a
   legacy plan kept for migration; Workflow Pilot and nested folders
   refused.
 - `src/workflow-installer-doctor.test.mjs` — a healthy installation, fixable

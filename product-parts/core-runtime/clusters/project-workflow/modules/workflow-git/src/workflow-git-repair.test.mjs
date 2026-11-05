@@ -210,6 +210,95 @@ try {
     () => git.cancelRepair(root, PLAN, git.planRepair(root, PLAN).repairId),
     (e) => e.code === "NO_PREPARATION"
   );
+  // A preparation whose index changed afterwards (a PREPARING or PREPARED
+  // journal): retry refuses and points to cancel; cancel restores the index
+  // and the plan, keeps working-tree files and removes the journal.
+  const journalFile = git.localPath(root, "transaction.json");
+  const indexBackup = git.localPath(root, "index-before");
+  const before = readFileSync(file(PLAN), "utf8");
+  const candidate = `${before}\n<!-- candidate -->\n`;
+  const prepare = (name) => {
+    writeFileSync(
+      path.join(hooks, "pre-commit"),
+      `#!/bin/sh\ncp "${journalFile}" "${snapshot}"\nexit 1\n`
+    );
+    chmodSync(path.join(hooks, "pre-commit"), 0o755);
+    write(name, `# ${name}\n`);
+    assert.throws(
+      () =>
+        git.transactions.commit(root, {
+          files: [name],
+          message: `docs: ${name}`,
+          planPath: PLAN,
+          planText: candidate,
+          role: "docs",
+          scopeId: "demo",
+          taskId: null,
+        }),
+      (e) => e.code === "COMMIT_FAILED"
+    );
+    rmSync(path.join(hooks, "pre-commit"));
+    // The crash: the index backup, the staged candidate and the journal.
+    copyFileSync(git.gitPath(root, "index"), indexBackup);
+    git.git.run(root, ["add", name]);
+    writeFileSync(file(PLAN), candidate);
+    git.git.run(root, ["add", PLAN]);
+    const journal = JSON.parse(readFileSync(snapshot, "utf8"));
+    writeFileSync(
+      journalFile,
+      `${JSON.stringify({ ...journal, phase: "PREPARING" }, null, 2)}\n`
+    );
+    return journal.id;
+  };
+  const staged = () => git.git.text(root, ["diff", "--cached", "--name-only"]);
+  const id = prepare("docs/guide.md");
+  write("docs/extra.md", "# extra\n");
+  git.git.run(root, ["add", "docs/extra.md"]);
+  planned = git.planRepair(root, PLAN);
+  assert.equal(planned.kind, "retry-commit");
+  assert.throws(
+    () => git.applyRepair(root, PLAN, planned.repairId),
+    (e) =>
+      e.code === "REPAIR_MANUAL" &&
+      e.nextAction.includes(`repair --cancel ${planned.repairId}`)
+  );
+  const restored = git.cancelRepair(root, PLAN, planned.repairId);
+  assert.equal(restored.kind, "cancel");
+  assert.equal(staged(), "");
+  assert.equal(readFileSync(file(PLAN), "utf8"), before);
+  assert.equal(
+    readFileSync(file("docs/guide.md"), "utf8"),
+    "# docs/guide.md\n"
+  );
+  assert.equal(readFileSync(file("docs/extra.md"), "utf8"), "# extra\n");
+  assert.equal(git.transactions.journal(root), null);
+  assert.ok(readdirSync(verification).includes(`failed-${id}.json`));
+  assert.deepEqual(pendingLeft(), []);
+
+  // HEAD moved after the preparation: REPAIR_MANUAL names both commits and
+  // the soft reset; after it the cancel succeeds.
+  rmSync(file("docs/extra.md"));
+  prepare("docs/notes.md");
+  const beforeHead = git.head(root);
+  git.git.run(root, ["commit", "-q", "--allow-empty", "-m", "chore: other"]);
+  let refusal = null;
+  try {
+    git.cancelRepair(root, PLAN, git.planRepair(root, PLAN).repairId);
+  } catch (error) {
+    refusal = error;
+  }
+  assert.equal(refusal?.code, "REPAIR_MANUAL");
+  assert.deepEqual(refusal.details, {
+    beforeHead,
+    head: git.head(root),
+  });
+  assert.ok(refusal.nextAction.includes(`git reset --soft ${beforeHead}`));
+  assert.notEqual(git.transactions.journal(root), null);
+  git.git.run(root, ["reset", "-q", "--soft", beforeHead]);
+  git.cancelRepair(root, PLAN, git.planRepair(root, PLAN).repairId);
+  assert.equal(git.transactions.journal(root), null);
+  assert.equal(staged(), "");
+  assert.equal(readFileSync(file(PLAN), "utf8"), before);
   console.log("workflow-git references and repair tests passed");
 } finally {
   rmSync(root, { force: true, recursive: true });

@@ -267,7 +267,14 @@ preconditions and their order are in `workflow-kit/module.md`
   `CONFIG_SCHEMA`, `INSTALL_APPROVAL`, `INSTALL_FAILED`.
 - `quality:status` — status, stacks, check ids by stage, drift.
 - `repair [--apply <repairId> | --cancel <repairId>]` — dry run, apply or
-  cancel the repair of an unfinished transaction.
+  cancel the repair of an unfinished transaction. `--cancel` of a
+  preparation whose index or plan changed afterwards restores the index
+  (`index-before`, else the HEAD tree) and the original plan, keeps
+  working-tree files and removes the journal while HEAD is unchanged;
+  after HEAD moved it is `REPAIR_MANUAL` (`details {beforeHead, head}`,
+  next: `git reset --soft <beforeHead>` with the user's consent, then
+  `repair` again). `--apply` of such a preparation refuses with
+  `REPAIR_MANUAL` and names `repair --cancel <id>`.
 
 ## Installation And Identity
 

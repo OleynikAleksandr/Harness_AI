@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 160,
+  "revision": 162,
   "rounds": [
     {
       "digest": {
@@ -1095,14 +1095,15 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs",
+        "docs/architecture/workflow-kit/WorkflowKitCommands.md"
       ],
       "fixes": null,
       "id": "F7",
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Cancel a changed commit preparation in repair",
       "why": "repair --cancel answered REPAIR_MANUAL when the index changed after preparation"
     },
@@ -1187,8 +1188,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 23/26
-- Revision: 160
+- Progress: 24/26
+- Revision: 162
 
 ## Objective
 
@@ -1296,9 +1297,9 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
   - Commit: feat: add the assignment:cancel command
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs, docs/architecture/workflow-kit/WorkflowKitCommands.md
   - Depends on: F5
-- [TODO] F7 — Cancel a changed commit preparation in repair (work)
+- [DONE] F7 — Cancel a changed commit preparation in repair (work)
   - Commit: fix: cancel a commit preparation whose index changed
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs, docs/architecture/workflow-kit/WorkflowKitCommands.md
 - [TODO] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R2
   - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md

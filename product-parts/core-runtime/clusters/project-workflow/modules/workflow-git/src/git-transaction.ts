@@ -173,7 +173,6 @@ function rollback(
   root: string,
   journal: CommitJournal
 ): boolean {
-  const backup = localPath(root, "index-before");
   const plan = planAbsolute(root, journal.planPath);
   const untouched =
     head(git, root) === journal.beforeHead &&
@@ -183,6 +182,24 @@ function rollback(
   if (!untouched) {
     return false;
   }
+  discardPreparation(git, root, journal);
+  return true;
+}
+
+/**
+ * Restores the index from `index-before` (or the HEAD tree, or empty without
+ * commits) and the plan from the journal, never touching other working-tree
+ * files, then records the journal as failed and removes it. `rollback` calls
+ * it when nothing changed since the preparation; `repair --cancel` also
+ * when the index or plan changed but HEAD did not.
+ */
+export function discardPreparation(
+  git: GitRunner,
+  root: string,
+  journal: CommitJournal
+): void {
+  const backup = localPath(root, "index-before");
+  const plan = planAbsolute(root, journal.planPath);
   if (existsSync(backup)) {
     workflowPlatformFacade.writeFileAtomic(
       indexFile(git, root),
@@ -204,7 +221,6 @@ function rollback(
   );
   rmSync(pendingEvidence(root, journal), { force: true });
   removeJournal(root);
-  return true;
 }
 
 /** The given paths that git ignores; read through stdin, so any count fits. */

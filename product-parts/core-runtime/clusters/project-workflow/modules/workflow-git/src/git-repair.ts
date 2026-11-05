@@ -11,6 +11,7 @@ import {
   type CommitResult,
   commitCandidate,
   confirmedCommit,
+  discardPreparation,
   finishConfirmed,
   rollbackTransaction,
 } from "./git-transaction.js";
@@ -100,15 +101,15 @@ export function planRepair(
   return { kind, message: MESSAGES[kind], repairId };
 }
 
-function retry(git: GitRunner, root: string): CommitResult {
+function retry(git: GitRunner, root: string, repairId: string): CommitResult {
   const journal = readJournal(root);
   ensure(journal, "NO_TRANSACTION", "There is no transaction to retry.");
   ensure(
     rollbackTransaction(git, root, journal),
     "REPAIR_MANUAL",
-    "HEAD, plan or index changed after preparation; resolve manually.",
+    "HEAD, plan or index changed after preparation; the prepared commit cannot be repeated.",
     {},
-    "Inspect `git status` and `.harness/workflow/local/transaction.json`."
+    `Cancel the preparation with \`scripts/workflow repair --cancel ${repairId}\` (working-tree edits are kept), then repeat the commit command.`
   );
   return commitCandidate(
     git,
@@ -152,7 +153,7 @@ export function applyRepair(
   }
   if (planned.kind === "retry-commit") {
     return {
-      commit: retry(git, root),
+      commit: retry(git, root, repairId),
       kind: planned.kind,
       message: planned.message,
     };
@@ -185,14 +186,31 @@ export function cancelRepair(
     "Only an unconfirmed commit preparation can be cancelled."
   );
   const journal = readJournal(root);
+  ensure(journal, "NO_PREPARATION", "There is no preparation to cancel.");
+  if (rollbackTransaction(git, root, journal)) {
+    return {
+      commit: null,
+      kind: "cancel",
+      message: "Preparation cancelled; edits are kept and the task stays open.",
+    };
+  }
+  // The index or plan changed after the preparation. With HEAD unchanged the
+  // state before the preparation is restored; working-tree files stay.
+  const now = head(git, root) || null;
   ensure(
-    journal && rollbackTransaction(git, root, journal),
+    now === journal.beforeHead,
     "REPAIR_MANUAL",
-    "The preparation cannot be rolled back automatically."
+    `HEAD moved from ${journal.beforeHead ?? "no commit"} to ${now ?? "no commit"} after the preparation; the Kit does not undo commits.`,
+    { beforeHead: journal.beforeHead, head: now },
+    journal.beforeHead
+      ? `Ask the user. To cancel the preparation, return HEAD with \`git reset --soft ${journal.beforeHead}\` (every change stays in the working tree) and run \`scripts/workflow repair\` again.`
+      : "Ask the user how to resolve it; the Kit cannot restore a repository that had no commit."
   );
+  discardPreparation(git, root, journal);
   return {
     commit: null,
     kind: "cancel",
-    message: "Preparation cancelled; edits are kept and the task stays open.",
+    message:
+      "Preparation cancelled: the index and plan were restored from before the preparation; working-tree files are kept and the task stays open.",
   };
 }

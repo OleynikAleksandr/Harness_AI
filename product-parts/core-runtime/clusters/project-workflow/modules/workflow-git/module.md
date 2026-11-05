@@ -265,8 +265,19 @@ repairId}`, where the id pins HEAD, the plan text and the journal. Kinds:
 matches, it fails with `REPAIR_CHANGED`. A retry rolls the preparation back
 and repeats the same request (with its `assignmentId` and `sourceCommit`)
 with the same transaction id; it fails with
-`REPAIR_MANUAL` when state changed concurrently. `cancelRepair` only
-cancels an unconfirmed preparation (`NO_PREPARATION`) and keeps edits.
+`REPAIR_MANUAL` when state changed concurrently, and the next action names
+`repair --cancel <id>`. `cancelRepair` only cancels an unconfirmed
+preparation (`NO_PREPARATION`) and keeps edits:
+- nothing changed since the preparation — the usual rollback;
+- the index or plan changed (or the journal is still `PREPARING`) but HEAD
+  is `beforeHead` — `discardPreparation` (`git-transaction.ts`) restores
+  the index and the original plan of the journal (no plan before: the file
+  is removed), leaves every other working-tree file alone, stores the
+  journal as `verification/failed-<id>.json` and removes the journal, the
+  index backup and the pending evidence;
+- HEAD moved — `REPAIR_MANUAL` with `details {beforeHead, head}` and the
+  next action to ask the user and return HEAD with `git reset --soft
+  <beforeHead>` before running `repair` again.
 
 During rollback the index is restored from `index-before`. If the backup is
 missing, it is restored from the previous HEAD tree, or emptied when there

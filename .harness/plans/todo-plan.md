@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 147,
+  "revision": 148,
   "rounds": [
     {
       "digest": {
@@ -48,6 +48,13 @@
       "kind": "implementation",
       "status": "CLOSED",
       "title": "Implementation"
+    },
+    {
+      "digest": null,
+      "id": "R2",
+      "kind": "fixes",
+      "status": "OPEN",
+      "title": "Kit fixes 2026-11-05"
     }
   ],
   "schema": "harness-workflow-plan/1",
@@ -95,7 +102,7 @@
         "text": "Tag v2026.11.4.2 as the second release of the day"
       }
     ],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "IN_PROGRESS",
     "id": "release-fixes-2026-11-04-3",
     "objective": "Give agents their input schemas and document text inline, add the Kit context command and documents map, run the autopilot by default with a Kit pause and a plan-panel pause button, give agent processes the real git config, remove the built-in project, build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-3.md",
@@ -846,6 +853,328 @@
       "status": "DONE",
       "title": "Publish the release on GitHub",
       "why": "Every plan ends with a GitHub publication"
+    },
+    {
+      "acceptance": [
+        "The managed .gitignore block lists node_modules/, .venv/ and __pycache__/",
+        "KIT_VERSION is 2.2.1 and install --update rewrites the block",
+        "Installer tests cover the new block"
+      ],
+      "checks": [],
+      "commitMessage": "fix: ignore dependency folders in the managed gitignore block",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "1. Каталоги зависимостей и коммиты"
+        }
+      ],
+      "dependencies": [],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F1",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Ignore dependency folders in the managed gitignore",
+      "why": "quality:apply with install committed 26 MB of node_modules in a new project"
+    },
+    {
+      "acceptance": [
+        "Untracked paths that git ignores are not passed to git add; a staged deletion of them is committed",
+        "Tracked paths are staged as before; a path neither in the index nor on disk does not break the commit",
+        "A test commits the removal of a folder from the index together with its .gitignore entry through commit --task"
+      ],
+      "checks": [],
+      "commitMessage": "fix: skip ignored untracked paths when staging a kit commit",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "1. Каталоги зависимостей и коммиты"
+        }
+      ],
+      "dependencies": [],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F2",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Skip ignored paths when staging a commit",
+      "why": "commit --task failed with paths are ignored after git rm --cached of an ignored folder"
+    },
+    {
+      "acceptance": [
+        "workflow-quality refuses unknown planned check ids with CHECK_UNKNOWN: profile ids when CONFIGURED, id form and kit builtins before",
+        "The schema describes tasks[].checks and the patch checks as quality check ids with the rule in rules",
+        "Tests cover both profile states"
+      ],
+      "checks": [],
+      "commitMessage": "fix: define planned check ids and describe task checks honestly",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "2. Проверка `tasks[].checks` при планировании"
+        }
+      ],
+      "dependencies": [],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-input-schema.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F3",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Planned check ids in the quality module and the schema",
+      "why": "The schema called checks extra manual checks and an agent wrote free text there"
+    },
+    {
+      "acceptance": [
+        "scope:create, scope:propose, scope:choose, plan:extend and task:update refuse unknown check ids with CHECK_UNKNOWN and write nothing",
+        "Only new tasks and tasks whose checks change are checked",
+        "A test covers the refusals and a valid optional check"
+      ],
+      "checks": [],
+      "commitMessage": "fix: check task check ids in scope, extend and task update",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "2. Проверка `tasks[].checks` при планировании"
+        }
+      ],
+      "dependencies": [
+        "F3"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-plan-checks.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F4",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Refuse unknown task checks when planning",
+      "why": "An unknown check must fail when the plan is written, not at assignment:attach"
+    },
+    {
+      "acceptance": [
+        "A record that is not INTEGRATED is removed with its worktree and branch",
+        "A dirty worktree is refused with ASSIGNMENT_DIRTY unless forced",
+        "A git refusal keeps the record so the cancel can be repeated"
+      ],
+      "checks": [],
+      "commitMessage": "feat: cancel an assignment record with its worktree and branch",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "3. Отмена назначения (`assignment:cancel`)"
+        }
+      ],
+      "dependencies": [],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cancel.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cleanup.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-cancel.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F5",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Cancel an assignment in the assignment module",
+      "why": "A stuck assignment could be removed only by deleting its record by hand"
+    },
+    {
+      "acceptance": [
+        "assignment:cancel --id <id> [--force] works in main and is refused in an executor worktree",
+        "The task in main stays TODO and the text prints the next step",
+        "help lists the command"
+      ],
+      "checks": [],
+      "commitMessage": "feat: add the assignment:cancel command",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "3. Отмена назначения (`assignment:cancel`)"
+        }
+      ],
+      "dependencies": [
+        "F5"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F6",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "assignment:cancel command",
+      "why": "The orchestrator needs a Kit command to drop a stuck assignment"
+    },
+    {
+      "acceptance": [
+        "With HEAD unchanged repair --cancel restores the index and the original plan, keeps working-tree files and removes the journal",
+        "With HEAD changed it stays REPAIR_MANUAL with details and a clear next action",
+        "repair --apply points to repair --cancel when the preparation changed"
+      ],
+      "checks": [],
+      "commitMessage": "fix: cancel a commit preparation whose index changed",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "4. Отмена застрявшей подготовки коммита (`repair --cancel`)"
+        }
+      ],
+      "dependencies": [],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F7",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Cancel a changed commit preparation in repair",
+      "why": "repair --cancel answered REPAIR_MANUAL when the index changed after preparation"
+    },
+    {
+      "acceptance": [
+        "Project-wide documents describe the round result",
+        "The round digest records result, decisions, contracts and references"
+      ],
+      "checks": [],
+      "commitMessage": "docs: reconcile documentation for R2",
+      "confirmation": null,
+      "context": [],
+      "dependencies": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "README.md",
+        "docs/architecture/OVERVIEW.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md"
+      ],
+      "fixes": null,
+      "id": "DOCS-R2",
+      "iteration": 1,
+      "kind": "docs",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Reconcile project documentation and write the round digest",
+      "why": "Keep the project context current for the next agent and close the round."
+    },
+    {
+      "acceptance": [
+        "npm run build:workflow-kit succeeds and dist/workflow-kit/workflow.mjs reports KIT_VERSION 2.2.1",
+        "A smoke run on a temporary project shows the gitignore block, assignment:cancel and the planning CHECK_UNKNOWN",
+        "No app package, push or publication"
+      ],
+      "checks": [],
+      "commitMessage": "chore: build the workflow kit 2.2.1 bundle",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "required": true,
+          "heading": "5. Сборка бандла"
+        }
+      ],
+      "dependencies": [
+        "DOCS-R2"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "docs/evidence/kit-fixes-2026-11-05-bundle.md",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
+      ],
+      "fixes": null,
+      "id": "D2",
+      "iteration": 1,
+      "kind": "delivery",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Build the Workflow Kit bundle",
+      "why": "The user installs the fixed Kit into another project from the bundle"
     }
   ]
 }
@@ -855,10 +1184,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 17/17
-- Revision: 147
+- Progress: 17/26
+- Revision: 148
 
 ## Objective
 
@@ -943,5 +1272,39 @@ Give agents their input schemas and document text inline, add the Kit context co
   - Depends on: D1, DOCS-R1
 
 Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (also in the recovery packet), document text in executor briefs, required documents always inline, the documents map and the `context` command, plus a doctor doc-size warning (Kit 2.2.0). The autopilot is on by default and the user pauses the plan from the plan panel (Kit pause state, Core pauseState). Agent processes see the real git config, and Core has no built-in project: the app opens on a start screen.
+
+### R2 — Kit fixes 2026-11-05 (fixes, OPEN)
+
+- [TODO] F1 — Ignore dependency folders in the managed gitignore (work)
+  - Commit: fix: ignore dependency folders in the managed gitignore block
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs
+- [TODO] F2 — Skip ignored paths when staging a commit (work)
+  - Commit: fix: skip ignored untracked paths when staging a kit commit
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs
+- [TODO] F3 — Planned check ids in the quality module and the schema (work)
+  - Commit: fix: define planned check ids and describe task checks honestly
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-input-schema.test.mjs
+- [TODO] F4 — Refuse unknown task checks when planning (work)
+  - Commit: fix: check task check ids in scope, extend and task update
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-plan-checks.test.mjs
+  - Depends on: F3
+- [TODO] F5 — Cancel an assignment in the assignment module (work)
+  - Commit: feat: cancel an assignment record with its worktree and branch
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cancel.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cleanup.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-records.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-cancel.test.mjs
+- [TODO] F6 — assignment:cancel command (work)
+  - Commit: feat: add the assignment:cancel command
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-assignment.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-args.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs
+  - Depends on: F5
+- [TODO] F7 — Cancel a changed commit preparation in repair (work)
+  - Commit: fix: cancel a commit preparation whose index changed
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-repair.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-repair.test.mjs
+- [TODO] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
+  - Commit: docs: reconcile documentation for R2
+  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md
+  - Depends on: F1, F2, F3, F4, F5, F6, F7
+- [TODO] D2 — Build the Workflow Kit bundle (delivery)
+  - Commit: chore: build the workflow kit 2.2.1 bundle
+  - Files: docs/evidence/kit-fixes-2026-11-05-bundle.md, docs/evidence/EVIDENCE_INDEX_2.md
+  - Depends on: DOCS-R2
 
 State changes only through `scripts/workflow` commands. History lives in Git.

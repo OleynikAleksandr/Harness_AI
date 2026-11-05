@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 164,
+  "revision": 166,
   "rounds": [
     {
       "digest": {
@@ -76,7 +76,7 @@
       },
       "id": "R2",
       "kind": "fixes",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Kit fixes 2026-11-05"
     }
   ],
@@ -125,7 +125,7 @@
         "text": "Tag v2026.11.4.2 as the second release of the day"
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "release-fixes-2026-11-04-3",
     "objective": "Give agents their input schemas and document text inline, add the Kit context command and documents map, run the autopilot by default with a Kit pause and a plan-panel pause button, give agent processes the real git config, remove the built-in project, build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-3.md",
@@ -1186,7 +1186,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: build the workflow kit 2.2.1 bundle",
-      "confirmation": null,
+      "confirmation": "Пользователь: «Раунд исправлений: plan:extend добавит в этот scope раунд: исправления Kit с тестами, DOCS и delivery-задачу сборки бандла Kit (без публикации приложения и push)»",
       "context": [
         {
           "path": "docs/architecture/KitFixes-2026-11-05.md",
@@ -1207,7 +1207,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Build the Workflow Kit bundle",
       "why": "The user installs the fixed Kit into another project from the bundle"
     }
@@ -1219,10 +1219,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 25/26
-- Revision: 164
+- Progress: 26/26
+- Revision: 166
 
 ## Objective
 
@@ -1308,7 +1308,7 @@ Give agents their input schemas and document text inline, add the Kit context co
 
 Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (also in the recovery packet), document text in executor briefs, required documents always inline, the documents map and the `context` command, plus a doctor doc-size warning (Kit 2.2.0). The autopilot is on by default and the user pauses the plan from the plan panel (Kit pause state, Core pauseState). Agent processes see the real git config, and Core has no built-in project: the app opens on a start screen.
 
-### R2 — Kit fixes 2026-11-05 (fixes, OPEN)
+### R2 — Kit fixes 2026-11-05 (fixes, CLOSED)
 
 - [DONE] F1 — Ignore dependency folders in the managed gitignore (work)
   - Commit: fix: ignore dependency folders in the managed gitignore block
@@ -1337,7 +1337,7 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
   - Commit: docs: reconcile documentation for R2
   - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/KitFixes-2026-11-05.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/architecture/workflow-kit/WorkflowKitExecutionModes.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitOrchestration.md, docs/architecture/workflow-kit/WorkflowKitProcess.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, product-parts/core-runtime/clusters/project-workflow/cluster.md
   - Depends on: F1, F2, F3, F4, F5, F6, F7
-- [TODO] D2 — Build the Workflow Kit bundle (delivery)
+- [DONE] D2 — Build the Workflow Kit bundle (delivery)
   - Commit: chore: build the workflow kit 2.2.1 bundle
   - Files: docs/evidence/kit-fixes-2026-11-05-bundle.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: DOCS-R2

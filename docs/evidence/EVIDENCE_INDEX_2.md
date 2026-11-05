@@ -312,3 +312,7 @@ added, add a new evidence file and keep this index entry valid.
 - `docs/evidence/release-fixes-3-publish-2026-11-04.md` — release fixes round
   3 publication: history secret scan, the fast-forward push of `main`, tag
   `v2026.11.4.2` and the GitHub Release with the app zip.
+- `docs/evidence/kit-fixes-2026-11-05-bundle.md` — Workflow Kit 2.2.1 bundle
+  (round R2 Kit fixes): build, smoke of the `.gitignore` block,
+  `assignment:cancel`, planning `CHECK_UNKNOWN` and the update of a 2.2.0
+  installation by running the new bundle.

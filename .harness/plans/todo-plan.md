@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 166,
+  "revision": 167,
   "rounds": [
     {
       "digest": {
@@ -78,6 +78,13 @@
       "kind": "fixes",
       "status": "CLOSED",
       "title": "Kit fixes 2026-11-05"
+    },
+    {
+      "digest": null,
+      "id": "R3",
+      "kind": "fixes",
+      "status": "OPEN",
+      "title": "Kit fixes 2026-11-05 (2)"
     }
   ],
   "schema": "harness-workflow-plan/1",
@@ -125,7 +132,7 @@
         "text": "Tag v2026.11.4.2 as the second release of the day"
       }
     ],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "IN_PROGRESS",
     "id": "release-fixes-2026-11-04-3",
     "objective": "Give agents their input schemas and document text inline, add the Kit context command and documents map, run the autopilot by default with a Kit pause and a plan-panel pause button, give agent processes the real git config, remove the built-in project, build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-3.md",
@@ -1210,6 +1217,210 @@
       "status": "DONE",
       "title": "Build the Workflow Kit bundle",
       "why": "The user installs the fixed Kit into another project from the bundle"
+    },
+    {
+      "acceptance": [
+        "absentPaths(root, files) returns the paths outside the index that are missing on disk or ignored by git",
+        "stage() stages exactly the paths absentPaths does not name",
+        "A workflow-git test covers absentPaths after git rm -r --cached of an ignored folder"
+      ],
+      "checks": [],
+      "commitMessage": "fix: name the paths absent from a commit candidate",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "heading": "6. Удалённые из индекса пути и проверки содержимого",
+          "required": true
+        }
+      ],
+      "dependencies": [],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F8",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R3",
+      "status": "TODO",
+      "title": "Name the paths a commit candidate will not contain",
+      "why": "Content checks need the paths a commit removes from the index; the rule must match stage()"
+    },
+    {
+      "acceptance": [
+        "StageRequest.removed lists paths the commit removes",
+        "kit:file-lines, kit:doc-size, kit:md-links and kit:conflict-markers skip removed paths; kit:docs-contracts still counts them",
+        "The {files} argument never receives removed paths; appliesTo still sees every candidate path",
+        "A runner test covers removed paths for each builtin and for {files}"
+      ],
+      "checks": [],
+      "commitMessage": "fix: skip paths removed by the commit in content checks",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "heading": "6. Удалённые из индекса пути и проверки содержимого",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "F8"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F9",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R3",
+      "status": "TODO",
+      "title": "Skip removed paths in content checks",
+      "why": "kit:file-lines failed on node_modules files removed from the index but kept on disk"
+    },
+    {
+      "acceptance": [
+        "The pre-commit hook and the prepare stage pass absentPaths of the selected files as removed",
+        "commit --task after git rm -r --cached of a folder with a file over policy.maxFileLines and node_modules/ in .gitignore passes; the deletion is committed and the files stay on disk"
+      ],
+      "checks": [],
+      "commitMessage": "fix: do not check files a commit removes from the index",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "heading": "6. Удалённые из индекса пути и проверки содержимого",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "F8",
+        "F9"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs"
+      ],
+      "fixes": "F2",
+      "id": "F10",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R3",
+      "status": "TODO",
+      "title": "Pass removed paths to the commit and prepare checks",
+      "why": "commit --task after git rm -r --cached node_modules failed with kit:file-lines on files outside the commit"
+    },
+    {
+      "acceptance": [
+        "KIT_VERSION is 2.2.2 and installer tests expect it",
+        "module.md names 2.2.2 and why it was raised"
+      ],
+      "checks": [],
+      "commitMessage": "chore: raise the workflow kit version to 2.2.2",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "heading": "6. Удалённые из индекса пути и проверки содержимого",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "F10"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs"
+      ],
+      "fixes": null,
+      "id": "F11",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R3",
+      "status": "TODO",
+      "title": "Raise the Kit version to 2.2.2",
+      "why": "Installed 2.2.1 projects must read as outdated so install --update brings the fixed runtime"
+    },
+    {
+      "acceptance": [
+        "Project-wide documents describe the round result",
+        "The round digest records result, decisions, contracts and references"
+      ],
+      "checks": [],
+      "commitMessage": "docs: reconcile documentation for R3",
+      "confirmation": null,
+      "context": [],
+      "dependencies": [
+        "F8",
+        "F9",
+        "F10",
+        "F11"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "README.md",
+        "docs/architecture/OVERVIEW.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md"
+      ],
+      "fixes": null,
+      "id": "DOCS-R3",
+      "iteration": 1,
+      "kind": "docs",
+      "roundId": "R3",
+      "status": "TODO",
+      "title": "Reconcile project documentation and write the round digest",
+      "why": "Keep the project context current for the next agent and close the round."
+    },
+    {
+      "acceptance": [
+        "npm run build:workflow-kit succeeds and dist/workflow-kit/workflow.mjs reports KIT_VERSION 2.2.2",
+        "A smoke run updates a 2.2.1 project with the new bundle and commits a task after git rm -r --cached node_modules with a large file",
+        "No app package, push or publication"
+      ],
+      "checks": [],
+      "commitMessage": "chore: build the workflow kit 2.2.2 bundle",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/KitFixes-2026-11-05.md",
+          "heading": "7. Сборка бандла 2.2.2",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "DOCS-R3"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "docs/evidence/kit-fixes-2026-11-05-bundle-2.md",
+        "docs/evidence/EVIDENCE_INDEX_2.md"
+      ],
+      "fixes": null,
+      "id": "D3",
+      "iteration": 1,
+      "kind": "delivery",
+      "roundId": "R3",
+      "status": "TODO",
+      "title": "Build the Workflow Kit 2.2.2 bundle",
+      "why": "The user updates Workflow_Kit and other projects from the bundle"
     }
   ]
 }
@@ -1219,10 +1430,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 26/26
-- Revision: 166
+- Progress: 26/32
+- Revision: 167
 
 ## Objective
 
@@ -1343,5 +1554,32 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
   - Depends on: DOCS-R2
 
 Digest: Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ignores node_modules/, .venv/ and __pycache__/; commit staging skips ignored paths outside the index, so removing a folder from the index commits; planning refuses tasks[].checks that are not quality check ids (CHECK_UNKNOWN); assignment:cancel drops a stuck assignment; repair --cancel restores a preparation whose index or plan changed while HEAD did not.
+
+### R3 — Kit fixes 2026-11-05 (2) (fixes, OPEN)
+
+- [TODO] F8 — Name the paths a commit candidate will not contain (work)
+  - Commit: fix: name the paths absent from a commit candidate
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs
+- [TODO] F9 — Skip removed paths in content checks (work)
+  - Commit: fix: skip paths removed by the commit in content checks
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-runner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs
+  - Depends on: F8
+- [TODO] F10 — Pass removed paths to the commit and prepare checks (work)
+  - Commit: fix: do not check files a commit removes from the index
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs
+  - Depends on: F8, F9
+  - Fixes: F2
+- [TODO] F11 — Raise the Kit version to 2.2.2 (work)
+  - Commit: chore: raise the workflow kit version to 2.2.2
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs
+  - Depends on: F10
+- [TODO] DOCS-R3 — Reconcile project documentation and write the round digest (docs)
+  - Commit: docs: reconcile documentation for R3
+  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md
+  - Depends on: F8, F9, F10, F11
+- [TODO] D3 — Build the Workflow Kit 2.2.2 bundle (delivery)
+  - Commit: chore: build the workflow kit 2.2.2 bundle
+  - Files: docs/evidence/kit-fixes-2026-11-05-bundle-2.md, docs/evidence/EVIDENCE_INDEX_2.md
+  - Depends on: DOCS-R3
 
 State changes only through `scripts/workflow` commands. History lives in Git.

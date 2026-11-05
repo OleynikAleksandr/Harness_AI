@@ -412,6 +412,10 @@ worktrees where noted):
   commits, scope with spec, QUALITY, task snapshots, prepare checks,
   block/unblock, `task:update`, DOCS digests, a fixes round, history,
   acceptance, close, recovery and repair.
+- `src/workflow-kit-ignored-commit.test.mjs` — `commit --task` after
+  `git rm -r --cached node_modules` with a new `node_modules/` line in
+  `.gitignore` and a tracked file removed from the index and the disk: the
+  deletions are committed, the folder stays on disk.
 - `src/workflow-kit-hooks.test.mjs` — direct commits rejected, service
   commits, failing and candidate-changing checks, a service commit with a
   conflict marker refused, DOCS before push, push checks, `commit-msg`,

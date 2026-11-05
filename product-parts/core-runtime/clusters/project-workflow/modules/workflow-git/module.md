@@ -158,8 +158,14 @@ Steps:
    the journal (`transaction.json`) with the original and candidate plan.
 3. Runs `prepare(files)`: formatters may rewrite files here.
 4. Writes the candidate plan, stages the files (deletions included) and
-   records the candidate tree. If nothing is staged, it rolls back and
-   fails with `NOTHING_TO_COMMIT`.
+   records the candidate tree. A path in the index is staged as it is on
+   disk (`git add -A`). A path outside the index is staged only when it
+   exists and git does not ignore it (`git check-ignore -z --stdin`, so any
+   number of paths fits): a deletion already staged for an ignored folder
+   (`git rm -r --cached node_modules` with `node_modules/` in `.gitignore`)
+   or for a path missing on disk stays in the index and is committed, and
+   git never refuses with "paths are ignored" or "pathspec did not match".
+   If nothing is staged, it rolls back and fails with `NOTHING_TO_COMMIT`.
 5. Runs `git -c user.name=<local name> -c user.email=<local email> commit
    -F -` with `GIT_AUTHOR_NAME/EMAIL` and `GIT_COMMITTER_NAME/EMAIL` set to
    the same identity (`identityEnv`; Git exports `GIT_AUTHOR_*` to hooks and
@@ -201,7 +207,9 @@ Other transaction calls:
 `src/workflow-git-transaction.test.mjs` covers the integration commit:
 `MERGE_REQUIRED` without the merge, `MERGE_IN_PROGRESS` for another role
 during it, then two parents, `Workflow-Source`, `Workflow-Assignment` and
-the given transaction id.
+the given transaction id. It also commits a folder removed from the index
+and ignored in the same commit (files kept on disk) and skips a path that is
+neither in the index nor on disk.
 
 ## Commit References (`git-references.ts`)
 

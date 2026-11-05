@@ -290,6 +290,47 @@ try {
   assert.equal(git.mergeHead(root), null);
   assert.equal(tx.journal(root), null);
   assert.equal(read(PLAN), "plan merged\n");
+
+  // A folder removed from the index and ignored in the same commit: the
+  // staged deletions are committed, git add never sees the ignored paths and
+  // the files stay on disk. A path neither in the index nor on disk is skipped.
+  write("deps/pkg/index.js", "module.exports = 1;\n");
+  write("gone.txt", "gone\n");
+  const vendored = tx.commit(root, {
+    files: ["deps/pkg/index.js", "gone.txt"],
+    message: "chore: vendor deps",
+    planPath: PLAN,
+    planText: "plan deps\n",
+    role: "docs",
+    scopeId: "demo",
+    taskId: null,
+  });
+  assert.deepEqual(git.commitPaths(root, vendored.sha).sort(), [
+    PLAN,
+    "deps/pkg/index.js",
+    "gone.txt",
+  ]);
+  git.git.run(root, ["rm", "-r", "-q", "--cached", "deps"]);
+  git.git.run(root, ["rm", "-q", "gone.txt"]);
+  write(".gitignore", ".harness/workflow/local/\ndeps/\n");
+  const unvendored = tx.commit(root, {
+    files: [".gitignore", "deps/pkg/index.js", "gone.txt", "never.txt"],
+    message: "chore: ignore deps",
+    planPath: PLAN,
+    planText: "plan no deps\n",
+    role: "docs",
+    scopeId: "demo",
+    taskId: null,
+  });
+  assert.deepEqual(git.commitPaths(root, unvendored.sha).sort(), [
+    ".gitignore",
+    PLAN,
+    "deps/pkg/index.js",
+    "gone.txt",
+  ]);
+  assert.equal(git.git.text(root, ["ls-files", "--", "deps", "gone.txt"]), "");
+  assert.ok(existsSync(path.join(root, "deps", "pkg", "index.js")));
+  assert.deepEqual(git.changes(root).all, []);
   console.log("workflow-git transaction tests passed");
 } finally {
   rmSync(root, { force: true, recursive: true });

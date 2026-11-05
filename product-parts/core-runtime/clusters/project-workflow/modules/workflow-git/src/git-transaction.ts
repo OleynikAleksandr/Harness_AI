@@ -207,6 +207,35 @@ function rollback(
   return true;
 }
 
+/** The given paths that git ignores; read through stdin, so any count fits. */
+function ignoredPaths(
+  git: GitRunner,
+  root: string,
+  files: string[]
+): Set<string> {
+  if (files.length === 0) {
+    return new Set();
+  }
+  const output = git.run(root, ["check-ignore", "-z", "--stdin"], {
+    allowFailure: true,
+    input: `${files.join("\u0000")}\u0000`,
+  });
+  // Exit code 1 means that none of the paths is ignored.
+  ensure(
+    output.status === 0 || output.status === 1,
+    "GIT_FAILED",
+    `git check-ignore failed: ${output.stderr.trim() || output.stdout.trim()}`,
+    { args: ["check-ignore", "-z", "--stdin"], status: output.status }
+  );
+  return new Set(output.stdout.split("\u0000").filter(Boolean));
+}
+
+/**
+ * Stages the selected paths. Index paths are added as they are on disk. A
+ * path outside the index is added only when it exists and git does not
+ * ignore it: a deletion already staged for an ignored or missing path (for
+ * example after `git rm -r --cached node_modules`) stays in the index as is.
+ */
 function stage(git: GitRunner, root: string, files: string[]): void {
   const tracked = new Set(
     git
@@ -214,9 +243,15 @@ function stage(git: GitRunner, root: string, files: string[]): void {
       .stdout.split("\u0000")
       .filter(Boolean)
   );
+  const untracked = new Set(
+    files.filter(
+      (file) =>
+        !tracked.has(file) && existsSync(path.join(root, ...file.split("/")))
+    )
+  );
+  const ignored = ignoredPaths(git, root, [...untracked]);
   const stageable = files.filter(
-    (file) =>
-      tracked.has(file) || existsSync(path.join(root, ...file.split("/")))
+    (file) => tracked.has(file) || (untracked.has(file) && !ignored.has(file))
   );
   if (stageable.length > 0) {
     git.run(root, ["add", "-A", "--", ...stageable]);

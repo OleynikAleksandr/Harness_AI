@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 150,
+  "revision": 152,
   "rounds": [
     {
       "digest": {
@@ -920,7 +920,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Skip ignored paths when staging a commit",
       "why": "commit --task failed with paths are ignored after git rm --cached of an ignored folder"
     },
@@ -1186,8 +1186,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 18/26
-- Revision: 150
+- Progress: 19/26
+- Revision: 152
 
 ## Objective
 
@@ -1278,7 +1278,7 @@ Digest: Agents now get Kit inputs and documents as text: `schema` descriptors (a
 - [DONE] F1 — Ignore dependency folders in the managed gitignore (work)
   - Commit: fix: ignore dependency folders in the managed gitignore block
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs
-- [TODO] F2 — Skip ignored paths when staging a commit (work)
+- [DONE] F2 — Skip ignored paths when staging a commit (work)
   - Commit: fix: skip ignored untracked paths when staging a kit commit
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs
 - [TODO] F3 — Planned check ids in the quality module and the schema (work)

@@ -313,6 +313,21 @@ try {
   git.git.run(root, ["rm", "-r", "-q", "--cached", "deps"]);
   git.git.run(root, ["rm", "-q", "gone.txt"]);
   write(".gitignore", ".harness/workflow/local/\ndeps/\n");
+  write("fresh.txt", "new\n");
+  // absentPaths names what the candidate will not hold: ignored copies left
+  // on disk and paths missing on disk; tracked and new files stay.
+  assert.deepEqual(
+    git.absentPaths(root, [
+      ".gitignore",
+      "deps/pkg/index.js",
+      "fresh.txt",
+      "gone.txt",
+      "never.txt",
+    ]),
+    ["deps/pkg/index.js", "gone.txt", "never.txt"]
+  );
+  assert.deepEqual(git.absentPaths(root, []), []);
+  rmSync(path.join(root, "fresh.txt"));
   const unvendored = tx.commit(root, {
     files: [".gitignore", "deps/pkg/index.js", "gone.txt", "never.txt"],
     message: "chore: ignore deps",

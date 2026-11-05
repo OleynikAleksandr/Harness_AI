@@ -46,6 +46,7 @@ import {
   type TaskIdentity,
 } from "./git-task-files.js";
 import {
+  absentPaths,
   type CommitRequest,
   type CommitResult,
   commitCandidate,
@@ -243,6 +244,15 @@ export class WorkflowGitFacade {
       finish: (root) => finishConfirmed(this.git, root),
       journal: (root) => readJournal(root),
     };
+  }
+
+  /**
+   * Paths of `files` the commit candidate will not contain: outside the
+   * index and missing on disk or ignored by git (the paths `stage` skips).
+   */
+  absentPaths(root: string, files: string[]): string[] {
+    const absent = absentPaths(this.git, root, files);
+    return files.filter((file) => absent.has(file));
   }
 
   /** The commit being merged (`MERGE_HEAD`), or null without a merge in progress. */

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 167,
+  "revision": 169,
   "rounds": [
     {
       "digest": {
@@ -1247,7 +1247,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R3",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Name the paths a commit candidate will not contain",
       "why": "Content checks need the paths a commit removes from the index; the rule must match stage()"
     },
@@ -1432,8 +1432,8 @@
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 26/32
-- Revision: 167
+- Progress: 27/32
+- Revision: 169
 
 ## Objective
 
@@ -1557,7 +1557,7 @@ Digest: Kit 2.2.1 fixes from the Workflow_Kit project: the managed .gitignore ig
 
 ### R3 — Kit fixes 2026-11-05 (2) (fixes, OPEN)
 
-- [TODO] F8 — Name the paths a commit candidate will not contain (work)
+- [DONE] F8 — Name the paths a commit candidate will not contain (work)
   - Commit: fix: name the paths absent from a commit candidate
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-transaction.test.mjs
 - [TODO] F9 — Skip removed paths in content checks (work)

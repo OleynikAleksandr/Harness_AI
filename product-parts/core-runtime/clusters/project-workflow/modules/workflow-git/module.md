@@ -47,6 +47,10 @@ through install) get it from `identityTemplate(folder)`, passed as
 - `mergeHead(root)` returns the `MERGE_HEAD` commit of the checkout, or
   `null` without a merge in progress; `conflicts(root)` the sorted paths
   with unresolved conflicts (`git diff --diff-filter=U`).
+- `absentPaths(root, files)` returns, in the given order, the paths of
+  `files` a commit candidate will not contain: outside the index and missing
+  on disk or ignored by git (the rule of staging, step 4 of the
+  transaction).
 - `commitPaths(root, sha)`, `isAncestor(root, a, b)`,
   `show(root, revision, path)` (`null` when the file is absent),
   `config`/`setConfig`, and `gitPath(root, name)` (absolute path inside the
@@ -161,7 +165,10 @@ Steps:
    records the candidate tree. A path in the index is staged as it is on
    disk (`git add -A`). A path outside the index is staged only when it
    exists and git does not ignore it (`git check-ignore -z --stdin`, so any
-   number of paths fits): a deletion already staged for an ignored folder
+   number of paths fits); the skipped paths are exactly
+   `absentPaths(root, files)` of the facade (the paths the candidate will
+   not contain, in the given order), which `workflow-kit` passes to the
+   quality checks as `removed`: a deletion already staged for an ignored folder
    (`git rm -r --cached node_modules` with `node_modules/` in `.gitignore`)
    or for a path missing on disk stays in the index and is committed, and
    git never refuses with "paths are ignored" or "pathspec did not match".
@@ -209,7 +216,8 @@ Other transaction calls:
 during it, then two parents, `Workflow-Source`, `Workflow-Assignment` and
 the given transaction id. It also commits a folder removed from the index
 and ignored in the same commit (files kept on disk) and skips a path that is
-neither in the index nor on disk.
+neither in the index nor on disk; before that commit `absentPaths` names the
+ignored copies and the missing paths, not the tracked or new files.
 
 ## Commit References (`git-references.ts`)
 

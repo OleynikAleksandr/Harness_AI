@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 189,
+  "revision": 190,
   "rounds": [
     {
       "digest": null,
@@ -203,7 +203,12 @@
         "docs/architecture/KitRecoveryParts-2026-11-12.md",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+        "docs/architecture/workflow-kit/WorkflowKitPlanMigration.md",
+        "docs/architecture/workflow-kit/WorkflowKitRecovery.md",
+        "docs/architecture/workflow-kit/WorkflowKit.md",
+        "docs/DOCUMENTATION_INDEX.md"
       ],
       "fixes": null,
       "id": "DOCS-R1",
@@ -310,7 +315,7 @@
 - Delivery: IN_PROGRESS
 - Current task: none
 - Progress: 3/7
-- Revision: 189
+- Revision: 190
 
 ## Objective
 
@@ -341,7 +346,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
   - Depends on: T002
 - [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
-  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/KitRecoveryParts-2026-11-12.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/KitRecoveryParts-2026-11-12.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitPlanMigration.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: T001, T002, T003
 - [TODO] D1 — Build the Workflow Kit 2.2.3 bundle (delivery)
   - Commit: chore: build the workflow kit 2.2.3 bundle

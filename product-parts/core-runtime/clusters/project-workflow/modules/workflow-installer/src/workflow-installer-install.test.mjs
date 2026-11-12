@@ -337,8 +337,8 @@ process.exitCode = runCli(process.argv.slice(2), {
     "kit-update"
   );
   assert.equal(installer.inspect(fresh).state, "KIT_OK");
-  // A 2.2.1 installation is outdated too: 2.2.2 changed only the runtime
-  // (content checks skip paths a commit removes), and the update brings it.
+  // An older installation is outdated too (2.2.2 changed only the runtime,
+  // 2.2.3 the provider hooks), and the update brings it.
   const currentManifest = readFileSync(manifestFile, "utf8");
   writeFileSync(
     manifestFile,

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 187,
+  "revision": 189,
   "rounds": [
     {
       "digest": null,
@@ -169,14 +169,16 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs"
       ],
       "fixes": null,
       "id": "T003",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Installer: hook groups, Codex limit, session-start rule",
       "why": "Projects get the six Claude groups, the Codex limit and the rule about an incomplete packet"
     },
@@ -307,8 +309,8 @@
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 2/7
-- Revision: 187
+- Progress: 3/7
+- Revision: 189
 
 ## Objective
 
@@ -333,9 +335,9 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
   - Commit: feat(workflow-kit): add --part to hook session-start
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, docs/architecture/workflow-kit/WorkflowKitCommands.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.test.mjs
   - Depends on: T001
-- [TODO] T003 — Installer: hook groups, Codex limit, session-start rule (work)
+- [DONE] T003 — Installer: hook groups, Codex limit, session-start rule (work)
   - Commit: feat(workflow-installer): install recovery hooks in parts and raise the Codex limit
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-provider-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-provider-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs
   - Depends on: T002
 - [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1

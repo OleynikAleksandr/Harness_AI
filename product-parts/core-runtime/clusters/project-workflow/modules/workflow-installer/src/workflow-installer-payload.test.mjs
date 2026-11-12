@@ -20,7 +20,7 @@ try {
   const byPath = Object.fromEntries(
     entries.map((entry) => [entry.path, entry])
   );
-  assert.equal(installer.version, "2.2.2");
+  assert.equal(installer.version, "2.2.3");
   assert.deepEqual(Object.keys(byPath), [
     ".harness/workflow/runtime/workflow.mjs",
     "scripts/workflow",
@@ -131,15 +131,55 @@ try {
   const withKit = JSON.parse(settings.render(settings.render(foreign)));
   assert.equal(withKit.model, "x");
   assert.deepEqual(withKit.hooks.Stop, []);
-  assert.equal(withKit.hooks.SessionStart.length, 2);
-  assert.equal(
-    withKit.hooks.SessionStart[1].hooks[0].command,
-    '"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude'
+  // Claude: the foreign group, then six Kit groups, one per packet part.
+  assert.equal(withKit.hooks.SessionStart.length, 7);
+  assert.equal(withKit.hooks.SessionStart[0].hooks[0].command, "echo hi");
+  assert.deepEqual(
+    withKit.hooks.SessionStart.slice(1).map((group) => group.hooks[0].command),
+    [1, 2, 3, 4, 5, 6].map(
+      (k) =>
+        `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude --part ${k}/6`
+    )
   );
-  assert.match(
-    byPath[".codex/hooks.json"].render(null),
-    /scripts\/workflow hook session-start --client codex/u
-  );
+  // A 2.2.2 entry (one group without --part) is replaced, the foreign one stays.
+  const old = JSON.stringify({
+    hooks: {
+      SessionStart: [
+        {
+          hooks: [
+            {
+              command:
+                '"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude',
+              type: "command",
+            },
+          ],
+        },
+        { hooks: [{ command: "echo hi", type: "command" }] },
+      ],
+    },
+  });
+  const migrated = JSON.parse(settings.render(old)).hooks.SessionStart;
+  assert.equal(migrated.length, 7);
+  assert.equal(migrated[0].hooks[0].command, "echo hi");
+  assert.equal(settings.read(old) === settings.managed, false, "2.2.2 differs");
+  assert.equal(settings.read(settings.render(old)), settings.managed);
+  // A changed part shows as a difference too.
+  const edited = settings.render(old).replace("--part 4/6", "--part 4/7");
+  assert.notEqual(settings.read(edited), settings.managed);
+  // Codex: one entry that takes the whole packet with a raised limit.
+  const codex = byPath[".codex/hooks.json"];
+  assert.deepEqual(JSON.parse(codex.render(null)).hooks.SessionStart, [
+    {
+      hooks: [
+        {
+          additionalContextLimit: 65_536,
+          command: "scripts/workflow hook session-start --client codex",
+          type: "command",
+        },
+      ],
+    },
+  ]);
+  assert.equal(codex.read(codex.render(null)), codex.managed);
   assert.throws(() => settings.render("[1]"), { code: "MANAGED_JSON" });
 
   // Git hooks: own directory, or sections in an existing hooks path.
@@ -206,7 +246,7 @@ try {
     manifest.files.find((file) => file.path === "README.md").sha256,
     null
   );
-  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.2.2");
+  assert.equal(JSON.parse(installer.renderManifest(manifest)).version, "2.2.3");
 } finally {
   await build.cleanup();
 }

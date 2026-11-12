@@ -31,8 +31,8 @@ compare it with `managed`.
 | `<hooksPath>/<hook>` (executable) | section, after the shebang | when `core.hooksPath` is set (Harness: `.husky`) |
 | `AGENTS.md` | section | English process rules, including the Execution modes block |
 | `CLAUDE.md` | line | `@AGENTS.md`, appended once |
-| `.codex/hooks.json` | json | SessionStart → `scripts/workflow hook session-start --client codex` |
-| `.claude/settings.json` | json | SessionStart → `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude` |
+| `.codex/hooks.json` | json | SessionStart → `scripts/workflow hook session-start --client codex` with `"additionalContextLimit": 65536` (`CODEX_CONTEXT_LIMIT`) |
+| `.claude/settings.json` | json | SessionStart → six groups (`CLAUDE_PARTS`) `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude --part K/6` |
 | `.gitignore` | section | `.harness/workflow/local/`, `.harness/runtime/`, `.harness/sessions/`, `.claude/worktrees/`, `.DS_Store`, dependency folders `node_modules/`, `.venv/`, `__pycache__/` |
 | `.gitattributes` | section | `eol=lf` for the POSIX launcher and `.harness/**`, `eol=crlf` for `.cmd` and `.ps1` |
 | `README.md`, `docs/architecture/OVERVIEW.md` | create | skeletons, only when absent |
@@ -48,9 +48,13 @@ Writing rules:
   keep CRLF. New blocks go to the end, git hook blocks after the shebang
   (a missing hook file starts with `#!/bin/sh`).
 - **json** — every SessionStart group whose command runs
-  `scripts/workflow … hook session-start` is replaced by the one Kit group;
-  other hooks and settings stay. A file that is not a JSON object fails with
-  `MANAGED_JSON`.
+  `scripts/workflow … hook session-start` is removed and the Kit groups are
+  appended in order (Claude: six, one per recovery packet part, because
+  Claude Code keeps at most 10 000 characters of one hook's output; Codex:
+  one with the raised output limit); other hooks and settings stay. The
+  managed part read back is the JSON array of all Kit groups in order, so
+  inspect and doctor see a change in any of them. A file that is not a JSON
+  object fails with `MANAGED_JSON`.
 - **line** — `@AGENTS.md` is appended when no line equals it.
 - **create** — an existing file is never touched.
 - Rendering is idempotent.
@@ -59,7 +63,7 @@ Writing rules:
 
 `manifest(entries)` → `{schema "harness-workflow-manifest/1", version,
 files: [{path, kind, executable, sha256}]}`; `sha256` hashes the managed
-part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.2`; Kit 1.x
+part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.3`; Kit 1.x
 was Workflow Pilot). A change of a managed text or of the runtime raises the version, so
 older installations read as `KIT_OUTDATED` and the update rewrites them
 (2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`
@@ -68,13 +72,19 @@ and the Execution modes block to `AGENTS.md`; 2.1.1 added `.DS_Store` to
 2.2.1 added the dependency folders `node_modules/`, `.venv/` and
 `__pycache__/` to `.gitignore`, so dependencies installed by `quality:apply`
 are never selected for a commit; 2.2.2 changed only the runtime: content
-checks skip the paths a commit removes from the index). The manifest lives at `.harness/workflow/manifest.json`
+checks skip the paths a commit removes from the index; 2.2.3 writes the
+recovery packet hooks in parts for Claude, the Codex output limit and the
+session-start rule about an incomplete packet in `AGENTS.md`, spec
+`docs/architecture/KitRecoveryParts-2026-11-12.md`). The manifest lives at `.harness/workflow/manifest.json`
 (`manifestPath`).
 
 ## Agent Rules (`installer-texts.ts`)
 
 `agentRules()` is the managed `AGENTS.md` section: the plan and commands,
-session start, the Inputs and documents block, when a plan is needed (in a Harness project the scope is
+session start (the packet arrives at session start, for Claude in parts
+K/N; unless every part with one digest is in the context, without
+`<persisted-output>` or a truncation marker, the agent runs `recover`), the
+Inputs and documents block, when a plan is needed (in a Harness project the scope is
 proposed instead of created), the Execution modes block, one task per
 commit and turn, and the rules. The Execution modes block tells the agent
 to follow the `role:` of the recovery packet:
@@ -277,7 +287,9 @@ Node built-ins only.
   hashes; the Execution modes block (four roles, helpers in sequential,
   integration commands, the identity rule, under 1800 bytes), the Inputs and
   documents block (`schema`, `context`, files never to read), the Harness
-  note on proposing the scope and `KIT_VERSION` 2.2.2.
+  note on proposing the scope and `KIT_VERSION` 2.2.3; the six Claude
+  groups with `--part K/6`, the replaced 2.2.2 group, a changed part read
+  as a difference, the Codex entry with `additionalContextLimit`.
 - `src/workflow-installer-install.test.mjs` — every folder state; a missing
   or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
   written; a global-only identity copied into the repository config (also

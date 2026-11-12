@@ -3,14 +3,14 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": null,
+  "currentTaskId": "T002",
   "lastClosed": {
     "closedAt": "2026-11-12T13:22:49.925Z",
     "scopeId": "release-fixes-2026-11-04-3"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 184,
+  "revision": 186,
   "rounds": [
     {
       "digest": null,
@@ -128,14 +128,15 @@
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "docs/architecture/workflow-kit/WorkflowKitCommands.md"
       ],
       "fixes": null,
       "id": "T002",
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "title": "hook session-start --part",
       "why": "Each Claude hook group asks for its own part"
     },
@@ -304,9 +305,9 @@
 
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
 - Delivery: IN_PROGRESS
-- Current task: none
+- Current task: T002
 - Progress: 1/7
-- Revision: 184
+- Revision: 186
 
 ## Objective
 
@@ -327,9 +328,9 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
 - [DONE] T001 — Recovery packet parts (work)
   - Commit: feat(workflow-recovery): split the session-start packet into parts
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-parts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-commands.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-parts.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md
-- [TODO] T002 — hook session-start --part (work)
+- [IN_PROGRESS] T002 — hook session-start --part (work)
   - Commit: feat(workflow-kit): add --part to hook session-start
-  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, docs/architecture/workflow-kit/WorkflowKitCommands.md
   - Depends on: T001
 - [TODO] T003 — Installer: hook groups, Codex limit, session-start rule (work)
   - Commit: feat(workflow-installer): install recovery hooks in parts and raise the Codex limit

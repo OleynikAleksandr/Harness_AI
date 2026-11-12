@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 192,
+  "revision": 194,
   "rounds": [
     {
       "digest": {
@@ -250,7 +250,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: build the workflow kit 2.2.3 bundle",
-      "confirmation": null,
+      "confirmation": "Пользователь 2026-11-12: «И выполни и пересобери новый релиз… Harness AI, а потом и нашего Workflow Kit»; «Я все принимаю. Дальше делай все как положено.»",
       "context": [],
       "dependencies": [
         "T003",
@@ -267,7 +267,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Build the Workflow Kit 2.2.3 bundle",
       "why": "Build the Workflow Kit 2.2.3 bundle"
     },
@@ -335,8 +335,8 @@
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 4/7
-- Revision: 192
+- Progress: 5/7
+- Revision: 194
 
 ## Objective
 
@@ -369,7 +369,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/KitRecoveryParts-2026-11-12.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitPlanMigration.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: T001, T002, T003
-- [TODO] D1 — Build the Workflow Kit 2.2.3 bundle (delivery)
+- [DONE] D1 — Build the Workflow Kit 2.2.3 bundle (delivery)
   - Commit: chore: build the workflow kit 2.2.3 bundle
   - Files: dist/workflow-kit/workflow.mjs, docs/evidence/kit-recovery-parts-2026-11-12-bundle.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: T003, DOCS-R1

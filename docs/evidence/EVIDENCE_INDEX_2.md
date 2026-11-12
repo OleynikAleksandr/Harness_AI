@@ -320,3 +320,8 @@ added, add a new evidence file and keep this index entry valid.
   bundle (round R3 Kit fixes): build, smoke of `commit --task` after
   `git rm -r --cached node_modules` with a file over `policy.maxFileLines`
   (fails on 2.2.1, commits after the update to 2.2.2).
+- `docs/evidence/kit-recovery-parts-2026-11-12-bundle.md` — Workflow Kit
+  2.2.3 bundle (scope `kit-recovery-parts-2026-11-12`): build, install and
+  update smoke with six Claude groups and the Codex limit, packet parts on
+  long packets, live Claude and Codex runs, the unit of
+  `additionalContextLimit` (tokens).

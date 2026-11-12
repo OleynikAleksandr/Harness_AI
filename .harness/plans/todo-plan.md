@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 179,
+  "revision": 180,
   "rounds": [
     {
       "digest": {
@@ -117,7 +117,10 @@
       "The app has no built-in project and works with an empty project list",
       "A new macOS package is built and published as a GitHub release"
     ],
-    "acceptanceNote": null,
+    "acceptanceNote": {
+      "at": "2026-11-12T13:22:23.087Z",
+      "text": "Пользователь 2026-11-12: «Я все принимаю. Дальше делай все как положено.»"
+    },
     "approval": {
       "at": "2026-11-04T15:08:20.492Z",
       "text": "User 2026-11-04: 'Согласен. Закрывая предыдущие составляй новую спецификацию и to-do plan, и выполняя ее вплоть уже до публикации на GitHub.' Built-in project removal: 'Удали из перечня проектов сам проект Harness AI… чтобы не повторилась ситуация, при которой я случайно начну создавать сессию в этом репозитории.'"
@@ -152,7 +155,7 @@
         "text": "Tag v2026.11.4.2 as the second release of the day"
       }
     ],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "ACCEPTED",
     "id": "release-fixes-2026-11-04-3",
     "objective": "Give agents their input schemas and document text inline, add the Kit context command and documents map, run the autopilot by default with a Kit pause and a plan-panel pause button, give agent processes the real git config, remove the built-in project, build the macOS release and publish it on GitHub.",
     "spec": "docs/architecture/ReleaseFixes-2026-11-04-3.md",
@@ -1456,10 +1459,10 @@
 ## State
 
 - Scope: release-fixes-2026-11-04-3 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: ACCEPTED
 - Current task: none
 - Progress: 32/32
-- Revision: 179
+- Revision: 180
 
 ## Objective
 

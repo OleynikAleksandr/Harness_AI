@@ -58,7 +58,7 @@ State (`kit-status.ts`):
 - `validate(root)` — `{ok, errors[]}`: plan document and projection,
   configuration, and the task-to-commit mapping of `workflow-git`.
 - `recover(root, event)`, `showTask(root, id)`, `history(root, filter)`,
-  `sessionStart(root, client, stdin)` — delegated to `workflow-recovery`.
+  `sessionStart(root, client, stdin, part?)` — delegated to `workflow-recovery`.
 - `inspect(path)`, `install(path, options)`, `doctor(path, options)`,
   `migrateHarnessPlan(path, options)` — delegated to `workflow-installer` (`installer` exposes it, bound to the same git
   facade).
@@ -370,8 +370,7 @@ it changes in the same commit as the commands. Summary:
   prints `<document path heading? bytes>` blocks in argument order within
   28 000 bytes; after the first misfit the rest is listed as `not included
   (ask again): <path>[#H] (N bytes)`. A document over the budget alone gives
-  its `##` sections (the preamble stays with the first; without sections:
-  `tooLarge`). `#Heading` matches by text or slug (`section`). Every
+  its `##` sections (without sections: `tooLarge`). `#Heading` matches by text or slug (`section`). Every
   argument is checked first: outside the root (symbolic links resolved),
   `.harness/workflow/**`, a folder or a file with a NUL byte is
   `CONTEXT_FORBIDDEN`; a missing file or heading `CONTEXT_MISSING`. JSON:
@@ -388,8 +387,8 @@ it changes in the same commit as the commands. Summary:
   `assignment:status`, `assignment:setup`, `assignment:attach`, `help`,
   `hook` and `git-hook` run; every other known command fails with
   `ASSIGNMENT_READ_ONLY` (`details.allowed`) before it runs.
-- `hook session-start --client claude|codex` prints the raw SessionStart
-  JSON; `git-hook <name> [args]` prints the hook message on stderr and
+- `hook session-start --client claude|codex [--part K/N]` prints the raw
+  SessionStart JSON; `git-hook <name> [args]` prints the hook message on stderr and
   exits with the hook code.
 
 ## Bundle

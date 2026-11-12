@@ -39,6 +39,7 @@ import type {
 import {
   type HistoryEntry,
   type HookClient,
+  type PartRequest,
   type RecoveryEvent,
   type RecoveryPacket,
   WorkflowRecoveryFacade,
@@ -250,8 +251,18 @@ export class WorkflowKitFacade {
     return this.recovery.history(root, filter);
   }
 
-  sessionStart(root: string, client: HookClient, stdin: string): string {
-    return this.recovery.sessionStart(root, { client, env: this.env, stdin });
+  sessionStart(
+    root: string,
+    client: HookClient,
+    stdin: string,
+    part: PartRequest | null = null
+  ): string {
+    return this.recovery.sessionStart(root, {
+      client,
+      env: this.env,
+      part,
+      stdin,
+    });
   }
 
   createScope(root: string, input: ScopeInput): PlanChange {

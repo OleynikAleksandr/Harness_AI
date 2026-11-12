@@ -4,7 +4,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { RoundDigest } from "../../workflow-plan/src/workflow-plan-facade.js";
 import { WorkflowError } from "../../workflow-platform/src/workflow-platform-facade.js";
 import type { ProfileInput } from "../../workflow-quality/src/workflow-quality-facade.js";
-import type { RecoveryEvent } from "../../workflow-recovery/src/workflow-recovery-facade.js";
+import {
+  parsePart,
+  type RecoveryEvent,
+} from "../../workflow-recovery/src/workflow-recovery-facade.js";
 import {
   flag,
   integerFlag,
@@ -283,7 +286,7 @@ function helpText(): string {
     "",
     "Usage:",
     ...lines,
-    "  scripts/workflow hook session-start --client claude|codex",
+    "  scripts/workflow hook session-start --client claude|codex [--part K/N]",
     "  scripts/workflow git-hook <pre-commit|commit-msg|post-commit|pre-push> [args]",
     "",
     "Options: --format json|text (default json; text for context), --root <project>.",
@@ -339,7 +342,19 @@ function runHook(
         "hook session-start --client claude|codex"
       );
     }
-    io.stdout(kit.sessionStart(root, client, io.readStdin()));
+    const partValue = flag(args, "part");
+    const part = partValue === undefined ? null : parsePart(partValue);
+    if (partValue !== undefined && part === null) {
+      // A wrong part adds no context and never blocks the session.
+      io.stderr(
+        "hook session-start: --part must be K/N with 1 <= K <= N <= 16\n"
+      );
+      io.stdout(
+        `${JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart" } })}\n`
+      );
+      return 0;
+    }
+    io.stdout(kit.sessionStart(root, client, io.readStdin(), part));
     return 0;
   }
   const result = kit.gitHook(

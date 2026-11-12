@@ -314,9 +314,17 @@ preconditions and their order are in `workflow-kit/module.md`
 
 - `help` (or `--help`, `-h`) — the usage of every command; without a
   command the help is printed with exit code 1.
-- `hook session-start --client claude|codex` — prints the raw
+- `hook session-start --client claude|codex [--part K/N]` — prints the raw
   SessionStart JSON from the stdin input; another hook or client is
-  `USAGE`.
+  `USAGE`. Without `--part` the context is the whole recovery packet. With
+  `--part K/N` (`1 <= K <= N <= 16`, `parsePart` of `workflow-recovery`) it
+  is part K of the packet cut into at most N parts of at most 9 500 UTF-16
+  units (`packetParts`); a part the packet does not have gives an answer
+  without `additionalContext`. A wrong `--part` gives an answer without
+  `additionalContext`, the line `hook session-start: --part must be K/N with
+  1 <= K <= N <= 16` on stderr and exit code 0, so the session is never
+  blocked. The Claude settings run six such hooks (`--part 1/6` … `6/6`),
+  spec `docs/architecture/KitRecoveryParts-2026-11-12.md`.
 - `git-hook <pre-commit|commit-msg|post-commit|pre-push> [args]` — prints
   the hook message on stderr and exits with the hook code (Git Hooks in
   `workflow-kit/module.md`).

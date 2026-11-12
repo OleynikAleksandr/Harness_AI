@@ -164,6 +164,35 @@ try {
     json(run(["hook", "session-start", "--client", "vim"])).code,
     "USAGE"
   );
+  // --part K/N prints that part of the packet; a part it does not have and a
+  // wrong value add no context, and the hook still exits with 0.
+  const part = run(
+    ["hook", "session-start", "--client", "claude", "--part", "1/6"],
+    "{}"
+  );
+  assert.equal(part.code, 0);
+  assert.match(
+    JSON.parse(part.stdout).hookSpecificOutput.additionalContext,
+    /^# Workflow recovery packet — part 1\/1 · revision \d+ · head \S+ · digest [0-9a-f]{12}\n/u
+  );
+  assert.deepEqual(
+    JSON.parse(
+      run(
+        ["hook", "session-start", "--client", "claude", "--part", "2/6"],
+        "{}"
+      ).stdout
+    ).hookSpecificOutput,
+    { hookEventName: "SessionStart" }
+  );
+  const wrong = run(
+    ["hook", "session-start", "--client", "claude", "--part", "7/6"],
+    "{}"
+  );
+  assert.equal(wrong.code, 0);
+  assert.deepEqual(JSON.parse(wrong.stdout).hookSpecificOutput, {
+    hookEventName: "SessionStart",
+  });
+  assert.match(wrong.stderr, /--part must be K\/N/u);
   const gitHook = run(["git-hook", "pre-rebase"]);
   assert.equal(gitHook.code, 1);
   assert.match(gitHook.stderr, /UNKNOWN_HOOK/u);

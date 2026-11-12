@@ -174,6 +174,11 @@ implementation plan.
   the documentation map, autopilot on by default with a Kit pause, the real
   git config for agent processes, no built-in project, GitHub publication;
   actualized to the implementation by DOCS-R1.
+- `docs/architecture/KitRecoveryParts-2026-11-12.md` — Workflow Kit 2.2.3
+  (Russian, scope `kit-recovery-parts-2026-11-12`): the recovery packet in
+  parts within the Claude hook limit, `hook session-start --part K/N`, six
+  Claude hook groups, the Codex `additionalContextLimit`, the new session-start
+  rule of the managed AGENTS.md section, bundle, package and publication.
 - `docs/architecture/KitFixes-2026-11-05.md` — Workflow Kit fixes rounds R2
   and R3 of the same scope (Russian): dependency folders in the managed
   `.gitignore` and staging that skips ignored paths, planning-time checks of

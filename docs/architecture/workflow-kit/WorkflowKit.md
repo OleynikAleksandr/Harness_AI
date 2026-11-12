@@ -56,7 +56,7 @@ Kit выведен из двух систем:
 | `WorkflowKitProcess.md` | алгоритм: scope, задачи, коммит, раунды, приёмка, закрытие, документация, выпуск |
 | `WorkflowKitRecovery.md` | ограниченный контекст восстановления, карта документов, схема следующего шага, сводки раундов, автопилот и пауза |
 | `WorkflowKitQuality.md` | профиль качества: определение стека, каталог, этапы проверок |
-| `WorkflowKitInstallation.md` | файлы в проекте, установщик, Доктор, интеграция с Harness, провайдеры, Windows/Linux, перевод репозитория Harness |
+| `WorkflowKitInstallation.md` | файлы в проекте, установщик, Доктор, интеграция с Harness, провайдеры, Windows/Linux, перевод репозитория Harness; миграция плана — `WorkflowKitPlanMigration.md` |
 | `WorkflowKitExecutionModes.md` | режимы `sequential`/`orchestrated`, метки `parallelSafe`, карточка выбора режима, Git-идентичность, роли агента, план в сайдбаре Harness |
 | `WorkflowKitOrchestration.md` | назначения исполнителям в worktree, порядок работы оркестратора, интеграция результатов в main |
 | `WorkflowKitCommands.md` | справочник команд `scripts/workflow`: использование, поведение, текстовый вывод и отказы |
@@ -109,8 +109,8 @@ host ──(дочерний процесс)──▶ бандл kit
 | `scripts/workflow`, `scripts/workflow.cmd`, `scripts/workflow.ps1` | owned | запускатели для POSIX и Windows |
 | `AGENTS.md` | управляемая секция | правила процесса для агента на английском |
 | `CLAUDE.md` | управляемая строка | `@AGENTS.md` |
-| `.codex/hooks.json` | управляемый JSON | SessionStart → `scripts/workflow hook session-start --client codex` |
-| `.claude/settings.json` | управляемый JSON | SessionStart → `scripts/workflow hook session-start --client claude` |
+| `.codex/hooks.json` | управляемый JSON | SessionStart → `scripts/workflow hook session-start --client codex` с `additionalContextLimit` 65536 |
+| `.claude/settings.json` | управляемый JSON | SessionStart → шесть групп `scripts/workflow hook session-start --client claude --part K/6` |
 | `.gitignore`, `.gitattributes` | управляемые секции | исключения (`.harness/workflow/local/`, `.harness/runtime/`, `.harness/sessions/`, `.claude/worktrees/`) и переводы строк |
 | `README.md`, `docs/architecture/OVERVIEW.md` | создаются, если их нет | минимальный контекст проекта |
 

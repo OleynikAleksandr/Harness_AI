@@ -57,7 +57,10 @@ Electron main (app-bootstrap, core-process-bridge)
   the prompt: the recovery packet keeps required documents inline and
   carries the documents map and the input schema of the next step; the
   executor brief carries the task's documents in `<document>` markers;
-  `schema <command>` and `context <path>[#Heading]` answer the rest. The
+  `schema <command>` and `context <path>[#Heading]` answer the rest.
+  Outside Harness the provider SessionStart hooks deliver the packet whole:
+  Claude in parts within its 10 000-character hook limit, Codex in one hook
+  with a raised `additionalContextLimit`. The
   same code is bundled into
   `.harness/workflow/runtime/workflow.mjs` inside each project and runs
   without Harness from hooks and agent terminals.

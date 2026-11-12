@@ -143,9 +143,16 @@ DOCS — смысл.
 
 - `recover [--format text|json] [--event startup|resume|clear|compact]` —
   пакет текущего состояния.
-- `hook session-start --client codex|claude` — то же для хуков провайдеров.
-  Читает событие из stdin и отвечает в формате SessionStart:
-  `{continue, hookSpecificOutput: {hookEventName, additionalContext}}`. Если
+- `hook session-start --client codex|claude [--part K/N]` — то же для хуков
+  провайдеров. Читает событие из stdin и отвечает в формате SessionStart:
+  `{continue, hookSpecificOutput: {hookEventName, additionalContext}}`. С
+  `--part K/N` в контексте только часть K пакета, разрезанного не больше чем
+  на N частей до 9 500 символов UTF-16 с первой строкой
+  `# Workflow recovery packet — part K/N · revision R · head H · digest D`;
+  Claude Code держит в контексте не больше 10 000 символов вывода одного
+  хука, поэтому Kit ставит Claude шесть хуков `--part 1/6` … `6/6`
+  (`KitRecoveryParts-2026-11-12.md`). Части, которой у пакета нет, и
+  неверному `--part` соответствует ответ без `additionalContext`. Если
   задана переменная окружения `HARNESS_WORKFLOW_RECOVERY=host`, отвечает без
   `additionalContext`: в этом случае контекст уже доставил Harness, и
   повторять его не нужно.

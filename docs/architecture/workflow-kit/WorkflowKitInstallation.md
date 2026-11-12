@@ -15,7 +15,7 @@ Electron host и интерфейс описана в разделах 4–7.
 | `LEGACY_HARNESS_PLAN` | `.harness/plans/todo-plan.md` в формате `harness-ai-plan-v1` | установить и мигрировать план (раздел 3) |
 | `PILOT_KIT` | `.harness/kit-manifest.json` Workflow Pilot | не поддерживается: объяснить и ничего не менять |
 | `KIT_OK` | манифест совпадает с файлами, версия текущая | открыть |
-| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.2.2) | обновить (`install --update`) |
+| `KIT_OUTDATED` | версия в манифесте старее текущей (`KIT_VERSION` 2.2.3) | обновить (`install --update`) |
 | `KIT_DAMAGED` | файлы отличаются от манифеста или отсутствуют | Доктор с исправлением |
 
 Ответ `inspect` содержит состояние, найденные экосистемы, наличие Git и его
@@ -75,8 +75,11 @@ identity (`user.name`, `user.email`), а также незавершённую �
 `.gitignore` `.DS_Store`; 2.2.0 — блок «Inputs and documents» в
 `AGENTS.md` (`schema`, `context`, служебные файлы Kit не читать); 2.2.1 —
 `node_modules/`, `.venv/`, `__pycache__/` в `.gitignore`; 2.2.2 — только
-среда выполнения (`KitFixes-2026-11-05.md`, разделы 1 и 6). Поэтому более
-ранние установки читаются как `KIT_OUTDATED`.
+среда выполнения (`KitFixes-2026-11-05.md`, разделы 1 и 6); 2.2.3 — шесть
+групп хука SessionStart для Claude (`--part K/6`), одна запись Codex с
+`"additionalContextLimit": 65536` и правило о неполном пакете в
+`AGENTS.md` (`KitRecoveryParts-2026-11-12.md`). Поэтому более ранние
+установки читаются как `KIT_OUTDATED`.
 План, конфигурация и пользовательский текст остаются нетронутыми. Коммит
 делается с ролью `kit-update`.
 
@@ -92,23 +95,8 @@ Harness вызывает команду из формы Git-идентичнос
 
 ## 3. Миграция плана Harness (`migrate:harness-plan`)
 
-Для репозиториев с планом `harness-ai-plan-v1` (сам Harness AI):
-
-1. Читает строки задач старого плана. Задачи `[DONE]` становятся сводкой
-   закрытого раунда `R0-legacy`:
-   - в `result` — список ID и названий задач;
-   - в `references` — ссылка на коммит миграции.
-
-   Сам прежний текст плана остаётся в родительском коммите.
-2. Задачи `[TODO]` и `[IN_PROGRESS]` становятся задачами нового раунда:
-   - `expected commit` переходит в `commitMessage`;
-   - `completion: user-acceptance` превращается в обычный финал: приёмку
-     через `accept`;
-   - задача `package` получает вид `delivery`.
-3. Новый план получает `baselineCommit` = HEAD до миграции. Коммит
-   выполняется с ролью `kit-update`.
-4. После миграции старые `scripts/plan.mjs` и `check-docs-sync` больше не
-   используются. Их удаление — отдельная задача плана.
+Перевод плана `harness-ai-plan-v1` на план Kit:
+[WorkflowKitPlanMigration.md](WorkflowKitPlanMigration.md).
 
 ## 4. Доктор (`doctor [--fix]`)
 

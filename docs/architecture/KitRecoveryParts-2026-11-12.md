@@ -1,9 +1,11 @@
 # Пакет восстановления целиком за один ход — Workflow Kit 2.2.3
 
-Статус: спецификация scope `kit-recovery-parts-2026-11-12`. Точные контракты
-после реализации — `module.md` изменённых модулей и
+Статус: разделы 2–4 реализованы задачами T001–T003 scope
+`kit-recovery-parts-2026-11-12` (`KIT_VERSION` 2.2.3) и сверены с кодом в
+DOCS-R1; разделы 6 (delivery) и 8 — задачи D1, D2 и P1. Точные контракты —
+`module.md` модулей `workflow-recovery`, `workflow-kit`, `workflow-installer`,
 `docs/architecture/workflow-kit/WorkflowKitRecovery.md`,
-`WorkflowKitInstallation.md`.
+`WorkflowKitInstallation.md` и `WorkflowKitCommands.md`.
 
 Источник: проект Workflow Kit (`/Users/oleksandroliinyk/VSCODE/Workflow_Kit`),
 его спецификация `docs/planning/M21-recovery-one-turn.md`, раздел 3.1. Workflow

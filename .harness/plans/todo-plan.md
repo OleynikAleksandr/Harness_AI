@@ -10,10 +10,31 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 190,
+  "revision": 192,
   "rounds": [
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "workflow-recovery/module.md: PART_LIMIT, MAX_PARTS, packetParts(text, count) → {parts, needed}, parsePart, sessionStart(root, {client, stdin, env, part?}).",
+          "workflow-kit/module.md: sessionStart(root, client, stdin, part?); hook session-start --client claude|codex [--part K/N].",
+          "workflow-installer/module.md: six Claude SessionStart groups with --part K/6, the Codex entry with additionalContextLimit 65536, the managed part is the array of every Kit group, KIT_VERSION 2.2.3, the new session-start rule."
+        ],
+        "decisions": [
+          "Claude Code keeps at most 10 000 UTF-16 units of one hook's output and has no setting for it, so the packet is cut into parts, one hook per part (six, up to 57 000 units).",
+          "Codex has a per-hook additionalContextLimit, so it keeps one hook with the whole packet.",
+          "Parts are cut at sections, then lines, then characters without breaking a surrogate pair; the part line carries a digest of the whole text so an agent can tell parts of one packet.",
+          "A wrong --part or a missing part gives an answer without additionalContext and exit code 0: a hook never blocks the session.",
+          "WorkflowKitInstallation.md section 3 moved to WorkflowKitPlanMigration.md to keep the document within the size limit; the --part details live in WorkflowKitCommands.md, the workflow-kit module.md keeps the summary."
+        ],
+        "references": [
+          "docs/architecture/KitRecoveryParts-2026-11-12.md",
+          "docs/architecture/workflow-kit/WorkflowKitRecovery.md",
+          "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+          "docs/architecture/workflow-kit/WorkflowKitPlanMigration.md",
+          "docs/architecture/workflow-kit/WorkflowKitCommands.md"
+        ],
+        "result": "Kit 2.2.3: the SessionStart hook delivers the whole recovery packet in one turn. Claude gets six hooks hook session-start --client claude --part K/6, each with one part of at most 9500 UTF-16 units that starts with the part K/N line (revision, head, digest); Codex gets one hook with additionalContextLimit 65536. A packet that needs more parts says so and points to recover; the managed AGENTS.md rule tells agents to run recover unless every part with one digest is in the context."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -215,7 +236,7 @@
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -314,8 +335,8 @@
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 3/7
-- Revision: 190
+- Progress: 4/7
+- Revision: 192
 
 ## Objective
 
@@ -344,7 +365,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
   - Commit: feat(workflow-installer): install recovery hooks in parts and raise the Codex limit
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-provider-hooks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs
   - Depends on: T002
-- [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/KitRecoveryParts-2026-11-12.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, docs/architecture/workflow-kit/WorkflowKitPlanMigration.md, docs/architecture/workflow-kit/WorkflowKitRecovery.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: T001, T002, T003
@@ -360,5 +381,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
   - Commit: chore: publish the workflow kit 2.2.3 release
   - Files: docs/evidence/kit-recovery-parts-2026-11-12-publish.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: D2, DOCS-R1
+
+Digest: Kit 2.2.3: the SessionStart hook delivers the whole recovery packet in one turn. Claude gets six hooks hook session-start --client claude --part K/6, each with one part of at most 9500 UTF-16 units that starts with the part K/N line (revision, head, digest); Codex gets one hook with additionalContextLimit 65536. A packet that needs more parts says so and points to recover; the managed AGENTS.md rule tells agents to run recover unless every part with one digest is in the context.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

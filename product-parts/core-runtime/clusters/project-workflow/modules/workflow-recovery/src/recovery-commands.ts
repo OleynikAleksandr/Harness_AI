@@ -36,17 +36,21 @@ export function hookEvent(stdin: string): RecoveryEvent {
 
 /**
  * SessionStart hook response. Inside Harness (`HARNESS_WORKFLOW_RECOVERY=host`)
- * the host already delivered the packet, so no context is repeated.
+ * the host already delivered the packet, so no context is repeated; a null
+ * context (a packet part that does not exist) adds no context either.
  */
 export function sessionStartResponse(
-  context: () => string,
+  context: () => string | null,
   env: NodeJS.ProcessEnv
 ): string {
   const output: { additionalContext?: string; hookEventName: string } = {
     hookEventName: "SessionStart",
   };
   if (env[HOST_RECOVERY_VARIABLE] !== "host") {
-    output.additionalContext = context();
+    const text = context();
+    if (text !== null) {
+      output.additionalContext = text;
+    }
   }
   return `${JSON.stringify({ continue: true, hookSpecificOutput: output })}\n`;
 }

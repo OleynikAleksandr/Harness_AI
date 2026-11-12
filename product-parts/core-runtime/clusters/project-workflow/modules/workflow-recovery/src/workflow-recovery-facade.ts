@@ -27,6 +27,7 @@ import type {
   RecoveryInput,
   RecoveryPacket,
 } from "./recovery-model.js";
+import { type PartRequest, packetParts } from "./recovery-parts.js";
 import {
   inputSchema,
   inputSchemaCommands,
@@ -48,6 +49,13 @@ export type {
   TransactionSummary,
   VerificationSummary,
 } from "./recovery-model.js";
+export type { PacketParts, PartRequest } from "./recovery-parts.js";
+export {
+  MAX_PARTS,
+  PART_LIMIT,
+  packetParts,
+  parsePart,
+} from "./recovery-parts.js";
 
 /**
  * Public facade of the workflow-recovery module: the bounded recovery
@@ -117,21 +125,34 @@ export class WorkflowRecoveryFacade {
   }
 
   /**
-   * `hook session-start --client claude|codex`: reads the hook input and
-   * answers in the SessionStart format. Errors never block the session.
+   * `hook session-start --client claude|codex [--part K/N]`: reads the hook
+   * input and answers in the SessionStart format, with the whole packet or
+   * with its part K (no context when the packet has fewer parts). Errors
+   * never block the session.
    */
   sessionStart(
     root: string,
-    options: { client: HookClient; env?: NodeJS.ProcessEnv; stdin: string }
+    options: {
+      client: HookClient;
+      env?: NodeJS.ProcessEnv;
+      part?: PartRequest | null;
+      stdin: string;
+    }
   ): string {
     const event = hookEvent(options.stdin);
     return sessionStartResponse(() => {
+      let text: string;
       try {
-        return this.packet(root, event).text;
+        text = this.packet(root, event).text;
       } catch (error) {
         const { code, message } = error as { code?: string; message: string };
-        return `Workflow Kit could not build the recovery packet (${code ?? "error"}): ${message}\nRun \`scripts/workflow doctor\`.`;
+        text = `Workflow Kit could not build the recovery packet (${code ?? "error"}): ${message}\nRun \`scripts/workflow doctor\`.`;
       }
+      const part = options.part;
+      if (!part) {
+        return text;
+      }
+      return packetParts(text, part.count).parts[part.index - 1] ?? null;
     }, options.env ?? process.env);
   }
 

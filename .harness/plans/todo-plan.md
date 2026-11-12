@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 182,
+  "revision": 184,
   "rounds": [
     {
       "digest": null,
@@ -99,7 +99,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Recovery packet parts",
       "why": "Claude Code persists hook output over 10000 characters and shows the agent a 2 KB preview"
     },
@@ -305,8 +305,8 @@
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 0/7
-- Revision: 182
+- Progress: 1/7
+- Revision: 184
 
 ## Objective
 
@@ -324,7 +324,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
 
 ### R1 — Implementation (implementation, OPEN)
 
-- [TODO] T001 — Recovery packet parts (work)
+- [DONE] T001 — Recovery packet parts (work)
   - Commit: feat(workflow-recovery): split the session-start packet into parts
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-parts.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-commands.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-parts.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md
 - [TODO] T002 — hook session-start --part (work)

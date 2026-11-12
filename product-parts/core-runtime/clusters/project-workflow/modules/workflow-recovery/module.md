@@ -226,11 +226,14 @@ Steps:
   `state` section: not a git repository, inconsistent commit references.
 - `packet(root, event)` = `build(gather(root, event))`;
   `render(packet, "text" | "json")` is `recover --format`.
-- `sessionStart(root, {client, stdin, env})` is `hook session-start`:
+- `sessionStart(root, {client, stdin, env, part?})` is `hook session-start`:
   - the event is the `source` of the hook input (`startup`, `resume`,
     `clear`, `compact`; anything else is `startup`);
   - the answer is `{continue: true, hookSpecificOutput: {hookEventName:
-    "SessionStart", additionalContext}}`;
+    "SessionStart", additionalContext}}`; without `part` the context is the
+    whole packet, with `part = {index, count}` it is part `index` of
+    `packetParts(text, count)`, and a part the packet does not have gives
+    no `additionalContext`;
   - with `HARNESS_WORKFLOW_RECOVERY=host` (`HOST_RECOVERY_VARIABLE`) the
     answer has no `additionalContext`, because Harness delivered it;
   - errors never block the session: the context then names the error code
@@ -241,6 +244,28 @@ Steps:
   `{sha, role, taskId, subject}` from the `Workflow-*` trailers (commits
   without them are `external`), filtered by task or by the tasks of a
   round, plus a one-line-per-commit text.
+
+## Packet Parts (`recovery-parts.ts`, Kit 2.2.3)
+
+Claude Code keeps at most 10 000 UTF-16 units of one hook's output in the
+context, so the Claude SessionStart hook asks for the packet in parts
+(spec `docs/architecture/KitRecoveryParts-2026-11-12.md`).
+
+- `PART_LIMIT = 9500` units per part, its first line included;
+  `MAX_PARTS = 16`.
+- `packetParts(text, count) → {parts, needed}`: cuts at section starts
+  (`## ` at a line start), a section longer than a part by lines, a line
+  longer than a part by characters without splitting a surrogate pair, and
+  packs the pieces greedily.
+- Every part starts with
+  `# Workflow recovery packet — part K/N · revision R · head H · digest D`
+  (`N` — parts given, `R` and `H` read from the packet text or `-`, `D` —
+  first 12 hex of SHA-256 of the whole text). The parts without their first
+  lines join to the text.
+- When the packet needs more than `count` parts, the last one ends with
+  the line "Packet incomplete: it needs M parts, N delivered. Run
+  `scripts/workflow recover --format text`." and `needed` is M.
+- `parsePart("K/N")` → `{index, count}` for `1 <= K <= N <= 16`, else null.
 
 ## Dependencies
 
@@ -286,6 +311,10 @@ Node built-ins only.
   QUALITY and with an assignment, an executor worktree before and after
   `assignment:attach`, its started and committed task, and main asking to
   integrate the reported SHA.
+- `src/workflow-recovery-parts.test.mjs` — packet parts: one short part,
+  long packet within the limit with one digest and the joined text, cut by
+  characters without a broken surrogate pair, the incomplete line, `--part`
+  values, the hook answer for a part, a missing part and host mode.
 - `src/workflow-recovery-project.test.mjs` — a git project: packet without
   a repository, changes outside the task, JSON output, the SessionStart
   hook with and without host delivery and with a broken plan, `show-task`,

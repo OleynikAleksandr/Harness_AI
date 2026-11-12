@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 196,
+  "revision": 198,
   "rounds": [
     {
       "digest": {
@@ -37,7 +37,7 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Implementation"
     }
   ],
@@ -81,7 +81,7 @@
         "text": "The user confirms nothing in provider apps"
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "id": "kit-recovery-parts-2026-11-12",
     "objective": "Deliver the whole recovery packet in one turn for Claude and Codex: packet parts within the Claude hook limit, hook session-start --part K/N, six Claude hook groups and the Codex additionalContextLimit, the new session-start rule; build the Workflow Kit 2.2.3 bundle, package and publish the release.",
     "spec": "docs/architecture/KitRecoveryParts-2026-11-12.md",
@@ -305,7 +305,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: publish the workflow kit 2.2.3 release",
-      "confirmation": null,
+      "confirmation": "Пользователь 2026-11-12: «И выполни и пересобери новый релиз… Harness AI»; «Я все принимаю. Дальше делай все как положено.»",
       "context": [],
       "dependencies": [
         "D2",
@@ -321,7 +321,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Publish the release on GitHub",
       "why": "Publish the release on GitHub"
     }
@@ -333,10 +333,10 @@
 ## State
 
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Current task: none
-- Progress: 6/7
-- Revision: 196
+- Progress: 7/7
+- Revision: 198
 
 ## Objective
 
@@ -352,7 +352,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
 
 ## Rounds
 
-### R1 — Implementation (implementation, OPEN)
+### R1 — Implementation (implementation, CLOSED)
 
 - [DONE] T001 — Recovery packet parts (work)
   - Commit: feat(workflow-recovery): split the session-start packet into parts
@@ -377,7 +377,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
   - Commit: chore: package the workflow kit 2.2.3 release
   - Files: docs/evidence/kit-recovery-parts-2026-11-12-package.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: D1, DOCS-R1
-- [TODO] P1 — Publish the release on GitHub (delivery)
+- [DONE] P1 — Publish the release on GitHub (delivery)
   - Commit: chore: publish the workflow kit 2.2.3 release
   - Files: docs/evidence/kit-recovery-parts-2026-11-12-publish.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: D2, DOCS-R1

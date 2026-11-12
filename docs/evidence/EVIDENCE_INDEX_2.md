@@ -327,3 +327,6 @@ added, add a new evidence file and keep this index entry valid.
   `additionalContextLimit` (tokens).
 - `docs/evidence/kit-recovery-parts-2026-11-12-package.md` — macOS package
   with the Workflow Kit 2.2.3 bundle (scope `kit-recovery-parts-2026-11-12`).
+- `docs/evidence/kit-recovery-parts-2026-11-12-publish.md` — publication of
+  the Workflow Kit 2.2.3 release: secret scan, push, tag `v2026.11.12` and the
+  GitHub Release with the app zip.

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 194,
+  "revision": 196,
   "rounds": [
     {
       "digest": {
@@ -277,7 +277,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package the workflow kit 2.2.3 release",
-      "confirmation": null,
+      "confirmation": "Пользователь 2026-11-12: «И выполни и пересобери новый релиз… Harness AI»; «Я все принимаю. Дальше делай все как положено.»",
       "context": [],
       "dependencies": [
         "D1",
@@ -293,7 +293,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Package the macOS release",
       "why": "Package the macOS release"
     },
@@ -335,8 +335,8 @@
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Current task: none
-- Progress: 5/7
-- Revision: 194
+- Progress: 6/7
+- Revision: 196
 
 ## Objective
 
@@ -373,7 +373,7 @@ Deliver the whole recovery packet in one turn for Claude and Codex: packet parts
   - Commit: chore: build the workflow kit 2.2.3 bundle
   - Files: dist/workflow-kit/workflow.mjs, docs/evidence/kit-recovery-parts-2026-11-12-bundle.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: T003, DOCS-R1
-- [TODO] D2 — Package the macOS release (delivery)
+- [DONE] D2 — Package the macOS release (delivery)
   - Commit: chore: package the workflow kit 2.2.3 release
   - Files: docs/evidence/kit-recovery-parts-2026-11-12-package.md, docs/evidence/EVIDENCE_INDEX_2.md
   - Depends on: D1, DOCS-R1

@@ -325,3 +325,5 @@ added, add a new evidence file and keep this index entry valid.
   update smoke with six Claude groups and the Codex limit, packet parts on
   long packets, live Claude and Codex runs, the unit of
   `additionalContextLimit` (tokens).
+- `docs/evidence/kit-recovery-parts-2026-11-12-package.md` — macOS package
+  with the Workflow Kit 2.2.3 bundle (scope `kit-recovery-parts-2026-11-12`).

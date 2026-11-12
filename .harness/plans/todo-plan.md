@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 198,
+  "revision": 199,
   "rounds": [
     {
       "digest": {
@@ -50,7 +50,10 @@
       "dist/workflow-kit/workflow.mjs reports KIT_VERSION 2.2.3",
       "The macOS app is packaged and the release is published on GitHub"
     ],
-    "acceptanceNote": null,
+    "acceptanceNote": {
+      "at": "2026-11-12T15:04:20.809Z",
+      "text": "Принимаю. Залей, пожалуйста, на GitHub обновленные версии."
+    },
     "approval": {
       "at": "2026-11-12T13:24:59.647Z",
       "text": "User 2026-11-12: «Давай исправим Claude и Codex, а с кими будем разбираться потом. Подготовь спецификацию и план для реализации этих исправлений в… Harness AI. И выполни и пересобери новый релиз… Harness AI, а потом и нашего Workflow Kit»; «Я все принимаю. Дальше делай все как положено»."
@@ -81,7 +84,7 @@
         "text": "The user confirms nothing in provider apps"
       }
     ],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "ACCEPTED",
     "id": "kit-recovery-parts-2026-11-12",
     "objective": "Deliver the whole recovery packet in one turn for Claude and Codex: packet parts within the Claude hook limit, hook session-start --part K/N, six Claude hook groups and the Codex additionalContextLimit, the new session-start rule; build the Workflow Kit 2.2.3 bundle, package and publish the release.",
     "spec": "docs/architecture/KitRecoveryParts-2026-11-12.md",
@@ -333,10 +336,10 @@
 ## State
 
 - Scope: kit-recovery-parts-2026-11-12 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: ACCEPTED
 - Current task: none
 - Progress: 7/7
-- Revision: 198
+- Revision: 199
 
 ## Objective
 

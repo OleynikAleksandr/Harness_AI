@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 207,
+  "revision": 209,
   "rounds": [
     {
       "digest": null,
@@ -248,7 +248,7 @@
       "kind": "work",
       "parallelSafe": true,
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Синхронизировать Git, интеграцию и autopilot",
       "why": "Перенести взаимосвязанные staging/merge phases и autopilot model с тестами оркестрации; эта задача атомарно охватывает более трёх функциональных файлов."
     },
@@ -466,8 +466,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 3/9
-- Revision: 207
+- Progress: 4/9
+- Revision: 209
 
 ## Objective
 
@@ -495,7 +495,7 @@
   - Commit: refactor(workflow): synchronize Kit facade and CLI
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-hook.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-facade-base.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-create.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context-command.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-hooks.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-status.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-worktree.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md
   - Depends on: T002
-- [TODO] T004 — Синхронизировать Git, интеграцию и autopilot (work, parallel-safe)
+- [DONE] T004 — Синхронизировать Git, интеграцию и autopilot (work, parallel-safe)
   - Commit: refactor(workflow): synchronize Git integration and autopilot
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-staging.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-history.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-merge.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-phases.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario-planning.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-merge-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-merge.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md
   - Depends on: T001

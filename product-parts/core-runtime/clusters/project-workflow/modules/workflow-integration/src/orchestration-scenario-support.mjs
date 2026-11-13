@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { cleanGitEnvironment } from "../../workflow-git/src/workflow-git-test-repo.mjs";
 
 // Test support for orchestration-scenario.test.mjs: the compiled Kit, its
@@ -107,7 +108,7 @@ export async function openScenario(build, sandbox) {
     writeFileSync(
       file,
       `import { readFileSync } from "node:fs";
-import { runCli } from ${JSON.stringify(entry)};
+import { runCli } from ${JSON.stringify(pathToFileURL(entry).href)};
 process.exitCode = runCli(process.argv.slice(2), {
   cwd: process.cwd(),
   env: process.env,
@@ -156,6 +157,7 @@ process.exitCode = runCli(process.argv.slice(2), {
     worktrees: () =>
       lines(["worktree", "list", "--porcelain"])
         .filter((line) => line.startsWith("worktree "))
-        .map((line) => line.slice("worktree ".length)),
+        // git lists them with forward slashes on Windows.
+        .map((line) => path.resolve(line.slice("worktree ".length))),
   };
 }

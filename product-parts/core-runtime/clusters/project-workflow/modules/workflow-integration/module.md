@@ -102,7 +102,13 @@ true while the file exists; `workflow-kit` refuses its other write commands
 then (`INTEGRATION_ACTIVE`). `status(root)` (`integration:status`) returns
 `{status: "IDLE" | phase, journal, mergeHead, conflicts}`.
 
-## Merge (`src/integration-merge.ts`)
+## Merge (`src/integration-merge.ts`, `src/integration-phases.ts`)
+
+`integration-merge.ts` holds `start`, `continue` and the integration from a
+journal (crash reconciliation, the plan reset and the scope check);
+`integration-phases.ts` holds the phases that write (the merge, the commit
+transaction with the plan candidate, the completion) and the
+`IntegrationOutcome` type, which `integration-merge.ts` re-exports.
 
 `start(mainRoot, {assignmentId, source, now})`:
 1. An existing journal: the same assignment and source (resolved to the
@@ -204,7 +210,10 @@ with real hooks and an executor worktree (orchestrated scope, QUALITY,
   outside the task (`COMMIT_SCOPE_MISMATCH`); a correct integration commit
   is the task's commit with the diff against its first parent.
 
-`src/workflow-integration-merge.test.mjs` — a real temporary repository
+`src/workflow-integration-merge.test.mjs` (with its support
+`src/workflow-integration-merge-support.mjs`: the compiled Kit and CLI,
+the main checkout with real hooks, the scope with QUALITY applied and the
+executor helper) — a real temporary repository
 with real hooks and real executor worktrees (one on a branch), through the
 Kit facade and CLI, orchestrated scope with four parallel tasks and a lint
 check that fails only on the merged result of A and B:
@@ -235,8 +244,9 @@ check that fails only on the merged result of A and B:
 
 `src/orchestration-scenario.test.mjs` (with its support
 `src/orchestration-scenario-support.mjs`: the compiled Kit, the CLI as an
-agent calls it, git views) — one orchestrated scope end to end through the
-Kit command line only, on a project installed by `install --host harness`
+agent calls it, git views; and `src/orchestration-scenario-planning.mjs`:
+the install, scope and QUALITY step) — one orchestrated scope end to end
+through the Kit command line only, on a project installed by `install --host harness`
 (real local identity, installed hooks and launcher running a stand-in
 bundle) with Claude-style worktrees `<repo>/.claude/worktrees/agent-<n>`
 (detached or on a branch):
@@ -267,3 +277,6 @@ bundle) with Claude-style worktrees `<repo>/.claude/worktrees/agent-<n>`
 
 - `module.md`
 - `src/**`
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

@@ -123,7 +123,7 @@ through install) get it from `identityTemplate(folder)`, passed as
     - `MANAGED_FILE` — an explicit list names Kit state.
   - every other changed file is reported as `excluded`.
 
-## Commit Transaction (`git-journal.ts`, `git-transaction.ts`)
+## Commit Transaction (`git-journal.ts`, `git-transaction.ts`, `git-staging.ts`)
 
 `transactions.commit(root, request)` creates exactly one commit. The request
 holds:
@@ -166,7 +166,8 @@ Steps:
    disk (`git add -A`). A path outside the index is staged only when it
    exists and git does not ignore it (`git check-ignore -z --stdin`, so any
    number of paths fits); the skipped paths are exactly
-   `absentPaths(root, files)` of the facade (the paths the candidate will
+   `absentPaths(root, files)` of the facade (`git-staging.ts`, re-exported
+   by `git-transaction.ts`; the paths the candidate will
    not contain, in the given order), which `workflow-kit` passes to the
    quality checks as `removed`: a deletion already staged for an ignored folder
    (`git rm -r --cached node_modules` with `node_modules/` in `.gitignore`)
@@ -295,3 +296,6 @@ was no commit yet.
 
 - `module.md`
 - `src/**`
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

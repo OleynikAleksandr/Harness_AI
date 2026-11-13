@@ -1,14 +1,9 @@
 import assert from "node:assert/strict";
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  realpathSync,
-  rmSync,
-} from "node:fs";
+import { existsSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+import { installAndPlan } from "./orchestration-scenario-planning.mjs";
 import { openScenario } from "./orchestration-scenario-support.mjs";
 
 // One orchestrated scope end to end, driven through the Kit command line the
@@ -20,7 +15,8 @@ const build = await buildWorkflowModules(
   ["workflow-integration", "workflow-kit"],
   "orchestration-scenario"
 );
-const sandbox = realpathSync(
+// The long path: git reports worktrees by it (Windows 8.3 names differ).
+const sandbox = realpathSync.native(
   mkdtempSync(path.join(tmpdir(), "orchestration-scenario-"))
 );
 try {
@@ -34,103 +30,8 @@ try {
     next.blocked.map((item) => [item.taskId, item.code, item.blockedBy]);
   const ready = (next) => next.ready.map((item) => item.id);
 
-  // --- 1. Install with a real local identity and host harness. ---
-  mkdirSync(root);
-  git.init(root);
-  git.setConfig(root, "user.name", "Scenario Owner");
-  git.setConfig(root, "user.email", "owner@harness-ai.test");
-  const installed = ok(
-    sandbox,
-    `install ${root} --host harness --name Scenario --bundle ${scenario.bundle()}`
-  );
-  assert.equal(installed.hooksPath, ".harness/workflow/hooks");
-  assert.equal(
-    git.git.text(root, ["log", "-1", "--format=%an <%ae>"]),
-    "Scenario Owner <owner@harness-ai.test>"
-  );
-  assert.match(recover(root), /role: planning/u);
-  assert.match(recover(root), /plan with parallelSafe labels/u);
-
-  write(root, "docs/spec.md", "# Spec\n\nFour modules and a release.\n");
-  const work = (id, fields = {}) => ({
-    acceptance: [`${id} works`],
-    commitMessage: `feat: add module ${id}`,
-    files: [`src/${id.toLowerCase()}.ts`],
-    id,
-    title: `Module ${id}`,
-    ...fields,
-  });
-  const scopeInput = input("plan.json", {
-    acceptance: ["The modules exist", "The release is built"],
-    approval: "User approved the orchestrated scope",
-    id: "orc-1",
-    objective: "Build four modules and release them",
-    spec: "docs/spec.md",
-    tasks: [
-      work("A", { parallelSafe: true }),
-      work("B", { parallelSafe: true }),
-      work("C"),
-      work("D", { parallelSafe: true }),
-      {
-        acceptance: ["The release is built"],
-        commitMessage: "chore: release",
-        files: [],
-        id: "SHIP",
-        kind: "delivery",
-        title: "Release",
-      },
-    ],
-  });
-  assert.equal(
-    refused(root, `scope:create --input ${scopeInput}`).code,
-    "EXECUTION_MODE_REQUIRED"
-  );
-  const proposal = ok(
-    root,
-    `scope:propose --input ${scopeInput} --recommended orchestrated --reason`,
-    "A, B and D touch separate files"
-  );
-  assert.equal(proposal.hasParallelWork, true);
-  assert.deepEqual(proposal.options, ["orchestrated", "sequential", "refine"]);
-  assert.match(
-    recover(root),
-    /scope proposal \(generation 1, recommended orchestrated\) is waiting/u
-  );
-  const chosen = ok(
-    root,
-    `scope:choose --generation ${proposal.generation} --option orchestrated --session orchestrator-session --note`,
-    "User clicked orchestrated"
-  );
-  assert.equal(chosen.execution.strategy, "orchestrated");
-  assert.deepEqual(
-    plans.read(root).tasks.map((item) => item.id),
-    ["QUALITY", "A", "B", "C", "D", "DOCS-R1", "SHIP"]
-  );
-  assert.match(recover(root), /role: orchestrator/u);
-  assert.match(recover(root), /Run QUALITY yourself in main/u);
-  assert.equal(
-    refused(root, "task:start A").code,
-    "ORCHESTRATED_MAIN_READ_ONLY"
-  );
-
-  // QUALITY in main: the check fails only when A and B export the same name.
-  ok(root, "task:start QUALITY");
-  const lint =
-    "const fs=require('fs');const read=(f)=>fs.existsSync(f)?fs.readFileSync(f,'utf8'):'';const both=read('src/a.ts').includes('export const value')&&read('src/b.ts').includes('export const value');if(both)console.error('lint: src/a.ts and src/b.ts both export value');process.exit(both?1:0)";
-  const quality = input("quality.json", {
-    checks: [
-      {
-        command: { args: ["-e", lint], executable: process.execPath },
-        id: "lint",
-        required: true,
-        role: "lint",
-        stage: "commit",
-      },
-    ],
-    stacks: ["node"],
-  });
-  ok(root, `quality:apply --input ${quality}`);
-  assert.equal(task("QUALITY").status, "DONE");
+  // --- 1. Install, the orchestrated scope and QUALITY (planning step). ---
+  installAndPlan(scenario, sandbox);
 
   // --- 2. The scheduler: A and B now; C and D behind the barrier. ---
   let next = ok(root, "assignment:next");

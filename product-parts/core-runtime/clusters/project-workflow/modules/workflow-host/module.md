@@ -94,3 +94,6 @@ Test repositories and the projects the bundle installs into get a real
 repository-local identity (`workflow@harness-ai.test`, through
 `GIT_TEMPLATE_DIR` for install): Kit commits refuse placeholder
 identities (`GIT_IDENTITY_REQUIRED`).
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 209,
+  "revision": 211,
   "rounds": [
     {
       "digest": null,
@@ -290,7 +290,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Перенести оставшиеся регрессии и сверить интеграцию Harness",
       "why": "Завершить перенос изменённых тестов четырёх модулей и сверить все 12 модулей; связанные test helpers и контракты перечислены явно."
     },
@@ -466,8 +466,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 4/9
-- Revision: 209
+- Progress: 5/9
+- Revision: 211
 
 ## Objective
 
@@ -499,7 +499,7 @@
   - Commit: refactor(workflow): synchronize Git integration and autopilot
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-staging.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/workflow-git-history.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-merge.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-phases.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario-planning.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/orchestration-scenario.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-merge-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/workflow-integration-merge.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-decision.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/src/autopilot-model.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md
   - Depends on: T001
-- [TODO] T005 — Перенести оставшиеся регрессии и сверить интеграцию Harness (work)
+- [DONE] T005 — Перенести оставшиеся регрессии и сверить интеграцию Harness (work)
   - Commit: test(workflow): synchronize remaining Kit regressions
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-cancel.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-worktree.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md
   - Depends on: T003, T004

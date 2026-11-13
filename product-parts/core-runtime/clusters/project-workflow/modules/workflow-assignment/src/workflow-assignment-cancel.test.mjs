@@ -17,7 +17,8 @@ const build = await buildWorkflowModules(
   ["workflow-assignment"],
   "workflow-assignment-cancel"
 );
-const sandbox = realpathSync(
+// The long path: git reports worktrees by it (Windows 8.3 names differ).
+const sandbox = realpathSync.native(
   mkdtempSync(path.join(tmpdir(), "workflow-assignment-cancel-"))
 );
 try {
@@ -99,7 +100,8 @@ try {
     worktree: wtB,
   });
   const cancelledB = assignments.cancel(git, root, running, { force: false });
-  assert.equal(cancelledB.worktree, wtB);
+  // git reports the worktree path with forward slashes on Windows.
+  assert.equal(path.resolve(cancelledB.worktree), wtB);
   assert.equal(cancelledB.branch, "exec-b");
   assert.equal(cancelledB.branchTip, tipB);
   assert.equal(existsSync(wtB), false);
@@ -124,7 +126,7 @@ try {
   assert.ok(branchExists("exec-c"));
   assert.notEqual(assignments.read(root, dirty.id), null);
   const forced = assignments.cancel(git, root, dirty, { force: true });
-  assert.equal(forced.worktree, wtC);
+  assert.equal(path.resolve(forced.worktree), wtC);
   assert.equal(existsSync(wtC), false);
   assert.equal(branchExists("exec-c"), false);
   assert.equal(assignments.read(root, dirty.id), null);

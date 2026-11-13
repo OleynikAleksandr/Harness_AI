@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { cleanGitEnvironment } from "../../workflow-git/src/workflow-git-test-repo.mjs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
 
@@ -16,7 +17,8 @@ const build = await buildWorkflowModules(
   ["workflow-recovery", "workflow-kit"],
   "workflow-recovery-worktree"
 );
-const sandbox = realpathSync(
+// The long path: git reports worktrees by it (Windows 8.3 names differ).
+const sandbox = realpathSync.native(
   mkdtempSync(path.join(tmpdir(), "workflow-recovery-worktree-"))
 );
 try {
@@ -68,7 +70,7 @@ try {
   const runner = path.join(build.directory, "hook-runner.mjs");
   writeFileSync(
     runner,
-    `import { WorkflowKitFacade } from ${JSON.stringify(path.join(build.directory, "workflow-kit", "src", "workflow-kit-facade.js"))};
+    `import { WorkflowKitFacade } from ${JSON.stringify(pathToFileURL(path.join(build.directory, "workflow-kit", "src", "workflow-kit-facade.js")).href)};
 const [name, ...args] = process.argv.slice(2);
 const result = new WorkflowKitFacade().gitHook(process.cwd(), name, args);
 if (result.message) process.stderr.write(result.message + "\\n");

@@ -268,7 +268,9 @@ Node built-ins only.
 - `src/workflow-quality-detect.test.mjs` — node scripts and installed tools,
   install proposals, several stacks in subdirectories, explicit and unknown
   stacks.
-- `src/workflow-quality-runner.test.mjs` — planned task checks (CONFIGURED and DISCOVERY, the refusal details), stage selection, assigned and
+- `src/workflow-quality-runner.test.mjs` (with its support
+  `src/workflow-quality-runner-support.mjs`: the temporary root, the test
+  profile and its files) — planned task checks (CONFIGURED and DISCOVERY, the refusal details), stage selection, assigned and
   service checks, `{files}` and `appliesTo`, timeout and missing tools,
   every builtin (conflict markers with line numbers, a lone separator and
   binary files passing), `oversizedDocuments` (Markdown only, missing files
@@ -284,3 +286,6 @@ Node built-ins only.
   removing each required field and breaking each limit, enum and pattern
   give the descriptor code and `details.field`; reserved ids and stored
   configurations name their paths.
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

@@ -1,87 +1,26 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import os from "node:os";
-import path from "node:path";
+import { rmSync } from "node:fs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+import {
+  runnerConfig,
+  runnerRoot,
+  writeRunnerFiles,
+} from "./workflow-quality-runner-support.mjs";
 
 const build = await buildWorkflowModules(
   ["workflow-platform", "workflow-quality"],
   "workflow-quality-runner"
 );
-const root = mkdtempSync(path.join(os.tmpdir(), "workflow-runner-"));
-const write = (name, content) => {
-  mkdirSync(path.dirname(path.join(root, name)), { recursive: true });
-  writeFileSync(path.join(root, name), content);
-};
+const { root, write } = runnerRoot();
 try {
   const { WorkflowQualityFacade } = await build.load(
     "workflow-quality",
     "workflow-quality-facade.js"
   );
   const quality = new WorkflowQualityFacade();
-  const node = (script, extra = []) => ({
-    args: ["-e", script, ...extra],
-    executable: "node",
-  });
   const base = quality.defaultConfig();
-  const config = {
-    ...base,
-    budget: { ...base.budget, documentBytes: 200 },
-    docs: {
-      contracts: [{ code: "src/{module}/**", docs: ["docs/{module}.md"] }],
-    },
-    policy: { maxFileLines: 3, taskFileSoftLimit: null },
-    quality: {
-      ...base.quality,
-      checks: [
-        ...base.quality.checks,
-        quality.normalizeCheck({
-          command: node("process.exit(0)"),
-          id: "ok",
-          required: true,
-          role: "lint",
-          stage: "commit",
-        }),
-        quality.normalizeCheck({
-          command: node("console.error('bad'); process.exit(3)"),
-          id: "broken",
-          role: "test",
-          stage: "commit",
-        }),
-        quality.normalizeCheck({
-          appliesTo: ["src/**/*.ts"],
-          command: node("console.log(process.argv.slice(1).join(','))", [
-            "{files}",
-          ]),
-          id: "format",
-          required: true,
-          role: "format",
-          stage: "prepare",
-        }),
-        quality.normalizeCheck({
-          command: node("setTimeout(() => {}, 5000)"),
-          id: "slow",
-          role: "test",
-          stage: "push",
-          timeoutMs: 300,
-        }),
-        quality.normalizeCheck({
-          command: { args: [], executable: "workflow-missing-tool" },
-          id: "missing",
-          role: "audit",
-          stage: "push",
-        }),
-      ],
-    },
-  };
-  write("src/core/a.ts", "one\ntwo\n");
-  write("src/core/b.ts", "1\n2\n3\n4\n5\n");
-  write("src/core/c.js", "x\n");
-  write(
-    "docs/core.md",
-    "# Core\n\nSee [a](../src/core/a.ts) and [gone](./gone.md) and [web](https://example.com).\n\n```\n[x](nowhere.md)\n```\n"
-  );
-  write("docs/big.md", "x".repeat(400));
+  const config = runnerConfig(quality, base);
+  writeRunnerFiles(write);
 
   // Required commit checks plus assigned ones; failures carry exit code and output.
   const commit = quality.runStage({

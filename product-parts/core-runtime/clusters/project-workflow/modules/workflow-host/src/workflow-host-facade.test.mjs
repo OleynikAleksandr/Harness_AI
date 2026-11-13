@@ -97,7 +97,9 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
       GIT_DIR: "/elsewhere/.git",
       HARNESS_WORKFLOW_KIT_BUNDLE: echo,
     },
-    timeoutMs: 400,
+    // Room for a slow node start (a loaded machine, Windows CI); the timeout case below sets
+    // its own short limit.
+    timeoutMs: 30_000,
   });
   const echoed = await host.status(sandbox);
   assert.equal(echoed.ok, true);
@@ -159,7 +161,7 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
   const noise = await host.run(["noise"]);
   assert.equal(noise.code, "HOST_OUTPUT");
   assert.equal(noise.details.stderr, "boom");
-  const slow = await host.run(["sleep"]);
+  const slow = await host.run(["sleep"], { timeoutMs: 400 });
   assert.equal(slow.code, "HOST_TIMEOUT");
   const broken = new WorkflowHostFacade({
     env: {
@@ -177,6 +179,7 @@ else process.stdout.write(JSON.stringify({ command: args[0], ok: true, result: {
   // the runtime file.
   // The real single-file bundle, because install copies the running file.
   const bundle = path.join(sandbox, "kit", "workflow.mjs");
+  // Harness keeps its Vite bundle and existing dependency graph.
   await viteBuild({
     build: { outDir: path.dirname(bundle) },
     configFile: path.resolve("vite.workflow-kit.config.ts"),

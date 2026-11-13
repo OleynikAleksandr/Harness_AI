@@ -322,3 +322,6 @@ Node built-ins only.
 
 Test repositories use the real local identity `workflow@harness-ai.test`:
 Kit commits refuse placeholder identities (`GIT_IDENTITY_REQUIRED`).
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

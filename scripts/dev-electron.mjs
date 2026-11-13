@@ -4,27 +4,24 @@ import http from "node:http";
 
 const rendererUrl = "http://127.0.0.1:5173";
 
-const runtimeBuild = spawn("npm", ["run", "build:runtime"], {
-  stdio: "inherit",
-});
-const runtimeBuildStatus = await new Promise((resolve) => {
-  runtimeBuild.on("exit", (code) => resolve(code ?? 1));
-});
-if (runtimeBuildStatus !== 0) {
-  process.exit(runtimeBuildStatus);
-}
-
-const kitBuild = spawn("npm", ["run", "build:workflow-kit"], {
-  stdio: "inherit",
-});
-const kitBuildStatus = await new Promise((resolve) => {
-  kitBuild.on("exit", (code) => resolve(code ?? 1));
-});
-if (kitBuildStatus !== 0) {
-  process.exit(kitBuildStatus);
+// Development must never reuse a previous release descriptor.
+const devEnv = { ...process.env, HARNESS_RELEASE_TAG: undefined };
+for (const task of [
+  "build:release-info",
+  "build:runtime",
+  "build:workflow-kit",
+]) {
+  const build = spawn("npm", ["run", task], { env: devEnv, stdio: "inherit" });
+  const status = await new Promise((resolve) => {
+    build.on("exit", (code) => resolve(code ?? 1));
+  });
+  if (status !== 0) {
+    process.exit(status);
+  }
 }
 
 const vite = spawn("npm", ["run", "dev:renderer", "--", "--port", "5173"], {
+  env: devEnv,
   stdio: "inherit",
 });
 
@@ -67,7 +64,7 @@ try {
       "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
     ],
     {
-      env: { ...process.env, HARNESS_AI_RENDERER_URL: rendererUrl },
+      env: { ...devEnv, HARNESS_AI_RENDERER_URL: rendererUrl },
       stdio: "inherit",
     }
   );

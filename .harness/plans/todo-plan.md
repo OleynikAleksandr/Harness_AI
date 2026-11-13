@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 228,
+  "revision": 230,
   "rounds": [
     {
       "digest": null,
@@ -102,7 +102,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Создать единые метаданные версии релизной сборки",
       "why": "Обозначить реальную версию готового приложения без ручной смены package.json.version; связанный набор tooling и тестов допускает более трёх функциональных файлов."
     },
@@ -292,8 +292,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 0/6
-- Revision: 228
+- Progress: 1/6
+- Revision: 230
 
 ## Objective
 
@@ -310,7 +310,7 @@
 
 ### R1 — Implementation (implementation, OPEN)
 
-- [TODO] T001 — Создать единые метаданные версии релизной сборки (work)
+- [DONE] T001 — Создать единые метаданные версии релизной сборки (work)
   - Commit: feat(build): generate immutable application release metadata
   - Files: scripts/build-release-info.mjs, scripts/build-release-info.test.mjs, scripts/package-mac.mjs, scripts/dev-electron.mjs, package.json
 - [TODO] T002 — Отдавать версии приложения и встроенного Kit из Core (work)

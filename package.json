@@ -11,11 +11,11 @@
     "core:start": "node dist/runtime/product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-process-entry.js",
     "dev:renderer": "vite --host 127.0.0.1",
     "electron:start": "npm run build && electron product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/main.mjs",
-    "build": "npm run typecheck && npm run build:runtime && npm run build:workflow-kit && vite build",
+    "build": "npm run typecheck && npm run build:runtime && npm run build:workflow-kit && npm run build:release-info && vite build",
     "build:runtime": "tsc --project tsconfig.runtime.json",
     "build:workflow-kit": "node scripts/build-workflow-kit.mjs",
     "package:stop-old": "node scripts/stop-packaged-app-processes.mjs",
-    "package:mac": "npm run package:stop-old && npm run build && electron-builder --mac dir --publish never",
+    "package:mac": "node scripts/package-mac.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "prepare": "git config core.hooksPath .husky",
     "check:architecture": "node scripts/check-architecture.mjs",
@@ -32,7 +32,8 @@
     "check:security:all": "npm audit --audit-level=high",
     "quality": "npm run check:architecture && npm run lint && npm run check:knip && npm run typecheck && npm test",
     "check": "ultracite check",
-    "fix": "ultracite fix"
+    "fix": "ultracite fix",
+    "build:release-info": "node scripts/build-release-info.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -70,6 +71,7 @@
     "files": [
       "dist/renderer/**",
       "dist/runtime/**",
+      "dist/build-info.json",
       "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/**",
       "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/**",
       "product-parts/application-shell/clusters/electron-host/modules/vscode-link-opener/src/**",

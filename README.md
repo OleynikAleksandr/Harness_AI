@@ -35,12 +35,21 @@ and run in the Kit Git hooks (`.husky/**`).
 
 ## Packaged App Rebuilds
 
-Use `npm run package:mac` when a change must be tested in
-`release/mac-arm64/Harness AI.app`. The script first runs
+Choose an unused release tag before packaging and run
+`HARNESS_RELEASE_TAG=v2026.11.13.2 npm run package:mac` when a change must be tested in
+`release/mac-arm64/Harness AI.app`. The launcher validates the tag, then runs
 `scripts/stop-packaged-app-processes.mjs`, which stops only running processes
 launched from this repository's packaged app path before rebuilding `app.asar`.
 This prevents an already-running packaged Core from continuing to serve an old
 runtime after the package has been rebuilt.
+
+The native About window shows the full application release version and a
+separately labeled bundled Workflow Kit version, even without an open project.
+Core validates the immutable `dist/build-info.json` resource and reads its Kit
+version through the cluster facade. Packaging derives the real package version
+and macOS build number from the same release tag without editing the source
+`package.json.version`. Development builds explicitly display Development.
+See [ApplicationVersionsAndAbout-2026-11-13.md](docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md).
 
 Workflow Kit sources are synchronized to **2.2.4** from Workflow_Kit,
 commit `6e05505f`. Harness keeps the Core-owned cluster, Vite bundle and

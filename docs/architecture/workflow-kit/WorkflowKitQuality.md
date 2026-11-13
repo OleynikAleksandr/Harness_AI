@@ -218,3 +218,9 @@ evidence    — обязателен для package | installed
 
 Кроме них профиль содержит builtins `kit:doc-size`, `kit:md-links` и
 `kit:file-lines`; `kit:conflict-markers` действует неявно (раздел 4).
+
+Для delivery-проверки `package-mac` требуется заранее выбранный
+`HARNESS_RELEASE_TAG=vYYYY.M.D[.N]` в окружении запуска. Команда профиля
+остаётся `npm run package:mac`; launcher не упаковывает приложение без тега.
+Версии пакета и нативного About описаны в
+[ApplicationVersionsAndAbout-2026-11-13.md](../ApplicationVersionsAndAbout-2026-11-13.md).

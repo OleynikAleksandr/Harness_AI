@@ -47,6 +47,13 @@ Electron main (app-bootstrap, core-process-bridge)
   `capture-native-request`, `workflow-status` without an id) answer
   `NO_WORKSPACE`, and the renderer shows the start screen (Open Project /
   New Project).
+- **Product versions**: Core `get-product-info` validates the immutable
+  `dist/build-info.json` resource and snapshots the full application release
+  label and bundled Kit version (`workflowKitFacade.installer.version`).
+  It needs no workspace. The Electron bridge transports these facts to the
+  native About panel; client surfaces never derive versions from project state.
+  Build metadata and macOS package version/build are generated from one explicit
+  release tag; the same tag is used for publication.
 - **Provider contract** (`provider-adapter-contract`): session start/resume,
   turns, normalised events; `workspaceContext` carries the Workflow Kit
   recovery packet into the provider system prompt.

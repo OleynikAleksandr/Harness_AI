@@ -147,7 +147,7 @@ managed section at the end of this file is authoritative for the process.
 - Build order (different artifacts):
   ```bash
   npm run build        # rebuilds dist/ only (renderer, runtime, Workflow Kit bundle)
-  npm run package:mac  # rebuilds app.asar inside release/mac-arm64/Harness AI.app
+  HARNESS_RELEASE_TAG=vYYYY.M.D[.N] npm run package:mac  # rebuilds the packaged app
   ```
 - `npm run build` does not update the packaged `Harness AI.app`. Anything the
   user checks in the packaged app needs `npm run package:mac` and an app
@@ -159,8 +159,13 @@ managed section at the end of this file is authoritative for the process.
   public), tag `vYYYY.M.D` (`.N` suffix on the same day), and a GitHub
   Release with the round digest as notes and a zip of the unsigned
   `Harness AI.app`. Before every publication the history is scanned for
-  secrets. `package.json` versions stay unchanged. Spec:
+  secrets. The source `package.json.version` stays unchanged; packaging derives
+  real package/macOS version metadata from the explicit `HARNESS_RELEASE_TAG`.
+  Choose the tag before packaging and publish that exact artifact tag. Spec:
   `docs/architecture/ReleaseFixes-2026-11-04-2.md` section 8.
+- About displays separate application release and bundled Workflow Kit versions
+  from Core `get-product-info`, never from a selected project. Version contract:
+  `docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md`.
 - User acceptance is recorded only after the user's explicit positive answer
   (`scripts/workflow accept --note "<the user's words>"`). Defects reported by
   the user become a fixes round instead.

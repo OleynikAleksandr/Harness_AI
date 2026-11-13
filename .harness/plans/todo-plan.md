@@ -3,17 +3,34 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": "DOCS-R1",
+  "currentTaskId": null,
   "lastClosed": {
     "closedAt": "2026-11-13T16:32:24.995Z",
     "scopeId": "workflow-kit-sync-2.2.4-2026-11-13"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 236,
+  "revision": 237,
   "rounds": [
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "get-product-info returns a process snapshot: applicationVersion, workflowKitVersion, releaseTag, buildNumber and channel.",
+          "Missing or inconsistent metadata fails rather than producing a zero or fictitious release number.",
+          "HARNESS_RELEASE_TAG is required before packaging; publish the tag embedded in the tested artifact."
+        ],
+        "decisions": [
+          "Use the existing calendar release tag for the full About version; derive three-component package version and build number automatically.",
+          "Keep source package.json.version unchanged and overwrite stale release metadata with explicit Development in dev builds.",
+          "Core owns application and bundled Kit versions; About never uses the selected project Kit version."
+        ],
+        "references": [
+          "docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md",
+          "README.md",
+          "docs/architecture/OVERVIEW.md"
+        ],
+        "result": "Implemented immutable release version metadata, Core product info and the native About wiring. All three source tasks passed the full quality profile. Packaged native-window verification and publication remain delivery tasks."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -208,7 +225,7 @@
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -292,9 +309,9 @@
 - Scope: application-versions-about-2026-11-13 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Execution: sequential
-- Current task: DOCS-R1
-- Progress: 3/6
-- Revision: 236
+- Current task: none
+- Progress: 4/6
+- Revision: 237
 
 ## Objective
 
@@ -322,7 +339,7 @@
   - Commit: feat(electron): show application and Workflow Kit versions in About
   - Files: product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md
   - Depends on: T002
-- [IN_PROGRESS] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
   - Files: AGENTS.md, README.md, docs/architecture/OVERVIEW.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/ReleaseFixes-2026-11-04-2.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md
   - Depends on: T001, T002, T003
@@ -334,5 +351,7 @@
   - Commit: chore: publish release with application and Kit version information
   - Files: docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md
   - Depends on: T004, DOCS-R1
+
+Digest: Implemented immutable release version metadata, Core product info and the native About wiring. All three source tasks passed the full quality profile. Packaged native-window verification and publication remain delivery tasks.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

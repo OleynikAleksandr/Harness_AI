@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 225,
+  "revision": 226,
   "rounds": [
     {
       "digest": {
@@ -64,7 +64,10 @@
       "Kit самого Harness-репозитория обновлён до 2.2.4 штатным install --update, runtime/manifest/hooks согласованы, план и история сохранены.",
       "Пакет Harness AI для macOS собран и проверен с Kit 2.2.4; main, тег и Release с архивом опубликованы после подтверждений delivery."
     ],
-    "acceptanceNote": null,
+    "acceptanceNote": {
+      "at": "2026-11-13T16:32:24.363Z",
+      "text": "Да, принимаю результат — закрыть scope"
+    },
     "approval": {
       "at": "2026-11-13T15:21:47.993Z",
       "text": "Пользователь: «В текущем проекте нужно довести модуль workflow kit до версии 2.2.4». После уточнения состава: «Всё верно, готов спецификацию и план». | Execution mode chosen by the user: sequential: Пользователь выбрал последовательный режим без ревьювера; поручил выполнить план, собрать новый релиз, закрыть scope и опубликовать на GitHub. Подтверждены delivery-задачи."
@@ -99,7 +102,7 @@
         "text": "Реализация начинается после выбора режима; delivery подтверждается отдельно; приёмка и закрытие scope требуют отдельных пользовательских решений."
       }
     ],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "ACCEPTED",
     "execution": {
       "maxWorkers": 2,
       "ownerSession": "01a1d574-4310-7453-b7e3-5276848f46a8",
@@ -555,11 +558,11 @@
 ## State
 
 - Scope: workflow-kit-sync-2.2.4-2026-11-13 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: ACCEPTED
 - Execution: sequential
 - Current task: none
 - Progress: 11/11
-- Revision: 225
+- Revision: 226
 
 ## Objective
 

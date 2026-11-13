@@ -205,8 +205,10 @@ var WorkflowPathError = class extends WorkflowError {
 		super("UNSAFE_PATH", message, { path: offendingPath });
 	}
 };
-function currentWorkflowPlatform() {
-	if (process.platform === "win32" || process.platform === "darwin") return process.platform;
+/** The Kit platform of a Node platform (default: this process); every other OS counts as linux. */
+function currentWorkflowPlatform(platform) {
+	const current = platform ?? process.platform;
+	if (current === "win32" || current === "darwin") return current;
 	return "linux";
 }
 function isCaseInsensitivePlatform(platform) {
@@ -546,8 +548,12 @@ var workflowPlatformFacade = new WorkflowPlatformFacade();
 var BOOLEAN_FLAGS = /* @__PURE__ */ new Set([
 	"help",
 	"fix",
+	"force",
 	"dry-run",
 	"global",
+	"list",
+	"off",
+	"on",
 	"update"
 ]);
 /** Splits `command positional… --flag value --flag=value --bool`. */
@@ -688,6 +694,18 @@ function cleanupText(value) {
 	if (result.assignments.some((record) => record.cleanup?.status === "PENDING")) lines.push("next: resolve the reason (for example commit or remove the changes in the worktree), then scripts/workflow assignment:cleanup");
 	return `${lines.join("\n")}\n`;
 }
+function cancelText(value) {
+	const result = value;
+	const record = result.assignment;
+	const task = result.task;
+	return [
+		`assignment: ${record.id} cancelled, task ${record.taskId} ${task?.status ?? "not in the plan"}`,
+		`worktree: ${result.worktree === null ? "none" : `removed ${result.worktree}`}`,
+		result.branch === null || result.branchTip === null ? "branch: none" : `branch: deleted ${result.branch} at ${result.branchTip.slice(0, 12)} (restore: git branch ${result.branch} ${result.branchTip})`,
+		task?.status === "TODO" ? `next: scripts/workflow assignment:create --task ${task.id}` : "next: scripts/workflow assignment:next",
+		""
+	].join("\n");
+}
 function statusText$2(value) {
 	const result = value;
 	const task = result.task;
@@ -705,8 +723,10 @@ var EXECUTOR_COMMANDS = /* @__PURE__ */ new Set([
 	"assignment:setup",
 	"assignment:status",
 	"commit",
+	"context",
 	"recover",
 	"repair",
+	"schema",
 	"show-task",
 	"status",
 	"task:block",
@@ -717,10 +737,10 @@ var EXECUTOR_COMMANDS = /* @__PURE__ */ new Set([
 function ensureExecutorCommand(kit, root, command) {
 	if (EXECUTOR_COMMANDS.has(command)) return;
 	const executor = kit.executorAssignment(root);
-	ensure(executor === null, "ASSIGNMENT_READ_ONLY", `${command} is not available in the executor worktree of ${executor?.id}.`, { allowed: [...EXECUTOR_COMMANDS] }, "Run only your task: task:start, commit --task, status, recover, show-task, repair, task:block, assignment:status, assignment:setup.");
+	ensure(executor === null, "ASSIGNMENT_READ_ONLY", `${command} is not available in the executor worktree of ${executor?.id}.`, { allowed: [...EXECUTOR_COMMANDS] }, "Run only your task: task:start, commit --task, status, recover, show-task, schema, context, repair, task:block, assignment:status, assignment:setup.");
 }
 /**
-* Orchestrated assignments (spec 5.1, 5.4, 7): `assignment:next|create|cleanup`
+* Orchestrated assignments (spec 5.1, 5.4, 7): `assignment:next|create|cleanup|cancel`
 * in main, `attach|status` in the executor worktree, `setup` in both.
 */
 var ASSIGNMENT_COMMANDS = {
@@ -728,6 +748,11 @@ var ASSIGNMENT_COMMANDS = {
 		run: ({ args, kit, root }) => kit.attachAssignment(root, positional(args, 0, "Assignment id")),
 		text: attachText,
 		usage: "assignment:attach <id>"
+	},
+	"assignment:cancel": {
+		run: ({ args, kit, root }) => kit.cancelAssignment(root, requiredFlag(args, "id"), args.flags.get("force") === true),
+		text: cancelText,
+		usage: "assignment:cancel --id <id> [--force]"
 	},
 	"assignment:cleanup": {
 		run: ({ args, kit, root }) => kit.cleanupAssignments(root, flag(args, "id")),
@@ -755,6 +780,223 @@ var ASSIGNMENT_COMMANDS = {
 		usage: "assignment:next"
 	}
 };
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-context.ts
+/** Output budget of `context`: Claude Code cuts tool output near 30 000 chars. */
+var CONTEXT_BUDGET = 28e3;
+var KIT_FOLDER = ".harness/workflow";
+var H2$1 = /^##\s+(.+?)\s*#*\s*$/u;
+var FENCE$2 = /^\s*(```|~~~)/u;
+var LIST_MORE = "narrow with `scripts/workflow context --list <folder>` (a subfolder)";
+function bytesOf(text) {
+	return Buffer.byteLength(text, "utf8");
+}
+function forbidden(request, reason) {
+	return new WorkflowError("CONTEXT_FORBIDDEN", `${request}: ${reason}.`, { path: request }, "Ask only for text files of the project outside .harness/workflow/.");
+}
+/**
+* The canonical project-relative path of a request (relative to the
+* project root, or absolute inside it); outside the root, or inside the Kit
+* folder (also through a symbolic link), is CONTEXT_FORBIDDEN.
+*/
+function projectPath(root, request) {
+	const relative = (base, target) => path.relative(base, target).split(path.sep).join("/");
+	const inside = (value) => value !== ".." && !value.startsWith("../") && !path.isAbsolute(value);
+	const kitPath = (value) => {
+		const lower = value.toLowerCase();
+		return lower === KIT_FOLDER || lower.startsWith(`${KIT_FOLDER}/`);
+	};
+	const absolute = path.resolve(root, request);
+	const lexical = relative(path.resolve(root), absolute);
+	let real = null;
+	try {
+		real = relative(realpathSync(root), realpathSync(absolute));
+	} catch {}
+	const result = inside(lexical) ? lexical : real;
+	if (result === null || !inside(result)) throw forbidden(request, "the path is outside the project");
+	if (kitPath(result)) throw forbidden(request, "the Kit folder .harness/workflow/ is closed");
+	if (real !== null && !inside(real)) throw forbidden(request, "the path leads outside the project");
+	if (real !== null && kitPath(real)) throw forbidden(request, "the path leads into .harness/workflow/");
+	return result === "" ? "." : result;
+}
+/** The text of a project file: CONTEXT_MISSING, or CONTEXT_FORBIDDEN for a folder or binary file. */
+function readProjectText(root, request, file) {
+	const absolute = path.resolve(root, file);
+	let isFile = false;
+	try {
+		isFile = statSync(absolute).isFile();
+	} catch {
+		throw new WorkflowError("CONTEXT_MISSING", `${request}: the file does not exist.`, { path: file }, "Run `scripts/workflow context --list` for the project documents.");
+	}
+	if (!isFile) throw forbidden(request, "not a file (ask for files, list a folder with --list)");
+	const data = readFileSync(absolute);
+	if (data.includes(0)) throw forbidden(request, "not a text file");
+	return data.toString("utf8");
+}
+/** Every request read and checked before anything is returned. */
+function requested(recovery, root, requests) {
+	return requests.map((request) => {
+		const hash = request.indexOf("#");
+		const target = hash === -1 ? request : request.slice(0, hash);
+		const heading = hash === -1 ? "" : request.slice(hash + 1).trim();
+		const file = projectPath(root, target);
+		const text = readProjectText(root, request, file);
+		const section = heading ? recovery.section(text, heading) : text;
+		ensure(section !== null, "CONTEXT_MISSING", `${file} has no heading "${heading}".`, {
+			heading,
+			path: file
+		}, `Run \`scripts/workflow context --list ${path.posix.dirname(file)}\` for its headings.`);
+		const body = section.trimEnd();
+		return {
+			bytes: bytesOf(body),
+			path: file,
+			text: body,
+			...heading ? { heading } : {}
+		};
+	});
+}
+/**
+* The `##` sections of a document (outside fenced code); the text before
+* the first one stays with the first section. Null without `##` headings.
+*/
+function sections(item) {
+	const lines = item.text.split("\n");
+	const starts = [];
+	let fenced = false;
+	for (const [index, line] of lines.entries()) {
+		if (FENCE$2.test(line)) {
+			fenced = !fenced;
+			continue;
+		}
+		const match = fenced ? null : H2$1.exec(line);
+		if (match?.[1]) starts.push({
+			heading: match[1],
+			index
+		});
+	}
+	if (starts.length === 0) return null;
+	return starts.map((start, position) => {
+		const from = position === 0 ? 0 : start.index;
+		const to = starts[position + 1]?.index ?? lines.length;
+		const text = lines.slice(from, to).join("\n").trimEnd();
+		return {
+			bytes: bytesOf(text),
+			heading: start.heading,
+			path: item.path,
+			text
+		};
+	});
+}
+function attribute$1(value) {
+	return value.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("<", "&lt;");
+}
+function block(item) {
+	const heading = item.heading ? ` heading="${attribute$1(item.heading)}"` : "";
+	return `<document path="${attribute$1(item.path)}"${heading} bytes="${item.bytes}">\n${item.text}\n</document>\n`;
+}
+function leftOut(item, tooLarge = false) {
+	return {
+		bytes: item.bytes,
+		path: item.path,
+		...item.heading ? { heading: item.heading } : {},
+		...tooLarge ? { tooLarge: true } : {}
+	};
+}
+function leftOutLine(item) {
+	const request = item.heading ? `${item.path}#${item.heading}` : item.path;
+	return item.tooLarge ? `not included (larger than the ${CONTEXT_BUDGET}-byte budget, no ## sections): ${request} (${item.bytes} bytes)` : `not included (ask again): ${request} (${item.bytes} bytes)`;
+}
+/** The `--format text` answer: the marked documents, then the left-out lines. */
+function contextText(value) {
+	const result = value;
+	const parts = result.documents.map(block);
+	const tail = result.notIncluded.map(leftOutLine);
+	if (tail.length > 0) parts.push(`${tail.join("\n")}\n`);
+	return parts.length > 0 ? parts.join("\n") : "no documents\n";
+}
+/**
+* Packs the documents in request order while the answer fits the budget.
+* A document larger than the budget alone is split by `##` sections. After
+* the first item that does not fit, every later one is left out, so the
+* next request continues in order.
+*/
+function pack$1(items) {
+	const result = {
+		documents: [],
+		notIncluded: []
+	};
+	let used = 0;
+	let full = false;
+	const oversized = (item) => bytesOf(block(item)) > CONTEXT_BUDGET;
+	const take = (item) => {
+		const size = bytesOf(block(item)) + (result.documents.length > 0 ? 1 : 0);
+		if (full || used + size > CONTEXT_BUDGET) {
+			full = true;
+			return false;
+		}
+		result.documents.push(item);
+		used += size;
+		return true;
+	};
+	for (const item of items) {
+		const parts = !full && oversized(item) ? sections(item) : null;
+		if (parts) {
+			for (const part of parts) if (!take(part)) result.notIncluded.push(leftOut(part, oversized(part)));
+		} else if (!take(item)) result.notIncluded.push(leftOut(item, oversized(item) && sections(item) === null));
+	}
+	while (result.documents.length > 0 && bytesOf(contextText(result)) > CONTEXT_BUDGET) {
+		const last = result.documents.pop();
+		result.notIncluded.unshift(leftOut(last));
+	}
+	return result;
+}
+/** `context --list [<folder>]`: the documents map within the output budget. */
+function listDocuments(recovery, root, request) {
+	let folder = null;
+	if (request !== void 0) {
+		const relative = projectPath(root, request);
+		let isFolder = false;
+		try {
+			isFolder = statSync(path.resolve(root, relative)).isDirectory();
+		} catch {
+			throw new WorkflowError("CONTEXT_MISSING", `${request}: the folder does not exist.`, { path: relative });
+		}
+		if (!isFolder) throw forbidden(request, "not a folder (ask for a file without --list)");
+		folder = relative === "." ? null : relative;
+	}
+	return {
+		folder,
+		...recovery.documentsMap(root, {
+			budget: CONTEXT_BUDGET,
+			folder,
+			more: LIST_MORE
+		})
+	};
+}
+function text$1(value) {
+	if ("documents" in value) return contextText(value);
+	const list = value;
+	return list.entries.length > 0 ? `${list.text}\n` : `no Markdown documents${list.folder ? ` under ${list.folder}` : ""}\n`;
+}
+/**
+* `context <path>[#Heading] …` and `context --list [<folder>]` (spec 3.1):
+* project documents as marked text within 28 000 bytes. A pure read: it
+* needs no scope and also runs in an executor worktree. Text is its
+* default format.
+*/
+var CONTEXT_COMMANDS = { context: {
+	defaultFormat: "text",
+	run: ({ args, kit, root }) => {
+		if (args.flags.get("list") === true) {
+			ensure(args.positionals.length <= 1, "USAGE", "context --list takes at most one folder.");
+			return listDocuments(kit.recovery, root, args.positionals[0]);
+		}
+		ensure(args.positionals.length > 0, "USAGE", "context needs at least one <path>[#Heading], or --list [<folder>].");
+		return pack$1(requested(kit.recovery, root, args.positionals));
+	},
+	text: text$1,
+	usage: "context <path>[#Heading] … | context --list [<folder>]"
+} };
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts
 var STRATEGIES$2 = /* @__PURE__ */ new Set(["orchestrated", "sequential"]);
@@ -826,129 +1068,6 @@ var EXECUTION_COMMANDS = {
 		usage: "scope:propose --input <file.json> --recommended sequential|orchestrated --reason \"<why>\""
 	}
 };
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-identity.ts
-function identityText(value) {
-	const result = value;
-	return `identity: ${result.name} <${result.email}> (${result.scope} git config)\n`;
-}
-/**
-* `identity:set --name --email --global`: validates the identity
-* (GIT_IDENTITY_INVALID, GIT_IDENTITY_PLACEHOLDER) and writes it to the
-* global git config. It needs no project: it works in any folder.
-*/
-var IDENTITY_COMMANDS = { "identity:set": {
-	run: ({ args, kit, root }) => {
-		ensure(args.flags.get("global") === true, "USAGE", "identity:set needs --global: the identity is set once for all projects.");
-		return {
-			...kit.git.writeGlobalIdentity(root, {
-				email: flag(args, "email") ?? "",
-				name: flag(args, "name") ?? ""
-			}),
-			scope: "global"
-		};
-	},
-	text: identityText,
-	usage: "identity:set --name \"<name>\" --email <email> --global"
-} };
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-integration.ts
-var short = (sha) => sha?.slice(0, 12) ?? "none";
-function outcomeText(value) {
-	const result = value;
-	const lines = [`integration: ${result.assignmentId} ${result.status}, task ${result.taskId}, source ${short(result.source)} into ${short(result.mainHead)}`];
-	if (result.status === "CONFLICT") {
-		for (const file of result.conflicts) lines.push(`conflict: ${file}`);
-		lines.push(`next: resolve the conflicts inside the files of ${result.taskId}, git add them, then scripts/workflow integration:continue --id ${result.assignmentId}`);
-		return `${lines.join("\n")}\n`;
-	}
-	lines.push(`commit: ${short(result.integrationCommit)}`);
-	const cleanup = result.assignment?.cleanup;
-	lines.push(cleanup?.status === "PENDING" ? `cleanup: PENDING — ${cleanup.reason} (repeat with scripts/workflow assignment:cleanup --id ${result.assignmentId})` : "cleanup: DONE");
-	lines.push("next: scripts/workflow assignment:next");
-	return `${lines.join("\n")}\n`;
-}
-function statusText$1(value) {
-	const result = value;
-	const journal = result.journal;
-	if (!journal) return `integration: IDLE${result.mergeHead ? ` (a merge of ${short(result.mergeHead)} is in progress without the Kit)` : ""}\n`;
-	const lines = [`integration: ${journal.assignmentId} ${journal.phase}, task ${journal.taskId}, source ${short(journal.source)} into ${short(journal.mainHead)}`, ...result.conflicts.map((file) => `conflict: ${file}`)];
-	if (journal.error) lines.push(`error: ${journal.error.trim().split("\n").slice(-5).join("\n")}`);
-	lines.push(journal.phase === "UNKNOWN" ? "next: inspect main (git status, git log -1); the Kit does not retry an unproven state" : `next: scripts/workflow integration:continue --id ${journal.assignmentId}`);
-	return `${lines.join("\n")}\n`;
-}
-/** Integration of executor results in main (spec 7). */
-var INTEGRATION_COMMANDS = {
-	"integration:continue": {
-		run: ({ args, kit, root }) => kit.continueIntegration(root, requiredFlag(args, "id")),
-		text: outcomeText,
-		usage: "integration:continue --id <assignment>"
-	},
-	"integration:start": {
-		run: ({ args, kit, root }) => kit.startIntegration(root, requiredFlag(args, "id"), requiredFlag(args, "source")),
-		text: outcomeText,
-		usage: "integration:start --id <assignment> --source <sha>"
-	},
-	"integration:status": {
-		run: ({ kit, root }) => kit.integrationStatus(root),
-		text: statusText$1,
-		usage: "integration:status"
-	}
-};
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts
-/** One line: the execution mode, assignment counts by status, the integration. */
-function executionLine(status) {
-	const { execution } = status;
-	if (!execution) return "execution: none";
-	if (execution.strategy !== "orchestrated") return `execution: ${execution.strategy}`;
-	const counts = /* @__PURE__ */ new Map();
-	for (const item of status.assignments) counts.set(item.status, (counts.get(item.status) ?? 0) + 1);
-	const assignments = counts.size === 0 ? "none" : [...counts].map(([state, count]) => `${state} ${count}`).join(", ");
-	const integration = status.integration ? `, integration ${status.integration.taskId ?? "unknown"} ${status.integration.phase ?? "unknown"}` : "";
-	return `execution: orchestrated (max ${execution.maxWorkers} workers), assignments: ${assignments}${integration}`;
-}
-function statusText(status) {
-	const lines = [`project: ${status.project ? `${status.project.name} (${status.project.id})` : "not installed"}`, status.scope ? `scope: ${status.scope.id} ${status.scope.status}, result ${status.scope.delivery}, revision ${status.revision}` : `scope: NONE, revision ${status.revision}`];
-	if (status.scope?.blockedReason) lines.push(`blocked: ${status.scope.blockedReason}`);
-	lines.push(executionLine(status));
-	if (status.executor) lines.push(`executor: assignment ${status.executor.assignmentId}, task ${status.executor.taskId}`);
-	lines.push(`progress: ${status.progress.done}/${status.progress.total}`, `current: ${status.currentTask ? `${status.currentTask.id} ${status.currentTask.title}` : "none"}`, `next: ${status.nextTask ? `${status.nextTask.id} [${status.nextTask.kind}] ${status.nextTask.title}` : "none"}`, `quality: ${status.quality.status}${status.quality.stacks.length > 0 ? ` (${status.quality.stacks.join(", ")})` : ""}, drift ${status.quality.drift.status}`, `head: ${status.head ? status.head.slice(0, 8) : "none"}`, `transaction: ${status.transaction ? `${status.transaction.id} ${status.transaction.phase}` : "none"}`, `changes: ${status.changes.length === 0 ? "none" : status.changes.join(", ")}`);
-	return `${lines.join("\n")}\n`;
-}
-function validationText(report) {
-	return report.ok ? "Plan and history are consistent.\n" : `${report.errors.map((error) => `${error.code}: ${error.message}`).join("\n")}\n`;
-}
-function inspectText(result) {
-	const { git } = result;
-	const repository = git.repository ? `repository, head ${git.head ? git.head.slice(0, 8) : "none"}` : "not a repository";
-	const lines = [
-		`path: ${result.path}`,
-		`state: ${result.state}`,
-		`action: ${result.action}`,
-		`kit version: ${result.version ?? "none"}`,
-		`git: ${repository}`,
-		`identity: ${git.identity ? `${git.identity.name} <${git.identity.email}>` : "not set"}`,
-		`stacks: ${result.stacks.length > 0 ? result.stacks.join(", ") : "none"}`,
-		`transaction: ${result.transactionPending ? "pending" : "none"}`
-	];
-	if (result.nestedIn) lines.push(`nested in: ${result.nestedIn}`);
-	if (result.damaged.length > 0) lines.push(`damaged: ${result.damaged.join(", ")}`);
-	return `${lines.join("\n")}\n`;
-}
-/** Human-readable output of `--format text`. */
-function renderText(command, result) {
-	const value = result;
-	switch (command) {
-		case "status": return statusText(result);
-		case "validate": return validationText(result);
-		case "inspect": return inspectText(result);
-		case "recover":
-		case "history":
-		case "show-task": return String(value.text ?? "");
-		default: return `${JSON.stringify(result, null, 2)}\n`;
-	}
-}
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-history.ts
 var RECORD_SEPARATOR = "";
@@ -1371,23 +1490,20 @@ function resolveTaskReferences(git, root, plan, planPath, pending) {
 	}
 	return references;
 }
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-execution.ts
-var DEFAULT_MAX_WORKERS = 3;
-var MAX_WORKERS_LIMIT = 16;
-var STRATEGIES$1 = /* @__PURE__ */ new Set(["sequential", "orchestrated"]);
+var EXECUTION_STRATEGIES = ["sequential", "orchestrated"];
+var STRATEGIES$1 = new Set(EXECUTION_STRATEGIES);
 var GLOB_PATTERN = /[*?[\]{}]/u;
 var SEQUENTIAL = {
-	maxWorkers: DEFAULT_MAX_WORKERS,
+	maxWorkers: 3,
 	ownerSession: null,
 	strategy: "sequential"
 };
 /** Builds the stored execution block from input, filling the defaults. */
 function normalizeExecution(input) {
 	if (input === void 0 || input === null) return;
-	ensure(typeof input === "object" && !Array.isArray(input), "PLAN_EXECUTION", "execution must be an object with a strategy.");
+	ensure(typeof input === "object" && !Array.isArray(input), "PLAN_EXECUTION", "execution must be an object with a strategy.", { field: "execution" });
 	return {
-		maxWorkers: input.maxWorkers ?? DEFAULT_MAX_WORKERS,
+		maxWorkers: input.maxWorkers ?? 3,
 		ownerSession: input.ownerSession ?? null,
 		strategy: input.strategy
 	};
@@ -1398,10 +1514,10 @@ function scopeExecution(scope) {
 }
 function validateExecution(execution) {
 	if (execution === void 0) return;
-	ensure(execution !== null && typeof execution === "object", "PLAN_EXECUTION", "scope.execution must be an object.");
-	ensure(STRATEGIES$1.has(execution.strategy), "PLAN_EXECUTION", "execution.strategy must be sequential or orchestrated.");
-	ensure(Number.isSafeInteger(execution.maxWorkers) && execution.maxWorkers >= 1 && execution.maxWorkers <= MAX_WORKERS_LIMIT, "PLAN_EXECUTION", `execution.maxWorkers must be an integer from 1 to ${MAX_WORKERS_LIMIT}.`);
-	ensure(execution.ownerSession === null || typeof execution.ownerSession === "string" && execution.ownerSession.trim() !== "", "PLAN_EXECUTION", "execution.ownerSession must be a non-empty string or null.");
+	ensure(execution !== null && typeof execution === "object", "PLAN_EXECUTION", "scope.execution must be an object.", { field: "execution" });
+	ensure(STRATEGIES$1.has(execution.strategy), "PLAN_EXECUTION", "execution.strategy must be sequential or orchestrated.", { field: "execution.strategy" });
+	ensure(Number.isSafeInteger(execution.maxWorkers) && execution.maxWorkers >= 1 && execution.maxWorkers <= 16, "PLAN_EXECUTION", `execution.maxWorkers must be an integer from 1 to 16.`, { field: "execution.maxWorkers" });
+	ensure(execution.ownerSession === null || typeof execution.ownerSession === "string" && execution.ownerSession.trim() !== "", "PLAN_EXECUTION", "execution.ownerSession must be a non-empty string or null.", { field: "execution.ownerSession" });
 }
 /** A concrete path names one file or directory: no glob, not `.`, no trailing `/`. */
 function isConcretePath(file) {
@@ -1409,12 +1525,13 @@ function isConcretePath(file) {
 }
 function validateParallelLabel(task) {
 	if (task.parallelSafe === void 0) return;
-	ensure(typeof task.parallelSafe === "boolean", "PLAN_SCHEMA", `parallelSafe must be boolean: ${task.id}`);
+	ensure(typeof task.parallelSafe === "boolean", "PLAN_SCHEMA", `parallelSafe must be boolean: ${task.id}`, { field: `tasks.${task.id}.parallelSafe` });
 	if (!task.parallelSafe) return;
-	ensure(task.kind === "work", "PARALLEL_KIND", `Only work tasks may be parallelSafe: ${task.id}`);
+	ensure(task.kind === "work", "PARALLEL_KIND", `Only work tasks may be parallelSafe: ${task.id}`, { field: `tasks.${task.id}.parallelSafe` });
 	const files = Array.isArray(task.files) ? task.files : [];
 	const vague = files.filter((file) => !isConcretePath(file));
 	ensure(files.length > 0 && vague.length === 0, "PARALLEL_FILES", `A parallelSafe task lists concrete paths only (no glob, no \`.\`, no trailing \`/\`): ${task.id}`, {
+		field: `tasks.${task.id}.files`,
 		paths: vague,
 		taskId: task.id
 	}, "Name every file of the task or set parallelSafe to false.");
@@ -1464,6 +1581,52 @@ function hasParallelWork(plan) {
 	return labelled.some((first, index) => labelled.slice(index + 1).some((second) => compatible(byId, first, second)));
 }
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-field-checks.ts
+/**
+* Field checks shared by plan validation and the input checks. Every
+* refusal is `PLAN_SCHEMA` and names the field in `details.field`.
+*/
+var ID_PATTERN$1 = /^[A-Za-z0-9][A-Za-z0-9._-]*$/u;
+var schemaError = "PLAN_SCHEMA";
+function text(value, field) {
+	ensure(typeof value === "string" && value.trim() !== "", schemaError, `Field must be a non-empty string: ${field}`, { field });
+}
+function textList(value, field, { nonEmpty = false } = {}) {
+	ensure(Array.isArray(value) && value.every((item) => typeof item === "string" && item.trim() !== ""), schemaError, `Field must be a list of non-empty strings: ${field}`, { field });
+	ensure(!nonEmpty || value.length > 0, schemaError, `List must not be empty: ${field}`, { field });
+	ensure(new Set(value).size === value.length, schemaError, `List has duplicates: ${field}`, { field });
+}
+function identifier(value, field) {
+	ensure(typeof value === "string" && ID_PATTERN$1.test(value), schemaError, `Invalid identifier in ${field}: ${String(value)}`, { field });
+}
+function decision$1(value, field) {
+	ensure(value && typeof value === "object", schemaError, `Missing decision: ${field}`, { field });
+	text(value.text, `${field}.text`);
+	text(value.at, `${field}.at`);
+}
+function relativePaths(values, field) {
+	textList(values, field);
+	for (const value of values) ensure(workflowPlatformFacade.normalizeRelative(value) === value, schemaError, `Path is not canonical in ${field}: ${value}`, {
+		field,
+		path: value
+	});
+}
+/** Document references; a refusal names the entry, e.g. `context[0].path`. */
+function documents(values, field) {
+	ensure(Array.isArray(values), schemaError, `Field must be a list: ${field}`, { field });
+	for (const [index, doc] of values.entries()) {
+		const entry = `${field}[${index}]`;
+		ensure(doc && typeof doc === "object", schemaError, `Document reference must be an object: ${entry}`, { field: entry });
+		text(doc.path, `${entry}.path`);
+		ensure(typeof doc.required === "boolean", schemaError, `required must be boolean in ${entry}`, { field: `${entry}.required` });
+		ensure(doc.heading === void 0 || typeof doc.heading === "string" && doc.heading.trim() !== "", schemaError, `heading must be text in ${entry}`, { field: `${entry}.heading` });
+	}
+	relativePaths(values.map((doc) => doc.path), `${field}.path`);
+}
+function byteLength$1(value) {
+	return new TextEncoder().encode(value).length;
+}
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-model.ts
 var PLAN_SCHEMA = "harness-workflow-plan/1";
 var PLAN_PATH = ".harness/plans/todo-plan.md";
@@ -1498,7 +1661,6 @@ function emptyPlan(projectId, projectName) {
 }
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-validation.ts
-var ID_PATTERN$2 = /^[A-Za-z0-9][A-Za-z0-9._-]*$/u;
 var ROUND_ID_PATTERN = /^R[0-9]+(?:-[a-z]+)?$/u;
 var SHA_PATTERN = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/u;
 var LINE_BREAK_PATTERN = /[\r\n]/u;
@@ -1523,55 +1685,26 @@ var DELIVERY_STATES = /* @__PURE__ */ new Set([
 	"READY_FOR_ACCEPTANCE",
 	"ACCEPTED"
 ]);
-var schemaError = "PLAN_SCHEMA";
-function text(value, field) {
-	ensure(typeof value === "string" && value.trim() !== "", schemaError, `Field must be a non-empty string: ${field}`, { field });
-}
-function textList(value, field, { nonEmpty = false } = {}) {
-	ensure(Array.isArray(value) && value.every((item) => typeof item === "string" && item.trim() !== ""), schemaError, `Field must be a list of non-empty strings: ${field}`, { field });
-	ensure(!nonEmpty || value.length > 0, schemaError, `List must not be empty: ${field}`, { field });
-	ensure(new Set(value).size === value.length, schemaError, `List has duplicates: ${field}`, { field });
-}
-function identifier(value, field) {
-	ensure(typeof value === "string" && ID_PATTERN$2.test(value), schemaError, `Invalid identifier in ${field}: ${String(value)}`, { field });
-}
-function decision$1(value, field) {
-	ensure(value && typeof value === "object", schemaError, `Missing decision: ${field}`, { field });
-	text(value.text, `${field}.text`);
-	text(value.at, `${field}.at`);
-}
-function relativePaths(values, field) {
-	textList(values, field);
-	for (const value of values) ensure(workflowPlatformFacade.normalizeRelative(value) === value, schemaError, `Path is not canonical in ${field}: ${value}`, {
-		field,
-		path: value
-	});
-}
-function documents(values, field) {
-	ensure(Array.isArray(values), schemaError, `Field must be a list: ${field}`, { field });
-	relativePaths(values.map((doc) => doc.path), `${field}.path`);
-	for (const doc of values) {
-		ensure(typeof doc.required === "boolean", schemaError, `required must be boolean in ${field}`, { field });
-		ensure(doc.heading === void 0 || typeof doc.heading === "string" && doc.heading.trim() !== "", schemaError, `heading must be text in ${field}`, { field });
-	}
-}
-function byteLength$1(value) {
-	return new TextEncoder().encode(value).length;
-}
-/** Validates the round digest written by a DOCS task. */
-function validateDigest(digest, field = "digest") {
-	ensure(digest && typeof digest === "object", "ROUND_DIGEST_REQUIRED", "A round digest with at least `result` is required.", { field });
-	text(digest.result, `${field}.result`);
-	ensure(byteLength$1(digest.result) <= 600, "ROUND_DIGEST_TOO_LARGE", `Digest result exceeds 600 bytes.`, { field });
+/**
+* Validates the round digest written by a DOCS task. Refusals name the
+* field of the digest input (`result`, `decisions`, `decisions[2]`); a
+* stored digest passes its plan path as `prefix`.
+*/
+function validateDigest(digest, prefix = "") {
+	const at = (name) => prefix ? `${prefix}.${name}` : name;
+	ensure(digest && typeof digest === "object", "ROUND_DIGEST_REQUIRED", "A round digest with at least `result` is required.", { field: prefix || "digest" });
+	text(digest.result, at("result"));
+	ensure(byteLength$1(digest.result) <= 600, "ROUND_DIGEST_TOO_LARGE", `Digest result exceeds 600 bytes.`, { field: at("result") });
 	for (const key of [
 		"decisions",
 		"contracts",
 		"references"
 	]) {
 		const items = digest[key];
-		textList(items, `${field}.${key}`);
-		ensure(items.length <= 8, "ROUND_DIGEST_TOO_LARGE", `Digest ${key} has more than 8 items.`, { field });
-		ensure(items.every((item) => byteLength$1(item) <= 300), "ROUND_DIGEST_TOO_LARGE", `Digest ${key} item exceeds 300 bytes.`, { field });
+		textList(items, at(key));
+		ensure(items.length <= 8, "ROUND_DIGEST_TOO_LARGE", `Digest ${key} has more than 8 items.`, { field: at(key) });
+		const large = items.findIndex((item) => byteLength$1(item) > 300);
+		ensure(large < 0, "ROUND_DIGEST_TOO_LARGE", `Digest ${key} item exceeds 300 bytes.`, { field: at(`${key}[${large}]`) });
 	}
 }
 function validateScope(scope) {
@@ -1579,10 +1712,10 @@ function validateScope(scope) {
 	text(scope.objective, "scope.objective");
 	textList(scope.acceptance, "scope.acceptance", { nonEmpty: true });
 	decision$1(scope.approval, "scope.approval");
-	ensure(Array.isArray(scope.decisions), schemaError, "scope.decisions must be a list.");
+	ensure(Array.isArray(scope.decisions), schemaError, "scope.decisions must be a list.", { field: "scope.decisions" });
 	for (const [index, item] of scope.decisions.entries()) decision$1(item, `scope.decisions[${index}]`);
 	ensure(SHA_PATTERN.test(scope.baselineCommit), schemaError, "scope.baselineCommit must be a full commit SHA.");
-	ensure(scope.spec === null || workflowPlatformFacade.normalizeRelative(scope.spec) === scope.spec, schemaError, "scope.spec must be a canonical path or null.");
+	ensure(scope.spec === null || workflowPlatformFacade.normalizeRelative(scope.spec) === scope.spec, schemaError, "scope.spec must be a canonical path or null.", { field: "scope.spec" });
 	documents(scope.context, "scope.context");
 	ensure(scope.status === "ACTIVE" || scope.status === "BLOCKED", schemaError, "scope.status must be ACTIVE or BLOCKED.");
 	ensure(scope.status === "BLOCKED" === (typeof scope.blockedReason === "string" && scope.blockedReason.trim() !== ""), schemaError, "A BLOCKED scope needs blockedReason; an ACTIVE scope has none.");
@@ -1612,8 +1745,8 @@ function validateTaskFields(task) {
 	text(task.title, `tasks.${task.id}.title`);
 	text(task.why, `tasks.${task.id}.why`);
 	text(task.commitMessage, `tasks.${task.id}.commitMessage`);
-	ensure(!LINE_BREAK_PATTERN.test(task.commitMessage), schemaError, `commitMessage must be one line: ${task.id}`);
-	ensure(TASK_KINDS.has(task.kind), schemaError, `Invalid task kind: ${task.id}`);
+	ensure(!LINE_BREAK_PATTERN.test(task.commitMessage), schemaError, `commitMessage must be one line: ${task.id}`, { field: `tasks.${task.id}.commitMessage` });
+	ensure(TASK_KINDS.has(task.kind), schemaError, `Invalid task kind: ${task.id}`, { field: `tasks.${task.id}.kind` });
 	ensure(TASK_STATUSES.has(task.status), schemaError, `Invalid task status: ${task.id}`);
 	ensure(Number.isSafeInteger(task.iteration) && task.iteration >= 1, schemaError, `iteration must be a positive integer: ${task.id}`);
 	relativePaths(task.files, `tasks.${task.id}.files`);
@@ -1621,7 +1754,7 @@ function validateTaskFields(task) {
 	textList(task.acceptance, `tasks.${task.id}.acceptance`, { nonEmpty: true });
 	textList(task.checks, `tasks.${task.id}.checks`);
 	documents(task.context, `tasks.${task.id}.context`);
-	ensure(task.docsWaiver === null || typeof task.docsWaiver === "string", schemaError, `docsWaiver must be text or null: ${task.id}`);
+	ensure(task.docsWaiver === null || typeof task.docsWaiver === "string", schemaError, `docsWaiver must be text or null: ${task.id}`, { field: `tasks.${task.id}.docsWaiver` });
 	ensure(task.confirmation === null || task.kind === "delivery", schemaError, `Only delivery tasks carry a confirmation: ${task.id}`);
 	if (task.integration !== void 0) {
 		ensure(task.status === "DONE" && typeof task.integration === "object" && task.integration !== null && SHA_PATTERN.test(String(task.integration.sourceCommit)), schemaError, `integration belongs to a DONE task and names a full source SHA: ${task.id}`);
@@ -1638,11 +1771,11 @@ function validateTaskGraph(plan) {
 		ensure(round.status === "OPEN" || task.status === "DONE", schemaError, `Tasks of a closed round are DONE: ${task.id}`);
 		for (const dependency of task.dependencies) {
 			const position = positions.get(dependency);
-			ensure(position !== void 0 && position < index, "TASK_ORDER", `Dependency must exist and come earlier: ${task.id} -> ${dependency}`);
+			ensure(position !== void 0 && position < index, "TASK_ORDER", `Dependency must exist and come earlier: ${task.id} -> ${dependency}`, { field: `tasks.${task.id}.dependencies` });
 		}
 		if (task.fixes !== null) {
 			const fixed = positions.get(task.fixes);
-			ensure(fixed !== void 0 && fixed < index, schemaError, `fixes must reference an earlier task: ${task.id}`);
+			ensure(fixed !== void 0 && fixed < index, schemaError, `fixes must reference an earlier task: ${task.id}`, { field: `tasks.${task.id}.fixes` });
 		}
 	});
 }
@@ -1793,6 +1926,353 @@ function parsePlanDocument(text, options = {}) {
 	if (options.projection ?? true) ensure(renderPlanDocument(plan) === text.replace(CRLF_PATTERN, "\n"), "PLAN_PROJECTION", "The readable part of the plan was edited manually.", {}, "Run `scripts/workflow repair` to rebuild it from the JSON state.");
 	return plan;
 }
+var INPUT_TASK_KINDS = ["work", "delivery"];
+var EXTEND_ROUNDS = ["current", "new"];
+var EXTEND_ROUND_KINDS = ["fixes", "implementation"];
+function approval(value, message) {
+	ensure(typeof value === "string" && value.trim().length >= 10, "SCOPE_APPROVAL", message, { field: "approval" });
+}
+function tasksList(value, message) {
+	ensure(Array.isArray(value) && value.length > 0, schemaError, message, { field: "tasks" });
+}
+/** The `scope:create` / `scope:propose` body; task entries are checked on normalization. */
+function checkScopeInput(input) {
+	ensure(input && typeof input === "object", schemaError, "The scope input must be a JSON object.", { field: "(root)" });
+	tasksList(input.tasks, "A scope needs at least one task.");
+	approval(input.approval, `Record the user-approved scope content in \`approval\` (at least 10 characters).`);
+	ensure(input.tasks.length === 1 || typeof input.spec === "string" && input.spec !== "", "SPEC_REQUIRED", "A scope with several tasks needs a specification document in `spec`.", { field: "spec" });
+	identifier(input.id, "id");
+	text(input.objective, "objective");
+	textList(input.acceptance, "acceptance", { nonEmpty: true });
+	ensure(input.decisions === void 0 || Array.isArray(input.decisions) && input.decisions.every((item) => typeof item === "string" && item.trim() !== ""), schemaError, "Field must be a list of non-empty strings: decisions", { field: "decisions" });
+	if (input.context !== void 0) documents(input.context, "context");
+}
+/** One task entry of `scope:create` or `plan:extend`; `field` is its input path. */
+function checkTaskInput(input, field) {
+	ensure(input && typeof input === "object", schemaError, "Each task must be an object.", { field });
+	ensure(input.kind === void 0 || INPUT_TASK_KINDS.includes(input.kind), schemaError, "Task kind in input must be work or delivery; Kit adds quality and docs tasks.", { field: `${field}.kind` });
+	if (input.id !== void 0) identifier(input.id, `${field}.id`);
+	text(input.title, `${field}.title`);
+	text(input.commitMessage, `${field}.commitMessage`);
+	textList(input.acceptance, `${field}.acceptance`, { nonEmpty: true });
+	for (const key of ["dependencies", "checks"]) if (input[key] !== void 0) textList(input[key], `${field}.${key}`);
+	if (input.context !== void 0) documents(input.context, `${field}.context`);
+}
+/** The `plan:extend` body without its task entries. */
+function checkExtendInput(input) {
+	ensure(input && typeof input === "object", schemaError, "The plan:extend input must be a JSON object.", { field: "(root)" });
+	tasksList(input.tasks, "plan:extend needs at least one task.");
+	ensure(input.round === void 0 || EXTEND_ROUNDS.includes(input.round), schemaError, "round must be current or new.", { field: "round" });
+	ensure(input.kind === void 0 || EXTEND_ROUND_KINDS.includes(input.kind), schemaError, "kind must be fixes or implementation.", { field: "kind" });
+	if (input.title !== void 0) text(input.title, "title");
+}
+/** The `carryover` body. */
+function checkCarryoverInput(input) {
+	ensure(input && typeof input === "object", schemaError, "The carryover input must be a JSON object.", { field: "(root)" });
+	approval(input.approval, "carryover needs the user's direct instruction in `approval`.");
+	identifier(input.id, "id");
+	if (input.objective !== void 0) text(input.objective, "objective");
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema-fields.ts
+var SCHEMA = "PLAN_SCHEMA";
+function field$2(name, type, required, description, extra = {}) {
+	return {
+		code: SCHEMA,
+		description,
+		name,
+		required,
+		type,
+		...extra
+	};
+}
+function documentFields(prefix) {
+	return [
+		field$2(`${prefix}`, "object[]", false, "Documents the agent reads."),
+		field$2(`${prefix}[].path`, "string", true, "Canonical project-relative path, unique in the list."),
+		field$2(`${prefix}[].required`, "boolean", true, "Whether the document is mandatory reading."),
+		field$2(`${prefix}[].heading`, "string", false, "Section heading to read instead of the whole document.")
+	];
+}
+function taskFields(prefix) {
+	return [
+		field$2(prefix, "object[]", true, "Tasks in execution order.", { minItems: 1 }),
+		field$2(`${prefix}[].id`, "string", false, "Task id, unique in the plan; defaults to T001, T002, ...", { pattern: ID_PATTERN$1.source }),
+		field$2(`${prefix}[].title`, "string", true, "Short task title."),
+		field$2(`${prefix}[].commitMessage`, "string", true, "One-line commit message of the task."),
+		field$2(`${prefix}[].acceptance`, "string[]", true, "Acceptance criteria: unique non-empty strings.", { minItems: 1 }),
+		field$2(`${prefix}[].why`, "string", false, "Why the task exists; defaults to the title."),
+		field$2(`${prefix}[].kind`, "string", false, "work (default) or delivery; Kit adds the quality and docs tasks.", { enum: INPUT_TASK_KINDS }),
+		field$2(`${prefix}[].files`, "string[]", false, "Canonical project-relative files or directories the task may change."),
+		field$2(`${prefix}[].dependencies`, "string[]", false, "Ids of earlier tasks that must be DONE first."),
+		field$2(`${prefix}[].checks`, "string[]", false, CHECKS_DESCRIPTION),
+		...documentFields(`${prefix}[].context`),
+		field$2(`${prefix}[].docsWaiver`, "string|null", false, "Reason the task changes code without its contract document."),
+		field$2(`${prefix}[].fixes`, "string|null", false, "Id of the earlier task this task fixes."),
+		field$2(`${prefix}[].parallelSafe`, "boolean", false, "The work task may run in parallel; it then lists concrete files only.")
+	];
+}
+var CHECKS_DESCRIPTION = "Ids of quality checks (quality.checks of .harness/workflow/config.json, Kit builtins kit:*) the task runs besides the required ones, e.g. an optional delivery check; never manual checks (those go into acceptance).";
+var CHECKS_RULE = "checks are quality check ids (CHECK_UNKNOWN): with the profile CONFIGURED each id is one of its checks (scripts/workflow quality:status); before QUALITY an id without spaces (^[A-Za-z0-9][A-Za-z0-9._:-]*$, a kit: id must be a Kit builtin) that task:start then finds in the profile. Only new tasks and changed checks are checked.";
+var TASK_RULES = [
+	CHECKS_RULE,
+	"dependencies and fixes point only to earlier tasks (TASK_ORDER, PLAN_SCHEMA).",
+	"parallelSafe applies to work tasks only (PARALLEL_KIND) that list concrete paths: no glob, no `.`, no trailing `/` (PARALLEL_FILES).",
+	"A QUALITY task is added before the first task with functional files while the quality profile is not CONFIGURED; the round DOCS task and the order of delivery tasks are computed by Kit."
+];
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts
+var EXECUTION = "PLAN_EXECUTION";
+/** Task fields `task:update` may change; a task in progress only the second list. */
+var TASK_PATCH_FIELDS = [
+	"acceptance",
+	"checks",
+	"commitMessage",
+	"context",
+	"dependencies",
+	"docsWaiver",
+	"files",
+	"title",
+	"why"
+];
+var IN_PROGRESS_PATCH_FIELDS = [
+	"acceptance",
+	"checks",
+	"docsWaiver",
+	"files"
+];
+var SCOPE_FIELDS = [
+	field$2("id", "string", true, "Scope id.", { pattern: ID_PATTERN$1.source }),
+	field$2("objective", "string", true, "What the scope delivers."),
+	field$2("acceptance", "string[]", true, "Scope acceptance criteria: unique non-empty strings.", { minItems: 1 }),
+	{
+		code: "SCOPE_APPROVAL",
+		description: "The user's agreement with the scope content, in the user's words (trimmed length).",
+		minLength: 10,
+		name: "approval",
+		required: true,
+		type: "string"
+	},
+	{
+		code: "SPEC_REQUIRED",
+		description: "Canonical path of the specification; required when the scope has several tasks.",
+		name: "spec",
+		required: false,
+		type: "string|null"
+	},
+	...documentFields("context"),
+	field$2("decisions", "string[]", false, "User decisions to record."),
+	{
+		code: EXECUTION,
+		description: "Execution block; absent means sequential. scope:propose replaces the strategy with the user's choice.",
+		name: "execution",
+		required: false,
+		type: "object"
+	},
+	{
+		code: EXECUTION,
+		description: "sequential or orchestrated.",
+		enum: EXECUTION_STRATEGIES,
+		name: "execution.strategy",
+		required: true,
+		type: "string"
+	},
+	{
+		code: EXECUTION,
+		description: `Parallel executors of an orchestrated scope; default 3.`,
+		maximum: 16,
+		minimum: 1,
+		name: "execution.maxWorkers",
+		required: false,
+		type: "integer"
+	},
+	{
+		code: EXECUTION,
+		description: "Session that owns the orchestration, or null.",
+		name: "execution.ownerSession",
+		required: false,
+		type: "string|null"
+	},
+	...taskFields("tasks")
+];
+var SCOPE_RULES = [
+	"A scope is created only when no scope is open (SCOPE_EXISTS) and the repository has a commit (NO_BASELINE).",
+	"A scope with several tasks needs `spec` (SPEC_REQUIRED).",
+	...TASK_RULES
+];
+var TASK_EXAMPLE = {
+	acceptance: ["The list shows a hint when it is empty"],
+	commitMessage: "feat: show a hint for the empty list",
+	context: [{
+		heading: "2. Empty list",
+		path: "docs/spec.md",
+		required: true
+	}],
+	files: ["src/list.ts"],
+	id: "T001",
+	title: "Empty list hint",
+	why: "Users do not understand an empty screen"
+};
+var SCOPE_EXAMPLE = {
+	acceptance: ["An empty list explains what to do"],
+	approval: "User: implement the empty list hint from docs/spec.md",
+	context: [{
+		path: "docs/spec.md",
+		required: true
+	}],
+	decisions: ["The hint text comes from the specification"],
+	id: "empty-list-hint",
+	objective: "Explain the empty list to the user",
+	spec: "docs/spec.md",
+	tasks: [TASK_EXAMPLE, {
+		acceptance: ["The packaged app shows the hint"],
+		commitMessage: "chore: package the app",
+		dependencies: ["T001"],
+		id: "T002",
+		kind: "delivery",
+		title: "Package the app"
+	}]
+};
+function scopeSchema(command, description) {
+	const propose = command === "scope:propose";
+	return {
+		command,
+		description,
+		example: propose ? {
+			...SCOPE_EXAMPLE,
+			execution: {
+				maxWorkers: 2,
+				strategy: "sequential"
+			}
+		} : {
+			...SCOPE_EXAMPLE,
+			execution: { strategy: "sequential" }
+		},
+		fields: SCOPE_FIELDS,
+		rules: propose ? ["Run `scope:propose --input <file.json> --recommended sequential|orchestrated --reason \"<why>\"`; the user chooses the mode on the card.", ...SCOPE_RULES] : ["A Harness-hosted project (config host `harness`) uses scope:propose instead (EXECUTION_MODE_REQUIRED).", ...SCOPE_RULES]
+	};
+}
+var EXTEND_SCHEMA = {
+	command: "plan:extend",
+	description: "Tasks added to the open round or to a new round: `plan:extend --input <file.json> [--expected-revision N]`.",
+	example: {
+		round: "current",
+		tasks: [{
+			...TASK_EXAMPLE,
+			fixes: null,
+			id: "T003"
+		}]
+	},
+	fields: [
+		field$2("round", "string", false, "current (default while the round DOCS is not done) or new.", { enum: EXTEND_ROUNDS }),
+		field$2("kind", "string", false, "Kind of a new round; default fixes.", { enum: EXTEND_ROUND_KINDS }),
+		field$2("title", "string", false, "Title of a new round; default Fixes."),
+		...taskFields("tasks"),
+		field$2("tasks[].before", "string", false, "Id of a not-started task of the current round to insert before; it then depends on the new task.")
+	],
+	rules: [
+		"DONE tasks never change; a defect becomes a new task that names the original in `fixes`.",
+		"A closed round or a round whose DOCS is done gets a new round; a new round needs the old one to have only TODO delivery tasks left (ROUND_OPEN).",
+		"`before` applies only to the current round and to a TODO task (TASK_STARTED, UNKNOWN_TASK).",
+		"`--expected-revision N` refuses a stale plan (REVISION_MISMATCH).",
+		"A READY_FOR_ACCEPTANCE or ACCEPTED scope returns to IN_PROGRESS.",
+		...TASK_RULES
+	]
+};
+var PATCH_SCHEMA = {
+	command: "task:update",
+	description: "Patch of a task that is not DONE: `task:update <ID> --input <patch.json> [--expected-revision N]`.",
+	example: {
+		acceptance: ["The list shows a hint when it is empty", "The hint is localized"],
+		files: ["src/list.ts", "src/list-hint.ts"]
+	},
+	fields: [
+		field$2("acceptance", "string[]", false, "Acceptance criteria: unique non-empty strings.", { minItems: 1 }),
+		field$2("checks", "string[]", false, CHECKS_DESCRIPTION),
+		field$2("commitMessage", "string", false, "One-line commit message."),
+		field$2("context", "object[]", false, "Documents: {path, required, heading?}."),
+		field$2("dependencies", "string[]", false, "Ids of earlier tasks."),
+		field$2("docsWaiver", "string|null", false, "Docs contract waiver."),
+		field$2("files", "string[]", false, "Canonical project-relative paths."),
+		field$2("title", "string", false, "Short task title."),
+		field$2("why", "string", false, "Why the task exists.")
+	],
+	rules: [
+		`Only these fields change (TASK_PATCH): ${TASK_PATCH_FIELDS.join(", ")}.`,
+		`A task IN_PROGRESS changes only ${IN_PROGRESS_PATCH_FIELDS.join(", ")}; a DONE task never changes (TASK_PATCH).`,
+		"The patched plan is validated as a whole; refusals name the plan field `tasks.<ID>.<field>`.",
+		CHECKS_RULE,
+		"`--expected-revision N` refuses a stale plan (REVISION_MISMATCH)."
+	]
+};
+var CARRYOVER_SCHEMA = {
+	command: "carryover",
+	description: "Closes the current scope and opens a new one with every unfinished task: `carryover --input <file.json>`.",
+	example: {
+		approval: "User: continue the unfinished tasks in a new scope",
+		id: "empty-list-hint-2",
+		objective: "Finish the empty list hint"
+	},
+	fields: [
+		field$2("id", "string", true, "Id of the new scope.", { pattern: ID_PATTERN$1.source }),
+		{
+			code: "SCOPE_APPROVAL",
+			description: "The user's direct instruction (trimmed length).",
+			minLength: 10,
+			name: "approval",
+			required: true,
+			type: "string"
+		},
+		field$2("objective", "string", false, "Objective of the new scope; defaults to the old one.")
+	],
+	rules: ["Needs an open scope (NO_SCOPE) with at least one unfinished task (NOTHING_TO_CARRY).", "Unfinished non-DOCS tasks move to round R1 as TODO; QUALITY and DOCS are rebuilt."]
+};
+function digestList(name, description) {
+	return [field$2(name, "string[]", true, description, {
+		limitCode: "ROUND_DIGEST_TOO_LARGE",
+		maxItems: 8
+	}), field$2(`${name}[]`, "string", false, "One item (UTF-8 bytes).", {
+		limitCode: "ROUND_DIGEST_TOO_LARGE",
+		maxBytes: 300
+	})];
+}
+var DIGEST_SCHEMA = {
+	command: "digest",
+	description: "Round digest of the DOCS task: `commit --task DOCS-<round> --digest <file.json>`.",
+	example: {
+		contracts: ["list facade: emptyHint(locale) returns the hint text"],
+		decisions: ["The hint text comes from the specification"],
+		references: ["docs/spec.md"],
+		result: "The empty list shows a localized hint."
+	},
+	fields: [
+		field$2("result", "string", true, "What the round delivered (UTF-8 bytes).", {
+			limitCode: "ROUND_DIGEST_TOO_LARGE",
+			maxBytes: 600
+		}),
+		...digestList("decisions", "Decisions taken in the round."),
+		...digestList("contracts", "Contracts the round created or changed."),
+		...digestList("references", "Documents to read for the round.")
+	],
+	rules: ["Only the DOCS task of a round takes --digest; without it the commit is refused (ROUND_DIGEST_REQUIRED).", "Every list is present (it may be empty) and holds unique non-empty strings."]
+};
+var SCHEMAS = [
+	scopeSchema("scope:create", "The agreed scope: `scope:create --input <file.json>`."),
+	scopeSchema("scope:propose", "The scope body proposed for the user's choice of execution mode; the same body as scope:create."),
+	EXTEND_SCHEMA,
+	PATCH_SCHEMA,
+	CARRYOVER_SCHEMA,
+	DIGEST_SCHEMA
+];
+/** Commands whose JSON input the workflow-plan module describes. */
+function planInputSchemaCommands() {
+	return SCHEMAS.map((schema) => schema.command);
+}
+/** A copy of the input descriptor of `command`, or null when it has none. */
+function planInputSchema(command) {
+	const schema = SCHEMAS.find((item) => item.command === command);
+	return schema ? structuredClone(schema) : null;
+}
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-service-tasks.ts
 var QUALITY_TITLE = "Configure the project quality profile";
@@ -1807,11 +2287,11 @@ function nextAutoId(existing) {
 	}
 	return `T${String(highest + 1).padStart(3, "0")}`;
 }
-function normalizeTaskInput(input, roundId, existing) {
-	ensure(input && typeof input === "object", "PLAN_SCHEMA", "Each task must be an object.");
-	ensure(input.kind === void 0 || input.kind === "work" || input.kind === "delivery", "PLAN_SCHEMA", "Task kind in input must be work or delivery; Kit adds quality and docs tasks.");
+/** Normalizes one input task; `field` is its input path, e.g. `tasks[0]`. */
+function normalizeTaskInput(input, roundId, existing, field) {
+	checkTaskInput(input, field);
 	const id = input.id ?? nextAutoId(existing);
-	ensure(!existing.has(id), "PLAN_SCHEMA", `Duplicate task id: ${id}`);
+	ensure(!existing.has(id), "PLAN_SCHEMA", `Duplicate task id: ${id}`, { field: `${field}.id` });
 	existing.add(id);
 	return {
 		acceptance: input.acceptance,
@@ -1939,12 +2419,10 @@ function decision(text, now) {
 function createScope$1(plan, input, context) {
 	ensure(plan.scope === null, "SCOPE_EXISTS", "The current scope is still open; close it before creating a new one.");
 	ensure(context.baselineCommit, "NO_BASELINE", "The repository needs a first commit before a scope can start.", {}, "Finish the kit bootstrap commit first.");
-	ensure(Array.isArray(input.tasks) && input.tasks.length > 0, "PLAN_SCHEMA", "A scope needs at least one task.");
-	ensure(typeof input.approval === "string" && input.approval.trim().length >= 10, "SCOPE_APPROVAL", "Record the user-approved scope content in `approval` (at least 10 characters).");
-	ensure(input.tasks.length === 1 || typeof input.spec === "string" && input.spec !== "", "SPEC_REQUIRED", "A scope with several tasks needs a specification document in `spec`.");
+	checkScopeInput(input);
 	const next = nextRevision(plan);
 	const ids = /* @__PURE__ */ new Set();
-	const tasks = input.tasks.map((task) => normalizeTaskInput(task, "R1", ids));
+	const tasks = input.tasks.map((task, index) => normalizeTaskInput(task, "R1", ids, `tasks[${index}]`));
 	const execution = normalizeExecution(input.execution);
 	next.scope = {
 		acceptance: input.acceptance,
@@ -2068,6 +2546,88 @@ function integrateTask(plan, taskId, integration) {
 	return validatePlan(next);
 }
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-scope-completion.ts
+function acceptScope$1(plan, note, now) {
+	ensure(plan.scope?.delivery === "READY_FOR_ACCEPTANCE", "NOT_READY", "Acceptance needs every task DONE (READY_FOR_ACCEPTANCE).");
+	ensure(typeof note === "string" && note.trim().length >= 3, "ACCEPTANCE_NOTE", "Record the user's acceptance words in --note.");
+	const next = nextRevision(plan);
+	if (next.scope) {
+		next.scope.delivery = "ACCEPTED";
+		next.scope.acceptanceNote = {
+			at: now,
+			text: note.trim()
+		};
+	}
+	return validatePlan(next);
+}
+function closeScope$1(plan, scopeId, note, now) {
+	ensure(plan.scope && plan.scope.id === scopeId, "SCOPE_ID", "Pass the exact id of the scope to close (--scope).");
+	ensure(plan.scope.delivery === "ACCEPTED", "NOT_ACCEPTED", "Only an ACCEPTED scope closes; record acceptance first.");
+	ensure(typeof note === "string" && note.trim().length >= 10, "USER_CLOSE_REQUIRED", "Closing needs the user's direct command in --note; acceptance alone is not one.");
+	const closed = emptyPlan(plan.projectId, plan.projectName);
+	closed.revision = plan.revision + 1;
+	closed.lastClosed = {
+		closedAt: now,
+		scopeId
+	};
+	return validatePlan(closed);
+}
+/** Closes the current scope and opens a new one with every unfinished task. */
+function carryoverScope$1(plan, input, context) {
+	const scope = plan.scope;
+	ensure(scope, "NO_SCOPE", "There is no scope to carry over.");
+	checkCarryoverInput(input);
+	ensure(context.baselineCommit, "NO_BASELINE", "carryover needs the current HEAD.");
+	const done = new Set(plan.tasks.filter((task) => task.status === "DONE").map((task) => task.id));
+	const unfinished = plan.tasks.filter((task) => task.status !== "DONE" && task.kind !== "docs");
+	ensure(unfinished.length > 0, "NOTHING_TO_CARRY", "Every task is DONE; accept and close the scope instead.");
+	const next = nextRevision(plan);
+	const tasks = unfinished.map((task) => ({
+		...structuredClone(task),
+		confirmation: null,
+		dependencies: task.dependencies.filter((id) => !done.has(id) && unfinished.some((item) => item.id === id)),
+		fixes: unfinished.some((item) => item.id === task.fixes) ? task.fixes : null,
+		roundId: "R1",
+		status: "TODO"
+	}));
+	next.lastClosed = {
+		closedAt: context.now,
+		scopeId: scope.id
+	};
+	next.scope = {
+		...structuredClone(scope),
+		acceptanceNote: null,
+		approval: {
+			at: context.now,
+			text: input.approval.trim()
+		},
+		baselineCommit: context.baselineCommit,
+		blockedReason: null,
+		decisions: [{
+			at: context.now,
+			text: `Carried over unfinished tasks from scope ${scope.id}.`
+		}],
+		delivery: "IN_PROGRESS",
+		id: input.id,
+		objective: input.objective ?? scope.objective,
+		status: "ACTIVE"
+	};
+	next.rounds = [{
+		digest: null,
+		id: "R1",
+		kind: "implementation",
+		status: "OPEN",
+		title: "Carried over"
+	}];
+	next.tasks = [];
+	next.currentTaskId = null;
+	next.tasks = arrangeRound(next, "R1", tasks.filter((task) => task.kind !== "quality"), {
+		docsFiles: scope.spec ? [scope.spec] : [],
+		qualityConfigured: context.qualityConfigured
+	});
+	return validatePlan(next);
+}
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-rounds.ts
 var ROUND_NUMBER_PATTERN = /^R([0-9]+)$/u;
 function nextRoundId(plan) {
@@ -2157,20 +2717,20 @@ function extendOpenRound(plan, round, placed, context) {
 /** Adds tasks to the open round or to a new round; finished records stay untouched. */
 function extendPlan(plan, input, context) {
 	ensure(plan.scope !== null, "NO_SCOPE", "There is no active scope to extend.");
-	ensure(Array.isArray(input.tasks) && input.tasks.length > 0, "PLAN_SCHEMA", "plan:extend needs at least one task.");
+	checkExtendInput(input);
 	const next = nextRevision(plan);
 	const ids = new Set(next.tasks.map((task) => task.id));
 	const last = next.rounds.at(-1);
 	const wantsNew = input.round === "new" || !last || last.status === "CLOSED" || docsDone(next, last);
 	const targetId = wantsNew ? nextRoundId(next) : last?.id ?? "R1";
-	const placed = input.tasks.map((source) => ({
+	const placed = input.tasks.map((source, index) => ({
 		before: source.before,
-		task: normalizeTaskInput(source, targetId, ids)
+		task: normalizeTaskInput(source, targetId, ids, `tasks[${index}]`)
 	}));
 	let deferred = null;
 	let roundId = targetId;
 	if (wantsNew) {
-		ensure(placed.every((item) => item.before === void 0), "PLAN_SCHEMA", "`before` applies only to the current round.");
+		ensure(placed.every((item) => item.before === void 0), "PLAN_SCHEMA", "`before` applies only to the current round.", { field: "tasks[].before" });
 		roundId = startNewRound(next, input, placed.map((item) => item.task), context);
 	} else if (last) deferred = extendOpenRound(next, last, placed, context);
 	recomputeDelivery(next);
@@ -2190,86 +2750,6 @@ function deferDocs(plan) {
 	next.currentTaskId = null;
 	return validatePlan(next);
 }
-function acceptScope$1(plan, note, now) {
-	ensure(plan.scope?.delivery === "READY_FOR_ACCEPTANCE", "NOT_READY", "Acceptance needs every task DONE (READY_FOR_ACCEPTANCE).");
-	ensure(typeof note === "string" && note.trim().length >= 3, "ACCEPTANCE_NOTE", "Record the user's acceptance words in --note.");
-	const next = nextRevision(plan);
-	if (next.scope) {
-		next.scope.delivery = "ACCEPTED";
-		next.scope.acceptanceNote = {
-			at: now,
-			text: note.trim()
-		};
-	}
-	return validatePlan(next);
-}
-function closeScope$1(plan, scopeId, note, now) {
-	ensure(plan.scope && plan.scope.id === scopeId, "SCOPE_ID", "Pass the exact id of the scope to close (--scope).");
-	ensure(plan.scope.delivery === "ACCEPTED", "NOT_ACCEPTED", "Only an ACCEPTED scope closes; record acceptance first.");
-	ensure(typeof note === "string" && note.trim().length >= 10, "USER_CLOSE_REQUIRED", "Closing needs the user's direct command in --note; acceptance alone is not one.");
-	const closed = emptyPlan(plan.projectId, plan.projectName);
-	closed.revision = plan.revision + 1;
-	closed.lastClosed = {
-		closedAt: now,
-		scopeId
-	};
-	return validatePlan(closed);
-}
-/** Closes the current scope and opens a new one with every unfinished task. */
-function carryoverScope$1(plan, input, context) {
-	const scope = plan.scope;
-	ensure(scope, "NO_SCOPE", "There is no scope to carry over.");
-	ensure(typeof input.approval === "string" && input.approval.trim().length >= 10, "SCOPE_APPROVAL", "carryover needs the user's direct instruction in `approval`.");
-	ensure(context.baselineCommit, "NO_BASELINE", "carryover needs the current HEAD.");
-	const done = new Set(plan.tasks.filter((task) => task.status === "DONE").map((task) => task.id));
-	const unfinished = plan.tasks.filter((task) => task.status !== "DONE" && task.kind !== "docs");
-	ensure(unfinished.length > 0, "NOTHING_TO_CARRY", "Every task is DONE; accept and close the scope instead.");
-	const next = nextRevision(plan);
-	const tasks = unfinished.map((task) => ({
-		...structuredClone(task),
-		confirmation: null,
-		dependencies: task.dependencies.filter((id) => !done.has(id) && unfinished.some((item) => item.id === id)),
-		fixes: unfinished.some((item) => item.id === task.fixes) ? task.fixes : null,
-		roundId: "R1",
-		status: "TODO"
-	}));
-	next.lastClosed = {
-		closedAt: context.now,
-		scopeId: scope.id
-	};
-	next.scope = {
-		...structuredClone(scope),
-		acceptanceNote: null,
-		approval: {
-			at: context.now,
-			text: input.approval.trim()
-		},
-		baselineCommit: context.baselineCommit,
-		blockedReason: null,
-		decisions: [{
-			at: context.now,
-			text: `Carried over unfinished tasks from scope ${scope.id}.`
-		}],
-		delivery: "IN_PROGRESS",
-		id: input.id,
-		objective: input.objective ?? scope.objective,
-		status: "ACTIVE"
-	};
-	next.rounds = [{
-		digest: null,
-		id: "R1",
-		kind: "implementation",
-		status: "OPEN",
-		title: "Carried over"
-	}];
-	next.tasks = [];
-	next.currentTaskId = null;
-	next.tasks = arrangeRound(next, "R1", tasks.filter((task) => task.kind !== "quality"), {
-		docsFiles: scope.spec ? [scope.spec] : [],
-		qualityConfigured: context.qualityConfigured
-	});
-	return validatePlan(next);
-}
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts
 /**
@@ -2285,6 +2765,17 @@ var WorkflowPlanFacade = class {
 	}
 	validateDigest(digest) {
 		validateDigest(digest);
+	}
+	/**
+	* Input descriptor of a plan command (`scope:create`, `scope:propose`,
+	* `plan:extend`, `task:update`, `carryover`, `digest`), or null.
+	*/
+	inputSchema(command) {
+		return planInputSchema(command);
+	}
+	/** Commands with a plan input descriptor, in a stable order. */
+	inputSchemaCommands() {
+		return planInputSchemaCommands();
 	}
 	render(plan) {
 		return renderPlanDocument(plan);
@@ -2364,6 +2855,63 @@ var WorkflowPlanFacade = class {
 };
 var workflowPlanFacade = new WorkflowPlanFacade();
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-staging.ts
+/** The given paths that git ignores; read through stdin, so any count fits. */
+function ignoredPaths(git, root, files) {
+	if (files.length === 0) return /* @__PURE__ */ new Set();
+	const output = git.run(root, [
+		"check-ignore",
+		"-z",
+		"--stdin"
+	], {
+		allowFailure: true,
+		input: `${files.join("\0")}\u0000`
+	});
+	ensure(output.status === 0 || output.status === 1, "GIT_FAILED", `git check-ignore failed: ${output.stderr.trim() || output.stdout.trim()}`, {
+		args: [
+			"check-ignore",
+			"-z",
+			"--stdin"
+		],
+		status: output.status
+	});
+	return new Set(output.stdout.split("\0").filter(Boolean));
+}
+/**
+* Paths of `files` the commit candidate will not contain: outside the index
+* and either missing on disk or ignored by git. A deletion already staged for
+* such a path (for example after `git rm -r --cached node_modules`) stays in
+* the index as is; content checks must not read the copies left on disk.
+*/
+function absentPaths(git, root, files) {
+	if (files.length === 0) return /* @__PURE__ */ new Set();
+	const tracked = new Set(git.run(root, [
+		"ls-files",
+		"-z",
+		"--",
+		...files
+	]).stdout.split("\0").filter(Boolean));
+	const untracked = files.filter((file) => !tracked.has(file));
+	const existing = new Set(untracked.filter((file) => existsSync(path.join(root, ...file.split("/")))));
+	const ignored = ignoredPaths(git, root, [...existing]);
+	return new Set(untracked.filter((file) => !existing.has(file) || ignored.has(file)));
+}
+/**
+* Stages the selected paths except the absent ones (`absentPaths`): index
+* paths are added as they are on disk, other paths only when they exist and
+* git does not ignore them.
+*/
+function stage(git, root, files) {
+	const absent = absentPaths(git, root, files);
+	const stageable = files.filter((file) => !absent.has(file));
+	if (stageable.length > 0) git.run(root, [
+		"add",
+		"-A",
+		"--",
+		...stageable
+	]);
+}
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/src/git-transaction.ts
 var COMMIT_TIMEOUT_MS = 1800 * 1e3;
 var NEXT_ACTION_RETRY = "Fix the reported problem and repeat the same command; your edits are kept.";
@@ -2440,9 +2988,21 @@ function finalize(root, journal, sha) {
 	};
 }
 function rollback(git, root, journal) {
-	const backup = localPath(root, "index-before");
 	const plan = planAbsolute(root, journal.planPath);
 	if (!(head$1(git, root) === journal.beforeHead && existsSync(plan) && sha256$1(readFileSync(plan)) === journal.candidateHash && git.text(root, ["write-tree"]) === journal.candidateTree)) return false;
+	discardPreparation(git, root, journal);
+	return true;
+}
+/**
+* Restores the index from `index-before` (or the HEAD tree, or empty without
+* commits) and the plan from the journal, never touching other working-tree
+* files, then records the journal as failed and removes it. `rollback` calls
+* it when nothing changed since the preparation; `repair --cancel` also
+* when the index or plan changed but HEAD did not.
+*/
+function discardPreparation(git, root, journal) {
+	const backup = localPath(root, "index-before");
+	const plan = planAbsolute(root, journal.planPath);
 	if (existsSync(backup)) workflowPlatformFacade.writeFileAtomic(indexFile(git, root), readFileSync(backup));
 	else if (journal.beforeHead) git.run(root, ["read-tree", journal.beforeHead]);
 	else git.run(root, ["read-tree", "--empty"]);
@@ -2451,22 +3011,6 @@ function rollback(git, root, journal) {
 	workflowPlatformFacade.writeFileAtomic(localPath(root, "verification", `failed-${journal.id}.json`), `${JSON.stringify(journal, null, 2)}\n`);
 	rmSync(pendingEvidence(root, journal), { force: true });
 	removeJournal$1(root);
-	return true;
-}
-function stage(git, root, files) {
-	const tracked = new Set(git.run(root, [
-		"ls-files",
-		"-z",
-		"--",
-		...files
-	]).stdout.split("\0").filter(Boolean));
-	const stageable = files.filter((file) => tracked.has(file) || existsSync(path.join(root, ...file.split("/"))));
-	if (stageable.length > 0) git.run(root, [
-		"add",
-		"-A",
-		"--",
-		...stageable
-	]);
 }
 function prepareJournal(git, root, request, id) {
 	const plan = planAbsolute(root, request.planPath);
@@ -2616,10 +3160,10 @@ function planRepair(git, root, planPath) {
 		repairId
 	};
 }
-function retry(git, root) {
+function retry(git, root, repairId) {
 	const journal = readJournal$1(root);
 	ensure(journal, "NO_TRANSACTION", "There is no transaction to retry.");
-	ensure(rollback(git, root, journal), "REPAIR_MANUAL", "HEAD, plan or index changed after preparation; resolve manually.", {}, "Inspect `git status` and `.harness/workflow/local/transaction.json`.");
+	ensure(rollback(git, root, journal), "REPAIR_MANUAL", "HEAD, plan or index changed after preparation; the prepared commit cannot be repeated.", {}, `Cancel the preparation with \`scripts/workflow repair --cancel ${repairId}\` (working-tree edits are kept), then repeat the commit command.`);
 	return commitCandidate(git, root, {
 		assignmentId: journal.assignmentId ?? null,
 		checks: journal.checks,
@@ -2644,7 +3188,7 @@ function applyRepair(git, root, planPath, repairId) {
 		message: planned.message
 	};
 	if (planned.kind === "retry-commit") return {
-		commit: retry(git, root),
+		commit: retry(git, root, repairId),
 		kind: planned.kind,
 		message: planned.message
 	};
@@ -2663,11 +3207,22 @@ function cancelRepair(git, root, planPath, repairId) {
 	ensure(planned.repairId === repairId, "REPAIR_CHANGED", "The project changed; run `repair` again for a fresh id.");
 	ensure(planned.kind === "retry-commit", "NO_PREPARATION", "Only an unconfirmed commit preparation can be cancelled.");
 	const journal = readJournal$1(root);
-	ensure(journal && rollback(git, root, journal), "REPAIR_MANUAL", "The preparation cannot be rolled back automatically.");
-	return {
+	ensure(journal, "NO_PREPARATION", "There is no preparation to cancel.");
+	if (rollback(git, root, journal)) return {
 		commit: null,
 		kind: "cancel",
 		message: "Preparation cancelled; edits are kept and the task stays open."
+	};
+	const now = head(git, root) || null;
+	ensure(now === journal.beforeHead, "REPAIR_MANUAL", `HEAD moved from ${journal.beforeHead ?? "no commit"} to ${now ?? "no commit"} after the preparation; the Kit does not undo commits.`, {
+		beforeHead: journal.beforeHead,
+		head: now
+	}, journal.beforeHead ? `Ask the user. To cancel the preparation, return HEAD with \`git reset --soft ${journal.beforeHead}\` (every change stays in the working tree) and run \`scripts/workflow repair\` again.` : "Ask the user how to resolve it; the Kit cannot restore a repository that had no commit.");
+	discardPreparation(git, root, journal);
+	return {
+		commit: null,
+		kind: "cancel",
+		message: "Preparation cancelled: the index and plan were restored from before the preparation; working-tree files are kept and the task stays open."
 	};
 }
 //#endregion
@@ -2927,6 +3482,14 @@ var WorkflowGitFacade = class {
 			journal: (root) => readJournal$1(root)
 		};
 	}
+	/**
+	* Paths of `files` the commit candidate will not contain: outside the
+	* index and missing on disk or ignored by git (the paths `stage` skips).
+	*/
+	absentPaths(root, files) {
+		const absent = absentPaths(this.git, root, files);
+		return files.filter((file) => absent.has(file));
+	}
 	/** The commit being merged (`MERGE_HEAD`), or null without a merge in progress. */
 	mergeHead(root) {
 		return mergeHead(this.git, root);
@@ -2965,149 +3528,27 @@ var WorkflowGitFacade = class {
 };
 var workflowGitFacade = new WorkflowGitFacade();
 //#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.ts
-var PROPOSAL_FILE = "scope-proposal.json";
-var PROPOSAL_VERSION = 1;
-var REASON_MIN = 10;
-var REASON_MAX = 300;
-var STRATEGIES = /* @__PURE__ */ new Set(["orchestrated", "sequential"]);
-var OPTIONS = /* @__PURE__ */ new Set([
-	"orchestrated",
-	"refine",
-	"sequential"
-]);
-function canonical(value) {
-	if (Array.isArray(value)) return value.map(canonical);
-	if (value !== null && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
-	return value;
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts
+var RECOVERY_SCHEMA = "harness-workflow-recovery/1";
+var KIT_COMMAND = "scripts/workflow";
+function byteLength(text) {
+	return Buffer.byteLength(text, "utf8");
 }
-/** sha256 of the canonical JSON (sorted keys) of the plan input. */
-function planDigest(input) {
-	return createHash("sha256").update(JSON.stringify(canonical(input))).digest("hex");
+/** Cuts text to at most `limit` UTF-8 bytes without splitting a character. */
+function cutBytes(text, limit) {
+	if (byteLength(text) <= limit) return text;
+	let result = Buffer.from(text, "utf8").subarray(0, Math.max(0, limit)).toString("utf8");
+	while (result.endsWith("�")) result = result.slice(0, -1);
+	return result;
 }
-/**
-* Options of the mode card. With parallel work: the recommendation, the
-* other mode, "refine". Without: "sequential", "refine"; recommending
-* `orchestrated` then fails with NO_PARALLEL_WORK.
-*/
-function proposalOptions(recommended, hasParallelWork) {
-	ensure(STRATEGIES.has(recommended), "PROPOSAL_RECOMMENDATION", "The recommendation is sequential or orchestrated.");
-	if (hasParallelWork) return [
-		recommended,
-		recommended === "sequential" ? "orchestrated" : "sequential",
-		"refine"
-	];
-	ensure(recommended === "sequential", "NO_PARALLEL_WORK", "The plan has no pair of compatible parallelSafe tasks; orchestrated execution cannot be recommended.", {}, "Recommend sequential, or label independent tasks with parallelSafe and concrete files.");
-	return ["sequential", "refine"];
+function shortSha(sha) {
+	return sha ? sha.slice(0, 8) : "none";
 }
-function validReason(reason) {
-	const text = typeof reason === "string" ? reason.trim() : "";
-	ensure(text.length >= REASON_MIN && text.length <= REASON_MAX, "PROPOSAL_REASON", `The reason of the recommendation has ${REASON_MIN} to ${REASON_MAX} characters.`);
-	return text;
-}
-function isProposal(value) {
-	const record = value;
-	return record !== null && typeof record === "object" && record.version === PROPOSAL_VERSION && Number.isSafeInteger(record.generation) && record.generation >= 1 && Array.isArray(record.options);
-}
-/**
-* Public boundary of the workflow-execution-mode module: the scope proposal
-* record, the options of the mode card and the verification of a choice.
-*/
-var WorkflowExecutionModeFacade = class {
-	proposalFile(root) {
-		return workflowGitFacade.localPath(root, PROPOSAL_FILE);
-	}
-	options(recommended, hasParallelWork) {
-		return proposalOptions(recommended, hasParallelWork);
-	}
-	digest(input) {
-		return planDigest(input);
-	}
-	/** The stored proposal; a missing or unreadable record is `null`. */
-	readProposal(root) {
-		const text = workflowPlatformFacade.readTextIfExists(this.proposalFile(root));
-		if (text === null) return null;
-		try {
-			const parsed = JSON.parse(text);
-			return isProposal(parsed) ? parsed : null;
-		} catch {
-			return null;
-		}
-	}
-	/**
-	* Builds the next proposal of the cycle (generation + 1) without writing
-	* it. Validates the recommendation, the reason and the options.
-	*/
-	nextProposal(root, request) {
-		const options = proposalOptions(request.recommended, request.hasParallelWork);
-		const reason = validReason(request.reason);
-		const previous = this.readProposal(root);
-		return {
-			choice: null,
-			createdAt: request.now,
-			generation: (previous?.generation ?? 0) + 1,
-			hasParallelWork: request.hasParallelWork,
-			input: structuredClone(request.input),
-			options,
-			planDigest: planDigest(request.input),
-			reason,
-			recommended: request.recommended,
-			refining: false,
-			version: PROPOSAL_VERSION
-		};
-	}
-	writeProposal(root, proposal) {
-		workflowPlatformFacade.writeFileAtomic(this.proposalFile(root), `${JSON.stringify(proposal, null, 2)}\n`);
-	}
-	/**
-	* Checks a choice against the stored proposal and returns it. A missing
-	* proposal, another generation, a proposal in refinement or a stored plan
-	* that no longer matches its digest fail with PROPOSAL_CHANGED; an option
-	* the card does not offer fails with NO_PARALLEL_WORK (orchestrated
-	* without parallel work) or PROPOSAL_OPTION.
-	*/
-	verifyChoice(root, request) {
-		ensure(OPTIONS.has(request.option), "PROPOSAL_OPTION", "The option is sequential, orchestrated or refine.");
-		ensure(typeof request.session === "string" && request.session.trim() !== "", "PROPOSAL_SESSION", "The choice names the session that owns the scope.");
-		ensure(typeof request.note === "string" && request.note.trim() !== "", "PROPOSAL_NOTE", "The choice records the user's words in the note.");
-		const proposal = this.readProposal(root);
-		ensure(proposal !== null && proposal.generation === request.generation && proposal.input !== null && proposal.planDigest === planDigest(proposal.input), "PROPOSAL_CHANGED", "The choice does not answer the current scope proposal.", {
-			current: proposal?.generation ?? null,
-			generation: request.generation
-		}, "Read the current proposal and let the user choose again.");
-		ensure(request.option !== "orchestrated" || proposal.hasParallelWork, "NO_PARALLEL_WORK", "The proposed plan has no parallel work; orchestrated execution is not offered.");
-		ensure(proposal.options.includes(request.option), "PROPOSAL_OPTION", `The proposal offers only: ${proposal.options.join(", ")}.`);
-		return proposal;
-	}
-	/** Records "refine": the plan input is dropped and the cycle stays in refinement. */
-	refine(root, proposal, request) {
-		const refined = {
-			...proposal,
-			choice: {
-				at: request.now,
-				generation: proposal.generation,
-				note: request.note.trim(),
-				option: "refine",
-				session: request.session.trim()
-			},
-			input: null,
-			planDigest: null,
-			refining: true
-		};
-		this.writeProposal(root, refined);
-		return refined;
-	}
-	/** Removes the proposal record: a scope was created or closed. */
-	clear(root) {
-		rmSync(this.proposalFile(root), { force: true });
-	}
-};
-var workflowExecutionModeFacade = new WorkflowExecutionModeFacade();
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-config.ts
 var CONFIG_PATH = ".harness/workflow/config.json";
 var CONFIG_SCHEMA = "harness-workflow-config/1";
-var ROLES = /* @__PURE__ */ new Set([
+var CHECK_ROLES = [
 	"architecture",
 	"audit",
 	"custom",
@@ -3119,13 +3560,15 @@ var ROLES = /* @__PURE__ */ new Set([
 	"package",
 	"test",
 	"typecheck"
-]);
-var STAGES = /* @__PURE__ */ new Set([
+];
+var CHECK_STAGES = [
 	"prepare",
 	"commit",
 	"push",
 	"delivery"
-]);
+];
+var ROLES = new Set(CHECK_ROLES);
+var STAGES = new Set(CHECK_STAGES);
 var BUILTINS = /* @__PURE__ */ new Set([
 	"kit:conflict-markers",
 	"kit:doc-size",
@@ -3133,11 +3576,13 @@ var BUILTINS = /* @__PURE__ */ new Set([
 	"kit:file-lines",
 	"kit:md-links"
 ]);
-var ID_PATTERN$1 = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/u;
+var CHECK_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/u;
 var MAX_TIMEOUT_MS = 6e5;
 var DEFAULT_TIMEOUT_MS = 12e4;
 var MIN_RECOVERY_BYTES = 8e3;
 var MAX_RECOVERY_BYTES = 12e4;
+var DEFAULT_BRIEF_BYTES = 6e4;
+var MAX_BRIEF_BYTES = 2e5;
 var error = "CONFIG_SCHEMA";
 /** A builtin check definition: required, commit stage, default timeout. */
 function builtinCheck(id) {
@@ -3162,6 +3607,7 @@ function defaultConfig() {
 	return {
 		autopilot: { maxContinues: 40 },
 		budget: {
+			briefBytes: DEFAULT_BRIEF_BYTES,
 			documentBytes: 28e3,
 			recoveryBytes: 32e3
 		},
@@ -3188,43 +3634,69 @@ function defaultConfig() {
 function positiveInteger(value, field, { min = 1, max = Number.MAX_SAFE_INTEGER } = {}) {
 	ensure(Number.isSafeInteger(value) && value >= min && value <= max, error, `${field} must be an integer between ${min} and ${max}.`, { field });
 }
-function validateCommand(check) {
-	ensure(Boolean(check.command) !== Boolean(check.builtin), error, `Check ${check.id} needs exactly one of command or builtin.`);
+function validateCommand(check, field) {
+	ensure(Boolean(check.command) !== Boolean(check.builtin), error, `Check ${check.id} needs exactly one of command or builtin.`, { field: `${field}.command` });
 	if (check.builtin) {
-		ensure(BUILTINS.has(check.builtin), error, `Unknown builtin check: ${check.builtin}`);
+		ensure(BUILTINS.has(check.builtin), error, `Unknown builtin check: ${check.builtin}`, { field: `${field}.builtin` });
 		return;
 	}
 	const command = check.command;
-	ensure(command && typeof command.executable === "string" && command.executable.trim() !== "", error, `Check ${check.id} needs command.executable.`);
-	ensure(Array.isArray(command.args) && command.args.every((arg) => typeof arg === "string"), error, `Check ${check.id} needs command.args as a list of strings.`);
+	ensure(command && typeof command.executable === "string" && command.executable.trim() !== "", error, `Check ${check.id} needs command.executable.`, { field: `${field}.command.executable` });
+	ensure(Array.isArray(command.args) && command.args.every((arg) => typeof arg === "string"), error, `Check ${check.id} needs command.args as a list of strings.`, { field: `${field}.command.args` });
 }
-function validateCheck(check) {
-	ensure(check && typeof check.id === "string" && ID_PATTERN$1.test(check.id), error, `Invalid check id: ${String(check?.id)}`);
-	ensure(ROLES.has(check.role), error, `Unknown role of check ${check.id}: ${String(check.role)}`);
-	ensure(STAGES.has(check.stage), error, `Unknown stage of check ${check.id}: ${String(check.stage)}`);
-	ensure(typeof check.required === "boolean", error, `Check ${check.id} needs required: boolean.`);
-	positiveInteger(check.timeoutMs, `checks.${check.id}.timeoutMs`, { max: MAX_TIMEOUT_MS });
-	validateCommand(check);
-	ensure(check.appliesTo === void 0 || Array.isArray(check.appliesTo) && check.appliesTo.every((glob) => typeof glob === "string" && glob !== ""), error, `appliesTo of ${check.id} must be a list of globs.`);
+/** Validates one check; `field` is its path in refusals, e.g. `checks[0]`. */
+function validateCheck(check, field = "check") {
+	ensure(check && typeof check.id === "string" && CHECK_ID_PATTERN.test(check.id), error, `Invalid check id: ${String(check?.id)}`, { field: `${field}.id` });
+	ensure(ROLES.has(check.role), error, `Unknown role of check ${check.id}: ${String(check.role)}`, { field: `${field}.role` });
+	ensure(STAGES.has(check.stage), error, `Unknown stage of check ${check.id}: ${String(check.stage)}`, { field: `${field}.stage` });
+	ensure(typeof check.required === "boolean", error, `Check ${check.id} needs required: boolean.`, { field: `${field}.required` });
+	positiveInteger(check.timeoutMs, `${field}.timeoutMs`, { max: MAX_TIMEOUT_MS });
+	validateCommand(check, field);
+	ensure(check.appliesTo === void 0 || Array.isArray(check.appliesTo) && check.appliesTo.every((glob) => typeof glob === "string" && glob !== ""), error, `appliesTo of ${check.id} must be a list of globs.`, { field: `${field}.appliesTo` });
 	const artifact = check.role === "package" || check.role === "installed";
-	ensure(!artifact || typeof check.evidence === "string" && check.evidence.trim() !== "", error, `Check ${check.id} (${check.role}) needs evidence describing the artifact and scenario.`);
-	ensure(check.stage !== "delivery" || artifact, error, `Only package or installed checks run at the delivery stage: ${check.id}`);
+	ensure(!artifact || typeof check.evidence === "string" && check.evidence.trim() !== "", error, `Check ${check.id} (${check.role}) needs evidence describing the artifact and scenario.`, { field: `${field}.evidence` });
+	ensure(check.stage !== "delivery" || artifact, error, `Only package or installed checks run at the delivery stage: ${check.id}`, { field: `${field}.stage` });
 }
-function validateConfig(config) {
-	ensure(config && config.schema === "harness-workflow-config/1", error, "Unsupported workflow configuration schema.");
+function validateContracts(contracts) {
+	ensure(Array.isArray(contracts), error, "docs.contracts must map code globs to documents.", { field: "docs.contracts" });
+	for (const [index, item] of contracts.entries()) {
+		const entry = `docs.contracts[${index}]`;
+		ensure(item && typeof item.code === "string", error, "docs.contracts must map code globs to documents.", { field: `${entry}.code` });
+		ensure(Array.isArray(item.docs) && item.docs.length > 0, error, "docs.contracts must map code globs to documents.", { field: `${entry}.docs` });
+	}
+}
+/** A configuration written before `budget.briefBytes` gets the default (the file is not rewritten). */
+function withBriefBudget(config) {
+	const budget = config.budget;
+	if (!budget || typeof budget !== "object" || budget.briefBytes !== void 0) return config;
+	return {
+		...config,
+		budget: {
+			...config.budget,
+			briefBytes: DEFAULT_BRIEF_BYTES
+		}
+	};
+}
+function validateConfig(input) {
+	ensure(input && input.schema === "harness-workflow-config/1", error, "Unsupported workflow configuration schema.");
+	const config = withBriefBudget(input);
 	const quality = config.quality;
 	ensure(quality && (quality.status === "DISCOVERY" || quality.status === "CONFIGURED"), error, "quality.status must be DISCOVERY or CONFIGURED.");
 	ensure(Array.isArray(quality.stacks) && quality.stacks.every((stack) => typeof stack === "string"), error, "quality.stacks must be a list.");
 	ensure(quality.status === "DISCOVERY" || quality.stacks.length > 0, error, "A CONFIGURED profile names at least one stack.");
 	ensure(Array.isArray(quality.checks), error, "quality.checks must be a list.");
-	for (const check of quality.checks) validateCheck(check);
-	ensure(new Set(quality.checks.map((check) => check.id)).size === quality.checks.length, error, "Check ids must be unique.");
-	ensure(Array.isArray(config.docs?.contracts) && config.docs.contracts.every((item) => typeof item.code === "string" && Array.isArray(item.docs) && item.docs.length > 0), error, "docs.contracts must map code globs to documents.");
-	ensure(config.policy && (config.policy.maxFileLines === null || Number.isSafeInteger(config.policy.maxFileLines)), error, "policy.maxFileLines must be an integer or null.");
-	ensure(config.policy.taskFileSoftLimit === null || Number.isSafeInteger(config.policy.taskFileSoftLimit), error, "policy.taskFileSoftLimit must be an integer or null.");
+	for (const [index, check] of quality.checks.entries()) validateCheck(check, `quality.checks[${index}]`);
+	ensure(new Set(quality.checks.map((check) => check.id)).size === quality.checks.length, error, "Check ids must be unique.", { field: "quality.checks" });
+	validateContracts(config.docs?.contracts);
+	ensure(config.policy && (config.policy.maxFileLines === null || Number.isSafeInteger(config.policy.maxFileLines)), error, "policy.maxFileLines must be an integer or null.", { field: "policy.maxFileLines" });
+	ensure(config.policy.taskFileSoftLimit === null || Number.isSafeInteger(config.policy.taskFileSoftLimit), error, "policy.taskFileSoftLimit must be an integer or null.", { field: "policy.taskFileSoftLimit" });
 	positiveInteger(config.budget?.documentBytes, "budget.documentBytes");
 	positiveInteger(config.budget?.recoveryBytes, "budget.recoveryBytes", {
 		max: MAX_RECOVERY_BYTES,
+		min: MIN_RECOVERY_BYTES
+	});
+	positiveInteger(config.budget.briefBytes, "budget.briefBytes", {
+		max: MAX_BRIEF_BYTES,
 		min: MIN_RECOVERY_BYTES
 	});
 	positiveInteger(config.autopilot?.maxContinues, "autopilot.maxContinues", { max: 1e3 });
@@ -3414,19 +3886,37 @@ function pythonManifestText(root, markers) {
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-apply.ts
 var INSTALL_TIMEOUT_MS = 900 * 1e3;
-var MIN_APPROVAL = 10;
+function approvalGiven(input) {
+	return typeof input.approval === "string" && input.approval.trim().length >= 10;
+}
+/** Install commands are checked before anything runs; they need the approval. */
+function checkInstalls(input) {
+	const commands = input.install ?? [];
+	ensure(Array.isArray(commands), "PROFILE_INVALID", "install must be a list of commands.", { field: "install" });
+	for (const [index, command] of commands.entries()) {
+		const entry = `install[${index}]`;
+		ensure(command && typeof command.executable === "string" && command.executable.trim() !== "", "PROFILE_INVALID", "Each install command needs executable and args.", { field: `${entry}.executable` });
+		ensure(Array.isArray(command.args) && command.args.every((arg) => typeof arg === "string"), "PROFILE_INVALID", "Each install command needs executable and args.", { field: `${entry}.args` });
+	}
+	ensure(commands.length === 0 || approvalGiven(input), "INSTALL_APPROVAL", `Installing tools changes the project; record the user's approval in \`approval\` (at least 10 characters).`, { field: "approval" });
+}
 /** Builds the CONFIGURED configuration; builtin checks of `current` are kept. */
 function configuredProfile(current, input) {
-	ensure(input && Array.isArray(input.stacks) && input.stacks.length > 0, "PROFILE_INVALID", "The profile names at least one stack.");
+	ensure(input && Array.isArray(input.stacks) && input.stacks.length > 0, "PROFILE_INVALID", "The profile names at least one stack.", { field: "stacks" });
 	const unknown = input.stacks.filter((id) => !STACK_ORDER.includes(id));
-	ensure(unknown.length === 0, "UNKNOWN_STACK", `Unknown stack: ${unknown.join(", ")}`);
-	ensure(Array.isArray(input.checks), "PROFILE_INVALID", "The profile needs a checks list.");
+	ensure(unknown.length === 0, "UNKNOWN_STACK", `Unknown stack: ${unknown.join(", ")}`, { field: `stacks[${input.stacks.indexOf(unknown[0])}]` });
+	ensure(Array.isArray(input.checks), "PROFILE_INVALID", "The profile needs a checks list.", { field: "checks" });
 	const builtins = current.quality.checks.filter((check) => check.builtin);
 	const builtinIds = new Set(builtins.map((check) => check.id));
-	const checks = input.checks.map((check) => {
-		ensure(!builtinIds.has(check.id), "PROFILE_INVALID", `Check id ${check.id} is reserved for a Kit builtin.`);
-		return normalizeCheck(check);
+	const checks = input.checks.map((check, index) => {
+		const entry = `checks[${index}]`;
+		ensure(check && typeof check === "object", "PROFILE_INVALID", "Each check must be an object.", { field: entry });
+		ensure(!builtinIds.has(check.id), "PROFILE_INVALID", `Check id ${check.id} is reserved for a Kit builtin.`, { field: `${entry}.id` });
+		const normalized = normalizeCheck(check);
+		validateCheck(normalized, entry);
+		return normalized;
 	});
+	checkInstalls(input);
 	return validateConfig({
 		...current,
 		docs: input.docs ?? current.docs,
@@ -3450,7 +3940,7 @@ function configuredProfile(current, input) {
 function runInstalls(root, input, env) {
 	const commands = input.install ?? [];
 	if (commands.length === 0) return [];
-	ensure(typeof input.approval === "string" && input.approval.trim().length >= MIN_APPROVAL, "INSTALL_APPROVAL", "Installing tools changes the project; record the user's approval in `approval` (at least 10 characters).");
+	ensure(approvalGiven(input), "INSTALL_APPROVAL", "Installing tools changes the project; record the user's approval in `approval` (at least 10 characters).", { field: "approval" });
 	const results = [];
 	for (const command of commands) {
 		ensure(command && typeof command.executable === "string" && Array.isArray(command.args), "PROFILE_INVALID", "Each install command needs executable and args.");
@@ -3595,7 +4085,7 @@ function fillPlaceholders(template, values) {
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-builtins.ts
 var MARKDOWN_LINK = /!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/gu;
-var FENCE = /^\s*(```|~~~)/u;
+var FENCE$1 = /^\s*(```|~~~)/u;
 var EXTERNAL_LINK = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/iu;
 var NUL = "\0";
 var CONFLICT_OPEN = "<<<<<<< ";
@@ -3608,8 +4098,15 @@ function existingFile(root, file) {
 	const target = absolute(root, file);
 	return existsSync(target) && statSync(target).isFile();
 }
+function markdownFiles(root, files) {
+	return files.filter((file) => isMarkdownPath(file) && file !== ".harness/plans/todo-plan.md" && existingFile(root, file));
+}
+/** Candidate files the commit keeps: the input of the content checks. */
+function committedFiles(context) {
+	return context.files.filter((file) => !context.removed.has(file));
+}
 function changedMarkdown(context) {
-	return context.files.filter((file) => isMarkdownPath(file) && file !== ".harness/plans/todo-plan.md" && existingFile(context.root, file));
+	return markdownFiles(context.root, committedFiles(context));
 }
 function fileLines(context) {
 	const limit = context.config.policy.maxFileLines;
@@ -3618,7 +4115,7 @@ function fileLines(context) {
 		passed: true
 	};
 	const over = [];
-	for (const file of context.files) {
+	for (const file of committedFiles(context)) {
 		if (isDocumentationPath(file) || file.startsWith(".harness/") || !existingFile(context.root, file)) continue;
 		const text = readFileSync(absolute(context.root, file), "utf8");
 		if (text.includes(NUL)) continue;
@@ -3633,12 +4130,22 @@ function fileLines(context) {
 		passed: false
 	};
 }
+/**
+* Existing Markdown files of `files` (the plan excluded) larger than `limit`
+* bytes, in the given order.
+*/
+function oversizedDocuments(root, files, limit) {
+	return markdownFiles(root, files).flatMap((file) => {
+		const bytes = statSync(absolute(root, file)).size;
+		return bytes > limit ? [{
+			bytes,
+			path: file
+		}] : [];
+	});
+}
 function docSize(context) {
 	const limit = context.config.budget.documentBytes;
-	const over = changedMarkdown(context).flatMap((file) => {
-		const size = statSync(absolute(context.root, file)).size;
-		return size > limit ? [`${file}: ${size} bytes (limit ${limit}); split the document.`] : [];
-	});
+	const over = oversizedDocuments(context.root, committedFiles(context), limit).map((item) => `${item.path}: ${item.bytes} bytes (limit ${limit}); split the document.`);
 	return over.length === 0 ? {
 		output: `Document size limit ${limit}: OK.`,
 		passed: true
@@ -3651,7 +4158,7 @@ function linkTargets(text) {
 	const targets = [];
 	let fenced = false;
 	for (const line of text.split("\n")) {
-		if (FENCE.test(line)) {
+		if (FENCE$1.test(line)) {
 			fenced = !fenced;
 			continue;
 		}
@@ -3699,7 +4206,7 @@ function conflictLines(text) {
 }
 function conflictMarkers(context) {
 	const found = [];
-	for (const file of context.files) {
+	for (const file of committedFiles(context)) {
 		if (!existingFile(context.root, file)) continue;
 		const text = readFileSync(absolute(context.root, file), "utf8");
 		if (text.includes(NUL)) continue;
@@ -3755,6 +4262,101 @@ var DOCUMENTATION_BUILTINS = /* @__PURE__ */ new Set([
 	"kit:docs-contracts",
 	"kit:conflict-markers"
 ]);
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-input-schema.ts
+var PROFILE = "PROFILE_INVALID";
+var CONFIG = "CONFIG_SCHEMA";
+function field$1(name, type, required, code, description, extra = {}) {
+	return {
+		code,
+		description,
+		name,
+		required,
+		type,
+		...extra
+	};
+}
+var QUALITY_SCHEMA = {
+	command: "quality:apply",
+	description: "The quality profile chosen from `quality:detect`: `quality:apply --input <profile.json>`.",
+	example: {
+		approval: "User approved installing Biome as a dev dependency",
+		checks: [{
+			command: {
+				args: [
+					"biome",
+					"check",
+					"{files}"
+				],
+				executable: "npx"
+			},
+			id: "lint",
+			required: true,
+			role: "lint",
+			stage: "commit",
+			timeoutMs: 12e4
+		}],
+		docs: { contracts: [{
+			code: "src/{module}/**",
+			docs: ["docs/{module}.md"]
+		}] },
+		install: [{
+			args: [
+				"install",
+				"--save-dev",
+				"@biomejs/biome"
+			],
+			executable: "npm"
+		}],
+		packageManager: "npm",
+		policy: {
+			maxFileLines: 500,
+			taskFileSoftLimit: null
+		},
+		stacks: ["node"]
+	},
+	fields: [
+		field$1("stacks", "string[]", true, PROFILE, "Project ecosystems.", { minItems: 1 }),
+		field$1("stacks[]", "string", false, "UNKNOWN_STACK", "A known stack id.", { enum: STACK_ORDER }),
+		field$1("checks", "object[]", true, PROFILE, "Command checks; Kit builtin checks are kept automatically."),
+		field$1("checks[].id", "string", true, CONFIG, "Unique check id; builtin ids (kit:*) are reserved (PROFILE_INVALID).", { pattern: CHECK_ID_PATTERN.source }),
+		field$1("checks[].role", "string", true, CONFIG, "What the check does.", { enum: CHECK_ROLES }),
+		field$1("checks[].stage", "string", true, CONFIG, "When the check runs.", { enum: CHECK_STAGES }),
+		field$1("checks[].command", "object", true, CONFIG, "The command to run."),
+		field$1("checks[].command.executable", "string", true, CONFIG, "Executable name or path."),
+		field$1("checks[].command.args", "string[]", true, CONFIG, "Arguments; `{files}` expands to the candidate files."),
+		field$1("checks[].command.cwd", "string", false, CONFIG, "Project-relative working directory."),
+		field$1("checks[].required", "boolean", false, CONFIG, "A failed required check refuses the step; default false."),
+		field$1("checks[].timeoutMs", "integer", false, CONFIG, "Timeout in milliseconds; default 120000.", {
+			maximum: MAX_TIMEOUT_MS,
+			minimum: 1
+		}),
+		field$1("checks[].appliesTo", "string[]", false, CONFIG, "Globs of the files the check applies to."),
+		field$1("checks[].evidence", "string", false, CONFIG, "Artifact and scenario; required for package and installed checks."),
+		field$1("docs", "object", false, CONFIG, "Documentation contracts."),
+		field$1("docs.contracts", "object[]", true, CONFIG, "Code globs mapped to their contract documents."),
+		field$1("docs.contracts[].code", "string", true, CONFIG, "Code glob; `{name}` placeholders bind path segments."),
+		field$1("docs.contracts[].docs", "string[]", true, CONFIG, "Documents that change with the code.", { minItems: 1 }),
+		field$1("install", "object[]", false, PROFILE, "Tool install commands run before the profile is written."),
+		field$1("install[].executable", "string", true, PROFILE, "Executable of the install command."),
+		field$1("install[].args", "string[]", true, PROFILE, "Arguments of the install command."),
+		field$1("install[].cwd", "string", false, PROFILE, "Project-relative working directory."),
+		field$1("approval", "string", false, "INSTALL_APPROVAL", "The user's approval of the installs (trimmed length); required when install is not empty.", { minLength: 10 }),
+		field$1("packageManager", "string|null", false, CONFIG, "Package manager of the project."),
+		field$1("policy", "object", false, CONFIG, "Project policy."),
+		field$1("policy.maxFileLines", "integer|null", false, CONFIG, "Line limit of the kit:file-lines check."),
+		field$1("policy.taskFileSoftLimit", "integer|null", false, CONFIG, "Soft limit of files per task.")
+	],
+	rules: [
+		"Only package or installed checks run at the delivery stage, and they need evidence (CONFIG_SCHEMA).",
+		"Check ids are unique and never reuse a Kit builtin id (PROFILE_INVALID).",
+		"Install commands run in order after validation; the first failure stops them and the profile is not written (INSTALL_FAILED)."
+	]
+};
+/** A copy of the `quality:apply` input descriptor. */
+function qualityInputSchema() {
+	return structuredClone(QUALITY_SCHEMA);
+}
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/quality-catalog.ts
 var ROLE_ORDER = [
@@ -4169,7 +4771,49 @@ function effectiveChecks(config) {
 function unknownChecks(checks, ids) {
 	const known = new Set(checks.map((check) => check.id));
 	const unknown = ids.filter((id) => !known.has(id));
-	ensure(unknown.length === 0, "CHECK_UNKNOWN", `Unknown checks: ${unknown.join(", ")}`, { checks: unknown });
+	ensure(unknown.length === 0, "CHECK_UNKNOWN", `Unknown checks: ${unknown.join(", ")}`, { checks: unknown }, "Task checks must be ids from `scripts/workflow quality:status`; fix the task with `scripts/workflow task:update <ID> --input <patch.json>`.");
+}
+var BUILTIN_PREFIX = "kit:";
+/**
+* Ids a planned task may name in `checks`. A CONFIGURED profile knows its
+* checks plus the implicit Kit guards (`known` is exact). Before QUALITY
+* only the Kit builtins are known; other ids of the check id form are
+* accepted as checks QUALITY will define (`open`), and task:start verifies
+* them against the profile.
+*/
+function plannedCheckRule(config) {
+	if (config.quality.status === "CONFIGURED") return {
+		known: effectiveChecks(config).map((check) => check.id),
+		open: false
+	};
+	return {
+		known: Object.keys(BUILTIN_CHECKS).sort(),
+		open: true
+	};
+}
+/** The planned check ids the profile cannot run (see `plannedCheckRule`). */
+function unknownPlannedChecks(config, ids) {
+	const { known, open } = plannedCheckRule(config);
+	return ids.filter((id) => {
+		if (known.includes(id)) return false;
+		return !(open && CHECK_ID_PATTERN.test(id) && !id.startsWith(BUILTIN_PREFIX));
+	});
+}
+/**
+* CHECK_UNKNOWN for the first planned task whose `checks` holds an id the
+* profile cannot run: `checks` are quality check ids, never manual checks.
+*/
+function ensurePlannedChecks(config, tasks) {
+	const { known, open } = plannedCheckRule(config);
+	for (const task of tasks) {
+		const unknown = unknownPlannedChecks(config, task.checks);
+		ensure(unknown.length === 0, "CHECK_UNKNOWN", `${task.field}${task.taskId ? ` of ${task.taskId}` : ""} names unknown quality checks: ${unknown.join(", ")}. \`checks\` holds ids of quality checks ${open ? "(a Kit builtin kit:* or an id without spaces that QUALITY will define)" : "of the profile"}; manual checks belong in acceptance.`, {
+			checks: unknown,
+			field: task.field,
+			known,
+			taskId: task.taskId
+		}, "Use check ids from `scripts/workflow quality:status` or leave `checks` empty, and write manual checks into `acceptance`.");
+	}
 }
 /** Checks a stage runs, in configuration order. */
 function selectChecks(request) {
@@ -4209,7 +4853,8 @@ function runCommand(check, request, files) {
 		status: "error"
 	});
 	const usesFiles = command.args.includes(FILES_ARGUMENT);
-	const existing = (files ?? []).filter((file) => isExistingFile(request.root, file));
+	const removed = new Set(request.removed ?? []);
+	const existing = (files ?? []).filter((file) => !removed.has(file) && isExistingFile(request.root, file));
 	if (usesFiles && existing.length === 0) return result(check, {
 		reason: "No existing files to pass.",
 		status: "skipped"
@@ -4258,6 +4903,7 @@ function runOne(check, request) {
 			config: request.config,
 			docsWaiver: request.docsWaiver ?? null,
 			files: filtered ?? [],
+			removed: new Set(request.removed ?? []),
 			root: request.root
 		});
 		return result(check, {
@@ -4333,6 +4979,18 @@ var WorkflowQualityFacade = class {
 			which: options.which ?? ((name) => workflowPlatformFacade.findExecutable(name) !== null)
 		});
 	}
+	/**
+	* Planned `tasks[].checks` ids the profile cannot run: with a CONFIGURED
+	* profile every id not in it, before QUALITY ids that are not of the check
+	* id form or name an unknown `kit:` builtin.
+	*/
+	unknownPlannedChecks(config, ids) {
+		return unknownPlannedChecks(config, ids);
+	}
+	/** CHECK_UNKNOWN for the first planned task with an unknown check id. */
+	ensurePlannedChecks(config, tasks) {
+		ensurePlannedChecks(config, tasks);
+	}
 	/** Checks a stage would run, without running them. */
 	selectChecks(request) {
 		return selectChecks(request);
@@ -4343,6 +5001,13 @@ var WorkflowQualityFacade = class {
 	/** Code files of the candidate whose contract documents are missing. */
 	missingContracts(config, files) {
 		return missingContracts(config, files);
+	}
+	/**
+	* Markdown files of `files` (the plan excluded) larger than the
+	* `budget.documentBytes` of `config`: the size rule of `kit:doc-size`.
+	*/
+	oversizedDocuments(root, files, config) {
+		return oversizedDocuments(root, files, config.budget.documentBytes);
 	}
 	/**
 	* Stores stage reports of a commit transaction. The git module renames the
@@ -4360,6 +5025,10 @@ var WorkflowQualityFacade = class {
 	readEvidence(root, reference = "last") {
 		const text = workflowPlatformFacade.readTextIfExists(workflowGitFacade.localPath(root, "verification", `${reference}.json`));
 		return text === null ? null : JSON.parse(text);
+	}
+	/** Input descriptor of `quality:apply` (a copy; same shape as the plan descriptors). */
+	inputSchema() {
+		return qualityInputSchema();
 	}
 	/** The configuration `apply` would write, without installing anything. */
 	previewProfile(root, input) {
@@ -4387,1067 +5056,6 @@ var WorkflowQualityFacade = class {
 	}
 };
 var workflowQualityFacade = new WorkflowQualityFacade();
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-provider-hooks.ts
-var KIT_LAUNCHER_MARK = "scripts/workflow";
-var KIT_HOOK_MARK = "hook session-start";
-/** The SessionStart command a provider runs in the project directory. */
-function sessionStartCommand(client) {
-	return client === "claude" ? `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude` : "scripts/workflow hook session-start --client codex";
-}
-function kitGroup(client) {
-	return { hooks: [{
-		command: sessionStartCommand(client),
-		type: "command"
-	}] };
-}
-function isKitGroup(group) {
-	const hooks = group?.hooks;
-	return Array.isArray(hooks) && hooks.some((hook) => typeof hook?.command === "string" && hook.command.includes(KIT_LAUNCHER_MARK) && hook.command.includes(KIT_HOOK_MARK));
-}
-function parseObject(current, file) {
-	if (current === null || current.trim() === "") return {};
-	let parsed;
-	try {
-		parsed = JSON.parse(current);
-	} catch {
-		parsed = null;
-	}
-	ensure(parsed && typeof parsed === "object" && !Array.isArray(parsed), "MANAGED_JSON", `${file} is not a JSON object; fix it by hand first.`, { path: file });
-	return parsed;
-}
-/**
-* Adds or replaces the Kit SessionStart entry and keeps every other hook and
-* setting of the file.
-*/
-function mergeSessionStartHook(current, client, file) {
-	const settings = parseObject(current, file);
-	const hooks = settings.hooks && typeof settings.hooks === "object" ? settings.hooks : {};
-	const existing = Array.isArray(hooks.SessionStart) ? hooks.SessionStart : [];
-	const merged = {
-		...settings,
-		hooks: {
-			...hooks,
-			SessionStart: [...existing.filter((group) => !isKitGroup(group)), kitGroup(client)]
-		}
-	};
-	return `${JSON.stringify(merged, null, 2)}\n`;
-}
-/** The Kit entry of a provider settings file, normalized, or null. */
-function extractSessionStartHook(current) {
-	try {
-		const group = (JSON.parse(current ?? "").hooks?.SessionStart ?? []).find(isKitGroup);
-		return group ? JSON.stringify(group) : null;
-	} catch {
-		return null;
-	}
-}
-function expectedSessionStartHook(client) {
-	return JSON.stringify(kitGroup(client));
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-sections.ts
-var MARKERS = {
-	hash: {
-		begin: "# workflow-kit:begin",
-		end: "# workflow-kit:end"
-	},
-	html: {
-		begin: "<!-- workflow-kit:begin -->",
-		end: "<!-- workflow-kit:end -->"
-	}
-};
-var SHEBANG = /^#![^\n]*\n/u;
-var CRLF = /\r\n/gu;
-var LF = /\n/gu;
-function eolOf(text) {
-	return text.includes("\r\n") ? "\r\n" : "\n";
-}
-/** The managed block with its markers, using `\n` line ends. */
-function sectionBlock(style, body) {
-	const { begin, end } = MARKERS[style];
-	return `${begin}\n${body.trimEnd()}\n${end}\n`;
-}
-function bounds(text, style) {
-	const { begin, end } = MARKERS[style];
-	const start = text.indexOf(begin);
-	const stop = start === -1 ? -1 : text.indexOf(end, start);
-	if (start === -1 || stop === -1) return null;
-	let after = stop + end.length;
-	if (text.startsWith("\r\n", after)) after += 2;
-	else if (text.startsWith("\n", after)) after += 1;
-	return {
-		end: after,
-		start
-	};
-}
-/** The current managed block (markers included, `\n` line ends), or null. */
-function extractSection(text, style) {
-	const found = bounds(text, style);
-	return found ? text.slice(found.start, found.end).replace(CRLF, "\n") : null;
-}
-/**
-* Replaces or inserts the managed block. Text outside it is kept byte for
-* byte; a new block goes to the end, or after the shebang for `top`.
-*/
-function upsertSection(current, style, body, placement = "bottom") {
-	const text = current ?? "";
-	const eol = eolOf(text);
-	const block = sectionBlock(style, body).replace(LF, eol);
-	const found = bounds(text, style);
-	if (found) return `${text.slice(0, found.start)}${block}${text.slice(found.end)}`;
-	if (placement === "top") {
-		const shebang = SHEBANG.exec(text)?.[0] ?? "";
-		return `${shebang}${block}${text.slice(shebang.length)}`;
-	}
-	if (text === "") return block;
-	return `${text}${text.endsWith("\n") ? eol : `${eol}${eol}`}${block}`;
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts
-/** English process rules for agents: the managed section of AGENTS.md. */
-function agentRules() {
-	return `## Workflow Kit (managed section — do not edit by hand)
-
-This project uses the Harness Workflow Kit. The plan lives in
-\`.harness/plans/todo-plan.md\` and changes only through \`scripts/workflow\`
-commands (Windows: \`scripts\\workflow.cmd\`). Every command prints JSON;
-add \`--format text\` for a readable answer.
-
-### Start of every session
-1. Unless a workflow recovery packet is already in your context, run
-   \`scripts/workflow recover --format text\`.
-2. Follow the \`next\` line of the packet.
-
-### When a plan is needed
-- Discussion, research, specifications and documentation-only commits need
-  no plan. Commit documents with \`scripts/workflow docs:commit --files <paths>\`.
-- Changing functional files is allowed only inside a started task of the
-  active scope.
-- A clear user instruction to implement allows you to write the
-  specification and create the scope with
-  \`scripts/workflow scope:create --input <file.json>\` without asking again.
-  Record the agreement in \`approval\`. The plan never replaces the user's
-  current instruction. In a Harness project (\`"host": "harness"\`) propose
-  the scope instead (see Execution modes).
-
-### Execution modes
-The recovery packet names your \`role:\`; follow it.
-- **planning** (no scope, Harness project): write the specification and a
-  plan with \`parallelSafe\` labels, then run
-  \`scripts/workflow scope:propose --input <file.json> --recommended <mode> --reason "<why>"\`
-  and end the turn; the user chooses the mode on the card.
-- **self** (\`sequential\`): run the tasks in order in main. Helper subagents
-  may help, but they work in main without their own worktree and never commit.
-- **orchestrator** (\`orchestrated\`, main): \`assignment:next\`,
-  \`assignment:create --task <ID>\`, a Claude subagent (Agent tool with
-  \`isolation: "worktree"\`) gets the returned brief; integrate its SHA with
-  \`integration:start --id <id> --source <sha>\` (on CONFLICT or CHECKS_FAILED
-  fix within the task files, then \`integration:continue --id <id>\`). Run
-  QUALITY and delivery yourself; never implement work or DOCS tasks in main.
-- **executor** (assignment worktree): \`assignment:attach <id>\`, then
-  \`task:start\`, work only within the task files, \`commit --task\`, reply
-  with the SHA. Never touch main, the plan or other tasks; no nested
-  executors, no push.
-- Never set the git identity (\`git config user.*\`). If a command refuses
-  with \`GIT_IDENTITY_REQUIRED\`, report it to the user with the command it
-  prints.
-
-### One task, one commit, one turn
-1. \`scripts/workflow task:start <ID>\`; a delivery task needs
-   \`--confirmed "<the user's confirmation>"\`.
-2. Implement the task within its files and acceptance criteria.
-3. \`scripts/workflow commit --task <ID>\`. The DOCS task of a round
-   reconciles shared documents and needs \`--digest <file.json>\`
-   (\`result\`, \`decisions\`, \`contracts\`, \`references\`).
-4. If a check fails, fix the cause and repeat the same command; your edits
-   are kept.
-5. Report the result briefly and end the turn. The user or the Harness
-   autopilot starts the next task.
-- If the task cannot be finished in this turn, stop at a safe point, name
-  the state and end the turn without committing it.
-- A new user message does not cancel the accepted instruction; take it into
-  account within the current task.
-
-### Rules
-- Never commit with \`git commit\` directly and never use \`--no-verify\`.
-- Never edit the plan, \`.harness/workflow/**\` or the launchers by hand.
-- A finished task never changes. Defects found later become a fixes round:
-  \`scripts/workflow plan:extend --input <file.json> --expected-revision <N>\`.
-- Before the first functional code, the QUALITY task chooses checks with
-  \`quality:detect\` and applies them with \`quality:apply --input <file.json>\`.
-  Installing tools needs the user's approval in \`approval\`.
-- Update the contract document of a module in the same commit as its code
-  (\`docs.contracts\` in \`.harness/workflow/config.json\`).
-- Acceptance (\`accept --note "<the user's words>"\`) records the user's
-  decision. Closing the scope (\`close\`) needs a separate direct user command.
-- Build, packaging, publishing and push happen only in delivery tasks.
-- If the scope is BLOCKED, only discuss and diagnose; run \`task:unblock\`
-  after the user resolves the reason.
-- If a command reports an unfinished transaction, run
-  \`scripts/workflow repair\` and follow it.
-- Use \`scripts/workflow show-task <ID>\` and \`scripts/workflow history\` for
-  details the recovery packet left out.`;
-}
-var CLAUDE_IMPORT_LINE = "@AGENTS.md";
-function gitignoreSection() {
-	return [
-		"# Workflow Kit local state",
-		".harness/workflow/local/",
-		".harness/runtime/",
-		".harness/sessions/",
-		".claude/worktrees/",
-		".DS_Store"
-	].join("\n");
-}
-function gitattributesSection() {
-	return [
-		"scripts/workflow text eol=lf",
-		"scripts/workflow.cmd text eol=crlf",
-		"scripts/workflow.ps1 text eol=crlf",
-		".harness/** text eol=lf"
-	].join("\n");
-}
-/** The managed lines of a git hook: delegate to the Kit and stop on failure. */
-function gitHookSection(name) {
-	return `"$(git rev-parse --show-toplevel)/scripts/workflow" git-hook ${name} "$@" || exit $?`;
-}
-function readmeSkeleton(projectName) {
-	return `# ${projectName}
-
-Project context for people and agents. Describe what the project does, how
-to run it and where its architecture is documented
-([docs/architecture/OVERVIEW.md](docs/architecture/OVERVIEW.md)).
-
-Development follows the Workflow Kit rules in [AGENTS.md](AGENTS.md).
-`;
-}
-function overviewSkeleton(projectName) {
-	return `# ${projectName} — Architecture Overview
-
-Describe the main parts of the system, their responsibilities and the
-contracts between them. The DOCS task of every round keeps this document
-in line with the code.
-`;
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts
-/** Version of the Workflow Kit payload; Kit 1.x was Workflow Pilot. */
-var KIT_VERSION = "2.1.1";
-var MANIFEST_PATH = ".harness/workflow/manifest.json";
-var MANIFEST_SCHEMA = "harness-workflow-manifest/1";
-var OWN_HOOKS_DIR = ".harness/workflow/hooks";
-var MANAGED_GIT_HOOKS = [
-	"pre-commit",
-	"commit-msg",
-	"post-commit",
-	"pre-push"
-];
-var LINE_BREAK$1 = /\r?\n/u;
-function sha256(text) {
-	return createHash("sha256").update(text, "utf8").digest("hex");
-}
-function hasClaudeLine(text) {
-	return text.split(LINE_BREAK$1).some((line) => line.trim() === CLAUDE_IMPORT_LINE);
-}
-/** The managed part of a file of the given kind, or null when missing. */
-function readManaged(kind, path, current) {
-	if (current === null) return null;
-	switch (kind) {
-		case "owned": return current;
-		case "section": return extractSection(current, path.endsWith(".md") ? "html" : "hash");
-		case "json": return extractSessionStartHook(current);
-		case "line": return hasClaudeLine(current) ? CLAUDE_IMPORT_LINE : null;
-		default: return null;
-	}
-}
-function owned(path, content, executable = false) {
-	return {
-		executable,
-		kind: "owned",
-		managed: content,
-		path,
-		read: (current) => current,
-		render: () => content
-	};
-}
-function section(path, style, body, placement = "bottom", prefix = "") {
-	return {
-		executable: false,
-		kind: "section",
-		managed: sectionBlock(style, body),
-		path,
-		read: (current) => current === null ? null : extractSection(current, style),
-		render: (current) => upsertSection(current ?? (prefix || null), style, body, placement)
-	};
-}
-function created(path, content) {
-	return {
-		executable: false,
-		kind: "create",
-		managed: null,
-		path,
-		read: () => null,
-		render: (current) => current ?? content
-	};
-}
-function claudeLine() {
-	return {
-		executable: false,
-		kind: "line",
-		managed: CLAUDE_IMPORT_LINE,
-		path: "CLAUDE.md",
-		read: (current) => readManaged("line", "CLAUDE.md", current),
-		render: (current) => {
-			if (current === null || current.trim() === "") return `${CLAUDE_IMPORT_LINE}\n`;
-			if (hasClaudeLine(current)) return current;
-			return `${current}${current.endsWith("\n") ? "" : "\n"}\n${CLAUDE_IMPORT_LINE}\n`;
-		}
-	};
-}
-function providerHook(path, client) {
-	return {
-		executable: false,
-		kind: "json",
-		managed: expectedSessionStartHook(client),
-		path,
-		read: (current) => readManaged("json", path, current),
-		render: (current) => mergeSessionStartHook(current, client, path)
-	};
-}
-function hookEntries(hooksPath) {
-	return MANAGED_GIT_HOOKS.map((name) => {
-		if (hooksPath === null) {
-			const content = `#!/bin/sh\n# Managed by Harness Workflow Kit. Do not edit.\n${sectionBlock("hash", gitHookSection(name))}`;
-			return owned(`${OWN_HOOKS_DIR}/${name}`, content, true);
-		}
-		return {
-			...section(`${hooksPath}/${name}`, "hash", gitHookSection(name), "top", "#!/bin/sh\n"),
-			executable: true
-		};
-	});
-}
-/** Every file the Kit writes into a project, with its writing rule. */
-function buildPayload(options) {
-	const launchers = workflowPlatformFacade.launchers();
-	return [
-		owned(KIT_BUNDLE_PATH, options.bundle),
-		owned("scripts/workflow", launchers.posix, true),
-		owned("scripts/workflow.cmd", launchers.cmd),
-		owned("scripts/workflow.ps1", launchers.powershell),
-		...hookEntries(options.hooksPath),
-		section("AGENTS.md", "html", agentRules()),
-		claudeLine(),
-		providerHook(".codex/hooks.json", "codex"),
-		providerHook(".claude/settings.json", "claude"),
-		section(".gitignore", "hash", gitignoreSection()),
-		section(".gitattributes", "hash", gitattributesSection()),
-		created("README.md", readmeSkeleton(options.projectName)),
-		created("docs/architecture/OVERVIEW.md", overviewSkeleton(options.projectName))
-	];
-}
-function buildManifest(entries) {
-	return {
-		files: entries.map((entry) => ({
-			executable: entry.executable,
-			kind: entry.kind,
-			path: entry.path,
-			sha256: entry.managed === null ? null : sha256(entry.managed)
-		})),
-		schema: MANIFEST_SCHEMA,
-		version: KIT_VERSION
-	};
-}
-function renderManifest(manifest) {
-	return `${JSON.stringify(manifest, null, 2)}\n`;
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-inspect.ts
-var PILOT_MANIFEST = ".harness/kit-manifest.json";
-var LEGACY_PLAN_SCHEMA = "harness-ai-plan-v1";
-var ACTIONS = {
-	EMPTY: "install",
-	GIT_NO_KIT: "install",
-	KIT_DAMAGED: "doctor",
-	KIT_OK: "open",
-	KIT_OUTDATED: "update",
-	LEGACY_HARNESS_PLAN: "install-migrate",
-	MISSING: "create",
-	NOT_GIT: "install",
-	PILOT_KIT: "unsupported"
-};
-function file$2(root, relative) {
-	return path.join(root, ...relative.split("/"));
-}
-/** Compares dotted versions; negative when `left` is older. */
-function compareVersions(left, right) {
-	const a = left.split(".").map(Number);
-	const b = right.split(".").map(Number);
-	for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
-		const difference = (a[index] ?? 0) - (b[index] ?? 0);
-		if (difference !== 0) return difference;
-	}
-	return 0;
-}
-function readManifest(root) {
-	const text = workflowPlatformFacade.readTextIfExists(file$2(root, MANIFEST_PATH));
-	if (text === null) return null;
-	try {
-		return JSON.parse(text);
-	} catch {
-		return {
-			files: [],
-			schema: "harness-workflow-manifest/1",
-			version: "0"
-		};
-	}
-}
-/** Managed files whose managed part no longer matches the manifest hash. */
-function damagedFiles(root, manifest) {
-	return manifest.files.filter((item) => item.sha256 !== null).filter((item) => {
-		const current = workflowPlatformFacade.readTextIfExists(file$2(root, item.path));
-		const managed = readManaged(item.kind, item.path, current);
-		return managed === null || sha256(managed) !== item.sha256;
-	}).map((item) => item.path);
-}
-function kitState(root, manifest) {
-	const damaged = damagedFiles(root, manifest);
-	if (compareVersions(manifest.version, "2.1.1") < 0) return {
-		damaged,
-		state: "KIT_OUTDATED"
-	};
-	return {
-		damaged,
-		state: damaged.length > 0 ? "KIT_DAMAGED" : "KIT_OK"
-	};
-}
-function classify(root, repository) {
-	if (readdirSync(root).length === 0) return {
-		damaged: [],
-		state: "EMPTY"
-	};
-	if (existsSync(file$2(root, PILOT_MANIFEST))) return {
-		damaged: [],
-		state: "PILOT_KIT"
-	};
-	const manifest = readManifest(root);
-	if (manifest) return kitState(root, manifest);
-	if ((workflowPlatformFacade.readTextIfExists(file$2(root, ".harness/plans/todo-plan.md")) ?? "").includes(LEGACY_PLAN_SCHEMA)) return {
-		damaged: [],
-		state: "LEGACY_HARNESS_PLAN"
-	};
-	return {
-		damaged: [],
-		state: repository ? "GIT_NO_KIT" : "NOT_GIT"
-	};
-}
-/** `inspect <path>`: classifies a folder without changing anything. */
-function inspectFolder(git, folder) {
-	const root = path.resolve(folder);
-	const base = {
-		damaged: [],
-		nestedIn: null,
-		path: root,
-		stacks: [],
-		transactionPending: false,
-		version: null
-	};
-	if (!existsSync(root)) {
-		const parent = path.dirname(root);
-		return {
-			...base,
-			action: "create",
-			git: {
-				head: null,
-				identity: existsSync(parent) ? git.identity(parent) : null,
-				repository: false
-			},
-			state: "MISSING"
-		};
-	}
-	ensure(statSync(root).isDirectory(), "NOT_A_DIRECTORY", `${root} is not a folder.`);
-	const inside = git.isRepository(root);
-	const top = inside ? git.topLevel(root) : null;
-	const repository = top !== null && workflowPlatformFacade.samePath(realpathSync.native(path.resolve(top)), realpathSync.native(root));
-	const nestedIn = inside && !repository ? top : null;
-	const { damaged, state } = classify(root, repository);
-	return {
-		action: nestedIn ? "unsupported" : ACTIONS[state],
-		damaged,
-		git: {
-			head: repository ? git.head(root) : null,
-			identity: git.identity(root),
-			repository
-		},
-		nestedIn,
-		path: root,
-		stacks: workflowQualityFacade.detect(root).map((stack) => stack.id),
-		state,
-		transactionPending: repository && git.transactions.journal(root) !== null,
-		version: readManifest(root)?.version ?? null
-	};
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts
-var KIT_STATES = /* @__PURE__ */ new Set([
-	"KIT_DAMAGED",
-	"KIT_OK",
-	"KIT_OUTDATED"
-]);
-var SLUG_DROP$1 = /[^a-z0-9]+/gu;
-var SLUG_TRIM = /^-+|-+$/gu;
-function projectSlug(name) {
-	return name.toLowerCase().replace(SLUG_DROP$1, "-").replace(SLUG_TRIM, "") || "project";
-}
-function file$1(root, relative) {
-	return path.join(root, ...relative.split("/"));
-}
-/** Local `core.hooksPath` relative to the root, or null when unset. */
-function localHooksPath(git, root) {
-	const value = git.git.run(root, [
-		"config",
-		"--local",
-		"--get",
-		"core.hooksPath"
-	], { allowFailure: true }).stdout.trim();
-	if (value === "") return null;
-	let relative;
-	try {
-		relative = workflowPlatformFacade.relativeFromRoot(root, path.resolve(root, value));
-	} catch {
-		throw new WorkflowError("HOOKS_PATH_OUTSIDE", `core.hooksPath points outside the project: ${value}`);
-	}
-	return relative === ".harness/workflow/hooks" ? null : relative;
-}
-function writeIfChanged(root, relative, next, executable) {
-	const target = file$1(root, relative);
-	const changed = workflowPlatformFacade.readTextIfExists(target) !== next;
-	if (changed) workflowPlatformFacade.writeFileAtomic(target, next);
-	if (executable && process.platform !== "win32") chmodSync(target, 493);
-	return changed;
-}
-function checkPreconditions(state, update, nestedIn, pending) {
-	ensure(!nestedIn, "NESTED_REPOSITORY", `The folder is inside the repository ${nestedIn}; choose its top level or another folder.`);
-	ensure(state !== "PILOT_KIT", "PILOT_KIT_UNSUPPORTED", "This project uses Workflow Pilot (Kit 1.x), which Harness does not support.");
-	ensure(!pending, "TRANSACTION_PENDING", "A Kit commit transaction is unfinished.", {}, "Run `scripts/workflow repair`.");
-	if (update) ensure(KIT_STATES.has(state), "NOT_INSTALLED", "The Workflow Kit is not installed here; install it first.");
-	else ensure(!KIT_STATES.has(state), "ALREADY_INSTALLED", "The Workflow Kit is already installed.", {}, "Use `install --update` or `doctor --fix`.");
-}
-function writePayload(root, entries) {
-	const written = [];
-	for (const entry of entries) {
-		const current = workflowPlatformFacade.readTextIfExists(file$1(root, entry.path));
-		if (writeIfChanged(root, entry.path, entry.render(current), entry.executable)) written.push(entry.path);
-	}
-	return written;
-}
-/**
-* Writes the default configuration when it is absent, or only the host
-* marker into an existing one; returns true when the file changed.
-*/
-function writeConfig(root, host) {
-	const exists = workflowPlatformFacade.readTextIfExists(workflowQualityFacade.configFile(root)) !== null;
-	const config = exists ? workflowQualityFacade.readConfig(root) : workflowQualityFacade.defaultConfig();
-	if (exists && (!host || config.host === host)) return false;
-	workflowQualityFacade.writeConfig(root, host ? {
-		...config,
-		host
-	} : config);
-	return true;
-}
-/** Writes configuration, manifest and runtime; returns the written paths. */
-function writeState(root, entries, options) {
-	const written = [];
-	if (writeConfig(root, options.host)) written.push(workflowQualityFacade.configPath);
-	if (writeIfChanged(root, ".harness/workflow/manifest.json", renderManifest(buildManifest(entries)), false)) written.push(MANIFEST_PATH);
-	const runtime = options.runtime;
-	if (runtime) workflowPlatformFacade.writeFileAtomic(file$1(root, RUNTIME_FILE), workflowPlatformFacade.formatRuntimeFile(runtime.executable, runtime.mode));
-	return written;
-}
-/**
-* The identity the bootstrap commit will be signed with: the real local one
-* of an existing repository, else the real global one (placeholders and
-* invalid ones are skipped). Fails with GIT_IDENTITY_REQUIRED before
-* anything is written.
-*/
-function requireInstallIdentity(git, root, repository) {
-	const local = repository ? git.readIdentity(root, "local") : null;
-	if (local && git.isUsableIdentity(local)) return local;
-	const global = git.readIdentity(existsSync(root) ? root : process.cwd(), "global");
-	if (global && git.isUsableIdentity(global)) return global;
-	throw git.identityRequired(Boolean(local || global), " Nothing was written.");
-}
-function scopeOf(planText, legacy) {
-	if (legacy) return null;
-	try {
-		return workflowPlanFacade.parse(planText).scope?.id ?? null;
-	} catch {
-		return null;
-	}
-}
-function commitInstall(git, root, files, planText, update, scopeId) {
-	try {
-		return git.transactions.commit(root, {
-			files,
-			message: update ? `chore: update workflow kit to ${KIT_VERSION}` : `chore: install workflow kit ${KIT_VERSION}`,
-			planPath: PLAN_PATH,
-			planText,
-			role: update ? "kit-update" : "bootstrap",
-			scopeId,
-			taskId: null
-		});
-	} catch (error) {
-		if (error instanceof WorkflowError && error.code === "NOTHING_TO_COMMIT") return null;
-		throw error;
-	}
-}
-/** `install <path> [--update]`: writes the Kit and commits it through a transaction. */
-function installKit(git, folder, options) {
-	const inspected = inspectFolder(git, folder);
-	const root = inspected.path;
-	const update = options.update === true;
-	checkPreconditions(inspected.state, update, inspected.nestedIn, inspected.transactionPending);
-	ensure(options.host === void 0 || options.host === null || options.host === "harness", "USAGE", "--host is harness.");
-	const identity = requireInstallIdentity(git, root, inspected.git.repository);
-	mkdirSync(root, { recursive: true });
-	if (!inspected.git.repository) git.init(root);
-	const local = git.readIdentity(root, "local");
-	if (!(local && git.isUsableIdentity(local))) git.writeLocalIdentity(root, identity);
-	const hooksPath = localHooksPath(git, root);
-	const before = new Set(git.changes(root).all);
-	const name = options.name?.trim() || path.basename(root);
-	const entries = buildPayload({
-		bundle: options.bundle,
-		hooksPath,
-		projectName: name
-	});
-	const written = [...writePayload(root, entries), ...writeState(root, entries, options)];
-	const migrationRequired = inspected.state === "LEGACY_HARNESS_PLAN";
-	const existingPlan = workflowPlatformFacade.readTextIfExists(file$1(root, PLAN_PATH));
-	const planText = existingPlan ?? workflowPlanFacade.render(workflowPlanFacade.createEmpty(projectSlug(name), name));
-	if (hooksPath === null) git.setConfig(root, "core.hooksPath", OWN_HOOKS_DIR);
-	return {
-		commit: commitInstall(git, root, written, planText, update, scopeOf(planText, migrationRequired || existingPlan === null)),
-		excluded: [...before].filter((item) => !written.includes(item)).sort(),
-		hooksPath: hooksPath ?? ".harness/workflow/hooks",
-		migrationRequired,
-		previousState: inspected.state,
-		root,
-		version: KIT_VERSION,
-		written
-	};
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts
-var UPDATE = "Run `scripts/workflow doctor --fix` (or `install --update`).";
-var check = (id, status, message, fixable = false, nextAction = null) => ({
-	fixable,
-	id,
-	message,
-	nextAction,
-	status
-});
-function file(root, relative) {
-	return path.join(root, ...relative.split("/"));
-}
-function manifestChecks(root) {
-	const manifest = readManifest(root);
-	if (!manifest) return [check("manifest", "fail", "The Workflow Kit manifest is missing.", false, "Install the Kit: `scripts/workflow install`.")];
-	const checks = [compareVersions(manifest.version, "2.1.1") < 0 ? check("manifest", "fail", `Kit ${manifest.version} is older than ${KIT_VERSION}.`, true, UPDATE) : check("manifest", "ok", `Kit ${manifest.version}.`)];
-	const damaged = damagedFiles(root, manifest);
-	checks.push(damaged.length === 0 ? check("managed-files", "ok", "Managed files and sections match the manifest.") : check("managed-files", "fail", `Changed or missing managed parts: ${damaged.join(", ")}.`, true, UPDATE));
-	if (process.platform !== "win32") {
-		const blocked = manifest.files.filter((item) => item.executable && existsSync(file(root, item.path))).filter((item) => {
-			try {
-				accessSync(file(root, item.path), constants.X_OK);
-				return false;
-			} catch {
-				return true;
-			}
-		}).map((item) => item.path);
-		checks.push(blocked.length === 0 ? check("executable", "ok", "Launchers and hooks are executable.") : check("executable", "fail", `Not executable: ${blocked.join(", ")}.`, true, UPDATE));
-	}
-	return checks;
-}
-function hooksCheck(git, root) {
-	const hooksPath = git.git.run(root, [
-		"config",
-		"--local",
-		"--get",
-		"core.hooksPath"
-	], { allowFailure: true }).stdout.trim();
-	if (hooksPath === "") return check("git-hooks", "fail", "core.hooksPath is not set, so Kit hooks do not run.", true, UPDATE);
-	const missing = MANAGED_GIT_HOOKS.filter((name) => {
-		const text = workflowPlatformFacade.readTextIfExists(path.resolve(root, hooksPath, name));
-		return text === null || extractSection(text, "hash") === null;
-	});
-	return missing.length === 0 ? check("git-hooks", "ok", `Kit hooks run from ${hooksPath === ".harness/workflow/hooks" ? OWN_HOOKS_DIR : hooksPath}.`) : check("git-hooks", "fail", `Hooks without the Kit section in ${hooksPath}: ${missing.join(", ")}.`, true, UPDATE);
-}
-function planChecks(git, root) {
-	const checks = [];
-	try {
-		const plan = workflowPlanFacade.read(root);
-		if (!plan) return [check("plan", "fail", `${PLAN_PATH} is missing.`, false, "Run `scripts/workflow install --update`.")];
-		git.resolveReferences(root, plan, PLAN_PATH);
-		checks.push(check("plan", "ok", `Plan revision ${plan.revision} matches the history.`));
-	} catch (error) {
-		const { code, message } = error;
-		checks.push(check("plan", "fail", `${code ?? "ERROR"}: ${message}`, false, "Run `scripts/workflow repair`."));
-	}
-	checks.push(git.transactions.journal(root) ? check("transaction", "fail", "A commit transaction is unfinished.", false, "Run `scripts/workflow repair`.") : check("transaction", "ok", "No unfinished transaction."));
-	return checks;
-}
-/** The real global identity, or null when it is missing, a placeholder or invalid. */
-function realGlobalIdentity(git, root) {
-	const global = git.readIdentity(root, "global");
-	return global && git.isUsableIdentity(global) ? global : null;
-}
-/** Kit commits sign with the repository-local identity only. */
-function identityCheck(git, root) {
-	const local = git.readIdentity(root, "local");
-	if (local && git.isUsableIdentity(local)) return check("git-identity", "ok", `${local.name} <${local.email}> (repository config).`);
-	const problem = local ? `The repository git identity ${local.name} <${local.email}> is a placeholder or invalid.` : "The repository config has no git identity.";
-	const global = realGlobalIdentity(git, root);
-	return global ? check("git-identity", "fail", problem, true, `Run \`scripts/workflow doctor --fix\` to copy ${global.name} <${global.email}> from the global config.`) : check("git-identity", "fail", problem, false, git.identityFix);
-}
-function environmentChecks(git, root, options) {
-	const runtime = workflowPlatformFacade.resolveRuntime(root, options.env ?? process.env, options.probe);
-	const drift = workflowQualityFacade.drift(root);
-	return [
-		runtime ? check("runtime", "ok", `${runtime.mode} ${runtime.version} (${runtime.source}).`) : check("runtime", "fail", "No Node.js 22+ runtime for the launchers.", false, "Install Node.js 22 or newer, or open the project in Harness AI."),
-		identityCheck(git, root),
-		drift.status === "drift" ? check("quality-drift", "warn", `Quality profile drift: new ${drift.added.join(", ") || "none"}, missing ${drift.missing.join(", ") || "none"}.`, false, "Extend the plan with a QUALITY task.") : check("quality-drift", "ok", drift.status === "discovery" ? "Quality profile not configured yet." : "Quality profile matches the stacks.")
-	];
-}
-function inspectProject(git, root, options) {
-	return [
-		...manifestChecks(root),
-		hooksCheck(git, root),
-		...planChecks(git, root),
-		...environmentChecks(git, root, options)
-	];
-}
-/** `doctor [--fix]`: project health; `fix` repairs only fixable findings. */
-function runDoctor(git, folder, options = {}) {
-	const root = path.resolve(folder);
-	let checks = inspectProject(git, root, options);
-	let fix = null;
-	let identityFix = null;
-	if (options.fix) {
-		const fixable = checks.filter((item) => item.status === "fail" && item.fixable);
-		if (fixable.some((item) => item.id === "git-identity")) {
-			identityFix = realGlobalIdentity(git, root);
-			if (identityFix) git.writeLocalIdentity(root, identityFix);
-		}
-		if (fixable.some((item) => item.id !== "git-identity") && identityCheck(git, root).status === "ok") fix = installKit(git, root, {
-			...options.fix,
-			update: true
-		});
-		if (fix || identityFix) checks = inspectProject(git, root, options);
-	}
-	return {
-		checks,
-		fix,
-		identityFix,
-		ok: checks.every((item) => item.status !== "fail"),
-		root
-	};
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-legacy-plan.ts
-var LEGACY_SCHEMA = "harness-ai-plan-v1";
-var STATE_BLOCK = /<!-- harness-plan-state:start -->\s*```json\s*([\s\S]*?)```\s*<!-- harness-plan-state:end -->/u;
-var ROW_START = /^\d+\.\s+\[(TODO|IN_PROGRESS|DONE)\]\s+(.*)$/u;
-var TASK_ROW = /^`([^`]+)`\s+([\s\S]*)$/u;
-var PHASE_HEADING = /^##\s+(.+?)\s*$/u;
-var EXPECTED_COMMIT = /expected commit:\s*`([^`]+)`/u;
-var COMPLETION = /completion:\s*([a-z-]+)/u;
-var KIND = /\(kind:\s*([a-z]+)\)/u;
-var SCOPE = /\(scope:\s*([^;)]*)/u;
-var TITLE_END = /\s+\((?:scope|kind|completion):/u;
-var RESULT_TAIL = /\s+Result:[\s\S]*$/u;
-var CONTEXT_PATH = /`([^`\s]+\.(?:md|json))`/gu;
-var CONTINUATION = /^\s+\S/u;
-var LINE_BREAK = /\r?\n/u;
-function rows(text) {
-	const result = [];
-	let phase = "";
-	for (const line of text.split(LINE_BREAK)) {
-		const heading = PHASE_HEADING.exec(line);
-		const start = ROW_START.exec(line);
-		const last = result.at(-1);
-		if (heading?.[1]) phase = heading[1];
-		else if (start?.[1] && start[2] !== void 0) result.push({
-			body: start[2],
-			phase,
-			status: start[1]
-		});
-		else if (last && CONTINUATION.test(line)) last.body = `${last.body} ${line.trim()}`;
-	}
-	return result;
-}
-function taskOf(row) {
-	const match = TASK_ROW.exec(row.body);
-	if (!(match?.[1] && match[2] !== void 0)) return null;
-	const body = match[2];
-	const titleEnd = body.search(TITLE_END);
-	const title = (titleEnd === -1 ? body : body.slice(0, titleEnd)).replace(RESULT_TAIL, "").trim();
-	return {
-		completion: COMPLETION.exec(body)?.[1] ?? null,
-		expectedCommit: EXPECTED_COMMIT.exec(body)?.[1] ?? null,
-		id: match[1],
-		kind: KIND.exec(body)?.[1] ?? null,
-		phase: row.phase,
-		scope: SCOPE.exec(body)?.[1]?.trim() ?? null,
-		status: row.status,
-		title: title || match[1]
-	};
-}
-function contextPaths(text) {
-	const start = text.indexOf("## Context Pack");
-	if (start === -1) return [];
-	const end = text.indexOf("\n## ", start + 1);
-	const section = text.slice(start, end === -1 ? void 0 : end);
-	return [...new Set([...section.matchAll(CONTEXT_PATH)].map((item) => item[1] ?? "").filter(Boolean))];
-}
-/** Parses a `harness-ai-plan-v1` document: state block, task rows, context pack. */
-function parseLegacyPlan(text) {
-	const block = STATE_BLOCK.exec(text)?.[1];
-	ensure(block, "NOT_LEGACY_PLAN", "The plan has no harness-ai-plan-v1 state block.");
-	let state;
-	try {
-		state = JSON.parse(block);
-	} catch {
-		state = {};
-	}
-	ensure(state.schema === LEGACY_SCHEMA, "NOT_LEGACY_PLAN", `The plan schema is not ${LEGACY_SCHEMA}.`);
-	return {
-		context: contextPaths(text),
-		currentTaskId: typeof state.currentTaskId === "string" ? state.currentTaskId : null,
-		planId: typeof state.planId === "string" ? state.planId : "legacy-plan",
-		scopeStatus: typeof state.executionScopeStatus === "string" ? state.executionScopeStatus : "NONE",
-		tasks: rows(text).map(taskOf).filter((task) => task !== null)
-	};
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-migrate.ts
-var LEGACY_ROUND = "R0-legacy";
-var DEFAULT_MESSAGE = "chore: migrate the plan into the workflow kit";
-var RESULT_LIMIT = 590;
-function task(legacy, kind, dependencies) {
-	return {
-		acceptance: [legacy.title],
-		checks: [],
-		commitMessage: legacy.expectedCommit ?? `chore: ${legacy.id}`,
-		confirmation: null,
-		context: [],
-		dependencies,
-		docsWaiver: null,
-		files: [],
-		fixes: null,
-		id: legacy.id,
-		iteration: 1,
-		kind,
-		roundId: "R1",
-		status: "TODO",
-		title: legacy.title,
-		why: `Migrated from ${legacy.phase || "the legacy plan"}${legacy.scope ? `; legacy scope: ${legacy.scope}` : ""}.`
-	};
-}
-function docsTask(source, dependencies) {
-	return {
-		acceptance: ["Project-wide documents describe the round result", "The round digest records result, decisions, contracts and references"],
-		checks: [],
-		commitMessage: source?.expectedCommit ?? "docs: reconcile documentation for R1",
-		confirmation: null,
-		context: [],
-		dependencies,
-		docsWaiver: null,
-		files: [],
-		fixes: null,
-		id: "DOCS-R1",
-		iteration: 1,
-		kind: "docs",
-		roundId: "R1",
-		status: "TODO",
-		title: source?.title ?? "Reconcile project documentation and write the round digest",
-		why: "Keep the project context current for the next agent and close the round."
-	};
-}
-function legacyResult(legacy, done) {
-	const first = done[0]?.id ?? "none";
-	const last = done.at(-1)?.id ?? "none";
-	const text = `Legacy plan ${legacy.planId}: ${done.length} tasks were done before the move to the Workflow Kit (${first} … ${last}). Their rows stay in the plan of the parent commit of the migration.`;
-	return text.length > RESULT_LIMIT ? `${text.slice(0, RESULT_LIMIT)}…` : text;
-}
-/** Builds the Workflow Kit plan for the remaining work of a legacy plan. */
-function buildMigratedPlan(legacy, base, options, existing) {
-	const message = options.message ?? DEFAULT_MESSAGE;
-	const finished = (item) => item.status === "DONE" || item.expectedCommit === message;
-	const done = legacy.tasks.filter(finished);
-	const pending = legacy.tasks.filter((item) => !finished(item));
-	const acceptanceRows = pending.filter((item) => item.completion === "user-acceptance");
-	const docsRows = pending.filter((item) => item.kind === "docs");
-	const regular = pending.filter((item) => item.completion !== "user-acceptance" && item.kind !== "docs" && item.kind !== "delivery");
-	const deliveries = pending.filter((item) => item.kind === "delivery" && item.completion !== "user-acceptance");
-	const plan = workflowPlanFacade.createEmpty(base.projectId, base.projectName);
-	const converted = [...acceptanceRows.map((item) => `${item.id} → the user's acceptance through \`accept\``), ...docsRows.map((item) => `${item.id} → DOCS-R1`)];
-	if (legacy.scopeStatus !== "ACTIVE" || regular.length + deliveries.length + docsRows.length === 0) return {
-		converted,
-		legacyDone: done.length,
-		migrated: [],
-		plan
-	};
-	const work = regular.map((item) => task(item, item.kind === "quality" ? "quality" : "work", []));
-	const docs = docsTask(docsRows[0], work.map((item) => item.id));
-	plan.scope = {
-		acceptance: options.acceptance ?? ["The user accepts the delivered result"],
-		acceptanceNote: null,
-		approval: {
-			at: options.now,
-			text: `Migrated from the legacy plan ${legacy.planId} by migrate:harness-plan.`
-		},
-		baselineCommit: base.baselineCommit,
-		blockedReason: null,
-		context: legacy.context.filter(existing).map((item) => ({
-			path: item,
-			required: false
-		})),
-		decisions: converted.map((text) => ({
-			at: options.now,
-			text: `Migration: ${text}.`
-		})),
-		delivery: "IN_PROGRESS",
-		id: legacy.planId,
-		objective: options.objective ?? `Finish the remaining work of ${legacy.planId}.`,
-		spec: options.spec ?? null,
-		status: "ACTIVE"
-	};
-	plan.rounds = [{
-		digest: {
-			contracts: [],
-			decisions: [],
-			references: [`git show ${base.baselineCommit}:${PLAN_PATH}`],
-			result: legacyResult(legacy, done)
-		},
-		id: LEGACY_ROUND,
-		kind: "legacy",
-		status: "CLOSED",
-		title: `Legacy plan ${legacy.planId}`
-	}, {
-		digest: null,
-		id: "R1",
-		kind: "implementation",
-		status: "OPEN",
-		title: "Remaining work"
-	}];
-	plan.tasks = [
-		...work,
-		docs,
-		...deliveries.map((item) => task(item, "delivery", [docs.id]))
-	];
-	return {
-		converted,
-		legacyDone: done.length,
-		migrated: plan.tasks.map((item) => item.id),
-		plan: workflowPlanFacade.validate(plan)
-	};
-}
-/** `migrate:harness-plan`: replaces a legacy plan with a Kit plan in one kit-update commit. */
-function migrateHarnessPlan(git, folder, options) {
-	const root = path.resolve(folder);
-	ensure(readManifest(root), "NOT_INSTALLED", "Install the Workflow Kit before migrating the plan.", {}, "Run `scripts/workflow install`.");
-	const text = workflowPlatformFacade.readTextIfExists(path.join(root, ...PLAN_PATH.split("/")));
-	ensure(text, "NOT_LEGACY_PLAN", `${PLAN_PATH} does not exist.`);
-	const legacy = parseLegacyPlan(text);
-	const baselineCommit = git.head(root);
-	ensure(baselineCommit, "NO_COMMITS", "The repository has no commits yet.");
-	const name = options.name?.trim() || path.basename(root);
-	const result = buildMigratedPlan(legacy, {
-		baselineCommit,
-		projectId: projectSlug(name),
-		projectName: name
-	}, options, (relative) => existsSync(path.join(root, ...relative.split("/"))));
-	ensure(git.transactions.journal(root) === null, "TRANSACTION_PENDING", "A Kit commit transaction is unfinished.");
-	return {
-		commit: git.transactions.commit(root, {
-			files: [],
-			message: options.message ?? DEFAULT_MESSAGE,
-			planPath: PLAN_PATH,
-			planText: workflowPlanFacade.render(result.plan),
-			role: "kit-update",
-			scopeId: result.plan.scope?.id ?? null,
-			taskId: null
-		}),
-		converted: result.converted,
-		legacyDone: result.legacyDone,
-		migrated: result.migrated,
-		scopeId: result.plan.scope?.id ?? null
-	};
-}
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-facade.ts
-/**
-* Public facade of the workflow-installer module: the installation payload,
-* folder inspection, install and update, the project doctor and the
-* migration of legacy Harness plans.
-*/
-var WorkflowInstallerFacade = class {
-	version = KIT_VERSION;
-	manifestPath = MANIFEST_PATH;
-	git;
-	constructor(git = workflowGitFacade) {
-		this.git = git;
-	}
-	/** `inspect <path>`: classifies a folder without changing it. */
-	inspect(folder) {
-		return inspectFolder(this.git, folder);
-	}
-	/** `install <path> [--update]`: installs or updates the Kit and commits it. */
-	install(folder, options) {
-		return installKit(this.git, folder, options);
-	}
-	/** `doctor [--fix]`: health checks; `fix` repairs fixable findings only. */
-	doctor(folder, options = {}) {
-		return runDoctor(this.git, folder, options);
-	}
-	/** `migrate:harness-plan`: a legacy Harness plan becomes a Kit plan. */
-	migrateHarnessPlan(folder, options) {
-		return migrateHarnessPlan(this.git, folder, options);
-	}
-	/** Every file the Kit writes into a project, with its writing rule. */
-	payload(options) {
-		return buildPayload(options);
-	}
-	manifest(entries) {
-		return buildManifest(entries);
-	}
-	renderManifest(manifest) {
-		return renderManifest(manifest);
-	}
-	/** The English agent rules of the managed AGENTS.md section. */
-	agentRules() {
-		return agentRules();
-	}
-};
-new WorkflowInstallerFacade();
-//#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-model.ts
-var RECOVERY_SCHEMA = "harness-workflow-recovery/1";
-var KIT_COMMAND = "scripts/workflow";
-function byteLength(text) {
-	return Buffer.byteLength(text, "utf8");
-}
-/** Cuts text to at most `limit` UTF-8 bytes without splitting a character. */
-function cutBytes(text, limit) {
-	if (byteLength(text) <= limit) return text;
-	let result = Buffer.from(text, "utf8").subarray(0, Math.max(0, limit)).toString("utf8");
-	while (result.endsWith("�")) result = result.slice(0, -1);
-	return result;
-}
-function shortSha(sha) {
-	return sha ? sha.slice(0, 8) : "none";
-}
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-attach.ts
 var WORKTREE_RECORD_VERSION = 1;
@@ -5639,6 +5247,10 @@ function listRecords(root) {
 function writeRecord(root, record) {
 	workflowPlatformFacade.writeFileAtomic(recordFile(root, record.id), `${JSON.stringify(record, null, 2)}\n`);
 }
+/** Removes the record file; a missing file is not an error. */
+function removeRecord(root, id) {
+	rmSync(recordFile(root, id), { force: true });
+}
 /** A record that still occupies its task and a worker: not yet integrated. */
 function isActiveRecord(record) {
 	return record.status !== "INTEGRATED";
@@ -5741,6 +5353,79 @@ function cleanupAssignment(git, root, record, now) {
 	};
 	writeRecord(root, updated);
 	return updated;
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-cancel.ts
+/** The registered worktree path of the record, or null. */
+function registeredWorktree(git, root, record) {
+	const worktree = record.worktree;
+	if (worktree === null) return null;
+	return registeredWorktrees(git, root).find((item) => workflowPlatformFacade.samePath(item, worktree)) ?? null;
+}
+function failed(record, reason) {
+	throw new WorkflowError("ASSIGNMENT_CANCEL_FAILED", `${record.id} was not cancelled: ${reason}`, {
+		id: record.id,
+		reason
+	}, `Resolve the reason, then repeat scripts/workflow assignment:cancel --id ${record.id}; the record is kept.`);
+}
+/**
+* Cancels an assignment that is not INTEGRATED: removes its registered
+* worktree (a dirty one only with `force`), prunes, deletes its branch even
+* with commits that were never integrated, and removes the record last, so
+* a git refusal keeps the record and the cancel can be repeated. The plan
+* of main is not touched: the task stays TODO.
+*/
+function cancelAssignment$1(git, root, record, options) {
+	ensure(record.status !== "INTEGRATED", "ASSIGNMENT_INTEGRATED", `${record.id} is INTEGRATED; its task is done and only its cleanup remains.`, {
+		id: record.id,
+		status: record.status
+	}, `Run scripts/workflow assignment:cleanup --id ${record.id}.`);
+	const worktree = registeredWorktree(git, root, record);
+	const present = worktree !== null && existsSync(worktree);
+	if (present && !options.force) {
+		const dirty = git.changes(worktree).all;
+		ensure(dirty.length === 0, "ASSIGNMENT_DIRTY", `The worktree ${worktree} of ${record.id} has uncommitted changes.`, {
+			id: record.id,
+			paths: dirty,
+			worktree
+		}, `Commit or remove them, or drop them with scripts/workflow assignment:cancel --id ${record.id} --force.`);
+	}
+	if (present) {
+		const removed = refusal(git, root, [
+			"worktree",
+			"remove",
+			...options.force ? ["-f", "-f"] : [],
+			worktree
+		]);
+		if (removed) failed(record, removed);
+	}
+	const pruned = refusal(git, root, ["worktree", "prune"]);
+	if (pruned) failed(record, pruned);
+	let branchTip = null;
+	if (record.branch !== null) {
+		const tip = git.git.run(root, [
+			"rev-parse",
+			"--verify",
+			"-q",
+			`refs/heads/${record.branch}`
+		], { allowFailure: true });
+		if (tip.status === 0) {
+			const deleted = refusal(git, root, [
+				"branch",
+				"-D",
+				record.branch
+			]);
+			if (deleted) failed(record, deleted);
+			branchTip = tip.stdout.trim();
+		}
+	}
+	removeRecord(root, record.id);
+	return {
+		assignment: record,
+		branch: branchTip === null ? null : record.branch,
+		branchTip,
+		worktree
+	};
 }
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/assignment-guard.ts
@@ -6045,11 +5730,28 @@ function setupAssignment$1(mainRoot, record, options) {
 }
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-facade.ts
+function attribute(value) {
+	return value.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("<", "&lt;");
+}
+/** The marked full text of the context documents, after the brief lines. */
+function documentBlocks(documents) {
+	if (documents.length === 0) return [];
+	return [
+		"Context documents (full text, do not re-read them):",
+		"",
+		...documents.flatMap((item) => [
+			`<document path="${attribute(item.path)}"${item.heading ? ` heading="${attribute(item.heading)}"` : ""} bytes="${item.bytes}">`,
+			item.text,
+			"</document>",
+			""
+		])
+	];
+}
 function bullets$1(items) {
 	return items.length > 0 ? items.map((item) => `   - ${item}`) : ["   - (none)"];
 }
 /** The ready text of the executor subagent for one assignment. */
-function executorBrief(plan, task, record) {
+function executorBrief(plan, task, record, documents) {
 	const commit = task.kind === "docs" ? `scripts/workflow commit --task ${task.id} --digest <file.json> (the round digest: result, decisions, contracts, references)` : `scripts/workflow commit --task ${task.id}`;
 	const context = task.context.map((ref) => ref.heading ? `${ref.path} (${ref.heading})` : ref.path);
 	return [
@@ -6085,7 +5787,8 @@ function executorBrief(plan, task, record) {
 		"- Never touch the main checkout, the plan or other tasks.",
 		"- Do not set the git identity (no git config user.name / user.email).",
 		"- Do not create nested executors.",
-		""
+		"",
+		...documentBlocks(documents)
 	].join("\n");
 }
 /**
@@ -6121,8 +5824,12 @@ var WorkflowAssignmentFacade = class {
 	schedule(plan, assignments) {
 		return scheduleAssignments(plan, assignments);
 	}
-	brief(plan, task, record) {
-		return executorBrief(plan, task, record);
+	/**
+	* The executor brief; `documents` (the task context, or the scope
+	* specification) follow the brief lines as marked full text.
+	*/
+	brief(plan, task, record, documents = []) {
+		return executorBrief(plan, task, record, documents);
 	}
 	/** The main checkout and branch of a linked executor worktree (spec 5.1). */
 	locateWorktree(git, root) {
@@ -6159,8 +5866,155 @@ var WorkflowAssignmentFacade = class {
 	cleanup(git, mainRoot, record, now) {
 		return cleanupAssignment(git, mainRoot, record, now);
 	}
+	/**
+	* `assignment:cancel`: a record that is not INTEGRATED is removed with its
+	* registered worktree (dirty only with `force`) and its branch; a git
+	* refusal keeps the record (ASSIGNMENT_CANCEL_FAILED).
+	*/
+	cancel(git, mainRoot, record, options) {
+		return cancelAssignment$1(git, mainRoot, record, options);
+	}
 };
 var workflowAssignmentFacade = new WorkflowAssignmentFacade();
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-execution-mode/src/workflow-execution-mode-facade.ts
+var PROPOSAL_FILE = "scope-proposal.json";
+var PROPOSAL_VERSION = 1;
+var REASON_MIN = 10;
+var REASON_MAX = 300;
+var STRATEGIES = /* @__PURE__ */ new Set(["orchestrated", "sequential"]);
+var OPTIONS = /* @__PURE__ */ new Set([
+	"orchestrated",
+	"refine",
+	"sequential"
+]);
+function canonical(value) {
+	if (Array.isArray(value)) return value.map(canonical);
+	if (value !== null && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
+	return value;
+}
+/** sha256 of the canonical JSON (sorted keys) of the plan input. */
+function planDigest(input) {
+	return createHash("sha256").update(JSON.stringify(canonical(input))).digest("hex");
+}
+/**
+* Options of the mode card. With parallel work: the recommendation, the
+* other mode, "refine". Without: "sequential", "refine"; recommending
+* `orchestrated` then fails with NO_PARALLEL_WORK.
+*/
+function proposalOptions(recommended, hasParallelWork) {
+	ensure(STRATEGIES.has(recommended), "PROPOSAL_RECOMMENDATION", "The recommendation is sequential or orchestrated.");
+	if (hasParallelWork) return [
+		recommended,
+		recommended === "sequential" ? "orchestrated" : "sequential",
+		"refine"
+	];
+	ensure(recommended === "sequential", "NO_PARALLEL_WORK", "The plan has no pair of compatible parallelSafe tasks; orchestrated execution cannot be recommended.", {}, "Recommend sequential, or label independent tasks with parallelSafe and concrete files.");
+	return ["sequential", "refine"];
+}
+function validReason(reason) {
+	const text = typeof reason === "string" ? reason.trim() : "";
+	ensure(text.length >= REASON_MIN && text.length <= REASON_MAX, "PROPOSAL_REASON", `The reason of the recommendation has ${REASON_MIN} to ${REASON_MAX} characters.`);
+	return text;
+}
+function isProposal(value) {
+	const record = value;
+	return record !== null && typeof record === "object" && record.version === PROPOSAL_VERSION && Number.isSafeInteger(record.generation) && record.generation >= 1 && Array.isArray(record.options);
+}
+/**
+* Public boundary of the workflow-execution-mode module: the scope proposal
+* record, the options of the mode card and the verification of a choice.
+*/
+var WorkflowExecutionModeFacade = class {
+	proposalFile(root) {
+		return workflowGitFacade.localPath(root, PROPOSAL_FILE);
+	}
+	options(recommended, hasParallelWork) {
+		return proposalOptions(recommended, hasParallelWork);
+	}
+	digest(input) {
+		return planDigest(input);
+	}
+	/** The stored proposal; a missing or unreadable record is `null`. */
+	readProposal(root) {
+		const text = workflowPlatformFacade.readTextIfExists(this.proposalFile(root));
+		if (text === null) return null;
+		try {
+			const parsed = JSON.parse(text);
+			return isProposal(parsed) ? parsed : null;
+		} catch {
+			return null;
+		}
+	}
+	/**
+	* Builds the next proposal of the cycle (generation + 1) without writing
+	* it. Validates the recommendation, the reason and the options.
+	*/
+	nextProposal(root, request) {
+		const options = proposalOptions(request.recommended, request.hasParallelWork);
+		const reason = validReason(request.reason);
+		const previous = this.readProposal(root);
+		return {
+			choice: null,
+			createdAt: request.now,
+			generation: (previous?.generation ?? 0) + 1,
+			hasParallelWork: request.hasParallelWork,
+			input: structuredClone(request.input),
+			options,
+			planDigest: planDigest(request.input),
+			reason,
+			recommended: request.recommended,
+			refining: false,
+			version: PROPOSAL_VERSION
+		};
+	}
+	writeProposal(root, proposal) {
+		workflowPlatformFacade.writeFileAtomic(this.proposalFile(root), `${JSON.stringify(proposal, null, 2)}\n`);
+	}
+	/**
+	* Checks a choice against the stored proposal and returns it. A missing
+	* proposal, another generation, a proposal in refinement or a stored plan
+	* that no longer matches its digest fail with PROPOSAL_CHANGED; an option
+	* the card does not offer fails with NO_PARALLEL_WORK (orchestrated
+	* without parallel work) or PROPOSAL_OPTION.
+	*/
+	verifyChoice(root, request) {
+		ensure(OPTIONS.has(request.option), "PROPOSAL_OPTION", "The option is sequential, orchestrated or refine.");
+		ensure(typeof request.session === "string" && request.session.trim() !== "", "PROPOSAL_SESSION", "The choice names the session that owns the scope.");
+		ensure(typeof request.note === "string" && request.note.trim() !== "", "PROPOSAL_NOTE", "The choice records the user's words in the note.");
+		const proposal = this.readProposal(root);
+		ensure(proposal !== null && proposal.generation === request.generation && proposal.input !== null && proposal.planDigest === planDigest(proposal.input), "PROPOSAL_CHANGED", "The choice does not answer the current scope proposal.", {
+			current: proposal?.generation ?? null,
+			generation: request.generation
+		}, "Read the current proposal and let the user choose again.");
+		ensure(request.option !== "orchestrated" || proposal.hasParallelWork, "NO_PARALLEL_WORK", "The proposed plan has no parallel work; orchestrated execution is not offered.");
+		ensure(proposal.options.includes(request.option), "PROPOSAL_OPTION", `The proposal offers only: ${proposal.options.join(", ")}.`);
+		return proposal;
+	}
+	/** Records "refine": the plan input is dropped and the cycle stays in refinement. */
+	refine(root, proposal, request) {
+		const refined = {
+			...proposal,
+			choice: {
+				at: request.now,
+				generation: proposal.generation,
+				note: request.note.trim(),
+				option: "refine",
+				session: request.session.trim()
+			},
+			input: null,
+			planDigest: null,
+			refining: true
+		};
+		this.writeProposal(root, refined);
+		return refined;
+	}
+	/** Removes the proposal record: a scope was created or closed. */
+	clear(root) {
+		rmSync(this.proposalFile(root), { force: true });
+	}
+};
+var workflowExecutionModeFacade = new WorkflowExecutionModeFacade();
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-roles.ts
 var LIST_LIMIT$1 = 10;
@@ -6512,7 +6366,88 @@ function verificationSection(input) {
 	return lines.join("\n");
 }
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-schema.ts
+var QUALITY_COMMAND = "quality:apply";
+/** Commands with an input descriptor: the plan commands, then `quality:apply`. */
+function inputSchemaCommands() {
+	return [...workflowPlanFacade.inputSchemaCommands(), QUALITY_COMMAND];
+}
+/** The input descriptor of `command` from its owner module, or null. */
+function inputSchema(command) {
+	return command === QUALITY_COMMAND ? workflowQualityFacade.inputSchema() : workflowPlanFacade.inputSchema(command);
+}
+function limits(spec) {
+	const items = [];
+	const add = (label, value) => {
+		if (value !== void 0) items.push(`${label} ${value}`);
+	};
+	add("minItems", spec.minItems);
+	add("maxItems", spec.maxItems);
+	add("maxBytes", spec.maxBytes);
+	add("minLength", spec.minLength);
+	add("minimum", spec.minimum);
+	add("maximum", spec.maximum);
+	add("enum", spec.enum?.join("|"));
+	add("pattern", spec.pattern);
+	add("code", spec.code);
+	add("limitCode", spec.limitCode);
+	return items;
+}
+function fieldLine(spec) {
+	return `- ${spec.name} ${spec.type} ${spec.required ? "required" : "optional"} [${limits(spec).join(", ")}] — ${spec.description}`;
+}
+/**
+* Compact text of a descriptor: one line per field
+* (`name type required|optional [limits, code] — description`), the
+* cross-field rules and the example as one line of JSON.
+*/
+function schemaText$1(schema) {
+	return [
+		`${schema.command}: ${schema.description}`,
+		"fields:",
+		...schema.fields.map(fieldLine),
+		"rules:",
+		...schema.rules.map((rule) => `- ${rule}`),
+		"example:",
+		JSON.stringify(schema.example)
+	].join("\n");
+}
+/** The task whose input the next step needs: the executor's own task, else the focus task. */
+function stepTask(input) {
+	const executor = input.roles?.executor;
+	const task = executor ? input.plan.tasks.find((item) => item.id === executor.taskId) : focusTask(input.plan);
+	return task && task.status !== "DONE" ? task : null;
+}
+/**
+* The command whose input the next step needs, or null: a new scope
+* (`scope:propose` for a Harness host, else `scope:create`) unless a
+* proposal waits for the user's choice; `plan:extend` for defects of a
+* scope ready for or past acceptance; `quality:apply` for a QUALITY task;
+* the round digest for a DOCS task outside the orchestrator's main.
+*/
+function nextSchemaCommand(input) {
+	const scope = input.plan.scope;
+	if (!scope) {
+		const proposal = input.roles?.proposal;
+		if (proposal && !proposal.refining) return null;
+		return input.roles?.harness ? "scope:propose" : "scope:create";
+	}
+	if (input.transaction || scope.status === "BLOCKED") return null;
+	const role = agentRole(input);
+	if (role !== "executor" && (scope.delivery === "READY_FOR_ACCEPTANCE" || scope.delivery === "ACCEPTED")) return "plan:extend";
+	const task = stepTask(input);
+	if (task?.kind === "quality") return QUALITY_COMMAND;
+	return task?.kind === "docs" && role !== "orchestrator" ? "digest" : null;
+}
+/** The `schema` section of the packet, or null when the next step has no input. */
+function schemaSection(input) {
+	const command = nextSchemaCommand(input);
+	const schema = command ? inputSchema(command) : null;
+	return schema ? `Input of the next step (\`${KIT_COMMAND} schema ${schema.command}\` prints it again).\n${schemaText$1(schema)}` : null;
+}
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-budget.ts
+var DOCUMENT_PREFIX = "document ";
 var RULES_POINTER = "rules: follow the Workflow Kit section of AGENTS.md (managed by the kit).";
 var TASK_CAPS = [
 	2e3,
@@ -6523,10 +6458,10 @@ var TASK_CAPS = [
 	60
 ];
 var HEADING_PATTERN = /^(#{1,6})\s+(.+?)\s*#*\s*$/u;
-var SLUG_DROP = /[^\p{L}\p{N}\s-]/gu;
+var SLUG_DROP$1 = /[^\p{L}\p{N}\s-]/gu;
 var SLUG_SPACE = /\s+/gu;
 function slug(text) {
-	return text.toLowerCase().replace(SLUG_DROP, "").trim().replace(SLUG_SPACE, "-");
+	return text.toLowerCase().replace(SLUG_DROP$1, "").trim().replace(SLUG_SPACE, "-");
 }
 /** Returns the Markdown section under a heading (text or slug match), or null. */
 function extractHeading(text, heading) {
@@ -6575,8 +6510,9 @@ function settle(input, parts, references, omitted) {
 	};
 }
 /**
-* Scope and task documents, one entry per path: a whole-document reference
-* wins over a heading reference, and a path is required if any ref says so.
+* Scope and task documents in order: a whole-document reference replaces
+* the heading references of its path; references of one path and heading
+* merge, required if any of them says so.
 */
 function documentRefs(input) {
 	const scope = input.plan.scope;
@@ -6586,22 +6522,25 @@ function documentRefs(input) {
 		required: true
 	});
 	refs.push(...scope?.context ?? [], ...focusTask(input.plan)?.context ?? []);
-	const byPath = /* @__PURE__ */ new Map();
+	const byKey = /* @__PURE__ */ new Map();
 	for (const ref of refs) {
-		const known = byPath.get(ref.path);
-		if (!known) {
-			byPath.set(ref.path, { ...ref });
-			continue;
-		}
-		byPath.set(ref.path, {
-			...known.heading && !ref.heading ? { path: ref.path } : known,
-			required: known.required || ref.required
+		const whole = refs.some((item) => item.path === ref.path && !item.heading);
+		const key = whole ? ref.path : `${ref.path}#${ref.heading ?? ""}`;
+		byKey.set(key, {
+			path: ref.path,
+			...whole || !ref.heading ? {} : { heading: ref.heading },
+			required: (byKey.get(key)?.required ?? false) || ref.required
 		});
 	}
-	return [...byPath.values()];
+	return [...byKey.values()];
 }
-function documentCandidates(input, references) {
-	const candidates = [];
+/**
+* Required documents as mandatory parts: the whole file, or the section of
+* a heading reference (the whole file when the heading is absent). Missing
+* and optional documents become references.
+*/
+function documentParts(input, references) {
+	const parts = [];
 	for (const ref of documentRefs(input)) {
 		const label = ref.heading ? `${ref.path}#${ref.heading}` : ref.path;
 		const text = input.readDocument(ref.path);
@@ -6613,42 +6552,42 @@ function documentCandidates(input, references) {
 			references.push(`${label} (${byteLength(text)} bytes, optional): read the file when needed`);
 			continue;
 		}
-		const options = [{
-			name: `document ${ref.path}`,
-			order: 11,
-			text: text.trimEnd()
-		}];
 		const section = ref.heading ? extractHeading(text, ref.heading) : null;
-		if (section) options.push({
-			name: `document ${label}`,
-			order: 11,
+		if (ref.heading && section === null) references.push(`${label}: heading not found, the whole file is included`);
+		parts.push(section === null ? {
+			name: `${DOCUMENT_PREFIX}${ref.path}`,
+			order: 12,
+			text: text.trimEnd()
+		} : {
+			name: `${DOCUMENT_PREFIX}${label}`,
+			order: 12,
 			text: section
 		});
-		candidates.push({
-			options,
-			reference: `${label} (${byteLength(text)} bytes): read the file`
-		});
 	}
-	return candidates;
+	return parts;
 }
-function optionalCandidates(input, references) {
+/** Optional sections; the earlier a candidate, the longer it is kept. */
+function optionalCandidates(input) {
 	const candidates = [];
 	const add = (name, order, text, reference) => {
 		if (text !== null) candidates.push({
-			options: [{
+			part: {
 				name,
 				order,
 				text
-			}],
+			},
 			reference: reference(byteLength(text))
 		});
 	};
-	add("rounds", 7, roundsSection(input), (bytes) => `rounds (${bytes} bytes): run \`${KIT_COMMAND} history\``);
-	add("decisions", 8, decisionsSection(input), (bytes) => `decisions (${bytes} bytes): scope.decisions in ${PLAN_PATH}`);
-	add("verification", 10, verificationSection(input), (bytes) => `verification (${bytes} bytes): .harness/workflow/local/verification/last.json`);
-	return [...candidates, ...documentCandidates(input, references)];
+	add("documents", 13, input.documents?.text || null, (bytes) => `documents (${bytes} bytes): run \`${KIT_COMMAND} context --list\``);
+	add("rounds", 8, roundsSection(input), (bytes) => `rounds (${bytes} bytes): run \`${KIT_COMMAND} history\``);
+	add("decisions", 9, decisionsSection(input), (bytes) => `decisions (${bytes} bytes): scope.decisions in ${PLAN_PATH}`);
+	add("verification", 11, verificationSection(input), (bytes) => `verification (${bytes} bytes): .harness/workflow/local/verification/last.json`);
+	return candidates;
 }
+/** Sections that always stay; `schema` only when the next step has an input. */
 function mandatoryParts(input, cap) {
+	const schema = schemaSection(input);
 	return [
 		{
 			name: "state",
@@ -6670,19 +6609,24 @@ function mandatoryParts(input, cap) {
 			order: 4,
 			text: taskSection(input, cap)
 		},
+		...schema === null ? [] : [{
+			name: "schema",
+			order: 5,
+			text: schema
+		}],
 		{
 			name: "upcoming",
-			order: 5,
+			order: 6,
 			text: upcomingSection(input)
 		},
 		{
 			name: "recent",
-			order: 6,
+			order: 7,
 			text: recentSection(input)
 		},
 		{
 			name: "changes",
-			order: 9,
+			order: 10,
 			text: changesSection(input)
 		}
 	];
@@ -6690,23 +6634,19 @@ function mandatoryParts(input, cap) {
 function assembleWithCap(input, cap) {
 	const references = [];
 	const omitted = [];
-	const candidates = optionalCandidates(input, references);
+	const candidates = optionalCandidates(input);
 	const fits = (parts) => settle(input, parts, references, omitted).bytes <= input.budgetBytes;
-	let parts = mandatoryParts(input, cap);
+	let parts = [...mandatoryParts(input, cap), ...documentParts(input, references)];
 	const optional = [];
-	for (const candidate of candidates) {
-		const chosen = candidate.options.find((option) => fits([...parts, option]));
-		if (chosen) {
-			parts = [...parts, chosen];
-			optional.push({
-				candidate,
-				part: chosen
-			});
-			if (chosen !== candidate.options[0]) references.push(`${candidate.reference} (only its section is included)`);
-		} else {
-			omitted.push(candidate.options[0]?.name ?? "section");
-			references.push(candidate.reference);
-		}
+	for (const candidate of candidates) if (fits([...parts, candidate.part])) {
+		parts = [...parts, candidate.part];
+		optional.push({
+			candidate,
+			part: candidate.part
+		});
+	} else {
+		omitted.push(candidate.part.name);
+		references.push(candidate.reference);
 	}
 	while (!fits(parts) && optional.length > 0) {
 		const last = optional.pop();
@@ -6735,16 +6675,22 @@ function assembleWithCap(input, cap) {
 		truncated: cap !== null && taskSection(input, cap) !== taskSection(input)
 	};
 }
+/** True when the packet exceeds the budget even without required documents. */
+function overWithoutDocuments(packet) {
+	const documents = packet.sections.filter((section) => section.name.startsWith(DOCUMENT_PREFIX)).reduce((sum, section) => sum + byteLength(`\n\n## ${section.name}\n${section.text}`), 0);
+	return packet.bytes - documents > packet.budget;
+}
 /**
 * Assembles the packet by priority within `budgetBytes`. Mandatory sections
-* always stay; when they do not fit, long task fields are shortened with a
-* marker, step by step. Optional sections move to references when they do
-* not fit. Nothing is cut silently: an oversized packet says so.
+* and required documents always stay; when the mandatory sections alone do
+* not fit, long task fields are shortened with a marker, step by step.
+* Optional sections move to references when they do not fit, the last added
+* first. Nothing is cut silently: an oversized packet says so.
 */
 function assemblePacket(input) {
 	let packet = assembleWithCap(input, null);
 	for (const cap of TASK_CAPS) {
-		if (!packet.overBudget) break;
+		if (!(packet.overBudget && overWithoutDocuments(packet))) break;
 		packet = assembleWithCap(input, cap);
 	}
 	return packet;
@@ -6767,11 +6713,15 @@ function hookEvent(stdin) {
 }
 /**
 * SessionStart hook response. Inside Harness (`HARNESS_WORKFLOW_RECOVERY=host`)
-* the host already delivered the packet, so no context is repeated.
+* the host already delivered the packet, so no context is repeated; a null
+* context (a packet part that does not exist) adds no context either.
 */
 function sessionStartResponse(context, env) {
 	const output = { hookEventName: "SessionStart" };
-	if (env["HARNESS_WORKFLOW_RECOVERY"] !== "host") output.additionalContext = context();
+	if (env["HARNESS_WORKFLOW_RECOVERY"] !== "host") {
+		const text = context();
+		if (text !== null) output.additionalContext = text;
+	}
 	return `${JSON.stringify({
 		continue: true,
 		hookSpecificOutput: output
@@ -6798,6 +6748,110 @@ function workflowHistory(git, root, plan, filter) {
 function historyText(entries) {
 	if (entries.length === 0) return "No workflow commits match.\n";
 	return `${entries.map((entry) => `${entry.sha.slice(0, 8)} ${entry.role} ${entry.taskId ?? "-"} ${entry.subject}`).join("\n")}\n`;
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-documents.ts
+/** Default byte budget of the documents map (spec 3.2). */
+var DOCUMENTS_MAP_BYTES = 4e3;
+var MARKDOWN = /\.(md|markdown)$/iu;
+var H2 = /^##\s+(.+?)\s*#*\s*$/u;
+var FENCE = /^\s*(```|~~~)/u;
+var EXCLUDED_SEGMENTS = /* @__PURE__ */ new Set([".git", "node_modules"]);
+var EXCLUDED_PREFIXES = [".harness/workflow/", ".harness/plans/archive/"];
+function excluded(file) {
+	return file.split("/").some((segment) => EXCLUDED_SEGMENTS.has(segment)) || EXCLUDED_PREFIXES.some((prefix) => file.startsWith(prefix));
+}
+/** Second-level headings outside fenced code blocks. */
+function headings(text) {
+	const found = [];
+	let fenced = false;
+	for (const line of text.split("\n")) {
+		if (FENCE.test(line)) {
+			fenced = !fenced;
+			continue;
+		}
+		const match = fenced ? null : H2.exec(line);
+		if (match?.[1]) found.push(match[1]);
+	}
+	return found;
+}
+/** Tracked and untracked-not-ignored Markdown paths, sorted. */
+function markdownPaths(git, root) {
+	const output = git.git.run(root, [
+		"ls-files",
+		"-z",
+		"--cached",
+		"--others",
+		"--exclude-standard",
+		"--",
+		"*.md",
+		"*.markdown"
+	], { allowFailure: true });
+	if (output.status !== 0) return [];
+	return [...new Set(output.stdout.split("\0").filter((file) => MARKDOWN.test(file) && !excluded(file)))].sort((left, right) => left < right ? -1 : 1);
+}
+/** Documents of the specification folder first, then the rest; both sorted. */
+function ordered(paths, specPath) {
+	const slash = specPath ? specPath.lastIndexOf("/") : -1;
+	if (!specPath || slash === -1) return paths;
+	const folder = specPath.slice(0, slash + 1);
+	return [...paths.filter((file) => file.startsWith(folder)), ...paths.filter((file) => !file.startsWith(folder))];
+}
+function readMarkdown(root, file) {
+	try {
+		return workflowPlatformFacade.readTextIfExists(workflowPlatformFacade.resolveInside(root, file));
+	} catch {
+		return null;
+	}
+}
+function entryLine(entry) {
+	const base = `${entry.path} (${entry.bytes} bytes)`;
+	return entry.headings.length > 0 ? `${base}: ${entry.headings.join("; ")}` : base;
+}
+var DEFAULT_MORE = `\`${KIT_COMMAND} context --list\``;
+function tailLine(count, more) {
+	return `… ${count} more documents: ${more}`;
+}
+/**
+* Renders entries in order while the text (tail line included) fits the
+* budget; the remaining entries are counted by the tail line.
+*/
+function renderDocumentsMap(entries, budget, more) {
+	const lines = [];
+	let used = 0;
+	for (const [index, entry] of entries.entries()) {
+		const line = entryLine(entry);
+		const rest = entries.length - index - 1;
+		const next = used + byteLength(line) + (lines.length > 0 ? 1 : 0);
+		if (next + (rest > 0 ? byteLength(tailLine(rest, more)) + 1 : 0) > budget) break;
+		lines.push(line);
+		used = next;
+	}
+	const hidden = entries.length - lines.length;
+	return {
+		entries,
+		shown: lines.length,
+		text: [...lines, ...hidden > 0 ? [tailLine(hidden, more)] : []].join("\n")
+	};
+}
+/**
+* The documents map of a project: Markdown files known to git (tracked or
+* untracked and not ignored) without `node_modules`, `.git`,
+* `.harness/workflow/**` and `.harness/plans/archive/**` (only those under
+* `folder` when given); one line per file with its size and `##` headings.
+*/
+function documentsMap(git, root, options = {}) {
+	const entries = [];
+	const folder = options.folder ? `${options.folder}/` : "";
+	for (const file of ordered(markdownPaths(git, root).filter((item) => item.startsWith(folder)), options.specPath ?? null)) {
+		const text = readMarkdown(root, file);
+		if (text !== null) entries.push({
+			bytes: byteLength(text),
+			headings: headings(text),
+			path: file
+		});
+	}
+	return renderDocumentsMap(entries, options.budget ?? DOCUMENTS_MAP_BYTES, options.more ?? DEFAULT_MORE);
 }
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-gather.ts
@@ -6844,6 +6898,7 @@ function gatherRecovery(git, root, event, notes) {
 	return {
 		budgetBytes: config.budget.recoveryBytes,
 		changes: repository ? outsideChanges(git, root, plan) : [],
+		documents: repository ? documentsMap(git, root, { specPath: plan.scope?.spec ?? null }) : null,
 		event,
 		head: repository ? git.head(root) : null,
 		plan,
@@ -6860,6 +6915,116 @@ function gatherRecovery(git, root, event, notes) {
 			reports: evidence.reports
 		} : null
 	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/recovery-parts.ts
+/**
+* Upper limit of one packet part in UTF-16 code units, its first line
+* included. Claude Code keeps hook output of at most 10 000 units in the
+* context; longer output is replaced by a short preview.
+*/
+var PART_LIMIT = 9500;
+/** Room kept in the last part for the line about an incomplete packet. */
+var INCOMPLETE_RESERVE = 200;
+var HEAD_LINE = /^head: (\S+)/mu;
+var REVISION = /\brevision (\d+)/u;
+var SECTION_START = /(?=^## )/mu;
+var LINE_END = /(?<=\n)/u;
+var PART_VALUE = /^(\d{1,2})\/(\d{1,2})$/u;
+/** The part line: number, packet revision and head, digest of the whole text. */
+function partLine(index, count, meta) {
+	return `# Workflow recovery packet — part ${index}/${count} · revision ${meta.revision} · head ${meta.head} · digest ${meta.digest}\n`;
+}
+function packetMeta(text) {
+	return {
+		digest: createHash("sha256").update(text).digest("hex").slice(0, 12),
+		head: HEAD_LINE.exec(text)?.[1] ?? "-",
+		revision: REVISION.exec(text)?.[1] ?? "-"
+	};
+}
+/** Cuts a line into pieces of at most `limit` units without splitting a surrogate pair. */
+function cutLine(line, limit) {
+	const pieces = [];
+	let rest = line;
+	while (rest.length > limit) {
+		let cut = limit;
+		const code = rest.charCodeAt(cut - 1);
+		if (code >= 55296 && code <= 56319) cut -= 1;
+		pieces.push(rest.slice(0, cut));
+		rest = rest.slice(cut);
+	}
+	if (rest !== "") pieces.push(rest);
+	return pieces;
+}
+/** Sections (`## ` at a line start), then lines, then characters within `limit`. */
+function units(text, limit) {
+	const result = [];
+	for (const section of text.split(SECTION_START)) {
+		if (section.length <= limit) {
+			result.push(section);
+			continue;
+		}
+		for (const line of section.split(LINE_END)) result.push(...cutLine(line, limit));
+	}
+	return result.filter((unit) => unit !== "");
+}
+/** Greedy packing of units into chunks of at most `limit` units. */
+function pack(items, limit) {
+	const chunks = [];
+	let current = "";
+	for (const item of items) {
+		if (current !== "" && current.length + item.length > limit) {
+			chunks.push(current);
+			current = "";
+		}
+		current += item;
+	}
+	if (current !== "" || chunks.length === 0) chunks.push(current);
+	return chunks;
+}
+/**
+* Splits the packet text into at most `count` parts of at most `PART_LIMIT`
+* units. Without their part lines the parts join to the text; a packet that
+* needs more parts ends the last one with the line about an incomplete packet.
+*/
+function packetParts(text, count) {
+	const meta = packetMeta(text);
+	const body = PART_LIMIT - partLine(16, 16, meta).length - 1;
+	const pieces = units(text, body - INCOMPLETE_RESERVE);
+	const full = pack(pieces, body);
+	let chunks = full;
+	if (full.length > count) {
+		const head = full.slice(0, count - 1);
+		const last = pack(joinFrom(pieces, head.reduce((sum, chunk) => sum + chunk.length, 0)), body - INCOMPLETE_RESERVE)[0] ?? "";
+		const line = `\nPacket incomplete: it needs ${full.length} parts, ${count} delivered. Run \`scripts/workflow recover --format text\`.\n`;
+		chunks = [...head, `${last}${line}`];
+	}
+	const total = chunks.length;
+	return {
+		needed: full.length,
+		parts: chunks.map((chunk, i) => `${partLine(i + 1, total, meta)}${chunk}`)
+	};
+}
+/** The units that follow the first `used` units of text. */
+function joinFrom(pieces, used) {
+	let consumed = 0;
+	const rest = [];
+	for (const piece of pieces) {
+		if (consumed >= used) rest.push(piece);
+		consumed += piece.length;
+	}
+	return rest;
+}
+/** Parses `K/N` of `--part`; null when it is not `1 <= K <= N <= MAX_PARTS`. */
+function parsePart(value) {
+	const match = PART_VALUE.exec(value ?? "");
+	if (!match) return null;
+	const index = Number(match[1]);
+	const count = Number(match[2]);
+	return index >= 1 && index <= count && count <= 16 ? {
+		count,
+		index
+	} : null;
 }
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-facade.ts
@@ -6880,6 +7045,30 @@ var WorkflowRecoveryFacade = class {
 	section(text, heading) {
 		return extractHeading(text, heading);
 	}
+	/**
+	* The documents map of a project (the packet `documents` section):
+	* Markdown files known to git (only under `folder` when given), the
+	* specification folder first, within `budget` bytes (default 4000) with a
+	* tail line (hint `more`) for the rest.
+	*/
+	documentsMap(root, options = {}) {
+		return documentsMap(this.git, root, options);
+	}
+	/**
+	* Input descriptor of a Kit command (the plan commands, `digest` and
+	* `quality:apply`, read from their owner facades), or null.
+	*/
+	inputSchema(command) {
+		return inputSchema(command);
+	}
+	/** Commands with an input descriptor, in a stable order. */
+	inputSchemaCommands() {
+		return inputSchemaCommands();
+	}
+	/** The compact text of a descriptor, as the packet `schema` section shows it. */
+	schemaText(schema) {
+		return schemaText$1(schema);
+	}
 	/** Reads plan, configuration, git state and evidence of a project. */
 	gather(root, event = "startup") {
 		const notes = { warnings: [] };
@@ -6896,18 +7085,24 @@ var WorkflowRecoveryFacade = class {
 		return format === "json" ? `${JSON.stringify(packet, null, 2)}\n` : packet.text;
 	}
 	/**
-	* `hook session-start --client claude|codex`: reads the hook input and
-	* answers in the SessionStart format. Errors never block the session.
+	* `hook session-start --client claude|codex [--part K/N]`: reads the hook
+	* input and answers in the SessionStart format, with the whole packet or
+	* with its part K (no context when the packet has fewer parts). Errors
+	* never block the session.
 	*/
 	sessionStart(root, options) {
 		const event = hookEvent(options.stdin);
 		return sessionStartResponse(() => {
+			let text;
 			try {
-				return this.packet(root, event).text;
+				text = this.packet(root, event).text;
 			} catch (error) {
 				const { code, message } = error;
-				return `Workflow Kit could not build the recovery packet (${code ?? "error"}): ${message}\nRun \`scripts/workflow doctor\`.`;
+				text = `Workflow Kit could not build the recovery packet (${code ?? "error"}): ${message}\nRun \`scripts/workflow doctor\`.`;
 			}
+			const part = options.part;
+			if (!part) return text;
+			return packetParts(text, part.count).parts[part.index - 1] ?? null;
 		}, options.env ?? process.env);
 	}
 	/** `show-task <ID>`: the full task text with its commit when done. */
@@ -6925,7 +7120,254 @@ var WorkflowRecoveryFacade = class {
 		};
 	}
 };
-new WorkflowRecoveryFacade();
+var workflowRecoveryFacade = new WorkflowRecoveryFacade();
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-hook.ts
+/**
+* `hook session-start --client claude|codex [--part K/N]` prints the raw
+* SessionStart JSON; `git-hook <name> [args]` prints the hook message on
+* stderr. Returns the process exit code.
+*/
+function runHook(args, io, kit, root) {
+	if (args.command === "hook") {
+		const client = flag(args, "client");
+		if (positional(args, 0, "Hook name") !== "session-start" || client !== "claude" && client !== "codex") throw new WorkflowError("USAGE", "hook session-start --client claude|codex");
+		const partValue = flag(args, "part");
+		const part = partValue === void 0 ? null : parsePart(partValue);
+		if (partValue !== void 0 && part === null) {
+			io.stderr("hook session-start: --part must be K/N with 1 <= K <= N <= 16\n");
+			io.stdout(`${JSON.stringify({
+				continue: true,
+				hookSpecificOutput: { hookEventName: "SessionStart" }
+			})}\n`);
+			return 0;
+		}
+		io.stdout(kit.sessionStart(root, client, io.readStdin(), part));
+		return 0;
+	}
+	const result = kit.gitHook(root, positional(args, 0, "Hook name"), args.positionals.slice(1));
+	if (result.message) io.stderr(`${result.message}\n`);
+	return result.exitCode;
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-identity.ts
+function identityText(value) {
+	const result = value;
+	return `identity: ${result.name} <${result.email}> (${result.scope} git config)\n`;
+}
+/**
+* `identity:set --name --email --global`: validates the identity
+* (GIT_IDENTITY_INVALID, GIT_IDENTITY_PLACEHOLDER) and writes it to the
+* global git config. It needs no project: it works in any folder.
+*/
+var IDENTITY_COMMANDS = { "identity:set": {
+	run: ({ args, kit, root }) => {
+		ensure(args.flags.get("global") === true, "USAGE", "identity:set needs --global: the identity is set once for all projects.");
+		return {
+			...kit.git.writeGlobalIdentity(root, {
+				email: flag(args, "email") ?? "",
+				name: flag(args, "name") ?? ""
+			}),
+			scope: "global"
+		};
+	},
+	text: identityText,
+	usage: "identity:set --name \"<name>\" --email <email> --global"
+} };
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-integration.ts
+var short = (sha) => sha?.slice(0, 12) ?? "none";
+function outcomeText(value) {
+	const result = value;
+	const lines = [`integration: ${result.assignmentId} ${result.status}, task ${result.taskId}, source ${short(result.source)} into ${short(result.mainHead)}`];
+	if (result.status === "CONFLICT") {
+		for (const file of result.conflicts) lines.push(`conflict: ${file}`);
+		lines.push(`next: resolve the conflicts inside the files of ${result.taskId}, git add them, then scripts/workflow integration:continue --id ${result.assignmentId}`);
+		return `${lines.join("\n")}\n`;
+	}
+	lines.push(`commit: ${short(result.integrationCommit)}`);
+	const cleanup = result.assignment?.cleanup;
+	lines.push(cleanup?.status === "PENDING" ? `cleanup: PENDING — ${cleanup.reason} (repeat with scripts/workflow assignment:cleanup --id ${result.assignmentId})` : "cleanup: DONE");
+	lines.push("next: scripts/workflow assignment:next");
+	return `${lines.join("\n")}\n`;
+}
+function statusText$1(value) {
+	const result = value;
+	const journal = result.journal;
+	if (!journal) return `integration: IDLE${result.mergeHead ? ` (a merge of ${short(result.mergeHead)} is in progress without the Kit)` : ""}\n`;
+	const lines = [`integration: ${journal.assignmentId} ${journal.phase}, task ${journal.taskId}, source ${short(journal.source)} into ${short(journal.mainHead)}`, ...result.conflicts.map((file) => `conflict: ${file}`)];
+	if (journal.error) lines.push(`error: ${journal.error.trim().split("\n").slice(-5).join("\n")}`);
+	lines.push(journal.phase === "UNKNOWN" ? "next: inspect main (git status, git log -1); the Kit does not retry an unproven state" : `next: scripts/workflow integration:continue --id ${journal.assignmentId}`);
+	return `${lines.join("\n")}\n`;
+}
+/** Integration of executor results in main (spec 7). */
+var INTEGRATION_COMMANDS = {
+	"integration:continue": {
+		run: ({ args, kit, root }) => kit.continueIntegration(root, requiredFlag(args, "id")),
+		text: outcomeText,
+		usage: "integration:continue --id <assignment>"
+	},
+	"integration:start": {
+		run: ({ args, kit, root }) => kit.startIntegration(root, requiredFlag(args, "id"), requiredFlag(args, "source")),
+		text: outcomeText,
+		usage: "integration:start --id <assignment> --source <sha>"
+	},
+	"integration:status": {
+		run: ({ kit, root }) => kit.integrationStatus(root),
+		text: statusText$1,
+		usage: "integration:status"
+	}
+};
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-pause.ts
+function pauseText(value) {
+	const result = value;
+	return result.paused ? `pause: on (${result.at}) — ${result.note}\ntask:start in main and assignment:create are refused until the user continues.\n` : `pause: off (${result.at}) — ${result.note}\n`;
+}
+/**
+* `pause:set --on|--off --note`: the user's pause of the workflow (main
+* checkout only; an executor worktree gets ASSIGNMENT_READ_ONLY).
+*/
+var PAUSE_COMMANDS = { "pause:set": {
+	run: ({ args, kit, root }) => {
+		const on = args.flags.get("on") === true;
+		ensure(on !== (args.flags.get("off") === true), "USAGE", "pause:set needs exactly one of --on or --off.");
+		return kit.setPause(root, on, requiredFlag(args, "note"));
+	},
+	text: pauseText,
+	usage: "pause:set --on|--off --note \"<the user's words>\""
+} };
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-schema.ts
+function schemaList() {
+	return { commands: workflowRecoveryFacade.inputSchemaCommands().map((command) => ({
+		command,
+		description: workflowRecoveryFacade.inputSchema(command)?.description ?? ""
+	})) };
+}
+function schemaText(value) {
+	if ("commands" in value) return [
+		"Commands with an input schema:",
+		...value.commands.map((item) => `- ${item.command} — ${item.description}`),
+		"Run `scripts/workflow schema <command>` for its fields, rules and an example.",
+		""
+	].join("\n");
+	return `${workflowRecoveryFacade.schemaText(value)}\n`;
+}
+/**
+* `schema [<command>]`: the JSON input descriptor of a Kit command with its
+* example, or the list of commands that have one. A pure read: it needs no
+* scope and also runs in an executor worktree.
+*/
+var SCHEMA_COMMANDS = { schema: {
+	run: ({ args }) => {
+		const command = args.positionals[0];
+		if (command === void 0) return schemaList();
+		const schema = workflowRecoveryFacade.inputSchema(command);
+		if (!schema) {
+			const commands = workflowRecoveryFacade.inputSchemaCommands();
+			throw new WorkflowError("USAGE", `${command} has no input schema. Commands with a schema: ${commands.join(", ")}.`, { commands }, "Run `scripts/workflow schema` for the list.");
+		}
+		return schema;
+	},
+	text: schemaText,
+	usage: "schema [<command>]"
+} };
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-scope.ts
+/**
+* The scope and plan commands: `scope:create`, `plan:extend`,
+* `task:update`, `task:block`, `task:unblock`, `accept`, `close` and
+* `carryover` (text output by `renderText`).
+*/
+var SCOPE_COMMANDS = {
+	accept: {
+		run: ({ args, kit, root }) => kit.accept(root, requiredFlag(args, "note")),
+		usage: "accept --note \"<the user's words>\""
+	},
+	carryover: {
+		run: ({ args, io, kit, root }) => kit.carryover(root, readJsonFile(io.cwd, requiredFlag(args, "input"))),
+		usage: "carryover --input <file.json>"
+	},
+	close: {
+		run: ({ args, kit, root }) => kit.close(root, requiredFlag(args, "scope"), requiredFlag(args, "note")),
+		usage: "close --scope <id> --note \"<direct user command>\""
+	},
+	"plan:extend": {
+		run: ({ args, io, kit, root }) => kit.extend(root, readJsonFile(io.cwd, requiredFlag(args, "input")), integerFlag(args, "expected-revision")),
+		usage: "plan:extend --input <file.json> [--expected-revision N]"
+	},
+	"scope:create": {
+		run: ({ args, io, kit, root }) => kit.createScope(root, readJsonFile(io.cwd, requiredFlag(args, "input"))),
+		usage: "scope:create --input <file.json>"
+	},
+	"task:block": {
+		run: ({ args, kit, root }) => kit.block(root, requiredFlag(args, "reason")),
+		usage: "task:block --reason \"<text>\""
+	},
+	"task:unblock": {
+		run: ({ kit, root }) => kit.unblock(root),
+		usage: "task:unblock"
+	},
+	"task:update": {
+		run: ({ args, io, kit, root }) => kit.updateTask(root, positional(args, 0, "Task id"), readJsonFile(io.cwd, requiredFlag(args, "input")), integerFlag(args, "expected-revision")),
+		usage: "task:update <ID> --input <patch.json> [--expected-revision N]"
+	}
+};
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-text.ts
+/** One line: the execution mode, assignment counts by status, the integration. */
+function executionLine(status) {
+	const { execution } = status;
+	if (!execution) return "execution: none";
+	if (execution.strategy !== "orchestrated") return `execution: ${execution.strategy}`;
+	const counts = /* @__PURE__ */ new Map();
+	for (const item of status.assignments) counts.set(item.status, (counts.get(item.status) ?? 0) + 1);
+	const assignments = counts.size === 0 ? "none" : [...counts].map(([state, count]) => `${state} ${count}`).join(", ");
+	const integration = status.integration ? `, integration ${status.integration.taskId ?? "unknown"} ${status.integration.phase ?? "unknown"}` : "";
+	return `execution: orchestrated (max ${execution.maxWorkers} workers), assignments: ${assignments}${integration}`;
+}
+function statusText(status) {
+	const lines = [`project: ${status.project ? `${status.project.name} (${status.project.id})` : "not installed"}`, status.scope ? `scope: ${status.scope.id} ${status.scope.status}, result ${status.scope.delivery}, revision ${status.revision}` : `scope: NONE, revision ${status.revision}`];
+	if (status.scope?.blockedReason) lines.push(`blocked: ${status.scope.blockedReason}`);
+	lines.push(executionLine(status));
+	if (status.executor) lines.push(`executor: assignment ${status.executor.assignmentId}, task ${status.executor.taskId}`);
+	lines.push(`paused: ${status.paused}`, `progress: ${status.progress.done}/${status.progress.total}`, `current: ${status.currentTask ? `${status.currentTask.id} ${status.currentTask.title}` : "none"}`, `next: ${status.nextTask ? `${status.nextTask.id} [${status.nextTask.kind}] ${status.nextTask.title}` : "none"}`, `quality: ${status.quality.status}${status.quality.stacks.length > 0 ? ` (${status.quality.stacks.join(", ")})` : ""}, drift ${status.quality.drift.status}`, `head: ${status.head ? status.head.slice(0, 8) : "none"}`, `transaction: ${status.transaction ? `${status.transaction.id} ${status.transaction.phase}` : "none"}`, `changes: ${status.changes.length === 0 ? "none" : status.changes.join(", ")}`);
+	return `${lines.join("\n")}\n`;
+}
+function validationText(report) {
+	return report.ok ? "Plan and history are consistent.\n" : `${report.errors.map((error) => `${error.code}: ${error.message}`).join("\n")}\n`;
+}
+function inspectText(result) {
+	const { git } = result;
+	const repository = git.repository ? `repository, head ${git.head ? git.head.slice(0, 8) : "none"}` : "not a repository";
+	const lines = [
+		`path: ${result.path}`,
+		`state: ${result.state}`,
+		`action: ${result.action}`,
+		`kit version: ${result.version ?? "none"}`,
+		`git: ${repository}`,
+		`identity: ${git.identity ? `${git.identity.name} <${git.identity.email}>` : "not set"}`,
+		`stacks: ${result.stacks.length > 0 ? result.stacks.join(", ") : "none"}`,
+		`transaction: ${result.transactionPending ? "pending" : "none"}`
+	];
+	if (result.nestedIn) lines.push(`nested in: ${result.nestedIn}`);
+	if (result.damaged.length > 0) lines.push(`damaged: ${result.damaged.join(", ")}`);
+	return `${lines.join("\n")}\n`;
+}
+/** Human-readable output of `--format text`. */
+function renderText(command, result) {
+	const value = result;
+	switch (command) {
+		case "status": return statusText(result);
+		case "validate": return validationText(result);
+		case "inspect": return inspectText(result);
+		case "recover":
+		case "history":
+		case "show-task": return String(value.text ?? "");
+		default: return `${JSON.stringify(result, null, 2)}\n`;
+	}
+}
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-journal.ts
 var JOURNAL_FILE = "integration.json";
@@ -6981,6 +7423,151 @@ function integrationState(git, root) {
 		mergeHead,
 		status: journal?.phase ?? "IDLE"
 	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-phases.ts
+var MERGE_TIMEOUT_MS = 600 * 1e3;
+var UNKNOWN_HINT = "Inspect main with `git status` and `git log -1`; abort a merge in progress with `git merge --abort`, then remove .harness/workflow/local/integration.json and start the integration again.";
+var continueHint = (id) => `scripts/workflow integration:continue --id ${id}`;
+function outcome(journal, fields) {
+	return {
+		assignment: null,
+		assignmentId: journal.assignmentId,
+		conflicts: [],
+		integrationCommit: null,
+		mainHead: journal.mainHead,
+		operationId: journal.operationId,
+		source: journal.source,
+		taskId: journal.taskId,
+		...fields
+	};
+}
+/** Records UNKNOWN and throws: the state cannot be proven, nothing is retried. */
+function unknown(root, journal, message, error = null) {
+	saveJournal(root, {
+		...journal,
+		error,
+		phase: "UNKNOWN"
+	});
+	throw new WorkflowError("INTEGRATION_UNKNOWN", message, {
+		error,
+		operationId: journal.operationId
+	}, UNKNOWN_HINT);
+}
+/**
+* Main's plan with the task DONE through this integration (`operationId`,
+* `sourceCommit`). A DOCS task takes the round digest its executor recorded
+* in the source plan; the executor plan itself is discarded.
+*/
+function candidatePlan(git, root, plan, journal) {
+	const task = workflowPlanFacade.task(plan, journal.taskId);
+	let digest = null;
+	if (task.kind === "docs") {
+		const text = git.show(root, journal.source, PLAN_PATH);
+		digest = (text ? workflowPlanFacade.parse(text, { projection: false }) : null)?.rounds.find((round) => round.id === task.roundId)?.digest ?? null;
+	}
+	return workflowPlanFacade.integrateTask(plan, task.id, {
+		digest,
+		operationId: journal.operationId,
+		sourceCommit: journal.source
+	});
+}
+/**
+* After the integration commit: the record becomes INTEGRATED with the
+* commit, the executor worktree and branch are cleaned up (a refusal or
+* failure is `cleanup: PENDING`, the integration still succeeds), and the
+* journal is removed.
+*/
+function finish(git, root, journal, sha, now) {
+	const record = workflowAssignmentFacade.read(root, journal.assignmentId);
+	ensure(record, "ASSIGNMENT_UNKNOWN", `The main checkout has no assignment ${journal.assignmentId}.`);
+	let updated = record.status === "INTEGRATED" && record.integrationCommit === sha ? record : {
+		...record,
+		integrationCommit: sha,
+		status: "INTEGRATED",
+		updatedAt: now()
+	};
+	workflowAssignmentFacade.write(root, updated);
+	try {
+		updated = workflowAssignmentFacade.cleanup(git, root, updated, now());
+	} catch (error) {
+		updated = {
+			...updated,
+			cleanup: {
+				at: now(),
+				reason: error.message,
+				status: "PENDING"
+			}
+		};
+		workflowAssignmentFacade.write(root, updated);
+	}
+	removeJournal(root);
+	return outcome(journal, {
+		assignment: updated,
+		integrationCommit: sha,
+		status: "INTEGRATED"
+	});
+}
+/** Phase PREPARED: `git merge --no-commit --no-ff <source>`; no MERGE_HEAD is UNKNOWN. */
+function merge(git, root, journal) {
+	const dirty = git.changes(root).all;
+	ensure(dirty.length === 0 && git.mergeHead(root) === null, "INTEGRATION_DIRTY", "Main has changes; the integration merges only into a clean main.", { paths: dirty });
+	const merging = {
+		...journal,
+		phase: "MERGING"
+	};
+	saveJournal(root, merging);
+	const output = git.git.run(root, [
+		"merge",
+		"--no-commit",
+		"--no-ff",
+		"-q",
+		journal.source
+	], {
+		allowFailure: true,
+		timeoutMs: MERGE_TIMEOUT_MS
+	});
+	if (git.mergeHead(root) !== journal.source) unknown(root, merging, `git merge of ${journal.source} left no merge state; it is never retried automatically.`, `${output.stderr}${output.stdout}`.slice(-4e3));
+	return merging;
+}
+/** Runs the commit transaction; failed checks keep the merge state (CHECKS_FAILED). */
+function commit(git, root, journal, plan, files) {
+	const candidate = candidatePlan(git, root, plan, journal);
+	const task = workflowPlanFacade.task(plan, journal.taskId);
+	const checking = {
+		...journal,
+		error: null,
+		phase: "CHECKING"
+	};
+	saveJournal(root, checking);
+	try {
+		return git.transactions.commit(root, {
+			assignmentId: journal.assignmentId,
+			checks: task.checks,
+			files,
+			iteration: task.iteration,
+			message: `merge: ${task.title}`,
+			planPath: PLAN_PATH,
+			planText: workflowPlanFacade.render(candidate),
+			role: "integration",
+			scopeId: plan.scope?.id ?? null,
+			sourceCommit: journal.source,
+			taskId: task.id,
+			transactionId: journal.operationId
+		}).sha;
+	} catch (error) {
+		if (!(error instanceof WorkflowError && error.code === "COMMIT_FAILED")) throw error;
+		const output = String(error.details.output ?? error.message);
+		saveJournal(root, {
+			...checking,
+			error: output.slice(-4e3),
+			phase: "CHECKS_FAILED"
+		});
+		throw new WorkflowError("INTEGRATION_CHECKS_FAILED", `The checks of ${task.id} failed on the merged result; the merge and your fixes are kept.`, {
+			output,
+			phase: "CHECKS_FAILED"
+		}, `Fix the files of ${task.id} in main, then run ${continueHint(journal.assignmentId)}.`);
+	}
 }
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-proof.ts
@@ -7196,37 +7783,9 @@ function proveSource(git, mainRoot, assignment, sourceSha) {
 }
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/src/integration-merge.ts
-var MERGE_TIMEOUT_MS = 600 * 1e3;
-var UNKNOWN_HINT = "Inspect main with `git status` and `git log -1`; abort a merge in progress with `git merge --abort`, then remove .harness/workflow/local/integration.json and start the integration again.";
-var continueHint = (id) => `scripts/workflow integration:continue --id ${id}`;
 /** A path is in scope when it equals or is nested (by segment) in a task file. */
 function inTaskScope(files, file) {
 	return files.some((entry) => file === entry || file.startsWith(`${entry}/`));
-}
-function outcome(journal, fields) {
-	return {
-		assignment: null,
-		assignmentId: journal.assignmentId,
-		conflicts: [],
-		integrationCommit: null,
-		mainHead: journal.mainHead,
-		operationId: journal.operationId,
-		source: journal.source,
-		taskId: journal.taskId,
-		...fields
-	};
-}
-/** Records UNKNOWN and throws: the state cannot be proven, nothing is retried. */
-function unknown(root, journal, message, error = null) {
-	saveJournal(root, {
-		...journal,
-		error,
-		phase: "UNKNOWN"
-	});
-	throw new WorkflowError("INTEGRATION_UNKNOWN", message, {
-		error,
-		operationId: journal.operationId
-	}, UNKNOWN_HINT);
 }
 function resolveCommit(git, root, revision) {
 	const output = git.git.run(root, [
@@ -7248,125 +7807,10 @@ function mainPlan(git, root, journal) {
 		text
 	};
 }
-/**
-* Main's plan with the task DONE through this integration (`operationId`,
-* `sourceCommit`). A DOCS task takes the round digest its executor recorded
-* in the source plan; the executor plan itself is discarded.
-*/
-function candidatePlan(git, root, plan, journal) {
-	const task = workflowPlanFacade.task(plan, journal.taskId);
-	let digest = null;
-	if (task.kind === "docs") {
-		const text = git.show(root, journal.source, PLAN_PATH);
-		digest = (text ? workflowPlanFacade.parse(text, { projection: false }) : null)?.rounds.find((round) => round.id === task.roundId)?.digest ?? null;
-	}
-	return workflowPlanFacade.integrateTask(plan, task.id, {
-		digest,
-		operationId: journal.operationId,
-		sourceCommit: journal.source
-	});
-}
 /** HEAD is the commit of this integration: parents main HEAD and source, its transaction. */
 function isIntegrationCommit(git, root, journal, head) {
 	const commit = git.history(root, journal.mainHead, head).find((item) => item.sha === head);
 	return commit !== void 0 && commit.parents.join(" ") === `${journal.mainHead} ${journal.source}` && commit.trailers["Workflow-Role"]?.join() === "integration" && commit.trailers["Workflow-Transaction"]?.join() === journal.operationId;
-}
-/**
-* After the integration commit: the record becomes INTEGRATED with the
-* commit, the executor worktree and branch are cleaned up (a refusal or
-* failure is `cleanup: PENDING`, the integration still succeeds), and the
-* journal is removed.
-*/
-function finish(git, root, journal, sha, now) {
-	const record = workflowAssignmentFacade.read(root, journal.assignmentId);
-	ensure(record, "ASSIGNMENT_UNKNOWN", `The main checkout has no assignment ${journal.assignmentId}.`);
-	let updated = record.status === "INTEGRATED" && record.integrationCommit === sha ? record : {
-		...record,
-		integrationCommit: sha,
-		status: "INTEGRATED",
-		updatedAt: now()
-	};
-	workflowAssignmentFacade.write(root, updated);
-	try {
-		updated = workflowAssignmentFacade.cleanup(git, root, updated, now());
-	} catch (error) {
-		updated = {
-			...updated,
-			cleanup: {
-				at: now(),
-				reason: error.message,
-				status: "PENDING"
-			}
-		};
-		workflowAssignmentFacade.write(root, updated);
-	}
-	removeJournal(root);
-	return outcome(journal, {
-		assignment: updated,
-		integrationCommit: sha,
-		status: "INTEGRATED"
-	});
-}
-/** Phase PREPARED: `git merge --no-commit --no-ff <source>`; no MERGE_HEAD is UNKNOWN. */
-function merge(git, root, journal) {
-	const dirty = git.changes(root).all;
-	ensure(dirty.length === 0 && git.mergeHead(root) === null, "INTEGRATION_DIRTY", "Main has changes; the integration merges only into a clean main.", { paths: dirty });
-	const merging = {
-		...journal,
-		phase: "MERGING"
-	};
-	saveJournal(root, merging);
-	const output = git.git.run(root, [
-		"merge",
-		"--no-commit",
-		"--no-ff",
-		"-q",
-		journal.source
-	], {
-		allowFailure: true,
-		timeoutMs: MERGE_TIMEOUT_MS
-	});
-	if (git.mergeHead(root) !== journal.source) unknown(root, merging, `git merge of ${journal.source} left no merge state; it is never retried automatically.`, `${output.stderr}${output.stdout}`.slice(-4e3));
-	return merging;
-}
-/** Runs the commit transaction; failed checks keep the merge state (CHECKS_FAILED). */
-function commit(git, root, journal, plan, files) {
-	const candidate = candidatePlan(git, root, plan, journal);
-	const task = workflowPlanFacade.task(plan, journal.taskId);
-	const checking = {
-		...journal,
-		error: null,
-		phase: "CHECKING"
-	};
-	saveJournal(root, checking);
-	try {
-		return git.transactions.commit(root, {
-			assignmentId: journal.assignmentId,
-			checks: task.checks,
-			files,
-			iteration: task.iteration,
-			message: `merge: ${task.title}`,
-			planPath: PLAN_PATH,
-			planText: workflowPlanFacade.render(candidate),
-			role: "integration",
-			scopeId: plan.scope?.id ?? null,
-			sourceCommit: journal.source,
-			taskId: task.id,
-			transactionId: journal.operationId
-		}).sha;
-	} catch (error) {
-		if (!(error instanceof WorkflowError && error.code === "COMMIT_FAILED")) throw error;
-		const output = String(error.details.output ?? error.message);
-		saveJournal(root, {
-			...checking,
-			error: output.slice(-4e3),
-			phase: "CHECKS_FAILED"
-		});
-		throw new WorkflowError("INTEGRATION_CHECKS_FAILED", `The checks of ${task.id} failed on the merged result; the merge and your fixes are kept.`, {
-			output,
-			phase: "CHECKS_FAILED"
-		}, `Fix the files of ${task.id} in main, then run ${continueHint(journal.assignmentId)}.`);
-	}
 }
 /**
 * Drives an integration from its journal to the end (spec 7). Reconciles a
@@ -7559,6 +8003,144 @@ function changedDocuments(context, paths) {
 	return [...new Set(paths.filter((item) => Boolean(item)))].filter((item) => changed.has(item));
 }
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-context-budget.ts
+/**
+* The documents a task brings into its executor brief: its `context`
+* (a whole-document reference wins over a heading reference of the same
+* path), or the scope specification when the task has no context.
+*/
+function briefRefs(plan, task) {
+	if (task.context.length === 0) {
+		const spec = plan.scope?.spec;
+		return spec ? [{
+			path: spec,
+			required: true
+		}] : [];
+	}
+	const whole = new Set(task.context.filter((ref) => !ref.heading).map((ref) => ref.path));
+	const seen = /* @__PURE__ */ new Set();
+	return task.context.filter((ref) => {
+		const key = `${ref.path}\n${ref.heading ?? ""}`;
+		if (seen.has(key) || ref.heading && whole.has(ref.path)) return false;
+		seen.add(key);
+		return true;
+	});
+}
+/**
+* Reads the brief documents of a task from `root` (the main checkout): the
+* whole file, or only the section of a heading reference. A missing file or
+* heading fails with CONTEXT_MISSING.
+*/
+function briefDocuments(root, plan, task) {
+	return briefRefs(plan, task).map((ref) => {
+		const text = workflowPlatformFacade.readTextIfExists(workflowPlatformFacade.resolveInside(root, ref.path));
+		const section = text !== null && ref.heading ? workflowRecoveryFacade.section(text, ref.heading) : text;
+		ensure(section !== null, "CONTEXT_MISSING", text === null ? `The context document ${ref.path} of ${task.id} does not exist.` : `The context document ${ref.path} of ${task.id} has no heading "${ref.heading}".`, {
+			path: ref.path,
+			taskId: task.id,
+			...ref.heading ? { heading: ref.heading } : {}
+		}, "Fix the task context: an existing file and, for a section, an existing heading.");
+		const body = section.trimEnd();
+		return {
+			bytes: Buffer.byteLength(body, "utf8"),
+			path: ref.path,
+			text: body,
+			...ref.heading ? { heading: ref.heading } : {}
+		};
+	});
+}
+/**
+* The brief documents of a task, read from the project root, after the
+* checks: they exist (CONTEXT_MISSING) and their text fits
+* `budget.briefBytes` (CONTEXT_TOO_LARGE).
+*/
+function checkedBriefDocuments(context, plan, task, budget = readConfig(context).budget.briefBytes) {
+	const documents = briefDocuments(context.root, plan, task);
+	const bytes = documents.reduce((sum, item) => sum + item.bytes, 0);
+	ensure(bytes <= budget, "CONTEXT_TOO_LARGE", `The context documents of ${task.id} take ${bytes} bytes; the brief budget is ${budget}.`, {
+		budget,
+		bytes,
+		taskId: task.id
+	}, "Narrow the task context to sections (heading).");
+	return documents;
+}
+/** The plan-time check of `checkedBriefDocuments` for every given task. */
+function ensureContextBudget(context, plan, tasks) {
+	const budget = readConfig(context).budget.briefBytes;
+	for (const task of tasks) checkedBriefDocuments(context, plan, task, budget);
+}
+/** Tasks of `next` that are new or whose context differs from `previous`. */
+function changedContextTasks(previous, next) {
+	const before = new Map(previous.tasks.map((task) => [task.id, task]));
+	return next.tasks.filter((task) => {
+		const old = before.get(task.id);
+		return !old || JSON.stringify(old.context) !== JSON.stringify(task.context);
+	});
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-pause.ts
+/** The user's pause of the workflow, local state of the main checkout. */
+var PAUSE_FILE = "pause.json";
+var PAUSE_PATH = `.harness/workflow/local/${PAUSE_FILE}`;
+var REWRITE = "Rewrite it on the user's request: scripts/workflow pause:set --on|--off --note \"<the user's words>\".";
+function pauseFile(context) {
+	return context.git.localPath(context.root, PAUSE_FILE);
+}
+/** PAUSE_STATE for a file that cannot be read or has the wrong shape. */
+function readPause(context) {
+	let text = null;
+	let parsed = null;
+	let readable = true;
+	try {
+		text = workflowPlatformFacade.readTextIfExists(pauseFile(context));
+		parsed = text === null ? null : JSON.parse(text);
+	} catch {
+		readable = false;
+	}
+	if (readable && text === null) return {
+		at: null,
+		note: null,
+		paused: false
+	};
+	const record = parsed ?? {};
+	ensure(readable && typeof parsed === "object" && typeof record.paused === "boolean" && typeof record.note === "string" && typeof record.at === "string", "PAUSE_STATE", `${PAUSE_PATH} is unreadable; the pause state is unknown.`, { path: PAUSE_PATH }, REWRITE);
+	return {
+		at: record.at,
+		note: record.note,
+		paused: record.paused
+	};
+}
+/**
+* `pause:set`: stores the user's pause under the project lock. It needs an
+* installed Kit but no scope, and overwrites an unreadable file.
+*/
+function setPause(context, paused, note) {
+	const words = note.trim();
+	ensure(words !== "", "USAGE", "--note is required.");
+	return locked(context, () => {
+		readPlan(context);
+		const state = {
+			at: context.now(),
+			note: words,
+			paused
+		};
+		workflowPlatformFacade.writeFileAtomic(pauseFile(context), `${JSON.stringify(state, null, 2)}\n`);
+		return state;
+	});
+}
+/**
+* WORKFLOW_PAUSED in the main checkout while the user's pause is on. An
+* executor worktree finishes its assignment: the pause does not apply there.
+*/
+function ensureNotPaused(context) {
+	if (workflowAssignmentFacade.worktreeRecord(context.root) !== null) return;
+	const pause = readPause(context);
+	ensure(!pause.paused, "WORKFLOW_PAUSED", `The workflow is paused by the user (${pause.at}): ${pause.note}`, {
+		at: pause.at,
+		note: pause.note
+	}, "Wait until the user presses Continue in Harness, or run `scripts/workflow pause:set --off --note \"<the user's words>\"` when the user asks to continue.");
+}
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-assignment.ts
 /** Integration journal of E9; while it exists no assignment is created. */
 var INTEGRATION_FILE = "integration.json";
@@ -7611,15 +8193,38 @@ function scheduled(schedule, task) {
 	ensure(!reason, reason?.code ?? "ASSIGNMENT_BARRIER", reason?.message ?? "", { blockedBy: reason?.blockedBy ?? [] }, "Run `scripts/workflow assignment:next` for the tasks that can be assigned now.");
 	ensure(schedule.ready.includes(task.id), "ASSIGNMENT_BARRIER", `${task.id} cannot be assigned now.`);
 }
-/** `assignment:create --task <ID>` in main (spec 5.1). The plan does not change. */
+/**
+* The executor brief followed by the documents map of the project (spec
+* 3.2, the specification folder first, its own 4000-byte budget with a tail
+* line): the brief budget counts only the context documents.
+*/
+function briefWithMap(context, plan, brief) {
+	const map = new WorkflowRecoveryFacade(context.git).documentsMap(context.root, { specPath: plan.scope?.spec ?? null });
+	if (map.text === "") return brief;
+	return [
+		brief.trimEnd(),
+		"",
+		"Project documents (ask with scripts/workflow context <path>):",
+		map.text,
+		""
+	].join("\n");
+}
+/**
+* `assignment:create --task <ID>` in main (spec 5.1). The plan does not
+* change. The brief carries the task's context documents read from main
+* and the documents map;
+* CONTEXT_MISSING / CONTEXT_TOO_LARGE refuse before a record is written.
+*/
 function createAssignment(context, taskId) {
 	return locked(context, () => {
 		const plan = readPlan(context);
 		ensureCanAssign(context, plan);
+		ensureNotPaused(context);
 		const base = requireHead(context);
 		const task = workflowPlanFacade.task(plan, taskId);
 		ensure(task.kind === "work" || task.kind === "docs", "ASSIGNMENT_KIND", `${task.id} is a ${task.kind} task; the orchestrator runs it in main.`, {}, `Run it yourself: scripts/workflow task:start ${task.id}.`);
 		ensure(task.status === "TODO", "TASK_NOT_TODO", `${task.id} is ${task.status}.`);
+		const documents = checkedBriefDocuments(context, plan, task);
 		const scopeId = plan.scope?.id ?? "NONE";
 		const digest = workflowAssignmentFacade.configDigest(context.root);
 		const active = activeRecords(plan, context.root);
@@ -7631,7 +8236,7 @@ function createAssignment(context, taskId) {
 			});
 			return {
 				assignment: existing,
-				brief: workflowAssignmentFacade.brief(plan, task, existing),
+				brief: briefWithMap(context, plan, workflowAssignmentFacade.brief(plan, task, existing, documents)),
 				created: false
 			};
 		}
@@ -7649,7 +8254,7 @@ function createAssignment(context, taskId) {
 		workflowAssignmentFacade.write(context.root, record);
 		return {
 			assignment: record,
-			brief: workflowAssignmentFacade.brief(plan, task, record),
+			brief: briefWithMap(context, plan, workflowAssignmentFacade.brief(plan, task, record, documents)),
 			created: true
 		};
 	});
@@ -7669,6 +8274,28 @@ function cleanupAssignments(context, id) {
 			records = [record];
 		}
 		return { assignments: records.map((record) => workflowAssignmentFacade.cleanup(context.git, context.root, record, context.now())) };
+	});
+}
+/**
+* `assignment:cancel --id <id> [--force]` in main: drops an assignment that
+* is not INTEGRATED with its worktree and branch (`workflow-assignment`).
+* The plan does not change, so the task stays TODO and can be handed out
+* again.
+*/
+function cancelAssignment(context, id, force) {
+	return locked(context, () => {
+		ensureNoTransaction(context);
+		const record = workflowAssignmentFacade.read(context.root, id);
+		ensure(record, "ASSIGNMENT_UNKNOWN", `The main checkout has no assignment ${id}.`, {}, "Run `scripts/workflow assignment:next` for the active assignments.");
+		const result = workflowAssignmentFacade.cancel(context.git, context.root, record, { force });
+		const task = readPlan(context).tasks.find((item) => item.id === record.taskId);
+		return {
+			...result,
+			task: task ? {
+				id: task.id,
+				status: task.status
+			} : null
+		};
 	});
 }
 //#endregion
@@ -7824,6 +8451,1387 @@ function guardExecutorCandidate(context, journal) {
 	]).stdout.split("\0").filter(Boolean), journal.candidatePlan);
 }
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-provider-hooks.ts
+var KIT_LAUNCHER_MARK = "scripts/workflow";
+var KIT_HOOK_MARK = "hook session-start";
+/**
+* Claude Code keeps at most 10 000 characters of one hook's output, so the
+* Claude settings run the session-start hook once per packet part.
+*/
+var CLAUDE_PARTS = 6;
+/** Codex raises its hook output limit per entry with this field. */
+var CODEX_CONTEXT_LIMIT = 65536;
+/**
+* The Kit SessionStart groups of a provider: six Claude groups, each asking
+* for its part of the recovery packet, or one Codex group with a raised
+* output limit that takes the whole packet.
+*/
+function kitGroups(client) {
+	if (client === "codex") return [{ hooks: [{
+		additionalContextLimit: CODEX_CONTEXT_LIMIT,
+		command: "scripts/workflow hook session-start --client codex",
+		type: "command"
+	}] }];
+	return Array.from({ length: CLAUDE_PARTS }, (_, i) => ({ hooks: [{
+		command: `"$CLAUDE_PROJECT_DIR/scripts/workflow" hook session-start --client claude --part ${i + 1}/${CLAUDE_PARTS}`,
+		type: "command"
+	}] }));
+}
+function isKitGroup(group) {
+	const hooks = group?.hooks;
+	return Array.isArray(hooks) && hooks.some((hook) => typeof hook?.command === "string" && hook.command.includes(KIT_LAUNCHER_MARK) && hook.command.includes(KIT_HOOK_MARK));
+}
+function parseObject(current, file) {
+	if (current === null || current.trim() === "") return {};
+	let parsed;
+	try {
+		parsed = JSON.parse(current);
+	} catch {
+		parsed = null;
+	}
+	ensure(parsed && typeof parsed === "object" && !Array.isArray(parsed), "MANAGED_JSON", `${file} is not a JSON object; fix it by hand first.`, { path: file });
+	return parsed;
+}
+/**
+* Adds or replaces the Kit SessionStart entry and keeps every other hook and
+* setting of the file.
+*/
+function mergeSessionStartHook(current, client, file) {
+	const settings = parseObject(current, file);
+	const hooks = settings.hooks && typeof settings.hooks === "object" ? settings.hooks : {};
+	const existing = Array.isArray(hooks.SessionStart) ? hooks.SessionStart : [];
+	const merged = {
+		...settings,
+		hooks: {
+			...hooks,
+			SessionStart: [...existing.filter((group) => !isKitGroup(group)), ...kitGroups(client)]
+		}
+	};
+	return `${JSON.stringify(merged, null, 2)}\n`;
+}
+/**
+* The Kit entries of a provider settings file in order, normalized as one
+* JSON array, or null when there is none; inspect and doctor compare it with
+* `expectedSessionStartHook`, so a change in any group shows.
+*/
+function extractSessionStartHook(current) {
+	try {
+		const groups = (JSON.parse(current ?? "").hooks?.SessionStart ?? []).filter(isKitGroup);
+		return groups.length > 0 ? JSON.stringify(groups) : null;
+	} catch {
+		return null;
+	}
+}
+function expectedSessionStartHook(client) {
+	return JSON.stringify(kitGroups(client));
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-sections.ts
+var MARKERS = {
+	hash: {
+		begin: "# workflow-kit:begin",
+		end: "# workflow-kit:end"
+	},
+	html: {
+		begin: "<!-- workflow-kit:begin -->",
+		end: "<!-- workflow-kit:end -->"
+	}
+};
+var SHEBANG = /^#![^\n]*\n/u;
+var CRLF = /\r\n/gu;
+var LF = /\n/gu;
+function eolOf(text) {
+	return text.includes("\r\n") ? "\r\n" : "\n";
+}
+/** The managed block with its markers, using `\n` line ends. */
+function sectionBlock(style, body) {
+	const { begin, end } = MARKERS[style];
+	return `${begin}\n${body.trimEnd()}\n${end}\n`;
+}
+function bounds(text, style) {
+	const { begin, end } = MARKERS[style];
+	const start = text.indexOf(begin);
+	const stop = start === -1 ? -1 : text.indexOf(end, start);
+	if (start === -1 || stop === -1) return null;
+	let after = stop + end.length;
+	if (text.startsWith("\r\n", after)) after += 2;
+	else if (text.startsWith("\n", after)) after += 1;
+	return {
+		end: after,
+		start
+	};
+}
+/** The current managed block (markers included, `\n` line ends), or null. */
+function extractSection(text, style) {
+	const found = bounds(text, style);
+	return found ? text.slice(found.start, found.end).replace(CRLF, "\n") : null;
+}
+/**
+* Replaces or inserts the managed block. Text outside it is kept byte for
+* byte; a new block goes to the end, or after the shebang for `top`.
+*/
+function upsertSection(current, style, body, placement = "bottom") {
+	const text = current ?? "";
+	const eol = eolOf(text);
+	const block = sectionBlock(style, body).replace(LF, eol);
+	const found = bounds(text, style);
+	if (found) return `${text.slice(0, found.start)}${block}${text.slice(found.end)}`;
+	if (placement === "top") {
+		const shebang = SHEBANG.exec(text)?.[0] ?? "";
+		return `${shebang}${block}${text.slice(shebang.length)}`;
+	}
+	if (text === "") return block;
+	return `${text}${text.endsWith("\n") ? eol : `${eol}${eol}`}${block}`;
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-texts.ts
+/** English process rules for agents: the managed section of AGENTS.md. */
+function agentRules() {
+	return `## Workflow Kit (managed section — do not edit by hand)
+
+This project uses the Harness Workflow Kit. The plan lives in
+\`.harness/plans/todo-plan.md\` and changes only through \`scripts/workflow\`
+commands (Windows: \`scripts\\workflow.cmd\`). Every command prints JSON;
+add \`--format text\` for a readable answer.
+
+### Start of every session
+1. The recovery packet arrives at session start (Claude: in parts K/N).
+   Unless the whole packet is in your context — every part with one digest,
+   no \`<persisted-output>\`, no truncation marker — run
+   \`scripts/workflow recover --format text\`.
+2. Follow the \`next\` line of the packet.
+
+### Inputs and documents
+- Before writing a \`--input\` JSON, run \`scripts/workflow schema <command>\`
+  for its fields, limits and an example.
+- Get documents with \`scripts/workflow context <path>[#Heading]\` (one call,
+  marked text) instead of reading large files piecewise;
+  \`context --list\` prints the documents map.
+- Never read Kit runtime files (\`.harness/workflow/runtime/**\`, the bundle),
+  generated code, logs or transcripts: the Kit gives what is needed from them.
+
+### When a plan is needed
+- Discussion, research, specifications and documentation-only commits need
+  no plan. Commit documents with \`scripts/workflow docs:commit --files <paths>\`.
+- Changing functional files is allowed only inside a started task of the
+  active scope.
+- A clear user instruction to implement allows you to write the
+  specification and create the scope with
+  \`scripts/workflow scope:create --input <file.json>\` without asking again.
+  Record the agreement in \`approval\`. The plan never replaces the user's
+  current instruction. In a Harness project (\`"host": "harness"\`) propose
+  the scope instead (see Execution modes).
+
+### Execution modes
+The recovery packet names your \`role:\`; follow it.
+- **planning** (no scope, Harness project): write the specification and a
+  plan with \`parallelSafe\` labels, then run
+  \`scripts/workflow scope:propose --input <file.json> --recommended <mode> --reason "<why>"\`
+  and end the turn; the user chooses the mode on the card.
+- **self** (\`sequential\`): run the tasks in order in main. Helper subagents
+  may help, but they work in main without their own worktree and never commit.
+- **orchestrator** (\`orchestrated\`, main): \`assignment:next\`,
+  \`assignment:create --task <ID>\`, a Claude subagent (Agent tool with
+  \`isolation: "worktree"\`) gets the returned brief; integrate its SHA with
+  \`integration:start --id <id> --source <sha>\` (on CONFLICT or CHECKS_FAILED
+  fix within the task files, then \`integration:continue --id <id>\`). Run
+  QUALITY and delivery yourself; never implement work or DOCS tasks in main.
+- **executor** (assignment worktree): \`assignment:attach <id>\`, then
+  \`task:start\`, work only within the task files, \`commit --task\`, reply
+  with the SHA. Never touch main, the plan or other tasks; no nested
+  executors, no push.
+- Never set the git identity (\`git config user.*\`). If a command refuses
+  with \`GIT_IDENTITY_REQUIRED\`, report it to the user with the command it
+  prints.
+
+### One task, one commit, one turn
+1. \`scripts/workflow task:start <ID>\`; a delivery task needs
+   \`--confirmed "<the user's confirmation>"\`.
+2. Implement the task within its files and acceptance criteria.
+3. \`scripts/workflow commit --task <ID>\`. The DOCS task of a round
+   reconciles shared documents and needs \`--digest <file.json>\`
+   (\`result\`, \`decisions\`, \`contracts\`, \`references\`).
+4. If a check fails, fix the cause and repeat the same command; your edits
+   are kept.
+5. Report the result briefly and end the turn. The user or the Harness
+   autopilot starts the next task.
+- If the task cannot be finished in this turn, stop at a safe point, name
+  the state and end the turn without committing it.
+- A new user message does not cancel the accepted instruction; take it into
+  account within the current task.
+
+### Rules
+- Never commit with \`git commit\` directly and never use \`--no-verify\`.
+- Never edit the plan, \`.harness/workflow/**\` or the launchers by hand.
+- A finished task never changes. Defects found later become a fixes round:
+  \`scripts/workflow plan:extend --input <file.json> --expected-revision <N>\`.
+- Before the first functional code, the QUALITY task chooses checks with
+  \`quality:detect\` and applies them with \`quality:apply --input <file.json>\`.
+  Installing tools needs the user's approval in \`approval\`.
+- Update the contract document of a module in the same commit as its code
+  (\`docs.contracts\` in \`.harness/workflow/config.json\`).
+- Acceptance (\`accept --note "<the user's words>"\`) records the user's
+  decision. Closing the scope (\`close\`) needs a separate direct user command.
+- Build, packaging, publishing and push happen only in delivery tasks.
+- If the scope is BLOCKED, only discuss and diagnose; run \`task:unblock\`
+  after the user resolves the reason.
+- If a command reports an unfinished transaction, run
+  \`scripts/workflow repair\` and follow it.
+- Use \`scripts/workflow show-task <ID>\` and \`scripts/workflow history\` for
+  details the recovery packet left out.`;
+}
+var CLAUDE_IMPORT_LINE = "@AGENTS.md";
+function gitignoreSection() {
+	return [
+		"# Workflow Kit local state",
+		".harness/workflow/local/",
+		".harness/runtime/",
+		".harness/sessions/",
+		".claude/worktrees/",
+		".DS_Store",
+		"# Dependency folders: installed by quality:apply, never committed",
+		"node_modules/",
+		".venv/",
+		"__pycache__/"
+	].join("\n");
+}
+function gitattributesSection() {
+	return [
+		"scripts/workflow text eol=lf",
+		"scripts/workflow.cmd text eol=crlf",
+		"scripts/workflow.ps1 text eol=crlf",
+		".harness/** text eol=lf"
+	].join("\n");
+}
+/** The managed lines of a git hook: delegate to the Kit and stop on failure. */
+function gitHookSection(name) {
+	return `"$(git rev-parse --show-toplevel)/scripts/workflow" git-hook ${name} "$@" || exit $?`;
+}
+function readmeSkeleton(projectName) {
+	return `# ${projectName}
+
+Project context for people and agents. Describe what the project does, how
+to run it and where its architecture is documented
+([docs/architecture/OVERVIEW.md](docs/architecture/OVERVIEW.md)).
+
+Development follows the Workflow Kit rules in [AGENTS.md](AGENTS.md).
+`;
+}
+function overviewSkeleton(projectName) {
+	return `# ${projectName} — Architecture Overview
+
+Describe the main parts of the system, their responsibilities and the
+contracts between them. The DOCS task of every round keeps this document
+in line with the code.
+`;
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts
+/** Version of the Workflow Kit payload; Kit 1.x was Workflow Pilot. */
+var KIT_VERSION = "2.2.4";
+var MANIFEST_PATH = ".harness/workflow/manifest.json";
+var MANIFEST_SCHEMA = "harness-workflow-manifest/1";
+var OWN_HOOKS_DIR = ".harness/workflow/hooks";
+var MANAGED_GIT_HOOKS = [
+	"pre-commit",
+	"commit-msg",
+	"post-commit",
+	"pre-push"
+];
+var LINE_BREAK$1 = /\r?\n/u;
+function sha256(text) {
+	return createHash("sha256").update(text, "utf8").digest("hex");
+}
+function hasClaudeLine(text) {
+	return text.split(LINE_BREAK$1).some((line) => line.trim() === CLAUDE_IMPORT_LINE);
+}
+/** The managed part of a file of the given kind, or null when missing. */
+function readManaged(kind, path, current) {
+	if (current === null) return null;
+	switch (kind) {
+		case "owned": return current;
+		case "section": return extractSection(current, path.endsWith(".md") ? "html" : "hash");
+		case "json": return extractSessionStartHook(current);
+		case "line": return hasClaudeLine(current) ? CLAUDE_IMPORT_LINE : null;
+		default: return null;
+	}
+}
+function owned(path, content, executable = false) {
+	return {
+		executable,
+		kind: "owned",
+		managed: content,
+		path,
+		read: (current) => current,
+		render: () => content
+	};
+}
+function section(path, style, body, placement = "bottom", prefix = "") {
+	return {
+		executable: false,
+		kind: "section",
+		managed: sectionBlock(style, body),
+		path,
+		read: (current) => current === null ? null : extractSection(current, style),
+		render: (current) => upsertSection(current ?? (prefix || null), style, body, placement)
+	};
+}
+function created(path, content) {
+	return {
+		executable: false,
+		kind: "create",
+		managed: null,
+		path,
+		read: () => null,
+		render: (current) => current ?? content
+	};
+}
+function claudeLine() {
+	return {
+		executable: false,
+		kind: "line",
+		managed: CLAUDE_IMPORT_LINE,
+		path: "CLAUDE.md",
+		read: (current) => readManaged("line", "CLAUDE.md", current),
+		render: (current) => {
+			if (current === null || current.trim() === "") return `${CLAUDE_IMPORT_LINE}\n`;
+			if (hasClaudeLine(current)) return current;
+			return `${current}${current.endsWith("\n") ? "" : "\n"}\n${CLAUDE_IMPORT_LINE}\n`;
+		}
+	};
+}
+function providerHook(path, client) {
+	return {
+		executable: false,
+		kind: "json",
+		managed: expectedSessionStartHook(client),
+		path,
+		read: (current) => readManaged("json", path, current),
+		render: (current) => mergeSessionStartHook(current, client, path)
+	};
+}
+function hookEntries(hooksPath) {
+	return MANAGED_GIT_HOOKS.map((name) => {
+		if (hooksPath === null) {
+			const content = `#!/bin/sh\n# Managed by Harness Workflow Kit. Do not edit.\n${sectionBlock("hash", gitHookSection(name))}`;
+			return owned(`${OWN_HOOKS_DIR}/${name}`, content, true);
+		}
+		return {
+			...section(`${hooksPath}/${name}`, "hash", gitHookSection(name), "top", "#!/bin/sh\n"),
+			executable: true
+		};
+	});
+}
+/** Every file the Kit writes into a project, with its writing rule. */
+function buildPayload(options) {
+	const launchers = workflowPlatformFacade.launchers();
+	return [
+		owned(KIT_BUNDLE_PATH, options.bundle),
+		owned("scripts/workflow", launchers.posix, true),
+		owned("scripts/workflow.cmd", launchers.cmd),
+		owned("scripts/workflow.ps1", launchers.powershell),
+		...hookEntries(options.hooksPath),
+		section("AGENTS.md", "html", agentRules()),
+		claudeLine(),
+		providerHook(".codex/hooks.json", "codex"),
+		providerHook(".claude/settings.json", "claude"),
+		section(".gitignore", "hash", gitignoreSection()),
+		section(".gitattributes", "hash", gitattributesSection()),
+		created("README.md", readmeSkeleton(options.projectName)),
+		created("docs/architecture/OVERVIEW.md", overviewSkeleton(options.projectName))
+	];
+}
+function buildManifest(entries) {
+	return {
+		files: entries.map((entry) => ({
+			executable: entry.executable,
+			kind: entry.kind,
+			path: entry.path,
+			sha256: entry.managed === null ? null : sha256(entry.managed)
+		})),
+		schema: MANIFEST_SCHEMA,
+		version: KIT_VERSION
+	};
+}
+function renderManifest(manifest) {
+	return `${JSON.stringify(manifest, null, 2)}\n`;
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-inspect.ts
+var PILOT_MANIFEST = ".harness/kit-manifest.json";
+var LEGACY_PLAN_SCHEMA = "harness-ai-plan-v1";
+var ACTIONS = {
+	EMPTY: "install",
+	GIT_NO_KIT: "install",
+	KIT_DAMAGED: "doctor",
+	KIT_OK: "open",
+	KIT_OUTDATED: "update",
+	LEGACY_HARNESS_PLAN: "install-migrate",
+	MISSING: "create",
+	NOT_GIT: "install",
+	PILOT_KIT: "unsupported"
+};
+function file$2(root, relative) {
+	return path.join(root, ...relative.split("/"));
+}
+/** Compares dotted versions; negative when `left` is older. */
+function compareVersions(left, right) {
+	const a = left.split(".").map(Number);
+	const b = right.split(".").map(Number);
+	for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
+		const difference = (a[index] ?? 0) - (b[index] ?? 0);
+		if (difference !== 0) return difference;
+	}
+	return 0;
+}
+function readManifest(root) {
+	const text = workflowPlatformFacade.readTextIfExists(file$2(root, MANIFEST_PATH));
+	if (text === null) return null;
+	try {
+		return JSON.parse(text);
+	} catch {
+		return {
+			files: [],
+			schema: "harness-workflow-manifest/1",
+			version: "0"
+		};
+	}
+}
+/** Managed files whose managed part no longer matches the manifest hash. */
+function damagedFiles(root, manifest) {
+	return manifest.files.filter((item) => item.sha256 !== null).filter((item) => {
+		const current = workflowPlatformFacade.readTextIfExists(file$2(root, item.path));
+		const managed = readManaged(item.kind, item.path, current);
+		return managed === null || sha256(managed) !== item.sha256;
+	}).map((item) => item.path);
+}
+function kitState(root, manifest) {
+	const damaged = damagedFiles(root, manifest);
+	if (compareVersions(manifest.version, "2.2.4") < 0) return {
+		damaged,
+		state: "KIT_OUTDATED"
+	};
+	return {
+		damaged,
+		state: damaged.length > 0 ? "KIT_DAMAGED" : "KIT_OK"
+	};
+}
+function classify(root, repository) {
+	if (readdirSync(root).length === 0) return {
+		damaged: [],
+		state: "EMPTY"
+	};
+	if (existsSync(file$2(root, PILOT_MANIFEST))) return {
+		damaged: [],
+		state: "PILOT_KIT"
+	};
+	const manifest = readManifest(root);
+	if (manifest) return kitState(root, manifest);
+	if ((workflowPlatformFacade.readTextIfExists(file$2(root, ".harness/plans/todo-plan.md")) ?? "").includes(LEGACY_PLAN_SCHEMA)) return {
+		damaged: [],
+		state: "LEGACY_HARNESS_PLAN"
+	};
+	return {
+		damaged: [],
+		state: repository ? "GIT_NO_KIT" : "NOT_GIT"
+	};
+}
+/** `inspect <path>`: classifies a folder without changing anything. */
+function inspectFolder(git, folder) {
+	const root = path.resolve(folder);
+	const base = {
+		damaged: [],
+		nestedIn: null,
+		path: root,
+		stacks: [],
+		transactionPending: false,
+		version: null
+	};
+	if (!existsSync(root)) {
+		const parent = path.dirname(root);
+		return {
+			...base,
+			action: "create",
+			git: {
+				head: null,
+				identity: existsSync(parent) ? git.identity(parent) : null,
+				repository: false
+			},
+			state: "MISSING"
+		};
+	}
+	ensure(statSync(root).isDirectory(), "NOT_A_DIRECTORY", `${root} is not a folder.`);
+	const inside = git.isRepository(root);
+	const top = inside ? git.topLevel(root) : null;
+	const repository = top !== null && workflowPlatformFacade.samePath(realpathSync.native(path.resolve(top)), realpathSync.native(root));
+	const nestedIn = inside && !repository ? top : null;
+	const { damaged, state } = classify(root, repository);
+	return {
+		action: nestedIn ? "unsupported" : ACTIONS[state],
+		damaged,
+		git: {
+			head: repository ? git.head(root) : null,
+			identity: git.identity(root),
+			repository
+		},
+		nestedIn,
+		path: root,
+		stacks: workflowQualityFacade.detect(root).map((stack) => stack.id),
+		state,
+		transactionPending: repository && git.transactions.journal(root) !== null,
+		version: readManifest(root)?.version ?? null
+	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor-checks.ts
+var UPDATE = "Run `scripts/workflow doctor --fix` (or `install --update`).";
+var check = (id, status, message, fixable = false, nextAction = null) => ({
+	fixable,
+	id,
+	message,
+	nextAction,
+	status
+});
+function file$1(root, relative) {
+	return path.join(root, ...relative.split("/"));
+}
+function manifestChecks(root, platform) {
+	const manifest = readManifest(root);
+	if (!manifest) return [check("manifest", "fail", "The Workflow Kit manifest is missing.", false, "Install the Kit: `scripts/workflow install`.")];
+	const checks = [compareVersions(manifest.version, "2.2.4") < 0 ? check("manifest", "fail", `Kit ${manifest.version} is older than ${KIT_VERSION}.`, true, UPDATE) : check("manifest", "ok", `Kit ${manifest.version}.`)];
+	const damaged = damagedFiles(root, manifest);
+	checks.push(damaged.length === 0 ? check("managed-files", "ok", "Managed files and sections match the manifest.") : check("managed-files", "fail", `Changed or missing managed parts: ${damaged.join(", ")}.`, true, UPDATE));
+	if (platform !== "win32") {
+		const blocked = manifest.files.filter((item) => item.executable && existsSync(file$1(root, item.path))).filter((item) => {
+			try {
+				accessSync(file$1(root, item.path), constants.X_OK);
+				return false;
+			} catch {
+				return true;
+			}
+		}).map((item) => item.path);
+		checks.push(blocked.length === 0 ? check("executable", "ok", "Launchers and hooks are executable.") : check("executable", "fail", `Not executable: ${blocked.join(", ")}.`, true, UPDATE));
+	}
+	return checks;
+}
+function hooksCheck(git, root) {
+	const hooksPath = git.git.run(root, [
+		"config",
+		"--local",
+		"--get",
+		"core.hooksPath"
+	], { allowFailure: true }).stdout.trim();
+	if (hooksPath === "") return check("git-hooks", "fail", "core.hooksPath is not set, so Kit hooks do not run.", true, UPDATE);
+	const missing = MANAGED_GIT_HOOKS.filter((name) => {
+		const text = workflowPlatformFacade.readTextIfExists(path.resolve(root, hooksPath, name));
+		return text === null || extractSection(text, "hash") === null;
+	});
+	return missing.length === 0 ? check("git-hooks", "ok", `Kit hooks run from ${hooksPath === ".harness/workflow/hooks" ? OWN_HOOKS_DIR : hooksPath}.`) : check("git-hooks", "fail", `Hooks without the Kit section in ${hooksPath}: ${missing.join(", ")}.`, true, UPDATE);
+}
+function planChecks(git, root) {
+	const checks = [];
+	try {
+		const plan = workflowPlanFacade.read(root);
+		if (!plan) return [check("plan", "fail", `${PLAN_PATH} is missing.`, false, "Run `scripts/workflow install --update`.")];
+		git.resolveReferences(root, plan, PLAN_PATH);
+		checks.push(check("plan", "ok", `Plan revision ${plan.revision} matches the history.`));
+	} catch (error) {
+		const { code, message } = error;
+		checks.push(check("plan", "fail", `${code ?? "ERROR"}: ${message}`, false, "Run `scripts/workflow repair`."));
+	}
+	checks.push(git.transactions.journal(root) ? check("transaction", "fail", "A commit transaction is unfinished.", false, "Run `scripts/workflow repair`.") : check("transaction", "ok", "No unfinished transaction."));
+	return checks;
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts
+var KIT_STATES = /* @__PURE__ */ new Set([
+	"KIT_DAMAGED",
+	"KIT_OK",
+	"KIT_OUTDATED"
+]);
+var SLUG_DROP = /[^a-z0-9]+/gu;
+var SLUG_TRIM = /^-+|-+$/gu;
+function projectSlug(name) {
+	return name.toLowerCase().replace(SLUG_DROP, "-").replace(SLUG_TRIM, "") || "project";
+}
+function file(root, relative) {
+	return path.join(root, ...relative.split("/"));
+}
+/** Local `core.hooksPath` relative to the root, or null when unset. */
+function localHooksPath(git, root) {
+	const value = git.git.run(root, [
+		"config",
+		"--local",
+		"--get",
+		"core.hooksPath"
+	], { allowFailure: true }).stdout.trim();
+	if (value === "") return null;
+	let relative;
+	try {
+		relative = workflowPlatformFacade.relativeFromRoot(root, path.resolve(root, value));
+	} catch {
+		throw new WorkflowError("HOOKS_PATH_OUTSIDE", `core.hooksPath points outside the project: ${value}`);
+	}
+	return relative === ".harness/workflow/hooks" ? null : relative;
+}
+function writeIfChanged(root, relative, next, executable, platform = workflowPlatformFacade.platform) {
+	const target = file(root, relative);
+	const changed = workflowPlatformFacade.readTextIfExists(target) !== next;
+	if (changed) workflowPlatformFacade.writeFileAtomic(target, next);
+	if (executable && platform !== "win32") chmodSync(target, 493);
+	return changed;
+}
+function checkPreconditions(state, update, nestedIn, pending) {
+	ensure(!nestedIn, "NESTED_REPOSITORY", `The folder is inside the repository ${nestedIn}; choose its top level or another folder.`);
+	ensure(state !== "PILOT_KIT", "PILOT_KIT_UNSUPPORTED", "This project uses Workflow Pilot (Kit 1.x), which Harness does not support.");
+	ensure(!pending, "TRANSACTION_PENDING", "A Kit commit transaction is unfinished.", {}, "Run `scripts/workflow repair`.");
+	if (update) ensure(KIT_STATES.has(state), "NOT_INSTALLED", "The Workflow Kit is not installed here; install it first.");
+	else ensure(!KIT_STATES.has(state), "ALREADY_INSTALLED", "The Workflow Kit is already installed.", {}, "Use `install --update` or `doctor --fix`.");
+}
+function writePayload(root, entries, platform) {
+	const written = [];
+	for (const entry of entries) {
+		const current = workflowPlatformFacade.readTextIfExists(file(root, entry.path));
+		if (writeIfChanged(root, entry.path, entry.render(current), entry.executable, platform)) written.push(entry.path);
+	}
+	return written;
+}
+/**
+* Writes the default configuration when it is absent, or only the host
+* marker into an existing one; returns true when the file changed.
+*/
+function writeConfig(root, host) {
+	const exists = workflowPlatformFacade.readTextIfExists(workflowQualityFacade.configFile(root)) !== null;
+	const config = exists ? workflowQualityFacade.readConfig(root) : workflowQualityFacade.defaultConfig();
+	if (exists && (!host || config.host === host)) return false;
+	workflowQualityFacade.writeConfig(root, host ? {
+		...config,
+		host
+	} : config);
+	return true;
+}
+/** Writes configuration, manifest and runtime; returns the written paths. */
+function writeState(root, entries, options) {
+	const written = [];
+	if (writeConfig(root, options.host)) written.push(workflowQualityFacade.configPath);
+	if (writeIfChanged(root, ".harness/workflow/manifest.json", renderManifest(buildManifest(entries)), false)) written.push(MANIFEST_PATH);
+	const runtime = options.runtime;
+	if (runtime) workflowPlatformFacade.writeFileAtomic(file(root, RUNTIME_FILE), workflowPlatformFacade.formatRuntimeFile(runtime.executable, runtime.mode));
+	return written;
+}
+/**
+* The identity the bootstrap commit will be signed with: the real local one
+* of an existing repository, else the real global one (placeholders and
+* invalid ones are skipped). Fails with GIT_IDENTITY_REQUIRED before
+* anything is written.
+*/
+function requireInstallIdentity(git, root, repository) {
+	const local = repository ? git.readIdentity(root, "local") : null;
+	if (local && git.isUsableIdentity(local)) return local;
+	const global = git.readIdentity(existsSync(root) ? root : process.cwd(), "global");
+	if (global && git.isUsableIdentity(global)) return global;
+	throw git.identityRequired(Boolean(local || global), " Nothing was written.");
+}
+function scopeOf(planText, legacy) {
+	if (legacy) return null;
+	try {
+		return workflowPlanFacade.parse(planText).scope?.id ?? null;
+	} catch {
+		return null;
+	}
+}
+function commitInstall(git, root, files, planText, update, scopeId) {
+	try {
+		return git.transactions.commit(root, {
+			files,
+			message: update ? `chore: update workflow kit to ${KIT_VERSION}` : `chore: install workflow kit ${KIT_VERSION}`,
+			planPath: PLAN_PATH,
+			planText,
+			role: update ? "kit-update" : "bootstrap",
+			scopeId,
+			taskId: null
+		});
+	} catch (error) {
+		if (error instanceof WorkflowError && error.code === "NOTHING_TO_COMMIT") return null;
+		throw error;
+	}
+}
+/** `install <path> [--update]`: writes the Kit and commits it through a transaction. */
+function installKit(git, folder, options) {
+	const inspected = inspectFolder(git, folder);
+	const root = inspected.path;
+	const update = options.update === true;
+	checkPreconditions(inspected.state, update, inspected.nestedIn, inspected.transactionPending);
+	ensure(options.host === void 0 || options.host === null || options.host === "harness", "USAGE", "--host is harness.");
+	const identity = requireInstallIdentity(git, root, inspected.git.repository);
+	mkdirSync(root, { recursive: true });
+	if (!inspected.git.repository) git.init(root);
+	const local = git.readIdentity(root, "local");
+	if (!(local && git.isUsableIdentity(local))) git.writeLocalIdentity(root, identity);
+	const hooksPath = localHooksPath(git, root);
+	const before = new Set(git.changes(root).all);
+	const name = options.name?.trim() || path.basename(root);
+	const entries = buildPayload({
+		bundle: options.bundle,
+		hooksPath,
+		projectName: name
+	});
+	const written = [...writePayload(root, entries, options.platform ?? workflowPlatformFacade.platform), ...writeState(root, entries, options)];
+	const migrationRequired = inspected.state === "LEGACY_HARNESS_PLAN";
+	const existingPlan = workflowPlatformFacade.readTextIfExists(file(root, PLAN_PATH));
+	const planText = existingPlan ?? workflowPlanFacade.render(workflowPlanFacade.createEmpty(projectSlug(name), name));
+	if (hooksPath === null) git.setConfig(root, "core.hooksPath", OWN_HOOKS_DIR);
+	return {
+		commit: commitInstall(git, root, written, planText, update, scopeOf(planText, migrationRequired || existingPlan === null)),
+		excluded: [...before].filter((item) => !written.includes(item)).sort(),
+		hooksPath: hooksPath ?? ".harness/workflow/hooks",
+		migrationRequired,
+		previousState: inspected.state,
+		root,
+		version: KIT_VERSION,
+		written
+	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts
+/** The real global identity, or null when it is missing, a placeholder or invalid. */
+function realGlobalIdentity(git, root) {
+	const global = git.readIdentity(root, "global");
+	return global && git.isUsableIdentity(global) ? global : null;
+}
+/** Kit commits sign with the repository-local identity only. */
+function identityCheck(git, root) {
+	const local = git.readIdentity(root, "local");
+	if (local && git.isUsableIdentity(local)) return check("git-identity", "ok", `${local.name} <${local.email}> (repository config).`);
+	const problem = local ? `The repository git identity ${local.name} <${local.email}> is a placeholder or invalid.` : "The repository config has no git identity.";
+	const global = realGlobalIdentity(git, root);
+	return global ? check("git-identity", "fail", problem, true, `Run \`scripts/workflow doctor --fix\` to copy ${global.name} <${global.email}> from the global config.`) : check("git-identity", "fail", problem, false, git.identityFix);
+}
+function environmentChecks(git, root, options) {
+	const runtime = workflowPlatformFacade.resolveRuntime(root, options.env ?? process.env, options.probe);
+	const drift = workflowQualityFacade.drift(root);
+	return [
+		runtime ? check("runtime", "ok", `${runtime.mode} ${runtime.version} (${runtime.source}).`) : check("runtime", "fail", "No Node.js 22+ runtime for the launchers.", false, "Install Node.js 22 or newer, or open the project in Harness AI."),
+		identityCheck(git, root),
+		drift.status === "drift" ? check("quality-drift", "warn", `Quality profile drift: new ${drift.added.join(", ") || "none"}, missing ${drift.missing.join(", ") || "none"}.`, false, "Extend the plan with a QUALITY task.") : check("quality-drift", "ok", drift.status === "discovery" ? "Quality profile not configured yet." : "Quality profile matches the stacks.")
+	];
+}
+/** Path segments and prefixes the documents scan skips. */
+var SKIPPED_SEGMENTS = /* @__PURE__ */ new Set([".git", "node_modules"]);
+var SKIPPED_PREFIXES = [".harness/workflow/", ".harness/plans/archive/"];
+/** Tracked and untracked-not-ignored Markdown files of the project. */
+function projectMarkdown(git, root) {
+	const output = git.git.run(root, [
+		"ls-files",
+		"-z",
+		"--cached",
+		"--others",
+		"--exclude-standard",
+		"--",
+		"*.md",
+		"*.markdown"
+	], { allowFailure: true });
+	if (output.status !== 0) return [];
+	const files = output.stdout.split("\0").filter((item) => item !== "" && !item.split("/").some((segment) => SKIPPED_SEGMENTS.has(segment)) && !SKIPPED_PREFIXES.some((prefix) => item.startsWith(prefix)));
+	return [...new Set(files)].sort((left, right) => left < right ? -1 : 1);
+}
+/** Every project document must fit `budget.documentBytes` (one Read). */
+function documentSizeCheck(git, root) {
+	const config = workflowQualityFacade.readConfig(root);
+	const limit = config.budget.documentBytes;
+	const over = workflowQualityFacade.oversizedDocuments(root, projectMarkdown(git, root), config);
+	return over.length === 0 ? check("doc-size", "ok", `Markdown documents fit ${limit} bytes.`) : check("doc-size", "warn", `Documents over ${limit} bytes cannot be read in one Read: ${over.map((item) => `${item.path} (${item.bytes} bytes)`).join(", ")}.`, false, "Split each listed document into smaller documents.");
+}
+function inspectProject(git, root, options) {
+	return [
+		...manifestChecks(root, options.platform ?? workflowPlatformFacade.platform),
+		hooksCheck(git, root),
+		...planChecks(git, root),
+		...environmentChecks(git, root, options),
+		documentSizeCheck(git, root)
+	];
+}
+/** `doctor [--fix]`: project health; `fix` repairs only fixable findings. */
+function runDoctor(git, folder, options = {}) {
+	const root = path.resolve(folder);
+	let checks = inspectProject(git, root, options);
+	let fix = null;
+	let identityFix = null;
+	if (options.fix) {
+		const fixable = checks.filter((item) => item.status === "fail" && item.fixable);
+		if (fixable.some((item) => item.id === "git-identity")) {
+			identityFix = realGlobalIdentity(git, root);
+			if (identityFix) git.writeLocalIdentity(root, identityFix);
+		}
+		if (fixable.some((item) => item.id !== "git-identity") && identityCheck(git, root).status === "ok") fix = installKit(git, root, {
+			...options.fix,
+			update: true,
+			...options.platform ? { platform: options.platform } : {}
+		});
+		if (fix || identityFix) checks = inspectProject(git, root, options);
+	}
+	return {
+		checks,
+		fix,
+		identityFix,
+		ok: checks.every((item) => item.status !== "fail"),
+		root
+	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-legacy-plan.ts
+var LEGACY_SCHEMA = "harness-ai-plan-v1";
+var STATE_BLOCK = /<!-- harness-plan-state:start -->\s*```json\s*([\s\S]*?)```\s*<!-- harness-plan-state:end -->/u;
+var ROW_START = /^\d+\.\s+\[(TODO|IN_PROGRESS|DONE)\]\s+(.*)$/u;
+var TASK_ROW = /^`([^`]+)`\s+([\s\S]*)$/u;
+var PHASE_HEADING = /^##\s+(.+?)\s*$/u;
+var EXPECTED_COMMIT = /expected commit:\s*`([^`]+)`/u;
+var COMPLETION = /completion:\s*([a-z-]+)/u;
+var KIND = /\(kind:\s*([a-z]+)\)/u;
+var SCOPE = /\(scope:\s*([^;)]*)/u;
+var TITLE_END = /\s+\((?:scope|kind|completion):/u;
+var RESULT_TAIL = /\s+Result:[\s\S]*$/u;
+var CONTEXT_PATH = /`([^`\s]+\.(?:md|json))`/gu;
+var CONTINUATION = /^\s+\S/u;
+var LINE_BREAK = /\r?\n/u;
+function rows(text) {
+	const result = [];
+	let phase = "";
+	for (const line of text.split(LINE_BREAK)) {
+		const heading = PHASE_HEADING.exec(line);
+		const start = ROW_START.exec(line);
+		const last = result.at(-1);
+		if (heading?.[1]) phase = heading[1];
+		else if (start?.[1] && start[2] !== void 0) result.push({
+			body: start[2],
+			phase,
+			status: start[1]
+		});
+		else if (last && CONTINUATION.test(line)) last.body = `${last.body} ${line.trim()}`;
+	}
+	return result;
+}
+function taskOf(row) {
+	const match = TASK_ROW.exec(row.body);
+	if (!(match?.[1] && match[2] !== void 0)) return null;
+	const body = match[2];
+	const titleEnd = body.search(TITLE_END);
+	const title = (titleEnd === -1 ? body : body.slice(0, titleEnd)).replace(RESULT_TAIL, "").trim();
+	return {
+		completion: COMPLETION.exec(body)?.[1] ?? null,
+		expectedCommit: EXPECTED_COMMIT.exec(body)?.[1] ?? null,
+		id: match[1],
+		kind: KIND.exec(body)?.[1] ?? null,
+		phase: row.phase,
+		scope: SCOPE.exec(body)?.[1]?.trim() ?? null,
+		status: row.status,
+		title: title || match[1]
+	};
+}
+function contextPaths(text) {
+	const start = text.indexOf("## Context Pack");
+	if (start === -1) return [];
+	const end = text.indexOf("\n## ", start + 1);
+	const section = text.slice(start, end === -1 ? void 0 : end);
+	return [...new Set([...section.matchAll(CONTEXT_PATH)].map((item) => item[1] ?? "").filter(Boolean))];
+}
+/** Parses a `harness-ai-plan-v1` document: state block, task rows, context pack. */
+function parseLegacyPlan(text) {
+	const block = STATE_BLOCK.exec(text)?.[1];
+	ensure(block, "NOT_LEGACY_PLAN", "The plan has no harness-ai-plan-v1 state block.");
+	let state;
+	try {
+		state = JSON.parse(block);
+	} catch {
+		state = {};
+	}
+	ensure(state.schema === LEGACY_SCHEMA, "NOT_LEGACY_PLAN", `The plan schema is not ${LEGACY_SCHEMA}.`);
+	return {
+		context: contextPaths(text),
+		currentTaskId: typeof state.currentTaskId === "string" ? state.currentTaskId : null,
+		planId: typeof state.planId === "string" ? state.planId : "legacy-plan",
+		scopeStatus: typeof state.executionScopeStatus === "string" ? state.executionScopeStatus : "NONE",
+		tasks: rows(text).map(taskOf).filter((task) => task !== null)
+	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-migrate.ts
+var LEGACY_ROUND = "R0-legacy";
+var DEFAULT_MESSAGE = "chore: migrate the plan into the workflow kit";
+var RESULT_LIMIT = 590;
+function task(legacy, kind, dependencies) {
+	return {
+		acceptance: [legacy.title],
+		checks: [],
+		commitMessage: legacy.expectedCommit ?? `chore: ${legacy.id}`,
+		confirmation: null,
+		context: [],
+		dependencies,
+		docsWaiver: null,
+		files: [],
+		fixes: null,
+		id: legacy.id,
+		iteration: 1,
+		kind,
+		roundId: "R1",
+		status: "TODO",
+		title: legacy.title,
+		why: `Migrated from ${legacy.phase || "the legacy plan"}${legacy.scope ? `; legacy scope: ${legacy.scope}` : ""}.`
+	};
+}
+function docsTask(source, dependencies) {
+	return {
+		acceptance: ["Project-wide documents describe the round result", "The round digest records result, decisions, contracts and references"],
+		checks: [],
+		commitMessage: source?.expectedCommit ?? "docs: reconcile documentation for R1",
+		confirmation: null,
+		context: [],
+		dependencies,
+		docsWaiver: null,
+		files: [],
+		fixes: null,
+		id: "DOCS-R1",
+		iteration: 1,
+		kind: "docs",
+		roundId: "R1",
+		status: "TODO",
+		title: source?.title ?? "Reconcile project documentation and write the round digest",
+		why: "Keep the project context current for the next agent and close the round."
+	};
+}
+function legacyResult(legacy, done) {
+	const first = done[0]?.id ?? "none";
+	const last = done.at(-1)?.id ?? "none";
+	const text = `Legacy plan ${legacy.planId}: ${done.length} tasks were done before the move to the Workflow Kit (${first} … ${last}). Their rows stay in the plan of the parent commit of the migration.`;
+	return text.length > RESULT_LIMIT ? `${text.slice(0, RESULT_LIMIT)}…` : text;
+}
+/** Builds the Workflow Kit plan for the remaining work of a legacy plan. */
+function buildMigratedPlan(legacy, base, options, existing) {
+	const message = options.message ?? DEFAULT_MESSAGE;
+	const finished = (item) => item.status === "DONE" || item.expectedCommit === message;
+	const done = legacy.tasks.filter(finished);
+	const pending = legacy.tasks.filter((item) => !finished(item));
+	const acceptanceRows = pending.filter((item) => item.completion === "user-acceptance");
+	const docsRows = pending.filter((item) => item.kind === "docs");
+	const regular = pending.filter((item) => item.completion !== "user-acceptance" && item.kind !== "docs" && item.kind !== "delivery");
+	const deliveries = pending.filter((item) => item.kind === "delivery" && item.completion !== "user-acceptance");
+	const plan = workflowPlanFacade.createEmpty(base.projectId, base.projectName);
+	const converted = [...acceptanceRows.map((item) => `${item.id} → the user's acceptance through \`accept\``), ...docsRows.map((item) => `${item.id} → DOCS-R1`)];
+	if (legacy.scopeStatus !== "ACTIVE" || regular.length + deliveries.length + docsRows.length === 0) return {
+		converted,
+		legacyDone: done.length,
+		migrated: [],
+		plan
+	};
+	const work = regular.map((item) => task(item, item.kind === "quality" ? "quality" : "work", []));
+	const docs = docsTask(docsRows[0], work.map((item) => item.id));
+	plan.scope = {
+		acceptance: options.acceptance ?? ["The user accepts the delivered result"],
+		acceptanceNote: null,
+		approval: {
+			at: options.now,
+			text: `Migrated from the legacy plan ${legacy.planId} by migrate:harness-plan.`
+		},
+		baselineCommit: base.baselineCommit,
+		blockedReason: null,
+		context: legacy.context.filter(existing).map((item) => ({
+			path: item,
+			required: false
+		})),
+		decisions: converted.map((text) => ({
+			at: options.now,
+			text: `Migration: ${text}.`
+		})),
+		delivery: "IN_PROGRESS",
+		id: legacy.planId,
+		objective: options.objective ?? `Finish the remaining work of ${legacy.planId}.`,
+		spec: options.spec ?? null,
+		status: "ACTIVE"
+	};
+	plan.rounds = [{
+		digest: {
+			contracts: [],
+			decisions: [],
+			references: [`git show ${base.baselineCommit}:${PLAN_PATH}`],
+			result: legacyResult(legacy, done)
+		},
+		id: LEGACY_ROUND,
+		kind: "legacy",
+		status: "CLOSED",
+		title: `Legacy plan ${legacy.planId}`
+	}, {
+		digest: null,
+		id: "R1",
+		kind: "implementation",
+		status: "OPEN",
+		title: "Remaining work"
+	}];
+	plan.tasks = [
+		...work,
+		docs,
+		...deliveries.map((item) => task(item, "delivery", [docs.id]))
+	];
+	return {
+		converted,
+		legacyDone: done.length,
+		migrated: plan.tasks.map((item) => item.id),
+		plan: workflowPlanFacade.validate(plan)
+	};
+}
+/** `migrate:harness-plan`: replaces a legacy plan with a Kit plan in one kit-update commit. */
+function migrateHarnessPlan(git, folder, options) {
+	const root = path.resolve(folder);
+	ensure(readManifest(root), "NOT_INSTALLED", "Install the Workflow Kit before migrating the plan.", {}, "Run `scripts/workflow install`.");
+	const text = workflowPlatformFacade.readTextIfExists(path.join(root, ...PLAN_PATH.split("/")));
+	ensure(text, "NOT_LEGACY_PLAN", `${PLAN_PATH} does not exist.`);
+	const legacy = parseLegacyPlan(text);
+	const baselineCommit = git.head(root);
+	ensure(baselineCommit, "NO_COMMITS", "The repository has no commits yet.");
+	const name = options.name?.trim() || path.basename(root);
+	const result = buildMigratedPlan(legacy, {
+		baselineCommit,
+		projectId: projectSlug(name),
+		projectName: name
+	}, options, (relative) => existsSync(path.join(root, ...relative.split("/"))));
+	ensure(git.transactions.journal(root) === null, "TRANSACTION_PENDING", "A Kit commit transaction is unfinished.");
+	return {
+		commit: git.transactions.commit(root, {
+			files: [],
+			message: options.message ?? DEFAULT_MESSAGE,
+			planPath: PLAN_PATH,
+			planText: workflowPlanFacade.render(result.plan),
+			role: "kit-update",
+			scopeId: result.plan.scope?.id ?? null,
+			taskId: null
+		}),
+		converted: result.converted,
+		legacyDone: result.legacyDone,
+		migrated: result.migrated,
+		scopeId: result.plan.scope?.id ?? null
+	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-facade.ts
+/**
+* Public facade of the workflow-installer module: the installation payload,
+* folder inspection, install and update, the project doctor and the
+* migration of legacy Harness plans.
+*/
+var WorkflowInstallerFacade = class {
+	version = KIT_VERSION;
+	manifestPath = MANIFEST_PATH;
+	git;
+	constructor(git = workflowGitFacade) {
+		this.git = git;
+	}
+	/** `inspect <path>`: classifies a folder without changing it. */
+	inspect(folder) {
+		return inspectFolder(this.git, folder);
+	}
+	/** `install <path> [--update]`: installs or updates the Kit and commits it. */
+	install(folder, options) {
+		return installKit(this.git, folder, options);
+	}
+	/** `doctor [--fix]`: health checks; `fix` repairs fixable findings only. */
+	doctor(folder, options = {}) {
+		return runDoctor(this.git, folder, options);
+	}
+	/** `migrate:harness-plan`: a legacy Harness plan becomes a Kit plan. */
+	migrateHarnessPlan(folder, options) {
+		return migrateHarnessPlan(this.git, folder, options);
+	}
+	/** Every file the Kit writes into a project, with its writing rule. */
+	payload(options) {
+		return buildPayload(options);
+	}
+	manifest(entries) {
+		return buildManifest(entries);
+	}
+	renderManifest(manifest) {
+		return renderManifest(manifest);
+	}
+	/** The English agent rules of the managed AGENTS.md section. */
+	agentRules() {
+		return agentRules();
+	}
+};
+new WorkflowInstallerFacade();
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts
+function brief(task) {
+	return task ? {
+		id: task.id,
+		kind: task.kind,
+		roundId: task.roundId,
+		status: task.status,
+		title: task.title
+	} : null;
+}
+function statusTask(task) {
+	return {
+		dependencies: [...task.dependencies],
+		id: task.id,
+		kind: task.kind,
+		parallelSafe: task.parallelSafe === true,
+		roundId: task.roundId,
+		status: task.status,
+		title: task.title
+	};
+}
+function textOrNull(value) {
+	return typeof value === "string" ? value : null;
+}
+/** Reads the integration journal defensively: its writer owns the format. */
+function integrationOf(context) {
+	const text = workflowPlatformFacade.readTextIfExists(context.git.localPath(context.root, INTEGRATION_FILE));
+	if (text === null) return null;
+	let journal = {};
+	try {
+		const parsed = JSON.parse(text);
+		journal = parsed && typeof parsed === "object" ? parsed : {};
+	} catch {}
+	return {
+		assignmentId: textOrNull(journal.assignmentId),
+		phase: textOrNull(journal.phase),
+		taskId: textOrNull(journal.taskId)
+	};
+}
+function assignmentsOf(context, plan) {
+	const scopeId = plan?.scope?.id;
+	if (!scopeId) return [];
+	return workflowAssignmentFacade.list(context.root).filter((record) => record.scopeId === scopeId).map((record) => ({
+		branch: record.branch,
+		cleanup: record.cleanup,
+		id: record.id,
+		integrationCommit: record.integrationCommit,
+		sourceCommit: record.sourceCommit,
+		status: record.status,
+		taskId: record.taskId,
+		worktree: record.worktree
+	}));
+}
+function proposalOf(context) {
+	const proposal = workflowExecutionModeFacade.readProposal(context.root);
+	return proposal ? {
+		generation: proposal.generation,
+		hasParallelWork: proposal.hasParallelWork,
+		options: [...proposal.options],
+		recommended: proposal.recommended,
+		refining: proposal.refining
+	} : null;
+}
+function transactionOf(context) {
+	const journal = context.git.transactions.journal(context.root);
+	return journal ? {
+		error: journal.error,
+		id: journal.id,
+		phase: journal.phase,
+		role: journal.role,
+		taskId: journal.taskId
+	} : null;
+}
+/** Project status for the CLI, Core and the interface. */
+function readStatus(context) {
+	const plan = workflowPlanFacade.read(context.root);
+	const config = workflowQualityFacade.readConfig(context.root);
+	const repository = context.git.isRepository(context.root);
+	const changes = repository ? context.git.changes(context.root).all.filter((file) => !context.git.isKitManagedPath(file)) : [];
+	const tasks = plan?.tasks ?? [];
+	const own = executorAssignment(context);
+	return {
+		assignments: own ? [] : assignmentsOf(context, plan),
+		changes,
+		currentTask: brief(tasks.find((task) => task.id === plan?.currentTaskId)),
+		execution: plan?.scope ? workflowPlanFacade.execution(plan) : null,
+		executor: own ? {
+			assignmentId: own.id,
+			taskId: own.taskId
+		} : null,
+		head: repository ? context.git.head(context.root) : null,
+		installed: plan !== null,
+		integration: own ? null : integrationOf(context),
+		nextTask: plan ? brief(workflowPlanFacade.nextTask(plan)) : null,
+		paused: readPause(context).paused,
+		progress: {
+			done: tasks.filter((task) => task.status === "DONE").length,
+			total: tasks.length
+		},
+		project: plan ? {
+			id: plan.projectId,
+			name: plan.projectName
+		} : null,
+		quality: {
+			drift: workflowQualityFacade.drift(context.root, config),
+			stacks: config.quality.stacks,
+			status: config.quality.status
+		},
+		revision: plan?.revision ?? 0,
+		rounds: (plan?.rounds ?? []).map(({ id, kind, status }) => ({
+			id,
+			kind,
+			status
+		})),
+		scope: plan?.scope ? {
+			blockedReason: plan.scope.blockedReason,
+			delivery: plan.scope.delivery,
+			id: plan.scope.id,
+			objective: plan.scope.objective,
+			status: plan.scope.status
+		} : null,
+		scopeProposal: proposalOf(context),
+		tasks: tasks.map(statusTask),
+		transaction: repository ? transactionOf(context) : null
+	};
+}
+/**
+* What the orchestrator of an orchestrated scope may act on (spec 10.3):
+* the active and pending-cleanup assignments, the integration and the tasks
+* the scheduler hands out now. Null in a sequential scope and outside main.
+*/
+function orchestrationOf(context, status) {
+	if (status.execution?.strategy !== "orchestrated" || status.executor) return null;
+	const plan = workflowPlanFacade.read(context.root);
+	if (!plan) return null;
+	const schedule = workflowAssignmentFacade.schedule(plan, activeRecords(plan, context.root));
+	return {
+		assignments: status.assignments.filter((item) => item.status !== "INTEGRATED" || item.cleanup?.status === "PENDING").map(({ id, sourceCommit, status: state, taskId }) => ({
+			cleanupPending: state === "INTEGRATED",
+			id,
+			sourceCommit,
+			status: state,
+			taskId
+		})),
+		integration: status.integration,
+		readyTasks: schedule.ready
+	};
+}
+/** The status shape the autopilot decision reads. */
+function autopilotStatus(context) {
+	const status = readStatus(context);
+	return {
+		blockedReason: status.scope?.blockedReason ?? null,
+		delivery: status.scope?.delivery ?? null,
+		head: status.head,
+		nextTask: status.nextTask,
+		orchestration: orchestrationOf(context, status),
+		paused: status.paused,
+		proposalPending: status.scopeProposal !== null && !status.scopeProposal.refining,
+		revision: status.revision,
+		scope: status.scope?.status ?? "NONE",
+		transactionPending: status.transaction !== null
+	};
+}
+function collect(errors, action) {
+	try {
+		action();
+		return true;
+	} catch (error) {
+		const { code, message } = error;
+		errors.push({
+			code: code ?? "ERROR",
+			message
+		});
+		return false;
+	}
+}
+/** `validate`: plan document, plan rules and the task-to-commit mapping. */
+function validateProject(context) {
+	const errors = [];
+	let plan = null;
+	collect(errors, () => {
+		plan = workflowPlanFacade.read(context.root);
+	});
+	collect(errors, () => workflowQualityFacade.readConfig(context.root));
+	if (plan) {
+		const current = plan;
+		collect(errors, () => context.git.resolveReferences(context.root, current, PLAN_PATH));
+	} else if (errors.length === 0) errors.push({
+		code: "NOT_INSTALLED",
+		message: `${PLAN_PATH} does not exist.`
+	});
+	return {
+		errors,
+		ok: errors.length === 0
+	};
+}
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-facade-base.ts
+/**
+* The project part of `WorkflowKitFacade`: its options, the git, installer
+* and recovery facades bound to the same git, and the operations that
+* delegate to them or read the project state (`kit-status.ts`).
+*/
+var WorkflowKitBase = class {
+	env;
+	git;
+	installer;
+	recovery;
+	now;
+	constructor(options = {}) {
+		this.env = options.env ?? process.env;
+		this.git = options.git ?? workflowGitFacade;
+		this.now = options.now ?? (() => (/* @__PURE__ */ new Date()).toISOString());
+		this.recovery = new WorkflowRecoveryFacade(this.git);
+		this.installer = new WorkflowInstallerFacade(this.git);
+	}
+	context(root) {
+		return {
+			env: this.env,
+			git: this.git,
+			now: this.now,
+			root
+		};
+	}
+	/** `inspect <path>`: folder state and the action to offer. */
+	inspect(folder) {
+		return this.installer.inspect(folder);
+	}
+	/** `doctor [--fix]`: project health; fixes only fixable findings. */
+	doctor(folder, options = {}) {
+		return this.installer.doctor(folder, {
+			env: this.env,
+			...options
+		});
+	}
+	/** `migrate:harness-plan`: a legacy Harness plan becomes a Kit plan. */
+	migrateHarnessPlan(folder, options) {
+		return this.installer.migrateHarnessPlan(folder, {
+			...options,
+			now: this.now()
+		});
+	}
+	/** `install <path> [--update]`. */
+	install(folder, options) {
+		return this.installer.install(folder, options);
+	}
+	status(root) {
+		return readStatus(this.context(root));
+	}
+	validate(root) {
+		return validateProject(this.context(root));
+	}
+	autopilotStatus(root) {
+		return autopilotStatus(this.context(root));
+	}
+	recover(root, event = "startup") {
+		return this.recovery.packet(root, event);
+	}
+	showTask(root, taskId) {
+		return this.recovery.showTask(root, taskId);
+	}
+	history(root, filter = {}) {
+		return this.recovery.history(root, filter);
+	}
+	sessionStart(root, client, stdin, part = null) {
+		return this.recovery.sessionStart(root, {
+			client,
+			env: this.env,
+			part,
+			stdin
+		});
+	}
+};
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-hooks.ts
 var MANAGED_HINT = "Commit through the Workflow Kit: `scripts/workflow commit --task <ID>` or `scripts/workflow docs:commit`.";
 var pass = (message = "") => ({
@@ -7878,6 +9886,7 @@ function preCommit(context) {
 		docsWaiver: task?.docsWaiver ?? null,
 		env: context.env,
 		files: journal.selected,
+		removed: git.absentPaths(root, journal.selected),
 		root,
 		service: isServiceCommit(journal, task),
 		stage: "commit"
@@ -8032,24 +10041,8 @@ function repair(context, options = {}) {
 	});
 }
 //#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts
-var PATCH_FIELDS = /* @__PURE__ */ new Set([
-	"acceptance",
-	"checks",
-	"commitMessage",
-	"context",
-	"dependencies",
-	"docsWaiver",
-	"files",
-	"title",
-	"why"
-]);
-var IN_PROGRESS_FIELDS = /* @__PURE__ */ new Set([
-	"acceptance",
-	"checks",
-	"docsWaiver",
-	"files"
-]);
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-create.ts
+/** The plan transition context: baseline HEAD, clock and quality state. */
 function transition(context) {
 	return {
 		baselineCommit: requireHead(context),
@@ -8057,6 +10050,19 @@ function transition(context) {
 		qualityConfigured: readConfig(context).quality.status === "CONFIGURED"
 	};
 }
+/**
+* CHECK_UNKNOWN before anything is written: `checks` of the input tasks are
+* quality check ids (`workflowQualityFacade.ensurePlannedChecks`), refusals
+* name the input field `tasks[<index>].checks`.
+*/
+function ensureInputChecks(context, tasks) {
+	workflowQualityFacade.ensurePlannedChecks(readConfig(context), (tasks ?? []).map((task, index) => ({
+		checks: task.checks ?? [],
+		field: `tasks[${index}].checks`,
+		taskId: task.id ?? null
+	})));
+}
+/** The answer of a plan change: commit, revision and scope id. */
 function change(plan, commit) {
 	return {
 		commit,
@@ -8068,6 +10074,8 @@ function change(plan, commit) {
 function commitScope(context, input) {
 	ensureNoTransaction(context);
 	const plan = workflowPlanFacade.createScope(readPlan(context), input, transition(context));
+	ensureInputChecks(context, input.tasks);
+	ensureContextBudget(context, plan, plan.tasks);
 	const commit = commitPlan(context, plan, {
 		files: changedDocuments(context, [input.spec, ...(input.context ?? []).map((ref) => ref.path)]),
 		message: `docs: plan scope ${input.id}`,
@@ -8112,6 +10120,8 @@ function proposeScope(context, request) {
 	return locked(context, () => {
 		ensureNoTransaction(context);
 		const candidate = workflowPlanFacade.createScope(readPlan(context), withExecution(request.input, request.recommended, null, null), transition(context));
+		ensureInputChecks(context, request.input.tasks);
+		ensureContextBudget(context, candidate, candidate.tasks);
 		const proposal = workflowExecutionModeFacade.nextProposal(context.root, {
 			hasParallelWork: workflowPlanFacade.hasParallelWork(candidate),
 			input: request.input,
@@ -8176,6 +10186,25 @@ function chooseScope(context, request) {
 		};
 	});
 }
+//#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts
+var PATCH_FIELDS = /* @__PURE__ */ new Set([
+	"acceptance",
+	"checks",
+	"commitMessage",
+	"context",
+	"dependencies",
+	"docsWaiver",
+	"files",
+	"title",
+	"why"
+]);
+var IN_PROGRESS_FIELDS = /* @__PURE__ */ new Set([
+	"acceptance",
+	"checks",
+	"docsWaiver",
+	"files"
+]);
 /** `plan:extend`: adds tasks to the open round or a new round. */
 function extendScope(context, input, expectedRevision) {
 	return locked(context, () => {
@@ -8183,6 +10212,8 @@ function extendScope(context, input, expectedRevision) {
 		const current = readPlan(context);
 		ensureRevision(current, expectedRevision);
 		const result = workflowPlanFacade.extend(current, input, transition(context));
+		ensureInputChecks(context, input.tasks);
+		ensureContextBudget(context, result.plan, changedContextTasks(current, result.plan));
 		const commit = commitPlan(context, result.plan, {
 			files: [],
 			message: `docs: extend scope ${current.scope?.id ?? "NONE"} (${result.roundId})`,
@@ -8211,6 +10242,12 @@ function updateTask(context, taskId, patch, expectedRevision) {
 		plan.revision += 1;
 		Object.assign(workflowPlanFacade.task(plan, taskId), structuredClone(patch));
 		workflowPlanFacade.validate(plan);
+		if (patch.checks !== void 0) workflowQualityFacade.ensurePlannedChecks(readConfig(context), [{
+			checks: patch.checks,
+			field: "checks",
+			taskId
+		}]);
+		ensureContextBudget(context, plan, [workflowPlanFacade.task(plan, taskId)]);
 		return change(plan, commitPlan(context, plan, {
 			files: [],
 			message: `docs: update task ${taskId}`,
@@ -8277,202 +10314,6 @@ function setBlocked(context, reason) {
 	});
 }
 //#endregion
-//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-status.ts
-function brief(task) {
-	return task ? {
-		id: task.id,
-		kind: task.kind,
-		roundId: task.roundId,
-		status: task.status,
-		title: task.title
-	} : null;
-}
-function statusTask(task) {
-	return {
-		dependencies: [...task.dependencies],
-		id: task.id,
-		kind: task.kind,
-		parallelSafe: task.parallelSafe === true,
-		roundId: task.roundId,
-		status: task.status,
-		title: task.title
-	};
-}
-function textOrNull(value) {
-	return typeof value === "string" ? value : null;
-}
-/** Reads the integration journal defensively: its writer owns the format. */
-function integrationOf(context) {
-	const text = workflowPlatformFacade.readTextIfExists(context.git.localPath(context.root, INTEGRATION_FILE));
-	if (text === null) return null;
-	let journal = {};
-	try {
-		const parsed = JSON.parse(text);
-		journal = parsed && typeof parsed === "object" ? parsed : {};
-	} catch {}
-	return {
-		assignmentId: textOrNull(journal.assignmentId),
-		phase: textOrNull(journal.phase),
-		taskId: textOrNull(journal.taskId)
-	};
-}
-function assignmentsOf(context, plan) {
-	const scopeId = plan?.scope?.id;
-	if (!scopeId) return [];
-	return workflowAssignmentFacade.list(context.root).filter((record) => record.scopeId === scopeId).map((record) => ({
-		branch: record.branch,
-		cleanup: record.cleanup,
-		id: record.id,
-		integrationCommit: record.integrationCommit,
-		sourceCommit: record.sourceCommit,
-		status: record.status,
-		taskId: record.taskId,
-		worktree: record.worktree
-	}));
-}
-function proposalOf(context) {
-	const proposal = workflowExecutionModeFacade.readProposal(context.root);
-	return proposal ? {
-		generation: proposal.generation,
-		hasParallelWork: proposal.hasParallelWork,
-		options: [...proposal.options],
-		recommended: proposal.recommended,
-		refining: proposal.refining
-	} : null;
-}
-function transactionOf(context) {
-	const journal = context.git.transactions.journal(context.root);
-	return journal ? {
-		error: journal.error,
-		id: journal.id,
-		phase: journal.phase,
-		role: journal.role,
-		taskId: journal.taskId
-	} : null;
-}
-/** Project status for the CLI, Core and the interface. */
-function readStatus(context) {
-	const plan = workflowPlanFacade.read(context.root);
-	const config = workflowQualityFacade.readConfig(context.root);
-	const repository = context.git.isRepository(context.root);
-	const changes = repository ? context.git.changes(context.root).all.filter((file) => !context.git.isKitManagedPath(file)) : [];
-	const tasks = plan?.tasks ?? [];
-	const own = executorAssignment(context);
-	return {
-		assignments: own ? [] : assignmentsOf(context, plan),
-		changes,
-		currentTask: brief(tasks.find((task) => task.id === plan?.currentTaskId)),
-		execution: plan?.scope ? workflowPlanFacade.execution(plan) : null,
-		executor: own ? {
-			assignmentId: own.id,
-			taskId: own.taskId
-		} : null,
-		head: repository ? context.git.head(context.root) : null,
-		installed: plan !== null,
-		integration: own ? null : integrationOf(context),
-		nextTask: plan ? brief(workflowPlanFacade.nextTask(plan)) : null,
-		progress: {
-			done: tasks.filter((task) => task.status === "DONE").length,
-			total: tasks.length
-		},
-		project: plan ? {
-			id: plan.projectId,
-			name: plan.projectName
-		} : null,
-		quality: {
-			drift: workflowQualityFacade.drift(context.root, config),
-			stacks: config.quality.stacks,
-			status: config.quality.status
-		},
-		revision: plan?.revision ?? 0,
-		rounds: (plan?.rounds ?? []).map(({ id, kind, status }) => ({
-			id,
-			kind,
-			status
-		})),
-		scope: plan?.scope ? {
-			blockedReason: plan.scope.blockedReason,
-			delivery: plan.scope.delivery,
-			id: plan.scope.id,
-			objective: plan.scope.objective,
-			status: plan.scope.status
-		} : null,
-		scopeProposal: proposalOf(context),
-		tasks: tasks.map(statusTask),
-		transaction: repository ? transactionOf(context) : null
-	};
-}
-/**
-* What the orchestrator of an orchestrated scope may act on (spec 10.3):
-* the active and pending-cleanup assignments, the integration and the tasks
-* the scheduler hands out now. Null in a sequential scope and outside main.
-*/
-function orchestrationOf(context, status) {
-	if (status.execution?.strategy !== "orchestrated" || status.executor) return null;
-	const plan = workflowPlanFacade.read(context.root);
-	if (!plan) return null;
-	const schedule = workflowAssignmentFacade.schedule(plan, activeRecords(plan, context.root));
-	return {
-		assignments: status.assignments.filter((item) => item.status !== "INTEGRATED" || item.cleanup?.status === "PENDING").map(({ id, sourceCommit, status: state, taskId }) => ({
-			cleanupPending: state === "INTEGRATED",
-			id,
-			sourceCommit,
-			status: state,
-			taskId
-		})),
-		integration: status.integration,
-		readyTasks: schedule.ready
-	};
-}
-/** The status shape the autopilot decision reads. */
-function autopilotStatus(context) {
-	const status = readStatus(context);
-	return {
-		blockedReason: status.scope?.blockedReason ?? null,
-		delivery: status.scope?.delivery ?? null,
-		head: status.head,
-		nextTask: status.nextTask,
-		orchestration: orchestrationOf(context, status),
-		proposalPending: status.scopeProposal !== null && !status.scopeProposal.refining,
-		revision: status.revision,
-		scope: status.scope?.status ?? "NONE",
-		transactionPending: status.transaction !== null
-	};
-}
-function collect(errors, action) {
-	try {
-		action();
-		return true;
-	} catch (error) {
-		const { code, message } = error;
-		errors.push({
-			code: code ?? "ERROR",
-			message
-		});
-		return false;
-	}
-}
-/** `validate`: plan document, plan rules and the task-to-commit mapping. */
-function validateProject(context) {
-	const errors = [];
-	let plan = null;
-	collect(errors, () => {
-		plan = workflowPlanFacade.read(context.root);
-	});
-	collect(errors, () => workflowQualityFacade.readConfig(context.root));
-	if (plan) {
-		const current = plan;
-		collect(errors, () => context.git.resolveReferences(context.root, current, PLAN_PATH));
-	} else if (errors.length === 0) errors.push({
-		code: "NOT_INSTALLED",
-		message: `${PLAN_PATH} does not exist.`
-	});
-	return {
-		errors,
-		ok: errors.length === 0
-	};
-}
-//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts
 function briefOf(task) {
 	const { id, kind, roundId, status, title } = task;
@@ -8508,6 +10349,7 @@ function ensureMainMayStart(context, plan, task) {
 function startTask(context, taskId, confirmation) {
 	return locked(context, () => {
 		ensureNoTransaction(context);
+		ensureNotPaused(context);
 		const current = readPlan(context);
 		const config = readConfig(context);
 		const task = workflowPlanFacade.task(current, taskId);
@@ -8556,6 +10398,7 @@ function runPrepare(context, config, task, files) {
 		config,
 		env: context.env,
 		files,
+		removed: context.git.absentPaths(context.root, files),
 		root: context.root,
 		stage: "prepare"
 	});
@@ -8629,75 +10472,13 @@ function commitDocs(context, files, message = "docs: update documentation") {
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts
 /**
 * Cluster facade of `core-runtime/clusters/project-workflow`: every process
-* operation of the Workflow Kit on one project root.
+* operation of the Workflow Kit on one project root. Options, the bound
+* facades and the project operations come from `WorkflowKitBase`.
 */
-var WorkflowKitFacade = class {
-	env;
-	git;
-	installer;
-	recovery;
-	now;
-	constructor(options = {}) {
-		this.env = options.env ?? process.env;
-		this.git = options.git ?? workflowGitFacade;
-		this.now = options.now ?? (() => (/* @__PURE__ */ new Date()).toISOString());
-		this.recovery = new WorkflowRecoveryFacade(this.git);
-		this.installer = new WorkflowInstallerFacade(this.git);
-	}
-	context(root) {
-		return {
-			env: this.env,
-			git: this.git,
-			now: this.now,
-			root
-		};
-	}
-	/** `inspect <path>`: folder state and the action to offer. */
-	inspect(folder) {
-		return this.installer.inspect(folder);
-	}
-	/** `doctor [--fix]`: project health; fixes only fixable findings. */
-	doctor(folder, options = {}) {
-		return this.installer.doctor(folder, {
-			env: this.env,
-			...options
-		});
-	}
-	/** `migrate:harness-plan`: a legacy Harness plan becomes a Kit plan. */
-	migrateHarnessPlan(folder, options) {
-		return this.installer.migrateHarnessPlan(folder, {
-			...options,
-			now: this.now()
-		});
-	}
-	/** `install <path> [--update]`. */
-	install(folder, options) {
-		return this.installer.install(folder, options);
-	}
-	status(root) {
-		return readStatus(this.context(root));
-	}
-	validate(root) {
-		return validateProject(this.context(root));
-	}
-	autopilotStatus(root) {
-		return autopilotStatus(this.context(root));
-	}
-	recover(root, event = "startup") {
-		return this.recovery.packet(root, event);
-	}
-	showTask(root, taskId) {
-		return this.recovery.showTask(root, taskId);
-	}
-	history(root, filter = {}) {
-		return this.recovery.history(root, filter);
-	}
-	sessionStart(root, client, stdin) {
-		return this.recovery.sessionStart(root, {
-			client,
-			env: this.env,
-			stdin
-		});
+var WorkflowKitFacade = class extends WorkflowKitBase {
+	/** `pause:set --on|--off --note`: the user's pause of the workflow. */
+	setPause(root, paused, note) {
+		return setPause(this.context(root), paused, note);
 	}
 	createScope(root, input) {
 		return createScope(this.context(root), input);
@@ -8759,6 +10540,10 @@ var WorkflowKitFacade = class {
 	/** `assignment:cleanup [--id]` in main: worktree and branch removal after integration. */
 	cleanupAssignments(root, id) {
 		return cleanupAssignments(this.context(root), id);
+	}
+	/** `assignment:cancel --id [--force]` in main: drops a stuck assignment; the task stays TODO. */
+	cancelAssignment(root, id, force = false) {
+		return cancelAssignment(this.context(root), id, force);
 	}
 	/** `integration:start --id --source` in main: merge, plan candidate and integration commit. */
 	startIntegration(root, assignmentId, source) {
@@ -8850,21 +10635,13 @@ var COMMANDS = {
 	...ASSIGNMENT_COMMANDS,
 	...INTEGRATION_COMMANDS,
 	...IDENTITY_COMMANDS,
+	...PAUSE_COMMANDS,
+	...SCHEMA_COMMANDS,
+	...CONTEXT_COMMANDS,
+	...SCOPE_COMMANDS,
 	"autopilot:status": {
 		run: ({ kit, root }) => kit.autopilotStatus(root),
 		usage: "autopilot:status"
-	},
-	accept: {
-		run: ({ args, kit, root }) => kit.accept(root, requiredFlag(args, "note")),
-		usage: "accept --note \"<the user's words>\""
-	},
-	carryover: {
-		run: ({ args, io, kit, root }) => kit.carryover(root, readJsonFile(io.cwd, requiredFlag(args, "input"))),
-		usage: "carryover --input <file.json>"
-	},
-	close: {
-		run: ({ args, kit, root }) => kit.close(root, requiredFlag(args, "scope"), requiredFlag(args, "note")),
-		usage: "close --scope <id> --note \"<direct user command>\""
 	},
 	commit: {
 		run: ({ args, io, kit, root }) => {
@@ -8917,10 +10694,6 @@ var COMMANDS = {
 		}),
 		usage: "migrate:harness-plan [<path>] [--message \"chore: ...\"] [--objective \"...\"] [--spec <doc.md>] [--name <project name>]"
 	},
-	"plan:extend": {
-		run: ({ args, io, kit, root }) => kit.extend(root, readJsonFile(io.cwd, requiredFlag(args, "input")), integerFlag(args, "expected-revision")),
-		usage: "plan:extend --input <file.json> [--expected-revision N]"
-	},
 	"quality:apply": {
 		run: ({ args, io, kit, root }) => kit.qualityApply(root, readJsonFile(io.cwd, requiredFlag(args, "input"))),
 		usage: "quality:apply --input <profile.json>"
@@ -8948,10 +10721,6 @@ var COMMANDS = {
 		}),
 		usage: "repair [--apply <repairId> | --cancel <repairId>]"
 	},
-	"scope:create": {
-		run: ({ args, io, kit, root }) => kit.createScope(root, readJsonFile(io.cwd, requiredFlag(args, "input"))),
-		usage: "scope:create --input <file.json>"
-	},
 	"show-task": {
 		run: ({ args, kit, root }) => ({ text: kit.showTask(root, positional(args, 0, "Task id")) }),
 		usage: "show-task <ID>"
@@ -8960,21 +10729,9 @@ var COMMANDS = {
 		run: ({ kit, root }) => kit.status(root),
 		usage: "status"
 	},
-	"task:block": {
-		run: ({ args, kit, root }) => kit.block(root, requiredFlag(args, "reason")),
-		usage: "task:block --reason \"<text>\""
-	},
 	"task:start": {
 		run: ({ args, kit, root }) => kit.startTask(root, positional(args, 0, "Task id"), flag(args, "confirmed") ?? null),
 		usage: "task:start <ID> [--confirmed \"<user confirmation>\"]"
-	},
-	"task:unblock": {
-		run: ({ kit, root }) => kit.unblock(root),
-		usage: "task:unblock"
-	},
-	"task:update": {
-		run: ({ args, io, kit, root }) => kit.updateTask(root, positional(args, 0, "Task id"), readJsonFile(io.cwd, requiredFlag(args, "input")), integerFlag(args, "expected-revision")),
-		usage: "task:update <ID> --input <patch.json> [--expected-revision N]"
 	},
 	validate: {
 		run: ({ kit, root }) => kit.validate(root),
@@ -8987,10 +10744,10 @@ function helpText() {
 		"",
 		"Usage:",
 		...Object.entries(COMMANDS).sort(([left], [right]) => left.localeCompare(right)).map(([, spec]) => `  scripts/workflow ${spec.usage}`),
-		"  scripts/workflow hook session-start --client claude|codex",
+		"  scripts/workflow hook session-start --client claude|codex [--part K/N]",
 		"  scripts/workflow git-hook <pre-commit|commit-msg|post-commit|pre-push> [args]",
 		"",
-		"Options: --format json|text (default json), --root <project>.",
+		"Options: --format json|text (default json; text for context), --root <project>.",
 		"Errors: {\"ok\":false,\"code\",\"message\",\"nextAction\"} and exit code 1.",
 		""
 	].join("\n");
@@ -9014,17 +10771,6 @@ function errorEnvelope(error) {
 		nextAction: null,
 		ok: false
 	};
-}
-function runHook(args, io, kit, root) {
-	if (args.command === "hook") {
-		const client = flag(args, "client");
-		if (positional(args, 0, "Hook name") !== "session-start" || client !== "claude" && client !== "codex") throw new WorkflowError("USAGE", "hook session-start --client claude|codex");
-		io.stdout(kit.sessionStart(root, client, io.readStdin()));
-		return 0;
-	}
-	const result = kit.gitHook(root, positional(args, 0, "Hook name"), args.positionals.slice(1));
-	if (result.message) io.stderr(`${result.message}\n`);
-	return result.exitCode;
 }
 function dispatch(args, io, kit, format) {
 	const command = args.command ?? "help";
@@ -9059,7 +10805,7 @@ function runCli(argv, io, kit) {
 	let format = "json";
 	try {
 		const args = parseArgs(argv);
-		format = flag(args, "format") ?? "json";
+		format = flag(args, "format") ?? COMMANDS[args.command ?? ""]?.defaultFormat ?? "json";
 		const wantsHelp = args.command === "help" || args.flags.get("help") === true;
 		if (!args.command || wantsHelp) {
 			io.stdout(helpText());

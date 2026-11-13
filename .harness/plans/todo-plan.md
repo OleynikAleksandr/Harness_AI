@@ -3,14 +3,14 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": null,
+  "currentTaskId": "T006",
   "lastClosed": {
     "closedAt": "2026-11-12T15:04:21.725Z",
     "scopeId": "kit-recovery-parts-2026-11-12"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 214,
+  "revision": 215,
   "rounds": [
     {
       "digest": {
@@ -355,7 +355,7 @@
       ],
       "checks": [],
       "commitMessage": "chore(workflow): verify repository Kit 2.2.4 update",
-      "confirmation": null,
+      "confirmation": "Пользователь: «Выполни и отчитайся. Собери новый релиз. И после этого закрой скоп и залей релиз на GitHub». Подтверждено обновление Kit в составе delivery.",
       "context": [
         {
           "path": "docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md",
@@ -392,7 +392,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "title": "Обновить установленный Kit репозитория до 2.2.4",
       "why": "Обновить runtime, manifest и hooks штатным установщиком после синхронизации и DOCS; исходники и установленный Kit должны иметь согласованную версию."
     },
@@ -474,9 +474,9 @@
 - Scope: workflow-kit-sync-2.2.4-2026-11-13 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Execution: sequential
-- Current task: none
+- Current task: T006
 - Progress: 6/9
-- Revision: 214
+- Revision: 215
 
 ## Objective
 
@@ -516,7 +516,7 @@
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, product-parts/core-runtime/clusters/project-workflow/cluster.md
   - Depends on: T001, T002, T003, T004, T005
-- [TODO] T006 — Обновить установленный Kit репозитория до 2.2.4 (delivery)
+- [IN_PROGRESS] T006 — Обновить установленный Kit репозитория до 2.2.4 (delivery)
   - Commit: chore(workflow): verify repository Kit 2.2.4 update
   - Files: .harness/workflow/runtime/workflow.mjs, .harness/workflow/manifest.json, scripts/workflow, scripts/workflow.cmd, scripts/workflow.ps1, AGENTS.md, CLAUDE.md, .codex/hooks.json, .claude/settings.json, .husky/pre-commit, .husky/commit-msg, .husky/post-commit, .husky/pre-push, .gitignore, .gitattributes, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: T005, DOCS-R1

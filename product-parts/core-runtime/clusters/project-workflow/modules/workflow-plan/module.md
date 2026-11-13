@@ -172,13 +172,16 @@ validation then runs on the normalized plan as before.
 - `checkCarryoverInput`: `approval` (`SCOPE_APPROVAL`), `id` identifier,
   `objective` text when given.
 
-## Input Schemas (`plan-input-schema.ts`)
+## Input Schemas (`plan-input-schema.ts`, `plan-input-schema-fields.ts`)
 
 Plain data descriptors of the JSON inputs; the Kit prints them (`schema`
 command, recovery packet). `inputSchemaCommands()` returns, in this order,
 `scope:create`, `scope:propose`, `plan:extend`, `task:update`,
 `carryover`, `digest` (the `commit --digest` file). `inputSchema(command)`
 returns a copy of the descriptor, or `null` for another command.
+The `FieldSpec`/`InputSchema` types and the task and document fields shared
+by several descriptors live in `plan-input-schema-fields.ts`;
+`plan-input-schema.ts` re-exports the types.
 
 - `InputSchema`: `{command, description, fields, rules, example}`.
   `rules` lists the cross-field and plan-state rules that stay in the
@@ -289,7 +292,11 @@ functions; the facade exposes them as methods.
 - **`hasParallelWork(plan)`** is true when at least one pair of tasks of
   the plan is compatible. It accepts any `{tasks}` object.
 
-## Rounds Lifecycle (`plan-rounds.ts`)
+## Rounds Lifecycle (`plan-rounds.ts`, `plan-scope-completion.ts`)
+
+`extend` and `deferDocs` live in `plan-rounds.ts`; `accept`, `close` and
+`carryover` live in `plan-scope-completion.ts`, re-exported by
+`plan-rounds.ts`.
 
 - **`extend(plan, {round, kind, title, tasks}, context)`** returns `{plan,
   roundId, deferredDocsTaskId}`. Tasks that are already `DONE` never
@@ -353,3 +360,6 @@ functions; the facade exposes them as methods.
 
 - `module.md`
 - `src/**`
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

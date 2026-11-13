@@ -23,6 +23,7 @@ import {
   captureNativeRequestRpcResult,
   listCapturableModelsRpcResult,
 } from "./core-native-capture-rpc.js";
+import { type ProductInfo, readProductInfo } from "./core-product-info.js";
 import { coreProfileStudioRpcFacade } from "./core-profile-studio-rpc.js";
 import { CoreProjectWorkflowRpc } from "./core-project-workflow-rpc.js";
 import {
@@ -53,6 +54,7 @@ import { CoreWorkspaceRpc } from "./core-workspace-rpc.js";
 const WORKSPACE_METHODS = new Set(["capture-native-request", "create-session"]);
 
 export class CoreRuntimeApi {
+  private productInfo: ProductInfo | null = null;
   private initialized = false;
   private readonly providerLifecycle = new CoreProviderLifecycle();
   private readonly workspaces = new CoreWorkspaceRpc({
@@ -121,6 +123,10 @@ export class CoreRuntimeApi {
   }
 
   invoke(method: string, payload: unknown): unknown {
+    if (method === "get-product-info") {
+      this.productInfo ??= readProductInfo();
+      return this.productInfo;
+    }
     this.initialize();
     if (CoreProjectWorkflowRpc.handles(method)) {
       return this.projectWorkflow.invoke(method, payload);

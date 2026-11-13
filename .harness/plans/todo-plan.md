@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 230,
+  "revision": 232,
   "rounds": [
     {
       "digest": null,
@@ -138,7 +138,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Отдавать версии приложения и встроенного Kit из Core",
       "why": "Дать About один Core-контракт, независимый от текущего workspace."
     },
@@ -292,8 +292,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 1/6
-- Revision: 230
+- Progress: 2/6
+- Revision: 232
 
 ## Objective
 
@@ -313,7 +313,7 @@
 - [DONE] T001 — Создать единые метаданные версии релизной сборки (work)
   - Commit: feat(build): generate immutable application release metadata
   - Files: scripts/build-release-info.mjs, scripts/build-release-info.test.mjs, scripts/package-mac.mjs, scripts/dev-electron.mjs, package.json
-- [TODO] T002 — Отдавать версии приложения и встроенного Kit из Core (work)
+- [DONE] T002 — Отдавать версии приложения и встроенного Kit из Core (work)
   - Commit: feat(core): expose installed product version information
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md
   - Depends on: T001

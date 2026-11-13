@@ -41,6 +41,15 @@ inherited PATH with one `console.error` line; Windows is skipped.
 
 ## Outputs
 
+- `get-product-info` returns an immutable process snapshot of the full
+  application release label, build number, release tag/channel and bundled
+  Workflow Kit version. `core-product-info.ts` validates `dist/build-info.json`
+  relative to this process's compiled module, and reads the Kit version
+  through `workflowKitFacade.installer.version`. It requires no workspace
+  and never consults a project's manifest. Missing or invalid metadata
+  fails the RPC instead of reporting a fictitious version. Only an explicit
+  development descriptor displays Development. The first successful read
+  is kept for the lifetime of this Core instance.
 - Local HTTP process contract.
 - Health/status payload with process identity.
 - Graceful shutdown acknowledgement.

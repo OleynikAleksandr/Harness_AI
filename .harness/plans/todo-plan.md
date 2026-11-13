@@ -3,14 +3,14 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": null,
+  "currentTaskId": "DOCS-R1",
   "lastClosed": {
     "closedAt": "2026-11-13T16:32:24.995Z",
     "scopeId": "workflow-kit-sync-2.2.4-2026-11-13"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 234,
+  "revision": 236,
   "rounds": [
     {
       "digest": null,
@@ -195,19 +195,20 @@
       ],
       "docsWaiver": null,
       "files": [
+        "AGENTS.md",
         "README.md",
         "docs/architecture/OVERVIEW.md",
-        "docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md",
-        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md",
-        "product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md",
-        "product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md"
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/architecture/ReleaseFixes-2026-11-04-2.md",
+        "docs/architecture/workflow-kit/WorkflowKitQuality.md",
+        "docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md"
       ],
       "fixes": null,
       "id": "DOCS-R1",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -291,9 +292,9 @@
 - Scope: application-versions-about-2026-11-13 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Execution: sequential
-- Current task: none
+- Current task: DOCS-R1
 - Progress: 3/6
-- Revision: 234
+- Revision: 236
 
 ## Objective
 
@@ -321,9 +322,9 @@
   - Commit: feat(electron): show application and Workflow Kit versions in About
   - Files: product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md
   - Depends on: T002
-- [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [IN_PROGRESS] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
-  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md
+  - Files: AGENTS.md, README.md, docs/architecture/OVERVIEW.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/ReleaseFixes-2026-11-04-2.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md
   - Depends on: T001, T002, T003
 - [TODO] T004 — Собрать и проверить приложение с новым About (delivery)
   - Commit: chore: package and verify application version display

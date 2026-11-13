@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 211,
+  "revision": 212,
   "rounds": [
     {
       "digest": null,
@@ -314,18 +314,11 @@
       "files": [
         "README.md",
         "docs/architecture/OVERVIEW.md",
+        "docs/DOCUMENTATION_INDEX.md",
         "docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md"
+        "docs/architecture/workflow-kit/WorkflowKit.md",
+        "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+        "product-parts/core-runtime/clusters/project-workflow/cluster.md"
       ],
       "fixes": null,
       "id": "DOCS-R1",
@@ -467,7 +460,7 @@
 - Execution: sequential
 - Current task: none
 - Progress: 5/9
-- Revision: 211
+- Revision: 212
 
 ## Objective
 
@@ -505,7 +498,7 @@
   - Depends on: T003, T004
 - [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
-  - Files: README.md, docs/architecture/OVERVIEW.md, docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, product-parts/core-runtime/clusters/project-workflow/cluster.md
   - Depends on: T001, T002, T003, T004, T005
 - [TODO] T006 — Обновить установленный Kit репозитория до 2.2.4 (delivery)
   - Commit: chore(workflow): verify repository Kit 2.2.4 update

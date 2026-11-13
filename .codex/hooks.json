@@ -4,6 +4,7 @@
       {
         "hooks": [
           {
+            "additionalContextLimit": 65536,
             "command": "scripts/workflow hook session-start --client codex",
             "type": "command"
           }

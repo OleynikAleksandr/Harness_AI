@@ -52,7 +52,7 @@
       "executable": false,
       "kind": "section",
       "path": "AGENTS.md",
-      "sha256": "7a1c9aca73721add783cbddec5ddee81cf1f8cd17f436edb2fcc33e4bebc192b"
+      "sha256": "d59b21f909866d694f41be1d99e20a62f2c9e8a8c3eea9d78bd365e1b577b0f0"
     },
     {
       "executable": false,
@@ -64,19 +64,19 @@
       "executable": false,
       "kind": "json",
       "path": ".codex/hooks.json",
-      "sha256": "f1db89e517d3a9e3e49e97579625e53371919882f24e047ce963608e62b03cc5"
+      "sha256": "7db272aa976437d84a82484e0761dfc388f898c7861c7213c6ac1eaa150b6032"
     },
     {
       "executable": false,
       "kind": "json",
       "path": ".claude/settings.json",
-      "sha256": "01703b1a346f2561e91e27992a673bd2eeab11388236387559e6ee35bfbc5318"
+      "sha256": "95cf767c5dc060a7844b8f1cf374e9c4cd6e0a49e43fffe456adce9545707a89"
     },
     {
       "executable": false,
       "kind": "section",
       "path": ".gitignore",
-      "sha256": "170dc7b63caef67c4559aac6d12907ccb51ea1a52415faf1c28110149d257a34"
+      "sha256": "f7dca29d96504cfbfefc9976f5308a4fc9ed8972d932876101b3e471deb4b477"
     },
     {
       "executable": false,
@@ -98,5 +98,5 @@
     }
   ],
   "schema": "harness-workflow-manifest/1",
-  "version": "2.1.1"
+  "version": "2.2.4"
 }

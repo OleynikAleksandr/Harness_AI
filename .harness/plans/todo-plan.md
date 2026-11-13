@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 221,
+  "revision": 223,
   "rounds": [
     {
       "digest": {
@@ -488,7 +488,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package Harness AI with Workflow Kit 2.2.4",
-      "confirmation": null,
+      "confirmation": "Пользователь: «Собери новый релиз»; подтверждены сборка и проверка пакета Harness AI для macOS.",
       "context": [
         {
           "path": "docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md",
@@ -509,7 +509,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Собрать и проверить Harness AI для macOS",
       "why": "Проверить приложение с новым бандлом Kit в реальном macOS-пакете."
     },
@@ -558,8 +558,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 9/11
-- Revision: 221
+- Progress: 10/11
+- Revision: 223
 
 ## Objective
 
@@ -616,7 +616,7 @@ Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workfl
   - Commit: docs: reconcile documentation for R2
   - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md, docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T009
-- [TODO] T007 — Собрать и проверить Harness AI для macOS (delivery)
+- [DONE] T007 — Собрать и проверить Harness AI для macOS (delivery)
   - Commit: chore: package Harness AI with Workflow Kit 2.2.4
   - Files: docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T006, DOCS-R2

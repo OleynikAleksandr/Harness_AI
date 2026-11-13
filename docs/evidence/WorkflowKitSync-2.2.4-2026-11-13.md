@@ -78,3 +78,27 @@ T009 committed as `be5e578147b5eaa87f63904b2efe0b0575b26419` after the full
 quality profile passed. T006 is `c1f5c736542d4d1eb3e6a27b11c95ebafe38d99a`.
 Duplication, security and link checks passed; the dependency audit reported
 zero vulnerabilities. Packaging and publication are the remaining delivery tasks.
+
+## macOS package verification (T007)
+
+- Final `npm run quality`: passed, `Tests: OK (229)`.
+- `check:dup`, `check:security`, `check:links`: passed; audit found zero vulnerabilities.
+- `npm run build` and `npm run package:mac`: passed with signing disabled.
+- Package: `release/mac-arm64/Harness AI.app` (Electron 42.5.0, arm64).
+- Source HEAD before packaging: `61dfbd21a7786bb382e324e6d40a1e362b383519`.
+- app.asar SHA-256: `77291f70c6dad8c6df5984c54996c9f31d74d64da7c3667d89ba0e4cb6c327d3`.
+- Packaged Kit SHA-256: `ee444535f85f934de302a99d1c1129dcc8118e6482546af5121f5f4d05bcced6`; matches the installed repository Kit.
+- Renderer loaded from the packaged `app.asar/dist/renderer/index.html`;
+  development renderer/bundle overrides were removed from the test environment.
+- CDP connected to this exact executable, preload was present, and a real
+  click on New Project opened its dialog.
+- Through the real preload/Core IPC, the app created a project outside the
+  repository, installed Kit 2.2.4 and returned successful status and Doctor results.
+- No renderer exceptions were observed. Screenshot and structured result
+  remain local under `.harness/runtime/package-smoke-2.2.4/`.
+- A temporary app profile, Harness home and Git config isolated the test;
+  its processes were stopped by the controller. No native folder picker
+  automation or new provider turn was claimed.
+
+This verifies the packaged runtime and project preparation. Live provider
+consumption of SessionStart and live Windows execution remain untested.

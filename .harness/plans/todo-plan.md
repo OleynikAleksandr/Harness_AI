@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 232,
+  "revision": 234,
   "rounds": [
     {
       "digest": null,
@@ -175,7 +175,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Показать две версии в нативном About",
       "why": "Сделать установленное обновление проверяемым пользователем через существующий пункт About."
     },
@@ -292,8 +292,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 2/6
-- Revision: 232
+- Progress: 3/6
+- Revision: 234
 
 ## Objective
 
@@ -317,7 +317,7 @@
   - Commit: feat(core): expose installed product version information
   - Files: product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.test.mjs, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-runtime-api.ts, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/module.md
   - Depends on: T001
-- [TODO] T003 — Показать две версии в нативном About (work)
+- [DONE] T003 — Показать две версии в нативном About (work)
   - Commit: feat(electron): show application and Workflow Kit versions in About
   - Files: product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/src/app-bootstrap-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/app-bootstrap/module.md, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/src/core-process-bridge-facade.test.mjs, product-parts/application-shell/clusters/electron-host/modules/core-process-bridge/module.md
   - Depends on: T002

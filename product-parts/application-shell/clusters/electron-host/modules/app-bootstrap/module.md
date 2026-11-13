@@ -15,6 +15,12 @@ Own Electron lifecycle, window creation, and local application startup.
 
 ## Outputs
 
+- The native About panel displays the Core-provided full application release
+  version, optional build number and separately labeled bundled Workflow Kit
+  version. `configureAboutPanel` reads `getProductInfo()` through the bridge
+  before the main window opens. It never derives versions from the current
+  project, package.json or Git. A failed read displays unavailable information
+  rather than a zero or stale release number; Development comes only from Core.
 - Running Electron main window.
 - Renderer preload/bootstrap state.
 - Preload bridge methods for Core-owned localization runtime payloads,

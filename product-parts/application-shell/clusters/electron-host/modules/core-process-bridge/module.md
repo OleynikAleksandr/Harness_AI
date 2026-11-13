@@ -23,6 +23,10 @@ modules or own Core truth.
 
 ## Outputs
 
+- `getProductInfo()` forwards Core `get-product-info` to the native About
+  consumer. It preserves Core's version facts and rejects an explicit RPC
+  failure (including an old Core without the method); it does not read or
+  infer version metadata in the Electron host.
 - Core Runtime connection status.
 - Renderer-safe Core API endpoint metadata.
 - Renderer-safe forwarding of Core RPC results and Core events. The IPC→RPC map

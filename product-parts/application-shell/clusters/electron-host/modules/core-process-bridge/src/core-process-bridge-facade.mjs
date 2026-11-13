@@ -120,6 +120,15 @@ export async function initializeCoreProcessBridge(repositoryRoot) {
   });
 
   bridge = {
+    async getProductInfo() {
+      const result = await coreClient.rpc("get-product-info");
+      if (result?.ok === false) {
+        throw new Error(
+          result.error ?? "Core product information unavailable."
+        );
+      }
+      return result;
+    },
     attachWindow(window) {
       const webContents = window.webContents;
       webContentsTargets.add(webContents);

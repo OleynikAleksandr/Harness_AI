@@ -136,8 +136,31 @@ async function restartHarnessApp() {
   return { ok: true };
 }
 
+async function configureAboutPanel() {
+  // A failed Core read must never fall back to the package's source placeholder.
+  app.setAboutPanelOptions({
+    applicationName: "Harness AI",
+    applicationVersion: "Version information unavailable",
+    credits: "Workflow Kit: unavailable",
+    version: "",
+  });
+  try {
+    const bridge = await coreBridge();
+    const info = await bridge.getProductInfo();
+    app.setAboutPanelOptions({
+      applicationName: "Harness AI",
+      applicationVersion: info.applicationVersion,
+      credits: `Workflow Kit: ${info.workflowKitVersion}`,
+      version: info.buildNumber === null ? "" : `Build ${info.buildNumber}`,
+    });
+  } catch (error) {
+    console.error("About version information unavailable", error);
+  }
+}
+
 export async function startHarnessAiApp() {
   await app.whenReady();
+  await configureAboutPanel();
   ipcMain.handle("harness-ai:app:detach-session", (_event, request) =>
     openDetachedSessionWindow(request)
   );

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 237,
+  "revision": 238,
   "rounds": [
     {
       "digest": {
@@ -254,6 +254,7 @@
       "docsWaiver": null,
       "files": [
         "docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md",
+        "docs/evidence/assets",
         "docs/DOCUMENTATION_INDEX.md"
       ],
       "fixes": null,
@@ -311,7 +312,7 @@
 - Execution: sequential
 - Current task: none
 - Progress: 4/6
-- Revision: 237
+- Revision: 238
 
 ## Objective
 
@@ -345,7 +346,7 @@
   - Depends on: T001, T002, T003
 - [TODO] T004 — Собрать и проверить приложение с новым About (delivery)
   - Commit: chore: package and verify application version display
-  - Files: docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md, docs/DOCUMENTATION_INDEX.md
+  - Files: docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md
   - Depends on: T003, DOCS-R1
 - [TODO] T005 — Опубликовать исправленный релиз Harness AI (delivery)
   - Commit: chore: publish release with application and Kit version information

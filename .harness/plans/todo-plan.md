@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 223,
+  "revision": 225,
   "rounds": [
     {
       "digest": {
@@ -52,7 +52,7 @@
       },
       "id": "R2",
       "kind": "fixes",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Stabilize the pre-existing Kimi fixture ordering before release"
     }
   ],
@@ -99,7 +99,7 @@
         "text": "Реализация начинается после выбора режима; delivery подтверждается отдельно; приёмка и закрытие scope требуют отдельных пользовательских решений."
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "execution": {
       "maxWorkers": 2,
       "ownerSession": "01a1d574-4310-7453-b7e3-5276848f46a8",
@@ -522,7 +522,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: publish Harness AI with Workflow Kit 2.2.4",
-      "confirmation": null,
+      "confirmation": "Пользователь поручил залить релиз на GitHub https://github.com/OleynikAleksandr/Harness_AI; публикация main, тега и архива подтверждена.",
       "context": [
         {
           "path": "docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md",
@@ -543,7 +543,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Опубликовать Harness AI с Workflow Kit 2.2.4",
       "why": "Завершить поставку публикацией main, тега даты сборки и Release с архивом приложения по правилам проекта."
     }
@@ -555,11 +555,11 @@
 ## State
 
 - Scope: workflow-kit-sync-2.2.4-2026-11-13 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Execution: sequential
 - Current task: none
-- Progress: 10/11
-- Revision: 223
+- Progress: 11/11
+- Revision: 225
 
 ## Objective
 
@@ -606,7 +606,7 @@
 
 Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workflow_Kit commit 6e05505f. T001-T005 passed the full quality profile; repository runtime update, packaging and publication remain delivery tasks.
 
-### R2 — Stabilize the pre-existing Kimi fixture ordering before release (fixes, OPEN)
+### R2 — Stabilize the pre-existing Kimi fixture ordering before release (fixes, CLOSED)
 
 - [DONE] T009 — Стабилизировать порядок тестового уведомления Kimi (work)
   - Commit: test(kimi): separate setup echo from turn event ordering
@@ -620,7 +620,7 @@ Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workfl
   - Commit: chore: package Harness AI with Workflow Kit 2.2.4
   - Files: docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T006, DOCS-R2
-- [TODO] T008 — Опубликовать Harness AI с Workflow Kit 2.2.4 (delivery)
+- [DONE] T008 — Опубликовать Harness AI с Workflow Kit 2.2.4 (delivery)
   - Commit: chore: publish Harness AI with Workflow Kit 2.2.4
   - Files: docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T007, DOCS-R2

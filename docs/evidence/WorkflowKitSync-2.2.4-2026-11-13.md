@@ -102,3 +102,19 @@ zero vulnerabilities. Packaging and publication are the remaining delivery tasks
 
 This verifies the packaged runtime and project preparation. Live provider
 consumption of SessionStart and live Windows execution remain untested.
+
+## GitHub publication (T008)
+
+- Release: [v2026.11.13](https://github.com/OleynikAleksandr/Harness_AI/releases/tag/v2026.11.13).
+- Published branch: `main`; release tag commit: `8dafd5864dee1a0cb65c2e5827c81c4c1c56ce2d`.
+- Asset: `Harness-AI-v2026.11.13-mac-arm64.zip`; uploaded size: 122586229 bytes.
+- ZIP SHA-256: `4aa909599490f5832b70644e985f90e4c63a87590a1d161911020474e9d1c091`. GitHub reports the same asset digest.
+- GitHub asset state is `uploaded`; release is public, non-draft and not a prerelease.
+- The history scan before publication checked 6819 unique blobs
+  (98540383 bytes); no configured secret patterns matched.
+- Normal push passed `dup`, `security` and `links` hooks; no force push or
+  check bypass was used. Application and dependency versions were not changed.
+
+T008 records the verified publication. Acceptance will be recorded only
+from the user's explicit answer; the existing command to close the scope
+will then be applied through Workflow Kit.

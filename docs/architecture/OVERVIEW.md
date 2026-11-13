@@ -64,6 +64,11 @@ Electron main (app-bootstrap, core-process-bridge)
   same code is bundled into
   `.harness/workflow/runtime/workflow.mjs` inside each project and runs
   without Harness from hooks and agent terminals.
+  The cluster sources are synchronized with Workflow_Kit Kit 2.2.4
+  (source commit `6e05505f`), retaining Harness module/test paths and Vite
+  packaging. Platform rules can be injected into install/doctor tests;
+  production defaults to the current OS. See
+  `docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md`.
 - **Execution modes**
   (`docs/architecture/workflow-kit/WorkflowKitExecutionModes.md`): in a
   Harness project the agent proposes the scope (`scope:propose`) and the

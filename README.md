@@ -42,6 +42,11 @@ launched from this repository's packaged app path before rebuilding `app.asar`.
 This prevents an already-running packaged Core from continuing to serve an old
 runtime after the package has been rebuilt.
 
+Workflow Kit sources are synchronized to **2.2.4** from Workflow_Kit,
+commit `6e05505f`. Harness keeps the Core-owned cluster, Vite bundle and
+module-local `src/**` tests. The synchronization specification is
+[WorkflowKitSync-2.2.4-2026-11-13.md](docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md).
+
 The package also carries the Workflow Kit bundle
 (`dist/workflow-kit/workflow.mjs`, built by `npm run build:workflow-kit` as part
 of `npm run build`) as the `workflow-kit` resource. Core runs it with the

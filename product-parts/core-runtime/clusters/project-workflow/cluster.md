@@ -69,6 +69,21 @@ pure operations) or `WorkflowHostFacade` (child-process commands from Core).
   as child processes with JSON envelopes (`setIdentity` runs the app bundle
   in the home folder), the project runtime file.
 
+## Source Synchronization
+
+Kit 2.2.4 is synchronized from Workflow_Kit commit `6e05505f`. The
+cluster stays owned by Core Runtime; public facades, Node-only production
+dependencies and the Vite standalone bundle are unchanged. Tests and
+helpers stay in `src/**`. New internal files split scope/CLI, plan schema
+and completion, Git staging, integration phases, installer checks and the
+autopilot model. Install and doctor accept an optional platform for
+cross-platform rule tests; the current OS remains the default.
+
+The synchronization specification is
+`docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md`. All 107 TypeScript
+files and 61 test/helper files were compared with the pinned donor; the
+remaining differences are documented Harness adaptations.
+
 ## Test Support
 
 - `workflow-platform/src/workflow-test-build.mjs` transpiles the requested

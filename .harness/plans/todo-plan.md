@@ -10,10 +10,26 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 212,
+  "revision": 214,
   "rounds": [
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "Install/doctor accept optional platform; defaults and public CLI/Core APIs stay compatible.",
+          "Internal splits cover plan/scope, facade/CLI, staging, integration, installer checks and autopilot."
+        ],
+        "decisions": [
+          "Keep Harness Core ownership, src tests and Vite; add no dependencies.",
+          "Compare all 107 TypeScript and 61 test/helper files; document six reviewed formatting/build/lint adaptations.",
+          "Use sequential execution without a reviewer; update the installed repository Kit only through its installer."
+        ],
+        "references": [
+          "docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md",
+          "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+          "docs/architecture/OVERVIEW.md"
+        ],
+        "result": "Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workflow_Kit commit 6e05505f. T001-T005 passed the full quality profile; repository runtime update, packaging and publication remain delivery tasks."
+      },
       "id": "R1",
       "kind": "implementation",
       "status": "OPEN",
@@ -325,7 +341,7 @@
       "iteration": 1,
       "kind": "docs",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -459,8 +475,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 5/9
-- Revision: 212
+- Progress: 6/9
+- Revision: 214
 
 ## Objective
 
@@ -496,7 +512,7 @@
   - Commit: test(workflow): synchronize remaining Kit regressions
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/src/workflow-assignment-cancel.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/src/workflow-host-facade.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/src/workflow-quality-runner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/src/workflow-recovery-worktree.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md
   - Depends on: T003, T004
-- [TODO] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R1 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, product-parts/core-runtime/clusters/project-workflow/cluster.md
   - Depends on: T001, T002, T003, T004, T005
@@ -512,5 +528,7 @@
   - Commit: chore: publish Harness AI with Workflow Kit 2.2.4
   - Files: docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T007, DOCS-R1
+
+Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workflow_Kit commit 6e05505f. T001-T005 passed the full quality profile; repository runtime update, packaging and publication remain delivery tasks.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

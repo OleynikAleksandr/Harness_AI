@@ -4,13 +4,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { RoundDigest } from "../../workflow-plan/src/workflow-plan-facade.js";
 import { WorkflowError } from "../../workflow-platform/src/workflow-platform-facade.js";
 import type { ProfileInput } from "../../workflow-quality/src/workflow-quality-facade.js";
-import {
-  parsePart,
-  type RecoveryEvent,
-} from "../../workflow-recovery/src/workflow-recovery-facade.js";
+import type { RecoveryEvent } from "../../workflow-recovery/src/workflow-recovery-facade.js";
 import {
   flag,
-  integerFlag,
   listFlag,
   type ParsedArgs,
   parseArgs,
@@ -24,18 +20,14 @@ import {
 } from "./kit-cli-assignment.js";
 import { CONTEXT_COMMANDS } from "./kit-cli-context.js";
 import { EXECUTION_COMMANDS } from "./kit-cli-execution.js";
+import { runHook } from "./kit-cli-hook.js";
 import { IDENTITY_COMMANDS } from "./kit-cli-identity.js";
 import { INTEGRATION_COMMANDS } from "./kit-cli-integration.js";
 import { PAUSE_COMMANDS } from "./kit-cli-pause.js";
 import { SCHEMA_COMMANDS } from "./kit-cli-schema.js";
+import { SCOPE_COMMANDS } from "./kit-cli-scope.js";
 import { renderText } from "./kit-cli-text.js";
-import {
-  type CarryoverInput,
-  type ExtendInput,
-  type ScopeInput,
-  type TaskPatch,
-  WorkflowKitFacade,
-} from "./workflow-kit-facade.js";
+import { WorkflowKitFacade } from "./workflow-kit-facade.js";
 
 export interface CliIo {
   cwd: string;
@@ -95,26 +87,10 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
   ...PAUSE_COMMANDS,
   ...SCHEMA_COMMANDS,
   ...CONTEXT_COMMANDS,
+  ...SCOPE_COMMANDS,
   "autopilot:status": {
     run: ({ kit, root }) => kit.autopilotStatus(root),
     usage: "autopilot:status",
-  },
-  accept: {
-    run: ({ args, kit, root }) => kit.accept(root, requiredFlag(args, "note")),
-    usage: 'accept --note "<the user\'s words>"',
-  },
-  carryover: {
-    run: ({ args, io, kit, root }) =>
-      kit.carryover(
-        root,
-        readJsonFile<CarryoverInput>(io.cwd, requiredFlag(args, "input"))
-      ),
-    usage: "carryover --input <file.json>",
-  },
-  close: {
-    run: ({ args, kit, root }) =>
-      kit.close(root, requiredFlag(args, "scope"), requiredFlag(args, "note")),
-    usage: 'close --scope <id> --note "<direct user command>"',
   },
   commit: {
     run: ({ args, io, kit, root }) => {
@@ -179,15 +155,6 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
     usage:
       'migrate:harness-plan [<path>] [--message "chore: ..."] [--objective "..."] [--spec <doc.md>] [--name <project name>]',
   },
-  "plan:extend": {
-    run: ({ args, io, kit, root }) =>
-      kit.extend(
-        root,
-        readJsonFile<ExtendInput>(io.cwd, requiredFlag(args, "input")),
-        integerFlag(args, "expected-revision")
-      ),
-    usage: "plan:extend --input <file.json> [--expected-revision N]",
-  },
   "quality:apply": {
     run: ({ args, io, kit, root }) =>
       kit.qualityApply(
@@ -226,14 +193,6 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
       }),
     usage: "repair [--apply <repairId> | --cancel <repairId>]",
   },
-  "scope:create": {
-    run: ({ args, io, kit, root }) =>
-      kit.createScope(
-        root,
-        readJsonFile<ScopeInput>(io.cwd, requiredFlag(args, "input"))
-      ),
-    usage: "scope:create --input <file.json>",
-  },
   "show-task": {
     run: ({ args, kit, root }) => ({
       text: kit.showTask(root, positional(args, 0, "Task id")),
@@ -244,10 +203,6 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
     run: ({ kit, root }) => kit.status(root),
     usage: "status",
   },
-  "task:block": {
-    run: ({ args, kit, root }) => kit.block(root, requiredFlag(args, "reason")),
-    usage: 'task:block --reason "<text>"',
-  },
   "task:start": {
     run: ({ args, kit, root }) =>
       kit.startTask(
@@ -256,20 +211,6 @@ const COMMANDS: Readonly<Record<string, CommandSpec>> = {
         flag(args, "confirmed") ?? null
       ),
     usage: 'task:start <ID> [--confirmed "<user confirmation>"]',
-  },
-  "task:unblock": {
-    run: ({ kit, root }) => kit.unblock(root),
-    usage: "task:unblock",
-  },
-  "task:update": {
-    run: ({ args, io, kit, root }) =>
-      kit.updateTask(
-        root,
-        positional(args, 0, "Task id"),
-        readJsonFile<TaskPatch>(io.cwd, requiredFlag(args, "input")),
-        integerFlag(args, "expected-revision")
-      ),
-    usage: "task:update <ID> --input <patch.json> [--expected-revision N]",
   },
   validate: {
     run: ({ kit, root }) => kit.validate(root),
@@ -323,49 +264,6 @@ function errorEnvelope(error: unknown): Record<string, unknown> {
     nextAction: null,
     ok: false,
   };
-}
-
-function runHook(
-  args: ParsedArgs,
-  io: CliIo,
-  kit: WorkflowKitFacade,
-  root: string
-): number {
-  if (args.command === "hook") {
-    const client = flag(args, "client");
-    if (
-      positional(args, 0, "Hook name") !== "session-start" ||
-      (client !== "claude" && client !== "codex")
-    ) {
-      throw new WorkflowError(
-        "USAGE",
-        "hook session-start --client claude|codex"
-      );
-    }
-    const partValue = flag(args, "part");
-    const part = partValue === undefined ? null : parsePart(partValue);
-    if (partValue !== undefined && part === null) {
-      // A wrong part adds no context and never blocks the session.
-      io.stderr(
-        "hook session-start: --part must be K/N with 1 <= K <= N <= 16\n"
-      );
-      io.stdout(
-        `${JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart" } })}\n`
-      );
-      return 0;
-    }
-    io.stdout(kit.sessionStart(root, client, io.readStdin(), part));
-    return 0;
-  }
-  const result = kit.gitHook(
-    root,
-    positional(args, 0, "Hook name"),
-    args.positionals.slice(1)
-  );
-  if (result.message) {
-    io.stderr(`${result.message}\n`);
-  }
-  return result.exitCode;
 }
 
 function dispatch(

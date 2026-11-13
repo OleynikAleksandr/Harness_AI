@@ -1,16 +1,15 @@
 import assert from "node:assert/strict";
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { cleanGitEnvironment } from "../../workflow-git/src/workflow-git-test-repo.mjs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+import {
+  code,
+  docsScope as docsPlan,
+  failure,
+  openKit,
+  parallelScope as parallelPlan,
+  write,
+} from "./workflow-kit-support.mjs";
 
 const build = await buildWorkflowModules(
   ["workflow-kit", "workflow-execution-mode"],
@@ -18,115 +17,13 @@ const build = await buildWorkflowModules(
 );
 const roots = [];
 try {
-  const { WorkflowGitFacade } = await build.load(
-    "workflow-git",
-    "workflow-git-facade.js"
-  );
-  const { WorkflowPlanFacade } = await build.load(
-    "workflow-plan",
-    "workflow-plan-facade.js"
-  );
-  const { WorkflowQualityFacade } = await build.load(
-    "workflow-quality",
-    "workflow-quality-facade.js"
-  );
-  const { WorkflowKitFacade } = await build.load(
-    "workflow-kit",
-    "workflow-kit-facade.js"
-  );
-  const { runCli } = await build.load("workflow-kit", "workflow-kit-cli.js");
-  const env = cleanGitEnvironment();
-  const git = new WorkflowGitFacade(undefined, env);
-  const plans = new WorkflowPlanFacade();
-  const quality = new WorkflowQualityFacade();
-  let tick = 0;
-  const kit = new WorkflowKitFacade({
-    env,
-    git,
-    now: () => `2026-11-04T10:00:${String(tick++).padStart(2, "0")}Z`,
+  const { cli, git, kit, plans, project } = await openKit(build, {
+    clock: "10:00",
+    prefix: "workflow-mode-",
+    roots,
   });
-  const code = (action) => {
-    try {
-      action();
-    } catch (error) {
-      return error.code;
-    }
-    return "OK";
-  };
-  const project = (host) => {
-    const root = mkdtempSync(path.join(tmpdir(), "workflow-mode-"));
-    roots.push(root);
-    git.init(root);
-    git.setConfig(root, "user.name", "Workflow Test");
-    git.setConfig(root, "user.email", "workflow@harness-ai.test");
-    writeFileSync(
-      path.join(root, ".gitignore"),
-      ".harness/workflow/local/\n.harness/runtime/\n"
-    );
-    const files = [".gitignore"];
-    if (host) {
-      quality.writeConfig(root, { ...quality.defaultConfig(), host });
-      files.push(".harness/workflow/config.json");
-    }
-    git.transactions.commit(root, {
-      files,
-      message: "chore: bootstrap",
-      planPath: ".harness/plans/todo-plan.md",
-      planText: plans.render(plans.createEmpty("demo", "Demo")),
-      role: "bootstrap",
-      scopeId: null,
-      taskId: null,
-    });
-    return root;
-  };
-  const write = (root, name, text) => {
-    const file = path.join(root, ...name.split("/"));
-    mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, text);
-  };
   const proposalFile = (root) =>
     path.join(root, ".harness", "workflow", "local", "scope-proposal.json");
-  const docsPlan = (id) => ({
-    acceptance: ["The note exists"],
-    approval: "User approved the docs-only scope",
-    id,
-    objective: "Write one note",
-    tasks: [
-      {
-        acceptance: ["note written"],
-        commitMessage: "docs: write the note",
-        files: ["docs/note.md"],
-        id: "N",
-        title: "Note",
-      },
-    ],
-  });
-  const parallelPlan = (id, execution) => ({
-    acceptance: ["Both modules exist"],
-    approval: "User approved the parallel scope",
-    ...(execution ? { execution } : {}),
-    id,
-    objective: "Build two independent modules",
-    spec: "docs/spec.md",
-    tasks: [
-      {
-        acceptance: ["a works"],
-        commitMessage: "feat: add module a",
-        files: ["src/a.ts"],
-        id: "A",
-        parallelSafe: true,
-        title: "Module A",
-      },
-      {
-        acceptance: ["b works"],
-        commitMessage: "feat: add module b",
-        files: ["src/b.ts"],
-        id: "B",
-        parallelSafe: true,
-        title: "Module B",
-      },
-    ],
-  });
   const reason = "Two independent modules with separate files";
 
   // --- A project without a host: scope:create works as before. ---
@@ -345,38 +242,13 @@ try {
 
   // --- A Harness project: scope:create requires the mode choice. ---
   const hosted = project("harness");
-  const created = (() => {
-    try {
-      kit.createScope(hosted, docsPlan("docs-h"));
-    } catch (error) {
-      return error;
-    }
-    return null;
-  })();
+  const created = failure(() => kit.createScope(hosted, docsPlan("docs-h")));
   assert.equal(created.code, "EXECUTION_MODE_REQUIRED");
   assert.match(created.nextAction, /scope:propose/u);
   assert.equal(kit.status(hosted).scope, null);
 
   // The CLI proposes and the sequential choice creates the scope.
-  const run = (argv) => {
-    const out = { stderr: "", stdout: "" };
-    const exit = runCli(
-      argv,
-      {
-        cwd: hosted,
-        env,
-        readStdin: () => "",
-        stderr: (text) => {
-          out.stderr += text;
-        },
-        stdout: (text) => {
-          out.stdout += text;
-        },
-      },
-      kit
-    );
-    return { ...out, exit };
-  };
+  const run = (argv) => cli(hosted, argv);
   write(hosted, "plan.json", JSON.stringify(docsPlan("docs-h")));
   assert.equal(
     JSON.parse(run(["scope:create", "--input", "plan.json"]).stdout).code,

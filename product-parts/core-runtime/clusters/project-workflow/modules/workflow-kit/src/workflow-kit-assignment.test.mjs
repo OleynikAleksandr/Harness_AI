@@ -1,16 +1,17 @@
 import assert from "node:assert/strict";
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { cleanGitEnvironment } from "../../workflow-git/src/workflow-git-test-repo.mjs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+import {
+  code,
+  docsScope,
+  failure,
+  lintProfile,
+  local,
+  openKit,
+  work,
+  write,
+} from "./workflow-kit-support.mjs";
 
 const build = await buildWorkflowModules(
   ["workflow-kit", "workflow-assignment"],
@@ -18,92 +19,15 @@ const build = await buildWorkflowModules(
 );
 const roots = [];
 try {
-  const { WorkflowGitFacade } = await build.load(
-    "workflow-git",
-    "workflow-git-facade.js"
-  );
-  const { WorkflowPlanFacade } = await build.load(
-    "workflow-plan",
-    "workflow-plan-facade.js"
-  );
-  const { WorkflowKitFacade } = await build.load(
-    "workflow-kit",
-    "workflow-kit-facade.js"
-  );
-  const { runCli } = await build.load("workflow-kit", "workflow-kit-cli.js");
-  const env = cleanGitEnvironment();
-  const git = new WorkflowGitFacade(undefined, env);
-  const plans = new WorkflowPlanFacade();
-  let tick = 0;
-  const kit = new WorkflowKitFacade({
-    env,
-    git,
-    now: () => `2026-11-04T11:00:${String(tick++).padStart(2, "0")}Z`,
-  });
-  const failure = (action) => {
-    try {
-      action();
-    } catch (error) {
-      return error;
-    }
-    return null;
-  };
-  const code = (action) => failure(action)?.code ?? "OK";
-  const project = () => {
-    const root = mkdtempSync(path.join(tmpdir(), "workflow-assignment-"));
-    roots.push(root);
-    git.init(root);
-    git.setConfig(root, "user.name", "Workflow Test");
-    git.setConfig(root, "user.email", "workflow@harness-ai.test");
-    writeFileSync(
-      path.join(root, ".gitignore"),
-      ".harness/workflow/local/\n.harness/runtime/\n"
-    );
-    git.transactions.commit(root, {
-      files: [".gitignore"],
-      message: "chore: bootstrap",
-      planPath: ".harness/plans/todo-plan.md",
-      planText: plans.render(plans.createEmpty("demo", "Demo")),
-      role: "bootstrap",
-      scopeId: null,
-      taskId: null,
-    });
-    return root;
-  };
-  const write = (root, name, text) => {
-    const file = path.join(root, ...name.split("/"));
-    mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, text);
-  };
-  const local = (root, ...parts) =>
-    path.join(root, ".harness", "workflow", "local", ...parts);
-  const work = (id, fields = {}) => ({
-    acceptance: [`${id} works`],
-    commitMessage: `feat: add ${id}`,
-    files: [`src/${id.toLowerCase()}.ts`],
-    id,
-    title: `Module ${id}`,
-    why: `The product needs ${id}`,
-    ...fields,
+  const { cli, git, kit, orchestrate, plans, project } = await openKit(build, {
+    clock: "11:00",
+    prefix: "workflow-assignment-",
+    roots,
   });
 
   // --- A sequential scope has no assignments. ---
   const plain = project();
-  kit.createScope(plain, {
-    acceptance: ["The note exists"],
-    approval: "User approved the docs-only scope",
-    id: "docs-1",
-    objective: "Write one note",
-    tasks: [
-      {
-        acceptance: ["note written"],
-        commitMessage: "docs: write the note",
-        files: ["docs/note.md"],
-        id: "N",
-        title: "Note",
-      },
-    ],
-  });
+  kit.createScope(plain, docsScope("docs-1"));
   assert.equal(kit.nextAssignments(plain).idle, "NOT_ORCHESTRATED");
   assert.equal(
     code(() => kit.createAssignment(plain, "N")),
@@ -114,31 +38,20 @@ try {
   // --- An orchestrated scope (maxWorkers 2). ---
   const root = project();
   write(root, "docs/spec.md", "# Spec\n\nFive modules.\n");
-  kit.proposeScope(
-    root,
-    {
-      acceptance: ["The modules exist"],
-      approval: "User approved the orchestrated scope",
-      execution: { maxWorkers: 2 },
-      id: "par-1",
-      objective: "Build five modules",
-      spec: "docs/spec.md",
-      tasks: [
-        work("A", { parallelSafe: true }),
-        work("B", { parallelSafe: true }),
-        work("C", { files: ["src/a.ts"], parallelSafe: true }),
-        work("D", { parallelSafe: true }),
-        work("E"),
-      ],
-    },
-    "orchestrated",
-    "Independent modules with separate files"
-  );
-  kit.chooseScope(root, {
-    generation: 1,
-    note: "User clicked orchestrated",
-    option: "orchestrated",
-    session: "session-1",
+  orchestrate(root, {
+    acceptance: ["The modules exist"],
+    approval: "User approved the orchestrated scope",
+    execution: { maxWorkers: 2 },
+    id: "par-1",
+    objective: "Build five modules",
+    spec: "docs/spec.md",
+    tasks: [
+      work("A", { parallelSafe: true }),
+      work("B", { parallelSafe: true }),
+      work("C", { files: ["src/a.ts"], parallelSafe: true }),
+      work("D", { parallelSafe: true }),
+      work("E"),
+    ],
   });
   let plan = plans.read(root);
   assert.deepEqual(
@@ -169,18 +82,7 @@ try {
 
   // The orchestrator runs QUALITY in main.
   kit.startTask(root, "QUALITY");
-  kit.qualityApply(root, {
-    checks: [
-      {
-        command: { args: ["-e", "process.exit(0)"], executable: "node" },
-        id: "lint",
-        required: true,
-        role: "lint",
-        stage: "commit",
-      },
-    ],
-    stacks: ["node"],
-  });
+  kit.qualityApply(root, lintProfile());
   assert.equal(
     code(() => kit.createAssignment(root, "QUALITY")),
     "ASSIGNMENT_KIND"
@@ -291,25 +193,7 @@ try {
   assert.match(barrier.nextAction, /assignment:next/u);
 
   // The CLI: next as JSON and text, create, usage errors.
-  const run = (argv) => {
-    const out = { stderr: "", stdout: "" };
-    const exit = runCli(
-      argv,
-      {
-        cwd: root,
-        env,
-        readStdin: () => "",
-        stderr: (text) => {
-          out.stderr += text;
-        },
-        stdout: (text) => {
-          out.stdout += text;
-        },
-      },
-      kit
-    );
-    return { ...out, exit };
-  };
+  const run = (argv) => cli(root, argv);
   const json = JSON.parse(run(["assignment:next"]).stdout);
   assert.equal(json.ok, true);
   assert.equal(json.command, "assignment:next");

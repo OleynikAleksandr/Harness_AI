@@ -13,7 +13,9 @@ It also handles the managed git hooks and owns the command-line dispatcher
 
 ## Public Facade
 
-`WorkflowKitFacade` (class, singleton `workflowKitFacade`). The constructor
+`WorkflowKitFacade` (class, singleton `workflowKitFacade`) extends
+`WorkflowKitBase` (`kit-facade-base.ts`: the options, the bound facades and
+the installer, status and recovery operations). The constructor
 takes `{git?, env?, now?}`; tests pass a git facade with a clean git
 environment and a deterministic clock. `recovery` exposes the recovery
 facade bound to the same git facade.
@@ -63,7 +65,8 @@ State (`kit-status.ts`):
   `migrateHarnessPlan(path, options)` — delegated to `workflow-installer` (`installer` exposes it, bound to the same git
   facade).
 
-Scope (`kit-scope.ts`); every change is a Kit commit unless noted:
+Scope (`kit-scope.ts`; create, propose and choose in `kit-scope-create.ts`);
+every change is a Kit commit unless noted:
 - `createScope(root, input)` — baseline is HEAD; role `scope-plan`
   (`docs: plan scope <id>`); the commit also takes the specification and
   `context` documents when they are changed. When the configuration has
@@ -343,53 +346,37 @@ managed hooks.
 
 ## Command Line (`workflow-kit-cli.ts`, `kit-cli-*.ts`)
 
-The full reference (usage, behaviour, text output and refusals of every
-command) is
-[WorkflowKitCommands.md](../../../../../../docs/architecture/workflow-kit/WorkflowKitCommands.md);
-it changes in the same commit as the commands. Summary:
-- `runCli(argv, io, kit?)` returns the exit code; the file runs it itself
-  when it is the program entry. The project root is `--root`, else
-  `HARNESS_WORKFLOW_ROOT`, else the git top level, else the working
-  directory.
-- `COMMANDS` of `workflow-kit-cli.ts` spreads the command groups of
-  `kit-cli-execution.ts` (`scope:propose`, `scope:choose`,
-  `scope:proposal`), `kit-cli-assignment.ts` (`assignment:*` and the
-  executor whitelist), `kit-cli-integration.ts` (`integration:*`),
-  `kit-cli-identity.ts` (`identity:set`), `kit-cli-pause.ts` (`pause:set`),
-  `kit-cli-schema.ts` (`schema`) and `kit-cli-context.ts` (`context`); boolean flags include `--force`; the other commands are defined in
-  `workflow-kit-cli.ts`, the default texts in `kit-cli-text.ts`. `help`
-  lists every usage line.
-- `schema [<command>]` (`kit-cli-schema.ts`) prints the JSON input
-  descriptor of `scope:create`, `scope:propose`, `plan:extend`,
-  `task:update`, `carryover`, `digest` or `quality:apply` with its example
-  (text: the compact field lines, rules and the one-line example of
-  `workflowRecoveryFacade.schemaText`), or without a command the list with
-  one-line descriptions; another command is `USAGE` with
-  `details.commands`. It needs no scope and runs in an executor worktree.
-- `context <path>[#Heading] …` (`kit-cli-context.ts`, text by default)
-  prints `<document path heading? bytes>` blocks in argument order within
-  28 000 bytes; after the first misfit the rest is listed as `not included
-  (ask again): <path>[#H] (N bytes)`. A document over the budget alone gives
-  its `##` sections (without sections: `tooLarge`). `#Heading` matches by text or slug (`section`). Every
-  argument is checked first: outside the root (symbolic links resolved),
-  `.harness/workflow/**`, a folder or a file with a NUL byte is
-  `CONTEXT_FORBIDDEN`; a missing file or heading `CONTEXT_MISSING`. JSON:
-  `{documents: [{path, heading?, bytes, text}], notIncluded: [{path,
-  heading?, bytes, tooLarge?}]}`. `--list [<folder>]`: `{folder, entries,
-  shown, text}`, the map within 28 000 bytes. No scope; executor allowed.
-- Output: `{ok: true, command, result}` as JSON or `--format text` (a
-  spec's `defaultFormat` sets the default).
-  Errors: `{ok: false, code, message, nextAction, details}` on stdout with
-  exit code 1 (`--format text`: `CODE: message` on stderr); `USAGE`,
-  `UNKNOWN_COMMAND`, `INPUT_UNREADABLE` / `INPUT_JSON`, `INTERNAL`.
-- Executor worktree: only `status`, `validate`, `recover`, `show-task`,
-  `schema`, `context`, `task:start`, `commit`, `repair`, `task:block`,
-  `assignment:status`, `assignment:setup`, `assignment:attach`, `help`,
-  `hook` and `git-hook` run; every other known command fails with
-  `ASSIGNMENT_READ_ONLY` (`details.allowed`) before it runs.
-- `hook session-start --client claude|codex [--part K/N]` prints the raw
-  SessionStart JSON; `git-hook <name> [args]` prints the hook message on stderr and
-  exits with the hook code.
+`runCli(argv, {cwd, stdout, stderr})` dispatches the standalone CLI and returns
+an exit code. The entry guard compares the real entry path with
+`import.meta.url`; importing the module never runs a command. Argument parsing
+and input JSON failures are structured Kit errors. The project root comes
+from `--root`, the git top level, or the working directory.
+
+Command groups compose through `COMMANDS`: scope, hook, execution mode,
+assignments, integration, identity, pause, schemas and document context. The
+new `kit-cli-scope.ts` and `kit-cli-hook.ts` keep the existing protocol. The
+executor whitelist is checked before dispatch; disallowed known commands
+return `ASSIGNMENT_READ_ONLY` with `details.allowed`.
+
+- JSON success: `{ok:true, command, result}`. Failure:
+  `{ok:false, code, message, nextAction, details}` on stdout, exit 1.
+- `--format text` uses the command formatter; errors go to stderr. `context`
+  defaults to marked text. `help` lists every usage line.
+- `schema [command]` exposes the actual input descriptors and examples for
+  planning, updates, carryover, digests and quality; unknown commands are `USAGE`.
+- `context <path>[#Heading] ...` returns marked documents within 28,000 bytes,
+  reports omitted documents and large-document sections, and validates every
+  path before reading. Outside-root, runtime, folder and binary reads are
+  `CONTEXT_FORBIDDEN`; missing paths/headings are `CONTEXT_MISSING`.
+  `context --list [folder]` returns the bounded document map.
+- `hook session-start --client claude|codex [--part K/N]` writes the raw
+  provider hook JSON. `git-hook <name> [args]` writes its diagnostic to stderr
+  and returns the hook code.
+
+The complete command arguments, formats and refusal contracts are maintained
+in [WorkflowKitCommands.md](../../../../../../docs/architecture/workflow-kit/WorkflowKitCommands.md).
+The module's facade operations and hooks are specified above; tests below
+exercise the same public command contract.
 
 ## Bundle
 
@@ -412,6 +399,8 @@ hooks and launcher, then `scripts/workflow validate` and `doctor`.
 Node built-ins only.
 
 ## Tests
+
+The tests of the [Workflow Kit module](module.md).
 
 All on temporary repositories with real hooks (and real `git worktree add`
 worktrees where noted):
@@ -456,6 +445,11 @@ worktrees where noted):
 - `src/workflow-kit-schema.test.mjs` — `schema` for every command (JSON
   descriptor, text lines, rules and example), the list, an unknown
   command, outside an installed project.
+- `src/workflow-kit-support.mjs` (support, not a test) — shared by the
+  execution-mode, assignment, executor and status tests: the compiled Kit
+  with a clean git environment and a deterministic clock, temporary
+  projects with a bootstrap commit, the command line with captured output,
+  real hooks, the orchestrated proposal and choice, and plan fixtures.
 - `src/workflow-kit-cli.test.mjs` — envelopes, inspection, `install
   --host`, text output, recovery events, SessionStart and git-hook
   dispatch, the compiled program, and `identity:set` outside a project
@@ -465,3 +459,6 @@ worktrees where noted):
 
 Test repositories use the real local identity `workflow@harness-ai.test`:
 Kit commits refuse placeholder identities (`GIT_IDENTITY_REQUIRED`).
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 205,
+  "revision": 207,
   "rounds": [
     {
       "digest": null,
@@ -200,7 +200,7 @@
       "kind": "work",
       "parallelSafe": true,
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Синхронизировать фасад Kit, CLI и тесты процесса",
       "why": "Перенести согласованное разбиение Kit с регрессиями процесса; связанные файлы и test helpers превышают ориентир в три файла."
     },
@@ -466,8 +466,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 2/9
-- Revision: 205
+- Progress: 3/9
+- Revision: 207
 
 ## Objective
 
@@ -491,7 +491,7 @@
   - Commit: refactor(workflow): synchronize Kit plan internals
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema-fields.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-input-schema.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-rounds.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-scope-completion.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md
   - Depends on: T001
-- [TODO] T003 — Синхронизировать фасад Kit, CLI и тесты процесса (work, parallel-safe)
+- [DONE] T003 — Синхронизировать фасад Kit, CLI и тесты процесса (work, parallel-safe)
   - Commit: refactor(workflow): synchronize Kit facade and CLI
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-hook.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-facade-base.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-create.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-cli.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-assignment.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-context-command.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-execution-mode.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-executor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-hooks.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-ignored-commit.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-status.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-worktree.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md
   - Depends on: T002

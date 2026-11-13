@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import {
-  chmodSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -10,161 +9,72 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { cleanGitEnvironment } from "../../workflow-git/src/workflow-git-test-repo.mjs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+import {
+  code,
+  failure,
+  lintProfile,
+  local,
+  openKit,
+  PLAN,
+  write,
+} from "./workflow-kit-support.mjs";
 
 const build = await buildWorkflowModules(
   ["workflow-kit", "workflow-assignment"],
   "workflow-kit-executor"
 );
-const sandbox = realpathSync(
+// The long path: git reports worktrees by it (Windows 8.3 names differ).
+const sandbox = realpathSync.native(
   mkdtempSync(path.join(tmpdir(), "workflow-kit-executor-"))
 );
 try {
-  const { WorkflowGitFacade } = await build.load(
-    "workflow-git",
-    "workflow-git-facade.js"
-  );
-  const { WorkflowPlanFacade } = await build.load(
-    "workflow-plan",
-    "workflow-plan-facade.js"
-  );
-  const { WorkflowKitFacade, GIT_HOOKS } = await build.load(
-    "workflow-kit",
-    "workflow-kit-facade.js"
-  );
-  const { runCli } = await build.load("workflow-kit", "workflow-kit-cli.js");
-  const env = cleanGitEnvironment();
-  const git = new WorkflowGitFacade(undefined, env);
-  const plans = new WorkflowPlanFacade();
-  let tick = 0;
-  const kit = new WorkflowKitFacade({
-    env,
-    git,
-    now: () => `2026-11-04T12:00:${String(tick++).padStart(2, "0")}Z`,
-  });
-  const failure = (action) => {
-    try {
-      action();
-    } catch (error) {
-      return error;
-    }
-    return null;
-  };
-  const code = (action) => failure(action)?.code ?? "OK";
-  const write = (root, name, text) => {
-    const file = path.join(root, ...name.split("/"));
-    mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, text);
-  };
-  const local = (root, ...parts) =>
-    path.join(root, ".harness", "workflow", "local", ...parts);
+  const { bootstrap, cli, git, installHooks, kit, orchestrate, plans } =
+    await openKit(build, { clock: "12:00" });
   const readRecord = (id) =>
     JSON.parse(readFileSync(local(root, "assignments", `${id}.json`), "utf8"));
-  const run = (cwd, argv) => {
-    const out = { stderr: "", stdout: "" };
-    const exit = runCli(
-      argv,
-      {
-        cwd,
-        env,
-        readStdin: () => "",
-        stderr: (text) => {
-          out.stderr += text;
-        },
-        stdout: (text) => {
-          out.stdout += text;
-        },
-      },
-      kit
-    );
-    return { ...out, exit };
-  };
-  const PLAN = ".harness/plans/todo-plan.md";
+  const run = cli;
 
   // --- Main checkout with real hooks shared by every worktree. ---
   const root = path.join(sandbox, "project");
   mkdirSync(root);
-  git.init(root);
-  git.setConfig(root, "user.name", "Workflow Test");
-  git.setConfig(root, "user.email", "workflow@harness-ai.test");
-  write(root, ".gitignore", ".harness/workflow/local/\n.harness/runtime/\n");
-  git.transactions.commit(root, {
-    files: [".gitignore"],
-    message: "chore: bootstrap",
-    planPath: PLAN,
-    planText: plans.render(plans.createEmpty("demo", "Demo")),
-    role: "bootstrap",
-    scopeId: null,
-    taskId: null,
-  });
-  const runner = path.join(build.directory, "hook-runner.mjs");
-  writeFileSync(
-    runner,
-    `import { WorkflowKitFacade } from ${JSON.stringify(path.join(build.directory, "workflow-kit", "src", "workflow-kit-facade.js"))};
-const [name, ...args] = process.argv.slice(2);
-const result = new WorkflowKitFacade().gitHook(process.cwd(), name, args);
-if (result.message) process.stderr.write(result.message + "\\n");
-process.exit(result.exitCode);
-`
-  );
-  const hooks = path.join(sandbox, "hooks");
-  mkdirSync(hooks);
-  for (const name of GIT_HOOKS) {
-    writeFileSync(
-      path.join(hooks, name),
-      `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(runner)} ${name} "$@"\n`
-    );
-    chmodSync(path.join(hooks, name), 0o755);
-  }
-  // core.hooksPath lives in the shared repository config: worktrees use it too.
-  git.setConfig(root, "core.hooksPath", hooks);
+  bootstrap(root);
+  installHooks(root, path.join(sandbox, "hooks"));
 
   write(root, "docs/spec.md", "# Spec\n\nTwo modules and a release.\n");
-  kit.proposeScope(
-    root,
-    {
-      acceptance: ["The modules exist"],
-      approval: "User approved the orchestrated scope",
-      id: "par-1",
-      objective: "Build two modules",
-      spec: "docs/spec.md",
-      tasks: [
-        {
-          acceptance: ["A works"],
-          commitMessage: "feat: add A",
-          files: ["src/a.ts"],
-          id: "A",
-          parallelSafe: true,
-          title: "Module A",
-          why: "The product needs A",
-        },
-        {
-          acceptance: ["B works"],
-          commitMessage: "feat: add B",
-          files: ["src/mod"],
-          id: "B",
-          parallelSafe: true,
-          title: "Module B",
-        },
-        {
-          acceptance: ["Released"],
-          commitMessage: "chore: release",
-          files: [],
-          id: "SHIP",
-          kind: "delivery",
-          title: "Release",
-        },
-      ],
-    },
-    "orchestrated",
-    "Independent modules with separate files"
-  );
-  kit.chooseScope(root, {
-    generation: 1,
-    note: "User clicked orchestrated",
-    option: "orchestrated",
-    session: "session-1",
+  orchestrate(root, {
+    acceptance: ["The modules exist"],
+    approval: "User approved the orchestrated scope",
+    id: "par-1",
+    objective: "Build two modules",
+    spec: "docs/spec.md",
+    tasks: [
+      {
+        acceptance: ["A works"],
+        commitMessage: "feat: add A",
+        files: ["src/a.ts"],
+        id: "A",
+        parallelSafe: true,
+        title: "Module A",
+        why: "The product needs A",
+      },
+      {
+        acceptance: ["B works"],
+        commitMessage: "feat: add B",
+        files: ["src/mod"],
+        id: "B",
+        parallelSafe: true,
+        title: "Module B",
+      },
+      {
+        acceptance: ["Released"],
+        commitMessage: "chore: release",
+        files: [],
+        id: "SHIP",
+        kind: "delivery",
+        title: "Release",
+      },
+    ],
   });
   assert.deepEqual(
     plans.read(root).tasks.map((task) => task.id),
@@ -173,18 +83,7 @@ process.exit(result.exitCode);
 
   // QUALITY runs in main; work, DOCS and an early delivery do not.
   kit.startTask(root, "QUALITY");
-  kit.qualityApply(root, {
-    checks: [
-      {
-        command: { args: ["-e", "process.exit(0)"], executable: "node" },
-        id: "lint",
-        required: true,
-        role: "lint",
-        stage: "commit",
-      },
-    ],
-    stacks: ["node"],
-  });
+  kit.qualityApply(root, lintProfile());
   const readOnly = failure(() => kit.startTask(root, "A"));
   assert.equal(readOnly.code, "ORCHESTRATED_MAIN_READ_ONLY");
   assert.match(readOnly.nextAction, /assignment:create --task A/u);

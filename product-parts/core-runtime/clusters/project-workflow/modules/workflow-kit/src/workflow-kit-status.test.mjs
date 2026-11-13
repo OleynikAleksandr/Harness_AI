@@ -1,15 +1,14 @@
 import assert from "node:assert/strict";
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { cleanGitEnvironment } from "../../workflow-git/src/workflow-git-test-repo.mjs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+import {
+  docsScope,
+  lintProfile,
+  local,
+  openKit,
+  work,
+} from "./workflow-kit-support.mjs";
 
 const build = await buildWorkflowModules(
   ["workflow-kit", "workflow-assignment", "workflow-autopilot"],
@@ -17,56 +16,16 @@ const build = await buildWorkflowModules(
 );
 const roots = [];
 try {
-  const { WorkflowGitFacade } = await build.load(
-    "workflow-git",
-    "workflow-git-facade.js"
-  );
-  const { WorkflowPlanFacade } = await build.load(
-    "workflow-plan",
-    "workflow-plan-facade.js"
-  );
-  const { WorkflowKitFacade } = await build.load(
-    "workflow-kit",
-    "workflow-kit-facade.js"
-  );
+  const { env, git, kit, project, runCli } = await openKit(build, {
+    clock: "12:00",
+    prefix: "workflow-status-",
+    roots,
+  });
   const { WorkflowAutopilotFacade } = await build.load(
     "workflow-autopilot",
     "workflow-autopilot-facade.js"
   );
-  const { runCli } = await build.load("workflow-kit", "workflow-kit-cli.js");
-  const env = cleanGitEnvironment();
-  const git = new WorkflowGitFacade(undefined, env);
-  const plans = new WorkflowPlanFacade();
   const autopilot = new WorkflowAutopilotFacade();
-  let tick = 0;
-  const kit = new WorkflowKitFacade({
-    env,
-    git,
-    now: () => `2026-11-04T12:00:${String(tick++).padStart(2, "0")}Z`,
-  });
-  const project = () => {
-    const root = mkdtempSync(path.join(tmpdir(), "workflow-status-"));
-    roots.push(root);
-    git.init(root);
-    git.setConfig(root, "user.name", "Workflow Test");
-    git.setConfig(root, "user.email", "workflow@harness-ai.test");
-    writeFileSync(
-      path.join(root, ".gitignore"),
-      ".harness/workflow/local/\n.harness/runtime/\n"
-    );
-    git.transactions.commit(root, {
-      files: [".gitignore"],
-      message: "chore: bootstrap",
-      planPath: ".harness/plans/todo-plan.md",
-      planText: plans.render(plans.createEmpty("demo", "Demo")),
-      role: "bootstrap",
-      scopeId: null,
-      taskId: null,
-    });
-    return root;
-  };
-  const local = (root, ...parts) =>
-    path.join(root, ".harness", "workflow", "local", ...parts);
   const writeLocal = (root, name, value) => {
     const file = local(root, ...name.split("/"));
     mkdirSync(path.dirname(file), { recursive: true });
@@ -105,15 +64,6 @@ try {
     statusText(root)
       .split("\n")
       .find((line) => line.startsWith("execution:"));
-  const work = (id, fields = {}) => ({
-    acceptance: [`${id} works`],
-    commitMessage: `feat: add ${id}`,
-    files: [`src/${id.toLowerCase()}.ts`],
-    id,
-    title: `Module ${id}`,
-    why: `The product needs ${id}`,
-    ...fields,
-  });
 
   // --- No scope: every new field is empty. ---
   const root = project();
@@ -219,18 +169,7 @@ try {
 
   // QUALITY in main, then A and B are ready to hand out.
   kit.startTask(root, "QUALITY");
-  kit.qualityApply(root, {
-    checks: [
-      {
-        command: { args: ["-e", "process.exit(0)"], executable: "node" },
-        id: "lint",
-        required: true,
-        role: "lint",
-        stage: "commit",
-      },
-    ],
-    stacks: ["node"],
-  });
+  kit.qualityApply(root, lintProfile());
   assert.deepEqual(kit.autopilotStatus(root).orchestration.readyTasks, [
     "A",
     "B",
@@ -355,21 +294,7 @@ try {
 
   // --- A sequential scope: execution sequential, no orchestration. ---
   const plain = project();
-  kit.createScope(plain, {
-    acceptance: ["The note exists"],
-    approval: "User approved the docs-only scope",
-    id: "docs-1",
-    objective: "Write one note",
-    tasks: [
-      {
-        acceptance: ["note written"],
-        commitMessage: "docs: write the note",
-        files: ["docs/note.md"],
-        id: "N",
-        title: "Note",
-      },
-    ],
-  });
+  kit.createScope(plain, docsScope("docs-1"));
   status = kit.status(plain);
   assert.equal(status.execution.strategy, "sequential");
   assert.deepEqual(

@@ -20,7 +20,8 @@ const build = await buildWorkflowModules(
   ["workflow-kit", "workflow-assignment"],
   "workflow-kit-worktree"
 );
-const sandbox = realpathSync(
+// The long path: git reports worktrees by it (Windows 8.3 names differ).
+const sandbox = realpathSync.native(
   mkdtempSync(path.join(tmpdir(), "workflow-kit-worktree-"))
 );
 try {
@@ -55,8 +56,28 @@ mkdir -p node_modules/left-pad
 `
   );
   chmodSync(path.join(bin, "npm"), 0o755);
+  writeFileSync(
+    path.join(bin, "npm.cmd"),
+    [
+      "@echo off",
+      'if "%FAKE_NPM_FAIL%"=="1" (',
+      "  echo npm ERR! fake failure 1>&2",
+      "  exit /b 1",
+      ")",
+      "echo fake npm %*",
+      "if not exist node_modules\\left-pad mkdir node_modules\\left-pad",
+      "exit /b 0",
+      "",
+    ].join("\r\n")
+  );
   const gitEnv = cleanGitEnvironment();
-  const env = { ...gitEnv, PATH: `${bin}${path.delimiter}${gitEnv.PATH}` };
+  // Windows keeps the search path under the key Path.
+  const pathKey =
+    Object.keys(gitEnv).find((key) => key.toUpperCase() === "PATH") ?? "PATH";
+  const env = {
+    ...gitEnv,
+    [pathKey]: `${bin}${path.delimiter}${gitEnv[pathKey] ?? ""}`,
+  };
   const git = new WorkflowGitFacade(undefined, gitEnv);
   const plans = new WorkflowPlanFacade();
   let tick = 0;
@@ -276,7 +297,8 @@ mkdir -p node_modules/left-pad
   // In main with --id; a READY record stays READY.
   const setupB = kit.setupAssignment(root, idB);
   assert.equal(setupB.ran, true);
-  assert.match(setupB.output, /fake npm ci/u);
+  // On Windows the fake npm.cmd echoes the argument as cmd.exe quoted it.
+  assert.match(setupB.output, /fake npm "?ci"?/u);
   assert.equal(setupB.assignment.status, "READY");
   assert.equal(setupB.assignment.setup.command, "npm ci");
   assert.equal(kit.startTask(wtA, "A").task.status, "IN_PROGRESS");

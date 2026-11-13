@@ -7,23 +7,11 @@ import {
   type ScopeProposal,
   workflowExecutionModeFacade,
 } from "../../workflow-execution-mode/src/workflow-execution-mode-facade.js";
-import {
-  type CommitResult,
-  type RepairOutcome,
-  type RepairPlan,
-  type WorkflowGitFacade,
-  workflowGitFacade,
+import type {
+  CommitResult,
+  RepairOutcome,
+  RepairPlan,
 } from "../../workflow-git/src/workflow-git-facade.js";
-import {
-  type DoctorOptions,
-  type DoctorReport,
-  type InspectResult,
-  type InstallOptions,
-  type InstallOutcome,
-  type MigrateOptions,
-  type MigrateOutcome,
-  WorkflowInstallerFacade,
-} from "../../workflow-installer/src/workflow-installer-facade.js";
 import type {
   IntegrationOutcome,
   IntegrationState,
@@ -37,14 +25,6 @@ import type {
   QualityProposal,
 } from "../../workflow-quality/src/workflow-quality-facade.js";
 import {
-  type HistoryEntry,
-  type HookClient,
-  type PartRequest,
-  type RecoveryEvent,
-  type RecoveryPacket,
-  WorkflowRecoveryFacade,
-} from "../../workflow-recovery/src/workflow-recovery-facade.js";
-import {
   type AssignmentCancelled,
   type AssignmentCleanupResult,
   type AssignmentCreated,
@@ -54,7 +34,7 @@ import {
   createAssignment,
   nextAssignments,
 } from "./kit-assignment.js";
-import { type KitContext, readConfig } from "./kit-context.js";
+import { readConfig } from "./kit-context.js";
 import {
   type AssignmentAttached,
   type AssignmentState,
@@ -63,6 +43,7 @@ import {
   executorAssignment,
   setupAssignment,
 } from "./kit-executor.js";
+import { WorkflowKitBase } from "./kit-facade-base.js";
 import { type HookResult, runGitHook } from "./kit-hooks.js";
 import {
   continueIntegration,
@@ -96,14 +77,6 @@ import {
   updateTask,
 } from "./kit-scope.js";
 import {
-  autopilotStatus,
-  type KitAutopilotStatus,
-  type KitStatus,
-  readStatus,
-  type ValidationReport,
-  validateProject,
-} from "./kit-status.js";
-import {
   commitDocs,
   commitTask,
   startTask,
@@ -130,6 +103,7 @@ export type {
   AssignmentNext,
 } from "./kit-assignment.js";
 export type { AssignmentAttached, AssignmentState } from "./kit-executor.js";
+export type { WorkflowKitOptions } from "./kit-facade-base.js";
 export type { GitHookName, HookResult } from "./kit-hooks.js";
 export { GIT_HOOKS } from "./kit-hooks.js";
 export type { PauseState } from "./kit-pause.js";
@@ -164,105 +138,15 @@ export interface ScopeProposalView {
   scopeId: string | null;
 }
 
-export interface WorkflowKitOptions {
-  env?: NodeJS.ProcessEnv;
-  git?: WorkflowGitFacade;
-  now?: () => string;
-}
-
 /**
  * Cluster facade of `core-runtime/clusters/project-workflow`: every process
- * operation of the Workflow Kit on one project root.
+ * operation of the Workflow Kit on one project root. Options, the bound
+ * facades and the project operations come from `WorkflowKitBase`.
  */
-export class WorkflowKitFacade {
-  readonly env: NodeJS.ProcessEnv;
-  readonly git: WorkflowGitFacade;
-  readonly installer: WorkflowInstallerFacade;
-  readonly recovery: WorkflowRecoveryFacade;
-  private readonly now: () => string;
-
-  constructor(options: WorkflowKitOptions = {}) {
-    this.env = options.env ?? process.env;
-    this.git = options.git ?? workflowGitFacade;
-    this.now = options.now ?? (() => new Date().toISOString());
-    this.recovery = new WorkflowRecoveryFacade(this.git);
-    this.installer = new WorkflowInstallerFacade(this.git);
-  }
-
-  private context(root: string): KitContext {
-    return { env: this.env, git: this.git, now: this.now, root };
-  }
-
-  /** `inspect <path>`: folder state and the action to offer. */
-  inspect(folder: string): InspectResult {
-    return this.installer.inspect(folder);
-  }
-
-  /** `doctor [--fix]`: project health; fixes only fixable findings. */
-  doctor(folder: string, options: DoctorOptions = {}): DoctorReport {
-    return this.installer.doctor(folder, { env: this.env, ...options });
-  }
-
-  /** `migrate:harness-plan`: a legacy Harness plan becomes a Kit plan. */
-  migrateHarnessPlan(
-    folder: string,
-    options: Omit<MigrateOptions, "now">
-  ): MigrateOutcome {
-    return this.installer.migrateHarnessPlan(folder, {
-      ...options,
-      now: this.now(),
-    });
-  }
-
-  /** `install <path> [--update]`. */
-  install(folder: string, options: InstallOptions): InstallOutcome {
-    return this.installer.install(folder, options);
-  }
-
-  status(root: string): KitStatus {
-    return readStatus(this.context(root));
-  }
-
-  validate(root: string): ValidationReport {
-    return validateProject(this.context(root));
-  }
-
-  autopilotStatus(root: string): KitAutopilotStatus {
-    return autopilotStatus(this.context(root));
-  }
-
+export class WorkflowKitFacade extends WorkflowKitBase {
   /** `pause:set --on|--off --note`: the user's pause of the workflow. */
   setPause(root: string, paused: boolean, note: string): PauseState {
     return setPause(this.context(root), paused, note);
-  }
-
-  recover(root: string, event: RecoveryEvent = "startup"): RecoveryPacket {
-    return this.recovery.packet(root, event);
-  }
-
-  showTask(root: string, taskId: string): string {
-    return this.recovery.showTask(root, taskId);
-  }
-
-  history(
-    root: string,
-    filter: { round?: string; task?: string } = {}
-  ): { entries: HistoryEntry[]; text: string } {
-    return this.recovery.history(root, filter);
-  }
-
-  sessionStart(
-    root: string,
-    client: HookClient,
-    stdin: string,
-    part: PartRequest | null = null
-  ): string {
-    return this.recovery.sessionStart(root, {
-      client,
-      env: this.env,
-      part,
-      stdin,
-    });
   }
 
   createScope(root: string, input: ScopeInput): PlanChange {

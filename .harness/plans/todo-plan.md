@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 217,
+  "revision": 219,
   "rounds": [
     {
       "digest": {
@@ -433,7 +433,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Стабилизировать порядок тестового уведомления Kimi",
       "why": "На delivery-проверке воспроизведён существующий недетерминированный тест: setup echo не имеет порядка относительно turn_started. Сохранить проверку реального порядка событий хода и отдельно проверить fixture echo."
     },
@@ -544,8 +544,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 7/11
-- Revision: 217
+- Progress: 8/11
+- Revision: 219
 
 ## Objective
 
@@ -594,7 +594,7 @@ Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workfl
 
 ### R2 — Stabilize the pre-existing Kimi fixture ordering before release (fixes, OPEN)
 
-- [TODO] T009 — Стабилизировать порядок тестового уведомления Kimi (work)
+- [DONE] T009 — Стабилизировать порядок тестового уведомления Kimi (work)
   - Commit: test(kimi): separate setup echo from turn event ordering
   - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T006

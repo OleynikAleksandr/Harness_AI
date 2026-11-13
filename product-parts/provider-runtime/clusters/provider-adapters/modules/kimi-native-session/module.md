@@ -281,3 +281,11 @@ session id with the CLI store id).
 
 - `module.md`
 - `src/**`
+
+## Validation
+
+The scripted ACP runtime test checks the exact turn-event sequence and the
+full-access `harness_test/mode` fixture echo separately. The setup echo may
+arrive before or after `turn_started`; only that named fixture notification
+is excluded from the turn-order assertion, and its `yolo` payload remains
+required. No production lifecycle ordering is relaxed.

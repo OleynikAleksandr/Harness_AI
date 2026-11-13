@@ -65,3 +65,11 @@ The fixture writes the mode response and then the notification during
 The isolated unchanged test passed on rerun. This does not establish a fix;
 the original failure is retained locally and a separate test stabilization
 task will precede packaging. No Kimi production change is required.
+
+## Kimi fixture stabilization (R2 / T009)
+
+T009 separates only the named `harness_test/mode` setup echo from the exact
+turn-order assertion. The existing separate assertion still requires its
+`yolo` payload. All other events retain the original exact sequence; Kimi
+production sources are unchanged. The module contract documents this test
+boundary, and the task runs the complete quality profile before committing.

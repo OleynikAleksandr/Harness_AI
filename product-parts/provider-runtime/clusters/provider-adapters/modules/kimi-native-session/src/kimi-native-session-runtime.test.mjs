@@ -228,15 +228,25 @@ try {
   await runtime.close();
   assert.equal(runtime.isOpen, false);
 
-  const types = events.map((event) =>
-    event.type === "stream_event" ? `stream:${event.data.kind}` : event.type
-  );
+  // The setup RPC echo can arrive before or after turn_started. Its
+  // payload is asserted below; only actual turn events have a fixed order.
+  const types = events
+    .filter(
+      (event) =>
+        !(
+          event.type === "stream_event" &&
+          event.data.kind === "kimi_acp_notification" &&
+          event.data.method === "harness_test/mode"
+        )
+    )
+    .map((event) =>
+      event.type === "stream_event" ? `stream:${event.data.kind}` : event.type
+    );
   // No kimi_thinking_unavailable: the workspace-home config owns thinking,
   // so the ACP thinking=on request is deliberately not sent (it would
   // override the configured level with the CLI default).
   assert.deepEqual(types, [
     "turn_started",
-    "stream:kimi_acp_notification",
     "dialog_message",
     "dialog_message",
     "stream:kimi_tool_call",

@@ -73,3 +73,8 @@ turn-order assertion. The existing separate assertion still requires its
 `yolo` payload. All other events retain the original exact sequence; Kimi
 production sources are unchanged. The module contract documents this test
 boundary, and the task runs the complete quality profile before committing.
+
+T009 committed as `be5e578147b5eaa87f63904b2efe0b0575b26419` after the full
+quality profile passed. T006 is `c1f5c736542d4d1eb3e6a27b11c95ebafe38d99a`.
+Duplication, security and link checks passed; the dependency audit reported
+zero vulnerabilities. Packaging and publication are the remaining delivery tasks.

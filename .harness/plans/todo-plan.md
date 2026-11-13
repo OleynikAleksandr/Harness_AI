@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 219,
+  "revision": 221,
   "rounds": [
     {
       "digest": {
@@ -36,7 +36,20 @@
       "title": "Implementation"
     },
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "Kimi test fixture mode echo has no ordering guarantee relative to turn_started; its yolo payload remains required."
+        ],
+        "decisions": [
+          "Preserve the original T006 failure and distinguish a successful rerun from a fix.",
+          "Assert only the named setup echo separately; retain exact ordering for actual turn events."
+        ],
+        "references": [
+          "docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md",
+          "docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md"
+        ],
+        "result": "Stabilized the existing Kimi runtime fixture test before packaging; T009 be5e5781 passed the full quality profile. Kimi production code is unchanged."
+      },
       "id": "R2",
       "kind": "fixes",
       "status": "OPEN",
@@ -454,14 +467,15 @@
         "README.md",
         "docs/architecture/OVERVIEW.md",
         "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md",
-        "docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md"
+        "docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md",
+        "docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md"
       ],
       "fixes": null,
       "id": "DOCS-R2",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -544,8 +558,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 8/11
-- Revision: 219
+- Progress: 9/11
+- Revision: 221
 
 ## Objective
 
@@ -598,9 +612,9 @@ Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workfl
   - Commit: test(kimi): separate setup echo from turn event ordering
   - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T006
-- [TODO] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R2
-  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md, docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T009
 - [TODO] T007 — Собрать и проверить Harness AI для macOS (delivery)
   - Commit: chore: package Harness AI with Workflow Kit 2.2.4
@@ -610,5 +624,7 @@ Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workfl
   - Commit: chore: publish Harness AI with Workflow Kit 2.2.4
   - Files: docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
   - Depends on: T007, DOCS-R2
+
+Digest: Stabilized the existing Kimi runtime fixture test before packaging; T009 be5e5781 passed the full quality profile. Kimi production code is unchanged.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

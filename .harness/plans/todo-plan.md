@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 216,
+  "revision": 217,
   "rounds": [
     {
       "digest": {
@@ -32,8 +32,15 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Implementation"
+    },
+    {
+      "digest": null,
+      "id": "R2",
+      "kind": "fixes",
+      "status": "OPEN",
+      "title": "Stabilize the pre-existing Kimi fixture ordering before release"
     }
   ],
   "schema": "harness-workflow-plan/1",
@@ -398,6 +405,68 @@
     },
     {
       "acceptance": [
+        "Из сравнения порядка событий исключено только fixture-уведомление harness_test/mode; остальные события хода по-прежнему проверяются в точном порядке.",
+        "Содержимое уведомления и режим yolo по-прежнему проверяются отдельно; production-код Kimi не меняется.",
+        "Первый отказ и причина сохранены в evidence; module.md обновлён в том же коммите; полный профиль качества проходит."
+      ],
+      "checks": [],
+      "commitMessage": "test(kimi): separate setup echo from turn event ordering",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md",
+          "heading": "Preserved validation failure",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "T006"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.test.mjs",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md",
+        "docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md"
+      ],
+      "fixes": null,
+      "id": "T009",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Стабилизировать порядок тестового уведомления Kimi",
+      "why": "На delivery-проверке воспроизведён существующий недетерминированный тест: setup echo не имеет порядка относительно turn_started. Сохранить проверку реального порядка событий хода и отдельно проверить fixture echo."
+    },
+    {
+      "acceptance": [
+        "Project-wide documents describe the round result",
+        "The round digest records result, decisions, contracts and references"
+      ],
+      "checks": [],
+      "commitMessage": "docs: reconcile documentation for R2",
+      "confirmation": null,
+      "context": [],
+      "dependencies": [
+        "T009"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "README.md",
+        "docs/architecture/OVERVIEW.md",
+        "product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md",
+        "docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md"
+      ],
+      "fixes": null,
+      "id": "DOCS-R2",
+      "iteration": 1,
+      "kind": "docs",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Reconcile project documentation and write the round digest",
+      "why": "Keep the project context current for the next agent and close the round."
+    },
+    {
+      "acceptance": [
         "Delivery начата с подтверждением пользователя; пройдены quality, dup, security, links и npm run build, затем npm run package:mac.",
         "Пакет release/mac-arm64/Harness AI.app существует и перезапущен; новый временный проект получает Kit 2.2.4, Core читает статус и план.",
         "Evidence отличает проверки hooks и Core от факта приёма recovery новой сессией; непроведённый Windows live test не заявлен как пройденный.",
@@ -415,7 +484,7 @@
       ],
       "dependencies": [
         "T006",
-        "DOCS-R1"
+        "DOCS-R2"
       ],
       "docsWaiver": null,
       "files": [
@@ -425,7 +494,7 @@
       "id": "T007",
       "iteration": 1,
       "kind": "delivery",
-      "roundId": "R1",
+      "roundId": "R2",
       "status": "TODO",
       "title": "Собрать и проверить Harness AI для macOS",
       "why": "Проверить приложение с новым бандлом Kit в реальном macOS-пакете."
@@ -449,7 +518,7 @@
       ],
       "dependencies": [
         "T007",
-        "DOCS-R1"
+        "DOCS-R2"
       ],
       "docsWaiver": null,
       "files": [
@@ -459,7 +528,7 @@
       "id": "T008",
       "iteration": 1,
       "kind": "delivery",
-      "roundId": "R1",
+      "roundId": "R2",
       "status": "TODO",
       "title": "Опубликовать Harness AI с Workflow Kit 2.2.4",
       "why": "Завершить поставку публикацией main, тега даты сборки и Release с архивом приложения по правилам проекта."
@@ -475,8 +544,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 7/9
-- Revision: 216
+- Progress: 7/11
+- Revision: 217
 
 ## Objective
 
@@ -491,7 +560,7 @@
 
 ## Rounds
 
-### R1 — Implementation (implementation, OPEN)
+### R1 — Implementation (implementation, CLOSED)
 
 - [DONE] T001 — Синхронизировать платформу, установщик и Doctor 2.2.4 (work)
   - Commit: feat(workflow): synchronize platform and installer with Kit 2.2.4
@@ -520,15 +589,26 @@
   - Commit: chore(workflow): verify repository Kit 2.2.4 update
   - Files: .harness/workflow/runtime/workflow.mjs, .harness/workflow/manifest.json, scripts/workflow, scripts/workflow.cmd, scripts/workflow.ps1, AGENTS.md, CLAUDE.md, .codex/hooks.json, .claude/settings.json, .husky/pre-commit, .husky/commit-msg, .husky/post-commit, .husky/pre-push, .gitignore, .gitattributes, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: T005, DOCS-R1
+
+Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workflow_Kit commit 6e05505f. T001-T005 passed the full quality profile; repository runtime update, packaging and publication remain delivery tasks.
+
+### R2 — Stabilize the pre-existing Kimi fixture ordering before release (fixes, OPEN)
+
+- [TODO] T009 — Стабилизировать порядок тестового уведомления Kimi (work)
+  - Commit: test(kimi): separate setup echo from turn event ordering
+  - Files: product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/src/kimi-native-session-runtime.test.mjs, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
+  - Depends on: T006
+- [TODO] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
+  - Commit: docs: reconcile documentation for R2
+  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/provider-runtime/clusters/provider-adapters/modules/kimi-native-session/module.md, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
+  - Depends on: T009
 - [TODO] T007 — Собрать и проверить Harness AI для macOS (delivery)
   - Commit: chore: package Harness AI with Workflow Kit 2.2.4
   - Files: docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
-  - Depends on: T006, DOCS-R1
+  - Depends on: T006, DOCS-R2
 - [TODO] T008 — Опубликовать Harness AI с Workflow Kit 2.2.4 (delivery)
   - Commit: chore: publish Harness AI with Workflow Kit 2.2.4
   - Files: docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md
-  - Depends on: T007, DOCS-R1
-
-Digest: Workflow Kit sources in Harness AI are synchronized to 2.2.4 from Workflow_Kit commit 6e05505f. T001-T005 passed the full quality profile; repository runtime update, packaging and publication remain delivery tasks.
+  - Depends on: T007, DOCS-R2
 
 State changes only through `scripts/workflow` commands. History lives in Git.

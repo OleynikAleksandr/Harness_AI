@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 240,
+  "revision": 242,
   "rounds": [
     {
       "digest": {
@@ -33,7 +33,7 @@
       },
       "id": "R1",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Implementation"
     }
   ],
@@ -76,7 +76,7 @@
         "text": "Use the existing native About panel and existing modules, with no new dependencies."
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "execution": {
       "maxWorkers": 3,
       "ownerSession": "01a1d574-4310-7453-b7e3-5276848f46a8",
@@ -276,7 +276,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: publish release with application and Kit version information",
-      "confirmation": null,
+      "confirmation": "Пользователь поручил проверить обе версии в About готового приложения и опубликовать новый релиз на GitHub; публикация подтверждена.",
       "context": [
         {
           "path": "docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md",
@@ -297,7 +297,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Опубликовать исправленный релиз Harness AI",
       "why": "Доставить пользователю проверенное приложение с обеими версиями."
     }
@@ -309,11 +309,11 @@
 ## State
 
 - Scope: application-versions-about-2026-11-13 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Execution: sequential
 - Current task: none
-- Progress: 5/6
-- Revision: 240
+- Progress: 6/6
+- Revision: 242
 
 ## Objective
 
@@ -328,7 +328,7 @@
 
 ## Rounds
 
-### R1 — Implementation (implementation, OPEN)
+### R1 — Implementation (implementation, CLOSED)
 
 - [DONE] T001 — Создать единые метаданные версии релизной сборки (work)
   - Commit: feat(build): generate immutable application release metadata
@@ -349,7 +349,7 @@
   - Commit: chore: package and verify application version display
   - Files: docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md, docs/evidence/assets/application-versions-about-v2026.11.13.2.png
   - Depends on: T003, DOCS-R1
-- [TODO] T005 — Опубликовать исправленный релиз Harness AI (delivery)
+- [DONE] T005 — Опубликовать исправленный релиз Harness AI (delivery)
   - Commit: chore: publish release with application and Kit version information
   - Files: docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md
   - Depends on: T004, DOCS-R1

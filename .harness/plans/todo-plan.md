@@ -3,14 +3,14 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": "T006",
+  "currentTaskId": null,
   "lastClosed": {
     "closedAt": "2026-11-12T15:04:21.725Z",
     "scopeId": "kit-recovery-parts-2026-11-12"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 215,
+  "revision": 216,
   "rounds": [
     {
       "digest": {
@@ -392,7 +392,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "title": "Обновить установленный Kit репозитория до 2.2.4",
       "why": "Обновить runtime, manifest и hooks штатным установщиком после синхронизации и DOCS; исходники и установленный Kit должны иметь согласованную версию."
     },
@@ -474,9 +474,9 @@
 - Scope: workflow-kit-sync-2.2.4-2026-11-13 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Execution: sequential
-- Current task: T006
-- Progress: 6/9
-- Revision: 215
+- Current task: none
+- Progress: 7/9
+- Revision: 216
 
 ## Objective
 
@@ -516,7 +516,7 @@
   - Commit: docs: reconcile documentation for R1
   - Files: README.md, docs/architecture/OVERVIEW.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, product-parts/core-runtime/clusters/project-workflow/cluster.md
   - Depends on: T001, T002, T003, T004, T005
-- [IN_PROGRESS] T006 — Обновить установленный Kit репозитория до 2.2.4 (delivery)
+- [DONE] T006 — Обновить установленный Kit репозитория до 2.2.4 (delivery)
   - Commit: chore(workflow): verify repository Kit 2.2.4 update
   - Files: .harness/workflow/runtime/workflow.mjs, .harness/workflow/manifest.json, scripts/workflow, scripts/workflow.cmd, scripts/workflow.ps1, AGENTS.md, CLAUDE.md, .codex/hooks.json, .claude/settings.json, .husky/pre-commit, .husky/commit-msg, .husky/post-commit, .husky/pre-push, .gitignore, .gitattributes, docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: T005, DOCS-R1

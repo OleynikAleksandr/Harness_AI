@@ -174,6 +174,7 @@ implementation plan.
   the documentation map, autopilot on by default with a Kit pause, the real
   git config for agent processes, no built-in project, GitHub publication;
   actualized to the implementation by DOCS-R1.
+- `docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md` — source parity, repository Kit update, SessionStart hook probes, package smoke and publication evidence for Kit 2.2.4.
 - `docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md` — specification and implementation plan for synchronizing Workflow Kit 2.2.4 from Workflow_Kit into Harness AI: source and test adaptations, repository Kit update, compatibility checks, macOS package and publication.
 - `docs/architecture/KitRecoveryParts-2026-11-12.md` — Workflow Kit 2.2.3
   (Russian, scope `kit-recovery-parts-2026-11-12`): the recovery packet in

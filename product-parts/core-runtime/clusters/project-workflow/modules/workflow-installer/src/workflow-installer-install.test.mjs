@@ -13,72 +13,18 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import {
-  cleanGitEnvironment,
-  identityTemplate,
-} from "../../workflow-git/src/workflow-git-test-repo.mjs";
 import { buildWorkflowModules } from "../../workflow-platform/src/workflow-test-build.mjs";
+import { openInstallSandbox } from "./workflow-installer-install-support.mjs";
 
 const build = await buildWorkflowModules(
   ["workflow-kit", "workflow-installer"],
   "workflow-installer-install"
 );
 const sandbox = mkdtempSync(path.join(tmpdir(), "workflow-install-"));
-const at = (...parts) => path.join(sandbox, ...parts);
-const write = (target, text) => {
-  mkdirSync(path.dirname(target), { recursive: true });
-  writeFileSync(target, text);
-};
 try {
-  const { WorkflowGitFacade } = await build.load(
-    "workflow-git",
-    "workflow-git-facade.js"
-  );
-  const { WorkflowInstallerFacade } = await build.load(
-    "workflow-installer",
-    "workflow-installer-facade.js"
-  );
-  const { WorkflowKitFacade } = await build.load(
-    "workflow-kit",
-    "workflow-kit-facade.js"
-  );
-  const identity = at("gitconfig");
-  writeFileSync(
-    identity,
-    "[user]\n\tname = Workflow Test\n\temail = workflow@harness-ai.test\n"
-  );
-  writeFileSync(at("empty-gitconfig"), "");
-  const env = {
-    ...cleanGitEnvironment(),
-    GIT_CONFIG_GLOBAL: identity,
-    GIT_TEMPLATE_DIR: identityTemplate(sandbox),
-  };
-  const git = new WorkflowGitFacade(undefined, env);
-  const installer = new WorkflowInstallerFacade(git);
-  const kit = new WorkflowKitFacade({ env, git });
-  // The installed launcher runs this stand-in bundle, which drives the compiled CLI.
-  const bundle = `import { readFileSync } from "node:fs";
-import { runCli } from ${JSON.stringify(path.join(build.directory, "workflow-kit", "src", "workflow-kit-cli.js"))};
-process.exitCode = runCli(process.argv.slice(2), {
-  cwd: process.cwd(),
-  env: process.env,
-  readStdin: () => { try { return readFileSync(0, "utf8"); } catch { return ""; } },
-  stderr: (text) => process.stderr.write(text),
-  stdout: (text) => process.stdout.write(text),
-});
-`;
-  const options = {
-    bundle,
-    runtime: { executable: process.execPath, mode: "node" },
-  };
-  const code = (action) => {
-    try {
-      action();
-    } catch (error) {
-      return error.code;
-    }
-    return "OK";
-  };
+  const setup = await openInstallSandbox(build, sandbox);
+  const { at, bundle, code, env, git, installer, kit, options, write } = setup;
+  const { WorkflowGitFacade, WorkflowInstallerFacade } = setup;
 
   // New project: missing folder, no identity → nothing is written.
   const fresh = at("fresh");
@@ -353,66 +299,6 @@ process.exitCode = runCli(process.argv.slice(2), {
   );
   writeFileSync(manifestFile, currentManifest);
   assert.equal(installer.inspect(fresh).state, "KIT_OK");
-
-  // Existing files without git: kept as they are and left out of the commit.
-  const existing = at("existing");
-  write(path.join(existing, "README.md"), "# Mine\n");
-  write(path.join(existing, "src", "main.ts"), "export {};\n");
-  assert.equal(installer.inspect(existing).state, "NOT_GIT");
-  const adopted = installer.install(existing, options);
-  assert.equal(
-    readFileSync(path.join(existing, "README.md"), "utf8"),
-    "# Mine\n"
-  );
-  assert.deepEqual(adopted.excluded, ["README.md", "src/main.ts"]);
-  assert.equal(installer.inspect(existing).state, "KIT_OK");
-
-  // A configured hooks path (husky) gets managed sections after the shebang.
-  const husky = at("husky");
-  mkdirSync(husky);
-  git.init(husky);
-  git.setConfig(husky, "core.hooksPath", ".husky");
-  write(
-    path.join(husky, ".husky", "pre-commit"),
-    "#!/usr/bin/env sh\necho husky\n"
-  );
-  write(path.join(husky, "package.json"), "{}\n");
-  assert.equal(installer.inspect(husky).state, "GIT_NO_KIT");
-  assert.deepEqual(installer.inspect(husky).stacks, ["node"]);
-  const huskyInstall = installer.install(husky, options);
-  assert.equal(huskyInstall.hooksPath, ".husky");
-  assert.equal(git.config(husky, "core.hooksPath"), ".husky");
-  assert.match(
-    readFileSync(path.join(husky, ".husky", "pre-commit"), "utf8"),
-    /^#!\/usr\/bin\/env sh\n# workflow-kit:begin\n.*git-hook pre-commit.*\n# workflow-kit:end\necho husky\n$/u
-  );
-  assert.equal(
-    existsSync(path.join(husky, ".harness", "workflow", "hooks")),
-    false
-  );
-
-  // A legacy Harness plan is detected and kept for migration.
-  const legacy = at("legacy");
-  mkdirSync(legacy);
-  git.init(legacy);
-  const legacyPlan =
-    "# Plan\n\nSchema: harness-ai-plan-v1\nExecution Scope Status: NONE\n";
-  write(path.join(legacy, ".harness", "plans", "todo-plan.md"), legacyPlan);
-  git.git.run(legacy, ["add", "-A"]);
-  git.git.run(legacy, ["commit", "-q", "-m", "legacy"]);
-  assert.deepEqual(
-    [installer.inspect(legacy).state, installer.inspect(legacy).action],
-    ["LEGACY_HARNESS_PLAN", "install-migrate"]
-  );
-  const legacyInstall = installer.install(legacy, options);
-  assert.equal(legacyInstall.migrationRequired, true);
-  assert.equal(
-    readFileSync(
-      path.join(legacy, ".harness", "plans", "todo-plan.md"),
-      "utf8"
-    ),
-    legacyPlan
-  );
 
   // Workflow Pilot projects and nested folders are refused.
   const pilot = at("pilot");

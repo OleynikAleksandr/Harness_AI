@@ -13,6 +13,7 @@ import {
   ensure,
   RUNTIME_FILE,
   WorkflowError,
+  type WorkflowPlatform,
   workflowPlatformFacade,
 } from "../../workflow-platform/src/workflow-platform-facade.js";
 import {
@@ -36,6 +37,8 @@ export interface InstallOptions {
   /** Host marker written to `config.host`; an existing marker is kept. */
   host?: "harness" | null;
   name?: string;
+  /** OS whose rules apply (default: this process); win32 has no executable bits. */
+  platform?: WorkflowPlatform;
   /** Runtime recorded for the launchers (Electron inside Harness). */
   runtime?: { executable: string; mode: "electron" | "node" } | null;
   update?: boolean;
@@ -101,14 +104,15 @@ function writeIfChanged(
   root: string,
   relative: string,
   next: string,
-  executable: boolean
+  executable: boolean,
+  platform: WorkflowPlatform = workflowPlatformFacade.platform
 ): boolean {
   const target = file(root, relative);
   const changed = workflowPlatformFacade.readTextIfExists(target) !== next;
   if (changed) {
     workflowPlatformFacade.writeFileAtomic(target, next);
   }
-  if (executable && process.platform !== "win32") {
+  if (executable && platform !== "win32") {
     chmodSync(target, 0o755);
   }
   return changed;
@@ -154,14 +158,24 @@ function checkPreconditions(
   }
 }
 
-function writePayload(root: string, entries: PayloadEntry[]): string[] {
+function writePayload(
+  root: string,
+  entries: PayloadEntry[],
+  platform: WorkflowPlatform
+): string[] {
   const written: string[] = [];
   for (const entry of entries) {
     const current = workflowPlatformFacade.readTextIfExists(
       file(root, entry.path)
     );
     if (
-      writeIfChanged(root, entry.path, entry.render(current), entry.executable)
+      writeIfChanged(
+        root,
+        entry.path,
+        entry.render(current),
+        entry.executable,
+        platform
+      )
     ) {
       written.push(entry.path);
     }
@@ -324,7 +338,11 @@ export function installKit(
     projectName: name,
   });
   const written = [
-    ...writePayload(root, entries),
+    ...writePayload(
+      root,
+      entries,
+      options.platform ?? workflowPlatformFacade.platform
+    ),
     ...writeState(root, entries, options),
   ];
   const migrationRequired = inspected.state === "LEGACY_HARNESS_PLAN";

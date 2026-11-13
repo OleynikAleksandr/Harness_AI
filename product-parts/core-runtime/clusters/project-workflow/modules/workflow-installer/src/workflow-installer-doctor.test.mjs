@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import {
   cleanGitEnvironment,
   identityTemplate,
@@ -42,7 +43,7 @@ try {
   const git = new WorkflowGitFacade(undefined, env);
   const installer = new WorkflowInstallerFacade(git);
   const bundle = `import { readFileSync } from "node:fs";
-import { runCli } from ${JSON.stringify(path.join(build.directory, "workflow-kit", "src", "workflow-kit-cli.js"))};
+import { runCli } from ${JSON.stringify(pathToFileURL(path.join(build.directory, "workflow-kit", "src", "workflow-kit-cli.js")).href)};
 process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: process.env, readStdin: () => { try { return readFileSync(0, "utf8"); } catch { return ""; } }, stderr: (t) => process.stderr.write(t), stdout: (t) => process.stdout.write(t) });
 `;
   const runtime = { executable: process.execPath, mode: "node" };
@@ -50,6 +51,12 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
   installer.install(root, { bundle, name: "Doctor", runtime });
   writeFileSync(path.join(root, "package.json"), "{}\n");
   const healthy = () => "24.1.0";
+  // Windows has no executable bits, so the doctor has no "executable" check there.
+  const { workflowPlatformFacade } = await build.load(
+    "workflow-platform",
+    "workflow-platform-facade.js"
+  );
+  const posix = workflowPlatformFacade.platform !== "win32";
   const statusOf = (report) =>
     Object.fromEntries(report.checks.map((item) => [item.id, item.status]));
 
@@ -58,7 +65,7 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
   assert.equal(first.ok, true, JSON.stringify(first.checks));
   assert.deepEqual(statusOf(first), {
     "doc-size": "ok",
-    executable: "ok",
+    ...(posix ? { executable: "ok" } : {}),
     "git-hooks": "ok",
     "git-identity": "ok",
     "managed-files": "ok",
@@ -87,7 +94,7 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
       .map((item) => [item.id, item.fixable]),
     [
       ["managed-files", true],
-      ["executable", true],
+      ...(posix ? [["executable", true]] : []),
       ["git-hooks", true],
     ]
   );
@@ -165,7 +172,7 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
     /git config --global user\.email/u
   );
   assert.deepEqual([unknown.identityFix, unknown.fix], [null, null]);
-  assert.equal(statusOf(unknown).executable, "fail");
+  assert.equal(statusOf(unknown).executable, posix ? "fail" : undefined);
   assert.equal(git.readIdentity(root, "local"), null);
   // With a real global identity the fix copies it into the repository config.
   const copied = installer.doctor(root, {
@@ -178,9 +185,14 @@ process.exitCode = runCli(process.argv.slice(2), { cwd: process.cwd(), env: proc
     email: "workflow@harness-ai.test",
     name: "Workflow Test",
   });
-  assert.deepEqual(copied.fix.written, []);
-  assert.equal(copied.fix.commit, null);
-  assert.equal(statusOf(copied).executable, "ok");
+  // The fix restored the modes (POSIX); without executable bits nothing was left to fix.
+  if (posix) {
+    assert.deepEqual(copied.fix.written, []);
+    assert.equal(copied.fix.commit, null);
+  } else {
+    assert.equal(copied.fix, null);
+  }
+  assert.equal(statusOf(copied).executable, posix ? "ok" : undefined);
   assert.deepEqual(git.readIdentity(root, "local"), copied.identityFix);
   assert.equal(identityOf(copied).status, "ok");
 

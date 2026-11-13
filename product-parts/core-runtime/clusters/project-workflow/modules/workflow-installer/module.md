@@ -63,7 +63,7 @@ Writing rules:
 
 `manifest(entries)` → `{schema "harness-workflow-manifest/1", version,
 files: [{path, kind, executable, sha256}]}`; `sha256` hashes the managed
-part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.3`; Kit 1.x
+part (`null` for `create`). `version` is `KIT_VERSION` (`2.2.4`, synchronized from Workflow_Kit; Kit 1.x
 was Workflow Pilot). A change of a managed text or of the runtime raises the version, so
 older installations read as `KIT_OUTDATED` and the update rewrites them
 (2.1.0 added `.harness/sessions/` and `.claude/worktrees/` to `.gitignore`
@@ -137,7 +137,7 @@ path) reports `nestedIn` and action `unsupported`.
 
 ## Install And Update (`installer-install.ts`)
 
-`install(path, {bundle, name?, update?, runtime?, host?})` (CLI
+`install(path, {bundle, name?, update?, runtime?, host?, platform?})` (CLI
 `install [<path>] [--name] [--update] [--host harness] [--bundle]`):
 1. refuses `NESTED_REPOSITORY`, `PILOT_KIT_UNSUPPORTED`,
    `TRANSACTION_PENDING`, `ALREADY_INSTALLED` (without `update`),
@@ -183,9 +183,14 @@ the commit. A legacy Harness plan is kept unchanged with
 `migrationRequired: true`. Plan and configuration of an installed project
 are never overwritten.
 
-## Doctor (`installer-doctor.ts`)
+## Doctor (`installer-doctor.ts`, `installer-doctor-checks.ts`)
 
-`doctor(path, {env?, probe?, fix?})` returns `{root, ok, checks, fix,
+`installer-doctor-checks.ts` holds the check type and the installation
+checks (`manifest`, `managed-files`, `executable`, `git-hooks`, `plan`,
+`transaction`); `installer-doctor.ts` the other checks, the options and
+the fix, and re-exports `DoctorCheck` and `DoctorStatus`.
+
+`doctor(path, {env?, probe?, fix?, platform?})` returns `{root, ok, checks, fix,
 identityFix}`.
 Each check is `{id, status ok|warn|fail, message, fixable, nextAction}`:
 
@@ -268,6 +273,16 @@ message (default `chore: migrate the plan into the workflow kit`). The old
 plan stays readable in the parent commit. The result is `{scopeId,
 legacyDone, migrated, converted, commit}`.
 
+## Поведение на ОС
+
+`install` и `doctor` принимают `platform` (`WorkflowPlatform`, по умолчанию —
+платформа процесса; правка переноса в Workflow Kit, M22 2.3).
+
+| Что | macOS | Linux | Windows |
+| --- | --- | --- | --- |
+| Режим запускателей и хуков | `install` ставит 0755 | `install` ставит 0755 | битов исполнения нет: режим не ставится |
+| Проверка `executable` доктора | есть | есть | нет |
+
 ## Dependencies
 
 - `workflow-platform` — launchers, bundle and runtime paths, files.
@@ -280,6 +295,12 @@ Node built-ins only.
 
 ## Tests
 
+- `src/workflow-installer-platform.test.mjs` — `install` и `doctor` с
+  подставленной платформой: `win32` без режима и без проверки `executable`,
+  `linux` с 0755 и отказом доктора для запускателя без него (режимы
+  проверяются там, где их хранит файловая система);
+  `currentWorkflowPlatform` для `win32`, `darwin`, `linux` и прочих ОС.
+
 - `src/workflow-installer-payload.test.mjs` — the file list, read-back and
   idempotence of every managed part, byte-exact sections with CRLF, the
   CLAUDE line, foreign provider hooks kept, invalid JSON, own and husky git
@@ -287,11 +308,14 @@ Node built-ins only.
   hashes; the Execution modes block (four roles, helpers in sequential,
   integration commands, the identity rule, under 1800 bytes), the Inputs and
   documents block (`schema`, `context`, files never to read), the Harness
-  note on proposing the scope and `KIT_VERSION` 2.2.3; the six Claude
+  note on proposing the scope and `KIT_VERSION` 2.2.4; the six Claude
   groups with `--part K/6`, the replaced 2.2.2 group, a changed part read
   as a difference, the Codex entry with `additionalContextLimit`.
-- `src/workflow-installer-install.test.mjs` — every folder state; a missing
-  or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
+- `src/workflow-installer-install.test.mjs` (with
+  `src/workflow-installer-install-support.mjs`: the compiled facades, the
+  identity, the stand-in bundle and the install options, shared with the
+  existing-project test) — the new, missing, empty, Pilot and nested
+  folder states; a missing or placeholder identity refused with `GIT_IDENTITY_REQUIRED` and nothing
   written; a global-only identity copied into the repository config (also
   over a placeholder) and signing the bootstrap commit; a real local
   identity kept; the host marker written, kept by an update and added by
@@ -299,9 +323,11 @@ Node built-ins only.
   installed hooks rejecting a direct commit; damage detection; a 2.1.0
   installation with the old `.gitignore` section (no `.DS_Store`, no dependency folders) reported
   outdated by inspect and doctor and updated, and a 2.2.1 manifest read as
-  outdated; existing files kept; husky sections; a
-  legacy plan kept for migration; Workflow Pilot and nested folders
-  refused.
+  outdated; Workflow Pilot and nested folders refused.
+- `src/workflow-installer-existing.test.mjs` — existing projects:
+  files without git kept and left out of the commit (`NOT_GIT`), a husky
+  hooks path (`GIT_NO_KIT`) getting managed sections after the shebang, a
+  legacy Harness plan (`LEGACY_HARNESS_PLAN`) kept for migration.
 - `src/workflow-installer-doctor.test.mjs` — a healthy installation, fixable
   breakage (mode, section, hook, hooks path) repaired without touching the
   plan; `git-identity` with a placeholder (fixable), without any real
@@ -320,3 +346,6 @@ Test repositories get a real identity (`workflow@harness-ai.test`) through
 `GIT_CONFIG_GLOBAL` and, for repositories git creates, `GIT_TEMPLATE_DIR`;
 the global-only cases use an empty template, because Kit commits refuse
 placeholder identities (`GIT_IDENTITY_REQUIRED`).
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 201,
+  "revision": 203,
   "rounds": [
     {
       "digest": null,
@@ -115,7 +115,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Синхронизировать платформу, установщик и Doctor 2.2.4",
       "why": "Перенести правила ОС и новую версию payload со связанным разбиением и тестами установки; атомарный перенос этих модулей требует более трёх функциональных файлов."
     },
@@ -466,8 +466,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 0/9
-- Revision: 201
+- Progress: 1/9
+- Revision: 203
 
 ## Objective
 
@@ -484,7 +484,7 @@
 
 ### R1 — Implementation (implementation, OPEN)
 
-- [TODO] T001 — Синхронизировать платформу, установщик и Doctor 2.2.4 (work)
+- [DONE] T001 — Синхронизировать платформу, установщик и Doctor 2.2.4 (work)
   - Commit: feat(workflow): synchronize platform and installer with Kit 2.2.4
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/src/platform-paths.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor-checks.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-doctor.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-install.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-doctor.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-existing.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install-support.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-install.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-migrate.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-platform.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md
 - [TODO] T002 — Перенести разбиение модели плана 2.2.4 (work, parallel-safe)

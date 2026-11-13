@@ -15,9 +15,13 @@ export class WorkflowPathError extends WorkflowError {
   }
 }
 
-export function currentWorkflowPlatform(): WorkflowPlatform {
-  if (process.platform === "win32" || process.platform === "darwin") {
-    return process.platform;
+/** The Kit platform of a Node platform (default: this process); every other OS counts as linux. */
+export function currentWorkflowPlatform(
+  platform?: NodeJS.Platform
+): WorkflowPlatform {
+  const current = platform ?? process.platform;
+  if (current === "win32" || current === "darwin") {
+    return current;
   }
   return "linux";
 }

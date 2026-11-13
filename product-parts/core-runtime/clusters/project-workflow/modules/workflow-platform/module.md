@@ -66,6 +66,18 @@ can simulate other operating systems.
   (`.harness/workflow/runtime/workflow.mjs`). Without a runtime they exit
   127 with a clear message.
 
+## Поведение на ОС
+
+Платформа Kit — `WorkflowPlatform` (`darwin`, `linux`, `win32`); её даёт
+`currentWorkflowPlatform(platform?)` из `platform ?? process.platform`, любая
+другая ОС считается `linux` (правка переноса в Workflow Kit, M22 2.3).
+
+| Что | macOS | Linux | Windows |
+| --- | --- | --- | --- |
+| Сравнение путей | без учёта регистра | с учётом регистра | без учёта регистра |
+| Запускатель проекта | `scripts/workflow` (sh) | `scripts/workflow` (sh) | `scripts/workflow.cmd` → `scripts/workflow.ps1` (`powershell`) |
+| Запуск `.cmd`/`.bat` | напрямую | напрямую | `cmd.exe /d /s /c` с экранированием |
+
 ## Test Support
 
 `src/workflow-test-build.mjs` is shared by the tests of every
@@ -75,3 +87,6 @@ project-workflow module. It is not used by production code.
 
 - `module.md`
 - `src/**`
+
+Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Harness keeps module tests and helpers in `src/**`.

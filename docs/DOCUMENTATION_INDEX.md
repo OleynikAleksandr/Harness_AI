@@ -174,6 +174,7 @@ implementation plan.
   the documentation map, autopilot on by default with a Kit pause, the real
   git config for agent processes, no built-in project, GitHub publication;
   actualized to the implementation by DOCS-R1.
+- `docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md` — packaged application and Kit versions, native About screenshot, isolated Core checks and publication evidence.
 - `docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md` — application release metadata and native About specification: separate installed application and bundled Workflow Kit versions, Core authority and macOS verification.
 - `docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md` — source parity, repository Kit update, SessionStart hook probes, package smoke and publication evidence for Kit 2.2.4.
 - `docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md` — specification and implementation plan for synchronizing Workflow Kit 2.2.4 from Workflow_Kit into Harness AI: source and test adaptations, repository Kit update, compatibility checks, macOS package and publication.

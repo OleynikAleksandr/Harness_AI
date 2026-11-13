@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 238,
+  "revision": 240,
   "rounds": [
     {
       "digest": {
@@ -239,7 +239,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package and verify application version display",
-      "confirmation": null,
+      "confirmation": "Пользователь: «Выполни план, проверь обе версии в About готового приложения и опубликуй новый релиз на GitHub». Подтверждены сборка и нативная проверка.",
       "context": [
         {
           "path": "docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md",
@@ -255,14 +255,15 @@
       "files": [
         "docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md",
         "docs/evidence/assets",
-        "docs/DOCUMENTATION_INDEX.md"
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/evidence/assets/application-versions-about-v2026.11.13.2.png"
       ],
       "fixes": null,
       "id": "T004",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R1",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Собрать и проверить приложение с новым About",
       "why": "Проверить реальную поставку, включая нативное окно и согласованные метаданные."
     },
@@ -311,8 +312,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 4/6
-- Revision: 238
+- Progress: 5/6
+- Revision: 240
 
 ## Objective
 
@@ -344,9 +345,9 @@
   - Commit: docs: reconcile documentation for R1
   - Files: AGENTS.md, README.md, docs/architecture/OVERVIEW.md, docs/DOCUMENTATION_INDEX.md, docs/architecture/ReleaseFixes-2026-11-04-2.md, docs/architecture/workflow-kit/WorkflowKitQuality.md, docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md
   - Depends on: T001, T002, T003
-- [TODO] T004 — Собрать и проверить приложение с новым About (delivery)
+- [DONE] T004 — Собрать и проверить приложение с новым About (delivery)
   - Commit: chore: package and verify application version display
-  - Files: docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md
+  - Files: docs/evidence/ApplicationVersionsAndAbout-2026-11-13.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md, docs/evidence/assets/application-versions-about-v2026.11.13.2.png
   - Depends on: T003, DOCS-R1
 - [TODO] T005 — Опубликовать исправленный релиз Harness AI (delivery)
   - Commit: chore: publish release with application and Kit version information

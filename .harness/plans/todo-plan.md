@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 247,
+  "revision": 249,
   "rounds": [
     {
       "digest": {
@@ -37,7 +37,24 @@
       "title": "Implementation"
     },
     {
-      "digest": null,
+      "digest": {
+        "contracts": [
+          "scope:owner --session <id> --note <why>: revision + 1 and an owner decision without a commit; NO_SCOPE, USAGE, OWNER_BUSY.",
+          "workflowPlanFacade.moveOwner(plan, session, note, now) returns {changed, plan, previous}.",
+          "KIT_VERSION 2.2.5: installations of 2.2.4 read as KIT_OUTDATED; About shows the bundled Kit 2.2.5."
+        ],
+        "decisions": [
+          "Kit 2.2.5 is added as round R2 of the open scope: acceptance and closing need the user's words, which are absent.",
+          "scope:owner is carried into the Kit only; Harness Core and UI do not call it in this round.",
+          "Harness adaptations of 2.2.4 stay: tests in src/**, Vite bundle, Harness formatting."
+        ],
+        "references": [
+          "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
+          "docs/architecture/workflow-kit/WorkflowKitCommands.md",
+          "product-parts/core-runtime/clusters/project-workflow/cluster.md"
+        ],
+        "result": "Workflow Kit sources synchronized to 2.2.5 from Workflow_Kit 696e95c4: scope:owner moves the owner session of an unstarted plan; KIT_VERSION is 2.2.5. Shared documents, module contracts and the command reference describe it. Repository Kit update, packaging and publication remain delivery tasks."
+      },
       "id": "R2",
       "kind": "implementation",
       "status": "OPEN",
@@ -399,14 +416,27 @@
         "docs/architecture/OVERVIEW.md",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
         "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
-        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md"
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
+        "docs/architecture/workflow-kit/WorkflowKit.md",
+        "docs/architecture/workflow-kit/WorkflowKitCommands.md",
+        "docs/architecture/workflow-kit/WorkflowKitInstallation.md",
+        "product-parts/core-runtime/clusters/project-workflow/cluster.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md"
       ],
       "fixes": null,
       "id": "DOCS-R2",
       "iteration": 1,
       "kind": "docs",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Reconcile project documentation and write the round digest",
       "why": "Keep the project context current for the next agent and close the round."
     },
@@ -522,8 +552,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 8/12
-- Revision: 247
+- Progress: 9/12
+- Revision: 249
 
 ## Objective
 
@@ -575,9 +605,9 @@ Digest: Implemented immutable release version metadata, Core product info and th
   - Commit: feat(workflow-installer): raise Kit version to 2.2.5
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.test.mjs
   - Depends on: T006
-- [TODO] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
+- [DONE] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
   - Commit: docs: reconcile documentation for R2
-  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md
+  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md
   - Depends on: T006, T007
 - [TODO] T008 — Обновить установленный Kit репозитория до 2.2.5 (delivery)
   - Commit: chore(workflow): verify repository Kit 2.2.5 update
@@ -591,5 +621,7 @@ Digest: Implemented immutable release version metadata, Core product info and th
   - Commit: chore: publish Harness AI with Workflow Kit 2.2.5
   - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md
   - Depends on: T009, DOCS-R2
+
+Digest: Workflow Kit sources synchronized to 2.2.5 from Workflow_Kit 696e95c4: scope:owner moves the owner session of an unstarted plan; KIT_VERSION is 2.2.5. Shared documents, module contracts and the command reference describe it. Repository Kit update, packaging and publication remain delivery tasks.
 
 State changes only through `scripts/workflow` commands. History lives in Git.

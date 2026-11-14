@@ -112,5 +112,6 @@ stops, and progress through the orchestration key (no progress, a new
 assignment, a new HEAD, limit, the key kept by a stop and cleared by a
 sequential decision).
 
-Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Synchronization: Workflow_Kit Kit 2.2.5 (`696e95c4`); this module is
+unchanged since Kit 2.2.4 (`6e05505f`);
 Harness keeps module tests and helpers in `src/**`.

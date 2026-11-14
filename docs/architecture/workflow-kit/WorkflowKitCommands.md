@@ -156,6 +156,16 @@ for Kit builtins). Manual checks belong in `acceptance`.
 - `scope:proposal` (`kit-cli-execution.ts`) — the card view of the stored
   proposal or `null`. Text: the generation and state, the scope, reason
   and options, or `proposal: none`.
+- `scope:owner --session <id> --note "<why>"` (`kit-cli-execution.ts`,
+  Kit 2.2.5) — moves `execution.ownerSession` of the open scope to another
+  session before its work starts. The plan gets revision + 1 and the
+  decision `Owner session moved from <old|none> to <id>: <note>` without a
+  commit (like `task:block`); the same owner changes nothing
+  (`changed: false`). Refusals: `NO_SCOPE`, `USAGE`, `OWNER_BUSY` (a task
+  `IN_PROGRESS` or an active assignment). JSON `{changed, previous,
+  execution, revision}`; text `owner: <old> → <new> (revision N)` or
+  `owner: <id> (unchanged)`. Not in the executor whitelist. Harness Core
+  and UI do not call it yet.
 - `plan:extend --input <file.json> [--expected-revision N]` — tasks for the
   open round or a new round; input: `schema plan:extend`. Refusals:
   `REVISION_MISMATCH`, `ROUND_OPEN`, `TASK_STARTED`, `UNKNOWN_TASK`,

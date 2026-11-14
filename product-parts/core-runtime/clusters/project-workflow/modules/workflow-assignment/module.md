@@ -255,5 +255,6 @@ The executor side is tested with real git worktrees in
 - `module.md`
 - `src/**`
 
-Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Synchronization: Workflow_Kit Kit 2.2.5 (`696e95c4`); this module is
+unchanged since Kit 2.2.4 (`6e05505f`);
 Harness keeps module tests and helpers in `src/**`.

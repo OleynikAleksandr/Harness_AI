@@ -51,10 +51,11 @@ and macOS build number from the same release tag without editing the source
 `package.json.version`. Development builds explicitly display Development.
 See [ApplicationVersionsAndAbout-2026-11-13.md](docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md).
 
-Workflow Kit sources are synchronized to **2.2.4** from Workflow_Kit,
-commit `6e05505f`. Harness keeps the Core-owned cluster, Vite bundle and
-module-local `src/**` tests. The synchronization specification is
-[WorkflowKitSync-2.2.4-2026-11-13.md](docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md).
+Workflow Kit sources are synchronized to **2.2.5** from Workflow_Kit,
+commit `696e95c4` (2.2.5 adds `scope:owner`). Harness keeps the Core-owned cluster, Vite bundle and
+module-local `src/**` tests. The synchronization specifications are
+[WorkflowKitSync-2.2.4-2026-11-13.md](docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md) and
+[WorkflowKitSync-2.2.5-2026-11-14.md](docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md).
 
 The package also carries the Workflow Kit bundle
 (`dist/workflow-kit/workflow.mjs`, built by `npm run build:workflow-kit` as part

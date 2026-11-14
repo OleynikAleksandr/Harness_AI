@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 242,
+  "revision": 243,
   "rounds": [
     {
       "digest": {
@@ -35,6 +35,13 @@
       "kind": "implementation",
       "status": "CLOSED",
       "title": "Implementation"
+    },
+    {
+      "digest": null,
+      "id": "R2",
+      "kind": "implementation",
+      "status": "OPEN",
+      "title": "Workflow Kit 2.2.5"
     }
   ],
   "schema": "harness-workflow-plan/1",
@@ -76,7 +83,7 @@
         "text": "Use the existing native About panel and existing modules, with no new dependencies."
       }
     ],
-    "delivery": "READY_FOR_ACCEPTANCE",
+    "delivery": "IN_PROGRESS",
     "execution": {
       "maxWorkers": 3,
       "ownerSession": "01a1d574-4310-7453-b7e3-5276848f46a8",
@@ -300,6 +307,209 @@
       "status": "DONE",
       "title": "Опубликовать исправленный релиз Harness AI",
       "why": "Доставить пользователю проверенное приложение с обеими версиями."
+    },
+    {
+      "acceptance": [
+        "plan-owner.ts, kit-scope-owner.ts, CLI scope:owner and both facade methods match donor commit 696e95c4 up to Harness formatting and src/** test imports.",
+        "workflow-kit-owner.test.mjs covers NO_SCOPE, USAGE, the unchanged owner, the move with revision + 1 and decision without a commit, the text form, help and OWNER_BUSY for a started task and an active assignment.",
+        "workflow-plan and workflow-kit module.md describe the command; workflow-kit module.md stays within the 28000-byte document budget."
+      ],
+      "checks": [],
+      "commitMessage": "feat(workflow): synchronize scope:owner from Kit 2.2.5",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
+          "heading": "3. Состав 2.2.5",
+          "required": true
+        }
+      ],
+      "dependencies": [],
+      "docsWaiver": null,
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-owner.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-owner.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-owner.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md"
+      ],
+      "fixes": null,
+      "id": "T006",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Перенести scope:owner из Workflow Kit 2.2.5",
+      "why": "Донор Kit 2.2.5 добавил перенос владельца неначатого плана; Harness Kit должен совпадать с донором."
+    },
+    {
+      "acceptance": [
+        "KIT_VERSION is 2.2.5 and the installer payload test expects 2.2.5 for the installer and the rendered manifest.",
+        "core-product-info test expects workflowKitVersion 2.2.5 from the bundled Kit, still independent of a project manifest.",
+        "workflow-installer module.md names 2.2.5 with scope:owner as its reason."
+      ],
+      "checks": [],
+      "commitMessage": "feat(workflow-installer): raise Kit version to 2.2.5",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
+          "heading": "3. Состав 2.2.5",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "T006"
+      ],
+      "docsWaiver": "core-product-info.test.mjs only updates the expected bundled Kit number; the core-runtime-process contract does not name a Kit version.",
+      "files": [
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md",
+        "product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.test.mjs"
+      ],
+      "fixes": null,
+      "id": "T007",
+      "iteration": 1,
+      "kind": "work",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Поднять KIT_VERSION до 2.2.5",
+      "why": "Версия payload меняется вместе с runtime, чтобы установки 2.2.4 читались как KIT_OUTDATED и обновлялись."
+    },
+    {
+      "acceptance": [
+        "Project-wide documents describe the round result",
+        "The round digest records result, decisions, contracts and references"
+      ],
+      "checks": [],
+      "commitMessage": "docs: reconcile documentation for R2",
+      "confirmation": null,
+      "context": [],
+      "dependencies": [
+        "T006",
+        "T007"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "README.md",
+        "docs/architecture/OVERVIEW.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md",
+        "product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md"
+      ],
+      "fixes": null,
+      "id": "DOCS-R2",
+      "iteration": 1,
+      "kind": "docs",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Reconcile project documentation and write the round digest",
+      "why": "Keep the project context current for the next agent and close the round."
+    },
+    {
+      "acceptance": [
+        "The Kit bundle is built from the synchronized sources and the update runs through the new 2.2.5 bundle CLI with --host harness.",
+        "Manifest version is 2.2.5, the runtime hash equals the built bundle, doctor and validate are ok, status, schema and recover work, the plan and history survive.",
+        "Evidence with donor commit, hashes, adaptations and check results is written and indexed; managed files are not edited by hand."
+      ],
+      "checks": [],
+      "commitMessage": "chore(workflow): verify repository Kit 2.2.5 update",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
+          "heading": "6. Обновление и выпуск",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "DOCS-R2"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md",
+        "docs/DOCUMENTATION_INDEX.md"
+      ],
+      "fixes": null,
+      "id": "T008",
+      "iteration": 1,
+      "kind": "delivery",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Обновить установленный Kit репозитория до 2.2.5",
+      "why": "Репозиторий Harness AI должен работать на том же Kit, что встроен в приложение."
+    },
+    {
+      "acceptance": [
+        "The release tag is chosen before packaging as a free tag of the build date; quality, dup, security, links, build and package:mac pass.",
+        "release/mac-arm64/Harness AI.app exists; Info.plist and build metadata match the tag; the packaged Kit is 2.2.5 and equals the repository Kit.",
+        "The native About window of the packaged app shows Harness AI and Workflow Kit 2.2.5, captured as a window screenshot; the packaged app starts and prepares a project."
+      ],
+      "checks": [],
+      "commitMessage": "chore: package Harness AI with Workflow Kit 2.2.5",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
+          "heading": "6. Обновление и выпуск",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "T008",
+        "DOCS-R2"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md",
+        "docs/evidence/assets",
+        "docs/DOCUMENTATION_INDEX.md"
+      ],
+      "fixes": null,
+      "id": "T009",
+      "iteration": 1,
+      "kind": "delivery",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Собрать Harness AI с Kit 2.2.5 и проверить About",
+      "why": "Пользователь проверяет обновление по реальному приложению."
+    },
+    {
+      "acceptance": [
+        "History is scanned for secrets before publication; main is pushed normally with push checks.",
+        "The tag from the packaged descriptor and a GitHub Release with the round digest and a zip of the unsigned app are published; older releases are untouched.",
+        "Evidence records the release URL, asset size and SHA-256."
+      ],
+      "checks": [],
+      "commitMessage": "chore: publish Harness AI with Workflow Kit 2.2.5",
+      "confirmation": null,
+      "context": [
+        {
+          "path": "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
+          "heading": "6. Обновление и выпуск",
+          "required": true
+        }
+      ],
+      "dependencies": [
+        "T009",
+        "DOCS-R2"
+      ],
+      "docsWaiver": null,
+      "files": [
+        "docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md"
+      ],
+      "fixes": null,
+      "id": "T010",
+      "iteration": 1,
+      "kind": "delivery",
+      "roundId": "R2",
+      "status": "TODO",
+      "title": "Опубликовать релиз Harness AI с Kit 2.2.5",
+      "why": "Каждый план завершается публикацией на GitHub."
     }
   ]
 }
@@ -309,11 +519,11 @@
 ## State
 
 - Scope: application-versions-about-2026-11-13 (ACTIVE)
-- Delivery: READY_FOR_ACCEPTANCE
+- Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 6/6
-- Revision: 242
+- Progress: 6/12
+- Revision: 243
 
 ## Objective
 
@@ -355,5 +565,31 @@
   - Depends on: T004, DOCS-R1
 
 Digest: Implemented immutable release version metadata, Core product info and the native About wiring. All three source tasks passed the full quality profile. Packaged native-window verification and publication remain delivery tasks.
+
+### R2 — Workflow Kit 2.2.5 (implementation, OPEN)
+
+- [TODO] T006 — Перенести scope:owner из Workflow Kit 2.2.5 (work)
+  - Commit: feat(workflow): synchronize scope:owner from Kit 2.2.5
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-owner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-owner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-owner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md
+- [TODO] T007 — Поднять KIT_VERSION до 2.2.5 (work)
+  - Commit: feat(workflow-installer): raise Kit version to 2.2.5
+  - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.test.mjs
+  - Depends on: T006
+- [TODO] DOCS-R2 — Reconcile project documentation and write the round digest (docs)
+  - Commit: docs: reconcile documentation for R2
+  - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md
+  - Depends on: T006, T007
+- [TODO] T008 — Обновить установленный Kit репозитория до 2.2.5 (delivery)
+  - Commit: chore(workflow): verify repository Kit 2.2.5 update
+  - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md, docs/DOCUMENTATION_INDEX.md
+  - Depends on: DOCS-R2
+- [TODO] T009 — Собрать Harness AI с Kit 2.2.5 и проверить About (delivery)
+  - Commit: chore: package Harness AI with Workflow Kit 2.2.5
+  - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md
+  - Depends on: T008, DOCS-R2
+- [TODO] T010 — Опубликовать релиз Harness AI с Kit 2.2.5 (delivery)
+  - Commit: chore: publish Harness AI with Workflow Kit 2.2.5
+  - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md
+  - Depends on: T009, DOCS-R2
 
 State changes only through `scripts/workflow` commands. History lives in Git.

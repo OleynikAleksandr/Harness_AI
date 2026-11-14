@@ -1031,6 +1031,11 @@ function choiceText(value) {
 	if (result.option === "refine") return `choice: refine (generation ${result.generation}); refine the specification with the user, then run scope:propose again.\n`;
 	return `choice: ${result.option} (generation ${result.generation}); scope ${result.scope?.scopeId ?? "NONE"} created at revision ${result.scope?.revision ?? 0}.\n`;
 }
+function ownerText(value) {
+	const result = value;
+	const owner = result.execution.ownerSession ?? "none";
+	return result.changed ? `owner: ${result.previous ?? "none"} → ${owner} (revision ${result.revision})\n` : `owner: ${owner} (unchanged)\n`;
+}
 function proposalViewText(value) {
 	const view = value;
 	if (!view) return "proposal: none\n";
@@ -1043,8 +1048,9 @@ function proposalViewText(value) {
 	].join("\n")}\n`;
 }
 /**
-* `scope:propose`, `scope:choose` and the read-only `scope:proposal`: the
-* execution mode choice (spec 4.1).
+* `scope:propose`, `scope:choose`, the read-only `scope:proposal` and
+* `scope:owner`: the execution mode choice (spec 4.1) and the owner session
+* of an unstarted plan (spec M31 3.1).
 */
 var EXECUTION_COMMANDS = {
 	"scope:choose": {
@@ -1056,6 +1062,14 @@ var EXECUTION_COMMANDS = {
 		}),
 		text: choiceText,
 		usage: "scope:choose --generation <N> --option sequential|orchestrated|refine --session <id> --note \"<the user's choice>\""
+	},
+	"scope:owner": {
+		run: ({ args, kit, root }) => kit.moveOwner(root, {
+			note: requiredFlag(args, "note"),
+			session: requiredFlag(args, "session")
+		}),
+		text: ownerText,
+		usage: "scope:owner --session <id> --note \"<why>\""
 	},
 	"scope:proposal": {
 		run: ({ kit, root }) => kit.proposalView(root),
@@ -2546,6 +2560,45 @@ function integrateTask(plan, taskId, integration) {
 	return validatePlan(next);
 }
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-owner.ts
+/**
+* Moves the owner session of the open scope before its work starts (spec
+* M31 3.1). The same owner leaves the plan as it is; a started task refuses
+* with OWNER_BUSY. Open assignments are checked by the caller.
+*/
+function moveOwner(plan, session, note, now) {
+	const scope = plan.scope;
+	ensure(scope, "NO_SCOPE", "There is no active scope to move.");
+	const owner = typeof session === "string" ? session.trim() : "";
+	const words = typeof note === "string" ? note.trim() : "";
+	ensure(owner !== "", "USAGE", "--session is required.");
+	ensure(words !== "", "USAGE", "--note is required.");
+	const previous = scopeExecution(scope).ownerSession;
+	if (previous === owner) return {
+		changed: false,
+		plan,
+		previous
+	};
+	const started = plan.tasks.filter((task) => task.status === "IN_PROGRESS");
+	ensure(started.length === 0 && plan.currentTaskId === null, "OWNER_BUSY", "The plan has started work; the owner changes only before it.", { tasks: started.map((task) => task.id) }, "Continue the plan in its owner session.");
+	const next = nextRevision(plan);
+	if (next.scope) {
+		next.scope.execution = {
+			...scopeExecution(next.scope),
+			ownerSession: owner
+		};
+		next.scope.decisions.push({
+			at: now,
+			text: `Owner session moved from ${previous ?? "none"} to ${owner}: ${words}`
+		});
+	}
+	return {
+		changed: true,
+		plan: validatePlan(next),
+		previous
+	};
+}
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-scope-completion.ts
 function acceptScope$1(plan, note, now) {
 	ensure(plan.scope?.delivery === "READY_FOR_ACCEPTANCE", "NOT_READY", "Acceptance needs every task DONE (READY_FOR_ACCEPTANCE).");
@@ -2812,6 +2865,10 @@ var WorkflowPlanFacade = class {
 	}
 	unblock(plan) {
 		return unblockScope(plan);
+	}
+	/** `scope:owner`: moves the owner session before the work starts. */
+	moveOwner(plan, session, note, now) {
+		return moveOwner(plan, session, note, now);
 	}
 	extend(plan, input, context) {
 		return extendPlan(plan, input, context);
@@ -8728,7 +8785,7 @@ in line with the code.
 //#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts
 /** Version of the Workflow Kit payload; Kit 1.x was Workflow Pilot. */
-var KIT_VERSION = "2.2.4";
+var KIT_VERSION = "2.2.5";
 var MANIFEST_PATH = ".harness/workflow/manifest.json";
 var MANIFEST_SCHEMA = "harness-workflow-manifest/1";
 var OWN_HOOKS_DIR = ".harness/workflow/hooks";
@@ -8907,7 +8964,7 @@ function damagedFiles(root, manifest) {
 }
 function kitState(root, manifest) {
 	const damaged = damagedFiles(root, manifest);
-	if (compareVersions(manifest.version, "2.2.4") < 0) return {
+	if (compareVersions(manifest.version, "2.2.5") < 0) return {
 		damaged,
 		state: "KIT_OUTDATED"
 	};
@@ -8998,7 +9055,7 @@ function file$1(root, relative) {
 function manifestChecks(root, platform) {
 	const manifest = readManifest(root);
 	if (!manifest) return [check("manifest", "fail", "The Workflow Kit manifest is missing.", false, "Install the Kit: `scripts/workflow install`.")];
-	const checks = [compareVersions(manifest.version, "2.2.4") < 0 ? check("manifest", "fail", `Kit ${manifest.version} is older than ${KIT_VERSION}.`, true, UPDATE) : check("manifest", "ok", `Kit ${manifest.version}.`)];
+	const checks = [compareVersions(manifest.version, "2.2.5") < 0 ? check("manifest", "fail", `Kit ${manifest.version} is older than ${KIT_VERSION}.`, true, UPDATE) : check("manifest", "ok", `Kit ${manifest.version}.`)];
 	const damaged = damagedFiles(root, manifest);
 	checks.push(damaged.length === 0 ? check("managed-files", "ok", "Managed files and sections match the manifest.") : check("managed-files", "fail", `Changed or missing managed parts: ${damaged.join(", ")}.`, true, UPDATE));
 	if (platform !== "win32") {
@@ -10314,6 +10371,29 @@ function setBlocked(context, reason) {
 	});
 }
 //#endregion
+//#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-owner.ts
+/**
+* `scope:owner`: moves the owner session of the open scope before its work
+* starts (spec M31 3.1). The plan is saved like `task:block`: the next Kit
+* commit records it.
+*/
+function moveScopeOwner(context, request) {
+	return locked(context, () => {
+		ensureNoTransaction(context);
+		const current = readPlan(context);
+		const open = current.scope ? activeRecords(current, context.root) : [];
+		ensure(open.length === 0, "OWNER_BUSY", "The plan has started work; the owner changes only before it.", { assignments: open.map((record) => record.id) }, "Continue the plan in its owner session.");
+		const move = workflowPlanFacade.moveOwner(current, request.session, request.note, context.now());
+		if (move.changed) savePlan(context, move.plan);
+		return {
+			changed: move.changed,
+			execution: workflowPlanFacade.execution(move.plan),
+			previous: move.previous,
+			revision: move.plan.revision
+		};
+	});
+}
+//#endregion
 //#region product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-task.ts
 function briefOf(task) {
 	const { id, kind, roundId, status, title } = task;
@@ -10494,6 +10574,10 @@ var WorkflowKitFacade = class extends WorkflowKitBase {
 	/** `scope:choose`: the user's answer to the proposal of `generation`. */
 	chooseScope(root, choice) {
 		return chooseScope(this.context(root), choice);
+	}
+	/** `scope:owner`: moves the owner session before the work starts. */
+	moveOwner(root, request) {
+		return moveScopeOwner(this.context(root), request);
 	}
 	/** The stored scope proposal, or `null`. */
 	readProposal(root) {

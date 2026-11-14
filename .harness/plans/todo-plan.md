@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 245,
+  "revision": 247,
   "rounds": [
     {
       "digest": {
@@ -376,7 +376,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Поднять KIT_VERSION до 2.2.5",
       "why": "Версия payload меняется вместе с runtime, чтобы установки 2.2.4 читались как KIT_OUTDATED и обновлялись."
     },
@@ -522,8 +522,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 7/12
-- Revision: 245
+- Progress: 8/12
+- Revision: 247
 
 ## Objective
 
@@ -571,7 +571,7 @@ Digest: Implemented immutable release version metadata, Core product info and th
 - [DONE] T006 — Перенести scope:owner из Workflow Kit 2.2.5 (work)
   - Commit: feat(workflow): synchronize scope:owner from Kit 2.2.5
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-owner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-owner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-owner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md
-- [TODO] T007 — Поднять KIT_VERSION до 2.2.5 (work)
+- [DONE] T007 — Поднять KIT_VERSION до 2.2.5 (work)
   - Commit: feat(workflow-installer): raise Kit version to 2.2.5
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/installer-payload.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/src/workflow-installer-payload.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, product-parts/core-runtime/clusters/runtime-process/modules/core-runtime-process/src/core-product-info.test.mjs
   - Depends on: T006

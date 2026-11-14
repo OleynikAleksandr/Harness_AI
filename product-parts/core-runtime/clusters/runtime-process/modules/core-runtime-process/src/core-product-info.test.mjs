@@ -36,7 +36,7 @@ try {
     buildNumber: "2",
     channel: "release",
     releaseTag: "v2026.11.13.2",
-    workflowKitVersion: "2.2.4",
+    workflowKitVersion: "2.2.5",
   });
   assert.ok(Object.isFrozen(readProductInfo(metadata)));
   // A project manifest cannot replace the Kit compiled into the application.
@@ -46,7 +46,7 @@ try {
     path.join(project, "manifest.json"),
     JSON.stringify({ version: "1.0.0" })
   );
-  assert.equal(readProductInfo(metadata).workflowKitVersion, "2.2.4");
+  assert.equal(readProductInfo(metadata).workflowKitVersion, "2.2.5");
   for (const change of [
     { schema: "other" },
     { releaseVersion: "0.0.0" },

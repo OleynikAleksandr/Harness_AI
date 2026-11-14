@@ -178,6 +178,7 @@ implementation plan.
 - `docs/architecture/ApplicationVersionsAndAbout-2026-11-13.md` — application release metadata and native About specification: separate installed application and bundled Workflow Kit versions, Core authority and macOS verification.
 - `docs/evidence/WorkflowKitSync-2.2.4-2026-11-13.md` — source parity, repository Kit update, SessionStart hook probes, package smoke and publication evidence for Kit 2.2.4.
 - `docs/architecture/WorkflowKitSync-2.2.4-2026-11-13.md` — specification and implementation plan for synchronizing Workflow Kit 2.2.4 from Workflow_Kit into Harness AI: source and test adaptations, repository Kit update, compatibility checks, macOS package and publication.
+- `docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md` — specification and plan for synchronizing Workflow Kit 2.2.5 (`scope:owner`) from Workflow_Kit into Harness AI: delta, adaptations, repository Kit update, package and publication.
 - `docs/architecture/KitRecoveryParts-2026-11-12.md` — Workflow Kit 2.2.3
   (Russian, scope `kit-recovery-parts-2026-11-12`): the recovery packet in
   parts within the Claude hook limit, `hook session-start --part K/N`, six

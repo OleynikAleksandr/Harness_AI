@@ -45,6 +45,35 @@ Execution: sequential, autonomously, as instructed by the user.
   their header lines the parts reassemble to the Codex packet length.
 - These are hook-output checks; a new live provider session was not started.
 
-## macOS package and publication
+## macOS package verification (T009)
 
-Appended by the delivery tasks T009 and T010.
+- `npm run quality`: passed, `Tests: OK (232)`; `check:dup`, `check:security`
+  (zero vulnerabilities) and `check:links` passed.
+- The tag was chosen before packaging: **v2026.11.14** (free on origin).
+  `npm run build` and `HARNESS_RELEASE_TAG=v2026.11.14 npm run package:mac`
+  passed with signing disabled; source HEAD `2c0a821a`.
+- Package: `release/mac-arm64/Harness AI.app`. Build descriptor from the real
+  app.asar: release `2026.11.14`, build `1`, tag `v2026.11.14`; packaged
+  package.json and Info.plist: `2026.11.14`, `CFBundleVersion` `1`.
+- app.asar SHA-256: `0ba8912b065a468599421f81a48eaa640d11c98cfd53fd183945ce05ac557bfe`.
+- Packaged Kit SHA-256 equals the repository Kit:
+  `40772460544df80536f9fc1ca9bad11eb252e9a58f4170a34f5a0841c48a4587`.
+- An isolated profile, Harness home and Git config ran the packaged app;
+  the renderer came from app.asar, preload and Core were available, New
+  Project opened its dialog, Core `get-product-info` returned
+  `2026.11.14` and Workflow Kit `2.2.5` without a workspace.
+- Through preload/Core a new project received Kit 2.2.5; status and Doctor
+  passed. Selecting a project with an older installed Kit 2.1.1 left the
+  product info unchanged. No renderer exceptions; test processes stopped.
+
+The native About panel was opened from the app menu by macOS accessibility
+for the spawned PID and captured as its CoreGraphics window:
+
+![Native About with Harness AI 2026.11.14 and Workflow Kit 2.2.5](assets/workflow-kit-2.2.5-about-v2026.11.14.png)
+
+It reads `Version 2026.11.14 (Build 1)` and `Workflow Kit: 2.2.5`.
+Closing About kept Core available.
+
+## GitHub publication
+
+Appended by the delivery task T010.

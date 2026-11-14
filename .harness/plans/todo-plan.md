@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 251,
+  "revision": 253,
   "rounds": [
     {
       "digest": {
@@ -481,7 +481,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: package Harness AI with Workflow Kit 2.2.5",
-      "confirmation": null,
+      "confirmation": "Пользователь: «повысь версию Kit в Harness AI без моего участия ... и выполни их вплоть до сборки нового релиза и публикации его на GitHub». Подтверждены сборка, проверка и публикация.",
       "context": [
         {
           "path": "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
@@ -497,14 +497,15 @@
       "files": [
         "docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md",
         "docs/evidence/assets",
-        "docs/DOCUMENTATION_INDEX.md"
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/evidence/assets/workflow-kit-2.2.5-about-v2026.11.14.png"
       ],
       "fixes": null,
       "id": "T009",
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Собрать Harness AI с Kit 2.2.5 и проверить About",
       "why": "Пользователь проверяет обновление по реальному приложению."
     },
@@ -552,8 +553,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 10/12
-- Revision: 251
+- Progress: 11/12
+- Revision: 253
 
 ## Objective
 
@@ -613,9 +614,9 @@ Digest: Implemented immutable release version metadata, Core product info and th
   - Commit: chore(workflow): verify repository Kit 2.2.5 update
   - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: DOCS-R2
-- [TODO] T009 — Собрать Harness AI с Kit 2.2.5 и проверить About (delivery)
+- [DONE] T009 — Собрать Harness AI с Kit 2.2.5 и проверить About (delivery)
   - Commit: chore: package Harness AI with Workflow Kit 2.2.5
-  - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md
+  - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md, docs/evidence/assets/workflow-kit-2.2.5-about-v2026.11.14.png
   - Depends on: T008, DOCS-R2
 - [TODO] T010 — Опубликовать релиз Harness AI с Kit 2.2.5 (delivery)
   - Commit: chore: publish Harness AI with Workflow Kit 2.2.5

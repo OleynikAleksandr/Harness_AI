@@ -23,6 +23,7 @@ import {
   type WorkflowPlan,
   type WorkflowTask,
 } from "./plan-model.js";
+import { moveOwner, type OwnerMove } from "./plan-owner.js";
 import {
   acceptScope,
   type CarryoverInput,
@@ -74,6 +75,7 @@ export {
   PLAN_PATH,
   PLAN_SCHEMA,
 } from "./plan-model.js";
+export type { OwnerMove } from "./plan-owner.js";
 
 /**
  * Public boundary of the workflow-plan module: the plan model, its
@@ -170,6 +172,16 @@ export class WorkflowPlanFacade {
 
   unblock(plan: WorkflowPlan): WorkflowPlan {
     return unblockScope(plan);
+  }
+
+  /** `scope:owner`: moves the owner session before the work starts. */
+  moveOwner(
+    plan: WorkflowPlan,
+    session: string,
+    note: string,
+    now: string
+  ): OwnerMove {
+    return moveOwner(plan, session, note, now);
   }
 
   extend(

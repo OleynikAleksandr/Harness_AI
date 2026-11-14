@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 243,
+  "revision": 245,
   "rounds": [
     {
       "digest": {
@@ -341,7 +341,7 @@
       "iteration": 1,
       "kind": "work",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Перенести scope:owner из Workflow Kit 2.2.5",
       "why": "Донор Kit 2.2.5 добавил перенос владельца неначатого плана; Harness Kit должен совпадать с донором."
     },
@@ -522,8 +522,8 @@
 - Delivery: IN_PROGRESS
 - Execution: sequential
 - Current task: none
-- Progress: 6/12
-- Revision: 243
+- Progress: 7/12
+- Revision: 245
 
 ## Objective
 
@@ -568,7 +568,7 @@ Digest: Implemented immutable release version metadata, Core product info and th
 
 ### R2 — Workflow Kit 2.2.5 (implementation, OPEN)
 
-- [TODO] T006 — Перенести scope:owner из Workflow Kit 2.2.5 (work)
+- [DONE] T006 — Перенести scope:owner из Workflow Kit 2.2.5 (work)
   - Commit: feat(workflow): synchronize scope:owner from Kit 2.2.5
   - Files: product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/plan-owner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/src/workflow-plan-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-scope-owner.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/kit-cli-execution.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-facade.ts, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/src/workflow-kit-owner.test.mjs, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md
 - [TODO] T007 — Поднять KIT_VERSION до 2.2.5 (work)

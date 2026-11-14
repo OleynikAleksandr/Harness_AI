@@ -100,6 +100,10 @@ every change is a Kit commit unless noted:
     `<approval> | Execution mode chosen by the user: <option>: <note>`;
   - `refine` drops the stored plan and keeps `refining: true`.
   Returns `{option, generation, refining, execution, scope}`.
+- `moveOwner(root, {session, note})` — `scope:owner` (`kit-scope-owner.ts`):
+  moves `execution.ownerSession` before the work starts; `OWNER_BUSY` for
+  an active assignment; plan rules in `workflow-plan`. Saved like
+  `task:block`; returns `{changed, previous, execution, revision}`.
 - `readProposal(root)` — the stored proposal record or `null` (for status
   and recovery).
 - `proposalView(root)` — `scope:proposal`, read-only: the card view of the
@@ -421,6 +425,8 @@ worktrees where noted):
 - `src/workflow-kit-execution-mode.test.mjs` — propose/choose/refine, the
   automatic sequential scope, `NO_PARALLEL_WORK`, `PROPOSAL_CHANGED`,
   `SCOPE_EXISTS`, the card view, `EXECUTION_MODE_REQUIRED`, the CLI.
+- `src/workflow-kit-owner.test.mjs` — `scope:owner`: refusals, the same
+  owner, the move without a commit, text, `help`, `OWNER_BUSY`.
 - `src/workflow-kit-assignment.test.mjs` — the schedule (dependencies,
   barrier, conflict, capacity, DOCS), create preconditions, the brief,
   idempotent retry, `ASSIGNMENT_EXISTS`, `assignment:cancel`, the CLI.
@@ -460,5 +466,5 @@ worktrees where noted):
 Test repositories use the real local identity `workflow@harness-ai.test`:
 Kit commits refuse placeholder identities (`GIT_IDENTITY_REQUIRED`).
 
-Synchronization: Workflow_Kit Kit 2.2.4, source commit `6e05505f`;
+Synchronization: Workflow_Kit Kit 2.2.5, source commit `696e95c4`;
 Harness keeps module tests and helpers in `src/**`.

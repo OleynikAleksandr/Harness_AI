@@ -3,14 +3,14 @@
 <!-- harness-workflow:begin -->
 ```json
 {
-  "currentTaskId": "T008",
+  "currentTaskId": null,
   "lastClosed": {
     "closedAt": "2026-11-13T16:32:24.995Z",
     "scopeId": "workflow-kit-sync-2.2.4-2026-11-13"
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 250,
+  "revision": 251,
   "rounds": [
     {
       "digest": {
@@ -469,7 +469,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R2",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "title": "Обновить установленный Kit репозитория до 2.2.5",
       "why": "Репозиторий Harness AI должен работать на том же Kit, что встроен в приложение."
     },
@@ -551,9 +551,9 @@
 - Scope: application-versions-about-2026-11-13 (ACTIVE)
 - Delivery: IN_PROGRESS
 - Execution: sequential
-- Current task: T008
-- Progress: 9/12
-- Revision: 250
+- Current task: none
+- Progress: 10/12
+- Revision: 251
 
 ## Objective
 
@@ -609,7 +609,7 @@ Digest: Implemented immutable release version metadata, Core product info and th
   - Commit: docs: reconcile documentation for R2
   - Files: README.md, docs/architecture/OVERVIEW.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-plan/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-kit/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-installer/module.md, docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md, docs/architecture/workflow-kit/WorkflowKit.md, docs/architecture/workflow-kit/WorkflowKitCommands.md, docs/architecture/workflow-kit/WorkflowKitInstallation.md, product-parts/core-runtime/clusters/project-workflow/cluster.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-assignment/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-autopilot/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-git/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-host/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-integration/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-platform/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-quality/module.md, product-parts/core-runtime/clusters/project-workflow/modules/workflow-recovery/module.md
   - Depends on: T006, T007
-- [IN_PROGRESS] T008 — Обновить установленный Kit репозитория до 2.2.5 (delivery)
+- [DONE] T008 — Обновить установленный Kit репозитория до 2.2.5 (delivery)
   - Commit: chore(workflow): verify repository Kit 2.2.5 update
   - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md, docs/DOCUMENTATION_INDEX.md
   - Depends on: DOCS-R2

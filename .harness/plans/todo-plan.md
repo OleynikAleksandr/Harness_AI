@@ -10,7 +10,7 @@
   },
   "projectId": "harness-ai",
   "projectName": "harness-ai",
-  "revision": 253,
+  "revision": 255,
   "rounds": [
     {
       "digest": {
@@ -57,7 +57,7 @@
       },
       "id": "R2",
       "kind": "implementation",
-      "status": "OPEN",
+      "status": "CLOSED",
       "title": "Workflow Kit 2.2.5"
     }
   ],
@@ -100,7 +100,7 @@
         "text": "Use the existing native About panel and existing modules, with no new dependencies."
       }
     ],
-    "delivery": "IN_PROGRESS",
+    "delivery": "READY_FOR_ACCEPTANCE",
     "execution": {
       "maxWorkers": 3,
       "ownerSession": "01a1d574-4310-7453-b7e3-5276848f46a8",
@@ -517,7 +517,7 @@
       ],
       "checks": [],
       "commitMessage": "chore: publish Harness AI with Workflow Kit 2.2.5",
-      "confirmation": null,
+      "confirmation": "Пользователь: «выполни их вплоть до сборки нового релиза и публикации его на GitHub». Публикация подтверждена.",
       "context": [
         {
           "path": "docs/architecture/WorkflowKitSync-2.2.5-2026-11-14.md",
@@ -538,7 +538,7 @@
       "iteration": 1,
       "kind": "delivery",
       "roundId": "R2",
-      "status": "TODO",
+      "status": "DONE",
       "title": "Опубликовать релиз Harness AI с Kit 2.2.5",
       "why": "Каждый план завершается публикацией на GitHub."
     }
@@ -550,11 +550,11 @@
 ## State
 
 - Scope: application-versions-about-2026-11-13 (ACTIVE)
-- Delivery: IN_PROGRESS
+- Delivery: READY_FOR_ACCEPTANCE
 - Execution: sequential
 - Current task: none
-- Progress: 11/12
-- Revision: 253
+- Progress: 12/12
+- Revision: 255
 
 ## Objective
 
@@ -597,7 +597,7 @@
 
 Digest: Implemented immutable release version metadata, Core product info and the native About wiring. All three source tasks passed the full quality profile. Packaged native-window verification and publication remain delivery tasks.
 
-### R2 — Workflow Kit 2.2.5 (implementation, OPEN)
+### R2 — Workflow Kit 2.2.5 (implementation, CLOSED)
 
 - [DONE] T006 — Перенести scope:owner из Workflow Kit 2.2.5 (work)
   - Commit: feat(workflow): synchronize scope:owner from Kit 2.2.5
@@ -618,7 +618,7 @@ Digest: Implemented immutable release version metadata, Core product info and th
   - Commit: chore: package Harness AI with Workflow Kit 2.2.5
   - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md, docs/evidence/assets, docs/DOCUMENTATION_INDEX.md, docs/evidence/assets/workflow-kit-2.2.5-about-v2026.11.14.png
   - Depends on: T008, DOCS-R2
-- [TODO] T010 — Опубликовать релиз Harness AI с Kit 2.2.5 (delivery)
+- [DONE] T010 — Опубликовать релиз Harness AI с Kit 2.2.5 (delivery)
   - Commit: chore: publish Harness AI with Workflow Kit 2.2.5
   - Files: docs/evidence/WorkflowKitSync-2.2.5-2026-11-14.md
   - Depends on: T009, DOCS-R2

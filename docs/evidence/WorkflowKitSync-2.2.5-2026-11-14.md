@@ -74,6 +74,21 @@ for the spawned PID and captured as its CoreGraphics window:
 It reads `Version 2026.11.14 (Build 1)` and `Workflow Kit: 2.2.5`.
 Closing About kept Core available.
 
-## GitHub publication
+## GitHub publication (T010)
 
-Appended by the delivery task T010.
+- Release: [v2026.11.14](https://github.com/OleynikAleksandr/Harness_AI/releases/tag/v2026.11.14),
+  public, not a draft or prerelease, marked Latest.
+- Tag commit: `e35ca25b1c690ff946c4cad40381923888a46165` (T009); the tag
+  equals the one in the packaged build descriptor, chosen before packaging.
+- Before publishing, app.asar still matched the verified package hash.
+- Asset: `Harness-AI-v2026.11.14-mac-arm64.zip` (`ditto -c -k --keepParent`),
+  122589313 bytes, state `uploaded`. SHA-256
+  `9a11d963810a99956adbe64f5a5dd3f8418009d8db742e3939ab0047cc7fec4c`;
+  GitHub reports the same digest.
+- History scan: 6899 unique blobs, 100228987 bytes; no configured secret
+  pattern matched. Normal atomic push of main and the tag passed the push
+  checks dup, security and links; no force push or bypass.
+- Earlier releases (v2026.11.13.2, v2026.11.13) remain unchanged.
+
+User acceptance and scope closure are not inferred; they stay separate
+Workflow Kit operations on the user's words.
